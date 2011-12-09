@@ -1,0 +1,8 @@
+package org.lemurproject.galago.core.types;
+
+type DocumentIndicator {
+    long document;
+    boolean indicator;
+    
+    order: +document;
+}

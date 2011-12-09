@@ -1,0 +1,10 @@
+package org.lemurproject.galago.core.types;
+
+type DocumentField {
+    String fieldName;
+    String identifier;
+    bytes content;
+
+    order: +identifier;
+}
+

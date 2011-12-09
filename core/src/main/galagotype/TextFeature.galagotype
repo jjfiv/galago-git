@@ -1,0 +1,11 @@
+package org.lemurproject.galago.core.types;
+
+type TextFeature {
+  int file;
+  long filePosition;
+  bytes feature;
+
+  order: +feature;
+  order: +file +filePosition;
+  order: +file;
+}

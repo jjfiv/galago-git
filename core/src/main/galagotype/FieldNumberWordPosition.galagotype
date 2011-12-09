@@ -1,0 +1,11 @@
+package org.lemurproject.galago.core.types;
+
+type FieldNumberWordPosition {
+    String field;
+    int document;
+    bytes word;
+    int position;
+    
+    order: +field +word +document +position;
+    order: +word;
+}

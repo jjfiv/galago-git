@@ -1,0 +1,272 @@
+ ---
+ Retrieval
+ ---
+      
+Query language
+
+ Every search engine supports some kind of query language, but Galago takes the
+ query language concept a bit further than most.  In Galago, the query language defines
+ the ranking function.  In other systems you might consider changing the ranking code
+ to get a desired result, but in Galago you usually just change the query.
+                            
+ Let's start by looking at the same query written many different ways.
+
++---+
+dog cat
+#combine( #text:dog() #text:cat() )
+#combine( #feature:dirichlet( #counts:term=dog,part=extents() ) #feature:dirichlet(#counts:term=cat,part=extents()) )
++---+
+                         
+ All of these queries are identical in Galago.  The top query is in the form that a user
+ might type.  The query parser parses that as a combination (#combine) of two pieces of text,
+ dog and cat.  That version still has some ambiguity, so Galago makes the query more explicit.
+
+ In the last version, we see that the query is a combination of evidence between two terms.
+ The text <<<#counts:term=dog,part=extents()>>> tells us that Galago should fetch an
+ inverted list of counts for the term called <<<dog>>> from an index part called <<<extents>>>.
+ The <<<#feature:dirichlet>>> operator tells us that this <<<dog>>> term should be
+ scored using a Dirichlet-smoothed language model.  The scores from both terms are combined
+ together using the #combine operator.
+           
+* Syntax          
+                           
+ In the Galago query language, everything is an operator.  An operator looks like this:
++---+
+#operator:key1=value1,key2=value2( #parameter1() #parameter2() )
++---+
+
+ Each operator has a name, optionally followed by a colon.  After the colon comes the parameters
+ section, which is a list of key/value pairs.  If the key is omitted, the key is assumed to be
+ "default".  Within the parentheses we find a list of child operators.  The operator acts on
+ results from its child operators.
+ 
+ Every Galago query has an internal form made entirely of operators written in this syntax.
+ However, writing a lot of pound signs is tedious.  Therefore, the Galago language borrows
+ some shorthand conventions from the INQUERY and Indri languages, as in this table:
+ 
+*-------------------+-------------------+-----------------------------------------------+
+| Simple term       | <<<dog>>>         | <<<#text:dog()>>>                             |
+*-------------------+-------------------+-----------------------------------------------+
+| Field restriction | <<<dog.title>>>   | <<<#inside( #text:dog() #field:title() )>>>   |
+*-------------------+-------------------+-----------------------------------------------+
+| Field smoothing   | <<<dog.(title)>>> | <<<#smoothlm( #text:dog() #field:title() )>>> |
+*-------------------+-------------------+-----------------------------------------------+
+| Weighting         | <<<#weight( 1.5 dog 2.0 cat )>>> | <<<#combine( #scale:1.5( #text:dog() ) #scale:2.0( #text:cat() ) )>>> |
+*-------------------+-------------------+-----------------------------------------------+
+        
+ Note that as of this writing, field smoothing isn't supported (the system doesn't know
+ what #smoothlm is).
+ 
+* Standard operators
+  
+  * #combine  
+  
+  * #weight
+  
+  * #inside
+  
+  * #ordered
+  
+  * #unordered
+  
+  * #syn
+  
+  * #filter
+  
+  * #scale
+  
+  * #feature
+  
+ Currently unsupported:
+  
+  * #wsyn     
+  
+  * #smoothlm 
+  
+ Most operators in Galago fall into a few basic classes:
+
+  * Index operators
+
+  * Proximity operators
+
+  * Scoring operators
+
+  * Score combination operators
+
+  * Other operators
+
+ Index operators are operators serviced directly by an index.  Examples of these include <<<#counts>>>
+ and <<<#extents>>>.  These operators do nothing computationally except grab information from an
+ index.
+ 
+ Proximity operators process positional information, usually as a restriction technique.  Examples
+ include <<<#inside>>>, <<<#ordered>>> and <<<#unordered>>>.  These usually operate directly on
+ index operators.
+ 
+ Scoring operators convert information from Index or Proximity operators into a score.
+ By convention these are referenced by the <<<#feature>>> prefix.  <<<#feature:dirichlet>>> is
+ the default in Galago.
+ 
+ Score combination operators combine scores from many score operators to produce a single final score.
+ Examples include <<<#combine>>> and <<<#weight>>>.
+ 
+ Galago doesn't come with any Other operators, but you can create them.  Operators in Galago can return
+ any kind of data, as long as there is another operator that can read that data.  The only restriction
+ on operator classes is that they must implement the very simple StructuredIterator interface.
+  
+
+Traversals
+
+ Since the Galago query language defines the ranking function, you will often need to change
+ the query that Galago parses from an end user.  For instance, if the user types <<<white house>>>,
+ you might want to emphasize term proximity in the document, like this:
+ 
++---+
+#combine( #ordered:1(white house) white house )
++---+
+
+ Traversals let you do this.  Traversals are objects that can make a copy of a parsed Galago query.
+ Most Traversals change the query in some way during the copy.  In this example, the user would have
+ typed <<<white house>>>, which the parser would parse as <<<#text:dog() #text:cat()>>>.  That query
+ would actually be stored internally as a tree of Nodes.  A Traversal then visits the nodes of the tree
+ and constructs a new query tree.
+ 
+ Galago already uses five traversals on every query executed:
+ 
+  * AddCombineTraversal
+ 
+  * WeightConversionTraversal
+
+  * IndriWindowCompatibilityTraversal
+
+  * TextFieldRewriteTraversal
+
+  * ImplicitFeatureCastTraversal
+                                       
+
+ All of these traversals work together to support Indri/INQUERY query language shortcuts.  These are
+ simple traversals, but you can build much more complicated traversals, including traversals that run
+ extra queries to determine how to modify the query (like pseudo-relevance feedback).
+                 
+ Once you have written a traversal you want to use, you can install it in the configuration file,
+ as in the following example.  This traversal will be run after all the built-in traversals.
+ The order parameter can be set to <<<before>>>, <<<after>>>, or <<<instead>>>.  Using the instead
+ parameter removes all the default traversals from the system.  More information about this facility
+ can be found in the JavaDoc for the FeatureFactory class.
+
++----+
+<config>
+	<transformations>
+		<transformation>
+			<class>org.something.somethingelse.MyTraversal</class>
+			<order>after</order>
+		</transformation>
+	</transformations>
+</config>  
++----+
+                 
+Custom operators
+
+ Galago comes with a small set of operators.  The operators don't to much by themselves, but they
+ can be quite powerful when reassembled by a traversal.  Still, there may come a time when you need
+ to build a new kind of operator.
+ 
+ An operator can be anything that implements the StructuredIterator interface.  Operators are
+ iterators because conceptually they iterate through the document collection producing data
+ about each document.  However, the StructuredIterator interface imposes no restrictions on
+ how that iteration happens.  The only method in the StructuredIterator interface is
+ <<<reset()>>>, which requests that the iterator start over again a the first document.
+ 
+ Since StructuredIterator is so permissive, your iterators can return anything.  For instance,
+ Galago doesn't directly support passage retrieval, meaning scoring passages of documents. 
+ However, you can implement that by building passage operators.  Your passage operators might
+ return passage descriptors instead of traditional Galago extents.  The runQuery method
+ only understands ScoredDocuments, so your top-level operator needs to emit these, but you
+ could emit a subclass, like ScoredPassage, that contained additional information.
+ 
+ In order to be instantiated correctly, all operators need to have a constructor that
+ starts with a Parameters object.  This is how your operator will receive those query parameters
+ after the colon.  All arguments after the parameters object must be subclasses of StructuredIterator.
+ The last argument can be an array, indicating that this operator can take a variable
+ number of arguments.  
+
+ Many people will start by building a scoring operator.  To do this, implement the ScoringFunctionIterator
+ interface, following the example of DirichletScorer.  By using the RequiredStatistics annotation, you
+ can request some statistics about the collection, like collectionLength or documentCount.  Users
+ can also override these statistics within the query, like this: 
+
++---+
+#feature:dirichlet,collectionLength=50000( #text:dog() ) 
++---+
+
+ Overriding collectionLength and documentCount can be a good way to test and understand your
+ scoring function.
+ 
+ There are three ways to load your operator once you've made it.  The fastest way is to reference
+ the operator's class in a query, like this:
+
++---+
+#feature:class=org.galagosearch.core.structured.SynonymIterator( #text:dog() )
++---+     
+
+ This is a cumbersome way to load an operator, but it's quick and explicit.  If you plan to use
+ your new operator a lot, you can put it into a configuration file, like this:      
+ 
++---+
+<operators>
+	<operator>
+		<name>syn</name>
+		<class>org.galagosearch.core.structured.SynonymIterator</class>
+		<parameters>
+			<key1>value1</key1>
+		</parameters>
+	</operator>
+</operator>
++----+
+  
+ Now, whenever you type <<<#syn>>> in a query, it will load your SynonymIterator, and <<<key1=value1>>>
+ will be stored in its Parameters object.  The parameters facility is especially useful for
+ experiments where you may want to change smoothing parameters.
+ 
+ Note that you can have multiple operator names for the same operator class.  Perhaps you want
+ <<<#smallwindow>>> to mean <<<#ordered:1>>> and <<<#largewindow>>> to mean <<<#ordered:5>>>.  Just
+ type:
+  
++---+
+<operators>
+	<operator>
+    	<name>smallwindow</name>
+    	<class>org.galagosearch.core.structured.OrderedWindowIterator</class>
+    	<parameters>
+    		<width>1</width>
+    	</parameters> 
+    </operator>
+    <operator>
+    	<name>largewindow</name>
+    	<class>org.galagosearch.core.structured.OrderedWindowIterator</class>
+    	<parameters>
+    		<width>5</width>
+    	</parameters>
+	</operator>
+</operator>
++----+  
+
+ Note that you can achieve a similar effect with traversals, although you'd have to write code
+ for that.        
+
+Research methods
+           
+ Galago's modular structure is supposed to encourage you to not change the core Galago code.
+ It's tempting to change the core code, and sometimes that's the easiest way to get the result you
+ want.  However, once you change the core code, you can't easily share your code with other users.
+ If you implement a traversal or an operator and store them in a separate JAR file, other users
+ can copy that JAR and use it on their own Galago installation without rebuilding anything.
+ 
+ We hope that Galago produces an independent ecosystem of traversals and operators.  Maybe you'll
+ build a traversal to support your research.  Once your project is finished, feel free to publish
+ the code and a JAR on your own website.  Then others can mix your traversal with their own
+ components to build an even better system.
+ 
+ Also, if you run a set of evaluation queries for a research paper, try publishing your queries
+ on your website.  Use the big messy post-traversal queries.  These queries should contain all the
+ information necessary to replicate your experiment.

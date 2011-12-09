@@ -1,0 +1,1013 @@
+group GalagoType;
+         
+type(typeName, fields, orders) ::= <<
+package <package>;
+
+import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.ArrayInput;
+import org.lemurproject.galago.tupleflow.ArrayOutput;
+import org.lemurproject.galago.tupleflow.Order;   
+import org.lemurproject.galago.tupleflow.OrderedWriter;
+import org.lemurproject.galago.tupleflow.Type; 
+import org.lemurproject.galago.tupleflow.TypeReader;
+import org.lemurproject.galago.tupleflow.Step; 
+import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
+import org.lemurproject.galago.tupleflow.ReaderSource;
+import java.io.IOException;             
+import java.io.EOFException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;   
+import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.Collection;
+import gnu.trove.TByteArrayList;
+import gnu.trove.TDoubleArrayList;
+import gnu.trove.TFloatArrayList;
+import gnu.trove.TIntArrayList;
+import gnu.trove.TLongArrayList;
+import gnu.trove.TShortArrayList;
+
+
+public class <typeName> implements Type\<<typeName>\> {
+    <fields:{public <it.type> <it.name>;}; separator="\n"> 
+    
+    public <typeName>() {}
+    public <typeName>(<fields:{<it.type> <it.name>}; separator=", ">) {
+        <fields:{this.<it.name> = <it.name>;}; separator="\n">
+    }  
+    
+    public String toString() {
+        <if(containsArray)>
+        try {<endif>
+            return String.format("<fields:{%<toStringFormatTypeMap.(it.type)>}; separator=",">",
+                                   <fields:toStringArgList(); separator=", ">);
+        <if(containsArray)>
+        } catch(UnsupportedEncodingException e) {
+            throw new RuntimeException("Couldn't convert string to UTF-8.");
+        }<endif>
+    } 
+
+    public Order\<<typeName>\> getOrder(String... spec) {
+        <orders:orderBlock(); separator="\n">
+        return null;
+    } 
+      
+    <processor()> 
+    <source()>
+    <orders:orderClass(); separator="\n">
+}    
+>>
+        
+//
+// toString
+//         
+
+toStringFormatTypeMap ::= [
+    "int" : "d",
+    "float" : "f",
+    "String" : "s",
+    "byte[]" : "s",
+    "boolean" : "b",
+    "double" : "f",
+    "long" : "d"
+]               
+
+toStringArgListPrefixMap ::= [
+    "byte[]" : "new String("
+]                           
+
+toStringArgListSuffixMap ::= [
+    "byte[]" : ", \"UTF-8\")"
+]            
+
+toStringArgList(f) ::= <<
+<toStringArgListPrefixMap.(f.type)><f.name><toStringArgListSuffixMap.(f.type)>
+>> 
+
+//
+// Processor interface
+//                    
+
+processor() ::= <<
+public interface Processor extends Step, org.lemurproject.galago.tupleflow.Processor\<<typeName>\> {
+    public void process(<typeName> object) throws IOException;
+    public void close() throws IOException;
+}                       
+>>               
+
+source() ::= <<
+public interface Source extends Step {
+}
+>>
+
+//
+// Order objects
+//
+  
+orderBlock(order) ::= <<
+if (Arrays.equals(spec, new String[] { <order.orderedFields:{f|"<f.direction><f.name>"}; separator=", "> })) {
+    return new <order.className>();
+}
+>>
+
+orderClass(order) ::= <<
+public static class <order.className> implements Order\<<typeName>\> {
+    <hash()>
+    <comparator(functionName="greaterThan", direction="-")>
+    <comparator(functionName="lessThan", direction="")>
+    <orderedReader()>
+    <orderedWriter()>
+    <orderedCombiner()>    
+    <clone()>
+    <getOrderedClass()>
+    <getOrderSpec()>
+                       
+    <shreddedProcessor()> 
+    <shreddedSource()>
+    
+    <shreddedWriter()>
+    <shreddedBuffer()>
+    <shreddedCombiner()>
+    <shreddedReader()>
+    
+    <duplicateEliminator()>
+    <tupleUnshredder()>     
+    <tupleShredder()>
+} 
+>>
+
+getOrderSpec() ::= <<
+public String[] getOrderSpec() {
+    return new String[] {<order.orderedFields:{ f | "<f.direction><f.name>"}; separator=", ">};
+}
+
+public static String getSpecString() {
+    return "<order.orderedFields:{f|<f.direction><f.name>}; separator=" ">";
+}
+>>
+   
+getOrderedClass() ::= <<
+public Class\<<typeName>\> getOrderedClass() {
+    return <typeName>.class;
+}                           
+>>
+
+hash() ::= <<
+public int hash(<typeName> object) {
+    int h = 0;
+    <order.orderedFields:{ f | h += Utility.hash(object.<f.name>);}; separator="\n">
+    return h;
+} 
+>>
+
+comparator(functionName, direction) ::= <<
+public Comparator\<<typeName>\> <functionName>() {
+    return new Comparator\<<typeName>\>() {
+        public int compare(<typeName> one, <typeName> two) {
+            int result = 0;
+            do {
+                <order.orderedFields:compareLine(field=it); separator="\n">
+            } while (false);
+            return <direction>result;
+        }
+    };
+}     
+>>  
+             
+compareLine(field) ::= <<
+result = <field.direction> Utility.compare(one.<field.name>, two.<field.name>);
+if(result != 0) break;
+>> 
+
+//
+// Object reading
+//
+             
+clone() ::= <<
+public <typeName> clone(<typeName> object) {
+    <typeName> result = new <typeName>();
+    if (object == null) return result;
+    <order.allFields:{ f | result.<f.name> = object.<f.name>; }; separator="\n">
+    return result;
+}                 
+>>
+
+orderedReader() ::= <<
+public TypeReader\<<typeName>\> orderedReader(ArrayInput _input) {
+    return new ShreddedReader(_input);
+}    
+
+public TypeReader\<<typeName>\> orderedReader(ArrayInput _input, int bufferSize) {
+    return new ShreddedReader(_input, bufferSize);
+}    
+>>
+
+setProcessorMethod() ::= <<
+public void setProcessor(Step processor) throws IncompatibleProcessorException {  
+    if (processor instanceof ShreddedProcessor) {
+        this.processor = new DuplicateEliminator((ShreddedProcessor) processor);
+    } else if (processor instanceof <typeName>.Processor) {
+        this.processor = new DuplicateEliminator(new TupleUnshredder((<typeName>.Processor) processor));
+    } else if (processor instanceof org.lemurproject.galago.tupleflow.Processor) {
+        this.processor = new DuplicateEliminator(new TupleUnshredder((org.lemurproject.galago.tupleflow.Processor\<<typeName>\>) processor));
+    } else {
+        throw new IncompatibleProcessorException(processor.getClass().getName() + " is not supported by " + this.getClass().getName());                                                                       
+    }
+}
+>>
+
+//
+// ShreddedProcessor interface
+//               
+
+shreddedProcessor() ::= <<
+public interface ShreddedProcessor extends Step {
+    <order.orderedFields:{f | public void process<f.capsName>(<f.type> <f.name>) throws IOException;}; separator="\n">
+    public void processTuple(<order.unorderedFields:{ f | <f.type> <f.name>}; separator=", ">) throws IOException;
+    public void close() throws IOException;
+}   
+>>     
+
+//
+// ShreddedSource interface
+//                         
+
+shreddedSource() ::= <<
+public interface ShreddedSource extends Step {
+}                                              
+>>
+
+//
+// ShreddedBuffer
+//               
+ 
+shreddedBuffer() ::= <<
+public static class ShreddedBuffer {
+    <shreddedBufferDecls()>                                     
+    
+    <shreddedProcessCalls()>
+    <shreddedResetCalls()> 
+    <shreddedStatusCalls()>
+    <shreddedIncrementCalls()>
+    <shreddedIndexCalls()> 
+    <shreddedAccessorCalls()>
+    <shreddedCopyUntilCalls()>
+    
+    <shreddedObjectRead()>
+}                         
+>>     
+
+shreddedCopyUntilIndexCall(f) ::= <<
+public void copyUntilIndex<f.current.capsName>(int endIndex, ShreddedProcessor output) throws IOException {
+    while (getReadIndex() \< endIndex) {
+        output.process<f.current.capsName>(get<f.current.capsName>());
+        assert get<f.current.capsName>EndIndex() \<= endIndex;
+        <if(f.next)>
+        copyUntilIndex<f.next.capsName>(get<f.current.capsName>EndIndex(), output);
+        <else>
+        copyTuples(get<f.current.capsName>EndIndex(), output);
+        <endif>
+        increment<f.current.capsName>();
+    }
+} 
+>>
+  
+shreddedCopyUntilCall(f) ::= <<
+public void copyUntil<f.current.capsName>(ShreddedBuffer other, ShreddedProcessor output) throws IOException {
+    while (!isAtEnd()) {
+        if (other != null) {   
+            assert !other.isAtEnd();
+            int c = <f.current.direction> Utility.compare(get<f.current.capsName>(), other.get<f.current.capsName>());
+        
+            if (c \> 0) {
+                break;   
+            }
+            
+            output.process<f.current.capsName>(get<f.current.capsName>());
+                          
+            <if(f.next)>
+            if (c \< 0) {
+                copyUntilIndex<f.next.capsName>(get<f.current.capsName>EndIndex(), output);
+            } else if (c == 0) {
+                copyUntil<f.next.capsName>(other, output);
+                autoIncrement<f.current.capsName>();
+                break;
+            }
+            <else>
+            copyTuples(get<f.current.capsName>EndIndex(), output);
+            <endif>
+        } else {
+            output.process<f.current.capsName>(get<f.current.capsName>());
+            <if(f.next)>
+            copyUntilIndex<f.next.capsName>(get<f.current.capsName>EndIndex(), output);
+            <else>
+            copyTuples(get<f.current.capsName>EndIndex(), output);
+            <endif>
+        }
+        increment<f.current.capsName>();  
+        
+        <if(f.previous)>
+        if (get<f.previous.capsName>EndIndex() \<= readTupleIndex)
+            break;
+        <endif>   
+    }
+}
+>> 
+
+shreddedCopyUntilTuple() ::= <<
+public void copyTuples(int endIndex, ShreddedProcessor output) throws IOException {
+    while (getReadIndex() \< endIndex) {
+       <order.deltaFields:{f|output.process<f.capsName>(<f.name>);}; separator="\n">
+       output.processTuple(<order.unorderedFields:{get<it.capsName>()}; separator=", ">);
+       incrementTuple();
+    }
+}                                                                           
+>>
+
+shreddedCopyUntilCalls() ::= <<
+<shreddedCopyUntilTuple()>
+<order.fieldPairs:shreddedCopyUntilIndexCall(); separator="\n"> 
+<order.fieldPairs:shreddedCopyUntilCall(); separator="\n">
+public void copyUntil(ShreddedBuffer other, ShreddedProcessor output) throws IOException {
+    <first(order.orderedFields):{f|copyUntil<f.capsName>(other, output);}; separator="\n">
+}
+>>
+
+shreddedBufferDecls() ::= <<
+<order.rleFields:{f |
+<if(f.isString)>
+ArrayList\<<f.classTypeName>\> <f.pluralName> = new ArrayList();
+<else>
+<if(f.isArray)>
+ArrayList\<<f.classTypeName>\> <f.pluralName> = new ArrayList();
+<else>
+T<f.boxedName>ArrayList <f.pluralName> = new T<f.boxedName>ArrayList();
+<endif>
+<endif>
+}; separator="\n">
+<order.rleFields:{f |TIntArrayList <f.name>TupleIdx = new TIntArrayList();}; separator="\n">
+<order.rleFields:{f |int <f.name>ReadIdx = 0;}; separator="\n">
+                
+<order.deltaFields:{f | <f.type>[] <f.pluralName>;}; separator="\n">
+<order.unorderedFields:{f |<f.type>[] <f.pluralName>;}; separator="\n">
+int writeTupleIndex = 0;
+int readTupleIndex = 0;
+int batchSize;
+
+public ShreddedBuffer(int batchSize) {
+    this.batchSize = batchSize;
+
+    <order.deltaFields:{f |<f.pluralName> = new <f.type>[batchSize];}; separator="\n">
+    <order.unorderedFields:{f |<f.pluralName> = new <f.baseType>[batchSize]<if(f.isArray)>[]<endif>;}; separator="\n">
+}                              
+
+public ShreddedBuffer() {    
+    this(10000);
+}                                                                               
+>> 
+      
+shreddedStatusCalls() ::= <<
+public boolean isFull() {
+    return writeTupleIndex >= batchSize;
+}
+
+public boolean isEmpty() {
+    return writeTupleIndex == 0;
+}                          
+
+public boolean isAtEnd() {
+    return readTupleIndex >= writeTupleIndex;
+}           
+>>   
+       
+shreddedRLEAccessorCall(f) ::= <<
+public <f.type> get<f.capsName>() {
+    assert readTupleIndex \< writeTupleIndex;
+    assert <f.name>ReadIdx \< <f.pluralName>.size();
+    
+    return <f.pluralName>.get(<f.name>ReadIdx);
+}
+>>                                               
+
+shreddedOtherAccessorCall(f) ::= <<
+public <f.type> get<f.capsName>() {
+    assert readTupleIndex \< writeTupleIndex;
+    return <f.pluralName>[readTupleIndex];
+}                                         
+>>
+
+shreddedAccessorCalls() ::= <<
+<order.rleFields:shreddedRLEAccessorCall(); separator="\n">
+<[order.deltaFields,order.unorderedFields]:shreddedOtherAccessorCall(); separator="\n">
+>>
+
+shreddedIncrementRLECall(f) ::= <<
+public void increment<f.capsName>() {
+    <f.name>ReadIdx++;  
+}                                                                                              
+
+public void autoIncrement<f.capsName>() {
+    while (readTupleIndex >= get<f.capsName>EndIndex() && readTupleIndex \< writeTupleIndex)
+        <f.name>ReadIdx++;
+}                 
+>>                 
+
+shreddedIncrementCalls() ::= <<
+<order.rleFields:shreddedIncrementRLECall(); separator="\n">
+public void incrementTuple() {
+    readTupleIndex++;
+}                    
+>>
+
+shreddedIndexCall(f) ::= <<
+public int get<f.capsName>EndIndex() {
+    if ((<f.name>ReadIdx+1) >= <f.name>TupleIdx.size())
+        return writeTupleIndex;
+    return <f.name>TupleIdx.get(<f.name>ReadIdx+1);
+}
+>>
+                 
+shreddedIndexCalls() ::= <<
+<order.rleFields:shreddedIndexCall(); separator="\n\n">
+public int getReadIndex() {
+    return readTupleIndex;
+}   
+
+public int getWriteIndex() {
+    return writeTupleIndex;
+}
+>>
+
+shreddedResetCalls() ::= <<
+public void resetData() {
+    <order.rleFields:{f |<f.pluralName>.clear();}; separator="\n">
+    <order.rleFields:{f |<f.name>TupleIdx.clear();}; separator="\n">
+    writeTupleIndex = 0;
+}                  
+                     
+public void resetRead() {
+    readTupleIndex = 0;
+    <order.rleFields:{f |<f.name>ReadIdx = 0;}; separator="\n">
+} 
+
+public void reset() {
+    resetData();
+    resetRead();
+}
+>>  
+
+shreddedProcessCalls() ::= <<
+<order.rleFields:shreddedProcessRLECall(); separator="\n">
+<order.deltaFields:shreddedProcessDeltaCall(); separator="\n">
+<shreddedProcessTupleCall()>
+>>
+
+shreddedProcessRLECall(f) ::= <<
+public void process<f.capsName>(<f.type> <f.name>) {
+    <f.pluralName>.add(<f.name>);
+    <f.name>TupleIdx.add(writeTupleIndex);
+}                                      
+>>                  
+
+shreddedProcessDeltaCall(f) ::= <<
+public void process<f.capsName>(<f.type> <f.name>) {
+    <f.pluralName>[writeTupleIndex] = <f.name>;
+}
+>>
+
+shreddedProcessTupleCall() ::= <<
+public void processTuple(<order.unorderedFields:{f|<f.type> <f.name>}; separator=", ">) {
+    <order.rleFields:{f|assert <f.pluralName>.size() > 0;}; separator="\n">
+    <order.unorderedFields:{f|<f.pluralName>[writeTupleIndex] = <f.name>;}; separator="\n">
+    writeTupleIndex++;
+}
+>>   
+
+shreddedObjectRead() ::= ""
+                  
+//
+// DuplicateEliminator
+//                    
+
+duplicateEliminator() ::= <<
+public static class DuplicateEliminator implements ShreddedProcessor {
+    public ShreddedProcessor processor;
+    <typeName> last = new <typeName>();
+    <[order.rleFields,order.deltaFields]:{f|boolean <f.name>Process = true;}; separator="\n">
+                                   
+    public DuplicateEliminator() {}
+    public DuplicateEliminator(ShreddedProcessor processor) {
+        this.processor = processor;
+    }
+    
+    public void setShreddedProcessor(ShreddedProcessor processor) {
+        this.processor = processor;
+    }
+
+    <[order.fieldPairs]:duplicateRLECall(); separator="\n">  
+    
+    <[order.fieldPairs]:duplicateResetCall(); separator="\n">
+                       
+    public void processTuple(<order.unorderedFields:{f|<f.type> <f.name>}; separator=", ">) throws IOException {
+        processor.processTuple(<order.unorderedFields:{f|<f.name>}; separator=", ">);
+    } 
+    
+    public void close() throws IOException {
+        processor.close();
+    }                    
+}
+>>
+
+duplicateRLECall(f) ::= <<
+public void process<f.current.capsName>(<f.current.type> <f.current.name>) throws IOException {  
+    if (<f.current.name>Process || Utility.compare(<f.current.name>, last.<f.current.name>) != 0) {
+        last.<f.current.name> = <f.current.name>;
+        processor.process<f.current.capsName>(<f.current.name>);
+        <if(f.next)>reset<f.next.capsName>();<endif>
+        <f.current.name>Process = false;
+    }
+}
+>> 
+
+duplicateResetCall(f) ::= <<
+public void reset<f.current.capsName>() {
+     <f.current.name>Process = true;
+     <if(f.next)>reset<f.next.capsName>();<endif>
+}                                                
+>>
+
+//
+// TupleUnshredder
+//
+
+tupleUnshredder() ::= <<
+public static class TupleUnshredder implements ShreddedProcessor {
+    <typeName> last = new <typeName>();
+    public org.lemurproject.galago.tupleflow.Processor\<<typeName>\> processor;                               
+    
+    public TupleUnshredder(<typeName>.Processor processor) {
+        this.processor = processor;
+    }         
+    
+    public TupleUnshredder(org.lemurproject.galago.tupleflow.Processor\<<typeName>\> processor) {
+        this.processor = processor;
+    }
+    
+    <clone()>
+    
+    <[order.rleFields,order.deltaFields]:{f|
+public void process<f.capsName>(<f.type> <f.name>) throws IOException {
+    last.<f.name> = <f.name>;
+}   
+    }; separator="\n">
+    
+    public void processTuple(<order.unorderedFields:{f|<f.type> <f.name>}; separator=", ">) throws IOException {
+        <order.unorderedFields:{f|last.<f.name> = <f.name>;}; separator="\n">
+        processor.process(clone(last));
+    }               
+    
+    public void close() throws IOException {
+        processor.close();
+    }
+}
+>>   
+
+//
+// TupleShredder
+//              
+
+tupleShredder() ::= <<
+public static class TupleShredder implements Processor {
+    <typeName> last = null;
+    public ShreddedProcessor processor;
+    
+    public TupleShredder(ShreddedProcessor processor) {
+        this.processor = processor;
+    }                              
+    
+    <clone()>
+    
+    public void process(<typeName> object) throws IOException {                                                                                                                                                   
+        boolean processAll = false;
+        <order.rleFields:{f|if(last == null || Utility.compare(last.<f.name>, object.<f.name>) != 0 || processAll) { processor.process<f.capsName>(object.<f.name>); processAll = true; }}; separator="\n">
+        <order.deltaFields:{f|processor.process<f.capsName>(object.<f.name>);}; separator="\n">
+        processor.processTuple(<order.unorderedFields:{f|object.<f.name>}; separator=", ">);                                         
+        last = object;
+    }
+                  
+    public Class\<<typeName>\> getInputClass() {
+        return <typeName>.class;
+    }
+    
+    public void close() throws IOException {
+        processor.close();
+    }                     
+}
+>>    
+
+//
+// ShreddedReader
+// 
+          
+readerCompareLine(f) ::= <<
+result = <f.direction> Utility.compare(buffer.get<f.capsName>(), otherBuffer.get<f.capsName>());
+if(result != 0) break;
+>>
+
+shreddedReader() ::= <<
+public static class ShreddedReader implements Step, Comparable\<ShreddedReader\>, TypeReader\<<typeName>\>, ShreddedSource {      
+    public ShreddedProcessor processor;
+    ShreddedBuffer buffer;
+    <typeName> last = new <typeName>();         
+    <order.rleFields:{f|long update<f.capsName>Count = -1;}; separator="\n">
+    long tupleCount = 0;
+    long bufferStartCount = 0;  
+    ArrayInput input;
+    
+    public ShreddedReader(ArrayInput input) {
+        this.input = input; 
+        this.buffer = new ShreddedBuffer();
+    }                               
+    
+    public ShreddedReader(ArrayInput input, int bufferSize) { 
+        this.input = input;
+        this.buffer = new ShreddedBuffer(bufferSize);
+    }
+         
+    public final int compareTo(ShreddedReader other) {
+        ShreddedBuffer otherBuffer = other.getBuffer();
+        
+        if (buffer.isAtEnd() && otherBuffer.isAtEnd()) {
+            return 0;                 
+        } else if (buffer.isAtEnd()) {
+            return -1;
+        } else if (otherBuffer.isAtEnd()) {
+            return 1;
+        }
+                           
+        int result = 0;
+        do {
+            <order.rleFields:readerCompareLine(); separator="\n">
+            <order.deltaFields:readerCompareLine(); separator="\n">
+        } while (false);                                             
+        
+        return result;
+    }
+    
+    public final ShreddedBuffer getBuffer() {
+        return buffer;
+    }                
+    
+    public final <typeName> read() throws IOException {
+        if (buffer.isAtEnd()) {
+            fill();             
+        
+            if (buffer.isAtEnd()) {
+                return null;
+            }
+        }
+              
+        assert !buffer.isAtEnd();
+        <typeName> result = new <typeName>();
+        
+        <[order.rleFields,order.unorderedFields]:{f|result.<f.name> = buffer.get<f.capsName>();}; separator="\n">
+        <order.deltaFields:{f|last.<f.name> <f.direction>= buffer.get<f.capsName>();}; separator="\n">
+        <order.deltaFields:{f|result.<f.name> = last.<f.name>;}; separator="\n">
+        
+        buffer.incrementTuple();
+        <order.rleFields:{f|buffer.autoIncrement<f.capsName>();}; separator="\n">
+        
+        return result;
+    }           
+    
+    public final void fill() throws IOException {
+        try {   
+            buffer.reset();
+            
+            if (tupleCount != 0) {
+                <order.rleFields:shreddedRLETupleReset()>
+                bufferStartCount = tupleCount;
+            }
+            
+            while (!buffer.isFull()) {
+                <last(order.rleFields):{f|update<f.capsName>();}>
+                <order.deltaFields:shreddedDeltaFieldProcess(); separator="\n">
+                buffer.processTuple(<order.unorderedFields:{f|input.read<f.inputType>()}; separator=", ">);
+                tupleCount++;
+            }
+        } catch(EOFException e) {}
+    }
+
+    <shreddedFillMethods()>
+
+    public void run() throws IOException {
+        while (true) {
+            fill();
+            
+            if (buffer.isAtEnd())
+                break;
+            
+            buffer.copyUntil(null, processor);
+        }      
+        processor.close();
+    }
+    
+    <setProcessorMethod()>                                
+    
+    public Class\<<typeName>\> getOutputClass() {
+        return <typeName>.class;
+    }                
+}
+>> 
+
+shreddedRLETupleReset(f) ::= <<                              
+if(update<f.capsName>Count - tupleCount > 0) {
+    buffer.<f.pluralName>.add(last.<f.name>);
+    buffer.<f.name>TupleIdx.add((int) (update<f.capsName>Count - tupleCount));
+}
+>>   
+                             
+shreddedRLEFillMethod(fp) ::= <<
+<if(fp.current.runLengthEncoded)>
+public final void update<fp.current.capsName>() throws IOException {
+    if (update<fp.current.capsName>Count \> tupleCount)
+        return;
+         
+    <if(fp.previous)>
+    update<fp.previous.capsName>();
+    <endif>
+    last.<fp.current.name> = input.read<fp.current.inputType>();
+    update<fp.current.capsName>Count = tupleCount + input.readInt();
+                          
+    buffer.process<fp.current.capsName>(last.<fp.current.name>);
+    <order.deltaFields:{df|<df.name>Count = 0;}>
+    <order.deltaFields:{df|last.<df.name> = Delta.reset<df.capsName>();}>
+}
+<endif>
+>>
+
+shreddedFillMethods() ::= <<
+<order.fieldPairs:shreddedRLEFillMethod(); separator="\n">
+>>                           
+
+shreddedDeltaFieldProcess(f) ::= <<
+last.<f.name> = Delta.decode<f.directionName>(input, last.<f.name>);
+buffer.<f.pluralName>[ buffer.writeTupleIndex ] = last.<f.name>;
+>>
+
+//
+// Object writing (OrderedWriter)
+//  
+
+orderedWriter() ::= <<
+public OrderedWriter\<<typeName>\> orderedWriter(ArrayOutput _output) {
+    ShreddedWriter w = new ShreddedWriter(_output);
+    return new OrderedWriterClass(w); 
+}                                    
+<orderedWriterClass()>
+>>   
+
+
+shreddedWriter() ::= <<
+public static class ShreddedWriter implements ShreddedProcessor {
+    ArrayOutput output;
+    ShreddedBuffer buffer = new ShreddedBuffer();
+    <order.orderedFields:{f|<f.type> last<f.capsName>;}; separator="\n">
+    boolean lastFlush = false;
+    
+    public ShreddedWriter(ArrayOutput output) {
+        this.output = output;
+    }                        
+    
+    public void close() throws IOException {
+        flush();
+    }
+    
+    <shreddedWriterProcessMethods()>
+    <shreddedWriterFlushTupleMethod()>  
+    <order.fieldPairs:shreddedWriterFlushOrderedFieldMethod(); separator="\n">
+    <if(first(order.orderedFields))>
+    <first(order.orderedFields):shreddedWriterFlushMethod()>
+    <else>
+    <shreddedWriterFlushUnorderedMethod()>
+    <endif>
+}
+>>   
+
+//
+// ShreddedWriter
+//      array and index declarations              
+//      process methods
+//      flush
+//           
+
+shreddedWriterOrderedProcessMethod(f) ::= <<
+public void process<f.capsName>(<f.type> <f.name>) {
+    last<f.capsName> = <f.name>;
+    buffer.process<f.capsName>(<f.name>);
+}
+>>
+
+shreddedWriterProcessMethods() ::= <<
+<order.orderedFields:shreddedWriterOrderedProcessMethod(); separator="\n">
+public final void processTuple(<order.unorderedFields:{f |<f.type> <f.name>}; separator=", ">) throws IOException {
+    if (lastFlush) {
+        <order.rleFields:{f|if(buffer.<f.pluralName>.size() == 0) buffer.process<f.capsName>(last<f.capsName>);}; separator="\n">
+        <order.deltaFields:{f|buffer.process<f.capsName>(last<f.capsName>);}; separator="\n">
+        lastFlush = false;
+    }
+    buffer.processTuple(<order.unorderedFields:{f|<f.name>}; separator=", ">);
+    if (buffer.isFull())
+        flush();
+}
+>>
+
+shreddedWriterFlushMethod(field) ::= <<
+public void flush() throws IOException { 
+    flush<field.capsName>(buffer.getWriteIndex());
+    buffer.reset(); 
+    lastFlush = true;
+}                           
+>>
+
+shreddedWriterFlushUnorderedMethod() ::= <<
+public void flush() throws IOException { 
+    flushTuples(buffer.getWriteIndex());
+    buffer.reset(); 
+    lastFlush = true;
+}                           
+>>
+                            
+shreddedWriterFlushOrderedFieldMethod(fieldPair) ::= <<
+public final void flush<fieldPair.current.capsName>(int pauseIndex) throws IOException {
+    while (buffer.getReadIndex() \< pauseIndex) {
+        int nextPause = buffer.get<fieldPair.current.capsName>EndIndex();
+        int count = nextPause - buffer.getReadIndex();
+        
+        output.write<fieldPair.current.inputType>(buffer.get<fieldPair.current.capsName>());
+        output.writeInt(count);
+        buffer.increment<fieldPair.current.capsName>();
+          
+        <if(fieldPair.next)>
+        <if(fieldPair.next.runLengthEncoded)>
+        flush<fieldPair.next.capsName>(nextPause);
+        <else>
+        flushTuples(nextPause);
+        <endif>
+        <else>
+        flushTuples(nextPause);
+        <endif>
+        assert nextPause == buffer.getReadIndex();
+    }
+}
+>>  
+      
+shreddedWriterFlushTupleMethod() ::= <<
+public final void flushTuples(int pauseIndex) throws IOException {
+    <order.deltaFields:{f|<f.type> last<f.capsName> = Delta.reset<f.classTypeName>();}; separator="\n">
+    <order.deltaFields:{f|<f.type> current<f.capsName> = Delta.reset<f.classTypeName>();}; separator="\n">
+    
+    while (buffer.getReadIndex() \< pauseIndex) {
+        <order.deltaFields:{f|current<f.capsName> = buffer.get<f.capsName>(); }; separator="\n">
+        <order.deltaFields:{f|Delta.encode<f.directionName>(output, current<f.capsName>, last<f.capsName>);}; separator="\n">               
+        <order.deltaFields:{f|last<f.capsName> = current<f.capsName>;}; separator="\n">
+        <order.unorderedFields:{f |output.write<f.inputType>(buffer.get<f.capsName>());}; separator="\n">
+        buffer.incrementTuple();
+    }
+}
+>>
+ 
+//
+// OrderedWriter
+//
+// All I have to do is maintain a "last" object around
+// Every time an ordered field is different, I call the appropriate method
+// Finally, I call processTuple as well.
+//                                      
+
+orderedWriterClass() ::= <<
+public static class OrderedWriterClass extends OrderedWriter\< <typeName> \> {
+    <typeName> last = null;
+    ShreddedWriter shreddedWriter = null; 
+    
+    public OrderedWriterClass(ShreddedWriter s) {
+        this.shreddedWriter = s;
+    }
+    
+    public void process(<typeName> object) throws IOException {
+       boolean processAll = false;
+       <order.orderedFields:{f|if (processAll || last == null || 0 != Utility.compare(object.<f.name>, last.<f.name>)) { processAll = true; shreddedWriter.process<f.capsName>(object.<f.name>); }}; separator="\n">
+       shreddedWriter.processTuple(<order.unorderedFields:{f|object.<f.name>}; separator=", ">);
+       last = object;
+    }           
+         
+    public void close() throws IOException {
+        shreddedWriter.close();
+    }
+    
+    public Class\<<typeName>\> getInputClass() {
+        return <typeName>.class;
+    }
+} 
+>> 
+
+//
+// ShreddedCombiner
+//                 
+
+shreddedCombiner() ::= <<
+public static class ShreddedCombiner implements ReaderSource\<<typeName>\>, ShreddedSource {   
+    public ShreddedProcessor processor;
+    Collection\<ShreddedReader\> readers;       
+    boolean closeOnExit = false;
+    boolean uninitialized = true;
+    PriorityQueue\<ShreddedReader\> queue = new PriorityQueue\<ShreddedReader\>();
+    
+    public ShreddedCombiner(Collection\<ShreddedReader\> readers, boolean closeOnExit) {
+        this.readers = readers;                                                       
+        this.closeOnExit = closeOnExit;
+    }
+                          
+    <setProcessorMethod()>                                
+    
+    public Class\<<typeName>\> getOutputClass() {
+        return <typeName>.class;
+    }
+    
+    public void initialize() throws IOException {
+        for (ShreddedReader reader : readers) {
+            reader.fill();                                        
+            
+            if (!reader.getBuffer().isAtEnd())
+                queue.add(reader);
+        }   
+
+        uninitialized = false;
+    }
+
+    public void run() throws IOException {
+        initialize();
+       
+        while (queue.size() > 0) {
+            ShreddedReader top = queue.poll();
+            ShreddedReader next = null;
+            ShreddedBuffer nextBuffer = null; 
+            
+            assert !top.getBuffer().isAtEnd();
+                                          
+            if (queue.size() > 0) {
+                next = queue.peek();
+                nextBuffer = next.getBuffer();
+                assert !nextBuffer.isAtEnd();
+            }
+            
+            top.getBuffer().copyUntil(nextBuffer, processor);
+            if (top.getBuffer().isAtEnd())
+                top.fill();                 
+                
+            if (!top.getBuffer().isAtEnd())
+                queue.add(top);
+        }              
+        
+        if (closeOnExit)
+            processor.close();
+    }
+
+    public <typeName> read() throws IOException {
+        if (uninitialized)
+            initialize();
+
+        <typeName> result = null;
+
+        while (queue.size() > 0) {
+            ShreddedReader top = queue.poll();
+            result = top.read();
+
+            if (result != null) {
+                if (top.getBuffer().isAtEnd())
+                    top.fill();
+
+                queue.offer(top);
+                break;
+            } 
+        }
+
+        return result;
+    }
+} 
+>>                
+
+orderedCombiner() ::= <<
+public ReaderSource\<<typeName>\> orderedCombiner(Collection\<TypeReader\<<typeName>\>\> readers, boolean closeOnExit) {
+    ArrayList\<ShreddedReader\> shreddedReaders = new ArrayList();
+    
+    for (TypeReader\<<typeName>\> reader : readers) {
+        shreddedReaders.add((ShreddedReader)reader);
+    }
+    
+    return new ShreddedCombiner(shreddedReaders, closeOnExit);
+}              
+>>
+
+

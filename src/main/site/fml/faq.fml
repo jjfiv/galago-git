@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faqs title="Frequently Asked Questions">
+  <part id="General">
+    <faq id="tupleflow-machines">
+      <question>Does TupleFlow work on more than one machine?</question>
+      <answer>
+        <p>
+          The released version works on a single machine.  TupleFlow was originally built
+          to work with Sun's Grid Engine to distribute computation to many machines.  Since not
+          many people have Grid Engine installed, we've decided not to release that part of
+          the code.  We hope to have the SSHStageExecutor class working soon so that TupleFlow
+          can run across many machines without needing an external scheduler.
+        </p>
+      </answer>
+    </faq>
+    <faq>
+      <question>Why would I pick Galago instead of another search engine?</question>
+      <answer>
+        <p>
+          Galago is designed to be an experimental tool.  Because of that, both the indexer and the retrieval
+          engine are built from small parts that can be replaced with alternatives at run time.  We hope that
+          Galago makes it possible for researchers to build small custom indexing or retrieval components and
+          share them with each other.
+        </p>
+        <p> 
+          If you are looking for a search product and not a toolkit, other systems will suit your needs better.
+        </p>
+      </answer>
+    </faq>
+  </part>
+</faqs>

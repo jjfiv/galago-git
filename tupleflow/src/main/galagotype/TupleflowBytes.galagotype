@@ -1,0 +1,7 @@
+package org.lemurproject.galago.tupleflow.types;
+
+type TupleflowBytes {
+    bytes value;
+
+    order: +value;
+}

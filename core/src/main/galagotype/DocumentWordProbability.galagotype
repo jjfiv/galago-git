@@ -1,0 +1,11 @@
+package org.lemurproject.galago.core.types;
+
+type DocumentWordProbability {
+    String document;
+    bytes word;
+    double probability;
+    
+    order: +document +word;
+    order: +word;
+    order: +document;
+}

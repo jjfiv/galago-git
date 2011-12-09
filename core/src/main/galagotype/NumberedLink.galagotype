@@ -1,0 +1,9 @@
+package org.lemurproject.galago.core.types;
+
+type NumberedLink {
+    long source;
+    long destination;
+    
+    order: +source;
+    order: +destination;
+}

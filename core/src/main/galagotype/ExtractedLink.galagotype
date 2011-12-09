@@ -1,0 +1,11 @@
+package org.lemurproject.galago.core.types;
+
+type ExtractedLink {
+    String srcUrl;
+    String destUrl;
+    String anchorText;
+    boolean noFollow;
+    
+    order: +destUrl;
+    order: +srcUrl;
+}

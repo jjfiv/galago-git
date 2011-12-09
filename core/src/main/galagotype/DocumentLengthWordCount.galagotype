@@ -1,0 +1,13 @@
+package org.lemurproject.galago.core.types;
+
+type DocumentLengthWordCount {
+    String document;
+    int length;
+    String word;
+    int count;
+    
+    order: +document +length;
+    order: +document +word;
+    order: +word +document;
+    order: +document;
+}

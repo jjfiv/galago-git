@@ -1,0 +1,9 @@
+package org.lemurproject.galago.core.types;
+
+type IdentifiedLink {
+    String identifier;
+    String url;
+    String anchorText;
+    
+    order: +url;
+}

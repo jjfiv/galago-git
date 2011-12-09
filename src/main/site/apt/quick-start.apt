@@ -1,0 +1,192 @@
+
+    ------
+    Galago Quick Start
+    ------
+
+Introduction
+
+  This tutorial will lead you through a few of the basic commands in Galago.  By the end of
+  the tutorial, you will know how to build an index, run some queries, and looked at raw index data.
+  
+Getting Started
+
+  * Download Galago: {http://code.google.com/p/galagosearch/downloads/list}
+
+      * Get a binary version (one that ends with 'bin.zip' or 'bin.tar.gz')
+
+      * Unpack it somewhere convenient on your machine
+
+  * Download the Wiki Small collection {http://www.search-engines-book.com/collections/}
+
+      * Get the 'corpus' version, not the 'tar.gz' version.
+
+  []
+
+  All commands that you need to type appear in boxes like this:   
+  
++---+
+% ls
++---+
+
+  I'll assume that you're on some kind of Unix-based system, typing from the command line.
+  These commands also work on Windows; just substitute .\bin\galago.bat for bin/galago.
+
+  Enter the directory where you extracted the Galago distribution, then type:
+
++---+
+% bin/galago help
++---+                                                                        
+
+  You'll see a quick list of the commands that the Galago application will respond to.  We'll
+  look at about half of them.
+                               
+Building an Index  
+
+  First, we need to build an index:
+
++---+
+% bin/galago build /tmp/wiki-small.index /tmp/wiki-small.corpus
++---+
+
+  When you type this command, a little bit of output should appear about Jetty.  The last line
+  will be "Status: http://localhost:00000", where 00000 is some other number.  Copy this URL
+  into a web browser.
+  
+  You should now see a web page that refreshes every 5 seconds, although that's configurable
+  by the Refresh links at the top of the page.  On the left side of the page you'll see information
+  about what stage of indexing is occurring right now.  The stages have names like 'parsePostings' and
+  'writeExtents'.  If the stage is bright green, that means it's running right now.  Gray stages are
+  waiting for something else to finish, and dark green lines are done.
+  
+  The right side of the screen has counter values, which are updated by the indexer.  This lets you
+  know how many documents have been parsed, or how many posting lists have been written.
+                                
+Searching
+  
+  Once that's done, it's time to run a query:
+
++---+
+bin/galago search /tmp/wiki-small.index /tmp/wiki-small.corpus
++---+
+
+  Just as before, you'll see a URL in the output marked "Search:".  Copy this URL into a web
+  browser.  You'll be presented with a typical web search interface.
+  
+  Type 'testing' into the search box and click 'Search'.  You should see a typical page of search
+  results.  Clicking the 'debug' button in the middle of the top of the page will show you what Galago
+  parsed from your query, and how it transformed it into something it could execute.
+  
+  Clicking on a result title takes you to the document content.  You won't see images and
+  the formatting may look incorrect, but you should be able to see the raw text of the page clearly.
+                 
+  You've already seen the "/search" and "/document" interfaces.  This search service also supports
+  "/xmlsearch" and "/snippet", which might be useful if you want to use Galago search results from
+  another program (or from a language other than Java).  See the JavaDocs for SearchWebHandler for
+  more information about these services.    
+  
+Examining Files
+
+  Most Galago files are written by IndexWriter, including corpus files.  IndexWriter builds a sorted
+  list of key-value pairs.  In the case of corpus files, the keys are document identifier strings.
+  In inverted list files, the keys are term strings.  In either case, using the dump-keys command
+  will tell you what keys are in an index file.
+  
+  First, we'll try looking at a corpus file to see what documents are in there:
+                 
++---+
+bin/galago dump-keys /tmp/wiki-small.corpus
++---+                                 
+
+  If you'd like to focus on a single document, use the doc command:
+  
++---+
+bin/galago doc /tmp/wiki-small.corpus 1998_in_spaceflight
++---+
+                                                                               
+  Next, let's look at an inverted file to see all the words in the wiki-small.corpus:
+
++---+
+bin/galago dump-keys /tmp/wiki-small.index/part/postings
++---+                                                   
+
+  Galago also indexes stemmed versions
+  of each word.  Stemming groups similar kinds of words under the same string, so for example,
+  the stem 'run' can represent the words 'run', 'running' or 'runs'.  Here's how you can
+  look at the stems:
+
++---+
+bin/galago dump-keys /tmp/wiki-small.index/part/stemmedPostings
++---+
+      
+   If you'd like to see all the data in the inverted file, use the dump-index command:
+
++---+
+bin/galago dump-index /tmp/wiki-small.index/part/stemmedPostings
++---+
+   
+   The indexer creates lots of temporary files while building an index.  You should be able to
+   find these files in your temporary directory.  On Unix systems, this is just /tmp.
+   Look for a directory called /tmp/tupleflow00000 (where 00000 is some random number).
+   Inside that directory you should see subdirectories called things like parsePostings-stemmedPostings
+   or parsePostings-documentData.
+   
+   We can see the content of these files using the dump-connection command:
+
++---+
+bin/galago dump-connection /tmp/tupleflow00000/parsePostings-stemmedPostings/0/0
++---+                                                                           
+
+   This data looks a lot like the data in the stemmedPostings file.  In fact, this is a fraction
+   of that data.  Galago combines all the temporary files in parsePostings-stemmedPostings to
+   create the stemmedPostings index.
+   
+Batch experiments
+
+   This is really just an aside, but if you're used to using information retrieval research
+   you might be wondering how to do experiments.  The galago tool has two commands that will
+   help you.  The first is batch-search:
+   
++---+
+bin/galago batch-search --index=/tmp/wiki.small.index --count=100 /tmp/queries
++---+
+
+   This command runs all the queries stored in /tmp/queries and prints TREC-style output
+   to the screen.  The count parameter tells Galago to return no more than 100 results
+   per query.  The queries file is formatted just like an Indri query file, if you've used
+   that:
+   
++---+
+<parameters>
+  <query>
+    <number>QUERY-0001</number>
+    <text>this is my query</text>
+  </query>
+  ...
+</parameters>
++---+
+                            
+   Since those results are batch results, you can use a traditional retrieval evaluation
+   tool like {{{http://trec.nist.gov/trec_eval/}trec_eval}} to evaluate your results.
+   Galago has an evaluation tool built-in that computes most major metrics plus 
+   significance tests.
+   
++---+
+bin/galago eval /tmp/query.output /tmp/wiki.query.judgments
++---+
+
+   The previous command evaluates the query output from a batch-search command against
+   human judgments for those queries.  The judgments file also needs to be in TREC format.                                                            
+   
+Conclusion
+
+   You're now set to build indexes, search, and look at data.  The Galago tool can also run
+   batch query sets, evaluate query results, and make new corpus files.
+   
+   If you want to extend Galago, look for other tutorials on the website or look over the
+   JavaDocs.  If you want more information about the Galago query language, look on the website
+   or in the Search Engines textbook.  Galago's query language borrows heavily from the Indri
+   query language, so any tutorials you find on that language may help you.
+   
+                                                      
+   
+

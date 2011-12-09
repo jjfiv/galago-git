@@ -1,0 +1,33 @@
+<assembly>
+    <id>bin</id>
+    <formats>
+        <format>zip</format>
+        <format>tar.gz</format>
+    </formats>
+    <files>
+        <file>
+            <source>./galagosearch-core/target/appassembler/bin/galago</source>
+            <outputDirectory>/bin</outputDirectory>
+            <fileMode>0755</fileMode>
+        </file>
+        <file>
+            <source>./galagosearch-core/target/appassembler/bin/galago.bat</source>
+            <outputDirectory>/bin</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
+        <file>
+            <source>./LICENSE</source>
+            <outputDirectory>/</outputDirectory>
+        </file>
+        <file>
+            <source>./README</source>
+            <outputDirectory>/</outputDirectory>
+        </file>
+    </files>
+    <fileSets>
+        <fileSet>
+            <directory>./galagosearch-core/target/appassembler/lib</directory>
+            <outputDirectory>/lib</outputDirectory>
+        </fileSet>
+    </fileSets>
+</assembly>

@@ -1,0 +1,9 @@
+package org.lemurproject.galago.core.types;
+
+type NumberKeyValue {
+  long number;
+  bytes key;
+  bytes value;
+
+  order: +number;
+}

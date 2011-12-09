@@ -1,0 +1,16 @@
+package org.lemurproject.galago.core.types;
+
+type DocumentSplit {
+    String fileName;
+    String fileType;
+    boolean isCompressed;
+    bytes startKey;
+    bytes endKey;
+    int fileId;
+	int totalFileCount;
+    
+
+    order: ;
+    order: +fileName +startKey;
+	order: +fileId;
+};

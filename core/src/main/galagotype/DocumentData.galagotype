@@ -1,0 +1,11 @@
+package org.lemurproject.galago.core.types;
+
+type DocumentData {
+    String identifier;
+    String url;
+    int textLength;
+    
+    order: ;
+    order: +url;
+    order: +identifier;
+}

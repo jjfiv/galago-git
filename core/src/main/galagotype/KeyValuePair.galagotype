@@ -1,0 +1,9 @@
+package org.lemurproject.galago.core.types;
+
+type KeyValuePair {
+  bytes key;
+  bytes value;
+
+  order: +key;
+  order: +key +value;
+}

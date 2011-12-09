@@ -1,0 +1,13 @@
+package org.lemurproject.galago.core.types;
+
+type NumberedDocumentData {
+    String identifier;
+    String fieldList;
+    String url;
+    int number;
+    int textLength;
+
+    order: ;
+    order: +number;
+    order: +url;
+}

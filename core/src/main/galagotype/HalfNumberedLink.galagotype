@@ -1,0 +1,9 @@
+package org.lemurproject.galago.core.types;
+
+type HalfNumberedLink {
+	String src;
+	int dest;
+
+	order: +dest;
+	order: +src;
+}

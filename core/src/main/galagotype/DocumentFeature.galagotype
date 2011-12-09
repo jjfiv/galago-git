@@ -1,0 +1,8 @@
+package org.lemurproject.galago.core.types;
+
+type DocumentFeature {
+    long document;
+    double value;
+
+    order: +document;
+}

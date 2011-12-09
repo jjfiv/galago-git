@@ -1,0 +1,11 @@
+package org.lemurproject.galago.core.types;
+
+type DocumentExtent {
+    String extentName;
+    String identifier;
+    int begin;
+    int end;
+
+    order: +identifier;
+}
+

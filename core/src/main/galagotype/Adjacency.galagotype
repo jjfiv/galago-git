@@ -1,0 +1,12 @@
+package org.lemurproject.galago.core.types;
+
+type Adjacency {
+    bytes source;
+    bytes destination;
+    double weight;
+
+    order: +source;
+    order: +source +destination;
+    order: +source +weight;
+    order: +source -weight;
+};

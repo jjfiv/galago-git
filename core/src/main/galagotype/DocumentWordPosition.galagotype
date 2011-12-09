@@ -1,0 +1,10 @@
+package org.lemurproject.galago.core.types;
+
+type DocumentWordPosition {
+    String document;
+    bytes word;
+    int position;
+    
+    order: +document;
+    order: +document +word +position;
+}

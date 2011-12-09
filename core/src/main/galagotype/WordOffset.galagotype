@@ -1,0 +1,8 @@
+package org.lemurproject.galago.core.types;
+
+type WordOffset {
+    bytes word;
+    long offset; 
+
+    order: +word;
+}

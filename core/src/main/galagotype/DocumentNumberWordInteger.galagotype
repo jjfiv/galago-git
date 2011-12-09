@@ -1,0 +1,12 @@
+package org.lemurproject.galago.core.types;
+
+type DocumentNumberWordInteger {
+    bytes word;
+    int document;
+    int value;
+    
+    order: ;
+    order: +word +document;
+    order: +document;
+    order: +value;
+}

@@ -1,0 +1,10 @@
+package org.lemurproject.galago.core.types;
+
+type NumberedField {
+    bytes fieldName;
+    long number;
+    bytes content;
+
+    order: +fieldName +number;
+    order: +fieldName;
+}

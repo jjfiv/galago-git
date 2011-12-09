@@ -1,0 +1,8 @@
+package org.lemurproject.galago.core.types;
+
+type DocumentMappingData {
+    int indexId;
+    int docNumIncrement;
+
+    order: +indexId;
+}
