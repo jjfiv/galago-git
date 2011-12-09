@@ -13,8 +13,8 @@ Java Requirements:
     Eclipse and NetBeans have Maven plugins.
 
     To run the application on Unix:
-      ./galagosearch-core/target/appassembler/bin/galago
+      ./core/target/appassembler/bin/galago
 
     To run the application on Windows:
-      .\galagosearch-core\target\appassembler\bin\galago.bat
+      .\core\target\appassembler\bin\galago.bat
 

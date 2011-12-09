@@ -22,8 +22,8 @@ package org.lemurproject.galago.tupleflow.execution;
  * input data.  The main use case for this is to support building document-distributed
  * indexes.</p>
  * 
- * @see org.galagosearch.tupleflow.execution.Connection
- * @see org.galagosearch.tupleflow.execution.Job
+ * @see org.lemurproject.galago.tupleflow.execution.Connection
+ * @see org.lemurproject.galago.tupleflow.execution.Job
  * @author trevor
  */
 public enum ConnectionAssignmentType {

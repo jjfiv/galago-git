@@ -46,7 +46,7 @@ public class DRMAAStageExecutor extends RemoteStageExecutor {
   // when submitting each of the jobs to the cluster.
   public String classPath = System.getProperty("java.class.path");
   // This is the TupleFlow executor we'll be using for each of the jobs.
-  public String className = "org.galagosearch.tupleflow.execution.LocalStageExecutor";
+  public String className = "org.lemurproject.galago.tupleflow.execution.LocalStageExecutor";
   // Arbitrary starting and max heap sizes.
   public static final String MEMORY_X = "-Xmx1700m";
   public static final String MEMORY_S = "-Xms1700m";

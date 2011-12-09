@@ -1,4 +1,4 @@
-// BSD License (http://galagosearch.org)
+// BSD License (http://lemurproject.org)
 
 package org.lemurproject.galago.tupleflow.execution;
 
@@ -7,7 +7,7 @@ import java.util.ArrayList;
 /**
  * Represents a data connection between two stages in a TupleFlow job.
  * 
- * @see org.galagosearch.tupleflow.execution.Job
+ * @see org.lemurproject.galago.tupleflow.execution.Job
  * @author trevor
  */
 public class Connection extends Locatable implements Cloneable {

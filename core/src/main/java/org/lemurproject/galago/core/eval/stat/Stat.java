@@ -1,6 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 /*
-*   org.galagosearch.eval.stat note:
+*   org.lemurproject.eval.stat note:
 *       This is an abridged version of the Stat class provided by Dr. Michael Flanagan.
 *       The full version contains many more features.  This class has been trimmed to
 *       contain primarily the functions necessary for IR evaluation.

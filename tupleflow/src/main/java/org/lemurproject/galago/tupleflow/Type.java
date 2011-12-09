@@ -1,4 +1,4 @@
-// BSD License (http://galagosearch.org)
+// BSD License (http://lemurproject.org)
 
 package org.lemurproject.galago.tupleflow;
 

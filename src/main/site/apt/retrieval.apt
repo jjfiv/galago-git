@@ -206,7 +206,7 @@ Custom operators
  the operator's class in a query, like this:
 
 +---+
-#feature:class=org.galagosearch.core.structured.SynonymIterator( #text:dog() )
+#feature:class=org.lemurproject.core.structured.SynonymIterator( #text:dog() )
 +---+     
 
  This is a cumbersome way to load an operator, but it's quick and explicit.  If you plan to use
@@ -216,7 +216,7 @@ Custom operators
 <operators>
 	<operator>
 		<name>syn</name>
-		<class>org.galagosearch.core.structured.SynonymIterator</class>
+		<class>org.lemurproject.core.structured.SynonymIterator</class>
 		<parameters>
 			<key1>value1</key1>
 		</parameters>
@@ -236,14 +236,14 @@ Custom operators
 <operators>
 	<operator>
     	<name>smallwindow</name>
-    	<class>org.galagosearch.core.structured.OrderedWindowIterator</class>
+    	<class>org.lemurproject.core.structured.OrderedWindowIterator</class>
     	<parameters>
     		<width>1</width>
     	</parameters> 
     </operator>
     <operator>
     	<name>largewindow</name>
-    	<class>org.galagosearch.core.structured.OrderedWindowIterator</class>
+    	<class>org.lemurproject.core.structured.OrderedWindowIterator</class>
     	<parameters>
     		<width>5</width>
     	</parameters>

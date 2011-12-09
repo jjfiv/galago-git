@@ -1,6 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 /*
-*   org.galagosearch.eval.stat note:
+*   org.lemurproject.eval.stat note:
 *       This is a copy of the Fmath class provided by Dr. Michael Flanagan:
 *           http://www.ee.ucl.ac.uk/~mflanaga/java/
 *

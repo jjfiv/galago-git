@@ -10,7 +10,7 @@ import org.lemurproject.galago.tupleflow.Order;
  * This is defined with an input or output tag in the connections section
  * of a stage in the XML parameter file.
  * 
- * @see org.galagosearch.tupleflow.execution.Job
+ * @see org.lemurproject.galago.tupleflow.execution.Job
  * @author trevor
  */
 public class StageConnectionPoint extends Locatable implements Serializable {

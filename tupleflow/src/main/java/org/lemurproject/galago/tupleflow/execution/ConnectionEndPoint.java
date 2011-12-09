@@ -3,7 +3,7 @@
  * 
  * 19 October 2007 -- tds
  *
- * BSD License (http://galagosearch.org/galago-license)
+ * BSD License (http://lemurproject.org/galago-license)
  */
 package org.lemurproject.galago.tupleflow.execution;
 
