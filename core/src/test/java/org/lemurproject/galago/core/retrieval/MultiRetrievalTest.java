@@ -58,10 +58,7 @@ public class MultiRetrievalTest extends TestCase {
       Parameters params = new Parameters();
       String[] indexes = {index1.getAbsolutePath(), index2.getAbsolutePath()};
       params.set("index", Arrays.asList(indexes));
-      MultiRetrieval mr = (MultiRetrieval) RetrievalFactory.instance(params);
-
-      System.err.println(mr.getAvailableParts().toString());
-      
+      MultiRetrieval mr = (MultiRetrieval) RetrievalFactory.instance(params);      
       String query = "#combine( sample document )";
       Node parsedQuery = StructuredQuery.parse(query);
       Node queryTree = mr.transformQuery(parsedQuery);

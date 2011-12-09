@@ -3,5 +3,4 @@ syntax: glob
 
 *.class
 */types/*
-*/antlr/*
 */target/*

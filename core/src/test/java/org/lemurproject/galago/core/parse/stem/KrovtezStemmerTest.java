@@ -116,11 +116,7 @@ public class KrovtezStemmerTest extends TestCase {
       // make sure the indexes exists
       assertTrue(indexFile1.exists());
       assertTrue(indexFile2.exists());
-
-      for(File f : indexFile1.listFiles())
-      {
-        System.err.println(f);
-      }      
+      
       // open stemmedPostings and compare lengths with postings.
       PositionIndexReader porterPart = (PositionIndexReader) DiskIndex.openIndexPart(indexFile1 + "/postings.Porter2Stemmer");
       PositionIndexReader krovetzPart = (PositionIndexReader) DiskIndex.openIndexPart(indexFile2 + "/postings.KrovetzStemmer");

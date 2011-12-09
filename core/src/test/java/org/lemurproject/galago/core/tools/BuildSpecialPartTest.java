@@ -103,7 +103,6 @@ public class BuildSpecialPartTest extends TestCase {
               + "2 Q0 d10 1 -1.22350933 galago\n"
               + "2 Q0 d55 2 -1.22483912 galago\n";
 
-      System.err.printf("Expected: %s\nReceived: %s\n", expected, out);
       assertEquals(expected, out);
 
     } finally {
