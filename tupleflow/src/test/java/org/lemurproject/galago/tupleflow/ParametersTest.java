@@ -67,9 +67,13 @@ public class ParametersTest extends TestCase {
     Parameters p = new Parameters();
     p.set("list", a);
     assertTrue(p.isList("list"));
+    assertTrue(p.isList("list", Parameters.Type.STRING));
+    assertFalse(p.isList("list", Parameters.Type.MAP));
+
     List<String> recv = (List<String>) p.getList("list");
     assertEquals("woot", recv.get(0));
     assertEquals("yeah", recv.get(1));
+
 
     p.remove("list");
     assertFalse(p.isList("list"));
