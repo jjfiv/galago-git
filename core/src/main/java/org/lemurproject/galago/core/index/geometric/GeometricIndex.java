@@ -322,7 +322,7 @@ public class GeometricIndex implements DynamicIndex, Index {
   }
 
   // handles the memory index
-  private void resetCurrentMemoryIndex() throws IOException {
+  private void resetCurrentMemoryIndex() throws Exception {
     // by using the globalParameters, the memory index can startup counters etc.
     // we set the documentCount to ensure all documents are given a unique number.
     tupleFlowParameters.getJSON().set("documentNumberOffset", this.globalDocumentCount);
@@ -341,9 +341,13 @@ public class GeometricIndex implements DynamicIndex, Index {
     final MemoryIndex flushingMemoryIndex = currentMemoryIndex;
     final File shardFolder = getNextIndexShardFolder(1);
 
-    // reset the current index
-    //  - this makes the flush operation thread safe while continuing to add new documents.
-    resetCurrentMemoryIndex();
+    try {
+      // reset the current index
+      //  - this makes the flush operation thread safe while continuing to add new documents.
+      resetCurrentMemoryIndex();
+    } catch (Exception ex) {
+      throw new IOException(ex);
+    }
 
     try {
       // first flush the index to disk
