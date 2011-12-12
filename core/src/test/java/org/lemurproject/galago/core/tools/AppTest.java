@@ -197,9 +197,6 @@ public class AppTest extends TestCase {
       byteArrayStream = new ByteArrayOutputStream();
       printStream = new PrintStream(byteArrayStream);
 
-      DiskIndex di = new DiskIndex(indexFile.getAbsolutePath());
-      System.err.println(di.getDocument("55"));
-
       new App().run(new String[]{"doc", indexFile.getAbsolutePath(), "55"}, printStream);
       output = byteArrayStream.toString();
       assertEquals("#IDENTIFIER: 55\n<TEXT>\nThis is a sample document</TEXT>\n\n", output);
