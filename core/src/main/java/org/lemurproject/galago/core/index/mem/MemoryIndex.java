@@ -17,6 +17,7 @@ import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
@@ -44,7 +45,7 @@ public class MemoryIndex implements DynamicIndex, Index {
   HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
   HashSet<String> knownIndexOperators = new HashSet<String>();
 
-  public MemoryIndex(TupleFlowParameters parameters) throws IOException {
+  public MemoryIndex(TupleFlowParameters parameters) throws Exception {
     manifest = parameters.getJSON();
     // determine which parts are to be created:
     stemming = manifest.get("stemming", true);
@@ -74,8 +75,9 @@ public class MemoryIndex implements DynamicIndex, Index {
     }
     if (stemming) {
       Parameters stemParams = partParams.clone();
-      stemParams.set("stemming", true);
-      parts.put("stemmedPostings", new MemoryStemmedPostings(stemParams));
+      // should change this to support several stemmers...
+      stemParams.set("stemmer", manifest.get("stemmer", Porter2Stemmer.class.getName()));
+      parts.put("stemmedPostings", new MemoryPostings(stemParams));
     }
 
     initializeIndexOperators();
@@ -259,7 +261,7 @@ public class MemoryIndex implements DynamicIndex, Index {
   }
 
   public int getIdentifier(String document) throws IOException {
-    return ((MemoryDocumentNames) parts.get("names")).getIdentifier(document);
+    return ((MemoryDocumentNames) parts.get("names")).getDocumentIdentifier(document);
   }
 
   @Override

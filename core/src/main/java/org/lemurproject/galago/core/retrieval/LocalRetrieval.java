@@ -18,6 +18,7 @@ import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.LengthsReader;
+import org.lemurproject.galago.core.index.disk.CachedDiskIndex;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.structured.FeatureFactory;
@@ -82,9 +83,21 @@ public class LocalRetrieval implements Retrieval {
    * separate logical index.
    */
   public LocalRetrieval(String filename, Parameters parameters)
-          throws FileNotFoundException, IOException {
+          throws FileNotFoundException, IOException, Exception {
     this.globalParameters = parameters;
-    setIndex(new DiskIndex(filename));
+    if (globalParameters.containsKey("cacheQueries")) {
+      CachedDiskIndex cachedIndex = new CachedDiskIndex(filename);
+      setIndex(cachedIndex);
+
+      List<String> queries = globalParameters.getAsList("cacheQueries");
+      for (String q : queries) {
+        Node queryTree = StructuredQuery.parse(q);
+        queryTree = transformQuery(queryTree);
+        cachedIndex.cacheQueryData(queryTree);
+      }
+    } else {
+      setIndex(new DiskIndex(filename));
+    }
   }
 
   private void setIndex(Index indx) throws IOException {
@@ -193,7 +206,7 @@ public class LocalRetrieval implements Retrieval {
                 runBooleanQuery(queryTree, p, wsc);
         break;
     }
-    
+
     if (results == null) {
       results = new ScoredDocument[0];
     }

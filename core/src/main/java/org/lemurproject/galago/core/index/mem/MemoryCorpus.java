@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.index.corpus.CorpusFileWriter;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.DataStream;
@@ -41,6 +42,17 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
     // - to match the output of themake-corpus function.
     corpusData.put(Utility.fromInt(doc.identifier), doc);
   }
+
+  // this is likely to waste all of your memory...
+  @Override
+  public void addIteratorData(ValueIterator iterator) throws IOException {
+    do{
+      Document doc = ((DataIterator<Document>) iterator).getData();
+      // if the document already exists - no harm done.
+      addDocument(doc);
+    } while(iterator.next());
+  }
+
 
   public void close() throws IOException {
     // clean up data.

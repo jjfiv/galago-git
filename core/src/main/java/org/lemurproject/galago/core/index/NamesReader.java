@@ -11,6 +11,7 @@ import java.io.IOException;
 public interface NamesReader extends IndexPartReader {
   public String getDocumentName(int document) throws IOException;
   public Iterator getNamesIterator() throws IOException;
+  public int getDocumentIdentifier(String document) throws IOException;
   public interface Iterator extends ValueIterator {
     public boolean skipToKey(int candidate) throws IOException;
     public String getCurrentName() throws IOException;

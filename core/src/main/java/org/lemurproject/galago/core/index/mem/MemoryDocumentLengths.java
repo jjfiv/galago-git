@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.core.util.IntArray;
 import org.lemurproject.galago.tupleflow.DataStream;
@@ -43,6 +44,30 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     docCount += 1;
     termCount += doc.terms.size();
     lengths.add(doc.terms.size());
+  }
+
+  @Override
+  public void addIteratorData(ValueIterator iterator) throws IOException {
+    do {
+      int identifier = ((LengthsReader.Iterator) iterator).getCurrentIdentifier();
+      int length = ((LengthsReader.Iterator) iterator).getCurrentLength();
+
+      if (lengths.getPosition() == 0) {
+        offset = identifier;
+      }
+
+      if (offset + lengths.getPosition() > identifier) {
+        throw new IOException("Unable to add lengths data out of order.");
+      }
+      // if we are adding id + lengths directly - we need
+      while (offset + lengths.getPosition() < identifier) {
+        lengths.add(0);
+      }
+
+      docCount += 1;
+      termCount += length;
+      lengths.add(length);
+    } while (iterator.next());
   }
 
   public int getLength(int docNum) {

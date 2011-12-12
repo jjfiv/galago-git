@@ -182,7 +182,7 @@ public class LocalRetrievalTest extends TestCase {
 
     // now, try to build an index from that
     indexFile = Utility.createTemporaryDirectory();
-    App.main(new String[]{"build", "--stemming=false", "--indexPath=" + indexFile.getAbsolutePath(),
+    App.main(new String[]{"build", "--stemmedPostings=false", "--indexPath=" + indexFile.getAbsolutePath(),
               "--inputPath=" + corpusFile.getAbsolutePath()});
 
     AppTest.verifyIndexStructures(indexFile);

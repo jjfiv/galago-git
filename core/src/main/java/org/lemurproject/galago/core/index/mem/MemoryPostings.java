@@ -14,15 +14,18 @@ import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
+import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.index.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.mem.MemoryPostings.PostingList.PostingIterator;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
 import org.lemurproject.galago.core.retrieval.structured.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ModifiableIterator;
@@ -50,9 +53,19 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
   protected Parameters parameters;
   protected long collectionDocumentCount = 0;
   protected long collectionPostingsCount = 0;
-
-  public MemoryPostings(Parameters parameters) {
+  protected Stemmer stemmer = null;
+  
+  
+  public MemoryPostings(Parameters parameters) throws Exception {
     this.parameters = parameters;
+
+    if (parameters.containsKey("stemmer")) {
+      stemmer = (Stemmer) Class.forName(parameters.getString("stemmer")).newInstance();
+    }
+
+    // if the parameters specify a collection length use them.
+    collectionPostingsCount = parameters.get("statistics/collectionLength", 0);
+    collectionDocumentCount = parameters.get("statistics/documentCount", 0);
   }
 
   // overridable function (for stemming etc) 
@@ -70,12 +83,34 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
 
     int position = 0;
     for (String term : doc.terms) {
-      addPosting(Utility.fromString(term), doc.identifier, position);
+      String stem = stemAsRequired(term);
+      addPosting(Utility.fromString(stem), doc.identifier, position);
       position += 1;
     }
   }
 
-  public void addPosting(byte[] byteWord, int document, int position) {
+  @Override
+  public void addIteratorData(ValueIterator iterator) throws IOException {
+    // we expect that this iterator is a KeyListReader.ListIterator
+    byte[] key = ((KeyListReader.ListIterator) iterator).getKeyBytes();
+    
+    if( postings.containsKey(key) ){
+      // do nothing - we have already cached this data
+      return;
+    }
+    
+    do{
+      int document = iterator.currentCandidate();
+      ExtentArrayIterator extentsIterator = new ExtentArrayIterator(((ExtentValueIterator) iterator).extents());
+      while(!extentsIterator.isDone()){
+        int begin = extentsIterator.currentBegin();
+        addPosting(key, document, begin);
+        extentsIterator.next();
+      }
+    } while(iterator.next());
+  }
+
+  protected void addPosting(byte[] byteWord, int document, int position) {
     if (!postings.containsKey(byteWord)) {
       PostingList postingList = new PostingList();
       postings.put(byteWord, postingList);
@@ -93,10 +128,11 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
 
   @Override
   public ValueIterator getIterator(Node node) throws IOException {
+    String term = this.stemAsRequired(node.getDefaultParameter());
     KeyIterator i = getIterator();
-    i.skipToKey(Utility.fromString(node.getDefaultParameter()));
+    i.skipToKey(Utility.fromString(term));
     if ((i.getKeyBytes()!= null)
-            && (0 == Utility.compare(i.getKeyBytes(), Utility.fromString(node.getDefaultParameter())))) {
+            && (0 == Utility.compare(i.getKeyBytes(), Utility.fromString(term)))) {
       return i.getValueIterator();
     }
     return null;
@@ -104,6 +140,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
 
   @Override
   public NodeStatistics getTermStatistics(String term) throws IOException {
+    term = stemAsRequired(term);
     return getTermStatistics(Utility.fromString(term));
   }
 
@@ -181,7 +218,14 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     writer.close();
   }
 
-
+  // private functions
+  private String stemAsRequired(String term) {
+    if (stemmer != null) {
+      return stemmer.stem(term);
+    }
+    return term;
+  }
+  
   // iterator allows for query processing and for streaming posting list data
   // public class Iterator extends ExtentIterator implements IndexIterator {
   public class KIterator implements KeyIterator {

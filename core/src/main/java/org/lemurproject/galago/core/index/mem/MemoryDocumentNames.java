@@ -45,13 +45,39 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     names.add(doc.name);
   }
 
+  @Override
+  public void addIteratorData(ValueIterator iterator) throws IOException {
+    do {
+      int identifier = ((NamesReader.Iterator) iterator).getCurrentIdentifier();
+      String name = ((NamesReader.Iterator) iterator).getCurrentName();
+
+      if (names.getPosition() == 0) {
+        offset = identifier;
+      }
+
+      if (offset + names.getPosition() > identifier) {
+        throw new IOException("Unable to add names data out of order.");
+      }
+
+      // if we are adding id + lengths directly - we need
+      while (offset + names.getPosition() < identifier) {
+        names.add(null);
+      }
+
+      docCount += 1;
+      termCount += 1;
+      names.add(name);
+
+    } while (iterator.next());
+  }
+
   public String getDocumentName(int docNum) {
     int index = docNum - offset;
     assert ((index >= 0) && (index < names.getPosition())) : "Document identifier not found in this index.";
     return names.getBuffer()[index];
   }
 
-  int getIdentifier(String document) {
+  public int getDocumentIdentifier(String document) {
     throw new UnsupportedOperationException("Not yet implemented");
   }
 

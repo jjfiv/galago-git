@@ -184,7 +184,8 @@ public class DiskIndex implements Index {
   @Override
   public boolean containsDocumentIdentifier(int document) throws IOException {
     NamesReader.Iterator ni = this.getNamesIterator();
-    return ni.skipToKey(document);
+    ni.skipToKey(document);
+    return ni.hasMatch(document);
   }
 
   void initializeIndexOperators() {
@@ -315,6 +316,7 @@ public class DiskIndex implements Index {
     }
     parts.clear();
     lengthsReader.close();
+    namesReader.close();
   }
 
   @Override
@@ -329,7 +331,7 @@ public class DiskIndex implements Index {
 
   @Override
   public int getIdentifier(String document) throws IOException {
-    return ((DiskNameReader) parts.get("names.reverse")).getDocumentId(document);
+    return namesReader.getDocumentIdentifier(document);
   }
 
   @Override

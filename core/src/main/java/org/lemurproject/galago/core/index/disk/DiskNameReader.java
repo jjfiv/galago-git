@@ -47,7 +47,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
   }
 
   // gets the document id for some document name
-  public int getDocumentId(String documentName) throws IOException {
+  public int getDocumentIdentifier(String documentName) throws IOException {
     if (!isForward) {
       byte[] data = reader.getValueBytes(Utility.fromString(documentName));
       if (data == null) {
