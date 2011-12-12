@@ -67,8 +67,6 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     correct.append("#feature:dirichlet( #extents:program:part=postings() ) ");
     correct.append("#feature:dirichlet( #extents:shoe:part=postings() ) ) )");
 
-    //System.err.println(correct.toString());
-    System.err.println(transformed.toString());
     assertEquals(correct.toString(), transformed.toString());
     retrieval.close();
   }
