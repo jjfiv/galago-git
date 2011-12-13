@@ -260,7 +260,7 @@ public class GeometricIndex implements DynamicIndex, Index {
   }
 
   public int getIdentifier(String document) throws IOException {
-    throw new UnsupportedOperationException("Not supported yet.");
+    throw new RuntimeException("UNIMPLEMENTED function: getIdentifier");
   }
 
   @Override
@@ -381,7 +381,8 @@ public class GeometricIndex implements DynamicIndex, Index {
 
 
         // merge the shards
-        Parameters p = new Parameters();
+        Parameters p = this.globalParameters.clone();
+        // override each of these particular parameters
         p.set("indexPath", indexShard.getAbsolutePath());
         p.set("inputPath", new ArrayList(mergeBin.getBinPaths()));
         p.set("renumberDocuments", false);
