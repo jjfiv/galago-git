@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- * Transforms a #seqdep operator into a full expansion of the
+ * Transforms a #sdm operator into a full expansion of the
  * sequential dependence model. That means:
  * 
  * #seqdep( #text:term1() #text:term2() ... termk ) -->
@@ -40,7 +40,8 @@ public class SequentialDependenceTraversal implements Traversal {
   }
 
   public Node afterNode(Node original) throws Exception {
-    if (original.getOperator().equals("seqdep")) {
+    if (original.getOperator().equals("sdm")
+            || original.getOperator().equals("seqdep")) {
       // get to work
 
       // First check format - should only contain text node children
