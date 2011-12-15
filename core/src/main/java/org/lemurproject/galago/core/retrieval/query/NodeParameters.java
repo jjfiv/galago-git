@@ -6,6 +6,7 @@ package org.lemurproject.galago.core.retrieval.query;
 import gnu.trove.TObjectByteHashMap;
 import gnu.trove.TObjectDoubleHashMap;
 import gnu.trove.TObjectLongHashMap;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,7 +23,7 @@ import org.lemurproject.galago.tupleflow.Parameters.Type;
  *
  * @author sjh
  */
-public class NodeParameters {
+public class NodeParameters implements Serializable {
 
   private HashMap<String, Type> keyMapping = new HashMap();
   private HashMap<String, String> stringMap = null;

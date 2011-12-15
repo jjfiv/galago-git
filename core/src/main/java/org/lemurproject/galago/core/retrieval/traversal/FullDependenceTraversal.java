@@ -42,7 +42,8 @@ public class FullDependenceTraversal implements Traversal {
   }
 
   public Node afterNode(Node original) throws Exception {
-    if (original.getOperator().equals("fulldep")) {
+    if (original.getOperator().equals("fdm")
+            || original.getOperator().equals("fulldep")) {
 
       int windowLimit = (int) original.getNodeParameters().get("windowLimit", defaultWindowLimit);
 

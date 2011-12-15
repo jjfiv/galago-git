@@ -40,16 +40,16 @@ public class WeightedDependenceTraversal implements Traversal {
       Parameters parameters = retrieval.getGlobalParameters();
 
       unigramWeights = new Parameters();
-      unigramWeights.set("const", parameters.get("uniconst", 0.841771745374));
-      unigramWeights.set("tf", parameters.get("unitf", -0.036301996144));
-      unigramWeights.set("df", parameters.get("unidf", -0.0370280360669));
-      unigramWeights.set("wiki", parameters.get("uniwiki", 0.0377685967882));
+      unigramWeights.set("const", parameters.get("uniconst", 0.8));
+      unigramWeights.set("tf", parameters.get("unitf", -0.025));
+      unigramWeights.set("df", parameters.get("unidf", -0.025));
+      unigramWeights.set("wiki", parameters.get("uniwiki", 0.05));
 
       bigramWeights = new Parameters();
-      bigramWeights.set("const", parameters.get("biconst", 0.0293345294776));
+      bigramWeights.set("const", parameters.get("biconst", 0.1));
       bigramWeights.set("tf", parameters.get("bitf", 0.0));
       bigramWeights.set("df", parameters.get("bidf", 0.0));
-      bigramWeights.set("wiki", parameters.get("biwiki", 0.017795096149));
+      bigramWeights.set("wiki", parameters.get("biwiki", 0.0));
 
     } else {
       retrieval = null;
@@ -63,7 +63,8 @@ public class WeightedDependenceTraversal implements Traversal {
 
   @Override
   public Node afterNode(Node original) throws Exception {
-    if (original.getOperator().equals("wdm")) {
+    if (original.getOperator().equals("wsdm")) {
+
       assert this.retrieval != null : this.getClass().getName() + " requires a group retrieval to run.";
       assert this.retrieval.getGroups().contains("wiki") : this.getClass().getName() + " requires a 'wiki' index to run.";
 
@@ -118,12 +119,19 @@ public class WeightedDependenceTraversal implements Traversal {
     if ((unigramWeights.getDouble("tf") != 0.0)
             && (unigramWeights.getDouble("df") != 0.0)) {
       NodeStatistics c_stats = this.retrieval.nodeStatistics(text);
-      tf_w = unigramWeights.getDouble("tf") * Math.log(c_stats.nodeFrequency + 1);
-      df_w = unigramWeights.getDouble("df") * Math.log(c_stats.nodeDocumentCount + 1);
+      double mle_tf = (c_stats.nodeFrequency + 1) / c_stats.collectionLength;
+      double mle_df = (c_stats.nodeDocumentCount + 1) / c_stats.documentCount;
+      tf_w = unigramWeights.getDouble("tf") * Math.log(mle_tf);
+      df_w = unigramWeights.getDouble("df") * Math.log(mle_df);
+      
+//      tf_w = unigramWeights.getDouble("tf") * Math.log(c_stats.nodeFrequency + 1);
+//      df_w = unigramWeights.getDouble("df") * Math.log(c_stats.nodeDocumentCount + 1);
     }
     if (unigramWeights.getDouble("wiki") != 0.0) {
       NodeStatistics w_stats = this.retrieval.nodeStatistics(text, "wiki");
-      wf_w = unigramWeights.getDouble("wiki") * Math.log(w_stats.nodeFrequency + 1);
+      double mle_wf = (w_stats.nodeFrequency + 1) / w_stats.collectionLength;
+      wf_w = unigramWeights.getDouble("wiki") * Math.log(mle_wf);
+//      wf_w = unigramWeights.getDouble("wiki") * Math.log(w_stats.nodeFrequency + 1);
     }
     return const_w + tf_w + df_w + wf_w;
   }
@@ -139,12 +147,18 @@ public class WeightedDependenceTraversal implements Traversal {
     if ((bigramWeights.getDouble("tf") != 0.0)
             && (bigramWeights.getDouble("df") != 0.0)) {
       NodeStatistics c_stats = this.retrieval.nodeStatistics("#uw:8(" + text1 + " " + text2 + ")");
-      tf_w = bigramWeights.getDouble("tf") * Math.log(c_stats.nodeFrequency + 1);
-      df_w = bigramWeights.getDouble("df") * Math.log(c_stats.nodeDocumentCount + 1);
+      double mle_tf = c_stats.nodeFrequency / c_stats.collectionLength;
+      double mle_df = c_stats.nodeDocumentCount / c_stats.documentCount;
+      tf_w = unigramWeights.getDouble("tf") * Math.log(mle_tf);
+      df_w = unigramWeights.getDouble("df") * Math.log(mle_df);
+
+//      tf_w = bigramWeights.getDouble("tf") * Math.log(c_stats.nodeFrequency + 1);
+//      df_w = bigramWeights.getDouble("df") * Math.log(c_stats.nodeDocumentCount + 1);
     }
     if (bigramWeights.getDouble("wiki") != 0.0) {
       NodeStatistics w_stats = this.retrieval.nodeStatistics("#od:1(" + text1 + " " + text2 + ")", "wiki");
-      wf_w = bigramWeights.getDouble("wiki") * Math.log(w_stats.nodeFrequency + 1);
+
+//      wf_w = bigramWeights.getDouble("wiki") * Math.log(w_stats.nodeFrequency + 1);
     }
     return const_w + tf_w + df_w + wf_w;
   }

@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
+import java.util.logging.Level;
 import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ModifiableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.GenericIndexReader;
 import org.lemurproject.galago.core.index.Index;
@@ -102,7 +104,7 @@ public class DiskIndex implements Index {
         openDiskParts(partName, part);
       } else {
         IndexComponentReader component = openIndexComponent(part.getAbsolutePath());
-        if(component != null){
+        if (component != null) {
           initializeComponent(partName, component);
         }
       }
@@ -184,7 +186,8 @@ public class DiskIndex implements Index {
   @Override
   public boolean containsDocumentIdentifier(int document) throws IOException {
     NamesReader.Iterator ni = this.getNamesIterator();
-    return ni.skipToKey(document);
+    ni.skipToKey(document);
+    return ni.hasMatch(document);
   }
 
   void initializeIndexOperators() {
@@ -315,6 +318,7 @@ public class DiskIndex implements Index {
     }
     parts.clear();
     lengthsReader.close();
+    namesReader.close();
   }
 
   @Override
@@ -329,7 +333,7 @@ public class DiskIndex implements Index {
 
   @Override
   public int getIdentifier(String document) throws IOException {
-    return ((DiskNameReader) parts.get("names.reverse")).getDocumentId(document);
+    return ((NamesReader) parts.get("names.reverse")).getDocumentIdentifier(document);
   }
 
   @Override
@@ -341,6 +345,7 @@ public class DiskIndex implements Index {
         return corpus.getDocument(docId);
       } catch (Exception e) {
         // ignore the exception
+        Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Failed to get document: {0}\n{1}", new Object[]{document, e.toString()});
       }
     }
     return null;
@@ -389,7 +394,7 @@ public class DiskIndex implements Index {
   /* static functions for opening index component readers */
   public static IndexComponentReader openIndexComponent(String path) throws IOException {
     GenericIndexReader reader = GenericIndexReader.getIndexReader(path);
-    
+
     // if it's not an index: return null
     if (reader == null) {
       return null;

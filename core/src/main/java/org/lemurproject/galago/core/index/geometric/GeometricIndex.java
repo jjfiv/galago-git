@@ -260,7 +260,7 @@ public class GeometricIndex implements DynamicIndex, Index {
   }
 
   public int getIdentifier(String document) throws IOException {
-    throw new UnsupportedOperationException("Not supported yet.");
+    throw new RuntimeException("UNIMPLEMENTED function: getIdentifier");
   }
 
   @Override
@@ -322,7 +322,7 @@ public class GeometricIndex implements DynamicIndex, Index {
   }
 
   // handles the memory index
-  private void resetCurrentMemoryIndex() throws IOException {
+  private void resetCurrentMemoryIndex() throws Exception {
     // by using the globalParameters, the memory index can startup counters etc.
     // we set the documentCount to ensure all documents are given a unique number.
     tupleFlowParameters.getJSON().set("documentNumberOffset", this.globalDocumentCount);
@@ -341,9 +341,13 @@ public class GeometricIndex implements DynamicIndex, Index {
     final MemoryIndex flushingMemoryIndex = currentMemoryIndex;
     final File shardFolder = getNextIndexShardFolder(1);
 
-    // reset the current index
-    //  - this makes the flush operation thread safe while continuing to add new documents.
-    resetCurrentMemoryIndex();
+    try {
+      // reset the current index
+      //  - this makes the flush operation thread safe while continuing to add new documents.
+      resetCurrentMemoryIndex();
+    } catch (Exception ex) {
+      throw new IOException(ex);
+    }
 
     try {
       // first flush the index to disk
@@ -377,7 +381,8 @@ public class GeometricIndex implements DynamicIndex, Index {
 
 
         // merge the shards
-        Parameters p = new Parameters();
+        Parameters p = this.globalParameters.clone();
+        // override each of these particular parameters
         p.set("indexPath", indexShard.getAbsolutePath());
         p.set("inputPath", new ArrayList(mergeBin.getBinPaths()));
         p.set("renumberDocuments", false);

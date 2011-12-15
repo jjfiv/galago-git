@@ -71,7 +71,7 @@ public class RetrievalFactory {
    *  many index paths - multi - locals
    *  many index paths - multi - proxies
    */
-  public static Retrieval instance(String path, Parameters parameters) throws IOException {
+  public static Retrieval instance(String path, Parameters parameters) throws Exception {
     if (path.startsWith("http://")) {
       // create a proxy, using the ProxyRetrieval as the InvocationHandler
       InvocationHandler ih = new ProxyRetrieval(path, parameters);

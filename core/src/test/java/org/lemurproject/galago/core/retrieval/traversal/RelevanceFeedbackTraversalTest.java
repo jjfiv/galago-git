@@ -52,20 +52,20 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     Parameters p = new Parameters();
     p.set("index", indexFile.getAbsolutePath());
     p.set("corpus", corpusFile.getAbsolutePath());
-    p.set("stemming", false);
+    p.set("stemmedPostings", false);
     LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
     RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval);
 
-    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=3:fbDocs=2( #feature:dirichlet( #extents:fits:part=postings.porter() ) )");
+    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=3:fbDocs=2( #feature:dirichlet( #extents:fits:part=postings() ) )");
     Node transformed = StructuredQuery.copy(traversal, parsedTree);
     // truth data
     StringBuilder correct = new StringBuilder();
     correct.append("#combine:0=0.5:1=0.5( ");
-    correct.append("#combine( #feature:dirichlet( #extents:fits:part=postings.porter() ) ) ");
-    correct.append("#combine:0=0.12516622340425534:1=0.041611258865248225:2=0.041611258865248225( ");
-    correct.append("#feature:dirichlet( #extents:program:part=postings.porter() ) ");
-    correct.append("#feature:dirichlet( #extents:shoe:part=postings.porter() ) ");
-    correct.append("#feature:dirichlet( #extents:ugly:part=postings.porter() ) ) )");
+    correct.append("#combine( #feature:dirichlet( #extents:fits:part=postings() ) ) ");
+    correct.append("#combine:0=0.16677748226950356:1=0.12516622340425534:2=0.041611258865248225( ");
+    correct.append("#feature:dirichlet( #extents:fit:part=postings() ) ");
+    correct.append("#feature:dirichlet( #extents:program:part=postings() ) ");
+    correct.append("#feature:dirichlet( #extents:shoe:part=postings() ) ) )");
 
     assertEquals(correct.toString(), transformed.toString());
     retrieval.close();
@@ -79,13 +79,13 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     p.set("corpus", corpusFile.getAbsolutePath());
     LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
     BM25RelevanceFeedbackTraversal traversal = new BM25RelevanceFeedbackTraversal(retrieval);
-    Node parsedTree = StructuredQuery.parse("#bm25rf:fbDocs=3:fbTerms=2( #feature:bm25( #extents:cat:part=postings.porter() ) )");
+    Node parsedTree = StructuredQuery.parse("#bm25rf:fbDocs=3:fbTerms=2( #feature:bm25( #extents:cat:part=postings() ) )");
     Node transformed = StructuredQuery.copy(traversal, parsedTree);
     //truth data
     StringBuilder correct = new StringBuilder();
-    correct.append("#combine( #feature:bm25( #extents:cat:part=postings.porter() ) ");
-    correct.append("#feature:bm25rf:R=3:rt=1( #extents:jumped:part=postings.porter() ) ");
-    correct.append("#feature:bm25rf:R=3:rt=2( #extents:moon:part=postings.porter() ) )");
+    correct.append("#combine( #feature:bm25( #extents:cat:part=postings() ) ");
+    correct.append("#feature:bm25rf:R=3:rt=1( #extents:jumped:part=postings() ) ");
+    correct.append("#feature:bm25rf:R=3:rt=2( #extents:moon:part=postings() ) )");
     assertEquals(correct.toString(), transformed.toString());
     
     retrieval.close();

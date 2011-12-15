@@ -1,14 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
-import org.lemurproject.galago.core.tools.App;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.corpus.CorpusReader.KeyIterator;
-import org.lemurproject.galago.core.index.disk.IndexReader;
+import org.lemurproject.galago.core.index.disk.DiskIndex;
+import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -198,9 +197,6 @@ public class AppTest extends TestCase {
       byteArrayStream = new ByteArrayOutputStream();
       printStream = new PrintStream(byteArrayStream);
 
-      IndexReader reader = new IndexReader(new File(indexFile + "/corpus/key.index"));
-      System.err.println(reader.getManifest());
-      
       new App().run(new String[]{"doc", indexFile.getAbsolutePath(), "55"}, printStream);
       output = byteArrayStream.toString();
       assertEquals("#IDENTIFIER: 55\n<TEXT>\nThis is a sample document</TEXT>\n\n", output);

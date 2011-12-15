@@ -14,15 +14,17 @@ import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
+import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.index.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.index.ValueIterator;
-import org.lemurproject.galago.core.index.mem.MemoryPostings.PostingList.PostingIterator;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
 import org.lemurproject.galago.core.retrieval.structured.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ModifiableIterator;
@@ -50,9 +52,18 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
   protected Parameters parameters;
   protected long collectionDocumentCount = 0;
   protected long collectionPostingsCount = 0;
+  protected Stemmer stemmer = null;
 
-  public MemoryPostings(Parameters parameters) {
+  public MemoryPostings(Parameters parameters) throws Exception {
     this.parameters = parameters;
+
+    if (parameters.containsKey("stemmer")) {
+      stemmer = (Stemmer) Class.forName(parameters.getString("stemmer")).newInstance();
+    }
+
+    // if the parameters specify a collection length use them.
+    collectionPostingsCount = parameters.get("statistics/collectionLength", 0);
+    collectionDocumentCount = parameters.get("statistics/documentCount", 0);
   }
 
   // overridable function (for stemming etc) 
@@ -70,14 +81,36 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
 
     int position = 0;
     for (String term : doc.terms) {
-      addPosting(Utility.fromString(term), doc.identifier, position);
+      String stem = stemAsRequired(term);
+      addPosting(Utility.fromString(stem), doc.identifier, position);
       position += 1;
     }
   }
 
-  public void addPosting(byte[] byteWord, int document, int position) {
+  @Override
+  public void addIteratorData(ValueIterator iterator) throws IOException {
+    // we expect that this iterator is a KeyListReader.ListIterator
+    byte[] key = ((KeyListReader.ListIterator) iterator).getKeyBytes();
+
+    if (postings.containsKey(key)) {
+      // do nothing - we have already cached this data
+      return;
+    }
+
+    do {
+      int document = iterator.currentCandidate();
+      ExtentArrayIterator extentsIterator = new ExtentArrayIterator(((ExtentValueIterator) iterator).extents());
+      while (!extentsIterator.isDone()) {
+        int begin = extentsIterator.currentBegin();
+        addPosting(key, document, begin);
+        extentsIterator.next();
+      }
+    } while (iterator.next());
+  }
+
+  protected void addPosting(byte[] byteWord, int document, int position) {
     if (!postings.containsKey(byteWord)) {
-      PostingList postingList = new PostingList();
+      PostingList postingList = new PostingList(byteWord);
       postings.put(byteWord, postingList);
     }
 
@@ -93,23 +126,47 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
 
   @Override
   public ValueIterator getIterator(Node node) throws IOException {
-    KeyIterator i = getIterator();
-    i.skipToKey(Utility.fromString(node.getDefaultParameter()));
-    if ((i.getKeyBytes()!= null)
-            && (0 == Utility.compare(i.getKeyBytes(), Utility.fromString(node.getDefaultParameter())))) {
-      return i.getValueIterator();
+    String term = stemAsRequired(node.getDefaultParameter());
+    byte[] byteWord = Utility.fromString(term);
+    if (node.getOperator().equals("counts")) {
+      return getTermCounts(byteWord);
+    } else {
+      return getTermExtents(byteWord);
     }
-    return null;
   }
 
   @Override
   public NodeStatistics getTermStatistics(String term) throws IOException {
+    term = stemAsRequired(term);
     return getTermStatistics(Utility.fromString(term));
   }
 
   @Override
   public NodeStatistics getTermStatistics(byte[] term) throws IOException {
-    return postings.get(term).getPostingIterator(term).getStatistics();
+    PostingList postingList = postings.get(term);
+    if (postingList != null) {
+      CountsIterator counts = new CountsIterator(postingList);
+      return counts.getStatistics();
+    }
+    NodeStatistics stats = new NodeStatistics();
+    stats.node = Utility.toString(term);
+    return stats;
+  }
+
+  private CountsIterator getTermCounts(byte[] term) throws IOException {
+    PostingList postingList = postings.get(term);
+    if (postingList != null) {
+      return new CountsIterator(postingList);
+    }
+    return null;
+  }
+
+  private ExtentsIterator getTermExtents(byte[] term) throws IOException {
+    PostingList postingList = postings.get(term);
+    if (postingList != null) {
+      return new ExtentsIterator(postingList);
+    }
+    return null;
   }
 
   // try to free up memory.
@@ -121,8 +178,8 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("counts", new NodeType(PostingIterator.class));
-    types.put("extents", new NodeType(PostingIterator.class));
+    types.put("counts", new NodeType(CountsIterator.class));
+    types.put("extents", new NodeType(ExtentsIterator.class));
     return types;
   }
 
@@ -147,10 +204,10 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
   }
 
   @Override
-  public long getVocabCount(){
+  public long getVocabCount() {
     return postings.size();
   }
-    
+
   @Override
   public void flushToDisk(String path) throws IOException {
     Parameters p = getManifest();
@@ -161,10 +218,10 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     PositionIndexWriter writer = new PositionIndexWriter(new FakeParameters(p));
 
     KIterator kiterator = new KIterator();
-    PostingIterator viterator;
+    ExtentsIterator viterator;
     ExtentArray extents;
     while (!kiterator.isDone()) {
-      viterator = (PostingIterator) kiterator.getValueIterator();
+      viterator = (ExtentsIterator) kiterator.getValueIterator();
       writer.processWord(kiterator.getKeyBytes());
 
       while (!viterator.isDone()) {
@@ -181,9 +238,63 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     writer.close();
   }
 
+  // private functions
+  private String stemAsRequired(String term) {
+    if (stemmer != null) {
+      return stemmer.stem(term);
+    }
+    return term;
+  }
 
+  // sub classes:
+  public class PostingList {
+
+    byte[] key;
+    CompressedByteBuffer documents_cbb = new CompressedByteBuffer();
+    CompressedByteBuffer counts_cbb = new CompressedByteBuffer();
+    CompressedByteBuffer positions_cbb = new CompressedByteBuffer();
+    //IntArray documents = new IntArray();
+    //IntArray termFreqCounts = new IntArray();
+    //IntArray termPositions = new IntArray();
+    int termDocumentCount = 0;
+    int termPostingsCount = 0;
+    int lastDocument = 0;
+    int lastCount = 0;
+    int lastPosition = 0;
+
+    public PostingList(byte[] key) {
+      this.key = key;
+    }
+
+    public void add(int document, int position) {
+      if (termDocumentCount == 0) {
+        // first instance of term
+        lastDocument = document;
+        lastCount = 1;
+        termDocumentCount += 1;
+        documents_cbb.add(document);
+      } else if (lastDocument == document) {
+        // additional instance of term in document
+        lastCount += 1;
+      } else {
+        // new document
+        assert lastDocument == 0 || document > lastDocument;
+        documents_cbb.add(document - lastDocument);
+        lastDocument = document;
+        counts_cbb.add(lastCount);
+        lastCount = 1;
+        termDocumentCount += 1;
+        lastPosition = 0;
+      }
+      assert lastPosition == 0 || position > lastPosition;
+      positions_cbb.add(position - lastPosition);
+      termPostingsCount += 1;
+      lastPosition = position;
+    }
+  }
   // iterator allows for query processing and for streaming posting list data
   // public class Iterator extends ExtentIterator implements IndexIterator {
+
   public class KIterator implements KeyIterator {
 
     Iterator<byte[]> iterator;
@@ -237,7 +348,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     @Override
     public String getValueString() throws IOException {
       long count = -1;
-      PostingIterator it = postings.get(currKey).getPostingIterator(currKey);
+      ExtentsIterator it = new ExtentsIterator(postings.get(currKey));
       count = it.count();
       StringBuilder sb = new StringBuilder();
       sb.append(Utility.toString(getKeyBytes())).append(",");
@@ -276,258 +387,388 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
 
     @Override
     public ValueIterator getValueIterator() throws IOException {
-      return postings.get(currKey).getPostingIterator(currKey);
+      if (currKey != null) {
+        return new ExtentsIterator(postings.get(currKey));
+      } else {
+        return null;
+      }
     }
   }
 
-  // sub classes:
-  public class PostingList {
+  public class ExtentsIterator implements ValueIterator, ModifiableIterator,
+          AggregateIterator, CountValueIterator, ExtentValueIterator, ContextualIterator {
 
-    CompressedByteBuffer documents_cbb = new CompressedByteBuffer();
-    CompressedByteBuffer counts_cbb = new CompressedByteBuffer();
-    CompressedByteBuffer positions_cbb = new CompressedByteBuffer();
-    //IntArray documents = new IntArray();
-    //IntArray termFreqCounts = new IntArray();
-    //IntArray termPositions = new IntArray();
-    int termDocumentCount = 0;
-    int termPostingsCount = 0;
-    int lastDocument = 0;
-    int lastCount = 0;
-    int lastPosition = 0;
+    PostingList postings;
+    VByteInput documents_reader;
+    VByteInput counts_reader;
+    VByteInput positions_reader;
+    int iteratedDocs;
+    int currDocument;
+    int currCount;
+    ExtentArray extents;
+    boolean done;
+    ScoringContext context;
+    Map<String, Object> modifiers;
 
-    public PostingList(){}
+    private ExtentsIterator(PostingList postings) throws IOException {
+      this.postings = postings;
+      reset();
+    }
 
-    public void add(int document, int position) {
-      if (termDocumentCount == 0) {
-        // first instance of term
-        lastDocument = document;
-        lastCount = 1;
-        termDocumentCount += 1;
-        documents_cbb.add(document);
-      } else if (lastDocument == document) {
-        // additional instance of term in document
-        lastCount += 1;
+    @Override
+    public void reset() throws IOException {
+      documents_reader = new VByteInput(
+              new DataInputStream(
+              new ByteArrayInputStream(postings.documents_cbb.getBytes())));
+      counts_reader = new VByteInput(
+              new DataInputStream(
+              new ByteArrayInputStream(postings.counts_cbb.getBytes())));
+      positions_reader = new VByteInput(
+              new DataInputStream(
+              new ByteArrayInputStream(postings.positions_cbb.getBytes())));
+
+      iteratedDocs = 0;
+      currDocument = 0;
+      currCount = 0;
+      extents = new ExtentArray();
+
+      next();
+    }
+
+    @Override
+    public int count() {
+      return currCount;
+    }
+
+    @Override
+    public ExtentArray extents() {
+      return extents;
+    }
+
+    @Override
+    public ExtentArray getData() {
+      return extents;
+    }
+
+    @Override
+    public boolean isDone() {
+      return done;
+    }
+
+    @Override
+    public int currentCandidate() {
+      return currDocument;
+    }
+
+    @Override
+    public boolean hasMatch(int identifier) {
+      return (!isDone() && identifier == currDocument);
+    }
+
+    @Override
+    public boolean next() throws IOException {
+      if (iteratedDocs >= postings.termDocumentCount) {
+        done = true;
+        return false;
+      } else if (iteratedDocs == postings.termDocumentCount - 1) {
+        currDocument = postings.lastDocument;
+        currCount = postings.lastCount;
       } else {
-        // new document
-        assert lastDocument == 0 || document > lastDocument;
-        documents_cbb.add(document - lastDocument);
-        lastDocument = document;
-        counts_cbb.add(lastCount);
-        lastCount = 1;
-        termDocumentCount += 1;
-        lastPosition = 0;
+        currDocument += documents_reader.readInt();
+        currCount = counts_reader.readInt();
       }
-      assert lastPosition == 0 || position > lastPosition;
-      positions_cbb.add(position - lastPosition);
-      termPostingsCount += 1;
-      lastPosition = position;
+      loadExtents();
+
+      iteratedDocs++;
+      return true;
     }
 
-    private PostingIterator getPostingIterator(byte[] currKey) throws IOException {
-      return new PostingIterator(currKey);
+    public void loadExtents() throws IOException {
+      extents.reset();
+      extents.setDocument(currDocument);
+      int position = 0;
+      for (int i = 0; i < currCount; i++) {
+        position += positions_reader.readInt();
+        extents.add(position);
+      }
     }
 
-    public class PostingIterator implements ValueIterator, ModifiableIterator,
-            AggregateIterator, CountValueIterator, ExtentValueIterator, ContextualIterator {
-
-      byte[] m_termBytes;
-      VByteInput documents_reader;
-      VByteInput counts_reader;
-      VByteInput positions_reader;
-      int iteratedDocs;
-      int currDocument;
-      int currCount;
-      ExtentArray extents;
-      boolean done;
-      ScoringContext context;
-      Map<String, Object> modifiers;
-
-      public PostingIterator(byte[] m_termBytes) throws IOException {
-        this.m_termBytes = m_termBytes;
-        reset();
-      }
-
-      @Override
-      public void reset() throws IOException {
-        documents_reader = new VByteInput(
-                new DataInputStream(
-                new ByteArrayInputStream(documents_cbb.getBytes())));
-        counts_reader = new VByteInput(
-                new DataInputStream(
-                new ByteArrayInputStream(counts_cbb.getBytes())));
-        positions_reader = new VByteInput(
-                new DataInputStream(
-                new ByteArrayInputStream(positions_cbb.getBytes())));
-
-        iteratedDocs = 0;
-        currDocument = 0;
-        currCount = 0;
-        extents = new ExtentArray();
-
+    @Override
+    public boolean moveTo(int identifier) throws IOException {
+      while (!isDone() && (currDocument < identifier)) {
         next();
       }
+      return hasMatch(identifier);
+    }
 
-      @Override
-      public int count() {
-        return currCount;
-      }
+    @Override
+    public void movePast(int identifier) throws IOException {
+      moveTo(identifier + 1);
+    }
 
-      @Override
-      public ExtentArray extents() {
-        return extents;
-      }
+    @Override
+    public String getEntry() throws IOException {
+      StringBuilder builder = new StringBuilder();
 
-      @Override
-      public ExtentArray getData() {
-        return extents;
-      }
-
-      @Override
-      public boolean isDone() {
-        return done;
-      }
-
-      @Override
-      public int currentCandidate() {
-        return currDocument;
-      }
-
-      @Override
-      public boolean hasMatch(int identifier) {
-        return (!isDone() && identifier == currDocument);
-      }
-
-      @Override
-      public boolean next() throws IOException {
-        if (iteratedDocs >= termDocumentCount) {
-          done = true;
-          return false;
-        } else if (iteratedDocs == termDocumentCount - 1) {
-          currDocument = lastDocument;
-          currCount = lastCount;
-        } else {
-          currDocument += documents_reader.readInt();
-          currCount = counts_reader.readInt();
-        }
-        loadExtents();
-
-        iteratedDocs++;
-        return true;
-      }
-
-      public void loadExtents() throws IOException {
-        extents.reset();
-        extents.setDocument(currDocument);
-        int position = 0;
-        for (int i = 0; i < currCount; i++) {
-          position += positions_reader.readInt();
-          extents.add(position);
-        }
-      }
-
-      @Override
-      public boolean moveTo(int identifier) throws IOException {
-        while (!isDone() && (currDocument < identifier)) {
-          next();
-        }
-        return hasMatch(identifier);
-      }
-
-      @Override
-      public void movePast(int identifier) throws IOException {
-        moveTo(identifier + 1);
-      }
-
-      @Override
-      public String getEntry() throws IOException {
-        StringBuilder builder = new StringBuilder();
-
-        builder.append(Utility.toString(m_termBytes));
+      builder.append(Utility.toString(postings.key));
+      builder.append(",");
+      builder.append(currDocument);
+      for (int i = 0; i < extents.size(); ++i) {
         builder.append(",");
-        builder.append(currDocument);
-        for (int i = 0; i < extents.size(); ++i) {
-          builder.append(",");
-          builder.append(extents.begin(i));
-        }
-
-        return builder.toString();
+        builder.append(extents.begin(i));
       }
 
-      @Override
-      public long totalEntries() {
-        return termDocumentCount;
+      return builder.toString();
+    }
+
+    @Override
+    public long totalEntries() {
+      return postings.termDocumentCount;
+    }
+
+    @Override
+    public NodeStatistics getStatistics() {
+      if (modifiers != null && modifiers.containsKey("background")) {
+        return (NodeStatistics) modifiers.get("background");
+      }
+      NodeStatistics stats = new NodeStatistics();
+      stats.node = Utility.toString(postings.key);
+      stats.nodeFrequency = postings.termPostingsCount;
+      stats.nodeDocumentCount = postings.termDocumentCount;
+      stats.collectionLength = collectionPostingsCount;
+      stats.documentCount = collectionDocumentCount;
+      return stats;
+    }
+
+    @Override
+    public int compareTo(ValueIterator other) {
+      if (isDone() && !other.isDone()) {
+        return 1;
+      }
+      if (other.isDone() && !isDone()) {
+        return -1;
+      }
+      if (isDone() && other.isDone()) {
+        return 0;
+      }
+      return currentCandidate() - other.currentCandidate();
+    }
+
+    @Override
+    public void addModifier(String k, Object m) {
+      if (modifiers == null) {
+        modifiers = new HashMap<String, Object>();
+      }
+      modifiers.put(k, m);
+    }
+
+    @Override
+    public Set<String> getAvailableModifiers() {
+      return modifiers.keySet();
+    }
+
+    @Override
+    public boolean hasModifier(String key) {
+      return ((modifiers != null) && modifiers.containsKey(key));
+    }
+
+    @Override
+    public Object getModifier(String modKey) {
+      if (modifiers == null) {
+        return null;
+      }
+      return modifiers.get(modKey);
+    }
+
+    @Override
+    public ScoringContext getContext() {
+      return this.context;
+    }
+
+    // This will pass up topdocs information if it's available
+    @Override
+    public void setContext(ScoringContext context) {
+      if ((context != null) && TopDocsContext.class.isAssignableFrom(context.getClass())
+              && this.hasModifier("topdocs")) {
+        ((TopDocsContext) context).hold = ((ArrayList<TopDocument>) getModifier("topdocs"));
+        // remove the pointer to the mod (don't need it anymore)
+        this.modifiers.remove("topdocs");
+      }
+      this.context = context;
+    }
+  }
+
+  public class CountsIterator implements ValueIterator, ModifiableIterator,
+          AggregateIterator, CountValueIterator, ContextualIterator {
+
+    PostingList postings;
+    VByteInput documents_reader;
+    VByteInput counts_reader;
+    int iteratedDocs;
+    int currDocument;
+    int currCount;
+    boolean done;
+    ScoringContext context;
+    Map<String, Object> modifiers;
+
+    private CountsIterator(PostingList postings) throws IOException {
+      this.postings = postings;
+      reset();
+    }
+
+    @Override
+    public void reset() throws IOException {
+      documents_reader = new VByteInput(
+              new DataInputStream(
+              new ByteArrayInputStream(postings.documents_cbb.getBytes())));
+      counts_reader = new VByteInput(
+              new DataInputStream(
+              new ByteArrayInputStream(postings.counts_cbb.getBytes())));
+
+      iteratedDocs = 0;
+      currDocument = 0;
+      currCount = 0;
+
+      next();
+    }
+
+    @Override
+    public int count() {
+      return currCount;
+    }
+
+    @Override
+    public boolean isDone() {
+      return done;
+    }
+
+    @Override
+    public int currentCandidate() {
+      return currDocument;
+    }
+
+    @Override
+    public boolean hasMatch(int identifier) {
+      return (!isDone() && identifier == currDocument);
+    }
+
+    @Override
+    public boolean next() throws IOException {
+      if (iteratedDocs >= postings.termDocumentCount) {
+        done = true;
+        return false;
+      } else if (iteratedDocs == postings.termDocumentCount - 1) {
+        currDocument = postings.lastDocument;
+        currCount = postings.lastCount;
+      } else {
+        currDocument += documents_reader.readInt();
+        currCount = counts_reader.readInt();
       }
 
-      @Override
-      public NodeStatistics getStatistics() {
-        if (modifiers != null && modifiers.containsKey("background")) {
-          return (NodeStatistics) modifiers.get("background");
-        }
-        NodeStatistics stats = new NodeStatistics();
-        stats.node = Utility.toString(m_termBytes);
-        stats.nodeFrequency = termPostingsCount;
-        stats.nodeDocumentCount = termDocumentCount;
-        stats.collectionLength = collectionPostingsCount;
-        stats.documentCount = collectionDocumentCount;
-        return stats;
-      }
+      iteratedDocs++;
+      return true;
+    }
 
-      @Override
-      public int compareTo(ValueIterator other) {
-        if (isDone() && !other.isDone()) {
-          return 1;
-        }
-        if (other.isDone() && !isDone()) {
-          return -1;
-        }
-        if (isDone() && other.isDone()) {
-          return 0;
-        }
-        return currentCandidate() - other.currentCandidate();
+    @Override
+    public boolean moveTo(int identifier) throws IOException {
+      while (!isDone() && (currDocument < identifier)) {
+        next();
       }
+      return hasMatch(identifier);
+    }
 
-      @Override
-      public void addModifier(String k, Object m) {
-        if (modifiers == null) {
-          modifiers = new HashMap<String, Object>();
-        }
-        modifiers.put(k, m);
-      }
+    @Override
+    public void movePast(int identifier) throws IOException {
+      moveTo(identifier + 1);
+    }
 
-      @Override
-      public Set<String> getAvailableModifiers() {
-        return modifiers.keySet();
-      }
+    @Override
+    public String getEntry() throws IOException {
+      StringBuilder builder = new StringBuilder();
 
-      @Override
-      public boolean hasModifier(String key) {
-        return ((modifiers != null) && modifiers.containsKey(key));
-      }
+      builder.append(Utility.toString(postings.key));
+      builder.append(",");
+      builder.append(currDocument);
+      builder.append(",");
+      builder.append(currCount);
 
-      @Override
-      public Object getModifier(String modKey) {
-        if (modifiers == null) {
-          return null;
-        }
-        return modifiers.get(modKey);
-      }
+      return builder.toString();
+    }
 
-      @Override
-      public ScoringContext getContext() {
-        return this.context;
-      }
+    @Override
+    public long totalEntries() {
+      return postings.termDocumentCount;
+    }
 
-      // This will pass up topdocs information if it's available
-      @Override
-      public void setContext(ScoringContext context) {
-        if ((context != null) && TopDocsContext.class.isAssignableFrom(context.getClass())
-                && this.hasModifier("topdocs")) {
-          ((TopDocsContext) context).hold = ((ArrayList<TopDocument>) getModifier("topdocs"));
-          // remove the pointer to the mod (don't need it anymore)
-          this.modifiers.remove("topdocs");
-        }
-        this.context = context;
+    @Override
+    public NodeStatistics getStatistics() {
+      if (modifiers != null && modifiers.containsKey("background")) {
+        return (NodeStatistics) modifiers.get("background");
       }
+      NodeStatistics stats = new NodeStatistics();
+      stats.node = Utility.toString(postings.key);
+      stats.nodeFrequency = postings.termPostingsCount;
+      stats.nodeDocumentCount = postings.termDocumentCount;
+      stats.collectionLength = collectionPostingsCount;
+      stats.documentCount = collectionDocumentCount;
+      return stats;
+    }
+
+    @Override
+    public int compareTo(ValueIterator other) {
+      if (isDone() && !other.isDone()) {
+        return 1;
+      }
+      if (other.isDone() && !isDone()) {
+        return -1;
+      }
+      if (isDone() && other.isDone()) {
+        return 0;
+      }
+      return currentCandidate() - other.currentCandidate();
+    }
+
+    @Override
+    public void addModifier(String k, Object m) {
+      if (modifiers == null) {
+        modifiers = new HashMap<String, Object>();
+      }
+      modifiers.put(k, m);
+    }
+
+    @Override
+    public Set<String> getAvailableModifiers() {
+      return modifiers.keySet();
+    }
+
+    @Override
+    public boolean hasModifier(String key) {
+      return ((modifiers != null) && modifiers.containsKey(key));
+    }
+
+    @Override
+    public Object getModifier(String modKey) {
+      if (modifiers == null) {
+        return null;
+      }
+      return modifiers.get(modKey);
+    }
+
+    @Override
+    public ScoringContext getContext() {
+      return this.context;
+    }
+
+    // This will pass up topdocs information if it's available
+    @Override
+    public void setContext(ScoringContext context) {
+      if ((context != null) && TopDocsContext.class.isAssignableFrom(context.getClass())
+              && this.hasModifier("topdocs")) {
+        ((TopDocsContext) context).hold = ((ArrayList<TopDocument>) getModifier("topdocs"));
+        // remove the pointer to the mod (don't need it anymore)
+        this.modifiers.remove("topdocs");
+      }
+      this.context = context;
     }
   }
 }

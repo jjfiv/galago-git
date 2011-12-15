@@ -784,6 +784,50 @@ public class Parameters implements Serializable {
     return (_keys.containsKey(key) && _keys.get(key) == Type.LIST);
   }
 
+  public boolean isList(String key, Type type) {
+    if (isList(key)) {
+      List<Object> list = getList(key);
+      // empty lists can store anything
+      if (list.isEmpty()) {
+        return true;
+      }
+      Object o = list.get(0);
+      switch (type) {
+        case MAP:
+          if (Parameters.class.isAssignableFrom(o.getClass())) {
+            return true;
+          }
+          break;
+        case LIST:
+          if (List.class.isAssignableFrom(o.getClass())) {
+            return true;
+          }
+          break;
+        case STRING:
+          if (String.class.isAssignableFrom(o.getClass())) {
+            return true;
+          }
+          break;
+        case DOUBLE:
+          if (Double.class.isAssignableFrom(o.getClass())) {
+            return true;
+          }
+          break;
+        case LONG:
+          if (Long.class.isAssignableFrom(o.getClass())) {
+            return true;
+          }
+          break;
+        case BOOLEAN:
+          if (Boolean.class.isAssignableFrom(o.getClass())) {
+            return true;
+          }
+          break;
+      }
+    }
+    return false;
+  }
+
   public boolean isMap(String key) {
     return (_keys.containsKey(key) && _keys.get(key) == Type.MAP);
   }

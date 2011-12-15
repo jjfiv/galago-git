@@ -226,7 +226,7 @@ public class App {
         String docIdentifier = reader.getDocumentName(Integer.parseInt(identifier));
         output.println(docIdentifier);
       } else {
-        int docNum = reader.getDocumentId(identifier);
+        int docNum = reader.getDocumentIdentifier(identifier);
         output.println(docNum);
       }
     }

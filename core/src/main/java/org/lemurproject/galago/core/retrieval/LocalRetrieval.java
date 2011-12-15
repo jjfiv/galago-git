@@ -13,11 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.PriorityQueue;
+import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.LengthsReader;
+import org.lemurproject.galago.core.index.disk.CachedDiskIndex;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.structured.FeatureFactory;
@@ -39,6 +41,7 @@ import org.lemurproject.galago.core.retrieval.structured.ContextFactory;
 import org.lemurproject.galago.core.retrieval.structured.PassageScoringContext;
 import org.lemurproject.galago.core.retrieval.structured.WorkingSetContext;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Parameters.Type;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -82,9 +85,32 @@ public class LocalRetrieval implements Retrieval {
    * separate logical index.
    */
   public LocalRetrieval(String filename, Parameters parameters)
-          throws FileNotFoundException, IOException {
+          throws FileNotFoundException, IOException, Exception {
     this.globalParameters = parameters;
-    setIndex(new DiskIndex(filename));
+    if (globalParameters.containsKey("cacheQueries")) {
+      CachedDiskIndex cachedIndex = new CachedDiskIndex(filename);
+      setIndex(cachedIndex);
+
+      if (globalParameters.isList("cacheQueries", Type.STRING)) {
+        List<String> queries = globalParameters.getAsList("cacheQueries");
+        for (String q : queries) {
+          Node queryTree = StructuredQuery.parse(q);
+          queryTree = transformQuery(queryTree);
+          cachedIndex.cacheQueryData(queryTree);
+        }
+      } else if (globalParameters.isList("cacheQueries", Type.MAP)) {
+        List<Parameters> queries = globalParameters.getAsList("cacheQueries");
+        for (Parameters q : queries) {
+          Node queryTree = StructuredQuery.parse(q.getString("text"));
+          queryTree = transformQuery(queryTree);
+          cachedIndex.cacheQueryData(queryTree);
+        }
+      } else {
+        Logger.getLogger(this.getClass().getName()).info("Could not process cachedQueries list. No posting list data cached.");
+      }
+    } else {
+      setIndex(new DiskIndex(filename));
+    }
   }
 
   private void setIndex(Index indx) throws IOException {
@@ -193,7 +219,7 @@ public class LocalRetrieval implements Retrieval {
                 runBooleanQuery(queryTree, p, wsc);
         break;
     }
-    
+
     if (results == null) {
       results = new ScoredDocument[0];
     }

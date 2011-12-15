@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 
+import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
@@ -25,6 +26,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
 import org.lemurproject.galago.core.retrieval.structured.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ModifiableIterator;
@@ -66,6 +68,28 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
       prevBegin = tag.begin;
       addExtent(Utility.fromString(tag.name), doc.identifier, tag.begin, tag.end);
     }
+  }
+
+  @Override
+  public void addIteratorData(ValueIterator iterator) throws IOException {
+    // we expect that this iterator is a KeyListReader.ListIterator
+    byte[] key = ((KeyListReader.ListIterator) iterator).getKeyBytes();
+    
+    if( extents.containsKey(key) ){
+      // do nothing - we have already cached this data
+      return;
+    }
+    
+    do{
+      int document = iterator.currentCandidate();
+      ExtentArrayIterator extentsIterator = new ExtentArrayIterator(((ExtentValueIterator) iterator).extents());
+      while(!extentsIterator.isDone()){
+        int begin = extentsIterator.currentBegin();
+        int end = extentsIterator.currentEnd();
+        addExtent(key, document, begin, end);
+        extentsIterator.next();
+      }
+    } while(iterator.next());
   }
 
   private void addExtent(byte[] byteExtentName, int document, int begin, int end) {
