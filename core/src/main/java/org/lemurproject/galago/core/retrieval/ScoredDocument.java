@@ -20,6 +20,13 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
     this.score = score;
   }
 
+  public ScoredDocument(String documentName, int rank, double score) {
+    this.documentName = documentName;
+    this.rank = rank;
+    this.score = score;
+    this.document = -1;
+  }
+  
   public int compareTo(ScoredDocument other) {
     if (score != other.score) {
       return Double.compare(score, other.score);
@@ -40,7 +47,4 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
   public int document;
   public int rank;
   public double score;
-
-  // keeps track of the parameters that were used to score this document - only used for parameterSweeping
-  public String params;
 }

@@ -230,7 +230,10 @@ public class AppTest extends TestCase {
       Utility.copyStringToFile("9 Q0 55 1\n", relsFile);
 
       // for now this is just a smoke test.
-      new App().run(new String[]{"eval", scoresFile.getAbsolutePath(), relsFile.getAbsolutePath()}, printStream);
+      new App().run(new String[]{"eval", 
+        "--baseline="+scoresFile.getAbsolutePath(), 
+        "--judgments="+relsFile.getAbsolutePath()}, 
+              printStream);
 
 
       queries = "{ \"x\" : ["

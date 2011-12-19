@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import org.lemurproject.galago.core.eval.Eval;
 import org.lemurproject.galago.core.index.disk.DiskNameReader;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
@@ -48,10 +49,16 @@ public class App {
 
     public void run(String[] args, PrintStream output) throws Exception {
       Parameters p = new Parameters();
-      if (args.length > 1) {
+
+      if (args.length == 1) {
+        output.print(this.getHelpString());
+        return;
+
+      } else if (args.length > 1) {
         p = new Parameters(Utility.subarray(args, 1));
         // don't want to wipe an existing parameter:
       }
+
       if ((args.length > 0) && (!p.containsKey("command"))) {
         p.set("command", Utility.join(args, " "));
       }
@@ -83,7 +90,7 @@ public class App {
     appFunctions.put("search", new SearchFn());
 
     // eval 
-    appFunctions.put("eval", new EvalFn());
+    appFunctions.put("eval", new Eval());
 
     // dump functions
     appFunctions.put("dump-connection", new DumpConnectionFn());
@@ -104,7 +111,7 @@ public class App {
   }
 
   /*
-   * Main function
+   * Eval function
    */
   public static void main(String[] args) throws Exception {
     App.run(args);
@@ -184,13 +191,13 @@ public class App {
       String identifier = args[2];
       Retrieval r = RetrievalFactory.instance(indexPath, new Parameters());
       assert r.getAvailableParts().containsKey("corpus") : "Index does not contain a corpus part.";
-      
+
       Document document = r.getDocument(identifier);
-      if(document != null){
+      if (document != null) {
         output.println("#IDENTIFIER: " + document.name);
         output.println(document.text);
       } else {
-        output.println("Document "+identifier+" does not exist in index.");
+        output.println("Document " + identifier + " does not exist in index.");
       }
     }
 
@@ -456,65 +463,6 @@ public class App {
     public void run(Parameters p, PrintStream output) throws Exception {
       String modifierPath = p.getString("modifierPath");
       run(new String[]{"", modifierPath}, output);
-    }
-  }
-
-  private static class EvalFn extends AppFunction {
-
-    @Override
-    public String getHelpString() {
-      return "galago eval <args>: \n"
-              + "   There are two ways to use this program.  First, you can evaluate a single ranking: \n"
-              + "      galago eval TREC-Ranking-File TREC-Judgments-File\n"
-              + "   or, you can use it to compare two rankings with statistical tests: \n"
-              + "      galago eval TREC-Baseline-Ranking-File TREC-Improved-Ranking-File TREC-Judgments-File\n"
-              + "   you can also include randomized tests (these take a bit longer): \n"
-              + "      galago eval TREC-Baseline-Ranking-File TREC-Treatment-Ranking-File TREC-Judgments-File randomized\n\n"
-              + "Single evaluation:\n"
-              + "   The first column is the query number, or 'all' for a mean of the metric over all queries.\n"
-              + "   The second column is the metric, which is one of:                                        \n"
-              + "       num_ret        Number of retrieved documents                                         \n"
-              + "       num_rel        Number of relevant documents listed in the judgments file             \n"
-              + "       num_rel_ret    Number of relevant retrieved documents                                \n"
-              + "       map            Mean average precision                                                \n"
-              + "       bpref          Bpref (binary preference)                                             \n"
-              + "       ndcg           Normalized Discounted Cumulative Gain, computed over all documents    \n"
-              + "       ndcg15         Normalized Discounted Cumulative Gain, 15 document cutoff             \n"
-              + "       Pn             Precision, n document cutoff                                          \n"
-              + "       R-prec         R-Precision                                                           \n"
-              + "       recip_rank     Reciprocal Rank (precision at first relevant document)                \n"
-              + "   The third column is the metric value.                                                    \n\n"
-              + "Compared evaluation: \n"
-              + "   The first column is the metric (e.g. averagePrecision, ndcg, etc.)\n"
-              + "   The second column is the test/formula used:                                               \n"
-              + "       baseline       The baseline mean (mean of the metric over all baseline queries)       \n"
-              + "       treatment      The \'improved\' mean (mean of the metric over all treatment queries)  \n"
-              + "       basebetter     Number of queries where the baseline outperforms the treatment.        \n"
-              + "       treatbetter    Number of queries where the treatment outperforms the baseline.        \n"
-              + "       equal          Number of queries where the treatment and baseline perform identically.\n"
-              + "       ttest          P-value of a paired t-test.\n"
-              + "       signtest       P-value of the Fisher sign test.                                       \n"
-              + "       randomized      P-value of a randomized test.                                          \n"
-              + "   The second column also includes difference tests.  In these tests, the null hypothesis is \n"
-              + "     that the mean of the treatment is at least k times the mean of the baseline.  We run the\n"
-              + "     same tests as before, but we artificially improve the baseline values by a factor of k. \n"
-              + "       h-ttest-0.05    Largest value of k such that the ttest has a p-value of less than 0.5. \n"
-              + "       h-signtest-0.05 Largest value of k such that the sign test has a p-value of less than 0.5. \n"
-              + "       h-randomized-0.05 Largest value of k such that the randomized test has a p-value of less than 0.5. \n"
-              + "       h-ttest-0.01    Largest value of k such that the ttest has a p-value of less than 0.1. \n"
-              + "       h-signtest-0.01 Largest value of k such that the sign test has a p-value of less than 0.1. \n"
-              + "       h-randomized-0.01 Largest value of k such that the randomized test has a p-value of less than 0.1. \n"
-              + "  The third column is the value of the test.\n";
-    }
-
-    @Override
-    public void run(String[] args, PrintStream output) throws Exception {
-      org.lemurproject.galago.core.eval.Main.internalMain(Utility.subarray(args, 1), output);
-    }
-
-    @Override
-    public void run(Parameters p, PrintStream output) throws Exception {
-      throw new Exception("Eval function can not be run using a parameter object.");
     }
   }
 
