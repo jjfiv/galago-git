@@ -625,7 +625,11 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
    */
   public TermExtentIterator getTermExtents(String term) throws IOException {
     term = stemAsRequired(term);
-    GenericIndexReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
+    return getTermExtents(Utility.fromString(term));
+  }
+
+  public TermExtentIterator getTermExtents(byte[] term) throws IOException {
+    GenericIndexReader.Iterator iterator = reader.getIterator(term);
     if (iterator != null) {
       return new TermExtentIterator(iterator);
     }
@@ -634,7 +638,11 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
 
   public TermCountIterator getTermCounts(String term) throws IOException {
     term = stemAsRequired(term);
-    GenericIndexReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
+    return getTermCounts(Utility.fromString(term));
+  }
+
+  public TermCountIterator getTermCounts(byte[] term) throws IOException {
+    GenericIndexReader.Iterator iterator = reader.getIterator(term);
     if (iterator != null) {
       return new TermCountIterator(iterator);
     }

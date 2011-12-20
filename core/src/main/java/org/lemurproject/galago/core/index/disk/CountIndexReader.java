@@ -16,11 +16,8 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
 import org.lemurproject.galago.core.retrieval.structured.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
 import org.lemurproject.galago.core.retrieval.structured.TopDocsContext;
-import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.DataStream;
-import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
@@ -93,7 +90,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     long documentsByteFloor;
     long countsByteFloor;
 
-    TermCountIterator(GenericIndexReader.Iterator iterator) throws IOException {
+    public TermCountIterator(GenericIndexReader.Iterator iterator) throws IOException {
       reset(iterator);
     }
 
@@ -319,6 +316,15 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
    * Returns an iterator pointing at the specified term, or
    * null if the term doesn't exist in the inverted file.
    */
+  public TermCountIterator getTermCounts(byte[] key) throws IOException {
+    GenericIndexReader.Iterator iterator = reader.getIterator(key);
+
+    if (iterator != null) {
+      return new TermCountIterator(iterator);
+    }
+    return null;
+  }
+
   public TermCountIterator getTermCounts(String term) throws IOException {
     GenericIndexReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
 
