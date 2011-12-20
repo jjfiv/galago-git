@@ -3,7 +3,7 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
-import gnu.trove.TIntArrayList;
+import gnu.trove.list.array.TIntArrayList;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;

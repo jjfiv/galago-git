@@ -1,11 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import gnu.trove.TIntArrayList;
-import gnu.trove.TObjectIntHashMap;
-import gnu.trove.TIntDoubleHashMap;
-import gnu.trove.TIntHashSet;
-import gnu.trove.TObjectDoubleHashMap;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.hash.TIntDoubleHashMap;
+import gnu.trove.map.hash.TObjectDoubleHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.set.hash.TIntHashSet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -534,7 +534,7 @@ public class MaxScoreCombinationIterator extends ScoreCombinationIterator {
       topdocsCandidates.add(td.document);
     }
 
-    double[] values = scores.getValues();
+    double[] values = scores.values();
     int[] keys = scores.keys();
     for (int i = 0; i < keys.length; i++) {
       R.add(new Placeholder(keys[i], scores.get(keys[i])));

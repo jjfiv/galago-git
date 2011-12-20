@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.window;
 
-import gnu.trove.TObjectIntHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import java.security.NoSuchAlgorithmException;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class WindowFeaturerTest extends TestCase {
     }
 
     int c = 0;
-    for( int val : collisions.getValues() ){
+    for( int val : collisions.values() ){
       if(val > 1){
         c++;
       }

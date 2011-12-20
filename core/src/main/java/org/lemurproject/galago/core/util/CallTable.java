@@ -1,8 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.util;
 
-import gnu.trove.TObjectLongHashMap;
-import gnu.trove.TObjectLongProcedure;
+import gnu.trove.map.hash.TObjectLongHashMap;
+import gnu.trove.procedure.TObjectLongProcedure;
 import java.io.PrintStream;
 
 /**
