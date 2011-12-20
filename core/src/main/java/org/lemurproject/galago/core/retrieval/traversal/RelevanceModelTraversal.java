@@ -16,7 +16,7 @@ import org.lemurproject.galago.core.scoring.RelevanceModel;
 import org.lemurproject.galago.core.scoring.RelevanceModel.Gram;
 import org.lemurproject.galago.core.scoring.WeightedTerm;
 import org.lemurproject.galago.tupleflow.Utility;
-import gnu.trove.TDoubleArrayList;
+import gnu.trove.list.array.TDoubleArrayList;
 import java.util.Arrays;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -140,7 +140,7 @@ public class RelevanceModelTraversal implements Traversal {
         expanded++;
       }
       // now the weights
-      weights = weightList.toNativeArray();
+      weights = weightList.toArray();
       double factor = (1.0 - fbOrigWt) / weightSum;
       for (int i = 0; i < weights.length; i++) {
         expParams.set(Integer.toString(i + position), factor * weights[i]);

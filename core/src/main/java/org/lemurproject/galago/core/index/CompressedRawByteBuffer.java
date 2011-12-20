@@ -24,7 +24,7 @@
  */
 package org.lemurproject.galago.core.index;
 
-import gnu.trove.TIntArrayList;
+import gnu.trove.list.array.TIntArrayList;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.FileOutputStream;

@@ -3,9 +3,9 @@
  */
 package org.lemurproject.galago.core.retrieval.query;
 
-import gnu.trove.TObjectByteHashMap;
-import gnu.trove.TObjectDoubleHashMap;
-import gnu.trove.TObjectLongHashMap;
+import gnu.trove.map.hash.TObjectByteHashMap;
+import gnu.trove.map.hash.TObjectDoubleHashMap;
+import gnu.trove.map.hash.TObjectLongHashMap;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -202,13 +202,13 @@ public class NodeParameters implements Serializable {
       duplicate.keyMapping = (HashMap<String, Type>) this.keyMapping.clone();
     }
     if (boolMap != null) {
-      duplicate.boolMap = this.boolMap.clone();
+      duplicate.boolMap = new TObjectByteHashMap(boolMap);
     }
     if (longMap != null) {
-      duplicate.longMap = this.longMap.clone();
+      duplicate.longMap = new TObjectLongHashMap(longMap);
     }
     if (doubleMap != null) {
-      duplicate.doubleMap = this.doubleMap.clone();
+      duplicate.doubleMap = new TObjectDoubleHashMap(doubleMap);
     }
     if (stringMap != null) {
       duplicate.stringMap = (HashMap<String, String>) this.stringMap.clone();

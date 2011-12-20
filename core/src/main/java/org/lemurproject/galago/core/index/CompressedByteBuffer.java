@@ -3,9 +3,8 @@ package org.lemurproject.galago.core.index;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import gnu.trove.TByteArrayList;
-import gnu.trove.TByteProcedure;
+import gnu.trove.list.array.TByteArrayList;
+import gnu.trove.procedure.TByteProcedure;
 
 /**
  * Stores lists of integers in vbyte compressed form.  This
@@ -109,7 +108,7 @@ public class CompressedByteBuffer {
    * true data length.
    */
   public byte[] getBytes() {
-    return values.toNativeArray();
+    return values.toArray();
   }
 
   /**

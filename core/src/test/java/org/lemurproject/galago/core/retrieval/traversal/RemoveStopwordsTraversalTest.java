@@ -1,8 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import org.lemurproject.galago.core.retrieval.traversal.RemoveStopwordsTraversal;
-import gnu.trove.TIntArrayList;
+import gnu.trove.list.array.TIntArrayList;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
