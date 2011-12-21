@@ -498,8 +498,7 @@ public class App {
     public void run(String[] args, PrintStream output) throws Exception {
 
       StringBuilder defaultOutput = new StringBuilder(
-              "Type 'galago help <command>' to get more help about any command,\n"
-              + "   or 'galago help all' to see all the documentation at once.\n\n"
+              "Type 'galago help <command>' to get more help about any command.\n\n"
               + "Popular commands:\n"
               + "   build-fast\n"
               + "   search\n"
@@ -523,7 +522,11 @@ public class App {
       } else {
         for (String arg : Utility.subarray(args, 1)) {
           output.println("function: " + arg + "\n");
-          output.println(appFunctions.get(arg).getHelpString());
+          if (appFunctions.containsKey(arg)) {
+            output.println(appFunctions.get(arg).getHelpString());
+          } else {
+            output.println("  UNKNOWN.");
+          }
           output.println();
         }
       }
