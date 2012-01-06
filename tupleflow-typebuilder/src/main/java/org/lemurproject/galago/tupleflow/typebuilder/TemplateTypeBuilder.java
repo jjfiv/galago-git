@@ -321,26 +321,27 @@ public class TemplateTypeBuilder {
           outputFile = new File(outputDir + File.separator + outputFile.getName());
         }
 
-        if (!outputFile.exists() || f.lastModified() > outputFile.lastModified()) {
-          System.err.println("Generating " + spec.getTypeName());
-          TemplateTypeBuilder builder = new TemplateTypeBuilder(spec);
-          try {
-            writer = new java.io.FileWriter(outputFile);
-          } catch (IOException ex) {
-            throw new MojoExecutionException("Trouble creating " + outputFile, ex);
-          }
-          String comment =
-                  "// This file was automatically generated with the command: \n"
-                  + "//     java org.lemurproject.galago.tupleflow.typebuilder.TypeBuilderTemplate ...\n";
-
-          try {
-            writer.write(comment);
-            writer.write(builder.toString());
-            writer.close();
-          } catch (IOException e) {
-            throw new MojoExecutionException("Trouble writing " + outputFile);
-          }
+        // always generate the new file
+        //if (!outputFile.exists() || f.lastModified() > outputFile.lastModified()) {
+        System.err.println("Generating " + spec.getTypeName());
+        TemplateTypeBuilder builder = new TemplateTypeBuilder(spec);
+        try {
+          writer = new java.io.FileWriter(outputFile);
+        } catch (IOException ex) {
+          throw new MojoExecutionException("Trouble creating " + outputFile, ex);
         }
+        String comment =
+                "// This file was automatically generated with the command: \n"
+                + "//     java org.lemurproject.galago.tupleflow.typebuilder.TypeBuilderTemplate ...\n";
+
+        try {
+          writer.write(comment);
+          writer.write(builder.toString());
+          writer.close();
+        } catch (IOException e) {
+          throw new MojoExecutionException("Trouble writing " + outputFile);
+        }
+        //}
       }
     }
   }

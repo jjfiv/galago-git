@@ -3,6 +3,7 @@ package org.lemurproject.galago.core.tools;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import org.lemurproject.galago.core.eval.Eval;
+import org.lemurproject.galago.core.index.GenericIndexReader;
 import org.lemurproject.galago.core.index.disk.DiskNameReader;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
@@ -80,6 +82,7 @@ public class App {
     appFunctions.put("make-corpus", new MakeCorpusFn());
     appFunctions.put("merge-index", new MergeIndex());
     appFunctions.put("subcollection", new BuildSubCollection());
+    appFunctions.put("overwrite-manifest", new OverwriteManifest());
 
     // background functions
     appFunctions.put("build-background", new BuildBackground());
@@ -99,6 +102,7 @@ public class App {
     appFunctions.put("dump-keys", new DumpKeysFn());
     appFunctions.put("dump-keyvalue", new DumpKeyValueFn()); // -- should be implemented in dump-index
     appFunctions.put("dump-modifier", new DumpModifierFn());
+    appFunctions.put("dump-index-manifest", new DumpIndexManifestFn());
 
     // corpus + index querying
     appFunctions.put("doc", new DocFn());
@@ -365,6 +369,22 @@ public class App {
     }
   }
 
+  private static class DumpIndexManifestFn extends AppFunction {
+
+    @Override
+    public String getHelpString() {
+      return "galago dump-index-manifest --filename=<index-part>\n\n"
+              + "  Dumps the manifest for an index file.";
+    }
+
+    @Override
+    public void run(Parameters p, PrintStream output) throws Exception {
+      String filename = p.getString("filename");
+      GenericIndexReader indexReader = GenericIndexReader.getIndexReader(filename);
+      output.println(indexReader.getManifest());
+    }
+  }
+
   private static class DumpKeysFn extends AppFunction {
 
     @Override
@@ -478,8 +498,7 @@ public class App {
     public void run(String[] args, PrintStream output) throws Exception {
 
       StringBuilder defaultOutput = new StringBuilder(
-              "Type 'galago help <command>' to get more help about any command,\n"
-              + "   or 'galago help all' to see all the documentation at once.\n\n"
+              "Type 'galago help <command>' to get more help about any command.\n\n"
               + "Popular commands:\n"
               + "   build-fast\n"
               + "   search\n"
@@ -503,7 +522,11 @@ public class App {
       } else {
         for (String arg : Utility.subarray(args, 1)) {
           output.println("function: " + arg + "\n");
-          output.println(appFunctions.get(arg).getHelpString());
+          if (appFunctions.containsKey(arg)) {
+            output.println(appFunctions.get(arg).getHelpString());
+          } else {
+            output.println("  UNKNOWN.");
+          }
           output.println();
         }
       }
@@ -545,6 +568,56 @@ public class App {
       MakeCorpus mc = new MakeCorpus();
       Job job = mc.getMakeCorpusJob(p);
       runTupleFlowJob(job, p, output);
+    }
+  }
+
+  private static class OverwriteManifest extends AppFunction {
+
+    @Override
+    public String getHelpString() {
+      return "galago overwrite-manifest --filename=/path/to/index/file --key=value\n"
+              + "  Rewrites internal index manifest data for index file.\n"
+              + "  Allows parameters to be changed after index files have been written.\n\n"
+              + "  WARNING : Use with caution - changing some parameters may make the index file non-readable.\n";
+    }
+
+    @Override
+    public void run(Parameters p, PrintStream output) throws Exception {
+      // first open the index
+      String filename = p.getString("filename");
+      RandomAccessFile indexReaderWriter = new RandomAccessFile(filename, "rw");
+
+      long length = indexReaderWriter.length();
+      long footerOffset = length - 2 * Integer.SIZE / 8 - 3 * Long.SIZE / 8 - 1;
+
+      indexReaderWriter.seek(footerOffset);
+
+      // read metadata values:
+      long vocabularyOffset = indexReaderWriter.readLong();
+      long manifestOffset = indexReaderWriter.readLong();
+      int blockSize = indexReaderWriter.readInt();
+      int vocabGroup = indexReaderWriter.readInt();
+      boolean isCompressed = indexReaderWriter.readBoolean();
+      long magicNumber = indexReaderWriter.readLong();
+
+      indexReaderWriter.seek(manifestOffset);
+      byte[] xmlData = new byte[(int) (footerOffset - manifestOffset)];
+      indexReaderWriter.read(xmlData);
+      Parameters newParameters = Parameters.parse(xmlData);
+      newParameters.copyFrom(p);
+
+      indexReaderWriter.seek(manifestOffset);
+
+      // write the new data back to the file
+      xmlData = newParameters.toString().getBytes("UTF-8");
+      indexReaderWriter.write(xmlData);
+      indexReaderWriter.writeLong(vocabularyOffset);
+      indexReaderWriter.writeLong(manifestOffset);
+      indexReaderWriter.writeInt(blockSize);
+      indexReaderWriter.writeInt(vocabGroup);
+      indexReaderWriter.writeBoolean(isCompressed);
+      indexReaderWriter.writeLong(magicNumber);
+      indexReaderWriter.close();
     }
   }
 
