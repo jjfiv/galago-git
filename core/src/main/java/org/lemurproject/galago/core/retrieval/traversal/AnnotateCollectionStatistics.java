@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
+import org.lemurproject.galago.core.retrieval.GroupRetrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
@@ -12,6 +13,7 @@ import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * When performing distributed retrieval it is necessary to collect
@@ -23,10 +25,13 @@ public class AnnotateCollectionStatistics implements Traversal {
 
   HashSet<String> availiableStatistics;
   Retrieval retrieval;
+  Parameters globalParameters;
 
   // featurefactory is necessary to get the correct class
   public AnnotateCollectionStatistics(Retrieval retrieval) throws IOException {
     this.retrieval = retrieval;
+    this.globalParameters = retrieval.getGlobalParameters();
+
     this.availiableStatistics = new HashSet();
     this.availiableStatistics.add("collectionLength");
     this.availiableStatistics.add("documentCount");
@@ -66,11 +71,11 @@ public class AnnotateCollectionStatistics implements Traversal {
     if (reqStats.contains("nodeFrequency")
             || reqStats.contains("nodeDocumentCount")
             || reqStats.contains("collectionProbability")) {
-      Node countable = getCountableNode(node);
-      if (countable == null) {
+
+      NodeStatistics stats = getNodeStatistics(node);
+      if (stats == null) {
         return;
       }
-      NodeStatistics stats = retrieval.nodeStatistics(countable);
       if (reqStats.contains("nodeFrequency")
               && !nodeParams.containsKey("nodeFrequency")) {
         nodeParams.set("nodeFrequency", stats.nodeFrequency);
@@ -109,17 +114,12 @@ public class AnnotateCollectionStatistics implements Traversal {
     }
   }
 
-  private Node getCountableNode(Node node) throws Exception {
+  private NodeStatistics getNodeStatistics(Node node) throws Exception {
+    // recurses down a stick (single children nodes only)
     if (isCountNode(node)) {
-      return node;
-    }
-    // search through chain of single child nodes looking for a countable node:
-    while (node.getInternalNodes().size() == 1) {
-      Node child = node.getInternalNodes().get(0);
-      if (isCountNode(child)) {
-        return checkBackgroundLM(child.clone());
-      }
-      node = child;
+      return collectStatistics(node);
+    } else if (node.getInternalNodes().size() == 1) {
+      return getNodeStatistics(node.getInternalNodes().get(0));
     }
     return null;
   }
@@ -133,22 +133,52 @@ public class AnnotateCollectionStatistics implements Traversal {
     return CountIterator.class.isAssignableFrom(outputClass);
   }
 
+  private NodeStatistics collectStatistics(Node countNode) throws Exception {
+    // recursively check if any child nodes use a specific background part
+    Node n = assignParts(countNode);
+    
+    if(globalParameters.isString("backgroundIndex")){
+      assert( GroupRetrieval.class.isAssignableFrom( retrieval.getClass())): "Retrieval object must be a GroupRetrieval to use the backgroundIndex parameter.";
+      return ((GroupRetrieval) retrieval).nodeStatistics(n, globalParameters.getString("backgroundIndex"));
+
+    } else {
+      return retrieval.nodeStatistics(n);
+    }
+  }
+  
+  private Node assignParts(Node n){
+    if(n.getInternalNodes().isEmpty()){
+
+      // we should have a part by now.
+      String part = n.getNodeParameters().getString("part");
+      
+      // check if there is a new background part to assign
+      if(n.getNodeParameters().isString("backgroundPart")){
+        Node clone = n.clone();
+        clone.getNodeParameters().set("part", n.getNodeParameters().getString("backgroundPart"));
+        return clone;
+      } else if(globalParameters.isMap("backgroundPartMap")
+              && globalParameters.getMap("backgroundPartMap").isString(part)){
+        Node clone = n.clone();
+        clone.getNodeParameters().set("part", globalParameters.getMap("backgroundPartMap").getString(part));
+        return clone;
+      }
+      // otherwise no change.
+      return n;
+
+    } else { // has a child: assign parts to children:
+      for(Node c : n.getInternalNodes()){
+        assignParts(c);
+      }
+      return n;
+    }
+  }
+
   private double computeCollectionProbability(long collectionCount, double collectionLength) {
     if (collectionCount > 0) {
       return ((double) collectionCount / collectionLength);
     } else {
       return (0.5 / (double) collectionLength);
     }
-  }
-
-  private Node checkBackgroundLM(Node countNode) {
-    for(Node child : countNode.getInternalNodes()){
-      checkBackgroundLM(child);
-    }
-    NodeParameters np = countNode.getNodeParameters();
-    if(np.isString("lm")){
-      np.set("part", np.getString("lm"));
-    }
-    return countNode;
   }
 }
