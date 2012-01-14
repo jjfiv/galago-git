@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,15 +46,37 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class DiskIndex implements Index {
 
-  LengthsReader lengthsReader;
-  NamesReader namesReader;
-  Map<String, IndexPartReader> parts;
-  Map<String, CollectionStatistics> partStatistics;
-  Map<String, HashMap<String, IndexPartModifier>> modifiers;
-  File location;
-  Parameters manifest = new Parameters();
-  HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
-  HashSet<String> knownIndexOperators = new HashSet<String>();
+  protected File location;
+  protected Parameters manifest = new Parameters();
+  protected LengthsReader lengthsReader = null;
+  protected NamesReader namesReader = null;
+  
+  protected Map<String, IndexPartReader> parts = new HashMap<String, IndexPartReader>();
+  protected Map<String, CollectionStatistics> partStatistics = new HashMap<String, CollectionStatistics>();
+  protected Map<String, HashMap<String, IndexPartModifier>> modifiers = new HashMap<String, HashMap<String, IndexPartModifier>>();
+  protected HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
+  protected HashSet<String> knownIndexOperators = new HashSet<String>();
+
+  // useful to assemble an index from odd pieces
+  public DiskIndex(Collection<String> indexParts) throws IOException{
+    location = null;
+
+    for(String indexPart : indexParts){
+      File part = new File(indexPart);
+      IndexComponentReader component = openIndexComponent(part.getAbsolutePath());
+      initializeComponent(part.getName(), component);
+    }
+    // Initialize these now b/c they're so common
+    if (parts.containsKey("lengths")) {
+      lengthsReader = (DiskLengthsReader) parts.get("lengths");
+    }
+    if (parts.containsKey("names")) {
+      namesReader = (DiskNameReader) parts.get("names");
+    }
+
+    initializeIndexOperators();
+  }
+
 
   public DiskIndex(String indexPath) throws IOException {
     // Make sure it's a valid location    
@@ -63,14 +86,9 @@ public class DiskIndex implements Index {
     }
 
     // Load all parts
-    parts = new HashMap<String, IndexPartReader>();
-    partStatistics = new HashMap();
-    modifiers = new HashMap<String, HashMap<String, IndexPartModifier>>();
     openDiskParts("", location);
 
     // Initialize these now b/c they're so common
-    namesReader = null;
-    lengthsReader = null;
     if (parts.containsKey("lengths")) {
       lengthsReader = (DiskLengthsReader) parts.get("lengths");
     }
@@ -190,7 +208,7 @@ public class DiskIndex implements Index {
     return ni.hasMatch(document);
   }
 
-  void initializeIndexOperators() {
+  protected void initializeIndexOperators() {
     for (Entry<String, IndexPartReader> entry : parts.entrySet()) {
       String partName = entry.getKey();
       IndexPartReader part = entry.getValue();
