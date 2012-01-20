@@ -73,8 +73,8 @@ public class FullDependenceTraversal implements Traversal {
         if ((windowLimit < 2) || (windowLimit >= set.size())) {
           if (set.size() >= 2) {
             int uwSize = 4 * set.size();
-            ordered.add(new Node("ordered", "1", Node.cloneNodeList(set)));
-            unordered.add(new Node("unordered", Integer.toString(uwSize), Node.cloneNodeList(set)));
+            ordered.add(new Node("ordered", new NodeParameters(1), Node.cloneNodeList(set)));
+            unordered.add(new Node("unordered", new NodeParameters(uwSize), Node.cloneNodeList(set)));
           }
         }
       }
