@@ -194,6 +194,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
 
     public boolean next() throws IOException {
       documentIndex = Math.min(documentIndex + 1, documentCount);
+      // System.err.println("NEXT -> NOW AT " + documentCount + " - " + documentIndex);
       if (!isDone()) {
         load();
         return true;
@@ -209,8 +210,10 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
         while (skipsRead < numSkips
                 && document > nextSkipDocument) {
           skipOnce();
+          System.err.println("SKIPPING : " + documentsByteFloor + " " + countsByteFloor);
         }
         repositionMainStreams();
+        System.err.println("REPOSITIONED TO : " + documentIndex);
       }
 
       // linear from here
@@ -250,11 +253,13 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
       if ((skipsRead - 1) % skipResetDistance == 0) {
         documentsStream.seek(documentsByteFloor);
         countsStream.seek(countsByteFloor);
+        System.err.println("MOD-0 SKIP");
       } else {
         skipPositionsStream.seek(lastSkipPosition);
         documentsStream.seek(documentsByteFloor + skipPositions.readInt());
         countsStream.seek(countsByteFloor + skipPositions.readInt());
         // we seek here, so no reading needed
+        System.err.println("NOT MOD-0 SKIP");
       }
       documentIndex = (int) (skipDistance * skipsRead) - 1;
     }
