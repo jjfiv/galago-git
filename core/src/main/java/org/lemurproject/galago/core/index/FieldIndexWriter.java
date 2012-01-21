@@ -110,16 +110,11 @@ public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.Shre
     header.set("readerClass", FieldIndexReader.class.getName());
     header.set("writerClass", getClass().toString());
     filename = header.getString("filename");
-    parallel = header.get("parallel", false);
   }
 
   public void processFieldName(byte[] wordBytes) throws IOException {
     if (writer == null) {
-      if (parallel) {
-        writer = new SplitIndexValueWriter(stepParameters);
-      } else {
-        writer = new IndexWriter(stepParameters);
-      }
+      writer = new IndexWriter(stepParameters);
     }
 
     if (invertedList != null) {
@@ -147,7 +142,9 @@ public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.Shre
       invertedList.close();
       writer.add(invertedList);
     }
-    if (writer != null) writer.close();
+    if (writer != null) {
+      writer.close();
+    }
   }
 
   public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {

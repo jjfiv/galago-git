@@ -80,7 +80,7 @@ public class BuildIndex extends AppFunction {
     if (!buildParameters.getMap("tokenizer").getList("fields").isEmpty()) {
       stage.addOutput("numberedExtents", new NumberedExtent.ExtentNameNumberBeginOrder());
     }
-    if (!buildParameters.getMap("tokenizer").getMap("format").isEmpty()) {
+    if (!buildParameters.getMap("tokenizer").getMap("formats").isEmpty()) {
       stage.addOutput("numberedFields", new NumberedField.FieldNameNumberOrder());
     }
 
@@ -139,7 +139,7 @@ public class BuildIndex extends AppFunction {
               new NumberedExtent.ExtentNameNumberBeginOrder());
       processingFork.groups.add(extents);
     }
-    if (!buildParameters.getMap("tokenizer").getMap("format").isEmpty()) {
+    if (!buildParameters.getMap("tokenizer").getMap("formats").isEmpty()) {
       ArrayList<Step> fields =
               BuildStageTemplates.getExtractionSteps("numberedFields", NumberedFieldExtractor.class,
               buildParameters, new NumberedField.FieldNameNumberOrder());
@@ -492,7 +492,7 @@ public class BuildIndex extends AppFunction {
 
     // tokenizer/format must be a mapping from fields to types [optional parameter]
     //  each type needs to be indexable {string,int,long,float,double,date}
-    if (tokenizerParams.containsKey("format")) {
+    if (tokenizerParams.containsKey("formats")) {
       try {
         HashSet<String> possibleFormats = new HashSet();
         possibleFormats.add("string");
@@ -501,7 +501,7 @@ public class BuildIndex extends AppFunction {
         possibleFormats.add("float");
         possibleFormats.add("double");
         possibleFormats.add("date");
-        Parameters formats = tokenizerParams.getMap("format");
+        Parameters formats = tokenizerParams.getMap("formats");
         for (String field : formats.getKeys()) {
           if (!fieldNames.contains(field)) {
             errorLog.add("Found a format for an unknown field: " + field);
@@ -510,11 +510,11 @@ public class BuildIndex extends AppFunction {
           }
         }
       } catch (Exception e) {
-        errorLog.add("Parameter 'tokenizer/format' should be a map of fieldnames to field formats.\n"
+        errorLog.add("Parameter 'tokenizer/formats' should be a map of fieldnames to field formats.\n"
                 + "default is to omit parameter.");
       }
     } else {
-      tokenizerParams.set("format", new Parameters());
+      tokenizerParams.set("formats", new Parameters());
     }
 
     // fieldIndex must be a boolean [optional]
@@ -702,8 +702,10 @@ public class BuildIndex extends AppFunction {
     }
 
     // if we have at least one field format - write fields
-    if (!buildParameters.getMap("tokenizer").getMap("format").isEmpty()) {
-      job.add(BuildStageTemplates.getWriteFieldsStage("writeFields", new File(indexPath, "fields"), "numberedFields", buildParameters));
+    if (!buildParameters.getMap("tokenizer").getMap("formats").isEmpty()) {
+      Parameters p = new Parameters();
+      p.set("tokenizer", buildParameters.getMap("tokenizer"));
+      job.add(BuildStageTemplates.getWriteFieldsStage("writeFields", new File(indexPath, "fields"), "numberedFields", p));
 
       job.connect("parsePostings", "writeFields", ConnectionAssignmentType.Combined);
     }
