@@ -1,4 +1,4 @@
-// BSD License (http://lemurproject.org/galago-license)
+// BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.tupleflow;
 
 import gnu.trove.map.hash.TObjectByteHashMap;
@@ -230,7 +230,7 @@ public class Parameters implements Serializable {
       while (delimiter != '"') {
         value = reader.read();
         if (value == -1) {
-          throw new IllegalArgumentException("Missing closing quote for string.");
+          throw new IllegalArgumentException("Missing opening quote for string.");
         }
         delimiter = (char) value;
       }
@@ -238,9 +238,44 @@ public class Parameters implements Serializable {
       // Now reading string content
       delimiter = (char) reader.read();
       trail = ' ';
-      while (!(delimiter == '"' && trail != '\\')) {
-        builder.append(delimiter);
-        trail = delimiter;
+      while (true) {
+        if (trail == '\\') {
+          switch (delimiter) {
+            case '"':
+            case '\\':
+            case '/':
+            case 'b':
+            case 'f':
+            case 'n':
+            case 'r':
+            case 't':
+              builder.append(delimiter);
+              break;
+            case 'u': {
+              builder.append(delimiter);
+              for (int i = 0; i < 4; i++) {
+                delimiter = (char) reader.read();
+                if ((delimiter >= 'a' && delimiter <= 'f')
+                        || (delimiter >= 'A' && delimiter <= 'F')
+                        || (delimiter >= '0' && delimiter <= '9')) {
+                  builder.append(delimiter);
+                } else {
+                  throw new IllegalArgumentException(String.format("Illegal hex character used: '%c'", delimiter));
+                }
+              }
+            }
+            break;
+            default:
+              throw new IllegalArgumentException(String.format("Escape character followed by illegal character: '%c'", delimiter));
+          }
+          trail = ' '; // Don't put anything there b/c the current chars were escaped
+        } else {
+          if (delimiter == '"') {
+            break;
+          }
+          builder.append(delimiter);
+          trail = delimiter;
+        }
         value = reader.read();
         if (value == -1) {
           throw new IllegalArgumentException("Missing closing quote for string.");
@@ -251,9 +286,6 @@ public class Parameters implements Serializable {
       // Read first thing *after* the close quote
       delimiter = (char) reader.read();
 
-      if (builder.length() == 0) {
-        throw new IOException("Found a string of zero-length.");
-      }
       return builder.toString();
     }
 
@@ -559,6 +591,57 @@ public class Parameters implements Serializable {
   }
 
   @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof Parameters)) {
+      return false;
+    }
+
+    if (o == this) {
+      return true;
+    }
+
+    // Otherwise determine how similar they are
+    Parameters other = (Parameters) o;
+    for (Map.Entry<String, Type> entry : _keys.entrySet()) {
+      String key = entry.getKey();
+      if (!other.containsKey(key)) {
+        return false;
+      }
+      Type ot = other._keys.get(key);
+      if (!entry.getValue().equals(ot)) {
+        return false;
+      }
+      switch (ot) {
+        case BOOLEAN:
+          if (_bools.get(key) != other._bools.get(key)) {
+            return false;
+          }
+          break;
+        case LONG:
+          if (_longs.get(key) != other._longs.get(key)) {
+            return false;
+          }
+          break;
+        case DOUBLE:
+          if (_doubles.get(key) != other._doubles.get(key)) {
+            return false;
+          }
+          break;
+        case STRING:
+        case MAP:
+        case LIST:
+          if (_objects.get(key).equals(other._objects.get(key)) == false) {
+            return false;
+          }
+          break;
+        default:
+          throw new IllegalArgumentException("Key somehow has an illegal type: " + _keys.get(key));
+      }
+    }
+    return true;
+  }
+
+  @Override
   public Parameters clone() {
     Parameters p = new Parameters();
     this.copyTo(p);
@@ -786,7 +869,7 @@ public class Parameters implements Serializable {
   public boolean isList(String key, Type type) {
     if (isList(key)) {
       List<Object> list = getList(key);
-      // empty lists can store anything
+      // empty lists can store anything                                                                                                                             
       if (list.isEmpty()) {
         return true;
       }

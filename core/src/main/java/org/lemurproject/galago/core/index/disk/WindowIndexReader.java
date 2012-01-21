@@ -103,7 +103,8 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     long lastSkipPosition;
     long documentsByteFloor;
     long countsByteFloor;
-    long windowsByteFloor;
+    long beginsByteFloor;
+    long endsByteFloor;
 
     TermExtentIterator(GenericIndexReader.Iterator iterator) throws IOException {
       extentArray = new ExtentArray();
@@ -174,7 +175,8 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
         nextSkipDocument = skips.readInt();
         documentsByteFloor = 0;
         countsByteFloor = 0;
-        windowsByteFloor = 0;
+        beginsByteFloor = 0;
+        endsByteFloor = 0;
       } else {
         assert endsEnd == endPosition - startPosition;
         skips = null;
@@ -274,7 +276,8 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
         // now set the floor values
         documentsByteFloor = skipPositions.readInt();
         countsByteFloor = skipPositions.readInt();
-        windowsByteFloor = skipPositions.readLong();
+        beginsByteFloor = skipPositions.readLong();
+        endsByteFloor = skipPositions.readLong();
       }
       currentDocument = (int) nextSkipDocument;
 
@@ -293,14 +296,14 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       if ((skipsRead - 1) % skipResetDistance == 0) {
         documentsStream.seek(documentsByteFloor);
         countsStream.seek(countsByteFloor);
-        beginsStream.seek(windowsByteFloor);
-        endsStream.seek(windowsByteFloor);
+        beginsStream.seek(beginsByteFloor);
+        endsStream.seek(endsByteFloor);
       } else {
         skipPositionsStream.seek(lastSkipPosition);
         documentsStream.seek(documentsByteFloor + skipPositions.readInt());
         countsStream.seek(countsByteFloor + skipPositions.readInt());
-        beginsStream.seek(windowsByteFloor + skipPositions.readLong());
-        endsStream.seek(windowsByteFloor + skipPositions.readLong());
+        beginsStream.seek(beginsByteFloor + skipPositions.readLong());
+        endsStream.seek(endsByteFloor + skipPositions.readLong());
       }
       documentIndex = (int) (skipDistance * skipsRead) - 1;
     }
