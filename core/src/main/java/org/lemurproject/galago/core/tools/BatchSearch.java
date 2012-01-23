@@ -75,8 +75,7 @@ public class BatchSearch extends AppFunction {
     Retrieval retrieval = RetrievalFactory.instance(parameters);
 
     // record results requested
-    int requested = (int) parameters.get("count", 1000);
-    requested = (int) parameters.get("requested", 1000);
+    int requested = (int) parameters.get("requested", 1000);
     long starttime = System.currentTimeMillis();
     long sumtime = 0;
 
