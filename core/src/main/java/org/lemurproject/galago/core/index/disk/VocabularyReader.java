@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.List;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -12,21 +13,30 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class VocabularyReader {
 
-  public static class TermSlot {
-
-    public byte[] termData;
+  public static class IndexBlockInfo {
+    public int slotId;
+    public byte[] firstKey;
+    public byte[] nextSlotKey;
     public long begin;
     public long length;
   }
-  ArrayList<TermSlot> slots;
+  List<IndexBlockInfo> slots;
 
   public VocabularyReader(RandomAccessFile input, long invertedFileLength,
           long vocabularyLength) throws IOException {
-    slots = new ArrayList<TermSlot>();
+    slots = new ArrayList<IndexBlockInfo>();
     read(invertedFileLength, vocabularyLength, input);
   }
 
-  public ArrayList<TermSlot> getSlots() {
+  public IndexBlockInfo getSlot(int id) {
+    if(id == slots.size()){
+      return null;
+    }
+    return slots.get(id);
+  }
+
+  // needed for DocumentSource - should be fixed //
+  public List<IndexBlockInfo> getSlots() {
     return slots;
   }
 
@@ -34,30 +44,38 @@ public class VocabularyReader {
     long last = 0;
     long start = input.getFilePointer();
 
+    short finalKeyLength = input.readShort();
+    byte[] finalIndexKey = new byte[finalKeyLength];
+    input.read(finalIndexKey);
+    
     while (input.getFilePointer() < start + vocabularyLength) {
       short length = input.readShort();
       byte[] data = new byte[length];
       input.read(data);
       long offset = input.readLong();
-      TermSlot slot = new TermSlot();
+      IndexBlockInfo slot = new IndexBlockInfo();
 
       if (slots.size() > 0) {
         slots.get(slots.size() - 1).length = offset - last;
+        slots.get(slots.size() - 1).nextSlotKey = data;
       }
+      
       slot.begin = offset;
-      slot.termData = data;
-      slots.add(slot);
+      slot.firstKey = data;
+      slot.slotId = slots.size();
 
+      slots.add(slot);
       last = offset;
     }
 
     if (slots.size() > 0) {
       slots.get(slots.size() - 1).length = invertedFileLength - last;
+      slots.get(slots.size() - 1).nextSlotKey = finalIndexKey;
     }
     assert invertedFileLength >= last;
   }
 
-  public TermSlot get(byte[] key) {
+  public IndexBlockInfo get(byte[] key) {
     if (slots.size() == 0) {
       return null;
     }
@@ -66,7 +84,7 @@ public class VocabularyReader {
 
     while (big - small > 1) {
       int middle = small + (big - small) / 2;
-      byte[] middleKey = slots.get(middle).termData;
+      byte[] middleKey = slots.get(middle).firstKey;
 
       if (Utility.compare(middleKey, key) <= 0) {
         small = middle;
@@ -75,10 +93,10 @@ public class VocabularyReader {
       }
     }
 
-    TermSlot one = slots.get(small);
-    TermSlot two = slots.get(big);
+    IndexBlockInfo one = slots.get(small);
+    IndexBlockInfo two = slots.get(big);
 
-    if (Utility.compare(two.termData, key) <= 0) {
+    if (Utility.compare(two.firstKey, key) <= 0) {
       return two;
     } else {
       return one;

@@ -19,6 +19,7 @@ import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.LengthsReader;
+import org.lemurproject.galago.core.index.NamesReader.Iterator;
 import org.lemurproject.galago.core.index.disk.CachedDiskIndex;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.parse.Document;
@@ -437,11 +438,17 @@ public class LocalRetrieval implements Retrieval {
         return Utility.compare(o1.document, o2.document);
       }
     });
-
     // TODO: fix this to use an iterator.
+    Iterator namesIterator = index.getNamesIterator();
+
     for (T doc : docIds) {
-      String name = index.getName(doc.document);
-      doc.documentName = name;
+      namesIterator.skipToKey(doc.document);
+      if (doc.document == namesIterator.getCurrentIdentifier()) {
+        doc.documentName = namesIterator.getCurrentName();
+      } else {
+        System.err.println("NAMES ITERATOR FAILED TO FIND DOCUMENT " + doc.document);
+        doc.documentName = index.getName(doc.document);
+      }
     }
 
     return results;

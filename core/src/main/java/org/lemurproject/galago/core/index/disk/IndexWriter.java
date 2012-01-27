@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 import org.lemurproject.galago.core.index.GenericIndexWriter;
@@ -36,15 +37,16 @@ import org.lemurproject.galago.tupleflow.Utility;
 public class IndexWriter extends GenericIndexWriter {
 
   public static final long MAGIC_NUMBER = 0x1a2b3c4d5e6f7a8bL;
-  DataOutputStream output;
-  final VocabularyWriter vocabulary;
-  Parameters manifest;
-  ArrayList<IndexElement> lists;
-  int blockSize = 32768;
-  int vocabGroup = 16;
-  long filePosition = 0;
-  long listBytes = 0;
-  long keyCount = 0;
+  private DataOutputStream output;
+  private VocabularyWriter vocabulary;
+  private Parameters manifest;
+  private ArrayList<IndexElement> lists;
+  private int blockSize = 32768;
+  private int vocabGroup = 16;
+  private long filePosition = 0;
+  private long listBytes = 0;
+  private long keyCount = 0;
+  private byte[] lastKey = new byte[0];
   // compression isn't supported yet
   boolean isCompressed = false;
   Counter recordsWritten = null;
@@ -472,6 +474,10 @@ public class IndexWriter extends GenericIndexWriter {
   public void close() throws IOException {
     flush();
 
+    // increment the final key (this writes the first key that is outside the index.
+    lastKey = increment(lastKey);
+    assert (lastKey.length <= Short.MAX_VALUE) : "Final key issue - can not be written.";
+
     byte[] vocabularyData = vocabulary.data();
     if (vocabularyData.length == 0) {
       manifest.set("emptyIndexFile", true);
@@ -480,7 +486,12 @@ public class IndexWriter extends GenericIndexWriter {
 
     byte[] xmlData = manifest.toString().getBytes("UTF-8");
     long vocabularyOffset = filePosition;
-    long manifestOffset = filePosition + vocabularyData.length;
+    long manifestOffset = filePosition
+            + 2 + lastKey.length // part of vocab
+            + vocabularyData.length;
+
+    output.writeShort(lastKey.length);
+    output.write(lastKey);
 
     output.write(vocabularyData);
     output.write(xmlData);
@@ -493,5 +504,20 @@ public class IndexWriter extends GenericIndexWriter {
     output.writeLong(MAGIC_NUMBER);
 
     output.close();
+  }
+
+  private byte[] increment(byte[] data) {
+    byte[] newData = Arrays.copyOf(data, data.length);
+    int i = newData.length - 1;
+    while (i >= 0 && newData[i] == Byte.MAX_VALUE) {
+      i--;
+    }
+    if (i >= 0) {
+      newData[i]++;
+    } else {
+      newData = Arrays.copyOf(data, data.length + 1);
+    }
+    assert (Utility.compare(data, newData) < 0);
+    return newData;
   }
 }

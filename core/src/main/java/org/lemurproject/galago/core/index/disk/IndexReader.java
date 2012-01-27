@@ -11,7 +11,7 @@ import java.io.RandomAccessFile;
 import java.util.Arrays;
 import java.util.zip.GZIPInputStream;
 import org.lemurproject.galago.core.index.GenericIndexReader;
-import org.lemurproject.galago.core.index.disk.VocabularyReader.TermSlot;
+import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
 import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -177,7 +177,7 @@ public class IndexReader extends GenericIndexReader {
 
         // otherwise we have to get a new block
       } else {
-        TermSlot slot = vocabulary.get(key);
+        IndexBlockInfo slot = vocabulary.get(key);
         if (slot == null) {
           done = true;
           return;
@@ -227,7 +227,7 @@ public class IndexReader extends GenericIndexReader {
         // otherwise we have to get a new block
       } else {
 
-        TermSlot slot = vocabulary.get(key);
+        IndexBlockInfo slot = vocabulary.get(key);
         if (slot == null) {
           done = true;
           return;
@@ -509,7 +509,7 @@ public class IndexReader extends GenericIndexReader {
    */
   public IndexReader.Iterator getIterator(byte[] key) throws IOException {
     // read from offset to offset in the vocab structure (right?)
-    VocabularyReader.TermSlot slot = vocabulary.get(key);
+    VocabularyReader.IndexBlockInfo slot = vocabulary.get(key);
 
     if (slot == null) {
       return null;
