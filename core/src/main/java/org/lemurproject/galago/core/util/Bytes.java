@@ -10,7 +10,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author irmarc
  */
-public class Bytes {
+public class Bytes implements Comparable<Bytes> {
   byte[] bytes;
 
   public Bytes(byte[] b) {
@@ -25,10 +25,12 @@ public class Bytes {
     return bytes;
   }
 
+  @Override
   public int hashCode() {
     return Arrays.hashCode(this.bytes);
   }
 
+  @Override
   public int compareTo(Bytes that) {
     return Utility.compare(this.bytes, that.bytes);
   }
