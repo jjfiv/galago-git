@@ -1,0 +1,10 @@
+package org.lemurproject.galago.core.types;
+
+type NumberWordCount {
+    bytes word;
+    int document;
+    int count;
+    
+    order: +document;
+    order: +word +document;
+}
