@@ -19,13 +19,17 @@ import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.NullStemmer;
 import org.lemurproject.galago.core.tools.App.AppFunction;
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.core.types.NumberedExtent;
 import org.lemurproject.galago.core.types.TextFeature;
 import org.lemurproject.galago.core.window.ExtractLocations;
+import org.lemurproject.galago.core.window.NumberWordCountThresholder;
 import org.lemurproject.galago.core.window.NumberedExtentThresholder;
+import org.lemurproject.galago.core.window.ReduceNumberWordCount;
 import org.lemurproject.galago.core.window.TextFeatureThresholder;
 import org.lemurproject.galago.core.window.WindowFeaturer;
 import org.lemurproject.galago.core.window.WindowFilter;
+import org.lemurproject.galago.core.window.WindowToNumberWordCount;
 import org.lemurproject.galago.core.window.WindowToNumberedExtent;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -50,6 +54,7 @@ public class BuildWindowIndex extends AppFunction {
 
   boolean spaceEfficient;
   String indexPath;
+  boolean positionalIndex;
   boolean stemming;
   int n;
   int width;
@@ -158,10 +163,17 @@ public class BuildWindowIndex extends AppFunction {
     stage.add(new StageConnectionPoint(
             ConnectionPointType.Input,
             "splits", new DocumentSplit.FileIdOrder()));
-    stage.add(new StageConnectionPoint(
-            ConnectionPointType.Output,
-            "windows", new NumberedExtent.ExtentNameNumberBeginOrder()));
 
+    if (positionalIndex) {
+      stage.add(new StageConnectionPoint(
+              ConnectionPointType.Output,
+              "windows", new NumberedExtent.ExtentNameNumberBeginOrder()));
+    } else {
+      stage.add(new StageConnectionPoint(
+              ConnectionPointType.Output,
+              "windows", new NumberWordCount.WordDocumentOrder()));
+
+    }
     if (spaceEfficient) {
       stage.add(new StageConnectionPoint(
               ConnectionPointType.Input,
@@ -192,27 +204,45 @@ public class BuildWindowIndex extends AppFunction {
       stage.add(new Step(WindowFilter.class, p3));
     }
 
-    stage.add(new Step(WindowToNumberedExtent.class));
-
-    stage.add(Utility.getSorter(new NumberedExtent.ExtentNameNumberBeginOrder()));
+    if (buildParameters.get("positionalIndex", true)) {
+      stage.add(new Step(WindowToNumberedExtent.class));
+      stage.add(Utility.getSorter(new NumberedExtent.ExtentNameNumberBeginOrder()));
+    } else {
+      stage.add(new Step(WindowToNumberWordCount.class));
+      stage.add(Utility.getSorter(new NumberWordCount.WordDocumentOrder()));
+      stage.add(new Step(ReduceNumberWordCount.class));
+    }
 
     stage.add(new OutputStep("windows"));
     return stage;
   }
 
-  public Stage getWritePostingsStage(String stageName, String inputName, String indexName, Class indexWriter) {
+  public Stage getWritePostingsStage(String stageName, String inputName, String indexName) {
     Stage stage = new Stage(stageName);
 
-    stage.add(new StageConnectionPoint(
-            ConnectionPointType.Input, inputName,
-            new NumberedExtent.ExtentNameNumberBeginOrder()));
+    if (positionalIndex) {
+      stage.add(new StageConnectionPoint(
+              ConnectionPointType.Input,
+              inputName, new NumberedExtent.ExtentNameNumberBeginOrder()));
+    } else {
+      stage.add(new StageConnectionPoint(
+              ConnectionPointType.Input,
+              inputName, new NumberWordCount.WordDocumentOrder()));
+
+    }
 
     stage.add(new InputStep(inputName));
 
     Parameters p = new Parameters();
     p.set("threshold", threshold);
     p.set("threshdf", threshdf);
-    stage.add(new Step(NumberedExtentThresholder.class, p));
+    if (threshold > 1) {
+      if (positionalIndex) {
+        stage.add(new Step(NumberedExtentThresholder.class, p));
+      } else {
+        stage.add(new Step(NumberWordCountThresholder.class, p));
+      }
+    }
 
     Parameters p2 = new Parameters();
     p2.set("filename", indexPath + File.separator + indexName);
@@ -220,7 +250,13 @@ public class BuildWindowIndex extends AppFunction {
       p2.set("stemming", stemming); // slightly redundent only present if true //
       p2.set("stemmer", buildParameters.get("stemmer", Porter2Stemmer.class.getName()));
     }
-    stage.add(new Step(indexWriter, p2));
+
+    if (this.positionalIndex) {
+      stage.add(new Step(WindowIndexWriter.class, p2));
+    } else {
+      stage.add(new Step(ReduceNumberWordCount.class));
+      stage.add(new Step(CountIndexWriter.class, p2));
+    }
     return stage;
   }
 
@@ -248,9 +284,9 @@ public class BuildWindowIndex extends AppFunction {
         } else if (stemmerName.equals("krovetz")) {
           stemmerClass = KrovetzStemmer.class;
         } else {
-          throw new RuntimeException("A stemmerClass must be specified for stemmer " + stemmerName );
+          throw new RuntimeException("A stemmerClass must be specified for stemmer " + stemmerName);
         }
-      } else if(p.isString("stemmerClass")){
+      } else if (p.isString("stemmerClass")) {
         stemmerClass = Class.forName(p.getString("stemmerClass"));
         stemmerName = p.getString("stemmerClass").replaceFirst(".*\\.", "");
       } else {
@@ -259,7 +295,8 @@ public class BuildWindowIndex extends AppFunction {
         stemmerClass = Porter2Stemmer.class;
       }
     }
-    
+
+    this.positionalIndex = p.get("positionalIndex", false);
     this.n = (int) p.get("n", 2);
     this.width = (int) p.get("width", 1);
     this.ordered = p.get("ordered", true);
@@ -298,12 +335,7 @@ public class BuildWindowIndex extends AppFunction {
 
     job.add(getSplitStage(inputPaths));
     job.add(getParsePostingsStage());
-
-    if (p.get("positionalIndex", true)) {
-      job.add(getWritePostingsStage("writePostings", "windows", indexName, WindowIndexWriter.class));
-    } else {
-      job.add(getWritePostingsStage("writePostings", "windows", indexName, CountIndexWriter.class));
-    }
+    job.add(getWritePostingsStage("writePostings", "windows", indexName));
 
     job.connect("inputSplit", "parsePostings", ConnectionAssignmentType.Each);
     job.connect("parsePostings", "writePostings", ConnectionAssignmentType.Combined);
