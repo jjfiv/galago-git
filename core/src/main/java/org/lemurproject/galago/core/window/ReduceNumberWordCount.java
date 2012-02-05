@@ -19,7 +19,8 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 @Verified
 @InputClass(className = "org.lemurproject.galago.core.types.NumberWordCount", order = {"+word", "+document"})
 @OutputClass(className = "org.lemurproject.galago.core.types.NumberWordCount", order = {"+word", "+document"})
-public class ReduceNumberWordCount extends StandardStep<NumberWordCount, NumberWordCount> {
+public class ReduceNumberWordCount extends StandardStep<NumberWordCount, NumberWordCount>
+        implements NumberWordCount.Source {
 
   NumberWordCount last;
 

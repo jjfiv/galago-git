@@ -204,7 +204,7 @@ public class BuildWindowIndex extends AppFunction {
       stage.add(new Step(WindowFilter.class, p3));
     }
 
-    if (buildParameters.get("positionalIndex", true)) {
+    if (this.positionalIndex) {
       stage.add(new Step(WindowToNumberedExtent.class));
       stage.add(Utility.getSorter(new NumberedExtent.ExtentNameNumberBeginOrder()));
     } else {

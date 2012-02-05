@@ -12,14 +12,9 @@ import org.lemurproject.galago.core.index.GenericIndexWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.merge.WindowIndexMerger;
-import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.core.types.NumberedExtent;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.Source;
-import org.lemurproject.galago.tupleflow.Step;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
@@ -49,10 +44,8 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  * @author trevor, irmarc
  */
 @InputClass(className = "org.lemurproject.galago.core.types.NumberedExtent", order = {"+extentName", "+number", "+begin"})
-@OutputClass(className = "org.lemurproject.galago.core.types.KeyValuePair", order = {"+key"})
 public class WindowIndexWriter implements
-        NumberedExtent.ExtentNameNumberBeginOrder.ShreddedProcessor,
-        Source<KeyValuePair> // parallel index data output
+        NumberedExtent.ExtentNameNumberBeginOrder.ShreddedProcessor
 {
 
   public class PositionsList implements IndexElement {
@@ -367,9 +360,5 @@ public class WindowIndexWriter implements
 
     String index = parameters.getJSON().getString("filename");
     Verification.requireWriteableFile(index, handler);
-  }
-
-  public void setProcessor(Step processor) throws IncompatibleProcessorException {
-    writer.setProcessor(processor);
   }
 }
