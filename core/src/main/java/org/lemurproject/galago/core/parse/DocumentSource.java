@@ -13,7 +13,7 @@ import java.util.zip.GZIPInputStream;
 import org.lemurproject.galago.core.index.GenericIndexReader;
 import org.lemurproject.galago.core.index.corpus.SplitIndexReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader;
-import org.lemurproject.galago.core.index.disk.VocabularyReader.TermSlot;
+import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
 import org.lemurproject.galago.core.index.disk.IndexReader;
 import org.lemurproject.galago.tupleflow.ExNihiloSource;
 import org.lemurproject.galago.tupleflow.FileSource;
@@ -301,14 +301,14 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
     GenericIndexReader reader = GenericIndexReader.getIndexReader(fileName);
     VocabularyReader vocabulary = reader.getVocabulary();
-    List<TermSlot> slots = vocabulary.getSlots();
+    List<IndexBlockInfo> slots = vocabulary.getSlots();
     int pieces = Math.max(2, (int) (corpusSize / chunkSize));
     ArrayList<byte[]> keys = new ArrayList<byte[]>();
 
     for (int i = 1; i < pieces; ++i) {
       float fraction = (float) i / pieces;
       int slot = (int) (fraction * slots.size());
-      keys.add(slots.get(slot).termData);
+      keys.add(slots.get(slot).firstKey);
     }
 
     for (int i = 0; i < pieces; ++i) {

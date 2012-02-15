@@ -113,7 +113,9 @@ public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.Shre
   }
 
   public void processFieldName(byte[] wordBytes) throws IOException {
-    writer = new IndexWriter(stepParameters);
+    if (writer == null) {
+      writer = new IndexWriter(stepParameters);
+    }
 
     if (invertedList != null) {
       invertedList.close();
@@ -140,7 +142,9 @@ public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.Shre
       invertedList.close();
       writer.add(invertedList);
     }
-    if (writer != null) writer.close();
+    if (writer != null) {
+      writer.close();
+    }
   }
 
   public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {

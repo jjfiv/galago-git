@@ -139,7 +139,7 @@ public class BuildIndex extends AppFunction {
               new NumberedExtent.ExtentNameNumberBeginOrder());
       processingFork.groups.add(extents);
     }
-    if (!buildParameters.getMap("tokenizer").getMap("format").isEmpty()) {
+    if (!buildParameters.getMap("tokenizer").getMap("formats").isEmpty()) {
       ArrayList<Step> fields =
               BuildStageTemplates.getExtractionSteps("numberedFields", NumberedFieldExtractor.class,
               buildParameters, new NumberedField.FieldNameNumberOrder());

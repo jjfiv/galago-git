@@ -204,6 +204,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     // If we have skips - it's go time
     @Override
     public boolean moveTo(int document) throws IOException {
+      /*
       if (skips != null && document > nextSkipDocument) {
         // if we're here, we're skipping
         while (skipsRead < numSkips
@@ -212,6 +213,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
         }
         repositionMainStreams();
       }
+       */
 
       // linear from here
       while (document > currentDocument && next());

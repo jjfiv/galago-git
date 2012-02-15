@@ -11,13 +11,10 @@ import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
 import org.lemurproject.galago.core.index.GenericIndexWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.core.types.NumberedExtent;
+import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.Source;
 import org.lemurproject.galago.tupleflow.Step;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -35,16 +32,14 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  * 
  * @author sjh
  */
-@InputClass(className = "org.lemurproject.galago.core.types.NumberedExtent", order = {"+extentName", "+number", "+begin"})
-@OutputClass(className = "org.lemurproject.galago.core.types.KeyValuePair", order = {"+key"})
+@InputClass(className = "org.lemurproject.galago.core.types.NumberWordCount", order = {"+word", "+document"})
 public class CountIndexWriter implements
-        NumberedExtent.ExtentNameNumberBeginOrder.ShreddedProcessor,
-        Source<KeyValuePair> // parallel index data output
+        NumberWordCount.WordDocumentOrder.ShreddedProcessor
 {
 
-  public class PositionsList implements IndexElement {
+  public class CountsList implements IndexElement {
 
-    public PositionsList() {
+    public CountsList() {
       documents = new CompressedRawByteBuffer();
       counts = new CompressedRawByteBuffer();
       header = new CompressedByteBuffer();
@@ -160,9 +155,9 @@ public class CountIndexWriter implements
 
     }
 
-    public void addWindow(int begin, int end) throws IOException {
-      positionCount++;
-      totalWindowCount++;
+    public void addCount(int count) throws IOException {
+      positionCount += count;
+      totalWindowCount += count;
     }
 
     private void updateSkipInformation() {
@@ -210,7 +205,7 @@ public class CountIndexWriter implements
   GenericIndexWriter writer;
   long maximumDocumentCount = 0;
   long maximumDocumentNumber = 0;
-  PositionsList invertedList;
+  CountsList invertedList;
   DataOutputStream output;
   long filePosition;
   long documentCount = 0;
@@ -221,8 +216,6 @@ public class CountIndexWriter implements
   int skipResetDistance;
   byte[] lastWord;
   TIntHashSet uniqueDocs;
-  // parallel index stuff
-  boolean parallel;
 
   /**
    * Creates a new instance of PositionIndexWriter
@@ -245,7 +238,8 @@ public class CountIndexWriter implements
     // more options here?
   }
 
-  public void processExtentName(byte[] wordBytes) throws IOException {
+  @Override
+  public void processWord(byte[] wordBytes) throws IOException {
     if (invertedList != null) {
       collectionLength += invertedList.totalWindowCount;
       invertedList.close();
@@ -256,7 +250,7 @@ public class CountIndexWriter implements
 
     resetDocumentCount();
 
-    invertedList = new PositionsList();
+    invertedList = new CountsList();
     invertedList.setWord(wordBytes);
     if (wordBytes.length > 255) {
       System.err.printf("KEY IS TOO LONG (%d): %s\n", wordBytes.length, Utility.toString(wordBytes));
@@ -267,7 +261,8 @@ public class CountIndexWriter implements
     vocabCount++;
   }
 
-  public void processNumber(long document) throws IOException {
+  @Override
+  public void processDocument(int document) throws IOException {
     invertedList.addDocument(document);
     documentCount++;
     uniqueDocs.add((int) document);
@@ -275,13 +270,9 @@ public class CountIndexWriter implements
   }
   int currentBegin;
 
-  public void processBegin(int begin) throws IOException {
-    //invertedList.addBegin(begin);
-    currentBegin = begin;
-  }
-
-  public void processTuple(int end) throws IOException {
-    invertedList.addWindow(currentBegin, end);
+  @Override
+  public void processTuple(int count) throws IOException {
+    invertedList.addCount(count);
   }
 
   private void resetDocumentCount() {
@@ -289,6 +280,7 @@ public class CountIndexWriter implements
     documentCount = 0;
   }
 
+  @Override
   public void close() throws IOException {
     if (invertedList != null) {
       collectionLength += invertedList.totalWindowCount;

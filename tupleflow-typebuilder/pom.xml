@@ -5,7 +5,7 @@
     <artifactId>galago</artifactId>
     <version>3.2</version>
   </parent>
-  <groupId>org.lemurproject</groupId>
+  <groupId>org.lemurproject.galago</groupId>
   <artifactId>tupleflow-typebuilder</artifactId>
   <packaging>maven-plugin</packaging>
   <version>3.2</version>

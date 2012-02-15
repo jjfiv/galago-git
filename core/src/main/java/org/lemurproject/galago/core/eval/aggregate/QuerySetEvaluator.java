@@ -56,7 +56,10 @@ public abstract class QuerySetEvaluator {
       QueryResults qres = querySet.get(query);
       QueryJudgments qjudge = judgmentSet.get(query);
       if (qres != null && qjudge != null) {
-        evaluation.add(query, evaluator.evaluate(querySet.get(query), judgmentSet.get(query)));
+        double eval = evaluator.evaluate(querySet.get(query), judgmentSet.get(query));
+        if(! Double.isNaN(eval)){
+          evaluation.add(query, eval);
+        }
       }
     }
     return evaluation;

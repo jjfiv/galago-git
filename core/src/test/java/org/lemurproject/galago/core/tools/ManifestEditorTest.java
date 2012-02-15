@@ -32,16 +32,13 @@ public class ManifestEditorTest extends TestCase {
       p.set("key-2", "init-value-2345");
 
       CountIndexWriter writer = new CountIndexWriter(new FakeParameters(p));
-      writer.processExtentName(Utility.fromString("the"));
-      writer.processNumber(0);
-      writer.processBegin(0);
-      writer.processTuple(10);
-      writer.processTuple(11);
-      writer.processBegin(12);
+      writer.processWord(Utility.fromString("the"));
+      writer.processDocument(0);
+      writer.processTuple(1);
+      writer.processTuple(1);
+      writer.processDocument(1);
       writer.processTuple(20);
-      writer.processBegin(1);
       writer.processTuple(10);
-      writer.processBegin(11);
       writer.processTuple(20);
       writer.close();
 

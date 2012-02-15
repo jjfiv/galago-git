@@ -6,7 +6,7 @@
     <artifactId>galago</artifactId>
     <version>3.2</version>
   </parent>
-  <groupId>org.lemurproject</groupId>
+  <groupId>org.lemurproject.galago</groupId>
   <artifactId>tupleflow</artifactId>
   <packaging>jar</packaging>
   <version>3.2</version>
@@ -97,7 +97,7 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.lemurproject</groupId>
+        <groupId>org.lemurproject.galago</groupId>
         <artifactId>tupleflow-typebuilder</artifactId>
         <version>${project.version}</version>
         <executions>
