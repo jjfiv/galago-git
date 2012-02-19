@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.retrieval.extents;
 
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.retrieval.structured.ScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ThresholdIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;

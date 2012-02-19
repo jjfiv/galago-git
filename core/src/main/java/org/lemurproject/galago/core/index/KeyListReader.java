@@ -29,7 +29,10 @@ public abstract class KeyListReader extends KeyValueReader {
 
   public abstract class ListIterator implements ValueIterator, ModifiableIterator {
 
+    // OPTIONS
     public static final int HAS_SKIPS = 0x01;
+    public static final int HAS_MAXTF = 0x02;
+
     protected GenericIndexReader.Iterator source;
     protected byte[] key;
     protected long dataLength;

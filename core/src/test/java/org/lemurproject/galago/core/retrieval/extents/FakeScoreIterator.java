@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.retrieval.extents;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.ValueIterator;
-import org.lemurproject.galago.core.retrieval.structured.ScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
 
 /**

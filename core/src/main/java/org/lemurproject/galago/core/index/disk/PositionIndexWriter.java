@@ -76,6 +76,7 @@ public class PositionIndexWriter implements
 
       if (documents.length() > 0) {
         counts.add(positionCount);
+        maximumPositionCount = Math.max(maximumPositionCount, positionCount);
       }
 
       if (skips != null && skips.length() == 0) {
@@ -88,7 +89,7 @@ public class PositionIndexWriter implements
 
       header.add(documentCount);
       header.add(totalPositionCount);
-
+      header.add(maximumPositionCount);
       if (skips != null && skips.length() > 0) {
         header.add(skipDistance);
         header.add(skipResetDistance);
@@ -149,6 +150,7 @@ public class PositionIndexWriter implements
       this.lastDocument = 0;
       this.lastPosition = 0;
       this.totalPositionCount = 0;
+      this.maximumPositionCount = 0;
       this.positionCount = 0;
       if (skips != null) {
         this.docsSinceLastSkip = 0;
@@ -166,6 +168,7 @@ public class PositionIndexWriter implements
       // add the last document's counts
       if (documents.length() > 0) {
         counts.add(positionCount);
+        maximumPositionCount = Math.max(maximumPositionCount, positionCount);
 
         // if we're skipping check that
         if (skips != null) {
@@ -219,6 +222,7 @@ public class PositionIndexWriter implements
     private int lastPosition;
     private int positionCount;
     private int documentCount;
+    private int maximumPositionCount;
     private int totalPositionCount;
     public byte[] word;
     public CompressedByteBuffer header;
@@ -285,7 +289,7 @@ public class PositionIndexWriter implements
     skipDistance = (int) parameters.getJSON().get("skipDistance", 500);
     skipResetDistance = (int) parameters.getJSON().get("skipResetDistance", 20);
     options |= (skip ? KeyListReader.ListIterator.HAS_SKIPS : 0x0);
-    // more options here?
+    options |= KeyListReader.ListIterator.HAS_MAXTF;
   }
 
   public void processWord(byte[] wordBytes) throws IOException {

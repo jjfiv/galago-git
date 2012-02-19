@@ -3,6 +3,9 @@
  */
 package org.lemurproject.galago.core.retrieval.structured;
 
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
+import org.lemurproject.galago.core.retrieval.processing.PassageScoringContext;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**

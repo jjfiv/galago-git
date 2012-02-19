@@ -189,7 +189,7 @@ public class ImplicitFeatureCastTraversal implements Traversal {
       }
 
       if (!this.parameters.containsKey("passageShift")) {
-        throw new IllegalArgumentException("passage retrieval requires an explicit passageSize parameter.");
+        throw new IllegalArgumentException("passage retrieval requires an explicit passageShift parameter.");
       }
 
       // replace here

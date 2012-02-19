@@ -3,7 +3,7 @@
 
  */
 
-package org.lemurproject.galago.core.retrieval.structured;
+package org.lemurproject.galago.core.retrieval.processing;
 
 import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
 import java.util.ArrayList;

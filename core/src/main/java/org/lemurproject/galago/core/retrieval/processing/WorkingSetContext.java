@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.retrieval.structured;
+package org.lemurproject.galago.core.retrieval.processing;
 
 import gnu.trove.list.array.TIntArrayList;
 

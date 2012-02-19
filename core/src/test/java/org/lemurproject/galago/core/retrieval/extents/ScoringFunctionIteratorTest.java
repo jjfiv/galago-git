@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import junit.framework.*;
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
-import org.lemurproject.galago.core.retrieval.structured.ScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.scoring.ScoringFunction;
 
 /**

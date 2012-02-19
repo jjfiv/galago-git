@@ -19,7 +19,7 @@ import org.lemurproject.galago.core.index.FieldIndexWriter;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.retrieval.structured.WorkingSetContext;
+import org.lemurproject.galago.core.retrieval.processing.WorkingSetContext;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.core.types.NumberedDocumentData;

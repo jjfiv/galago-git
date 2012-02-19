@@ -100,17 +100,6 @@ public interface Retrieval {
 
   public ScoredDocument[] runQuery(Node root, Parameters parameters) throws Exception;
 
-  /**
-   * A modification to runQuery, which only scores the documents provided in the working set.
-   * 
-   * @param root
-   * @param parameters
-   * @param workingSet
-   * @return
-   * @throws Exception
-   */
-  public ScoredDocument[] runQuery(Node root, Parameters parameters, TIntArrayList workingSet) throws Exception;
-
   // term and collection statistics gatherers
   public CollectionStatistics getRetrievalStatistics() throws IOException;
 

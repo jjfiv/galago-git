@@ -2,7 +2,7 @@
 
 package org.lemurproject.galago.core.retrieval.structured;
 
-import org.lemurproject.galago.core.retrieval.structured.ScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.RequireIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExistentialIndicatorIterator;
 import org.lemurproject.galago.core.retrieval.iterator.UniversalIndicatorIterator;

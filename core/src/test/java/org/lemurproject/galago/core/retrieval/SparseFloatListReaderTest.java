@@ -15,7 +15,7 @@ import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import java.io.File;
 import java.io.IOException;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.retrieval.structured.ScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
 import org.lemurproject.galago.tupleflow.Parameters;
 

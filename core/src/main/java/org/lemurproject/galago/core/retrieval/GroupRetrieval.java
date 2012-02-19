@@ -107,11 +107,6 @@ public class GroupRetrieval implements Retrieval {
   }
 
   @Override
-  public ScoredDocument[] runQuery(Node root, Parameters parameters, TIntArrayList workingSet) throws Exception {
-    return groups.get(defGroup).runQuery(root, parameters, workingSet);
-  }
-
-  @Override
   public CollectionStatistics getRetrievalStatistics() throws IOException {
     return groups.get(defGroup).getRetrievalStatistics();
   }
@@ -166,10 +161,6 @@ public class GroupRetrieval implements Retrieval {
 
   public ScoredDocument[] runQuery(Node root, Parameters parameters, String group) throws Exception {
     return groups.get(group).runQuery(root, parameters);
-  }
-
-  public ScoredDocument[] runQuery(Node root, Parameters parameters, TIntArrayList workingSet, String group) throws Exception {
-    return groups.get(group).runQuery(root, parameters, workingSet);
   }
 
   public CollectionStatistics getRetrievalStatistics(String partName, String group) throws IOException {

@@ -1,6 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 
-package org.lemurproject.galago.core.retrieval.structured;
+package org.lemurproject.galago.core.retrieval.processing;
 
 /**
  * The context used for passage retrieval.

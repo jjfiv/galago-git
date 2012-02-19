@@ -16,9 +16,9 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
-import org.lemurproject.galago.core.retrieval.structured.ScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
-import org.lemurproject.galago.core.retrieval.structured.TopDocsContext;
+import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -66,6 +66,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       return sb.toString();
     }
 
+    @Override
     public ValueIterator getValueIterator() throws IOException {
       return new TermExtentIterator(iterator);
     }
@@ -78,6 +79,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     ScoringContext context;
     int documentCount;
     int totalPositionCount;
+    int maximumPositionCount;
     VByteInput documents;
     VByteInput counts;
     VByteInput positions;
@@ -121,6 +123,13 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       int options = stream.readInt();
       documentCount = stream.readInt();
       totalPositionCount = stream.readInt();
+
+      if ((options & HAS_MAXTF) == HAS_MAXTF) {
+        maximumPositionCount = stream.readInt();
+      } else {
+        maximumPositionCount = Integer.MAX_VALUE;
+      }
+
       if ((options & HAS_SKIPS) == HAS_SKIPS) {
         skipDistance = stream.readInt();
         skipResetDistance = stream.readInt();
@@ -194,6 +203,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       }
     }
 
+    @Override
     public String getEntry() {
       StringBuilder builder = new StringBuilder();
 
@@ -208,6 +218,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       return builder.toString();
     }
 
+    @Override
     public void reset(GenericIndexReader.Iterator i) throws IOException {
       iterator = i;
       key = iterator.getKey();
@@ -218,6 +229,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       reset();
     }
 
+    @Override
     public void reset() throws IOException {
       currentDocument = 0;
       currentCount = 0;
@@ -225,6 +237,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       initialize();
     }
 
+    @Override
     public boolean next() throws IOException {
       documentIndex = Math.min(documentIndex + 1, documentCount);
       if (!isDone()) {
@@ -295,30 +308,42 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       documentIndex = (int) (skipDistance * skipsRead) - 1;
     }
 
+    @Override
     public boolean isDone() {
       return documentIndex >= documentCount;
     }
 
+    @Override
     public ExtentArray getData() {
       return extentArray;
     }
 
+    @Override
     public ExtentArray extents() {
       return extentArray;
     }
 
+    @Override
     public int currentCandidate() {
       return currentDocument;
     }
 
+    @Override
     public int count() {
       return currentCount;
     }
 
+    @Override
+    public int maximumCount() {
+      return maximumPositionCount;
+    }
+
+    @Override
     public long totalEntries() {
       return ((long) documentCount);
     }
 
+    @Override
     public NodeStatistics getStatistics() {
       NodeStatistics stats = new NodeStatistics();
       stats.node = Utility.toString(this.key);
@@ -329,11 +354,13 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       return stats;
     }
 
+    @Override
     public ScoringContext getContext() {
       return this.context;
     }
 
     // This will pass up topdocs information if it's available
+    @Override
     public void setContext(ScoringContext context) {
       if ((context != null) && TopDocsContext.class.isAssignableFrom(context.getClass())
               && this.hasModifier("topdocs")) {
@@ -357,6 +384,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     ScoringContext context;
     int documentCount;
     int collectionCount;
+    int maximumPositionCount;
     VByteInput documents;
     VByteInput counts;
     int documentIndex;
@@ -395,6 +423,13 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       int options = stream.readInt();
       documentCount = stream.readInt();
       collectionCount = stream.readInt();
+
+      if ((options & HAS_MAXTF) == HAS_MAXTF) {
+        maximumPositionCount = stream.readInt();
+      } else {
+        maximumPositionCount = Integer.MAX_VALUE;
+      }
+
       if ((options & HAS_SKIPS) == HAS_SKIPS) {
         skipDistance = stream.readInt();
         skipResetDistance = stream.readInt();
@@ -457,6 +492,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       currentCount = counts.readInt();
     }
 
+    @Override
     public String getEntry() {
       StringBuilder builder = new StringBuilder();
 
@@ -469,6 +505,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       return builder.toString();
     }
 
+    @Override
     public void reset(GenericIndexReader.Iterator i) throws IOException {
       iterator = i;
       startPosition = iterator.getValueStart();
@@ -478,12 +515,14 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       initialize();
     }
 
+    @Override
     public void reset() throws IOException {
       currentDocument = 0;
       currentCount = 0;
       initialize();
     }
 
+    @Override
     public boolean next() throws IOException {
       documentIndex = Math.min(documentIndex + 1, documentCount);
       if (!isDone()) {
@@ -552,22 +591,32 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       documentIndex = (int) (skipDistance * skipsRead) - 1;
     }
 
+    @Override
     public boolean isDone() {
       return documentIndex >= documentCount;
     }
 
+    @Override
     public int currentCandidate() {
       return currentDocument;
     }
 
+    @Override
     public int count() {
       return currentCount;
     }
 
+    @Override
+    public int maximumCount() {
+      return maximumPositionCount;
+    }
+
+    @Override
     public long totalEntries() {
       return documentCount;
     }
 
+    @Override
     public NodeStatistics getStatistics() {
       NodeStatistics stats = new NodeStatistics();
       stats.node = Utility.toString(this.key);
@@ -578,11 +627,13 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       return stats;
     }
 
+    @Override
     public ScoringContext getContext() {
       return this.context;
     }
 
     // This will pass up topdocs information if it's available
+    @Override
     public void setContext(ScoringContext context) {
       if ((context != null) && TopDocsContext.class.isAssignableFrom(context.getClass())
               && this.hasModifier("topdocs")) {

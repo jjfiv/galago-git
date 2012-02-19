@@ -173,10 +173,6 @@ public class MultiRetrieval implements Retrieval {
     return queryResultCollector.subList(0, Math.min(queryResultCollector.size(), requested)).toArray(new ScoredDocument[0]);
   }
 
-  public ScoredDocument[] runQuery(Node root, Parameters parameters, TIntArrayList workingSet) throws Exception {
-    throw new UnsupportedOperationException("Method does not distribute cleanly.");
-  }
-
   public Node transformQuery(Node root) throws Exception {
     return transformQuery(features.getTraversals(this), root);
   }

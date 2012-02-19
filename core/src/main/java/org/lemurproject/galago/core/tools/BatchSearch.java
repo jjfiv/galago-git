@@ -90,6 +90,11 @@ public class BatchSearch extends AppFunction {
       String queryText = query.getString("text");
       Parameters p = new Parameters();
       p.set("requested", requested);
+
+      // This is slow - need to improve it, but later
+      if (parameters.containsKey("working")) {
+        p.set("working", parameters.getList("working"));
+      }
       Node root = StructuredQuery.parse(queryText);
       Node transformed = retrieval.transformQuery(root);
 
@@ -136,4 +141,5 @@ public class BatchSearch extends AppFunction {
     }
     return String.format("%10.8f", score);
   }
+  
 }

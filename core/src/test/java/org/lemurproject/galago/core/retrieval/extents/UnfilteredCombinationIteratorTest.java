@@ -5,7 +5,7 @@ import org.lemurproject.galago.core.retrieval.iterator.ScoreCombinationIterator;
 import java.io.IOException;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.retrieval.structured.ScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**

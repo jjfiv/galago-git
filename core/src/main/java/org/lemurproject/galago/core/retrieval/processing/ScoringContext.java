@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.retrieval.structured;
+package org.lemurproject.galago.core.retrieval.processing;
 
 /**
  * Currently represents the context that the entire query processor shares.

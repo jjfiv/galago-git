@@ -1,6 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
+import org.lemurproject.galago.core.retrieval.processing.RankedDocumentModel;
+import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
 import gnu.trove.list.array.TIntArrayList;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -33,14 +35,15 @@ import org.lemurproject.galago.core.retrieval.iterator.AbstractIndicator;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
-import org.lemurproject.galago.core.retrieval.structured.ScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.processing.RankedPassageModel;
 import org.lemurproject.galago.core.retrieval.structured.ContextFactory;
-import org.lemurproject.galago.core.retrieval.structured.PassageScoringContext;
-import org.lemurproject.galago.core.retrieval.structured.WorkingSetContext;
+import org.lemurproject.galago.core.retrieval.processing.PassageScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.WorkingSetContext;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Parameters.Type;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -166,6 +169,10 @@ public class LocalRetrieval implements Retrieval {
     return p;
   }
 
+  public Index getIndex() {
+    return index;
+  }
+
   @Override
   public Document getDocument(String identifier) throws IOException {
     return this.index.getDocument(identifier);
@@ -174,6 +181,20 @@ public class LocalRetrieval implements Retrieval {
   @Override
   public Map<String, Document> getDocuments(List<String> identifier) throws IOException {
     return this.index.getDocuments(identifier);
+  }
+
+  private ProcessingModel determineProcessingModel(Node queryTree, Parameters p) throws Exception {
+    QueryType qt = this.getQueryType(queryTree);
+    if (qt == QueryType.BOOLEAN) {
+    } else if (qt == QueryType.RANKED) {
+      if (p.containsKey("passageSize") || p.containsKey("passageShift")) {
+        return new RankedPassageModel(this);
+      } else {
+        return new RankedDocumentModel(this);
+      }
+    }
+    throw new RuntimeException(String.format("Unable to determine processing model for %s", 
+            queryTree.toString()));
   }
 
   /**
@@ -191,224 +212,30 @@ public class LocalRetrieval implements Retrieval {
   }
 
   // Based on the root of the tree, that dictates how we execute.
-  public ScoredDocument[] runQuery(Node queryTree, Parameters p) throws Exception {
+  public ScoredDocument[] runQuery(Node queryTree, Parameters queryParams) throws Exception {
     ScoredDocument[] results = null;
-    switch (this.getQueryType(queryTree)) {
-      case RANKED:
-        results = runRankedQuery(queryTree, p);
-        break;
-      case BOOLEAN:
-        results = runBooleanQuery(queryTree, p, new ScoringContext());
-        break;
-    }
-    if (results == null) {
-      results = new ScoredDocument[0];
-    }
-    return results;
-  }
+    ProcessingModel pm = determineProcessingModel(queryTree, queryParams);
 
-  public ScoredDocument[] runQuery(Node queryTree, Parameters p, TIntArrayList workingSet) throws Exception {
-    ScoredDocument[] results = null;
-    WorkingSetContext wsc = new WorkingSetContext();
-    wsc.workingSet = workingSet;
-    switch (this.getQueryType(queryTree)) {
-      case RANKED:
-        results = runRankedQuery(queryTree, p, wsc);
-        break;
-      case BOOLEAN:
-        results =
-                runBooleanQuery(queryTree, p, wsc);
-        break;
+    // Figure out if there's a working set to deal with
+    int[] workingSet = null;
+
+    if (queryParams.containsKey("working")) {
+      workingSet = this.getDocumentIds(queryParams.getList("working"));
     }
 
+    if (workingSet != null) {
+      pm.defineWorkingSet(workingSet);
+    }
+
+    // get some results
+    results = pm.execute(queryTree, queryParams);
     if (results == null) {
       results = new ScoredDocument[0];
     }
 
-    return results;
-  }
-
-  private ScoredDocument[] runBooleanQuery(Node queryTree, Parameters parameters, ScoringContext ctx) throws Exception {
-
-    // construct the query iterators
-    AbstractIndicator iterator = (AbstractIndicator) createIterator(queryTree, ctx);
-    ArrayList<ScoredDocument> list = new ArrayList<ScoredDocument>();
-    while (!iterator.isDone()) {
-      if (iterator.hasMatch(iterator.currentCandidate())) {
-        list.add(new ScoredDocument(iterator.currentCandidate(), 1.0));
-      }
-      iterator.next();
-    }
-    return list.toArray(new ScoredDocument[0]);
-  }
-
-  private ScoredDocument[] runBooleanQuery(Node queryTree, Parameters parameters, WorkingSetContext ctx) throws Exception {
-    TIntArrayList workingSet = ctx.workingSet;
-
-    if (workingSet == null) {
-      return runBooleanQuery(queryTree, parameters, new ScoringContext());
-    }
-
-    // have to be sure
-    workingSet.sort();
-
-    // construct the query iterators
-    AbstractIndicator iterator = (AbstractIndicator) createIterator(queryTree, ctx);
-    ArrayList<ScoredDocument> list = new ArrayList<ScoredDocument>();
-
-    for (int i = 0; i < workingSet.size(); i++) {
-      int document = workingSet.get(i);
-      iterator.moveTo(document);
-      if (iterator.hasMatch(document)) {
-        list.add(new ScoredDocument(iterator.currentCandidate(), 1.0));
-      }
-    }
-    return list.toArray(new ScoredDocument[0]);
-  }
-
-  /**
-   * Evaluates a probabilistic query using document-at-a-time evaluation, producing ranked passages instead of documents.
-   * @param query A query tree that has been already transformed with LocalRetrieval.transformRankedQuery.
-   * @param parameters - query parameters (indexId, # requested, query type, transform)
-   * @return The top k results
-   * @throws java.lang.Exception
-   */
-  private ScoredDocument[] runRankedPassageQuery(Node queryTree, Parameters parameters, ScoringContext ctx) throws Exception {
-
-    // Following operations are all just setup
-    int requested = (int) parameters.get("requested", 1000);
-    int passageSize = (int) parameters.getLong("passageSize");
-    int passageShift = (int) parameters.getLong("passageShift");
-    PassageScoringContext context = (PassageScoringContext) ctx;
-    ScoreValueIterator iterator = (ScoreValueIterator) createIterator(queryTree, context);
-    PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
-    LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
-
-    // now there should be an iterator at the root of this tree
-    while (!iterator.isDone()) {
-      int document = iterator.currentCandidate();
-      lengthsIterator.skipToKey(document);
-      int length = lengthsIterator.getCurrentLength();
-
-      // This context is shared among all scorers
-      context.document = document;
-      context.length = length;
-      context.begin = 0;
-      context.end = passageSize;
-
-      // Keep iterating over the same doc, but incrementing the begin/end fields of the
-      // context until the next one
-      while (context.end <= length) {
-        if (iterator.hasMatch(document)) {
-          double score = iterator.score();
-          if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
-            ScoredPassage scored = new ScoredPassage(document, score, context.begin, context.end);
-            queue.add(scored);
-            if (requested > 0 && queue.size() > requested) {
-              queue.poll();
-            }
-          }
-        }
-
-        // Move the window forward
-        context.begin += passageShift;
-        context.end += passageShift;
-      }
-      iterator.next();
-    }
-    String indexId = parameters.get("indexId", "0");
-    return getArrayResults(queue, indexId);
-  }
-
-  /**
-   * Evaluates a probabilistic query using document-at-a-time evaluation.
-   *
-   * @param query A query tree that has been already transformed with LocalRetrieval.transformRankedQuery.
-   * @param parameters - query parameters (indexId, # requested, query type, transform)
-   * @return The top k results
-   * @throws java.lang.Exception
-   */
-  private ScoredDocument[] runRankedQuery(Node queryTree, Parameters parameters) throws Exception {
-    ScoringContext ctx = ContextFactory.createContext(parameters);
-    if (PassageScoringContext.class.isAssignableFrom(ctx.getClass())) {
-      return runRankedPassageQuery(queryTree, parameters, ctx);
-    } else {
-      return runRankedDocumentQuery(queryTree, parameters, ctx);
-    }
-  }
-
-  private ScoredDocument[] runRankedDocumentQuery(Node queryTree, Parameters parameters, ScoringContext context) throws Exception {
-
-    // Following operations are all just setup
-    int requested = (int) parameters.get("requested", 1000);
-
-    ScoreValueIterator iterator = (ScoreValueIterator) createIterator(queryTree, context);
-
-    PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
-    LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
-
-    // now there should be an iterator at the root of this tree
-    while (!iterator.isDone()) {
-      int document = iterator.currentCandidate();
-      lengthsIterator.skipToKey(document);
-      int length = lengthsIterator.getCurrentLength();
-      // This context is shared among all scorers
-      context.document = document;
-      context.length = length;
-      if (iterator.hasMatch(document)) {
-        double score = iterator.score();
-        if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
-          ScoredDocument scoredDocument = new ScoredDocument(document, score);
-          queue.add(scoredDocument);
-          if (requested > 0 && queue.size() > requested) {
-            queue.poll();
-          }
-        }
-      }
-      iterator.next();
-    }
-    String indexId = parameters.get("indexId", "0");
-    return getArrayResults(queue, indexId);
-  }
-
-  private ScoredDocument[] runRankedQuery(Node queryTree, Parameters parameters, WorkingSetContext context) throws Exception {
-
-    TIntArrayList workingSet = context.workingSet;
-
-    if (workingSet == null) {
-      return runRankedQuery(queryTree, parameters);
-    }
-
-    // have to be sure
-    workingSet.sort();
-
-    // construct the query iterators
-    ScoreValueIterator iterator = (ScoreValueIterator) createIterator(queryTree, context);
-    int requested = (int) parameters.get("requested", 1000);
-
-    // now there should be an iterator at the root of this tree
-    PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>();
-    LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
-
-    for (int i = 0; i < workingSet.size(); i++) {
-      int document = workingSet.get(i);
-      iterator.moveTo(document);
-      lengthsIterator.skipToKey(document);
-      int length = lengthsIterator.getCurrentLength();
-      // This context is shared among all scorers
-      context.document = document;
-      context.length = length;
-      double score = iterator.score();
-      if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
-        ScoredDocument scoredDocument = new ScoredDocument(document, score);
-        queue.add(scoredDocument);
-        if (requested > 0 && queue.size() > requested) {
-          queue.poll();
-        }
-      }
-    }
-    String indexId = parameters.get("indexId", "0");
-    return getArrayResults(queue, indexId);
+    // Format and get names
+    String indexId = this.globalParameters.get("indexId", "0");
+    return getArrayResults(results, indexId);
   }
 
   /*
@@ -416,32 +243,43 @@ public class LocalRetrieval implements Retrieval {
    * returns an array
    *
    */
-  protected <T extends ScoredDocument> T[] getArrayResults(PriorityQueue<T> scores, String indexId) throws IOException {
-    if (scores.size() == 0) {
+  protected <T extends ScoredDocument> T[] getArrayResults(T[] results, String indexId) throws IOException {
+    if (results.length == 0) {
       return null;
     }
-    T[] results = (T[]) Array.newInstance(scores.peek().getClass(), scores.size());
 
-    for (int i = scores.size() - 1; i >= 0; i--) {
-      results[i] = scores.poll();
+    for (int i = results.length - 1; i >= 0; i--) {
       results[i].source = indexId;
       results[i].rank = i + 1;
     }
 
-    // create a new list of scored documents
-    ArrayList<T> docIds = new ArrayList(Arrays.asList(results));
-    // sort the scoreddocuments into docid order
-    Collections.sort(docIds, new Comparator<T>() {
+    // manual reverse of results
+    int limit = results.length / 2;
+    if (results.length % 2 == 0) {
+      limit--;
+    }
+
+    for (int i = 0; i < limit; i++) {
+      T tmp = results[i];
+      results[i] = results[results.length - (i + 1)];
+      results[results.length - (i + 1)] = tmp;
+    }
+
+    // this is to assign proper document names
+    T[] byID = Arrays.copyOf(results, results.length);
+
+    Arrays.sort(byID, new Comparator<T>() {
 
       @Override
       public int compare(T o1, T o2) {
         return Utility.compare(o1.document, o2.document);
       }
     });
+
     // TODO: fix this to use an iterator.
     Iterator namesIterator = index.getNamesIterator();
 
-    for (T doc : docIds) {
+    for (T doc : byID) {
       namesIterator.skipToKey(doc.document);
       if (doc.document == namesIterator.getCurrentIdentifier()) {
         doc.documentName = namesIterator.getCurrentName();
@@ -578,5 +416,15 @@ public class LocalRetrieval implements Retrieval {
   @Override
   public String getDocumentName(int docid) throws IOException {
     return index.getName(docid);
+  }
+
+  public int[] getDocumentIds(List<String> docnames) throws IOException {
+    int[] ids = new int[docnames.size()];
+    int i = 0;
+    for (String name : docnames) {
+      ids[i] = index.getIdentifier(name);
+      i++;
+    }
+    return ids;
   }
 }
