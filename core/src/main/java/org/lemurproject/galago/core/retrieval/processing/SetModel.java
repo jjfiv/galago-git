@@ -19,7 +19,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author irmarc
  */
-public class SetModel implements ProcessingModel {
+public class SetModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   Index index;

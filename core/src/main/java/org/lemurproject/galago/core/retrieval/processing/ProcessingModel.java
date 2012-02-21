@@ -4,6 +4,8 @@ package org.lemurproject.galago.core.retrieval.processing;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
+import java.lang.reflect.Array;
+import java.util.PriorityQueue;
 
 /**
  * An interface that defines the contract for processing a query.
@@ -13,7 +15,20 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author irmarc
  */
-public interface ProcessingModel {
-  public ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception;
-  public void defineWorkingSet(int[] docs);
+public abstract class ProcessingModel {
+  public abstract ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception;
+  public abstract void defineWorkingSet(int[] docs);
+    
+  public static <T extends ScoredDocument> T[] toReversedArray(PriorityQueue<T> queue) {
+    if (queue.size() == 0) {
+      return null;
+    }
+
+    T[] items = (T[]) Array.newInstance(queue.peek().getClass(), queue.size());
+    for (int i = queue.size() - 1; queue.isEmpty() == false; i--) {
+      items[i] = queue.poll();
+    }
+    return items;
+  }
+
 }

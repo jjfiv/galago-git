@@ -15,7 +15,6 @@ import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Assumes the use of delta functions for scoring, then prunes using
@@ -23,7 +22,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author irmarc
  */
-public class DeltaScoreDocumentModel implements ProcessingModel {
+public class DeltaScoreDocumentModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   Index index;
@@ -137,7 +136,7 @@ public class DeltaScoreDocumentModel implements ProcessingModel {
         }
       }
     }
-    return Utility.toReversedArray(queue);
+    return toReversedArray(queue);
   }
 
   public ScoredDocument[] executeWorkingSet(Node queryTree, Parameters queryParams)
@@ -223,7 +222,7 @@ public class DeltaScoreDocumentModel implements ProcessingModel {
       }
       // The quorum is moved at the top, so we don't do it here.
     }
-    return Utility.toReversedArray(queue);
+    return toReversedArray(queue);
   }
 
   private void computeQuorum(DeltaScoringContext ctx) {

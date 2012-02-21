@@ -18,7 +18,6 @@ import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Performs straightforward document-at-a-time (daat) processing of a fully annotated query,
@@ -27,7 +26,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author irmarc
  */
-public class RankedFieldedModel implements ProcessingModel {
+public class RankedFieldedModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   Index index;
@@ -89,7 +88,7 @@ public class RankedFieldedModel implements ProcessingModel {
         }
       }
     }
-    return Utility.toReversedArray(queue);
+    return toReversedArray(queue);
   }
 
   private ScoredDocument[] executeWholeCollection(Node queryTree, Parameters queryParams)
@@ -132,7 +131,7 @@ public class RankedFieldedModel implements ProcessingModel {
       }
       iterator.next();
     }
-    return Utility.toReversedArray(queue);
+    return toReversedArray(queue);
   }
 
   protected void updateFieldLengths(FieldScoringContext context, int currentDoc) throws IOException {

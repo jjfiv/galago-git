@@ -11,7 +11,6 @@ import org.lemurproject.galago.core.retrieval.ScoredPassage;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Performs passage-level retrieval scoring.
@@ -19,7 +18,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author irmarc
  */
-public class RankedPassageModel implements ProcessingModel {
+public class RankedPassageModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   Index index;
@@ -92,7 +91,7 @@ public class RankedPassageModel implements ProcessingModel {
         context.end += passageShift;
       }
     }
-    return Utility.toReversedArray(queue);
+    return toReversedArray(queue);
 
   }
 
@@ -141,6 +140,6 @@ public class RankedPassageModel implements ProcessingModel {
       }
       iterator.next();
     }
-    return Utility.toReversedArray(queue);
+    return toReversedArray(queue);
   }
 }
