@@ -5,14 +5,13 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.galagosearch.core.index.disk.PositionIndexReader;
-import org.galagosearch.core.retrieval.query.NodeParameters;
-import org.galagosearch.core.retrieval.structured.FieldScoringContext;
-import org.galagosearch.core.retrieval.structured.PRMSContext;
-import org.galagosearch.core.retrieval.structured.RequiredStatistics;
-import org.galagosearch.core.retrieval.structured.ScoringContext;
-import org.galagosearch.core.scoring.DirichletProbabilityScorer;
-import org.galagosearch.tupleflow.Parameters;
+import org.lemurproject.galago.core.index.disk.PositionIndexReader;
+import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.FieldScoringContext;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
+import org.lemurproject.galago.core.scoring.DirichletProbabilityScorer;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -68,7 +67,7 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
     return result;
   }
 
-  public void score(PRMSContext ctx) {
+  public void score(DeltaScoringContext ctx) {
     int count = 0;
 
     if (iterator.currentCandidate() == context.document) {
@@ -76,10 +75,10 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
     }
 
     double diff = weight * (function.score(count, ((FieldScoringContext) context).lengths.get(partName)) - max);
-    double newValue = ctx.subtotals[parentIdx] + diff;
+    double newValue = ctx.potentials[parentIdx] + diff;
     
-    ctx.runningScore += Math.log(newValue / ctx.subtotals[parentIdx]);
-    ctx.subtotals[parentIdx] = newValue;
+    ctx.runningScore += Math.log(newValue / ctx.potentials[parentIdx]);
+    ctx.potentials[parentIdx] = newValue;
 
   }
 
@@ -99,11 +98,11 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
     }
   }
 
-  public void maximumAdjustment(PRMSContext ctx) {
+  public void maximumAdjustment(DeltaScoringContext ctx) {
     double diff = weight * (min - max);
-    double newValue = ctx.subtotals[parentIdx] + diff;
+    double newValue = ctx.potentials[parentIdx] + diff;
     
-    ctx.runningScore += Math.log(newValue / ctx.subtotals[parentIdx]);
-    ctx.subtotals[parentIdx] = newValue;
+    ctx.runningScore += Math.log(newValue / ctx.potentials[parentIdx]);
+    ctx.potentials[parentIdx] = newValue;
   }
 }

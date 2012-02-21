@@ -4,15 +4,15 @@
  */
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import gnu.trove.TObjectIntHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import java.util.ArrayList;
 import java.util.List;
-import org.galagosearch.core.index.AggregateReader.NodeStatistics;
-import org.galagosearch.core.retrieval.Retrieval;
-import org.galagosearch.core.retrieval.query.Node;
-import org.galagosearch.core.retrieval.query.NodeParameters;
-import org.galagosearch.core.util.TextPartAssigner;
-import org.galagosearch.tupleflow.Parameters;
+import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
+import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.util.TextPartAssigner;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * Transforms a #pl2f( text1 text2 ) node into the fully expanded
@@ -84,7 +84,7 @@ public class PL2FTraversal implements Traversal {
     if (levels == 0 && original.getOperator().equals("pl2f")) {
       retrieval.getGlobalParameters().set("numberOfTerms", qTermCounts.keys().length);
       // Let's get qfmax
-      int[] counts = qTermCounts.getValues();
+      int[] counts = qTermCounts.values();
       for (int i = 0; i < counts.length; i++) {
         qfmax = (counts[i] > qfmax) ? counts[i] : qfmax;
       }

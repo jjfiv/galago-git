@@ -441,6 +441,11 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
+    public int maximumCount() {
+      return Integer.MAX_VALUE;
+    }
+
+    @Override
     public ExtentArray extents() {
       return extents;
     }
@@ -635,6 +640,11 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     @Override
     public int count() {
       return currCount;
+    }
+
+    @Override
+    public int maximumCount() {
+      return Integer.MAX_VALUE;
     }
 
     @Override

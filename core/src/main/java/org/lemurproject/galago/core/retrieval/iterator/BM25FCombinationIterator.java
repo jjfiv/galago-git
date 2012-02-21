@@ -1,12 +1,12 @@
 // BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import gnu.trove.TObjectDoubleHashMap;
-import gnu.trove.TObjectIntHashMap;
-import org.galagosearch.core.retrieval.query.NodeParameters;
-import org.galagosearch.core.retrieval.structured.PotentialsContext;
-import org.galagosearch.core.retrieval.structured.ScoringContext;
-import org.galagosearch.tupleflow.Parameters;
+import gnu.trove.map.hash.TObjectDoubleHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+import org.lemurproject.galago.core.retrieval.processing.FieldDeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -46,7 +46,7 @@ public class BM25FCombinationIterator extends ScoreCombinationIterator {
 
   // Different score combination mechanism, that uses potentials
   // Quits as soon as it is told scoring is done.
-  public void score(PotentialsContext ctx) {
+  public void score(FieldDeltaScoringContext ctx) {
     ctx.runningScore = ctx.startingPotential;
     ctx.stillScoring = true;
     for (int i = 0; i < iterators.length; i += 2) {
@@ -87,34 +87,30 @@ public class BM25FCombinationIterator extends ScoreCombinationIterator {
    */
   @Override
   public void setContext(ScoringContext ctx) {
-    //super.setContext(ctx);
-    if (ctx instanceof PotentialsContext) {
-      PotentialsContext pctx = (PotentialsContext) ctx;
-      pctx.K = this.K;
+    if (ctx instanceof FieldDeltaScoringContext) {
+      FieldDeltaScoringContext pctx = (FieldDeltaScoringContext) ctx;
+      BM25FieldScoringIterator.K = this.K;
       pctx.startingPotential = this.maximumScore();
-      //System.err.printf("K=%f, startingPot=%f\n", pctx.K, pctx.startingPotential);
 
       // Make sure all scorers have their idfs and parentIdx variables
       // set properly. We also set weight b/c calculating it doesn't depend
       // the values being set below
       TObjectDoubleHashMap idfs = new TObjectDoubleHashMap();
       TObjectIntHashMap idxes = new TObjectIntHashMap();
-      pctx.startingFieldSums = new double[iterators.length/2];
-      pctx.currentFieldSums = new double[pctx.startingFieldSums.length];
+      pctx.startingPotentials = new double[iterators.length/2];
+      pctx.potentials = new double[pctx.startingPotentials.length];
       for (int i = 0; i < iterators.length; i +=2) {
-        pctx.startingFieldSums[i/2] = iterators[i].maximumScore() + pctx.K;
-	//System.err.printf("(%d) startingFS=%f\n", i/2, pctx.startingFieldSums[i/2]);
+        pctx.startingPotentials[i/2] = iterators[i].maximumScore() + this.K;
         idfs.put(iterators[i], iterators[i+1].maximumScore());
         idxes.put(iterators[i], i/2);
       }
       
       // Set idf and parentIdx
-      for (BM25FieldScoringIterator scorer : pctx.scorers) {
+      for (DeltaScoringIterator it : pctx.scorers) {
+        BM25FieldScoringIterator scorer = (BM25FieldScoringIterator) it;
         scorer.idf = idfs.get(scorer.parent);
         scorer.parentIdx = idxes.get(scorer.parent);
       }
-      
-     
     }
   }
 }

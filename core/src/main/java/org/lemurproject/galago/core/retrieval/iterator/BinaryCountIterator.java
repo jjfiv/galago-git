@@ -17,46 +17,62 @@ public class BinaryCountIterator implements CountValueIterator {
     iterator = i;
   }
 
+  @Override
   public int count() {
     return iterator.hasMatch(iterator.currentCandidate()) ? 1 : 0;
   }
 
+  @Override
+  public int maximumCount() {
+    return 1;
+  }
+
+  @Override
   public void reset() throws IOException {
     iterator.reset();
   }
 
+  @Override
   public boolean isDone() {
     return iterator.isDone();
   }
 
+  @Override
   public int currentCandidate() {
     return iterator.currentCandidate();
   }
 
+  @Override
   public boolean hasMatch(int identifier) {
     return iterator.hasMatch(identifier);
   }
 
+  @Override
   public boolean next() throws IOException {
     return iterator.next();
   }
 
+  @Override
   public boolean moveTo(int identifier) throws IOException {
     return iterator.moveTo(identifier);
   }
 
+  @Override
   public void movePast(int identifier) throws IOException {
     iterator.movePast(identifier);
   }
 
+  @Override
   public String getEntry() throws IOException {
     return iterator.getEntry();
   }
 
+  @Override
   public long totalEntries() {
     return iterator.totalEntries();
   }
 
+  @Override
   public int compareTo(ValueIterator t) {
     return iterator.compareTo(t);
   }

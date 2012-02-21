@@ -34,6 +34,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     this.params.set("writerClass", "org.lemurproject.galago.core.index.DocumentLengthsWriter");
   }
 
+  @Override
   public void addDocument(Document doc) {
     if (lengths.getPosition() == 0) {
       offset = doc.identifier;
@@ -70,34 +71,41 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     } while (iterator.next());
   }
 
+  @Override
   public int getLength(int docNum) {
     int index = docNum - offset;
     assert ((index >= 0) && (index < lengths.getPosition())) : "Document identifier not found in this index.";
     return lengths.getBuffer()[index];
   }
 
+  @Override
   public void close() throws IOException {
     lengths = null;
   }
 
+  @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
     types.put("lengths", new NodeType(VIterator.class));
     return types;
   }
 
+  @Override
   public String getDefaultOperator() {
     return "lengths";
   }
 
+  @Override
   public KeyIterator getIterator() throws IOException {
     return new KIterator();
   }
 
+  @Override
   public LengthsReader.Iterator getLengthsIterator() throws IOException {
     return (LengthsReader.Iterator) new VIterator(new KIterator());
   }
 
+  @Override
   public ValueIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("lengths")) {
       return new VIterator(getIterator());
@@ -107,22 +115,27 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
   }
 
+  @Override
   public Parameters getManifest() {
     return params;
   }
 
+  @Override
   public long getDocumentCount() {
     return this.lengths.getPosition();
   }
 
+  @Override
   public long getCollectionLength() {
     return termCount;
   }
 
+  @Override
   public long getVocabCount() {
     return this.lengths.getPosition();
   }
 
+  @Override
   public void flushToDisk(String path) throws IOException {
     Parameters p = getManifest();
     p.set("filename", path);
@@ -144,6 +157,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     int current = 0;
     boolean done = false;
 
+    @Override
     public void reset() throws IOException {
       current = 0;
       done = false;
@@ -161,14 +175,17 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       }
     }
 
+    @Override
     public String getKey() {
       return Integer.toString(current + offset);
     }
 
+    @Override
     public byte[] getKeyBytes() {
       return Utility.fromInt(offset + current);
     }
 
+    @Override
     public boolean nextKey() throws IOException {
       current++;
       if (current >= 0 && current < lengths.getPosition()) {
@@ -179,6 +196,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       return false;
     }
 
+    @Override
     public boolean skipToKey(byte[] key) throws IOException {
       current = Utility.toInt(key) - offset;
       if (current >= 0 && current < lengths.getPosition()) {
@@ -193,26 +211,32 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       return skipToKey(Utility.fromInt(key));
     }
 
+    @Override
     public boolean findKey(byte[] key) throws IOException {
       return skipToKey(key);
     }
 
+    @Override
     public String getValueString() throws IOException {
       return Integer.toString(this.getCurrentLength());
     }
 
+    @Override
     public byte[] getValueBytes() throws IOException {
       return Utility.fromInt(this.getCurrentLength());
     }
 
+    @Override
     public DataStream getValueStream() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public boolean isDone() {
       return done;
     }
 
+    @Override
     public int compareTo(KeyIterator t) {
       try {
         return Utility.compare(this.getKeyBytes(), t.getKeyBytes());
@@ -221,6 +245,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       }
     }
 
+    @Override
     public ValueIterator getValueIterator() throws IOException {
       return new VIterator(this);
     }
@@ -232,6 +257,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       super(it);
     }
 
+    @Override
     public String getEntry() throws IOException {
       KIterator ki = (KIterator) iterator;
       String output = Integer.toString(ki.getCurrentIdentifier()) + ","
@@ -239,10 +265,12 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       return output;
     }
 
+    @Override
     public long totalEntries() {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public int count() {
       try {
         return ((KIterator) iterator).getCurrentLength();
@@ -251,16 +279,24 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       }
     }
 
+    @Override
+    public int maximumCount() {
+      return Integer.MAX_VALUE;
+    }
+
+    @Override
     public boolean skipToKey(int candidate) throws IOException {
       KIterator ki = (KIterator) iterator;
       return ki.skipToKey(candidate);
     }
 
+    @Override
     public int getCurrentLength() throws IOException {
       KIterator ki = (KIterator) iterator;
       return ki.getCurrentLength();
     }
 
+    @Override
     public int getCurrentIdentifier() throws IOException {
       KIterator ki = (KIterator) iterator;
       return ki.getCurrentIdentifier();

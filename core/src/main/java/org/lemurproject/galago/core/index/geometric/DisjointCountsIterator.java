@@ -12,12 +12,17 @@ import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
  */
 public class DisjointCountsIterator extends DisjointIndexesIterator implements CountValueIterator {
 
-  public DisjointCountsIterator(Collection<CountValueIterator> iterators){
+  public DisjointCountsIterator(Collection<CountValueIterator> iterators) {
     super((Collection) iterators);
   }
-  
+
+  @Override
   public int count() {
     return ((CountValueIterator) head).count();
   }
-  
+
+  @Override
+  public int maximumCount() {
+    return ((CountValueIterator) head).maximumCount();
+  }
 }

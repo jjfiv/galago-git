@@ -57,6 +57,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
       return sb.toString();
     }
 
+    @Override
     public ValueIterator getValueIterator() throws IOException {
       return new TermCountIterator(iterator);
     }
@@ -68,6 +69,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     GenericIndexReader.Iterator iterator;
     int documentCount;
     int collectionCount;
+    int maximumPositionCount;
     VByteInput documents;
     VByteInput counts;
     int documentIndex;
@@ -106,6 +108,13 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
       int options = stream.readInt();
       documentCount = stream.readInt();
       collectionCount = stream.readInt();
+
+      if ((options & HAS_MAXTF) == HAS_MAXTF) {
+        maximumPositionCount = stream.readInt();
+      } else {
+        maximumPositionCount = Integer.MAX_VALUE;
+      }
+
       if ((options & HAS_SKIPS) == HAS_SKIPS) {
         skipDistance = stream.readInt();
         skipResetDistance = stream.readInt();
@@ -165,6 +174,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
       currentCount = counts.readInt();
     }
 
+    @Override
     public String getEntry() {
       StringBuilder builder = new StringBuilder();
 
@@ -177,6 +187,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
       return builder.toString();
     }
 
+    @Override
     public void reset(GenericIndexReader.Iterator i) throws IOException {
       iterator = i;
       startPosition = iterator.getValueStart();
@@ -186,12 +197,14 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
       initialize();
     }
 
+    @Override
     public void reset() throws IOException {
       currentDocument = 0;
       currentCount = 0;
       initialize();
     }
 
+    @Override
     public boolean next() throws IOException {
       documentIndex = Math.min(documentIndex + 1, documentCount);
       if (!isDone()) {
@@ -206,12 +219,12 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     public boolean moveTo(int document) throws IOException {
       /*
       if (skips != null && document > nextSkipDocument) {
-        // if we're here, we're skipping
-        while (skipsRead < numSkips
-                && document > nextSkipDocument) {
-          skipOnce();
-        }
-        repositionMainStreams();
+      // if we're here, we're skipping
+      while (skipsRead < numSkips
+      && document > nextSkipDocument) {
+      skipOnce();
+      }
+      repositionMainStreams();
       }
        */
 
@@ -261,22 +274,32 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
       documentIndex = (int) (skipDistance * skipsRead) - 1;
     }
 
+    @Override
     public boolean isDone() {
       return documentIndex >= documentCount;
     }
 
+    @Override
     public int currentCandidate() {
       return currentDocument;
     }
 
+    @Override
     public int count() {
       return currentCount;
     }
 
+    @Override
+    public int maximumCount() {
+      return maximumPositionCount;
+    }
+
+    @Override
     public long totalEntries() {
       return documentCount;
     }
 
+    @Override
     public NodeStatistics getStatistics() {
       if (modifiers != null && modifiers.containsKey("background")) {
         return (NodeStatistics) modifiers.get("background");
@@ -309,6 +332,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     super(pathname);
   }
 
+  @Override
   public KeyIterator getIterator() throws IOException {
     return new KeyIterator(reader);
   }
@@ -340,12 +364,14 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     reader.close();
   }
 
+  @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
     types.put("counts", new NodeType(TermCountIterator.class));
     return types;
   }
 
+  @Override
   public ValueIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("counts")) {
       return getTermCounts(node.getDefaultParameter());
@@ -353,10 +379,12 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     return null;
   }
 
+  @Override
   public NodeStatistics getTermStatistics(String term) throws IOException {
     return getTermStatistics(Utility.fromString(term));
   }
 
+  @Override
   public NodeStatistics getTermStatistics(byte[] term) throws IOException {
     GenericIndexReader.Iterator iterator = reader.getIterator(term);
 

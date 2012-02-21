@@ -5,10 +5,10 @@
 package org.lemurproject.galago.core.scoring;
 
 import java.io.IOException;
-import org.galagosearch.core.retrieval.iterator.CountValueIterator;
-import org.galagosearch.core.retrieval.query.NodeParameters;
-import org.galagosearch.core.retrieval.structured.RequiredStatistics;
-import org.galagosearch.tupleflow.Parameters;
+import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * Term-dependent-only function. Always returns the idf of the term iterator it was constructed from.

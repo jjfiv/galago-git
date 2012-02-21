@@ -34,8 +34,7 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  */
 @InputClass(className = "org.lemurproject.galago.core.types.NumberWordCount", order = {"+word", "+document"})
 public class CountIndexWriter implements
-        NumberWordCount.WordDocumentOrder.ShreddedProcessor
-{
+        NumberWordCount.WordDocumentOrder.ShreddedProcessor {
 
   public class CountsList implements IndexElement {
 
@@ -56,6 +55,7 @@ public class CountIndexWriter implements
 
       if (documents.length() > 0) {
         counts.add(positionCount);
+        maximumPositionCount = Math.max(maximumPositionCount, positionCount);
       }
 
       if (skips != null && skips.length() == 0) {
@@ -68,7 +68,7 @@ public class CountIndexWriter implements
 
       header.add(documentCount);
       header.add(totalWindowCount);
-
+      header.add(maximumPositionCount);
       if (skips != null && skips.length() > 0) {
         header.add(skipDistance);
         header.add(skipResetDistance);
@@ -125,6 +125,7 @@ public class CountIndexWriter implements
 
       this.totalWindowCount = 0;
       this.positionCount = 0;
+      this.maximumPositionCount = 0;
       if (skips != null) {
         this.docsSinceLastSkip = 0;
         this.lastSkipPosition = 0;
@@ -140,6 +141,7 @@ public class CountIndexWriter implements
       // add the last document's counts
       if (documents.length() > 0) {
         counts.add(positionCount);
+        maximumPositionCount = Math.max(maximumPositionCount, positionCount);
 
         // if we're skipping check that
         if (skips != null) {
@@ -149,7 +151,7 @@ public class CountIndexWriter implements
       documents.add(documentID - lastDocument);
       lastDocument = documentID;
 
-      
+
       positionCount = 0;
       documentCount++;
 
@@ -188,6 +190,7 @@ public class CountIndexWriter implements
     private int positionCount;
     private int documentCount;
     private int totalWindowCount;
+    private int maximumPositionCount;
     public byte[] word;
     public CompressedByteBuffer header;
     public CompressedRawByteBuffer documents;
@@ -235,6 +238,7 @@ public class CountIndexWriter implements
     skipDistance = (int) parameters.getJSON().get("skipDistance", 500);
     skipResetDistance = (int) parameters.getJSON().get("skipResetDistance", 20);
     options |= (skip ? KeyListReader.ListIterator.HAS_SKIPS : 0x0);
+    options |= KeyListReader.ListIterator.HAS_MAXTF;
     // more options here?
   }
 

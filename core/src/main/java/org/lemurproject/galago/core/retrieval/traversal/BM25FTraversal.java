@@ -3,11 +3,11 @@ package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.galagosearch.core.retrieval.query.Node;
-import org.galagosearch.core.retrieval.Retrieval;
-import org.galagosearch.core.retrieval.query.NodeParameters;
-import org.galagosearch.core.util.TextPartAssigner;
-import org.galagosearch.tupleflow.Parameters;
+import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.util.TextPartAssigner;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * Transforms a #bm25f operator into a full expansion of the
@@ -69,7 +69,7 @@ public class BM25FTraversal implements Traversal {
       newRoot.getNodeParameters().set("norm", false);
       // Now generate the field-based subtrees for all extent/count nodes
       // NOTE : THIS IS BROKEN. IT WON'T RECOGNIZE WINDOW COUNT NODES, BUT IT SHOULD
-      ArrayList<Node> children = original.getInternalNodes();
+      List<Node> children = original.getInternalNodes();
       for (int i = 0; i < children.size(); i++) {
         Node termNode = children.get(i);
         Node termCombiner = createFieldsOfTerm(termNode, smoothing, cumulativeWeights);

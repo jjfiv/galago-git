@@ -5,11 +5,11 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.galagosearch.core.retrieval.query.NodeParameters;
-import org.galagosearch.core.retrieval.structured.PL2FContext;
-import org.galagosearch.core.retrieval.structured.RequiredStatistics;
-import org.galagosearch.core.retrieval.structured.ScoringContext;
-import org.galagosearch.tupleflow.Parameters;
+import org.lemurproject.galago.core.retrieval.processing.FieldDeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -53,24 +53,20 @@ public class DFRScoringIterator extends TransformIterator {
   }
 
   public void setContext(ScoringContext ctx) {
-    if (context != null) {
-      return;
-    }
     super.setContext(ctx);
 
-    if (ctx instanceof PL2FContext) {
-      PL2FContext pctx = (PL2FContext) ctx;
+    if (ctx instanceof FieldDeltaScoringContext) {
+      FieldDeltaScoringContext pctx = (FieldDeltaScoringContext) ctx;
 
       // HAHAHAHA I copied this nasty hack!
-      if (pctx.startingSubtotals == null) {
-        pctx.startingSubtotals = new double[(int) globals.getLong("numberOfTerms")];
-        pctx.subtotals = new double[pctx.startingSubtotals.length];
+      if (pctx.startingPotentials == null) {
+        pctx.startingPotentials = new double[(int) globals.getLong("numberOfTerms")];
+        pctx.potentials = new double[pctx.startingPotentials.length];
       }
-      pctx.startingSubtotals[pctx.quorumIndex] = scorer.maximumScore();
-      pctx.startingPotential += transform(pctx.startingSubtotals[pctx.quorumIndex]);
-      //System.err.printf("(%d) starting subtotal: %f\n", pctx.quorumIndex, pctx.startingSubtotals[pctx.quorumIndex]);
+      pctx.startingPotentials[pctx.quorumIndex] = scorer.maximumScore();
+      pctx.startingPotential += transform(pctx.startingPotentials[pctx.quorumIndex]);
       for (int i = pctx.scorers.size() - 1; i >= 0; i--) {
-        PL2FieldScoringIterator pfsi = pctx.scorers.get(i);
+        PL2FieldScoringIterator pfsi = (PL2FieldScoringIterator) pctx.scorers.get(i);
         if (pfsi.parentIdx == -1) {
           pfsi.parentIdx = pctx.quorumIndex;
           pfsi.beta = Math.log(lambda) / log2 + (lambda * loge) + 

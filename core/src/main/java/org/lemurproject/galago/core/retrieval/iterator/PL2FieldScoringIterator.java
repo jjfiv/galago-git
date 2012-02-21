@@ -1,17 +1,14 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+// BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.galagosearch.core.index.disk.PositionIndexReader;
-import org.galagosearch.core.retrieval.query.NodeParameters;
-import org.galagosearch.core.retrieval.structured.FieldScoringContext;
-import org.galagosearch.core.retrieval.structured.PL2FContext;
-import org.galagosearch.core.retrieval.structured.RequiredStatistics;
-import org.galagosearch.core.scoring.PL2FieldScorer;
-import org.galagosearch.tupleflow.Parameters;
+import org.lemurproject.galago.core.index.disk.PositionIndexReader;
+import org.lemurproject.galago.core.retrieval.processing.FieldDeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.FieldScoringContext;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
+import org.lemurproject.galago.core.scoring.PL2FieldScorer;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -64,7 +61,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator {
     }
   }
 
-  public void score(PL2FContext ctx) {
+  public void score(FieldDeltaScoringContext ctx) {
     int count = 0;
 
     if (iterator.currentCandidate() == context.document) {
@@ -73,28 +70,23 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator {
 
     double score = function.score(count, ctx.lengths.get(partName));
     score = (score > 0.0) ? score : min; // MY smoothing again
-    double phi = ctx.subtotals[parentIdx];
+    double phi = ctx.potentials[parentIdx];
     double psi = phi + (weight * (score - max));
     double logpsi = Math.log(psi) / log2;
     double logphi = Math.log(phi) / log2;
-    //System.err.printf("idx=%d, beta=%f, phi=%f, psi=%f\n", parentIdx, beta, phi, psi);
     
     double t1 = beta * (phi - psi);
     double t2 = logpsi * ((phi*psi) + (0.5 * phi) + psi + 0.5);
     double t3 = logphi * ((phi*psi) + (0.5 * psi) + phi + 0.5);
     double den = (phi + 1) * (psi + 1);
     double diff = (t1 + t2 - t3) / den;
-    /*
-    System.err.printf("%s score: (t1=%f, t2=%f, t3=%f, den=%f, diff=%f\n",
-            this.toString(), t1, t2, t3, den, diff);
-    System.err.printf("running: %f -> %f, subt: %f -> %f\n", ctx.runningScore,
-            ctx.runningScore+diff, ctx.subtotals[parentIdx], psi);*/
+
     ctx.runningScore += diff;
-    ctx.subtotals[parentIdx] = psi;
+    ctx.potentials[parentIdx] = psi;
   }
 
-  public void maximumAdjustment(PL2FContext ctx) {
-    double phi = ctx.subtotals[parentIdx];
+  public void maximumAdjustment(FieldDeltaScoringContext ctx) {
+    double phi = ctx.potentials[parentIdx];
     double psi = phi + (weight * (min - max));
     double logpsi = Math.log(psi) / log2;
     double logphi = Math.log(phi) / log2;
@@ -104,12 +96,9 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator {
     double t3 = logpsi * ((phi*psi) + (0.5 * phi) + psi + 0.5);
     double den = (phi + 1) * (psi + 1);
     double diff = (t1 + t2 - t3) / den;
-    /*
-    System.err.printf("%s maxAdjust: (t1=%f, t2=%f, t3=%f, den=%f, diff=%f\n",
-            this.toString(), t1, t2, t3, den, diff);
-     */
+
     ctx.runningScore += diff;
-    ctx.subtotals[parentIdx] = psi;
+    ctx.potentials[parentIdx] = psi;
   }
 
   @Override

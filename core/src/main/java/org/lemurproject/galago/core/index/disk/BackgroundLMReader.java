@@ -66,7 +66,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
       String stem = stemAsRequired(node.getDefaultParameter());
       KeyIterator ki = new KeyIterator(reader);
       ki.findKey(Utility.fromString(stem));
-      if(Utility.compare(ki.getKeyBytes(), Utility.fromString(stem)) == 0){
+      if (Utility.compare(ki.getKeyBytes(), Utility.fromString(stem)) == 0) {
         return new ValueIterator(ki);
       }
       return null;
@@ -207,6 +207,11 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
 
     @Override
     public int count() {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public int maximumCount() {
       throw new UnsupportedOperationException("Not supported yet.");
     }
   }

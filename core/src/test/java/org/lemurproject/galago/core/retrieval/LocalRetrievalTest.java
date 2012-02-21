@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
-import gnu.trove.list.array.TIntArrayList;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,6 +9,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.disk.DiskNameWriter;
@@ -19,7 +19,6 @@ import org.lemurproject.galago.core.index.FieldIndexWriter;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.retrieval.processing.WorkingSetContext;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
@@ -272,15 +271,15 @@ public class LocalRetrievalTest extends TestCase {
     Node root = StructuredQuery.parse("#combine( #feature:dirichlet:mu=1500( #counts:a() ) #feature:dirichlet:mu=1500( #counts:b() ) )");
     root = retrieval.transformQuery(root);
 
-    WorkingSetContext wsc = new WorkingSetContext();
-    TIntArrayList ids = new TIntArrayList();
-    ids.add(1);
-    ids.add(2);
-    ids.add(5);
+    List<String> ids = new ArrayList<String>();
+    ids.add("DOC1");
+    ids.add("DOC2");
+    ids.add("DOC5");
 
     Parameters p = new Parameters();
     p.set("requested", 5);
-    ScoredDocument[] result = retrieval.runQuery(root, p, ids);
+    p.set("working", ids);
+    ScoredDocument[] result = retrieval.runQuery(root, p);
 
     assertEquals(3, result.length);
     assertEquals(1, result[0].document);

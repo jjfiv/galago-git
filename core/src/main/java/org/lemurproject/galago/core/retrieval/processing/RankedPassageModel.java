@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.retrieval.ScoredPassage;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Performs passage-level retrieval scoring.
@@ -56,7 +57,7 @@ public class RankedPassageModel implements ProcessingModel {
     int passageSize = (int) queryParams.getLong("passageSize");
     int passageShift = (int) queryParams.getLong("passageShift");
     ScoreValueIterator iterator = (ScoreValueIterator) retrieval.createIterator(queryTree, context);
-    PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
+    PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
     LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
 
     // now there should be an iterator at the root of this tree
@@ -91,7 +92,7 @@ public class RankedPassageModel implements ProcessingModel {
         context.end += passageShift;
       }
     }
-    return queue.toArray(new ScoredDocument[0]);
+    return Utility.toReversedArray(queue);
 
   }
 
@@ -105,7 +106,7 @@ public class RankedPassageModel implements ProcessingModel {
     int passageSize = (int) queryParams.getLong("passageSize");
     int passageShift = (int) queryParams.getLong("passageShift");
     ScoreValueIterator iterator = (ScoreValueIterator) retrieval.createIterator(queryTree, context);
-    PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
+    PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
     LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
 
     // now there should be an iterator at the root of this tree
@@ -140,6 +141,6 @@ public class RankedPassageModel implements ProcessingModel {
       }
       iterator.next();
     }
-    return queue.toArray(new ScoredDocument[0]);
+    return Utility.toReversedArray(queue);
   }
 }

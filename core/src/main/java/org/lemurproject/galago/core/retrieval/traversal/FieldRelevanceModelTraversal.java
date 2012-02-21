@@ -1,25 +1,22 @@
-/*
- * BSD License (http://www.galagosearch.org/license)
- */
+// BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import gnu.trove.TObjectDoubleHashMap;
+import gnu.trove.map.hash.TObjectDoubleHashMap;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.galagosearch.core.index.AggregateReader.NodeStatistics;
-import org.galagosearch.core.index.corpus.DocumentReader;
-import org.galagosearch.core.index.corpus.DocumentReaderFactory;
-import org.galagosearch.core.parse.Document;
-import org.galagosearch.core.retrieval.Retrieval;
-import org.galagosearch.core.retrieval.ScoredDocument;
-import org.galagosearch.core.retrieval.query.Node;
-import org.galagosearch.core.retrieval.query.NodeParameters;
-import org.galagosearch.core.scoring.FieldLanguageModel;
-import org.galagosearch.tupleflow.Parameters;
-import org.galagosearch.tupleflow.Utility;
+import java.util.Map;
+import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
+import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.ScoredDocument;
+import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.scoring.FieldLanguageModel;
+import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -84,16 +81,8 @@ public class FieldRelevanceModelTraversal implements Traversal {
   private List<Document> getDocuments(List<String> names) throws Exception {
     String path = p.containsKey("corpus") ? p.getString("corpus")
             : p.getString("index") + File.separator + "corpus";
-    List<Document> docs = new ArrayList<Document>();
-    DocumentReader reader = DocumentReaderFactory.instance(path);
-    for (String name : names) {
-      Document d = reader.getDocument(name);
-      if (d != null) {
-        docs.add(d);
-      }
-    }
-    reader.close();
-
+    Map<String, Document> docmap = retrieval.getDocuments(names);
+    List<Document> docs = new ArrayList<Document>(docmap.values());
     if (p.containsKey("parser")) {
       Class c = Class.forName(p.getString("parser"));
       Method m = c.getMethod("parse", List.class, Parameters.class);

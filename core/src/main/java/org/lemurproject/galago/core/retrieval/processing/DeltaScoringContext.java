@@ -1,15 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
+// BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.processing;
 
 import java.util.ArrayList;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 
 /**
- *
+ * The scoring context needed for delta-function style processing.
+ * 
  * @author irmarc
  */
 public class DeltaScoringContext extends ScoringContext {
@@ -26,4 +23,5 @@ public class DeltaScoringContext extends ScoringContext {
   public double startingPotential;
   public int quorumIndex;
   public double minCandidateScore;
+  public boolean stillScoring;
 }

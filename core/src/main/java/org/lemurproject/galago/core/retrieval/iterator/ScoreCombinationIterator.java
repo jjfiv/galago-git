@@ -93,9 +93,7 @@ public class ScoreCombinationIterator implements ScoreValueIterator {
   }
 
   public void setContext(ScoringContext context) {
-    for (ScoreIterator iterator : iterators) {
-      iterator.setContext(context);
-    }
+    // This is done when the children are constructed
   }
 
   public ScoringContext getContext() {

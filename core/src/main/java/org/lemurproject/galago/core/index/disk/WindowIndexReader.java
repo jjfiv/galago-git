@@ -30,7 +30,7 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  * index contains both term count information and term position information.
  * The term counts data is stored separately from term position information for
  * faster query processing when no positions are needed.
- * 
+ *
  * (12/16/2010, irmarc): In order to facilitate faster count-only processing,
  *                        the default iterator created will not even open the
  *                        positions list when iterating. This is an interesting
@@ -77,6 +77,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     GenericIndexReader.Iterator iterator;
     int documentCount;
     int totalWindowCount;
+    int maximumPositionCount;
     VByteInput documents;
     VByteInput counts;
     VByteInput begins;
@@ -122,6 +123,13 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       int options = stream.readInt();
       documentCount = stream.readInt();
       totalWindowCount = stream.readInt();
+
+      if ((options & HAS_MAXTF) == HAS_MAXTF) {
+        maximumPositionCount = stream.readInt();
+      } else {
+        maximumPositionCount = Integer.MAX_VALUE;
+      }
+
       if ((options & HAS_SKIPS) == HAS_SKIPS) {
         skipDistance = stream.readInt();
         skipResetDistance = stream.readInt();
@@ -201,6 +209,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       }
     }
 
+    @Override
     public String getEntry() {
       StringBuilder builder = new StringBuilder();
 
@@ -217,6 +226,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       return builder.toString();
     }
 
+    @Override
     public void reset(GenericIndexReader.Iterator i) throws IOException {
       iterator = i;
       key = iterator.getKey();
@@ -226,6 +236,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       reset();
     }
 
+    @Override
     public void reset() throws IOException {
       currentDocument = 0;
       currentCount = 0;
@@ -233,6 +244,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       initialize();
     }
 
+    @Override
     public boolean next() throws IOException {
       documentIndex = Math.min(documentIndex + 1, documentCount);
       if (!isDone()) {
@@ -305,30 +317,42 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       documentIndex = (int) (skipDistance * skipsRead) - 1;
     }
 
+    @Override
     public boolean isDone() {
       return documentIndex >= documentCount;
     }
 
+    @Override
     public ExtentArray getData() {
       return extentArray;
     }
 
+    @Override
     public ExtentArray extents() {
       return extentArray;
     }
 
+    @Override
     public int currentCandidate() {
       return currentDocument;
     }
 
+    @Override
     public int count() {
       return currentCount;
     }
 
+    @Override
+    public int maximumCount() {
+      return maximumPositionCount;
+    }
+
+    @Override
     public long totalEntries() {
       return ((long) documentCount);
     }
 
+    @Override
     public NodeStatistics getStatistics() {
       if (modifiers != null && modifiers.containsKey("background")) {
         return (NodeStatistics) modifiers.get("background");
@@ -359,6 +383,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     int documentIndex;
     int currentDocument;
     int currentCount;
+    int maximumPositionCount;
     // Support for resets
     long startPosition, endPosition;
     // to support skipping
@@ -392,6 +417,13 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       int options = stream.readInt();
       documentCount = stream.readInt();
       collectionCount = stream.readInt();
+
+      if ((options & HAS_MAXTF) == HAS_MAXTF) {
+        maximumPositionCount = stream.readInt();
+      } else {
+        maximumPositionCount = Integer.MAX_VALUE;
+      }
+
       if ((options & HAS_SKIPS) == HAS_SKIPS) {
         skipDistance = stream.readInt();
         skipResetDistance = stream.readInt();
@@ -456,6 +488,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       currentCount = counts.readInt();
     }
 
+    @Override
     public String getEntry() {
       StringBuilder builder = new StringBuilder();
 
@@ -468,6 +501,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       return builder.toString();
     }
 
+    @Override
     public void reset(GenericIndexReader.Iterator i) throws IOException {
       iterator = i;
       startPosition = iterator.getValueStart();
@@ -477,12 +511,14 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       initialize();
     }
 
+    @Override
     public void reset() throws IOException {
       currentDocument = 0;
       currentCount = 0;
       initialize();
     }
 
+    @Override
     public boolean next() throws IOException {
       documentIndex = Math.min(documentIndex + 1, documentCount);
       if (!isDone()) {
@@ -551,22 +587,32 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       documentIndex = (int) (skipDistance * skipsRead) - 1;
     }
 
+    @Override
     public boolean isDone() {
       return documentIndex >= documentCount;
     }
 
+    @Override
     public int currentCandidate() {
       return currentDocument;
     }
 
+    @Override
     public int count() {
       return currentCount;
     }
 
+    @Override
+    public int maximumCount() {
+      return maximumPositionCount;
+    }
+
+    @Override
     public long totalEntries() {
       return documentCount;
     }
 
+    @Override
     public NodeStatistics getStatistics() {
       if (modifiers != null && modifiers.containsKey("background")) {
         return (NodeStatistics) modifiers.get("background");
@@ -590,23 +636,23 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       }
     }
   }
-
   Stemmer stemmer = null;
-  
+
   public WindowIndexReader(GenericIndexReader reader) throws Exception {
     super(reader);
-    if(reader.getManifest().containsKey("stemmer")){
+    if (reader.getManifest().containsKey("stemmer")) {
       stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
     }
   }
 
   public WindowIndexReader(String pathname) throws Exception {
     super(pathname);
-    if(reader.getManifest().containsKey("stemmer")){
+    if (reader.getManifest().containsKey("stemmer")) {
       stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
     }
   }
 
+  @Override
   public KeyIterator getIterator() throws IOException {
     return new KeyIterator(reader);
   }
@@ -639,6 +685,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     reader.close();
   }
 
+  @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
     types.put("counts", new NodeType(TermCountIterator.class));
@@ -646,6 +693,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     return types;
   }
 
+  @Override
   public ValueIterator getIterator(Node node) throws IOException {
     String term = stemAsRequired(node.getDefaultParameter());
     if (node.getOperator().equals("counts")) {
@@ -655,11 +703,13 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     }
   }
 
+  @Override
   public NodeStatistics getTermStatistics(String term) throws IOException {
     term = stemAsRequired(term);
     return getTermStatistics(Utility.fromString(term));
   }
 
+  @Override
   public NodeStatistics getTermStatistics(byte[] term) throws IOException {
     GenericIndexReader.Iterator iterator = reader.getIterator(term);
 
@@ -672,15 +722,15 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     return stats;
   }
 
-  private String stemAsRequired(String window){
-    if(stemmer != null){
-      // window from: sample~sample~sample 
+  private String stemAsRequired(String window) {
+    if (stemmer != null) {
+      // window from: sample~sample~sample
       //          to: sampl~sampl~sampl
       String[] terms = window.split("~");
       StringBuilder reconstructor = new StringBuilder();
       boolean first = true;
-      for(String term : terms){
-        if(!first){
+      for (String term : terms) {
+        if (!first) {
           reconstructor.append("~");
         }
         first = false;

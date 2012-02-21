@@ -45,8 +45,7 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  */
 @InputClass(className = "org.lemurproject.galago.core.types.NumberedExtent", order = {"+extentName", "+number", "+begin"})
 public class WindowIndexWriter implements
-        NumberedExtent.ExtentNameNumberBeginOrder.ShreddedProcessor
-{
+        NumberedExtent.ExtentNameNumberBeginOrder.ShreddedProcessor {
 
   public class PositionsList implements IndexElement {
 
@@ -69,6 +68,7 @@ public class WindowIndexWriter implements
 
       if (documents.length() > 0) {
         counts.add(positionCount);
+        maximumPositionCount = Math.max(maximumPositionCount, positionCount);
       }
 
       if (skips != null && skips.length() == 0) {
@@ -81,7 +81,7 @@ public class WindowIndexWriter implements
 
       header.add(documentCount);
       header.add(totalWindowCount);
-
+      header.add(maximumPositionCount);
       if (skips != null && skips.length() > 0) {
         header.add(skipDistance);
         header.add(skipResetDistance);
@@ -98,6 +98,7 @@ public class WindowIndexWriter implements
       }
     }
 
+    @Override
     public long dataLength() {
       long listLength = 0;
 
@@ -114,6 +115,7 @@ public class WindowIndexWriter implements
       return listLength;
     }
 
+    @Override
     public void write(final OutputStream output) throws IOException {
       header.write(output);
       header.clear();
@@ -138,6 +140,7 @@ public class WindowIndexWriter implements
       }
     }
 
+    @Override
     public byte[] key() {
       return word;
     }
@@ -147,6 +150,7 @@ public class WindowIndexWriter implements
       this.lastDocument = 0;
       this.lastBegin = 0;
       this.totalWindowCount = 0;
+      this.maximumPositionCount = 0;
       this.positionCount = 0;
       if (skips != null) {
         this.docsSinceLastSkip = 0;
@@ -164,6 +168,7 @@ public class WindowIndexWriter implements
       // add the last document's counts
       if (documents.length() > 0) {
         counts.add(positionCount);
+        maximumPositionCount = Math.max(maximumPositionCount, positionCount);
 
         // if we're skipping check that
         if (skips != null) {
@@ -220,6 +225,7 @@ public class WindowIndexWriter implements
     private int lastBegin;
     private int positionCount;
     private int documentCount;
+    private int maximumPositionCount;
     private int totalWindowCount;
     public byte[] word;
     public CompressedByteBuffer header;
@@ -275,9 +281,11 @@ public class WindowIndexWriter implements
     skipDistance = (int) parameters.getJSON().get("skipDistance", 500);
     skipResetDistance = (int) parameters.getJSON().get("skipResetDistance", 20);
     options |= (skip ? KeyListReader.ListIterator.HAS_SKIPS : 0x0);
+    options |= KeyListReader.ListIterator.HAS_MAXTF;
     // more options here?
   }
 
+  @Override
   public void processExtentName(byte[] wordBytes) throws IOException {
     if (invertedList != null) {
       collectionLength += invertedList.totalWindowCount;
@@ -300,19 +308,22 @@ public class WindowIndexWriter implements
     vocabCount++;
   }
 
+  @Override
   public void processNumber(long document) throws IOException {
     invertedList.addDocument(document);
     documentCount++;
     uniqueDocs.add((int) document);
     maximumDocumentNumber = Math.max(document, maximumDocumentNumber);
   }
-
   int currentBegin;
+
+  @Override
   public void processBegin(int begin) throws IOException {
     //invertedList.addBegin(begin);
     currentBegin = begin;
   }
 
+  @Override
   public void processTuple(int end) throws IOException {
     invertedList.addWindow(currentBegin, end);
   }
@@ -322,6 +333,7 @@ public class WindowIndexWriter implements
     documentCount = 0;
   }
 
+  @Override
   public void close() throws IOException {
     if (invertedList != null) {
       collectionLength += invertedList.totalWindowCount;

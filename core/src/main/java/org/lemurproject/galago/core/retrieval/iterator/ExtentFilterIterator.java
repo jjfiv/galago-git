@@ -24,6 +24,12 @@ public abstract class ExtentFilterIterator implements ExtentValueIterator, Count
   public int count() {
     return extents().size();
   }
+  
+  @Override
+  public int maximumCount() {
+    return Integer.MAX_VALUE;
+  }
+  
 
   @Override
   public ExtentArray getData() {

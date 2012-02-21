@@ -41,12 +41,14 @@ import org.lemurproject.galago.core.retrieval.iterator.UnorderedWindowIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.traversal.BM25RelevanceFeedbackTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.AnnotateCollectionStatistics;
+import org.lemurproject.galago.core.retrieval.traversal.BM25FTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.optimize.FlattenWindowTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.FullDependenceTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.ImplicitFeatureCastTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.IndriWeightConversionTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.IndriWindowCompatibilityTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.InsideToFieldPartTraversal;
+import org.lemurproject.galago.core.retrieval.traversal.PL2FTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.PRMSTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.RelevanceModelTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.RemoveStopwordsTraversal;
@@ -106,6 +108,8 @@ public class FeatureFactory {
     FullDependenceTraversal.class.getName(),
     TransformRootTraversal.class.getName(),
     PRMSTraversal.class.getName(),
+    BM25FTraversal.class.getName(),
+    PL2FTraversal.class.getName(),
     WindowRewriteTraversal.class.getName(),
     IndriWeightConversionTraversal.class.getName(),
     IndriWindowCompatibilityTraversal.class.getName(),

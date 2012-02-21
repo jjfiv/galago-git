@@ -2,14 +2,14 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.galagosearch.core.index.TopDocsReader.TopDocument;
-import org.galagosearch.core.retrieval.query.NodeParameters;
-import org.galagosearch.core.retrieval.structured.FieldScoringContext;
-import org.galagosearch.core.retrieval.structured.ScoringContext;
-import org.galagosearch.core.retrieval.structured.RequiredStatistics;
-import org.galagosearch.core.retrieval.structured.TopDocsContext;
-import org.galagosearch.core.scoring.JelinekMercerProbabilityScorer;
-import org.galagosearch.tupleflow.Parameters;
+import org.lemurproject.galago.core.index.TopDocsReader.TopDocument;
+import org.lemurproject.galago.core.retrieval.processing.FieldScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
+import org.lemurproject.galago.core.scoring.JelinekMercerProbabilityScorer;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *

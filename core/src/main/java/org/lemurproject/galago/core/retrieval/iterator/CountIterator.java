@@ -23,4 +23,5 @@ public interface CountIterator extends StructuredIterator {
      * Upper-bound estimate of the maximum count this iterator will produce.
      * DO NOT under-estimate, otherwise you break things.
      */
+    public int maximumCount();
 }

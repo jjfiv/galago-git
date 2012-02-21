@@ -1,11 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+// BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.index.disk.PositionIndexReader;
+import org.lemurproject.galago.core.retrieval.processing.FieldDeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.FieldScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.scoring.BM25FieldScorer;
@@ -27,6 +26,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator {
   public int parentIdx;
   public double weight;
   public double idf;
+  public static double K;
 
   public BM25FieldScoringIterator(Parameters globalParams, NodeParameters p, CountValueIterator it)
           throws IOException {
@@ -56,7 +56,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator {
   }
 
   // Use this to score for potentials, which is more of an "adjustment" than just scoring.
-  public void score(PotentialsContext ctx) {
+  public void score(FieldDeltaScoringContext ctx) {
     int count = 0;
 
     if (iterator.currentCandidate() == context.document) {
@@ -65,28 +65,22 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator {
 
     double s = function.score(count, ((FieldScoringContext) context).lengths.get(partName));
     double diff = weight * (s - max);
-    double numerator = idf * ctx.K * diff;
-    double fieldSum = ctx.currentFieldSums[parentIdx];
+    double numerator = idf * K * diff;
+    double fieldSum = ctx.potentials[parentIdx];
     double denominator = fieldSum * (fieldSum + diff);
-    /*
-    System.err.printf("%s updating (%d, %d): max=%f, score=%f, idf=%f, diff=%f, weight=%f, oldVal=%f, newVal=%f\n",
-		      this.toString(), parentIdx, currentCandidate(), max, s, idf, diff, weight, ctx.currentFieldSums[parentIdx], fieldSum);
-    */
+     
     ctx.runningScore += (numerator / denominator);
-    ctx.currentFieldSums[parentIdx] += diff;
+    ctx.potentials[parentIdx] += diff;
   }
 
-  public void maximumAdjustment(PotentialsContext ctx) {
+  public void maximumAdjustment(FieldDeltaScoringContext ctx) {
     double diff = weight * (0 - max);
-    double numerator = idf * ctx.K * diff;
-    double fieldSum = ctx.currentFieldSums[parentIdx];
+    double numerator = idf * K * diff;
+    double fieldSum = ctx.potentials[parentIdx];
     double denominator = fieldSum * (fieldSum + diff);
-    /*
-    System.err.printf("%s updating (%d, %d): max=%f, min=%f, idf=%f, diff=%f, weight=%f, oldVal=%f, newVal=%f\n",
-		      this.toString(), parentIdx, currentCandidate(), max, 0.0, idf, diff, weight, ctx.currentFieldSums[parentIdx], fieldSum);
-    */
+   
     ctx.runningScore += (numerator / denominator);
-    ctx.currentFieldSums[parentIdx] += diff;
+    ctx.potentials[parentIdx] += diff;
   }
   
   @Override

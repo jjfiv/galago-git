@@ -4,15 +4,15 @@
  */
 package org.lemurproject.galago.core.scoring;
 
-import gnu.trove.TObjectIntHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import org.galagosearch.core.parse.Document;
-import org.galagosearch.core.parse.Tag;
-import org.galagosearch.tupleflow.Utility;
+import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Tag;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *

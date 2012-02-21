@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.security.MessageDigest;
@@ -23,10 +24,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.logging.Logger;
 import org.lemurproject.galago.tupleflow.execution.Step;
-import org.apache.commons.io.FileUtils;
 
 /**
  * Lots of static methods here that have broad use.
@@ -454,7 +455,7 @@ public class Utility {
     }
 
     makeParentDirectories(temporaryDir.getAbsolutePath());
-    if(temporaryDir.isFile()){
+    if (temporaryDir.isFile()) {
       temporaryDir.delete();
     }
     temporaryDir.mkdir();
@@ -995,6 +996,22 @@ public class Utility {
     }
 
     return result;
+  }
+
+  public static <T> T[] toArray(PriorityQueue<T> queue) {
+    T[] items = (T[]) Array.newInstance(queue.peek().getClass(), queue.size());
+    for (int i = 0; queue.isEmpty() == false; i++) {
+      items[i] = queue.poll();
+    }
+    return items;
+  }
+
+  public static <T> T[] toReversedArray(PriorityQueue<T> queue) {
+    T[] items = (T[]) Array.newInstance(queue.peek().getClass(), queue.size());
+    for (int i = queue.size() - 1; queue.isEmpty() == false; i--) {
+      items[i] = queue.poll();
+    }
+    return items;
   }
 
   /*

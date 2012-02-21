@@ -3,7 +3,6 @@ package org.lemurproject.galago.core.retrieval;
 
 import org.lemurproject.galago.core.retrieval.processing.RankedDocumentModel;
 import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
-import gnu.trove.list.array.TIntArrayList;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -14,13 +13,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.PriorityQueue;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
-import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.NamesReader.Iterator;
 import org.lemurproject.galago.core.index.disk.CachedDiskIndex;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
@@ -37,13 +34,9 @@ import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
 import org.lemurproject.galago.core.retrieval.processing.RankedPassageModel;
-import org.lemurproject.galago.core.retrieval.structured.ContextFactory;
-import org.lemurproject.galago.core.retrieval.processing.PassageScoringContext;
-import org.lemurproject.galago.core.retrieval.processing.WorkingSetContext;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Parameters.Type;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -248,23 +241,11 @@ public class LocalRetrieval implements Retrieval {
       return null;
     }
 
-    for (int i = results.length - 1; i >= 0; i--) {
+    for (int i = 0; i < results.length; i++) {
       results[i].source = indexId;
       results[i].rank = i + 1;
     }
-
-    // manual reverse of results
-    int limit = results.length / 2;
-    if (results.length % 2 == 0) {
-      limit--;
-    }
-
-    for (int i = 0; i < limit; i++) {
-      T tmp = results[i];
-      results[i] = results[results.length - (i + 1)];
-      results[results.length - (i + 1)] = tmp;
-    }
-
+    
     // this is to assign proper document names
     T[] byID = Arrays.copyOf(results, results.length);
 

@@ -30,24 +30,29 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
     super(r);
   }
 
+  @Override
   public int getLength(int document) throws IOException {
     return Utility.uncompressInt(reader.getValueBytes(Utility.fromInt(document)), 0);
   }
 
+  @Override
   public KeyIterator getIterator() throws IOException {
     return new KeyIterator(reader);
   }
 
+  @Override
   public LengthsReader.Iterator getLengthsIterator() throws IOException {
     return (LengthsReader.Iterator) new ValueIterator(new KeyIterator(reader));
   }
 
+  @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
     types.put("lengths", new NodeType(ValueIterator.class));
     return types;
   }
 
+  @Override
   public ValueIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("lengths")) {
       return new ValueIterator(new KeyIterator(reader));
@@ -68,6 +73,7 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
       return Integer.toString(Utility.toInt(getKeyBytes()));
     }
 
+    @Override
     public String getValueString() {
       try {
         return Integer.toString(Utility.uncompressInt(iterator.getValueBytes(), 0));
@@ -88,10 +94,12 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
       return Utility.uncompressInt(iterator.getValueBytes(), 0);
     }
 
+    @Override
     public boolean isDone() {
       return iterator.isDone();
     }
 
+    @Override
     public ValueIterator getValueIterator() throws IOException {
       return new ValueIterator(this);
     }
@@ -103,6 +111,7 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
       super(it);
     }
 
+    @Override
     public String getEntry() throws IOException {
       KeyIterator ki = (KeyIterator) iterator;
       String output = Integer.toString(ki.getCurrentIdentifier()) + ","
@@ -110,10 +119,12 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
       return output;
     }
 
+    @Override
     public long totalEntries() {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public int count() {
       try {
         return ((KeyIterator) iterator).getCurrentLength();
@@ -122,16 +133,24 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
       }
     }
 
+    @Override
+    public int maximumCount() {
+      return Integer.MAX_VALUE;
+    }
+
+    @Override
     public boolean skipToKey(int candidate) throws IOException {
       KeyIterator ki = (KeyIterator) iterator;
       return ki.skipToKey(candidate);
     }
-    
+
+    @Override
     public int getCurrentLength() throws IOException {
       KeyIterator ki = (KeyIterator) iterator;
       return ki.getCurrentLength();
     }
 
+    @Override
     public int getCurrentIdentifier() throws IOException {
       KeyIterator ki = (KeyIterator) iterator;
       return ki.getCurrentIdentifier();

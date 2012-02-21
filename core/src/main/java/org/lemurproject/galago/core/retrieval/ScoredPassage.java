@@ -38,6 +38,7 @@ public class ScoredPassage extends ScoredDocument {
     return other.begin - begin;
   }
 
+  @Override
   public String toString() {
     return String.format("%d:%d-%d,%f", document, begin, end, score);
   }

@@ -27,6 +27,7 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
     this.document = -1;
   }
   
+  @Override
   public int compareTo(ScoredDocument other) {
     if (score != other.score) {
       return Double.compare(score, other.score);
@@ -38,6 +39,7 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
     return other.document - document;
   }
 
+  @Override
   public String toString() {
     return String.format("%d,%f", document, score);
   }

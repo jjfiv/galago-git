@@ -44,6 +44,10 @@ public class NullExtentIterator implements ExtentValueIterator, CountValueIterat
     return 0;
   }
 
+  public int maximumCount() {
+    return 0;
+  }
+  
   public void reset() {
     // do nothing
   }

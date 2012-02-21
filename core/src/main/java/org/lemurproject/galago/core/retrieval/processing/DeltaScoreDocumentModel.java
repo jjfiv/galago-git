@@ -9,13 +9,13 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.LengthsReader;
-import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Assumes the use of delta functions for scoring, then prunes using
@@ -137,7 +137,7 @@ public class DeltaScoreDocumentModel implements ProcessingModel {
         }
       }
     }
-    return queue.toArray(new ScoredDocument[0]);
+    return Utility.toReversedArray(queue);
   }
 
   public ScoredDocument[] executeWorkingSet(Node queryTree, Parameters queryParams)
@@ -223,7 +223,7 @@ public class DeltaScoreDocumentModel implements ProcessingModel {
       }
       // The quorum is moved at the top, so we don't do it here.
     }
-    return queue.toArray(new ScoredDocument[0]);
+    return Utility.toReversedArray(queue);
   }
 
   private void computeQuorum(DeltaScoringContext ctx) {

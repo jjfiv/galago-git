@@ -22,6 +22,7 @@ public class FakeExtentIterator implements ExtentValueIterator, CountValueIterat
     this.index = 0;
   }
 
+  @Override
   public boolean next() {
     if (index < data.length) {
       index++;
@@ -31,10 +32,12 @@ public class FakeExtentIterator implements ExtentValueIterator, CountValueIterat
     }
   }
 
+  @Override
   public boolean isDone() {
     return index >= data.length;
   }
 
+  @Override
   public ExtentArray extents() {
     ExtentArray array = new ExtentArray();
     int[] datum = data[index];
@@ -46,27 +49,33 @@ public class FakeExtentIterator implements ExtentValueIterator, CountValueIterat
     return array;
   }
 
+  @Override
   public int currentCandidate() {
     return data[index][0];
   }
 
+  @Override
   public int count() {
     return data[index].length - 1;
   }
 
+  @Override
   public void reset() throws IOException {
     index = 0;
   }
 
+  @Override
   public ExtentArray getData() {
     return extents();
   }
 
+  @Override
   public boolean hasMatch(int identifier) {
     if (isDone()) return false;
     else return (currentCandidate() == identifier);
   }
 
+  @Override
   public boolean moveTo(int identifier) throws IOException {
     while (!isDone() && currentCandidate() < identifier) {
       index++;
@@ -74,14 +83,17 @@ public class FakeExtentIterator implements ExtentValueIterator, CountValueIterat
     return hasMatch(identifier);
   }
 
+  @Override
   public void movePast(int identifier) throws IOException {
     moveTo(identifier + 1);
   }
 
+  @Override
   public long totalEntries() {
     return data.length;
   }
 
+  @Override
   public int compareTo(ValueIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
@@ -95,7 +107,13 @@ public class FakeExtentIterator implements ExtentValueIterator, CountValueIterat
     return currentCandidate() - other.currentCandidate();
   }
 
+  @Override
   public String getEntry() throws IOException {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
+  public int maximumCount() {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 }

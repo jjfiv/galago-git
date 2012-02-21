@@ -62,63 +62,83 @@ public abstract class FilteredIterator implements CountValueIterator, ScoreValue
     }
   }
 
+  @Override
   public void reset() throws IOException {
     indicator.reset();
     mover.reset();
   }
 
+  @Override
   public ExtentArray extents() {
     return extents.extents();
   }
 
+  @Override
   public ExtentArray getData() {
     return extents.getData();
   }
 
+  @Override
   public int count() {
     return counter.count();
   }
 
+  @Override
+  public int maximumCount() {
+    return counter.maximumCount();
+  }
+
+  @Override
   public double score() {
     return scorer.score();
   }
 
+  @Override
   public double score(ScoringContext context) {
     return scorer.score(context);
   }
 
+  @Override
   public double maximumScore() {
     return scorer.maximumScore();
   }
 
+  @Override
   public double minimumScore() {
     return scorer.minimumScore();
   }
 
+  @Override
   public ScoringContext getContext() {
     return context;
   }
 
+  @Override
   public void setContext(ScoringContext context) {
     this.context = context;
   }
 
+  @Override
   public boolean isDone() {
     return mover.isDone();
   }
 
+  @Override
   public int currentCandidate() {
     return mover.currentCandidate();
   }
 
+  @Override
   public boolean next() throws IOException {
     return moveTo(currentCandidate() + 1);
   }
 
+  @Override
   public void movePast(int identifier) throws IOException {
     moveTo(identifier + 1);
   }
 
+  @Override
   public boolean moveTo(int identifier) throws IOException {
     if (!isDone()) {
       indicator.moveTo(identifier);
@@ -149,14 +169,17 @@ public abstract class FilteredIterator implements CountValueIterator, ScoreValue
     }
   }
 
+  @Override
   public String getEntry() throws IOException {
     throw new UnsupportedOperationException("Filter nodes don't have singular values");
   }
 
+  @Override
   public long totalEntries() {
     return Math.min(indicator.totalEntries(), mover.totalEntries());
   }
 
+  @Override
   public int compareTo(ValueIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;

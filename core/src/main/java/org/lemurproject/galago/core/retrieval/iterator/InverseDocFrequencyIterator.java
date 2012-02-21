@@ -6,10 +6,10 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.galagosearch.core.retrieval.query.NodeParameters;
-import org.galagosearch.core.retrieval.structured.RequiredStatistics;
-import org.galagosearch.core.scoring.InverseDocumentFrequencyScorer;
-import org.galagosearch.tupleflow.Parameters;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
+import org.lemurproject.galago.core.scoring.InverseDocumentFrequencyScorer;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *

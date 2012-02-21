@@ -55,12 +55,38 @@ public class PassageRetrievalTest extends TestCase {
     p.set("requested", 10);
     ScoredPassage[] result = (ScoredPassage[]) retrieval.runQuery(root, p);
     assertEquals(6, result.length);
-    assert (result[0].documentName.equals("9") && result[0].begin == 0 && result[0].end == 4);
-    assert (result[1].documentName.equals("8") && result[1].begin == 2 && result[1].end == 6);
-    assert (result[2].documentName.equals("8") && result[2].begin == 0 && result[2].end == 4);
-    assert (result[3].documentName.equals("1") && result[3].begin == 0 && result[3].end == 4);
-    assert (result[4].documentName.equals("2") && result[4].begin == 2 && result[4].end == 6);
-    assert (result[5].documentName.equals("2") && result[5].begin == 0 && result[5].end == 4);
+        
+    // First entry
+    assertEquals("9", result[0].documentName);
+    assertEquals(0, result[0].begin);
+    assertEquals(4, result[0].end);
+    
+    // Second entry
+    assertEquals("8", result[1].documentName);
+    assertEquals(2, result[1].begin);
+    assertEquals(6, result[1].end);
+    
+    // Third entry
+    assertEquals("8", result[2].documentName);
+    assertEquals(0, result[2].begin);
+    assertEquals(4, result[2].end);
+    
+    // Fourth entry
+    assertEquals("1", result[3].documentName);
+    assertEquals(0, result[3].begin);
+    assertEquals(4, result[3].end);
+    
+    // Fifth entry
+    assertEquals("2", result[4].documentName);
+    assertEquals(2, result[4].begin);
+    assertEquals(6, result[4].end);
+    
+    // Sixth entry
+    assertEquals("2", result[5].documentName);
+    assertEquals(0, result[5].begin);
+    assertEquals(4, result[5].end);
+    
+    // Check scores
     assertEquals(result[0].score, -2.623394, 0.001);
     assertEquals(result[1].score, -2.624723, 0.001);
     assertEquals(result[2].score, -2.624723, 0.001);
