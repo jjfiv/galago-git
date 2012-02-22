@@ -5,6 +5,7 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * [sjh] this class could cause problems for VERY large vocabularies
@@ -21,10 +22,11 @@ public class VocabularyWriter {
     output = new DataOutputStream(new BufferedOutputStream(buffer));
   }
 
-  public void add(byte[] word, long offset) throws IOException {
-    output.writeShort(word.length);
-    output.write(word);
-    output.writeLong(offset);
+  public void add(byte[] key, long offset, int headerLength) throws IOException {
+    Utility.compressInt(output, key.length);
+    output.write(key);
+    Utility.compressLong(output, offset);
+    Utility.compressInt(output, headerLength);
   }
 
   public byte[] data() throws IOException {

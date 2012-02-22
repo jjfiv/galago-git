@@ -588,7 +588,7 @@ public class App {
       RandomAccessFile indexReaderWriter = new RandomAccessFile(filename, "rw");
 
       long length = indexReaderWriter.length();
-      long footerOffset = length - 2 * Integer.SIZE / 8 - 3 * Long.SIZE / 8 - 1;
+      long footerOffset = length - Integer.SIZE / 8 - 3 * Long.SIZE / 8;
 
       indexReaderWriter.seek(footerOffset);
 
@@ -596,8 +596,6 @@ public class App {
       long vocabularyOffset = indexReaderWriter.readLong();
       long manifestOffset = indexReaderWriter.readLong();
       int blockSize = indexReaderWriter.readInt();
-      int vocabGroup = indexReaderWriter.readInt();
-      boolean isCompressed = indexReaderWriter.readBoolean();
       long magicNumber = indexReaderWriter.readLong();
 
       indexReaderWriter.seek(manifestOffset);
@@ -614,8 +612,6 @@ public class App {
       indexReaderWriter.writeLong(vocabularyOffset);
       indexReaderWriter.writeLong(manifestOffset);
       indexReaderWriter.writeInt(blockSize);
-      indexReaderWriter.writeInt(vocabGroup);
-      indexReaderWriter.writeBoolean(isCompressed);
       indexReaderWriter.writeLong(magicNumber);
       indexReaderWriter.close();
     }

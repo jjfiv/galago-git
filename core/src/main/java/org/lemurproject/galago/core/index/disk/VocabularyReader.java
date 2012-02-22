@@ -19,6 +19,7 @@ public class VocabularyReader {
     public byte[] nextSlotKey;
     public long begin;
     public long length;
+    public int headerLength;
   }
   List<IndexBlockInfo> slots;
 
@@ -44,22 +45,27 @@ public class VocabularyReader {
     long last = 0;
     long start = input.getFilePointer();
 
-    short finalKeyLength = input.readShort();
+    int finalKeyLength = input.readUnsignedByte();
     byte[] finalIndexKey = new byte[finalKeyLength];
     input.read(finalIndexKey);
     
     while (input.getFilePointer() < start + vocabularyLength) {
-      short length = input.readShort();
+      int length = Utility.uncompressInt(input);
+      //short length = input.readShort();
       byte[] data = new byte[length];
       input.read(data);
-      long offset = input.readLong();
+      long offset = Utility.uncompressLong(input);
+      //long offset = input.readLong();
+      int headerLength = Utility.uncompressInt(input);
+      //short headerLength = input.readShort();
       IndexBlockInfo slot = new IndexBlockInfo();
 
       if (slots.size() > 0) {
         slots.get(slots.size() - 1).length = offset - last;
         slots.get(slots.size() - 1).nextSlotKey = data;
       }
-      
+
+      slot.headerLength = headerLength;
       slot.begin = offset;
       slot.firstKey = data;
       slot.slotId = slots.size();
@@ -76,11 +82,15 @@ public class VocabularyReader {
   }
 
   public IndexBlockInfo get(byte[] key) {
+    return get(key, 0);
+  }
+
+  public IndexBlockInfo get(byte[] key, int minBlock) {
     if (slots.size() == 0) {
       return null;
     }
     int big = slots.size() - 1;
-    int small = 0;
+    int small = minBlock;
 
     while (big - small > 1) {
       int middle = small + (big - small) / 2;

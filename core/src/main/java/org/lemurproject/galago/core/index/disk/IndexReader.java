@@ -1,21 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
-import java.util.zip.GZIPInputStream;
 import org.lemurproject.galago.core.index.GenericIndexReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
 import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.MemoryDataStream;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -30,8 +25,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  * to support fast random lookup on disks.</p>
  * 
  * <p>Data is stored in blocks, typically 32K each.  Each block has a prefix-compressed
- * set of keys at the beginning, followed by a block of value data.  IndexWriter/IndexReader
- * can GZip compress that value data, or it can be stored uncompressed.  For inverted list
+ * set of keys at the beginning, followed by a block of value data.  For inverted list
  * data it's best to use your own compression, but for text data the GZip compression
  * is a good choice.</p>
  * 
@@ -53,359 +47,212 @@ public class IndexReader extends GenericIndexReader {
   VocabularyReader vocabulary;
   Parameters manifest;
   int blockSize;
-  int vocabGroup = 16;
+  int cacheGroupSize = 5;
   long vocabularyOffset;
   long manifestOffset;
   long footerOffset;
-  boolean isCompressed;
-
-  private static class VocabularyBlock {
-
-    long startFileOffset;
-    long startValueFileOffset;
-    long endValueFileOffset;
-    long[] endValueOffsets;
-    byte[][] keys;
-
-    public VocabularyBlock(
-            long startFileOffset,
-            long startValueFileOffset,
-            long endValueFileOffset,
-            long[] endValueOffsets, byte[][] keys) {
-      this.keys = keys;
-      this.endValueOffsets = endValueOffsets;
-      this.startFileOffset = startFileOffset;
-      this.startValueFileOffset = startValueFileOffset;
-      this.endValueFileOffset = endValueFileOffset;
-    }
-
-    public long getValuesStart() {
-      return startValueFileOffset;
-    }
-
-    public long getValuesEnd() {
-      return endValueFileOffset;
-    }
-
-    public long getBlockEnd() {
-      return getValuesEnd();
-    }
-
-    public long getListStart(int index) {
-      if (index == 0) {
-        return startValueFileOffset;
-      }
-      return endValueFileOffset - endValueOffsets[index - 1];
-    }
-
-    public long getListEnd(int index) {
-      return endValueFileOffset - endValueOffsets[index];
-    }
-
-    public long getUncompressedEndOffset(int index) {
-      return endValueOffsets[index];
-    }
-
-    public boolean hasMore(int index) {
-      return endValueOffsets.length > (index + 1);
-    }
-
-    public int findIndex(byte[] key) {
-      // Need to do a linear search here because the vocabulary order
-      // does not necessarily match Java's idea of alphabetical order
-      for (int i = 0; i < keys.length; i++) {
-        if (Arrays.equals(keys[i], key)) {
-          return i;
-        }
-      }
-      return -1;
-    }
-
-    private byte[] getKey(int termIndex) {
-      return this.keys[termIndex];
-    }
-  }
 
   public class Iterator extends GenericIndexReader.Iterator {
 
-    VocabularyBlock block;
-    byte[] decompressedData;
-    byte[] key;
-    int keyIndex;
-    boolean done;
+    private IndexBlockInfo blockInfo;
+    // key block data
+    private long startFileOffset; // start of block
+    private long startValueFileOffset; // start of value data
+    private long endValueFileOffset; // end of value data / block
+    private long[] endValueOffsetCache; // ends of each value data
+    private byte[][] keyCache; // keys
+    private int keyIndex;
+    private int keyCount;
+    private boolean done;
+    // vars that allow us to avoid reading the entire block
+    private DataStream blockStream;
+    private int cacheKeyCount;
 
-    Iterator(VocabularyBlock block, int index) throws IOException {
-      this.block = block;
-      keyIndex = index;
-      done = false;
-
-      loadIndex();
-      decompressedData = null;
+    public Iterator(IndexBlockInfo blockInfo) throws IOException {
+      this.loadBlockHeader(blockInfo);
     }
 
-    /**
-     * Returns the key associated with the current inverted list.
-     */
-    public byte[] getKey() {
-      return key;
+    private void loadBlockHeader(IndexBlockInfo info) throws IOException {
+      this.blockInfo = info;
+      this.startFileOffset = this.blockInfo.begin;
+
+      // read in a block of data here
+      blockStream = blockStream(this.startFileOffset, this.blockInfo.headerLength);
+
+      // now we decode everything from the stream
+      this.endValueFileOffset = startFileOffset + blockInfo.length;
+      this.keyCount = (int) blockStream.readLong();
+      this.keyCache = new byte[(int) this.keyCount][];
+      this.endValueOffsetCache = new long[(int) this.keyCount];
+      this.startValueFileOffset = this.startFileOffset + this.blockInfo.headerLength;
+      this.keyIndex = 0;
+      this.done = false;
+
+      this.cacheKeyCount = 0;
+      this.cacheKeys();
     }
 
-    public void find(byte[] key) throws IOException {
-      byte[] currentKey = this.key;
-      byte[] blockFirstKey = block.keys[0];
-      byte[] blockLastKey = block.keys[block.keys.length - 1];
+    private boolean nextIndexBlock() throws IOException {
+      IndexBlockInfo nextBlock = vocabulary.getSlot(this.blockInfo.slotId + 1);
 
-      // check if the desired key is in the current block
-      if ((Utility.compare(key, blockFirstKey) >= 0)
-              && (Utility.compare(key, blockLastKey) <= 0)) {
-
-        if (Utility.compare(key, currentKey) < 0) {
-          // if the desired key preceeds the current key
-          // -> reset the vocab block
-          keyIndex = 0;
-        }
-
-        while (keyIndex < block.keys.length) {
-          byte[] blockKey = block.keys[keyIndex];
-          if (Utility.compare(key, blockKey) <= 0) {
-            loadIndex();
-            return;
-          }
-          keyIndex++;
-        }
-
-
-        // otherwise we have to get a new block
-      } else {
-        IndexBlockInfo slot = vocabulary.get(key);
-        if (slot == null) {
-          done = true;
-          return;
-        } else {
-          invalidateBlock();
-          block = readVocabularyBlock(slot.begin);
-          keyIndex = 0;
-          while (keyIndex < block.keys.length) {
-            byte[] blockKey = block.keys[keyIndex];
-            if (Utility.compare(key, blockKey) <= 0) {
-              loadIndex();
-              return;
-            }
-            keyIndex++;
-          }
-        }
+      // no more vocabulary blocks
+      if (nextBlock == null) {
+        // set to final key in current block
+        this.keyIndex = this.keyCount - 1;
+        this.done = true;
+        return false;
       }
 
-      // we could not find the desired key -- key index = final + 1
-      // now try the next best thing - final key
-      keyIndex--;
-      loadIndex();
+      // load the new block
+      this.loadBlockHeader(nextBlock);
+      return true;
+    }
+
+    // move functions:
+    @Override
+    public boolean nextKey() throws IOException {
+      this.keyIndex++;
+      if (this.keyIndex >= this.keyCount) {
+        return this.nextIndexBlock();
+      }
+      while (keyIndex >= cacheKeyCount) {
+        this.cacheKeys();
+      }
+
+      return true;
+    }
+
+    @Override
+    public void find(byte[] key) throws IOException {
+
+      // if the key is not in this block:
+      if ((Utility.compare(this.blockInfo.firstKey, key) > 0)
+              || (Utility.compare(key, this.blockInfo.nextSlotKey) >= 0)) {
+        IndexBlockInfo newBlock = vocabulary.get(key);
+        this.loadBlockHeader(newBlock);
+      }
+
+      // since we are 'finding' the key we can move backwards in the current block
+      if (Utility.compare(key, keyCache[keyIndex]) < 0) {
+        this.keyIndex = 0;
+      }
+
+      // now linearly scan the block to find the desired key
+      while (keyIndex < keyCount) {
+        while (keyIndex >= cacheKeyCount) {
+          this.cacheKeys();
+        }
+
+        if (Utility.compare(keyCache[keyIndex], key) >= 0) {
+          // we have found or passed the desired key
+          return;
+        }
+        keyIndex++;
+      }
+
+      // if we got here - we have not yet found the correct key
+      // this function will ensure we are consistent
       nextKey();
     }
 
     public void skipTo(byte[] key) throws IOException {
-      byte[] currentKey = this.key;
-      byte[] blockLastKey = block.keys[block.keys.length - 1];
-
-      if (done || (Utility.compare(key, currentKey) < 0)) {
-        // this means that the required key does not exist in the index.
-        return;
+      // if the key is not in this block:
+      if (Utility.compare(key, this.blockInfo.nextSlotKey) >= 0) {
+        // restrict the vocab search to only search forward from the current block
+        IndexBlockInfo newBlock = vocabulary.get(key, this.blockInfo.slotId);
+        this.loadBlockHeader(newBlock);
       }
 
-      // check if the desired key is in the current block
-      if (Utility.compare(key, blockLastKey) <= 0) {
-
-        while (keyIndex < block.keys.length) {
-          byte[] blockKey = block.keys[keyIndex];
-          if (Utility.compare(key, blockKey) <= 0) {
-            loadIndex();
-            return;
-          }
-          keyIndex++;
+      // now linearly scan the block to find the desired key
+      while (keyIndex < keyCount) {
+        while (keyIndex >= cacheKeyCount) {
+          this.cacheKeys();
         }
-
-        // otherwise we have to get a new block
-      } else {
-
-        IndexBlockInfo slot = vocabulary.get(key);
-        if (slot == null) {
-          done = true;
+        if (Utility.compare(keyCache[keyIndex], key) >= 0) {
+          // we have found or passed the desired key
           return;
-        } else {
-          invalidateBlock();
-          block = readVocabularyBlock(slot.begin);
-          keyIndex = 0;
-          while (keyIndex < block.keys.length) {
-            byte[] blockKey = block.keys[keyIndex];
-            if (Utility.compare(key, blockKey) <= 0) {
-              loadIndex();
-              return;
-            }
-            keyIndex++;
-          }
         }
+        keyIndex++;
       }
-
-      // we could not find the desired key
-      // now try the next best thing --> point at next key.
-      keyIndex--;
-      loadIndex();
+      // if we got here - we have not yet found the correct key
       nextKey();
     }
 
-    /**
-     * Advances to the next key in the index.
-     *
-     * @return true if the advance was successful, false if no more keys remain.
-     * @throws java.io.IOException
-     */
-    public boolean nextKey() throws IOException {
-      if (block.hasMore(keyIndex)) {
-        keyIndex++;
-      } else if (block.getBlockEnd() >= IndexReader.this.vocabularyOffset) {
-        invalidateBlock();
-        done = true;
-        return false;
-      } else {
-        invalidateBlock();
-        block = readVocabularyBlock(block.getBlockEnd());
-        keyIndex = 0;
-      }
-
-      loadIndex();
-      return true;
-    }
-
-    /**
-     * Returns true if no more keys remain to be read.
-     */
+    @Override
     public boolean isDone() {
       return done;
     }
 
-    /**
-     * Returns the length of the value, in bytes.
-     * Uses the length of the value stream
-     * as the value might be compressed on disk
-     */
+    @Override
+    public byte[] getKey() {
+      return this.keyCache[this.keyIndex];
+    }
+
+    @Override
+    public long getValueStart() throws IOException {
+      return (keyIndex == 0)
+              ? startValueFileOffset
+              : endValueFileOffset - endValueOffsetCache[keyIndex - 1];
+    }
+
+    @Override
+    public long getValueEnd() throws IOException {
+      return endValueFileOffset - endValueOffsetCache[keyIndex];
+    }
+
+    @Override
     public long getValueLength() throws IOException {
-      return getValueStream().length();
+      return getValueEnd() - getValueStart();
     }
 
-    /**
-     * Returns the value as a buffered stream.
-     */
+    @Override
     public DataStream getValueStream() throws IOException {
-      if (isCompressed) {
-        // Lazy decompression allows fast scans over the key space
-        // of a table without decompressing all the values.
-        if (decompressedData == null) {
-          decompressBlock();
-        }
-
-        int start = 0;
-        int end = (int) (decompressedData.length - block.getUncompressedEndOffset(keyIndex));
-        if (keyIndex > 0) {
-          start = (int) (decompressedData.length - block.getUncompressedEndOffset(keyIndex - 1));
-        }
-        int length = end - start;
-
-        return new MemoryDataStream(decompressedData, start, length);
-      } else {
-
-        return new BufferedFileDataStream(input, getValueStart(), getValueEnd());
-      }
+      return new BufferedFileDataStream(input, getValueStart(), getValueEnd());
     }
 
+    @Override
     public DataStream getSubValueStream(long offset, long length) throws IOException {
-      if (isCompressed) {
-        // Lazy decompression allows fast scans over the key space
-        // of a table without decompressing all the values.
-        if (decompressedData == null) {
-          decompressBlock();
+      long absoluteStart = getValueStart() + offset;
+      long absoluteEnd = getValueStart() + offset + length;
+      long fileLength = input.length();
+      absoluteEnd = Math.min(Math.min(fileLength, absoluteEnd), getValueEnd());
+
+      assert absoluteStart <= absoluteEnd;
+
+      // the end of the sub value is the min of fileLength, valueEnd, or (offset+length);
+      return new BufferedFileDataStream(input, absoluteStart, absoluteEnd);
+    }
+
+    private void cacheKeys() throws IOException {
+      for (int i = 0; i < cacheGroupSize; i++) {
+        if (cacheKeyCount >= keyCount) {
+          return;
+        } else if (this.cacheKeyCount == 0) {
+          int keyLength = blockStream.readUnsignedByte();
+          byte[] keyBytes = new byte[keyLength];
+          blockStream.readFully(keyBytes);
+          this.keyCache[0] = keyBytes;
+          this.endValueOffsetCache[0] = blockStream.readUnsignedShort();
+          cacheKeyCount++;
+        } else {
+          int common = blockStream.readUnsignedByte();
+          int keyLength = blockStream.readUnsignedByte();
+          assert keyLength >= 0 : "Negative key length: " + keyLength + " " + cacheKeyCount;
+          assert keyLength >= common : "key length too small: " + keyLength + " " + common + " " + cacheKeyCount;
+          byte[] keyBytes = new byte[keyLength];
+
+          try {
+            System.arraycopy(keyCache[cacheKeyCount - 1], 0, keyBytes, 0, common);
+            blockStream.readFully(keyBytes, common, keyLength - common);
+          } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("wl: " + keyLength + " c: " + common);
+            throw e;
+          }
+          this.keyCache[cacheKeyCount] = keyBytes;
+          this.endValueOffsetCache[cacheKeyCount] = blockStream.readUnsignedShort();
+          cacheKeyCount++;
         }
-
-        return new MemoryDataStream(decompressedData, (int) offset, (int) length);
-      } else {
-
-        long absoluteStart = getValueStart() + offset;
-        long absoluteEnd = getValueStart() + offset + length;
-        long fileLength = input.length();
-        absoluteEnd = Math.min(Math.min(fileLength, absoluteEnd), getValueEnd());
-
-        assert absoluteStart <= absoluteEnd;
-
-        // the end of the sub value is the min of fileLength, valueEnd, or (offset+length);
-        return new BufferedFileDataStream(input, absoluteStart, absoluteEnd);
       }
-    }
-
-    /**
-     * Returns the byte offset
-     * of the beginning of the current inverted list,
-     * relative to the start of the whole inverted file.
-     */
-    public long getValueStart() {
-      return block.getListStart(keyIndex);
-    }
-
-    /**
-     * Returns the byte offset
-     * of the end of the current inverted list,
-     * relative to the start of the whole inverted file.
-     */
-    public long getValueEnd() {
-      return block.getListEnd(keyIndex);
-    }
-
-    /*************************/
-    // local functions
-    void loadIndex() throws IOException {
-      key = null;
-
-      if (block == null || keyIndex < 0) {
-        done = true;
-        return;
-      }
-      key = block.getKey(keyIndex);
-    }
-
-    void invalidateBlock() {
-      decompressedData = null;
-    }
-
-    void decompressBlock() throws IOException {
-      int blockLength = (int) (block.getValuesEnd() - block.getValuesStart());
-      byte[] data = new byte[blockLength];
-
-      synchronized (input) {
-        input.seek(block.getValuesStart());
-        input.readFully(data);
-      }
-
-      ByteArrayInputStream in = new ByteArrayInputStream(data);
-      DataInputStream dataIn = new DataInputStream(in);
-      int uncompressedLength = dataIn.readInt();
-
-      GZIPInputStream stream = new GZIPInputStream(in);
-      decompressedData = new byte[uncompressedLength];
-      int totalRead = 0;
-      while (totalRead < uncompressedLength) {
-        int remaining = decompressedData.length - totalRead;
-        int bytesRead = stream.read(decompressedData, totalRead, remaining);
-        if (bytesRead <= 0) {
-          throw new EOFException("Too little data was found.");
-        }
-        totalRead += bytesRead;
-      }
-    }
-
-    private String print_bytes(byte[] key) {
-      StringBuilder sb = new StringBuilder();
-      for (byte b : key) {
-        sb.append(b).append(",");
-      }
-      return sb.toString();
     }
   }
 
@@ -421,7 +268,7 @@ public class IndexReader extends GenericIndexReader {
 
     // Seek to the end of the file
     long length = input.length();
-    footerOffset = length - 2 * Integer.SIZE / 8 - 3 * Long.SIZE / 8 - 1;
+    footerOffset = length - Integer.SIZE / 8 - 3 * Long.SIZE / 8;
 
     /* in a constructor this is not strictly necessary
      * no other threads can use this object before it's creation
@@ -433,8 +280,6 @@ public class IndexReader extends GenericIndexReader {
       vocabularyOffset = input.readLong();
       manifestOffset = input.readLong();
       blockSize = input.readInt();
-      vocabGroup = input.readInt();
-      isCompressed = input.readBoolean();
       long magicNumber = input.readLong();
       if (magicNumber != IndexWriter.MAGIC_NUMBER) {
         throw new IOException("This does not appear to be an index file (wrong magic number)");
@@ -446,12 +291,13 @@ public class IndexReader extends GenericIndexReader {
       input.seek(vocabularyOffset);
       vocabulary = new VocabularyReader(input, invertedListLength, vocabularyLength);
 
-
       input.seek(manifestOffset);
       byte[] xmlData = new byte[(int) (footerOffset - manifestOffset)];
       input.read(xmlData);
       manifest = Parameters.parse(xmlData);
     }
+
+    this.cacheGroupSize = (int) manifest.get("cacheGroupSize", 1);
   }
 
   /**
@@ -497,9 +343,7 @@ public class IndexReader extends GenericIndexReader {
     }
 
     // otherwise there is some data.
-    VocabularyBlock block = readVocabularyBlock(0);
-    Iterator result = new Iterator(block, 0);
-    result.loadIndex();
+    Iterator result = new Iterator(vocabulary.getSlot(0));
     return result;
   }
 
@@ -514,11 +358,10 @@ public class IndexReader extends GenericIndexReader {
     if (slot == null) {
       return null;
     }
-    VocabularyBlock block = readVocabularyBlock(slot.begin);
-    int index = block.findIndex(key);
-
-    if (index >= 0) {
-      return new Iterator(block, index);
+    Iterator i = new Iterator(slot);
+    i.find(key);
+    if (Utility.compare(key, i.getKey()) == 0) {
+      return i;
     }
     return null;
   }
@@ -544,90 +387,6 @@ public class IndexReader extends GenericIndexReader {
     length = Math.min(fileLength - offset, length);
 
     return new BufferedFileDataStream(input, offset, length + offset);
-  }
-
-  /**
-   * Reads vocabulary data from a block of the inverted file.
-   *
-   * The inverted file is structured into blocks which contain a little
-   * bit of compressed vocabulary information followed by inverted list
-   * information.  The inverted list information is application specific,
-   * and is not handled by this class.  This method reads in the vocabulary
-   * information for a particular block and returns it in a VocabularyBlock
-   * object, which allows for quick navigation to a particular key.
-   *
-   * The C++ version of this is much more efficient, because it makes no
-   * attempt to decode the whole block of information.  However, for the
-   * Java version I thought that simplicity (and testability) was more
-   * important than speed.  The VocabularyBlock structure helps make iteration
-   * over the entire inverted file possible.
-   */
-  private VocabularyBlock readVocabularyBlock(long slotBegin) throws IOException {
-    // read in a block of data here
-    DataStream blockStream = blockStream(slotBegin, blockSize);
-
-    // now we decode everything from the stream
-    long endBlock = blockStream.readLong();
-    long keyCount = blockStream.readLong();
-
-    int prefixLength = blockStream.readUnsignedByte();
-    byte[] prefixBytes = new byte[prefixLength];
-    blockStream.readFully(prefixBytes);
-
-    int keyBlockCount = (int) Math.ceil((double) keyCount / vocabGroup);
-    short[] keyBlockEnds = new short[keyBlockCount];
-    byte[][] keys = new byte[(int) keyCount][];
-    long[] invertedListEnds = new long[(int) keyCount];
-
-    for (int i = 0; i < keyBlockCount; i++) {
-      keyBlockEnds[i] = blockStream.readShort();
-    }
-
-    for (int i = 0; i < keyCount; i++) {
-      invertedListEnds[i] = blockStream.readShort();
-    }
-
-    for (int i = 0; i < keyCount; i += vocabGroup) {
-      int suffixLength = blockStream.readUnsignedByte();
-      int keyLength = suffixLength + prefixLength;
-      byte[] keyBytes = new byte[keyLength];
-      byte[] lastKeyBytes = keyBytes;
-      System.arraycopy(prefixBytes, 0, keyBytes, 0, prefixBytes.length);
-      int end = (int) Math.min(keyCount, i + vocabGroup);
-
-      blockStream.readFully(keyBytes, prefixBytes.length,
-              keyBytes.length - prefixBytes.length);
-      keys[i] = keyBytes;
-
-      for (int j = i + 1; j < end; j++) {
-        int common = blockStream.readUnsignedByte();
-        keyLength = blockStream.readUnsignedByte();
-        assert keyLength >= 0 : "Negative key length: " + keyLength + " " + j;
-        assert keyLength >= common : "key length too small: " + keyLength + " " + common + " " + j;
-        keyBytes = new byte[keyLength];
-
-        try {
-          System.arraycopy(lastKeyBytes, 0, keyBytes, 0, common);
-          blockStream.readFully(keyBytes, common, keyLength - common);
-        } catch (ArrayIndexOutOfBoundsException e) {
-          System.out.println("wl: " + keyLength + " c: " + common);
-          throw e;
-        }
-        keys[j] = keyBytes;
-        lastKeyBytes = keyBytes;
-      }
-    }
-
-    int suffixBytes = keyBlockEnds[keyBlockEnds.length - 1];
-    long headerLength = 8 + // key count
-            8 + // block end
-            1 + prefixLength + // key prefix bytes
-            2 * keyBlockCount + // key lengths
-            2 * keyCount + // inverted list endings
-            suffixBytes;          // suffix storage
-
-    long startInvertedLists = slotBegin + headerLength;
-    return new VocabularyBlock(slotBegin, startInvertedLists, endBlock, invertedListEnds, keys);
   }
 
   /**
