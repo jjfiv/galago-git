@@ -138,8 +138,8 @@ public class StructuredLexer {
     for (int i = 0; i < query.length(); ++i) {
       char c = query.charAt(i);
       boolean special = tokenCharacters.contains(c) || c == '@' || c == '"';
-      boolean isSpace = Character.isSpaceChar(c);
-
+      boolean isSpace = Character.isWhitespace(c);
+      
       if (special || isSpace) {
         if (start != i) {
           tokens.add(new Token(query.substring(start, i), start, TokenType.TERM));

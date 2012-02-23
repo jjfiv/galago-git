@@ -187,4 +187,28 @@ public class ParametersTest extends TestCase {
     Parameters innerOnceMore = innerAgain.getMap("wayInnerMap");
     assertEquals("absolutely", innerOnceMore.getString("buriedKey"));
   }
+
+  public void testPrettyPrinter() throws Exception {
+    Parameters tokenizer = new Parameters();
+    Parameters formats = new Parameters();
+    formats.set("title", "string");
+    formats.set("date", "date");
+    formats.set("version", "int");
+    tokenizer.set("formats", formats);
+    String[] fields = {"title", "date", "version"};
+    tokenizer.set("fields", Arrays.asList(fields));
+    ArrayList pList = new ArrayList();
+    pList.add(Parameters.parse("{\"text\":\"query text one\", \"number\":\"10\"}"));
+    pList.add(Parameters.parse("{\"text\":\"query text two\", \"number\":\"11\"}"));
+
+    Parameters params = new Parameters();
+    params.set("filename", "fictional/path");
+    params.set("tokenizer", tokenizer);
+    params.set("paramList", pList);
+
+    String prettyString = params.toPrettyString();
+
+    Parameters reParsed = Parameters.parse(prettyString);
+    assert (reParsed.equals(params));
+  }
 }

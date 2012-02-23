@@ -157,4 +157,12 @@ public class StructuredQueryTest extends TestCase {
     Node result = StructuredQuery.parse(query);
     assertEquals("#combine:0=1.2:3.4=5( #text:a() #text:b() )", result.toString());
   }
+
+  public void testPrettyPrinter() {
+    String query = "#combine:0=1.2:3.4=5( #a( d e ) b )";
+    Node result1 = StructuredQuery.parse(query);
+    String prettyQuery = result1.toPrettyString();
+    Node result2 = StructuredQuery.parse(prettyQuery);
+    assert result1.equals(result2);
+  }
 }
