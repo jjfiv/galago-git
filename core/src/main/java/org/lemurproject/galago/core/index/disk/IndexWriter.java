@@ -42,13 +42,11 @@ public class IndexWriter extends GenericIndexWriter {
   private Parameters manifest;
   private ArrayList<IndexElement> lists;
   private int blockSize = 32768;
-  private int vocabGroup = 16;
+  private int keySize = 256;
   private long filePosition = 0;
   private long listBytes = 0;
   private long keyCount = 0;
   private byte[] lastKey = new byte[0];
-  // compression isn't supported yet
-  boolean isCompressed = false;
   Counter recordsWritten = null;
   Counter blocksWritten = null;
 
@@ -58,8 +56,12 @@ public class IndexWriter extends GenericIndexWriter {
   public IndexWriter(String outputFilename, Parameters parameters)
           throws FileNotFoundException, IOException {
     Utility.makeParentDirectories(outputFilename);
+
+    // max = unsigned short - 32k
     blockSize = (int) parameters.get("blockSize", 32768);
-    isCompressed = parameters.get("isCompressed", false);
+
+    // max = unsigned byte - 256
+    keySize = 256;
     output = new DataOutputStream(new BufferedOutputStream(
             new FileOutputStream(outputFilename)));
     vocabulary = new VocabularyWriter();
@@ -92,32 +94,114 @@ public class IndexWriter extends GenericIndexWriter {
     return manifest;
   }
 
-  /** 
+  public void add(IndexElement list) throws IOException {
+    if (list.key().length >= this.keySize || list.key().length >= blockSize / 4) {
+      throw new IOException(String.format("Key %s is too long.", Utility.toString(list.key())));
+    }
+    if (needsFlush(list)) {
+      flush();
+    }
+    lists.add(list);
+    updateBufferedSize(list);
+    if (recordsWritten != null) {
+      recordsWritten.increment();
+    }
+
+    keyCount++;
+  }
+
+  public void close() throws IOException {
+    flush();
+
+    // increment the final key (this writes the first key that is outside the index.
+    lastKey = increment(lastKey);
+    assert (lastKey.length < 256) : "Final key issue - can not be written.";
+
+    byte[] vocabularyData = vocabulary.data();
+    if (vocabularyData.length == 0) {
+      manifest.set("emptyIndexFile", true);
+    }
+    manifest.set("keyCount", this.keyCount);
+
+    byte[] xmlData = manifest.toString().getBytes("UTF-8");
+    long vocabularyOffset = filePosition;
+    long manifestOffset = filePosition
+            + 1 + lastKey.length // part of vocab
+            + vocabularyData.length;
+
+    // need to write an int here - key could be very large.
+    output.writeByte(lastKey.length);
+    output.write(lastKey);
+
+    output.write(vocabularyData);
+    output.write(xmlData);
+
+    output.writeLong(vocabularyOffset);
+    output.writeLong(manifestOffset);
+    output.writeInt(blockSize);
+    output.writeLong(MAGIC_NUMBER);
+
+    output.close();
+  }
+
+  // Private functions
+  private void writeBlock(List<IndexElement> blockLists, long length) throws IOException {
+    assert length <= blockSize || blockLists.size() == 1;
+    assert wordsInOrder(blockLists);
+
+    if (blockLists.size() == 0) {
+      return;
+    }
+
+    // -- compute the length of the block --
+    ListData listData = new ListData(blockLists);
+    
+    // create header data
+    byte[] headerBytes = getBlockHeader(blockLists);
+
+    long startPosition = filePosition;
+    long endPosition = filePosition + headerBytes.length + listData.encodedLength();
+    assert endPosition <= startPosition + length;
+    assert endPosition > startPosition;
+    assert filePosition >= Integer.MAX_VALUE || filePosition == output.size();
+
+    // -- begin writing the block --
+    vocabulary.add(blockLists.get(0).key(), startPosition, headerBytes.length);
+
+    // key data
+    output.write(headerBytes);
+
+    // write inverted list binary data
+    listData.write(output);
+
+    filePosition = endPosition;
+    assert filePosition >= Integer.MAX_VALUE || filePosition == output.size();
+    assert endPosition - startPosition <= blockSize || blockLists.size() == 1;
+
+    if (blocksWritten != null) {
+      blocksWritten.increment();
+    }
+  }
+
+  /**
    * Gives a conservative estimate of the buffered size of the data,
    * excluding the most recent inverted list.
    * Does not include savings due to key overlap compression.
    */
-  public long bufferedSize() {
-    long extra = 8 + // end of block
-            8 + // key count
-            1; // overlap length
-
-    return listBytes + extra;
+  private long bufferedSize() {
+    return listBytes + 8; // key count;
   }
 
-  public void updateBufferedSize(IndexElement list) {
-    long extra = 1 + // byte for key length
-            1;  // byte for overlap with previous key
-
+  private void updateBufferedSize(IndexElement list) {
     listBytes += invertedListLength(list);
-    listBytes += extra;
   }
 
   private long invertedListLength(IndexElement list) {
     long listLength = 0;
 
     listLength += list.key().length;
-    listLength += 2; // key length bytes
+    listLength += 1; // key overlap
+    listLength += 1; // key length
     listLength += 2; // file offset bytes
 
     listLength += list.dataLength();
@@ -127,7 +211,7 @@ public class IndexWriter extends GenericIndexWriter {
   /**
    * Flush all lists out to disk.
    */
-  public void flush() throws IOException {
+  private void flush() throws IOException {
     // if there aren't any lists, quit now
     if (lists.size() == 0) {
       return;        // write everything out
@@ -139,8 +223,35 @@ public class IndexWriter extends GenericIndexWriter {
     listBytes = 0;
   }
 
-  public long getBlockSize() {
-    return blockSize;
+  private boolean needsFlush(IndexElement list) {
+    long listExtra = 1 + // byte for key length
+            1;  // byte for overlap with previous key
+
+    long bufferedBytes = bufferedSize()
+            + invertedListLength(list)
+            + listExtra;
+
+    return bufferedBytes >= blockSize;
+  }
+
+  /**
+   * sjh: function generates a key greater than the input key
+   *      - this is necessary to ensure the 'final key
+   *      - it may increase the length of the key
+   */
+  private byte[] increment(byte[] key) {
+    byte[] newData = Arrays.copyOf(key, key.length);
+    int i = newData.length - 1;
+    while (i >= 0 && newData[i] == Byte.MAX_VALUE) {
+      i--;
+    }
+    if (i >= 0) {
+      newData[i]++;
+    } else {
+      newData = Arrays.copyOf(key, key.length + 1);
+    }
+    assert (Utility.compare(key, newData) < 0);
+    return newData;
   }
 
   private boolean lessThanOrEqualTo(byte[] one, byte[] two) {
@@ -169,7 +280,7 @@ public class IndexWriter extends GenericIndexWriter {
    * 
    * @param blockLists
    */
-  public boolean wordsInOrder(List<IndexElement> blockLists) {
+  private boolean wordsInOrder(List<IndexElement> blockLists) {
     for (int i = 0; i < blockLists.size() - 1; i++) {
       boolean result = lessThanOrEqualTo(blockLists.get(i).key(),
               blockLists.get(i + 1).key());
@@ -180,20 +291,72 @@ public class IndexWriter extends GenericIndexWriter {
     return true;
   }
 
-  interface ListData {
+  private int prefixOverlap(byte[] firstTerm, byte[] lastTerm) {
+    int maximum = Math.min(firstTerm.length, lastTerm.length);
+    maximum = Math.min(Byte.MAX_VALUE - 1, maximum);
 
-    long length();
-
-    long encodedLength();
-
-    void write(OutputStream stream) throws IOException;
+    for (int i = 0; i < maximum; i++) {
+      if (firstTerm[i] != lastTerm[i]) {
+        return i;
+      }
+    }
+    return maximum;
   }
 
-  class UncompressedListData implements ListData {
+  private byte[] getBlockHeader(List<IndexElement> blockLists) throws IOException {
+    ListData listData;
+    ArrayList<byte[]> keys;
+    short[] ends;
+    ByteArrayOutputStream wordByteStream = new ByteArrayOutputStream();
+    DataOutputStream vocabOutput = new DataOutputStream(wordByteStream);
+
+    listData = new ListData(blockLists);
+    keys = new ArrayList<byte[]>();
+    for (IndexElement list : blockLists) {
+      keys.add(list.key());
+    }
+
+    vocabOutput.writeLong(keys.size());
+    long totalListData = listData.length();
+    long invertedListBytes = 0;
+
+    byte[] word = listData.blockLists.get(0).key();
+    byte[] lastWord = word;
+    assert word.length < this.keySize;
+
+    // this is the first word in the block
+    vocabOutput.writeByte(word.length);
+    vocabOutput.write(word, 0, word.length);
+
+    invertedListBytes += listData.blockLists.get(0).dataLength();
+    assert totalListData - invertedListBytes < this.blockSize;
+    assert totalListData >= invertedListBytes;
+    vocabOutput.writeShort((int) (totalListData - invertedListBytes));
+
+    for (int j = 1; j < keys.size(); j++) {
+      assert word.length < this.keySize;
+      word = listData.blockLists.get(j).key();
+      int common = this.prefixOverlap(lastWord, word);
+      vocabOutput.writeByte((byte) common);
+      vocabOutput.writeByte(word.length);
+      vocabOutput.write(word, common, word.length - common);
+      invertedListBytes += listData.blockLists.get(j).dataLength();
+      assert totalListData - invertedListBytes < this.blockSize;
+      assert totalListData >= invertedListBytes;
+      vocabOutput.writeShort((int) (totalListData - invertedListBytes));
+      lastWord = word;
+    }
+    vocabOutput.close();
+
+    return wordByteStream.toByteArray();
+  }
+
+  // private class to hold a list of index elements (key-value_ pairs)
+  private static class ListData {
 
     List<IndexElement> blockLists;
 
-    UncompressedListData(List<IndexElement> blockLists) {
+    public ListData(List<IndexElement> blockLists) {
       this.blockLists = blockLists;
     }
 
@@ -214,310 +377,5 @@ public class IndexWriter extends GenericIndexWriter {
         e.write(stream);
       }
     }
-  }
-
-  class CompressedListData implements ListData {
-
-    List<IndexElement> blockLists;
-    byte[] compressedData;
-
-    CompressedListData(List<IndexElement> blockLists) throws IOException {
-      this.blockLists = blockLists;
-      compress();
-    }
-
-    void compress() throws IOException {
-      ByteArrayOutputStream stream = new ByteArrayOutputStream();
-
-      // write the uncompressed length here
-      DataOutputStream s = new DataOutputStream(stream);
-      s.writeInt((int) length());
-
-      GZIPOutputStream gzipStream = new GZIPOutputStream(stream);
-      for (IndexElement element : blockLists) {
-        element.write(gzipStream);
-      }
-
-      gzipStream.close();
-      compressedData = stream.toByteArray();
-    }
-
-    public long length() {
-      long totalLength = 0;
-      for (IndexElement e : blockLists) {
-        totalLength += e.dataLength();
-      }
-      return totalLength;
-    }
-
-    public long encodedLength() {
-      return compressedData.length;
-    }
-
-    public void write(OutputStream stream) throws IOException {
-      stream.write(compressedData);
-    }
-  }
-
-  static class VocabularyHeader {
-
-    ArrayList<byte[]> keys;
-    short[] ends;
-    ByteArrayOutputStream wordByteStream = new ByteArrayOutputStream();
-    DataOutputStream vocabOutput = new DataOutputStream(wordByteStream);
-    int blockOverlap;
-    int groupCount;
-    int vocabGroupSize;
-
-    VocabularyHeader(List<IndexElement> blockLists, int vocabGroupSize) {
-      keys = new ArrayList<byte[]>();
-      this.vocabGroupSize = vocabGroupSize;
-      for (IndexElement list : blockLists) {
-        keys.add(list.key());
-      }
-    }
-
-    int prefixOverlap(byte[] firstTerm, byte[] lastTerm, int start) {
-      int maximum = Math.min(firstTerm.length - start, lastTerm.length - start);
-      maximum = Math.min(Byte.MAX_VALUE - 1, maximum);
-
-      for (int i = start; i < maximum; i++) {
-        if (firstTerm[i] != lastTerm[i]) {
-          return i - start;
-        }
-      }
-
-      return maximum;
-    }
-
-    int prefixOverlap(byte[] firstTerm, byte[] secondTerm) {
-      return prefixOverlap(firstTerm, secondTerm, 0);
-    }
-
-    void calculateBlockPrefix() {
-      // vocabulary group (prefix sharing)
-      byte[] firstWord = keys.get(0);
-      byte[] lastWord = keys.get(keys.size() - 1);
-
-      // determine how many prefix characters are in common among all terms in this block
-      blockOverlap = prefixOverlap(firstWord, lastWord);
-    }
-
-    void build() throws IOException {
-      calculateBlockPrefix();
-
-      groupCount = (int) Math.ceil((float) keys.size() / vocabGroupSize);
-      ends = new short[groupCount];
-
-      // write key data: outer loop is for each vocabulary group
-      for (int i = 0; i < keys.size(); i += vocabGroupSize) {
-        byte[] word = keys.get(i);
-        byte[] lastWord = word;
-        assert word.length >= blockOverlap :
-                "Overlap: " + blockOverlap + " too small for " + word.length
-                + " (" + Utility.toString(word) + ")";
-        assert word.length < 256;
-
-        // this is the first word in the group
-        vocabOutput.writeByte(word.length - blockOverlap);
-        vocabOutput.write(word, blockOverlap, word.length - blockOverlap);
-        int end = Math.min(keys.size(), i + vocabGroupSize);
-
-        // inner loop is for the remaining terms in each vocabulary group
-        for (int j = i + 1; j < end; j++) {
-          assert word.length < 256;
-
-          // write only new data (reference the previous key for prefix compression)
-          word = keys.get(j);
-          int common = this.prefixOverlap(lastWord, word);
-          vocabOutput.writeByte((byte) common);
-          vocabOutput.writeByte(word.length);
-          vocabOutput.write(word, common, word.length - common);
-          lastWord = word;
-        }
-
-        ends[i / vocabGroupSize] = (short) vocabOutput.size();
-      }
-      vocabOutput.close();
-    }
-
-    int getBlockOverlap() {
-      return blockOverlap;
-    }
-
-    int getGroupCount() {
-      return groupCount;
-    }
-
-    int getKeyCount() {
-      return keys.size();
-    }
-
-    int getKeyDataLength() {
-      return wordByteStream.size();
-    }
-
-    byte[] getFirstWord() {
-      return keys.get(0);
-    }
-
-    void writeKeyHeader(DataOutputStream output) throws IOException {
-      // write key count
-      output.writeLong(getKeyCount());
-
-      // write key prefix
-      output.writeByte((byte) blockOverlap);
-      output.write(getFirstWord(), 0, blockOverlap);
-
-      // write key block lengths
-      for (short wordBlockEnd : ends) {
-        output.writeShort(wordBlockEnd);
-      }
-    }
-
-    void writeKeyData(DataOutputStream output) throws IOException {
-      output.write(wordByteStream.toByteArray());
-    }
-  }
-
-  public void writeBlock(List<IndexElement> blockLists, long length) throws IOException {
-    assert length <= blockSize || blockLists.size() == 1;
-    assert wordsInOrder(blockLists);
-
-    if (blockLists.size() == 0) {
-      return;
-    }
-
-    VocabularyHeader vocabHeader = new VocabularyHeader(blockLists, vocabGroup);
-    vocabHeader.build();
-
-    // -- compute the length of the block --
-    ListData listData;
-    if (isCompressed) {
-      listData = new CompressedListData(blockLists);
-    } else {
-      listData = new UncompressedListData(blockLists);
-    }
-
-    long headerBytes = 8 + // key count
-            8 + // block end
-            1 + vocabHeader.getBlockOverlap() + // key prefix bytes
-            2 * vocabHeader.getGroupCount() + // key lengths 
-            2 * vocabHeader.getKeyCount() + // inverted list endings
-            vocabHeader.getKeyDataLength();    // key data 
-
-    long startPosition = filePosition;
-    long endPosition = filePosition + headerBytes + listData.encodedLength();
-    assert endPosition <= startPosition + length || isCompressed;
-    assert endPosition > startPosition || isCompressed;
-    assert filePosition >= Integer.MAX_VALUE || filePosition == output.size();
-
-    // -- begin writing the block -- 
-    vocabulary.add(vocabHeader.getFirstWord(), startPosition);
-
-    // write block data end
-    output.writeLong(endPosition);
-    vocabHeader.writeKeyHeader(output);
-
-    // write inverted list end positions
-    long totalListData = listData.length();
-    long invertedListBytes = 0;
-    for (IndexElement list : blockLists) {
-      invertedListBytes += list.dataLength();
-      assert totalListData - invertedListBytes < Short.MAX_VALUE;
-      assert totalListData >= invertedListBytes;
-      output.writeShort((short) (totalListData - invertedListBytes));
-    }
-
-    // key data
-    vocabHeader.writeKeyData(output);
-
-    // write inverted list binary data
-    listData.write(output);
-
-    filePosition = endPosition;
-    assert filePosition >= Integer.MAX_VALUE || filePosition == output.size();
-    assert endPosition - startPosition <= blockSize || blockLists.size() == 1 || isCompressed;
-
-    if (blocksWritten != null) {
-      blocksWritten.increment();
-    }
-  }
-
-  private boolean needsFlush(IndexElement list) {
-    long listExtra = 1 + // byte for key length
-            1;  // byte for overlap with previous key
-
-    long bufferedBytes = bufferedSize()
-            + invertedListLength(list)
-            + listExtra;
-
-    return bufferedBytes >= blockSize;
-  }
-
-  public void add(IndexElement list) throws IOException {
-    if (list.key().length >= 256 || list.key().length >= blockSize / 4) {
-      throw new IOException(String.format("Key %s is too long.", Utility.toString(list.key())));
-    }
-    if (needsFlush(list)) {
-      flush();
-    }
-    lists.add(list);
-    updateBufferedSize(list);
-    if (recordsWritten != null) {
-      recordsWritten.increment();
-    }
-
-    keyCount++;
-  }
-
-  public void close() throws IOException {
-    flush();
-
-    // increment the final key (this writes the first key that is outside the index.
-    lastKey = increment(lastKey);
-    assert (lastKey.length <= Short.MAX_VALUE) : "Final key issue - can not be written.";
-
-    byte[] vocabularyData = vocabulary.data();
-    if (vocabularyData.length == 0) {
-      manifest.set("emptyIndexFile", true);
-    }
-    manifest.set("keyCount", this.keyCount);
-
-    byte[] xmlData = manifest.toString().getBytes("UTF-8");
-    long vocabularyOffset = filePosition;
-    long manifestOffset = filePosition
-            + 2 + lastKey.length // part of vocab
-            + vocabularyData.length;
-
-    output.writeShort(lastKey.length);
-    output.write(lastKey);
-
-    output.write(vocabularyData);
-    output.write(xmlData);
-
-    output.writeLong(vocabularyOffset);
-    output.writeLong(manifestOffset);
-    output.writeInt(blockSize);
-    output.writeInt(vocabGroup);
-    output.writeBoolean(isCompressed);
-    output.writeLong(MAGIC_NUMBER);
-
-    output.close();
-  }
-
-  private byte[] increment(byte[] data) {
-    byte[] newData = Arrays.copyOf(data, data.length);
-    int i = newData.length - 1;
-    while (i >= 0 && newData[i] == Byte.MAX_VALUE) {
-      i--;
-    }
-    if (i >= 0) {
-      newData[i]++;
-    } else {
-      newData = Arrays.copyOf(data, data.length + 1);
-    }
-    assert (Utility.compare(data, newData) < 0);
-    return newData;
   }
 }
