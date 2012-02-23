@@ -320,7 +320,7 @@ public class LocalRetrieval implements Retrieval {
 
   @Override
   public Node transformQuery(Node queryTree) throws Exception {
-    return transformQuery(features.getTraversals(this), queryTree);
+      return transformQuery(features.getTraversals(this, queryTree), queryTree);
   }
 
   private Node transformQuery(List<Traversal> traversals, Node queryTree) throws Exception {

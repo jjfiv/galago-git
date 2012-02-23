@@ -394,16 +394,18 @@ public class FeatureFactory {
     return result;
   }
 
-  public List<Traversal> getTraversals(Retrieval retrieval)
+    public List<Traversal> getTraversals(Retrieval retrieval, Node queryTree)
           throws ClassNotFoundException, NoSuchMethodException, InstantiationException,
           IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     ArrayList<Traversal> result = new ArrayList<Traversal>();
     for (TraversalSpec spec : traversals) {
       Class<? extends Traversal> traversalClass =
               (Class<? extends Traversal>) Class.forName(spec.className);
-      Constructor<? extends Traversal> constructor = traversalClass.getConstructor(Retrieval.class);
-      Traversal traversal = constructor.newInstance(retrieval);
-      result.add(traversal);
+      if (((Boolean)traversalClass.getDeclaredMethod("isNeeded", Node.class).invoke(null, queryTree)).booleanValue()) {
+	  Constructor<? extends Traversal> constructor = traversalClass.getConstructor(Retrieval.class);
+	  Traversal traversal = constructor.newInstance(retrieval);
+	  result.add(traversal);
+      }
     }
 
     return result;
