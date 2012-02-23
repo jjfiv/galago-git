@@ -1008,6 +1008,78 @@ public class Parameters implements Serializable {
       return val.toString();
     }
   }
+
+  public String toPrettyString() {
+    return toPrettyString(this, "");
+  }
+
+  private String toPrettyString(Object val, String prefix) {
+    if (val == null) {
+      return "null";
+    } else if (List.class.isAssignableFrom(val.getClass())) {
+      StringBuilder builder = new StringBuilder();
+      builder.append("[ ");
+      boolean first = true;
+      for (Object v : ((List) val)) {
+        if (first) {
+          first = false;
+        } else {
+          builder.append(" , ");
+        }
+
+        builder.append(toPrettyString(v, prefix + "  "));
+      }
+
+      builder.append("]");
+      return builder.toString();
+    } else if (Parameters.class.isAssignableFrom(val.getClass())) {
+      Parameters p = (Parameters) val;
+
+      StringBuilder builder = new StringBuilder();
+      builder.append("{\n");
+
+      String internalPrefix = prefix + "  ";
+
+      String[] keys = p._keys.keySet().toArray(new String[0]);
+      Arrays.sort(keys);
+      for (int i = 0; i < keys.length; i++) {
+        String key = keys[i];
+        Type vt = p._keys.get(key);
+        builder.append(internalPrefix).append("\"").append(key).append("\" : ");
+        switch (vt) {
+          case BOOLEAN:
+            boolean b = p._bools.get(key) == 0x1 ? true : false;
+            builder.append(b);
+            break;
+          case LONG:
+            builder.append(p._longs.get(key));
+            break;
+          case DOUBLE:
+            builder.append(p._doubles.get(key));
+            break;
+          case STRING:
+          case MAP:
+          case LIST:
+            // builder.append(emitUnknownValue(p._objects.get(key)));
+            builder.append(toPrettyString(p._objects.get(key), internalPrefix));
+            break;
+        }
+
+        if (i < (keys.length - 1)) {
+          builder.append(",\n");
+        }
+      }
+
+      builder.append("\n").append(prefix).append("}");
+      return builder.toString();
+    } else if (String.class.isAssignableFrom(val.getClass())) {
+      return "\"" + val + "\"";
+
+    } else {
+      // Long, Double, Boolean
+      return val.toString();
+    }
+  }
   // Data structures available in the class
   // Tracks keys and their types
   private HashMap<String, Type> _keys;
