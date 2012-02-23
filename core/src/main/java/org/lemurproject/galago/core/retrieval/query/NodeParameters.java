@@ -158,19 +158,19 @@ public class NodeParameters implements Serializable {
    */
   public String getAsString(String key) {
     // assert keyMapping.containsKey(key) : "Key " + key + " not found in NodeParameters.";
-
-    switch (keyMapping.get(key)) {
-      case BOOLEAN:
-        return Boolean.toString(boolMap.get(key) != 0);
-      case LONG:
-        return Long.toString(longMap.get(key));
-      case DOUBLE:
-        return Double.toString(doubleMap.get(key));
-      case STRING:
-        return stringMap.get(key);
-      default:
-        return null;
+    if (keyMapping.containsKey(key)) {
+      switch (keyMapping.get(key)) {
+        case BOOLEAN:
+          return Boolean.toString(boolMap.get(key) != 0);
+        case LONG:
+          return Long.toString(longMap.get(key));
+        case DOUBLE:
+          return Double.toString(doubleMap.get(key));
+        case STRING:
+          return stringMap.get(key);
+      }
     }
+    return null;
   }
 
   public void remove(String key) {
@@ -320,12 +320,15 @@ public class NodeParameters implements Serializable {
   public boolean isString(String key) {
     return this.keyMapping.containsKey(key) && this.keyMapping.get(key) == Type.STRING;
   }
+
   public boolean isBoolean(String key) {
     return this.keyMapping.containsKey(key) && this.keyMapping.get(key) == Type.BOOLEAN;
   }
+
   public boolean isDouble(String key) {
     return this.keyMapping.containsKey(key) && this.keyMapping.get(key) == Type.DOUBLE;
   }
+
   public boolean isLong(String key) {
     return this.keyMapping.containsKey(key) && this.keyMapping.get(key) == Type.LONG;
   }

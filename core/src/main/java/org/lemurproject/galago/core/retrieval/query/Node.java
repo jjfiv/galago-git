@@ -149,6 +149,35 @@ public class Node implements Serializable {
     return builder.toString();
   }
 
+  public String toPrettyString() {
+    return toPrettyString("");
+  }
+
+  public String toPrettyString(String indent) {
+    StringBuilder builder = new StringBuilder();
+    
+    builder.append(indent);
+
+    builder.append('#');
+    assert !operator.contains(":") && !operator.contains("(") : "Operator can not contain ':' or '('.";
+    builder.append(operator);
+
+    builder.append(nodeParameters.toString());
+
+    if (internalNodes.size() == 0) {
+      builder.append("()\n");
+    } else {
+      builder.append("(\n");
+      for (Node child : internalNodes) {
+        builder.append(child.toPrettyString(indent + "    "));
+      }
+      builder.append(indent).append("  ").append(")\n");
+    }
+
+    return builder.toString();
+  }
+  
+  
   @Override
   public boolean equals(Object o) {
     if (!(o instanceof Node)) {
