@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.lemurproject.galago.core.index.disk.PositionIndexReader;
 import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.FieldScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.scoring.DirichletProbabilityScorer;
@@ -35,7 +36,6 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
     if (it instanceof PositionIndexReader.TermCountIterator) {
       PositionIndexReader.TermCountIterator maxIter = (PositionIndexReader.TermCountIterator) it;
       max = function.score(maxIter.maximumCount(), maxIter.maximumCount());
-      //System.err.printf("%s max: %f\n", this.toString(), max);
     } else {
       max = 0;  // Means we have a null extent iterator
     }

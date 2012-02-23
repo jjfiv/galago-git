@@ -202,6 +202,8 @@ public class LocalRetrieval implements Retrieval {
     ScoredDocument[] results = null;
     ProcessingModel pm = ProcessingModel.instance(this, queryTree, queryParams);
 
+    System.err.printf("Selected processing model %s\n", pm.getClass().getName());
+
     // Figure out if there's a working set to deal with
     int[] workingSet = null;
 

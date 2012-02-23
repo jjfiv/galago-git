@@ -18,9 +18,11 @@ import org.lemurproject.galago.core.retrieval.query.QueryType;
  * @author irmarc
  */
 public abstract class ProcessingModel {
+
   public abstract ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception;
+
   public abstract void defineWorkingSet(int[] docs);
-    
+
   public static <T extends ScoredDocument> T[] toReversedArray(PriorityQueue<T> queue) {
     if (queue.size() == 0) {
       return null;
@@ -34,16 +36,24 @@ public abstract class ProcessingModel {
   }
 
   public final static ProcessingModel instance(LocalRetrieval r, Node root, Parameters p)
-    throws Exception {
+          throws Exception {
     QueryType qt = r.getQueryType(root);
     if (qt == QueryType.BOOLEAN) {
     } else if (qt == QueryType.RANKED) {
       if (p.containsKey("passageSize") || p.containsKey("passageShift")) {
         return new RankedPassageModel(r);
       } else if (p.containsKey("fields")) {
-        return new RankedFieldedModel(r);
+        if (p.get("delta", false)) {
+          return new FieldDeltaScoreDocumentModel(r);
+        } else {
+          return new RankedFieldedModel(r);
+        }
       } else {
-        return new RankedDocumentModel(r);
+        if (p.get("delta", false)) {
+          return new DeltaScoreDocumentModel(r);
+        } else {
+          return new RankedDocumentModel(r);
+        }
       }
     }
     throw new RuntimeException(String.format("Unable to determine processing model for %s",

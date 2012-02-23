@@ -53,6 +53,7 @@ public class FieldDeltaScoreDocumentModel extends ProcessingModel {
   public ScoredDocument[] executeWholeCollection(Node queryTree, Parameters queryParams)
           throws Exception {
     FieldDeltaScoringContext context = new FieldDeltaScoringContext();
+    System.err.printf("(1) Executing against whole collection:\n%s\n", queryTree.toString());
     initializeFieldLengths(context);
 
     // Following operations are all just setup
@@ -63,6 +64,8 @@ public class FieldDeltaScoreDocumentModel extends ProcessingModel {
     LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
     context.minCandidateScore = Double.NEGATIVE_INFINITY;
     context.quorumIndex = context.scorers.size();
+
+    System.err.printf("num scorers: %d\n", context.scorers.size());
 
     // Compute the starting potential
     context.startingPotential = 0.0;

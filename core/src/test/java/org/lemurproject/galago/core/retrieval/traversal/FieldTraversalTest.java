@@ -184,7 +184,7 @@ public class FieldTraversalTest extends TestCase {
     assertEquals(expected.toString(), q2.toString());
   }
 
-  public void testBM25FPotentialsVsModel() throws Exception {
+  public void testBM25FDeltaScoringVsModel() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
     Parameters wMap = new Parameters();
@@ -212,7 +212,7 @@ public class FieldTraversalTest extends TestCase {
     String query = "#bm25f(cat dog donkey)";
     ScoredDocument[] results = retrieval.runQuery(query, p);
 
-    p.set("potentials", true);
+    //p.set("delta", true);
     ScoredDocument[] results2 = retrieval.runQuery(query, p);
 
     assertEquals(results.length, results2.length);
@@ -222,7 +222,7 @@ public class FieldTraversalTest extends TestCase {
     }
   }
 
-  public void testPRMSPotentialsVsModel() throws Exception {
+  public void testPRMSDeltaScoringVsModel() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
     // set fields
@@ -235,7 +235,7 @@ public class FieldTraversalTest extends TestCase {
     LocalRetrieval retrieval = new LocalRetrieval(index, global);
     ScoredDocument[] results = retrieval.runQuery(query, global);
 
-    global.set("potentials", true);
+    //global.set("delta", true);
     ScoredDocument[] results2 = retrieval.runQuery(query, global);
 
     assertEquals(results.length, results2.length);
@@ -253,7 +253,7 @@ public class FieldTraversalTest extends TestCase {
 
   }
 
- public void testPL2FPotentialsVsModel() throws Exception {
+ public void testPL2FDeltaScoringVsModel() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
     Parameters wMap = new Parameters();
@@ -275,7 +275,7 @@ public class FieldTraversalTest extends TestCase {
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
     ScoredDocument[] results = retrieval.runQuery(query, p);
 
-    p.set("potentials", true);
+    //p.set("delta", true);
     ScoredDocument[] results2 = retrieval.runQuery(query, p);
 
     assertEquals(results.length, results2.length);
@@ -305,10 +305,11 @@ public class FieldTraversalTest extends TestCase {
 
     assertEquals(5, results.length);
 
- 
+    /**
     for (int i = 0; i < results.length; i++) {
     System.err.printf("%d : %s\n", i, results[i].toString());
     }
+    */
      
 
     assertEquals(1, results[0].document);
