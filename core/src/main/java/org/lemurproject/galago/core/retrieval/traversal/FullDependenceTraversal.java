@@ -23,7 +23,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public class FullDependenceTraversal implements Traversal {
+public class FullDependenceTraversal extends Traversal {
 
   private int defaultWindowLimit;
   private double unigramDefault;
@@ -39,6 +39,11 @@ public class FullDependenceTraversal implements Traversal {
   }
 
   public void beforeNode(Node original) throws Exception {
+  }
+
+  public static boolean isNeeded(Node root) {
+    String op = root.getOperator();
+    return (op.equals("fdm") || op.equals("fulldep"));
   }
 
   public Node afterNode(Node original) throws Exception {

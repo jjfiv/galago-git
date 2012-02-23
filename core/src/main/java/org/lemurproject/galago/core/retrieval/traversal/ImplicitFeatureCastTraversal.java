@@ -31,7 +31,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author trevor, irmarc
  */
-public class ImplicitFeatureCastTraversal implements Traversal {
+public class ImplicitFeatureCastTraversal extends Traversal {
 
   Retrieval retrieval;
   Parameters parameters;
@@ -49,7 +49,7 @@ public class ImplicitFeatureCastTraversal implements Traversal {
      *    as the positional data does NOT need to be read for the feature scorer to operate.
      */
     if (child.getOperator().equals("extents")) {
-      child = new Node("counts", child.getNodeParameters(), child.getInternalNodes(), child.getPosition());
+      child.setOperator("counts");
     }
 
     ArrayList<Node> data = new ArrayList<Node>();
@@ -95,7 +95,7 @@ public class ImplicitFeatureCastTraversal implements Traversal {
     Class outputClass = nodeType.getIteratorClass();
 
     if (FilteredIterator.class.isAssignableFrom(outputClass)) {
-      return isCountNode(node.getInternalNodes().get(1));
+      return isCountNode(node.getChild(1));
     }
 
     return CountIterator.class.isAssignableFrom(outputClass);
@@ -119,7 +119,7 @@ public class ImplicitFeatureCastTraversal implements Traversal {
     Class outputClass = nodeType.getIteratorClass();
 
     if (FilteredIterator.class.isAssignableFrom(outputClass)) {
-      return isScoringFunctionNode(node.getInternalNodes().get(1));
+      return isScoringFunctionNode(node.getChild(1));
     }
 
     return ScoringFunctionIterator.class.isAssignableFrom(outputClass);
@@ -166,9 +166,9 @@ public class ImplicitFeatureCastTraversal implements Traversal {
 
     // Fixes handling double-quotes (I hope).
     if (node.getOperator().equals("quote")) {
-      NodeParameters p = node.getNodeParameters();
-      p.set("default", "1");
-      return new Node("od", p, node.getInternalNodes(), node.getPosition());
+      node.getNodeParameters().set("default", "1");
+      node.setOperator("od");
+      return node;
     }
 
     // Wraps an extent/count node in the default extent filter node

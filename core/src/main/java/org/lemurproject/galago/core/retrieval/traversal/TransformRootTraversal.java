@@ -13,7 +13,7 @@ import org.lemurproject.galago.core.retrieval.query.QueryType;
  * @author irmarc
  *
  */
-public class TransformRootTraversal implements Traversal {
+public class TransformRootTraversal extends Traversal {
 
   int levels = 0;
   Retrieval retrieval;
@@ -56,7 +56,8 @@ public class TransformRootTraversal implements Traversal {
 
   private Node transformBooleanRoot(Node root) throws Exception {
     if (root.getOperator().equals("root")) {
-      return new Node("any", root.getNodeParameters(), Node.cloneNodeList(root.getInternalNodes()), root.getPosition());
+      root.setOperator("any");
+      return root;
     }
 
     if (retrieval.getQueryType(root) == QueryType.BOOLEAN) {
@@ -70,13 +71,13 @@ public class TransformRootTraversal implements Traversal {
 
   private Node transformCountRoot(Node root) throws Exception {
     if (root.getOperator().equals("root")) {
-      return new Node("synonym", root.getNodeParameters(), Node.cloneNodeList(root.getInternalNodes()), root.getPosition());
-    }
-    QueryType qt = retrieval.getQueryType(root);
-    if (retrieval.getQueryType(root) == QueryType.COUNT) {
+      root.setOperator("synonym");
       return root;
     }
 
+    if (retrieval.getQueryType(root) == QueryType.COUNT) {
+      return root;
+    }
 
     ArrayList<Node> children = new ArrayList<Node>();
     children.add(root);
@@ -85,7 +86,8 @@ public class TransformRootTraversal implements Traversal {
 
   private Node transformRankedRoot(Node root) throws Exception {
     if (root.getOperator().equals("root")) {
-      return new Node("combine", root.getNodeParameters(), Node.cloneNodeList(root.getInternalNodes()), root.getPosition());
+      root.setOperator("combine");
+      return root;
     }
 
     if (retrieval.getQueryType(root) == QueryType.RANKED) {

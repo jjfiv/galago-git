@@ -33,7 +33,7 @@ import org.tartarus.snowball.ext.englishStemmer;
  *
  * @author irmarc
  */
-public class RelevanceModelTraversal implements Traversal {
+public class RelevanceModelTraversal extends Traversal {
 
   englishStemmer stemmer = null;
   Retrieval retrieval;
@@ -49,6 +49,10 @@ public class RelevanceModelTraversal implements Traversal {
     }
   }
 
+  public static boolean isNeeded(Node root) {
+    return (root.getOperator().equals("rm"));
+  }
+
   public Node afterNode(Node originalNode) throws Exception {
     if (originalNode.getOperator().equals("rm") == false) {
       return originalNode;
@@ -56,9 +60,8 @@ public class RelevanceModelTraversal implements Traversal {
 
     // Kick off the inner query
     NodeParameters parameters = originalNode.getNodeParameters();
-    int usingMaxScore = (int) parameters.get("maxscore", 0);
     int fbDocs = (int) parameters.get("fbDocs", 10);
-    String operator = (usingMaxScore > 0) ? "maxscore" : "combine";
+    String operator = "combine";
     Node combineNode = new Node(operator, new NodeParameters(), Node.cloneNodeList(originalNode.getInternalNodes()), originalNode.getPosition());
     ArrayList<ScoredDocument> initialResults = new ArrayList<ScoredDocument>();
 
@@ -66,8 +69,6 @@ public class RelevanceModelTraversal implements Traversal {
     Parameters localParameters = globalParameters.clone();
     localParameters.set("requested", fbDocs);
 
-    // This pass doesn't count
-    CallTable.turnOff();
     Node transformedCombineNode = retrieval.transformQuery(combineNode);
     initialResults.addAll(Arrays.asList(retrieval.runQuery(transformedCombineNode, localParameters)));
     localParameters.set("parts", this.availableParts);
@@ -79,87 +80,18 @@ public class RelevanceModelTraversal implements Traversal {
     Set<String> queryTerms = StructuredQuery.findQueryTerms(combineNode);
     stopwords.addAll(queryTerms);
 
-    CallTable.turnOn();
-
     Node newRoot = null;
     Node expansionNode;
 
-    if (usingMaxScore == 0) {
-      expansionNode = rModel.generateExpansionQuery(initialResults, fbTerms, stopwords);
-      NodeParameters expParams = new NodeParameters();
-      expParams.set("0", fbOrigWt);
-      expParams.set("1", 1 - fbOrigWt);
-      ArrayList<Node> newChildren = new ArrayList<Node>();
-      newChildren.add(combineNode);
-      newChildren.add(expansionNode);
-      newRoot = new Node("combine", expParams, newChildren, originalNode.getPosition());
+    expansionNode = rModel.generateExpansionQuery(initialResults, fbTerms, stopwords);
+    NodeParameters expParams = new NodeParameters();
+    expParams.set("0", fbOrigWt);
+    expParams.set("1", 1 - fbOrigWt);
+    ArrayList<Node> newChildren = new ArrayList<Node>();
+    newChildren.add(combineNode);
+    newChildren.add(expansionNode);
+    newRoot = new Node("combine", expParams, newChildren, originalNode.getPosition());
 
-    } else if (usingMaxScore == 1) {
-      // push scores down in order to wrap everything in maxscore -- definitely better this way
-      NodeParameters expParams = new NodeParameters();
-      // set organization if need be.
-      if (parameters.containsKey("sort")) {
-        expParams.set("sort", parameters.getString("sort"));
-      }
-
-      ArrayList<Node> newChildren = new ArrayList<Node>();
-
-      // original terms first
-      List<Node> oldChildren = originalNode.getInternalNodes();
-      parameters = originalNode.getNodeParameters();
-      double weightSum = 0;
-      double[] weights = new double[oldChildren.size()];
-      for (int i = 0; i < oldChildren.size(); i++) {
-        double weight = parameters.get(Integer.toString(i), 1.0D);
-        weightSum += weight;
-        weights[i] = weight;
-        newChildren.add(oldChildren.get(i));
-      }
-      // now the weights
-      for (int i = 0; i < weights.length; i++) {
-        expParams.set(Integer.toString(i), (fbOrigWt * weights[i] / weightSum));
-      }
-
-      int position = weights.length;
-
-      List<WeightedTerm> scored = rModel.generateGrams(initialResults.subList(0, fbDocs));
-      // Do the same for the expansion children
-      weightSum = 0;
-      int expanded = 0;
-      TDoubleArrayList weightList = new TDoubleArrayList();
-      for (int i = 0; i < scored.size() && expanded < fbTerms; i++) {
-        Gram g = (RelevanceModel.Gram) scored.get(i);
-        if (stopwords.contains(g.term)) {
-          continue;
-        }
-        Node child = TextPartAssigner.assignPart(new Node("text", g.term), availableParts);
-        child.getNodeParameters().set("mod", "topdocs");
-        weightSum += g.score;
-        weightList.add(g.score);
-        newChildren.add(child);
-        expanded++;
-      }
-      // now the weights
-      weights = weightList.toArray();
-      double factor = (1.0 - fbOrigWt) / weightSum;
-      for (int i = 0; i < weights.length; i++) {
-        expParams.set(Integer.toString(i + position), factor * weights[i]);
-      }
-
-      // And wrap it up
-      newRoot = new Node("maxscore", expParams, newChildren, originalNode.getPosition());
-      newRoot = retrieval.transformQuery(newRoot);
-    } else if (usingMaxScore == 2) {
-      expansionNode = rModel.generateExpansionQuery(initialResults, fbTerms, stopwords);
-      NodeParameters expParams = new NodeParameters();
-      expParams.set("0", fbOrigWt);
-      expParams.set("1", 1 - fbOrigWt);
-      ArrayList<Node> newChildren = new ArrayList<Node>();
-      Node replacement = new Node("combine", combineNode.getNodeParameters(), combineNode.getInternalNodes(), 0);
-      newChildren.add(replacement);
-      newChildren.add(expansionNode);
-      newRoot = new Node("maxscore", expParams, newChildren, originalNode.getPosition());
-    }
     rModel.cleanup();
     return newRoot;
   }

@@ -19,7 +19,7 @@ import org.lemurproject.galago.core.retrieval.traversal.Traversal;
  * 
  * @author sjh
  */
-public class FlattenCombineTraversal implements Traversal {
+public class FlattenCombineTraversal extends Traversal {
 
   public FlattenCombineTraversal(Retrieval retrieval) {
   }
@@ -68,6 +68,7 @@ public class FlattenCombineTraversal implements Traversal {
       }
 
       if (nestedCombine) {
+        // TODO: Check node tying
         return new Node("combine", newParameters, Node.cloneNodeList(newChildren), original.getPosition());
       }
     }

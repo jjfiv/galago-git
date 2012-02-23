@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * <p>Node represents a single node in a query parse tree.</p>
- * 
+ *
  * <p>In Galago, queries are parsed into a tree of Nodes.  The query tree can then
  * be modified using StructuredQuery.copy, or analyzed by using StructuredQuery.walk.
  * Once the query is in the proper form, the query is converted into a tree of iterators
@@ -72,26 +72,26 @@ public class Node implements Serializable {
 
   public Node(String operator, NodeParameters nodeParameters, List<Node> internalNodes, int position) {
     this.operator = operator;
-    this.internalNodes = internalNodes;
     this.position = position;
     this.nodeParameters = nodeParameters;
     this.parent = null;
 
+    this.internalNodes = new ArrayList<Node>();
     for (Node c : internalNodes) {
-      c.setParent(this);
+      addChild(c);
     }
   }
 
-  public void clearParent() {
-    this.parent = null;
-  }
-
+  /**
+   * Deep-clones this Node. Be aware this clones the *entire* subtree rooted at this node,
+   * therefore all descendants are also cloned.
+   *
+   * @return
+   */
+  @Override
   public Node clone() {
     ArrayList newInternals = new ArrayList();
-    for (Node n : this.internalNodes) {
-      newInternals.add(n.clone());
-    }
-    return new Node(operator, nodeParameters.clone(), newInternals, position);
+    return new Node(operator, nodeParameters.clone(), cloneNodeList(this.internalNodes), position);
   }
 
   public String getDefaultParameter() {
@@ -100,6 +100,63 @@ public class Node implements Serializable {
 
   public String getOperator() {
     return operator;
+  }
+
+  public void setOperator(String op) {
+    this.operator = op;
+  }
+
+  public void clearChildren() {
+    internalNodes.clear();
+  }
+
+  public void removeChildAt(int i) {
+    Node child = internalNodes.remove(i);
+    if (child != null) {
+      assert(child.parent == this);
+      child.parent = null;
+    }
+  }
+
+  public void replaceChildAt(Node newChild, int i) {
+    assert (i > -1 && i < internalNodes.size());
+    newChild.parent = this;
+    Node oldChild = internalNodes.set(i, newChild);
+    if (oldChild != newChild) {
+      oldChild.parent = null;
+    }
+  }
+
+  public void removeChild(Node child) {
+    assert(child.parent == this);
+    child.parent = null;
+    internalNodes.remove(child);
+  }
+
+  public void addChild(Node child) {
+    this.addChild(child, -1);
+  }
+
+  public void addChild(Node child, int pos) {
+    // link to this parent
+    child.parent = this;
+    if (pos < internalNodes.size() && pos > -1) {
+      internalNodes.add(pos, child);
+    } else {
+      internalNodes.add(child);
+    }
+  }
+
+  public Node getChild(int index) {
+    return internalNodes.get(index);
+  }
+
+  public int numChildren() {
+    return this.internalNodes.size();
+  }
+
+  public Iterator<Node> getChildIterator() {
+    return internalNodes.iterator();
   }
 
   public List<Node> getInternalNodes() {
@@ -116,13 +173,6 @@ public class Node implements Serializable {
 
   public Node getParent() {
     return parent;
-  }
-
-  public void setParent(Node parent) {
-    assert (this.parent == null) : "Nodes may only have one parent.\n"
-            + this.toString() + " points to: " + parent.toString() + "\n"
-            + "Use clearParent() to remove the previous parent.\n";
-    this.parent = parent;
   }
 
   @Override

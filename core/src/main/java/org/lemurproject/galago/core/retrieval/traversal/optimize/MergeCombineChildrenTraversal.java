@@ -19,7 +19,7 @@ import org.lemurproject.galago.core.retrieval.traversal.Traversal;
  * 
  * @author sjh
  */
-public class MergeCombineChildrenTraversal implements Traversal {
+public class MergeCombineChildrenTraversal extends Traversal {
 
   public MergeCombineChildrenTraversal(Retrieval retrieval) {
   }
@@ -58,6 +58,7 @@ public class MergeCombineChildrenTraversal implements Traversal {
             mergedWeights.remove(nStr);
           }
         }
+        // TODO: Check node tying
         Node reducedCombine = new Node("combine", newParameters, Node.cloneNodeList(newChildren), original.getPosition());
         return reducedCombine;
       }

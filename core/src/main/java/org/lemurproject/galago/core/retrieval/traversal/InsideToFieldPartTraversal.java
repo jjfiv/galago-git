@@ -15,7 +15,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public class InsideToFieldPartTraversal implements Traversal {
+public class InsideToFieldPartTraversal extends Traversal {
 
   Parameters availableParts;
 

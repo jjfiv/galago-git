@@ -18,7 +18,7 @@ import org.lemurproject.galago.core.retrieval.traversal.Traversal;
  * 
  * @author sjh
  */
-public class FlattenWindowTraversal implements Traversal {
+public class FlattenWindowTraversal extends Traversal {
 
   public FlattenWindowTraversal(Retrieval retrieval) {
   }

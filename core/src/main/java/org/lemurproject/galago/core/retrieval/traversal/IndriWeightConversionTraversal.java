@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  *
  * @author trevor
  */
-public class IndriWeightConversionTraversal implements Traversal {
+public class IndriWeightConversionTraversal extends Traversal {
 
   public IndriWeightConversionTraversal(Retrieval retrieval) {
   }
@@ -27,8 +27,8 @@ public class IndriWeightConversionTraversal implements Traversal {
       if (weightNode.getInternalNodes().size() != 2) {
         return 1.0;
       } else {
-        Node inner = weightNode.getInternalNodes().get(0);
-        Node outer = weightNode.getInternalNodes().get(1);
+        Node inner = weightNode.getChild(0);
+        Node outer = weightNode.getChild(1);
         return Double.parseDouble(inner.getDefaultParameter() + "." + outer.getDefaultParameter());
       }
     } else {
@@ -57,6 +57,8 @@ public class IndriWeightConversionTraversal implements Traversal {
         newParameters.set(Integer.toString(i / 2), getWeight(weightNode));
       }
 
+      // TODO: Verify one way or the other:
+      // For now we clone the list to avoid tying -- not sure this is needed.
       return new Node("combine", newParameters, Node.cloneNodeList(newChildren), node.getPosition());
     } else {
       return node;

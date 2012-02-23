@@ -120,6 +120,7 @@ public class LocalRetrieval implements Retrieval {
   /**
    * Closes the underlying index
    */
+  @Override
   public void close() throws IOException {
     index.close();
   }
@@ -129,14 +130,17 @@ public class LocalRetrieval implements Retrieval {
    * in a Parameters object. Additional statistics may be provided, but are not
    * expected.
    */
+  @Override
   public CollectionStatistics getRetrievalStatistics(String partName) throws IOException {
     return index.getCollectionStatistics(partName);
   }
 
+  @Override
   public CollectionStatistics getRetrievalStatistics() throws IOException {
     return index.getCollectionStatistics();
   }
 
+  @Override
   public Parameters getGlobalParameters() {
     return this.globalParameters;
   }
@@ -148,6 +152,7 @@ public class LocalRetrieval implements Retrieval {
    *  ...
    * }
    */
+  @Override
   public Parameters getAvailableParts() throws IOException {
     Parameters p = new Parameters();
     ArrayList<String> parts = new ArrayList<String>();
@@ -186,7 +191,7 @@ public class LocalRetrieval implements Retrieval {
         return new RankedDocumentModel(this);
       }
     }
-    throw new RuntimeException(String.format("Unable to determine processing model for %s", 
+    throw new RuntimeException(String.format("Unable to determine processing model for %s",
             queryTree.toString()));
   }
 
@@ -200,11 +205,13 @@ public class LocalRetrieval implements Retrieval {
     return runQuery(root, p);
   }
 
+  @Override
   public ScoredDocument[] runQuery(Node queryTree) throws Exception {
     return runQuery(queryTree, new Parameters());
   }
 
   // Based on the root of the tree, that dictates how we execute.
+  @Override
   public ScoredDocument[] runQuery(Node queryTree, Parameters queryParams) throws Exception {
     ScoredDocument[] results = null;
     ProcessingModel pm = determineProcessingModel(queryTree, queryParams);
@@ -245,7 +252,7 @@ public class LocalRetrieval implements Retrieval {
       results[i].source = indexId;
       results[i].rank = i + 1;
     }
-    
+
     // this is to assign proper document names
     T[] byID = Arrays.copyOf(results, results.length);
 
@@ -318,11 +325,12 @@ public class LocalRetrieval implements Retrieval {
 
   private Node transformQuery(List<Traversal> traversals, Node queryTree) throws Exception {
     for (Traversal traversal : traversals) {
-      queryTree = StructuredQuery.copy(traversal, queryTree);
+      queryTree = StructuredQuery.walk(traversal, queryTree);
     }
     return queryTree;
   }
 
+  @Override
   public NodeStatistics nodeStatistics(String nodeString) throws Exception {
     // first parse the node
     Node root = StructuredQuery.parse(nodeString);
@@ -331,6 +339,7 @@ public class LocalRetrieval implements Retrieval {
     return nodeStatistics(root);
   }
 
+  @Override
   public NodeStatistics nodeStatistics(Node root) throws Exception {
     NodeStatistics stats = new NodeStatistics();
     // set up initial values
@@ -358,6 +367,7 @@ public class LocalRetrieval implements Retrieval {
     return stats;
   }
 
+  @Override
   public NodeType getNodeType(Node node) throws Exception {
     NodeType nodeType = index.getNodeType(node);
     if (nodeType == null) {
@@ -366,6 +376,7 @@ public class LocalRetrieval implements Retrieval {
     return nodeType;
   }
 
+  @Override
   public QueryType getQueryType(Node node) throws Exception {
     if (node.getOperator().equals("text")) {
       return QueryType.UNKNOWN;

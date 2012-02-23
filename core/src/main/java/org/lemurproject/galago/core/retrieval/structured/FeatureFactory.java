@@ -49,6 +49,7 @@ import org.lemurproject.galago.core.retrieval.traversal.IndriWeightConversionTra
 import org.lemurproject.galago.core.retrieval.traversal.IndriWindowCompatibilityTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.InsideToFieldPartTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.PL2FTraversal;
+import org.lemurproject.galago.core.retrieval.traversal.PRMS2Traversal;
 import org.lemurproject.galago.core.retrieval.traversal.PRMSTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.RelevanceModelTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.RemoveStopwordsTraversal;
@@ -108,6 +109,7 @@ public class FeatureFactory {
     FullDependenceTraversal.class.getName(),
     TransformRootTraversal.class.getName(),
     PRMSTraversal.class.getName(),
+    PRMS2Traversal.class.getName(),
     BM25FTraversal.class.getName(),
     PL2FTraversal.class.getName(),
     WindowRewriteTraversal.class.getName(),

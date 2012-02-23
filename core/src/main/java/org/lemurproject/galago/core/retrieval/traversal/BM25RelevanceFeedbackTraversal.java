@@ -25,7 +25,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author irmarc
  */
-public class BM25RelevanceFeedbackTraversal implements Traversal {
+public class BM25RelevanceFeedbackTraversal extends Traversal {
 
   Retrieval retrieval;
   Parameters globalParameters;
@@ -37,6 +37,10 @@ public class BM25RelevanceFeedbackTraversal implements Traversal {
     this.availableParts = retrieval.getAvailableParts();
   }
 
+  public static boolean isNeeded(Node root) {
+    return (root.getOperator().equals("bm25rf"));
+  }
+
   public Node afterNode(Node original) throws Exception {
     if (original.getOperator().equals("bm25rf") == false) {
       return original;
@@ -44,11 +48,8 @@ public class BM25RelevanceFeedbackTraversal implements Traversal {
 
     // Kick off the inner query
     NodeParameters parameters = original.getNodeParameters();
-    boolean usingMaxScore = parameters.get("maxscore", false);
-    boolean usingRefine = parameters.get("refine", false);
     int fbDocs = (int) parameters.get("fbDocs", 10);
-    String operator = usingMaxScore ? "maxscore" : (usingRefine ? "refine" : "combine");
-    Node combineNode = new Node(operator, Node.cloneNodeList(original.getInternalNodes()));
+    Node combineNode = new Node("comnbine", Node.cloneNodeList(original.getInternalNodes()));
     ArrayList<ScoredDocument> initialResults = new ArrayList<ScoredDocument>();
 
     // Only get as many as we need
@@ -80,7 +81,7 @@ public class BM25RelevanceFeedbackTraversal implements Traversal {
     // The easiest thing to do really is extract the children and combine them w/ the existing
     // query nodes, b/c the expansion is unweighted and flat.
     newChildren.addAll(expansionNode.getInternalNodes());
-    newRoot = new Node(operator, new NodeParameters(), Node.cloneNodeList(newChildren), original.getPosition());
+    newRoot = new Node("combine", new NodeParameters(), Node.cloneNodeList(newChildren), original.getPosition());
     return newRoot;
   }
 

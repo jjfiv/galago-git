@@ -23,7 +23,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  *
  * @author jykim
  */
-public class PRMSTraversal implements Traversal {
+public class PRMSTraversal extends Traversal {
 
   private int levels;
   String[] fieldList;
@@ -33,6 +33,10 @@ public class PRMSTraversal implements Traversal {
   public PRMSTraversal(Retrieval retrieval) {
     levels = 0;
     this.retrieval = retrieval;
+  }
+
+  public static boolean isNeeded(Node root) {
+    return (root.getOperator().equals("prms"));
   }
 
   public void beforeNode(Node original) throws Exception {

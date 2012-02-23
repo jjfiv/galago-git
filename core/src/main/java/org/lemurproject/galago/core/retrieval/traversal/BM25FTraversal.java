@@ -32,7 +32,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author irmarc
  */
-public class BM25FTraversal implements Traversal {
+public class BM25FTraversal extends Traversal {
 
   private int levels;
   List<String> fieldList;
@@ -51,6 +51,10 @@ public class BM25FTraversal implements Traversal {
     } catch (Exception e) {
 	throw new RuntimeException(e);
     }
+  }
+
+  public static boolean isNeeded(Node root) {
+    return (root.getOperator().equals("bm25f"));
   }
 
   public void beforeNode(Node original) throws Exception {
@@ -73,16 +77,20 @@ public class BM25FTraversal implements Traversal {
       for (int i = 0; i < children.size(); i++) {
         Node termNode = children.get(i);
         Node termCombiner = createFieldsOfTerm(termNode, smoothing, cumulativeWeights);
-        newRoot.getInternalNodes().add(termCombiner);
-        newRoot.getInternalNodes().add(createIDFNode(termNode));
+        newRoot.addChild(termCombiner);
+        newRoot.addChild(createIDFNode(termNode));
       }
       return newRoot;
     } else {
+      if (levels == 0) {
+        throw new RuntimeException("NO!!!!!!!!!!");
+      }
       return original;
     }
   }
 
   private Node createIDFNode(Node termNode) throws Exception {
+    // Create a new term node to avoid tying
     String term = termNode.getDefaultParameter();
     NodeParameters np = new NodeParameters();
     np.set("default", term);
@@ -93,7 +101,7 @@ public class BM25FTraversal implements Traversal {
     np = new NodeParameters();
     np.set("default", "idf");
     Node idfNode = new Node("feature", np);
-    idfNode.getInternalNodes().add(textNode);
+    idfNode.addChild(textNode);
     return idfNode;
   }
 
@@ -124,7 +132,7 @@ public class BM25FTraversal implements Traversal {
       fieldScoreNode.getInternalNodes().add(fieldTermNode);
       combiner.getNodeParameters().set(Integer.toString(combiner.getInternalNodes().size()),
 				       cumulativeWeights.get(field, weights.get("weight_default", 0.5)));
-      combiner.getInternalNodes().add(fieldScoreNode);
+      combiner.addChild(fieldScoreNode);
     }
 
     return combiner;

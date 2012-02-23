@@ -17,13 +17,12 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  * </ul>
  * @author trevor
  */
-public class IndriWindowCompatibilityTraversal implements Traversal {
+public class IndriWindowCompatibilityTraversal extends Traversal {
     public IndriWindowCompatibilityTraversal(Retrieval retrieval) {
     }
 
     public Node afterNode(Node original) {
         String operator = original.getOperator();
-        List<Node> children = Node.cloneNodeList(original.getInternalNodes());
 
         if (operator.length() == 0) {
             return original;
@@ -31,21 +30,19 @@ public class IndriWindowCompatibilityTraversal implements Traversal {
 
         if (Character.isDigit(operator.codePointAt(0))) {
             // this is a #n node, which is an ordered window node
-            return new Node("od", new NodeParameters(Long.parseLong(operator)), children, original.getPosition());
-        } else if (operator.startsWith("od") &&
+            original.getNodeParameters().set("default", Long.parseLong(operator));
+            original.setOperator("od");
+            return original;
+        } else if ((operator.startsWith("od") || (operator.startsWith("uw"))) &&
                 operator.length() > 2 &&
                 Character.isDigit(operator.codePointAt(2))) {
-            // this is a #od3() node
-            return new Node("od", new NodeParameters(Long.parseLong(operator.substring(2))),
-                    children, original.getPosition());
-        } else if (operator.startsWith("uw") &&
-                operator.length() > 2 &&
-                Character.isDigit(operator.codePointAt(2))) {
-            // this is a #uw3 node
-            return new Node("uw", new NodeParameters(Long.parseLong(operator.substring(2))),
-                    children, original.getPosition());
+            // this is an #od3() or #uw4 node (op followed by digits)
+          original.getNodeParameters().set("default", Long.parseLong(operator.substring(2)));
+          original.setOperator(operator.substring(0, 2));
+          return original;
         }
 
+        // No changes
         return original;
     }
 

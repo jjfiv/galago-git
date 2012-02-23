@@ -19,7 +19,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  * 
  * @author trevor
  */
-public class RemoveStopwordsTraversal implements Traversal {
+public class RemoveStopwordsTraversal extends Traversal {
 
   HashSet<String> words;
   HashSet<String> conjops;
@@ -84,6 +84,7 @@ public class RemoveStopwordsTraversal implements Traversal {
       if (newChildren.size() == 0) {
         return new Node("null", new ArrayList());
       } else {
+        // TODO: Determine if node tying is a threat here, and why.
         return new Node(node.getOperator(), node.getNodeParameters(), Node.cloneNodeList(newChildren), node.getPosition());
       }
     }

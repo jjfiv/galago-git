@@ -58,12 +58,12 @@ public class StructuredQuery {
    * before any of its children (pre-order), while traversal.afterNode method
    * will be called on the parent after all of its children (post-order).
    */
-  public static void walk(Traversal traversal, Node tree) throws Exception {
+  public static Node walk(Traversal traversal, Node tree) throws Exception {
     traversal.beforeNode(tree);
-    for (Node n : tree.getInternalNodes()) {
-      walk(traversal, n);
+    for (int i = 0; i < tree.numChildren(); i++) {
+      tree.replaceChildAt(walk(traversal, tree.getChild(i)), i);
     }
-    traversal.afterNode(tree);
+    return traversal.afterNode(tree);
   }
 
   public static Token parseParameterTerm(TokenStream tokens) {

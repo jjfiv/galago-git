@@ -40,7 +40,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * )
  * @author irmarc
  */
-public class PL2FTraversal implements Traversal {
+public class PL2FTraversal extends Traversal {
 
   int levels;
   List<String> fieldList;
@@ -66,6 +66,11 @@ public class PL2FTraversal implements Traversal {
     } catch (Exception e) {
 	throw new RuntimeException(e);
     }
+  }
+
+  public static boolean isNeeded(Node root) {
+    System.err.printf("Checking neededness\n");
+    return (root.getOperator().equals("pl2f"));
   }
 
   @Override
@@ -138,7 +143,7 @@ public class PL2FTraversal implements Traversal {
     dfrNode.getNodeParameters().set("qf", qTermCounts.get(term));
     dfrNode.getNodeParameters().set("qfmax", qfmax);
     setTermStatistics(dfrNode, term);
-    dfrNode.getInternalNodes().add(fieldCombiner);
+    dfrNode.addChild(fieldCombiner);
     return dfrNode;
   }
   

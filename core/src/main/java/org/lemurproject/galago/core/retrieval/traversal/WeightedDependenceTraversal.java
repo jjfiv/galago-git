@@ -28,7 +28,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public class WeightedDependenceTraversal implements Traversal {
+public class WeightedDependenceTraversal extends Traversal {
 
   private GroupRetrieval retrieval;
   private Parameters unigramWeights;
@@ -55,6 +55,10 @@ public class WeightedDependenceTraversal implements Traversal {
       retrieval = null;
 
     }
+  }
+
+  public static boolean isNeeded(Node root) {
+    return (root.getOperator().equals("wsdm"));
   }
 
   @Override

@@ -28,7 +28,7 @@ import org.tartarus.snowball.ext.englishStemmer;
  * @author sjh
  * 
  */
-public class WindowRewriteTraversal implements Traversal {
+public class WindowRewriteTraversal extends Traversal {
 
   Parameters availiableParts;
   englishStemmer stemmer;

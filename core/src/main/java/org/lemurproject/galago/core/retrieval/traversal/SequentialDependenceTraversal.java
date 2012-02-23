@@ -23,7 +23,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author irmarc
  */
-public class SequentialDependenceTraversal implements Traversal {
+public class SequentialDependenceTraversal extends Traversal {
 
   private double unigramDefault;
   private double orderedDefault;
@@ -34,6 +34,11 @@ public class SequentialDependenceTraversal implements Traversal {
     unigramDefault = parameters.get("uniw", 0.8);
     orderedDefault = parameters.get("odw", 0.15);
     unorderedDefault = parameters.get("uww", 0.05);
+  }
+
+  public static boolean isNeeded(Node root) {
+    String op = root.getOperator();
+    return (op.equals("sdm") || op.equals("seqdep"));
   }
 
   public void beforeNode(Node original) throws Exception {

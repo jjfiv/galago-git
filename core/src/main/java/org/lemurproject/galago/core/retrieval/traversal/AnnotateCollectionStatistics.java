@@ -21,7 +21,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public class AnnotateCollectionStatistics implements Traversal {
+public class AnnotateCollectionStatistics extends Traversal {
 
   HashSet<String> availiableStatistics;
   Retrieval retrieval;
@@ -154,14 +154,12 @@ public class AnnotateCollectionStatistics implements Traversal {
       
       // check if there is a new background part to assign
       if(n.getNodeParameters().isString("backgroundPart")){
-        Node clone = n.clone();
-        clone.getNodeParameters().set("part", n.getNodeParameters().getString("backgroundPart"));
-        return clone;
+        n.getNodeParameters().set("part", n.getNodeParameters().getString("backgroundPart"));
+        return n;
       } else if(globalParameters.isMap("backgroundPartMap")
               && globalParameters.getMap("backgroundPartMap").isString(part)){
-        Node clone = n.clone();
-        clone.getNodeParameters().set("part", globalParameters.getMap("backgroundPartMap").getString(part));
-        return clone;
+        n.getNodeParameters().set("part", globalParameters.getMap("backgroundPartMap").getString(part));
+        return n;
       }
       // otherwise no change.
       return n;

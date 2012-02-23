@@ -15,7 +15,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * 
  * @author trevor
  */
-public class TextFieldRewriteTraversal implements Traversal {
+public class TextFieldRewriteTraversal extends Traversal {
 
   Parameters availableParts;
   Parameters globalParams;

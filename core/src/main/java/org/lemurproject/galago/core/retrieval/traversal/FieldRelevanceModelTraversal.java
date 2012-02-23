@@ -22,7 +22,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author irmarc
  */
-public class FieldRelevanceModelTraversal implements Traversal {
+public class FieldRelevanceModelTraversal extends Traversal {
 
   Retrieval retrieval;
   ArrayList<String> queryTerms;
@@ -40,6 +40,11 @@ public class FieldRelevanceModelTraversal implements Traversal {
     } catch (Exception e) {
       throw new RuntimeException("Unable to get available parts");
     }
+  }
+
+  // ASSUMES fieldrm is at the top level
+  public static boolean isNeeded(Node root) {
+    return (root.getOperator().equals("fieldrm"));
   }
 
   @Override
@@ -112,13 +117,13 @@ public class FieldRelevanceModelTraversal implements Traversal {
       np.set(Integer.toString(i), weight);
       Node termScore = new Node("feature", scorerType + "-raw");
       termScore.getNodeParameters().set("lengths", field);
-      termScore.getInternalNodes().add(termCount);
+      termScore.addChild(termCount);
       termFields.add(termScore);
       i++;
     }
     Node termFieldNodes = new Node("combine", np, termFields, 0);
     Node logScoreNode = new Node("feature", "log");
-    logScoreNode.getInternalNodes().add(termFieldNodes);
+    logScoreNode.addChild(termFieldNodes);
     return logScoreNode;
   }
 
@@ -142,7 +147,7 @@ public class FieldRelevanceModelTraversal implements Traversal {
       for (String field : fields) {
         weights.put(term, flm.getFieldProbGivenTerm(field, term));
       }
-      termNodes.getInternalNodes().add(createTermFieldNodes(term, weights));
+      termNodes.addChild(createTermFieldNodes(term, weights));
     }
     return termNodes;
   }
@@ -201,8 +206,8 @@ public class FieldRelevanceModelTraversal implements Traversal {
 
         Node odCount = new Node("od", new ArrayList<Node>());
         odCount.getNodeParameters().set("default", 1);
-        odCount.getInternalNodes().add(term1Count);
-        odCount.getInternalNodes().add(term2Count);
+        odCount.addChild(term1Count);
+        odCount.addChild(term2Count);
 
         NodeStatistics ns = retrieval.nodeStatistics(odCount);
         double fieldprob = (ns.nodeFrequency + 0.0) / ns.collectionLength; // P(t|F_j)
@@ -352,7 +357,7 @@ public class FieldRelevanceModelTraversal implements Traversal {
         }
         weights.put(field, sum);
       }
-      termNodes.getInternalNodes().add(createTermFieldNodes(term, weights));
+      termNodes.addChild(createTermFieldNodes(term, weights));
     }
     return termNodes;
   }
