@@ -71,9 +71,8 @@ public class PRMS2Traversal extends Traversal {
       return original;
     } else if (original.getOperator().equals("prms2")) {
       globals = retrieval.getGlobalParameters();
-      if (globals.containsKey("prms")) {
-        prms = globals.getMap("prms");
-        getFieldsAndWeights(prms);
+      if (globals.containsKey("fields")) {
+        getFieldsAndWeights(globals);
       } else {
         throw new IllegalArgumentException("PRMS expects fields to be specified in the parameters.");
       }
@@ -111,7 +110,7 @@ public class PRMS2Traversal extends Traversal {
           }
           Node termScore = new Node("feature", scorerType + "-raw");
           termScore.getNodeParameters().set("lengths", field);
-          termScore.getInternalNodes().add(termCount);
+          termScore.addChild(termCount);
           termFields.add(termScore);
           i++;
         }
@@ -132,7 +131,7 @@ public class PRMS2Traversal extends Traversal {
 
         Node termFieldNodes = new Node("combine", nodeweights, termFields, 0);
         Node logScoreNode = new Node("feature", "log");
-        logScoreNode.getInternalNodes().add(termFieldNodes);
+        logScoreNode.addChild(termFieldNodes);
         terms.add(logScoreNode);
       }
       Node termNodes = new Node("combine", new NodeParameters(), terms, original.getPosition());
@@ -146,7 +145,7 @@ public class PRMS2Traversal extends Traversal {
   private void getFieldsAndWeights(Parameters p) {
 
     if (!p.containsKey("fields")) {
-      throw new IllegalArgumentException("prms map should contain a 'fields' array.");
+      throw new IllegalArgumentException("parameter map should contain a 'fields' array.");
     }
 
     // Get out fields

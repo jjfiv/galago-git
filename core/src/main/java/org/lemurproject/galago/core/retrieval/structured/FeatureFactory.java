@@ -11,24 +11,31 @@ import java.util.LinkedList;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.BadOperatorException;
 import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.iterator.BM25FCombinationIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BM25FieldScoringIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.BM25RFScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BM25ScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BoostingIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DFRScoringIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DirichletProbabilityScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DirichletScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.EqualityIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExistentialIndicatorIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentInsideIterator;
 import org.lemurproject.galago.core.retrieval.iterator.GreaterThanIterator;
 import org.lemurproject.galago.core.retrieval.iterator.InBetweenIterator;
+import org.lemurproject.galago.core.retrieval.iterator.InverseDocFrequencyIterator;
+import org.lemurproject.galago.core.retrieval.iterator.JelinekMercerProbabilityScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.JelinekMercerScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LessThanIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LogarithmIterator;
 import org.lemurproject.galago.core.retrieval.iterator.RequireIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MaxScoreCombinationIterator;
 import org.lemurproject.galago.core.retrieval.iterator.RejectIterator;
 import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.OrderedWindowIterator;
+import org.lemurproject.galago.core.retrieval.iterator.PL2FieldScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.PassageFilterIterator;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.core.retrieval.iterator.ScaleIterator;
@@ -83,7 +90,7 @@ public class FeatureFactory {
     {ScaleIterator.class.getName(), "scale"},
     {ScoreCombinationIterator.class.getName(), "rm"},
     {ScoreCombinationIterator.class.getName(), "bm25rf"},
-    {MaxScoreCombinationIterator.class.getName(), "maxscore"},
+    {BM25FCombinationIterator.class.getName(), "bm25fcomb"},
     {UniversalIndicatorIterator.class.getName(), "all"},
     {ExistentialIndicatorIterator.class.getName(), "any"},
     {NullExtentIterator.class.getName(), "null"},
@@ -96,12 +103,20 @@ public class FeatureFactory {
     {PassageFilterIterator.class.getName(), "passagefilter"}
   };
   static String[][] sFeatureLookup = {
+    {DirichletProbabilityScoringIterator.class.getName(), "dirichlet-raw"},
+    {JelinekMercerProbabilityScoringIterator.class.getName(), "linear-raw"},
+    {JelinekMercerProbabilityScoringIterator.class.getName(), "jm-raw"},
     {DirichletScoringIterator.class.getName(), "dirichlet"},
     {JelinekMercerScoringIterator.class.getName(), "linear"},
     {JelinekMercerScoringIterator.class.getName(), "jm"},
     {BM25ScoringIterator.class.getName(), "bm25"},
     {BM25RFScoringIterator.class.getName(), "bm25rf"},
-    {BoostingIterator.class.getName(), "boost"}
+    {BoostingIterator.class.getName(), "boost"},
+    {BM25FieldScoringIterator.class.getName(), "bm25f"},
+    {InverseDocFrequencyIterator.class.getName(), "idf"},
+    {LogarithmIterator.class.getName(), "log"},
+    {DFRScoringIterator.class.getName(), "dfr"},
+    {PL2FieldScoringIterator.class.getName(), "pl2f"}
   };
   static String[] sTraversalList = {
     WeightedDependenceTraversal.class.getName(),
@@ -241,7 +256,7 @@ public class FeatureFactory {
     if (operatorType == null) {
       throw new BadOperatorException("Unknown operator name: #" + operator);
     }
-    
+
     // This is to compensate for the transparent behavior of the fitering nodes
 
     return operatorType.className;
@@ -318,7 +333,7 @@ public class FeatureFactory {
       constructor = cons[ic];
       arguments.clear();
       formals.clear();
-      
+
       // Construct our argument list as we zip down the list of formal parameters
       formals.addAll(Arrays.asList(constructor.getParameterTypes()));
       int childIdx = 0;
@@ -369,7 +384,7 @@ public class FeatureFactory {
         }
         formals.poll();
       }
-      
+
       if (!fail) {
         break;
       }
@@ -394,17 +409,17 @@ public class FeatureFactory {
     return result;
   }
 
-    public List<Traversal> getTraversals(Retrieval retrieval, Node queryTree)
+  public List<Traversal> getTraversals(Retrieval retrieval, Node queryTree)
           throws ClassNotFoundException, NoSuchMethodException, InstantiationException,
           IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     ArrayList<Traversal> result = new ArrayList<Traversal>();
     for (TraversalSpec spec : traversals) {
       Class<? extends Traversal> traversalClass =
               (Class<? extends Traversal>) Class.forName(spec.className);
-      if (((Boolean)traversalClass.getDeclaredMethod("isNeeded", Node.class).invoke(null, queryTree)).booleanValue()) {
-	  Constructor<? extends Traversal> constructor = traversalClass.getConstructor(Retrieval.class);
-	  Traversal traversal = constructor.newInstance(retrieval);
-	  result.add(traversal);
+      if (((Boolean) traversalClass.getMethod("isNeeded", Node.class).invoke(null, queryTree)).booleanValue()) {
+        Constructor<? extends Traversal> constructor = traversalClass.getConstructor(Retrieval.class);
+        Traversal traversal = constructor.newInstance(retrieval);
+        result.add(traversal);
       }
     }
 

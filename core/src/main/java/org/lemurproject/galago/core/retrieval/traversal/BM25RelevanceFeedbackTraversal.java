@@ -49,7 +49,7 @@ public class BM25RelevanceFeedbackTraversal extends Traversal {
     // Kick off the inner query
     NodeParameters parameters = original.getNodeParameters();
     int fbDocs = (int) parameters.get("fbDocs", 10);
-    Node combineNode = new Node("comnbine", Node.cloneNodeList(original.getInternalNodes()));
+    Node combineNode = new Node("combine", Node.cloneNodeList(original.getInternalNodes()));
     ArrayList<ScoredDocument> initialResults = new ArrayList<ScoredDocument>();
 
     // Only get as many as we need

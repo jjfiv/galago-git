@@ -52,7 +52,7 @@ public class GroupRetrieval implements Retrieval {
 
   @Override
   public Node transformQuery(Node queryTree) throws Exception {
-    for (Traversal traversal : this.features.getTraversals(this)) {
+    for (Traversal traversal : this.features.getTraversals(this, queryTree)) {
       queryTree = StructuredQuery.copy(traversal, queryTree);
     }
     return queryTree;

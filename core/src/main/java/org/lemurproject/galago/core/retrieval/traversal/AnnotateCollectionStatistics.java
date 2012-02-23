@@ -135,7 +135,7 @@ public class AnnotateCollectionStatistics extends Traversal {
 
   private NodeStatistics collectStatistics(Node countNode) throws Exception {
     // recursively check if any child nodes use a specific background part
-    Node n = assignParts(countNode);
+    Node n = assignParts(countNode.clone());
     
     if(globalParameters.isString("backgroundIndex")){
       assert( GroupRetrieval.class.isAssignableFrom( retrieval.getClass())): "Retrieval object must be a GroupRetrieval to use the backgroundIndex parameter.";

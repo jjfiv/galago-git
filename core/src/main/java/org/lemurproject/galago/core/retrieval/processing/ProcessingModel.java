@@ -6,6 +6,8 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 import java.lang.reflect.Array;
 import java.util.PriorityQueue;
+import org.lemurproject.galago.core.retrieval.LocalRetrieval;
+import org.lemurproject.galago.core.retrieval.query.QueryType;
 
 /**
  * An interface that defines the contract for processing a query.
@@ -31,4 +33,20 @@ public abstract class ProcessingModel {
     return items;
   }
 
+  public final static ProcessingModel instance(LocalRetrieval r, Node root, Parameters p)
+    throws Exception {
+    QueryType qt = r.getQueryType(root);
+    if (qt == QueryType.BOOLEAN) {
+    } else if (qt == QueryType.RANKED) {
+      if (p.containsKey("passageSize") || p.containsKey("passageShift")) {
+        return new RankedPassageModel(r);
+      } else if (p.containsKey("fields")) {
+        return new RankedFieldedModel(r);
+      } else {
+        return new RankedDocumentModel(r);
+      }
+    }
+    throw new RuntimeException(String.format("Unable to determine processing model for %s",
+            root.toString()));
+  }
 }

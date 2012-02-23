@@ -61,9 +61,8 @@ public class StructuredQueryTest extends TestCase {
   }
 
   public void testWalk() throws Exception {
-    Traversal traversal = new NullTraversal();
+    Traversal traversal = new SimpleCopyTraversal();
     Node tree = createQuery();
-
     StructuredQuery.walk(traversal, tree);
   }
 

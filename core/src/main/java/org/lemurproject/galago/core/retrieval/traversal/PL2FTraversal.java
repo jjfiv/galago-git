@@ -59,7 +59,7 @@ public class PL2FTraversal extends Traversal {
     params = globals.containsKey("pl2f") ? globals.getMap("pl2f") : new Parameters();
     weights = params.containsKey("weights") ? params.getMap("weights") : new Parameters();
     smoothing = params.containsKey("smoothing") ? params.getMap("smoothing") : new Parameters();
-    fieldList = params.getAsList("fields");
+    fieldList = globals.getAsList("fields");
     qTermCounts = new TObjectIntHashMap<String>();
     try {
 	availableFields = retrieval.getAvailableParts();
@@ -69,7 +69,6 @@ public class PL2FTraversal extends Traversal {
   }
 
   public static boolean isNeeded(Node root) {
-    System.err.printf("Checking neededness\n");
     return (root.getOperator().equals("pl2f"));
   }
 
@@ -130,7 +129,7 @@ public class PL2FTraversal extends Traversal {
       Node fieldNode = new Node("feature", "pl2f");
       fieldNode.getNodeParameters().set("lengths", field);
       fieldNode.getNodeParameters().set("c", smoothing.get(field, params.get("smoothing_default", 0.5)));
-      fieldNode.getInternalNodes().add(countNode);
+      fieldNode.addChild(countNode);
       fieldWeightParams.set(Integer.toString(i), weights.get(field, params.get("weight_default", 0.5)));
       fieldNodes.add(fieldNode);
     }

@@ -1,9 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
-
-
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import java.util.ArrayList;
 import org.lemurproject.galago.core.retrieval.query.Node;
 
 /**

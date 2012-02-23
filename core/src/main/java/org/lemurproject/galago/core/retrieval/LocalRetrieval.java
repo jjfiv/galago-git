@@ -180,21 +180,7 @@ public class LocalRetrieval implements Retrieval {
   public Map<String, Document> getDocuments(List<String> identifier) throws IOException {
     return this.index.getDocuments(identifier);
   }
-
-  private ProcessingModel determineProcessingModel(Node queryTree, Parameters p) throws Exception {
-    QueryType qt = this.getQueryType(queryTree);
-    if (qt == QueryType.BOOLEAN) {
-    } else if (qt == QueryType.RANKED) {
-      if (p.containsKey("passageSize") || p.containsKey("passageShift")) {
-        return new RankedPassageModel(this);
-      } else {
-        return new RankedDocumentModel(this);
-      }
-    }
-    throw new RuntimeException(String.format("Unable to determine processing model for %s",
-            queryTree.toString()));
-  }
-
+  
   /**
    * Accepts a transformed query, constructs the iterator tree from the node tree,
    * then iterates over the iterator tree, and returns the results.
@@ -214,7 +200,7 @@ public class LocalRetrieval implements Retrieval {
   @Override
   public ScoredDocument[] runQuery(Node queryTree, Parameters queryParams) throws Exception {
     ScoredDocument[] results = null;
-    ProcessingModel pm = determineProcessingModel(queryTree, queryParams);
+    ProcessingModel pm = ProcessingModel.instance(this, queryTree, queryParams);
 
     // Figure out if there's a working set to deal with
     int[] workingSet = null;

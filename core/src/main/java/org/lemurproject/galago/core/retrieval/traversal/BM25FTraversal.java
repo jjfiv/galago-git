@@ -45,7 +45,7 @@ public class BM25FTraversal extends Traversal {
     this.retrieval = retrieval;
     Parameters globals = retrieval.getGlobalParameters();
     weights = globals.containsKey("bm25f") ? globals.getMap("bm25f") : new Parameters();
-    fieldList = weights.getAsList("fields");
+    fieldList = globals.getAsList("fields");
     try {
 	availableFields = retrieval.getAvailableParts();
     } catch (Exception e) {
@@ -82,9 +82,6 @@ public class BM25FTraversal extends Traversal {
       }
       return newRoot;
     } else {
-      if (levels == 0) {
-        throw new RuntimeException("NO!!!!!!!!!!");
-      }
       return original;
     }
   }
@@ -129,7 +126,7 @@ public class BM25FTraversal extends Traversal {
       np.set("default", "bm25f");
       np.set("lengths", field);
       Node fieldScoreNode = new Node("feature", np);
-      fieldScoreNode.getInternalNodes().add(fieldTermNode);
+      fieldScoreNode.addChild(fieldTermNode);
       combiner.getNodeParameters().set(Integer.toString(combiner.getInternalNodes().size()),
 				       cumulativeWeights.get(field, weights.get("weight_default", 0.5)));
       combiner.addChild(fieldScoreNode);

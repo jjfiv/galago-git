@@ -174,7 +174,7 @@ public class MultiRetrieval implements Retrieval {
   }
 
   public Node transformQuery(Node root) throws Exception {
-    return transformQuery(features.getTraversals(this), root);
+    return transformQuery(features.getTraversals(this, root), root);
   }
 
   // private functions

@@ -55,15 +55,13 @@ public class FieldTraversalTest extends TestCase {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
     // set fields
-    Parameters prmsP = new Parameters();
     String[] fields = {"title", "author", "anchor"};
-    prmsP.set("fields", Arrays.asList(fields));
     Parameters global = new Parameters();
-    global.set("prms", prmsP);
+    global.set("fields", Arrays.asList(fields));
 
     LocalRetrieval retrieval = new LocalRetrieval(index, global);
-    PRMSTraversal traversal = new PRMSTraversal(retrieval);
-    Node q1 = StructuredQuery.parse("#prms(#text:cat() #text:dog() #text:donkey())");
+    PRMS2Traversal traversal = new PRMS2Traversal(retrieval);
+    Node q1 = StructuredQuery.parse("#prms2(#text:cat() #text:dog() #text:donkey())");
     Node q2 = StructuredQuery.copy(traversal, q1);
 
     StringBuilder transformed = new StringBuilder();
@@ -104,12 +102,12 @@ public class FieldTraversalTest extends TestCase {
     bMap.set("title", 0.3);
     bMap.set("author", 0.8);
 
-    String[] fields = {"title", "author", "anchor"};
-    fMap.set("fields", Arrays.asList(fields));
-
     // Now set it to the retrieval
     Parameters p = new Parameters();
     p.set("bm25f", fMap);
+
+    String[] fields = {"title", "author", "anchor"};
+    p.set("fields", Arrays.asList(fields));
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
 
     BM25FTraversal traversal = new BM25FTraversal(retrieval);
@@ -148,12 +146,13 @@ public class FieldTraversalTest extends TestCase {
     wMap.set("anchor", 0.7);
     wMap.set("title", 0.3);
 
-    String[] fields = {"title", "author", "anchor"};
-    fMap.set("fields", Arrays.asList(fields));
-
     // Now set it to the retrieval
     Parameters p = new Parameters();
     p.set("pl2f", fMap);
+
+    String[] fields = {"title", "author", "anchor"};
+    p.set("fields", Arrays.asList(fields));
+
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
 
     PL2FTraversal traversal = new PL2FTraversal(retrieval);
@@ -202,12 +201,13 @@ public class FieldTraversalTest extends TestCase {
     bMap.set("title", 0.3);
     bMap.set("author", 0.8);
 
-    String[] fields = {"title", "author", "anchor"};
-    fMap.set("fields", Arrays.asList(fields));
-
     // Now set it to the retrieval
     Parameters p = new Parameters();
     p.set("bm25f", fMap);
+
+    String[] fields = {"title", "author", "anchor"};
+    p.set("fields", Arrays.asList(fields));
+  
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
     String query = "#bm25f(cat dog donkey)";
     ScoredDocument[] results = retrieval.runQuery(query, p);
@@ -226,13 +226,11 @@ public class FieldTraversalTest extends TestCase {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
     // set fields
-    Parameters prmsP = new Parameters();
     String[] fields = {"title", "author", "anchor"};
-    prmsP.set("fields", Arrays.asList(fields));
     Parameters global = new Parameters();
-    global.set("prms", prmsP);
+    global.set("fields", Arrays.asList(fields));
 
-    String query = "#prms(cat dog donkey)";
+    String query = "#prms2(cat dog donkey)";
 
     LocalRetrieval retrieval = new LocalRetrieval(index, global);
     ScoredDocument[] results = retrieval.runQuery(query, global);
@@ -266,12 +264,12 @@ public class FieldTraversalTest extends TestCase {
     wMap.set("anchor", 0.7);
     wMap.set("title", 0.3);
 
-    String[] fields = {"title", "author", "anchor"};
-    fMap.set("fields", Arrays.asList(fields));
-
     // Now set it to the retrieval
     Parameters p = new Parameters();
     p.set("pl2f", fMap);
+
+    String[] fields = {"title", "author", "anchor"};
+    p.set("fields", Arrays.asList(fields));
 
     String query = "#pl2f(cat dog donkey)";
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
@@ -298,18 +296,16 @@ public class FieldTraversalTest extends TestCase {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
     // set fields
-    Parameters prmsP = new Parameters();
     String[] fields = {"title", "author", "anchor"};
-    prmsP.set("fields", Arrays.asList(fields));
     Parameters global = new Parameters();
-    global.set("prms", prmsP);
+    global.set("fields", Arrays.asList(fields));
 
     LocalRetrieval retrieval = new LocalRetrieval(index, global);
-    ScoredDocument[] results = retrieval.runQuery("#prms(cat dog donkey)", global);
+    ScoredDocument[] results = retrieval.runQuery("#prms2(cat dog donkey)", global);
 
     assertEquals(5, results.length);
 
-    
+ 
     for (int i = 0; i < results.length; i++) {
     System.err.printf("%d : %s\n", i, results[i].toString());
     }
@@ -345,12 +341,14 @@ public class FieldTraversalTest extends TestCase {
     bMap.set("title", 0.3);
     bMap.set("author", 0.8);
 
-    String[] fields = {"title", "author", "anchor"};
-    fMap.set("fields", Arrays.asList(fields));
-
     // Now set it to the retrieval
     Parameters p = new Parameters();
     p.set("bm25f", fMap);
+
+    // Set fields too
+    String[] fields = {"title", "author", "anchor"};
+    p.set("fields", Arrays.asList(fields));
+
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
     ScoredDocument[] results = retrieval.runQuery("#bm25f(cat dog donkey)", p);
 
@@ -359,6 +357,7 @@ public class FieldTraversalTest extends TestCase {
     System.err.printf("%d : %s\n", i, results[i].toString());
     }
      */
+    
     // Verify our results
     assertEquals(5, results.length);
 
@@ -386,12 +385,12 @@ public class FieldTraversalTest extends TestCase {
     wMap.set("anchor", 0.7);
     wMap.set("title", 0.3);
 
-    String[] fields = {"title", "author", "anchor"};
-    fMap.set("fields", Arrays.asList(fields));
-
     // Now set it to the retrieval
     Parameters p = new Parameters();
     p.set("pl2f", fMap);
+
+    String[] fields = {"title", "author", "anchor"};
+    p.set("fields", Arrays.asList(fields));
 
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
     ScoredDocument[] results = retrieval.runQuery("#pl2f(cat dog donkey)", p);

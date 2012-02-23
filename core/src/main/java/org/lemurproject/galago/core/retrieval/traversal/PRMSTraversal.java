@@ -50,7 +50,7 @@ public class PRMSTraversal extends Traversal {
     } else if (original.getOperator().equals("prms")) {
 
       // Fetch the field list parameter from the query
-      fieldList = original.getNodeParameters().getString("fields").split(",");
+      fieldList = ((List<String>)retrieval.getGlobalParameters().getAsList("fields")).toArray(new String[0]);
       try {
         weightList = original.getNodeParameters().getString("weights").split(",");
       } catch (java.lang.IllegalArgumentException e) {
