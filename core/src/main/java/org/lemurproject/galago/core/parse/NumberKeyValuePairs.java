@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.disk.DiskNameReader;
+import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.core.types.NumberKeyValue;
 import org.lemurproject.galago.tupleflow.Counter;
@@ -25,12 +26,12 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 @OutputClass(className = "org.lemurproject.galago.core.types.NumberKeyValue")
 public class NumberKeyValuePairs extends StandardStep<KeyValuePair, NumberKeyValue> {
 
-  private final DiskNameReader.KeyIterator namesIterator;
+  private final DiskNameReverseReader.KeyIterator namesIterator;
   private Counter numbered;
 
   public NumberKeyValuePairs(TupleFlowParameters parameters) throws IOException {
     String namesPath = parameters.getJSON().getString("indexPath") + File.separator + "names.reverse";
-    namesIterator = ((DiskNameReader) DiskIndex.openIndexPart(namesPath)).getIterator();
+    namesIterator = ((DiskNameReverseReader) DiskIndex.openIndexPart(namesPath)).getIterator();
     numbered = parameters.getCounter("Numbered Items");
   }
 

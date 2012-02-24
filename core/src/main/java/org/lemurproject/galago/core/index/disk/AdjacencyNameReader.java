@@ -52,7 +52,7 @@ public class AdjacencyNameReader extends DiskNameReader {
   public class KeyIterator extends DiskNameReader.KeyIterator {
 
     public KeyIterator(GenericIndexReader reader) throws IOException {
-      super(reader, true);
+      super(reader);
     }
 
     @Override

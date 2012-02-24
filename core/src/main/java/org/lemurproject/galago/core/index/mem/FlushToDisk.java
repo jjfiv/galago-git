@@ -36,16 +36,6 @@ public class FlushToDisk {
       new File(outputFolder).delete();
     }
 
-    // SWARM HACK //
-    //while (!outputFolder.canRead()) {
-    //outputFolder.mkdirs();
-    //  try {
-    //    Thread.sleep(1000);
-    //  } catch (InterruptedException e) {
-    //    // stupid hack to work on swarm
-    //  }
-    //}
-
     if (threaded) {
       flushThreaded(outputFolder);
     } else {

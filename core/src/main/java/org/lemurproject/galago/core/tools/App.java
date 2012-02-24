@@ -23,6 +23,7 @@ import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator;
+import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
 import org.lemurproject.galago.core.index.merge.MergeIndex;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.Retrieval;
@@ -217,10 +218,7 @@ public class App {
 
     @Override
     public String getHelpString() {
-      return "Two possible use cases:\n\n"
-              + "galago doc-id <names> <internal-number>\n"
-              + "  Prints the external document identifier of the document <internal-number>.\n\n"
-              + "galago doc-id <names.reverse> <identifier>\n"
+      return "galago doc-id <names.reverse> <identifier>\n"
               + "  Prints the internal document number of the document named by <identifier>.\n";
     }
 
@@ -232,14 +230,38 @@ public class App {
       }
       String indexPath = args[1];
       String identifier = args[2];
-      DiskNameReader reader = new DiskNameReader(indexPath);
-      if (reader.isForward) {
-        String docIdentifier = reader.getDocumentName(Integer.parseInt(identifier));
-        output.println(docIdentifier);
-      } else {
-        int docNum = reader.getDocumentIdentifier(identifier);
-        output.println(docNum);
+      DiskNameReverseReader reader = new DiskNameReverseReader(indexPath);
+      int docNum = reader.getDocumentIdentifier(identifier);
+      output.println(docNum);
+    }
+
+    @Override
+    public void run(Parameters p, PrintStream output) throws Exception {
+      String indexPath = p.getString("indexPath");
+      String identifier = p.getString("identifier");
+      run(new String[]{"", indexPath, identifier}, output);
+    }
+  }
+
+  private static class DocNameFn extends AppFunction {
+
+    @Override
+    public String getHelpString() {
+      return "galago doc-name <names> <internal-number>\n"
+              + "  Prints the external document identifier of the document <internal-number>.\n";
+    }
+
+    @Override
+    public void run(String[] args, PrintStream output) throws Exception {
+      if (args.length <= 2) {
+        output.println(getHelpString());
+        return;
       }
+      String indexPath = args[1];
+      String identifier = args[2];
+      DiskNameReader reader = new DiskNameReader(indexPath);
+      String docIdentifier = reader.getDocumentName(Integer.parseInt(identifier));
+      output.println(docIdentifier);
     }
 
     @Override

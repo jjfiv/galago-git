@@ -2,6 +2,9 @@
 package org.lemurproject.galago.core.index.mem;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import org.lemurproject.galago.core.index.disk.DiskNameWriter;
@@ -9,6 +12,7 @@ import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -19,6 +23,7 @@ import org.lemurproject.galago.core.util.ObjectArray;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Sorter;
 import org.lemurproject.galago.tupleflow.Utility;
 
 public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
@@ -130,19 +135,33 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
   }
 
   public void flushToDisk(String path) throws IOException {
-    Parameters p = getManifest();
+    Parameters p = getManifest().clone();
     p.set("filename", path);
     DiskNameWriter writer = new DiskNameWriter(new FakeParameters(p));
-
     KIterator iterator = new KIterator();
-    NumberedDocumentData d = new NumberedDocumentData();
+    NumberedDocumentData d;
+    ArrayList<NumberedDocumentData> tempList = new ArrayList();
     while (!iterator.isDone()) {
+      d = new NumberedDocumentData();
       d.identifier = iterator.getCurrentName();
       d.number = iterator.getCurrentIdentifier();
       writer.process(d);
+      tempList.add(d);
       iterator.nextKey();
     }
     writer.close();
+
+    Collections.sort(tempList, new NumberedDocumentData.IdentifierOrder().lessThan());
+    
+    p = getManifest().clone();
+    p.set("filename", path + ".reverse");
+    DiskNameReverseWriter revWriter = new DiskNameReverseWriter(new FakeParameters(p));
+
+    for(NumberedDocumentData ndd : tempList){
+      revWriter.process(ndd);
+    }
+    revWriter.close();
+
   }
 
   public class KIterator implements KeyIterator {
