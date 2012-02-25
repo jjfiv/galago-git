@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -31,7 +31,7 @@ public class DocumentPriorReader extends KeyValueReader {
     def = this.getManifest().getDouble("minScore"); // this must exist
   }
 
-  public DocumentPriorReader(GenericIndexReader r) {
+  public DocumentPriorReader(BTreeReader r) {
     super(r);
     this.manifest = this.reader.getManifest();
   }
@@ -69,7 +69,7 @@ public class DocumentPriorReader extends KeyValueReader {
 
   public class KeyIterator extends KeyValueReader.Iterator {
 
-    public KeyIterator(GenericIndexReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 

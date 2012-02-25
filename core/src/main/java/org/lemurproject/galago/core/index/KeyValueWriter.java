@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.index;
 
 import java.io.File;
-import org.lemurproject.galago.core.index.disk.IndexWriter;
+import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.lemurproject.galago.tupleflow.Counter;
@@ -22,7 +22,7 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  */
 public abstract class KeyValueWriter<T> implements Processor<T> {
 
-  protected IndexWriter writer;
+  protected DiskBTreeWriter writer;
   protected Counter elementsWritten;
 
   public KeyValueWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
@@ -30,7 +30,7 @@ public abstract class KeyValueWriter<T> implements Processor<T> {
   }
 
   public KeyValueWriter(TupleFlowParameters parameters, String text) throws FileNotFoundException, IOException {
-    writer = new IndexWriter(parameters.getJSON().getString("filename"));
+    writer = new DiskBTreeWriter(parameters.getJSON().getString("filename"));
     elementsWritten = parameters.getCounter(text);
   }
 

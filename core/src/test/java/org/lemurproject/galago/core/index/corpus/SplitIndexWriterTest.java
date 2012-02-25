@@ -1,9 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.corpus;
 
-import org.lemurproject.galago.core.index.corpus.SplitIndexValueWriter;
-import org.lemurproject.galago.core.index.corpus.SplitIndexKeyWriter;
-import org.lemurproject.galago.core.index.corpus.SplitIndexReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -37,13 +34,13 @@ public class SplitIndexWriterTest extends TestCase {
       parameters.set("filename", temporary.getAbsolutePath());
       parameters.set("parallel", true);
 
-      SplitIndexValueWriter writer = new SplitIndexValueWriter(new FakeParameters(parameters));
-      writer.setProcessor(new SplitIndexKeyWriter(new FakeParameters(parameters)));
+      SplitBTreeValueWriter writer = new SplitBTreeValueWriter(new FakeParameters(parameters));
+      writer.setProcessor(new SplitBTreeKeyWriter(new FakeParameters(parameters)));
       writer.add(new GenericElement("key", "value"));
       writer.close();
 
-      assertTrue(SplitIndexReader.isParallelIndex(temporary.getAbsolutePath()));
-      SplitIndexReader reader = new SplitIndexReader(temporary.getAbsolutePath());
+      assertTrue(SplitBTreeReader.isBTree(temporary));
+      SplitBTreeReader reader = new SplitBTreeReader(temporary);
 
       assertEquals("value", reader.getValueString(Utility.fromString("key")));
       reader.close();
@@ -67,16 +64,16 @@ public class SplitIndexWriterTest extends TestCase {
       parameters.set("filename", temporary.getAbsolutePath());
       parameters.set("parallel", "true");
 
-      SplitIndexValueWriter writer = new SplitIndexValueWriter(new FakeParameters(parameters));
-      writer.setProcessor(new SplitIndexKeyWriter(new FakeParameters(parameters)));
+      SplitBTreeValueWriter writer = new SplitBTreeValueWriter(new FakeParameters(parameters));
+      writer.setProcessor(new SplitBTreeKeyWriter(new FakeParameters(parameters)));
 
       writer.add(new GenericElement("key", "value"));
       writer.add(new GenericElement("more", "value2"));
       writer.close();
 
-      assertTrue(SplitIndexReader.isParallelIndex(temporary.getAbsolutePath()));
-      SplitIndexReader reader = new SplitIndexReader(temporary.getAbsolutePath());
-      SplitIndexReader.Iterator iterator = reader.getIterator();
+      assertTrue(SplitBTreeReader.isBTree(temporary));
+      SplitBTreeReader reader = new SplitBTreeReader(temporary);
+      SplitBTreeReader.Iterator iterator = reader.getIterator();
 
       // Skip to 'more'
       iterator.skipTo(new byte[]{(byte) 'm'});
@@ -120,8 +117,8 @@ public class SplitIndexWriterTest extends TestCase {
       parameters.set("filename", temporary.getAbsolutePath());
       parameters.set("parallel", true);
 
-      SplitIndexValueWriter writer = new SplitIndexValueWriter(new FakeParameters(parameters));
-      writer.setProcessor(new SplitIndexKeyWriter(new FakeParameters(parameters)));
+      SplitBTreeValueWriter writer = new SplitBTreeValueWriter(new FakeParameters(parameters));
+      writer.setProcessor(new SplitBTreeKeyWriter(new FakeParameters(parameters)));
 
       for (int i = 0; i < 1000; ++i) {
         String key = String.format("%05d", i);
@@ -130,8 +127,8 @@ public class SplitIndexWriterTest extends TestCase {
       }
       writer.close();
 
-      assertTrue(SplitIndexReader.isParallelIndex(temporary.getAbsolutePath()));
-      SplitIndexReader reader = new SplitIndexReader(temporary.getAbsolutePath());
+      assertTrue(SplitBTreeReader.isBTree(temporary));
+      SplitBTreeReader reader = new SplitBTreeReader(temporary);
 
 
       for (int i = 1000 - 1; i >= 0; i--) {
@@ -143,8 +140,9 @@ public class SplitIndexWriterTest extends TestCase {
       reader.close();
 
     } finally {
-      if (temporary != null)
+      if (temporary != null) {
         Utility.deleteDirectory(temporary);
+      }
     }
   }
 }

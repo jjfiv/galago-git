@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -25,7 +25,7 @@ public class FieldIndexReader extends KeyListReader {
 
   public class KeyIterator extends KeyListReader.Iterator {
 
-    public KeyIterator(GenericIndexReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 
@@ -57,7 +57,7 @@ public class FieldIndexReader extends KeyListReader {
   public class ListIterator extends KeyListReader.ListIterator
           implements ValueIterator {
 
-    GenericIndexReader.Iterator iterator;
+    BTreeReader.Iterator iterator;
     VByteInput data;
     long startPosition, endPosition;
     DataStream dataStream;
@@ -74,7 +74,7 @@ public class FieldIndexReader extends KeyListReader {
     byte[] dateBytes = new byte[8];
     int documentIndex;
 
-    public ListIterator(GenericIndexReader.Iterator iterator) throws IOException {
+    public ListIterator(BTreeReader.Iterator iterator) throws IOException {
 	reset(iterator);
     }
 
@@ -85,7 +85,7 @@ public class FieldIndexReader extends KeyListReader {
       initialize();
     }
 
-    public void reset(GenericIndexReader.Iterator i) throws IOException {
+    public void reset(BTreeReader.Iterator i) throws IOException {
       iterator = i;
       key = iterator.getKey();
       dataLength = iterator.getValueLength();
@@ -284,7 +284,7 @@ public class FieldIndexReader extends KeyListReader {
   }
   Parameters formatMap = new Parameters();
 
-  public FieldIndexReader(GenericIndexReader reader) throws FileNotFoundException, IOException {
+  public FieldIndexReader(BTreeReader reader) throws FileNotFoundException, IOException {
     super(reader);
     if (reader.getManifest().isMap("tokenizer")) {
       Parameters tokenizer = reader.getManifest().getMap("tokenizer");
@@ -313,7 +313,7 @@ public class FieldIndexReader extends KeyListReader {
   }
 
   public ListIterator getField(String fieldname) throws IOException {
-    GenericIndexReader.Iterator iterator =
+    BTreeReader.Iterator iterator =
             reader.getIterator(Utility.fromString(fieldname));
     ListIterator it = new ListIterator(iterator);
     return it;

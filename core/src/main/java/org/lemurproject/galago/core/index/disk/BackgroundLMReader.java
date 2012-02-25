@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
@@ -33,7 +33,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
   }
 
-  public BackgroundLMReader(GenericIndexReader r) throws Exception {
+  public BackgroundLMReader(BTreeReader r) throws Exception {
     super(r);
     this.manifest = this.reader.getManifest();
     if (manifest.containsKey("stemmer")) {
@@ -88,7 +88,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     stats.collectionLength = reader.getManifest().get("statistics/collectionLength", 1);
     stats.documentCount = reader.getManifest().get("statistics/documentCount", 1);
 
-    GenericIndexReader.Iterator iterator = reader.getIterator(term);
+    BTreeReader.Iterator iterator = reader.getIterator(term);
     if (iterator == null) {
       stats.nodeFrequency = 0;
       stats.nodeDocumentCount = 0;
@@ -106,7 +106,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     long collectionLength;
     long documentCount;
 
-    public KeyIterator(GenericIndexReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
       this.collectionLength = reader.getManifest().get("statistics/collectionLength", 1);
       this.documentCount = reader.getManifest().get("statistics/documentCount", 1);

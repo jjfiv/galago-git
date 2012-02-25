@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -25,7 +25,7 @@ public class AdjacencyListReader extends KeyListReader {
 
   public class KeyIterator extends KeyListReader.Iterator {
 
-    public KeyIterator(GenericIndexReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 
@@ -64,7 +64,7 @@ public class AdjacencyListReader extends KeyListReader {
     double currentScore;
     ScoringContext context;
 
-    public IntegerListIterator(GenericIndexReader.Iterator iterator) throws IOException {
+    public IntegerListIterator(BTreeReader.Iterator iterator) throws IOException {
       reset(iterator);
     }
 
@@ -97,7 +97,7 @@ public class AdjacencyListReader extends KeyListReader {
       return false;
     }
 
-    public void reset(GenericIndexReader.Iterator iterator) throws IOException {
+    public void reset(BTreeReader.Iterator iterator) throws IOException {
       DataStream buffered = iterator.getValueStream();
       stream = new VByteInput(buffered);
       neighborhood = stream.readInt();
@@ -181,7 +181,7 @@ public class AdjacencyListReader extends KeyListReader {
     super(pathname);
   }
 
-  public AdjacencyListReader(GenericIndexReader reader) {
+  public AdjacencyListReader(BTreeReader reader) {
     super(reader);
   }
 
@@ -195,7 +195,7 @@ public class AdjacencyListReader extends KeyListReader {
   }
 
   public ValueIterator getScores(String term) throws IOException {
-    GenericIndexReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
+    BTreeReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
     if (iterator != null) {
       return new IntegerListIterator(iterator);
     }

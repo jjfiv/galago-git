@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.index.LengthsReader;
@@ -26,7 +26,7 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
     super(filename);
   }
 
-  public DiskLengthsReader(GenericIndexReader r) {
+  public DiskLengthsReader(BTreeReader r) {
     super(r);
   }
 
@@ -64,7 +64,7 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
 
   public class KeyIterator extends KeyValueReader.Iterator {
 
-    public KeyIterator(GenericIndexReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 

@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.index.corpus;
 import java.io.File;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.GenericElement;
-import org.lemurproject.galago.core.index.disk.IndexWriter;
+import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
@@ -20,7 +20,7 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  *
  *  - allows values to be written out of order to a set of files
  *  - a unified ordered key structure should be kept in a folder
- *    with these value files, as created by SplitIndexKeyWriter
+ *    with these value files, as created by SplitBTreeKeyWriter
  *  - SplitIndexReader will read this data
  *
  *  This class if useful for writing a corpus structure
@@ -32,15 +32,15 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  * @author sjh
  */
 @InputClass(className = "org.lemurproject.galago.core.types.KeyValuePair")
-public class SplitIndexKeyWriter implements Processor<KeyValuePair> {
+public class SplitBTreeKeyWriter implements Processor<KeyValuePair> {
 
-  IndexWriter writer;
+  DiskBTreeWriter writer;
   private Counter keyCounter;
 
-  public SplitIndexKeyWriter(TupleFlowParameters parameters) throws IOException {
-    String file = parameters.getJSON().getString("filename") + File.separator + "key.index";
+  public SplitBTreeKeyWriter(TupleFlowParameters parameters) throws IOException {
+    String file = parameters.getJSON().getString("filename") + File.separator + "split.keys";
     Utility.makeParentDirectories(file);
-    writer = new IndexWriter(file, parameters.getJSON());
+    writer = new DiskBTreeWriter(file, parameters.getJSON());
     keyCounter = parameters.getCounter("Document Keys Written");
   }
 

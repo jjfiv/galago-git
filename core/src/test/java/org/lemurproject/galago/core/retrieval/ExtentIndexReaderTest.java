@@ -7,7 +7,7 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
-import org.lemurproject.galago.core.index.disk.IndexReader;
+import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -68,7 +68,7 @@ public class ExtentIndexReaderTest extends TestCase {
     }
 
     public void testReadTitle() throws Exception {
-        WindowIndexReader reader = new WindowIndexReader(new IndexReader(tempPath.toString()));
+        WindowIndexReader reader = new WindowIndexReader(new DiskBTreeReader(tempPath.toString()));
         WindowIndexReader.TermExtentIterator extents = reader.getTermExtents("title");
 
         assertFalse(extents.isDone());
@@ -110,7 +110,7 @@ public class ExtentIndexReaderTest extends TestCase {
     }
 
     public void testReadZ() throws Exception {
-        WindowIndexReader reader = new WindowIndexReader(new IndexReader(tempPath.toString()));
+        WindowIndexReader reader = new WindowIndexReader(new DiskBTreeReader(tempPath.toString()));
         WindowIndexReader.TermExtentIterator extents = reader.getTermExtents("z");
 
         assertFalse(extents.isDone());
@@ -130,7 +130,7 @@ public class ExtentIndexReaderTest extends TestCase {
     }
 
     public void testSimpleSkipTitle() throws Exception {
-        WindowIndexReader reader = new WindowIndexReader(new IndexReader(tempPath.toString()));
+        WindowIndexReader reader = new WindowIndexReader(new DiskBTreeReader(tempPath.toString()));
         WindowIndexReader.TermExtentIterator extents = reader.getTermExtents("title");
 
         assertFalse(extents.isDone());
@@ -158,7 +158,7 @@ public class ExtentIndexReaderTest extends TestCase {
         }
         writer.close();
 
-        WindowIndexReader reader = new WindowIndexReader(new IndexReader(tempPath.toString()));
+        WindowIndexReader reader = new WindowIndexReader(new DiskBTreeReader(tempPath.toString()));
         WindowIndexReader.TermExtentIterator extents = reader.getTermExtents("skippy");
 
         assertFalse(extents.isDone());

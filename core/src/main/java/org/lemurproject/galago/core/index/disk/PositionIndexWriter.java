@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
-import org.lemurproject.galago.core.index.GenericIndexWriter;
+import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.mem.MemoryPostings;
@@ -242,7 +242,7 @@ public class PositionIndexWriter implements
     private CompressedRawByteBuffer skipPositions;
   }
   public Parameters actualParams;
-  GenericIndexWriter writer;
+  BTreeWriter writer;
   long maximumDocumentCount = 0;
   long maximumDocumentNumber = 0;
   PositionsList invertedList;
@@ -282,7 +282,7 @@ public class PositionIndexWriter implements
       throw new IOException("PositionWriter expects a 'statistics/documentCount parameter, or a tupleflow stream to read document count data from.");
     }
 
-    writer = new IndexWriter(parameters);
+    writer = new DiskBTreeWriter(parameters);
 
     // look for skips
     boolean skip = parameters.getJSON().get("skipping", true);

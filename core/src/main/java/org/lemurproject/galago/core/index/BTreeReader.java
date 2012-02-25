@@ -1,10 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
+import java.io.File;
 import org.lemurproject.galago.core.index.disk.VocabularyReader;
-import org.lemurproject.galago.core.index.disk.IndexReader;
+import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 import java.io.IOException;
-import org.lemurproject.galago.core.index.corpus.SplitIndexReader;
+import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -28,13 +29,13 @@ import org.lemurproject.galago.tupleflow.Utility;
  * <p> (11/29/2010, irmarc): After conferral with Sam, going to remove the requirement
  * that keys be Strings. It makes the mapping from other classes/primitives to Strings
  * really restrictive if they always have to be mapped to Strings. Therefore, mapping
- * byte[] keys to the client keyspace is the responsibility of the client of the IndexReader.</p>
+ * byte[] keys to the client keyspace is the responsibility of the client of the DiskBTreeReader.</p>
  *
- * Comments copied from IndexReader: author trevor, irmarc, sjh
+ * Comments copied from DiskBTreeReader: author trevor, irmarc, sjh
  *
  * @author sjh
  */
-public abstract class GenericIndexReader {
+public abstract class BTreeReader {
 
   public abstract class Iterator implements Comparable<Iterator> {
 
@@ -120,7 +121,7 @@ public abstract class GenericIndexReader {
     /**
      * Comparator - allows iterators to be read in parallel efficiently
      */
-    public int compareTo(GenericIndexReader.Iterator i) {
+    public int compareTo(BTreeReader.Iterator i) {
       return Utility.compare(this.getKey(), i.getKey());
     }
   }
@@ -135,7 +136,7 @@ public abstract class GenericIndexReader {
   public abstract Parameters getManifest();
 
   /**
-   * Returns the vocabulary structure for this IndexReader.
+   * Returns the vocabulary structure for this DiskBTreeReader.
    *  - Note that the vocabulary contains only
    *    the first key in each block.
    */
@@ -156,7 +157,7 @@ public abstract class GenericIndexReader {
   public abstract Iterator getIterator(byte[] key) throws IOException;
 
   /**
-   * Closes all files associated with the IndexReader.
+   * Closes all files associated with the DiskBTreeReader.
    */
   public abstract void close() throws IOException;
 
@@ -200,31 +201,5 @@ public abstract class GenericIndexReader {
       return null;
     }
     return iter.getValueStream();
-  }
-
-  /*
-   * Static function to open an index file or folder
-   */
-  public static GenericIndexReader getIndexReader(String pathname) throws IOException {
-    if (SplitIndexReader.isParallelIndex(pathname)) {
-      return new SplitIndexReader(pathname);
-    } else if (IndexReader.isIndexFile(pathname)) {
-      return new IndexReader(pathname);
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Static function to check if the path contains an index of some type
-   */
-  public static boolean isIndex(String pathname) throws IOException {
-    if (SplitIndexReader.isParallelIndex(pathname)) {
-      return true;
-    }
-    if (IndexReader.isIndexFile(pathname)) {
-      return true;
-    }
-    return false;
   }
 }

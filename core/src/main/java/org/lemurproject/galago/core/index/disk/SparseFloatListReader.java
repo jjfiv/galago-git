@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -26,7 +26,7 @@ public class SparseFloatListReader extends KeyListReader {
 
   public class KeyIterator extends KeyListReader.Iterator {
 
-    public KeyIterator(GenericIndexReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 
@@ -65,7 +65,7 @@ public class SparseFloatListReader extends KeyListReader {
     double currentScore;
     ScoringContext context;
 
-    public ListIterator(GenericIndexReader.Iterator iterator) throws IOException {
+    public ListIterator(BTreeReader.Iterator iterator) throws IOException {
       reset(iterator);
     }
 
@@ -98,7 +98,7 @@ public class SparseFloatListReader extends KeyListReader {
       return false;
     }
 
-    public void reset(GenericIndexReader.Iterator iterator) throws IOException {
+    public void reset(BTreeReader.Iterator iterator) throws IOException {
       DataStream buffered = iterator.getValueStream();
       stream = new VByteInput(buffered);
       documentCount = stream.readInt();
@@ -190,7 +190,7 @@ public class SparseFloatListReader extends KeyListReader {
   }
 
   public ListIterator getScores(String term) throws IOException {
-    GenericIndexReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
+    BTreeReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
     return new ListIterator(iterator);
   }
 

@@ -21,17 +21,17 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public abstract class KeyValueReader implements IndexPartReader {
 
-  protected GenericIndexReader reader;
+  protected BTreeReader reader;
 
   public KeyValueReader(String filename) throws FileNotFoundException, IOException {
-    reader = GenericIndexReader.getIndexReader(filename);
+    reader = BTreeFactory.getBTreeReader(filename);
   }
 
   public Parameters getManifest() {
     return reader.getManifest();
   }
 
-  public KeyValueReader(GenericIndexReader r) {
+  public KeyValueReader(BTreeReader r) {
     this.reader = r;
   }
 
@@ -52,10 +52,10 @@ public abstract class KeyValueReader implements IndexPartReader {
 
   public static abstract class Iterator implements KeyIterator {
 
-    protected GenericIndexReader.Iterator iterator;
-    protected GenericIndexReader reader;
+    protected BTreeReader.Iterator iterator;
+    protected BTreeReader reader;
 
-    public Iterator(GenericIndexReader reader) throws IOException {
+    public Iterator(BTreeReader reader) throws IOException {
       this.reader = reader;
       reset();
     }

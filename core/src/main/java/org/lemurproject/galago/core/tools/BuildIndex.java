@@ -6,7 +6,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import org.lemurproject.galago.core.index.corpus.SplitIndexKeyWriter;
+import org.lemurproject.galago.core.index.corpus.SplitBTreeKeyWriter;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.index.disk.PositionFieldIndexWriter;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
@@ -268,7 +268,7 @@ public class BuildIndex extends AppFunction {
 
     stage.addInput(input, new KeyValuePair.KeyOrder());
     stage.add(new InputStep(input));
-    stage.add(new Step(SplitIndexKeyWriter.class, indexParameters));
+    stage.add(new Step(SplitBTreeKeyWriter.class, indexParameters));
 
     return stage;
   }

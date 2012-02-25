@@ -6,7 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.HashSet;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeFactory;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.ExNihiloSource;
@@ -32,14 +33,14 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
   Counter skipCounter;
   public Processor<KeyValuePair> processor;
   TupleFlowParameters parameters;
-  GenericIndexReader reader;
-  GenericIndexReader.Iterator iterator;
+  BTreeReader reader;
+  BTreeReader.Iterator iterator;
   HashSet<String> inclusions = null;
   HashSet<String> exclusions = null;
 
   public VocabularySource(TupleFlowParameters parameters) throws Exception {
     String partPath = parameters.getJSON().getString("filename");
-    reader = GenericIndexReader.getIndexReader(partPath);
+    reader = BTreeFactory.getBTreeReader(partPath);
     vocabCounter = parameters.getCounter("terms read");
     skipCounter = parameters.getCounter("terms skipped");
     iterator = reader.getIterator();
@@ -48,11 +49,11 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
     Parameters p = parameters.getJSON();
     inclusions = new HashSet<String>();
     if (p.isString("includefile")) {
-	File f = new File(p.getString("includefile"));
-	if (f.exists()) {
-	    System.err.printf("Opening inclusion file: %s\n", f.getCanonicalPath());
-	    inclusions = Utility.readFileToStringSet(f);
-	}
+      File f = new File(p.getString("includefile"));
+      if (f.exists()) {
+        System.err.printf("Opening inclusion file: %s\n", f.getCanonicalPath());
+        inclusions = Utility.readFileToStringSet(f);
+      }
     } else if (p.isList("include")) {
       List<String> inc = p.getList("include");
       for (String s : inc) {
@@ -62,11 +63,11 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
 
     exclusions = new HashSet<String>();
     if (p.isString("excludefile")) {
-	File f = new File(p.getString("excludefile"));
-	if (f.exists()) {
-	    System.err.printf("Opening exclusion file: %s\n", f.getCanonicalPath());
-	    exclusions = Utility.readFileToStringSet(f);
-	}
+      File f = new File(p.getString("excludefile"));
+      if (f.exists()) {
+        System.err.printf("Opening exclusion file: %s\n", f.getCanonicalPath());
+        exclusions = Utility.readFileToStringSet(f);
+      }
     } else if (p.isList("exclude")) {
       List<String> inc = p.getList("exclude");
       for (String s : inc) {
@@ -81,10 +82,10 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
     while (!iterator.isDone()) {
 
       // Filter if we need to
-	if (!inclusions.isEmpty() || !exclusions.isEmpty()) {
+      if (!inclusions.isEmpty() || !exclusions.isEmpty()) {
         String s = Utility.toString(iterator.getKey());
         if (inclusions.contains(s) == false) {
-	  iterator.nextKey();
+          iterator.nextKey();
           if (skipCounter != null) {
             skipCounter.increment();
           }
@@ -122,7 +123,7 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
     FileSource.verify(parameters, handler);
     String partPath = parameters.getJSON().getString("filename");
     try {
-      if (!GenericIndexReader.isIndex(partPath)) {
+      if (!BTreeFactory.isBTree(partPath)) {
         handler.addError(partPath + " is not an index file.");
       }
     } catch (FileNotFoundException fnfe) {

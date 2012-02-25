@@ -10,11 +10,12 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
-import org.lemurproject.galago.core.index.GenericIndexReader;
-import org.lemurproject.galago.core.index.corpus.SplitIndexReader;
+import org.lemurproject.galago.core.index.BTreeFactory;
+import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
-import org.lemurproject.galago.core.index.disk.IndexReader;
+import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 import org.lemurproject.galago.tupleflow.ExNihiloSource;
 import org.lemurproject.galago.tupleflow.FileSource;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
@@ -117,7 +118,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     // Look for a fraction and an absolute number of docs
     double pctthreshold = parameters.getJSON().get("pct", 1.0);
     long numdocs = parameters.getJSON().get("numdocs", -1);
-    
+
     System.out.printf("pct: %f, numdocs=%d\n", pctthreshold, numdocs);
 
     String path;
@@ -172,7 +173,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         String extension = getExtension(fileName);
         if (UniversalParser.isParsable(extension)) {
           fileType = extension;
-        } else if (IndexReader.isIndexFile(fileName)) {
+        } else if (DiskBTreeReader.isBTree(new File(fileName))) {
           // perhaps the user has renamed the corpus index
           fileType = "corpus";
         } else {
@@ -246,20 +247,20 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
     if (UniversalParser.isParsable(extension)) {
       fileType = extension;
-    } else if (IndexReader.isIndexFile(fileName)) {
+    
+    } else if (BTreeFactory.isBTree(fileName)) {
       // perhaps the user has renamed the corpus index
       fileType = "corpus";
+      processCorpusFile(fileName, fileType);
+      return; // done now;
+
     } else {
       fileType = detectTrecTextOrWeb(fileName);
       // Eventually it'd be nice to do more format detection here.
     }
 
     if (fileType != null) {
-      if (fileType.equals("corpus")) {
-        processCorpusFile(fileName, fileType);
-      } else {
-        processSplit(fileName, fileType, isCompressed);
-      }
+      processSplit(fileName, fileType, isCompressed);
     }
   }
 
@@ -290,16 +291,18 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     long corpusSize = 0L;
 
     // if we have a corpus folder
-    if (SplitIndexReader.isParallelIndex(fileName)) {
-      File folder = new File(fileName).getParentFile();
+    File file = new File(fileName);
+    if (SplitBTreeReader.isBTree(file)) {
+      System.err.println("HAVE A SPLITBTREE.");
+      File folder = file.getParentFile();
       for (File f : folder.listFiles()) {
         corpusSize += f.length();
       }
     } else { // else must be a corpus file.
-      corpusSize = new File(fileName).length();
+      corpusSize = file.length();
     }
 
-    GenericIndexReader reader = GenericIndexReader.getIndexReader(fileName);
+    BTreeReader reader = BTreeFactory.getBTreeReader(fileName);
     VocabularyReader vocabulary = reader.getVocabulary();
     List<IndexBlockInfo> slots = vocabulary.getSlots();
     int pieces = Math.max(2, (int) (corpusSize / chunkSize));

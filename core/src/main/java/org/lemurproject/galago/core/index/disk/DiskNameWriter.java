@@ -30,7 +30,7 @@ import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
 @InputClass(className = "org.lemurproject.galago.core.types.NumberedDocumentData", order={"+number"})
 public class DiskNameWriter implements Processor<NumberedDocumentData> {
 
-  IndexWriter writer;
+  DiskBTreeWriter writer;
   NumberedDocumentData last = null;
   Counter documentNamesWritten = null;
 
@@ -44,7 +44,7 @@ public class DiskNameWriter implements Processor<NumberedDocumentData> {
     p.set("mergerClass", DocumentNameMerger.class.getName());
     p.set("readerClass", DiskNameReader.class.getName());
 
-    writer = new IndexWriter(filename, p);
+    writer = new DiskBTreeWriter(filename, p);
   }
 
   public void process(int number, String identifier) throws IOException {

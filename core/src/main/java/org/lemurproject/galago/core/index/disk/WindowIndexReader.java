@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.lemurproject.galago.core.index.AggregateReader;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.index.ValueIterator;
@@ -42,7 +42,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
 
   public class KeyIterator extends KeyListReader.Iterator {
 
-    public KeyIterator(GenericIndexReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 
@@ -74,7 +74,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
   public class TermExtentIterator extends KeyListReader.ListIterator
           implements AggregateIterator, CountValueIterator, ExtentValueIterator {
 
-    GenericIndexReader.Iterator iterator;
+    BTreeReader.Iterator iterator;
     int documentCount;
     int totalWindowCount;
     int maximumPositionCount;
@@ -106,7 +106,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     long countsByteFloor;
     long windowsByteFloor;
 
-    TermExtentIterator(GenericIndexReader.Iterator iterator) throws IOException {
+    TermExtentIterator(BTreeReader.Iterator iterator) throws IOException {
       extentArray = new ExtentArray();
       reset(iterator);
     }
@@ -227,7 +227,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     }
 
     @Override
-    public void reset(GenericIndexReader.Iterator i) throws IOException {
+    public void reset(BTreeReader.Iterator i) throws IOException {
       iterator = i;
       key = iterator.getKey();
       dataLength = iterator.getValueLength();
@@ -375,7 +375,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
   public class TermCountIterator extends KeyListReader.ListIterator
           implements AggregateIterator, CountValueIterator {
 
-    GenericIndexReader.Iterator iterator;
+    BTreeReader.Iterator iterator;
     int documentCount;
     int collectionCount;
     VByteInput documents;
@@ -401,7 +401,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     long documentsByteFloor;
     long countsByteFloor;
 
-    TermCountIterator(GenericIndexReader.Iterator iterator) throws IOException {
+    TermCountIterator(BTreeReader.Iterator iterator) throws IOException {
       reset(iterator);
     }
 
@@ -502,7 +502,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     }
 
     @Override
-    public void reset(GenericIndexReader.Iterator i) throws IOException {
+    public void reset(BTreeReader.Iterator i) throws IOException {
       iterator = i;
       startPosition = iterator.getValueStart();
       endPosition = iterator.getValueEnd();
@@ -638,7 +638,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
   }
   Stemmer stemmer = null;
 
-  public WindowIndexReader(GenericIndexReader reader) throws Exception {
+  public WindowIndexReader(BTreeReader reader) throws Exception {
     super(reader);
     if (reader.getManifest().containsKey("stemmer")) {
       stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
@@ -663,7 +663,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
    */
   public TermExtentIterator getTermExtents(String term) throws IOException {
     term = stemAsRequired(term);
-    GenericIndexReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
+    BTreeReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
     if (iterator != null) {
       return new TermExtentIterator(iterator);
     }
@@ -672,7 +672,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
 
   public TermCountIterator getTermCounts(String term) throws IOException {
     term = stemAsRequired(term);
-    GenericIndexReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
+    BTreeReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
 
     if (iterator != null) {
       return new TermCountIterator(iterator);
@@ -711,7 +711,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
 
   @Override
   public NodeStatistics getTermStatistics(byte[] term) throws IOException {
-    GenericIndexReader.Iterator iterator = reader.getIterator(term);
+    BTreeReader.Iterator iterator = reader.getIterator(term);
 
     if (iterator != null) {
       TermCountIterator termCountIterator = new TermCountIterator(iterator);

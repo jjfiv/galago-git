@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.parse.Document;
@@ -33,7 +33,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     compressed = reader.getManifest().get("compressed", true);
   }
 
-  public CorpusReader(GenericIndexReader r) {
+  public CorpusReader(BTreeReader r) {
     super(r);
     compressed = reader.getManifest().get("compressed", true);
   }
@@ -69,7 +69,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
   public class KeyIterator extends KeyValueReader.Iterator implements DocumentIterator {
 
-    KeyIterator(GenericIndexReader reader) throws IOException {
+    KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 

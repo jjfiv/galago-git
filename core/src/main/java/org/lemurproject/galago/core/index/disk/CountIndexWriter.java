@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
-import org.lemurproject.galago.core.index.GenericIndexWriter;
+import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.types.NumberWordCount;
@@ -205,7 +205,7 @@ public class CountIndexWriter implements
     private CompressedRawByteBuffer skips;
     private CompressedRawByteBuffer skipPositions;
   }
-  GenericIndexWriter writer;
+  BTreeWriter writer;
   long maximumDocumentCount = 0;
   long maximumDocumentNumber = 0;
   CountsList invertedList;
@@ -231,7 +231,7 @@ public class CountIndexWriter implements
 
     uniqueDocs = new TIntHashSet();
 
-    writer = new IndexWriter(parameters);
+    writer = new DiskBTreeWriter(parameters);
 
     // look for skips
     boolean skip = parameters.getJSON().get("skipping", true);

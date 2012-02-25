@@ -4,13 +4,13 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeFactory;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -23,10 +23,10 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
 
   /** Creates a new instance of DiskNameReader */
   public DiskNameReverseReader(String fileName) throws IOException {
-    super(GenericIndexReader.getIndexReader(fileName));
+    super(BTreeFactory.getBTreeReader(fileName));
   }
 
-  public DiskNameReverseReader(GenericIndexReader r) {
+  public DiskNameReverseReader(BTreeReader r) {
     super(r);
   }
 
@@ -64,10 +64,10 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
 
   public class KeyIterator extends KeyValueReader.Iterator {
 
-    protected GenericIndexReader input;
-    protected GenericIndexReader.Iterator iterator;
+    protected BTreeReader input;
+    protected BTreeReader.Iterator iterator;
 
-    public KeyIterator(GenericIndexReader input) throws IOException {
+    public KeyIterator(BTreeReader input) throws IOException {
       super(input);
     }
 

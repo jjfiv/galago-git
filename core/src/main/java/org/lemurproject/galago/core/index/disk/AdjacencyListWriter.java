@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.index.disk.IndexWriter;
+import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -76,12 +76,12 @@ public class AdjacencyListWriter implements Adjacency.SourceDestinationOrder.Shr
       }
     }
   }
-  IndexWriter writer;
+  DiskBTreeWriter writer;
   InvertedList list = null;
 
   /** Creates a new instance of AdjacencyListWriter */
   public AdjacencyListWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
-    writer = new IndexWriter(parameters);
+    writer = new DiskBTreeWriter(parameters);
     writer.getManifest().set("readerClass", AdjacencyListReader.class.getName());
     writer.getManifest().set("writerClass", getClass().getName());
   }

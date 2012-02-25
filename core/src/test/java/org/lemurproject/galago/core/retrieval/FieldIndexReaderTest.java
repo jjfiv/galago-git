@@ -8,7 +8,7 @@
 package org.lemurproject.galago.core.retrieval;
 
 import java.io.ByteArrayOutputStream;
-import org.lemurproject.galago.core.index.disk.IndexReader;
+import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 import org.lemurproject.galago.core.index.disk.FieldIndexReader;
 import org.lemurproject.galago.tupleflow.Utility;
 import java.io.File;
@@ -111,7 +111,7 @@ public class FieldIndexReaderTest extends TestCase {
   }
 
   public void testReadTitle() throws Exception {
-    FieldIndexReader reader = new FieldIndexReader(new IndexReader(tempPath.toString()));
+    FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("title");
 
     assertFalse(fields.isDone());
@@ -136,7 +136,7 @@ public class FieldIndexReaderTest extends TestCase {
   }
 
   public void testReadDate() throws Exception {
-    FieldIndexReader reader = new FieldIndexReader(new IndexReader(tempPath.toString()));
+    FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("date");
 
     DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
@@ -163,7 +163,7 @@ public class FieldIndexReaderTest extends TestCase {
   }
 
   public void testReadVersion() throws Exception {
-    FieldIndexReader reader = new FieldIndexReader(new IndexReader(tempPath.toString()));
+    FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("version");
 
     assertFalse(fields.isDone());
@@ -188,7 +188,7 @@ public class FieldIndexReaderTest extends TestCase {
   }
 
   public void testGreaterThan() throws Exception {
-    FieldIndexReader reader = new FieldIndexReader(new IndexReader(tempPath.toString()));
+    FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("version");
 
     NodeParameters p = new NodeParameters();
@@ -215,7 +215,7 @@ public class FieldIndexReaderTest extends TestCase {
   }
 
   public void testLessThan() throws Exception {
-    FieldIndexReader reader = new FieldIndexReader(new IndexReader(tempPath.toString()));
+    FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("version");
 
     NodeParameters p = new NodeParameters();
@@ -242,7 +242,7 @@ public class FieldIndexReaderTest extends TestCase {
   }
 
   public void testInBetween() throws Exception {
-    FieldIndexReader reader = new FieldIndexReader(new IndexReader(tempPath.toString()));
+    FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("date");
 
     NodeParameters p = new NodeParameters();
@@ -270,7 +270,7 @@ public class FieldIndexReaderTest extends TestCase {
   }
 
   public void testEquality() throws Exception {
-    FieldIndexReader reader = new FieldIndexReader(new IndexReader(tempPath.toString()));
+    FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("title");
 
     NodeParameters p = new NodeParameters();

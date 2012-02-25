@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.lemurproject.galago.core.index.AggregateReader;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.index.ValueIterator;
@@ -33,7 +33,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
 
   public class KeyIterator extends KeyListReader.Iterator {
 
-    public KeyIterator(GenericIndexReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 
@@ -66,7 +66,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
   public class TermCountIterator extends KeyListReader.ListIterator
           implements AggregateIterator, CountValueIterator {
 
-    GenericIndexReader.Iterator iterator;
+    BTreeReader.Iterator iterator;
     int documentCount;
     int collectionCount;
     int maximumPositionCount;
@@ -92,7 +92,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     long documentsByteFloor;
     long countsByteFloor;
 
-    public TermCountIterator(GenericIndexReader.Iterator iterator) throws IOException {
+    public TermCountIterator(BTreeReader.Iterator iterator) throws IOException {
       reset(iterator);
     }
 
@@ -188,7 +188,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     }
 
     @Override
-    public void reset(GenericIndexReader.Iterator i) throws IOException {
+    public void reset(BTreeReader.Iterator i) throws IOException {
       iterator = i;
       startPosition = iterator.getValueStart();
       endPosition = iterator.getValueEnd();
@@ -324,7 +324,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     }
   }
 
-  public CountIndexReader(GenericIndexReader reader) throws IOException {
+  public CountIndexReader(BTreeReader reader) throws IOException {
     super(reader);
   }
 
@@ -342,7 +342,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
    * null if the term doesn't exist in the inverted file.
    */
   public TermCountIterator getTermCounts(byte[] key) throws IOException {
-    GenericIndexReader.Iterator iterator = reader.getIterator(key);
+    BTreeReader.Iterator iterator = reader.getIterator(key);
 
     if (iterator != null) {
       return new TermCountIterator(iterator);
@@ -351,7 +351,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
   }
 
   public TermCountIterator getTermCounts(String term) throws IOException {
-    GenericIndexReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
+    BTreeReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
 
     if (iterator != null) {
       return new TermCountIterator(iterator);
@@ -386,7 +386,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
 
   @Override
   public NodeStatistics getTermStatistics(byte[] term) throws IOException {
-    GenericIndexReader.Iterator iterator = reader.getIterator(term);
+    BTreeReader.Iterator iterator = reader.getIterator(term);
 
     if (iterator != null) {
       TermCountIterator termCountIterator = new TermCountIterator(iterator);

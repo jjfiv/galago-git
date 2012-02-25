@@ -23,7 +23,7 @@ public abstract class KeyListReader extends KeyValueReader {
     super(filename);
   }
 
-  public KeyListReader(GenericIndexReader r) {
+  public KeyListReader(BTreeReader r) {
     super(r);
   }
 
@@ -33,7 +33,7 @@ public abstract class KeyListReader extends KeyValueReader {
     public static final int HAS_SKIPS = 0x01;
     public static final int HAS_MAXTF = 0x02;
 
-    protected GenericIndexReader.Iterator source;
+    protected BTreeReader.Iterator source;
     protected byte[] key;
     protected long dataLength;
     protected Map<String, Object> modifiers = null;
@@ -93,6 +93,6 @@ public abstract class KeyListReader extends KeyValueReader {
 
     public abstract boolean moveTo(int id) throws IOException;
 
-    public abstract void reset(GenericIndexReader.Iterator it) throws IOException;
+    public abstract void reset(BTreeReader.Iterator it) throws IOException;
   }
 }

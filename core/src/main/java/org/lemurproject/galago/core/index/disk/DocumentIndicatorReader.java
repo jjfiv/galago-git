@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -31,7 +31,7 @@ public class DocumentIndicatorReader extends KeyValueReader {
     def = this.manifest.get("default", false);  // Play conservative
   }
 
-  public DocumentIndicatorReader(GenericIndexReader r) {
+  public DocumentIndicatorReader(BTreeReader r) {
     super(r);
   }
 
@@ -68,7 +68,7 @@ public class DocumentIndicatorReader extends KeyValueReader {
 
   public class KeyIterator extends KeyValueReader.Iterator {
 
-    public KeyIterator(GenericIndexReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 

@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.index.corpus;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.GenericElement;
-import org.lemurproject.galago.core.index.disk.IndexWriter;
+import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import org.lemurproject.galago.core.index.merge.CorpusMerger;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.tupleflow.Counter;
@@ -27,7 +27,7 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
 @InputClass(className = "org.lemurproject.galago.core.parse.Document")
 public class CorpusFileWriter implements Processor<Document> {
 
-  IndexWriter writer;
+  DiskBTreeWriter writer;
   Counter documentsWritten;
   boolean compressed;
 
@@ -41,7 +41,7 @@ public class CorpusFileWriter implements Processor<Document> {
     p.set("readerClass", CorpusReader.class.getName());
     p.set("mergerClass", CorpusMerger.class.getName());
 
-    writer = new IndexWriter(parameters.getJSON().getString("filename"), p);
+    writer = new DiskBTreeWriter(parameters.getJSON().getString("filename"), p);
     documentsWritten = parameters.getCounter("Documents Written");
   }
 

@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.disk.DiskNameReader;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -18,7 +18,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class AdjacencyNameReader extends DiskNameReader {
 
-  public AdjacencyNameReader(GenericIndexReader reader) throws IOException {
+  public AdjacencyNameReader(BTreeReader reader) throws IOException {
     super(reader);
   }
 
@@ -51,7 +51,7 @@ public class AdjacencyNameReader extends DiskNameReader {
 
   public class KeyIterator extends DiskNameReader.KeyIterator {
 
-    public KeyIterator(GenericIndexReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 

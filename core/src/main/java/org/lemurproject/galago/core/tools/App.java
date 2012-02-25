@@ -11,7 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import org.lemurproject.galago.core.eval.Eval;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeFactory;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.disk.DiskNameReader;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
@@ -402,7 +403,7 @@ public class App {
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       String filename = p.getString("filename");
-      GenericIndexReader indexReader = GenericIndexReader.getIndexReader(filename);
+      BTreeReader indexReader = BTreeFactory.getBTreeReader(filename);
       output.println(indexReader.getManifest());
     }
   }

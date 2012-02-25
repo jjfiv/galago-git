@@ -5,7 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import org.lemurproject.galago.core.index.GenericIndexWriter;
+import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.Counter;
@@ -42,7 +42,7 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  */
 @InputClass(className = "org.lemurproject.galago.core.types.KeyValuePair")
 @OutputClass(className = "org.lemurproject.galago.core.types.KeyValuePair")
-public class SplitIndexValueWriter extends GenericIndexWriter
+public class SplitBTreeValueWriter extends BTreeWriter
         implements KeyValuePair.KeyValueOrder.ShreddedProcessor {
 
   public static final long MAGIC_NUMBER = 0x2b3c4d5e6f7a8b9cL;
@@ -58,7 +58,7 @@ public class SplitIndexValueWriter extends GenericIndexWriter
   private short valueBlockSize;
   private Counter docCounter;
 
-  public SplitIndexValueWriter(TupleFlowParameters parameters) throws IOException {
+  public SplitBTreeValueWriter(TupleFlowParameters parameters) throws IOException {
     String valueOutputPath = parameters.getJSON().getString("filename") + File.separator + parameters.getInstanceId();
     Utility.makeParentDirectories(valueOutputPath);
     docCounter = parameters.getCounter("Document Values Stored");

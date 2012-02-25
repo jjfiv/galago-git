@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.index.disk.IndexWriter;
+import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.logging.Logger;
@@ -69,11 +69,11 @@ public class TopDocsWriter implements TopDocsEntry.WordDescProbabilityDocumentOr
       header.add(count);
     }
   }
-  IndexWriter writer;
+  DiskBTreeWriter writer;
   TopDocsList currentList;
 
   public TopDocsWriter(TupleFlowParameters parameters) throws Exception {
-    writer = new IndexWriter(parameters);
+    writer = new DiskBTreeWriter(parameters);
     writer.getManifest().set("writerClass", getClass().getName());
     writer.getManifest().set("readerClass", TopDocsReader.class.getName());
     currentList = null;
