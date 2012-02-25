@@ -8,7 +8,7 @@ package org.lemurproject.galago.core.retrieval.processing;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.lemurproject.galago.core.index.TopDocsReader.TopDocument;
+import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
 
 /**
  * Extension to the ScoringContext to support passing around topdocs, which is used

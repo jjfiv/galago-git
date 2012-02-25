@@ -1,10 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.index;
+package org.lemurproject.galago.core.index.disk;
 
 import org.lemurproject.galago.core.index.disk.IndexWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.logging.Logger;
+import org.lemurproject.galago.core.index.CompressedByteBuffer;
+import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
+import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.types.TopDocsEntry;
 import org.lemurproject.galago.tupleflow.FileSource;
 import org.lemurproject.galago.tupleflow.InputClass;

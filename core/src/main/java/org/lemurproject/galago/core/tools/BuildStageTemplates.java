@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.disk.DiskNameWriter;
-import org.lemurproject.galago.core.index.FieldIndexWriter;
+import org.lemurproject.galago.core.index.disk.FieldIndexWriter;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.parse.DocumentCounter;

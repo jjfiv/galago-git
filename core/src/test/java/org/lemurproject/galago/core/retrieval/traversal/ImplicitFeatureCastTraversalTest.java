@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
+import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -28,7 +29,7 @@ public class ImplicitFeatureCastTraversalTest extends TestCase {
   }
 
   @Override
-  public void setUp() throws FileNotFoundException, IOException {
+  public void setUp() throws FileNotFoundException, IOException, IncompatibleProcessorException {
     indexPath = LocalRetrievalTest.makeIndex();
   }
 

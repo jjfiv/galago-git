@@ -16,7 +16,7 @@ import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.TopDocsReader.TopDocument;
+import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.index.mem.MemoryExtents.ExtentList.ExtentIterator;

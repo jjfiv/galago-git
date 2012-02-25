@@ -10,7 +10,7 @@ import java.util.Map;
 import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.GenericIndexReader;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.TopDocsReader.TopDocument;
+import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;

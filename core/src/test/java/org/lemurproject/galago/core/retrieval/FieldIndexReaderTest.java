@@ -9,13 +9,13 @@ package org.lemurproject.galago.core.retrieval;
 
 import java.io.ByteArrayOutputStream;
 import org.lemurproject.galago.core.index.disk.IndexReader;
-import org.lemurproject.galago.core.index.FieldIndexReader;
+import org.lemurproject.galago.core.index.disk.FieldIndexReader;
 import org.lemurproject.galago.tupleflow.Utility;
 import java.io.File;
 import java.text.DateFormat;
 import java.util.Arrays;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.FieldIndexWriter;
+import org.lemurproject.galago.core.index.disk.FieldIndexWriter;
 import org.lemurproject.galago.core.retrieval.iterator.EqualityIterator;
 import org.lemurproject.galago.core.retrieval.iterator.GreaterThanIterator;
 import org.lemurproject.galago.core.retrieval.iterator.InBetweenIterator;
