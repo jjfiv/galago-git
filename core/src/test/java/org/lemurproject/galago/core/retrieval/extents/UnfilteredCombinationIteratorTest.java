@@ -48,9 +48,9 @@ public class UnfilteredCombinationIteratorTest extends TestCase {
     ScoreCombinationIterator instance = new ScoreCombinationIterator(new Parameters(), new NodeParameters(),
             iterators);
 
-    assertFalse(instance.hasMatch(1));
-    assertTrue(instance.hasMatch(2));
-    assertFalse(instance.hasMatch(3));
+    assertFalse(instance.atCandidate(1));
+    assertTrue(instance.atCandidate(2));
+    assertFalse(instance.atCandidate(3));
   }
 
   public void testScore() throws IOException {
@@ -67,7 +67,7 @@ public class UnfilteredCombinationIteratorTest extends TestCase {
     instance.setContext(context);
     for (int i = 0; i < 12; i++) {
       assertFalse(instance.isDone());
-      assertTrue(instance.hasMatch(docsTogether[i]));
+      assertTrue(instance.atCandidate(docsTogether[i]));
       context.document = docsTogether[i];
       context.length = 100;
       assertEquals(scoresTogether[i], instance.score());

@@ -321,7 +321,7 @@ public class App {
       DocumentReader.DocumentIterator iterator = (DocumentIterator) reader.getIterator();
 
       while (!iterator.isDone()) {
-        output.println("#IDENTIFIER: " + iterator.getKey());
+        output.println("#IDENTIFIER: " + iterator.getKeyString());
         Document document = iterator.getDocument();
         output.println("#METADATA");
         for (Entry<String, String> entry : document.metadata.entrySet()) {
@@ -375,7 +375,7 @@ public class App {
         // otherwise we could have a key-value index
       } else if (KeyValueReader.class.isAssignableFrom(reader.getClass())) {
         while (!iterator.isDone()) {
-          output.println(iterator.getKey() + "," + iterator.getValueString());
+          output.println(iterator.getKeyString() + "," + iterator.getValueString());
           iterator.nextKey();
         }
       } else {
@@ -427,7 +427,7 @@ public class App {
       IndexPartReader reader = DiskIndex.openIndexPart(args[1]);
       KeyIterator iterator = reader.getIterator();
       while (!iterator.isDone()) {
-        output.println(iterator.getKey());
+        output.println(iterator.getKeyString());
         iterator.nextKey();
       }
       reader.close();

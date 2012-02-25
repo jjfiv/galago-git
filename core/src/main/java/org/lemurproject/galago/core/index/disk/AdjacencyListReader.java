@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -18,15 +19,63 @@ import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
 /**
- *
+ * Stores a mapping from string -> [(int,double)] 
+ * 
+ * Used for...
+ * 
  * @author irmarc
  */
 public class AdjacencyListReader extends KeyListReader {
 
-  public class KeyIterator extends KeyListReader.Iterator {
+  public AdjacencyListReader(String pathname) throws FileNotFoundException, IOException {
+    super(pathname);
+  }
+
+  public AdjacencyListReader(BTreeReader reader) {
+    super(reader);
+  }
+
+  @Override
+  public KeyIterator getIterator() throws IOException {
+    return new KeyIterator(reader);
+  }
+
+  @Override
+  public Map<String, NodeType> getNodeTypes() {
+    HashMap<String, NodeType> nodeTypes = new HashMap<String, NodeType>();
+    nodeTypes.put("neighbors", new NodeType(IntegerListIterator.class));
+    return nodeTypes;
+  }
+
+  @Override
+  public ValueIterator getIterator(Node node) throws IOException {
+    if (node.getOperator().equals("neighbors")) {
+      return getScores(node.getDefaultParameter());
+    } else {
+      throw new UnsupportedOperationException(
+              "Index doesn't support operator: " + node.getOperator());
+    }
+  }
+
+  
+  protected ValueIterator getScores(String term) throws IOException {
+    BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
+    if (iterator != null) {
+      return new IntegerListIterator(iterator);
+    }
+    return null;
+  }
+
+  
+  public class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
+    }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return Utility.toString(iterator.getKey());
     }
 
     @Override
@@ -49,6 +98,7 @@ public class AdjacencyListReader extends KeyListReader {
       return sb.toString();
     }
 
+    @Override
     public ValueIterator getValueIterator() throws IOException {
       return new IntegerListIterator(iterator);
     }
@@ -64,20 +114,55 @@ public class AdjacencyListReader extends KeyListReader {
     double currentScore;
     ScoringContext context;
 
-    public IntegerListIterator(BTreeReader.Iterator iterator) throws IOException {
+    public IntegerListIterator(BTreeIterator iterator) throws IOException {
+      super(iterator.getKey());
       reset(iterator);
     }
 
-    void read() throws IOException {
-      index += 1;
-
-      if (index < neighborhood) {
-        currentIdentifier += stream.readInt();
-        currentScore = stream.readDouble();
+    @Override
+    public void reset(BTreeIterator iterator) throws IOException {
+      DataStream buffered = iterator.getValueStream();
+      stream = new VByteInput(buffered);
+      neighborhood = stream.readInt();
+      index = -1;
+      key = iterator.getKey();
+      currentIdentifier = 0;
+      if (neighborhood > 0) {
+        read();
       }
     }
 
-    public String getEntry() {
+    @Override
+    public void reset() throws IOException {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean moveTo(int identifier) throws IOException {
+      while (!isDone() && identifier > currentIdentifier) {
+        read();
+      }
+      return !isDone();
+    }
+
+    @Override
+    public boolean next() throws IOException {
+      read();
+      return !isDone();
+    }
+
+    @Override
+    public int currentCandidate() {
+      return currentIdentifier;
+    }
+
+    @Override
+    public boolean hasAllCandidates(){
+      return false;
+    }
+    
+    @Override
+    public String getEntry() throws IOException {
       StringBuilder builder = new StringBuilder();
 
       builder.append(getKey());
@@ -89,66 +174,17 @@ public class AdjacencyListReader extends KeyListReader {
       return builder.toString();
     }
 
-    public boolean next() throws IOException {
-      read();
-      if (!isDone()) {
-        return true;
-      }
-      return false;
+    @Override
+    public long totalEntries() {
+      return neighborhood;
     }
 
-    public void reset(BTreeReader.Iterator iterator) throws IOException {
-      DataStream buffered = iterator.getValueStream();
-      stream = new VByteInput(buffered);
-      neighborhood = stream.readInt();
-      index = -1;
-      this.key = iterator.getKey();
-      currentIdentifier = 0;
-      if (neighborhood > 0) {
-        read();
-      }
+    @Override
+    public boolean isDone() {
+      return index >= neighborhood;
     }
 
-    public void reset() throws IOException {
-      throw new UnsupportedOperationException("This iterator does not reset without the parent KeyIterator.");
-    }
-
-    public void setContext(ScoringContext dc) {
-      this.context = dc;
-    }
-
-    public ScoringContext getContext() {
-      return context;
-    }
-
-    public int currentCandidate() {
-      return currentIdentifier;
-    }
-
-    public boolean hasMatch(int id) {
-      return id == currentIdentifier;
-    }
-
-    public boolean moveTo(int document) throws IOException {
-      while (!isDone() && document > currentIdentifier) {
-        read();
-      }
-      return hasMatch(document);
-    }
-
-    public void movePast(int document) throws IOException {
-      while (!isDone() && document >= currentIdentifier) {
-        read();
-      }
-    }
-
-    public double score(ScoringContext dc) {
-      if (currentIdentifier == dc.document) {
-        return currentScore;
-      }
-      return Double.NEGATIVE_INFINITY;
-    }
-
+    @Override
     public double score() {
       if (currentIdentifier == context.document) {
         return currentScore;
@@ -156,68 +192,42 @@ public class AdjacencyListReader extends KeyListReader {
       return Double.NEGATIVE_INFINITY;
     }
 
-    public boolean isDone() {
-      return index >= neighborhood;
+    @Override
+    public double score(ScoringContext context) {
+      if (currentIdentifier == context.document) {
+        return currentScore;
+      }
+      return Double.NEGATIVE_INFINITY;
     }
 
-    public long totalEntries() {
-      return neighborhood;
-    }
-
+    @Override
     public double maximumScore() {
       return Double.POSITIVE_INFINITY;
     }
 
+    @Override
     public double minimumScore() {
       return Double.NEGATIVE_INFINITY;
     }
 
-    public TObjectDoubleHashMap<String> parameterSweepScore() {
-      throw new UnsupportedOperationException("Not supported yet.");
+    @Override
+    public ScoringContext getContext() {
+      return context;
     }
-  }
 
-  public AdjacencyListReader(String pathname) throws FileNotFoundException, IOException {
-    super(pathname);
-  }
-
-  public AdjacencyListReader(BTreeReader reader) {
-    super(reader);
-  }
-
-
-  public KeyIterator getIterator() throws IOException {
-    return new KeyIterator(reader);
-  }
-
-  public ValueIterator getListIterator() throws IOException {
-      return new IntegerListIterator(reader.getIterator());
-  }
-
-  public ValueIterator getScores(String term) throws IOException {
-    BTreeReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
-    if (iterator != null) {
-      return new IntegerListIterator(iterator);
+    @Override
+    public void setContext(ScoringContext context) {
+      this.context = context;
     }
-    return null;
-  }
 
-  public void close() throws IOException {
-    reader.close();
-  }
+    // private functions:
+    private void read() throws IOException {
+      index += 1;
 
-  public Map<String, NodeType> getNodeTypes() {
-    HashMap<String, NodeType> nodeTypes = new HashMap<String, NodeType>();
-    nodeTypes.put("neighbors", new NodeType(IntegerListIterator.class));
-    return nodeTypes;
-  }
-
-  public ValueIterator getIterator(Node node) throws IOException {
-    if (node.getOperator().equals("neighbors")) {
-      return getScores(node.getDefaultParameter());
-    } else {
-      throw new UnsupportedOperationException(
-              "Index doesn't support operator: " + node.getOperator());
+      if (index < neighborhood) {
+        currentIdentifier += stream.readInt();
+        currentScore = stream.readDouble();
+      }
     }
   }
 }

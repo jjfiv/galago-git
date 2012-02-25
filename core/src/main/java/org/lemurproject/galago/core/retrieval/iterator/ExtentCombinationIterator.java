@@ -75,7 +75,7 @@ public abstract class ExtentCombinationIterator implements ExtentValueIterator, 
    *  - And checks that there is some extent in the extent array
    */
   @Override
-  public boolean hasMatch(int identifier) {
+  public boolean atCandidate(int identifier) {
     return ((currentCandidate() == identifier) && (extents.size() > 0));
   }
 

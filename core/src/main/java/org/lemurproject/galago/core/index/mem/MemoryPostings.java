@@ -222,7 +222,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     ExtentArray extents;
     while (!kiterator.isDone()) {
       viterator = (ExtentsIterator) kiterator.getValueIterator();
-      writer.processWord(kiterator.getKeyBytes());
+      writer.processWord(kiterator.getKey());
 
       while (!viterator.isDone()) {
         writer.processDocument(viterator.currentCandidate());
@@ -312,12 +312,12 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public String getKey() throws IOException {
+    public String getKeyString() throws IOException {
       return Utility.toString(currKey);
     }
 
     @Override
-    public byte[] getKeyBytes() {
+    public byte[] getKey() {
       return currKey;
     }
 
@@ -351,7 +351,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
       ExtentsIterator it = new ExtentsIterator(postings.get(currKey));
       count = it.count();
       StringBuilder sb = new StringBuilder();
-      sb.append(Utility.toString(getKeyBytes())).append(",");
+      sb.append(Utility.toString(getKey())).append(",");
       sb.append("list of size: ");
       if (count > 0) {
         sb.append(count);
@@ -367,11 +367,6 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public DataStream getValueStream() throws IOException {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public boolean isDone() {
       return done;
     }
@@ -379,7 +374,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     @Override
     public int compareTo(KeyIterator t) {
       try {
-        return Utility.compare(this.getKeyBytes(), t.getKeyBytes());
+        return Utility.compare(this.getKey(), t.getKey());
       } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
@@ -466,7 +461,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public boolean hasMatch(int identifier) {
+    public boolean atCandidate(int identifier) {
       return (!isDone() && identifier == currDocument);
     }
 
@@ -503,7 +498,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
       while (!isDone() && (currDocument < identifier)) {
         next();
       }
-      return hasMatch(identifier);
+      return atCandidate(identifier);
     }
 
     @Override
@@ -658,7 +653,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public boolean hasMatch(int identifier) {
+    public boolean atCandidate(int identifier) {
       return (!isDone() && identifier == currDocument);
     }
 
@@ -684,7 +679,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
       while (!isDone() && (currDocument < identifier)) {
         next();
       }
-      return hasMatch(identifier);
+      return atCandidate(identifier);
     }
 
     @Override

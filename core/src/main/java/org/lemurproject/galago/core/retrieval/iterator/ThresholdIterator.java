@@ -64,7 +64,7 @@ public class ThresholdIterator implements IndicatorIterator, ContextualIterator 
     return iterator.isDone();
   }
 
-  public boolean hasMatch(int identifier) {
+  public boolean atCandidate(int identifier) {
     // needs to check the score against a threshold.
     hasMatchContext.document = document;
     hasMatchContext.length = 100; // need a better method.
@@ -84,7 +84,7 @@ public class ThresholdIterator implements IndicatorIterator, ContextualIterator 
     iterator.moveTo(identifier);
     document = iterator.currentCandidate();
     if (!shareNodes) {
-      while (!isDone() && !hasMatch(document)) {
+      while (!isDone() && !atCandidate(document)) {
         iterator.movePast(document);
         document = iterator.currentCandidate();
       }

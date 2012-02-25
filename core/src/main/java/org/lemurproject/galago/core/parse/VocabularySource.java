@@ -34,7 +34,7 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
   public Processor<KeyValuePair> processor;
   TupleFlowParameters parameters;
   BTreeReader reader;
-  BTreeReader.Iterator iterator;
+  BTreeReader.BTreeIterator iterator;
   HashSet<String> inclusions = null;
   HashSet<String> exclusions = null;
 

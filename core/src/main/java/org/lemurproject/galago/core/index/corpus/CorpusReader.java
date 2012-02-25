@@ -8,6 +8,7 @@ import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
+import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -38,10 +39,12 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     compressed = reader.getManifest().get("compressed", true);
   }
   
+  @Override
   public KeyIterator getIterator() throws IOException {
     return new KeyIterator(reader);
   }
 
+  @Override
   public Document getDocument(int key) throws IOException {
     KeyIterator i = new KeyIterator(reader);
     byte[] k = Utility.fromInt(key);
@@ -52,40 +55,42 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     }
   }
 
+  @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
     types.put("corpus", new NodeType(ValueIterator.class));
     return types;
   }
 
+  @Override
   public ValueIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("corpus")) {
-      return new ValueIterator(new KeyIterator(reader));
+      return new CorpusIterator(new KeyIterator(reader));
     } else {
       throw new UnsupportedOperationException(
               "Index doesn't support operator: " + node.getOperator());
     }
   }
 
-  public class KeyIterator extends KeyValueReader.Iterator implements DocumentIterator {
+  public class KeyIterator extends KeyValueReader.KeyValueIterator implements DocumentIterator {
 
-    KeyIterator(BTreeReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 
-    @Override
-    public String getKey(){
-      return Integer.toString(Utility.toInt(getKeyBytes()));
-//      return Utility.toString(this.getKeyBytes());
-    }
     
+    @Override
+    public String getKeyString(){
+      return Integer.toString(Utility.toInt(getKey()));
+    }
+
     @Override
     public Document getDocument() throws IOException {
       return Document.deserialize(iterator.getValueBytes(), compressed);
     }
-
+    
     @Override
-    public String getValueString() {
+    public String getValueString() throws IOException {
       try {
         return getDocument().toString();
       } catch (IOException ex) {
@@ -93,31 +98,41 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
       }
     }
 
+    @Override
     public ValueIterator getValueIterator() throws IOException {
-      return new ValueIterator(this);
+      return new CorpusIterator(this);
     }
+
   }
 
-  public class ValueIterator extends KeyToListIterator implements DataIterator<Document> {
+  public class CorpusIterator extends KeyToListIterator implements DataIterator<Document> {
 
-    public ValueIterator(KeyIterator ki) {
+    public CorpusIterator(KeyIterator ki) {
       super(ki);
     }
 
+    @Override
     public String getEntry() throws IOException {
       return ((KeyIterator) iterator).getDocument().toString();
     }
 
+    @Override
     public long totalEntries() {
-      throw new UnsupportedOperationException("Not supported yet.");
+      return reader.getManifest().getLong("keyCount");
     }
 
+    @Override
     public Document getData() {
       try {
         return ((KeyIterator) iterator).getDocument();
       } catch (IOException ioe) {
         throw new RuntimeException(ioe);
       }
+    }
+
+    @Override
+    public boolean hasAllCandidates() {
+      return true;
     }
   }
 }

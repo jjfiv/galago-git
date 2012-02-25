@@ -58,7 +58,7 @@ public class TopDocsReader extends AbstractModifier {
   }
 
   public void printContents(PrintStream out) throws IOException {
-    BTreeReader.Iterator iterator = reader.getIterator();
+    BTreeReader.BTreeIterator iterator = reader.getIterator();
     while (!iterator.isDone()) {
       out.printf("Key: %s\n", Utility.toString(iterator.getKey()));
       ArrayList<TopDocument> li = getTopDocs(iterator, -1);
@@ -75,10 +75,10 @@ public class TopDocsReader extends AbstractModifier {
     // Can make a modifier
     String term = node.getDefaultParameter();
     int limit = (int) node.getNodeParameters().get("limit", 1000);
-    BTreeReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
+    BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
     if (iterator == null) return null;
 
-    // Iterator is set - grab the value data and make the specific modifier
+    // BTreeIterator is set - grab the value data and make the specific modifier
     return getTopDocs(iterator, limit);
   }
 
@@ -86,7 +86,7 @@ public class TopDocsReader extends AbstractModifier {
     reader.close();
   }
 
-  public ArrayList<TopDocument> getTopDocs(BTreeReader.Iterator iterator, int limit) throws IOException {
+  public ArrayList<TopDocument> getTopDocs(BTreeReader.BTreeIterator iterator, int limit) throws IOException {
     VByteInput input = new VByteInput(iterator.getValueStream());
     int numEntries = input.readInt();
     int lastDocument = 0;

@@ -23,7 +23,7 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  */
 public class FieldIndexReader extends KeyListReader {
 
-  public class KeyIterator extends KeyListReader.Iterator {
+  public class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
@@ -39,7 +39,7 @@ public class FieldIndexReader extends KeyListReader {
       } catch (IOException ioe) {
       }
       StringBuilder sb = new StringBuilder();
-      sb.append(Utility.toString(getKeyBytes())).append(",");
+      sb.append(Utility.toString(getKey())).append(",");
       sb.append("list of size: ");
       if (count > 0) {
         sb.append(count);
@@ -52,12 +52,17 @@ public class FieldIndexReader extends KeyListReader {
     public ValueIterator getValueIterator() throws IOException {
       return new ListIterator(iterator);
     }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return Utility.toString(getKey());
+    }
   }
 
   public class ListIterator extends KeyListReader.ListIterator
           implements ValueIterator {
 
-    BTreeReader.Iterator iterator;
+    BTreeReader.BTreeIterator iterator;
     VByteInput data;
     long startPosition, endPosition;
     DataStream dataStream;
@@ -74,8 +79,9 @@ public class FieldIndexReader extends KeyListReader {
     byte[] dateBytes = new byte[8];
     int documentIndex;
 
-    public ListIterator(BTreeReader.Iterator iterator) throws IOException {
-	reset(iterator);
+    public ListIterator(BTreeReader.BTreeIterator iterator) throws IOException {
+      super(iterator.getKey());
+      reset(iterator);
     }
 
     public void reset() throws IOException {
@@ -85,10 +91,9 @@ public class FieldIndexReader extends KeyListReader {
       initialize();
     }
 
-    public void reset(BTreeReader.Iterator i) throws IOException {
+    public void reset(BTreeReader.BTreeIterator i) throws IOException {
       iterator = i;
       key = iterator.getKey();
-      dataLength = iterator.getValueLength();
       startPosition = iterator.getValueStart();
       endPosition = iterator.getValueEnd();
       reset();
@@ -114,7 +119,7 @@ public class FieldIndexReader extends KeyListReader {
     }
 
     private void initialize() throws IOException {
-      DataStream valueStream = iterator.getSubValueStream(0, dataLength);
+      DataStream valueStream = iterator.getSubValueStream(0, iterator.getValueLength());
       DataInput stream = new VByteInput(valueStream);
 
       documentCount = stream.readInt();
@@ -258,26 +263,32 @@ public class FieldIndexReader extends KeyListReader {
       return Utility.toString(iterator.getKey());
     }
 
+    @Override
     public byte[] getKeyBytes() {
       return iterator.getKey();
     }
 
+    @Override
     public int currentCandidate() {
       return currentDocument;
     }
 
+    @Override
+    public boolean hasAllCandidates(){
+      return false;
+    }
+    
+    @Override
     public boolean isDone() {
       return (documentIndex >= documentCount);
     }
 
-    public boolean hasMatch(int identifier) {
-      return (currentDocument == identifier);
-    }
-
+    @Override
     public void movePast(int identifier) throws IOException {
       moveTo(identifier + 1);
     }
 
+    @Override
     public long totalEntries() {
       return this.documentCount;
     }
@@ -298,22 +309,14 @@ public class FieldIndexReader extends KeyListReader {
     return new KeyIterator(reader);
   }
 
-  public Parameters getManifest() {
-    return reader.getManifest();
-  }
-
-  public void close() throws IOException {
-    reader.close();
-  }
-
   public HashMap<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> nodeTypes = new HashMap<String, NodeType>();
-    nodeTypes.put("field", new NodeType(Iterator.class));
+    nodeTypes.put("field", new NodeType(ListIterator.class));
     return nodeTypes;
   }
 
   public ListIterator getField(String fieldname) throws IOException {
-    BTreeReader.Iterator iterator =
+    BTreeReader.BTreeIterator iterator =
             reader.getIterator(Utility.fromString(fieldname));
     ListIterator it = new ListIterator(iterator);
     return it;

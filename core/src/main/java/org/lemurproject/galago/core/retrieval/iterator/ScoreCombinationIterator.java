@@ -44,7 +44,7 @@ public class ScoreCombinationIterator implements ScoreValueIterator {
     return MoveIterators.findMinimumDocument(iterators);
   }
 
-  public boolean hasMatch(int identifier) {
+  public boolean atCandidate(int identifier) {
     return MoveIterators.anyHasMatch(iterators, identifier);
   }
 

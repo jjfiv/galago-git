@@ -197,17 +197,17 @@ public class FieldIndexReaderTest extends TestCase {
 
     assertFalse(gti.isDone());
     assertEquals(gti.currentCandidate(), 1);
-    assertFalse(gti.hasMatch(gti.currentCandidate()));
+    assertFalse(gti.atCandidate(gti.currentCandidate()));
     gti.next();
 
     assertFalse(gti.isDone());
     assertEquals(gti.currentCandidate(), 2);
-    assertTrue(gti.hasMatch(gti.currentCandidate()));
+    assertTrue(gti.atCandidate(gti.currentCandidate()));
     gti.next();
 
     assertFalse(gti.isDone());
     assertEquals(gti.currentCandidate(), 3);
-    assertFalse(gti.hasMatch(gti.currentCandidate()));
+    assertFalse(gti.atCandidate(gti.currentCandidate()));
     gti.next();
 
     assertTrue(gti.isDone());
@@ -224,17 +224,17 @@ public class FieldIndexReaderTest extends TestCase {
 
     assertFalse(lti.isDone());
     assertEquals(lti.currentCandidate(), 1);
-    assertTrue(lti.hasMatch(lti.currentCandidate()));
+    assertTrue(lti.atCandidate(lti.currentCandidate()));
     lti.next();
 
     assertFalse(lti.isDone());
     assertEquals(lti.currentCandidate(), 2);
-    assertFalse(lti.hasMatch(lti.currentCandidate()));
+    assertFalse(lti.atCandidate(lti.currentCandidate()));
     lti.next();
 
     assertFalse(lti.isDone());
     assertEquals(lti.currentCandidate(), 3);
-    assertTrue(lti.hasMatch(lti.currentCandidate()));
+    assertTrue(lti.atCandidate(lti.currentCandidate()));
     lti.next();
 
     assertTrue(lti.isDone());
@@ -252,17 +252,17 @@ public class FieldIndexReaderTest extends TestCase {
 
     assertFalse(ibi.isDone());
     assertEquals(ibi.currentCandidate(), 15);
-    assertTrue(ibi.hasMatch(ibi.currentCandidate()));
+    assertTrue(ibi.atCandidate(ibi.currentCandidate()));
     ibi.next();
 
     assertFalse(ibi.isDone());
     assertEquals(ibi.currentCandidate(), 25);
-    assertTrue(ibi.hasMatch(ibi.currentCandidate()));
+    assertTrue(ibi.atCandidate(ibi.currentCandidate()));
     ibi.next();
 
     assertFalse(ibi.isDone());
     assertEquals(ibi.currentCandidate(), 47);
-    assertFalse(ibi.hasMatch(ibi.currentCandidate()));
+    assertFalse(ibi.atCandidate(ibi.currentCandidate()));
     ibi.next();
 
     assertTrue(ibi.isDone());
@@ -279,17 +279,17 @@ public class FieldIndexReaderTest extends TestCase {
 
     assertFalse(ei.isDone());
     assertEquals(ei.currentCandidate(), 1);
-    assertFalse(ei.hasMatch(ei.currentCandidate()));
+    assertFalse(ei.atCandidate(ei.currentCandidate()));
     ei.next();
 
     assertFalse(ei.isDone());
     assertEquals(ei.currentCandidate(), 9);
-    assertFalse(ei.hasMatch(ei.currentCandidate()));
+    assertFalse(ei.atCandidate(ei.currentCandidate()));
     ei.next();
 
     assertFalse(ei.isDone());
     assertEquals(ei.currentCandidate(), 34);
-    assertTrue(ei.hasMatch(ei.currentCandidate()));
+    assertTrue(ei.atCandidate(ei.currentCandidate()));
     ei.next();
 
     assertTrue(ei.isDone());

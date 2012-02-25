@@ -76,15 +76,23 @@ public class AdjacencyNameReader extends DiskNameReader {
       super(ki);
     }
 
+    @Override
     public String getEntry() throws IOException {
       KeyIterator ki = (KeyIterator) iterator;
-      return Utility.toInt(ki.getKeyBytes())+","+ ki.getValueString();
+      return Utility.toInt(ki.getKey())+","+ ki.getValueString();
     }
 
+    @Override
+    public boolean hasAllCandidates(){
+      return false;
+    }
+
+    @Override
     public long totalEntries() {
-      throw new UnsupportedOperationException("Not supported yet.");
+      return reader.getManifest().getLong("keyCount");
     }
 
+    @Override
     public String getData() {
       try {
         return getEntry();

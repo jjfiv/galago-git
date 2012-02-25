@@ -29,7 +29,7 @@ public class FieldLengthsReader implements LengthsReader {
   public int getLength(int document) throws IOException {
     LengthsReader.Iterator li = getLengthsIterator();
     li.moveTo(document);
-    if (li.hasMatch(document)) {
+    if (li.atCandidate(document)) {
       return li.getCurrentLength();
     } else {
       return 0;
@@ -113,7 +113,7 @@ public class FieldLengthsReader implements LengthsReader {
     }
 
     @Override
-    public boolean hasMatch(int identifier) {
+    public boolean atCandidate(int identifier) {
       return (counts.currentCandidate() == identifier);
     }
 

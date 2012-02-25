@@ -57,7 +57,7 @@ public class ExistentialIndicatorIterator extends AbstractIndicator {
     updateState();
   }
 
-  public boolean hasMatch(int doc){
+  public boolean atCandidate(int doc){
     return (doc == document)
             && MoveIterators.anyHasMatch(iterators, doc);
   }

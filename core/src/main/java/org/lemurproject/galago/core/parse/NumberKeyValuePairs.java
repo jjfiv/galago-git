@@ -15,6 +15,7 @@ import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
+import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 
 /**
@@ -39,10 +40,12 @@ public class NumberKeyValuePairs extends StandardStep<KeyValuePair, NumberKeyVal
   public void process(KeyValuePair kvp) throws IOException {
     if (!namesIterator.isDone()) {
       if (namesIterator.skipToKey(kvp.key)) {
-        if (numbered != null) {
-          numbered.increment();
+        if (Utility.compare(namesIterator.getKey(), kvp.key) == 0) {
+          if (numbered != null) {
+            numbered.increment();
+          }
+          processor.process(new NumberKeyValue(namesIterator.getCurrentIdentifier(), kvp.key, kvp.value));
         }
-        processor.process(new NumberKeyValue(namesIterator.getCurrentIdentifier(), kvp.key, kvp.value));
       }
     }
   }

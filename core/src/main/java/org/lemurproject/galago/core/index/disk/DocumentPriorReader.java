@@ -67,14 +67,14 @@ public class DocumentPriorReader extends KeyValueReader {
     }
   }
 
-  public class KeyIterator extends KeyValueReader.Iterator {
+  public class KeyIterator extends KeyValueReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 
     @Override
-    public String getKey() {
+    public String getKeyString() {
       return Integer.toString(getCurrentDocument());
     }
 
@@ -147,6 +147,11 @@ public class DocumentPriorReader extends KeyValueReader {
     public long totalEntries() {
       return manifest.get("keyCount", -1);
     }
+    
+    @Override
+    public boolean hasAllCandidates(){
+      return true;
+    }
 
     @Override
     public double score() {
@@ -159,7 +164,7 @@ public class DocumentPriorReader extends KeyValueReader {
         // mode to or past the desired document
         this.iterator.findKey(Utility.fromInt(context.document));
 
-        if (Utility.toInt(this.iterator.getKeyBytes()) == context.document) {
+        if (Utility.toInt(this.iterator.getKey()) == context.document) {
           byte[] valueBytes = iterator.getValueBytes();
           if ((valueBytes == null) || (valueBytes.length == 0)) {
             return minScore;
@@ -176,7 +181,7 @@ public class DocumentPriorReader extends KeyValueReader {
     }
 
     @Override
-    public boolean hasMatch(int identifier) {
+    public boolean atCandidate(int identifier) {
       if (nonmatching) {
         return false;
       }
@@ -201,7 +206,7 @@ public class DocumentPriorReader extends KeyValueReader {
         return Integer.MAX_VALUE;
       } else {
         try {
-          return Utility.toInt(this.iterator.getKeyBytes());
+          return Utility.toInt(this.iterator.getKey());
         } catch (IOException ex) {
           throw new RuntimeException("Prior Reader - failed to convert index.getKeyBytes to an integer.");
         }

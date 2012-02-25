@@ -19,7 +19,7 @@ public class BinaryCountIterator implements CountValueIterator {
 
   @Override
   public int count() {
-    return iterator.hasMatch(iterator.currentCandidate()) ? 1 : 0;
+    return iterator.atCandidate(iterator.currentCandidate()) ? 1 : 0;
   }
 
   @Override
@@ -43,8 +43,8 @@ public class BinaryCountIterator implements CountValueIterator {
   }
 
   @Override
-  public boolean hasMatch(int identifier) {
-    return iterator.hasMatch(identifier);
+  public boolean atCandidate(int identifier) {
+    return iterator.atCandidate(identifier);
   }
 
   @Override

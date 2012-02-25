@@ -37,7 +37,7 @@ public class SplitBTreeReader extends BTreeReader {
   String indexFolder;
   int hashMod;
 
-  public class Iterator extends BTreeReader.Iterator {
+  public class Iterator extends BTreeReader.BTreeIterator {
 
     DiskBTreeReader.Iterator vocabIterator;
     boolean valueLoaded = false;

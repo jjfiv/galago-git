@@ -152,12 +152,12 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     writer.close();
 
     Collections.sort(tempList, new NumberedDocumentData.IdentifierOrder().lessThan());
-    
+
     p = getManifest().clone();
     p.set("filename", path + ".reverse");
     DiskNameReverseWriter revWriter = new DiskNameReverseWriter(new FakeParameters(p));
 
-    for(NumberedDocumentData ndd : tempList){
+    for (NumberedDocumentData ndd : tempList) {
       revWriter.process(ndd);
     }
     revWriter.close();
@@ -186,11 +186,11 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
       }
     }
 
-    public String getKey() {
+    public String getKeyString() {
       return Integer.toString(current + offset);
     }
 
-    public byte[] getKeyBytes() {
+    public byte[] getKey() {
       return Utility.fromInt(offset + current);
     }
 
@@ -240,7 +240,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
 
     public int compareTo(KeyIterator t) {
       try {
-        return Utility.compare(this.getKeyBytes(), t.getKeyBytes());
+        return Utility.compare(this.getKey(), t.getKey());
       } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
@@ -276,6 +276,11 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
       } catch (IOException ioe) {
         throw new RuntimeException(ioe);
       }
+    }
+
+    @Override
+    public boolean hasAllCandidates() {
+      return true;
     }
 
     public boolean skipToKey(int candidate) throws IOException {

@@ -52,7 +52,7 @@ public abstract class ExtentConjunctionIterator extends ExtentCombinationIterato
       extents.reset();
       loadExtents();
     }
-    if (!this.sharedChildren && !this.hasMatch(document)) {
+    if (!this.sharedChildren && !this.atCandidate(document)) {
       findDocument();
     }
 

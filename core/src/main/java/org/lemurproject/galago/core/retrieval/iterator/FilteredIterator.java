@@ -161,7 +161,7 @@ public abstract class FilteredIterator implements CountValueIterator, ScoreValue
       lowestBest = Math.max(lowestBest, mover.currentCandidate());
       indicator.moveTo(lowestBest);
       mover.moveTo(lowestBest);
-      if (this.hasMatch(lowestBest)) {
+      if (this.atCandidate(lowestBest)) {
         return;
       }
       // ensure we progress.

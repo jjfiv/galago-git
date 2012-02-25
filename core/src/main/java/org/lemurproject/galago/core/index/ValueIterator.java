@@ -10,15 +10,12 @@ import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
  */
 public interface ValueIterator extends BoundedIterator, Comparable<ValueIterator> {
 
-  int currentCandidate();
-
-  boolean hasMatch(int identifier);
-
+  void movePast(int identifier) throws IOException;
+  boolean moveTo(int identifier) throws IOException;
   boolean next() throws IOException;
 
-  boolean moveTo(int identifier) throws IOException;
-
-  void movePast(int identifier) throws IOException;
+  int currentCandidate();
+  boolean atCandidate(int identifier);
 
   String getEntry() throws IOException;
 }

@@ -75,7 +75,7 @@ public abstract class ExtentDisjunctionIterator extends ExtentCombinationIterato
 
     document = activeIterators.size() > 0 ? activeIterators.peek().currentCandidate() : Integer.MAX_VALUE;
     extents.reset();
-    if (activeIterators.size() > 0 && activeIterators.peek().hasMatch(document)) {
+    if (activeIterators.size() > 0 && activeIterators.peek().atCandidate(document)) {
       loadExtents();
     }
     return !isDone();

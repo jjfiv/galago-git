@@ -49,7 +49,7 @@ public class UniversalIndicatorIterator extends AbstractIndicator {
     moveTo(0);
   }
 
-  public boolean hasMatch(int doc) {
+  public boolean atCandidate(int doc) {
     return (document == doc) && MoveIterators.allHasMatch(iterators, doc);
   }
 
@@ -66,7 +66,7 @@ public class UniversalIndicatorIterator extends AbstractIndicator {
 
     // if we share children with other nodes - be passive
     if (sharedChildren) {
-      if (! hasMatch(document)) {
+      if (! atCandidate(document)) {
       // back off one document -- this allows a movePast to consider the next document correctly
         document--;
       }

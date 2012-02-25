@@ -341,7 +341,7 @@ public class LocalRetrieval implements Retrieval {
     } else if (structIterator instanceof CountIterator) {
       CountValueIterator iterator = (CountValueIterator) structIterator;
       while (!iterator.isDone()) {
-        if (iterator.hasMatch(iterator.currentCandidate())) {
+        if (iterator.atCandidate(iterator.currentCandidate())) {
           stats.nodeFrequency += iterator.count();
           stats.nodeDocumentCount++;
         }

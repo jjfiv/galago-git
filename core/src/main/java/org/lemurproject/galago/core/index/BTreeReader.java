@@ -37,7 +37,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public abstract class BTreeReader {
 
-  public abstract class Iterator implements Comparable<Iterator> {
+  public abstract class BTreeIterator implements Comparable<BTreeIterator> {
 
     /**
      * Returns the current key.
@@ -108,7 +108,7 @@ public abstract class BTreeReader {
       byte[] data = new byte[(int) stream.length()];
       stream.readFully(data);
       return data;
-    }
+    } 
 
     /**
      * Returns the value as a string.
@@ -121,7 +121,7 @@ public abstract class BTreeReader {
     /**
      * Comparator - allows iterators to be read in parallel efficiently
      */
-    public int compareTo(BTreeReader.Iterator i) {
+    public int compareTo(BTreeReader.BTreeIterator i) {
       return Utility.compare(this.getKey(), i.getKey());
     }
   }
@@ -148,13 +148,13 @@ public abstract class BTreeReader {
    * which might be useful for testing and debugging tools, but probably
    * not for traditional document retrieval.
    */
-  public abstract Iterator getIterator() throws IOException;
+  public abstract BTreeIterator getIterator() throws IOException;
 
   /**
    * Returns an iterator pointing at a specific key.  Returns
    * null if the key is not found in the index.
    */
-  public abstract Iterator getIterator(byte[] key) throws IOException;
+  public abstract BTreeIterator getIterator(byte[] key) throws IOException;
 
   /**
    * Closes all files associated with the DiskBTreeReader.
@@ -166,7 +166,7 @@ public abstract class BTreeReader {
    * Returns the value stored in the index associated with this key.
    */
   public String getValueString(byte[] key) throws IOException {
-    Iterator iter = getIterator(key);
+    BTreeIterator iter = getIterator(key);
 
     if (iter == null) {
       return null;
@@ -179,7 +179,7 @@ public abstract class BTreeReader {
    * Returns the value stored in the index associated with this key.
    */
   public byte[] getValueBytes(byte[] key) throws IOException {
-    Iterator iter = getIterator(key);
+    BTreeIterator iter = getIterator(key);
 
     if (iter == null) {
       return null;
@@ -195,7 +195,7 @@ public abstract class BTreeReader {
    * @throws java.io.IOException
    */
   public DataStream getValueStream(byte[] key) throws IOException {
-    Iterator iter = getIterator(key);
+    BTreeIterator iter = getIterator(key);
 
     if (iter == null) {
       return null;

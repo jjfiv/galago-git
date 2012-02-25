@@ -28,6 +28,7 @@ public interface IndexPartReader extends IndexComponentReader {
 
     /// Returns an iterator over the keys of the index.
     public KeyIterator getIterator() throws IOException;
+
     /// Returns an iterator corresponding to a query node from a StructuredQuery.
     /// The type of iterator returned is assumed to be a value iterator (i.e. over one
     /// list in the index)

@@ -64,7 +64,7 @@ public class NullExtentIterator implements ExtentValueIterator, CountValueIterat
     return Integer.MAX_VALUE;
   }
 
-  public boolean hasMatch(int id) {
+  public boolean atCandidate(int id) {
     return false;
   }
 

@@ -51,7 +51,7 @@ public class DiskBTreeReader extends BTreeReader {
   long manifestOffset;
   long footerOffset;
 
-  public class Iterator extends BTreeReader.Iterator {
+  public class Iterator extends BTreeReader.BTreeIterator {
 
     private IndexBlockInfo blockInfo;
     // key block data
@@ -114,6 +114,7 @@ public class DiskBTreeReader extends BTreeReader {
       if (this.keyIndex >= this.keyCount) {
         return this.nextIndexBlock();
       }
+
       while (keyIndex >= cacheKeyCount) {
         this.cacheKeys();
       }
@@ -263,7 +264,6 @@ public class DiskBTreeReader extends BTreeReader {
    * @throws IOException
    */
   public DiskBTreeReader(String pathname) throws FileNotFoundException, IOException {
-    System.err.println("OPENING: " + pathname);
     input = new RandomAccessFile(pathname, "r");
 
     // Seek to the end of the file

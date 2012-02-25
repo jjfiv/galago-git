@@ -74,10 +74,10 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     }
   }
 
-  public class KeyIterator extends KeyValueReader.Iterator {
+  public class KeyIterator extends KeyValueReader.KeyValueIterator {
 
     protected BTreeReader input;
-    protected BTreeReader.Iterator iterator;
+    protected BTreeReader.BTreeIterator iterator;
 
     public KeyIterator(BTreeReader input) throws IOException {
       super(input);
@@ -92,7 +92,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     }
 
     public int getCurrentIdentifier() throws IOException {
-      return Utility.toInt(getKeyBytes());
+      return Utility.toInt(getKey());
     }
 
     @Override
@@ -105,8 +105,8 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     }
 
     @Override
-    public String getKey() {
-      return Integer.toString(Utility.toInt(getKeyBytes()));
+    public String getKeyString() {
+      return Integer.toString(Utility.toInt(getKey()));
     }
 
     @Override
@@ -136,6 +136,11 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
       return reader.getManifest().getLong("keyCount");
     }
 
+    @Override
+    public boolean hasAllCandidates(){
+      return true;
+    }
+    
     @Override
     public String getData() {
       try {

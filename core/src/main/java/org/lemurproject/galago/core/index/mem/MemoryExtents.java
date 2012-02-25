@@ -114,7 +114,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
   public ValueIterator getIterator(Node node) throws IOException {
     KeyIterator i = getIterator();
     i.skipToKey(Utility.fromString(node.getDefaultParameter()));
-    if (0 == Utility.compare(i.getKeyBytes(), Utility.fromString(node.getDefaultParameter()))) {
+    if (0 == Utility.compare(i.getKey(), Utility.fromString(node.getDefaultParameter()))) {
       return i.getValueIterator();
     }
     return null;
@@ -180,7 +180,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
     ExtentArray extents;
     while (!kiterator.isDone()) {
       viterator = (ExtentIterator) kiterator.getValueIterator();
-      writer.processExtentName(kiterator.getKeyBytes());
+      writer.processExtentName(kiterator.getKey());
 
       while (!viterator.isDone()) {
         writer.processNumber(viterator.currentCandidate());
@@ -215,12 +215,12 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public String getKey() throws IOException {
+    public String getKeyString() throws IOException {
       return Utility.toString(currKey);
     }
 
     @Override
-    public byte[] getKeyBytes() {
+    public byte[] getKey() {
       return currKey;
     }
 
@@ -254,7 +254,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
       ExtentIterator it = extents.get(currKey).getExtentIterator();
       count = it.count();
       StringBuilder sb = new StringBuilder();
-      sb.append(Utility.toString(getKeyBytes())).append(",");
+      sb.append(Utility.toString(getKey())).append(",");
       sb.append("list of size: ");
       if (count > 0) {
         sb.append(count);
@@ -270,11 +270,6 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public DataStream getValueStream() throws IOException {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public boolean isDone() {
       return done;
     }
@@ -282,7 +277,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
     @Override
     public int compareTo(KeyIterator t) {
       try {
-        return Utility.compare(this.getKeyBytes(), t.getKeyBytes());
+        return Utility.compare(this.getKey(), t.getKey());
       } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
@@ -421,7 +416,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
       }
 
       @Override
-      public boolean hasMatch(int identifier) {
+      public boolean atCandidate(int identifier) {
         return (!isDone() && identifier == currDocument);
       }
 
@@ -460,7 +455,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
         while (!isDone() && (currDocument < identifier)) {
           next();
         }
-        return hasMatch(identifier);
+        return atCandidate(identifier);
       }
 
       @Override

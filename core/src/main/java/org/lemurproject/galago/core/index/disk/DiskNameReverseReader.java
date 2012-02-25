@@ -62,10 +62,10 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
             "Index doesn't support operator: " + node.getOperator());
   }
 
-  public class KeyIterator extends KeyValueReader.Iterator {
+  public class KeyIterator extends KeyValueReader.KeyValueIterator {
 
     protected BTreeReader input;
-    protected BTreeReader.Iterator iterator;
+    protected BTreeReader.BTreeIterator iterator;
 
     public KeyIterator(BTreeReader input) throws IOException {
       super(input);
@@ -76,7 +76,7 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
     }
 
     public String getCurrentName() throws IOException {
-      return Utility.toString(getKeyBytes());
+      return Utility.toString(getKey());
     }
 
     public int getCurrentIdentifier() throws IOException {
@@ -91,8 +91,8 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
       }
     }
 
-    public String getKey() {
-      return Utility.toString(getKeyBytes());
+    public String getKeyString() {
+      return Utility.toString(getKey());
     }
 
     public KeyToListIterator getValueIterator() throws IOException {

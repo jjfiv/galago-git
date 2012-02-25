@@ -33,7 +33,7 @@ public abstract class DisjointIndexesIterator implements ValueIterator {
     return head.currentCandidate();
   }
 
-  public boolean hasMatch(int identifier) {
+  public boolean atCandidate(int identifier) {
     return (head.currentCandidate() == identifier);
   }
 
@@ -50,7 +50,7 @@ public abstract class DisjointIndexesIterator implements ValueIterator {
     while (!queue.isEmpty()) {
       head = queue.poll();
       head.moveTo(identifier);
-      if (head.hasMatch(identifier)) {
+      if (head.atCandidate(identifier)) {
         return true;
       } else if (!head.isDone()) {
         return false;

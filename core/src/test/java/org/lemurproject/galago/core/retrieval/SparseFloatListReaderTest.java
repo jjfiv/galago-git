@@ -79,7 +79,7 @@ public class SparseFloatListReaderTest extends TestCase {
             context.document = aDocs[i];
             context.length = 100;
             assertEquals(aScores[i], iter.score(), 0.0001);
-            assertTrue(iter.hasMatch(aDocs[i]));
+            assertTrue(iter.atCandidate(aDocs[i]));
 
             iter.movePast(aDocs[i]);
         }
@@ -98,7 +98,7 @@ public class SparseFloatListReaderTest extends TestCase {
         for (i = 0; !iter.isDone(); i++) {
             assertEquals(bDocs[i], iter.currentCandidate());
             assertEquals(bScores[i], iter.score(new ScoringContext(bDocs[i], 100)), 0.0001);
-            assertTrue(iter.hasMatch(bDocs[i]));
+            assertTrue(iter.atCandidate(bDocs[i]));
 
             iter.movePast(bDocs[i]);
         }
@@ -109,8 +109,8 @@ public class SparseFloatListReaderTest extends TestCase {
 
     public void testIterator() throws Exception {
         SparseFloatListReader instance = new SparseFloatListReader(tempPath.toString());
-        SparseFloatListReader.Iterator iter = instance.getIterator();
-        String term = iter.getKey();
+        SparseFloatListReader.KeyValueIterator iter = instance.getIterator();
+        String term = iter.getKeyString();
 
         assertEquals(term, "a");
         assertFalse(iter.isDone());
@@ -123,20 +123,20 @@ public class SparseFloatListReaderTest extends TestCase {
             context.document = aDocs[i];
             context.length = 100;
             assertEquals(lIter.score(), aScores[i], 0.0001);
-            assertTrue(lIter.hasMatch(aDocs[i]));
+            assertTrue(lIter.atCandidate(aDocs[i]));
 
             lIter.movePast(aDocs[i]);
         }
 
         assertTrue(iter.nextKey());
-        term = iter.getKey();
+        term = iter.getKeyString();
         assertEquals(term, "b");
         assertFalse(iter.isDone());
         lIter = (ScoreValueIterator) iter.getValueIterator();
         for (int i = 0; !lIter.isDone(); i++) {
             assertEquals(lIter.currentCandidate(), bDocs[i]);
             assertEquals(lIter.score(new ScoringContext(bDocs[i], 100)), bScores[i], 0.0001);
-            assertTrue(lIter.hasMatch(bDocs[i]));
+            assertTrue(lIter.atCandidate(bDocs[i]));
 
             lIter.movePast(bDocs[i]);
         }

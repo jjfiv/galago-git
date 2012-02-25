@@ -33,7 +33,7 @@ public class FakeScoreIterator implements ScoreValueIterator {
 
   }
 
-  public boolean hasMatch(int document) {
+  public boolean atCandidate(int document) {
     if (isDone()) {
       return false;
     } else {
@@ -45,7 +45,7 @@ public class FakeScoreIterator implements ScoreValueIterator {
     while (!isDone() && document > docs[index]) {
       index++;
     }
-    return (hasMatch(document));
+    return (atCandidate(document));
   }
 
   public void movePast(int document) throws IOException {

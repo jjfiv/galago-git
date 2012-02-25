@@ -42,9 +42,9 @@ public class KeyIteratorWrapper implements Comparable<KeyIteratorWrapper> {
 
   public byte[] getKeyBytes() throws IOException {
     if(mappingKeys){
-      return mappingReader.map(id, this.iterator.getKeyBytes());
+      return mappingReader.map(id, this.iterator.getKey());
     } else {
-      return this.iterator.getKeyBytes();
+      return this.iterator.getKey();
     }
   }
 

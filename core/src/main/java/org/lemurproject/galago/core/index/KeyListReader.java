@@ -27,19 +27,39 @@ public abstract class KeyListReader extends KeyValueReader {
     super(r);
   }
 
-  public abstract class ListIterator implements ValueIterator, ModifiableIterator {
+  public abstract class ListIterator extends MovableValueIterator implements ModifiableIterator {
 
     // OPTIONS
     public static final int HAS_SKIPS = 0x01;
     public static final int HAS_MAXTF = 0x02;
-
-    protected BTreeReader.Iterator source;
     protected byte[] key;
-    protected long dataLength;
     protected Map<String, Object> modifiers = null;
 
-    public abstract String getEntry();
+    public ListIterator(byte[] key) {
+      this.key = key;
+    }
 
+    public abstract void reset(BTreeReader.BTreeIterator it) throws IOException;
+
+    public String getKey() {
+      return Utility.toString(key);
+    }
+
+    public byte[] getKeyBytes() {
+      return key;
+    }
+
+    @Override
+    public boolean atCandidate(int id) {
+      return (!isDone() && currentCandidate() == id);
+    }
+
+    @Override
+    public void movePast(int id) throws IOException {
+      moveTo(id + 1);
+    }
+
+    @Override
     public int compareTo(ValueIterator other) {
       if (isDone() && !other.isDone()) {
         return 1;
@@ -53,46 +73,30 @@ public abstract class KeyListReader extends KeyValueReader {
       return currentCandidate() - other.currentCandidate();
     }
 
+    @Override
     public void addModifier(String k, Object m) {
-      if (modifiers == null) modifiers = new HashMap<String, Object>();
+      if (modifiers == null) {
+        modifiers = new HashMap<String, Object>();
+      }
       modifiers.put(k, m);
     }
 
+    @Override
     public Set<String> getAvailableModifiers() {
       return modifiers.keySet();
     }
 
+    @Override
     public boolean hasModifier(String key) {
       return ((modifiers != null) && modifiers.containsKey(key));
     }
 
+    @Override
     public Object getModifier(String modKey) {
-      if (modifiers == null) return null;
+      if (modifiers == null) {
+        return null;
+      }
       return modifiers.get(modKey);
     }
-
-    public long getByteLength() throws IOException {
-      return dataLength;
-    }
-
-    public String getKey() {
-      return Utility.toString(key);
-    }
-
-    public byte[] getKeyBytes() {
-      return key;
-    }
-
-    public boolean hasMatch(int id) {
-      return (!isDone() && currentCandidate() == id);
-    }
-
-    public void movePast(int id) throws IOException {
-      moveTo(id + 1);
-    }
-
-    public abstract boolean moveTo(int id) throws IOException;
-
-    public abstract void reset(BTreeReader.Iterator it) throws IOException;
   }
 }

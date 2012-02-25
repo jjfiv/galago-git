@@ -67,7 +67,7 @@ public class InverseDocFrequencyIterator extends ScoringFunctionIterator {
       return Integer.MAX_VALUE;
   }
 
-  public boolean hasMatch(int identifier) {
+  public boolean atCandidate(int identifier) {
       return false;
   }
 

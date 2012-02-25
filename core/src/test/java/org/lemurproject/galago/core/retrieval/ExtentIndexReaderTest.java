@@ -177,7 +177,7 @@ public class ExtentIndexReaderTest extends TestCase {
             eait.next();
         }
         extents.moveTo(1299);
-        assertFalse(extents.hasMatch(1299));
+        assertFalse(extents.atCandidate(1299));
         extents.movePast(2100);
         assertTrue(extents.isDone());
         reader.close();

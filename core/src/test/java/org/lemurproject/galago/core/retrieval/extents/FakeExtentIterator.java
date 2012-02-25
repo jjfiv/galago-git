@@ -70,7 +70,7 @@ public class FakeExtentIterator implements ExtentValueIterator, CountValueIterat
   }
 
   @Override
-  public boolean hasMatch(int identifier) {
+  public boolean atCandidate(int identifier) {
     if (isDone()) return false;
     else return (currentCandidate() == identifier);
   }
@@ -80,7 +80,7 @@ public class FakeExtentIterator implements ExtentValueIterator, CountValueIterat
     while (!isDone() && currentCandidate() < identifier) {
       index++;
     }
-    return hasMatch(identifier);
+    return atCandidate(identifier);
   }
 
   @Override

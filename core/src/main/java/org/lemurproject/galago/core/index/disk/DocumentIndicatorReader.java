@@ -66,14 +66,14 @@ public class DocumentIndicatorReader extends KeyValueReader {
     }
   }
 
-  public class KeyIterator extends KeyValueReader.Iterator {
+  public class KeyIterator extends KeyValueReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 
     @Override
-    public String getKey() {
+    public String getKeyString() {
       return Integer.toString(getCurrentDocument());
     }
 
@@ -138,9 +138,14 @@ public class DocumentIndicatorReader extends KeyValueReader {
     public long totalEntries() {
       return manifest.get("keyCount", -1);
     }
+    
+    @Override
+    public boolean hasAllCandidates(){
+      return true;
+    }
 
     @Override
-    public boolean hasMatch(int document) {
+    public boolean atCandidate(int document) {
       if (document != ((KeyIterator) iterator).getCurrentDocument()) {
         return defInst;
       } else {

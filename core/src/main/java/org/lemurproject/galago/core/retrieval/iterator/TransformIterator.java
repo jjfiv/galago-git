@@ -38,8 +38,8 @@ public abstract class TransformIterator implements ScoreValueIterator {
     return iterator.currentCandidate();
   }
 
-  public boolean hasMatch(int identifier) {
-    return iterator.hasMatch(identifier);
+  public boolean atCandidate(int identifier) {
+    return iterator.atCandidate(identifier);
   }
 
   public boolean next() throws IOException {

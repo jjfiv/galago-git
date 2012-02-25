@@ -140,7 +140,7 @@ public class FieldDeltaScoreDocumentModel extends ProcessingModel {
 
       // Now move all matching quorum members forward, and repeat
       for (i = 0; i < context.quorumIndex; i++) {
-        if (context.scorers.get(i).hasMatch(candidate)) {
+        if (context.scorers.get(i).atCandidate(candidate)) {
           context.scorers.get(i).next();
         }
       }

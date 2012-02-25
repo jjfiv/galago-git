@@ -176,12 +176,12 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     @Override
-    public String getKey() {
+    public String getKeyString() {
       return Integer.toString(current + offset);
     }
 
     @Override
-    public byte[] getKeyBytes() {
+    public byte[] getKey() {
       return Utility.fromInt(offset + current);
     }
 
@@ -227,11 +227,6 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     @Override
-    public DataStream getValueStream() throws IOException {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public boolean isDone() {
       return done;
     }
@@ -239,7 +234,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     @Override
     public int compareTo(KeyIterator t) {
       try {
-        return Utility.compare(this.getKeyBytes(), t.getKeyBytes());
+        return Utility.compare(this.getKey(), t.getKey());
       } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
@@ -282,6 +277,11 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     @Override
     public int maximumCount() {
       return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public boolean hasAllCandidates() {
+      return true;
     }
 
     @Override

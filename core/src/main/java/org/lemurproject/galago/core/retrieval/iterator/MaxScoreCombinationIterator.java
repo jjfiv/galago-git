@@ -49,7 +49,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * iterator should move to if we're required to score.
  *
  * Things are a bit trickier when information is requested of the iterator. The semantics are:
- *  hasMatch(doc): Does the iterator have 'doc' in its candidate list? In order to answer this accurately, we need to
+ *  atCandidate(doc): Does the iterator have 'doc' in its candidate list? In order to answer this accurately, we need to
  *                 attempt to score. Given that this is usually called after a move call, we score forward until we reach
  *                 nextDocumentToScore. If lastDocumentScored == doc, return true, meaning it made the cut.
  *  identifier(): What is the next candidate according to this iterator? Once again, we need to attempt to score.
@@ -267,7 +267,7 @@ public class MaxScoreCombinationIterator extends ScoreCombinationIterator {
     return (currentCandidate() == Integer.MAX_VALUE);
   }
 
-  public boolean hasMatch(int identifier) {
+  public boolean atCandidate(int identifier) {
     if ((!isDone()) && (currentCandidate() == identifier)) {
       return true;
     }
@@ -329,7 +329,7 @@ public class MaxScoreCombinationIterator extends ScoreCombinationIterator {
       scoreList.get(i).moveTo(document);
     }
 
-    return hasMatch(document);
+    return atCandidate(document);
   }
 
   /**

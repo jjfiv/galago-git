@@ -16,7 +16,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Reads documents lengths from a document lengths file.
- * Iterator provides a useful interface for dumping the contents of the file.
+ * KeyValueIterator provides a useful interface for dumping the contents of the file.
  * 
  * @author trevor, sjh
  */
@@ -62,15 +62,15 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
     }
   }
 
-  public class KeyIterator extends KeyValueReader.Iterator {
+  public class KeyIterator extends KeyValueReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 
     @Override
-    public String getKey() {
-      return Integer.toString(Utility.toInt(getKeyBytes()));
+    public String getKeyString() {
+      return Integer.toString(Utility.toInt(getKey()));
     }
 
     @Override
@@ -124,6 +124,11 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public boolean hasAllCandidates(){
+      return true;
+    }
+    
     @Override
     public int count() {
       try {

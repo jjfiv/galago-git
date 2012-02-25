@@ -65,7 +65,7 @@ public class MoveIterators {
 
     for (ValueIterator iterator : iterators) {
       if (!iterator.isDone()) {
-        if (!iterator.hasMatch(document)) {
+        if (!iterator.atCandidate(document)) {
           return false;
         }
       }
@@ -81,7 +81,7 @@ public class MoveIterators {
 
     for (ValueIterator iterator : iterators) {
       if (!iterator.isDone()) {
-        if (iterator.hasMatch(document)) {
+        if (iterator.atCandidate(document)) {
           return true;
         }
       }

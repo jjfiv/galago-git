@@ -52,8 +52,8 @@ public abstract class ExtentFilterIterator implements ExtentValueIterator, Count
   }
 
   @Override
-  public boolean hasMatch(int identifier) {
-    return (extentIterator.hasMatch(identifier) && count() > 0);
+  public boolean atCandidate(int identifier) {
+    return (extentIterator.atCandidate(identifier) && count() > 0);
   }
 
   @Override

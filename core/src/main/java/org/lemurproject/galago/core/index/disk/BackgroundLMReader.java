@@ -41,15 +41,8 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
   }
 
-  private String stemAsRequired(String term) {
-    if (stemmer != null) {
-      return stemmer.stem(term);
-    }
-    return term;
-  }
-
   @Override
-  public Iterator getIterator() throws IOException {
+  public KeyValueIterator getIterator() throws IOException {
     return new KeyIterator(reader);
   }
 
@@ -66,7 +59,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
       String stem = stemAsRequired(node.getDefaultParameter());
       KeyIterator ki = new KeyIterator(reader);
       ki.findKey(Utility.fromString(stem));
-      if (Utility.compare(ki.getKeyBytes(), Utility.fromString(stem)) == 0) {
+      if (Utility.compare(ki.getKey(), Utility.fromString(stem)) == 0) {
         return new ValueIterator(ki);
       }
       return null;
@@ -88,7 +81,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     stats.collectionLength = reader.getManifest().get("statistics/collectionLength", 1);
     stats.documentCount = reader.getManifest().get("statistics/documentCount", 1);
 
-    BTreeReader.Iterator iterator = reader.getIterator(term);
+    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
     if (iterator == null) {
       stats.nodeFrequency = 0;
       stats.nodeDocumentCount = 0;
@@ -101,7 +94,14 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     return stats;
   }
 
-  public class KeyIterator extends KeyValueReader.Iterator {
+  private String stemAsRequired(String term) {
+    if (stemmer != null) {
+      return stemmer.stem(term);
+    }
+    return term;
+  }
+
+  public class KeyIterator extends KeyValueReader.KeyValueIterator {
 
     long collectionLength;
     long documentCount;
@@ -117,7 +117,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
         DataInput value = iterator.getValueStream();
 
         NodeStatistics stats = new AggregateReader.NodeStatistics();
-        stats.node = getKey();
+        stats.node = getKeyString();
         stats.collectionLength = this.collectionLength;
         stats.documentCount = this.documentCount;
         stats.nodeFrequency = Utility.uncompressLong(value);
@@ -137,6 +137,16 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     @Override
     public ValueIterator getValueIterator() throws IOException {
       return new ValueIterator(this);
+    }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return Utility.toString(this.iterator.getKey());
+    }
+
+    @Override
+    public byte[] getValueBytes() throws IOException {
+      return this.iterator.getValueBytes();
     }
   }
 
@@ -161,7 +171,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
 
     @Override
-    public boolean hasMatch(int identifier) {
+    public boolean atCandidate(int identifier) {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

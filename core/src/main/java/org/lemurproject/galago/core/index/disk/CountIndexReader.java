@@ -31,7 +31,7 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  */
 public class CountIndexReader extends KeyListReader implements AggregateReader {
 
-  public class KeyIterator extends KeyListReader.Iterator {
+  public class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
@@ -47,7 +47,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
       } catch (IOException ioe) {
       }
       StringBuilder sb = new StringBuilder();
-      sb.append(Utility.toString(getKeyBytes())).append(",");
+      sb.append(Utility.toString(getKey())).append(",");
       sb.append("list of size: ");
       if (count > 0) {
         sb.append(count);
@@ -61,12 +61,18 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     public ValueIterator getValueIterator() throws IOException {
       return new TermCountIterator(iterator);
     }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return Utility.toString(iterator.getKey());
+    }
+
   }
 
   public class TermCountIterator extends KeyListReader.ListIterator
           implements AggregateIterator, CountValueIterator {
 
-    BTreeReader.Iterator iterator;
+    BTreeReader.BTreeIterator iterator;
     int documentCount;
     int collectionCount;
     int maximumPositionCount;
@@ -92,7 +98,8 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     long documentsByteFloor;
     long countsByteFloor;
 
-    public TermCountIterator(BTreeReader.Iterator iterator) throws IOException {
+    public TermCountIterator(BTreeReader.BTreeIterator iterator) throws IOException {
+      super(iterator.getKey());
       reset(iterator);
     }
 
@@ -101,7 +108,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     // Even though we check for skips multiple times, in terms of how the data is loaded
     // its easier to do the parts when appropriate
     protected void initialize() throws IOException {
-      DataStream valueStream = iterator.getSubValueStream(0, dataLength);
+      DataStream valueStream = iterator.getSubValueStream(0, iterator.getValueLength());
       DataInput stream = new VByteInput(valueStream);
 
       // metadata
@@ -188,11 +195,10 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     }
 
     @Override
-    public void reset(BTreeReader.Iterator i) throws IOException {
+    public void reset(BTreeReader.BTreeIterator i) throws IOException {
       iterator = i;
       startPosition = iterator.getValueStart();
       endPosition = iterator.getValueEnd();
-      dataLength = iterator.getValueLength();
       key = iterator.getKey();
       initialize();
     }
@@ -230,7 +236,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
 
       // linear from here
       while (document > currentDocument && next());
-      return hasMatch(document);
+      return atCandidate(document);
     }
 
     // This only moves forward in tier 1, reads from tier 2 only when
@@ -282,6 +288,11 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     @Override
     public int currentCandidate() {
       return currentDocument;
+    }
+
+    @Override
+    public boolean hasAllCandidates(){
+      return false;
     }
 
     @Override
@@ -342,7 +353,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
    * null if the term doesn't exist in the inverted file.
    */
   public TermCountIterator getTermCounts(byte[] key) throws IOException {
-    BTreeReader.Iterator iterator = reader.getIterator(key);
+    BTreeReader.BTreeIterator iterator = reader.getIterator(key);
 
     if (iterator != null) {
       return new TermCountIterator(iterator);
@@ -351,17 +362,12 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
   }
 
   public TermCountIterator getTermCounts(String term) throws IOException {
-    BTreeReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
+    BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
 
     if (iterator != null) {
       return new TermCountIterator(iterator);
     }
     return null;
-  }
-
-  @Override
-  public void close() throws IOException {
-    reader.close();
   }
 
   @Override
@@ -386,7 +392,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
 
   @Override
   public NodeStatistics getTermStatistics(byte[] term) throws IOException {
-    BTreeReader.Iterator iterator = reader.getIterator(term);
+    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
 
     if (iterator != null) {
       TermCountIterator termCountIterator = new TermCountIterator(iterator);

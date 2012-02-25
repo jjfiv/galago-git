@@ -131,11 +131,11 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
       return (Utility.compare(key, currKey) == 0);
     }
 
-    public String getKey() {
+    public String getKeyString() {
       return Integer.toString(Utility.toInt(currKey));
     }
 
-    public byte[] getKeyBytes() {
+    public byte[] getKey() {
       return currKey;
     }
 
@@ -168,7 +168,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
     public int compareTo(KeyIterator t) {
       try {
-        return Utility.compare(this.getKeyBytes(), t.getKeyBytes());
+        return Utility.compare(this.getKey(), t.getKey());
       } catch (IOException ex) {
         throw new RuntimeException("Failed to compare mem-corpus keys");
       }

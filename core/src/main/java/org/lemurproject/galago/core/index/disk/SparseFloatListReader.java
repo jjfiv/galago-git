@@ -24,7 +24,7 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  */
 public class SparseFloatListReader extends KeyListReader {
 
-  public class KeyIterator extends KeyListReader.Iterator {
+  public class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
@@ -53,6 +53,11 @@ public class SparseFloatListReader extends KeyListReader {
     public ListIterator getValueIterator() throws IOException {
       return new ListIterator(iterator);
     }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return Utility.toString(iterator.getKey());
+    }
   }
 
   public class ListIterator extends KeyListReader.ListIterator
@@ -65,7 +70,8 @@ public class SparseFloatListReader extends KeyListReader {
     double currentScore;
     ScoringContext context;
 
-    public ListIterator(BTreeReader.Iterator iterator) throws IOException {
+    public ListIterator(BTreeReader.BTreeIterator iterator) throws IOException {
+      super(iterator.getKey());
       reset(iterator);
     }
 
@@ -98,7 +104,7 @@ public class SparseFloatListReader extends KeyListReader {
       return false;
     }
 
-    public void reset(BTreeReader.Iterator iterator) throws IOException {
+    public void reset(BTreeReader.BTreeIterator iterator) throws IOException {
       DataStream buffered = iterator.getValueStream();
       stream = new VByteInput(buffered);
       documentCount = stream.readInt();
@@ -124,8 +130,13 @@ public class SparseFloatListReader extends KeyListReader {
     public int currentCandidate() {
       return currentDocument;
     }
-
-    public boolean hasMatch(int document) {
+    
+    @Override
+    public boolean hasAllCandidates(){
+      return false;
+    }
+    
+    public boolean atCandidate(int document) {
       return document == currentDocument;
     }
 
@@ -133,7 +144,7 @@ public class SparseFloatListReader extends KeyListReader {
       while (!isDone() && document > currentDocument) {
         read();
       }
-      return hasMatch(document);
+      return atCandidate(document);
     }
 
     public void movePast(int document) throws IOException {
@@ -190,17 +201,13 @@ public class SparseFloatListReader extends KeyListReader {
   }
 
   public ListIterator getScores(String term) throws IOException {
-    BTreeReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
+    BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
     return new ListIterator(iterator);
-  }
-
-  public void close() throws IOException {
-    reader.close();
   }
 
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> nodeTypes = new HashMap<String, NodeType>();
-    nodeTypes.put("scores", new NodeType(Iterator.class));
+    nodeTypes.put("scores", new NodeType(ListIterator.class));
     return nodeTypes;
   }
 
