@@ -17,7 +17,7 @@ public class ScoringFunctionIterator extends TransformIterator {
 
   protected ScoringFunction function;
 
-  public ScoringFunctionIterator(CountValueIterator iterator, ScoringFunction function) throws IOException {
+  public ScoringFunctionIterator(MovableCountIterator iterator, ScoringFunction function) throws IOException {
     super(iterator);
     this.function = function;
   }

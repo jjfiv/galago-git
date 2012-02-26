@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.disk.DiskLengthsReader;
 import org.lemurproject.galago.core.index.disk.PositionIndexReader;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.core.types.TopDocsEntry;
 import org.lemurproject.galago.tupleflow.Counter;
@@ -52,7 +52,7 @@ public class TopDocsScanner extends StandardStep<KeyValuePair, TopDocsEntry> {
   PositionIndexReader partReader;
   DiskLengthsReader.KeyIterator docLengths;
   DiskLengthsReader docReader;
-  CountValueIterator extentIterator;
+  MovableCountIterator extentIterator;
   TopDocsEntry tde;
 
   public TopDocsScanner(TupleFlowParameters parameters) throws Exception {

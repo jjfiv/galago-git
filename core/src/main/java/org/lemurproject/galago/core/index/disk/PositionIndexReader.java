@@ -14,14 +14,13 @@ import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.DataStream;
-import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
@@ -78,7 +77,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
   }
 
   public class TermExtentIterator extends KeyListReader.ListIterator
-          implements AggregateIterator, CountValueIterator, ExtentValueIterator, ContextualIterator {
+          implements AggregateIterator, MovableCountIterator, ExtentValueIterator, ContextualIterator {
 
     BTreeReader.BTreeIterator iterator;
     ScoringContext context;
@@ -388,7 +387,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
    *
    */
   public class TermCountIterator extends KeyListReader.ListIterator
-          implements AggregateIterator, CountValueIterator, ContextualIterator {
+          implements AggregateIterator, MovableCountIterator, ContextualIterator {
 
     BTreeReader.BTreeIterator iterator;
     ScoringContext context;

@@ -10,13 +10,11 @@ import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
-import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.core.util.IntArray;
-import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -246,7 +244,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
   }
 
-  private static class VIterator extends KeyToListIterator implements CountValueIterator, LengthsReader.Iterator {
+  private static class VIterator extends KeyToListIterator implements MovableCountIterator, LengthsReader.Iterator {
 
     public VIterator(KeyIterator it) {
       super(it);
@@ -282,12 +280,6 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     @Override
     public boolean hasAllCandidates() {
       return true;
-    }
-
-    @Override
-    public boolean skipToKey(int candidate) throws IOException {
-      KIterator ki = (KIterator) iterator;
-      return ki.skipToKey(candidate);
     }
 
     @Override

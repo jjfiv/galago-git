@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.geometric;
 
-import org.lemurproject.galago.core.index.geometric.GeometricIndex;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
@@ -16,11 +15,9 @@ import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.parse.Document;
 
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
-import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -65,13 +62,13 @@ public class GeometricIndexTest extends TestCase {
       assertTrue(stats.documentCount == 255);
 
       NamesReader.Iterator names = index.getNamesIterator();
-      names.skipToKey(99);
+      names.moveTo(99);
       assertEquals(names.getCurrentName(), "DOC-" + 99);
       names.next();
       assertEquals(names.getCurrentName(), "DOC-" + 100);
 
       LengthsReader.Iterator lengths = index.getLengthsIterator();
-      lengths.skipToKey(99);
+      lengths.moveTo(99);
       assertEquals(lengths.getCurrentIdentifier(), 99);
       assertEquals(lengths.getCurrentLength(), 5);
       lengths.next();
@@ -79,7 +76,7 @@ public class GeometricIndexTest extends TestCase {
       assertEquals(lengths.getCurrentLength(), 5);
 
       Node q1 = StructuredQuery.parse("#counts:sample:part=postings()");
-      CountValueIterator ci1 = (CountValueIterator) index.getIterator(q1);
+      MovableCountIterator ci1 = (MovableCountIterator) index.getIterator(q1);
       assert ci1 != null;
       ci1.moveTo(99);
       assertEquals(ci1.currentCandidate(), 99);
@@ -89,7 +86,7 @@ public class GeometricIndexTest extends TestCase {
       assertEquals(ci1.count(), 1);
 
       Node q2 = StructuredQuery.parse("#counts:@/101/:part=postings()");
-      CountValueIterator ci2 = (CountValueIterator) index.getIterator(q2);
+      MovableCountIterator ci2 = (MovableCountIterator) index.getIterator(q2);
       assertEquals(ci2.currentCandidate(), 101);
       assertEquals(ci2.count(), 1);
       ci2.next();

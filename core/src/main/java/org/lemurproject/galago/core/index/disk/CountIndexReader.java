@@ -12,9 +12,9 @@ import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
 import org.lemurproject.galago.tupleflow.DataStream;
@@ -70,7 +70,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
   }
 
   public class TermCountIterator extends KeyListReader.ListIterator
-          implements AggregateIterator, CountValueIterator {
+          implements AggregateIterator, MovableCountIterator {
 
     BTreeReader.BTreeIterator iterator;
     int documentCount;

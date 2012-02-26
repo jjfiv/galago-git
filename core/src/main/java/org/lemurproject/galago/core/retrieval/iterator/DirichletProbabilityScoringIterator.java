@@ -29,7 +29,7 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
   public int parentIdx;
   String partName;
 
-  public DirichletProbabilityScoringIterator(Parameters globalParams, NodeParameters p, CountValueIterator it)
+  public DirichletProbabilityScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
           throws IOException {
     super(it, new DirichletProbabilityScorer(globalParams, p, it));
     if (it instanceof PositionIndexReader.TermCountIterator) {

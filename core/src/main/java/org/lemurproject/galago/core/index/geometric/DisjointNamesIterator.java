@@ -41,7 +41,7 @@ public class DisjointNamesIterator extends DisjointIndexesIterator implements Na
     queue.offer(head);
     while(!queue.isEmpty()){
       head = queue.poll();
-      if(((NamesReader.Iterator) head).skipToKey(candidate)){
+      if(((NamesReader.Iterator) head).moveTo(candidate)){
         return true;
       } else if(!head.isDone()){
         return false;

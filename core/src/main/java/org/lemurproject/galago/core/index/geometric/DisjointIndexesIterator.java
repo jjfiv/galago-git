@@ -7,44 +7,51 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
  * @author sjh
  */
-public abstract class DisjointIndexesIterator implements ValueIterator {
+public abstract class DisjointIndexesIterator implements MovableIterator {
 
-  Collection<ValueIterator> allIterators;
-  ValueIterator head;
-  PriorityQueue<ValueIterator> queue;
+  Collection<MovableIterator> allIterators;
+  MovableIterator head;
+  PriorityQueue<MovableIterator> queue;
 
-  public DisjointIndexesIterator(Collection<ValueIterator> iterators) {
+  public DisjointIndexesIterator(Collection<MovableIterator> iterators) {
     allIterators = iterators;
     queue = new PriorityQueue(iterators);
     head = queue.poll();
   }
 
+  @Override
   public boolean isDone() {
     return queue.isEmpty() && head.isDone();
   }
 
+  @Override
   public int currentCandidate() {
     return head.currentCandidate();
   }
 
+  @Override
   public boolean atCandidate(int identifier) {
     return (head.currentCandidate() == identifier);
   }
 
+  @Override
   public void movePast(int identifier) throws IOException {
     moveTo(currentCandidate() + 1);
   }
 
+  @Override
   public boolean next() throws IOException {
     return moveTo(currentCandidate() + 1);
   }
 
+  @Override
   public boolean moveTo(int identifier) throws IOException {
     queue.offer(head);
     while (!queue.isEmpty()) {
@@ -61,10 +68,12 @@ public abstract class DisjointIndexesIterator implements ValueIterator {
     return false;
   }
 
+  @Override
   public String getEntry() throws IOException {
     return head.getEntry();
   }
 
+  @Override
   public long totalEntries() {
     long count = 0;
     for (ValueIterator i : allIterators) {
@@ -73,20 +82,31 @@ public abstract class DisjointIndexesIterator implements ValueIterator {
     return count;
   }
 
+  @Override
   public void reset() throws IOException {
     queue = new PriorityQueue();
-    for (ValueIterator i : allIterators) {
+    for (MovableIterator i : allIterators) {
       i.reset();
       queue.offer(i);
     }
-    while(!queue.isEmpty()){
+    while (!queue.isEmpty()) {
       head = queue.poll();
-      if(!head.isDone()){
+      if (!head.isDone()) {
         return;
       }
     }
   }
 
+  @Override
+  public boolean hasAllCandidates() {
+    boolean flag = true;
+    for(MovableIterator i : allIterators){
+      flag &= i.hasAllCandidates();
+    }
+    return flag;
+  }
+
+  @Override
   public int compareTo(ValueIterator o) {
     return Utility.compare(this.currentCandidate(), o.currentCandidate());
   }

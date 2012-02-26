@@ -17,6 +17,9 @@ import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
+ * 
+ * This is an example indexer - it uses the geometricindex to 
+ * dynamically construct an index of the input documents
  *
  * @author sjh
  */

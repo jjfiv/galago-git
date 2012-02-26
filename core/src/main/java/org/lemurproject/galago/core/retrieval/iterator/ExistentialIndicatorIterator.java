@@ -62,6 +62,15 @@ public class ExistentialIndicatorIterator extends AbstractIndicator {
             && MoveIterators.anyHasMatch(iterators, doc);
   }
 
+  public boolean hasAllCandidates(){
+    //for(MovableIterator i : iterators){
+    //  if(i.hasAllCandidates()){
+    //    return true;
+    //  }
+    //}
+    return false;
+  }
+  
   public boolean indicator(int doc){
     return atCandidate(doc);
   }

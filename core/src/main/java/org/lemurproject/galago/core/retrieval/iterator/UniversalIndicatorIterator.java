@@ -53,6 +53,16 @@ public class UniversalIndicatorIterator extends AbstractIndicator {
     return (document == doc) && MoveIterators.allHasMatch(iterators, doc);
   }
 
+  public boolean hasAllCandidates() {
+    //for(MovableIterator i : iterators){
+    //  if(!i.hasAllCandidates()){
+    //    return false;
+    //  }
+    //}
+    //return true;
+    return false;
+  }
+
   public boolean indicator(int doc) {
     return atCandidate(doc);
   }

@@ -9,9 +9,9 @@ import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.index.LengthsReader;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -105,7 +105,7 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
     }
   }
 
-  public class ValueIterator extends KeyToListIterator implements CountValueIterator, LengthsReader.Iterator {
+  public class ValueIterator extends KeyToListIterator implements MovableCountIterator, LengthsReader.Iterator {
 
     public ValueIterator(KeyIterator it) {
       super(it);
@@ -141,12 +141,6 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
     @Override
     public int maximumCount() {
       return Integer.MAX_VALUE;
-    }
-
-    @Override
-    public boolean skipToKey(int candidate) throws IOException {
-      KeyIterator ki = (KeyIterator) iterator;
-      return ki.skipToKey(candidate);
     }
 
     @Override

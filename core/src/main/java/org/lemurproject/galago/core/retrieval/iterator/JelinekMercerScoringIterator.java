@@ -21,7 +21,7 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator {
     protected double loweredMaximum = Double.POSITIVE_INFINITY;
 
 
-    public JelinekMercerScoringIterator(Parameters globalParams, NodeParameters p, CountValueIterator it)
+    public JelinekMercerScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
             throws IOException {
     super(it, new JelinekMercerScorer(globalParams, p, it));
   }

@@ -21,7 +21,7 @@ public class JelinekMercerProbabilityScoringIterator extends ScoringFunctionIter
   protected double loweredMaximum = Double.POSITIVE_INFINITY;
   protected String partName;
 
-  public JelinekMercerProbabilityScoringIterator(Parameters globalParams, NodeParameters p, CountValueIterator it)
+  public JelinekMercerProbabilityScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
           throws IOException {
     super(it, new JelinekMercerProbabilityScorer(globalParams, p, it));
     partName = p.getString("lengths");

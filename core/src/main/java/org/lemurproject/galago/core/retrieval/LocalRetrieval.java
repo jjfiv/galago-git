@@ -1,14 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
-import org.lemurproject.galago.core.retrieval.processing.RankedDocumentModel;
 import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -28,15 +25,14 @@ import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.retrieval.iterator.AbstractIndicator;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
-import org.lemurproject.galago.core.retrieval.processing.RankedPassageModel;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Parameters.Type;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -254,7 +250,7 @@ public class LocalRetrieval implements Retrieval {
     Iterator namesIterator = index.getNamesIterator();
 
     for (T doc : byID) {
-      namesIterator.skipToKey(doc.document);
+      namesIterator.moveTo(doc.document);
       if (doc.document == namesIterator.getCurrentIdentifier()) {
         doc.documentName = namesIterator.getCurrentName();
       } else {
@@ -338,8 +334,9 @@ public class LocalRetrieval implements Retrieval {
     StructuredIterator structIterator = createIterator(root, null);
     if (AggregateIterator.class.isInstance(structIterator)) {
       stats = ((AggregateIterator) structIterator).getStatistics();
-    } else if (structIterator instanceof CountIterator) {
-      CountValueIterator iterator = (CountValueIterator) structIterator;
+ 
+    } else if (structIterator instanceof MovableCountIterator) {
+      MovableCountIterator iterator = (MovableCountIterator) structIterator;
       while (!iterator.isDone()) {
         if (iterator.atCandidate(iterator.currentCandidate())) {
           stats.nodeFrequency += iterator.count();
@@ -347,6 +344,7 @@ public class LocalRetrieval implements Retrieval {
         }
         iterator.next();
       }
+
     } else {
       throw new IllegalArgumentException("Node " + root.toString() + " did not return a counting iterator.");
     }
@@ -372,7 +370,7 @@ public class LocalRetrieval implements Retrieval {
     if (ScoreIterator.class.isAssignableFrom(outputClass)
             || ScoringFunctionIterator.class.isAssignableFrom(outputClass)) {
       return QueryType.RANKED;
-    } else if (AbstractIndicator.class.isAssignableFrom(outputClass)) {
+    } else if (IndicatorIterator.class.isAssignableFrom(outputClass)) {
       return QueryType.BOOLEAN;
     } else if (CountIterator.class.isAssignableFrom(outputClass)) {
       return QueryType.COUNT;

@@ -5,7 +5,7 @@
 package org.lemurproject.galago.core.scoring;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -20,7 +20,7 @@ public class PL2FieldScorer implements ScoringFunction {
     double avgDocLength;
     double c;
     double log2;
-    public PL2FieldScorer(Parameters globalParams, NodeParameters parameters, CountValueIterator iterator) throws IOException {
+    public PL2FieldScorer(Parameters globalParams, NodeParameters parameters, MovableCountIterator iterator) throws IOException {
     c = parameters.get("c", globalParams.get("c", 0.5));
 
     if (c <= 0) throw new IllegalArgumentException("c parameter must be greater than 0");

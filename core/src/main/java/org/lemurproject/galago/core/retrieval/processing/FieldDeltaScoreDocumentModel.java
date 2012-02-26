@@ -101,7 +101,7 @@ public class FieldDeltaScoreDocumentModel extends ProcessingModel {
 
       // Otherwise move lengths
       context.document = candidate;
-      lengthsIterator.skipToKey(candidate);
+      lengthsIterator.moveTo(candidate);
       context.length = lengthsIterator.getCurrentLength();
       this.updateFieldLengths(context, candidate);
 
@@ -194,7 +194,7 @@ public class FieldDeltaScoreDocumentModel extends ProcessingModel {
 
       // Otherwise move lengths
       context.document = candidate;
-      lengthsIterator.skipToKey(candidate);
+      lengthsIterator.moveTo(candidate);
       context.length = lengthsIterator.getCurrentLength();
       this.updateFieldLengths(context, candidate);
 

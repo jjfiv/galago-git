@@ -293,7 +293,6 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     // if we have a corpus folder
     File file = new File(fileName);
     if (SplitBTreeReader.isBTree(file)) {
-      System.err.println("HAVE A SPLITBTREE.");
       File folder = file.getParentFile();
       for (File f : folder.listFiles()) {
         corpusSize += f.length();

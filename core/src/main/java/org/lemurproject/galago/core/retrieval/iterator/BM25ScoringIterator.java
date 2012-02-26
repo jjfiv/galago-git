@@ -14,7 +14,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 @RequiredStatistics(statistics = {"collectionLength", "documentCount","nodeDocumentCount"})
 public class BM25ScoringIterator extends ScoringFunctionIterator {
-    public BM25ScoringIterator(Parameters globalParams, NodeParameters p, CountValueIterator it)
+    public BM25ScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
         throws IOException {
         super(it, new BM25Scorer(globalParams, p, it));
     }

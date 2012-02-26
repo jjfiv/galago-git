@@ -73,7 +73,7 @@ public class RankedFieldedModel extends ProcessingModel {
     for (int i = 0; i < whitelist.length; i++) {
       int document = whitelist[i];
       iterator.moveTo(document);
-      lengthsIterator.skipToKey(document);
+      lengthsIterator.moveTo(document);
       int length = lengthsIterator.getCurrentLength();
       this.updateFieldLengths(context, document);
       // This context is shared among all scorers
@@ -113,7 +113,7 @@ public class RankedFieldedModel extends ProcessingModel {
     // now there should be an iterator at the root of this tree
     while (!iterator.isDone()) {
       int document = iterator.currentCandidate();
-      lengthsIterator.skipToKey(document);
+      lengthsIterator.moveTo(document);
       int length = lengthsIterator.getCurrentLength();
       updateFieldLengths(context, document);
       // This context is shared among all scorers

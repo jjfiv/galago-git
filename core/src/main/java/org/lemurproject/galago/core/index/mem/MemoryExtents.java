@@ -25,14 +25,13 @@ import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ModifiableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
 import org.lemurproject.galago.core.util.ExtentArray;
-import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -344,7 +343,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
     }
 
     public class ExtentIterator implements ValueIterator, ModifiableIterator,
-            AggregateIterator, CountValueIterator, ExtentValueIterator, ContextualIterator {
+            AggregateIterator, MovableCountIterator, ExtentValueIterator, ContextualIterator {
 
       VByteInput documents_reader;
       VByteInput counts_reader;
@@ -418,6 +417,11 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
       @Override
       public boolean atCandidate(int identifier) {
         return (!isDone() && identifier == currDocument);
+      }
+
+      @Override
+      public boolean hasAllCandidates() {
+        return false;
       }
 
       @Override

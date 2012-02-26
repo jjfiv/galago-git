@@ -17,7 +17,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 @RequiredStatistics(statistics = {"collectionProbability"})
 public class DirichletScoringIterator extends ScoringFunctionIterator {
 
-  public DirichletScoringIterator(Parameters globalParams, NodeParameters p, CountValueIterator it)
+  public DirichletScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
           throws IOException {
     super(it, new DirichletScorer(globalParams, p, it));
   }

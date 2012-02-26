@@ -250,7 +250,6 @@ public class FeatureFactory {
       return getFeatureClassName(node.getNodeParameters());
     }
 
-
     OperatorSpec operatorType = operatorLookup.get(operator);
 
     if (operatorType == null) {
@@ -258,7 +257,6 @@ public class FeatureFactory {
     }
 
     // This is to compensate for the transparent behavior of the fitering nodes
-
     return operatorType.className;
   }
 

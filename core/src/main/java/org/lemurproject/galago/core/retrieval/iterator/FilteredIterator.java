@@ -16,17 +16,17 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public abstract class FilteredIterator implements CountValueIterator, ScoreValueIterator, ExtentValueIterator, ContextualIterator {
+public abstract class FilteredIterator implements MovableCountIterator, ScoreValueIterator, ExtentValueIterator, ContextualIterator {
 
   protected ScoringContext context;
   protected IndicatorIterator indicator;
-  protected CountValueIterator counter;
+  protected MovableCountIterator counter;
   protected ScoreValueIterator scorer;
   protected ExtentValueIterator extents;
   protected ValueIterator mover;
   protected boolean sharedChildren;
 
-  public FilteredIterator(Parameters globalParams, NodeParameters parameters, IndicatorIterator indicator, CountValueIterator counter) {
+  public FilteredIterator(Parameters globalParams, NodeParameters parameters, IndicatorIterator indicator, MovableCountIterator counter) {
     this.sharedChildren = globalParams.get("shareNodes", false);
     this.indicator = indicator;
     this.scorer = null;
@@ -55,8 +55,8 @@ public abstract class FilteredIterator implements CountValueIterator, ScoreValue
     this.extents = extents;
     this.mover = extents;
     // Try to treat it as a counter if possible
-    if (CountValueIterator.class.isAssignableFrom(extents.getClass())) {
-      this.counter = (CountValueIterator) extents;
+    if (MovableCountIterator.class.isAssignableFrom(extents.getClass())) {
+      this.counter = (MovableCountIterator) extents;
     } else {
       this.counter = null;
     }
@@ -126,6 +126,11 @@ public abstract class FilteredIterator implements CountValueIterator, ScoreValue
   @Override
   public int currentCandidate() {
     return mover.currentCandidate();
+  }
+
+  @Override
+  public boolean hasAllCandidates(){
+    return false;
   }
 
   @Override

@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -151,7 +151,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
   }
 
   public class ValueIterator implements org.lemurproject.galago.core.index.ValueIterator,
-          AggregateIterator, CountValueIterator {
+          AggregateIterator, MovableCountIterator {
 
     protected KeyIterator iterator;
 
@@ -222,6 +222,11 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
 
     @Override
     public int maximumCount() {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean hasAllCandidates() {
       throw new UnsupportedOperationException("Not supported yet.");
     }
   }

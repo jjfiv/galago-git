@@ -1,8 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
-import org.lemurproject.galago.core.index.mem.FlushToDisk;
-import org.lemurproject.galago.core.index.mem.MemoryIndex;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +10,7 @@ import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -51,7 +49,7 @@ public class MemoryIndexTest extends TestCase {
     assertEquals(index.getCollectionStatistics().vocabCount, 204);
 
     Node n = StructuredQuery.parse("#counts:sample:part=postings()");
-    CountValueIterator ci = (CountValueIterator) index.getIterator(n);
+    MovableCountIterator ci = (MovableCountIterator) index.getIterator(n);
     assertEquals(ci.currentCandidate(), 0);
     int total = 0;
     do {
@@ -86,7 +84,7 @@ public class MemoryIndexTest extends TestCase {
       NodeParameters np = new NodeParameters();
       np.set("part", "postings");
       np.set("default", "sample");
-      CountValueIterator iterator = (CountValueIterator) index.getIterator(new Node("counts", np));
+      MovableCountIterator iterator = (MovableCountIterator) index.getIterator(new Node("counts", np));
       assertEquals(iterator.currentCandidate(), 101);
 
       output = Utility.createTemporaryDirectory();

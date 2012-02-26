@@ -88,11 +88,6 @@ public class FieldLengthsReader implements LengthsReader {
     }
 
     @Override
-    public boolean skipToKey(int candidate) throws IOException {
-      return counts.moveTo(candidate);
-    }
-
-    @Override
     public int getCurrentLength() throws IOException {
       int total = 0;
       ExtentArray extents = counts.extents();
@@ -155,6 +150,11 @@ public class FieldLengthsReader implements LengthsReader {
     @Override
     public int compareTo(ValueIterator t) {
       return counts.compareTo(t);
+    }
+
+    @Override
+    public boolean hasAllCandidates() {
+      return false;
     }
   }
 }

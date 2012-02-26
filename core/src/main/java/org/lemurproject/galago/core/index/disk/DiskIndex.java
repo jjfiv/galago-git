@@ -205,7 +205,7 @@ public class DiskIndex implements Index {
   @Override
   public boolean containsDocumentIdentifier(int document) throws IOException {
     NamesReader.Iterator ni = this.getNamesIterator();
-    ni.skipToKey(document);
+    ni.moveTo(document);
     return ni.atCandidate(document);
   }
 

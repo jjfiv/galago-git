@@ -151,12 +151,6 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     }
 
     @Override
-    public boolean skipToKey(int candidate) throws IOException {
-      KeyIterator ki = (KeyIterator) iterator;
-      return ki.skipToKey(candidate);
-    }
-
-    @Override
     public String getCurrentName() throws IOException {
       KeyIterator ki = (KeyIterator) iterator;
       return ki.getCurrentName();

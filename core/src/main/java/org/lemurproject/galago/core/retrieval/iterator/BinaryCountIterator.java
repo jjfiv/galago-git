@@ -9,7 +9,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  *
  * @author marc
  */
-public class BinaryCountIterator implements CountValueIterator {
+public class BinaryCountIterator implements MovableCountIterator {
 
   AbstractIndicator iterator;
 
@@ -75,5 +75,10 @@ public class BinaryCountIterator implements CountValueIterator {
   @Override
   public int compareTo(ValueIterator t) {
     return iterator.compareTo(t);
+  }
+
+  @Override
+  public boolean hasAllCandidates() {
+    return iterator.hasAllCandidates();
   }
 }

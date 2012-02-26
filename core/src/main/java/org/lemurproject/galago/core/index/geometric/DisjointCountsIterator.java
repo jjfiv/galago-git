@@ -4,25 +4,25 @@
 package org.lemurproject.galago.core.index.geometric;
 
 import java.util.Collection;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 
 /**
  *
  * @author sjh
  */
-public class DisjointCountsIterator extends DisjointIndexesIterator implements CountValueIterator {
+public class DisjointCountsIterator extends DisjointIndexesIterator implements MovableCountIterator {
 
-  public DisjointCountsIterator(Collection<CountValueIterator> iterators) {
+  public DisjointCountsIterator(Collection<MovableCountIterator> iterators) {
     super((Collection) iterators);
   }
 
   @Override
   public int count() {
-    return ((CountValueIterator) head).count();
+    return ((MovableCountIterator) head).count();
   }
 
   @Override
   public int maximumCount() {
-    return ((CountValueIterator) head).maximumCount();
+    return ((MovableCountIterator) head).maximumCount();
   }
 }

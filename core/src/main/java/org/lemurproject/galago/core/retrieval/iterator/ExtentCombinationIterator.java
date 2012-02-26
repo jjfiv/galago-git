@@ -13,7 +13,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author irmarc
  */
-public abstract class ExtentCombinationIterator implements ExtentValueIterator, CountValueIterator {
+public abstract class ExtentCombinationIterator implements ExtentValueIterator, MovableCountIterator {
 
   /**
    * The iterators this iterator manages.
@@ -79,6 +79,11 @@ public abstract class ExtentCombinationIterator implements ExtentValueIterator, 
     return ((currentCandidate() == identifier) && (extents.size() > 0));
   }
 
+  @Override
+  public boolean hasAllCandidates(){
+    return false;
+  }
+  
   /**
    * Moves this iterator past the identifier passed in.
    * @param identifier

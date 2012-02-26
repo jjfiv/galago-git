@@ -4,15 +4,15 @@ package org.lemurproject.galago.core.retrieval.extents;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.util.ExtentArray;
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 
 /**
  *
  * @author trevor
  * @author irmarc
  */
-public class FakeExtentIterator implements ExtentValueIterator, CountValueIterator {
+public class FakeExtentIterator implements ExtentValueIterator, MovableCountIterator {
 
   int[][] data;
   int index;
@@ -38,18 +38,6 @@ public class FakeExtentIterator implements ExtentValueIterator, CountValueIterat
   }
 
   @Override
-  public ExtentArray extents() {
-    ExtentArray array = new ExtentArray();
-    int[] datum = data[index];
-    array.setDocument(datum[0]);
-    for (int i = 1; i < datum.length; i++) {
-      array.add(datum[i]);
-    }
-
-    return array;
-  }
-
-  @Override
   public int currentCandidate() {
     return data[index][0];
   }
@@ -70,9 +58,24 @@ public class FakeExtentIterator implements ExtentValueIterator, CountValueIterat
   }
 
   @Override
+  public ExtentArray extents() {
+    ExtentArray array = new ExtentArray();
+    int[] datum = data[index];
+    array.setDocument(datum[0]);
+    for (int i = 1; i < datum.length; i++) {
+      array.add(datum[i]);
+    }
+
+    return array;
+  }
+
+  @Override
   public boolean atCandidate(int identifier) {
-    if (isDone()) return false;
-    else return (currentCandidate() == identifier);
+    if (isDone()) {
+      return false;
+    } else {
+      return (currentCandidate() == identifier);
+    }
   }
 
   @Override
@@ -115,5 +118,10 @@ public class FakeExtentIterator implements ExtentValueIterator, CountValueIterat
   @Override
   public int maximumCount() {
     throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
+  public boolean hasAllCandidates() {
+    return false;
   }
 }

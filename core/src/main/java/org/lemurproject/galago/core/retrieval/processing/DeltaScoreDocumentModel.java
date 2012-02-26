@@ -93,7 +93,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
 
       // Otherwise move lengths
       context.document = candidate;
-      lengthsIterator.skipToKey(candidate);
+      lengthsIterator.moveTo(candidate);
       context.length = lengthsIterator.getCurrentLength();
 
       // Setup to score
@@ -185,7 +185,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
 
       // Otherwise move lengths
       context.document = candidate;
-      lengthsIterator.skipToKey(candidate);
+      lengthsIterator.moveTo(candidate);
       context.length = lengthsIterator.getCurrentLength();
 
       // Setup to score

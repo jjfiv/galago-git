@@ -37,7 +37,7 @@ public class DisjointLengthsIterator extends DisjointIndexesIterator implements 
     queue.offer(head);
     while(!queue.isEmpty()){
       head = queue.poll();
-      if(((LengthsReader.Iterator) head).skipToKey(candidate)){
+      if(((LengthsReader.Iterator) head).moveTo(candidate)){
         return true;
       } else if(!head.isDone()){
         return false;

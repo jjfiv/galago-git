@@ -17,7 +17,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 @RequiredStatistics(statistics = {"nodeDocumentCount", "collectionLength", "documentCount"})
 public class InverseDocFrequencyIterator extends ScoringFunctionIterator {
- public InverseDocFrequencyIterator(Parameters globalParams, NodeParameters p, CountValueIterator it)
+ public InverseDocFrequencyIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
           throws IOException {
     super(it, new InverseDocumentFrequencyScorer(globalParams, p, it));
     // And now dump it

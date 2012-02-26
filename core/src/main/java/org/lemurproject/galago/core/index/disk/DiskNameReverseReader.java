@@ -31,11 +31,13 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
   }
 
   // gets the document name of the internal id index.
+  @Override
   public String getDocumentName(int index) throws IOException {
     throw new UnsupportedOperationException("This index file does not support doc int -> doc name mappings");
   }
 
   // gets the document id for some document name
+  @Override
   public int getDocumentIdentifier(String documentName) throws IOException {
     byte[] data = reader.getValueBytes(Utility.fromString(documentName));
     if (data == null) {
@@ -44,19 +46,23 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
     return Utility.toInt(data);
   }
 
+  @Override
   public NamesReader.Iterator getNamesIterator() throws IOException {
     throw new UnsupportedOperationException("This index file does not support doc int -> doc name mappings");
   }
 
+  @Override
   public KeyIterator getIterator() throws IOException {
     return new KeyIterator(reader);
   }
 
+  @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
     return types;
   }
 
+  @Override
   public KeyToListIterator getIterator(Node node) throws IOException {
     throw new UnsupportedOperationException(
             "Index doesn't support operator: " + node.getOperator());
@@ -65,7 +71,6 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
   public class KeyIterator extends KeyValueReader.KeyValueIterator {
 
     protected BTreeReader input;
-    protected BTreeReader.BTreeIterator iterator;
 
     public KeyIterator(BTreeReader input) throws IOException {
       super(input);
@@ -83,6 +88,7 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
       return Utility.toInt(getValueBytes());
     }
 
+    @Override
     public String getValueString() {
       try {
         return Integer.toString(Utility.toInt(getValueBytes()));
@@ -91,10 +97,12 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
       }
     }
 
+    @Override
     public String getKeyString() {
       return Utility.toString(getKey());
     }
 
+    @Override
     public KeyToListIterator getValueIterator() throws IOException {
       throw new UnsupportedOperationException("This index file does not support doc int -> doc name mappings");
     }

@@ -13,7 +13,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 public class RejectIterator extends FilteredIterator {
 
   public RejectIterator(Parameters globalParams, NodeParameters p, IndicatorIterator indicator,
-          CountValueIterator counter) throws IOException {
+          MovableCountIterator counter) throws IOException {
     super(globalParams, p, indicator, counter);
     moveTo(0);
   }

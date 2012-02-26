@@ -5,14 +5,13 @@ import java.io.IOException;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * This class acts as a filtering node over extent nodes. 
  *
  * @author irmarc
  */
-public abstract class ExtentFilterIterator implements ExtentValueIterator, CountValueIterator {
+public abstract class ExtentFilterIterator implements ExtentValueIterator, MovableCountIterator {
 
   protected ExtentValueIterator extentIterator;
 
@@ -56,6 +55,10 @@ public abstract class ExtentFilterIterator implements ExtentValueIterator, Count
     return (extentIterator.atCandidate(identifier) && count() > 0);
   }
 
+  public boolean hasAllCandidates(){
+    return false;
+  }
+  
   @Override
   public boolean next() throws IOException {
     return extentIterator.next();
