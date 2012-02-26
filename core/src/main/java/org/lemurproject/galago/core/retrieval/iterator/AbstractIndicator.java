@@ -28,7 +28,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  * @author irmarc
  */
 public abstract class AbstractIndicator
-        implements IndicatorIterator, MovableIterator {
+        implements MovableIndicatorIterator {
 
   protected ValueIterator[] iterators;
 

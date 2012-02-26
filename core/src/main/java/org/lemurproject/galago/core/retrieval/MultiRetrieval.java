@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
-import gnu.trove.list.array.TIntArrayList;
 import java.io.IOException;
 import java.lang.String;
 import java.util.ArrayList;
@@ -14,12 +13,12 @@ import java.util.Map;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.structured.FeatureFactory;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.retrieval.iterator.AbstractIndicator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
@@ -361,7 +360,7 @@ public class MultiRetrieval implements Retrieval {
     if (ScoreIterator.class.isAssignableFrom(outputClass)
             || ScoringFunctionIterator.class.isAssignableFrom(outputClass)) {
       return QueryType.RANKED;
-    } else if (AbstractIndicator.class.isAssignableFrom(outputClass)) {
+    } else if (IndicatorIterator.class.isAssignableFrom(outputClass)) {
       return QueryType.BOOLEAN;
     } else {
       return QueryType.RANKED;

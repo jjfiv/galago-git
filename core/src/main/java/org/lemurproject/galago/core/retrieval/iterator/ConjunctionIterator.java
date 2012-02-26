@@ -4,8 +4,8 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import org.lemurproject.galago.core.index.ValueIterator;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 
 /**
  *
@@ -15,15 +15,10 @@ public abstract class ConjunctionIterator implements MovableIterator {
 
   protected MovableIterator[] iterators;
   protected MovableIterator[] drivingIterators;
-  boolean hasAllCandidates;
+  protected boolean hasAllCandidates;
 
   public ConjunctionIterator(MovableIterator[] queryIterators) {
-    // first check that the iterators are all MovableIterators:
-    this.iterators = new MovableIterator[queryIterators.length];
-    for (int i = 0; i < queryIterators.length; i++) {
-      assert (MovableIterator.class.isAssignableFrom(queryIterators[i].getClass())) : "Can not cast " + queryIterators[i].getClass().getName() + " to a " + MovableIterator.class.getName();
-      this.iterators[i] = (MovableIterator) queryIterators[i];
-    }
+    this.iterators = queryIterators;
 
     // count the number of iterators that dont have
     // a non-default data for all candidates
@@ -34,7 +29,7 @@ public abstract class ConjunctionIterator implements MovableIterator {
       }
     }
 
-    if (drivingIteratorCount == 0) {
+    if (drivingIteratorCount <= 0) {
       // if all iterators will report matches for all documents
       // make sure this information is communicated up.
       hasAllCandidates = true;
@@ -50,12 +45,20 @@ public abstract class ConjunctionIterator implements MovableIterator {
       drivingIterators = new MovableIterator[drivingIteratorCount];
       int i = 0;
       for (MovableIterator iterator : this.iterators) {
-        if (iterator.hasAllCandidates()) {
+        if (!iterator.hasAllCandidates()) {
           drivingIterators[i] = iterator;
           i++;
         }
       }
     }
+    
+    for(MovableIterator i : this.iterators){
+      System.err.println(i);
+    }
+    for(MovableIterator i : this.drivingIterators){
+      System.err.println(i);
+    }
+    
   }
 
   @Override
@@ -97,20 +100,22 @@ public abstract class ConjunctionIterator implements MovableIterator {
 
   @Override
   public boolean atCandidate(int candidate) {
-    boolean flag = true;
     for (MovableIterator iterator : drivingIterators) {
-      flag &= iterator.atCandidate(candidate);
+      if (!iterator.atCandidate(candidate)) {
+        return false;
+      }
     }
-    return flag;
+    return true;
   }
 
   @Override
   public boolean isDone() {
-    boolean flag = false;
     for (MovableIterator iterator : drivingIterators) {
-      flag |= iterator.isDone();
+      if (iterator.isDone()) {
+        return true;
+      }
     }
-    return flag;
+    return false;
   }
 
   @Override
@@ -123,6 +128,15 @@ public abstract class ConjunctionIterator implements MovableIterator {
   @Override
   public boolean hasAllCandidates() {
     return hasAllCandidates;
+  }
+
+  @Override
+  public long totalEntries() {
+    long min = Integer.MAX_VALUE;
+    for (ValueIterator iterator : iterators) {
+      min = Math.min(min, iterator.totalEntries());
+    }
+    return min;
   }
 
   @Override

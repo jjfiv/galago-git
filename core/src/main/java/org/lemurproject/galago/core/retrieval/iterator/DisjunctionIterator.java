@@ -19,11 +19,7 @@ public abstract class DisjunctionIterator implements MovableIterator {
 
   public DisjunctionIterator(MovableIterator[] queryIterators) {
     // first check that the iterators are all MovableIterators:
-    this.iterators = new MovableIterator[queryIterators.length];
-    for (int i = 0; i < queryIterators.length; i++) {
-      assert (MovableIterator.class.isAssignableFrom(queryIterators[i].getClass())) : "Can not cast " + queryIterators[i].getClass().getName() + " to a " + MovableIterator.class.getName();
-      this.iterators[i] = (MovableIterator) queryIterators[i];
-    }
+    this.iterators = queryIterators;
 
     // count the number of iterators that dont have
     // a non-default data for all candidates
@@ -50,7 +46,7 @@ public abstract class DisjunctionIterator implements MovableIterator {
       drivingIterators = new MovableIterator[drivingIteratorCount];
       int i = 0;
       for (MovableIterator iterator : this.iterators) {
-        if (iterator.hasAllCandidates()) {
+        if (!iterator.hasAllCandidates()) {
           drivingIterators[i] = iterator;
           i++;
         }
@@ -84,27 +80,31 @@ public abstract class DisjunctionIterator implements MovableIterator {
     // the current candidate is the smallest of the set
     int candidate = Integer.MAX_VALUE;
     for (MovableIterator iterator : drivingIterators) {
-      candidate = Math.min(candidate, iterator.currentCandidate());
+      if (!iterator.isDone()) {
+        candidate = Math.min(candidate, iterator.currentCandidate());
+      }
     }
     return candidate;
   }
 
   @Override
   public boolean atCandidate(int candidate) {
-    boolean flag = false;
     for (MovableIterator iterator : drivingIterators) {
-      flag |= iterator.atCandidate(candidate);
+      if (iterator.atCandidate(candidate)) {
+        return true;
+      }
     }
-    return flag;
+    return false;
   }
 
   @Override
   public boolean isDone() {
-    boolean flag = true;
     for (MovableIterator iterator : drivingIterators) {
-      flag &= iterator.isDone();
+      if (!iterator.isDone()) {
+        return false;
+      }
     }
-    return flag;
+    return true;
   }
 
   @Override
@@ -117,6 +117,19 @@ public abstract class DisjunctionIterator implements MovableIterator {
   @Override
   public boolean hasAllCandidates() {
     return hasAllCandidates;
+  }
+
+  @Override
+  public long totalEntries() {
+    long total = 0;
+    for (MovableIterator i : this.iterators) {
+      if (i.hasAllCandidates()) {
+        return i.totalEntries();
+      } else {
+        total += i.totalEntries();
+      }
+    }
+    return total;
   }
 
   @Override
