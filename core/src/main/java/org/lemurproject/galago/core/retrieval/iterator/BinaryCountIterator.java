@@ -19,7 +19,7 @@ public class BinaryCountIterator implements CountValueIterator {
 
   @Override
   public int count() {
-    return iterator.atCandidate(iterator.currentCandidate()) ? 1 : 0;
+    return (iterator.indicator(this.currentCandidate()))? 1 : 0 ;
   }
 
   @Override

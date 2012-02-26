@@ -61,6 +61,10 @@ public class ExistentialIndicatorIterator extends AbstractIndicator {
     return (doc == document)
             && MoveIterators.anyHasMatch(iterators, doc);
   }
+
+  public boolean indicator(int doc){
+    return atCandidate(doc);
+  }
   
   public String getEntry() throws IOException {
     return Integer.toString(document);

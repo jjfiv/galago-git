@@ -64,7 +64,11 @@ public class ThresholdIterator implements IndicatorIterator, ContextualIterator 
     return iterator.isDone();
   }
 
-  public boolean atCandidate(int identifier) {
+  public boolean atCandidate(int identifier){
+    return this.iterator.atCandidate(identifier);
+  }
+  
+  public boolean indicator(int identifier) {
     // needs to check the score against a threshold.
     hasMatchContext.document = document;
     hasMatchContext.length = 100; // need a better method.

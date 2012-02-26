@@ -47,6 +47,10 @@ public abstract class FieldComparisonIterator extends AbstractIndicator {
   public int currentCandidate() {
     return iterator.currentCandidate();
   }
+  
+  public boolean atCandidate(int identifier) {
+    return !isDone() && iterator.currentCandidate() == identifier;
+  }
 
   public boolean moveTo(int identifier) throws IOException {
     return iterator.moveTo(identifier);

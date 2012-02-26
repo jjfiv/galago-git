@@ -21,7 +21,8 @@ public class BoostingIterator extends TransformIterator {
   }
 
   public double score() {
-    if (((IndicatorIterator) iterator).atCandidate(context.document)) {
+    if(atCandidate(context.document) 
+            && ((IndicatorIterator) iterator).indicator(context.document)){
       return beta;
     } else {
       return 0.0;
@@ -29,7 +30,8 @@ public class BoostingIterator extends TransformIterator {
   }
 
   public double score(ScoringContext context) {
-    if (((IndicatorIterator) iterator).atCandidate(context.document)) {
+    if(atCandidate(context.document) 
+            && ((IndicatorIterator) iterator).indicator(context.document)){
       return beta;
     } else {
       return 0.0;

@@ -20,7 +20,7 @@ public class LessThanIterator extends FieldComparisonIterator {
     parseField(p);
   }
 
-  public boolean atCandidate(int identifier) {
+  public boolean indicator(int identifier) {
     if (currentCandidate() != identifier) {
       return false;
     } else if (format.equals("string")) {

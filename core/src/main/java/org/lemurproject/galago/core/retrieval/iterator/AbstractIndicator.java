@@ -28,7 +28,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  * @author irmarc
  */
 public abstract class AbstractIndicator
-        implements IndicatorIterator {
+        implements IndicatorIterator, ValueIterator {
 
   protected ValueIterator[] iterators;
 
@@ -58,5 +58,10 @@ public abstract class AbstractIndicator
       return 0;
     }
     return currentCandidate() - other.currentCandidate();
+  }
+  
+  @Override
+  public boolean atCandidate(int identifier){
+    return (!isDone() && this.currentCandidate() == identifier);
   }
 }

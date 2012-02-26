@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
@@ -145,7 +146,7 @@ public class DocumentIndicatorReader extends KeyValueReader {
     }
 
     @Override
-    public boolean atCandidate(int document) {
+    public boolean indicator(int document) {
       if (document != ((KeyIterator) iterator).getCurrentDocument()) {
         return defInst;
       } else {
