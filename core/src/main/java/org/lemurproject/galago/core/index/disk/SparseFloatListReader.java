@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import gnu.trove.map.hash.TObjectDoubleHashMap;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
@@ -50,6 +49,7 @@ public class SparseFloatListReader extends KeyListReader {
       return sb.toString();
     }
 
+    @Override
     public ListIterator getValueIterator() throws IOException {
       return new ListIterator(iterator);
     }
@@ -84,6 +84,7 @@ public class SparseFloatListReader extends KeyListReader {
       }
     }
 
+    @Override
     public String getEntry() {
       StringBuilder builder = new StringBuilder();
 
@@ -96,6 +97,7 @@ public class SparseFloatListReader extends KeyListReader {
       return builder.toString();
     }
 
+    @Override
     public boolean next() throws IOException {
       read();
       if (!isDone()) {
@@ -104,6 +106,7 @@ public class SparseFloatListReader extends KeyListReader {
       return false;
     }
 
+    @Override
     public void reset(BTreeReader.BTreeIterator iterator) throws IOException {
       DataStream buffered = iterator.getValueStream();
       stream = new VByteInput(buffered);
@@ -115,18 +118,17 @@ public class SparseFloatListReader extends KeyListReader {
       }
     }
 
+    @Override
     public void reset() throws IOException {
       throw new UnsupportedOperationException("This iterator does not reset without the parent KeyIterator.");
     }
 
+    @Override
     public void setContext(ScoringContext dc) {
       this.context = dc;
     }
 
-    public ScoringContext getContext() {
-      return context;
-    }
-
+    @Override
     public int currentCandidate() {
       return currentDocument;
     }
@@ -136,10 +138,7 @@ public class SparseFloatListReader extends KeyListReader {
       return false;
     }
     
-    public boolean atCandidate(int document) {
-      return document == currentDocument;
-    }
-
+    @Override
     public boolean moveTo(int document) throws IOException {
       while (!isDone() && document > currentDocument) {
         read();
@@ -147,12 +146,7 @@ public class SparseFloatListReader extends KeyListReader {
       return atCandidate(document);
     }
 
-    public void movePast(int document) throws IOException {
-      while (!isDone() && document >= currentDocument) {
-        read();
-      }
-    }
-
+    @Override
     public double score(ScoringContext dc) {
       if (currentDocument == dc.document) {
         return currentScore;
@@ -160,6 +154,7 @@ public class SparseFloatListReader extends KeyListReader {
       return Double.NEGATIVE_INFINITY;
     }
 
+    @Override
     public double score() {
       if (currentDocument == context.document) {
         return currentScore;
@@ -167,24 +162,24 @@ public class SparseFloatListReader extends KeyListReader {
       return Double.NEGATIVE_INFINITY;
     }
 
+    @Override
     public boolean isDone() {
       return index >= documentCount;
     }
 
+    @Override
     public long totalEntries() {
       return documentCount;
     }
 
+    @Override
     public double maximumScore() {
       return Double.POSITIVE_INFINITY;
     }
 
+    @Override
     public double minimumScore() {
       return Double.NEGATIVE_INFINITY;
-    }
-
-    public TObjectDoubleHashMap<String> parameterSweepScore() {
-      throw new UnsupportedOperationException("Not supported yet.");
     }
   }
 
@@ -192,6 +187,7 @@ public class SparseFloatListReader extends KeyListReader {
     super(pathname);
   }
 
+  @Override
   public KeyIterator getIterator() throws IOException {
     return new KeyIterator(reader);
   }
@@ -205,12 +201,14 @@ public class SparseFloatListReader extends KeyListReader {
     return new ListIterator(iterator);
   }
 
+  @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> nodeTypes = new HashMap<String, NodeType>();
     nodeTypes.put("scores", new NodeType(ListIterator.class));
     return nodeTypes;
   }
 
+  @Override
   public MovableValueIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("scores")) {
       return getScores(node.getDefaultParameter());

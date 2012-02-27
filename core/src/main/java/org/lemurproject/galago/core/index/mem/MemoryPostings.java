@@ -580,11 +580,6 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
       return modifiers.get(modKey);
     }
 
-    @Override
-    public ScoringContext getContext() {
-      return this.context;
-    }
-
     // This will pass up topdocs information if it's available
     @Override
     public void setContext(ScoringContext context) {
@@ -767,11 +762,6 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
         return null;
       }
       return modifiers.get(modKey);
-    }
-
-    @Override
-    public ScoringContext getContext() {
-      return this.context;
     }
 
     // This will pass up topdocs information if it's available

@@ -31,6 +31,7 @@ public class InverseDocumentFrequencyScorer implements ScoringFunction {
     }
   }
 
+  @Override
   public double score(int count, int length) {
     return idf;
   }

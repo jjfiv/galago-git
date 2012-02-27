@@ -9,7 +9,7 @@ import java.util.Arrays;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.core.retrieval.iterator.AbstractIndicator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIndicatorIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -51,7 +51,7 @@ public class SetModel extends ProcessingModel {
     ScoringContext context = new ScoringContext();
 
     // construct the query iterators
-    AbstractIndicator iterator = (AbstractIndicator) retrieval.createIterator(queryTree, context);
+    MovableIndicatorIterator iterator = (MovableIndicatorIterator) retrieval.createIterator(queryTree, context);
     ArrayList<ScoredDocument> list = new ArrayList<ScoredDocument>();
     while (!iterator.isDone()) {
       if (iterator.atCandidate(iterator.currentCandidate())) {
@@ -70,7 +70,7 @@ public class SetModel extends ProcessingModel {
     Arrays.sort(whitelist);
 
     // construct the query iterators
-    AbstractIndicator iterator = (AbstractIndicator) retrieval.createIterator(queryTree, context);
+    MovableIndicatorIterator iterator = (MovableIndicatorIterator) retrieval.createIterator(queryTree, context);
     ArrayList<ScoredDocument> list = new ArrayList<ScoredDocument>();
 
     for (int i = 0; i < whitelist.length; i++) {

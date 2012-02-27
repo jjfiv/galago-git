@@ -32,7 +32,7 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
 
     // Used in counting # of score calls. Uncomment if you want to track that.
     CallTable.increment("score_req");
-    if (iterator.currentCandidate() == dc.document) {
+    if (iterator.atCandidate(dc.document)) {
       count = ((CountIterator)iterator).count();
     }
     return function.score(count, dc.length);
@@ -44,7 +44,7 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
 
     // Used in counting # of score calls. Uncomment if you want to track that.
     CallTable.increment("score_req");
-    if (iterator.currentCandidate() == context.document) {
+    if (iterator.atCandidate(context.document)) {
       count = ((CountIterator)iterator).count();
     }
     double score = function.score(count, context.length);

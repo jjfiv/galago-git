@@ -14,11 +14,12 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class BM25FCombinationIterator extends ScoreCombinationIterator {
 
-  double K;
+  double K = - 1;
 
   public BM25FCombinationIterator(Parameters globalParams, NodeParameters parameters,
           MovableScoreIterator[] childIterators) {
     super(globalParams, parameters, childIterators);
+    System.err.println("SETTING K");
     K = parameters.getDouble("K");
   }
 

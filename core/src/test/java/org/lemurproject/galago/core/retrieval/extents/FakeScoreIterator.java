@@ -91,11 +91,6 @@ public class FakeScoreIterator implements MovableScoreIterator {
   }
 
   @Override
-  public ScoringContext getContext() {
-    return context;
-  }
-
-  @Override
   public void setContext(ScoringContext context) {
     this.context = context;
   }

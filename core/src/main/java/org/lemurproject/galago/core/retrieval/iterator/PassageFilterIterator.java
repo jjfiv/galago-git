@@ -55,11 +55,6 @@ public class PassageFilterIterator extends ExtentFilterIterator implements Conte
   }
 
   @Override
-  public ScoringContext getContext() {
-    return context;
-  }
-
-  @Override
   public void setContext(ScoringContext context) {
     if (!PassageScoringContext.class.isAssignableFrom(context.getClass())) {
       throw new RuntimeException("Trying to set a non-Passage-capable context as a PassageScoringContext");

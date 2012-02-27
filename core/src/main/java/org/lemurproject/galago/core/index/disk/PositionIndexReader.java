@@ -363,11 +363,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       return stats;
     }
 
-    @Override
-    public ScoringContext getContext() {
-      return this.context;
-    }
-
     // This will pass up topdocs information if it's available
     @Override
     public void setContext(ScoringContext context) {
@@ -639,11 +634,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       stats.collectionLength = reader.getManifest().get("statistics/collectionLength", -1);
       stats.documentCount = reader.getManifest().get("statistics/documentCount", -1);
       return stats;
-    }
-
-    @Override
-    public ScoringContext getContext() {
-      return this.context;
     }
 
     // This will pass up topdocs information if it's available

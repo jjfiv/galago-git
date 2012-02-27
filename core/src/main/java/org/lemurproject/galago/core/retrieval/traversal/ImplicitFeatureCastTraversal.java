@@ -67,7 +67,7 @@ public class ImplicitFeatureCastTraversal extends Traversal {
   }
 
   Node createTopdocsNode(Node child) throws Exception {
-    // First (and only) child should be a scoring function iterator node
+    // First (and only) child should be a scoring function fieldIterator node
     if (!isScoringFunctionNode(child)) {
       return child;
     }

@@ -80,17 +80,12 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Mov
   }
 
   @Override
-  public void setContext(ScoringContext context) {
-    // This is done when the children are constructed
-  }
-
-  @Override
-  public ScoringContext getContext() {
-    return scoreIterators[0].getContext();
-  }
-
-  @Override
   public String getEntry() throws IOException {
     return this.currentCandidate() + " " + this.score();
+  }
+
+  @Override
+  public void setContext(ScoringContext context) {
+    // do nothing by default
   }
 }

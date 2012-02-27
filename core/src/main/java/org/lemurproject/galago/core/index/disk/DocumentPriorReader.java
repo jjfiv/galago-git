@@ -134,11 +134,6 @@ public class DocumentPriorReader extends KeyValueReader {
     }
 
     @Override
-    public ScoringContext getContext() {
-      return context;
-    }
-
-    @Override
     public void setContext(ScoringContext context) {
       this.context = context;
     }
