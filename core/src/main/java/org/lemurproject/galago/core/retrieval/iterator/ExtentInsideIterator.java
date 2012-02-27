@@ -14,10 +14,10 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author trevor
  */
-public class ExtentInsideIterator extends MovableExtentConjunctionIterator {
+public class ExtentInsideIterator extends ExtentConjunctionIterator {
 
-  ExtentValueIterator innerIterator;
-  ExtentValueIterator outerIterator;
+  MovableExtentIterator innerIterator;
+  MovableExtentIterator outerIterator;
 
   /**
    * <p>Constructs an #inside instance.  For <tt>#inside(a b)</tt>, this
@@ -35,9 +35,9 @@ public class ExtentInsideIterator extends MovableExtentConjunctionIterator {
    * @throws java.io.IOException
    */
   public ExtentInsideIterator(Parameters globalParams, NodeParameters parameters,
-          ExtentValueIterator innerIterator,
-          ExtentValueIterator outerIterator) throws IOException {
-    super(new ExtentValueIterator[]{innerIterator, outerIterator});
+          MovableExtentIterator innerIterator,
+          MovableExtentIterator outerIterator) throws IOException {
+    super(new MovableExtentIterator[]{innerIterator, outerIterator});
     this.innerIterator = innerIterator;
     this.outerIterator = outerIterator;
     // load the first document

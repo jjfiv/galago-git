@@ -20,7 +20,7 @@ import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.IndexPartModifier;
 import org.lemurproject.galago.core.index.IndexPartReader;
-import org.lemurproject.galago.core.index.MovableValueIterator;
+import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator;
@@ -364,7 +364,7 @@ public class App {
       // if we have a key-list index
       if (KeyListReader.class.isAssignableFrom(reader.getClass())) {
         while (!iterator.isDone()) {
-          MovableValueIterator vIter = iterator.getValueIterator();
+          ValueIterator vIter = iterator.getValueIterator();
           while (!vIter.isDone()) {
             output.println(vIter.getEntry());
             vIter.next();
@@ -463,7 +463,7 @@ public class App {
 
       if (iterator.skipToKey(Utility.fromString(key))) {
         if (KeyListReader.class.isAssignableFrom(reader.getClass())) {
-          MovableValueIterator vIter = iterator.getValueIterator();
+          ValueIterator vIter = iterator.getValueIterator();
           while (!vIter.isDone()) {
             output.printf("%s\n", vIter.getEntry());
             vIter.next();

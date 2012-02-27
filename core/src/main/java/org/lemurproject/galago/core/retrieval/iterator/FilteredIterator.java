@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.MovableValueIterator;
+import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
@@ -16,13 +16,13 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public abstract class FilteredIterator implements MovableCountIterator, MovableScoreIterator, ExtentValueIterator, ContextualIterator {
+public abstract class FilteredIterator implements MovableCountIterator, MovableScoreIterator, MovableExtentIterator, ContextualIterator {
 
   protected ScoringContext context;
   protected MovableIndicatorIterator indicator;
   protected MovableCountIterator counter;
   protected MovableScoreIterator scorer;
-  protected ExtentValueIterator extents;
+  protected MovableExtentIterator extents;
   protected MovableIterator mover;
   protected boolean sharedChildren;
 
@@ -32,8 +32,8 @@ public abstract class FilteredIterator implements MovableCountIterator, MovableS
     this.scorer = null;
     this.counter = counter;
     this.mover = counter;
-    if (ExtentValueIterator.class.isAssignableFrom(counter.getClass())) {
-      this.extents = (ExtentValueIterator) counter;
+    if (MovableExtentIterator.class.isAssignableFrom(counter.getClass())) {
+      this.extents = (MovableExtentIterator) counter;
     } else {
       this.extents = null;
     }
@@ -48,7 +48,7 @@ public abstract class FilteredIterator implements MovableCountIterator, MovableS
     this.mover = scorer;
   }
 
-  public FilteredIterator(Parameters globalParams, NodeParameters parameters, MovableIndicatorIterator indicator, ExtentValueIterator extents) {
+  public FilteredIterator(Parameters globalParams, NodeParameters parameters, MovableIndicatorIterator indicator, MovableExtentIterator extents) {
     this.sharedChildren = globalParams.get("shareNodes", false);
     this.indicator = indicator;
     this.scorer = null;

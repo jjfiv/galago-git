@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.retrieval.extents;
 
 import org.lemurproject.galago.core.util.ExtentArray;
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 
@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
  * @author trevor
  * @author irmarc
  */
-public class FakeExtentIterator implements ExtentValueIterator, MovableCountIterator {
+public class FakeExtentIterator implements MovableExtentIterator, MovableCountIterator {
 
   int[][] data;
   int index;

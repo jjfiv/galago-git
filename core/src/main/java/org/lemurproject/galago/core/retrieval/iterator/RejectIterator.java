@@ -25,7 +25,7 @@ public class RejectIterator extends FilteredIterator {
   }
 
   public RejectIterator(Parameters globalParams, NodeParameters p, MovableIndicatorIterator indicator,
-          ExtentValueIterator extents) throws IOException {
+          MovableExtentIterator extents) throws IOException {
     super(globalParams, p, indicator, extents);
     moveTo(0);
   }

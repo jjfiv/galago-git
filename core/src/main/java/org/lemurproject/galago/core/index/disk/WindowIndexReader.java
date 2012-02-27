@@ -10,12 +10,12 @@ import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
-import org.lemurproject.galago.core.index.MovableValueIterator;
+import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
 import org.lemurproject.galago.core.util.ExtentArray;
@@ -64,7 +64,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       return sb.toString();
     }
 
-    public MovableValueIterator getValueIterator() throws IOException {
+    public ValueIterator getValueIterator() throws IOException {
       return new TermExtentIterator(iterator);
     }
 
@@ -75,7 +75,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
   }
 
   public class TermExtentIterator extends KeyListReader.ListIterator
-          implements AggregateIterator, MovableCountIterator, ExtentValueIterator {
+          implements AggregateIterator, MovableCountIterator, MovableExtentIterator {
 
     BTreeReader.BTreeIterator iterator;
     int documentCount;
@@ -702,7 +702,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
   }
 
   @Override
-  public MovableValueIterator getIterator(Node node) throws IOException {
+  public ValueIterator getIterator(Node node) throws IOException {
     String term = stemAsRequired(node.getDefaultParameter());
     if (node.getOperator().equals("counts")) {
       return getTermCounts(term);

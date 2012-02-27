@@ -4,7 +4,7 @@
 package org.lemurproject.galago.core.index.geometric;
 
 import java.util.Collection;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.util.ExtentArray;
 
@@ -12,9 +12,9 @@ import org.lemurproject.galago.core.util.ExtentArray;
  *
  * @author sjh
  */
-public class DisjointExtentsIterator extends DisjointIndexesIterator implements ExtentValueIterator, MovableCountIterator {
+public class DisjointExtentsIterator extends DisjointIndexesIterator implements MovableExtentIterator, MovableCountIterator {
 
-  public DisjointExtentsIterator(Collection<ExtentValueIterator> iterators) {
+  public DisjointExtentsIterator(Collection<MovableExtentIterator> iterators) {
     super((Collection) iterators);
   }
 
@@ -30,11 +30,11 @@ public class DisjointExtentsIterator extends DisjointIndexesIterator implements 
 
   @Override
   public ExtentArray extents() {
-    return ((ExtentValueIterator) head).extents();
+    return ((MovableExtentIterator) head).extents();
   }
 
   @Override
   public ExtentArray getData() {
-    return ((ExtentValueIterator) head).getData();
+    return ((MovableExtentIterator) head).getData();
   }
 }

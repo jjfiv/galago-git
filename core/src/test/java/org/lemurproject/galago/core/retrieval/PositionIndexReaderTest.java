@@ -17,7 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.AggregateReader;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 
 /**
  *
@@ -86,7 +86,7 @@ public class PositionIndexReaderTest extends TestCase {
     }
 
     public void internalTestIterator(
-            ExtentValueIterator termExtents,
+            MovableExtentIterator termExtents,
             int[][] data) throws IOException {
         assertNotNull(termExtents);
         assertFalse(termExtents.isDone());
@@ -113,7 +113,7 @@ public class PositionIndexReaderTest extends TestCase {
 
     public void testA() throws Exception {
         PositionIndexReader reader = new PositionIndexReader(tempPath.toString());
-        ExtentValueIterator termExtents = reader.getTermExtents("a");
+        MovableExtentIterator termExtents = reader.getTermExtents("a");
 
         internalTestIterator(termExtents, dataA);
 
@@ -126,7 +126,7 @@ public class PositionIndexReaderTest extends TestCase {
 
     public void testB() throws Exception {
         PositionIndexReader reader = new PositionIndexReader(tempPath.toString());
-        ExtentValueIterator termExtents = reader.getTermExtents("b");
+        MovableExtentIterator termExtents = reader.getTermExtents("b");
 
         internalTestIterator(termExtents, dataB);
         assertEquals(2, reader.getTermStatistics("b").nodeDocumentCount);

@@ -17,7 +17,7 @@ import org.lemurproject.galago.core.index.CompressedByteBuffer;
 
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
-import org.lemurproject.galago.core.index.MovableValueIterator;
+import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.index.mem.MemoryExtents.ExtentList.ExtentIterator;
 import org.lemurproject.galago.core.parse.Document;
@@ -27,7 +27,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ModifiableIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
@@ -83,7 +83,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
 
     do {
       int document = iterator.currentCandidate();
-      ExtentArrayIterator extentsIterator = new ExtentArrayIterator(((ExtentValueIterator) iterator).extents());
+      ExtentArrayIterator extentsIterator = new ExtentArrayIterator(((MovableExtentIterator) iterator).extents());
       while (!extentsIterator.isDone()) {
         int begin = extentsIterator.currentBegin();
         int end = extentsIterator.currentEnd();
@@ -111,7 +111,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
   }
 
   @Override
-  public MovableValueIterator getIterator(Node node) throws IOException {
+  public ValueIterator getIterator(Node node) throws IOException {
     KeyIterator i = getIterator();
     i.skipToKey(Utility.fromString(node.getDefaultParameter()));
     if (0 == Utility.compare(i.getKey(), Utility.fromString(node.getDefaultParameter()))) {
@@ -176,10 +176,10 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
     WindowIndexWriter writer = new WindowIndexWriter(new FakeParameters(p));
 
     KIterator kiterator = new KIterator();
-    ExtentValueIterator viterator;
+    MovableExtentIterator viterator;
     ExtentArray extents;
     while (!kiterator.isDone()) {
-      viterator = (ExtentValueIterator) kiterator.getValueIterator();
+      viterator = (MovableExtentIterator) kiterator.getValueIterator();
       writer.processExtentName(kiterator.getKey());
 
       while (!viterator.isDone()) {
@@ -284,7 +284,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public MovableValueIterator getValueIterator() throws IOException {
+    public ValueIterator getValueIterator() throws IOException {
       return extents.get(currKey).getExtentIterator();
     }
   }
@@ -343,8 +343,8 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
       return new ExtentIterator();
     }
 
-    public class ExtentIterator extends MovableValueIterator implements ModifiableIterator,
-            AggregateIterator, MovableCountIterator, ExtentValueIterator, ContextualIterator {
+    public class ExtentIterator extends ValueIterator implements ModifiableIterator,
+            AggregateIterator, MovableCountIterator, MovableExtentIterator, ContextualIterator {
 
       VByteInput documents_reader;
       VByteInput counts_reader;

@@ -47,24 +47,14 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
     parentIdx = -1;
   }
 
+  @Override
   public double maximumScore() {
     return max;
   }
 
+  @Override
   public double minimumScore() {
     return min;
-  }
-
-  @Override
-  public boolean moveTo(int id) throws IOException {
-    boolean result = super.moveTo(id);
-    return result;
-  }
-
-  @Override
-  public boolean next() throws IOException {
-    boolean result = super.next();
-    return result;
   }
 
   public void score(DeltaScoringContext ctx) {

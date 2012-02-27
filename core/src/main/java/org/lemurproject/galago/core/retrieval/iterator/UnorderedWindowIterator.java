@@ -9,13 +9,13 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author trevor
  */
-public class UnorderedWindowIterator extends MovableExtentConjunctionIterator {
+public class UnorderedWindowIterator extends ExtentConjunctionIterator {
 
   int width;
   boolean overlap;
 
   /** Creates a new instance of UnorderedWindowIterator */
-  public UnorderedWindowIterator(Parameters globalParams, NodeParameters parameters, ExtentValueIterator[] evIterators) throws IOException {
+  public UnorderedWindowIterator(Parameters globalParams, NodeParameters parameters, MovableExtentIterator[] evIterators) throws IOException {
     super(evIterators);
     this.width = (int) parameters.get("default", -1);
     this.overlap = parameters.get("overlap", false);
@@ -39,7 +39,7 @@ public class UnorderedWindowIterator extends MovableExtentConjunctionIterator {
         return;
       }
 
-      arrayIterators[i] = new ExtentArrayIterator(((ExtentValueIterator) iterators[i]).extents());
+      arrayIterators[i] = new ExtentArrayIterator(((MovableExtentIterator) iterators[i]).extents());
 
       if (arrayIterators[i].isDone()) {
         // if this document does not have any extents we can not load any extents

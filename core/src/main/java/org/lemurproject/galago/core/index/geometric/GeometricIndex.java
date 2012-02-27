@@ -18,7 +18,7 @@ import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.LengthsReader.Iterator;
 import org.lemurproject.galago.core.index.NamesReader;
-import org.lemurproject.galago.core.index.MovableValueIterator;
+import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
@@ -201,11 +201,11 @@ public class GeometricIndex implements DynamicIndex, Index {
     return false;
   }
 
-  public MovableValueIterator getIterator(Node node) throws IOException {
-    List<MovableValueIterator> itrs = new ArrayList();
+  public ValueIterator getIterator(Node node) throws IOException {
+    List<ValueIterator> itrs = new ArrayList();
     itrs.add(this.currentMemoryIndex.getIterator(node));
     for (DiskIndex di : this.geometricParts.getIndexes()) {
-      MovableValueIterator vi = di.getIterator(node);
+      ValueIterator vi = di.getIterator(node);
       if (vi != null) {
         itrs.add(di.getIterator(node));
       }
@@ -291,7 +291,7 @@ public class GeometricIndex implements DynamicIndex, Index {
     return new DisjointNamesIterator(itrs);
   }
 
-  public void modify(MovableValueIterator iter, Node node) throws IOException {
+  public void modify(ValueIterator iter, Node node) throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 

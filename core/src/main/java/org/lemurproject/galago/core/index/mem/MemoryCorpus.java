@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import org.lemurproject.galago.core.index.KeyIterator;
-import org.lemurproject.galago.core.index.MovableValueIterator;
+import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusFileWriter;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator;
@@ -97,7 +97,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   }
   
   // unsupported functions - perhaps soon they will be supported.
-  public MovableValueIterator getIterator(Node node) throws IOException {
+  public ValueIterator getIterator(Node node) throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
@@ -176,7 +176,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
     }
 
     // unsupported functions:
-    public MovableValueIterator getValueIterator() throws IOException {
+    public ValueIterator getValueIterator() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

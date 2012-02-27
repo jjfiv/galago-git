@@ -19,7 +19,6 @@ public class BM25FCombinationIterator extends ScoreCombinationIterator {
   public BM25FCombinationIterator(Parameters globalParams, NodeParameters parameters,
           MovableScoreIterator[] childIterators) {
     super(globalParams, parameters, childIterators);
-    System.err.println("SETTING K");
     K = parameters.getDouble("K");
   }
 

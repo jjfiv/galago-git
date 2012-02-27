@@ -9,7 +9,7 @@ import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyValueReader;
-import org.lemurproject.galago.core.index.MovableValueIterator;
+import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
@@ -51,7 +51,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("counts", new NodeType(ValueIterator.class));
+    types.put("counts", new NodeType(CorpusIterator.class));
     return types;
   }
 
@@ -62,7 +62,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
       KeyIterator ki = new KeyIterator(reader);
       ki.findKey(Utility.fromString(stem));
       if (Utility.compare(ki.getKey(), Utility.fromString(stem)) == 0) {
-        return new ValueIterator(ki);
+        return new CorpusIterator(ki);
       }
       return null;
     } else {
@@ -137,8 +137,8 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
 
     @Override
-    public MovableValueIterator getValueIterator() throws IOException {
-      return new ValueIterator(this);
+    public ValueIterator getValueIterator() throws IOException {
+      return new CorpusIterator(this);
     }
 
     @Override
@@ -152,12 +152,12 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
   }
 
-  public class ValueIterator extends MovableValueIterator implements
+  public class CorpusIterator extends ValueIterator implements
           AggregateIterator, MovableCountIterator {
 
     protected KeyIterator iterator;
 
-    public ValueIterator(KeyIterator ki) {
+    public CorpusIterator(KeyIterator ki) {
       this.iterator = ki;
     }
 

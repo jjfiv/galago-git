@@ -11,10 +11,10 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public class OrderedWindowIterator extends MovableExtentConjunctionIterator {
+public class OrderedWindowIterator extends ExtentConjunctionIterator {
   private int width;
 
-  public OrderedWindowIterator(Parameters globalParams, NodeParameters parameters, ExtentValueIterator[] iterators) throws IOException {
+  public OrderedWindowIterator(Parameters globalParams, NodeParameters parameters, MovableExtentIterator[] iterators) throws IOException {
     super(iterators);
     this.width = (int) parameters.get("default", -1);
     moveTo(0);
@@ -33,7 +33,7 @@ public class OrderedWindowIterator extends MovableExtentConjunctionIterator {
         return;
       }
       
-      arrayIterators[i] = new ExtentArrayIterator(((ExtentValueIterator) iterators[i]).extents());
+      arrayIterators[i] = new ExtentArrayIterator(((MovableExtentIterator) iterators[i]).extents());
 
       if(arrayIterators[i].isDone()){
         // if this document does not have any extents we can not load any extents

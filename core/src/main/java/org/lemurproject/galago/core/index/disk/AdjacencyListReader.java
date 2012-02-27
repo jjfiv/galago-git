@@ -8,7 +8,7 @@ import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.MovableValueIterator;
+import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -47,7 +47,7 @@ public class AdjacencyListReader extends KeyListReader {
   }
 
   @Override
-  public MovableValueIterator getIterator(Node node) throws IOException {
+  public ValueIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("neighbors")) {
       return getScores(node.getDefaultParameter());
     } else {
@@ -57,7 +57,7 @@ public class AdjacencyListReader extends KeyListReader {
   }
 
   
-  protected MovableValueIterator getScores(String term) throws IOException {
+  protected ValueIterator getScores(String term) throws IOException {
     BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
     if (iterator != null) {
       return new IntegerListIterator(iterator);
@@ -98,7 +98,7 @@ public class AdjacencyListReader extends KeyListReader {
     }
 
     @Override
-    public MovableValueIterator getValueIterator() throws IOException {
+    public ValueIterator getValueIterator() throws IOException {
       return new IntegerListIterator(iterator);
     }
   }

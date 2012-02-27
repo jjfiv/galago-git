@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.IOException;
 import java.util.Map;
 import org.lemurproject.galago.core.index.LengthsReader;
-import org.lemurproject.galago.core.index.MovableValueIterator;
+import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -71,7 +71,7 @@ public class FieldLengthsReader implements LengthsReader {
   }
 
   @Override
-  public MovableValueIterator getIterator(Node node) throws IOException {
+  public ValueIterator getIterator(Node node) throws IOException {
     throw new UnsupportedOperationException("Not supported.");
   }
 

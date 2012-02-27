@@ -10,6 +10,6 @@ import org.lemurproject.galago.core.util.ExtentArray;
  * 
  * @author trevor, irmarc
  */
-public interface ExtentIterator extends DataIterator<ExtentArray> {
+public interface ExtentIterator extends DataIterator<ExtentArray>, CountIterator {
     public ExtentArray extents();
 }

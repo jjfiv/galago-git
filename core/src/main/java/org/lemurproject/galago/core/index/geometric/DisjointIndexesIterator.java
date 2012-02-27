@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.index.geometric;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.PriorityQueue;
-import org.lemurproject.galago.core.index.MovableValueIterator;
+import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -14,7 +14,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public abstract class DisjointIndexesIterator extends MovableValueIterator {
+public abstract class DisjointIndexesIterator extends ValueIterator {
 
   Collection<MovableIterator> allIterators;
   MovableIterator head;

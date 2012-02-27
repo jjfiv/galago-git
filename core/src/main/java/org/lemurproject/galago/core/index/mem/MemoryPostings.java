@@ -17,7 +17,7 @@ import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
-import org.lemurproject.galago.core.index.MovableValueIterator;
+import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -25,7 +25,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ModifiableIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
@@ -99,7 +99,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
 
     do {
       int document = iterator.currentCandidate();
-      ExtentArrayIterator extentsIterator = new ExtentArrayIterator(((ExtentValueIterator) iterator).extents());
+      ExtentArrayIterator extentsIterator = new ExtentArrayIterator(((MovableExtentIterator) iterator).extents());
       while (!extentsIterator.isDone()) {
         int begin = extentsIterator.currentBegin();
         addPosting(key, document, begin);
@@ -125,7 +125,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
   }
 
   @Override
-  public MovableValueIterator getIterator(Node node) throws IOException {
+  public ValueIterator getIterator(Node node) throws IOException {
     String term = stemAsRequired(node.getDefaultParameter());
     byte[] byteWord = Utility.fromString(term);
     if (node.getOperator().equals("counts")) {
@@ -381,7 +381,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public MovableValueIterator getValueIterator() throws IOException {
+    public ValueIterator getValueIterator() throws IOException {
       if (currKey != null) {
         return new ExtentsIterator(postings.get(currKey));
       } else {
@@ -390,8 +390,8 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
   }
 
-  public class ExtentsIterator extends MovableValueIterator implements ModifiableIterator,
-          AggregateIterator, MovableCountIterator, ExtentValueIterator, ContextualIterator {
+  public class ExtentsIterator extends ValueIterator implements ModifiableIterator,
+          AggregateIterator, MovableCountIterator, MovableExtentIterator, ContextualIterator {
 
     PostingList postings;
     VByteInput documents_reader;
@@ -598,7 +598,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
   }
 
-  public class CountsIterator extends MovableValueIterator implements ModifiableIterator,
+  public class CountsIterator extends ValueIterator implements ModifiableIterator,
           AggregateIterator, MovableCountIterator, ContextualIterator {
 
     PostingList postings;

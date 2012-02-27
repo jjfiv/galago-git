@@ -12,7 +12,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author marc
  */
-public abstract class KeyToListIterator extends MovableValueIterator {
+public abstract class KeyToListIterator extends ValueIterator {
 
   protected KeyIterator iterator;
 

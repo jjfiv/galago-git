@@ -12,11 +12,11 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public abstract class MovableExtentConjunctionIterator extends ConjunctionIterator implements MovableDataIterator<ExtentArray>, ExtentIterator, MovableCountIterator {
+public abstract class ExtentDisjunctionIterator extends DisjunctionIterator implements MovableDataIterator<ExtentArray>, ExtentIterator, MovableCountIterator {
 
   protected ExtentArray extents;
 
-  public MovableExtentConjunctionIterator(ExtentValueIterator[] iterators) throws IOException {
+  public ExtentDisjunctionIterator(MovableExtentIterator[] iterators) throws IOException {
     super(iterators);
     this.extents = new ExtentArray();
   }
@@ -57,22 +57,22 @@ public abstract class MovableExtentConjunctionIterator extends ConjunctionIterat
   }
 
   @Override
-  public ExtentArray extents(){
+  public ExtentArray extents() {
     return extents;
   }
-  
+
   @Override
-  public int count(){
+  public int count() {
     return extents.size();
   }
-  
+
   @Override
   public int maximumCount() {
-    int min = 0;
+    int sum = 0;
     for (int i = 0; i < iterators.length; i++) {
-      min = Math.min(min, ((MovableCountIterator) iterators[i]).maximumCount());
+      sum += ((MovableCountIterator) iterators[i]).maximumCount();
     }
-    return min;
+    return sum;
 
   }
 

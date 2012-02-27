@@ -33,7 +33,7 @@ public interface Index {
 
   public boolean containsModifier(String partName, String modifierName);
 
-  public void modify(MovableValueIterator iter, Node node) throws IOException;
+  public void modify(ValueIterator iter, Node node) throws IOException;
 
   // This isn't necessary at the moment
   //public boolean hasChanged() throws IOException;

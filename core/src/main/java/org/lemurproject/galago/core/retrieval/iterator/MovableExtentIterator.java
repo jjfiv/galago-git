@@ -6,5 +6,5 @@ package org.lemurproject.galago.core.retrieval.iterator;
  *
  * @author marc
  */
-public interface ExtentValueIterator extends ExtentIterator, MovableIterator {
+public interface MovableExtentIterator extends ExtentIterator, MovableIterator {
 }

@@ -28,7 +28,7 @@ public abstract class KeyListReader extends KeyValueReader {
     super(r);
   }
 
-  public abstract class ListIterator extends MovableValueIterator implements ModifiableIterator {
+  public abstract class ListIterator extends ValueIterator implements ModifiableIterator {
 
     // OPTIONS
     public static final int HAS_SKIPS = 0x01;

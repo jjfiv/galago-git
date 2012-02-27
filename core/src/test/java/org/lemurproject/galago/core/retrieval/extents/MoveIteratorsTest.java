@@ -6,14 +6,14 @@ import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MoveIterators;
 import java.io.IOException;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 
 /**
  *
  * @author trevor
  */
 public class MoveIteratorsTest extends TestCase {
-    private ExtentValueIterator[] iterators;
+    private MovableExtentIterator[] iterators;
     
     public MoveIteratorsTest(String testName) {
         super(testName);
@@ -21,9 +21,9 @@ public class MoveIteratorsTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        ExtentValueIterator one = new FakeExtentIterator(new int[][] { {2,1}, {3,1}, {5,1} });
-        ExtentValueIterator two = new FakeExtentIterator(new int[][] { {3,1}, {6,1}, {7,1} });
-        iterators = new ExtentValueIterator[] { one, two };
+        MovableExtentIterator one = new FakeExtentIterator(new int[][] { {2,1}, {3,1}, {5,1} });
+        MovableExtentIterator two = new FakeExtentIterator(new int[][] { {3,1}, {6,1}, {7,1} });
+        iterators = new MovableExtentIterator[] { one, two };
     }
     
     /**

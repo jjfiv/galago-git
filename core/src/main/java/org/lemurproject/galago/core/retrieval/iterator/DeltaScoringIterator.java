@@ -10,5 +10,4 @@ import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
 public interface DeltaScoringIterator extends MovableScoreIterator {
   public void score(DeltaScoringContext context);
   public void maximumDifference(DeltaScoringContext context);
-  public long totalEntries();
 }
