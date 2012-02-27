@@ -31,10 +31,10 @@ import org.lemurproject.galago.core.retrieval.iterator.JelinekMercerProbabilityS
 import org.lemurproject.galago.core.retrieval.iterator.JelinekMercerScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LessThanIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LogarithmIterator;
+import org.lemurproject.galago.core.retrieval.iterator.OrderedWindowIterator;
 import org.lemurproject.galago.core.retrieval.iterator.RequireIterator;
 import org.lemurproject.galago.core.retrieval.iterator.RejectIterator;
 import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.OrderedWindowIterator;
 import org.lemurproject.galago.core.retrieval.iterator.PL2FieldScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.PassageFilterIterator;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
@@ -90,6 +90,7 @@ public class FeatureFactory {
     {ScaleIterator.class.getName(), "scale"},
     {ScoreCombinationIterator.class.getName(), "rm"},
     {ScoreCombinationIterator.class.getName(), "bm25rf"},
+    {BM25FCombinationIterator.class.getName(), "bm25fcomb"},
     {BM25FCombinationIterator.class.getName(), "bm25fcomb"},
     {UniversalIndicatorIterator.class.getName(), "all"},
     {ExistentialIndicatorIterator.class.getName(), "any"},

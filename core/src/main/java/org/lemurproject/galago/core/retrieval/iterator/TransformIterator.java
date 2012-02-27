@@ -38,7 +38,6 @@ public abstract class TransformIterator implements MovableIterator {
 
   @Override
   public boolean hasAllCandidates() {
-    System.err.println(iterator.getClass().getName());
     return iterator.hasAllCandidates();
   }
 

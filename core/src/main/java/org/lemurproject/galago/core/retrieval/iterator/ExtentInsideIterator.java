@@ -14,10 +14,10 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author trevor
  */
-public class ExtentInsideIterator extends ExtentConjunctionIterator {
+public class ExtentInsideIterator extends MovableExtentConjunctionIterator {
 
-  ExtentIterator innerIterator;
-  ExtentIterator outerIterator;
+  ExtentValueIterator innerIterator;
+  ExtentValueIterator outerIterator;
 
   /**
    * <p>Constructs an #inside instance.  For <tt>#inside(a b)</tt>, this
@@ -37,7 +37,7 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
   public ExtentInsideIterator(Parameters globalParams, NodeParameters parameters,
           ExtentValueIterator innerIterator,
           ExtentValueIterator outerIterator) throws IOException {
-    super(globalParams, parameters, new ExtentValueIterator[]{innerIterator, outerIterator});
+    super(new ExtentValueIterator[]{innerIterator, outerIterator});
     this.innerIterator = innerIterator;
     this.outerIterator = outerIterator;
     // load the first document
@@ -49,10 +49,20 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
    * that both the inner and outer iterators match this identifier.  This method's job
    * is to find all matching extents within the identifier, if they exist.
    */
+  @Override
   public void loadExtents() {
+    
+    int document = currentCandidate();
+    
+    if(innerIterator.isDone() || ! innerIterator.atCandidate(document)
+            || outerIterator.isDone() || ! outerIterator.atCandidate(document)){
+      // then we can't have any extents for this document
+      return;
+    }
+    
     ExtentArrayIterator inner = new ExtentArrayIterator(innerIterator.extents());
     ExtentArrayIterator outer = new ExtentArrayIterator(outerIterator.extents());
-    extents.reset();
+
     extents.setDocument(document);
     while (!inner.isDone() && !outer.isDone()) {
       if (outer.currentlyContains(inner)) {

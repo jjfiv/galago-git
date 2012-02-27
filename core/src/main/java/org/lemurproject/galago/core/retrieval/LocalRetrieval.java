@@ -288,7 +288,7 @@ public class LocalRetrieval implements Retrieval {
     if (iterator == null) {
       iterator = features.getIterator(node, internalIterators);
     }
-
+    
     if (ContextualIterator.class.isInstance(iterator) && (context != null)) {
       ((ContextualIterator) iterator).setContext(context);
     }

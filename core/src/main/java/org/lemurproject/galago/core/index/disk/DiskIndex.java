@@ -352,9 +352,6 @@ public class DiskIndex implements Index {
 
   @Override
   public int getIdentifier(String document) throws IOException {
-    for(String p : parts.keySet()){
-      System.err.println(p);
-    }
     return ((NamesReader) parts.get("names.reverse")).getDocumentIdentifier(document);
   }
 

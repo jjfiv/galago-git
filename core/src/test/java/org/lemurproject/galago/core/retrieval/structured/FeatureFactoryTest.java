@@ -1,15 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.structured;
 
-import org.lemurproject.galago.core.retrieval.structured.FeatureFactory;
 import java.util.ArrayList;
-import java.util.List;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.DirichletScoringIterator;
-import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.OrderedWindowIterator;
+import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreCombinationIterator;
 import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
 import org.lemurproject.galago.core.retrieval.iterator.SynonymIterator;
