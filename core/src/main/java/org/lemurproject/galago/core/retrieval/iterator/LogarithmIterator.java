@@ -17,12 +17,12 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * 
  * @author irmarc
  */
-public class LogarithmIterator extends TransformIterator {
+public class LogarithmIterator extends TransformIterator implements MovableScoreIterator {
 
-  ScoreValueIterator scorer;
+  MovableScoreIterator scorer;
   Parameters globals;
 
-  public LogarithmIterator(Parameters globalParams, NodeParameters params, ScoreValueIterator svi) {
+  public LogarithmIterator(Parameters globalParams, NodeParameters params, MovableScoreIterator svi) {
     super(svi);
     scorer = svi;
     globals = globalParams; // <--- incoming filthy hack

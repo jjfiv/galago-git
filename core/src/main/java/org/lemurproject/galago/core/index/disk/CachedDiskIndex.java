@@ -14,7 +14,7 @@ import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.NamesReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.index.mem.MemoryCorpus;
 import org.lemurproject.galago.core.index.mem.MemoryDocumentLengths;
 import org.lemurproject.galago.core.index.mem.MemoryDocumentNames;
@@ -85,9 +85,9 @@ public class CachedDiskIndex implements Index {
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public MovableValueIterator getIterator(Node node) throws IOException {
     // try to use in-memory indexes first
-    ValueIterator result = null;
+    MovableValueIterator result = null;
     IndexPartReader part = memParts.get(getIndexPart(node));
     if (part != null) {
       result = part.getIterator(node);
@@ -153,7 +153,7 @@ public class CachedDiskIndex implements Index {
     }
 
     // use diskIndex to create an iterator
-    ValueIterator iterator;
+    MovableValueIterator iterator;
     if (queryNode.getOperator().equals("counts")) {
       // KNOWN ISSUE -- #extents may be replaced by a #counts node
       Node extentsNode = new Node("extents", queryNode.getNodeParameters(), queryNode.getInternalNodes(), queryNode.getPosition());
@@ -243,7 +243,7 @@ public class CachedDiskIndex implements Index {
   }
 
   @Override
-  public void modify(ValueIterator iter, Node node) throws IOException {
+  public void modify(MovableValueIterator iter, Node node) throws IOException {
     diskIndex.modify(iter, node);
   }
 

@@ -2,11 +2,9 @@
 
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import org.lemurproject.galago.core.index.ValueIterator;
-
 /**
  *
  * @author marc
  */
-public interface ExtentValueIterator extends ExtentIterator, ValueIterator {
+public interface ExtentValueIterator extends ExtentIterator, MovableIterator {
 }

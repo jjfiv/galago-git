@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.KeyIterator;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Utility;
 

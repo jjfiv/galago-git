@@ -7,12 +7,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import org.lemurproject.galago.core.index.KeyIterator;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusFileWriter;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.DataStream;
@@ -45,7 +46,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
   // this is likely to waste all of your memory...
   @Override
-  public void addIteratorData(ValueIterator iterator) throws IOException {
+  public void addIteratorData(MovableIterator iterator) throws IOException {
     do{
       Document doc = ((DataIterator<Document>) iterator).getData();
       // if the document already exists - no harm done.
@@ -96,7 +97,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   }
   
   // unsupported functions - perhaps soon they will be supported.
-  public ValueIterator getIterator(Node node) throws IOException {
+  public MovableValueIterator getIterator(Node node) throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
@@ -175,7 +176,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
     }
 
     // unsupported functions:
-    public ValueIterator getValueIterator() throws IOException {
+    public MovableValueIterator getValueIterator() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

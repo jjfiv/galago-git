@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 
 /**
  * This is a marker interface that represents any kind of
@@ -11,9 +11,7 @@ import org.lemurproject.galago.core.index.ValueIterator;
  * @author trevor
  */
 public interface MovableIterator extends StructuredIterator,
-        // add this: Comparable<MoveableIterator>
-        // this will be removed:
-        ValueIterator {
+        Comparable<MovableIterator> {
 
   /**
    * returns the current candidate
@@ -74,4 +72,11 @@ public interface MovableIterator extends StructuredIterator,
    * Returns a string representation of the current candidate + value
    */
   public String getEntry() throws IOException;
+
+  /**
+   * Returns an over estimate of the total entries in the iterator
+   */
+  public long totalEntries();
+  
 }
+

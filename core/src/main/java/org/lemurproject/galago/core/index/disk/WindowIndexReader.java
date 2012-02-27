@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -64,7 +64,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       return sb.toString();
     }
 
-    public ValueIterator getValueIterator() throws IOException {
+    public MovableValueIterator getValueIterator() throws IOException {
       return new TermExtentIterator(iterator);
     }
 
@@ -702,7 +702,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public MovableValueIterator getIterator(Node node) throws IOException {
     String term = stemAsRequired(node.getDefaultParameter());
     if (node.getOperator().equals("counts")) {
       return getTermCounts(term);

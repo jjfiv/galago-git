@@ -13,7 +13,7 @@ import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -111,7 +111,7 @@ public class DocumentPriorReader extends KeyValueReader {
   }
 
   // needs to be an AbstractIndicator
-  public class ValueIterator extends KeyToListIterator implements ScoreValueIterator {
+  public class ValueIterator extends KeyToListIterator implements MovableScoreIterator {
 
     ScoringContext context;
     double minScore;

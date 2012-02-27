@@ -5,9 +5,9 @@ package org.lemurproject.galago.core.index;
 import java.io.IOException;
 import java.util.Map;
 import org.lemurproject.galago.core.index.Index.IndexComponentReader;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * A StructuredIndexPart is an object that can create StructuredIterators that
@@ -32,5 +32,5 @@ public interface IndexPartReader extends IndexComponentReader {
     /// Returns an iterator corresponding to a query node from a StructuredQuery.
     /// The type of iterator returned is assumed to be a value iterator (i.e. over one
     /// list in the index)
-    public ValueIterator getIterator(Node node) throws IOException;
+    public MovableValueIterator getIterator(Node node) throws IOException;
 }

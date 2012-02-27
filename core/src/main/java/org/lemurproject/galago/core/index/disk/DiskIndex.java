@@ -26,7 +26,7 @@ import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.index.IndexPartModifier;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.LengthsReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.parse.Document;
@@ -278,7 +278,7 @@ public class DiskIndex implements Index {
    * @throws IOException
    */
   @Override
-  public void modify(ValueIterator iter, Node node) throws IOException {
+  public void modify(MovableValueIterator iter, Node node) throws IOException {
     if (ModifiableIterator.class.isInstance(iter)) {
       NodeParameters p = node.getNodeParameters();
       if (modifiers.containsKey(p.get("part", "none"))) {
@@ -295,8 +295,8 @@ public class DiskIndex implements Index {
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
-    ValueIterator result = null;
+  public MovableValueIterator getIterator(Node node) throws IOException {
+    MovableValueIterator result = null;
     IndexPartReader part = parts.get(getIndexPart(node));
     if (part != null) {
       result = part.getIterator(node);

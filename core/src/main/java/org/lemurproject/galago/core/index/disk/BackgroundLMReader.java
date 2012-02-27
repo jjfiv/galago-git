@@ -9,8 +9,10 @@ import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyValueReader;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -135,7 +137,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
 
     @Override
-    public ValueIterator getValueIterator() throws IOException {
+    public MovableValueIterator getValueIterator() throws IOException {
       return new ValueIterator(this);
     }
 
@@ -150,7 +152,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
   }
 
-  public class ValueIterator implements org.lemurproject.galago.core.index.ValueIterator,
+  public class ValueIterator extends MovableValueIterator implements
           AggregateIterator, MovableCountIterator {
 
     protected KeyIterator iterator;
@@ -196,22 +198,12 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
 
     @Override
-    public long totalEntries() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public void reset() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public boolean isDone() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public int compareTo(org.lemurproject.galago.core.index.ValueIterator o) {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -227,6 +219,16 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
 
     @Override
     public boolean hasAllCandidates() {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public int compareTo(MovableIterator o) {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public long totalEntries() {
       throw new UnsupportedOperationException("Not supported yet.");
     }
   }

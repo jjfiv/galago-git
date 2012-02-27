@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
 
@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.util.ExtentArray;
  * @author trevor
  * @author irmarc
  */
-public class NullExtentIterator implements ExtentValueIterator, MovableCountIterator {
+public class NullExtentIterator extends MovableValueIterator implements ExtentValueIterator, MovableCountIterator {
 
   ExtentArray array = new ExtentArray();
 
@@ -93,7 +93,7 @@ public class NullExtentIterator implements ExtentValueIterator, MovableCountIter
   }
 
   @Override
-  public int compareTo(ValueIterator t) {
+  public int compareTo(MovableIterator t) {
     return 1;
   }
 

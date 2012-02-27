@@ -1,11 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.extents;
 
-import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.util.ExtentArray;
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 
 /**
  *
@@ -97,7 +97,7 @@ public class FakeExtentIterator implements ExtentValueIterator, MovableCountIter
   }
 
   @Override
-  public int compareTo(ValueIterator other) {
+  public int compareTo(MovableIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }

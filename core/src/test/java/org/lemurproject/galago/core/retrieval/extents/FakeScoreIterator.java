@@ -1,17 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.extents;
 
-import gnu.trove.map.hash.TObjectDoubleHashMap;
 import java.io.IOException;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 
 /**
  *
  * @author trevor
  */
-public class FakeScoreIterator implements ScoreValueIterator {
+public class FakeScoreIterator implements MovableScoreIterator {
 
   int[] docs;
   double[] scores;
@@ -24,6 +23,7 @@ public class FakeScoreIterator implements ScoreValueIterator {
     this.index = 0;
   }
 
+  @Override
   public int currentCandidate() {
     if (index < docs.length) {
       return docs[index];
@@ -33,6 +33,7 @@ public class FakeScoreIterator implements ScoreValueIterator {
 
   }
 
+  @Override
   public boolean atCandidate(int document) {
     if (isDone()) {
       return false;
@@ -41,6 +42,7 @@ public class FakeScoreIterator implements ScoreValueIterator {
     }
   }
 
+  @Override
   public boolean moveTo(int document) throws IOException {
     while (!isDone() && document > docs[index]) {
       index++;
@@ -48,16 +50,19 @@ public class FakeScoreIterator implements ScoreValueIterator {
     return (atCandidate(document));
   }
 
+  @Override
   public void movePast(int document) throws IOException {
     while (!isDone() && document >= docs[index]) {
       index++;
     }
   }
 
+  @Override
   public double score() {
     return score(context);
   }
 
+  @Override
   public double score(ScoringContext dc) {
     if (docs[index] == dc.document) {
       return scores[index];
@@ -65,43 +70,48 @@ public class FakeScoreIterator implements ScoreValueIterator {
     return 0;
   }
 
+  @Override
   public boolean isDone() {
     return index >= docs.length;
   }
 
+  @Override
   public void reset() {
     index = 0;
   }
 
+  @Override
   public double maximumScore() {
     return Double.POSITIVE_INFINITY;
   }
 
+  @Override
   public double minimumScore() {
     return Double.NEGATIVE_INFINITY;
   }
 
-  public TObjectDoubleHashMap<String> parameterSweepScore() {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
+  @Override
   public ScoringContext getContext() {
     return context;
   }
 
+  @Override
   public void setContext(ScoringContext context) {
     this.context = context;
   }
 
+  @Override
   public boolean next() throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
+  @Override
   public long totalEntries() {
     return docs.length;
   }
 
-  public int compareTo(ValueIterator other) {
+  @Override
+  public int compareTo(MovableIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }
@@ -114,7 +124,13 @@ public class FakeScoreIterator implements ScoreValueIterator {
     return currentCandidate() - other.currentCandidate();
   }
 
+  @Override
   public String getEntry() throws IOException {
     return currentCandidate() + "," + score();
+  }
+
+  @Override
+  public boolean hasAllCandidates() {
+    return false;
   }
 }

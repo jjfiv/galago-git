@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
@@ -30,9 +30,9 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 public abstract class AbstractIndicator
         implements MovableIndicatorIterator {
 
-  protected ValueIterator[] iterators;
+  protected MovableValueIterator[] iterators;
 
-  public AbstractIndicator(NodeParameters p, ValueIterator[] childIterators) {
+  public AbstractIndicator(NodeParameters p, MovableValueIterator[] childIterators) {
     this.iterators = childIterators;
   }
 
@@ -47,7 +47,7 @@ public abstract class AbstractIndicator
     return moveTo(this.currentCandidate() + 1);
   }
 
-  public int compareTo(ValueIterator other) {
+  public int compareTo(MovableIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }

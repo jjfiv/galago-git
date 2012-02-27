@@ -12,7 +12,7 @@ public class ScaleIterator extends TransformIterator {
 
   double weight;
 
-  public ScaleIterator(NodeParameters parameters, ScoreValueIterator iterator) throws IllegalArgumentException {
+  public ScaleIterator(NodeParameters parameters, MovableScoreIterator iterator) throws IllegalArgumentException {
     super(iterator);
     weight = parameters.get("default", 1.0);
   }

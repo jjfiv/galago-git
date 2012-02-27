@@ -4,26 +4,25 @@ package org.lemurproject.galago.core.index.mem;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import org.lemurproject.galago.core.index.disk.DiskNameWriter;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.NamesReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.core.util.ObjectArray;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Sorter;
 import org.lemurproject.galago.tupleflow.Utility;
 
 public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
@@ -51,7 +50,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
   }
 
   @Override
-  public void addIteratorData(ValueIterator iterator) throws IOException {
+  public void addIteratorData(MovableIterator iterator) throws IOException {
     do {
       int identifier = ((NamesReader.Iterator) iterator).getCurrentIdentifier();
       String name = ((NamesReader.Iterator) iterator).getCurrentName();
@@ -109,7 +108,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     return types;
   }
 
-  public ValueIterator getIterator(Node node) throws IOException {
+  public MovableValueIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("names")) {
       return new VIterator(getIterator());
     } else {
@@ -246,7 +245,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
       }
     }
 
-    public ValueIterator getValueIterator() throws IOException {
+    public MovableValueIterator getValueIterator() throws IOException {
       return new VIterator(this);
     }
   }

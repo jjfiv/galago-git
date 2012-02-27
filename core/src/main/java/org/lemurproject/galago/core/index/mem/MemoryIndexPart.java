@@ -5,8 +5,8 @@ package org.lemurproject.galago.core.index.mem;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.index.IndexPartReader;
-import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 
 /**
  *
@@ -16,7 +16,7 @@ public interface MemoryIndexPart extends IndexPartReader {
   
   public void flushToDisk(String path) throws IOException;
   public void addDocument(Document doc) throws IOException;
-  public void addIteratorData(ValueIterator iterator) throws IOException;
+  public void addIteratorData(MovableIterator iterator) throws IOException;
   public long getDocumentCount();
   public long getCollectionLength();
   public long getVocabCount();

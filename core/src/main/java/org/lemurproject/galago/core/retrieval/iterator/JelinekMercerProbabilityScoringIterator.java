@@ -46,6 +46,7 @@ public class JelinekMercerProbabilityScoringIterator extends ScoringFunctionIter
      * Overriding this in case we're using topdocs, in which case, also drop the
      * maximum once vs multiple times.
      */
+  @Override
   public void setContext(ScoringContext context) {
     if (TopDocsContext.class.isAssignableFrom((context.getClass()))) {
       TopDocsContext tdc = (TopDocsContext) context;
@@ -64,6 +65,7 @@ public class JelinekMercerProbabilityScoringIterator extends ScoringFunctionIter
    * Maximize the probability
    * @return
    */
+  @Override
   public double maximumScore() {
     if (loweredMaximum != Double.POSITIVE_INFINITY) {
       return loweredMaximum;
@@ -72,6 +74,7 @@ public class JelinekMercerProbabilityScoringIterator extends ScoringFunctionIter
     }
   }
 
+  @Override
   public double minimumScore() {
     return function.score(0, 1);
   }

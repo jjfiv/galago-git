@@ -13,7 +13,7 @@ import org.lemurproject.galago.core.util.CallTable;
  *
  * @author irmarc
  */
-public class ScoringFunctionIterator extends TransformIterator {
+public class ScoringFunctionIterator extends TransformIterator implements MovableScoreIterator {
 
   protected ScoringFunction function;
 
@@ -26,6 +26,7 @@ public class ScoringFunctionIterator extends TransformIterator {
     return function;
   }
 
+  @Override
   public double score(ScoringContext dc) {
     int count = 0;
 
@@ -37,6 +38,7 @@ public class ScoringFunctionIterator extends TransformIterator {
     return function.score(count, dc.length);
   }
 
+  @Override
   public double score() {
     int count = 0;
 
@@ -49,10 +51,12 @@ public class ScoringFunctionIterator extends TransformIterator {
     return score;
   }
 
+  @Override
   public double maximumScore() {
     return Double.POSITIVE_INFINITY;
   }
 
+  @Override
   public double minimumScore() {
     return Double.NEGATIVE_INFINITY;
   }

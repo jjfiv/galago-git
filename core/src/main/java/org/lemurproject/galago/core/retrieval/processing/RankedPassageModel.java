@@ -8,7 +8,7 @@ import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.ScoredPassage;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -55,7 +55,7 @@ public class RankedPassageModel extends ProcessingModel {
     int requested = (int) queryParams.get("requested", 1000);
     int passageSize = (int) queryParams.getLong("passageSize");
     int passageShift = (int) queryParams.getLong("passageShift");
-    ScoreValueIterator iterator = (ScoreValueIterator) retrieval.createIterator(queryTree, context);
+    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryTree, context);
     PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
     LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
 
@@ -104,7 +104,7 @@ public class RankedPassageModel extends ProcessingModel {
     int requested = (int) queryParams.get("requested", 1000);
     int passageSize = (int) queryParams.getLong("passageSize");
     int passageShift = (int) queryParams.getLong("passageShift");
-    ScoreValueIterator iterator = (ScoreValueIterator) retrieval.createIterator(queryTree, context);
+    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryTree, context);
     PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
     LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
 

@@ -2,19 +2,19 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 
 /**
  *
  * @author marc
  */
-public abstract class TransformIterator implements ScoreValueIterator {
+public abstract class TransformIterator implements MovableIterator {
 
   ScoringContext context;
-  ValueIterator iterator;
+  MovableIterator iterator;
 
-  public TransformIterator(ValueIterator iterator) {
+  public TransformIterator(MovableIterator iterator) {
     this.iterator = iterator;
   }
 
@@ -26,43 +26,59 @@ public abstract class TransformIterator implements ScoreValueIterator {
     this.context = context;
   }
 
+  @Override
   public void reset() throws IOException {
     iterator.reset();
   }
 
+  @Override
   public boolean isDone() {
     return iterator.isDone();
   }
 
+  @Override
+  public boolean hasAllCandidates() {
+    System.err.println(iterator.getClass().getName());
+    return iterator.hasAllCandidates();
+  }
+
+  @Override
   public int currentCandidate() {
     return iterator.currentCandidate();
   }
 
+  @Override
   public boolean atCandidate(int identifier) {
     return iterator.atCandidate(identifier);
   }
 
+  @Override
   public boolean next() throws IOException {
     return iterator.next();
   }
-  
+
+  @Override
   public boolean moveTo(int identifier) throws IOException {
     return iterator.moveTo(identifier);
   }
 
+  @Override
   public void movePast(int identifier) throws IOException {
     iterator.movePast(identifier);
   }
 
+  @Override
   public String getEntry() throws IOException {
     return iterator.getEntry();
   }
 
+  @Override
   public long totalEntries() {
     return iterator.totalEntries();
   }
 
-  public int compareTo(ValueIterator other) {
+  @Override
+  public int compareTo(MovableIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }

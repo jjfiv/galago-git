@@ -1,13 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 
 /**
  *
  * @author marc, sjh
  */
-public interface IndicatorIterator extends StructuredIterator, ValueIterator {
+public interface IndicatorIterator {
 
   public boolean indicator(int identifier);
 

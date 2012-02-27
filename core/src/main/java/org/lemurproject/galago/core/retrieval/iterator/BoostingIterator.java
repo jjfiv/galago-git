@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 
@@ -11,15 +10,16 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
  * by emitting a boost score (beta) iff the indicator is on.
  * @author irmarc
  */
-public class BoostingIterator extends TransformIterator {
+public class BoostingIterator extends TransformIterator implements MovableScoreIterator {
 
   double beta;
 
-  public BoostingIterator(NodeParameters p, IndicatorIterator inner) {
-    super((ValueIterator) inner);
+  public BoostingIterator(NodeParameters p, MovableIndicatorIterator inner) {
+    super(inner);
     beta = p.get("beta", 0.5);
   }
 
+  @Override
   public double score() {
     if(atCandidate(context.document) 
             && ((IndicatorIterator) iterator).indicator(context.document)){
@@ -29,6 +29,7 @@ public class BoostingIterator extends TransformIterator {
     }
   }
 
+  @Override
   public double score(ScoringContext context) {
     if(atCandidate(context.document) 
             && ((IndicatorIterator) iterator).indicator(context.document)){
@@ -38,10 +39,12 @@ public class BoostingIterator extends TransformIterator {
     }
   }
 
+  @Override
   public double maximumScore() {
     return beta;
   }
 
+  @Override
   public double minimumScore() {
     return 0.0;
   }

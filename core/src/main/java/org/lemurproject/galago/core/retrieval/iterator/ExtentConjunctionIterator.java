@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -39,7 +39,7 @@ public abstract class ExtentConjunctionIterator extends ExtentCombinationIterato
   public boolean moveTo(int identifier) throws IOException {
     extents.reset();
 
-    for (ValueIterator iterator : iterators) {
+    for (MovableIterator iterator : iterators) {
       iterator.moveTo(identifier);
       if (iterator.isDone()) {
         done = true;
@@ -70,7 +70,7 @@ public abstract class ExtentConjunctionIterator extends ExtentCombinationIterato
 
   public long totalEntries() {
     long min = Long.MAX_VALUE;
-    for (ValueIterator iterator : iterators) {
+    for (MovableIterator iterator : iterators) {
       min = Math.min(min, iterator.totalEntries());
     }
     return min;

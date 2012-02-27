@@ -2,7 +2,6 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.ValueIterator;
 
 /**
  *
@@ -17,7 +16,7 @@ public class MoveIterators {
    * @return The currentIdentifier number that the iterators are now pointing to,
    *         or Integer.MAX_VALUE; if one of the iterators is now done.
    */
-  public static int moveAllToSameDocument(ValueIterator[] iterators) throws IOException {
+  public static int moveAllToSameDocument(MovableIterator[] iterators) throws IOException {
 
     int currentTarget = findMaximumDocument(iterators);
 
@@ -30,7 +29,7 @@ public class MoveIterators {
     while (!allMatch) {
       allMatch = true;
 
-      for (ValueIterator iterator : iterators) {
+      for (MovableIterator iterator : iterators) {
 
         if (!iterator.moveTo(currentTarget)) {
           allMatch = false;
@@ -58,12 +57,12 @@ public class MoveIterators {
     return currentTarget;
   }
 
-  public static boolean allHasMatch(ValueIterator[] iterators, int document) {
+  public static boolean allHasMatch(MovableIterator[] iterators, int document) {
     if (iterators.length == 0) {
       return true;
     }
 
-    for (ValueIterator iterator : iterators) {
+    for (MovableIterator iterator : iterators) {
       if (!iterator.isDone()) {
         if (!iterator.atCandidate(document)) {
           return false;
@@ -74,12 +73,12 @@ public class MoveIterators {
     return true;
   }
   
-  public static boolean anyHasMatch(ValueIterator[] iterators, int document) {
+  public static boolean anyHasMatch(MovableIterator[] iterators, int document) {
     if (iterators.length == 0) {
       return true;
     }
 
-    for (ValueIterator iterator : iterators) {
+    for (MovableIterator iterator : iterators) {
       if (!iterator.isDone()) {
         if (iterator.atCandidate(document)) {
           return true;
@@ -91,13 +90,13 @@ public class MoveIterators {
   }
   
 
-  public static boolean allSameDocument(ValueIterator[] iterators) {
+  public static boolean allSameDocument(MovableIterator[] iterators) {
     if (iterators.length == 0) {
       return true;
     }
     int document = iterators[0].currentCandidate();
 
-    for (ValueIterator iterator : iterators) {
+    for (MovableIterator iterator : iterators) {
       if (!iterator.isDone()) {
         if (document != iterator.currentCandidate()) {
           return false;
@@ -108,10 +107,10 @@ public class MoveIterators {
     return true;
   }
 
-  public static int findMaximumDocument(ValueIterator[] iterators) {
+  public static int findMaximumDocument(MovableIterator[] iterators) {
     int maximumDocument = 0;
 
-    for (ValueIterator iterator : iterators) {
+    for (MovableIterator iterator : iterators) {
       if (iterator.isDone()) {
         return Integer.MAX_VALUE;
       }
@@ -121,10 +120,10 @@ public class MoveIterators {
     return maximumDocument;
   }
 
-  public static int findMinimumDocument(ValueIterator[] iterators) {
+  public static int findMinimumDocument(MovableIterator[] iterators) {
     int minimumDocument = Integer.MAX_VALUE;
 
-    for (ValueIterator iterator : iterators) {
+    for (MovableIterator iterator : iterators) {
       if (!iterator.isDone()) {
         minimumDocument = Math.min(minimumDocument, iterator.currentCandidate());
       }

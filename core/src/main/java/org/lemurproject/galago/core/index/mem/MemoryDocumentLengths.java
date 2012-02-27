@@ -8,9 +8,10 @@ import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
@@ -46,7 +47,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   @Override
-  public void addIteratorData(ValueIterator iterator) throws IOException {
+  public void addIteratorData(MovableIterator iterator) throws IOException {
     do {
       int identifier = ((LengthsReader.Iterator) iterator).getCurrentIdentifier();
       int length = ((LengthsReader.Iterator) iterator).getCurrentLength();
@@ -104,7 +105,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public MovableValueIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("lengths")) {
       return new VIterator(getIterator());
     } else {
@@ -239,7 +240,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     @Override
-    public ValueIterator getValueIterator() throws IOException {
+    public MovableValueIterator getValueIterator() throws IOException {
       return new VIterator(this);
     }
   }

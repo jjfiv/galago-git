@@ -2,6 +2,7 @@
 package org.lemurproject.galago.core.index;
 
 import java.io.IOException;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -60,7 +61,7 @@ public abstract class KeyToListIterator extends MovableValueIterator {
   }
   
   @Override
-  public int compareTo(ValueIterator other) {
+  public int compareTo(MovableIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }

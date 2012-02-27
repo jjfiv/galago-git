@@ -8,9 +8,9 @@ import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableDataIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -58,12 +58,12 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("corpus", new NodeType(ValueIterator.class));
+    types.put("corpus", new NodeType(MovableValueIterator.class));
     return types;
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public MovableValueIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("corpus")) {
       return new CorpusIterator(new KeyIterator(reader));
     } else {
@@ -99,13 +99,13 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     }
 
     @Override
-    public ValueIterator getValueIterator() throws IOException {
+    public MovableValueIterator getValueIterator() throws IOException {
       return new CorpusIterator(this);
     }
 
   }
 
-  public class CorpusIterator extends KeyToListIterator implements DataIterator<Document> {
+  public class CorpusIterator extends KeyToListIterator implements MovableDataIterator<Document> {
 
     public CorpusIterator(KeyIterator ki) {
       super(ki);

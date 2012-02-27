@@ -14,7 +14,7 @@ import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.NamesReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
@@ -174,8 +174,8 @@ public class MemoryIndex implements DynamicIndex, Index {
     return partName;
   }
 
-  public ValueIterator getIterator(Node node) throws IOException {
-    ValueIterator result = null;
+  public MovableValueIterator getIterator(Node node) throws IOException {
+    MovableValueIterator result = null;
     IndexPartReader part = parts.get(getIndexPart(node));
     if (part != null) {
       result = part.getIterator(node);
@@ -312,7 +312,7 @@ public class MemoryIndex implements DynamicIndex, Index {
     return parts.get(partName).getNodeTypes();
   }
 
-  public void modify(ValueIterator iter, Node node) throws IOException {
+  public void modify(MovableValueIterator iter, Node node) throws IOException {
     // Needs implementing.
     throw new UnsupportedOperationException("Not supported yet.");
   }

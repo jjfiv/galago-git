@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import java.util.PriorityQueue;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
 
@@ -56,7 +56,7 @@ public abstract class ExtentDisjunctionIterator extends ExtentCombinationIterato
 
   public long totalEntries() {
     long max = 0;
-    for (ValueIterator iterator : activeIterators) {
+    for (MovableIterator iterator : activeIterators) {
       max = Math.max(max, iterator.totalEntries());
     }
     return max;

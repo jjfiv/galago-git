@@ -16,7 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -115,7 +115,7 @@ public class SparseFloatListReaderTest extends TestCase {
         assertEquals(term, "a");
         assertFalse(iter.isDone());
 
-        ScoreValueIterator lIter = (ScoreValueIterator) iter.getValueIterator();
+        MovableScoreIterator lIter = (MovableScoreIterator) iter.getValueIterator();
         ScoringContext context = new ScoringContext();
         lIter.setContext(context);
         for (int i = 0; !lIter.isDone(); i++) {
@@ -132,7 +132,7 @@ public class SparseFloatListReaderTest extends TestCase {
         term = iter.getKeyString();
         assertEquals(term, "b");
         assertFalse(iter.isDone());
-        lIter = (ScoreValueIterator) iter.getValueIterator();
+        lIter = (MovableScoreIterator) iter.getValueIterator();
         for (int i = 0; !lIter.isDone(); i++) {
             assertEquals(lIter.currentCandidate(), bDocs[i]);
             assertEquals(lIter.score(new ScoringContext(bDocs[i], 100)), bScores[i], 0.0001);

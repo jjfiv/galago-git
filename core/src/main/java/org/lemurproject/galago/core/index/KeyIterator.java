@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.index;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 
 /**
  * Each iterator from an index has an extra two methods,
@@ -39,5 +39,5 @@ public interface KeyIterator extends Comparable<KeyIterator> {
   // Access to the key's value. (Not all may be implemented)
   public byte[] getValueBytes() throws IOException;
   public String getValueString() throws IOException;
-  public ValueIterator getValueIterator() throws IOException;
+  public MovableValueIterator getValueIterator() throws IOException;
 }

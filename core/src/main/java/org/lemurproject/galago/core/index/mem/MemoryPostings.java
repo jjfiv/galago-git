@@ -17,7 +17,7 @@ import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -28,6 +28,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ModifiableIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FakeParameters;
@@ -87,7 +88,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
   }
 
   @Override
-  public void addIteratorData(ValueIterator iterator) throws IOException {
+  public void addIteratorData(MovableIterator iterator) throws IOException {
     // we expect that this iterator is a KeyListReader.ListIterator
     byte[] key = ((KeyListReader.ListIterator) iterator).getKeyBytes();
 
@@ -124,7 +125,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public MovableValueIterator getIterator(Node node) throws IOException {
     String term = stemAsRequired(node.getDefaultParameter());
     byte[] byteWord = Utility.fromString(term);
     if (node.getOperator().equals("counts")) {
@@ -380,7 +381,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public ValueIterator getValueIterator() throws IOException {
+    public MovableValueIterator getValueIterator() throws IOException {
       if (currKey != null) {
         return new ExtentsIterator(postings.get(currKey));
       } else {
@@ -389,7 +390,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
   }
 
-  public class ExtentsIterator implements ValueIterator, ModifiableIterator,
+  public class ExtentsIterator extends MovableValueIterator implements ModifiableIterator,
           AggregateIterator, MovableCountIterator, ExtentValueIterator, ContextualIterator {
 
     PostingList postings;
@@ -540,7 +541,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public int compareTo(ValueIterator other) {
+    public int compareTo(MovableIterator other) {
       if (isDone() && !other.isDone()) {
         return 1;
       }
@@ -602,7 +603,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
   }
 
-  public class CountsIterator implements ValueIterator, ModifiableIterator,
+  public class CountsIterator extends MovableValueIterator implements ModifiableIterator,
           AggregateIterator, MovableCountIterator, ContextualIterator {
 
     PostingList postings;
@@ -729,7 +730,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public int compareTo(ValueIterator other) {
+    public int compareTo(MovableIterator other) {
       if (isDone() && !other.isDone()) {
         return 1;
       }

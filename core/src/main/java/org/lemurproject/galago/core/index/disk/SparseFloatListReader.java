@@ -8,11 +8,11 @@ import java.util.Map;
 import java.util.HashMap;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
@@ -61,7 +61,7 @@ public class SparseFloatListReader extends KeyListReader {
   }
 
   public class ListIterator extends KeyListReader.ListIterator
-          implements ScoreValueIterator {
+          implements MovableScoreIterator {
 
     VByteInput stream;
     int documentCount;
@@ -211,7 +211,7 @@ public class SparseFloatListReader extends KeyListReader {
     return nodeTypes;
   }
 
-  public ValueIterator getIterator(Node node) throws IOException {
+  public MovableValueIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("scores")) {
       return getScores(node.getDefaultParameter());
     } else {

@@ -6,10 +6,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.DataStream;
@@ -49,7 +49,7 @@ public class FieldIndexReader extends KeyListReader {
       return sb.toString();
     }
 
-    public ValueIterator getValueIterator() throws IOException {
+    public MovableValueIterator getValueIterator() throws IOException {
       return new ListIterator(iterator);
     }
 
@@ -60,7 +60,7 @@ public class FieldIndexReader extends KeyListReader {
   }
 
   public class ListIterator extends KeyListReader.ListIterator
-          implements ValueIterator {
+          implements MovableIterator {
 
     BTreeReader.BTreeIterator iterator;
     VByteInput data;
@@ -322,7 +322,7 @@ public class FieldIndexReader extends KeyListReader {
     return it;
   }
 
-  public ValueIterator getIterator(Node node) throws IOException {
+  public MovableValueIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("field")) {
       ListIterator it = getField(node.getDefaultParameter());
       if (node.getNodeParameters().containsKey("format")) {

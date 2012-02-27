@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
@@ -73,7 +73,7 @@ public class BinaryCountIterator implements MovableCountIterator {
   }
 
   @Override
-  public int compareTo(ValueIterator t) {
+  public int compareTo(MovableIterator t) {
     return iterator.compareTo(t);
   }
 

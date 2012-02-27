@@ -17,7 +17,7 @@ public class BM25FCombinationIterator extends ScoreCombinationIterator {
   double K;
 
   public BM25FCombinationIterator(Parameters globalParams, NodeParameters parameters,
-          ScoreValueIterator[] childIterators) {
+          MovableScoreIterator[] childIterators) {
     super(globalParams, parameters, childIterators);
     K = parameters.getDouble("K");
   }
@@ -26,10 +26,10 @@ public class BM25FCombinationIterator extends ScoreCombinationIterator {
   public double score() {
     double total = 0;
 
-    for (int i = 0; i < iterators.length; i += 2) {
-      double score = iterators[i].score();
+    for (int i = 0; i < scoreIterators.length; i += 2) {
+      double score = scoreIterators[i].score();
       // the second iterator here is the idf iterator - well, it should be
-      total += (weights[i] * score) / (K + score) * iterators[i + 1].score();
+      total += (weights[i] * score) / (K + score) * scoreIterators[i + 1].score();
     }
     return total;
   }
@@ -37,9 +37,9 @@ public class BM25FCombinationIterator extends ScoreCombinationIterator {
   @Override
   public double score(ScoringContext dc) {
     double total = 0;
-    for (int i = 0; i < iterators.length; i += 2) {
-      double score = iterators[i].score(dc);
-      total += (weights[i] * score) / (K + score) * iterators[i + 1].score(dc);
+    for (int i = 0; i < scoreIterators.length; i += 2) {
+      double score = scoreIterators[i].score(dc);
+      total += (weights[i] * score) / (K + score) * scoreIterators[i + 1].score(dc);
     }
     return total;
   }
@@ -61,9 +61,9 @@ public class BM25FCombinationIterator extends ScoreCombinationIterator {
   public double minimumScore() {
     double min = 0;
     double score;
-    for (int i = 0; i < iterators.length; i += 2) {
-      score = iterators[i].minimumScore();
-      min += (weights[i] * score) / (K + score) * iterators[i + 1].score();
+    for (int i = 0; i < scoreIterators.length; i += 2) {
+      score = scoreIterators[i].minimumScore();
+      min += (weights[i] * score) / (K + score) * scoreIterators[i + 1].score();
     }
     return min;
   }
@@ -72,9 +72,9 @@ public class BM25FCombinationIterator extends ScoreCombinationIterator {
   public double maximumScore() {
     double max = 0;
     double score;
-    for (int i = 0; i < iterators.length; i += 2) {
-      score = iterators[i].maximumScore();
-      max += (weights[i] * score) / (K + score) * iterators[i + 1].maximumScore();
+    for (int i = 0; i < scoreIterators.length; i += 2) {
+      score = scoreIterators[i].maximumScore();
+      max += (weights[i] * score) / (K + score) * scoreIterators[i + 1].maximumScore();
     }
     return max;
   }
@@ -97,11 +97,11 @@ public class BM25FCombinationIterator extends ScoreCombinationIterator {
       // the values being set below
       TObjectDoubleHashMap idfs = new TObjectDoubleHashMap();
       TObjectIntHashMap idxes = new TObjectIntHashMap();
-      pctx.startingPotentials = new double[iterators.length/2];
+      pctx.startingPotentials = new double[scoreIterators.length/2];
       pctx.potentials = new double[pctx.startingPotentials.length];
-      for (int i = 0; i < iterators.length; i +=2) {
-        pctx.startingPotentials[i/2] = iterators[i].maximumScore() + this.K;
-        idfs.put(iterators[i], iterators[i+1].maximumScore());
+      for (int i = 0; i < scoreIterators.length; i +=2) {
+        pctx.startingPotentials[i/2] = scoreIterators[i].maximumScore() + this.K;
+        idfs.put(iterators[i], scoreIterators[i+1].maximumScore());
         idxes.put(iterators[i], i/2);
       }
       

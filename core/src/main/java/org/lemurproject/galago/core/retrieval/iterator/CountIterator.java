@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 
 /**
  * This is base interface for all inverted lists that return count information.
@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.index.ValueIterator;
  * @see PositionIndexIterator
  * @author trevor, irmarc
  */
-public interface CountIterator extends StructuredIterator {
+public interface CountIterator {
 
     /**
      * Returns the number of occurrences of this iterator's term in

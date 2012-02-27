@@ -5,7 +5,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 
 /**
  *
@@ -133,14 +133,14 @@ public abstract class ConjunctionIterator implements MovableIterator {
   @Override
   public long totalEntries() {
     long min = Integer.MAX_VALUE;
-    for (ValueIterator iterator : iterators) {
+    for (MovableIterator iterator : iterators) {
       min = Math.min(min, iterator.totalEntries());
     }
     return min;
   }
 
   @Override
-  public int compareTo(ValueIterator other) {
+  public int compareTo(MovableIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }

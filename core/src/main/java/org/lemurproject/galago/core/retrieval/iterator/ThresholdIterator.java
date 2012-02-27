@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -14,16 +14,16 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public class ThresholdIterator implements IndicatorIterator, ContextualIterator {
+public class ThresholdIterator implements MovableIndicatorIterator, ContextualIterator {
 
   ScoringContext context;
   ScoringContext hasMatchContext;
-  ScoreValueIterator iterator;
+  MovableScoreIterator iterator;
   int document;
   double threshold;
   boolean shareNodes;
 
-  public ThresholdIterator(Parameters globalParams, NodeParameters parameters, ScoreValueIterator scorer) {
+  public ThresholdIterator(Parameters globalParams, NodeParameters parameters, MovableScoreIterator scorer) {
     this.iterator = scorer;
     this.document = scorer.currentCandidate();
     this.shareNodes = globalParams.get("shareNodes", false);
@@ -112,7 +112,7 @@ public class ThresholdIterator implements IndicatorIterator, ContextualIterator 
     return iterator.totalEntries();
   }
 
-  public int compareTo(ValueIterator other) {
+  public int compareTo(MovableIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }
@@ -123,5 +123,10 @@ public class ThresholdIterator implements IndicatorIterator, ContextualIterator 
       return 0;
     }
     return currentCandidate() - other.currentCandidate();
+  }
+
+  @Override
+  public boolean hasAllCandidates() {
+    return false;
   }
 }

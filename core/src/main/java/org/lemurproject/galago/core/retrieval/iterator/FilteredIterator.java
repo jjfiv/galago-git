@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.MovableValueIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
@@ -16,17 +16,17 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public abstract class FilteredIterator implements MovableCountIterator, ScoreValueIterator, ExtentValueIterator, ContextualIterator {
+public abstract class FilteredIterator implements MovableCountIterator, MovableScoreIterator, ExtentValueIterator, ContextualIterator {
 
   protected ScoringContext context;
-  protected IndicatorIterator indicator;
+  protected MovableIndicatorIterator indicator;
   protected MovableCountIterator counter;
-  protected ScoreValueIterator scorer;
+  protected MovableScoreIterator scorer;
   protected ExtentValueIterator extents;
-  protected ValueIterator mover;
+  protected MovableIterator mover;
   protected boolean sharedChildren;
 
-  public FilteredIterator(Parameters globalParams, NodeParameters parameters, IndicatorIterator indicator, MovableCountIterator counter) {
+  public FilteredIterator(Parameters globalParams, NodeParameters parameters, MovableIndicatorIterator indicator, MovableCountIterator counter) {
     this.sharedChildren = globalParams.get("shareNodes", false);
     this.indicator = indicator;
     this.scorer = null;
@@ -39,7 +39,7 @@ public abstract class FilteredIterator implements MovableCountIterator, ScoreVal
     }
   }
 
-  public FilteredIterator(Parameters globalParams, NodeParameters parameters, IndicatorIterator indicator, ScoreValueIterator scorer) {
+  public FilteredIterator(Parameters globalParams, NodeParameters parameters, MovableIndicatorIterator indicator, MovableScoreIterator scorer) {
     this.sharedChildren = globalParams.get("shareNodes", false);
     this.indicator = indicator;
     this.counter = null;
@@ -48,7 +48,7 @@ public abstract class FilteredIterator implements MovableCountIterator, ScoreVal
     this.mover = scorer;
   }
 
-  public FilteredIterator(Parameters globalParams, NodeParameters parameters, IndicatorIterator indicator, ExtentValueIterator extents) {
+  public FilteredIterator(Parameters globalParams, NodeParameters parameters, MovableIndicatorIterator indicator, ExtentValueIterator extents) {
     this.sharedChildren = globalParams.get("shareNodes", false);
     this.indicator = indicator;
     this.scorer = null;
@@ -185,7 +185,7 @@ public abstract class FilteredIterator implements MovableCountIterator, ScoreVal
   }
 
   @Override
-  public int compareTo(ValueIterator other) {
+  public int compareTo(MovableIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }
