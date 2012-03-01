@@ -22,6 +22,8 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Mov
           MovableScoreIterator[] childIterators) {
     super(childIterators);
 
+    this.scoreIterators = childIterators;
+    
     weights = new double[childIterators.length];
     double weightSum = 0.0;
 
@@ -37,8 +39,6 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Mov
         weights[i] = weights[i] / weightSum;
       }
     }
-
-    this.scoreIterators = childIterators;
   }
 
   @Override

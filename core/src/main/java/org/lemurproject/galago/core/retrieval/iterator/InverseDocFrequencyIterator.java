@@ -41,6 +41,7 @@ public class InverseDocFrequencyIterator extends ScoringFunctionIterator {
    * Always returns the predetermined boosting score.
    * @return
    */
+  @Override
   public double maximumScore() {
     return function.score(0, 0);
   }
@@ -50,42 +51,57 @@ public class InverseDocFrequencyIterator extends ScoringFunctionIterator {
    * Always returns the predetermined boosting score.
    * @return
    */
+  @Override
   public double minimumScore() {
     return function.score(0, 0);
   }
 
+  @Override
   public void reset() throws IOException {
   }
 
     // Immediately done
+  @Override
   public boolean isDone() {
       return true;
   }
 
   
+  @Override
   public int currentCandidate() {
       return Integer.MAX_VALUE;
   }
 
+  @Override
   public boolean atCandidate(int identifier) {
       return false;
   }
 
+  @Override
+  public boolean hasAllCandidates() {
+    return true;
+  }
+
+  @Override
   public boolean next() throws IOException {
       return false;
   }
   
+  @Override
   public boolean moveTo(int identifier) throws IOException {
       return false;
   }
 
+  @Override
   public void movePast(int identifier) throws IOException {
   }
 
+  @Override
   public String getEntry() throws IOException {
       return String.format("IDF: %f", function.score(0,0));
   }
 
+  @Override
   public long totalEntries() {
       return 0;
   }
