@@ -51,7 +51,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
 
   @Override
   public void addIteratorData(MovableIterator iterator) throws IOException {
-    do {
+    while(!iterator.isDone()) {
       int identifier = ((NamesReader.Iterator) iterator).getCurrentIdentifier();
       String name = ((NamesReader.Iterator) iterator).getCurrentName();
 
@@ -71,8 +71,8 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
       docCount += 1;
       termCount += 1;
       names.add(name);
-
-    } while (iterator.next());
+      iterator.next();
+    }
   }
 
   public String getDocumentName(int docNum) {

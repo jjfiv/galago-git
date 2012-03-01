@@ -211,18 +211,16 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     }
 
     @Override
-    public boolean next() throws IOException {
+    public void next() throws IOException {
       documentIndex = Math.min(documentIndex + 1, documentCount);
       if (!isDone()) {
         load();
-        return true;
       }
-      return false;
     }
 
     // If we have skips - it's go time
     @Override
-    public boolean moveTo(int document) throws IOException {
+    public void moveTo(int document) throws IOException {
       /*
       if (skips != null && document > nextSkipDocument) {
       // if we're here, we're skipping
@@ -235,8 +233,9 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
        */
 
       // linear from here
-      while (document > currentDocument && next());
-      return atCandidate(document);
+      while (!isDone() && document > currentDocument){
+        next();
+      }
     }
 
     // This only moves forward in tier 1, reads from tier 2 only when

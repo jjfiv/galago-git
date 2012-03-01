@@ -22,7 +22,7 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
   }
 
   @Override
-  public boolean moveTo(int identifier) throws IOException {
+  public void moveTo(int identifier) throws IOException {
     super.moveTo(identifier);
 
     extents.reset();
@@ -31,8 +31,6 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
       // if so : load some extents
       loadExtents();
     }
-
-    return !isDone();
   }
 
   @Override
@@ -57,15 +55,15 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
   }
 
   @Override
-  public ExtentArray extents(){
+  public ExtentArray extents() {
     return extents;
   }
-  
+
   @Override
-  public int count(){
+  public int count() {
     return extents.size();
   }
-  
+
   @Override
   public int maximumCount() {
     int min = 0;

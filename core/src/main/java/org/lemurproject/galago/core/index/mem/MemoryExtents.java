@@ -81,7 +81,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
       return;
     }
 
-    do {
+    while (!iterator.isDone()) {
       int document = iterator.currentCandidate();
       ExtentArrayIterator extentsIterator = new ExtentArrayIterator(((MovableExtentIterator) iterator).extents());
       while (!extentsIterator.isDone()) {
@@ -90,7 +90,8 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
         addExtent(key, document, begin, end);
         extentsIterator.next();
       }
-    } while (iterator.next());
+      iterator.next();
+    }
   }
 
   private void addExtent(byte[] byteExtentName, int document, int begin, int end) {
@@ -426,10 +427,10 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
       }
 
       @Override
-      public boolean next() throws IOException {
+      public void next() throws IOException {
         if (iteratedDocs >= extentDocumentCount) {
           done = true;
-          return false;
+          return;
         } else if (iteratedDocs == extentDocumentCount - 1) {
           currDocument = lastDocument;
           currCount = lastCount;
@@ -440,7 +441,6 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
         loadExtents();
 
         iteratedDocs++;
-        return true;
       }
 
       public void loadExtents() throws IOException {
@@ -456,11 +456,10 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
       }
 
       @Override
-      public boolean moveTo(int identifier) throws IOException {
+      public void moveTo(int identifier) throws IOException {
         while (!isDone() && (currDocument < identifier)) {
           next();
         }
-        return atCandidate(identifier);
       }
 
       @Override

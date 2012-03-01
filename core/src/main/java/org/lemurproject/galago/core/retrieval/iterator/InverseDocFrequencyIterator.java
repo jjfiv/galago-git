@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
@@ -17,7 +16,8 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 @RequiredStatistics(statistics = {"nodeDocumentCount", "collectionLength", "documentCount"})
 public class InverseDocFrequencyIterator extends ScoringFunctionIterator {
- public InverseDocFrequencyIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
+
+  public InverseDocFrequencyIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
           throws IOException {
     super(it, new InverseDocumentFrequencyScorer(globalParams, p, it));
     // And now dump it
@@ -33,7 +33,7 @@ public class InverseDocFrequencyIterator extends ScoringFunctionIterator {
    */
   @Override
   public double score() {
-      return function.score(0,0);
+    return function.score(0, 0);
   }
 
   /**
@@ -60,21 +60,20 @@ public class InverseDocFrequencyIterator extends ScoringFunctionIterator {
   public void reset() throws IOException {
   }
 
-    // Immediately done
+  // Immediately done
   @Override
   public boolean isDone() {
-      return true;
+    return true;
   }
 
-  
   @Override
   public int currentCandidate() {
-      return Integer.MAX_VALUE;
+    return Integer.MAX_VALUE;
   }
 
   @Override
   public boolean atCandidate(int identifier) {
-      return false;
+    return false;
   }
 
   @Override
@@ -83,13 +82,11 @@ public class InverseDocFrequencyIterator extends ScoringFunctionIterator {
   }
 
   @Override
-  public boolean next() throws IOException {
-      return false;
+  public void next() throws IOException {
   }
-  
+
   @Override
-  public boolean moveTo(int identifier) throws IOException {
-      return false;
+  public void moveTo(int identifier) throws IOException {
   }
 
   @Override
@@ -98,11 +95,11 @@ public class InverseDocFrequencyIterator extends ScoringFunctionIterator {
 
   @Override
   public String getEntry() throws IOException {
-      return String.format("IDF: %f", function.score(0,0));
+    return String.format("IDF: %f", function.score(0, 0));
   }
 
   @Override
   public long totalEntries() {
-      return 0;
+    return 0;
   }
 }

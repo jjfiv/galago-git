@@ -23,12 +23,9 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
   }
 
   @Override
-  public boolean next() {
+  public void next() {
     if (index < data.length) {
       index++;
-      return true;
-    } else {
-      return false;
     }
   }
 
@@ -79,11 +76,10 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
   }
 
   @Override
-  public boolean moveTo(int identifier) throws IOException {
+  public void moveTo(int identifier) throws IOException {
     while (!isDone() && currentCandidate() < identifier) {
       index++;
     }
-    return atCandidate(identifier);
   }
 
   @Override

@@ -32,17 +32,4 @@ public class DisjointLengthsIterator extends DisjointIndexesIterator implements 
       throw new IOException("Lengths Iterator is done.");
     }
   }
-
-  public boolean skipToKey(int candidate) throws IOException {
-    queue.offer(head);
-    while(!queue.isEmpty()){
-      head = queue.poll();
-      if(((LengthsReader.Iterator) head).moveTo(candidate)){
-        return true;
-      } else if(!head.isDone()){
-        return false;
-      }
-    }
-    return false;
-  }
 }

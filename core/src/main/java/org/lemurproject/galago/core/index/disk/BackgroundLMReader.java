@@ -178,12 +178,12 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
 
     @Override
-    public boolean next() throws IOException {
+    public void next() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public boolean moveTo(int identifier) throws IOException {
+    public void moveTo(int identifier) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

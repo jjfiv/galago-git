@@ -142,9 +142,9 @@ public class DocumentPriorReader extends KeyValueReader {
     public long totalEntries() {
       return manifest.get("keyCount", -1);
     }
-    
+
     @Override
-    public boolean hasAllCandidates(){
+    public boolean hasAllCandidates() {
       return true;
     }
 
@@ -186,18 +186,16 @@ public class DocumentPriorReader extends KeyValueReader {
     }
 
     @Override
-    public boolean moveTo(int identifier) throws IOException {
-      // don't move the child iterator - takes too long.
-      if(nonmatching){
-        return true;
-      } else {
-        return iterator.skipToKey(Utility.fromInt(identifier));
+    public void moveTo(int identifier) throws IOException {
+      if (nonmatching) {
+        return;
       }
+      iterator.skipToKey(Utility.fromInt(identifier));
     }
 
     @Override
-    public int currentCandidate(){
-      if(nonmatching){
+    public int currentCandidate() {
+      if (nonmatching) {
         return Integer.MAX_VALUE;
       } else {
         try {
@@ -209,8 +207,8 @@ public class DocumentPriorReader extends KeyValueReader {
     }
 
     @Override
-    public boolean isDone(){
-      if(nonmatching){
+    public boolean isDone() {
+      if (nonmatching) {
         return true;
       } else {
         return iterator.isDone();

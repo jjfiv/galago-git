@@ -21,13 +21,13 @@ public abstract class KeyToListIterator extends ValueIterator {
   }
 
   @Override
-  public boolean next() throws IOException {
-    return iterator.nextKey();
+  public void next() throws IOException {
+    iterator.nextKey();
   }
 
   @Override
-  public boolean moveTo(int identifier) throws IOException {
-    return iterator.skipToKey(Utility.fromInt(identifier));
+  public void moveTo(int identifier) throws IOException {
+    iterator.skipToKey(Utility.fromInt(identifier));
   }
 
   @Override

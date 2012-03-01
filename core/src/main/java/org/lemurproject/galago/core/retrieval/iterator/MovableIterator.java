@@ -40,7 +40,7 @@ public interface MovableIterator extends StructuredIterator,
    * 
    * -- boolean indicates if the iterator isDone()
    */
-  public boolean next() throws IOException;
+  public void next() throws IOException;
 
   /**
    * Moves to the next candidate
@@ -56,7 +56,7 @@ public interface MovableIterator extends StructuredIterator,
    * 
    * -- boolean indicates if the iterator isDone()
    */
-  public boolean moveTo(int identifier) throws IOException;
+  public void moveTo(int identifier) throws IOException;
 
   /**
    * returns the iterator to the first candidate

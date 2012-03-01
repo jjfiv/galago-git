@@ -48,7 +48,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
   @Override
   public void addIteratorData(MovableIterator iterator) throws IOException {
-    do {
+    while (!iterator.isDone()) {
       int identifier = ((LengthsReader.Iterator) iterator).getCurrentIdentifier();
       int length = ((LengthsReader.Iterator) iterator).getCurrentLength();
 
@@ -67,7 +67,8 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       docCount += 1;
       termCount += length;
       lengths.add(length);
-    } while (iterator.next());
+      iterator.next();
+    }
   }
 
   @Override

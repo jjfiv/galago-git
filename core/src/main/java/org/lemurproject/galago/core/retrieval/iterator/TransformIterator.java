@@ -47,13 +47,13 @@ public abstract class TransformIterator implements MovableIterator {
   }
 
   @Override
-  public boolean next() throws IOException {
-    return iterator.next();
+  public void next() throws IOException {
+    iterator.next();
   }
 
   @Override
-  public boolean moveTo(int identifier) throws IOException {
-    return iterator.moveTo(identifier);
+  public void moveTo(int identifier) throws IOException {
+    iterator.moveTo(identifier);
   }
 
   @Override

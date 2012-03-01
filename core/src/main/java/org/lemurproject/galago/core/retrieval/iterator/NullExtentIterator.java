@@ -24,9 +24,8 @@ public class NullExtentIterator extends ValueIterator implements MovableExtentIt
   }
   
   @Override
-  public boolean next() {
+  public void next() {
     // do nothing
-    return false;
   }
 
   public boolean nextEntry() {
@@ -84,8 +83,7 @@ public class NullExtentIterator extends ValueIterator implements MovableExtentIt
   }
 
   @Override
-  public boolean moveTo(int identifier) throws IOException {
-    return false;
+  public void moveTo(int identifier) throws IOException {
   }
 
   @Override

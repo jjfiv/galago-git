@@ -54,11 +54,10 @@ public abstract class ConjunctionIterator implements MovableIterator {
   }
 
   @Override
-  public boolean moveTo(int candidate) throws IOException {
+  public void moveTo(int candidate) throws IOException {
     for (MovableIterator iterator : iterators) {
       iterator.moveTo(candidate);
     }
-    return !isDone();
     // if we are not sharing children - we can be more aggressive here.
   }
 
@@ -70,9 +69,8 @@ public abstract class ConjunctionIterator implements MovableIterator {
 
   // these functions are final to ensure that they are never overridden
   @Override
-  public final boolean next() throws IOException {
+  public final void next() throws IOException {
     this.moveTo(currentCandidate() + 1);
-    return !isDone();
   }
 
   @Override

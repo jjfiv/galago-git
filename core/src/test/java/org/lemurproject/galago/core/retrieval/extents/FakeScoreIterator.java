@@ -43,11 +43,10 @@ public class FakeScoreIterator implements MovableScoreIterator {
   }
 
   @Override
-  public boolean moveTo(int document) throws IOException {
+  public void moveTo(int document) throws IOException {
     while (!isDone() && document > docs[index]) {
       index++;
     }
-    return (atCandidate(document));
   }
 
   @Override
@@ -96,7 +95,7 @@ public class FakeScoreIterator implements MovableScoreIterator {
   }
 
   @Override
-  public boolean next() throws IOException {
+  public void next() throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 

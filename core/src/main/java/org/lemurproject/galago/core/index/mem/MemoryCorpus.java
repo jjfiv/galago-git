@@ -47,55 +47,63 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   // this is likely to waste all of your memory...
   @Override
   public void addIteratorData(MovableIterator iterator) throws IOException {
-    do{
+    while (!iterator.isDone()) {
       Document doc = ((DataIterator<Document>) iterator).getData();
       // if the document already exists - no harm done.
       addDocument(doc);
-    } while(iterator.next());
+      iterator.next();
+    }
   }
 
-
+  @Override
   public void close() throws IOException {
     // clean up data.
     corpusData = null;
   }
 
+  @Override
   public DocumentIterator getIterator() throws IOException {
     return new MemDocIterator(corpusData.keySet().iterator());
   }
 
+  @Override
   public Document getDocument(int key) throws IOException {
     return corpusData.get(Utility.fromInt(key));
   }
 
+  @Override
   public Parameters getManifest() {
     return params;
   }
 
+  @Override
   public long getDocumentCount() {
     return docCount;
   }
 
+  @Override
   public long getCollectionLength() {
     return termCount;
   }
-  
-  public long getVocabCount(){
+
+  @Override
+  public long getVocabCount() {
     return this.corpusData.size();
   }
 
+  @Override
   public void flushToDisk(String path) throws IOException {
     Parameters p = getManifest();
     p.set("filename", path);
     CorpusFileWriter writer = new CorpusFileWriter(new FakeParameters(p));
     DocumentIterator iterator = getIterator();
-    while(! iterator.isDone()){
-      writer.process( iterator.getDocument() );
+    while (!iterator.isDone()) {
+      writer.process(iterator.getDocument());
       iterator.nextKey();
     }
     writer.close();
   }
-  
+
   // unsupported functions - perhaps soon they will be supported.
   public ValueIterator getIterator(Node node) throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");

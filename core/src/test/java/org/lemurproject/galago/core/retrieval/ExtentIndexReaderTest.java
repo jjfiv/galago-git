@@ -162,7 +162,8 @@ public class ExtentIndexReaderTest extends TestCase {
         WindowIndexReader.TermExtentIterator extents = reader.getTermExtents("skippy");
 
         assertFalse(extents.isDone());
-        assertFalse(extents.moveTo(453));
+        extents.moveTo(453);
+        assertFalse(extents.atCandidate(453));        
         assertEquals(454, extents.currentCandidate());
         extents.next();
         assertEquals(457, extents.currentCandidate());

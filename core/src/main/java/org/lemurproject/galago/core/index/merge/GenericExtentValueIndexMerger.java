@@ -35,12 +35,11 @@ public abstract class GenericExtentValueIndexMerger<S> extends GenericIndexMerge
       load();
     }
 
-    public boolean next() throws IOException{
-      boolean success = iterator.next();
-      if(success){
+    public void next() throws IOException{
+      iterator.next();
+      if(!iterator.isDone()){
         load();
       }
-      return success;
     }
 
     // changes the document numbers in the extent array
@@ -76,7 +75,8 @@ public abstract class GenericExtentValueIndexMerger<S> extends GenericIndexMerge
     while( ! extentQueue.isEmpty() ){
       ExtentValueIteratorWrapper head = extentQueue.poll();
       transformExtentArray(key, head.currentExtentArray);
-      if(head.next()){
+      head.next();
+      if(!head.isDone()){
         extentQueue.offer(head);
       }
     }

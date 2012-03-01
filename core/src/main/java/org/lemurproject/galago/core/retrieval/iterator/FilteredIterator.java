@@ -124,13 +124,13 @@ public abstract class FilteredIterator implements MovableCountIterator, MovableS
   }
 
   @Override
-  public boolean hasAllCandidates(){
+  public boolean hasAllCandidates() {
     return false;
   }
 
   @Override
-  public boolean next() throws IOException {
-    return moveTo(currentCandidate() + 1);
+  public void next() throws IOException {
+    moveTo(currentCandidate() + 1);
   }
 
   @Override
@@ -139,7 +139,7 @@ public abstract class FilteredIterator implements MovableCountIterator, MovableS
   }
 
   @Override
-  public boolean moveTo(int identifier) throws IOException {
+  public void moveTo(int identifier) throws IOException {
     if (!isDone()) {
       indicator.moveTo(identifier);
       mover.moveTo(identifier);
@@ -147,7 +147,6 @@ public abstract class FilteredIterator implements MovableCountIterator, MovableS
         findBestCandidate();
       }
     }
-    return !isDone();
   }
 
   // Stops the iterators on the first document

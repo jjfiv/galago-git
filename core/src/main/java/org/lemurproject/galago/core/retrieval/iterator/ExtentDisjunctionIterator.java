@@ -22,7 +22,7 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
   }
 
   @Override
-  public boolean moveTo(int identifier) throws IOException {
+  public void moveTo(int identifier) throws IOException {
     super.moveTo(identifier);
 
     extents.reset();
@@ -31,8 +31,6 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
       // if so : load some extents
       loadExtents();
     }
-
-    return !isDone();
   }
 
   @Override

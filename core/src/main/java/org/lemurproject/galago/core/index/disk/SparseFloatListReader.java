@@ -81,6 +81,9 @@ public class SparseFloatListReader extends KeyListReader {
       if (index < documentCount) {
         currentDocument += stream.readInt();
         currentScore = stream.readFloat();
+      } else {
+        // ensure we never overflow
+        index = documentCount;
       }
     }
 
@@ -98,12 +101,8 @@ public class SparseFloatListReader extends KeyListReader {
     }
 
     @Override
-    public boolean next() throws IOException {
+    public void next() throws IOException {
       read();
-      if (!isDone()) {
-        return true;
-      }
-      return false;
     }
 
     @Override
@@ -132,18 +131,17 @@ public class SparseFloatListReader extends KeyListReader {
     public int currentCandidate() {
       return currentDocument;
     }
-    
+
     @Override
-    public boolean hasAllCandidates(){
+    public boolean hasAllCandidates() {
       return false;
     }
-    
+
     @Override
-    public boolean moveTo(int document) throws IOException {
+    public void moveTo(int document) throws IOException {
       while (!isDone() && document > currentDocument) {
         read();
       }
-      return atCandidate(document);
     }
 
     @Override

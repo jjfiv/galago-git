@@ -47,25 +47,31 @@ public abstract class DisjointIndexesIterator extends ValueIterator {
   }
 
   @Override
-  public boolean next() throws IOException {
-    return moveTo(currentCandidate() + 1);
+  public void next() throws IOException {
+    moveTo(currentCandidate() + 1);
   }
 
   @Override
-  public boolean moveTo(int identifier) throws IOException {
+  public void moveTo(int identifier) throws IOException {
     queue.offer(head);
     while (!queue.isEmpty()) {
       head = queue.poll();
       head.moveTo(identifier);
-      if (head.atCandidate(identifier)) {
-        return true;
-      } else if (!head.isDone()) {
-        return false;
+      if (queue.isEmpty()) {
+        // if the queue is empty - we're done
+        return;
+      } else if (!head.isDone() 
+              && !queue.isEmpty() 
+              && head.compareTo(queue.peek()) < 0) {
+        // otherwise check if head is still the head
+        return;
       }
-      // otherwise head is done + it has been removed from the queue.
+      
+      // if we are here - head may be done - or may not be the head anymore
+      if (!head.isDone()) {
+        queue.offer(head);
+      }
     }
-    //if the queue is empty - set head == null
-    return false;
   }
 
   @Override
@@ -100,7 +106,7 @@ public abstract class DisjointIndexesIterator extends ValueIterator {
   @Override
   public boolean hasAllCandidates() {
     boolean flag = true;
-    for(MovableIterator i : allIterators){
+    for (MovableIterator i : allIterators) {
       flag &= i.hasAllCandidates();
     }
     return flag;

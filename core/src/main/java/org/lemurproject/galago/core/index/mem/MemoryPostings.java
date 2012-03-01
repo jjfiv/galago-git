@@ -97,7 +97,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
       return;
     }
 
-    do {
+    while (!iterator.isDone()) {
       int document = iterator.currentCandidate();
       ExtentArrayIterator extentsIterator = new ExtentArrayIterator(((MovableExtentIterator) iterator).extents());
       while (!extentsIterator.isDone()) {
@@ -105,7 +105,8 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
         addPosting(key, document, begin);
         extentsIterator.next();
       }
-    } while (iterator.next());
+      iterator.next();
+    }
   }
 
   protected void addPosting(byte[] byteWord, int document, int position) {
@@ -465,24 +466,6 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
       return (!isDone() && identifier == currDocument);
     }
 
-    @Override
-    public boolean next() throws IOException {
-      if (iteratedDocs >= postings.termDocumentCount) {
-        done = true;
-        return false;
-      } else if (iteratedDocs == postings.termDocumentCount - 1) {
-        currDocument = postings.lastDocument;
-        currCount = postings.lastCount;
-      } else {
-        currDocument += documents_reader.readInt();
-        currCount = counts_reader.readInt();
-      }
-      loadExtents();
-
-      iteratedDocs++;
-      return true;
-    }
-
     public void loadExtents() throws IOException {
       extents.reset();
       extents.setDocument(currDocument);
@@ -493,12 +476,29 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
       }
     }
 
+    
     @Override
-    public boolean moveTo(int identifier) throws IOException {
+    public void next() throws IOException {
+      if (iteratedDocs >= postings.termDocumentCount) {
+        done = true;
+        return;
+      } else if (iteratedDocs == postings.termDocumentCount - 1) {
+        currDocument = postings.lastDocument;
+        currCount = postings.lastCount;
+      } else {
+        currDocument += documents_reader.readInt();
+        currCount = counts_reader.readInt();
+      }
+      loadExtents();
+
+      iteratedDocs++;
+    }
+
+    @Override
+    public void moveTo(int identifier) throws IOException {
       while (!isDone() && (currDocument < identifier)) {
         next();
       }
-      return atCandidate(identifier);
     }
 
     @Override
@@ -663,10 +663,10 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public boolean next() throws IOException {
+    public void next() throws IOException {
       if (iteratedDocs >= postings.termDocumentCount) {
         done = true;
-        return false;
+        return;
       } else if (iteratedDocs == postings.termDocumentCount - 1) {
         currDocument = postings.lastDocument;
         currCount = postings.lastCount;
@@ -676,15 +676,13 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
       }
 
       iteratedDocs++;
-      return true;
     }
 
     @Override
-    public boolean moveTo(int identifier) throws IOException {
+    public void moveTo(int identifier) throws IOException {
       while (!isDone() && (currDocument < identifier)) {
         next();
       }
-      return atCandidate(identifier);
     }
 
     @Override

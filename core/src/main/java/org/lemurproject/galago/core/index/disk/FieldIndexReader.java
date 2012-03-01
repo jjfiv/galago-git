@@ -145,21 +145,19 @@ public class FieldIndexReader extends KeyListReader {
       format = f;
     }
 
-    public boolean next() throws IOException {
+    @Override
+    public void next() throws IOException {
       documentIndex = Math.min(documentIndex + 1, documentCount);
-
       if (!isDone()) {
         loadValue();
-        return true;
       }
-      return false;
     }
 
-    public boolean moveTo(int document) throws IOException {
+    @Override
+    public void moveTo(int document) throws IOException {
       while (!isDone() && document > currentDocument) {
         next();
       }
-      return document == currentDocument;
     }
 
     private void loadValue() throws IOException {

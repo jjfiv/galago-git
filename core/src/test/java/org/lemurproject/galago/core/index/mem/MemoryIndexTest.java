@@ -52,9 +52,10 @@ public class MemoryIndexTest extends TestCase {
     MovableCountIterator ci = (MovableCountIterator) index.getIterator(n);
     assertEquals(ci.currentCandidate(), 0);
     int total = 0;
-    do {
+    while(!ci.isDone()){
       total += ci.count();
-    } while (ci.next());
+      ci.next();
+    }
     assertEquals(total, 200);
   }
 

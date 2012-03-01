@@ -91,11 +91,11 @@ public class IndicatorIteratorTest extends TestCase {
     assertTrue(eii.atCandidate(2));
     assertEquals(true, eii.atCandidate(eii.currentCandidate()));
 
-    assertTrue(eii.moveTo(3));
+    eii.moveTo(3);
     assertEquals(4, eii.currentCandidate());
     assertEquals(true, eii.atCandidate(eii.currentCandidate()));
 
-    assertFalse(eii.next());
+    eii.next();
     assertTrue(eii.isDone());
 
     retrieval.close();
@@ -117,13 +117,14 @@ public class IndicatorIteratorTest extends TestCase {
     assertTrue(uii.atCandidate(0));
     assertEquals(true, uii.atCandidate(uii.currentCandidate()));
 
-    assertTrue(uii.moveTo(1));
+    uii.moveTo(1);
     assertEquals(2, uii.currentCandidate());
     assertEquals(true, uii.atCandidate(uii.currentCandidate()));
 
-    assertTrue(uii.next());
+    uii.next();
     assertEquals(4, uii.currentCandidate());
-    assertFalse(uii.next());
+
+    uii.next();
     assertTrue(uii.isDone());
 
     retrieval.close();
@@ -152,22 +153,22 @@ public class IndicatorIteratorTest extends TestCase {
     assertEquals(true, uii.atCandidate(uii.currentCandidate()));
 
     // First step to doc 2
-    assertTrue(uii.next());
-    assertTrue(eii.next());
+    uii.next();
+    eii.next();
     assertEquals(true, eii.atCandidate(eii.currentCandidate()));
     assertEquals(true, uii.atCandidate(uii.currentCandidate()));
     assertEquals(eii.currentCandidate(), uii.currentCandidate());
 
     // Now on the doc 4
-    assertTrue(uii.next());
-    assertTrue(eii.next());
+    uii.next();
+    eii.next();
     assertEquals(true, eii.atCandidate(eii.currentCandidate()));
     assertEquals(true, uii.atCandidate(uii.currentCandidate()));
     assertEquals(eii.currentCandidate(), uii.currentCandidate());
 
     // Should be done now
-    assertFalse(uii.next());
-    assertFalse(eii.next());
+    uii.next();
+    eii.next();
     assertTrue(uii.isDone());
     assertTrue(eii.isDone());
   }
@@ -188,17 +189,17 @@ public class IndicatorIteratorTest extends TestCase {
     dc1.document = 0;
     assertFalse(mi.isDone());
 
-    assertTrue(mi.next());
+    mi.next();
     dc1.document = 2;
     assertEquals(2, mi.currentCandidate());
     assertFalse(mi.isDone());
 
-    assertTrue(mi.next());
+    mi.next();
     dc1.document = 4;
     assertEquals(4, mi.currentCandidate());
     assertFalse(mi.isDone());
 
-    assertFalse(mi.next());
+    mi.next();
     assertTrue(mi.isDone());
   }
 }

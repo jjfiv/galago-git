@@ -137,17 +137,15 @@ public class AdjacencyListReader extends KeyListReader {
     }
 
     @Override
-    public boolean moveTo(int identifier) throws IOException {
+    public void moveTo(int identifier) throws IOException {
       while (!isDone() && identifier > currentIdentifier) {
         read();
       }
-      return !isDone();
     }
 
     @Override
-    public boolean next() throws IOException {
+    public void next() throws IOException {
       read();
-      return !isDone();
     }
 
     @Override

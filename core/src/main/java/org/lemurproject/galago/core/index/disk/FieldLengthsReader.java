@@ -114,13 +114,13 @@ public class FieldLengthsReader implements LengthsReader {
     }
 
     @Override
-    public boolean next() throws IOException {
-      return extentsIterator.next();
+    public void next() throws IOException {
+      extentsIterator.next();
     }
 
     @Override
-    public boolean moveTo(int identifier) throws IOException {
-      return extentsIterator.moveTo(identifier);
+    public void moveTo(int identifier) throws IOException {
+      extentsIterator.moveTo(identifier);
     }
 
     @Override

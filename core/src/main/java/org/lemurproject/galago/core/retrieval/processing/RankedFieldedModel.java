@@ -58,7 +58,7 @@ public class RankedFieldedModel extends ProcessingModel {
     // This model uses the simplest ScoringContext
     FieldScoringContext context = new FieldScoringContext();
     initializeFieldLengths(context);
-    
+
     // have to be sure
     Arrays.sort(whitelist);
 
@@ -97,7 +97,7 @@ public class RankedFieldedModel extends ProcessingModel {
     // This model uses the simplest ScoringContext
     FieldScoringContext context = new FieldScoringContext();
     initializeFieldLengths(context);
-    
+
     // Number of documents requested.
     int requested = (int) queryParams.get("requested", 1000);
 
@@ -137,7 +137,8 @@ public class RankedFieldedModel extends ProcessingModel {
   protected void updateFieldLengths(FieldScoringContext context, int currentDoc) throws IOException {
     // Now get updated counts                                                                                                               
     for (Map.Entry<String, LengthsReader.Iterator> entry : lReaders.entrySet()) {
-      if (entry.getValue().moveTo(currentDoc)) {
+      entry.getValue().moveTo(currentDoc);
+      if (entry.getValue().atCandidate(currentDoc)) {
         context.lengths.put(entry.getKey(), entry.getValue().getCurrentLength());
       } else {
         context.lengths.put(entry.getKey(), 0);
