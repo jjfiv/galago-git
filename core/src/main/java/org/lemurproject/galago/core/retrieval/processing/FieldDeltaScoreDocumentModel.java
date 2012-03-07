@@ -104,7 +104,7 @@ public class FieldDeltaScoreDocumentModel extends ProcessingModel {
 
       // Otherwise move lengths
       context.document = candidate;
-      lengthsIterator.skipToKey(candidate);
+      lengthsIterator.moveTo(candidate);
       context.length = lengthsIterator.getCurrentLength();
       this.updateFieldLengths(context, candidate);
 
@@ -143,7 +143,7 @@ public class FieldDeltaScoreDocumentModel extends ProcessingModel {
 
       // Now move all matching quorum members forward, and repeat
       for (i = 0; i < context.quorumIndex; i++) {
-        if (context.scorers.get(i).hasMatch(candidate)) {
+        if (context.scorers.get(i).atCandidate(candidate)) {
           context.scorers.get(i).next();
         }
       }
@@ -197,7 +197,7 @@ public class FieldDeltaScoreDocumentModel extends ProcessingModel {
 
       // Otherwise move lengths
       context.document = candidate;
-      lengthsIterator.skipToKey(candidate);
+      lengthsIterator.moveTo(candidate);
       context.length = lengthsIterator.getCurrentLength();
       this.updateFieldLengths(context, candidate);
 
@@ -256,11 +256,12 @@ public class FieldDeltaScoreDocumentModel extends ProcessingModel {
     whitelist = docs;
   }
 
-
   protected void updateFieldLengths(FieldDeltaScoringContext context, int currentDoc) throws IOException {
     // Now get updated counts
     for (Map.Entry<String, LengthsReader.Iterator> entry : lReaders.entrySet()) {
-      if (entry.getValue().moveTo(currentDoc)) {
+
+      entry.getValue().moveTo(currentDoc);
+      if (entry.getValue().atCandidate(currentDoc)) {
         context.lengths.put(entry.getKey(), entry.getValue().getCurrentLength());
       } else {
         context.lengths.put(entry.getKey(), 0);

@@ -80,8 +80,8 @@ public class CachedDiskIndex implements Index {
   @Override
   public boolean containsDocumentIdentifier(int document) throws IOException {
     NamesReader.Iterator ni = getNamesIterator();
-    ni.skipToKey(document);
-    return ni.hasMatch(document);
+    ni.moveTo(document);
+    return ni.atCandidate(document);
   }
 
   @Override

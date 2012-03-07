@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.TopDocsReader.TopDocument;
+import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.retrieval.processing.FieldScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
@@ -21,7 +21,7 @@ public class JelinekMercerProbabilityScoringIterator extends ScoringFunctionIter
   protected double loweredMaximum = Double.POSITIVE_INFINITY;
   protected String partName;
 
-  public JelinekMercerProbabilityScoringIterator(Parameters globalParams, NodeParameters p, CountValueIterator it)
+  public JelinekMercerProbabilityScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
           throws IOException {
     super(it, new JelinekMercerProbabilityScorer(globalParams, p, it));
     partName = p.getString("lengths");
@@ -46,6 +46,7 @@ public class JelinekMercerProbabilityScoringIterator extends ScoringFunctionIter
      * Overriding this in case we're using topdocs, in which case, also drop the
      * maximum once vs multiple times.
      */
+  @Override
   public void setContext(ScoringContext context) {
     if (TopDocsContext.class.isAssignableFrom((context.getClass()))) {
       TopDocsContext tdc = (TopDocsContext) context;
@@ -64,6 +65,7 @@ public class JelinekMercerProbabilityScoringIterator extends ScoringFunctionIter
    * Maximize the probability
    * @return
    */
+  @Override
   public double maximumScore() {
     if (loweredMaximum != Double.POSITIVE_INFINITY) {
       return loweredMaximum;
@@ -72,6 +74,7 @@ public class JelinekMercerProbabilityScoringIterator extends ScoringFunctionIter
     }
   }
 
+  @Override
   public double minimumScore() {
     return function.score(0, 1);
   }

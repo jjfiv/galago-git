@@ -3,8 +3,8 @@ package org.lemurproject.galago.core.index.corpus;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import org.lemurproject.galago.core.index.GenericIndexReader;
-import org.lemurproject.galago.core.index.disk.IndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.index.IndexPartReader;

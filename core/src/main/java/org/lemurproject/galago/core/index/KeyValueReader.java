@@ -21,24 +21,27 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public abstract class KeyValueReader implements IndexPartReader {
 
-  protected GenericIndexReader reader;
+  protected BTreeReader reader;
 
   public KeyValueReader(String filename) throws FileNotFoundException, IOException {
-    reader = GenericIndexReader.getIndexReader(filename);
+    reader = BTreeFactory.getBTreeReader(filename);
   }
 
+  public KeyValueReader(BTreeReader r) {
+    this.reader = r;
+  }
+
+  @Override
   public Parameters getManifest() {
     return reader.getManifest();
   }
 
-  public KeyValueReader(GenericIndexReader r) {
-    this.reader = r;
-  }
-
+  @Override
   public void close() throws IOException {
     reader.close();
   }
 
+  @Override
   public String getDefaultOperator() {
     Map<String, NodeType> types = this.getNodeTypes();
     if (types.size() == 1) {
@@ -48,70 +51,61 @@ public abstract class KeyValueReader implements IndexPartReader {
     }
   }
 
-  public abstract Iterator getIterator() throws IOException;
+  public abstract class KeyValueIterator implements KeyIterator {
 
-  public static abstract class Iterator implements KeyIterator {
+    protected BTreeReader.BTreeIterator iterator;
+    protected BTreeReader reader;
 
-    protected GenericIndexReader.Iterator iterator;
-    protected GenericIndexReader reader;
-
-    public Iterator(GenericIndexReader reader) throws IOException {
+    public KeyValueIterator(BTreeReader reader) throws IOException {
       this.reader = reader;
       reset();
     }
 
+    @Override
+    public boolean findKey(byte[] key) throws IOException {
+      iterator.find(key);
+      return !isDone();
+    }
+
+    @Override
+    public boolean skipToKey(byte[] key) throws IOException {
+      iterator.skipTo(key);
+      return !isDone();
+    }
+
+    @Override
+    public boolean nextKey() throws IOException {
+      iterator.nextKey();
+      return !isDone();
+    }
+
+    @Override
     public boolean isDone() {
       return iterator.isDone();
     }
 
-    public boolean skipToKey(byte[] key) throws IOException {
-      iterator.skipTo(key);
-      if (Utility.compare(key, iterator.getKey()) == 0) {
-        return true;
-      }
-      return false;
-    }
-
-    public boolean findKey(byte[] key) throws IOException {
-      iterator.find(key);
-      if (Utility.compare(key, iterator.getKey()) == 0) {
-        return true;
-      }
-      return false;
-    }
-
-    public int compareTo(KeyIterator other) {
-      try {
-        return Utility.compare(getKeyBytes(), other.getKeyBytes());
-      } catch (IOException ioe) {
-        throw new RuntimeException(ioe);
-      }
-    }
-
-    public boolean nextKey() throws IOException {
-      return (iterator.nextKey());
-    }
-
+    @Override
     public void reset() throws IOException {
       iterator = reader.getIterator();
     }
 
-    public byte[] getValueBytes() throws IOException {
-      return iterator.getValueBytes();
-    }
-
-    public DataStream getValueStream() throws IOException {
-      return iterator.getValueStream();
-    }
-
-    public byte[] getKeyBytes() {
+    @Override
+    public byte[] getKey() {
       return iterator.getKey();
     }
 
-    public String getKey() {
-      return Utility.toString(iterator.getKey());
+    @Override
+    public byte[] getValueBytes() throws IOException{
+      return iterator.getValueBytes();
     }
-
-    public abstract String getValueString();
+    
+    @Override
+    public int compareTo(KeyIterator other) {
+      try {
+        return Utility.compare(getKey(), other.getKey());
+      } catch (IOException ioe) {
+        throw new RuntimeException(ioe);
+      }
+    }
   }
 }

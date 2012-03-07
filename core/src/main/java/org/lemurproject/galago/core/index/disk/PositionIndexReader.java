@@ -7,21 +7,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.lemurproject.galago.core.index.AggregateReader;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.TopDocsReader.TopDocument;
+import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.DataStream;
-import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
@@ -40,9 +39,9 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  */
 public class PositionIndexReader extends KeyListReader implements AggregateReader {
 
-  public class KeyIterator extends KeyListReader.Iterator {
+  public class KeyIterator extends KeyListReader.KeyValueIterator {
 
-    public KeyIterator(GenericIndexReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 
@@ -56,7 +55,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       } catch (IOException ioe) {
       }
       StringBuilder sb = new StringBuilder();
-      sb.append(Utility.toString(getKeyBytes())).append(",");
+      sb.append(Utility.toString(getKey())).append(",");
       sb.append("list of size: ");
       if (count > 0) {
         sb.append(count);
@@ -70,12 +69,17 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     public ValueIterator getValueIterator() throws IOException {
       return new TermExtentIterator(iterator);
     }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return Utility.toString(getKey());
+    }
   }
 
   public class TermExtentIterator extends KeyListReader.ListIterator
-          implements AggregateIterator, CountValueIterator, ExtentValueIterator, ContextualIterator {
+          implements AggregateIterator, MovableCountIterator, MovableExtentIterator, ContextualIterator {
 
-    GenericIndexReader.Iterator iterator;
+    BTreeReader.BTreeIterator iterator;
     ScoringContext context;
     int documentCount;
     int totalPositionCount;
@@ -106,7 +110,8 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     long countsByteFloor;
     long positionsByteFloor;
 
-    TermExtentIterator(GenericIndexReader.Iterator iterator) throws IOException {
+    public TermExtentIterator(BTreeReader.BTreeIterator iterator) throws IOException {
+      super(iterator.getKey());
       extentArray = new ExtentArray();
       reset(iterator);
     }
@@ -116,7 +121,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     // Even though we check for skips multiple times, in terms of how the data is loaded
     // its easier to do the parts when appropriate
     protected void initialize() throws IOException {
-      DataStream valueStream = iterator.getSubValueStream(0, dataLength);
+      DataStream valueStream = iterator.getSubValueStream(0, iterator.getValueLength());
       DataInput stream = new VByteInput(valueStream);
 
       // metadata
@@ -219,10 +224,9 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     }
 
     @Override
-    public void reset(GenericIndexReader.Iterator i) throws IOException {
+    public void reset(BTreeReader.BTreeIterator i) throws IOException {
       iterator = i;
       key = iterator.getKey();
-      dataLength = iterator.getValueLength();
       startPosition = iterator.getValueStart();
       endPosition = iterator.getValueEnd();
       // input = iterator.getInput();
@@ -238,18 +242,16 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     }
 
     @Override
-    public boolean next() throws IOException {
+    public void next() throws IOException {
       documentIndex = Math.min(documentIndex + 1, documentCount);
       if (!isDone()) {
         loadExtents();
-        return true;
       }
-      return false;
     }
 
     // If we have skips - it's go time
     @Override
-    public boolean moveTo(int document) throws IOException {
+    public void moveTo(int document) throws IOException {
       if (skips != null && document > nextSkipDocument) {
 
         // if we're here, we're skipping
@@ -261,8 +263,9 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       }
 
       // Linear from here
-      while (document > currentDocument && next());
-      return hasMatch(document);
+      while (!isDone() && document > currentDocument){
+        next();
+      }
     }
 
     // This only moves forward in tier 1, reads from tier 2 only when
@@ -329,6 +332,11 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     }
 
     @Override
+    public boolean hasAllCandidates() {
+      return false;
+    }
+
+    @Override
     public int count() {
       return currentCount;
     }
@@ -354,11 +362,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       return stats;
     }
 
-    @Override
-    public ScoringContext getContext() {
-      return this.context;
-    }
-
     // This will pass up topdocs information if it's available
     @Override
     public void setContext(ScoringContext context) {
@@ -378,9 +381,9 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
    *
    */
   public class TermCountIterator extends KeyListReader.ListIterator
-          implements AggregateIterator, CountValueIterator, ContextualIterator {
+          implements AggregateIterator, MovableCountIterator, ContextualIterator {
 
-    GenericIndexReader.Iterator iterator;
+    BTreeReader.BTreeIterator iterator;
     ScoringContext context;
     int documentCount;
     int collectionCount;
@@ -407,7 +410,8 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     long documentsByteFloor;
     long countsByteFloor;
 
-    TermCountIterator(GenericIndexReader.Iterator iterator) throws IOException {
+    public TermCountIterator(BTreeReader.BTreeIterator iterator) throws IOException {
+      super(iterator.getKey());
       reset(iterator);
     }
 
@@ -416,7 +420,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     // Even though we check for skips multiple times, in terms of how the data is loaded
     // its easier to do the parts when appropriate
     protected void initialize() throws IOException {
-      DataStream valueStream = iterator.getSubValueStream(0, dataLength);
+      DataStream valueStream = iterator.getSubValueStream(0, iterator.getValueLength());
       DataInput stream = new VByteInput(valueStream);
 
       // metadata
@@ -506,11 +510,10 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     }
 
     @Override
-    public void reset(GenericIndexReader.Iterator i) throws IOException {
+    public void reset(BTreeReader.BTreeIterator i) throws IOException {
       iterator = i;
       startPosition = iterator.getValueStart();
       endPosition = iterator.getValueEnd();
-      dataLength = iterator.getValueLength();
       key = iterator.getKey();
       initialize();
     }
@@ -523,18 +526,16 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     }
 
     @Override
-    public boolean next() throws IOException {
+    public void next() throws IOException {
       documentIndex = Math.min(documentIndex + 1, documentCount);
       if (!isDone()) {
         load();
-        return true;
       }
-      return false;
     }
 
     // If we have skips - it's go time
     @Override
-    public boolean moveTo(int document) throws IOException {
+    public void moveTo(int document) throws IOException {
       if (skips != null && document > nextSkipDocument) {
         // if we're here, we're skipping
         while (skipsRead < numSkips
@@ -545,8 +546,9 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       }
 
       // linear from here
-      while (document > currentDocument && next());
-      return hasMatch(document);
+      while (!isDone() && document > currentDocument){
+        next();
+      }
     }
 
     // This only moves forward in tier 1, reads from tier 2 only when
@@ -602,6 +604,11 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     }
 
     @Override
+    public boolean hasAllCandidates() {
+      return false;
+    }
+
+    @Override
     public int count() {
       return currentCount;
     }
@@ -627,11 +634,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       return stats;
     }
 
-    @Override
-    public ScoringContext getContext() {
-      return this.context;
-    }
-
     // This will pass up topdocs information if it's available
     @Override
     public void setContext(ScoringContext context) {
@@ -646,7 +648,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
   }
   Stemmer stemmer = null;
 
-  public PositionIndexReader(GenericIndexReader reader) throws Exception {
+  public PositionIndexReader(BTreeReader reader) throws Exception {
     super(reader);
     if (reader.getManifest().containsKey("stemmer")) {
       stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
@@ -658,11 +660,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     if (reader.getManifest().containsKey("stemmer")) {
       stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
     }
-  }
-
-  @Override
-  public Parameters getManifest() {
-    return reader.getManifest();
   }
 
   @Override
@@ -680,7 +677,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
   }
 
   public TermExtentIterator getTermExtents(byte[] term) throws IOException {
-    GenericIndexReader.Iterator iterator = reader.getIterator(term);
+    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
     if (iterator != null) {
       return new TermExtentIterator(iterator);
     }
@@ -693,16 +690,11 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
   }
 
   public TermCountIterator getTermCounts(byte[] term) throws IOException {
-    GenericIndexReader.Iterator iterator = reader.getIterator(term);
+    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
     if (iterator != null) {
       return new TermCountIterator(iterator);
     }
     return null;
-  }
-
-  @Override
-  public void close() throws IOException {
-    reader.close();
   }
 
   @Override
@@ -731,7 +723,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
 
   @Override
   public NodeStatistics getTermStatistics(byte[] term) throws IOException {
-    GenericIndexReader.Iterator iterator = reader.getIterator(term);
+    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
 
     if (iterator != null) {
       TermCountIterator termCountIterator = new TermCountIterator(iterator);

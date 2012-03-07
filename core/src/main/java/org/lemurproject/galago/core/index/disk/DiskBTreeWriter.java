@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
-import org.lemurproject.galago.core.index.GenericIndexWriter;
+import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -26,15 +26,15 @@ import org.lemurproject.galago.tupleflow.Utility;
  * sorted to allow iteration over the whole file.  Keys are stored using prefix
  * compression to save space.  The structure is designed for fast random access on disk.
  * 
- * For indexes, we assume that the data in each value is already compressed, so IndexWriter
- * does no additional compression.  However, if the isCompressed flag is set, IndexWriter
+ * For indexes, we assume that the data in each value is already compressed, so DiskBTreeWriter
+ * does no additional compression.  However, if the isCompressed flag is set, DiskBTreeWriter
  * will compress the value data.  This is convenient for storing documents in an index.
  * 
  * Keys cannot be longer than 256 bytes, and they must be added in sorted order.
  * 
  * @author trevor
  */
-public class IndexWriter extends GenericIndexWriter {
+public class DiskBTreeWriter extends BTreeWriter {
 
   public static final long MAGIC_NUMBER = 0x1a2b3c4d5e6f7a8bL;
   private DataOutputStream output;
@@ -51,9 +51,9 @@ public class IndexWriter extends GenericIndexWriter {
   Counter blocksWritten = null;
 
   /**
-   * Creates a new instance of IndexWriter
+   * Creates a new instance of DiskBTreeWriter
    */
-  public IndexWriter(String outputFilename, Parameters parameters)
+  public DiskBTreeWriter(String outputFilename, Parameters parameters)
           throws FileNotFoundException, IOException {
     Utility.makeParentDirectories(outputFilename);
 
@@ -70,7 +70,7 @@ public class IndexWriter extends GenericIndexWriter {
     lists = new ArrayList<IndexElement>();
   }
 
-  public IndexWriter(String outputFilename)
+  public DiskBTreeWriter(String outputFilename)
           throws FileNotFoundException, IOException {
     Utility.makeParentDirectories(outputFilename);
     output = new DataOutputStream(new BufferedOutputStream(
@@ -80,7 +80,7 @@ public class IndexWriter extends GenericIndexWriter {
     lists = new ArrayList<IndexElement>();
   }
 
-  public IndexWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
+  public DiskBTreeWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
     this(parameters.getJSON().getString("filename"), parameters.getJSON());
     recordsWritten = parameters.getCounter("Records Written");
     blocksWritten = parameters.getCounter("Blocks Written");

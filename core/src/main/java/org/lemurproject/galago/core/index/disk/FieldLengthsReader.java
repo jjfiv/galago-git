@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.util.ExtentArray;
@@ -29,7 +30,7 @@ public class FieldLengthsReader implements LengthsReader {
   public int getLength(int document) throws IOException {
     LengthsReader.Iterator li = getLengthsIterator();
     li.moveTo(document);
-    if (li.hasMatch(document)) {
+    if (li.atCandidate(document)) {
       return li.getCurrentLength();
     } else {
       return 0;
@@ -81,21 +82,16 @@ public class FieldLengthsReader implements LengthsReader {
 
   public class LengthIterator implements LengthsReader.Iterator {
 
-    private WindowIndexReader.TermExtentIterator counts;
+    private WindowIndexReader.TermExtentIterator extentsIterator;
 
     public LengthIterator(WindowIndexReader.TermExtentIterator counts) {
-      this.counts = counts;
-    }
-
-    @Override
-    public boolean skipToKey(int candidate) throws IOException {
-      return counts.moveTo(candidate);
+      this.extentsIterator = counts;
     }
 
     @Override
     public int getCurrentLength() throws IOException {
       int total = 0;
-      ExtentArray extents = counts.extents();
+      ExtentArray extents = extentsIterator.extents();
       for (int i = 0; i < extents.size(); i++) {
         total += extents.end(i) - extents.begin(i);
       }
@@ -104,57 +100,62 @@ public class FieldLengthsReader implements LengthsReader {
 
     @Override
     public int getCurrentIdentifier() throws IOException {
-      return counts.currentCandidate();
+      return extentsIterator.currentCandidate();
     }
 
     @Override
     public int currentCandidate() {
-      return counts.currentCandidate();
+      return extentsIterator.currentCandidate();
     }
 
     @Override
-    public boolean hasMatch(int identifier) {
-      return (counts.currentCandidate() == identifier);
+    public boolean atCandidate(int identifier) {
+      return (extentsIterator.currentCandidate() == identifier);
     }
 
     @Override
-    public boolean next() throws IOException {
-      return counts.next();
+    public void next() throws IOException {
+      extentsIterator.next();
     }
 
     @Override
-    public boolean moveTo(int identifier) throws IOException {
-      return counts.moveTo(identifier);
+    public void moveTo(int identifier) throws IOException {
+      extentsIterator.moveTo(identifier);
     }
 
     @Override
     public void movePast(int identifier) throws IOException {
-      counts.movePast(identifier);
+      extentsIterator.movePast(identifier);
     }
 
     @Override
     public String getEntry() throws IOException {
-      return counts.getEntry();
+      return extentsIterator.getEntry();
     }
 
     @Override
     public long totalEntries() {
-      return counts.totalEntries();
+      return extentsIterator.totalEntries();
     }
 
     @Override
     public void reset() throws IOException {
-      counts.reset();
+      extentsIterator.reset();
     }
 
     @Override
     public boolean isDone() {
-      return counts.isDone();
+      return extentsIterator.isDone();
     }
 
     @Override
-    public int compareTo(ValueIterator t) {
-      return counts.compareTo(t);
+    public int compareTo(MovableIterator t) {
+      return extentsIterator.compareTo(t);
+    }
+
+    @Override
+    public boolean hasAllCandidates() {
+      return false;
     }
   }
 }

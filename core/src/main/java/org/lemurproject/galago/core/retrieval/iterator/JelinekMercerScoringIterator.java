@@ -3,7 +3,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.TopDocsReader.TopDocument;
+import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
@@ -21,7 +21,7 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator {
     protected double loweredMaximum = Double.POSITIVE_INFINITY;
 
 
-    public JelinekMercerScoringIterator(Parameters globalParams, NodeParameters p, CountValueIterator it)
+    public JelinekMercerScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
             throws IOException {
     super(it, new JelinekMercerScorer(globalParams, p, it));
   }
@@ -30,6 +30,7 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator {
    * Overriding this in case we're using topdocs, in which case, also drop the
    * maximum once vs multiple times.
    */
+  @Override
   public void setContext(ScoringContext context) {
     if (TopDocsContext.class.isAssignableFrom((context.getClass()))) {
       TopDocsContext tdc = (TopDocsContext) context;
@@ -47,6 +48,7 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator {
    * Maximize the probability
    * @return
    */
+  @Override
   public double maximumScore() {
     if (loweredMaximum != Double.POSITIVE_INFINITY) {
      return loweredMaximum;
@@ -55,6 +57,7 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator {
     }
   }
 
+  @Override
   public double minimumScore() {
       return function.score(0,1);
   }

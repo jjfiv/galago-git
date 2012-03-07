@@ -11,21 +11,19 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class UnorderedWindowIterator extends ExtentConjunctionIterator {
 
-  boolean shareNodes;
   int width;
   boolean overlap;
 
   /** Creates a new instance of UnorderedWindowIterator */
-  public UnorderedWindowIterator(Parameters globalParams, NodeParameters parameters, ExtentValueIterator[] evIterators) throws IOException {
-    super(globalParams, parameters, evIterators);
+  public UnorderedWindowIterator(Parameters globalParams, NodeParameters parameters, MovableExtentIterator[] evIterators) throws IOException {
+    super(evIterators);
     this.width = (int) parameters.get("default", -1);
     this.overlap = parameters.get("overlap", false);
     moveTo(0);
   }
 
   public void loadExtents() {
-    extents.reset();
-    extents.setDocument(document);
+    int document = currentCandidate();
 
     ExtentArrayIterator[] arrayIterators;
     int maximumPosition = 0;
@@ -35,11 +33,26 @@ public class UnorderedWindowIterator extends ExtentConjunctionIterator {
     arrayIterators = new ExtentArrayIterator[iterators.length];
 
     for (int i = 0; i < iterators.length; i++) {
-      arrayIterators[i] = new ExtentArrayIterator(iterators[i].extents());
-      assert !arrayIterators[i].isDone();
+      if (iterators[i].isDone()
+              || !iterators[i].atCandidate(document)) {
+        // we can not load any extents if the iterator is done - or is at the wrong document.
+        return;
+      }
+
+      arrayIterators[i] = new ExtentArrayIterator(((MovableExtentIterator) iterators[i]).extents());
+
+      if (arrayIterators[i].isDone()) {
+        // if this document does not have any extents we can not load any extents
+        return;
+      }
+
       minimumPosition = Math.min(arrayIterators[i].currentBegin(), minimumPosition);
       maximumPosition = Math.max(arrayIterators[i].currentEnd(), maximumPosition);
     }
+
+
+    extents.reset();
+    extents.setDocument(document);
 
     do {
       boolean match = (maximumPosition - minimumPosition <= width) || (width == -1);

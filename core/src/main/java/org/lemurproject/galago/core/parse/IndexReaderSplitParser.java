@@ -34,7 +34,7 @@ public class IndexReaderSplitParser implements DocumentStreamParser {
       return null;
     }
 
-    String key = iterator.getKey();
+    String key = iterator.getKeyString();
     byte[] keyBytes = Utility.fromString(key);
 
     // Don't go past the end of the split.

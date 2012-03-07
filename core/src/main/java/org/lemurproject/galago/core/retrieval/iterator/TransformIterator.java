@@ -2,67 +2,77 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 
 /**
  *
  * @author marc
  */
-public abstract class TransformIterator implements ScoreValueIterator {
+public abstract class TransformIterator implements MovableIterator {
 
   ScoringContext context;
-  ValueIterator iterator;
+  MovableIterator iterator;
 
-  public TransformIterator(ValueIterator iterator) {
+  public TransformIterator(MovableIterator iterator) {
     this.iterator = iterator;
-  }
-
-  public ScoringContext getContext() {
-    return context;
   }
 
   public void setContext(ScoringContext context) {
     this.context = context;
   }
 
+  @Override
   public void reset() throws IOException {
     iterator.reset();
   }
 
+  @Override
   public boolean isDone() {
     return iterator.isDone();
   }
 
+  @Override
+  public boolean hasAllCandidates() {
+    return iterator.hasAllCandidates();
+  }
+
+  @Override
   public int currentCandidate() {
     return iterator.currentCandidate();
   }
 
-  public boolean hasMatch(int identifier) {
-    return iterator.hasMatch(identifier);
+  @Override
+  public boolean atCandidate(int identifier) {
+    return iterator.atCandidate(identifier);
   }
 
-  public boolean next() throws IOException {
-    return iterator.next();
-  }
-  
-  public boolean moveTo(int identifier) throws IOException {
-    return iterator.moveTo(identifier);
+  @Override
+  public void next() throws IOException {
+    iterator.next();
   }
 
+  @Override
+  public void moveTo(int identifier) throws IOException {
+    iterator.moveTo(identifier);
+  }
+
+  @Override
   public void movePast(int identifier) throws IOException {
     iterator.movePast(identifier);
   }
 
+  @Override
   public String getEntry() throws IOException {
     return iterator.getEntry();
   }
 
+  @Override
   public long totalEntries() {
     return iterator.totalEntries();
   }
 
-  public int compareTo(ValueIterator other) {
+  @Override
+  public int compareTo(MovableIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }

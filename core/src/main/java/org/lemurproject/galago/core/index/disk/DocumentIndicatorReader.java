@@ -7,12 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIndicatorIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -31,7 +31,7 @@ public class DocumentIndicatorReader extends KeyValueReader {
     def = this.manifest.get("default", false);  // Play conservative
   }
 
-  public DocumentIndicatorReader(GenericIndexReader r) {
+  public DocumentIndicatorReader(BTreeReader r) {
     super(r);
   }
 
@@ -66,14 +66,14 @@ public class DocumentIndicatorReader extends KeyValueReader {
     }
   }
 
-  public class KeyIterator extends KeyValueReader.Iterator {
+  public class KeyIterator extends KeyValueReader.KeyValueIterator {
 
-    public KeyIterator(GenericIndexReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 
     @Override
-    public String getKey() {
+    public String getKeyString() {
       return Integer.toString(getCurrentDocument());
     }
 
@@ -115,7 +115,7 @@ public class DocumentIndicatorReader extends KeyValueReader {
   }
 
   // needs to be an AbstractIndicator
-  public class ValueIterator extends KeyToListIterator implements IndicatorIterator {
+  public class ValueIterator extends KeyToListIterator implements MovableIndicatorIterator {
 
     boolean defInst;
 
@@ -138,9 +138,14 @@ public class DocumentIndicatorReader extends KeyValueReader {
     public long totalEntries() {
       return manifest.get("keyCount", -1);
     }
+    
+    @Override
+    public boolean hasAllCandidates(){
+      return true;
+    }
 
     @Override
-    public boolean hasMatch(int document) {
+    public boolean indicator(int document) {
       if (document != ((KeyIterator) iterator).getCurrentDocument()) {
         return defInst;
       } else {

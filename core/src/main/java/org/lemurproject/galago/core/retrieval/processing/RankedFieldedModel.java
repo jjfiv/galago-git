@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.index.disk.FieldLengthsReader;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -58,12 +58,12 @@ public class RankedFieldedModel extends ProcessingModel {
     // This model uses the simplest ScoringContext
     FieldScoringContext context = new FieldScoringContext();
     initializeFieldLengths(context);
-    
+
     // have to be sure
     Arrays.sort(whitelist);
 
     // construct the query iterators
-    ScoreValueIterator iterator = (ScoreValueIterator) retrieval.createIterator(queryTree, context);
+    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryTree, context);
     int requested = (int) queryParams.get("requested", 1000);
 
     // now there should be an iterator at the root of this tree
@@ -73,7 +73,7 @@ public class RankedFieldedModel extends ProcessingModel {
     for (int i = 0; i < whitelist.length; i++) {
       int document = whitelist[i];
       iterator.moveTo(document);
-      lengthsIterator.skipToKey(document);
+      lengthsIterator.moveTo(document);
       int length = lengthsIterator.getCurrentLength();
       this.updateFieldLengths(context, document);
       // This context is shared among all scorers
@@ -97,7 +97,7 @@ public class RankedFieldedModel extends ProcessingModel {
     // This model uses the simplest ScoringContext
     FieldScoringContext context = new FieldScoringContext();
     initializeFieldLengths(context);
-    
+
     // Number of documents requested.
     int requested = (int) queryParams.get("requested", 1000);
 
@@ -108,18 +108,18 @@ public class RankedFieldedModel extends ProcessingModel {
     LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
 
     // construct the iterators -- we use tree processing
-    ScoreValueIterator iterator = (ScoreValueIterator) retrieval.createIterator(queryTree, context);
+    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryTree, context);
 
     // now there should be an iterator at the root of this tree
     while (!iterator.isDone()) {
       int document = iterator.currentCandidate();
-      lengthsIterator.skipToKey(document);
+      lengthsIterator.moveTo(document);
       int length = lengthsIterator.getCurrentLength();
       updateFieldLengths(context, document);
       // This context is shared among all scorers
       context.document = document;
       context.length = length;
-      if (iterator.hasMatch(document)) {
+      if (iterator.atCandidate(document)) {
         double score = iterator.score();
         if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
           ScoredDocument scoredDocument = new ScoredDocument(document, score);
@@ -137,7 +137,8 @@ public class RankedFieldedModel extends ProcessingModel {
   protected void updateFieldLengths(FieldScoringContext context, int currentDoc) throws IOException {
     // Now get updated counts                                                                                                               
     for (Map.Entry<String, LengthsReader.Iterator> entry : lReaders.entrySet()) {
-      if (entry.getValue().moveTo(currentDoc)) {
+      entry.getValue().moveTo(currentDoc);
+      if (entry.getValue().atCandidate(currentDoc)) {
         context.lengths.put(entry.getKey(), entry.getValue().getCurrentLength());
       } else {
         context.lengths.put(entry.getKey(), 0);

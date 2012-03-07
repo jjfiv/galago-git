@@ -10,13 +10,12 @@ import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
-import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.core.util.IntArray;
-import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -48,8 +47,8 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   @Override
-  public void addIteratorData(ValueIterator iterator) throws IOException {
-    do {
+  public void addIteratorData(MovableIterator iterator) throws IOException {
+    while (!iterator.isDone()) {
       int identifier = ((LengthsReader.Iterator) iterator).getCurrentIdentifier();
       int length = ((LengthsReader.Iterator) iterator).getCurrentLength();
 
@@ -68,7 +67,8 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       docCount += 1;
       termCount += length;
       lengths.add(length);
-    } while (iterator.next());
+      iterator.next();
+    }
   }
 
   @Override
@@ -176,12 +176,12 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     @Override
-    public String getKey() {
+    public String getKeyString() {
       return Integer.toString(current + offset);
     }
 
     @Override
-    public byte[] getKeyBytes() {
+    public byte[] getKey() {
       return Utility.fromInt(offset + current);
     }
 
@@ -227,11 +227,6 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     @Override
-    public DataStream getValueStream() throws IOException {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public boolean isDone() {
       return done;
     }
@@ -239,7 +234,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     @Override
     public int compareTo(KeyIterator t) {
       try {
-        return Utility.compare(this.getKeyBytes(), t.getKeyBytes());
+        return Utility.compare(this.getKey(), t.getKey());
       } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
@@ -251,7 +246,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
   }
 
-  private static class VIterator extends KeyToListIterator implements CountValueIterator, LengthsReader.Iterator {
+  private static class VIterator extends KeyToListIterator implements MovableCountIterator, LengthsReader.Iterator {
 
     public VIterator(KeyIterator it) {
       super(it);
@@ -285,9 +280,8 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     @Override
-    public boolean skipToKey(int candidate) throws IOException {
-      KIterator ki = (KIterator) iterator;
-      return ki.skipToKey(candidate);
+    public boolean hasAllCandidates() {
+      return true;
     }
 
     @Override

@@ -5,8 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.Arrays;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
 import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
 import org.lemurproject.galago.tupleflow.DataStream;
@@ -34,12 +33,12 @@ import org.lemurproject.galago.tupleflow.Utility;
  * <p>(11/29/2010, irmarc): After conferral with Sam, going to remove the requirement
  * that keys be Strings. It makes the mapping from other classes/primitives to Strings
  * really restrictive if they always have to be mapped to Strings. Therefore, mapping
- * byte[] keys to the client keyspace is the responsibility of the client of the IndexReader.</p>
+ * byte[] keys to the client keyspace is the responsibility of the client of the DiskBTreeReader.</p>
  *
  * @author trevor
  * @author irmarc
  */
-public class IndexReader extends GenericIndexReader {
+public class DiskBTreeReader extends BTreeReader {
 
   // this input reader needs to be accesed in a synchronous manner.
   final RandomAccessFile input;
@@ -52,7 +51,7 @@ public class IndexReader extends GenericIndexReader {
   long manifestOffset;
   long footerOffset;
 
-  public class Iterator extends GenericIndexReader.Iterator {
+  public class Iterator extends BTreeReader.BTreeIterator {
 
     private IndexBlockInfo blockInfo;
     // key block data
@@ -115,6 +114,7 @@ public class IndexReader extends GenericIndexReader {
       if (this.keyIndex >= this.keyCount) {
         return this.nextIndexBlock();
       }
+
       while (keyIndex >= cacheKeyCount) {
         this.cacheKeys();
       }
@@ -263,7 +263,7 @@ public class IndexReader extends GenericIndexReader {
    * @throws FileNotFoundException
    * @throws IOException
    */
-  public IndexReader(String pathname) throws FileNotFoundException, IOException {
+  public DiskBTreeReader(String pathname) throws FileNotFoundException, IOException {
     input = new RandomAccessFile(pathname, "r");
 
     // Seek to the end of the file
@@ -281,7 +281,7 @@ public class IndexReader extends GenericIndexReader {
       manifestOffset = input.readLong();
       blockSize = input.readInt();
       long magicNumber = input.readLong();
-      if (magicNumber != IndexWriter.MAGIC_NUMBER) {
+      if (magicNumber != DiskBTreeWriter.MAGIC_NUMBER) {
         throw new IOException("This does not appear to be an index file (wrong magic number)");
       }
 
@@ -301,14 +301,14 @@ public class IndexReader extends GenericIndexReader {
   }
 
   /**
-   * Identical to the {@link #IndexReader(String) other constructor}, except this
+   * Identical to the {@link #DiskBTreeReader(String) other constructor}, except this
    * one takes a File object instead of a string as the parameter.
    *
    * @param pathname
    * @throws java.io.FileNotFoundException
    * @throws java.io.IOException
    */
-  public IndexReader(File pathname) throws FileNotFoundException, IOException {
+  public DiskBTreeReader(File pathname) throws FileNotFoundException, IOException {
     this(pathname.toString());
   }
 
@@ -323,7 +323,7 @@ public class IndexReader extends GenericIndexReader {
   }
 
   /**
-   * Returns the vocabulary structure for this IndexReader.  Note that the vocabulary
+   * Returns the vocabulary structure for this DiskBTreeReader.  Note that the vocabulary
    * contains only the first key in each block.
    */
   public VocabularyReader getVocabulary() {
@@ -336,7 +336,7 @@ public class IndexReader extends GenericIndexReader {
    * which might be useful for testing and debugging tools, but probably
    * not for traditional document retrieval.
    */
-  public IndexReader.Iterator getIterator() throws IOException {
+  public DiskBTreeReader.Iterator getIterator() throws IOException {
     // if we have an empty file - there is nothing to iterate over.
     if (manifest.get("emptyIndexFile", false)) {
       return null;
@@ -351,7 +351,7 @@ public class IndexReader extends GenericIndexReader {
    * Returns an iterator pointing at a specific key.  Returns
    * null if the key is not found in the index.
    */
-  public IndexReader.Iterator getIterator(byte[] key) throws IOException {
+  public DiskBTreeReader.Iterator getIterator(byte[] key) throws IOException {
     // read from offset to offset in the vocab structure (right?)
     VocabularyReader.IndexBlockInfo slot = vocabulary.get(key);
 
@@ -367,7 +367,7 @@ public class IndexReader extends GenericIndexReader {
   }
 
   /**
-   * Closes all files associated with the IndexReader.
+   * Closes all files associated with the DiskBTreeReader.
    */
   public void close() throws IOException {
     synchronized (input) {
@@ -390,17 +390,17 @@ public class IndexReader extends GenericIndexReader {
   }
 
   /**
-   * Returns true if the file specified by this pathname was probably written by IndexWriter.
-   * If this method returns false, the file is definitely not readable by IndexReader.
+   * Returns true if the file specified by this pathname was probably written by DiskBTreeWriter.
+   * If this method returns false, the file is definitely not readable by DiskBTreeReader.
    *
    * @param pathname
    * @return
    * @throws java.io.FileNotFoundException
    * @throws java.io.IOException
    */
-  public static boolean isIndexFile(String pathname) throws FileNotFoundException, IOException {
+  public static boolean isBTree(File file) throws FileNotFoundException, IOException {
 
-    RandomAccessFile f = new RandomAccessFile(pathname, "r");
+    RandomAccessFile f = new RandomAccessFile(file, "r");
     long length = f.length();
     long magicNumber = 0;
 
@@ -410,7 +410,7 @@ public class IndexReader extends GenericIndexReader {
     }
     f.close();
 
-    boolean result = (magicNumber == IndexWriter.MAGIC_NUMBER);
+    boolean result = (magicNumber == DiskBTreeWriter.MAGIC_NUMBER);
     return result;
   }
 }

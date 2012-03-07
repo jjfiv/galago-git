@@ -4,7 +4,8 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import org.lemurproject.galago.core.util.ExtentArray;
 
 /**
- *
+ * Special class to allow iterator over an array of extents
+ * 
  * @author trevor
  */
 public class ExtentArrayIterator implements Comparable<ExtentArrayIterator> {
@@ -43,6 +44,7 @@ public class ExtentArrayIterator implements Comparable<ExtentArrayIterator> {
     return array.size() <= index;
   }
 
+  @Override
   public int compareTo(ExtentArrayIterator iterator) {
     int result = array.getDocument() - iterator.array.getDocument();
 

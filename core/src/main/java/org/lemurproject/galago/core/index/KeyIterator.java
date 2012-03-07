@@ -2,8 +2,7 @@
 package org.lemurproject.galago.core.index;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
-import org.lemurproject.galago.tupleflow.DataStream;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 
 /**
  * Each iterator from an index has an extra two methods,
@@ -16,26 +15,29 @@ import org.lemurproject.galago.tupleflow.DataStream;
  *
  * @author trevor, irmarc
  */
-public interface KeyIterator extends StructuredIterator, Comparable<KeyIterator> {
+public interface KeyIterator extends Comparable<KeyIterator> {
 
   // moves iterator to some particular key
-  boolean findKey(byte[] key) throws IOException;
-
+  public boolean findKey(byte[] key) throws IOException;
+  
   // moves iterator to a particular key (forward direction only)
-  boolean skipToKey(byte[] key) throws IOException;
+  public boolean skipToKey(byte[] key) throws IOException;
+  
+  // moves iterator to the next key
+  public boolean nextKey() throws IOException;
 
-  boolean nextKey() throws IOException;
+  // true if the iterator has moved past the last key
+  public boolean isDone();
 
-  String getKey() throws IOException;
+  // resets iterator to the first key
+  public void reset() throws IOException;
+  
+  // Access to key data
+  public byte[] getKey() throws IOException;
+  public String getKeyString() throws IOException;
 
-  byte[] getKeyBytes() throws IOException;
-
-  // Access to the key's value. Not all may be implemented
-  String getValueString() throws IOException;
-
-  byte[] getValueBytes() throws IOException;
-
-  DataStream getValueStream() throws IOException;
-
-  ValueIterator getValueIterator() throws IOException;
+  // Access to the key's value. (Not all may be implemented)
+  public byte[] getValueBytes() throws IOException;
+  public String getValueString() throws IOException;
+  public ValueIterator getValueIterator() throws IOException;
 }

@@ -12,44 +12,35 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  */
 public class SynonymIterator extends ExtentDisjunctionIterator {
 
-  public SynonymIterator(NodeParameters parameters, ExtentValueIterator[] iterators) throws IOException {
-    super(parameters, iterators);
+  MovableExtentIterator[] extentIterators;
+
+  public SynonymIterator(NodeParameters parameters, MovableExtentIterator[] iterators) throws IOException {
+    super(iterators);
+    extentIterators = iterators;
     moveTo(0);
   }
 
   public void loadExtents() {
-    if (activeIterators.size() == 0) {
+    if (isDone()) {
       return;
     }
-    ExtentValueIterator iter = activeIterators.poll();
-    document = iter.currentCandidate();
+    int document = this.currentCandidate();
     extents.setDocument(document);
 
-    // get all the iteators that point to this intID
-    ArrayList<ExtentValueIterator> useable = new ArrayList<ExtentValueIterator>();
-    while (activeIterators.size() > 0 && activeIterators.peek().currentCandidate() == document) {
-      useable.add(activeIterators.poll());
-    }
-    useable.add(iter);
-
-    // make a priority queue of these ExtentArrayIterators
+    // make a priority queue of extent array iterators
     PriorityQueue<ExtentArrayIterator> arrayIterators = new PriorityQueue<ExtentArrayIterator>();
-    for (ExtentValueIterator iterator : useable) {
-      arrayIterators.offer(new ExtentArrayIterator(iterator.extents()));
+    for (MovableExtentIterator iterator : this.extentIterators) {
+      if (!iterator.isDone() && iterator.atCandidate(document)) {
+        arrayIterators.offer(new ExtentArrayIterator(iterator.extents()));
+      }
     }
+
     while (arrayIterators.size() > 0) {
       ExtentArrayIterator top = arrayIterators.poll();
       extents.add(top.currentBegin(), top.currentEnd());
 
       if (top.next()) {
         arrayIterators.offer(top);
-      }
-    }
-
-    // put back the ones we used
-    for (ExtentValueIterator i : useable) {
-      if (!i.isDone()) {
-        activeIterators.offer(i);
       }
     }
   }

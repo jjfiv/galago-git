@@ -5,7 +5,7 @@
 package org.lemurproject.galago.core.scoring;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -19,7 +19,7 @@ public class InverseDocumentFrequencyScorer implements ScoringFunction {
 
   double idf;
 
-  public InverseDocumentFrequencyScorer(Parameters globalParams, NodeParameters parameters, CountValueIterator iterator) throws IOException {
+  public InverseDocumentFrequencyScorer(Parameters globalParams, NodeParameters parameters, MovableCountIterator iterator) throws IOException {
     // get idf for the provided term.
     double documentCount = parameters.getLong("documentCount");
     long df = parameters.getLong("nodeDocumentCount");
@@ -31,6 +31,7 @@ public class InverseDocumentFrequencyScorer implements ScoringFunction {
     }
   }
 
+  @Override
   public double score(int count, int length) {
     return idf;
   }

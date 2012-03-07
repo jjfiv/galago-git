@@ -1,101 +1,78 @@
-// BSD License (http://lemurproject.org/galago-license)
+/*
+ *  BSD License (http://www.galagosearch.org/license)
+ */
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.ValueIterator;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import java.util.ArrayList;
 import org.lemurproject.galago.core.util.ExtentArray;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
- * @author trevor
+ * @author sjh
  */
-public abstract class ExtentConjunctionIterator extends ExtentCombinationIterator {
+public abstract class ExtentConjunctionIterator extends ConjunctionIterator implements MovableDataIterator<ExtentArray>, ExtentIterator, MovableCountIterator {
 
-  protected int document;
-  protected boolean done;
-  protected boolean sharedChildren;
+  protected ExtentArray extents;
 
-  public ExtentConjunctionIterator(Parameters globalParameters, NodeParameters parameters, ExtentValueIterator[] extIterators) throws IOException {
-    this.sharedChildren = globalParameters.get("shareNodes", false);
-    this.done = false;
-    this.document = 0;
-    iterators = new ExtentValueIterator[extIterators.length];
-    for (int i = 0; i < extIterators.length; i++) {
-      iterators[i] = extIterators[i];
-    }
+  public ExtentConjunctionIterator(MovableExtentIterator[] iterators) throws IOException {
+    super(iterators);
     this.extents = new ExtentArray();
   }
 
-  public int currentCandidate() {
-    return document;
-  }
+  @Override
+  public void moveTo(int identifier) throws IOException {
+    super.moveTo(identifier);
 
-  public boolean isDone() {
-    return done;
-  }
-
-  public boolean moveTo(int identifier) throws IOException {
     extents.reset();
-
-    for (ValueIterator iterator : iterators) {
-      iterator.moveTo(identifier);
-      if (iterator.isDone()) {
-        done = true;
-      }
-    }
-
-    document = MoveIterators.findMaximumDocument(iterators);
-    if (!done && MoveIterators.allHasMatch(iterators, document)) {
-      // try to load some extents (subclass does this)
-      extents.reset();
+    // check if all iterators are at the same document
+    if (!isDone() && super.atCandidate(this.currentCandidate())) {
+      // if so : load some extents
       loadExtents();
     }
-    if (!this.sharedChildren && !this.hasMatch(document)) {
-      findDocument();
-    }
-
-    return !done;
   }
 
-  public void reset() throws IOException {
-    for (ExtentIterator iterator : iterators) {
-      iterator.reset();
-    }
-    done = false;
-    document = 0;
-    moveTo(0);
+  @Override
+  public boolean atCandidate(int identifier) {
+    return super.atCandidate(identifier) && this.extents.size() > 0;
   }
 
-  public long totalEntries() {
-    long min = Long.MAX_VALUE;
-    for (ValueIterator iterator : iterators) {
-      min = Math.min(min, iterator.totalEntries());
+  @Override
+  public String getEntry() throws IOException {
+    ArrayList<String> strs = new ArrayList<String>();
+    ExtentArrayIterator eai = new ExtentArrayIterator(extents);
+    while (!eai.isDone()) {
+      strs.add(String.format("[%d, %d]", eai.currentBegin(), eai.currentEnd()));
+      eai.next();
+    }
+    return Utility.join(strs.toArray(new String[0]), ",");
+  }
+
+  @Override
+  public ExtentArray getData() {
+    return extents;
+  }
+
+  @Override
+  public ExtentArray extents() {
+    return extents;
+  }
+
+  @Override
+  public int count() {
+    return extents.size();
+  }
+
+  @Override
+  public int maximumCount() {
+    int min = 0;
+    for (int i = 0; i < iterators.length; i++) {
+      min = Math.min(min, ((MovableCountIterator) iterators[i]).maximumCount());
     }
     return min;
+
   }
 
-  private void findDocument() throws IOException {
-    while (!done) {
-      // find a document that might have some matches
-      document = MoveIterators.moveAllToSameDocument(iterators);
-
-      // if we're done, quit now
-      if (document == Integer.MAX_VALUE) {
-        done = true;
-        break;
-      }
-
-      // try to load some extents (subclass does this)
-      extents.reset();
-      loadExtents();
-
-      // were we successful? if so, quit, otherwise keep looking for documents
-      if (extents.size() > 0) {
-        break;
-      }
-      iterators[0].movePast(document);
-    }
-  }
+  public abstract void loadExtents();
 }

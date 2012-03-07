@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.scoring;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -23,7 +23,7 @@ public class BM25FieldScorer implements ScoringFunction {
   double b;
   double avgDocLength;
 
-  public BM25FieldScorer(Parameters globalParams, NodeParameters parameters, CountValueIterator iterator) throws IOException {
+  public BM25FieldScorer(Parameters globalParams, NodeParameters parameters, MovableCountIterator iterator) throws IOException {
     b = parameters.get("b", globalParams.get("b", 0.5));
 
     if (b < 0 || b > 1.0) throw new IllegalArgumentException("b parameter must be between 0 and 1");

@@ -1,4 +1,6 @@
-// BSD License (http://lemurproject.org/galago-license)
+/*
+ *  BSD License (http://www.galagosearch.org/license)
+ */
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
@@ -7,29 +9,44 @@ import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
- * @author trevor
+ * @author sjh
  */
 public class OrderedWindowIterator extends ExtentConjunctionIterator {
+  private int width;
 
-  int width;
-
-  /** Creates a new instance of OrderedWindowIterator */
-  public OrderedWindowIterator(Parameters globalParams, NodeParameters parameters, ExtentValueIterator[] iterators) throws IOException {
-    super(globalParams, parameters, iterators);
+  public OrderedWindowIterator(Parameters globalParams, NodeParameters parameters, MovableExtentIterator[] iterators) throws IOException {
+    super(iterators);
     this.width = (int) parameters.get("default", -1);
     moveTo(0);
   }
-  
-  public void loadExtents() {
-    extents.setDocument(document);
-    ExtentArrayIterator[] arrayIterators;
 
+  @Override
+  public void loadExtents() {
+    int document = currentCandidate();
+    
+    ExtentArrayIterator[] arrayIterators;
     arrayIterators = new ExtentArrayIterator[iterators.length];
     for (int i = 0; i < iterators.length; i++) {
-      arrayIterators[i] = new ExtentArrayIterator(iterators[i].extents());
-      assert !arrayIterators[i].isDone();
+      if(iterators[i].isDone() 
+              || !iterators[i].atCandidate(document)){
+        // we can not load any extents if the iterator is done - or is at the wrong document.
+        return;
+      }
+      
+      arrayIterators[i] = new ExtentArrayIterator(((MovableExtentIterator) iterators[i]).extents());
+
+      if(arrayIterators[i].isDone()){
+        // if this document does not have any extents we can not load any extents
+        return;
+      }
+      
     }
+
+    extents.reset();
+    extents.setDocument(document);
+
     boolean notDone = true;
+
     while (notDone) {
       // find the start of the first word
       boolean invalid = false;

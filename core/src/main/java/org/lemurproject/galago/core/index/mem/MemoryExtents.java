@@ -16,7 +16,7 @@ import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.TopDocsReader.TopDocument;
+import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.index.mem.MemoryExtents.ExtentList.ExtentIterator;
@@ -25,14 +25,14 @@ import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ModifiableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
 import org.lemurproject.galago.core.util.ExtentArray;
-import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -72,7 +72,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
   }
 
   @Override
-  public void addIteratorData(ValueIterator iterator) throws IOException {
+  public void addIteratorData(MovableIterator iterator) throws IOException {
     // we expect that this iterator is a KeyListReader.ListIterator
     byte[] key = ((KeyListReader.ListIterator) iterator).getKeyBytes();
 
@@ -81,16 +81,17 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
       return;
     }
 
-    do {
+    while (!iterator.isDone()) {
       int document = iterator.currentCandidate();
-      ExtentArrayIterator extentsIterator = new ExtentArrayIterator(((ExtentValueIterator) iterator).extents());
+      ExtentArrayIterator extentsIterator = new ExtentArrayIterator(((MovableExtentIterator) iterator).extents());
       while (!extentsIterator.isDone()) {
         int begin = extentsIterator.currentBegin();
         int end = extentsIterator.currentEnd();
         addExtent(key, document, begin, end);
         extentsIterator.next();
       }
-    } while (iterator.next());
+      iterator.next();
+    }
   }
 
   private void addExtent(byte[] byteExtentName, int document, int begin, int end) {
@@ -114,7 +115,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
   public ValueIterator getIterator(Node node) throws IOException {
     KeyIterator i = getIterator();
     i.skipToKey(Utility.fromString(node.getDefaultParameter()));
-    if (0 == Utility.compare(i.getKeyBytes(), Utility.fromString(node.getDefaultParameter()))) {
+    if (0 == Utility.compare(i.getKey(), Utility.fromString(node.getDefaultParameter()))) {
       return i.getValueIterator();
     }
     return null;
@@ -176,11 +177,11 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
     WindowIndexWriter writer = new WindowIndexWriter(new FakeParameters(p));
 
     KIterator kiterator = new KIterator();
-    ExtentIterator viterator;
+    MovableExtentIterator viterator;
     ExtentArray extents;
     while (!kiterator.isDone()) {
-      viterator = (ExtentIterator) kiterator.getValueIterator();
-      writer.processExtentName(kiterator.getKeyBytes());
+      viterator = (MovableExtentIterator) kiterator.getValueIterator();
+      writer.processExtentName(kiterator.getKey());
 
       while (!viterator.isDone()) {
         writer.processNumber(viterator.currentCandidate());
@@ -215,12 +216,12 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public String getKey() throws IOException {
+    public String getKeyString() throws IOException {
       return Utility.toString(currKey);
     }
 
     @Override
-    public byte[] getKeyBytes() {
+    public byte[] getKey() {
       return currKey;
     }
 
@@ -254,7 +255,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
       ExtentIterator it = extents.get(currKey).getExtentIterator();
       count = it.count();
       StringBuilder sb = new StringBuilder();
-      sb.append(Utility.toString(getKeyBytes())).append(",");
+      sb.append(Utility.toString(getKey())).append(",");
       sb.append("list of size: ");
       if (count > 0) {
         sb.append(count);
@@ -270,11 +271,6 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public DataStream getValueStream() throws IOException {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public boolean isDone() {
       return done;
     }
@@ -282,7 +278,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
     @Override
     public int compareTo(KeyIterator t) {
       try {
-        return Utility.compare(this.getKeyBytes(), t.getKeyBytes());
+        return Utility.compare(this.getKey(), t.getKey());
       } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
@@ -348,8 +344,8 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
       return new ExtentIterator();
     }
 
-    public class ExtentIterator implements ValueIterator, ModifiableIterator,
-            AggregateIterator, CountValueIterator, ExtentValueIterator, ContextualIterator {
+    public class ExtentIterator extends ValueIterator implements ModifiableIterator,
+            AggregateIterator, MovableCountIterator, MovableExtentIterator, ContextualIterator {
 
       VByteInput documents_reader;
       VByteInput counts_reader;
@@ -421,15 +417,20 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
       }
 
       @Override
-      public boolean hasMatch(int identifier) {
+      public boolean atCandidate(int identifier) {
         return (!isDone() && identifier == currDocument);
       }
 
       @Override
-      public boolean next() throws IOException {
+      public boolean hasAllCandidates() {
+        return false;
+      }
+
+      @Override
+      public void next() throws IOException {
         if (iteratedDocs >= extentDocumentCount) {
           done = true;
-          return false;
+          return;
         } else if (iteratedDocs == extentDocumentCount - 1) {
           currDocument = lastDocument;
           currCount = lastCount;
@@ -440,7 +441,6 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
         loadExtents();
 
         iteratedDocs++;
-        return true;
       }
 
       public void loadExtents() throws IOException {
@@ -456,11 +456,10 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
       }
 
       @Override
-      public boolean moveTo(int identifier) throws IOException {
+      public void moveTo(int identifier) throws IOException {
         while (!isDone() && (currDocument < identifier)) {
           next();
         }
-        return hasMatch(identifier);
       }
 
       @Override
@@ -503,7 +502,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
       }
 
       @Override
-      public int compareTo(ValueIterator other) {
+      public int compareTo(MovableIterator other) {
         if (isDone() && !other.isDone()) {
           return 1;
         }
@@ -540,11 +539,6 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
           return null;
         }
         return modifiers.get(modKey);
-      }
-
-      @Override
-      public ScoringContext getContext() {
-        return this.context;
       }
 
       // This will pass up topdocs information if it's available

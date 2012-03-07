@@ -10,14 +10,16 @@ import org.lemurproject.galago.core.util.ExtentArray;
  *
  * @author irmarc
  */
-public class PassageFilterIterator extends ExtentFilterIterator implements ContextualIterator {
+public class PassageFilterIterator extends TransformIterator implements MovableExtentIterator, MovableCountIterator {
 
-  PassageScoringContext context;
+  ExtentIterator extentIterator;
+  PassageScoringContext passageContext;
   int begin, end, docid;
   ExtentArray cached;
 
-  public PassageFilterIterator(NodeParameters parameters, ExtentValueIterator extentIterator) {
-    super(parameters, extentIterator);
+  public PassageFilterIterator(NodeParameters parameters, MovableExtentIterator extentIterator) {
+    super(extentIterator);
+    this.extentIterator = extentIterator;
     docid = -1;
   }
 
@@ -28,12 +30,12 @@ public class PassageFilterIterator extends ExtentFilterIterator implements Conte
    */
   @Override
   public ExtentArray extents() {
-    if (context == null) {
+    if (passageContext == null) {
       return extentIterator.extents();
     }
-    
-    if (docid != context.document || begin != context.begin
-            || end != context.end) {
+
+    if (docid != passageContext.document || begin != passageContext.begin
+            || end != passageContext.end) {
       loadExtents();
     }
     return cached;
@@ -44,19 +46,14 @@ public class PassageFilterIterator extends ExtentFilterIterator implements Conte
     ExtentArray internal = extentIterator.extents();
 
     for (int i = 0; i < internal.size(); i++) {
-      if (internal.begin(i) >= context.begin
-              && internal.end(i) <= context.end) {
+      if (internal.begin(i) >= passageContext.begin
+              && internal.end(i) <= passageContext.end) {
         cached.add(internal.begin(i), internal.end(i));
       }
     }
-    docid = context.document;
-    begin = context.begin;
-    end = context.end;
-  }
-
-  @Override
-  public ScoringContext getContext() {
-    return context;
+    docid = passageContext.document;
+    begin = passageContext.begin;
+    end = passageContext.end;
   }
 
   @Override
@@ -65,5 +62,20 @@ public class PassageFilterIterator extends ExtentFilterIterator implements Conte
       throw new RuntimeException("Trying to set a non-Passage-capable context as a PassageScoringContext");
     }
     context = (PassageScoringContext) context;
+  }
+
+  @Override
+  public ExtentArray getData() {
+    return extents();
+  }
+
+  @Override
+  public int count() {
+    return extents().size();
+  }
+
+  @Override
+  public int maximumCount() {
+    return this.extentIterator.maximumCount();
   }
 }

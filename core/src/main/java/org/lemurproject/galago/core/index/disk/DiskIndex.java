@@ -18,7 +18,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeFactory;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.NamesReader;
@@ -27,7 +28,7 @@ import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
-import org.lemurproject.galago.core.index.corpus.SplitIndexReader;
+import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -107,7 +108,7 @@ public class DiskIndex implements Index {
    */
   protected void openDiskParts(String name, File directory) throws IOException {
     // check if the directory is a split index folder: (e.g. corpus)
-    if (SplitIndexReader.isParallelIndex(directory.getAbsolutePath())) {
+    if (SplitBTreeReader.isBTree(directory)) {
       IndexComponentReader component = openIndexComponent(directory.getAbsolutePath());
       if (component != null) {
         initializeComponent(name, component);
@@ -204,8 +205,8 @@ public class DiskIndex implements Index {
   @Override
   public boolean containsDocumentIdentifier(int document) throws IOException {
     NamesReader.Iterator ni = this.getNamesIterator();
-    ni.skipToKey(document);
-    return ni.hasMatch(document);
+    ni.moveTo(document);
+    return ni.atCandidate(document);
   }
 
   protected void initializeIndexOperators() {
@@ -411,7 +412,7 @@ public class DiskIndex implements Index {
 
   /* static functions for opening index component readers */
   public static IndexComponentReader openIndexComponent(String path) throws IOException {
-    GenericIndexReader reader = GenericIndexReader.getIndexReader(path);
+    BTreeReader reader = BTreeFactory.getBTreeReader(path);
 
     // if it's not an index: return null
     if (reader == null) {
@@ -440,7 +441,7 @@ public class DiskIndex implements Index {
 
     Constructor c;
     try {
-      c = readerClass.getConstructor(GenericIndexReader.class);
+      c = readerClass.getConstructor(BTreeReader.class);
     } catch (NoSuchMethodException ex) {
       throw new IOException(className + " has no constructor that takes a single "
               + "IndexReader argument.");

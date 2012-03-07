@@ -16,7 +16,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class BM25RFScoringIterator extends ScoringFunctionIterator {
 
-  public BM25RFScoringIterator(Parameters globalParams, NodeParameters p, CountValueIterator it)
+  public BM25RFScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
           throws IOException {
     super(it, new BM25RFScorer(globalParams, p, it));
   }

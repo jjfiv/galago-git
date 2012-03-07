@@ -7,7 +7,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.text.ParseException;
 import java.text.DateFormat;
 import java.util.Date;
-import org.lemurproject.galago.core.index.FieldIndexReader;
+import org.lemurproject.galago.core.index.disk.FieldIndexReader;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
@@ -28,6 +28,7 @@ public class InBetweenIterator extends FieldComparisonIterator {
     parseField(p);
   }
 
+  @Override
   protected void parseField(NodeParameters p) {
     try {
       if (format.equals("string")) {
@@ -58,27 +59,27 @@ public class InBetweenIterator extends FieldComparisonIterator {
     }
   }
 
-  public boolean hasMatch(int identifier) {
+  public boolean indicator(int identifier) {
     if (currentCandidate() != identifier) {
       return false;
     } else if (format.equals("string")) {
-      return (iterator.stringValue().compareTo(strValue) > 0)
-              && (iterator.stringValue().compareTo(strValue2) < 0);
+      return (fieldIterator.stringValue().compareTo(strValue) > 0)
+              && (fieldIterator.stringValue().compareTo(strValue2) < 0);
     } else if (format.equals("int")) {
-      return (iterator.intValue() > intValue)
-              && (iterator.intValue() < intValue2);
+      return (fieldIterator.intValue() > intValue)
+              && (fieldIterator.intValue() < intValue2);
     } else if (format.equals("long")) {
-      return (iterator.longValue() > longValue)
-              && (iterator.longValue() < longValue2);
+      return (fieldIterator.longValue() > longValue)
+              && (fieldIterator.longValue() < longValue2);
     } else if (format.equals("float")) {
-      return (iterator.floatValue() > floatValue)
-              && (iterator.floatValue() < floatValue2);
+      return (fieldIterator.floatValue() > floatValue)
+              && (fieldIterator.floatValue() < floatValue2);
     } else if (format.equals("double")) {
-      return (iterator.doubleValue() > doubleValue)
-              && (iterator.doubleValue() < doubleValue2);
+      return (fieldIterator.doubleValue() > doubleValue)
+              && (fieldIterator.doubleValue() < doubleValue2);
     } else if (format.equals("date")) {
-      return (iterator.dateValue() > dateValue)
-              && (iterator.dateValue() < dateValue2);
+      return (fieldIterator.dateValue() > dateValue)
+              && (fieldIterator.dateValue() < dateValue2);
     } else {
       throw new RuntimeException(String.format("Don't have any plausible format for tag %s\n",
               format));

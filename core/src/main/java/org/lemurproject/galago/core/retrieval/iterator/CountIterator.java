@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.index.ValueIterator;
  * @see PositionIndexIterator
  * @author trevor, irmarc
  */
-public interface CountIterator extends StructuredIterator {
+public interface CountIterator {
 
     /**
      * Returns the number of occurrences of this iterator's term in

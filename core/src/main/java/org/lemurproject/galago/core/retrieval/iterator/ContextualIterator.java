@@ -9,7 +9,6 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
  *
  * @author irmarc
  */
-public interface ContextualIterator extends StructuredIterator {
-  public ScoringContext getContext();
+public interface ContextualIterator {
   public void setContext(ScoringContext context);
 }

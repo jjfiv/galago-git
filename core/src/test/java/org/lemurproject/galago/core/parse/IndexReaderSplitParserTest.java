@@ -7,7 +7,7 @@ import java.io.IOException;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.corpus.CorpusFolderWriter;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
-import org.lemurproject.galago.core.index.corpus.SplitIndexKeyWriter;
+import org.lemurproject.galago.core.index.corpus.SplitBTreeKeyWriter;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -61,7 +61,7 @@ public class IndexReaderSplitParserTest extends TestCase {
     corpusWriterParameters.set("filename", temporary.getAbsolutePath());
     CorpusFolderWriter valueWriter = new CorpusFolderWriter(new FakeParameters(corpusWriterParameters.clone()));
     Sorter sorter = new Sorter(new KeyValuePair.KeyOrder());
-    SplitIndexKeyWriter keyWriter = new SplitIndexKeyWriter(new FakeParameters(corpusWriterParameters.clone()));
+    SplitBTreeKeyWriter keyWriter = new SplitBTreeKeyWriter(new FakeParameters(corpusWriterParameters.clone()));
 
     valueWriter.setProcessor(sorter);
     sorter.setProcessor(keyWriter);

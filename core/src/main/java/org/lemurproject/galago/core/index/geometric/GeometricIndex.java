@@ -233,6 +233,7 @@ public class GeometricIndex implements DynamicIndex, Index {
 
   // Note: this data is correct only at time of requesting.
   // DO NOT CACHE THIS DATA.
+  @Override
   public CollectionStatistics getCollectionStatistics(String part) {
     CollectionStatistics stats = this.currentMemoryIndex.getCollectionStatistics(part);
     for (DiskIndex di : this.geometricParts.getIndexes()) {
@@ -241,18 +242,22 @@ public class GeometricIndex implements DynamicIndex, Index {
     return stats;
   }
 
+  @Override
   public int getLength(int document) throws IOException {
     LengthsReader.Iterator i = this.getLengthsIterator();
-    if (i.skipToKey(document)) {
+    i.moveTo(document);
+    if (i.atCandidate(document)) {
       return i.getCurrentLength();
     } else {
       throw new IOException("Could not find document identifier " + document);
     }
   }
 
+  @Override
   public String getName(int document) throws IOException {
     NamesReader.Iterator i = this.getNamesIterator();
-    if (i.skipToKey(document)) {
+    i.moveTo(document);
+    if (i.atCandidate(document)) {
       return i.getCurrentName();
     } else {
       throw new IOException("Could not find document identifier " + document);

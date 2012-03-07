@@ -16,7 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -79,7 +79,7 @@ public class SparseFloatListReaderTest extends TestCase {
             context.document = aDocs[i];
             context.length = 100;
             assertEquals(aScores[i], iter.score(), 0.0001);
-            assertTrue(iter.hasMatch(aDocs[i]));
+            assertTrue(iter.atCandidate(aDocs[i]));
 
             iter.movePast(aDocs[i]);
         }
@@ -98,7 +98,7 @@ public class SparseFloatListReaderTest extends TestCase {
         for (i = 0; !iter.isDone(); i++) {
             assertEquals(bDocs[i], iter.currentCandidate());
             assertEquals(bScores[i], iter.score(new ScoringContext(bDocs[i], 100)), 0.0001);
-            assertTrue(iter.hasMatch(bDocs[i]));
+            assertTrue(iter.atCandidate(bDocs[i]));
 
             iter.movePast(bDocs[i]);
         }
@@ -109,13 +109,13 @@ public class SparseFloatListReaderTest extends TestCase {
 
     public void testIterator() throws Exception {
         SparseFloatListReader instance = new SparseFloatListReader(tempPath.toString());
-        SparseFloatListReader.Iterator iter = instance.getIterator();
-        String term = iter.getKey();
+        SparseFloatListReader.KeyValueIterator iter = instance.getIterator();
+        String term = iter.getKeyString();
 
         assertEquals(term, "a");
         assertFalse(iter.isDone());
 
-        ScoreValueIterator lIter = (ScoreValueIterator) iter.getValueIterator();
+        MovableScoreIterator lIter = (MovableScoreIterator) iter.getValueIterator();
         ScoringContext context = new ScoringContext();
         lIter.setContext(context);
         for (int i = 0; !lIter.isDone(); i++) {
@@ -123,24 +123,25 @@ public class SparseFloatListReaderTest extends TestCase {
             context.document = aDocs[i];
             context.length = 100;
             assertEquals(lIter.score(), aScores[i], 0.0001);
-            assertTrue(lIter.hasMatch(aDocs[i]));
+            assertTrue(lIter.atCandidate(aDocs[i]));
 
             lIter.movePast(aDocs[i]);
         }
 
         assertTrue(iter.nextKey());
-        term = iter.getKey();
+        term = iter.getKeyString();
         assertEquals(term, "b");
         assertFalse(iter.isDone());
-        lIter = (ScoreValueIterator) iter.getValueIterator();
+        lIter = (MovableScoreIterator) iter.getValueIterator();
         for (int i = 0; !lIter.isDone(); i++) {
             assertEquals(lIter.currentCandidate(), bDocs[i]);
             assertEquals(lIter.score(new ScoringContext(bDocs[i], 100)), bScores[i], 0.0001);
-            assertTrue(lIter.hasMatch(bDocs[i]));
+            assertTrue(lIter.atCandidate(bDocs[i]));
 
             lIter.movePast(bDocs[i]);
         }
-        assertFalse(lIter.next());
+        lIter.next();
+        assertTrue(lIter.isDone());
         assertFalse(iter.nextKey());
     }
 }

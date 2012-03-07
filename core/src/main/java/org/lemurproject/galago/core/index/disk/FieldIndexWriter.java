@@ -1,11 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.index;
+package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.index.disk.IndexWriter;
+import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import org.lemurproject.galago.core.index.corpus.SplitIndexValueWriter;
+import org.lemurproject.galago.core.index.CompressedByteBuffer;
+import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
+import org.lemurproject.galago.core.index.BTreeWriter;
+import org.lemurproject.galago.core.index.IndexElement;
+import org.lemurproject.galago.core.index.corpus.SplitBTreeValueWriter;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.core.types.NumberedField;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -93,7 +97,7 @@ public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.Shre
   byte[] lastWord;
   long lastPosition = 0;
   long lastDocument = 0;
-  GenericIndexWriter writer;
+  BTreeWriter writer;
   ContentList invertedList;
   OutputStream output;
   long filePosition;
@@ -114,7 +118,7 @@ public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.Shre
 
   public void processFieldName(byte[] wordBytes) throws IOException {
     if (writer == null) {
-      writer = new IndexWriter(stepParameters);
+      writer = new DiskBTreeWriter(stepParameters);
     }
 
     if (invertedList != null) {

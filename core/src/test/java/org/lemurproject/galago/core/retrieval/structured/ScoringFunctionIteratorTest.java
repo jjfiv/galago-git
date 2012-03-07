@@ -47,7 +47,7 @@ public class ScoringFunctionIteratorTest extends TestCase {
     assertEquals(0.0, iterator.score());
     assertEquals(102.0, iterator.score(new ScoringContext(34, 99)));
     iterator.movePast(44);
-    assertTrue(iterator.hasMatch(110));
+    assertTrue(iterator.atCandidate(110));
     assertEquals(0.0, iterator.score()); // length hasn't been reset
     assertEquals(44.0, iterator.score(new ScoringContext(110, 41)));
     iterator.moveTo(120);
@@ -72,7 +72,7 @@ public class ScoringFunctionIteratorTest extends TestCase {
     assertEquals(0.0, iterator.score());
     assertEquals(1.11315, iterator.score(new ScoringContext(34, 99)), 0.0001);
     iterator.movePast(44);
-    assertTrue(iterator.hasMatch(110));
+    assertTrue(iterator.atCandidate(110));
     assertEquals(0.0, iterator.score()); // length hasn't been reset
     assertEquals(1.11315, iterator.score(new ScoringContext(110, 41)), 0.0001);
     iterator.moveTo(120);

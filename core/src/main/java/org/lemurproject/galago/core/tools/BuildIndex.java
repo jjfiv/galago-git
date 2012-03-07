@@ -6,7 +6,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import org.lemurproject.galago.core.index.corpus.SplitIndexKeyWriter;
+import org.lemurproject.galago.core.index.corpus.SplitBTreeKeyWriter;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.index.disk.PositionFieldIndexWriter;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
@@ -62,7 +62,9 @@ public class BuildIndex extends AppFunction {
 
     // connections
     stage.addInput("splits", new DocumentSplit.FileIdOrder());
-    stage.addOutput("numberedDocumentData", new NumberedDocumentData.NumberOrder());
+    stage.addOutput("numberedDocumentDataNumbers", new NumberedDocumentData.NumberOrder());
+    stage.addOutput("numberedDocumentDataNames", new NumberedDocumentData.IdentifierOrder());
+
     if (buildParameters.getBoolean("links")) {
       stage.addInput("anchorText", new AdditionalDocumentText.IdentifierOrder());
     }
@@ -109,11 +111,16 @@ public class BuildIndex extends AppFunction {
 
     MultiStep processingFork = new MultiStep();
 
-    // this fork is always executed
+    // these forks are always executed
     ArrayList<Step> documentData =
-            BuildStageTemplates.getExtractionSteps("numberedDocumentData", NumberedDocumentDataExtractor.class,
+            BuildStageTemplates.getExtractionSteps("numberedDocumentDataNumbers", NumberedDocumentDataExtractor.class,
             new NumberedDocumentData.NumberOrder());
     processingFork.groups.add(documentData);
+
+    ArrayList<Step> documentDataReverse =
+            BuildStageTemplates.getExtractionSteps("numberedDocumentDataNames", NumberedDocumentDataExtractor.class,
+            new NumberedDocumentData.IdentifierOrder());
+    processingFork.groups.add(documentDataReverse);
 
     // now optional forks
     if (buildParameters.getBoolean("corpus")) {
@@ -261,7 +268,7 @@ public class BuildIndex extends AppFunction {
 
     stage.addInput(input, new KeyValuePair.KeyOrder());
     stage.add(new InputStep(input));
-    stage.add(new Step(SplitIndexKeyWriter.class, indexParameters));
+    stage.add(new Step(SplitBTreeKeyWriter.class, indexParameters));
 
     return stage;
   }
@@ -647,14 +654,16 @@ public class BuildIndex extends AppFunction {
     // common steps + connections
     job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, buildParameters));
     job.add(getParsePostingsStage(buildParameters));
-    job.add(BuildStageTemplates.getDocumentCounter("countDocuments", "numberedDocumentData", "docCounts"));
-    job.add(BuildStageTemplates.getWriteNamesStage("writeNames", new File(indexPath, "names"), "numberedDocumentData"));
-    job.add(BuildStageTemplates.getWriteLengthsStage("writeLengths", new File(indexPath, "lengths"), "numberedDocumentData"));
+    job.add(BuildStageTemplates.getDocumentCounter("countDocuments", "numberedDocumentDataNumbers", "docCounts"));
+    job.add(BuildStageTemplates.getWriteNamesStage("writeNames", new File(indexPath, "names"), "numberedDocumentDataNumbers"));
+    job.add(BuildStageTemplates.getWriteNamesRevStage("writeNamesRev", new File(indexPath, "names.reverse"), "numberedDocumentDataNames"));
+    job.add(BuildStageTemplates.getWriteLengthsStage("writeLengths", new File(indexPath, "lengths"), "numberedDocumentDataNumbers"));
 
     job.connect("inputSplit", "parsePostings", ConnectionAssignmentType.Each);
     job.connect("parsePostings", "countDocuments", ConnectionAssignmentType.Each);
     job.connect("parsePostings", "writeLengths", ConnectionAssignmentType.Combined);
     job.connect("parsePostings", "writeNames", ConnectionAssignmentType.Combined);
+    job.connect("parsePostings", "writeNamesRev", ConnectionAssignmentType.Combined);
 
     // if extracting links
     if (buildParameters.getBoolean("links")) {

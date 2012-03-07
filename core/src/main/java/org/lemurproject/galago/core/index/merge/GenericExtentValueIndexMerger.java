@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.index.merge;
 import java.io.IOException;
 import java.util.List;
 import java.util.PriorityQueue;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -21,12 +21,12 @@ public abstract class GenericExtentValueIndexMerger<S> extends GenericIndexMerge
 
   private class ExtentValueIteratorWrapper implements Comparable<ExtentValueIteratorWrapper>{
     int indexId;
-    ExtentValueIterator iterator;
+    MovableExtentIterator iterator;
     int currentDocument;
     ExtentArray currentExtentArray;
     DocumentMappingReader mapping;
 
-    private ExtentValueIteratorWrapper(int indexId, ExtentValueIterator extentIterator, DocumentMappingReader mapping) {
+    private ExtentValueIteratorWrapper(int indexId, MovableExtentIterator extentIterator, DocumentMappingReader mapping) {
       this.indexId = indexId;
       this.iterator = extentIterator;
       this.mapping = mapping;
@@ -35,12 +35,11 @@ public abstract class GenericExtentValueIndexMerger<S> extends GenericIndexMerge
       load();
     }
 
-    public boolean next() throws IOException{
-      boolean success = iterator.next();
-      if(success){
+    public void next() throws IOException{
+      iterator.next();
+      if(!iterator.isDone()){
         load();
       }
-      return success;
     }
 
     // changes the document numbers in the extent array
@@ -69,14 +68,15 @@ public abstract class GenericExtentValueIndexMerger<S> extends GenericIndexMerge
   public void performValueMerge(byte[] key, List<KeyIteratorWrapper> keyIterators) throws IOException{
     PriorityQueue<ExtentValueIteratorWrapper> extentQueue = new PriorityQueue();
     for (KeyIteratorWrapper w : keyIterators) {
-      ExtentValueIterator extentIterator = (ExtentValueIterator) w.iterator.getValueIterator();
+      MovableExtentIterator extentIterator = (MovableExtentIterator) w.iterator.getValueIterator();
       extentQueue.add( new ExtentValueIteratorWrapper( this.partIds.get( w ), extentIterator, this.mappingReader ) );
     }
 
     while( ! extentQueue.isEmpty() ){
       ExtentValueIteratorWrapper head = extentQueue.poll();
       transformExtentArray(key, head.currentExtentArray);
-      if(head.next()){
+      head.next();
+      if(!head.isDone()){
         extentQueue.offer(head);
       }
     }

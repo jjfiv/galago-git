@@ -16,21 +16,21 @@ import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
-import org.lemurproject.galago.core.index.TopDocsReader.TopDocument;
+import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ModifiableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
 import org.lemurproject.galago.core.util.ExtentArray;
-import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -88,7 +88,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
   }
 
   @Override
-  public void addIteratorData(ValueIterator iterator) throws IOException {
+  public void addIteratorData(MovableIterator iterator) throws IOException {
     // we expect that this iterator is a KeyListReader.ListIterator
     byte[] key = ((KeyListReader.ListIterator) iterator).getKeyBytes();
 
@@ -97,15 +97,16 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
       return;
     }
 
-    do {
+    while (!iterator.isDone()) {
       int document = iterator.currentCandidate();
-      ExtentArrayIterator extentsIterator = new ExtentArrayIterator(((ExtentValueIterator) iterator).extents());
+      ExtentArrayIterator extentsIterator = new ExtentArrayIterator(((MovableExtentIterator) iterator).extents());
       while (!extentsIterator.isDone()) {
         int begin = extentsIterator.currentBegin();
         addPosting(key, document, begin);
         extentsIterator.next();
       }
-    } while (iterator.next());
+      iterator.next();
+    }
   }
 
   protected void addPosting(byte[] byteWord, int document, int position) {
@@ -222,7 +223,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     ExtentArray extents;
     while (!kiterator.isDone()) {
       viterator = (ExtentsIterator) kiterator.getValueIterator();
-      writer.processWord(kiterator.getKeyBytes());
+      writer.processWord(kiterator.getKey());
 
       while (!viterator.isDone()) {
         writer.processDocument(viterator.currentCandidate());
@@ -312,12 +313,12 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public String getKey() throws IOException {
+    public String getKeyString() throws IOException {
       return Utility.toString(currKey);
     }
 
     @Override
-    public byte[] getKeyBytes() {
+    public byte[] getKey() {
       return currKey;
     }
 
@@ -351,7 +352,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
       ExtentsIterator it = new ExtentsIterator(postings.get(currKey));
       count = it.count();
       StringBuilder sb = new StringBuilder();
-      sb.append(Utility.toString(getKeyBytes())).append(",");
+      sb.append(Utility.toString(getKey())).append(",");
       sb.append("list of size: ");
       if (count > 0) {
         sb.append(count);
@@ -367,11 +368,6 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public DataStream getValueStream() throws IOException {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public boolean isDone() {
       return done;
     }
@@ -379,7 +375,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     @Override
     public int compareTo(KeyIterator t) {
       try {
-        return Utility.compare(this.getKeyBytes(), t.getKeyBytes());
+        return Utility.compare(this.getKey(), t.getKey());
       } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
@@ -395,8 +391,8 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
   }
 
-  public class ExtentsIterator implements ValueIterator, ModifiableIterator,
-          AggregateIterator, CountValueIterator, ExtentValueIterator, ContextualIterator {
+  public class ExtentsIterator extends ValueIterator implements ModifiableIterator,
+          AggregateIterator, MovableCountIterator, MovableExtentIterator, ContextualIterator {
 
     PostingList postings;
     VByteInput documents_reader;
@@ -466,26 +462,8 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public boolean hasMatch(int identifier) {
+    public boolean atCandidate(int identifier) {
       return (!isDone() && identifier == currDocument);
-    }
-
-    @Override
-    public boolean next() throws IOException {
-      if (iteratedDocs >= postings.termDocumentCount) {
-        done = true;
-        return false;
-      } else if (iteratedDocs == postings.termDocumentCount - 1) {
-        currDocument = postings.lastDocument;
-        currCount = postings.lastCount;
-      } else {
-        currDocument += documents_reader.readInt();
-        currCount = counts_reader.readInt();
-      }
-      loadExtents();
-
-      iteratedDocs++;
-      return true;
     }
 
     public void loadExtents() throws IOException {
@@ -498,12 +476,29 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
       }
     }
 
+    
     @Override
-    public boolean moveTo(int identifier) throws IOException {
+    public void next() throws IOException {
+      if (iteratedDocs >= postings.termDocumentCount) {
+        done = true;
+        return;
+      } else if (iteratedDocs == postings.termDocumentCount - 1) {
+        currDocument = postings.lastDocument;
+        currCount = postings.lastCount;
+      } else {
+        currDocument += documents_reader.readInt();
+        currCount = counts_reader.readInt();
+      }
+      loadExtents();
+
+      iteratedDocs++;
+    }
+
+    @Override
+    public void moveTo(int identifier) throws IOException {
       while (!isDone() && (currDocument < identifier)) {
         next();
       }
-      return hasMatch(identifier);
     }
 
     @Override
@@ -546,7 +541,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public int compareTo(ValueIterator other) {
+    public int compareTo(MovableIterator other) {
       if (isDone() && !other.isDone()) {
         return 1;
       }
@@ -585,11 +580,6 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
       return modifiers.get(modKey);
     }
 
-    @Override
-    public ScoringContext getContext() {
-      return this.context;
-    }
-
     // This will pass up topdocs information if it's available
     @Override
     public void setContext(ScoringContext context) {
@@ -601,10 +591,15 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
       }
       this.context = context;
     }
+
+    @Override
+    public boolean hasAllCandidates() {
+      return false;
+    }
   }
 
-  public class CountsIterator implements ValueIterator, ModifiableIterator,
-          AggregateIterator, CountValueIterator, ContextualIterator {
+  public class CountsIterator extends ValueIterator implements ModifiableIterator,
+          AggregateIterator, MovableCountIterator, ContextualIterator {
 
     PostingList postings;
     VByteInput documents_reader;
@@ -658,15 +653,20 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public boolean hasMatch(int identifier) {
+    public boolean atCandidate(int identifier) {
       return (!isDone() && identifier == currDocument);
     }
 
     @Override
-    public boolean next() throws IOException {
+    public boolean hasAllCandidates() {
+      return false;
+    }
+
+    @Override
+    public void next() throws IOException {
       if (iteratedDocs >= postings.termDocumentCount) {
         done = true;
-        return false;
+        return;
       } else if (iteratedDocs == postings.termDocumentCount - 1) {
         currDocument = postings.lastDocument;
         currCount = postings.lastCount;
@@ -676,15 +676,13 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
       }
 
       iteratedDocs++;
-      return true;
     }
 
     @Override
-    public boolean moveTo(int identifier) throws IOException {
+    public void moveTo(int identifier) throws IOException {
       while (!isDone() && (currDocument < identifier)) {
         next();
       }
-      return hasMatch(identifier);
     }
 
     @Override
@@ -725,7 +723,7 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public int compareTo(ValueIterator other) {
+    public int compareTo(MovableIterator other) {
       if (isDone() && !other.isDone()) {
         return 1;
       }
@@ -762,11 +760,6 @@ public class MemoryPostings implements MemoryIndexPart, AggregateReader {
         return null;
       }
       return modifiers.get(modKey);
-    }
-
-    @Override
-    public ScoringContext getContext() {
-      return this.context;
     }
 
     // This will pass up topdocs information if it's available

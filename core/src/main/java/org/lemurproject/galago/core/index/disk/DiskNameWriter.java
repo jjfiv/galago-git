@@ -27,52 +27,32 @@ import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
  *
  * @author sjh
  */
-@InputClass(className = "org.lemurproject.galago.core.types.NumberedDocumentData")
+@InputClass(className = "org.lemurproject.galago.core.types.NumberedDocumentData", order={"+number"})
 public class DiskNameWriter implements Processor<NumberedDocumentData> {
 
-  Sorter<KeyValuePair> sorterFL;
-  Sorter<KeyValuePair> sorterRL;
+  DiskBTreeWriter writer;
   NumberedDocumentData last = null;
   Counter documentNamesWritten = null;
 
-  public DiskNameWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
+  public DiskNameWriter(TupleFlowParameters parameters) throws IOException {
     documentNamesWritten = parameters.getCounter("Document Names Written");
     // make a folder
-    String fileName = parameters.getJSON().getString("filename");
+    String filename = parameters.getJSON().getString("filename");
 
-    Parameters pforward = new Parameters();
-    pforward.copyFrom(parameters.getJSON());
-    pforward.set("order", "forward");
-    pforward.set("writerClass", DiskNameWriter.class.getName());
-    pforward.set("mergerClass", DocumentNameMerger.class.getName());
-    pforward.set("readerClass", DiskNameReader.class.getName());
+    Parameters p = parameters.getJSON();
+    p.set("writerClass", DiskNameWriter.class.getName());
+    p.set("mergerClass", DocumentNameMerger.class.getName());
+    p.set("readerClass", DiskNameReader.class.getName());
 
-    IndexWriterProcessor writerFL = new IndexWriterProcessor(fileName, pforward);
-
-    Parameters preverse = pforward.clone();
-    preverse.set("order", "backward");
-    preverse.remove("mergerClass");
-    IndexWriterProcessor writerRL = new IndexWriterProcessor(fileName + ".reverse", preverse);
-
-    sorterFL = new Sorter<KeyValuePair>(new KeyValuePair.KeyOrder());
-    sorterRL = new Sorter<KeyValuePair>(new KeyValuePair.KeyOrder());
-    sorterFL.processor = writerFL;
-    sorterRL.processor = writerRL;
-
+    writer = new DiskBTreeWriter(filename, p);
   }
 
   public void process(int number, String identifier) throws IOException {
-    byte[] docnum = Utility.fromInt(number);
-    byte[] docname = Utility.fromString(identifier);
+    byte[] docNum = Utility.fromInt(number);
+    byte[] docName = Utility.fromString(identifier);
 
-    // numbers -> names
-    KeyValuePair btiFL = new KeyValuePair(docnum, docname);
-    sorterFL.process(btiFL);
-
-    // names -> numbers
-    KeyValuePair btiRL = new KeyValuePair(docname, docnum);
-    sorterRL.process(btiRL);
-
+    writer.add(new GenericElement(docNum, docName));
+    
     if (documentNamesWritten != null) {
       documentNamesWritten.increment();
     }
@@ -84,41 +64,25 @@ public class DiskNameWriter implements Processor<NumberedDocumentData> {
     }
 
     assert last.number <= ndd.number;
-    assert last.identifier != null;
-    process(ndd.number, ndd.identifier);
+    assert ndd.identifier != null;
+    
+    writer.add(new GenericElement(
+            Utility.fromInt(ndd.number), 
+            Utility.fromString(ndd.identifier)));
+    
+    if (documentNamesWritten != null) {
+      documentNamesWritten.increment();
+    }
   }
 
   public void close() throws IOException {
-    sorterFL.close();
-    sorterRL.close();
+    writer.close();
   }
 
   public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
     if (!parameters.getJSON().isString("filename")) {
       handler.addError("DocumentNameWriter requires a 'filename' parameter.");
       return;
-    }
-  }
-
-  /*
-   * Translates the Key Value Pairs to Generic elements + writes them to the index
-   */
-  private class IndexWriterProcessor implements Processor<KeyValuePair> {
-
-    IndexWriter writer;
-
-    public IndexWriterProcessor(String fileName, Parameters p) throws IOException {
-      // default uncompressed index is fine
-      writer = new IndexWriter(fileName, p);
-    }
-
-    public void process(KeyValuePair kvp) throws IOException {
-      GenericElement element = new GenericElement(kvp.key, kvp.value);
-      writer.add(element);
-    }
-
-    public void close() throws IOException {
-      writer.close();
     }
   }
 }

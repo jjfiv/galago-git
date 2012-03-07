@@ -4,7 +4,8 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeFactory;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.index.NamesReader;
@@ -21,134 +22,94 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class DiskNameReader extends KeyValueReader implements NamesReader {
 
-  public boolean isForward;
-
   /** Creates a new instance of DiskNameReader */
   public DiskNameReader(String fileName) throws IOException {
-    this(GenericIndexReader.getIndexReader(fileName));
+    super(BTreeFactory.getBTreeReader(fileName));
   }
 
-  public DiskNameReader(GenericIndexReader r) {
+  public DiskNameReader(BTreeReader r) {
     super(r);
-    isForward = (reader.getManifest().getString("order").equals("forward"));
   }
 
   // gets the document name of the internal id index.
+  @Override
   public String getDocumentName(int index) throws IOException {
-    if (isForward) {
-      byte[] data = reader.getValueBytes(Utility.fromInt(index));
-      if (data == null) {
-        throw new IOException("Unknown Document Number : " + index);
-      }
-      return Utility.toString(data);
-    } else {
-      throw new UnsupportedOperationException("This index file does not support doc int -> doc name mappings");
+    byte[] data = reader.getValueBytes(Utility.fromInt(index));
+    if (data == null) {
+      throw new IOException("Unknown Document Number : " + index);
     }
+    return Utility.toString(data);
   }
 
   // gets the document id for some document name
+  @Override
   public int getDocumentIdentifier(String documentName) throws IOException {
-    if (!isForward) {
-      byte[] data = reader.getValueBytes(Utility.fromString(documentName));
-      if (data == null) {
-        throw new IOException("Unknown Document Name : " + documentName);
-      }
-      return Utility.toInt(data);
-    } else {
-      throw new UnsupportedOperationException("This index file does not support doc name -> doc int mappings");
-    }
+    throw new UnsupportedOperationException("This index file does not support doc name -> doc int mappings");
   }
 
+  @Override
   public NamesReader.Iterator getNamesIterator() throws IOException {
-    return new ValueIterator(new KeyIterator(reader, isForward));
+    return new ValueIterator(getIterator());
   }
 
+  @Override
   public KeyIterator getIterator() throws IOException {
-    return new KeyIterator(reader, isForward);
+    return new KeyIterator(reader);
   }
 
+  @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
     types.put("names", new NodeType(ValueIterator.class));
     return types;
   }
 
+  @Override
   public KeyToListIterator getIterator(Node node) throws IOException {
-    if (node.getOperator().equals("names") && isForward) {
-      return new ValueIterator(new KeyIterator(reader, isForward));
+    if (node.getOperator().equals("names")) {
+      return (KeyToListIterator) getNamesIterator();
     } else {
       throw new UnsupportedOperationException(
               "Index doesn't support operator: " + node.getOperator());
     }
   }
 
-  public class KeyIterator extends KeyValueReader.Iterator {
+  public class KeyIterator extends KeyValueReader.KeyValueIterator {
 
-    protected boolean forwardLookup;
-    protected GenericIndexReader input;
-    protected GenericIndexReader.Iterator iterator;
+    protected BTreeReader input;
+    protected BTreeReader.BTreeIterator iterator;
 
-    public KeyIterator(GenericIndexReader input, boolean forwardLookup) throws IOException {
+    public KeyIterator(BTreeReader input) throws IOException {
       super(input);
-      this.forwardLookup = forwardLookup;
-    }
-
-    public boolean isForward() {
-      return forwardLookup;
     }
 
     public boolean skipToKey(int identifier) throws IOException {
-      if (forwardLookup) {
-        return skipToKey(Utility.fromInt(identifier));
-      } else {
-        throw new UnsupportedOperationException("Direction is wrong.");
-      }
-    }
-
-    public boolean findKey(String name) throws IOException {
-      if (forwardLookup) {
-        throw new UnsupportedOperationException("Direction is wrong.");
-      } else {
-        return findKey(Utility.fromString(name));
-      }
+      return skipToKey(Utility.fromInt(identifier));
     }
 
     public String getCurrentName() throws IOException {
-      if (forwardLookup) {
-        return Utility.toString(getValueBytes());
-      } else {
-        return Utility.toString(getKeyBytes());
-      }
+      return Utility.toString(getValueBytes());
     }
 
     public int getCurrentIdentifier() throws IOException {
-      if (!forwardLookup) {
-        return Utility.toInt(getValueBytes());
-      } else {
-        return Utility.toInt(getKeyBytes());
-      }
+      return Utility.toInt(getKey());
     }
 
+    @Override
     public String getValueString() {
       try {
-        if (forwardLookup) {
-          return Utility.toString(getValueBytes());
-        } else {
-          return Integer.toString(Utility.toInt(getValueBytes()));
-        }
+        return Utility.toString(getValueBytes());
       } catch (IOException e) {
         return "Unknown";
       }
     }
 
-    public String getKey() {
-      if (forwardLookup) {
-        return Integer.toString(Utility.toInt(getKeyBytes()));
-      } else {
-        return Utility.toString(getKeyBytes());
-      }
+    @Override
+    public String getKeyString() {
+      return Integer.toString(Utility.toInt(getKey()));
     }
 
+    @Override
     public KeyToListIterator getValueIterator() throws IOException {
       return new ValueIterator(this);
     }
@@ -160,25 +121,27 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
       super(ki);
     }
 
+    @Override
     public String getEntry() throws IOException {
       KeyIterator ki = (KeyIterator) iterator;
       StringBuilder sb = new StringBuilder();
-      if (ki.isForward()) {
-        sb.append(ki.getCurrentIdentifier());
-        sb.append(",");
-        sb.append(ki.getCurrentName());
-      } else {
-        sb.append(ki.getCurrentName());
-        sb.append(",");
-        sb.append(ki.getCurrentIdentifier());
-      }
+      sb.append(ki.getCurrentIdentifier());
+      sb.append(",");
+      sb.append(ki.getCurrentName());
       return sb.toString();
     }
 
+    @Override
     public long totalEntries() {
-      throw new UnsupportedOperationException("Not supported yet.");
+      return reader.getManifest().getLong("keyCount");
     }
 
+    @Override
+    public boolean hasAllCandidates(){
+      return true;
+    }
+    
+    @Override
     public String getData() {
       try {
         return getEntry();
@@ -187,16 +150,13 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
       }
     }
 
-    public boolean skipToKey(int candidate) throws IOException {
-      KeyIterator ki = (KeyIterator) iterator;
-      return ki.skipToKey(candidate);
-    }
-    
+    @Override
     public String getCurrentName() throws IOException {
       KeyIterator ki = (KeyIterator) iterator;
       return ki.getCurrentName();
     }
 
+    @Override
     public int getCurrentIdentifier() throws IOException {
       KeyIterator ki = (KeyIterator) iterator;
       return ki.getCurrentIdentifier();

@@ -7,7 +7,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
-import org.lemurproject.galago.core.index.FieldIndexReader;
+import org.lemurproject.galago.core.index.disk.FieldIndexReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
@@ -19,9 +19,9 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  *
  * @author irmarc
  */
-public abstract class FieldComparisonIterator extends AbstractIndicator {
+public abstract class FieldComparisonIterator extends TransformIterator implements MovableIndicatorIterator {
 
-  FieldIndexReader.ListIterator iterator;
+  FieldIndexReader.ListIterator fieldIterator;
   String format;
   String strValue;
   int intValue;
@@ -31,33 +31,9 @@ public abstract class FieldComparisonIterator extends AbstractIndicator {
   long dateValue;
 
   public FieldComparisonIterator(NodeParameters p, FieldIndexReader.ListIterator fieldIterator) {
-    super(p, new ValueIterator[]{fieldIterator});
-    this.iterator = fieldIterator;
+    super(fieldIterator);
+    this.fieldIterator = fieldIterator;
     this.format = fieldIterator.getFormat();
-  }
-
-  public void reset() throws IOException {
-    iterator.reset();
-  }
-
-  public boolean isDone() {
-    return iterator.isDone();
-  }
-
-  public int currentCandidate() {
-    return iterator.currentCandidate();
-  }
-
-  public boolean moveTo(int identifier) throws IOException {
-    return iterator.moveTo(identifier);
-  }
-
-  public String getEntry() throws IOException {
-    return iterator.getEntry();
-  }
-
-  public long totalEntries() {
-    return iterator.totalEntries();
   }
 
   protected void parseField(NodeParameters p) {

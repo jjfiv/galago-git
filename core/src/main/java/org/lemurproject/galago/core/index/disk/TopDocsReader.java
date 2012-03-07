@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.index;
+package org.lemurproject.galago.core.index.disk;
 
 import java.io.DataInput;
 import java.io.IOException;
@@ -7,6 +7,8 @@ import java.io.PrintStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.logging.Logger;
+import org.lemurproject.galago.core.index.AbstractModifier;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -51,12 +53,12 @@ public class TopDocsReader extends AbstractModifier {
     }
   }
 
-  public TopDocsReader(GenericIndexReader r) {
+  public TopDocsReader(BTreeReader r) {
     super(r);
   }
 
   public void printContents(PrintStream out) throws IOException {
-    GenericIndexReader.Iterator iterator = reader.getIterator();
+    BTreeReader.BTreeIterator iterator = reader.getIterator();
     while (!iterator.isDone()) {
       out.printf("Key: %s\n", Utility.toString(iterator.getKey()));
       ArrayList<TopDocument> li = getTopDocs(iterator, -1);
@@ -73,10 +75,10 @@ public class TopDocsReader extends AbstractModifier {
     // Can make a modifier
     String term = node.getDefaultParameter();
     int limit = (int) node.getNodeParameters().get("limit", 1000);
-    GenericIndexReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
+    BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
     if (iterator == null) return null;
 
-    // Iterator is set - grab the value data and make the specific modifier
+    // BTreeIterator is set - grab the value data and make the specific modifier
     return getTopDocs(iterator, limit);
   }
 
@@ -84,7 +86,7 @@ public class TopDocsReader extends AbstractModifier {
     reader.close();
   }
 
-  public ArrayList<TopDocument> getTopDocs(GenericIndexReader.Iterator iterator, int limit) throws IOException {
+  public ArrayList<TopDocument> getTopDocs(BTreeReader.BTreeIterator iterator, int limit) throws IOException {
     VByteInput input = new VByteInput(iterator.getValueStream());
     int numEntries = input.readInt();
     int lastDocument = 0;

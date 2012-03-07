@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -37,7 +38,7 @@ public interface Index {
   // This isn't necessary at the moment
   //public boolean hasChanged() throws IOException;
 
-  public ValueIterator getIterator(Node node) throws IOException;
+  public MovableIterator getIterator(Node node) throws IOException;
 
   public NodeType getNodeType(Node node) throws Exception;
 

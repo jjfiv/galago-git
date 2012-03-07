@@ -2,6 +2,7 @@
 package org.lemurproject.galago.core.index;
 
 import java.io.IOException;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -11,7 +12,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author marc
  */
-public abstract class KeyToListIterator implements ValueIterator {
+public abstract class KeyToListIterator extends ValueIterator {
 
   protected KeyIterator iterator;
 
@@ -19,39 +20,48 @@ public abstract class KeyToListIterator implements ValueIterator {
     iterator = ki;
   }
 
-  public boolean next() throws IOException {
-    return iterator.nextKey();
+  @Override
+  public void next() throws IOException {
+    iterator.nextKey();
   }
 
-  public boolean moveTo(int identifier) throws IOException {
-    return iterator.skipToKey(Utility.fromInt(identifier));
+  @Override
+  public void moveTo(int identifier) throws IOException {
+    iterator.skipToKey(Utility.fromInt(identifier));
   }
 
+  @Override
   public void movePast(int identifier) throws IOException {
     moveTo(identifier + 1);
   }
 
+  @Override
   public void reset() throws IOException {
     iterator.reset();
   }
 
+
+  @Override
   public boolean isDone() {
     return iterator.isDone();
   }
 
+  @Override
   public int currentCandidate() {
     try {
-      return Utility.toInt(iterator.getKeyBytes());
+      return Utility.toInt(iterator.getKey());
     } catch (IOException ioe) {
       return Integer.MAX_VALUE;
     }
   }
 
-  public boolean hasMatch(int identifier) {
+  @Override
+  public boolean atCandidate(int identifier) {
     return (currentCandidate() == identifier);
   }
-
-  public int compareTo(ValueIterator other) {
+  
+  @Override
+  public int compareTo(MovableIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }

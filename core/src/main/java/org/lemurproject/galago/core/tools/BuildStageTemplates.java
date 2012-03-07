@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.disk.DiskNameWriter;
-import org.lemurproject.galago.core.index.FieldIndexWriter;
+import org.lemurproject.galago.core.index.disk.FieldIndexWriter;
+import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.parse.DocumentCounter;
 import org.lemurproject.galago.core.parse.TagTokenizer;
@@ -103,6 +104,16 @@ public class BuildStageTemplates {
   public static Stage getWriteNamesStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
     return getGenericWriteStage(stageName, destination, inputPipeName,
             DiskNameWriter.class, new NumberedDocumentData.NumberOrder(), p);
+  }
+  
+  public static Stage getWriteNamesRevStage(String stageName, File destination, String inputPipeName) throws IOException {
+    return getGenericWriteStage(stageName, destination, inputPipeName,
+            DiskNameReverseWriter.class, new NumberedDocumentData.IdentifierOrder(), new Parameters());
+  }
+
+  public static Stage getWriteNamesRevStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
+    return getGenericWriteStage(stageName, destination, inputPipeName,
+            DiskNameReverseWriter.class, new NumberedDocumentData.IdentifierOrder(), p);
   }
 
   public static Stage getWriteExtentsStage(String stageName, File destination, String inputPipeName) throws IOException {

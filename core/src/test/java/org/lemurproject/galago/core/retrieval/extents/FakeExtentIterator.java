@@ -1,18 +1,18 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.extents;
 
-import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.util.ExtentArray;
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 
 /**
  *
  * @author trevor
  * @author irmarc
  */
-public class FakeExtentIterator implements ExtentValueIterator, CountValueIterator {
+public class FakeExtentIterator implements MovableExtentIterator, MovableCountIterator {
 
   int[][] data;
   int index;
@@ -23,30 +23,15 @@ public class FakeExtentIterator implements ExtentValueIterator, CountValueIterat
   }
 
   @Override
-  public boolean next() {
+  public void next() {
     if (index < data.length) {
       index++;
-      return true;
-    } else {
-      return false;
     }
   }
 
   @Override
   public boolean isDone() {
     return index >= data.length;
-  }
-
-  @Override
-  public ExtentArray extents() {
-    ExtentArray array = new ExtentArray();
-    int[] datum = data[index];
-    array.setDocument(datum[0]);
-    for (int i = 1; i < datum.length; i++) {
-      array.add(datum[i]);
-    }
-
-    return array;
   }
 
   @Override
@@ -70,17 +55,31 @@ public class FakeExtentIterator implements ExtentValueIterator, CountValueIterat
   }
 
   @Override
-  public boolean hasMatch(int identifier) {
-    if (isDone()) return false;
-    else return (currentCandidate() == identifier);
+  public ExtentArray extents() {
+    ExtentArray array = new ExtentArray();
+    int[] datum = data[index];
+    array.setDocument(datum[0]);
+    for (int i = 1; i < datum.length; i++) {
+      array.add(datum[i]);
+    }
+
+    return array;
   }
 
   @Override
-  public boolean moveTo(int identifier) throws IOException {
+  public boolean atCandidate(int identifier) {
+    if (isDone()) {
+      return false;
+    } else {
+      return (currentCandidate() == identifier);
+    }
+  }
+
+  @Override
+  public void moveTo(int identifier) throws IOException {
     while (!isDone() && currentCandidate() < identifier) {
       index++;
     }
-    return hasMatch(identifier);
   }
 
   @Override
@@ -94,7 +93,7 @@ public class FakeExtentIterator implements ExtentValueIterator, CountValueIterat
   }
 
   @Override
-  public int compareTo(ValueIterator other) {
+  public int compareTo(MovableIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }
@@ -115,5 +114,10 @@ public class FakeExtentIterator implements ExtentValueIterator, CountValueIterat
   @Override
   public int maximumCount() {
     throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
+  public boolean hasAllCandidates() {
+    return false;
   }
 }

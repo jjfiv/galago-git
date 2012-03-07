@@ -37,7 +37,7 @@ import org.lemurproject.galago.tupleflow.Step;
  * 
  * @author sjh
  */
-public abstract class GenericIndexWriter implements KeyValuePair.KeyValueOrder.ShreddedProcessor, Source<KeyValuePair> {
+public abstract class BTreeWriter implements KeyValuePair.KeyValueOrder.ShreddedProcessor, Source<KeyValuePair> {
         
     /**
      * Returns the current copy of the manifest, which will be stored in

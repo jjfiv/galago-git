@@ -31,7 +31,7 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 public class CorpusFolderWriter implements Processor<Document>, Source<KeyValuePair> {
 
   boolean compressed;
-  SplitIndexValueWriter writer;
+  SplitBTreeValueWriter writer;
 
   public CorpusFolderWriter(TupleFlowParameters parameters) throws IOException, IncompatibleProcessorException {
     compressed = parameters.getJSON().get("compressed", true);
@@ -43,7 +43,7 @@ public class CorpusFolderWriter implements Processor<Document>, Source<KeyValueP
     p.set("readerClass", CorpusReader.class.getName());
     p.set("mergerClass", CorpusMerger.class.getName());
     p.set("filename", parameters.getJSON().getString("filename"));
-    writer = new SplitIndexValueWriter(parameters);
+    writer = new SplitBTreeValueWriter(parameters);
     // note that the setProcessor function needs to be modified!
   }
 

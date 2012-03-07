@@ -17,15 +17,17 @@ import org.lemurproject.galago.tupleflow.Parameters;
 @RequiredStatistics(statistics = {"collectionProbability"})
 public class DirichletScoringIterator extends ScoringFunctionIterator {
 
-  public DirichletScoringIterator(Parameters globalParams, NodeParameters p, CountValueIterator it)
+  public DirichletScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
           throws IOException {
     super(it, new DirichletScorer(globalParams, p, it));
   }
 
+  @Override
   public double maximumScore() {
     return function.score(Integer.MAX_VALUE, Integer.MAX_VALUE);
   }
 
+  @Override
   public double minimumScore() {
     return function.score(0, Integer.MAX_VALUE);
   }

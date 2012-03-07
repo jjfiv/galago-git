@@ -84,7 +84,6 @@ public class FieldTraversalTest extends TestCase {
     //System.err.printf("Expected: %s\nGot: %s\n", expected.toString(), q2.toString() );
     assertEquals(expected.toString(), q2.toString());
   }
-
   public void testBM25FTraversalCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -207,7 +206,7 @@ public class FieldTraversalTest extends TestCase {
 
     String[] fields = {"title", "author", "anchor"};
     p.set("fields", Arrays.asList(fields));
-  
+
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
     String query = "#bm25f(cat dog donkey)";
     ScoredDocument[] results = retrieval.runQuery(query, p);
@@ -239,12 +238,6 @@ public class FieldTraversalTest extends TestCase {
     ScoredDocument[] results2 = retrieval.runQuery(query, global);
 
     assertEquals(results.length, results2.length);
-
-    /*
-    for (int i = 0; i < results2.length; i++) {
-    System.err.printf("%d : %s vs %s\n", i, results[i].toString(), results2[i].toString());
-    }
-     */
 
     for (int i = 0; i < results.length; i++) {
       assertEquals(results[i].document, results2[i].document);
@@ -280,18 +273,12 @@ public class FieldTraversalTest extends TestCase {
 
     assertEquals(results.length, results2.length);
 
-    /*
-    for (int i = 0; i < results2.length; i++) {
-    System.err.printf("%d : %s vs %s\n", i, results[i].toString(), results2[i].toString());
-    } 
-     */
-
     for (int i = 0; i < results.length; i++) {
       assertEquals(results[i].document, results2[i].document);
       assertEquals(results[i].score, results2[i].score, 0.00001);
     }
- }
-  
+  }
+
   public void testPRMSModelCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -307,10 +294,10 @@ public class FieldTraversalTest extends TestCase {
 
     /**
     for (int i = 0; i < results.length; i++) {
-    System.err.printf("%d : %s\n", i, results[i].toString());
+      System.err.printf("%d : %s\n", i, results[i].toString());
     }
+
     */
-     
 
     assertEquals(1, results[0].document);
     assertEquals(results[0].score, -11.160840, 0.00001);
@@ -324,7 +311,7 @@ public class FieldTraversalTest extends TestCase {
     assertEquals(results[4].score, -11.240375, 0.00001);
 
   }
-
+  
   public void testBM25FModelCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -352,12 +339,6 @@ public class FieldTraversalTest extends TestCase {
 
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
     ScoredDocument[] results = retrieval.runQuery("#bm25f(cat dog donkey)", p);
-
-    /** for debugging...the test...
-    for (int i = 0; i < results.length; i++) {
-    System.err.printf("%d : %s\n", i, results[i].toString());
-    }
-     */
     
     // Verify our results
     assertEquals(5, results.length);
@@ -374,6 +355,7 @@ public class FieldTraversalTest extends TestCase {
     assertEquals(results[4].score, 0.096271, 0.00001);
 
   }
+
 
   public void testPL2FModelCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
@@ -398,12 +380,7 @@ public class FieldTraversalTest extends TestCase {
 
     assertEquals(5, results.length);
 
-    /*
-    for (int i = 0; i < results.length; i++) {
-    System.err.printf("%d : %s\n", i, results[i].toString());
-    }
-    */
-    
+
     assertEquals(5, results[0].document);
     assertEquals(results[0].score, 2.294759, 0.00001);
     assertEquals(1, results[1].document);

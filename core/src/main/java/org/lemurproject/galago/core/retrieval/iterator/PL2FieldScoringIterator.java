@@ -31,7 +31,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator {
   double beta;
   double log2;
 
-  public PL2FieldScoringIterator(Parameters globalParams, NodeParameters p, CountValueIterator it)
+  public PL2FieldScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
           throws IOException {
     super(it, new PL2FieldScorer(globalParams, p, it));
     partName = p.getString("lengths");

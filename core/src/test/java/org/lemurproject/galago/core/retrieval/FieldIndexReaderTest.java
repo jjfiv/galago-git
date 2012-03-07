@@ -8,14 +8,14 @@
 package org.lemurproject.galago.core.retrieval;
 
 import java.io.ByteArrayOutputStream;
-import org.lemurproject.galago.core.index.disk.IndexReader;
-import org.lemurproject.galago.core.index.FieldIndexReader;
+import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
+import org.lemurproject.galago.core.index.disk.FieldIndexReader;
 import org.lemurproject.galago.tupleflow.Utility;
 import java.io.File;
 import java.text.DateFormat;
 import java.util.Arrays;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.FieldIndexWriter;
+import org.lemurproject.galago.core.index.disk.FieldIndexWriter;
 import org.lemurproject.galago.core.retrieval.iterator.EqualityIterator;
 import org.lemurproject.galago.core.retrieval.iterator.GreaterThanIterator;
 import org.lemurproject.galago.core.retrieval.iterator.InBetweenIterator;
@@ -111,7 +111,7 @@ public class FieldIndexReaderTest extends TestCase {
   }
 
   public void testReadTitle() throws Exception {
-    FieldIndexReader reader = new FieldIndexReader(new IndexReader(tempPath.toString()));
+    FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("title");
 
     assertFalse(fields.isDone());
@@ -136,7 +136,7 @@ public class FieldIndexReaderTest extends TestCase {
   }
 
   public void testReadDate() throws Exception {
-    FieldIndexReader reader = new FieldIndexReader(new IndexReader(tempPath.toString()));
+    FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("date");
 
     DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
@@ -163,7 +163,7 @@ public class FieldIndexReaderTest extends TestCase {
   }
 
   public void testReadVersion() throws Exception {
-    FieldIndexReader reader = new FieldIndexReader(new IndexReader(tempPath.toString()));
+    FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("version");
 
     assertFalse(fields.isDone());
@@ -188,7 +188,7 @@ public class FieldIndexReaderTest extends TestCase {
   }
 
   public void testGreaterThan() throws Exception {
-    FieldIndexReader reader = new FieldIndexReader(new IndexReader(tempPath.toString()));
+    FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("version");
 
     NodeParameters p = new NodeParameters();
@@ -197,17 +197,20 @@ public class FieldIndexReaderTest extends TestCase {
 
     assertFalse(gti.isDone());
     assertEquals(gti.currentCandidate(), 1);
-    assertFalse(gti.hasMatch(gti.currentCandidate()));
+    assertTrue(gti.atCandidate(gti.currentCandidate()));
+    assertFalse(gti.indicator(gti.currentCandidate()));
     gti.next();
 
     assertFalse(gti.isDone());
     assertEquals(gti.currentCandidate(), 2);
-    assertTrue(gti.hasMatch(gti.currentCandidate()));
+    assertTrue(gti.atCandidate(gti.currentCandidate()));
+    assertTrue(gti.indicator(gti.currentCandidate()));
     gti.next();
 
     assertFalse(gti.isDone());
     assertEquals(gti.currentCandidate(), 3);
-    assertFalse(gti.hasMatch(gti.currentCandidate()));
+    assertTrue(gti.atCandidate(gti.currentCandidate()));
+    assertFalse(gti.indicator(gti.currentCandidate()));
     gti.next();
 
     assertTrue(gti.isDone());
@@ -215,7 +218,7 @@ public class FieldIndexReaderTest extends TestCase {
   }
 
   public void testLessThan() throws Exception {
-    FieldIndexReader reader = new FieldIndexReader(new IndexReader(tempPath.toString()));
+    FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("version");
 
     NodeParameters p = new NodeParameters();
@@ -224,17 +227,20 @@ public class FieldIndexReaderTest extends TestCase {
 
     assertFalse(lti.isDone());
     assertEquals(lti.currentCandidate(), 1);
-    assertTrue(lti.hasMatch(lti.currentCandidate()));
+    assertTrue(lti.atCandidate(lti.currentCandidate()));
+    assertTrue(lti.indicator(lti.currentCandidate()));
     lti.next();
 
     assertFalse(lti.isDone());
     assertEquals(lti.currentCandidate(), 2);
-    assertFalse(lti.hasMatch(lti.currentCandidate()));
+    assertTrue(lti.atCandidate(lti.currentCandidate()));
+    assertFalse(lti.indicator(lti.currentCandidate()));
     lti.next();
 
     assertFalse(lti.isDone());
     assertEquals(lti.currentCandidate(), 3);
-    assertTrue(lti.hasMatch(lti.currentCandidate()));
+    assertTrue(lti.atCandidate(lti.currentCandidate()));
+    assertTrue(lti.indicator(lti.currentCandidate()));
     lti.next();
 
     assertTrue(lti.isDone());
@@ -242,7 +248,7 @@ public class FieldIndexReaderTest extends TestCase {
   }
 
   public void testInBetween() throws Exception {
-    FieldIndexReader reader = new FieldIndexReader(new IndexReader(tempPath.toString()));
+    FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("date");
 
     NodeParameters p = new NodeParameters();
@@ -252,17 +258,20 @@ public class FieldIndexReaderTest extends TestCase {
 
     assertFalse(ibi.isDone());
     assertEquals(ibi.currentCandidate(), 15);
-    assertTrue(ibi.hasMatch(ibi.currentCandidate()));
+    assertTrue(ibi.atCandidate(ibi.currentCandidate()));
+    assertTrue(ibi.indicator(ibi.currentCandidate()));
     ibi.next();
 
     assertFalse(ibi.isDone());
     assertEquals(ibi.currentCandidate(), 25);
-    assertTrue(ibi.hasMatch(ibi.currentCandidate()));
+    assertTrue(ibi.atCandidate(ibi.currentCandidate()));
+    assertTrue(ibi.indicator(ibi.currentCandidate()));
     ibi.next();
 
     assertFalse(ibi.isDone());
     assertEquals(ibi.currentCandidate(), 47);
-    assertFalse(ibi.hasMatch(ibi.currentCandidate()));
+    assertTrue(ibi.atCandidate(ibi.currentCandidate()));
+    assertFalse(ibi.indicator(ibi.currentCandidate()));
     ibi.next();
 
     assertTrue(ibi.isDone());
@@ -270,7 +279,7 @@ public class FieldIndexReaderTest extends TestCase {
   }
 
   public void testEquality() throws Exception {
-    FieldIndexReader reader = new FieldIndexReader(new IndexReader(tempPath.toString()));
+    FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("title");
 
     NodeParameters p = new NodeParameters();
@@ -279,17 +288,20 @@ public class FieldIndexReaderTest extends TestCase {
 
     assertFalse(ei.isDone());
     assertEquals(ei.currentCandidate(), 1);
-    assertFalse(ei.hasMatch(ei.currentCandidate()));
+    assertTrue(ei.atCandidate(ei.currentCandidate()));
+    assertFalse(ei.indicator(ei.currentCandidate()));
     ei.next();
 
     assertFalse(ei.isDone());
     assertEquals(ei.currentCandidate(), 9);
-    assertFalse(ei.hasMatch(ei.currentCandidate()));
+    assertTrue(ei.atCandidate(ei.currentCandidate()));
+    assertFalse(ei.indicator(ei.currentCandidate()));
     ei.next();
 
     assertFalse(ei.isDone());
     assertEquals(ei.currentCandidate(), 34);
-    assertTrue(ei.hasMatch(ei.currentCandidate()));
+    assertTrue(ei.atCandidate(ei.currentCandidate()));
+    assertTrue(ei.indicator(ei.currentCandidate()));
     ei.next();
 
     assertTrue(ei.isDone());

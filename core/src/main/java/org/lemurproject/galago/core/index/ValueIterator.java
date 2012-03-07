@@ -1,24 +1,14 @@
-// BSD License (http://lemurproject.org/galago-license)
+/*
+ *  BSD License (http://www.galagosearch.org/license)
+ */
 package org.lemurproject.galago.core.index;
 
-import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 
 /**
  *
- * @author irmarc, sjh
+ * @author sjh
  */
-public interface ValueIterator extends BoundedIterator, Comparable<ValueIterator> {
-
-  int currentCandidate();
-
-  boolean hasMatch(int identifier);
-
-  boolean next() throws IOException;
-
-  boolean moveTo(int identifier) throws IOException;
-
-  void movePast(int identifier) throws IOException;
-
-  String getEntry() throws IOException;
+public abstract class ValueIterator implements MovableIterator {
+  // could add a few extra functions to the Leaf Node iterator here.
 }

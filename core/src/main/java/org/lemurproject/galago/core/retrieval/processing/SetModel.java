@@ -9,7 +9,7 @@ import java.util.Arrays;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.core.retrieval.iterator.AbstractIndicator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIndicatorIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -51,10 +51,10 @@ public class SetModel extends ProcessingModel {
     ScoringContext context = new ScoringContext();
 
     // construct the query iterators
-    AbstractIndicator iterator = (AbstractIndicator) retrieval.createIterator(queryTree, context);
+    MovableIndicatorIterator iterator = (MovableIndicatorIterator) retrieval.createIterator(queryTree, context);
     ArrayList<ScoredDocument> list = new ArrayList<ScoredDocument>();
     while (!iterator.isDone()) {
-      if (iterator.hasMatch(iterator.currentCandidate())) {
+      if (iterator.atCandidate(iterator.currentCandidate())) {
         list.add(new ScoredDocument(iterator.currentCandidate(), 1.0));
       }
       iterator.next();
@@ -70,13 +70,13 @@ public class SetModel extends ProcessingModel {
     Arrays.sort(whitelist);
 
     // construct the query iterators
-    AbstractIndicator iterator = (AbstractIndicator) retrieval.createIterator(queryTree, context);
+    MovableIndicatorIterator iterator = (MovableIndicatorIterator) retrieval.createIterator(queryTree, context);
     ArrayList<ScoredDocument> list = new ArrayList<ScoredDocument>();
 
     for (int i = 0; i < whitelist.length; i++) {
       int document = whitelist[i];
       iterator.moveTo(document);
-      if (iterator.hasMatch(document)) {
+      if (iterator.atCandidate(document)) {
         list.add(new ScoredDocument(iterator.currentCandidate(), 1.0));
       }
     }

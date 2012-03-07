@@ -16,7 +16,7 @@ import org.lemurproject.galago.tupleflow.TupleFlowParameters;
  */
 public class SparseFloatListWriter implements 
     NumberWordProbability.NumberWordOrder.ShreddedProcessor {
-  IndexWriter writer;
+  DiskBTreeWriter writer;
   DoubleInvertedList list;
 
   public class DoubleInvertedList implements IndexElement {
@@ -64,7 +64,7 @@ public class SparseFloatListWriter implements
 
   /** Creates a new instance of DoubleListWriter */
   public SparseFloatListWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
-    writer = new IndexWriter(parameters);
+    writer = new DiskBTreeWriter(parameters);
     writer.getManifest().set("readerClass", SparseFloatListReader.class.getName());
     writer.getManifest().set("writerClass", getClass().getName());
   }

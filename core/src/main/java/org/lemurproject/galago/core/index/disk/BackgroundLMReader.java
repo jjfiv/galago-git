@@ -7,10 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyValueReader;
+import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -33,7 +35,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
   }
 
-  public BackgroundLMReader(GenericIndexReader r) throws Exception {
+  public BackgroundLMReader(BTreeReader r) throws Exception {
     super(r);
     this.manifest = this.reader.getManifest();
     if (manifest.containsKey("stemmer")) {
@@ -41,22 +43,15 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
   }
 
-  private String stemAsRequired(String term) {
-    if (stemmer != null) {
-      return stemmer.stem(term);
-    }
-    return term;
-  }
-
   @Override
-  public Iterator getIterator() throws IOException {
+  public KeyValueIterator getIterator() throws IOException {
     return new KeyIterator(reader);
   }
 
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("counts", new NodeType(ValueIterator.class));
+    types.put("counts", new NodeType(CorpusIterator.class));
     return types;
   }
 
@@ -66,8 +61,8 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
       String stem = stemAsRequired(node.getDefaultParameter());
       KeyIterator ki = new KeyIterator(reader);
       ki.findKey(Utility.fromString(stem));
-      if (Utility.compare(ki.getKeyBytes(), Utility.fromString(stem)) == 0) {
-        return new ValueIterator(ki);
+      if (Utility.compare(ki.getKey(), Utility.fromString(stem)) == 0) {
+        return new CorpusIterator(ki);
       }
       return null;
     } else {
@@ -88,7 +83,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     stats.collectionLength = reader.getManifest().get("statistics/collectionLength", 1);
     stats.documentCount = reader.getManifest().get("statistics/documentCount", 1);
 
-    GenericIndexReader.Iterator iterator = reader.getIterator(term);
+    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
     if (iterator == null) {
       stats.nodeFrequency = 0;
       stats.nodeDocumentCount = 0;
@@ -101,12 +96,19 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     return stats;
   }
 
-  public class KeyIterator extends KeyValueReader.Iterator {
+  private String stemAsRequired(String term) {
+    if (stemmer != null) {
+      return stemmer.stem(term);
+    }
+    return term;
+  }
+
+  public class KeyIterator extends KeyValueReader.KeyValueIterator {
 
     long collectionLength;
     long documentCount;
 
-    public KeyIterator(GenericIndexReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
       this.collectionLength = reader.getManifest().get("statistics/collectionLength", 1);
       this.documentCount = reader.getManifest().get("statistics/documentCount", 1);
@@ -117,7 +119,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
         DataInput value = iterator.getValueStream();
 
         NodeStatistics stats = new AggregateReader.NodeStatistics();
-        stats.node = getKey();
+        stats.node = getKeyString();
         stats.collectionLength = this.collectionLength;
         stats.documentCount = this.documentCount;
         stats.nodeFrequency = Utility.uncompressLong(value);
@@ -136,16 +138,26 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
 
     @Override
     public ValueIterator getValueIterator() throws IOException {
-      return new ValueIterator(this);
+      return new CorpusIterator(this);
+    }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return Utility.toString(this.iterator.getKey());
+    }
+
+    @Override
+    public byte[] getValueBytes() throws IOException {
+      return this.iterator.getValueBytes();
     }
   }
 
-  public class ValueIterator implements org.lemurproject.galago.core.index.ValueIterator,
-          AggregateIterator, CountValueIterator {
+  public class CorpusIterator extends ValueIterator implements
+          AggregateIterator, MovableCountIterator {
 
     protected KeyIterator iterator;
 
-    public ValueIterator(KeyIterator ki) {
+    public CorpusIterator(KeyIterator ki) {
       this.iterator = ki;
     }
 
@@ -161,17 +173,17 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
 
     @Override
-    public boolean hasMatch(int identifier) {
+    public boolean atCandidate(int identifier) {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public boolean next() throws IOException {
+    public void next() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public boolean moveTo(int identifier) throws IOException {
+    public void moveTo(int identifier) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -186,11 +198,6 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
 
     @Override
-    public long totalEntries() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public void reset() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -201,17 +208,27 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
 
     @Override
-    public int compareTo(org.lemurproject.galago.core.index.ValueIterator o) {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public int count() {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public int maximumCount() {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean hasAllCandidates() {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public int compareTo(MovableIterator o) {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public long totalEntries() {
       throw new UnsupportedOperationException("Not supported yet.");
     }
   }

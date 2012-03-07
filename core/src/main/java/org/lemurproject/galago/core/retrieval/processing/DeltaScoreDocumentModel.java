@@ -93,7 +93,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
 
       // Otherwise move lengths
       context.document = candidate;
-      lengthsIterator.skipToKey(candidate);
+      lengthsIterator.moveTo(candidate);
       context.length = lengthsIterator.getCurrentLength();
 
       // Setup to score
@@ -131,7 +131,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
 
       // Now move all matching quorum members forward, and repeat
       for (i = 0; i < context.quorumIndex; i++) {
-        if (context.scorers.get(i).hasMatch(candidate)) {
+        if (context.scorers.get(i).atCandidate(candidate)) {
           context.scorers.get(i).next();
         }
       }
@@ -185,7 +185,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
 
       // Otherwise move lengths
       context.document = candidate;
-      lengthsIterator.skipToKey(candidate);
+      lengthsIterator.moveTo(candidate);
       context.length = lengthsIterator.getCurrentLength();
 
       // Setup to score

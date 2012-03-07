@@ -4,8 +4,8 @@
 package org.lemurproject.galago.core.index;
 
 import org.lemurproject.galago.core.index.GenericElement;
-import org.lemurproject.galago.core.index.disk.IndexWriter;
-import org.lemurproject.galago.core.index.disk.IndexReader;
+import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
+import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -38,16 +38,16 @@ public class IndexWriterTest extends TestCase {
   }
 
   public void testSingleKeyValue() throws IOException {
-  
+
     Parameters parameters = new Parameters();
     parameters.set("blockSize", 64);
     temporary = Utility.createTemporary();
-    IndexWriter writer = new IndexWriter(temporary.getAbsolutePath(), parameters);
+    DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
     writer.add(new GenericElement("key", "value"));
     writer.close();
 
-    assertTrue(IndexReader.isIndexFile(temporary.getAbsolutePath()));
-    IndexReader reader = new IndexReader(temporary.getAbsolutePath());
+    assertTrue(DiskBTreeReader.isBTree(temporary));
+    DiskBTreeReader reader = new DiskBTreeReader(temporary.getAbsolutePath());
 
     assertEquals("value", reader.getValueString(Utility.fromString("key")));
     reader.close();
@@ -57,14 +57,14 @@ public class IndexWriterTest extends TestCase {
     Parameters parameters = new Parameters();
     parameters.set("blockSize", 64);
     temporary = Utility.createTemporary();
-    IndexWriter writer = new IndexWriter(temporary.getAbsolutePath(), parameters);
+    DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
     writer.add(new GenericElement("key", "value"));
     writer.add(new GenericElement("more", "value2"));
     writer.close();
 
-    assertTrue(IndexReader.isIndexFile(temporary.getAbsolutePath()));
-    IndexReader reader = new IndexReader(temporary.getAbsolutePath());
-    IndexReader.Iterator iterator = reader.getIterator();
+    assertTrue(DiskBTreeReader.isBTree(temporary));
+    DiskBTreeReader reader = new DiskBTreeReader(temporary.getAbsolutePath());
+    DiskBTreeReader.Iterator iterator = reader.getIterator();
 
     // Skip to 'more'
     iterator.skipTo(new byte[]{(byte) 'm'});
@@ -95,12 +95,12 @@ public class IndexWriterTest extends TestCase {
     parameters.set("blockSize", 64);
     parameters.set("isCompressed", true);
     temporary = Utility.createTemporary();
-    IndexWriter writer = new IndexWriter(temporary.getAbsolutePath(), parameters);
+    DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
     writer.add(new GenericElement("key", "value"));
     writer.close();
 
-    assertTrue(IndexReader.isIndexFile(temporary.getAbsolutePath()));
-    IndexReader reader = new IndexReader(temporary.getAbsolutePath());
+    assertTrue(DiskBTreeReader.isBTree(temporary));
+    DiskBTreeReader reader = new DiskBTreeReader(temporary.getAbsolutePath());
 
     assertEquals("value", reader.getValueString(Utility.fromString("key")));
     reader.close();
@@ -110,7 +110,7 @@ public class IndexWriterTest extends TestCase {
     Parameters parameters = new Parameters();
     parameters.set("blockSize", 64);
     temporary = Utility.createTemporary();
-    IndexWriter writer = new IndexWriter(temporary.getAbsolutePath(), parameters);
+    DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
 
     for (int i = 0; i < 1000; ++i) {
       String key = String.format("%05d", i);
@@ -119,8 +119,8 @@ public class IndexWriterTest extends TestCase {
     }
     writer.close();
 
-    assertTrue(IndexReader.isIndexFile(temporary.getAbsolutePath()));
-    IndexReader reader = new IndexReader(temporary.getAbsolutePath());
+    assertTrue(DiskBTreeReader.isBTree(temporary));
+    DiskBTreeReader reader = new DiskBTreeReader(temporary.getAbsolutePath());
 
     for (int i = 1000 - 1; i >= 0; i--) {
       String key = String.format("%05d", i);
@@ -136,7 +136,7 @@ public class IndexWriterTest extends TestCase {
     parameters.set("blockSize", 64);
     parameters.set("isCompressed", true);
     temporary = Utility.createTemporary();
-    IndexWriter writer = new IndexWriter(temporary.getAbsolutePath(), parameters);
+    DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
 
     for (int i = 0; i < 1000; ++i) {
       String key = String.format("%05d", i);
@@ -145,8 +145,8 @@ public class IndexWriterTest extends TestCase {
     }
     writer.close();
 
-    assertTrue(IndexReader.isIndexFile(temporary.getAbsolutePath()));
-    IndexReader reader = new IndexReader(temporary.getAbsolutePath());
+    assertTrue(DiskBTreeReader.isBTree(temporary));
+    DiskBTreeReader reader = new DiskBTreeReader(temporary.getAbsolutePath());
 
     for (int i = 1000 - 1; i >= 0; i--) {
       String key = String.format("%05d", i);

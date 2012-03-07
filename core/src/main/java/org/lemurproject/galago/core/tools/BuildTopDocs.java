@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.tools;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.AbstractModifier;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
-import org.lemurproject.galago.core.index.TopDocsWriter;
+import org.lemurproject.galago.core.index.disk.TopDocsWriter;
 import org.lemurproject.galago.core.parse.TopDocsScanner;
 import org.lemurproject.galago.core.parse.VocabularySource;
 import org.lemurproject.galago.core.types.KeyValuePair;

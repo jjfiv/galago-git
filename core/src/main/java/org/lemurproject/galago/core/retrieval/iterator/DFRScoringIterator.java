@@ -16,19 +16,19 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author irmarc
  */
 @RequiredStatistics(statistics = {"nodeFrequency", "documentCount"})
-public class DFRScoringIterator extends TransformIterator {
+public class DFRScoringIterator extends TransformIterator implements MovableScoreIterator {
 
   double lambda;
   double qfratio;
   double loge;
   double log2;
-  ScoreValueIterator scorer;
+  MovableScoreIterator scorer;
   Parameters globals;
 
   public DFRScoringIterator(Parameters globalParams,
-          NodeParameters parameters, ScoreValueIterator iterator) throws IOException {
+          NodeParameters parameters, MovableScoreIterator iterator) throws IOException {
     super(iterator);
-    scorer = (ScoreValueIterator) iterator;
+    scorer = iterator;
 
     // Set the qf ratio
     int qfmax = (int) parameters.get("qfmax", 1);

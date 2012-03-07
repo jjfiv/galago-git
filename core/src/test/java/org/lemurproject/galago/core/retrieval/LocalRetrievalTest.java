@@ -10,21 +10,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.disk.DiskNameWriter;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
-import org.lemurproject.galago.core.index.FieldIndexWriter;
+import org.lemurproject.galago.core.index.disk.FieldIndexWriter;
+import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
+import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Sorter;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 
 /**
@@ -39,7 +44,7 @@ public class LocalRetrievalTest extends TestCase {
     super(testName);
   }
 
-  public static File makeIndex() throws FileNotFoundException, IOException {
+  public static File makeIndex() throws FileNotFoundException, IOException, IncompatibleProcessorException {
     // make a spot for the index
     File tempPath = Utility.createTemporaryDirectory();
 
@@ -133,12 +138,19 @@ public class LocalRetrievalTest extends TestCase {
     // add some document names
     Parameters dnp = new Parameters();
     dnp.set("filename", tempPath + File.separator + "names");
-
     DiskNameWriter dnWriter = new DiskNameWriter(new FakeParameters(dnp));
+    Parameters dnrp = new Parameters();
+    dnrp.set("filename", tempPath + File.separator + "names.reverse");
+    DiskNameReverseWriter dnrWriter = new DiskNameReverseWriter(new FakeParameters(dnrp));
+    Sorter<NumberedDocumentData> dnrSorter = new Sorter(new NumberedDocumentData.IdentifierOrder());
+    dnrSorter.setProcessor(dnrWriter);
+
     for (int i = 0; i < 20; i++) {
       dnWriter.process(new NumberedDocumentData("DOC" + i, "", "", i, 100));
+      dnrSorter.process(new NumberedDocumentData("DOC" + i, "", "", i, 100));
     }
     dnWriter.close();
+    dnrSorter.close();
 
     Parameters lp = new Parameters();
     lp.set("filename", tempPath + File.separator + "lengths");
@@ -195,7 +207,7 @@ public class LocalRetrievalTest extends TestCase {
   }
 
   @Override
-  public void setUp() throws IOException {
+  public void setUp() throws IOException, IncompatibleProcessorException {
     this.tempPath = makeIndex();
   }
 

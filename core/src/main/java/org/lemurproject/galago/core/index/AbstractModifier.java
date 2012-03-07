@@ -14,11 +14,11 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public abstract class AbstractModifier implements IndexPartModifier {
 
-  protected GenericIndexReader reader;
+  protected BTreeReader reader;
   protected String source;
   protected String name;
 
-  public AbstractModifier(GenericIndexReader reader) {
+  public AbstractModifier(BTreeReader reader) {
     this.reader = reader;
     Parameters p = reader.getManifest();
     source = p.get("part", "unknown");
@@ -26,7 +26,7 @@ public abstract class AbstractModifier implements IndexPartModifier {
   }
 
   public AbstractModifier(String filename) throws FileNotFoundException, IOException {
-    this(GenericIndexReader.getIndexReader(filename));
+    this(BTreeFactory.getBTreeReader(filename));
   }
 
   public void close() throws IOException {

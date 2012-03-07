@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.scoring;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -18,7 +18,7 @@ public class JelinekMercerProbabilityScorer implements ScoringFunction {
   double background;
   double lambda;
 
-  public JelinekMercerProbabilityScorer(Parameters globalParameters, NodeParameters parameters, CountValueIterator iterator) throws IOException {
+  public JelinekMercerProbabilityScorer(Parameters globalParameters, NodeParameters parameters, MovableCountIterator iterator) throws IOException {
 
     lambda = parameters.get("lambda", globalParameters.get("lambda", 0.5D));
     background = parameters.getDouble("collectionProbability");

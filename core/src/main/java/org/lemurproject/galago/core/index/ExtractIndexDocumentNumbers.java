@@ -6,11 +6,13 @@ import org.lemurproject.galago.core.index.disk.DiskIndex;
 import java.io.File;
 import java.io.IOException;
 
+import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
+import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 
 /**
@@ -28,18 +30,18 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 @OutputClass(className = "org.lemurproject.galago.core.parse.Document")
 public class ExtractIndexDocumentNumbers extends StandardStep<Document, Document> {
 
-  private final DiskNameReader.KeyIterator namesIterator;
+  private final DiskNameReverseReader.KeyIterator namesIterator;
 
   public ExtractIndexDocumentNumbers(TupleFlowParameters parameters) throws IOException {
     String namesPath = parameters.getJSON().getString("indexPath") + File.separator + "names.reverse";
-    namesIterator = ((DiskNameReader) DiskIndex.openIndexPart(namesPath)).getIterator();
+    namesIterator = ((DiskNameReverseReader) DiskIndex.openIndexPart(namesPath)).getIterator();
   }
 
   public void process(Document doc) throws IOException {
     // it's possible that documents already have numbers
     if (doc.identifier >= 0) {
       try {
-        namesIterator.findKey(doc.name);
+        namesIterator.findKey(Utility.fromString(doc.name));
         doc.identifier = namesIterator.getCurrentIdentifier();
       } catch (Exception e) {
         throw new IOException("Can not find document number for document: " + doc.name);

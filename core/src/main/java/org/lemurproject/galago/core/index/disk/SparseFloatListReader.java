@@ -1,18 +1,17 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import gnu.trove.map.hash.TObjectDoubleHashMap;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
@@ -24,9 +23,9 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  */
 public class SparseFloatListReader extends KeyListReader {
 
-  public class KeyIterator extends KeyListReader.Iterator {
+  public class KeyIterator extends KeyListReader.KeyValueIterator {
 
-    public KeyIterator(GenericIndexReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 
@@ -50,13 +49,19 @@ public class SparseFloatListReader extends KeyListReader {
       return sb.toString();
     }
 
+    @Override
     public ListIterator getValueIterator() throws IOException {
       return new ListIterator(iterator);
+    }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return Utility.toString(iterator.getKey());
     }
   }
 
   public class ListIterator extends KeyListReader.ListIterator
-          implements ScoreValueIterator {
+          implements MovableScoreIterator {
 
     VByteInput stream;
     int documentCount;
@@ -65,7 +70,8 @@ public class SparseFloatListReader extends KeyListReader {
     double currentScore;
     ScoringContext context;
 
-    public ListIterator(GenericIndexReader.Iterator iterator) throws IOException {
+    public ListIterator(BTreeReader.BTreeIterator iterator) throws IOException {
+      super(iterator.getKey());
       reset(iterator);
     }
 
@@ -75,9 +81,13 @@ public class SparseFloatListReader extends KeyListReader {
       if (index < documentCount) {
         currentDocument += stream.readInt();
         currentScore = stream.readFloat();
+      } else {
+        // ensure we never overflow
+        index = documentCount;
       }
     }
 
+    @Override
     public String getEntry() {
       StringBuilder builder = new StringBuilder();
 
@@ -90,15 +100,13 @@ public class SparseFloatListReader extends KeyListReader {
       return builder.toString();
     }
 
-    public boolean next() throws IOException {
+    @Override
+    public void next() throws IOException {
       read();
-      if (!isDone()) {
-        return true;
-      }
-      return false;
     }
 
-    public void reset(GenericIndexReader.Iterator iterator) throws IOException {
+    @Override
+    public void reset(BTreeReader.BTreeIterator iterator) throws IOException {
       DataStream buffered = iterator.getValueStream();
       stream = new VByteInput(buffered);
       documentCount = stream.readInt();
@@ -109,39 +117,34 @@ public class SparseFloatListReader extends KeyListReader {
       }
     }
 
+    @Override
     public void reset() throws IOException {
       throw new UnsupportedOperationException("This iterator does not reset without the parent KeyIterator.");
     }
 
+    @Override
     public void setContext(ScoringContext dc) {
       this.context = dc;
     }
 
-    public ScoringContext getContext() {
-      return context;
-    }
-
+    @Override
     public int currentCandidate() {
       return currentDocument;
     }
 
-    public boolean hasMatch(int document) {
-      return document == currentDocument;
+    @Override
+    public boolean hasAllCandidates() {
+      return false;
     }
 
-    public boolean moveTo(int document) throws IOException {
+    @Override
+    public void moveTo(int document) throws IOException {
       while (!isDone() && document > currentDocument) {
         read();
       }
-      return hasMatch(document);
     }
 
-    public void movePast(int document) throws IOException {
-      while (!isDone() && document >= currentDocument) {
-        read();
-      }
-    }
-
+    @Override
     public double score(ScoringContext dc) {
       if (currentDocument == dc.document) {
         return currentScore;
@@ -149,6 +152,7 @@ public class SparseFloatListReader extends KeyListReader {
       return Double.NEGATIVE_INFINITY;
     }
 
+    @Override
     public double score() {
       if (currentDocument == context.document) {
         return currentScore;
@@ -156,24 +160,24 @@ public class SparseFloatListReader extends KeyListReader {
       return Double.NEGATIVE_INFINITY;
     }
 
+    @Override
     public boolean isDone() {
       return index >= documentCount;
     }
 
+    @Override
     public long totalEntries() {
       return documentCount;
     }
 
+    @Override
     public double maximumScore() {
       return Double.POSITIVE_INFINITY;
     }
 
+    @Override
     public double minimumScore() {
       return Double.NEGATIVE_INFINITY;
-    }
-
-    public TObjectDoubleHashMap<String> parameterSweepScore() {
-      throw new UnsupportedOperationException("Not supported yet.");
     }
   }
 
@@ -181,6 +185,7 @@ public class SparseFloatListReader extends KeyListReader {
     super(pathname);
   }
 
+  @Override
   public KeyIterator getIterator() throws IOException {
     return new KeyIterator(reader);
   }
@@ -190,20 +195,18 @@ public class SparseFloatListReader extends KeyListReader {
   }
 
   public ListIterator getScores(String term) throws IOException {
-    GenericIndexReader.Iterator iterator = reader.getIterator(Utility.fromString(term));
+    BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
     return new ListIterator(iterator);
   }
 
-  public void close() throws IOException {
-    reader.close();
-  }
-
+  @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> nodeTypes = new HashMap<String, NodeType>();
-    nodeTypes.put("scores", new NodeType(Iterator.class));
+    nodeTypes.put("scores", new NodeType(ListIterator.class));
     return nodeTypes;
   }
 
+  @Override
   public ValueIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("scores")) {
       return getScores(node.getDefaultParameter());

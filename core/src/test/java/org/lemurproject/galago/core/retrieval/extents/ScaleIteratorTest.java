@@ -25,7 +25,7 @@ public class ScaleIteratorTest extends TestCase {
         FakeScoreIterator inner = new FakeScoreIterator(docsA, scoresA);
         ScaleIterator iterator = new ScaleIterator(new NodeParameters(), inner);
         assertFalse(iterator.isDone());
-        assertTrue(iterator.hasMatch(docsA[0]));
+        assertTrue(iterator.atCandidate(docsA[0]));
         for (int i = 0; i < docsA.length; i++) {
             assertEquals(docsA[i], iterator.currentCandidate());
             assertEquals(scoresA[i], iterator.score(new ScoringContext(docsA[i], 100)));
@@ -33,7 +33,7 @@ public class ScaleIteratorTest extends TestCase {
         }
         assertTrue(iterator.isDone());
         iterator.reset();
-        assertTrue(iterator.hasMatch(docsA[0]));
+        assertTrue(iterator.atCandidate(docsA[0]));
     }
 
     public void testB() throws Exception {
@@ -42,13 +42,13 @@ public class ScaleIteratorTest extends TestCase {
        weightedParameters.set("default", 0.5);
        ScaleIterator iterator = new ScaleIterator(weightedParameters, inner);
         assertFalse(iterator.isDone());
-        assertTrue(iterator.hasMatch(docsB[0]));
+        assertTrue(iterator.atCandidate(docsB[0]));
         for (int i = 0; i < docsB.length; i++) {
             iterator.moveTo(docsB[i]);
             assertEquals(docsB[i], iterator.currentCandidate());
             assertEquals(scoresB[i]*0.5, iterator.score(new ScoringContext(docsB[i], 100)));
         }
         iterator.reset();
-        assertTrue(iterator.hasMatch(docsB[0]));
+        assertTrue(iterator.atCandidate(docsB[0]));
     }
 }

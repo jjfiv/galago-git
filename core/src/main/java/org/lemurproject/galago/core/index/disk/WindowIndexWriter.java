@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
-import org.lemurproject.galago.core.index.GenericIndexWriter;
+import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.merge.WindowIndexMerger;
@@ -245,7 +245,7 @@ public class WindowIndexWriter implements
     private CompressedRawByteBuffer skips;
     private CompressedRawByteBuffer skipPositions;
   }
-  protected GenericIndexWriter writer;
+  protected BTreeWriter writer;
   long maximumDocumentCount = 0;
   long maximumDocumentNumber = 0;
   PositionsList invertedList;
@@ -274,7 +274,7 @@ public class WindowIndexWriter implements
 
     uniqueDocs = new TIntHashSet();
 
-    writer = new IndexWriter(parameters);
+    writer = new DiskBTreeWriter(parameters);
 
     // look for skips
     boolean skip = parameters.getJSON().get("skipping", true);

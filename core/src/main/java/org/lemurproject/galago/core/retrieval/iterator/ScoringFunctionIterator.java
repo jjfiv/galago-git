@@ -13,11 +13,11 @@ import org.lemurproject.galago.core.util.CallTable;
  *
  * @author irmarc
  */
-public class ScoringFunctionIterator extends TransformIterator {
+public class ScoringFunctionIterator extends TransformIterator implements MovableScoreIterator {
 
   protected ScoringFunction function;
 
-  public ScoringFunctionIterator(CountValueIterator iterator, ScoringFunction function) throws IOException {
+  public ScoringFunctionIterator(MovableCountIterator iterator, ScoringFunction function) throws IOException {
     super(iterator);
     this.function = function;
   }
@@ -26,33 +26,37 @@ public class ScoringFunctionIterator extends TransformIterator {
     return function;
   }
 
+  @Override
   public double score(ScoringContext dc) {
     int count = 0;
 
     // Used in counting # of score calls. Uncomment if you want to track that.
     CallTable.increment("score_req");
-    if (iterator.currentCandidate() == dc.document) {
+    if (iterator.atCandidate(dc.document)) {
       count = ((CountIterator)iterator).count();
     }
     return function.score(count, dc.length);
   }
 
+  @Override
   public double score() {
     int count = 0;
 
     // Used in counting # of score calls. Uncomment if you want to track that.
     CallTable.increment("score_req");
-    if (iterator.currentCandidate() == context.document) {
+    if (iterator.atCandidate(context.document)) {
       count = ((CountIterator)iterator).count();
     }
     double score = function.score(count, context.length);
     return score;
   }
 
+  @Override
   public double maximumScore() {
     return Double.POSITIVE_INFINITY;
   }
 
+  @Override
   public double minimumScore() {
     return Double.NEGATIVE_INFINITY;
   }

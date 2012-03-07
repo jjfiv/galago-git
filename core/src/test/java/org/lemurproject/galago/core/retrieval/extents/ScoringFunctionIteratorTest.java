@@ -11,7 +11,7 @@ package org.lemurproject.galago.core.retrieval.extents;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import junit.framework.*;
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.scoring.ScoringFunction;
 
@@ -35,7 +35,7 @@ public class ScoringFunctionIteratorTest extends TestCase {
     }
 
     public static class FakeScoreIterator extends ScoringFunctionIterator {
-        public FakeScoreIterator( CountValueIterator iter ) throws IOException {
+        public FakeScoreIterator( MovableCountIterator iter ) throws IOException {
             super(iter, new FakeScorer());
         }
         

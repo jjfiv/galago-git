@@ -16,30 +16,30 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public abstract class FilteredIterator implements CountValueIterator, ScoreValueIterator, ExtentValueIterator, ContextualIterator {
+public abstract class FilteredIterator implements MovableCountIterator, MovableScoreIterator, MovableExtentIterator, ContextualIterator {
 
   protected ScoringContext context;
-  protected IndicatorIterator indicator;
-  protected CountValueIterator counter;
-  protected ScoreValueIterator scorer;
-  protected ExtentValueIterator extents;
-  protected ValueIterator mover;
+  protected MovableIndicatorIterator indicator;
+  protected MovableCountIterator counter;
+  protected MovableScoreIterator scorer;
+  protected MovableExtentIterator extents;
+  protected MovableIterator mover;
   protected boolean sharedChildren;
 
-  public FilteredIterator(Parameters globalParams, NodeParameters parameters, IndicatorIterator indicator, CountValueIterator counter) {
+  public FilteredIterator(Parameters globalParams, NodeParameters parameters, MovableIndicatorIterator indicator, MovableCountIterator counter) {
     this.sharedChildren = globalParams.get("shareNodes", false);
     this.indicator = indicator;
     this.scorer = null;
     this.counter = counter;
     this.mover = counter;
-    if (ExtentValueIterator.class.isAssignableFrom(counter.getClass())) {
-      this.extents = (ExtentValueIterator) counter;
+    if (MovableExtentIterator.class.isAssignableFrom(counter.getClass())) {
+      this.extents = (MovableExtentIterator) counter;
     } else {
       this.extents = null;
     }
   }
 
-  public FilteredIterator(Parameters globalParams, NodeParameters parameters, IndicatorIterator indicator, ScoreValueIterator scorer) {
+  public FilteredIterator(Parameters globalParams, NodeParameters parameters, MovableIndicatorIterator indicator, MovableScoreIterator scorer) {
     this.sharedChildren = globalParams.get("shareNodes", false);
     this.indicator = indicator;
     this.counter = null;
@@ -48,15 +48,15 @@ public abstract class FilteredIterator implements CountValueIterator, ScoreValue
     this.mover = scorer;
   }
 
-  public FilteredIterator(Parameters globalParams, NodeParameters parameters, IndicatorIterator indicator, ExtentValueIterator extents) {
+  public FilteredIterator(Parameters globalParams, NodeParameters parameters, MovableIndicatorIterator indicator, MovableExtentIterator extents) {
     this.sharedChildren = globalParams.get("shareNodes", false);
     this.indicator = indicator;
     this.scorer = null;
     this.extents = extents;
     this.mover = extents;
     // Try to treat it as a counter if possible
-    if (CountValueIterator.class.isAssignableFrom(extents.getClass())) {
-      this.counter = (CountValueIterator) extents;
+    if (MovableCountIterator.class.isAssignableFrom(extents.getClass())) {
+      this.counter = (MovableCountIterator) extents;
     } else {
       this.counter = null;
     }
@@ -109,11 +109,6 @@ public abstract class FilteredIterator implements CountValueIterator, ScoreValue
   }
 
   @Override
-  public ScoringContext getContext() {
-    return context;
-  }
-
-  @Override
   public void setContext(ScoringContext context) {
     this.context = context;
   }
@@ -129,8 +124,13 @@ public abstract class FilteredIterator implements CountValueIterator, ScoreValue
   }
 
   @Override
-  public boolean next() throws IOException {
-    return moveTo(currentCandidate() + 1);
+  public boolean hasAllCandidates() {
+    return false;
+  }
+
+  @Override
+  public void next() throws IOException {
+    moveTo(currentCandidate() + 1);
   }
 
   @Override
@@ -139,7 +139,7 @@ public abstract class FilteredIterator implements CountValueIterator, ScoreValue
   }
 
   @Override
-  public boolean moveTo(int identifier) throws IOException {
+  public void moveTo(int identifier) throws IOException {
     if (!isDone()) {
       indicator.moveTo(identifier);
       mover.moveTo(identifier);
@@ -147,7 +147,6 @@ public abstract class FilteredIterator implements CountValueIterator, ScoreValue
         findBestCandidate();
       }
     }
-    return !isDone();
   }
 
   // Stops the iterators on the first document
@@ -161,7 +160,7 @@ public abstract class FilteredIterator implements CountValueIterator, ScoreValue
       lowestBest = Math.max(lowestBest, mover.currentCandidate());
       indicator.moveTo(lowestBest);
       mover.moveTo(lowestBest);
-      if (this.hasMatch(lowestBest)) {
+      if (this.atCandidate(lowestBest)) {
         return;
       }
       // ensure we progress.
@@ -180,7 +179,7 @@ public abstract class FilteredIterator implements CountValueIterator, ScoreValue
   }
 
   @Override
-  public int compareTo(ValueIterator other) {
+  public int compareTo(MovableIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }

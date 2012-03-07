@@ -1,83 +1,78 @@
-// BSD License (http://lemurproject.org/galago-license)
+/*
+ *  BSD License (http://www.galagosearch.org/license)
+ */
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import java.util.PriorityQueue;
-import org.lemurproject.galago.core.index.ValueIterator;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import java.util.ArrayList;
 import org.lemurproject.galago.core.util.ExtentArray;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * This class is meant to be a base class for many kinds of
- * iterators that require at least one of their children to be
- * present in the intID for a match to happen.  This class
- * will call loadExtents once for each id that has a
- * match on any child iterator.
- * 
- * @author trevor
+ *
+ * @author sjh
  */
-public abstract class ExtentDisjunctionIterator extends ExtentCombinationIterator {
+public abstract class ExtentDisjunctionIterator extends DisjunctionIterator implements MovableDataIterator<ExtentArray>, ExtentIterator, MovableCountIterator {
 
-  protected PriorityQueue<ExtentValueIterator> activeIterators;
-  protected int document;
+  protected ExtentArray extents;
 
-  public ExtentDisjunctionIterator(NodeParameters parameters, ExtentValueIterator[] iterators) throws IOException {
-    this.iterators = iterators;
-    this.activeIterators = new PriorityQueue<ExtentValueIterator>(iterators.length);
-
+  public ExtentDisjunctionIterator(MovableExtentIterator[] iterators) throws IOException {
+    super(iterators);
     this.extents = new ExtentArray();
-    this.document = 0;
-
-    for (ExtentValueIterator iterator : iterators) {
-      if (!iterator.isDone()) {
-        this.activeIterators.add(iterator);
-      }
-    }
   }
 
-  public int currentCandidate() {
-    return document;
-  }
+  @Override
+  public void moveTo(int identifier) throws IOException {
+    super.moveTo(identifier);
 
-  public boolean isDone() {
-    return activeIterators.size() == 0;
-  }
-
-  public void reset() throws IOException {
-    activeIterators.clear();
-    for (ExtentValueIterator iterator : iterators) {
-      iterator.reset();
-      if (!iterator.isDone()) {
-        activeIterators.add(iterator);
-      }
-    }
-    moveTo(0);
-  }
-
-  public long totalEntries() {
-    long max = 0;
-    for (ValueIterator iterator : activeIterators) {
-      max = Math.max(max, iterator.totalEntries());
-    }
-    return max;
-  }
-
-  public boolean moveTo(int identifier) throws IOException {
-    // move iterators to identifier
-    while (activeIterators.size() > 0
-            && activeIterators.peek().currentCandidate() < identifier) {
-      ExtentValueIterator iter = activeIterators.poll();
-      iter.moveTo(identifier);
-      if (!iter.isDone()) {
-        activeIterators.offer(iter);
-      }
-    }
-
-    document = activeIterators.size() > 0 ? activeIterators.peek().currentCandidate() : Integer.MAX_VALUE;
     extents.reset();
-    if (activeIterators.size() > 0 && activeIterators.peek().hasMatch(document)) {
+    // check if all iterators are at the same document
+    if (!isDone() && super.atCandidate(this.currentCandidate())) {
+      // if so : load some extents
       loadExtents();
     }
-    return !isDone();
   }
+
+  @Override
+  public boolean atCandidate(int identifier) {
+    return super.atCandidate(identifier) && this.extents.size() > 0;
+  }
+
+  @Override
+  public String getEntry() throws IOException {
+    ArrayList<String> strs = new ArrayList<String>();
+    ExtentArrayIterator eai = new ExtentArrayIterator(extents);
+    while (!eai.isDone()) {
+      strs.add(String.format("[%d, %d]", eai.currentBegin(), eai.currentEnd()));
+      eai.next();
+    }
+    return Utility.join(strs.toArray(new String[0]), ",");
+  }
+
+  @Override
+  public ExtentArray getData() {
+    return extents;
+  }
+
+  @Override
+  public ExtentArray extents() {
+    return extents;
+  }
+
+  @Override
+  public int count() {
+    return extents.size();
+  }
+
+  @Override
+  public int maximumCount() {
+    int sum = 0;
+    for (int i = 0; i < iterators.length; i++) {
+      sum += ((MovableCountIterator) iterators[i]).maximumCount();
+    }
+    return sum;
+
+  }
+
+  public abstract void loadExtents();
 }

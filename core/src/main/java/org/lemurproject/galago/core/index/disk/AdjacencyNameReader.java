@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.disk.DiskNameReader;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -18,7 +18,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class AdjacencyNameReader extends DiskNameReader {
 
-  public AdjacencyNameReader(GenericIndexReader reader) throws IOException {
+  public AdjacencyNameReader(BTreeReader reader) throws IOException {
     super(reader);
   }
 
@@ -51,8 +51,8 @@ public class AdjacencyNameReader extends DiskNameReader {
 
   public class KeyIterator extends DiskNameReader.KeyIterator {
 
-    public KeyIterator(GenericIndexReader reader) throws IOException {
-      super(reader, true);
+    public KeyIterator(BTreeReader reader) throws IOException {
+      super(reader);
     }
 
     @Override
@@ -76,15 +76,23 @@ public class AdjacencyNameReader extends DiskNameReader {
       super(ki);
     }
 
+    @Override
     public String getEntry() throws IOException {
       KeyIterator ki = (KeyIterator) iterator;
-      return Utility.toInt(ki.getKeyBytes())+","+ ki.getValueString();
+      return Utility.toInt(ki.getKey())+","+ ki.getValueString();
     }
 
+    @Override
+    public boolean hasAllCandidates(){
+      return false;
+    }
+
+    @Override
     public long totalEntries() {
-      throw new UnsupportedOperationException("Not supported yet.");
+      return reader.getManifest().getLong("keyCount");
     }
 
+    @Override
     public String getData() {
       try {
         return getEntry();

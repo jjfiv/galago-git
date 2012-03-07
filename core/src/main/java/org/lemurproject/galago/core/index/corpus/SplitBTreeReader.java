@@ -4,8 +4,8 @@ package org.lemurproject.galago.core.index.corpus;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import org.lemurproject.galago.core.index.GenericIndexReader;
-import org.lemurproject.galago.core.index.disk.IndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader;
 import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
 import org.lemurproject.galago.tupleflow.DataStream;
@@ -19,7 +19,7 @@ import org.lemurproject.galago.tupleflow.StreamCreator;
  *  - allows values to be written out of order to a set of files
  *  - a unified ordered key structure should be kept in a folder
  *    with these value files, as created by SplitIndexKeyWriter
- *  - SplitIndexReader will read this data
+ *  - SplitBTreeReader will read this data
  *
  *  This class if useful for writing a corpus structure
  *  - documents can be written to disk in any order
@@ -29,23 +29,23 @@ import org.lemurproject.galago.tupleflow.StreamCreator;
  *
  * @author sjh
  */
-public class SplitIndexReader extends GenericIndexReader {
+public class SplitBTreeReader extends BTreeReader {
 
   public static final long VALUE_FILE_MAGIC_NUMBER = 0x2b3c4d5e6f7a8b9cL;
   RandomAccessFile[] dataFiles;
-  IndexReader vocabIndex;
+  DiskBTreeReader vocabIndex;
   String indexFolder;
   int hashMod;
 
-  public class Iterator extends GenericIndexReader.Iterator {
+  public class Iterator extends BTreeReader.BTreeIterator {
 
-    IndexReader.Iterator vocabIterator;
+    DiskBTreeReader.Iterator vocabIterator;
     boolean valueLoaded = false;
     int file;
     long valueOffset;
     long valueLength;
 
-    public Iterator(IndexReader.Iterator vocabIterator) {
+    public Iterator(DiskBTreeReader.Iterator vocabIterator) {
       this.vocabIterator = vocabIterator;
       assert (this.vocabIterator != null);
     }
@@ -133,8 +133,8 @@ public class SplitIndexReader extends GenericIndexReader {
       absoluteEnd = Math.min(absoluteEnd, Math.min(getValueEnd(), dataFiles[file].length()));
 
       assert absoluteStart <= absoluteEnd;
-      
-      return new BufferedFileDataStream(dataFiles[file], absoluteStart , absoluteEnd);
+
+      return new BufferedFileDataStream(dataFiles[file], absoluteStart, absoluteEnd);
     }
 
     /**
@@ -186,12 +186,12 @@ public class SplitIndexReader extends GenericIndexReader {
   /*
    * Constructors
    */
-  public SplitIndexReader(String filename) throws IOException {
-    File f = new File(filename);
+  public SplitBTreeReader(File f) throws IOException {
     if (f.isDirectory()) {
-      f = new File(filename + File.separator + "key.index");
+      f = new File(f.getAbsolutePath() + File.separator + "split.keys");
+    } else {
     }
-    vocabIndex = new IndexReader(f);
+    vocabIndex = new DiskBTreeReader(f);
 
     indexFolder = f.getParent();
     //  (-1) for the key index
@@ -211,7 +211,7 @@ public class SplitIndexReader extends GenericIndexReader {
   }
 
   /**
-   * Returns the vocabulary structure for this IndexReader.  Note that the vocabulary
+   * Returns the vocabulary structure for this DiskBTreeReader.  Note that the vocabulary
    * contains only the first key in each block.
    */
   public VocabularyReader getVocabulary() {
@@ -233,7 +233,7 @@ public class SplitIndexReader extends GenericIndexReader {
    * null if the key is not found in the index.
    */
   public Iterator getIterator(byte[] key) throws IOException {
-    IndexReader.Iterator i = vocabIndex.getIterator(key);
+    DiskBTreeReader.Iterator i = vocabIndex.getIterator(key);
     if (i == null) {
       return null;
     } else {
@@ -252,19 +252,24 @@ public class SplitIndexReader extends GenericIndexReader {
 
   //*********************//
   // static functions
-  public static boolean isParallelIndex(String pathname) throws IOException {
-    File f = new File(pathname);
-
+  public static boolean isBTree(File f) throws IOException {
     assert f.exists() : "Path not found: " + f.getAbsolutePath();
-    if (!f.isDirectory()) {
-      f = f.getParentFile();
+
+    File keys = null;
+    File data = null;
+
+    if (f.isDirectory()) {
+      keys = new File(f, "split.keys");
+      data = new File(f, "0");
+    } else {
+      keys = f;
+      data = new File(f.getParentFile(), "0");
     }
-    File index = new File(f.getAbsolutePath() + File.separator + "key.index");
-    File data = new File(f.getAbsolutePath() + File.separator + "0");
+
     long magic = 0;
-    if (index.exists()
+    if (keys.exists()
             && data.exists()
-            && IndexReader.isIndexFile(index.getAbsolutePath())) {
+            && DiskBTreeReader.isBTree(keys)) {
       RandomAccessFile reader = StreamCreator.inputStream(data.getAbsolutePath());
       reader.seek(reader.length() - 8);
       magic = reader.readLong();

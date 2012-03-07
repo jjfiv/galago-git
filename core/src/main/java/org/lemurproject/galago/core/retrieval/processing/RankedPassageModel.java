@@ -8,7 +8,7 @@ import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.ScoredPassage;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreValueIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -55,7 +55,7 @@ public class RankedPassageModel extends ProcessingModel {
     int requested = (int) queryParams.get("requested", 1000);
     int passageSize = (int) queryParams.getLong("passageSize");
     int passageShift = (int) queryParams.getLong("passageShift");
-    ScoreValueIterator iterator = (ScoreValueIterator) retrieval.createIterator(queryTree, context);
+    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryTree, context);
     PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
     LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
 
@@ -63,7 +63,7 @@ public class RankedPassageModel extends ProcessingModel {
     for (int i = 0; i < whitelist.length; i++) {
       int document = whitelist[i];
       iterator.moveTo(document);
-      lengthsIterator.skipToKey(document);
+      lengthsIterator.moveTo(document);
       int length = lengthsIterator.getCurrentLength();
 
       // This context is shared among all scorers
@@ -75,7 +75,7 @@ public class RankedPassageModel extends ProcessingModel {
       // Keep iterating over the same doc, but incrementing the begin/end fields of the
       // context until the next one
       while (context.end <= length) {
-        if (iterator.hasMatch(document)) {
+        if (iterator.atCandidate(document)) {
           double score = iterator.score();
           if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
             ScoredPassage scored = new ScoredPassage(document, score, context.begin, context.end);
@@ -104,14 +104,14 @@ public class RankedPassageModel extends ProcessingModel {
     int requested = (int) queryParams.get("requested", 1000);
     int passageSize = (int) queryParams.getLong("passageSize");
     int passageShift = (int) queryParams.getLong("passageShift");
-    ScoreValueIterator iterator = (ScoreValueIterator) retrieval.createIterator(queryTree, context);
+    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryTree, context);
     PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
     LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
 
     // now there should be an iterator at the root of this tree
     while (!iterator.isDone()) {
       int document = iterator.currentCandidate();
-      lengthsIterator.skipToKey(document);
+      lengthsIterator.moveTo(document);
       int length = lengthsIterator.getCurrentLength();
 
       // This context is shared among all scorers
@@ -123,7 +123,7 @@ public class RankedPassageModel extends ProcessingModel {
       // Keep iterating over the same doc, but incrementing the begin/end fields of the
       // context until the next one
       while (context.end <= length) {
-        if (iterator.hasMatch(document)) {
+        if (iterator.atCandidate(document)) {
           double score = iterator.score();
           if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
             ScoredPassage scored = new ScoredPassage(document, score, context.begin, context.end);

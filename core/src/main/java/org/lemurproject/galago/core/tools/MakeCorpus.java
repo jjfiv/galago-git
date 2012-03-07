@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.parse.DocumentSource;
-import org.lemurproject.galago.core.index.corpus.SplitIndexKeyWriter;
+import org.lemurproject.galago.core.index.corpus.SplitBTreeKeyWriter;
 import org.lemurproject.galago.core.index.corpus.CorpusFolderWriter;
 import org.lemurproject.galago.core.index.corpus.DocumentToKeyValuePair;
 import org.lemurproject.galago.core.index.corpus.CorpusFileWriter;
@@ -96,7 +96,7 @@ public class MakeCorpus {
             "indexData", new KeyValuePair.KeyOrder()));
 
     stage.add(new InputStep("indexData"));
-    stage.add(new Step(SplitIndexKeyWriter.class, corpusWriterParameters.clone()));
+    stage.add(new Step(SplitBTreeKeyWriter.class, corpusWriterParameters.clone()));
 
     return stage;
   }

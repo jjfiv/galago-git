@@ -12,26 +12,26 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class RequireIterator extends FilteredIterator {
 
-  public RequireIterator(Parameters globalParams, NodeParameters p, IndicatorIterator indicator,
-          CountValueIterator counter) throws IOException {
+  public RequireIterator(Parameters globalParams, NodeParameters p, MovableIndicatorIterator indicator,
+          MovableCountIterator counter) throws IOException {
     super(globalParams, p, indicator, counter);
     moveTo(0);
   }
 
-  public RequireIterator(Parameters globalParams, NodeParameters p, IndicatorIterator indicator,
-          ScoreValueIterator scorer) throws IOException {
+  public RequireIterator(Parameters globalParams, NodeParameters p, MovableIndicatorIterator indicator,
+          MovableScoreIterator scorer) throws IOException {
     super(globalParams, p, indicator, scorer);
     moveTo(0);
   }
 
-  public RequireIterator(Parameters globalParams, NodeParameters p, IndicatorIterator indicator,
-          ExtentValueIterator extents) throws IOException {
+  public RequireIterator(Parameters globalParams, NodeParameters p, MovableIndicatorIterator indicator,
+          MovableExtentIterator extents) throws IOException {
     super(globalParams, p, indicator, extents);
     moveTo(0);
   }
 
-  public boolean hasMatch(int identifier) {
-    return this.indicator.hasMatch(identifier)
-            && this.mover.hasMatch(identifier);
+  public boolean atCandidate(int identifier) {
+    return this.mover.atCandidate(identifier)
+            && this.indicator.indicator(identifier);
   }
 }

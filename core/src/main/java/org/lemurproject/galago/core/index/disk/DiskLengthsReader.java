@@ -5,18 +5,18 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.lemurproject.galago.core.index.GenericIndexReader;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.index.LengthsReader;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.CountValueIterator;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Reads documents lengths from a document lengths file.
- * Iterator provides a useful interface for dumping the contents of the file.
+ * KeyValueIterator provides a useful interface for dumping the contents of the file.
  * 
  * @author trevor, sjh
  */
@@ -26,7 +26,7 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
     super(filename);
   }
 
-  public DiskLengthsReader(GenericIndexReader r) {
+  public DiskLengthsReader(BTreeReader r) {
     super(r);
   }
 
@@ -62,15 +62,15 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
     }
   }
 
-  public class KeyIterator extends KeyValueReader.Iterator {
+  public class KeyIterator extends KeyValueReader.KeyValueIterator {
 
-    public KeyIterator(GenericIndexReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 
     @Override
-    public String getKey() {
-      return Integer.toString(Utility.toInt(getKeyBytes()));
+    public String getKeyString() {
+      return Integer.toString(Utility.toInt(getKey()));
     }
 
     @Override
@@ -105,7 +105,7 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
     }
   }
 
-  public class ValueIterator extends KeyToListIterator implements CountValueIterator, LengthsReader.Iterator {
+  public class ValueIterator extends KeyToListIterator implements MovableCountIterator, LengthsReader.Iterator {
 
     public ValueIterator(KeyIterator it) {
       super(it);
@@ -125,6 +125,11 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
     }
 
     @Override
+    public boolean hasAllCandidates(){
+      return true;
+    }
+    
+    @Override
     public int count() {
       try {
         return ((KeyIterator) iterator).getCurrentLength();
@@ -136,12 +141,6 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
     @Override
     public int maximumCount() {
       return Integer.MAX_VALUE;
-    }
-
-    @Override
-    public boolean skipToKey(int candidate) throws IOException {
-      KeyIterator ki = (KeyIterator) iterator;
-      return ki.skipToKey(candidate);
     }
 
     @Override
