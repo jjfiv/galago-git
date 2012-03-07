@@ -274,7 +274,7 @@ public class LocalRetrieval implements Retrieval {
     StructuredIterator iterator;
 
     // first check if the cache contains this node
-    if (globalParameters.get("shareNodes", false)
+    if ((globalParameters.get("shareNodes", false) || node.getNodeParameters().get("cache", false))
             && iteratorCache.containsKey(node.toString())) {
       return iteratorCache.get(node.toString());
     }
@@ -294,7 +294,7 @@ public class LocalRetrieval implements Retrieval {
     }
 
     // we've created a new iterator - add to the cache for future nodes
-    if (globalParameters.get("shareNodes", false)) {
+    if (globalParameters.get("shareNodes", false) || node.getNodeParameters().get("cache", false)) {
       iteratorCache.put(node.toString(), iterator);
     }
     return iterator;

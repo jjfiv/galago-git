@@ -181,7 +181,7 @@ public class DiskIndex implements Index {
     return (index + File.separator + part);
   }
 
-  public IndexPartReader openLocalIndexPart(String part) throws IOException {
+  public IndexPartReader getIndexPart(String part) throws IOException {
     return openIndexPart(location + File.separator + part);
   }
 
@@ -249,7 +249,7 @@ public class DiskIndex implements Index {
   }
 
   @Override
-  public String getIndexPart(Node node) throws IOException {
+  public String getIndexPartName(Node node) throws IOException {
     String operator = node.getOperator();
     String partName = null;
 
@@ -297,7 +297,7 @@ public class DiskIndex implements Index {
   @Override
   public ValueIterator getIterator(Node node) throws IOException {
     ValueIterator result = null;
-    IndexPartReader part = parts.get(getIndexPart(node));
+    IndexPartReader part = parts.get(getIndexPartName(node));
     if (part != null) {
       result = part.getIterator(node);
       modify(result, node);
@@ -311,7 +311,7 @@ public class DiskIndex implements Index {
   @Override
   public NodeType getNodeType(Node node) throws IOException {
     NodeType result = null;
-    IndexPartReader part = parts.get(getIndexPart(node));
+    IndexPartReader part = parts.get(getIndexPartName(node));
     if (part != null) {
       final String operator = node.getOperator();
       final Map<String, NodeType> nodeTypes = part.getNodeTypes();

@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
-import org.lemurproject.galago.core.retrieval.processing.FieldDeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -14,7 +14,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class BM25FCombinationIterator extends ScoreCombinationIterator {
 
-  double K = - 1;
+  double K = -1;
 
   public BM25FCombinationIterator(Parameters globalParams, NodeParameters parameters,
           MovableScoreIterator[] childIterators) {
@@ -32,29 +32,6 @@ public class BM25FCombinationIterator extends ScoreCombinationIterator {
       total += (weights[i] * score) / (K + score) * scoreIterators[i + 1].score();
     }
     return total;
-  }
-
-  @Override
-  public double score(ScoringContext dc) {
-    double total = 0;
-    for (int i = 0; i < scoreIterators.length; i += 2) {
-      double score = scoreIterators[i].score(dc);
-      total += (weights[i] * score) / (K + score) * scoreIterators[i + 1].score(dc);
-    }
-    return total;
-  }
-
-  // Different score combination mechanism, that uses potentials
-  // Quits as soon as it is told scoring is done.
-  public void score(FieldDeltaScoringContext ctx) {
-    ctx.runningScore = ctx.startingPotential;
-    ctx.stillScoring = true;
-    for (int i = 0; i < iterators.length; i += 2) {
-      ((ScoreCombinationIterator) iterators[i]).score(ctx);
-      if (!ctx.stillScoring) {
-        return;
-      }
-    }
   }
 
   @Override
@@ -87,8 +64,8 @@ public class BM25FCombinationIterator extends ScoreCombinationIterator {
    */
   @Override
   public void setContext(ScoringContext ctx) {
-    if (ctx instanceof FieldDeltaScoringContext) {
-      FieldDeltaScoringContext pctx = (FieldDeltaScoringContext) ctx;
+    if (ctx instanceof DeltaScoringContext) {
+      DeltaScoringContext pctx = (DeltaScoringContext) ctx;
       BM25FieldScoringIterator.K = this.K;
       pctx.startingPotential = this.maximumScore();
 
@@ -97,14 +74,14 @@ public class BM25FCombinationIterator extends ScoreCombinationIterator {
       // the values being set below
       TObjectDoubleHashMap idfs = new TObjectDoubleHashMap();
       TObjectIntHashMap idxes = new TObjectIntHashMap();
-      pctx.startingPotentials = new double[scoreIterators.length/2];
+      pctx.startingPotentials = new double[scoreIterators.length / 2];
       pctx.potentials = new double[pctx.startingPotentials.length];
-      for (int i = 0; i < scoreIterators.length; i +=2) {
-        pctx.startingPotentials[i/2] = scoreIterators[i].maximumScore() + this.K;
-        idfs.put(iterators[i], scoreIterators[i+1].maximumScore());
-        idxes.put(iterators[i], i/2);
+      for (int i = 0; i < scoreIterators.length; i += 2) {
+        pctx.startingPotentials[i / 2] = scoreIterators[i].maximumScore() + this.K;
+        idfs.put(iterators[i], scoreIterators[i + 1].maximumScore());
+        idxes.put(iterators[i], i / 2);
       }
-      
+
       // Set idf and parentIdx
       for (DeltaScoringIterator it : pctx.scorers) {
         BM25FieldScoringIterator scorer = (BM25FieldScoringIterator) it;

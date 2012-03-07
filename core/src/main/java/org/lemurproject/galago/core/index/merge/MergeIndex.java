@@ -99,7 +99,7 @@ public class MergeIndex extends AppFunction {
       Set<String> partNames = i.getPartNames();
       HashSet<String> mergableParts = new HashSet();
       for (String part : partNames) {
-        if (i.openLocalIndexPart(part).getManifest().containsKey("mergerClass")) {
+        if (i.getIndexPart(part).getManifest().containsKey("mergerClass")) {
           mergableParts.add(part);
         }
       }

@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.DynamicIndex;
 import org.lemurproject.galago.core.index.Index;
+import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.LengthsReader.Iterator;
 import org.lemurproject.galago.core.index.NamesReader;
@@ -161,8 +162,13 @@ public class GeometricIndex implements DynamicIndex, Index {
     return this.currentMemoryIndex.getDefaultPart();
   }
 
-  public String getIndexPart(Node node) throws IOException {
-    return this.currentMemoryIndex.getIndexPart(node);
+  public String getIndexPartName(Node node) throws IOException {
+    return this.currentMemoryIndex.getIndexPartName(node);
+  }
+
+  @Override
+  public IndexPartReader getIndexPart(String part) throws IOException {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 
   public boolean containsPart(String partName) {
@@ -269,15 +275,15 @@ public class GeometricIndex implements DynamicIndex, Index {
   }
 
   @Override
-  public Document getDocument(String document) throws IOException{
+  public Document getDocument(String document) throws IOException {
     throw new RuntimeException("UNIMPLEMENTED function: getdocument");
   }
 
   @Override
-  public Map<String,Document> getDocuments(List<String> documents) throws IOException{
+  public Map<String, Document> getDocuments(List<String> documents) throws IOException {
     throw new RuntimeException("UNIMPLEMENTED function: getdocuments");
   }
-    
+
   public Iterator getLengthsIterator() throws IOException {
     List<LengthsReader.Iterator> itrs = new ArrayList();
     itrs.add(currentMemoryIndex.getLengthsIterator());
@@ -315,7 +321,7 @@ public class GeometricIndex implements DynamicIndex, Index {
     if (currentMemoryIndex.containsPart("corpus")) {
       // get all corpora + shove into document store
       ArrayList<DocumentReader> readers = new ArrayList<DocumentReader>();
-      readers.add((DocumentReader) currentMemoryIndex.getPart("corpus"));
+      readers.add((DocumentReader) currentMemoryIndex.getIndexPart("corpus"));
       for (String path : geometricParts.getAllShards().getBinPaths()) {
         String corpus = path + File.separator + "corpus";
         readers.add(new CorpusReader(corpus));

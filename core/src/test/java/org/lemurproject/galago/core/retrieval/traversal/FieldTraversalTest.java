@@ -297,7 +297,6 @@ public class FieldTraversalTest extends TestCase {
       System.err.printf("%d : %s\n", i, results[i].toString());
     }
 
-
     assertEquals(1, results[0].document);
     assertEquals(results[0].score, -11.160840, 0.00001);
     assertEquals(2, results[1].document);

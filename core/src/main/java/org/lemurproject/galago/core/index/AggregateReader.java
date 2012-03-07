@@ -28,9 +28,9 @@ public interface AggregateReader {
     
     public CollectionStatistics(String partName, MemoryIndex index) {
       this.partName = partName;
-      collectionLength = index.getPart(partName).getCollectionLength();
-      documentCount = index.getPart(partName).getDocumentCount();
-      vocabCount = index.getPart(partName).getVocabCount();
+      collectionLength = index.getIndexPart(partName).getCollectionLength();
+      documentCount = index.getIndexPart(partName).getDocumentCount();
+      vocabCount = index.getIndexPart(partName).getVocabCount();
     }
 
     public void add(CollectionStatistics other) {

@@ -35,11 +35,6 @@ public class LogarithmIterator extends TransformIterator implements MovableScore
   }
 
   @Override
-  public double score(ScoringContext context) {
-    return Math.log(scorer.score(context));
-  }
-
-  @Override
   public double maximumScore() {
     return Math.log(scorer.maximumScore());
   }

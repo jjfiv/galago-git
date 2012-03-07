@@ -1,20 +1,59 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.processing;
 
+import gnu.trove.map.hash.TObjectIntHashMap;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import org.lemurproject.galago.core.index.LengthsReader;
+
 /**
  * Currently represents the context that the entire query processor shares.
  * This is the most basic context we use.
+ * 
+ * The lengths are generally managed from this construct.
  *
  * @author irmarc
  */
 public class ScoringContext {
 
-  public ScoringContext() {}
+  public int document;
+  protected HashMap<String, LengthsReader.Iterator> lengths;
+  protected TObjectIntHashMap<String> current;
 
-  public ScoringContext(int d, int l) {
-    document = d; length = l;
+  public ScoringContext() {
+    lengths = new HashMap<String, LengthsReader.Iterator>();
+    current = new TObjectIntHashMap<String>();
   }
 
-  public int document;
-  public int length;
+  public void addLength(String key, LengthsReader.Iterator iterator) {
+    lengths.put(key, iterator);
+  }
+
+  public int getPosition(String key) {
+    return lengths.get(key).getCurrentIdentifier();
+  }
+
+  public int getPosition() {
+    return lengths.get("").getCurrentIdentifier();
+  }
+
+  public int getLength(String key) {
+    return current.get(key);
+  }
+
+  public int getLength() {
+    return current.get("");
+  }
+
+  public void moveLengths(int position) {
+    try {
+      for (Map.Entry<String, LengthsReader.Iterator> pair : lengths.entrySet()) {
+        pair.getValue().moveTo(position);
+        current.put(pair.getKey(), pair.getValue().getCurrentLength());
+      }
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
+    }
+  }
 }

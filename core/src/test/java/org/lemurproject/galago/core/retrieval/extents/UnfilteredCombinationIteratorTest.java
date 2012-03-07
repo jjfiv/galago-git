@@ -3,7 +3,9 @@ package org.lemurproject.galago.core.retrieval.extents;
 
 import org.lemurproject.galago.core.retrieval.iterator.ScoreCombinationIterator;
 import java.io.IOException;
+import java.util.Arrays;
 import junit.framework.TestCase;
+import org.lemurproject.galago.core.index.FakeLengthIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -65,11 +67,14 @@ public class UnfilteredCombinationIteratorTest extends TestCase {
     one.setContext(context);
     two.setContext(context);
     instance.setContext(context);
+    int[] lengths = new int[12];
+    Arrays.fill(lengths, 100);
+    FakeLengthIterator fli = new FakeLengthIterator(docsTogether, lengths);
+    context.addLength("", fli);
     for (int i = 0; i < 12; i++) {
       assertFalse(instance.isDone());
       assertTrue(instance.atCandidate(docsTogether[i]));
       context.document = docsTogether[i];
-      context.length = 100;
       assertEquals(scoresTogether[i], instance.score());
 
       instance.movePast(docsTogether[i]);

@@ -88,7 +88,7 @@ public class CachedDiskIndex implements Index {
   public ValueIterator getIterator(Node node) throws IOException {
     // try to use in-memory indexes first
     ValueIterator result = null;
-    IndexPartReader part = memParts.get(getIndexPart(node));
+    IndexPartReader part = memParts.get(getIndexPartName(node));
     if (part != null) {
       result = part.getIterator(node);
       modify(result, node);
@@ -164,7 +164,7 @@ public class CachedDiskIndex implements Index {
 
     if (iterator != null) {      
       // check if the part is already buffered
-      String partName = diskIndex.getIndexPart(queryNode);
+      String partName = diskIndex.getIndexPartName(queryNode);
       if (!memParts.containsKey(partName)) {
         IndexPartReader partReader = diskIndex.parts.get(partName);
         String memoryClassName = partReader.getManifest().get("memoryClass", null);
@@ -228,8 +228,13 @@ public class CachedDiskIndex implements Index {
   }
 
   @Override
-  public String getIndexPart(Node node) throws IOException {
-    return diskIndex.getIndexPart(node);
+  public String getIndexPartName(Node node) throws IOException {
+    return diskIndex.getIndexPartName(node);
+  }
+  
+  @Override
+  public IndexPartReader getIndexPart(String name) throws IOException {
+    return diskIndex.getIndexPart(name);
   }
 
   @Override

@@ -58,12 +58,7 @@ public class FakeScoreIterator implements MovableScoreIterator {
 
   @Override
   public double score() {
-    return score(context);
-  }
-
-  @Override
-  public double score(ScoringContext dc) {
-    if (docs[index] == dc.document) {
+    if (docs[index] == context.document) {
       return scores[index];
     }
     return 0;

@@ -7,7 +7,6 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.disk.PositionIndexReader;
 import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
-import org.lemurproject.galago.core.retrieval.processing.FieldScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.scoring.DirichletProbabilityScorer;
@@ -21,7 +20,8 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author irmarc
  */
 @RequiredStatistics(statistics = {"collectionLength", "documentCount", "collectionProbability"})
-public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator {
+public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator 
+  implements DeltaScoringIterator {
 
   public double weight;
   public double max;
@@ -35,7 +35,6 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
     if (it instanceof PositionIndexReader.TermCountIterator) {
       PositionIndexReader.TermCountIterator maxIter = (PositionIndexReader.TermCountIterator) it;
       max = function.score(maxIter.maximumCount(), maxIter.maximumCount());
-      //System.err.printf("%s max: %f\n", this.toString(), max);
     } else {
       max = 0;  // Means we have a null extent iterator
     }
@@ -57,16 +56,17 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
     return min;
   }
 
-  public void score(DeltaScoringContext ctx) {
+  public void deltaScore() {
+    DeltaScoringContext ctx = (DeltaScoringContext) context;
     int count = 0;
 
     if (iterator.currentCandidate() == context.document) {
       count = ((CountIterator) iterator).count();
     }
 
-    double diff = weight * (function.score(count, ((FieldScoringContext) context).lengths.get(partName)) - max);
+    double diff = weight * (function.score(count, context.getLength(partName)) - max);
     double newValue = ctx.potentials[parentIdx] + diff;
-    
+
     ctx.runningScore += Math.log(newValue / ctx.potentials[parentIdx]);
     ctx.potentials[parentIdx] = newValue;
 
@@ -74,24 +74,21 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
 
   @Override
   public double score() {
-    if (FieldScoringContext.class.isAssignableFrom(context.getClass())) {
-      int count = 0;
+    int count = 0;
 
-      if (iterator.currentCandidate() == context.document) {
-        count = ((CountIterator) iterator).count();
-      }
-      double score = function.score(count, ((FieldScoringContext) context).lengths.get(partName));
-
-      return score;
-    } else {
-      return super.score();
+    if (iterator.currentCandidate() == context.document) {
+      count = ((CountIterator) iterator).count();
     }
+    double score = function.score(count, context.getLength(partName));
+
+    return score;
   }
 
-  public void maximumAdjustment(DeltaScoringContext ctx) {
+  public void maximumDifference() {
+    DeltaScoringContext ctx = (DeltaScoringContext) context;
     double diff = weight * (min - max);
     double newValue = ctx.potentials[parentIdx] + diff;
-    
+
     ctx.runningScore += Math.log(newValue / ctx.potentials[parentIdx]);
     ctx.potentials[parentIdx] = newValue;
   }

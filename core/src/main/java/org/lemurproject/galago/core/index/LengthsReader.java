@@ -13,7 +13,7 @@ public interface LengthsReader extends IndexPartReader {
   public int getLength(int document) throws IOException;
   public Iterator getLengthsIterator() throws IOException;
   public interface Iterator extends MovableIterator {
-    public int getCurrentLength() throws IOException;
-    public int getCurrentIdentifier() throws IOException;
+    public int getCurrentLength();
+    public int getCurrentIdentifier();
   }
 }

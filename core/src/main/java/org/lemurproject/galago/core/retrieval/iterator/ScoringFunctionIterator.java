@@ -4,7 +4,6 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.scoring.ScoringFunction;
-import org.lemurproject.galago.core.util.CallTable;
 
 /**
  * An iterator that converts a count iterator's count into a score.
@@ -27,27 +26,13 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
   }
 
   @Override
-  public double score(ScoringContext dc) {
-    int count = 0;
-
-    // Used in counting # of score calls. Uncomment if you want to track that.
-    CallTable.increment("score_req");
-    if (iterator.atCandidate(dc.document)) {
-      count = ((CountIterator)iterator).count();
-    }
-    return function.score(count, dc.length);
-  }
-
-  @Override
   public double score() {
     int count = 0;
 
-    // Used in counting # of score calls. Uncomment if you want to track that.
-    CallTable.increment("score_req");
     if (iterator.atCandidate(context.document)) {
       count = ((CountIterator)iterator).count();
     }
-    double score = function.score(count, context.length);
+    double score = function.score(count, context.getLength());
     return score;
   }
 

@@ -145,14 +145,6 @@ public class SparseFloatListReader extends KeyListReader {
     }
 
     @Override
-    public double score(ScoringContext dc) {
-      if (currentDocument == dc.document) {
-        return currentScore;
-      }
-      return Double.NEGATIVE_INFINITY;
-    }
-
-    @Override
     public double score() {
       if (currentDocument == context.document) {
         return currentScore;

@@ -3,7 +3,6 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
-import org.lemurproject.galago.core.retrieval.processing.FieldScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -29,17 +28,13 @@ public class JelinekMercerProbabilityScoringIterator extends ScoringFunctionIter
 
   @Override
   public double score() {
-    if (FieldScoringContext.class.isAssignableFrom(context.getClass())) {
       int count = 0;
 
       if (iterator.currentCandidate() == context.document) {
         count = ((CountIterator) iterator).count();
       }
-      double score = function.score(count, ((FieldScoringContext) context).lengths.get(partName));
+      double score = function.score(count, context.getLength(partName));
       return score;
-    } else {
-      return super.score();
-    }
   }
 
     /**

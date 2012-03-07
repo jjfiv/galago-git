@@ -25,8 +25,10 @@ public interface Index {
   
   public String getDefaultPart();
 
-  public String getIndexPart(Node node) throws IOException;
+  public String getIndexPartName(Node node) throws IOException;
 
+  public IndexPartReader getIndexPart(String part) throws IOException;
+  
   public boolean containsDocumentIdentifier(int document) throws IOException;
 
   public boolean containsPart(String partName);

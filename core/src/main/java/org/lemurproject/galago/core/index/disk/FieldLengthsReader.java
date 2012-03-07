@@ -1,7 +1,9 @@
 package org.lemurproject.galago.core.index.disk;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
+import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
@@ -57,12 +59,14 @@ public class FieldLengthsReader implements LengthsReader {
 
   @Override
   public Map<String, NodeType> getNodeTypes() {
-    throw new UnsupportedOperationException("Not supported.");
+    HashMap<String, NodeType> types = new HashMap<String, NodeType>();
+    types.put("fieldlengths", new NodeType(LengthIterator.class));
+    return types;
   }
 
   @Override
   public String getDefaultOperator() {
-    throw new UnsupportedOperationException("Not supported.");
+    return "fieldlengths";
   }
 
   @Override
@@ -72,7 +76,14 @@ public class FieldLengthsReader implements LengthsReader {
 
   @Override
   public ValueIterator getIterator(Node node) throws IOException {
-    throw new UnsupportedOperationException("Not supported.");
+        if (node.getOperator().equals("fieldlengths") && 
+                node.getNodeParameters().containsKey("part")) {
+          String part = node.getNodeParameters().getString("part");
+      return new LengthIterator(reader.getTermExtents(part));
+    } else {
+      throw new UnsupportedOperationException(
+              "Index doesn't support operator: " + node.getOperator());
+    }
   }
 
   @Override
@@ -80,26 +91,30 @@ public class FieldLengthsReader implements LengthsReader {
     return reader.getManifest();
   }
 
-  public class LengthIterator implements LengthsReader.Iterator {
+  
+  public class LengthIterator extends ValueIterator implements LengthsReader.Iterator {
 
     private WindowIndexReader.TermExtentIterator extentsIterator;
+    int length = -1;
 
     public LengthIterator(WindowIndexReader.TermExtentIterator counts) {
       this.extentsIterator = counts;
     }
 
     @Override
-    public int getCurrentLength() throws IOException {
-      int total = 0;
-      ExtentArray extents = extentsIterator.extents();
-      for (int i = 0; i < extents.size(); i++) {
-        total += extents.end(i) - extents.begin(i);
+    public int getCurrentLength() {
+      if (length < 0) {
+        length = 0;
+        ExtentArray extents = extentsIterator.extents();
+        for (int i = 0; i < extents.size(); i++) {
+          length += extents.end(i) - extents.begin(i);
+        }
       }
-      return total;
+      return length;
     }
 
     @Override
-    public int getCurrentIdentifier() throws IOException {
+    public int getCurrentIdentifier() {
       return extentsIterator.currentCandidate();
     }
 
@@ -116,16 +131,19 @@ public class FieldLengthsReader implements LengthsReader {
     @Override
     public void next() throws IOException {
       extentsIterator.next();
+      length = -1;
     }
 
     @Override
     public void moveTo(int identifier) throws IOException {
       extentsIterator.moveTo(identifier);
+      length = -1;
     }
 
     @Override
     public void movePast(int identifier) throws IOException {
       extentsIterator.movePast(identifier);
+      length = -1;
     }
 
     @Override
@@ -141,6 +159,7 @@ public class FieldLengthsReader implements LengthsReader {
     @Override
     public void reset() throws IOException {
       extentsIterator.reset();
+      length = -1;
     }
 
     @Override

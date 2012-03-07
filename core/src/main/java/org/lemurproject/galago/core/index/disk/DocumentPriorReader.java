@@ -150,11 +150,6 @@ public class DocumentPriorReader extends KeyValueReader {
 
     @Override
     public double score() {
-      return this.score(this.context);
-    }
-
-    @Override
-    public double score(ScoringContext context) {
       try {
         // mode to or past the desired document
         this.iterator.findKey(Utility.fromInt(context.document));

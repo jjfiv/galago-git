@@ -127,7 +127,7 @@ public class MemoryIndex implements DynamicIndex, Index {
     return parts.containsKey(partName);
   }
 
-  public MemoryIndexPart getPart(String partName) {
+  public MemoryIndexPart getIndexPart(String partName) {
     return parts.get(partName);
   }
 
@@ -154,7 +154,7 @@ public class MemoryIndex implements DynamicIndex, Index {
     }
   }
 
-  public String getIndexPart(Node node) throws IOException {
+  public String getIndexPartName(Node node) throws IOException {
     String operator = node.getOperator();
     String partName = null;
 
@@ -176,7 +176,7 @@ public class MemoryIndex implements DynamicIndex, Index {
 
   public ValueIterator getIterator(Node node) throws IOException {
     ValueIterator result = null;
-    IndexPartReader part = parts.get(getIndexPart(node));
+    IndexPartReader part = parts.get(getIndexPartName(node));
     if (part != null) {
       result = part.getIterator(node);
       // modify(result, node);
@@ -189,7 +189,7 @@ public class MemoryIndex implements DynamicIndex, Index {
 
   public NodeType getNodeType(Node node) throws IOException {
     NodeType result = null;
-    IndexPartReader part = parts.get(getIndexPart(node));
+    IndexPartReader part = parts.get(getIndexPartName(node));
     if (part != null) {
       String operator = node.getOperator();
       Map<String, NodeType> nodeTypes = part.getNodeTypes();

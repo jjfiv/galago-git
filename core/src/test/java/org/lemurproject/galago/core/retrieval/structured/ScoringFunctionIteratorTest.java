@@ -5,6 +5,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BM25RFScoringIterator;
 import junit.framework.TestCase;
+import org.lemurproject.galago.core.index.FakeLengthIterator;
 import org.lemurproject.galago.core.retrieval.extents.FakeExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.scoring.ScoringFunction;
@@ -35,6 +36,10 @@ public class ScoringFunctionIteratorTest extends TestCase {
     ScoringFunctionIterator iterator = new ScoringFunctionIterator(extentIterator,
             new FakeScorer());
     ScoringContext context = new ScoringContext();
+    int[] docs = {0, 34, 110};
+    int[] lengths = {0, 99, 41};
+    FakeLengthIterator fli = new FakeLengthIterator(docs, lengths);
+    context.addLength("", fli);
 
     iterator.setContext(context);
     assertFalse(iterator.isDone());
@@ -42,14 +47,16 @@ public class ScoringFunctionIteratorTest extends TestCase {
     iterator.moveTo(extents[0][0]);
     assertEquals(extents[0][0], iterator.currentCandidate());
     context.document = 0;
-    context.length = 0;
     // score without explicit context
     assertEquals(0.0, iterator.score());
-    assertEquals(102.0, iterator.score(new ScoringContext(34, 99)));
+    context.moveLengths(34);
+    context.document = 34;
+    assertEquals(102.0, iterator.score());
     iterator.movePast(44);
     assertTrue(iterator.atCandidate(110));
-    assertEquals(0.0, iterator.score()); // length hasn't been reset
-    assertEquals(44.0, iterator.score(new ScoringContext(110, 41)));
+    context.document = iterator.currentCandidate();
+    context.moveLengths(iterator.currentCandidate());
+    assertEquals(44.0, iterator.score());
     iterator.moveTo(120);
     assertTrue(iterator.isDone());
   }
@@ -68,13 +75,20 @@ public class ScoringFunctionIteratorTest extends TestCase {
     iterator.moveTo(extents[0][0]);
     assertEquals(extents[0][0], iterator.currentCandidate());
     // score without explicit context
-    iterator.setContext(new ScoringContext(0,0));
-    assertEquals(0.0, iterator.score());
-    assertEquals(1.11315, iterator.score(new ScoringContext(34, 99)), 0.0001);
+    ScoringContext context = new ScoringContext();
+    int[] docs = {0, 34, 110};
+    int[] lengths = {0, 99, 41};
+    FakeLengthIterator fli = new FakeLengthIterator(docs, lengths);
+    context.addLength("", fli);
+    iterator.setContext(context);
+    context.document = iterator.currentCandidate();
+    context.moveLengths(34);
+    assertEquals(1.11315, iterator.score(), 0.0001);
     iterator.movePast(44);
     assertTrue(iterator.atCandidate(110));
-    assertEquals(0.0, iterator.score()); // length hasn't been reset
-    assertEquals(1.11315, iterator.score(new ScoringContext(110, 41)), 0.0001);
+    context.document = iterator.currentCandidate();
+    context.moveLengths(iterator.currentCandidate());
+    assertEquals(1.11315, iterator.score(), 0.0001);
     iterator.moveTo(120);
     assertTrue(iterator.isDone());
   }

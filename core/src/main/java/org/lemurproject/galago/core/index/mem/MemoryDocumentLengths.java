@@ -285,13 +285,17 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     @Override
-    public int getCurrentLength() throws IOException {
+    public int getCurrentLength() {
       KIterator ki = (KIterator) iterator;
-      return ki.getCurrentLength();
+      try {
+        return ki.getCurrentLength();
+      } catch (IOException ioe) {
+        throw new RuntimeException(ioe);
+      }
     }
 
     @Override
-    public int getCurrentIdentifier() throws IOException {
+    public int getCurrentIdentifier() {
       KIterator ki = (KIterator) iterator;
       return ki.getCurrentIdentifier();
     }

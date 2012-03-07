@@ -144,13 +144,17 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
     }
 
     @Override
-    public int getCurrentLength() throws IOException {
+    public int getCurrentLength() {
       KeyIterator ki = (KeyIterator) iterator;
-      return ki.getCurrentLength();
+      try {
+        return ki.getCurrentLength();
+      } catch (IOException ioe) {
+        throw new RuntimeException(ioe);
+      }
     }
 
     @Override
-    public int getCurrentIdentifier() throws IOException {
+    public int getCurrentIdentifier() {
       KeyIterator ki = (KeyIterator) iterator;
       return ki.getCurrentIdentifier();
     }
