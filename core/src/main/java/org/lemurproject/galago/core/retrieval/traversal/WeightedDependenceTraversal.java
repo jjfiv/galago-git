@@ -30,13 +30,13 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class WeightedDependenceTraversal extends Traversal {
 
-  private GroupRetrieval retrieval;
+  private GroupRetrieval gRetrieval;
   private Parameters unigramWeights;
   private Parameters bigramWeights;
 
   public WeightedDependenceTraversal(Retrieval retrieval) {
     if (retrieval instanceof GroupRetrieval) {
-      this.retrieval = (GroupRetrieval) retrieval;
+      this.gRetrieval = (GroupRetrieval) retrieval;
       Parameters parameters = retrieval.getGlobalParameters();
 
       unigramWeights = new Parameters();
@@ -69,8 +69,8 @@ public class WeightedDependenceTraversal extends Traversal {
   public Node afterNode(Node original) throws Exception {
     if (original.getOperator().equals("wsdm")) {
 
-      assert this.retrieval != null : this.getClass().getName() + " requires a group retrieval to run.";
-      assert this.retrieval.getGroups().contains("wiki") : this.getClass().getName() + " requires a 'wiki' index to run.";
+      assert this.gRetrieval != null : this.getClass().getName() + " requires a group retrieval to run.";
+      assert this.gRetrieval.getGroups().contains("wiki") : this.getClass().getName() + " requires a 'wiki' index to run.";
 
       // First check format - should only contain text node children
       List<Node> children = original.getInternalNodes();
@@ -122,7 +122,7 @@ public class WeightedDependenceTraversal extends Traversal {
 
     if ((unigramWeights.getDouble("tf") != 0.0)
             && (unigramWeights.getDouble("df") != 0.0)) {
-      NodeStatistics c_stats = this.retrieval.nodeStatistics(text);
+      NodeStatistics c_stats = this.gRetrieval.nodeStatistics(text);
       double mle_tf = (c_stats.nodeFrequency + 1) / c_stats.collectionLength;
       double mle_df = (c_stats.nodeDocumentCount + 1) / c_stats.documentCount;
       tf_w = unigramWeights.getDouble("tf") * Math.log(mle_tf);
@@ -132,7 +132,7 @@ public class WeightedDependenceTraversal extends Traversal {
 //      df_w = unigramWeights.getDouble("df") * Math.log(c_stats.nodeDocumentCount + 1);
     }
     if (unigramWeights.getDouble("wiki") != 0.0) {
-      NodeStatistics w_stats = this.retrieval.nodeStatistics(text, "wiki");
+      NodeStatistics w_stats = this.gRetrieval.nodeStatistics(text, "wiki");
       double mle_wf = (w_stats.nodeFrequency + 1) / w_stats.collectionLength;
       wf_w = unigramWeights.getDouble("wiki") * Math.log(mle_wf);
 //      wf_w = unigramWeights.getDouble("wiki") * Math.log(w_stats.nodeFrequency + 1);
@@ -150,7 +150,7 @@ public class WeightedDependenceTraversal extends Traversal {
 
     if ((bigramWeights.getDouble("tf") != 0.0)
             && (bigramWeights.getDouble("df") != 0.0)) {
-      NodeStatistics c_stats = this.retrieval.nodeStatistics("#uw:8(" + text1 + " " + text2 + ")");
+      NodeStatistics c_stats = this.gRetrieval.nodeStatistics("#uw:8(" + text1 + " " + text2 + ")");
       double mle_tf = c_stats.nodeFrequency / c_stats.collectionLength;
       double mle_df = c_stats.nodeDocumentCount / c_stats.documentCount;
       tf_w = unigramWeights.getDouble("tf") * Math.log(mle_tf);
@@ -160,7 +160,7 @@ public class WeightedDependenceTraversal extends Traversal {
 //      df_w = bigramWeights.getDouble("df") * Math.log(c_stats.nodeDocumentCount + 1);
     }
     if (bigramWeights.getDouble("wiki") != 0.0) {
-      NodeStatistics w_stats = this.retrieval.nodeStatistics("#od:1(" + text1 + " " + text2 + ")", "wiki");
+      NodeStatistics w_stats = this.gRetrieval.nodeStatistics("#od:1(" + text1 + " " + text2 + ")", "wiki");
 
 //      wf_w = bigramWeights.getDouble("wiki") * Math.log(w_stats.nodeFrequency + 1);
     }

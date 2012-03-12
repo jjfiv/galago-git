@@ -45,8 +45,6 @@ public class LogarithmIterator extends TransformIterator implements MovableScore
   }
 
   public void setContext(ScoringContext ctx) {
-    if (context != null) return;
-    super.setContext(ctx);
     if (DeltaScoringContext.class.isAssignableFrom(ctx.getClass())) {
       DeltaScoringContext dctx = (DeltaScoringContext) ctx;
 

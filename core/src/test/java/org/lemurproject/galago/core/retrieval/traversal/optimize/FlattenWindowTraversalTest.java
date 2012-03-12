@@ -21,7 +21,7 @@ public class FlattenWindowTraversalTest extends TestCase {
   public void testNestedWindowRewrite() throws Exception {
     String query = "#uw:5( #od:1(#text:a() #text:b()) )";
     Node result = StructuredQuery.parse(query);
-    Node transformed = StructuredQuery.copy(new FlattenWindowTraversal(null), result);
+    Node transformed = StructuredQuery.copy(new FlattenWindowTraversal(), result);
     assertEquals("#od:1( #text:a() #text:b() )", transformed.toString());
   }
 }

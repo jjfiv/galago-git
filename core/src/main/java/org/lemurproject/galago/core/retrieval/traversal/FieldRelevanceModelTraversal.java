@@ -24,12 +24,12 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class FieldRelevanceModelTraversal extends Traversal {
 
-  Retrieval retrieval;
   ArrayList<String> queryTerms;
   Parameters p, availableFields;
   List<String> fields;
   String scorerType;
-
+  Retrieval retrieval;
+  
   public FieldRelevanceModelTraversal(Retrieval retrieval) {
     this.retrieval = retrieval;
     Parameters globals = retrieval.getGlobalParameters();
@@ -284,7 +284,7 @@ public class FieldRelevanceModelTraversal extends Traversal {
     localParameters.set("requested", fbDocs);
 
     // transform and run
-    Node transformedCombineNode = retrieval.transformQuery(combineNode);
+    Node transformedCombineNode = retrieval.transformQuery(combineNode, localParameters);
     ScoredDocument[] initialResults = retrieval.runQuery(transformedCombineNode, localParameters);
 
     // Gather content

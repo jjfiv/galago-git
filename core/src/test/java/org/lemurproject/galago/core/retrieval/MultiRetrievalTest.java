@@ -61,11 +61,12 @@ public class MultiRetrievalTest extends TestCase {
       MultiRetrieval mr = (MultiRetrieval) RetrievalFactory.instance(params);      
       String query = "#combine( sample document )";
       Node parsedQuery = StructuredQuery.parse(query);
-      Node queryTree = mr.transformQuery(parsedQuery);
+      Parameters qp = new Parameters();
+      Node queryTree = mr.transformQuery(parsedQuery, qp);
 
       assertEquals(queryTree.toString(), "#combine( #feature:dirichlet:collectionProbability=0.21052631578947367( #counts:sample:part=postings.porter() ) #feature:dirichlet:collectionProbability=0.21052631578947367( #counts:document:part=postings.porter() ) )");
 
-      ScoredDocument[] res = mr.runQuery(queryTree);
+      ScoredDocument[] res = mr.runQuery(queryTree, qp);
 
       String[] expected = {"i1-59	1	-1.5569809573716442",
         "i2-59	1	-1.5576460721284549",

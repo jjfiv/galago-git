@@ -180,7 +180,7 @@ public class IndicatorIteratorTest extends TestCase {
     LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
 
     Node root = StructuredQuery.parse("#require(#all( #counts:document:part=postings() ) #counts:document:part=postings() )");
-    root = retrieval.transformQuery(root);
+    root = retrieval.transformQuery(root, p);
 
     ScoringContext dc1 = new ScoringContext();
     RequireIterator mi = (RequireIterator) retrieval.createIterator(root, dc1);

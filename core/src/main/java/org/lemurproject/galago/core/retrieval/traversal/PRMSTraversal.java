@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * Transforms a #prms operator into a full expansion of the
@@ -29,10 +30,10 @@ public class PRMSTraversal extends Traversal {
   String[] fieldList;
   String[] weightList = null;
   Retrieval retrieval;
-
+  
   public PRMSTraversal(Retrieval retrieval) {
-    levels = 0;
     this.retrieval = retrieval;
+    levels = 0;
   }
 
   public static boolean isNeeded(Node root) {

@@ -118,7 +118,7 @@ public class Search {
 
   public SearchResult runQuery(String query, Parameters p, boolean summarize) throws Exception {
     Node root = StructuredQuery.parse(query);
-    Node transformed = retrieval.transformQuery(root);
+    Node transformed = retrieval.transformQuery(root, p);
     SearchResult result = runTransformedQuery(transformed, p, summarize);
     result.query = root;
     result.queryAsString = query;

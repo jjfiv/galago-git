@@ -27,10 +27,10 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class BM25RelevanceFeedbackTraversal extends Traversal {
 
-  Retrieval retrieval;
   Parameters globalParameters;
   Parameters availableParts;
-
+  Retrieval retrieval;
+  
   public BM25RelevanceFeedbackTraversal(Retrieval retrieval) throws IOException {
     this.retrieval = retrieval;
     this.globalParameters = retrieval.getGlobalParameters();
@@ -55,7 +55,7 @@ public class BM25RelevanceFeedbackTraversal extends Traversal {
     // Only get as many as we need
     Parameters localParameters = globalParameters.clone();
     localParameters.set("requested", fbDocs);
-    combineNode = retrieval.transformQuery(combineNode);
+    combineNode = retrieval.transformQuery(combineNode, localParameters);
     initialResults.addAll( Arrays.asList( retrieval.runQuery(combineNode, localParameters) ));
 
     // while that's running, extract the feedback parameters

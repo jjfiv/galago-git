@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.LengthsReader;
-import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.disk.FieldLengthsReader;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
@@ -79,7 +78,11 @@ public static ProcessingModel instance(LocalRetrieval r, Node root, Parameters p
       if (p.containsKey("passageSize") || p.containsKey("passageShift")) {
         return new RankedPassageModel(r);
       } else {
-        return new RankedDocumentModel(r);
+        if (p.get("deltaReady", false)) {
+          return new DeltaScoreDocumentModel(r);
+        } else {
+          return new RankedDocumentModel(r);
+        }
       }
     }
     throw new RuntimeException(String.format("Unable to determine processing model for %s",

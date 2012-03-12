@@ -38,11 +38,9 @@ public class BM25FTraversal extends Traversal {
   List<String> fieldList;
   Parameters availableFields;
   Parameters weights;
-  Retrieval retrieval;
 
   public BM25FTraversal(Retrieval retrieval) {
     levels = 0;
-    this.retrieval = retrieval;
     Parameters globals = retrieval.getGlobalParameters();
     weights = globals.containsKey("bm25f") ? globals.getMap("bm25f") : new Parameters();
     fieldList = globals.getAsList("fields");
@@ -92,7 +90,7 @@ public class BM25FTraversal extends Traversal {
     NodeParameters np = new NodeParameters();
     np.set("default", term);
     Node textNode = new Node("text", np);
-    textNode = TextPartAssigner.assignPart(textNode, retrieval.getAvailableParts());
+    textNode = TextPartAssigner.assignPart(textNode, availableFields);
 
     // Now wrap it in the scorer
     np = new NodeParameters();

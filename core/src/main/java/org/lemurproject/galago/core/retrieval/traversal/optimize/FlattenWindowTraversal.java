@@ -3,12 +3,11 @@
  */
 package org.lemurproject.galago.core.retrieval.traversal.optimize;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * This traversal removes extraneous window operators:
@@ -20,7 +19,7 @@ import org.lemurproject.galago.core.retrieval.traversal.Traversal;
  */
 public class FlattenWindowTraversal extends Traversal {
 
-  public FlattenWindowTraversal(Retrieval retrieval) {
+  public FlattenWindowTraversal() {
   }
 
   @Override

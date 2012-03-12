@@ -240,10 +240,9 @@ public class LocalRetrievalTest extends TestCase {
     children.add(bFeature);
     Node root = new Node("combine", children);
 
-    root = retrieval.transformQuery(root);
-
     Parameters p = new Parameters();
     p.set("requested", 5);
+    root = retrieval.transformQuery(root, p);
     ScoredDocument[] result = retrieval.runQuery(root, p);
 
     assertEquals(result.length, 5);
@@ -281,16 +280,17 @@ public class LocalRetrievalTest extends TestCase {
   public void testWorkingSet() throws FileNotFoundException, IOException, Exception {
     LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), new Parameters());
     Node root = StructuredQuery.parse("#combine( #feature:dirichlet:mu=1500( #counts:a() ) #feature:dirichlet:mu=1500( #counts:b() ) )");
-    root = retrieval.transformQuery(root);
+    Parameters p = new Parameters();
+    p.set("requested", 5);
+    
+    root = retrieval.transformQuery(root, p);
 
     List<String> ids = new ArrayList<String>();
     ids.add("DOC1");
     ids.add("DOC2");
     ids.add("DOC5");
-
-    Parameters p = new Parameters();
-    p.set("requested", 5);
     p.set("working", ids);
+   
     ScoredDocument[] result = retrieval.runQuery(root, p);
 
     assertEquals(3, result.length);
@@ -329,10 +329,10 @@ public class LocalRetrievalTest extends TestCase {
 
     String query = "#combine( #feature:dirichlet:mu=1500( #uw:5( #extents:a:part=postings() #extents:b:part=postings() ) ) )";
     Node root = StructuredQuery.parse(query);
-    root = retrieval.transformQuery(root);
-
     Parameters p = new Parameters();
     p.set("requested", 5);
+    root = retrieval.transformQuery(root, p);
+
     ScoredDocument[] result = retrieval.runQuery(root, p);
 
     assertEquals(result.length, 2);

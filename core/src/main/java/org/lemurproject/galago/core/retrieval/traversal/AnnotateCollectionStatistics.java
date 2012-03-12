@@ -24,14 +24,14 @@ import org.lemurproject.galago.tupleflow.Parameters;
 public class AnnotateCollectionStatistics extends Traversal {
 
   HashSet<String> availableStatistics;
-  Retrieval retrieval;
   Parameters globalParameters;
+  Retrieval retrieval;
 
   // featurefactory is necessary to get the correct class
   public AnnotateCollectionStatistics(Retrieval retrieval) throws IOException {
-    this.retrieval = retrieval;
     this.globalParameters = retrieval.getGlobalParameters();
-
+    this.retrieval = retrieval;
+    
     this.availableStatistics = new HashSet();
     this.availableStatistics.add("collectionLength");
     this.availableStatistics.add("documentCount");

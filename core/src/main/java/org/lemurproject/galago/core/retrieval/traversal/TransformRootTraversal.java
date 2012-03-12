@@ -6,6 +6,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * StructuredQuery may put a "root" operator at the top of the query tree. We now have to
@@ -16,11 +17,11 @@ import org.lemurproject.galago.core.retrieval.query.QueryType;
 public class TransformRootTraversal extends Traversal {
 
   int levels = 0;
-  Retrieval retrieval;
   QueryType qType;
-
-  public TransformRootTraversal(Retrieval retrieval) {
-    this.retrieval = retrieval;
+  Retrieval retrieval;
+  
+  public TransformRootTraversal(Retrieval r) {
+    this.retrieval = r;
   }
 
   public void beforeNode(Node object) throws Exception {

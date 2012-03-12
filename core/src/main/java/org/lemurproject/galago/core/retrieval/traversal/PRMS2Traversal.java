@@ -44,9 +44,9 @@ public class PRMS2Traversal extends Traversal {
   Parameters availableFields;
   Parameters weights;
   Parameters prms = null;
-  Retrieval retrieval;
   Parameters globals;
-
+  Retrieval retrieval;
+  
   public PRMS2Traversal(Retrieval retrieval) {
     levels = 0;
     this.retrieval = retrieval;

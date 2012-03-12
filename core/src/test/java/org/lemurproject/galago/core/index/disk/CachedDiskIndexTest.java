@@ -118,10 +118,12 @@ public class CachedDiskIndexTest extends TestCase {
 
       for (String query : queries) {
         Node q = StructuredQuery.parse(query);
-        Node diskQ = diskRetrieval.transformQuery(q);
+        Parameters q1p = new Parameters();
+        Node diskQ = diskRetrieval.transformQuery(q, q1p);
         ScoredDocument[] diskResults = diskRetrieval.runQuery(diskQ);
 
-        Node cachedQ = cachedDiskRetrieval.transformQuery(q);
+        Parameters q2p = new Parameters();
+        Node cachedQ = cachedDiskRetrieval.transformQuery(q, q2p);
         ScoredDocument[] cachedDiskResults = cachedDiskRetrieval.runQuery(cachedQ);
         
         assertEquals(diskResults.length, cachedDiskResults.length);
@@ -134,7 +136,8 @@ public class CachedDiskIndexTest extends TestCase {
       }
 
       Node oov = StructuredQuery.parse("everything");
-      oov = cachedDiskRetrieval.transformQuery(oov);
+      Parameters oqp = new Parameters();
+      oov = cachedDiskRetrieval.transformQuery(oov, oqp);
       ScoredDocument[] diskResults = diskRetrieval.runQuery(oov);
       ScoredDocument[] cachedDiskResults = cachedDiskRetrieval.runQuery(oov);
 

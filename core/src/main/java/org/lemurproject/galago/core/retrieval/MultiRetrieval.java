@@ -172,8 +172,8 @@ public class MultiRetrieval implements Retrieval {
     return queryResultCollector.subList(0, Math.min(queryResultCollector.size(), requested)).toArray(new ScoredDocument[0]);
   }
 
-  public Node transformQuery(Node root) throws Exception {
-    return transformQuery(features.getTraversals(this, root), root);
+  public Node transformQuery(Node root, Parameters qp) throws Exception {
+    return transformQuery(features.getTraversals(this, root, qp), root);
   }
 
   // private functions
@@ -277,7 +277,7 @@ public class MultiRetrieval implements Retrieval {
   public NodeStatistics nodeStatistics(String nodeString) throws Exception {
     Node root = StructuredQuery.parse(nodeString);
     root.getNodeParameters().set("queryType", "count");
-    root = transformQuery(root);
+    root = transformQuery(root, new Parameters());
     return nodeStatistics(root);
   }
 

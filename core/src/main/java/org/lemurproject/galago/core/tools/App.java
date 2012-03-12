@@ -724,7 +724,7 @@ public class App {
       for (String query : (List<String>) p.getList("x")) {
         Node parsed = StructuredQuery.parse(query);
         parsed.getNodeParameters().set("queryType", "count");
-        Node transformed = r.transformQuery(parsed);
+        Node transformed = r.transformQuery(parsed, new Parameters());
 
         if (p.get("printTransformation", false)) {
           System.err.println(query);
@@ -762,7 +762,7 @@ public class App {
       for (String query : (List<String>) p.getList("x")) {
         Node parsed = StructuredQuery.parse(query);
         parsed.getNodeParameters().set("queryType", "count");
-        Node transformed = r.transformQuery(parsed);
+        Node transformed = r.transformQuery(parsed, new Parameters());
 
         if (p.get("printTransformation", false)) {
           System.err.println(query);

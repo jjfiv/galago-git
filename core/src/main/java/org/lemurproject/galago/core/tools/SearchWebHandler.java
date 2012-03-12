@@ -369,7 +369,7 @@ public class SearchWebHandler extends ContextHandler {
     String retrievalGroup = request.getParameter("retrievalGroup");
     Node root = StructuredQuery.parse(nodeString);
     try {
-      Node transformed = search.retrieval.transformQuery(root);
+      Node transformed = search.retrieval.transformQuery(root, new Parameters());
       PrintWriter writer = response.getWriter();
       XMLOutputter outputter = new XMLOutputter(writer, "UTF-8");
       response.setContentType("text/xml");
