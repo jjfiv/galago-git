@@ -184,7 +184,7 @@ public class FieldTraversalTest extends TestCase {
     assertEquals(expected.toString(), q2.toString());
   }
 
-  public void testBM25FPotentialsVsModel() throws Exception {
+  public void testBM25FDeltaVsModel() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
     Parameters wMap = new Parameters();
@@ -209,10 +209,14 @@ public class FieldTraversalTest extends TestCase {
     p.set("fields", Arrays.asList(fields));
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
     String query = "#bm25f(cat dog donkey)";
-    ScoredDocument[] results = retrieval.runQuery(query, p);
+
+    Node raw = StructuredQuery.parse(query);
+    Node root = retrieval.transformQuery(raw, p);
+    p.set("deltaReady", false);
+    ScoredDocument[] results = retrieval.runQuery(root, p);
     
     //p.set("deltaReady", true);
-    ScoredDocument[] results2 = retrieval.runQuery(query, p);
+    ScoredDocument[] results2 = retrieval.runQuery(root, p);
 
     assertEquals(results.length, results2.length);
     for (int i = 0; i < results.length; i++) {
@@ -221,7 +225,7 @@ public class FieldTraversalTest extends TestCase {
     }
   }
 
-  public void testPRMSPotentialsVsModel() throws Exception {
+  public void testPRMSDeltaVsModel() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
     // set fields
@@ -232,9 +236,13 @@ public class FieldTraversalTest extends TestCase {
     String query = "#prms2(cat dog donkey)";
 
     LocalRetrieval retrieval = new LocalRetrieval(index, global);
-    ScoredDocument[] results = retrieval.runQuery(query, global);
-
-    ScoredDocument[] results2 = retrieval.runQuery(query, global);
+    Node raw = StructuredQuery.parse(query);
+    Node root = retrieval.transformQuery(raw, global);
+    global.set("deltaReady", false);
+    ScoredDocument[] results = retrieval.runQuery(root, global);
+    
+    //global.set("deltaReady", true);
+    ScoredDocument[] results2 = retrieval.runQuery(root, global);
 
     assertEquals(results.length, results2.length);
 
@@ -245,7 +253,7 @@ public class FieldTraversalTest extends TestCase {
 
   }
 
-  public void testPL2FPotentialsVsModel() throws Exception {
+  public void testPL2FDeltaVsModel() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
     Parameters wMap = new Parameters();
@@ -265,9 +273,13 @@ public class FieldTraversalTest extends TestCase {
 
     String query = "#pl2f(cat dog donkey)";
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
-    ScoredDocument[] results = retrieval.runQuery(query, p);
-
-    ScoredDocument[] results2 = retrieval.runQuery(query, p);
+    Node raw = StructuredQuery.parse(query);
+    Node root = retrieval.transformQuery(raw, p);
+    p.set("deltaReady", false);
+    ScoredDocument[] results = retrieval.runQuery(root, p);
+    
+    //p.set("deltaReady", true);
+    ScoredDocument[] results2 = retrieval.runQuery(root, p);
 
     assertEquals(results.length, results2.length);
 
