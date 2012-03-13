@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.structured;
 
-import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -120,13 +119,37 @@ public class FeatureFactory {
     {DFRScoringIterator.class.getName(), "dfr"},
     {PL2FieldScoringIterator.class.getName(), "pl2f"}
   };
+  static String[] sTraversalList = {
+    WeightedDependenceTraversal.class.getName(),
+    SequentialDependenceTraversal.class.getName(),
+    FullDependenceTraversal.class.getName(),
+    TransformRootTraversal.class.getName(),
+    PRMSTraversal.class.getName(),
+    PRMS2Traversal.class.getName(),
+    BM25FTraversal.class.getName(),
+    PL2FTraversal.class.getName(),
+    WindowRewriteTraversal.class.getName(),
+    IndriWeightConversionTraversal.class.getName(),
+    IndriWindowCompatibilityTraversal.class.getName(),
+    TextFieldRewriteTraversal.class.getName(),
+    InsideToFieldPartTraversal.class.getName(),
+    ImplicitFeatureCastTraversal.class.getName(),
+    RemoveStopwordsTraversal.class.getName(),
+    FlattenWindowTraversal.class.getName(),
+    FlattenCombineTraversal.class.getName(),
+    MergeCombineChildrenTraversal.class.getName(),
+    RelevanceModelTraversal.class.getName(),
+    BM25RelevanceFeedbackTraversal.class.getName(),
+    AnnotateCollectionStatistics.class.getName()
+  };
 
   public FeatureFactory(Parameters p) {
-    this(p, sOperatorLookup, sFeatureLookup);
+    this(p, sOperatorLookup, sFeatureLookup, sTraversalList);
   }
 
   public FeatureFactory(Parameters parameters,
-          String[][] sOperatorLookup, String[][] sFeatureLookup) {
+          String[][] sOperatorLookup, String[][] sFeatureLookup,
+          String[] sTraversalList) {
     operatorLookup = new HashMap<String, OperatorSpec>();
     featureLookup = new HashMap<String, OperatorSpec>();
     this.parameters = parameters;
@@ -145,9 +168,9 @@ public class FeatureFactory {
       operatorLookup.put(operatorName, operator);
     }
 
-    afterTraversals = new ArrayList<TraversalSpec>();
-    beforeTraversals = new ArrayList<TraversalSpec>();
-    insteadTraversals = new ArrayList<TraversalSpec>();
+    ArrayList<TraversalSpec> afterTraversals = new ArrayList<TraversalSpec>();
+    ArrayList<TraversalSpec> beforeTraversals = new ArrayList<TraversalSpec>();
+    ArrayList<TraversalSpec> insteadTraversals = new ArrayList<TraversalSpec>();
 
     if (parameters.containsKey("traversals")) {
       Parameters traversals = parameters.getMap("traversals");
@@ -168,6 +191,21 @@ public class FeatureFactory {
       }
     }
 
+    // If the user doesn't want to replace the current pipeline, add in that pipeline
+    if (insteadTraversals.size() == 0) {
+      for (String className : sTraversalList) {
+        TraversalSpec spec = new TraversalSpec();
+        spec.className = className;
+        insteadTraversals.add(spec);
+      }
+    }
+
+
+    traversals = new ArrayList<TraversalSpec>();
+    traversals.addAll(beforeTraversals);
+    traversals.addAll(insteadTraversals);
+    traversals.addAll(afterTraversals);
+
     // Load external operators
     if (parameters.containsKey("operators")) {
       Parameters operators = parameters.getMap("operators");
@@ -184,6 +222,7 @@ public class FeatureFactory {
       for (Parameters value : (List<Parameters>) parameters.getList("features")) {
         String className = value.getString("class");
         String operatorName = value.getString("name");
+        Parameters params = value.isMap("parameters") ? value.getMap("parameters") : null;
         OperatorSpec spec = new OperatorSpec();
         spec.className = className;
         featureLookup.put(operatorName, spec);
@@ -202,7 +241,7 @@ public class FeatureFactory {
   }
   protected HashMap<String, OperatorSpec> featureLookup;
   protected HashMap<String, OperatorSpec> operatorLookup;
-  protected List<TraversalSpec> beforeTraversals, insteadTraversals, afterTraversals;
+  protected List<TraversalSpec> traversals;
   protected Parameters parameters;
 
   public String getClassName(Node node) throws Exception {
@@ -267,7 +306,7 @@ public class FeatureFactory {
    * If the class returned by getClass() is a ScoringFunction, it must contain
    * a constructor that takes a single Parameters object.  If the class returned by
    * getFeatureClass() is some kind of StructuredIterator,
-   * it must take a Parameters object and an ArrayList of DocumentDataIterators as globals.
+   * it must take a Parameters object and an ArrayList of DocumentDataIterators as parameters.
    */
   public StructuredIterator getIterator(Node node, ArrayList<StructuredIterator> childIterators) throws Exception {
     NodeType type = getNodeType(node);
@@ -294,12 +333,12 @@ public class FeatureFactory {
       arguments.clear();
       formals.clear();
 
-      // Construct our argument list as we zip down the list of formal globals
+      // Construct our argument list as we zip down the list of formal parameters
       formals.addAll(Arrays.asList(constructor.getParameterTypes()));
       int childIdx = 0;
       while (formals.size() > 0) {
         if (formals.get(0) == Parameters.class) {
-          // dealing w/ immutable globals  -- front only
+          // dealing w/ immutable parameters  -- front only
           if (arguments.isEmpty()) {
             arguments.add(this.parameters);
           } else {
@@ -361,125 +400,37 @@ public class FeatureFactory {
     return (StructuredIterator) cons[ic].newInstance(arguments.toArray(new Object[0]));
   }
 
-  public List<Traversal> getTraversals(Retrieval retrieval, Node queryTree, Parameters queryParams)
-          throws ClassNotFoundException, NoSuchMethodException, InstantiationException,
-          IllegalAccessException, IllegalArgumentException, InvocationTargetException, IOException {
-    ArrayList<Traversal> result = new ArrayList<Traversal>();
-
-    // Do "before" traversals
-    if (beforeTraversals.size() > 0) {
-      result.addAll(getTraversalsFromSpecs(beforeTraversals, retrieval, queryTree, queryParams));
+  public List<String> getTraversalNames() {
+    ArrayList<String> result = new ArrayList<String>();
+    for (TraversalSpec spec : traversals) {
+      result.add(spec.className);
     }
-
-    // Do either the builtins of the "instead" traversals
-    if (insteadTraversals.size() == 0) {
-      result.addAll(constructBuiltInTraversals(retrieval, queryTree, queryParams));
-    } else {
-      result.addAll(getTraversalsFromSpecs(insteadTraversals, retrieval, queryTree, queryParams));
-    }
-
-    // Do "after" traversals
-    if (afterTraversals.size() > 0) {
-      result.addAll(getTraversalsFromSpecs(afterTraversals, retrieval, queryTree, queryParams));
-    }
-
     return result;
   }
 
-  // Hardcode the builtins for speed - if we're executing a bunch of queries, let's not have the
-  // overhead take up too much time.
-  private List<Traversal> constructBuiltInTraversals(Retrieval r, Node root, Parameters qp)
-          throws IOException {
-    ArrayList<Traversal> traversals = new ArrayList<Traversal>();
-    if (WeightedDependenceTraversal.isNeeded(root)) {
-      traversals.add(new WeightedDependenceTraversal(r));
-    }
-    if (SequentialDependenceTraversal.isNeeded(root)) {
-      traversals.add(new SequentialDependenceTraversal(r));
-    }    
-    if (FullDependenceTraversal.isNeeded(root)) {
-      traversals.add(new FullDependenceTraversal(r));
-    }
-    if (TransformRootTraversal.isNeeded(root)) {
-      traversals.add(new TransformRootTraversal(r));
-    }
-    if (PRMSTraversal.isNeeded(root)) {
-      traversals.add(new PRMSTraversal(r));
-    }
-    if (PRMS2Traversal.isNeeded(root)) {
-      traversals.add(new PRMS2Traversal(r));
-    }
-    if (BM25FTraversal.isNeeded(root)) {
-      traversals.add(new BM25FTraversal(r));
-    }
-    if (PL2FTraversal.isNeeded(root)) {
-      traversals.add(new PL2FTraversal(r));
-    }
-    if (WindowRewriteTraversal.isNeeded(root)) {
-      traversals.add(new WindowRewriteTraversal(r));
-    }
-    if (IndriWeightConversionTraversal.isNeeded(root)) {
-      traversals.add(new IndriWeightConversionTraversal());
-    }
-    if (IndriWindowCompatibilityTraversal.isNeeded(root)) {
-      traversals.add(new IndriWindowCompatibilityTraversal());
-    }
-    if (TextFieldRewriteTraversal.isNeeded(root)) {
-      traversals.add(new TextFieldRewriteTraversal(r));
-    }
-    if (InsideToFieldPartTraversal.isNeeded(root)) {
-      traversals.add(new InsideToFieldPartTraversal(r));
-    }
-    if (ImplicitFeatureCastTraversal.isNeeded(root)) {
-      traversals.add(new ImplicitFeatureCastTraversal(r));
-    }
-    if (RemoveStopwordsTraversal.isNeeded(root)) {
-      traversals.add(new RemoveStopwordsTraversal(r));
-    }
-    if (FlattenWindowTraversal.isNeeded(root)) {
-      traversals.add(new FlattenWindowTraversal());
-    }
-    if (FlattenCombineTraversal.isNeeded(root)) {
-      traversals.add(new FlattenCombineTraversal());
-    }
-    if (MergeCombineChildrenTraversal.isNeeded(root)) {
-      traversals.add(new MergeCombineChildrenTraversal());
-    }
-    if (RelevanceModelTraversal.isNeeded(root)) {
-      traversals.add(new RelevanceModelTraversal(r));
-    }
-    if (BM25RelevanceFeedbackTraversal.isNeeded(root)) {
-      traversals.add(new BM25RelevanceFeedbackTraversal(r));
-    }
-    if (AnnotateCollectionStatistics.isNeeded(root)) {
-      traversals.add(new AnnotateCollectionStatistics(r));
-    }
-    return traversals;
-  }
-
-  private List<Traversal> getTraversalsFromSpecs(List<TraversalSpec> specs, Retrieval retrieval, Node queryTree, Parameters queryParams)
+  public List<Traversal> getTraversals(Retrieval retrieval, Node queryTree, Parameters queryParams)
           throws ClassNotFoundException, NoSuchMethodException, InstantiationException,
           IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     ArrayList<Traversal> result = new ArrayList<Traversal>();
-    for (TraversalSpec spec : specs) {
+    for (TraversalSpec spec : traversals) {
       Class<? extends Traversal> traversalClass =
               (Class<? extends Traversal>) Class.forName(spec.className);
       if (((Boolean) traversalClass.getMethod("isNeeded", Node.class).invoke(null, queryTree)).booleanValue()) {
-        Constructor<? extends Traversal> constructor = (Constructor<? extends Traversal>) traversalClass.getConstructors()[0];
-        Traversal traversal;
-        switch (constructor.getParameterTypes().length) {
+	  Constructor<? extends Traversal> constructor = (Constructor<? extends Traversal>) traversalClass.getConstructors()[0];
+	  Traversal traversal;
+	  switch (constructor.getParameterTypes().length) {
           case 0:
-            traversal = constructor.newInstance();
-            break;
+	      traversal = constructor.newInstance();
+	      break;
           case 1:
-            traversal = constructor.newInstance(retrieval);
-            break;
+	      traversal = constructor.newInstance(retrieval);
+	      break;
           case 2:
-            traversal = constructor.newInstance(retrieval, queryParams);
-            break;
+	      traversal = constructor.newInstance(retrieval, queryParams);
+	      break;
           default:
-            throw new IllegalArgumentException("Traversals should not have more than 2 args.");
-        }
+	      throw new IllegalArgumentException("Traversals should not have more than 2 args.");
+	  }
         result.add(traversal);
       }
     }
