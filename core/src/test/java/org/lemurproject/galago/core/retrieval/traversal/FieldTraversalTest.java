@@ -210,8 +210,8 @@ public class FieldTraversalTest extends TestCase {
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
     String query = "#bm25f(cat dog donkey)";
     ScoredDocument[] results = retrieval.runQuery(query, p);
-
-    p.set("deltaReady", true);
+    
+    //p.set("deltaReady", true);
     ScoredDocument[] results2 = retrieval.runQuery(query, p);
 
     assertEquals(results.length, results2.length);
