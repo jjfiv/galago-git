@@ -43,29 +43,4 @@ public class LogarithmIterator extends TransformIterator implements MovableScore
   public double minimumScore() {
     return Math.log(scorer.minimumScore());
   }
-
-  public void setContext(ScoringContext ctx) {
-    if (DeltaScoringContext.class.isAssignableFrom(ctx.getClass())) {
-      DeltaScoringContext dctx = (DeltaScoringContext) ctx;
-
-      // Jesus this is so gross...this is not what the quorum index is for
-      // but it gets the job done
-      if (dctx.startingPotentials == null) {
-        // this is possibly the smelliest crappy hack ever...
-        dctx.startingPotentials = new double[(int) globals.getLong("numberOfTerms")];
-        dctx.potentials = new double[dctx.startingPotentials.length];
-      }
-      dctx.startingPotentials[dctx.quorumIndex] = scorer.maximumScore();
-      for (int i = dctx.scorers.size() - 1; i >= 0; i--) {
-        DirichletProbabilityScoringIterator dpsi = 
-                (DirichletProbabilityScoringIterator) dctx.scorers.get(i);
-        if (dpsi.parentIdx == -1) {
-          dpsi.parentIdx = dctx.quorumIndex;
-        } else {
-          break;
-        }
-      }
-      dctx.quorumIndex++;
-    }
-  }
 }

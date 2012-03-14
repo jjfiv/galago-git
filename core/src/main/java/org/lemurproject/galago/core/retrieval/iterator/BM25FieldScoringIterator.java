@@ -81,6 +81,11 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
     ctx.potentials[parentIdx] += diff;
   }
 
+  public void aggregatePotentials(DeltaScoringContext ctx) {
+      // nothing to do yet
+  }
+
+
   @Override
   public double maximumScore() {
     return max;

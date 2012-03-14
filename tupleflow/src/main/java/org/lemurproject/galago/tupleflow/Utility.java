@@ -40,6 +40,10 @@ public class Utility {
   private static final Parameters drmaaOptions = new Parameters();
   private static final List<String> roots = new ArrayList();
 
+  // Some constant values
+  public static final double log2 = Math.log(2);
+  public static final double loge = Math.log(Math.E) / log2;
+
   /**
    * Put all initialization here
    */
@@ -296,6 +300,18 @@ public class Utility {
     }
 
     return builder.toString();
+  }
+
+  public static void normalize(double[] args) {
+      double total = 0.0;
+      int i;
+      for (i = 0; i < args.length; i++) {
+	  total += args[i];
+      }
+
+      for (i = 0; i < args.length; i++) {
+	  args[i] /= total;
+      }
   }
 
   public static String caps(String input) {

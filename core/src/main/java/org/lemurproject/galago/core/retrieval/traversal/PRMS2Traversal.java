@@ -44,11 +44,12 @@ public class PRMS2Traversal extends Traversal {
   Parameters availableFields;
   Parameters weights;
   Parameters prms = null;
-  Parameters globals;
+  Parameters globals, queryParams;
   Retrieval retrieval;
   
-  public PRMS2Traversal(Retrieval retrieval) {
+    public PRMS2Traversal(Retrieval retrieval, Parameters qp) {
     levels = 0;
+    queryParams = qp;
     this.retrieval = retrieval;
     try {
       availableFields = retrieval.getAvailableParts();
@@ -79,8 +80,9 @@ public class PRMS2Traversal extends Traversal {
       String scorerType = globals.get("scorer", "dirichlet");
 
       List<Node> children = original.getInternalNodes();
-      globals.set("numberOfTerms", children.size()); // <-- filthy hack
+      queryParams.set("numPotentials", children.size());
       ArrayList<Node> terms = new ArrayList<Node>();
+      int j = 0;
       for (Node child : children) {
         ArrayList<Node> termFields = new ArrayList<Node>();
         NodeParameters nodeweights = new NodeParameters();
@@ -96,20 +98,26 @@ public class PRMS2Traversal extends Traversal {
           par1.set("default", child.getDefaultParameter());
           par1.set("part", partName);
           Node termCount = new Node("counts", par1, new ArrayList(), 0);
+	  double nw;
           if (weights != null && (weights.containsKey(field) || prms.containsKey("weight_default"))) {
 	      if (weights.containsKey(field)) {
-		  nodeweights.set(Integer.toString(i), weights.getDouble(field));
+		  nw = weights.getDouble(field);
 	      } else {
-		  nodeweights.set(Integer.toString(i), prms.getDouble("weight_default"));
+		  nw = prms.getDouble("weight_default");
 	      }
           } else {
             NodeStatistics ns = retrieval.nodeStatistics(termCount);
-            double fieldprob = (ns.nodeFrequency + 0.0) / ns.collectionLength; // P(t|F_j)
-            nodeweights.set(Integer.toString(i), fieldprob);
-            normalizer += fieldprob;
+            nw = (ns.nodeFrequency + 0.0) / ns.collectionLength; // P(t|F_j)
+            normalizer += nw;
           }
+	  nodeweights.set(Integer.toString(i), nw);
           Node termScore = new Node("feature", scorerType + "-raw");
           termScore.getNodeParameters().set("lengths", field);
+
+	  // Following two sets are for delta-scoring
+	  termScore.getNodeParameters().set("w", nw);
+	  termScore.getNodeParameters().set("pIdx", j);
+
           termScore.addChild(termCount);
           termFields.add(termScore);
           i++;
@@ -119,7 +127,9 @@ public class PRMS2Traversal extends Traversal {
         if (normalizer > 0.0) {
           for (i = 0; i < fieldList.length; i++) {
             String key = Integer.toString(i);
-            nodeweights.set(key, nodeweights.getDouble(key) / normalizer);
+	    double normed = nodeweights.getDouble(key) / normalizer;
+            nodeweights.set(key, normed);
+	    termFields.get(i).getNodeParameters().set("w", normed);
             if (retrieval.getGlobalParameters().get("printWeights", false)) {
               double w = nodeweights.getDouble(key);
               if (w > 0.0) {
@@ -133,6 +143,7 @@ public class PRMS2Traversal extends Traversal {
         Node logScoreNode = new Node("feature", "log");
         logScoreNode.addChild(termFieldNodes);
         terms.add(logScoreNode);
+	j++;
       }
       Node termNodes = new Node("combine", new NodeParameters(), terms, original.getPosition());
       termNodes.getNodeParameters().set("norm", false);

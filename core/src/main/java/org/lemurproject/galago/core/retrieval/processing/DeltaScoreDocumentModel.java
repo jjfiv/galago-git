@@ -46,9 +46,12 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
   public ScoredDocument[] executeWholeCollection(Node queryTree, Parameters queryParams)
           throws Exception {
     DeltaScoringContext context = new DeltaScoringContext();
-    
-    // Following operations are all just setup
+        
     int requested = (int) queryParams.get("requested", 1000);
+    
+    context.potentials = new double[(int)queryParams.get("numPotentials", queryParams.getLong("numberOfTerms"))];
+    context.startingPotentials = new double[(int)queryParams.get("numPotentials", queryParams.getLong("numberOfTerms"))];
+
     StructuredIterator iterator = retrieval.createIterator(queryTree, context);
 
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
@@ -56,13 +59,10 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
     context.minCandidateScore = Double.NEGATIVE_INFINITY;
     context.quorumIndex = context.scorers.size();
 
-    System.err.printf("Executing delta scoring (%d)\n", context.scorers.size());
+    //System.err.printf("Executing delta scoring (%d)\n", context.scorers.size());
         
     // Compute the starting potential
-    context.startingPotential = 0.0;
-    for (int i = 0; i < context.startingPotentials.length; i++) {
-      context.startingPotential += Math.log(context.startingPotentials[i]);
-    }
+    context.scorers.get(0).aggregatePotentials(context);
 
     // Make sure the scorers are sorted properly
     Collections.sort(context.scorers, new Comparator<DeltaScoringIterator>() {
@@ -138,7 +138,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
       }
     }
     
-    System.err.printf("queue contains %d results.\n", queue.size());
+    //System.err.printf("queue contains %d results.\n", queue.size());
     
     return toReversedArray(queue);
   }
