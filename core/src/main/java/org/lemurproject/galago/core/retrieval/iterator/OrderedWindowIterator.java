@@ -15,7 +15,7 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
   private int width;
 
   public OrderedWindowIterator(Parameters globalParams, NodeParameters parameters, MovableExtentIterator[] iterators) throws IOException {
-    super(iterators);
+    super(globalParams, iterators);
     this.width = (int) parameters.get("default", -1);
     moveTo(0);
   }

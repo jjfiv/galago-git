@@ -37,7 +37,7 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
   public ExtentInsideIterator(Parameters globalParams, NodeParameters parameters,
           MovableExtentIterator innerIterator,
           MovableExtentIterator outerIterator) throws IOException {
-    super(new MovableExtentIterator[]{innerIterator, outerIterator});
+    super(globalParams, new MovableExtentIterator[]{innerIterator, outerIterator});
     this.innerIterator = innerIterator;
     this.outerIterator = outerIterator;
     // load the first document

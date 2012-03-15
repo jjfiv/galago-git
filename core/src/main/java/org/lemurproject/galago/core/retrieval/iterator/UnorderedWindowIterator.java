@@ -16,7 +16,7 @@ public class UnorderedWindowIterator extends ExtentConjunctionIterator {
 
   /** Creates a new instance of UnorderedWindowIterator */
   public UnorderedWindowIterator(Parameters globalParams, NodeParameters parameters, MovableExtentIterator[] evIterators) throws IOException {
-    super(evIterators);
+    super(globalParams, evIterators);
     this.width = (int) parameters.get("default", -1);
     this.overlap = parameters.get("overlap", false);
     moveTo(0);
