@@ -83,10 +83,11 @@ public interface Retrieval {
   /**
    * Performs any additional transformations necessary to prepare the query for execution.
    * @param root
+   * @param queryParams a Parameters object that may further populated by the transformations applied
    * @return
    * @throws Exception
    */
-  public Node transformQuery(Node root) throws Exception;
+  public Node transformQuery(Node root, Parameters queryParams) throws Exception;
 
   /**
    * Runs the query against the retrieval. Assumes the query has been properly annotated.

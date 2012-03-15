@@ -1,11 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * Looks at the current node and attempts to rewrite Indri-style
@@ -18,7 +16,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  * @author trevor
  */
 public class IndriWindowCompatibilityTraversal extends Traversal {
-    public IndriWindowCompatibilityTraversal(Retrieval retrieval) {
+    public IndriWindowCompatibilityTraversal() {
     }
 
     public Node afterNode(Node original) {

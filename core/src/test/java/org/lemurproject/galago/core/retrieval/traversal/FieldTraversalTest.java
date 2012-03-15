@@ -84,6 +84,7 @@ public class FieldTraversalTest extends TestCase {
     //System.err.printf("Expected: %s\nGot: %s\n", expected.toString(), q2.toString() );
     assertEquals(expected.toString(), q2.toString());
   }
+
   public void testBM25FTraversalCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -206,12 +207,11 @@ public class FieldTraversalTest extends TestCase {
 
     String[] fields = {"title", "author", "anchor"};
     p.set("fields", Arrays.asList(fields));
-
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
     String query = "#bm25f(cat dog donkey)";
     ScoredDocument[] results = retrieval.runQuery(query, p);
-
-    p.set("potentials", true);
+    
+    //p.set("deltaReady", true);
     ScoredDocument[] results2 = retrieval.runQuery(query, p);
 
     assertEquals(results.length, results2.length);
@@ -234,7 +234,6 @@ public class FieldTraversalTest extends TestCase {
     LocalRetrieval retrieval = new LocalRetrieval(index, global);
     ScoredDocument[] results = retrieval.runQuery(query, global);
 
-    global.set("potentials", true);
     ScoredDocument[] results2 = retrieval.runQuery(query, global);
 
     assertEquals(results.length, results2.length);
@@ -268,7 +267,6 @@ public class FieldTraversalTest extends TestCase {
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
     ScoredDocument[] results = retrieval.runQuery(query, p);
 
-    p.set("potentials", true);
     ScoredDocument[] results2 = retrieval.runQuery(query, p);
 
     assertEquals(results.length, results2.length);
@@ -292,11 +290,11 @@ public class FieldTraversalTest extends TestCase {
 
     assertEquals(5, results.length);
 
-
+    /*
     for (int i = 0; i < results.length; i++) {
       System.err.printf("%d : %s\n", i, results[i].toString());
-    }
-
+    } 
+     */
 
     assertEquals(1, results[0].document);
     assertEquals(results[0].score, -11.160840, 0.00001);

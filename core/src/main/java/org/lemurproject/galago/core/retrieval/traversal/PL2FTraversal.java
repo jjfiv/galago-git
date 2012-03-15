@@ -53,8 +53,8 @@ public class PL2FTraversal extends Traversal {
   Retrieval retrieval;
   
   public PL2FTraversal(Retrieval retrieval) {
-    levels = 0;
     this.retrieval = retrieval;
+    levels = 0;
     Parameters globals = retrieval.getGlobalParameters();
     params = globals.containsKey("pl2f") ? globals.getMap("pl2f") : new Parameters();
     weights = params.containsKey("weights") ? params.getMap("weights") : new Parameters();

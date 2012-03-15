@@ -45,7 +45,7 @@ public class FlushToDisk {
 
   private void flushLocal(String outputFolder) throws IOException {
     for (String partName : index.getPartNames()) {
-      MemoryIndexPart part = index.getPart(partName);
+      MemoryIndexPart part = index.getIndexPart(partName);
       try {
         part.flushToDisk(outputFolder + File.separator + partName);
       } catch (IOException e) {
@@ -59,7 +59,7 @@ public class FlushToDisk {
   private void flushThreaded(final String outputFolder) throws IOException {
     ArrayList<Thread> threads = new ArrayList();
     for (final String partName : index.getPartNames()) {
-      final MemoryIndexPart part = index.getPart(partName);
+      final MemoryIndexPart part = index.getIndexPart(partName);
       Thread t = new Thread() {
 
         @Override

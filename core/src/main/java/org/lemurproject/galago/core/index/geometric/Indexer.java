@@ -109,10 +109,11 @@ public class Indexer {
     // run query
     
     Node parsed = StructuredQuery.parse(query);
-    Node transformed = retrieval.transformQuery(parsed);
-
+    
     Parameters p = new Parameters();
     p.set("count", 10);
+    Node transformed = retrieval.transformQuery(parsed, p);
+
     ScoredDocument[] results = retrieval.runQuery(transformed, p);
 
     return results;

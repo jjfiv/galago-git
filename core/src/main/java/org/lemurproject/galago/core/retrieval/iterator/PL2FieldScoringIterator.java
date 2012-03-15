@@ -3,8 +3,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.index.disk.PositionIndexReader;
-import org.lemurproject.galago.core.retrieval.processing.FieldDeltaScoringContext;
-import org.lemurproject.galago.core.retrieval.processing.FieldScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.scoring.PL2FieldScorer;
@@ -21,7 +20,8 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author irmarc
  */
 @RequiredStatistics(statistics = {"collectionLength", "documentCount"})
-public class PL2FieldScoringIterator extends ScoringFunctionIterator {
+public class PL2FieldScoringIterator extends ScoringFunctionIterator 
+  implements DeltaScoringIterator {
 
   String partName;
   double max;
@@ -39,7 +39,6 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator {
     if (it instanceof PositionIndexReader.TermCountIterator) {
       PositionIndexReader.TermCountIterator maxIter = (PositionIndexReader.TermCountIterator) it;
       max = function.score(maxIter.maximumCount(), maxIter.maximumCount());
-      //System.err.printf("%s max: %f\n", this.toString(), max);
     } else {
       max = 0;  // Means we have a null extent iterator
     }
@@ -47,28 +46,25 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator {
 
   @Override
   public double score() {
-    if (context instanceof FieldScoringContext) {
       int count = 0;
 
       if (iterator.currentCandidate() == context.document) {
         count = ((CountIterator) iterator).count();
       }
-      double score = function.score(count, ((FieldScoringContext) context).lengths.get(partName));
+      double score = function.score(count, context.getLength(partName));
       score = (score > 0.0) ? score : min; // MY smoothing.
       return score;
-    } else {
-      return super.score();
-    }
   }
 
-  public void score(FieldDeltaScoringContext ctx) {
+  public void deltaScore() {
     int count = 0;
 
+    DeltaScoringContext ctx = (DeltaScoringContext)context;
     if (iterator.currentCandidate() == context.document) {
       count = ((CountIterator) iterator).count();
     }
 
-    double score = function.score(count, ctx.lengths.get(partName));
+    double score = function.score(count, context.getLength(partName));
     score = (score > 0.0) ? score : min; // MY smoothing again
     double phi = ctx.potentials[parentIdx];
     double psi = phi + (weight * (score - max));
@@ -85,7 +81,8 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator {
     ctx.potentials[parentIdx] = psi;
   }
 
-  public void maximumAdjustment(FieldDeltaScoringContext ctx) {
+  public void maximumDifference() {
+    DeltaScoringContext ctx = (DeltaScoringContext)context;
     double phi = ctx.potentials[parentIdx];
     double psi = phi + (weight * (min - max));
     double logpsi = Math.log(psi) / log2;

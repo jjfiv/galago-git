@@ -39,6 +39,7 @@ public class RemoveStopwordsTraversalTest extends TestCase {
     writer.close();
     Parameters p = new Parameters();
     p.set("stopwords", temp.getCanonicalPath());
+    Parameters qp = new Parameters();
     RemoveStopwordsTraversal traversal = new RemoveStopwordsTraversal(new MockRetrieval(p));
     Node root = StructuredQuery.parse("#combine(#counts:a() #counts:c() #counts:b() #counts:d() #counts:e())");
     Node removed = StructuredQuery.copy(traversal, root);
@@ -63,6 +64,7 @@ public class RemoveStopwordsTraversalTest extends TestCase {
     String[] stopwords = {"a", "b"};
     p.set("stopwords", stopwords);
 
+    Parameters qp = new Parameters();
     RemoveStopwordsTraversal traversal = new RemoveStopwordsTraversal(new MockRetrieval(p));
     Node root = StructuredQuery.parse("#combine(#counts:a() #counts:c() #counts:b() #counts:d() #counts:e())");
     Node removed = StructuredQuery.copy(traversal, root);
@@ -109,7 +111,7 @@ public class RemoveStopwordsTraversalTest extends TestCase {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public Node transformQuery(Node root) throws Exception {
+    public Node transformQuery(Node root, Parameters ignored) throws Exception {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

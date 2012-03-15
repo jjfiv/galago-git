@@ -30,16 +30,6 @@ public class BoostingIterator extends TransformIterator implements MovableScoreI
   }
 
   @Override
-  public double score(ScoringContext context) {
-    if(atCandidate(context.document) 
-            && ((IndicatorIterator) iterator).indicator(context.document)){
-      return beta;
-    } else {
-      return 0.0;
-    }
-  }
-
-  @Override
   public double maximumScore() {
     return beta;
   }

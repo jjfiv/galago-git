@@ -23,7 +23,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * operator.
  * 
  * (12/21/2010, irmarc): Modified to annotate topdocs feature nodes, as well as generate them
- *                        if specified by construction parameters.
+ *                        if specified by construction globals.
  * (7/17/2011, irmarc): Added a check for the intersection operator. If found, makes sure to add
  *                        a -1 as the default distance, which indicates "whole doc".
  * (12/5/2011, irmarc): Added a check for wrapping extent operators with extent filters for passage
@@ -33,12 +33,12 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class ImplicitFeatureCastTraversal extends Traversal {
 
+  Parameters globals;
   Retrieval retrieval;
-  Parameters parameters;
 
   public ImplicitFeatureCastTraversal(Retrieval retrieval) {
     this.retrieval = retrieval;
-    this.parameters = retrieval.getGlobalParameters();
+    this.globals = retrieval.getGlobalParameters();
   }
 
   Node createSmoothingNode(Node child) throws Exception {
@@ -54,11 +54,11 @@ public class ImplicitFeatureCastTraversal extends Traversal {
 
     ArrayList<Node> data = new ArrayList<Node>();
     data.add(child);
-    String scorerType = parameters.get("scorer", "dirichlet");
+    String scorerType = globals.get("scorer", "dirichlet");
     Node smoothed = new Node("feature", scorerType, data, child.getPosition());
-    // TODO - add in smoothing parameters, modifiers
+    // TODO - add in smoothing globals, modifiers
 
-    if (!parameters.get("topdocs", false)) {
+    if (!globals.get("topdocs", false)) {
       return smoothed;
     }
 
@@ -83,7 +83,7 @@ public class ImplicitFeatureCastTraversal extends Traversal {
     NodeParameters workingParameters = workingNode.getNodeParameters();
     workingParameters.set("term", descendantParameters.getString("default"));
     workingParameters.set("loc", descendantParameters.getString("part"));
-    workingParameters.set("index", parameters.getString("index"));
+    workingParameters.set("index", globals.getString("index"));
     return workingNode;
   }
 
@@ -136,7 +136,7 @@ public class ImplicitFeatureCastTraversal extends Traversal {
 
   public Node afterNode(Node node) throws Exception {
     // This moves the interior nodes of a field comparison operator into its
-    // parameters, which is the appropriate syntax.
+    // globals, which is the appropriate syntax.
     // Example:
     //
     // #lessThan( date #counts:6/16/1980:part=postings() ) -->
@@ -183,12 +183,12 @@ public class ImplicitFeatureCastTraversal extends Traversal {
   }
 
   private Node addExtentFilters(Node in) throws Exception {
-    if (this.parameters.containsKey("passageSize") || this.parameters.containsKey("passageShift")) {
-      if (!this.parameters.containsKey("passageSize")) {
+    if (this.globals.containsKey("passageSize") || this.globals.containsKey("passageShift")) {
+      if (!this.globals.containsKey("passageSize")) {
         throw new IllegalArgumentException("passage retrieval requires an explicit passageSize parameter.");
       }
 
-      if (!this.parameters.containsKey("passageShift")) {
+      if (!this.globals.containsKey("passageShift")) {
         throw new IllegalArgumentException("passage retrieval requires an explicit passageShift parameter.");
       }
 

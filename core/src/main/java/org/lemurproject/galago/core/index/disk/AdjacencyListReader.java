@@ -190,14 +190,6 @@ public class AdjacencyListReader extends KeyListReader {
     }
 
     @Override
-    public double score(ScoringContext context) {
-      if (currentIdentifier == context.document) {
-        return currentScore;
-      }
-      return Double.NEGATIVE_INFINITY;
-    }
-
-    @Override
     public double maximumScore() {
       return Double.POSITIVE_INFINITY;
     }

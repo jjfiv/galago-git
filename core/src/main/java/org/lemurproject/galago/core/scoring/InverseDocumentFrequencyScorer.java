@@ -14,7 +14,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * Term-dependent-only function. Always returns the idf of the term iterator it was constructed from.
  * @author irmarc
  */
-@RequiredStatistics(statistics = {"nodeDocumentCount", "collectionLength", "documentCount"})
+@RequiredStatistics(statistics = {"nodeDocumentCount", "documentCount"})
 public class InverseDocumentFrequencyScorer implements ScoringFunction {
 
   double idf;

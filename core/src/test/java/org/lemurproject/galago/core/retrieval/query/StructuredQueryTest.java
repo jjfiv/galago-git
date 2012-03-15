@@ -18,7 +18,7 @@ public class StructuredQueryTest extends TestCase {
   }
 
   public static class SimpleCopyTraversal extends Traversal {
-
+    
     public void beforeNode(Node node) {
       // do nothing
     }

@@ -6,7 +6,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 
 /**
  *
- * @author marc
+ * @author irmarc
  */
 public abstract class TransformIterator implements MovableIterator {
 

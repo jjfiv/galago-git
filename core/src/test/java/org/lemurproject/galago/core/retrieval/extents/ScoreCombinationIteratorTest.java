@@ -9,7 +9,9 @@ package org.lemurproject.galago.core.retrieval.extents;
 
 import org.lemurproject.galago.core.retrieval.iterator.ScoreCombinationIterator;
 import java.io.IOException;
+import java.util.Arrays;
 import junit.framework.TestCase;
+import org.lemurproject.galago.core.index.FakeLengthIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -40,9 +42,16 @@ public class ScoreCombinationIteratorTest extends TestCase {
     FakeScoreIterator[] iterators = {one, two};
 
     ScoreCombinationIterator instance = new ScoreCombinationIterator(new Parameters(), new NodeParameters(), iterators);
-
+    int[] lengths = new int[12];
+    Arrays.fill(lengths, 100);
+    ScoringContext ctx = new ScoringContext();
+    FakeLengthIterator fli = new FakeLengthIterator(docsTogether, lengths);
+    one.setContext(ctx);
+    two.setContext(ctx);
     for (int i = 0; i < 12; i++) {
-      assertEquals(scoresTogether[i], instance.score(new ScoringContext(docsTogether[i], 100)));
+      ctx.document = docsTogether[i];
+      ctx.moveLengths(docsTogether[i]);
+      assertEquals(scoresTogether[i], instance.score());
       instance.movePast(docsTogether[i]);
     }
   }
@@ -56,9 +65,16 @@ public class ScoreCombinationIteratorTest extends TestCase {
     weightParameters.set("0", weights[0]);
     weightParameters.set("1", weights[1]);
     ScoreCombinationIterator instance = new ScoreCombinationIterator(new Parameters(), weightParameters, iterators);
-
+    int[] lengths = new int[12];
+    Arrays.fill(lengths, 100);
+    ScoringContext ctx = new ScoringContext();
+    FakeLengthIterator fli = new FakeLengthIterator(docsTogether, lengths);
+    one.setContext(ctx);
+    two.setContext(ctx);
     for (int i = 0; i < 12; i++) {
-      assert( Math.abs(weightedScoresTogether[i] - instance.score(new ScoringContext(docsTogether[i], 100))) < 0.000001);
+      ctx.document = docsTogether[i];
+      ctx.moveLengths(docsTogether[i]);
+      assert (Math.abs(weightedScoresTogether[i] - instance.score()) < 0.000001);
       instance.movePast(docsTogether[i]);
     }
   }

@@ -67,9 +67,10 @@ public class GroupRetrievalTest extends TestCase {
       String query = "#combine( sample document )";
       Node parsedQuery = StructuredQuery.parse(query);
 
-      Node queryTree1 = gr.transformQuery(parsedQuery, "group1");
+      Parameters q1 = params.clone();
+      Node queryTree1 = gr.transformQuery(parsedQuery, q1, "group1");
       assertEquals(queryTree1.toString(), "#combine( #feature:dirichlet:collectionProbability=0.25( #counts:sample:part=postings.porter() ) #feature:dirichlet:collectionProbability=0.25( #counts:document:part=postings.porter() ) )");
-      ScoredDocument[] res1 = gr.runQuery(queryTree1, "group1");
+      ScoredDocument[] res1 = gr.runQuery(queryTree1, q1, "group1");
       String[] expected1 = {
         "i1-59	1	-1.38562924636308",
         "i1-55	2	-1.3869590337930815"
@@ -80,9 +81,10 @@ public class GroupRetrievalTest extends TestCase {
         assertEquals(r, expected1[i]);
       }
 
-      Node queryTree2 = gr.transformQuery(parsedQuery, "group2");
+      Parameters q2 = params.clone();
+      Node queryTree2 = gr.transformQuery(parsedQuery, q2, "group2");
       assertEquals(queryTree2.toString(), "#combine( #feature:dirichlet:collectionProbability=0.21052631578947367( #counts:sample:part=postings.porter() ) #feature:dirichlet:collectionProbability=0.21052631578947367( #counts:document:part=postings.porter() ) )");
-      ScoredDocument[] res2 = gr.runQuery(queryTree2, "group2");
+      ScoredDocument[] res2 = gr.runQuery(queryTree2, q2, "group2");
       String[] expected2 = {
         "i1-59	1	-1.5569809573716442",
         "i2-59	1	-1.5576460721284549",

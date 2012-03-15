@@ -36,9 +36,9 @@ import org.tartarus.snowball.ext.englishStemmer;
 public class RelevanceModelTraversal extends Traversal {
 
   englishStemmer stemmer = null;
-  Retrieval retrieval;
   Parameters globalParameters;
   Parameters availableParts;
+  Retrieval retrieval;
 
   public RelevanceModelTraversal(Retrieval retrieval) throws IOException {
     this.retrieval = retrieval;
@@ -69,7 +69,7 @@ public class RelevanceModelTraversal extends Traversal {
     Parameters localParameters = globalParameters.clone();
     localParameters.set("requested", fbDocs);
 
-    Node transformedCombineNode = retrieval.transformQuery(combineNode);
+    Node transformedCombineNode = retrieval.transformQuery(combineNode, localParameters);
     initialResults.addAll(Arrays.asList(retrieval.runQuery(transformedCombineNode, localParameters)));
     localParameters.set("parts", this.availableParts);
     RelevanceModel rModel = new RelevanceModel(localParameters, retrieval);

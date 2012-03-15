@@ -17,19 +17,19 @@ public class DisjointLengthsIterator extends DisjointIndexesIterator implements 
     super((Collection) iterators);
   }
 
-  public int getCurrentLength() throws IOException {
+  public int getCurrentLength() {
     if (head != null) {
       return ((LengthsReader.Iterator) this.head).getCurrentLength();
     } else {
-      throw new IOException("Lengths Iterator is done.");
+      throw new RuntimeException("Lengths Iterator is done.");
     }
   }
 
-  public int getCurrentIdentifier() throws IOException {
+  public int getCurrentIdentifier() {
     if (head != null) {
       return ((LengthsReader.Iterator) this.head).getCurrentIdentifier();
     } else {
-      throw new IOException("Lengths Iterator is done.");
+      throw new RuntimeException("Lengths Iterator is done.");
     }
   }
 }

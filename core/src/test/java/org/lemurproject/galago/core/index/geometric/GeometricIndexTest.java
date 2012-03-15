@@ -133,7 +133,7 @@ public class GeometricIndexTest extends TestCase {
         if (i > 0) {
           int j = rnd.nextInt(i);
           Node query = StructuredQuery.parse("sample " + j);
-          query = ret.transformQuery(query);
+          query = ret.transformQuery(query, p);
 
           ScoredDocument[] results = ret.runQuery(query, p);
           assert (results[0].documentName.contains(Integer.toString(j)));

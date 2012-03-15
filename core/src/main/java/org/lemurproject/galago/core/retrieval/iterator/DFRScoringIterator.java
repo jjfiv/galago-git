@@ -5,7 +5,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.processing.FieldDeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
@@ -55,8 +55,8 @@ public class DFRScoringIterator extends TransformIterator implements MovableScor
   public void setContext(ScoringContext ctx) {
     super.setContext(ctx);
 
-    if (ctx instanceof FieldDeltaScoringContext) {
-      FieldDeltaScoringContext pctx = (FieldDeltaScoringContext) ctx;
+    if (ctx instanceof DeltaScoringContext) {
+      DeltaScoringContext pctx = (DeltaScoringContext) ctx;
 
       // HAHAHAHA I copied this nasty hack!
       if (pctx.startingPotentials == null) {
@@ -82,14 +82,6 @@ public class DFRScoringIterator extends TransformIterator implements MovableScor
   @Override
   public double score() {
     double tscore = scorer.score();
-    //System.err.printf("doc %d, score: %f\n", context.document, tscore);
-    double transformedScore = transform(tscore);
-    return transformedScore;
-  }
-
-  @Override
-  public double score(ScoringContext context) {
-    double tscore = scorer.score(context);
     double transformedScore = transform(tscore);
     return transformedScore;
   }

@@ -46,16 +46,18 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
   public ScoredDocument[] executeWholeCollection(Node queryTree, Parameters queryParams)
           throws Exception {
     DeltaScoringContext context = new DeltaScoringContext();
-
+    
     // Following operations are all just setup
     int requested = (int) queryParams.get("requested", 1000);
     StructuredIterator iterator = retrieval.createIterator(queryTree, context);
 
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
-    LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
+    ProcessingModel.initializeLengths(retrieval, context);
     context.minCandidateScore = Double.NEGATIVE_INFINITY;
     context.quorumIndex = context.scorers.size();
 
+    System.err.printf("Executing delta scoring (%d)\n", context.scorers.size());
+        
     // Compute the starting potential
     context.startingPotential = 0.0;
     for (int i = 0; i < context.startingPotentials.length; i++) {
@@ -93,8 +95,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
 
       // Otherwise move lengths
       context.document = candidate;
-      lengthsIterator.moveTo(candidate);
-      context.length = lengthsIterator.getCurrentLength();
+      context.moveLengths(candidate);
 
       // Setup to score
       context.runningScore = context.startingPotential;
@@ -104,13 +105,13 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
       // now score quorum w/out question
       int i;
       for (i = 0; i < context.quorumIndex; i++) {
-        context.scorers.get(i).score(context);
+        context.scorers.get(i).deltaScore();
       }
 
       // Now score the rest, but keep checking
       while (context.runningScore > context.minCandidateScore && i < context.scorers.size()) {
         context.scorers.get(i).moveTo(context.document);
-        context.scorers.get(i).score(context);
+        context.scorers.get(i).deltaScore();
         i++;
       }
 
@@ -136,20 +137,22 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
         }
       }
     }
+    
+    System.err.printf("queue contains %d results.\n", queue.size());
+    
     return toReversedArray(queue);
   }
 
   public ScoredDocument[] executeWorkingSet(Node queryTree, Parameters queryParams)
           throws Exception {
     DeltaScoringContext context = new DeltaScoringContext();
-    int position = 0;
 
     // Following operations are all just setup
     int requested = (int) queryParams.get("requested", 1000);
     StructuredIterator iterator = retrieval.createIterator(queryTree, context);
 
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
-    LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
+    ProcessingModel.initializeLengths(retrieval, context);
     context.minCandidateScore = Double.NEGATIVE_INFINITY;
     context.quorumIndex = context.scorers.size();
 
@@ -185,8 +188,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
 
       // Otherwise move lengths
       context.document = candidate;
-      lengthsIterator.moveTo(candidate);
-      context.length = lengthsIterator.getCurrentLength();
+      context.moveLengths(candidate);
 
       // Setup to score
       context.runningScore = context.startingPotential;
@@ -196,13 +198,13 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
       // now score quorum w/out question
       int j;
       for (j = 0; j < context.quorumIndex; j++) {
-        context.scorers.get(j).score(context);
+        context.scorers.get(j).deltaScore();
       }
 
       // Now score the rest, but keep checking
       while (context.runningScore > context.minCandidateScore && j < context.scorers.size()) {
         context.scorers.get(j).moveTo(context.document);
-        context.scorers.get(j).score(context);
+        context.scorers.get(j).deltaScore();
         j++;
       }
 
@@ -232,7 +234,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
             ctx.startingPotentials.length);
     int i;
     for (i = 0; i < ctx.scorers.size() && ctx.runningScore > ctx.minCandidateScore; i++) {
-      ((DeltaScoringIterator) ctx.scorers.get(i)).maximumDifference(ctx);
+      ((DeltaScoringIterator) ctx.scorers.get(i)).maximumDifference();
     }
 
     ctx.quorumIndex = i;

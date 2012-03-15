@@ -88,14 +88,14 @@ public class LocalRetrieval implements Retrieval {
         List<String> queries = globalParameters.getAsList("cacheQueries");
         for (String q : queries) {
           Node queryTree = StructuredQuery.parse(q);
-          queryTree = transformQuery(queryTree);
+          queryTree = transformQuery(queryTree, new Parameters());
           cachedIndex.cacheQueryData(queryTree);
         }
       } else if (globalParameters.isList("cacheQueries", Type.MAP)) {
         List<Parameters> queries = globalParameters.getAsList("cacheQueries");
         for (Parameters q : queries) {
           Node queryTree = StructuredQuery.parse(q.getString("text"));
-          queryTree = transformQuery(queryTree);
+          queryTree = transformQuery(queryTree, new Parameters());
           cachedIndex.cacheQueryData(queryTree);
         }
       } else {
@@ -183,7 +183,7 @@ public class LocalRetrieval implements Retrieval {
    */
   public ScoredDocument[] runQuery(String query, Parameters p) throws Exception {
     Node root = StructuredQuery.parse(query);
-    root = transformQuery(root);
+    root = transformQuery(root, p);
     return runQuery(root, p);
   }
 
@@ -274,7 +274,7 @@ public class LocalRetrieval implements Retrieval {
     StructuredIterator iterator;
 
     // first check if the cache contains this node
-    if (globalParameters.get("shareNodes", false)
+    if ((globalParameters.get("shareNodes", false) || node.getNodeParameters().get("cache", false))
             && iteratorCache.containsKey(node.toString())) {
       return iteratorCache.get(node.toString());
     }
@@ -294,15 +294,15 @@ public class LocalRetrieval implements Retrieval {
     }
 
     // we've created a new iterator - add to the cache for future nodes
-    if (globalParameters.get("shareNodes", false)) {
+    if (globalParameters.get("shareNodes", false) || node.getNodeParameters().get("cache", false)) {
       iteratorCache.put(node.toString(), iterator);
     }
     return iterator;
   }
 
   @Override
-  public Node transformQuery(Node queryTree) throws Exception {
-      return transformQuery(features.getTraversals(this, queryTree), queryTree);
+  public Node transformQuery(Node queryTree, Parameters queryParams) throws Exception {
+      return transformQuery(features.getTraversals(this, queryTree, queryParams), queryTree);
   }
 
   private Node transformQuery(List<Traversal> traversals, Node queryTree) throws Exception {
@@ -317,7 +317,7 @@ public class LocalRetrieval implements Retrieval {
     // first parse the node
     Node root = StructuredQuery.parse(nodeString);
     root.getNodeParameters().set("queryType", "count");
-    root = transformQuery(root);
+    root = transformQuery(root, new Parameters());
     return nodeStatistics(root);
   }
 

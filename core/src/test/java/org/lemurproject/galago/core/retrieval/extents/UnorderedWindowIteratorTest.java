@@ -113,7 +113,7 @@ public class UnorderedWindowIteratorTest extends TestCase {
 
         // move to 5
         instance.next();
-        assertFalse(instance.isDone());        
+        assertFalse(instance.isDone());
         
         array = instance.extents();
         assertEquals(array.size(), 1);

@@ -58,7 +58,8 @@ public class ImplicitFeatureCastTraversalTest extends TestCase {
 
   public void testFieldComparisonRewriteTraversal() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
-    LocalRetrieval retrieval = new LocalRetrieval(index, new Parameters());
+    Parameters p = new Parameters();
+    LocalRetrieval retrieval = new LocalRetrieval(index, p);
 
     ImplicitFeatureCastTraversal traversal = new ImplicitFeatureCastTraversal(retrieval);
     Node tree = StructuredQuery.parse("#combine( #between( title abba zztop )");

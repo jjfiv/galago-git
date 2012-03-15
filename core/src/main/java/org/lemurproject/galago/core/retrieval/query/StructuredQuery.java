@@ -3,12 +3,12 @@ package org.lemurproject.galago.core.retrieval.query;
 
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import org.lemurproject.galago.core.retrieval.query.StructuredLexer.Token;
 import org.lemurproject.galago.core.retrieval.query.StructuredLexer.Token.TokenType;
 import org.lemurproject.galago.core.retrieval.query.StructuredLexer.TokenStream;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * Valid query language syntax:

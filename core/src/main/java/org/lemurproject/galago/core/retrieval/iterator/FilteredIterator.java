@@ -94,11 +94,6 @@ public abstract class FilteredIterator implements MovableCountIterator, MovableS
   }
 
   @Override
-  public double score(ScoringContext context) {
-    return scorer.score(context);
-  }
-
-  @Override
   public double maximumScore() {
     return scorer.maximumScore();
   }

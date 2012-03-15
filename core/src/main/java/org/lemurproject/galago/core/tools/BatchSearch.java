@@ -96,7 +96,7 @@ public class BatchSearch extends AppFunction {
         p.set("working", parameters.getList("working"));
       }
       Node root = StructuredQuery.parse(queryText);
-      Node transformed = retrieval.transformQuery(root);
+      Node transformed = retrieval.transformQuery(root, p);
 
       if (parameters.get("printTransformation", false)) {
         System.err.println("Text:" + queryText);

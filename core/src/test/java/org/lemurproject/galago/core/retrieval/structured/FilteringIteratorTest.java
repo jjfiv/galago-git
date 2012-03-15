@@ -70,9 +70,11 @@ public class FilteringIteratorTest extends TestCase {
 
     // Let's try requiring a greater than
     Node tree = StructuredQuery.parse("#combine ( #require( #greater( date 1/7/1920 ) a ) #require( #greater( date 1/7/1920 ) b ) ) ");
-    tree = retrieval.transformQuery(tree);
 
-    ScoredDocument[] results = retrieval.runQuery(tree, new Parameters());
+    Parameters qp = new Parameters();
+    tree = retrieval.transformQuery(tree, qp);
+
+    ScoredDocument[] results = retrieval.runQuery(tree, qp);
     assertEquals(3, results.length);
 
     // Check each doc - don't really care about order
@@ -91,9 +93,10 @@ public class FilteringIteratorTest extends TestCase {
 
     // Let's try requiring a greater than
     Node tree = StructuredQuery.parse("#combine( #reject( #between( date 1/1/0100 1/1/1900 ) b ) #reject( #between( date 1/1/0100 1/1/1900)a ) )");
-    tree = retrieval.transformQuery(tree);
+    Parameters qp = new Parameters();
+    tree = retrieval.transformQuery(tree, qp);
 
-    ScoredDocument[] results = retrieval.runQuery(tree, new Parameters());
+    ScoredDocument[] results = retrieval.runQuery(tree, qp);
     assertEquals(3, results.length);
 
     // Check each doc - don't really care about order

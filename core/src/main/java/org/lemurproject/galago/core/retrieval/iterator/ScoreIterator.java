@@ -24,11 +24,6 @@ public interface ScoreIterator extends ContextualIterator {
   public double score();
 
   /**
-   * Score this iterator's current candidate relative to the provided context.
-   */
-  public double score(ScoringContext context);
-
-  /**
    * Estimate the maximum possible score to be produced by this iterator.
    * If a useful estimate cannot be formed, returns Double.MAX_VALUE
    */

@@ -52,16 +52,6 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Mov
   }
 
   @Override
-  public double score(ScoringContext dc) {
-    double total = 0;
-    for (int i = 0; i < scoreIterators.length; i++) {
-      double score = scoreIterators[i].score(dc);
-      total += weights[i] * score;
-    }
-    return total;
-  }
-
-  @Override
   public double minimumScore() {
     double min = 0;
     for (int i = 0; i < scoreIterators.length; i++) {

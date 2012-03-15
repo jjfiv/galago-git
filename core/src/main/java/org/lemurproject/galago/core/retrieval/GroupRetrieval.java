@@ -51,8 +51,8 @@ public class GroupRetrieval implements Retrieval {
   }
 
   @Override
-  public Node transformQuery(Node queryTree) throws Exception {
-    for (Traversal traversal : this.features.getTraversals(this, queryTree)) {
+  public Node transformQuery(Node queryTree, Parameters queryParams) throws Exception {
+    for (Traversal traversal : this.features.getTraversals(this, queryTree, queryParams)) {
       queryTree = StructuredQuery.copy(traversal, queryTree);
     }
     return queryTree;
@@ -151,8 +151,8 @@ public class GroupRetrieval implements Retrieval {
     return groups.get(group).getQueryType(node);
   }
 
-  public Node transformQuery(Node queryTree, String group) throws Exception {
-    return groups.get(group).transformQuery(queryTree);
+  public Node transformQuery(Node queryTree, Parameters qp, String group) throws Exception {
+    return groups.get(group).transformQuery(queryTree, qp);
   }
 
   public ScoredDocument[] runQuery(Node root, String group) throws Exception {

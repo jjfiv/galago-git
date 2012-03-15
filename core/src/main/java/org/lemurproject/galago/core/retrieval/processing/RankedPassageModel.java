@@ -57,18 +57,17 @@ public class RankedPassageModel extends ProcessingModel {
     int passageShift = (int) queryParams.getLong("passageShift");
     MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryTree, context);
     PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
-    LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
+    ProcessingModel.initializeLengths(retrieval, context);
 
     // now there should be an iterator at the root of this tree
     for (int i = 0; i < whitelist.length; i++) {
       int document = whitelist[i];
       iterator.moveTo(document);
-      lengthsIterator.moveTo(document);
-      int length = lengthsIterator.getCurrentLength();
-
+      context.moveLengths(document);
+      int length = context.getLength();
+      
       // This context is shared among all scorers
       context.document = document;
-      context.length = length;
       context.begin = 0;
       context.end = passageSize;
 
@@ -105,18 +104,17 @@ public class RankedPassageModel extends ProcessingModel {
     int passageSize = (int) queryParams.getLong("passageSize");
     int passageShift = (int) queryParams.getLong("passageShift");
     MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryTree, context);
+    ProcessingModel.initializeLengths(retrieval, context);
     PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
-    LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
 
     // now there should be an iterator at the root of this tree
     while (!iterator.isDone()) {
       int document = iterator.currentCandidate();
-      lengthsIterator.moveTo(document);
-      int length = lengthsIterator.getCurrentLength();
+      context.moveLengths(document);
+      int length = context.getLength();
 
       // This context is shared among all scorers
       context.document = document;
-      context.length = length;
       context.begin = 0;
       context.end = passageSize;
 

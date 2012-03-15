@@ -102,6 +102,7 @@ public class FieldRetrievalTest extends TestCase {
 
       // Now, verify that some stuff exists
       String output = byteArrayStream.toString();
+            
       String expectedScores =
               "1 Q0 55 1 -1.17683184 galago\n"
               + "1 Q0 59 2 -1.18048269 galago\n"

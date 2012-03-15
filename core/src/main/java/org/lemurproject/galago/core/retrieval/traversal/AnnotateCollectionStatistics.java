@@ -23,22 +23,22 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class AnnotateCollectionStatistics extends Traversal {
 
-  HashSet<String> availiableStatistics;
-  Retrieval retrieval;
+  HashSet<String> availableStatistics;
   Parameters globalParameters;
+  Retrieval retrieval;
 
   // featurefactory is necessary to get the correct class
   public AnnotateCollectionStatistics(Retrieval retrieval) throws IOException {
-    this.retrieval = retrieval;
     this.globalParameters = retrieval.getGlobalParameters();
-
-    this.availiableStatistics = new HashSet();
-    this.availiableStatistics.add("collectionLength");
-    this.availiableStatistics.add("documentCount");
-    this.availiableStatistics.add("vocabCount");
-    this.availiableStatistics.add("nodeFrequency");
-    this.availiableStatistics.add("nodeDocumentCount");
-    this.availiableStatistics.add("collectionProbability");
+    this.retrieval = retrieval;
+    
+    this.availableStatistics = new HashSet();
+    this.availableStatistics.add("collectionLength");
+    this.availableStatistics.add("documentCount");
+    this.availableStatistics.add("vocabCount");
+    this.availableStatistics.add("nodeFrequency");
+    this.availableStatistics.add("nodeDocumentCount");
+    this.availableStatistics.add("collectionProbability");
   }
 
   public void beforeNode(Node node) {
@@ -55,7 +55,7 @@ public class AnnotateCollectionStatistics extends Traversal {
     if (required != null) {
       HashSet<String> reqStats = new HashSet();
       for (String stat : required.statistics()) {
-        if (availiableStatistics.contains(stat)) {
+        if (availableStatistics.contains(stat)) {
           reqStats.add(stat);
         }
       }

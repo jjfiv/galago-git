@@ -21,10 +21,6 @@ public class ScaleIterator extends TransformIterator {
     return weight * ((ScoreIterator)iterator).score();
   }
 
-  public double score(ScoringContext context) {
-    return weight * ((ScoreIterator)iterator).score(context);
-  }
-
   public double maximumScore() {
     return ((ScoreIterator)iterator).maximumScore();
   }

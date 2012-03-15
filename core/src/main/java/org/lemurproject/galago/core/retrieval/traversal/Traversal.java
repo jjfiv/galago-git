@@ -1,7 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
+import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * Basic interface for Traversals.
@@ -14,19 +16,20 @@ import org.lemurproject.galago.core.retrieval.query.Node;
  * @author trevor, irmarc
  */
 public abstract class Traversal {
-    public abstract Node afterNode(Node newNode) throws Exception;
-    public abstract void beforeNode(Node object) throws Exception;
+  
+  public abstract Node afterNode(Node newNode) throws Exception;
 
-    /**
-     * True if the traversal in question needs to be executed. Let's see if this
-     * works.
-     * 
-     * @param root
-     * @return
-     * @throws Exception
-     */
-    public static boolean isNeeded(Node root) {
-      return true;
-    }
+  public abstract void beforeNode(Node object) throws Exception;
+
+  /**
+   * True if the traversal in question needs to be executed. Let's see if this
+   * works.
+   * 
+   * @param root
+   * @return
+   * @throws Exception
+   */
+  public static boolean isNeeded(Node root) {
+    return true;
+  }
 }
-    

@@ -57,16 +57,15 @@ public class RankedDocumentModel extends ProcessingModel {
 
     // now there should be an iterator at the root of this tree
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>();
-    LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
+    ProcessingModel.initializeLengths(retrieval, context);
 
     for (int i = 0; i < whitelist.length; i++) {
       int document = whitelist[i];
       iterator.moveTo(document);
-      lengthsIterator.moveTo(document);
-      int length = lengthsIterator.getCurrentLength();
+      context.moveLengths(document);
+      
       // This context is shared among all scorers
       context.document = document;
-      context.length = length;
       double score = iterator.score();
       if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
         ScoredDocument scoredDocument = new ScoredDocument(document, score);
@@ -91,20 +90,19 @@ public class RankedDocumentModel extends ProcessingModel {
     // Maintain a queue of candidates
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
 
-    // Need to maintain document lengths
-    LengthsReader.Iterator lengthsIterator = index.getLengthsIterator();
-
     // construct the iterators -- we use tree processing
     MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryTree, context);
-
+    ProcessingModel.initializeLengths(retrieval, context);
+    
+    
     // now there should be an iterator at the root of this tree
     while (!iterator.isDone()) {
       int document = iterator.currentCandidate();
-      lengthsIterator.moveTo(document);
-      int length = lengthsIterator.getCurrentLength();
+
       // This context is shared among all scorers
       context.document = document;
-      context.length = length;
+      context.moveLengths(document);
+      
       if (iterator.atCandidate(document)) {
         double score = iterator.score();
         if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {

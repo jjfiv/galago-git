@@ -1,5 +1,5 @@
 /*
- * ComputedStatistics
+ * RequiredStatistics
  * 
  * September 20, 2007
  * 
