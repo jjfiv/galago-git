@@ -142,6 +142,9 @@ public String[] getOrderSpec() {
     return new String[] {<order.orderedFields:{ f | "<f.direction><f.name>"}; separator=", ">};
 }
 
+public static String[] getSpec() {
+    return new String[] {<order.orderedFields:{ f | "<f.direction><f.name>"}; separator=", ">};
+}
 public static String getSpecString() {
     return "<order.orderedFields:{f|<f.direction><f.name>}; separator=" ">";
 }
