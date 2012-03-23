@@ -30,7 +30,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
   double min = 0.0001;
   int parentIdx = -1;
   double weight;
-    double beta;
+  double beta;
 
   public PL2FieldScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
           throws IOException {

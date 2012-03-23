@@ -111,28 +111,30 @@ public class FieldTraversalTest extends TestCase {
     p.set("fields", Arrays.asList(fields));
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
 
-    BM25FTraversal traversal = new BM25FTraversal(retrieval);
+    Parameters qp = new Parameters();
+    BM25FTraversal traversal = new BM25FTraversal(retrieval, qp);
     Node q1 = StructuredQuery.parse("#bm25f(#text:cat() #text:dog() #text:donkey())");
     Node q2 = StructuredQuery.copy(traversal, q1);
 
     StringBuilder transformed = new StringBuilder();
 
-    transformed.append("#bm25fcomb:norm=false:K=1.2( ");
-    transformed.append("#combine:2=3.7:1=0.5:0=0.5:norm=false( #feature:bm25f:b=0.3:lengths=title( #extents:cat:part=field.title() ) ");
-    transformed.append("#feature:bm25f:b=0.8:lengths=author( #extents:cat:part=field.author() ) ");
-    transformed.append("#feature:bm25f:b=0.5:lengths=anchor( #extents:cat:part=field.anchor() ) ) ");
-    transformed.append("#feature:idf( #extents:cat:part=postings() ) ");
-    transformed.append("#combine:2=3.7:1=0.5:0=0.5:norm=false( #feature:bm25f:b=0.3:lengths=title( #extents:dog:part=field.title() ) ");
-    transformed.append("#feature:bm25f:b=0.8:lengths=author( #extents:dog:part=field.author() ) ");
-    transformed.append("#feature:bm25f:b=0.5:lengths=anchor( #extents:dog:part=field.anchor() ) )");
-    transformed.append("#feature:idf( #extents:dog:part=postings() ) ");
-    transformed.append("#combine:2=3.7:1=0.5:0=0.5:norm=false( #feature:bm25f:b=0.3:lengths=title( #extents:donkey:part=field.title() ) ");
-    transformed.append("#feature:bm25f:b=0.8:lengths=author( #extents:donkey:part=field.author() ) ");
-    transformed.append("#feature:bm25f:b=0.5:lengths=anchor( #extents:donkey:part=field.anchor() ) ) ");
-    transformed.append("#feature:idf( #extents:donkey:part=postings() ) ");
+    transformed.append("#bm25fcomb:idf0=0.3566749439387324:idf1=0.3566749439387324:idf2=0.10536051565782635:norm=false:K=1.2( ");
+    transformed.append("#combine:2=3.7:1=0.5:0=0.5:norm=false( ");
+    transformed.append("#feature:bm25f:K=1.2:b=0.3:idf=0.3566749439387324:lengths=title:pIdx=0:w=0.5( #extents:cat:part=field.title() ) ");
+    transformed.append("#feature:bm25f:K=1.2:b=0.8:idf=0.3566749439387324:lengths=author:pIdx=0:w=0.5( #extents:cat:part=field.author() ) ");
+    transformed.append("#feature:bm25f:K=1.2:b=0.5:idf=0.3566749439387324:lengths=anchor:pIdx=0:w=3.7( #extents:cat:part=field.anchor() ) ) ");
+    transformed.append("#combine:2=3.7:1=0.5:0=0.5:norm=false( ");
+    transformed.append("#feature:bm25f:K=1.2:b=0.3:idf=0.3566749439387324:lengths=title:pIdx=1:w=0.5( #extents:dog:part=field.title() ) ");
+    transformed.append("#feature:bm25f:K=1.2:b=0.8:idf=0.3566749439387324:lengths=author:pIdx=1:w=0.5( #extents:dog:part=field.author() ) ");
+    transformed.append("#feature:bm25f:K=1.2:b=0.5:idf=0.3566749439387324:lengths=anchor:pIdx=1:w=3.7( #extents:dog:part=field.anchor() ) )");
+    transformed.append("#combine:2=3.7:1=0.5:0=0.5:norm=false( ");
+    transformed.append("#feature:bm25f:K=1.2:b=0.3:idf=0.10536051565782635:lengths=title:pIdx=2:w=0.5( #extents:donkey:part=field.title() ) ");
+    transformed.append("#feature:bm25f:K=1.2:b=0.8:idf=0.10536051565782635:lengths=author:pIdx=2:w=0.5( #extents:donkey:part=field.author() ) ");
+    transformed.append("#feature:bm25f:K=1.2:b=0.5:idf=0.10536051565782635:lengths=anchor:pIdx=2:w=3.7( #extents:donkey:part=field.anchor() ) ) ");
     transformed.append(" )");
 
     Node expected = StructuredQuery.parse(transformed.toString());
+    //System.err.printf("Expected : %s\nReceived:%s\n", expected.toString(), q2.toString());
     assertEquals(expected.toString(), q2.toString());
   }
 
@@ -217,9 +219,21 @@ public class FieldTraversalTest extends TestCase {
     p.set("deltaReady", false);
     ScoredDocument[] results = retrieval.runQuery(root, p);
     
-    //p.set("deltaReady", true);
+    p.set("deltaReady", true);
     ScoredDocument[] results2 = retrieval.runQuery(root, p);
 
+    /*
+    System.err.printf("Original:\n");
+    for (int i = 0; i < results.length; i++) {
+      System.err.printf("%d : %s\n", i, results[i].toString());
+    } 
+ 
+    System.err.printf("Delta:\n");
+    for (int i = 0; i < results.length; i++) {
+      System.err.printf("%d : %s\n", i, results2[i].toString());
+    } 
+*/    
+    
     assertEquals(results.length, results2.length);
     for (int i = 0; i < results.length; i++) {
       assertEquals(results[i].document, results2[i].document);
@@ -367,6 +381,12 @@ public class FieldTraversalTest extends TestCase {
     // Verify our results
     assertEquals(5, results.length);
 
+    /*
+    for (int i = 0; i < results.length; i++) {
+      System.err.printf("%d : %s\n", i, results[i].toString());
+    } 
+    */   
+    
     assertEquals(1, results[0].document);
     assertEquals(results[0].score, 0.758854, 0.00001);
     assertEquals(5, results[1].document);

@@ -3,10 +3,10 @@ package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -36,11 +36,13 @@ public class BM25FTraversal extends Traversal {
 
   private int levels;
   List<String> fieldList;
-  Parameters availableFields;
-  Parameters weights;
-
-  public BM25FTraversal(Retrieval retrieval) {
+  Parameters availableFields, weights, queryParams;
+  Retrieval retrieval;
+  
+  public BM25FTraversal(Retrieval retrieval, Parameters queryParams) {
     levels = 0;
+    this.retrieval = retrieval;
+    this.queryParams = queryParams;
     Parameters globals = retrieval.getGlobalParameters();
     weights = globals.containsKey("bm25f") ? globals.getMap("bm25f") : new Parameters();
     fieldList = globals.getAsList("fields");
@@ -72,11 +74,14 @@ public class BM25FTraversal extends Traversal {
       // Now generate the field-based subtrees for all extent/count nodes
       // NOTE : THIS IS BROKEN. IT WON'T RECOGNIZE WINDOW COUNT NODES, BUT IT SHOULD
       List<Node> children = original.getInternalNodes();
+      queryParams.set("numPotentials", children.size());
       for (int i = 0; i < children.size(); i++) {
         Node termNode = children.get(i);
-        Node termCombiner = createFieldsOfTerm(termNode, smoothing, cumulativeWeights);
+        double idf = getIDF(termNode);
+        Node termCombiner = createFieldsOfTerm(termNode, smoothing, cumulativeWeights, i, weights.get("K", 0.5),
+                                               idf);
         newRoot.addChild(termCombiner);
-        newRoot.addChild(createIDFNode(termNode));
+        newRoot.getNodeParameters().set("idf"+i, idf);
       }
       return newRoot;
     } else {
@@ -84,24 +89,16 @@ public class BM25FTraversal extends Traversal {
     }
   }
 
-  private Node createIDFNode(Node termNode) throws Exception {
-    // Create a new term node to avoid tying
-    String term = termNode.getDefaultParameter();
-    NodeParameters np = new NodeParameters();
-    np.set("default", term);
-    Node textNode = new Node("text", np);
-    textNode = TextPartAssigner.assignPart(textNode, availableFields);
-
-    // Now wrap it in the scorer
-    np = new NodeParameters();
-    np.set("default", "idf");
-    Node idfNode = new Node("feature", np);
-    idfNode.addChild(textNode);
-    return idfNode;
+  private double getIDF(Node termNode) throws Exception {
+    NodeStatistics ns = retrieval.nodeStatistics(termNode.toString());
+    double documentCount = ns.documentCount;
+    long df = ns.nodeDocumentCount;
+    double idf = Math.log(documentCount / (df + 0.5));
+    return idf;
   }
 
     private Node createFieldsOfTerm(Node termNode, Parameters smoothingWeights,
-				    Parameters cumulativeWeights) throws Exception {
+				    Parameters cumulativeWeights, int pos, double K, double idf) throws Exception {
     String term = termNode.getDefaultParameter();
 
     // Use a straight weighting - no weight normalization
@@ -123,6 +120,10 @@ public class BM25FTraversal extends Traversal {
       np.set("b", smoothingWeights.get(field, weights.get("smoothing_default", 0.5)));
       np.set("default", "bm25f");
       np.set("lengths", field);
+      np.set("pIdx", pos);
+      np.set("K", K);
+      np.set("idf", idf);
+      np.set("w", cumulativeWeights.get(field, weights.get("weight_default", 0.5)));
       Node fieldScoreNode = new Node("feature", np);
       fieldScoreNode.addChild(fieldTermNode);
       combiner.getNodeParameters().set(Integer.toString(combiner.getInternalNodes().size()),
