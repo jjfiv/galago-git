@@ -4,8 +4,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -16,8 +15,10 @@ public abstract class ConjunctionIterator implements MovableIterator {
   protected MovableIterator[] iterators;
   protected MovableIterator[] drivingIterators;
   protected boolean hasAllCandidates;
+  protected boolean sharedChildren;
 
-  public ConjunctionIterator(MovableIterator[] queryIterators) {
+  public ConjunctionIterator(Parameters globalParams, MovableIterator[] queryIterators) {
+    this.sharedChildren = globalParams.get("shareNodes", false);
     this.iterators = queryIterators;
 
     // count the number of iterators that dont have
@@ -58,7 +59,28 @@ public abstract class ConjunctionIterator implements MovableIterator {
     for (MovableIterator iterator : iterators) {
       iterator.moveTo(candidate);
     }
+    
     // if we are not sharing children - we can be more aggressive here.
+    if (!sharedChildren) {
+      int currCandidate = currentCandidate();
+      while (!isDone()) {
+        for (MovableIterator iterator : iterators) {
+          iterator.moveTo(currCandidate);
+
+          // if we skip too far:
+          //   don't bother to move the other children
+          //   we will need to pick a different candidate
+          if(!iterator.atCandidate(currCandidate)){
+            break;
+          }
+        }
+
+        if (atCandidate(currCandidate)) {
+          return;
+        }
+        currCandidate = Math.max(currCandidate + 1, currentCandidate());
+      }
+    }
   }
 
   // these functions are final to ensure that they are never overridden

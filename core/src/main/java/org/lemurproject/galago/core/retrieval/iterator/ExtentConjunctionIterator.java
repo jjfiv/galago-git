@@ -6,6 +6,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import java.util.ArrayList;
 import org.lemurproject.galago.core.util.ExtentArray;
+import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -16,30 +17,31 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
 
   protected ExtentArray extents;
 
-  public ExtentConjunctionIterator(MovableExtentIterator[] iterators) throws IOException {
-    super(iterators);
+  public ExtentConjunctionIterator(Parameters globalParams, MovableExtentIterator[] iterators) throws IOException {
+    super(globalParams, iterators);
     this.extents = new ExtentArray();
   }
 
   @Override
   public void moveTo(int identifier) throws IOException {
+    this.extents.reset();
+    // note that this function could repeatedly move child iterators
     super.moveTo(identifier);
-
-    extents.reset();
-    // check if all iterators are at the same document
-    if (!isDone() && super.atCandidate(this.currentCandidate())) {
-      // if so : load some extents
-      loadExtents();
-    }
   }
 
   @Override
   public boolean atCandidate(int identifier) {
+    if(this.extents.size() == 0){
+      this.loadExtents();
+    }
     return super.atCandidate(identifier) && this.extents.size() > 0;
   }
 
   @Override
   public String getEntry() throws IOException {
+    if(this.extents.size() == 0){
+      this.loadExtents();
+    }
     ArrayList<String> strs = new ArrayList<String>();
     ExtentArrayIterator eai = new ExtentArrayIterator(extents);
     while (!eai.isDone()) {
@@ -51,16 +53,25 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
 
   @Override
   public ExtentArray getData() {
+    if(this.extents.size() == 0){
+      this.loadExtents();
+    }
     return extents;
   }
 
   @Override
   public ExtentArray extents() {
+    if(this.extents.size() == 0){
+      this.loadExtents();
+    }
     return extents;
   }
 
   @Override
   public int count() {
+    if(this.extents.size() == 0){
+      this.loadExtents();
+    }
     return extents.size();
   }
 
