@@ -3,12 +3,12 @@
  */
 package org.lemurproject.galago.core.index;
 
-import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Random;
 import junit.framework.TestCase;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -50,6 +50,33 @@ public class IndexWriterTest extends TestCase {
     DiskBTreeReader reader = new DiskBTreeReader(temporary.getAbsolutePath());
 
     assertEquals("value", reader.getValueString(Utility.fromString("key")));
+    reader.close();
+  }
+  
+  public void testLargeKey() throws IOException {
+
+    //    for(int i=1;i<Integer.MAX_VALUE; i*=2){
+//      System.err.println((i-1) + " in bytes: " + Utility.compressInt(i-1).length);
+//    }
+    
+    Random rnd = new Random();
+
+    StringBuilder builder = new StringBuilder();
+    while(builder.length() < 13000){
+      builder.append(rnd.nextLong());
+    }
+    String key = builder.toString();
+        
+    temporary = Utility.createTemporary();
+    
+    DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), new Parameters());
+    writer.add(new GenericElement(key, "value"));
+    writer.close();
+
+    assertTrue(DiskBTreeReader.isBTree(temporary));
+    DiskBTreeReader reader = new DiskBTreeReader(temporary.getAbsolutePath());
+
+    assertEquals("value", reader.getValueString(Utility.fromString(key)));
     reader.close();
   }
 
