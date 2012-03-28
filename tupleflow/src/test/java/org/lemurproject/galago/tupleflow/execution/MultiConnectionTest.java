@@ -16,7 +16,8 @@ import org.lemurproject.galago.tupleflow.types.TupleflowString;
 import org.lemurproject.galago.tupleflow.types.XMLFragment;
 
 /**
- *
+ *  Tests the connection of two stages with multiple connections between them.
+ * 
  * @author sjh
  */
 public class MultiConnectionTest extends TestCase {
@@ -47,10 +48,9 @@ public class MultiConnectionTest extends TestCase {
     // this connect function should link BOTH out/in pairs
     job.connect("one", "two", ConnectionAssignmentType.Combined);
 
-    ErrorStore err = new ErrorStore();
-    Verification.verify(job, err);
-
     ErrorStore store = new ErrorStore();
+    Verification.verify(job, store);
+    
     JobExecutor.runLocally(job, store, new Parameters());
     if (store.hasStatements()) {
       throw new RuntimeException(store.toString());
