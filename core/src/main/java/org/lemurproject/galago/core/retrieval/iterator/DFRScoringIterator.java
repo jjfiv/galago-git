@@ -10,6 +10,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -20,8 +21,6 @@ public class DFRScoringIterator extends TransformIterator implements MovableScor
 
   double lambda;
   double qfratio;
-  double loge;
-  double log2;
   MovableScoreIterator scorer;
   Parameters globals;
 
@@ -39,15 +38,13 @@ public class DFRScoringIterator extends TransformIterator implements MovableScor
     long termFrequency = parameters.getLong("nodeFrequency");
     long documentCount = parameters.getLong("documentCount");
     lambda = (termFrequency + 0.0) / (documentCount + 0.0);
-    log2 = Math.log(2);
-    loge = Math.log(Math.E) / log2;
     globals = globalParams;
   }
 
   private double transform(double ts) {
-    double f1 = ts * Math.log(ts / lambda) / log2;
-    double f2 = (lambda - ts) * loge;
-    double f3 = 0.5 * Math.log(2 * Math.PI * ts) / log2;
+    double f1 = ts * Math.log(ts / lambda) / Utility.log2;
+    double f2 = (lambda - ts) * Utility.loge;
+    double f3 = 0.5 * Math.log(2 * Math.PI * ts) / Utility.log2;
     double risk = 1.0 / (ts + 1.0);
     return qfratio * risk * (f1 + f2 + f3);
   }
@@ -56,26 +53,16 @@ public class DFRScoringIterator extends TransformIterator implements MovableScor
     super.setContext(ctx);
 
     if (ctx instanceof DeltaScoringContext) {
-      DeltaScoringContext pctx = (DeltaScoringContext) ctx;
+      DeltaScoringContext dctx = (DeltaScoringContext) ctx;
 
-      // HAHAHAHA I copied this nasty hack!
-      if (pctx.startingPotentials == null) {
-        pctx.startingPotentials = new double[(int) globals.getLong("numberOfTerms")];
-        pctx.potentials = new double[pctx.startingPotentials.length];
-      }
-      pctx.startingPotentials[pctx.quorumIndex] = scorer.maximumScore();
-      pctx.startingPotential += transform(pctx.startingPotentials[pctx.quorumIndex]);
-      for (int i = pctx.scorers.size() - 1; i >= 0; i--) {
-        PL2FieldScoringIterator pfsi = (PL2FieldScoringIterator) pctx.scorers.get(i);
-        if (pfsi.parentIdx == -1) {
-          pfsi.parentIdx = pctx.quorumIndex;
-          pfsi.beta = Math.log(lambda) / log2 + (lambda * loge) + 
-                  ((0.5 * (Math.log(2 * Math.PI)/log2)) + loge);
-        } else {
-          break;
-        }
-      }
-      pctx.quorumIndex++;
+      // Need to do this at the aggregate level     
+      dctx.startingPotentials[dctx.quorumIndex] = scorer.maximumScore();
+      /*
+      System.err.printf("at qidx=%d: startingP=%f, inc=%f\n", dctx.quorumIndex,
+			dctx.startingPotentials[dctx.quorumIndex], transform(dctx.startingPotentials[dctx.quorumIndex]));
+      */
+      dctx.startingPotential += transform(dctx.startingPotentials[dctx.quorumIndex]);
+      dctx.quorumIndex++;
     }
   }
 
@@ -88,11 +75,11 @@ public class DFRScoringIterator extends TransformIterator implements MovableScor
 
   @Override
   public double maximumScore() {
-    return transform(scorer.maximumScore());
+      return transform(scorer.maximumScore());
   }
 
   @Override
   public double minimumScore() {
-    return transform(scorer.minimumScore());
+      return transform(scorer.minimumScore());
   }
 }
