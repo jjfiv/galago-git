@@ -4,10 +4,12 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.disk.PositionIndexReader;
 import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.scoring.PL2FieldScorer;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -26,21 +28,35 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
   String partName;
   double max;
   double min = 0.0001;
-  public int parentIdx = -1;
-  public double weight;
+  int parentIdx = -1;
+  double weight;
   double beta;
-  double log2;
 
   public PL2FieldScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
           throws IOException {
     super(it, new PL2FieldScorer(globalParams, p, it));
     partName = p.getString("lengths");
-    log2 = Math.log(2);
+    weight = p.getDouble("w");
+    parentIdx = (int) p.getLong("pIdx");
+    long termFrequency = p.getLong("nf");
+    long documentCount = p.getLong("dc");
+    double lambda = (termFrequency + 0.0) / (documentCount + 0.0);
+    beta = Math.log(lambda) / Utility.log2 + (lambda * Utility.loge) + 
+	((0.5 * (Math.log(2 * Math.PI)/Utility.log2)) + Utility.loge);
     if (it instanceof PositionIndexReader.TermCountIterator) {
       PositionIndexReader.TermCountIterator maxIter = (PositionIndexReader.TermCountIterator) it;
       max = function.score(maxIter.maximumCount(), maxIter.maximumCount());
     } else {
       max = 0;  // Means we have a null extent iterator
+    }
+  }
+
+  @Override
+  public void setContext(ScoringContext ctx) {
+    super.setContext(ctx);
+    if (DeltaScoringContext.class.isAssignableFrom(ctx.getClass())) {
+	DeltaScoringContext dctx = (DeltaScoringContext) ctx;
+	dctx.scorers.add(this);
     }
   }
 
@@ -68,16 +84,21 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
     score = (score > 0.0) ? score : min; // MY smoothing again
     double phi = ctx.potentials[parentIdx];
     double psi = phi + (weight * (score - max));
-    double logpsi = Math.log(psi) / log2;
-    double logphi = Math.log(phi) / log2;
+    double logpsi = Math.log(psi) / Utility.log2;
+    double logphi = Math.log(phi) / Utility.log2;
     
     double t1 = beta * (phi - psi);
     double t2 = logpsi * ((phi*psi) + (0.5 * phi) + psi + 0.5);
     double t3 = logphi * ((phi*psi) + (0.5 * psi) + phi + 0.5);
     double den = (phi + 1) * (psi + 1);
     double diff = (t1 + t2 - t3) / den;
-
     ctx.runningScore += diff;
+
+    /*
+    System.err.printf("idx=%d, beta=%f, score=%f, logpsi=%f, phi=%f, psi=%f, weight=%f, max=%f, den=%f, running=%f\n",
+		      parentIdx, beta, score, logpsi, phi, psi, weight, max, den, ctx.runningScore);
+    */
+
     ctx.potentials[parentIdx] = psi;
   }
 
@@ -85,8 +106,8 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
     DeltaScoringContext ctx = (DeltaScoringContext)context;
     double phi = ctx.potentials[parentIdx];
     double psi = phi + (weight * (min - max));
-    double logpsi = Math.log(psi) / log2;
-    double logphi = Math.log(phi) / log2;
+    double logpsi = Math.log(psi) / Utility.log2;
+    double logphi = Math.log(phi) / Utility.log2;
 
     double t1 = beta * (psi - phi);
     double t2 = logphi * ((phi*psi) + (0.5 * psi) + phi + 0.5);
@@ -96,6 +117,10 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
 
     ctx.runningScore += diff;
     ctx.potentials[parentIdx] = psi;
+  }
+
+  public void aggregatePotentials(DeltaScoringContext ctx) {
+      // do nothing
   }
 
   @Override

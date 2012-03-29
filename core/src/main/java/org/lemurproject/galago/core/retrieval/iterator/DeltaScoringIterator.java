@@ -12,8 +12,24 @@ import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
  */
 public interface DeltaScoringIterator extends MovableScoreIterator {
   /**
-   * 
+   * The scoring method to use if scoring via delta functions. This score will minutely
+   * shift the running total towards the proper score.
    */
   public void deltaScore();
+
+  /**
+   * Modifies the runningScore of the DeltaScoringContext by the largest amount possible for this iterator.
+   * This is primarily used when determining the scoring quorum.
+   */
   public void maximumDifference();
+
+  /**
+   * This is an unfortunate consequence of Java not being able to support traits or static methods in interfaces.
+   * This should be a static method, but the language being what it is, there's no clean way to enforce that
+   * besides making it a regular method to implement to fulfill the DeltaScoringIterator contract.
+   *
+   * Takes in the potential scores and aggregates them to make the final startingPotential score. In some cases,
+   * nothing needs to be done.
+   */
+  public void aggregatePotentials(DeltaScoringContext ctx);
 }

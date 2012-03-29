@@ -46,14 +46,15 @@ public class PL2FTraversal extends Traversal {
   List<String> fieldList;
   Parameters weights;
   Parameters smoothing;
-  Parameters params;
+  Parameters params, queryParams;
   Parameters availableFields;
   TObjectIntHashMap<String> qTermCounts;
   int qfmax;
   Retrieval retrieval;
   
-  public PL2FTraversal(Retrieval retrieval) {
+    public PL2FTraversal(Retrieval retrieval, Parameters qp) {
     this.retrieval = retrieval;
+    queryParams = qp;
     levels = 0;
     Parameters globals = retrieval.getGlobalParameters();
     params = globals.containsKey("pl2f") ? globals.getMap("pl2f") : new Parameters();
@@ -86,7 +87,8 @@ public class PL2FTraversal extends Traversal {
   public Node afterNode(Node original) throws Exception {
     levels--;
     if (levels == 0 && original.getOperator().equals("pl2f")) {
-      retrieval.getGlobalParameters().set("numberOfTerms", qTermCounts.keys().length);
+      queryParams.set("numberOfTerms", qTermCounts.keys().length);
+      queryParams.set("numPotentials", qTermCounts.keys().length);
       // Let's get qfmax
       int[] counts = qTermCounts.values();
       for (int i = 0; i < counts.length; i++) {
@@ -95,8 +97,10 @@ public class PL2FTraversal extends Traversal {
       
       ArrayList<Node> termNodes = new ArrayList<Node>();
 
+      int j = 0;
       for (Node child : original.getInternalNodes()) {
-        termNodes.add(generatePL2FTermNode(child));
+	  termNodes.add(generatePL2FTermNode(child, j));
+	j++;
       }
 
       // Top-level sums all term nodes
@@ -108,12 +112,13 @@ public class PL2FTraversal extends Traversal {
     }
   }
 
-  private Node generatePL2FTermNode(Node n) throws Exception {
+    private Node generatePL2FTermNode(Node n, int position) throws Exception {
     String term = n.getDefaultParameter();
     ArrayList<Node> fieldNodes = new ArrayList<Node>();
     NodeParameters fieldWeightParams = new NodeParameters();
     
     // For each term, generate F field nodes
+    double normalizer = 0.0;
     for (int i = 0; i < fieldList.size(); i++) {
 	String field = fieldList.get(i);
 
@@ -127,10 +132,15 @@ public class PL2FTraversal extends Traversal {
       Node countNode = new Node("counts", term);
       countNode.getNodeParameters().set("part", partName);
       Node fieldNode = new Node("feature", "pl2f");
-      fieldNode.getNodeParameters().set("lengths", field);
-      fieldNode.getNodeParameters().set("c", smoothing.get(field, params.get("smoothing_default", 0.5)));
+      NodeParameters np = fieldNode.getNodeParameters();
+      np.set("lengths", field);
+      np.set("pIdx", position);
+      np.set("c", smoothing.get(field, params.get("smoothing_default", 0.5)));
+      double w = weights.get(field, params.get("weight_default", 0.5));
+      np.set("w", w);
+      normalizer += w;
+      fieldWeightParams.set(Integer.toString(i), w);
       fieldNode.addChild(countNode);
-      fieldWeightParams.set(Integer.toString(i), weights.get(field, params.get("weight_default", 0.5)));
       fieldNodes.add(fieldNode);
     }
     //fieldWeightParams.set("norm", false);
@@ -141,16 +151,24 @@ public class PL2FTraversal extends Traversal {
     Node dfrNode = new Node("feature", "dfr");
     dfrNode.getNodeParameters().set("qf", qTermCounts.get(term));
     dfrNode.getNodeParameters().set("qfmax", qfmax);
-    setTermStatistics(dfrNode, term);
     dfrNode.addChild(fieldCombiner);
+    setTermStatistics(dfrNode, term, normalizer);
     return dfrNode;
   }
   
-  private void setTermStatistics(Node dfr, String t) throws Exception {
+  private void setTermStatistics(Node dfr, String t, double normalizer) throws Exception {
     Node counter = new Node("counts", t);
     Node parted = TextPartAssigner.assignPart(counter, retrieval.getAvailableParts());
     NodeStatistics ns = retrieval.nodeStatistics(parted);
     dfr.getNodeParameters().set("nodeFrequency", ns.nodeFrequency);
     dfr.getNodeParameters().set("documentCount", ns.documentCount);
+
+    // Now echo these values down to the leaves
+    List<Node> leaves = dfr.getInternalNodes().get(0).getInternalNodes();
+    for (Node n : leaves) {
+	n.getNodeParameters().set("nf", ns.nodeFrequency);
+	n.getNodeParameters().set("dc", ns.documentCount);
+	n.getNodeParameters().set("w", n.getNodeParameters().getDouble("w") / normalizer);
+    }
   }
 }
