@@ -38,6 +38,7 @@ public class Utility {
   private static Logger LOG = Logger.getLogger(Utility.class.getName());
   private static final Parameters preferences = new Parameters();
   private static final Parameters drmaaOptions = new Parameters();
+  private static final Parameters sorterOptions = new Parameters();
   private static final List<String> roots = new ArrayList();
 
   // Some constant values
@@ -70,6 +71,10 @@ public class Utility {
     if (preferences.containsKey("drmaa")) {
       drmaaOptions.copyFrom(preferences.getMap("drmaa"));
     }
+
+    if (preferences.containsKey("sorter")) {
+      sorterOptions.copyFrom(preferences.getMap("sorter"));
+    }
   }
 
   /**
@@ -80,6 +85,13 @@ public class Utility {
     return drmaaOptions;
   }
 
+  /** 
+   * Sorter parameters
+   */
+  public static Parameters getSorterOptions(){
+    return sorterOptions;
+  }
+  
   /**
    * <p>If the parent directories for this file don't exist, this function creates them.</p>
    *

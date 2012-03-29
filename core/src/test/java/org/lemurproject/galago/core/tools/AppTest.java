@@ -1,14 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
-import org.lemurproject.galago.core.index.disk.DiskIndex;
-import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**

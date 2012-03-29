@@ -17,6 +17,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.management.ListenerNotFoundException;
 import javax.management.Notification;
@@ -26,96 +27,86 @@ import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
- * <p>
- * This class sorts an incoming stream of objects in some specified order.
- * When this object is closed (by calling the close method), the sorted
- * objects are then sent in sorted order to the next stage of the 
- * Processor chain.
- * </p>
+ * <p> This class sorts an incoming stream of objects in some specified order.
+ * When this object is closed (by calling the close method), the sorted objects
+ * are then sent in sorted order to the next stage of the Processor chain. </p>
  *
- * <p>
- * Since there may be many objects submitted to the Sorter (more than
- * will fit in main memory), the object may create temporary files
- * to store partially sorted results.  The path used for these temporary
- * files is specified in the TempPath Java preferences variable.
- * </p>
+ * <p> Since there may be many objects submitted to the Sorter (more than will
+ * fit in main memory), the object may create temporary files to store partially
+ * sorted results. The path used for these temporary files is specified in the
+ * TempPath Java preferences variable. </p>
  *
- * <p>
- * In many instances, Sorters are used to generate streams of data that
- * are then used to create aggregate statistics.  For instance, suppose
- * we want to compute the monthly sales of a particular corporation, separated
- * by region.  We can feed a set of transactions to the Sorter, each containing
- * a dollar amount and the region it came from, e.g.:
- * <ul>
- *      <li>($5.39, South)</li>
- *      <li>($2.24, North)</li>
- *      <li>($1.50, South)</li>
- * </ul>
- * If we sort this list by region name:
- * <ul>
- *      <li>($2.24, North)</li>
- *      <li>($5.39, South)</li>
- *      <li>($1.50, South)</li>
- * </ul>
- * It's now very easy to add up totals for each region (since all data for each
- * region is adjacent in the list).</p>
+ * <p> In many instances, Sorters are used to generate streams of data that are
+ * then used to create aggregate statistics. For instance, suppose we want to
+ * compute the monthly sales of a particular corporation, separated by region.
+ * We can feed a set of transactions to the Sorter, each containing a dollar
+ * amount and the region it came from, e.g.: <ul> <li>($5.39, South)</li>
+ * <li>($2.24, North)</li> <li>($1.50, South)</li> </ul> If we sort this list by
+ * region name: <ul> <li>($2.24, North)</li> <li>($5.39, South)</li> <li>($1.50,
+ * South)</li> </ul> It's now very easy to add up totals for each region (since
+ * all data for each region is adjacent in the list).</p>
  *
- * <p>
- * In these kinds of aggregate applications, it may be more efficient to 
- * provide the Sorter with a Reducer object.  A Reducer is an object that
- * transforms <i>n</i> sorted objects of type T into some (hopefully)
- * smaller number of objects, also of type T.  In the example above, we could
- * write a reducer that turned those three transactions into:
- * <ul>
- *      <li>($2.24, North)</li>
- *      <li>($6.89, South)</li>
- * </ul>
- * which would be equivalent for this application.  Using a Reducer allows
- * the application to buffer fewer items and hopefully reduce the reliance
- * on the disk during sorting.</p>
+ * <p> In these kinds of aggregate applications, it may be more efficient to
+ * provide the Sorter with a Reducer object. A Reducer is an object that
+ * transforms <i>n</i> sorted objects of type T into some (hopefully) smaller
+ * number of objects, also of type T. In the example above, we could write a
+ * reducer that turned those three transactions into: <ul> <li>($2.24,
+ * North)</li> <li>($6.89, South)</li> </ul> which would be equivalent for this
+ * application. Using a Reducer allows the application to buffer fewer items and
+ * hopefully reduce the reliance on the disk during sorting.</p>
  *
- * @author Trevor Strohman
+ * Parameters: - limit [ = DEFAULT_OBJECT_LIMIT] : maximum number of objects to
+ * buffer before flushing to disk - fileLimit [ = DEFAULT_FILE_LIMIT] : maximum
+ * number of files to merge an any time in the combine phase - reduceInterval [
+ * = DEFAULT_REDUCE_INTERVAL] : number of items to buffer before trying to
+ * reduce (may free some memory) - memoryFraction [ = DEFAULT_MEMORY_FRACTION] :
+ * - pauseToFlush [ = DEFAULT_FLUSH_PAUSE] :
+ *
+ *
+ * @author trevor
+ * @author sjh
  */
 public class Sorter<T> extends StandardStep<T, T> implements NotificationListener {
 
-  public static final int DEFAULT_OBJECT_LIMIT = 50000000;
-
-  private int limit;
-  private int fileLimit = 20;
-  private volatile boolean flushRequested = false;
-  private ArrayList<T> objects;
-  private ArrayList<List<T>> runs;
-  private long runsCount = 0;
-  private Logger logger = Logger.getLogger(Sorter.class.toString());
-  private ArrayList<File> temporaryFiles;
+  // defaults
+  public static final long DEFAULT_OBJECT_LIMIT = 50000000;
+  public static final long DEFAULT_FILE_LIMIT = 20;
+  public static final long DEFAULT_REDUCE_INTERVAL = 100 * 1000;
+  public static final double DEFAULT_MEMORY_FRACTION = 0.7;
+  public static final boolean DEFAULT_FLUSH_PAUSE = false;
+  // instance limits and parameters
+  private long limit;
+  private int fileLimit;
+  private long reduceInterval;
+  private double memoryFraction;
+  private boolean pauseToFlush;
   private Order<T> order;
   private Comparator<T> lessThanCompare;
   private Reducer<T> reducer;
-  private static int reduceInterval = 100 * 1000;
+  // sorter data store
+  private ArrayList<T> objects;
+  private ArrayList<List<T>> runs;
+  private ArrayList<File> temporaryFiles;
+  // flush thread - this variable is only used when pauseToFlush = true;
+  private Thread flushThread = null;
+  // statistics + logging
+  private long runsCount = 0;
   private Counter filesWritten = null;
-  private Counter sorterCombineSteps;
-  // contunters to assign a better combineBufferSize
-  private long minFlushSize = Long.MAX_VALUE;
+  private Counter sorterCombineSteps = null;
+  private static final Logger logger = Logger.getLogger(Sorter.class.toString());
+  // counters to assign a better combineBufferSize
+  private long minFlushSize = Sorter.DEFAULT_OBJECT_LIMIT;
   private int combineBufferSize;
 
   public Sorter(Order<T> order) {
-    this(DEFAULT_OBJECT_LIMIT, order, null, null);
+    this(order, null, null);
   }
 
   public Sorter(Order<T> order, Reducer<T> reducer) {
-    this(DEFAULT_OBJECT_LIMIT, order, reducer, null);
+    this(order, reducer, null);
   }
 
-  public Sorter(int limit, Order<T> order) {
-    this(limit, order, null, null);
-  }
-
-  public Sorter(int limit, Order<T> order, Reducer<T> reducer) {
-    this(limit, order, reducer, null);
-  }
-
-  public Sorter(int limit, Order<T> order, Reducer<T> reducer, Processor<T> processor) {
-    this.limit = limit;
+  public Sorter(Order<T> order, Reducer<T> reducer, Processor<T> processor) {
     this.order = order;
     this.processor = processor;
     this.reducer = reducer;
@@ -123,9 +114,10 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     this.runs = new ArrayList<List<T>>();
     this.temporaryFiles = new ArrayList<File>();
     this.lessThanCompare = order.lessThan();
-    this.flushRequested = false;
 
     requestMemoryWarnings();
+
+    setLimits(new Parameters());
   }
 
   @SuppressWarnings("unchecked")
@@ -138,9 +130,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     Class clazz = Class.forName(className);
     Type<T> typeInstance = (Type<T>) clazz.newInstance();
     this.order = typeInstance.getOrder(orderSpec);
-    this.limit = (int) parameters.getJSON().get("object-limit", DEFAULT_OBJECT_LIMIT);
     this.reducer = null;
-    this.flushRequested = false;
 
     if (parameters.getJSON().isString("reducer")) {
       Class reducerClass = Class.forName(parameters.getJSON().getString("reducer"));
@@ -157,6 +147,18 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     this.sorterCombineSteps = parameters.getCounter("Sorter Combine Steps");
 
     requestMemoryWarnings();
+
+    setLimits(new Parameters());
+  }
+
+  private void setLimits(Parameters localParameters) {
+    Parameters globalParameters = Utility.getSorterOptions();
+
+    this.limit = localParameters.get("object-limit", globalParameters.get("object-limit", Sorter.DEFAULT_OBJECT_LIMIT));
+    this.fileLimit = (int) localParameters.get("file-limit", globalParameters.get("file-limit", Sorter.DEFAULT_FILE_LIMIT));
+    this.reduceInterval = localParameters.get("reduce-interval", globalParameters.get("reduce-interval", Sorter.DEFAULT_REDUCE_INTERVAL));
+    this.memoryFraction = localParameters.get("mem-fraction", globalParameters.get("mem-fraction", Sorter.DEFAULT_MEMORY_FRACTION));
+    this.pauseToFlush = localParameters.get("flush-pause", globalParameters.get("flush-pause", Sorter.DEFAULT_FLUSH_PAUSE));
   }
 
   public void requestMemoryWarnings() {
@@ -178,7 +180,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     }
 
     if (biggestPool != null) {
-      biggestPool.setUsageThreshold((long) (maxPoolSize * 0.7));
+      biggestPool.setUsageThreshold((long) (maxPoolSize * this.memoryFraction));
       MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
       NotificationEmitter emitter = (NotificationEmitter) memoryBean;
       emitter.addNotificationListener(this, null, null);
@@ -197,18 +199,19 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     }
   }
 
+  @Override
   public void handleNotification(Notification notification, Object handback) {
     if (notification.getType().equals(MemoryNotificationInfo.MEMORY_THRESHOLD_EXCEEDED)) {
-      //[sjh] - flushRequested = true;
       final Sorter f = this;
 
       // if there's nothing we can do at the moment; return.
       if (size() == 0) {
         return;
-      } else {
-        if (size() < minFlushSize) {
-          minFlushSize = size();
-        }
+
+      }
+      // store the smallest mem-limit flush op
+      if (size() < minFlushSize) {
+        minFlushSize = size();
       }
 
       Thread t = new Thread() {
@@ -222,6 +225,15 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
           }
         }
       };
+
+      if (this.pauseToFlush) {
+        // this should never happen
+        if (flushThread != null && flushThread.isAlive()) {
+          pause();
+        }
+        
+        flushThread = t;
+      }
 
       t.start();
     }
@@ -272,9 +284,6 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   }
 
   public boolean needsFlush() {
-    if (flushRequested) {
-      return true;
-    }
     return size() > limit;
   }
 
@@ -288,7 +297,22 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     }
   }
 
+  private void pause() {
+    if (flushThread != null && flushThread.isAlive()) {
+      try {
+        flushThread.join();
+      } catch (InterruptedException ex) {
+        Logger.getLogger(Sorter.class.getName()).log(Level.SEVERE, null, ex);
+      }
+    }
+  }
+
+  @Override
   public synchronized void process(T object) throws IOException {
+    if (this.pauseToFlush && flushThread != null && flushThread.isAlive()) {
+      pause();
+    }
+
     objects.add(object);
     flushIfNecessary();
   }
@@ -297,9 +321,9 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   /**
    * <p>Finishes sorting, then sends sorted output to later stages.</p>
    *
-   * <p>This method is intentionally unsynchronized, as synchronizing it
-   * tends to cause deadlock problems (since this method calls process on
-   * later stages).</p>
+   * <p>This method is intentionally unsynchronized, as synchronizing it tends
+   * to cause deadlock problems (since this method calls process on later
+   * stages).</p>
    */
   public synchronized void close() throws IOException {
     // remove this object as quickly as possible from the alert queue
@@ -315,6 +339,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
 
       combine();
     } else {
+
       reduce();
       combineRuns(processor);
     }
@@ -322,27 +347,27 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   }
 
   /**
-   * Reduces the number of buffered objects.  The recently buffered
-   * objects are processed by a Reducer, if one was specified in the
-   * constructor.  The resulting objects from this reduction are then
-   * copied into a "reduced" set of buffered objects.  The process
-   * resembles a generational garbage collector.
+   * Reduces the number of buffered objects. The recently buffered objects are
+   * processed by a Reducer, if one was specified in the constructor. The
+   * resulting objects from this reduction are then copied into a "reduced" set
+   * of buffered objects. The process resembles a generational garbage
+   * collector.
    *
-   * Even if no reducer exists, this sorts all the current objects and
-   * sets them aside.  We perform this initial sort while the objects
-   * are still warm in the cache to get improved throughput overall.
+   * Even if no reducer exists, this sorts all the current objects and sets them
+   * aside. We perform this initial sort while the objects are still warm in the
+   * cache to get improved throughput overall.
    *
-   * Another benefit to reducing is the speed that we can respond to
-   * low memory events.  If a low memory event happens and the objects
-   * aren't sorted, we have to sort them first before writing them to disk.
-   * The sorting process can take extra memory and time, which makes us
-   * risk running out of RAM while trying to get data out onto the disk.
+   * Another benefit to reducing is the speed that we can respond to low memory
+   * events. If a low memory event happens and the objects aren't sorted, we
+   * have to sort them first before writing them to disk. The sorting process
+   * can take extra memory and time, which makes us risk running out of RAM
+   * while trying to get data out onto the disk.
    *
-   * [1/8/2011, irmarc]: Switched the order of the reduce/sort. This invalidates the last point
-   *                     above, however the reducer is largely useless if it can't make
-   *                     the assumption that the input is coming in sorted. After some
-   *                     discussion, we determined this would make the reducer much more palatable as
-   *                     as a tool.
+   * [1/8/2011, irmarc]: Switched the order of the reduce/sort. This invalidates
+   * the last point above, however the reducer is largely useless if it can't
+   * make the assumption that the input is coming in sorted. After some
+   * discussion, we determined this would make the reducer much more palatable
+   * as as a tool.
    */
   private synchronized void reduce() throws IOException {
     if (size() == 0) {
@@ -355,7 +380,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     if (reducer != null) {
       results = reducer.reduce(objects);
     } else {
-	results = objects;
+      results = objects;
     }
 
     runs.add(results);
@@ -384,8 +409,6 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     if (filesWritten != null) {
       filesWritten.increment();
     }
-
-    flushRequested = false;
   }
 
   private class RunWrapper<T> implements Comparable<RunWrapper<T>> {
@@ -419,8 +442,8 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   }
 
   /**
-   * Takes the sorted runs in the runs array, and combines them into a
-   * single sorted list, which is processed by the processor called output.
+   * Takes the sorted runs in the runs array, and combines them into a single
+   * sorted list, which is processed by the processor called output.
    */
   private synchronized void combineRuns(Processor<T> output) throws IOException {
     PriorityQueue<RunWrapper<T>> queue = new PriorityQueue<RunWrapper<T>>();

@@ -53,7 +53,7 @@ public class Splitter<T> implements Processor<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public static <S> Splitter splitToFiles(String prefix, int limit, Type<S> type, Order<S> order, int count) throws IOException, FileNotFoundException, IncompatibleProcessorException {
+    public static <S> Splitter splitToFiles(String prefix, Type<S> type, Order<S> order, int count) throws IOException, FileNotFoundException, IncompatibleProcessorException {
         assert type != null;
         assert order != null;
 
@@ -62,7 +62,7 @@ public class Splitter<T> implements Processor<T> {
         for (int i = 0; i < count; i++) {
             String filename = prefix + i;
             FileOrderedWriter<S> writer = new FileOrderedWriter<S>(filename, order);
-            Sorter<S> sorter = new Sorter<S>(limit, order);
+            Sorter<S> sorter = new Sorter<S>(order);
             sorter.setProcessor(writer);
             processors[i] = sorter;
         }
