@@ -157,5 +157,15 @@ public class DocumentIndicatorReader extends KeyValueReader {
         }
       }
     }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return "indicators";
+    }
+
+    @Override
+    public byte[] getKeyBytes() throws IOException {
+      return Utility.fromString("indicators");
+    }
   }
 }

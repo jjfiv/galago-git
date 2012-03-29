@@ -46,7 +46,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
   // this is likely to waste all of your memory...
   @Override
-  public void addIteratorData(MovableIterator iterator) throws IOException {
+  public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
     while (!iterator.isDone()) {
       Document doc = ((DataIterator<Document>) iterator).getData();
       // if the document already exists - no harm done.
@@ -62,7 +62,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   }
 
   @Override
-  public DocumentIterator getIterator() throws IOException {
+  public KeyIterator getIterator() throws IOException {
     return new MemDocIterator(corpusData.keySet().iterator());
   }
 
@@ -87,7 +87,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   }
 
   @Override
-  public long getVocabCount() {
+  public long getKeyCount() {
     return this.corpusData.size();
   }
 
@@ -96,7 +96,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
     Parameters p = getManifest();
     p.set("filename", path);
     CorpusFileWriter writer = new CorpusFileWriter(new FakeParameters(p));
-    DocumentIterator iterator = getIterator();
+    DocumentIterator iterator = (DocumentIterator) getIterator();
     while (!iterator.isDone()) {
       writer.process(iterator.getDocument());
       iterator.nextKey();

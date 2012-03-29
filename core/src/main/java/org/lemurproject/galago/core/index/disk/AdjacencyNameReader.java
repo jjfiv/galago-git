@@ -100,5 +100,15 @@ public class AdjacencyNameReader extends DiskNameReader {
         throw new RuntimeException(ioe);
       }
     }
+
+    @Override
+    public String getKeyString() {
+      return "adjacent";
+    }
+
+    @Override
+    public byte[] getKeyBytes() {
+      return Utility.fromString("adjacent");
+    }
   }
 }

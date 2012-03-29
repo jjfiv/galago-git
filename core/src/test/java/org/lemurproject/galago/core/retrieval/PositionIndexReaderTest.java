@@ -158,7 +158,7 @@ public class PositionIndexReaderTest extends TestCase {
         // Now read it
         PositionIndexReader reader = new PositionIndexReader(skipPath.toString());
         PositionIndexReader.TermExtentIterator termExtents = reader.getTermExtents("a");
-        assertEquals("a", termExtents.getKey());
+        assertEquals("a", termExtents.getKeyString());
 
         // Read first identifier
         assertEquals(1, termExtents.currentCandidate());

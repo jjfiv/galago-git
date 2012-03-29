@@ -214,10 +214,10 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     }
 
     @Override
-    public String getEntry() {
+    public String getEntry() throws IOException {
       StringBuilder builder = new StringBuilder();
 
-      builder.append(getKey());
+      builder.append(getKeyString());
       builder.append(",");
       builder.append(currentDocument);
       for (int i = 0; i < extentArray.size(); ++i) {
@@ -497,10 +497,10 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     }
 
     @Override
-    public String getEntry() {
+    public String getEntry() throws IOException {
       StringBuilder builder = new StringBuilder();
 
-      builder.append(getKey());
+      builder.append(getKeyString());
       builder.append(",");
       builder.append(currentDocument);
       builder.append(",");

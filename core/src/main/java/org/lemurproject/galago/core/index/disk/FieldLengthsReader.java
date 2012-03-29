@@ -3,7 +3,6 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
@@ -11,6 +10,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Wraps the WindowIndexReader to act as a lengths reader for a
@@ -175,6 +175,16 @@ public class FieldLengthsReader implements LengthsReader {
     @Override
     public boolean hasAllCandidates() {
       return false;
+    }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return "lengths";
+    }
+
+    @Override
+    public byte[] getKeyBytes() throws IOException {
+      return Utility.fromString("lengths");
     }
   }
 }

@@ -219,5 +219,15 @@ public class DocumentPriorReader extends KeyValueReader {
     public double minimumScore() {
       return manifest.get("minScore", Double.NEGATIVE_INFINITY);
     }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return "priors";
+    }
+
+    @Override
+    public byte[] getKeyBytes() throws IOException {
+      return Utility.fromString("priors");
+    }
   }
 }

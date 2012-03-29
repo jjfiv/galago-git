@@ -25,15 +25,15 @@ import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
 /**
- * Reads a simple positions-based index, where each inverted list in the
- * index contains both term count information and term position information.
- * The term counts data is stored separately from term position information for
- * faster query processing when no positions are needed.
- * 
+ * Reads a simple positions-based index, where each inverted list in the index
+ * contains both term count information and term position information. The term
+ * counts data is stored separately from term position information for faster
+ * query processing when no positions are needed.
+ *
  * (12/16/2010, irmarc): In order to facilitate faster count-only processing,
- *                        the default iterator created will not even open the
- *                        positions list when iterating. This is an interesting
- *                        enough change that there are now two versions of the iterator
+ * the default iterator created will not even open the positions list when
+ * iterating. This is an interesting enough change that there are now two
+ * versions of the iterator
  *
  * @author trevor, irmarc
  */
@@ -209,10 +209,10 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     }
 
     @Override
-    public String getEntry() {
+    public String getEntry() throws IOException {
       StringBuilder builder = new StringBuilder();
 
-      builder.append(getKey());
+      builder.append(getKeyString());
       builder.append(",");
       builder.append(currentDocument);
       for (int i = 0; i < extentArray.size(); ++i) {
@@ -263,7 +263,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       }
 
       // Linear from here
-      while (!isDone() && document > currentDocument){
+      while (!isDone() && document > currentDocument) {
         next();
       }
     }
@@ -376,8 +376,9 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
   }
 
   /**
-   * This iterator simply ignores the positions information - faster b/c when incrementing or loading or skipping,
-   * we don't have to bookkeep the positions buffer. Overall smaller footprint and faster execution.
+   * This iterator simply ignores the positions information - faster b/c when
+   * incrementing or loading or skipping, we don't have to bookkeep the
+   * positions buffer. Overall smaller footprint and faster execution.
    *
    */
   public class TermCountIterator extends KeyListReader.ListIterator
@@ -497,10 +498,10 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     }
 
     @Override
-    public String getEntry() {
+    public String getEntry() throws IOException {
       StringBuilder builder = new StringBuilder();
 
-      builder.append(getKey());
+      builder.append(getKeyString());
       builder.append(",");
       builder.append(currentDocument);
       builder.append(",");
@@ -546,7 +547,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       }
 
       // linear from here
-      while (!isDone() && document > currentDocument){
+      while (!isDone() && document > currentDocument) {
         next();
       }
     }
@@ -668,8 +669,8 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
   }
 
   /**
-   * Returns an iterator pointing at the specified term, or
-   * null if the term doesn't exist in the inverted file.
+   * Returns an iterator pointing at the specified term, or null if the term
+   * doesn't exist in the inverted file.
    */
   public TermExtentIterator getTermExtents(String term) throws IOException {
     term = stemAsRequired(term);

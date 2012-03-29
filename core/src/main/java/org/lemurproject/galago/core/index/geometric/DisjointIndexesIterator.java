@@ -60,13 +60,13 @@ public abstract class DisjointIndexesIterator extends ValueIterator {
       if (queue.isEmpty()) {
         // if the queue is empty - we're done
         return;
-      } else if (!head.isDone() 
-              && !queue.isEmpty() 
+      } else if (!head.isDone()
+              && !queue.isEmpty()
               && head.compareTo(queue.peek()) < 0) {
         // otherwise check if head is still the head
         return;
       }
-      
+
       // if we are here - head may be done - or may not be the head anymore
       if (!head.isDone()) {
         queue.offer(head);
@@ -115,5 +115,15 @@ public abstract class DisjointIndexesIterator extends ValueIterator {
   @Override
   public int compareTo(MovableIterator o) {
     return Utility.compare(this.currentCandidate(), o.currentCandidate());
+  }
+
+  @Override
+  public String getKeyString() throws IOException {
+    return ((ValueIterator) head).getKeyString();
+  }
+
+  @Override
+  public byte[] getKeyBytes() throws IOException {
+    return ((ValueIterator) head).getKeyBytes();
   }
 }

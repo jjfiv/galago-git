@@ -20,7 +20,6 @@ import org.lemurproject.galago.core.index.mem.MemoryDocumentLengths;
 import org.lemurproject.galago.core.index.mem.MemoryDocumentNames;
 import org.lemurproject.galago.core.index.mem.MemoryIndexPart;
 import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -45,12 +44,12 @@ public class CachedDiskIndex implements Index {
     // load lengths
     memLengthsReader = new MemoryDocumentLengths(diskIndex.lengthsReader.getManifest());
     LengthsReader.Iterator lengthsData = diskIndex.lengthsReader.getLengthsIterator();
-    ((MemoryDocumentLengths) memLengthsReader).addIteratorData(lengthsData);
+    ((MemoryDocumentLengths) memLengthsReader).addIteratorData(new byte[0], lengthsData);
 
     // load names
     memNamesReader = new MemoryDocumentNames(diskIndex.namesReader.getManifest());
     NamesReader.Iterator namesData = diskIndex.namesReader.getNamesIterator();
-    ((MemoryDocumentNames) memNamesReader).addIteratorData(namesData);
+    ((MemoryDocumentNames) memNamesReader).addIteratorData(new byte[0], namesData);
 
     memParts = new HashMap();
     memParts.put("lengths", (MemoryDocumentLengths) memLengthsReader);
@@ -162,9 +161,9 @@ public class CachedDiskIndex implements Index {
       iterator = diskIndex.getIterator(queryNode);
     }
 
-    if (iterator != null) {      
+    if (iterator != null) {
       // check if the part is already buffered
-      String partName = diskIndex.getIndexPartName(queryNode);
+      String partName = diskIndex.getIndexPartName(queryNode);      
       if (!memParts.containsKey(partName)) {
         IndexPartReader partReader = diskIndex.parts.get(partName);
         String memoryClassName = partReader.getManifest().get("memoryClass", null);
@@ -175,7 +174,7 @@ public class CachedDiskIndex implements Index {
       }
 
       if (memParts.containsKey(partName)) {
-        memParts.get(partName).addIteratorData(iterator);
+        memParts.get(partName).addIteratorData(iterator.getKeyBytes(), iterator);
       }
     }
   }

@@ -161,5 +161,15 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
       KeyIterator ki = (KeyIterator) iterator;
       return ki.getCurrentIdentifier();
     }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return "names";
+    }
+
+    @Override
+    public byte[] getKeyBytes() throws IOException {
+      return Utility.fromString("names");
+    }
   }
 }

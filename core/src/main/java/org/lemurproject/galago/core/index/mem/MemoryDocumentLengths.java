@@ -47,7 +47,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   @Override
-  public void addIteratorData(MovableIterator iterator) throws IOException {
+  public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
     while (!iterator.isDone()) {
       int identifier = ((LengthsReader.Iterator) iterator).getCurrentIdentifier();
       int length = ((LengthsReader.Iterator) iterator).getCurrentLength();
@@ -131,7 +131,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   @Override
-  public long getVocabCount() {
+  public long getKeyCount() {
     return this.lengths.getPosition();
   }
 
@@ -298,6 +298,16 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     public int getCurrentIdentifier() {
       KIterator ki = (KIterator) iterator;
       return ki.getCurrentIdentifier();
+    }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return "lengths";
+    }
+
+    @Override
+    public byte[] getKeyBytes() throws IOException {
+      return Utility.fromString("lengths");
     }
   }
 }

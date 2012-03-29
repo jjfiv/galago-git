@@ -13,11 +13,35 @@ import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
  * @author sjh
  */
 public interface MemoryIndexPart extends IndexPartReader {
-  
+  /*
+   * flush data to a disk index part
+   */
   public void flushToDisk(String path) throws IOException;
+
+  /*
+   * extract data from document and add to index
+   */
   public void addDocument(Document doc) throws IOException;
-  public void addIteratorData(MovableIterator iterator) throws IOException;
+  
+  /*
+   * extract all data from iterator and add to index
+   *  - should not expose partial information (oh-to-be-thread-safe)
+   *  - key
+   */
+  public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException;
+  
+  /*
+   * return the current number of documents in index part
+   */
   public long getDocumentCount();
+  
+  /*
+   * return the current number of terms in index part
+   */
   public long getCollectionLength();
-  public long getVocabCount();
+
+  /*
+   * return the current number of keys in index
+   */
+  public long getKeyCount();
 }

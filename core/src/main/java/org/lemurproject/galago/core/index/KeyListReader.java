@@ -11,9 +11,8 @@ import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * Base class for any data structures that map a key value
- * to a list of data, where one cannot assume the list can be
- * held in memory
+ * Base class for any data structures that map a key value to a list of data,
+ * where one cannot assume the list can be held in memory
  *
  *
  * @author irmarc
@@ -42,11 +41,13 @@ public abstract class KeyListReader extends KeyValueReader {
 
     public abstract void reset(BTreeReader.BTreeIterator it) throws IOException;
 
-    public String getKey() {
+    @Override
+    public String getKeyString() throws IOException {
       return Utility.toString(key);
     }
 
-    public byte[] getKeyBytes() {
+    @Override
+    public byte[] getKeyBytes() throws IOException {
       return key;
     }
 

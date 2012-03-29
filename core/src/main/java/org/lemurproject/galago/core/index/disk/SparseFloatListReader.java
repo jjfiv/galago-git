@@ -17,8 +17,9 @@ import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
 /**
- * Retrieves lists of floating point numbers which can be used as document features.
- * 
+ * Retrieves lists of floating point numbers which can be used as document
+ * features.
+ *
  * @author trevor
  */
 public class SparseFloatListReader extends KeyListReader {
@@ -88,10 +89,10 @@ public class SparseFloatListReader extends KeyListReader {
     }
 
     @Override
-    public String getEntry() {
+    public String getEntry() throws IOException {
       StringBuilder builder = new StringBuilder();
 
-      builder.append(getKey());
+      builder.append(getKeyString());
       builder.append(",");
       builder.append(currentDocument);
       builder.append(",");

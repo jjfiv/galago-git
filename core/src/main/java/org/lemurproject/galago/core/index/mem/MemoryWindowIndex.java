@@ -14,12 +14,10 @@ import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
-
-import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
-import org.lemurproject.galago.core.index.mem.MemoryExtents.ExtentList.ExtentIterator;
+import org.lemurproject.galago.core.index.mem.MemoryWindowIndex.ExtentList.ExtentIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -44,7 +42,7 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  *
  * In-memory posting index
  */
-public class MemoryExtents implements MemoryIndexPart, AggregateReader {
+public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
 
   // this could be a bit big -- but we need random access here
   // should use a trie (but java doesn't have one?)
@@ -53,7 +51,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
   private long collectionDocumentCount = 0;
   private long collectionPostingCount = 0;
 
-  public MemoryExtents(Parameters parameters) {
+  public MemoryWindowIndex(Parameters parameters) {
     this.parameters = parameters;
     this.parameters.set("writerClass", "org.lemurproject.galago.core.index.ExtentIndexWriter");
   }
@@ -72,9 +70,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
   }
 
   @Override
-  public void addIteratorData(MovableIterator iterator) throws IOException {
-    // we expect that this iterator is a KeyListReader.ListIterator
-    byte[] key = ((KeyListReader.ListIterator) iterator).getKeyBytes();
+  public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
 
     if (extents.containsKey(key)) {
       // do nothing - we have already cached this data
@@ -166,7 +162,7 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
   }
 
   @Override
-  public long getVocabCount() {
+  public long getKeyCount() {
     return this.extents.size();
   }
 
@@ -178,17 +174,17 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
 
     KIterator kiterator = new KIterator();
     MovableExtentIterator viterator;
-    ExtentArray extents;
+    ExtentArray exts;
     while (!kiterator.isDone()) {
       viterator = (MovableExtentIterator) kiterator.getValueIterator();
       writer.processExtentName(kiterator.getKey());
 
       while (!viterator.isDone()) {
         writer.processNumber(viterator.currentCandidate());
-        extents = viterator.extents();
-        for (int i = 0; i < extents.size(); i++) {
-          writer.processBegin(extents.begin(i));
-          writer.processTuple(extents.end(i));
+        exts = viterator.extents();
+        for (int i = 0; i < exts.size(); i++) {
+          writer.processBegin(exts.begin(i));
+          writer.processTuple(exts.end(i));
         }
         viterator.next();
       }
@@ -551,6 +547,16 @@ public class MemoryExtents implements MemoryIndexPart, AggregateReader {
           this.modifiers.remove("topdocs");
         }
         this.context = context;
+      }
+
+      @Override
+      public String getKeyString() throws IOException {
+        return Utility.toString(m_termBytes);
+      }
+
+      @Override
+      public byte[] getKeyBytes() throws IOException {
+        return m_termBytes;
       }
     }
   }

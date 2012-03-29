@@ -158,5 +158,15 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
       KeyIterator ki = (KeyIterator) iterator;
       return ki.getCurrentIdentifier();
     }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return "lengths";
+    }
+
+    @Override
+    public byte[] getKeyBytes() throws IOException {
+      return Utility.fromString("lengths");
+    }
   }
 }

@@ -108,9 +108,10 @@ public class FieldIndexReader extends KeyListReader {
       return false;
     }
 
-    public String getEntry() {
+    @Override
+    public String getEntry() throws IOException {
       StringBuilder builder = new StringBuilder();
-      builder.append(getKey());
+      builder.append(getKeyString());
       builder.append(",");
       builder.append(currentDocument);
       builder.append(",");
@@ -255,15 +256,6 @@ public class FieldIndexReader extends KeyListReader {
         throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
                 "date", format));
       }
-    }
-
-    public String getKey() {
-      return Utility.toString(iterator.getKey());
-    }
-
-    @Override
-    public byte[] getKeyBytes() {
-      return iterator.getKey();
     }
 
     @Override

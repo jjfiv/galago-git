@@ -51,7 +51,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("counts", new NodeType(CorpusIterator.class));
+    types.put("counts", new NodeType(BackgroundLMIterator.class));
     return types;
   }
 
@@ -62,7 +62,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
       KeyIterator ki = new KeyIterator(reader);
       ki.findKey(Utility.fromString(stem));
       if (Utility.compare(ki.getKey(), Utility.fromString(stem)) == 0) {
-        return new CorpusIterator(ki);
+        return new BackgroundLMIterator(ki);
       }
       return null;
     } else {
@@ -138,7 +138,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
 
     @Override
     public ValueIterator getValueIterator() throws IOException {
-      return new CorpusIterator(this);
+      return new BackgroundLMIterator(this);
     }
 
     @Override
@@ -152,12 +152,12 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
   }
 
-  public class CorpusIterator extends ValueIterator implements
+  public class BackgroundLMIterator extends ValueIterator implements
           AggregateIterator, MovableCountIterator {
 
     protected KeyIterator iterator;
 
-    public CorpusIterator(KeyIterator ki) {
+    public BackgroundLMIterator(KeyIterator ki) {
       this.iterator = ki;
     }
 
@@ -165,6 +165,17 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     public NodeStatistics getStatistics() {
       return this.iterator.getNodeStatistics();
     }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return this.iterator.getKeyString();
+    }
+
+    @Override
+    public byte[] getKeyBytes() throws IOException {
+      return this.iterator.getKey();
+    }
+    
 
     // Nothing else works - this is not a normal iterator.
     @Override

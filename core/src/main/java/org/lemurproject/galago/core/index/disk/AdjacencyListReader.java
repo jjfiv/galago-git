@@ -162,7 +162,7 @@ public class AdjacencyListReader extends KeyListReader {
     public String getEntry() throws IOException {
       StringBuilder builder = new StringBuilder();
 
-      builder.append(getKey());
+      builder.append(getKeyString());
       builder.append(",");
       builder.append(currentIdentifier);
       builder.append(",");

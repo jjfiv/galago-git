@@ -99,4 +99,14 @@ public class NullExtentIterator extends ValueIterator implements MovableExtentIt
   public boolean hasAllCandidates() {
     return false;
   }
+
+  @Override
+  public String getKeyString() throws IOException {
+    return "";
+  }
+
+  @Override
+  public byte[] getKeyBytes() throws IOException {
+    return new byte[0];
+  }
 }

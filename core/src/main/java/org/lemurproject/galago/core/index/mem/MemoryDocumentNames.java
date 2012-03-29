@@ -50,7 +50,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
   }
 
   @Override
-  public void addIteratorData(MovableIterator iterator) throws IOException {
+  public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
     while(!iterator.isDone()) {
       int identifier = ((NamesReader.Iterator) iterator).getCurrentIdentifier();
       String name = ((NamesReader.Iterator) iterator).getCurrentName();
@@ -90,24 +90,29 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     offset = 0;
   }
 
+  @Override
   public NamesReader.Iterator getNamesIterator() throws IOException {
     return new VIterator(new KIterator());
   }
 
+  @Override
   public KeyIterator getIterator() throws IOException {
     return new KIterator();
   }
 
+  @Override
   public String getDefaultOperator() {
     return "names";
   }
 
+  @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
     types.put("names", new NodeType(VIterator.class));
     return types;
   }
 
+  @Override
   public ValueIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("names")) {
       return new VIterator(getIterator());
@@ -117,22 +122,27 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     }
   }
 
+  @Override
   public Parameters getManifest() {
     return params;
   }
 
+  @Override
   public long getDocumentCount() {
     return docCount;
   }
 
+  @Override
   public long getCollectionLength() {
     return termCount;
   }
 
-  public long getVocabCount() {
+  @Override
+  public long getKeyCount() {
     return this.names.getPosition();
   }
 
+  @Override
   public void flushToDisk(String path) throws IOException {
     Parameters p = getManifest().clone();
     p.set("filename", path);
@@ -295,6 +305,16 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     public int getCurrentIdentifier() throws IOException {
       KIterator ki = (KIterator) iterator;
       return ki.getCurrentIdentifier();
+    }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return "lengths";
+    }
+
+    @Override
+    public byte[] getKeyBytes() throws IOException {
+      return Utility.fromString("lengths");
     }
   }
 }

@@ -134,5 +134,15 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     public boolean hasAllCandidates() {
       return true;
     }
+
+    @Override
+    public String getKeyString() {
+      return "corpus";
+    }
+
+    @Override
+    public byte[] getKeyBytes() {
+      return Utility.fromString("corpus");
+    }
   }
 }

@@ -30,7 +30,7 @@ public interface AggregateReader {
       this.partName = partName;
       collectionLength = index.getIndexPart(partName).getCollectionLength();
       documentCount = index.getIndexPart(partName).getDocumentCount();
-      vocabCount = index.getIndexPart(partName).getVocabCount();
+      vocabCount = index.getIndexPart(partName).getKeyCount();
     }
 
     public void add(CollectionStatistics other) {
