@@ -225,18 +225,23 @@ public class DiskBTreeReader extends BTreeReader {
 
     private void cacheKeys() throws IOException {
       for (int i = 0; i < cacheGroupSize; i++) {
+        // if we are done
         if (cacheKeyCount >= keyCount) {
           return;
+
+        // first key
         } else if (this.cacheKeyCount == 0) {
-          int keyLength = blockStream.readUnsignedByte();
+          int keyLength = Utility.uncompressInt(blockStream);
           byte[] keyBytes = new byte[keyLength];
           blockStream.readFully(keyBytes);
           this.keyCache[0] = keyBytes;
-          this.endValueOffsetCache[0] = blockStream.readUnsignedShort();
+          this.endValueOffsetCache[0] = Utility.uncompressInt(blockStream);
           cacheKeyCount++;
+
+        // second or later key
         } else {
-          int common = blockStream.readUnsignedByte();
-          int keyLength = blockStream.readUnsignedByte();
+          int common = Utility.uncompressInt(blockStream);
+          int keyLength = Utility.uncompressInt(blockStream);
           assert keyLength >= 0 : "Negative key length: " + keyLength + " " + cacheKeyCount;
           assert keyLength >= common : "key length too small: " + keyLength + " " + common + " " + cacheKeyCount;
           byte[] keyBytes = new byte[keyLength];
@@ -249,7 +254,7 @@ public class DiskBTreeReader extends BTreeReader {
             throw e;
           }
           this.keyCache[cacheKeyCount] = keyBytes;
-          this.endValueOffsetCache[cacheKeyCount] = blockStream.readUnsignedShort();
+          this.endValueOffsetCache[cacheKeyCount] = Utility.uncompressInt(blockStream);
           cacheKeyCount++;
         }
       }

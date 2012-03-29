@@ -19,24 +19,25 @@ import org.lemurproject.galago.tupleflow.types.TupleflowString;
 
 /**
  * Tests the connection of stages (single/distributed) using (combined/each) connections
- *  [SIMPLE SINGLE CONNECTIONS]
+ * 
+ *  [SIMPLE CONNECTIONS single data streams]
  *  1.1: single-single-combined
  *   1 --> 2 [Combined]
  *
  *  1.2: single-multi-single (each, combined)
- *   1 --> 2 [Each]
+ *   1 --> 2 [Each]  no data
  *   2 --> 3 [Combined]
  *
  *  1.3: single-multi-multi-single (each, each, combined)
- *   1 --> 2 [Each]
+ *   1 --> 2 [Each]  no data
  *   2 --> 3 [Each]
  *   3 --> 4 [Combined]
  *
  * 
- *  [COMPLEX MULTICONNECTIONS]
+ *  [COMPLEX MULTICONNECTIONS multiple data streams]
  *  2.1: two connection types incomming (single-multi-combined + single-multi-each)
- *   1 --> 2 [Combined]
- *   1 --> 3 [Combined]
+ *   1 --> 2 [Combined]  no data
+ *   1 --> 3 [Combined]  no data
  *   2 --> 4 [Combined]
  *   3 --> 4 [Each]
  *
@@ -93,17 +94,26 @@ public class ConnectionTest extends TestCase {
     Stage one = new Stage("one");
     one.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-1-2", new TupleflowString.ValueOrder()));
-    one.add(new Step(Generator.class, Parameters.parse("{\"name\":\"one\", \"conn\":[\"conn-1-2\"]}")));
+    one.add(new Step(NullSource.class));
     job.add(one);
 
     Stage two = new Stage("two");
     two.add(new StageConnectionPoint(ConnectionPointType.Input,
             "conn-1-2", new TupleflowString.ValueOrder()));
-    two.add(new InputStep("conn-1-2"));
-    two.add(new Step(Receiver.class, Parameters.parse("{}")));
+    two.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-2-3", new TupleflowString.ValueOrder()));
+    two.add(new Step(Generator.class, Parameters.parse("{\"name\":\"two\", \"conn\":[\"conn-2-3\"]}")));
     job.add(two);
 
+    Stage three = new Stage("three");
+    three.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-2-3", new TupleflowString.ValueOrder()));
+    three.add(new InputStep("conn-2-3"));
+    three.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":20}")));
+    job.add(three);
+
     job.connect("one", "two", ConnectionAssignmentType.Each);
+    job.connect("two", "three", ConnectionAssignmentType.Combined);
 
     job.properties.put("hashCount", "2");
     ErrorStore err = new ErrorStore();
@@ -111,6 +121,76 @@ public class ConnectionTest extends TestCase {
     JobExecutor.runLocally(job, err, new Parameters());
     if (err.hasStatements()) {
       throw new RuntimeException(err.toString());
+    }
+  }
+
+    /*
+  public void testMultiMultiEach() throws Exception {
+    Job job = new Job();
+
+    Stage one = new Stage("one");
+    one.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-1-2", new TupleflowString.ValueOrder()));
+    one.add(new Step(NullSource.class));
+    job.add(one);
+
+    Stage two = new Stage("two");
+    two.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-1-2", new TupleflowString.ValueOrder()));
+    two.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-2-3", new TupleflowString.ValueOrder()));
+    two.add(new Step(Generator.class, Parameters.parse("{\"name\":\"two\", \"conn\":[\"conn-2-3\"]}")));
+    job.add(two);
+
+    Stage three = new Stage("three");
+    three.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-2-3", new TupleflowString.ValueOrder()));
+    three.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-3-4", new TupleflowString.ValueOrder()));
+    three.add(new InputStep("conn-2-3"));
+    three.add(new Step(PassThrough.class));
+    three.add(new OutputStep("conn-3-4"));
+    job.add(three);
+
+    Stage four = new Stage("four");
+    four.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-3-4", new TupleflowString.ValueOrder()));
+    four.add(new InputStep("conn-3-4"));
+    four.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":20}")));
+    job.add(four);
+
+
+    job.connect("one", "two", ConnectionAssignmentType.Each);
+    job.connect("two", "three", ConnectionAssignmentType.Each);
+    job.connect("three", "four", ConnectionAssignmentType.Combined);
+
+    System.err.println(job.toDotString());
+
+    job.properties.put("hashCount", "2");
+    ErrorStore err = new ErrorStore();
+    Verification.verify(job, err);
+
+    JobExecutor.runLocally(job, err, new Parameters());
+    if (err.hasStatements()) {
+      throw new RuntimeException(err.toString());
+    }
+  }
+    */
+  
+
+  
+  public static class NullSource implements ExNihiloSource {
+
+    @Override
+    public void run() throws IOException {
+    }
+
+    @Override
+    public void setProcessor(org.lemurproject.galago.tupleflow.Step processor) throws IncompatibleProcessorException {
+      Linkage.link(this, processor);
+    }
+
+    public static void verify(TupleFlowParameters parameters, ErrorHandler handler) throws IOException {
     }
   }
 
@@ -177,6 +257,19 @@ public class ConnectionTest extends TestCase {
       processor.process(new TupleflowString(s + suffix));
     }
 
+  public static String getInputClass(TupleFlowParameters parameters) {
+    return "org.lemurproject.galago.tupleflow.types.TupleflowString";
+  }
+
+  public static String getOutputClass(TupleFlowParameters parameters) {
+    return "org.lemurproject.galago.tupleflow.types.TupleflowString";
+  }
+
+  public static String[] getOutputOrder(TupleFlowParameters parameters) {
+    return TupleflowString.ValueOrder.getSpec();
+  }
+
+
     public static void verify(TupleFlowParameters parameters, ErrorHandler handler) throws IOException {
       if (!parameters.getJSON().isString("name")) {
         handler.addError("Could not find the name of the stage in parameters");
@@ -201,7 +294,7 @@ public class ConnectionTest extends TestCase {
 
     @Override
     public void close() throws IOException {
-      //assert counter <= params.getJSON().getLong("expectedCount");
+      assert counter == params.getJSON().getLong("expectedCount");
     }
 
     public static void verify(TupleFlowParameters parameters, ErrorHandler handler) throws IOException {

@@ -41,8 +41,9 @@ public class DiskBTreeWriter extends BTreeWriter {
   private VocabularyWriter vocabulary;
   private Parameters manifest;
   private ArrayList<IndexElement> lists;
-  private int blockSize = 32768;
-  private int keySize = 256;
+  private int blockSize;
+  private int keySize;
+  private int keyOverlap;
   private long filePosition = 0;
   private long listBytes = 0;
   private long keyCount = 0;
@@ -57,11 +58,11 @@ public class DiskBTreeWriter extends BTreeWriter {
           throws FileNotFoundException, IOException {
     Utility.makeParentDirectories(outputFilename);
 
-    // max = unsigned short - 32k
-    blockSize = (int) parameters.get("blockSize", 32768);
-
-    // max = unsigned byte - 256
-    keySize = 256;
+    // max sizes - each uses a max of 2 bytes
+    blockSize = (int) parameters.get("blockSize", 16383);
+    keySize = Math.min(blockSize, 16383);
+    keyOverlap = Math.min(blockSize, 16383);
+    
     output = new DataOutputStream(new BufferedOutputStream(
             new FileOutputStream(outputFilename)));
     vocabulary = new VocabularyWriter();
@@ -78,6 +79,11 @@ public class DiskBTreeWriter extends BTreeWriter {
     vocabulary = new VocabularyWriter();
     manifest = new Parameters();
     lists = new ArrayList<IndexElement>();
+
+    // max sizes - each uses a max of 2 bytes
+    blockSize = 16383;
+    keySize = 16383;
+    keyOverlap = 16383;
   }
 
   public DiskBTreeWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
@@ -95,7 +101,7 @@ public class DiskBTreeWriter extends BTreeWriter {
   }
 
   public void add(IndexElement list) throws IOException {
-    if (list.key().length >= this.keySize || list.key().length >= blockSize / 4) {
+    if (list.key().length >= this.keySize || list.key().length >= blockSize) {
       throw new IOException(String.format("Key %s is too long.", Utility.toString(list.key())));
     }
     if (needsFlush(list)) {
@@ -110,12 +116,13 @@ public class DiskBTreeWriter extends BTreeWriter {
     keyCount++;
   }
 
+  @Override
   public void close() throws IOException {
     flush();
 
     // increment the final key (this writes the first key that is outside the index.
     lastKey = increment(lastKey);
-    assert (lastKey.length < 256) : "Final key issue - can not be written.";
+    assert (lastKey.length < Integer.MAX_VALUE) : "Final key issue - can not be written.";
 
     byte[] vocabularyData = vocabulary.data();
     if (vocabularyData.length == 0) {
@@ -126,11 +133,12 @@ public class DiskBTreeWriter extends BTreeWriter {
     byte[] xmlData = manifest.toString().getBytes("UTF-8");
     long vocabularyOffset = filePosition;
     long manifestOffset = filePosition
-            + 1 + lastKey.length // part of vocab
+            + 4 + lastKey.length // final key - part of vocab
             + vocabularyData.length;
 
     // need to write an int here - key could be very large.
-    output.writeByte(lastKey.length);
+    //  - we are using compression in other places
+    output.writeInt(lastKey.length);
     output.write(lastKey);
 
     output.write(vocabularyData);
@@ -149,7 +157,7 @@ public class DiskBTreeWriter extends BTreeWriter {
     assert length <= blockSize || blockLists.size() == 1;
     assert wordsInOrder(blockLists);
 
-    if (blockLists.size() == 0) {
+    if (blockLists.isEmpty()) {
       return;
     }
 
@@ -200,8 +208,8 @@ public class DiskBTreeWriter extends BTreeWriter {
     long listLength = 0;
 
     listLength += list.key().length;
-    listLength += 1; // key overlap
-    listLength += 1; // key length
+    listLength += 2; // key overlap
+    listLength += 2; // key length
     listLength += 2; // file offset bytes
 
     listLength += list.dataLength();
@@ -224,8 +232,9 @@ public class DiskBTreeWriter extends BTreeWriter {
   }
 
   private boolean needsFlush(IndexElement list) {
-    long listExtra = 1 + // byte for key length
-            1;  // byte for overlap with previous key
+    long listExtra = 
+            2 + // byte for key length
+            2;  // byte for overlap with previous key
 
     long bufferedBytes = bufferedSize()
             + invertedListLength(list)
@@ -293,7 +302,7 @@ public class DiskBTreeWriter extends BTreeWriter {
 
   private int prefixOverlap(byte[] firstTerm, byte[] lastTerm) {
     int maximum = Math.min(firstTerm.length, lastTerm.length);
-    maximum = Math.min(Byte.MAX_VALUE - 1, maximum);
+    maximum = Math.min(this.keyOverlap - 1, maximum);
 
     for (int i = 0; i < maximum; i++) {
       if (firstTerm[i] != lastTerm[i]) {
@@ -325,25 +334,25 @@ public class DiskBTreeWriter extends BTreeWriter {
     assert word.length < this.keySize;
 
     // this is the first word in the block
-    vocabOutput.writeByte(word.length);
+    Utility.compressInt(vocabOutput, word.length);
     vocabOutput.write(word, 0, word.length);
 
     invertedListBytes += listData.blockLists.get(0).dataLength();
     assert totalListData - invertedListBytes < this.blockSize;
     assert totalListData >= invertedListBytes;
-    vocabOutput.writeShort((int) (totalListData - invertedListBytes));
+    Utility.compressInt(vocabOutput, (int) (totalListData - invertedListBytes));
 
     for (int j = 1; j < keys.size(); j++) {
       assert word.length < this.keySize;
       word = listData.blockLists.get(j).key();
       int common = this.prefixOverlap(lastWord, word);
-      vocabOutput.writeByte((byte) common);
-      vocabOutput.writeByte(word.length);
+      Utility.compressInt(vocabOutput, common);
+      Utility.compressInt(vocabOutput, word.length);
       vocabOutput.write(word, common, word.length - common);
       invertedListBytes += listData.blockLists.get(j).dataLength();
       assert totalListData - invertedListBytes < this.blockSize;
       assert totalListData >= invertedListBytes;
-      vocabOutput.writeShort((int) (totalListData - invertedListBytes));
+      Utility.compressInt(vocabOutput, (int) (totalListData - invertedListBytes));
       lastWord = word;
     }
     vocabOutput.close();

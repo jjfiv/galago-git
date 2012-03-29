@@ -45,10 +45,10 @@ public class VocabularyReader {
     long last = 0;
     long start = input.getFilePointer();
 
-    int finalKeyLength = input.readUnsignedByte();
+    int finalKeyLength = input.readInt();
     byte[] finalIndexKey = new byte[finalKeyLength];
     input.read(finalIndexKey);
-    
+
     while (input.getFilePointer() < start + vocabularyLength) {
       int length = Utility.uncompressInt(input);
       //short length = input.readShort();

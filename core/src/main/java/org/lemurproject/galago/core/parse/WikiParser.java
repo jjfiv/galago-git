@@ -8,7 +8,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.HashSet;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -102,7 +101,7 @@ public class WikiParser implements DocumentStreamParser {
       if(!checkTitle(documentTitle)){
         return null;
       }
-      
+          
       // Highlander principle parsing - timestamp!
       NodeList timeList = xmlDoc.getElementsByTagName("timestamp");
       Element timeElement = (Element) timeList.item(0);
@@ -123,10 +122,13 @@ public class WikiParser implements DocumentStreamParser {
         documentText.append(htmlText);
       }
 
-      d = new Document(documentId, documentText.toString());
+      d = new Document(documentId, documentText.toString().toLowerCase());
+      
+      d.metadata.put("url", "http://en.wikipedia.org/wiki/" + documentTitle.toLowerCase());
 
     } catch (Exception ex) {
       System.err.println("FAILED TO PROCESS: " + documentTitle);// failed to parse document data from the page string - return null
+      ex.printStackTrace();
     }
     return d;
   }
