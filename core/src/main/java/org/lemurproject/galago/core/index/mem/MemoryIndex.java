@@ -65,19 +65,19 @@ public class MemoryIndex implements DynamicIndex, Index {
     partParams.set("documentNumberOffset", documentNumberOffset);
     parts.put("names", new MemoryDocumentNames(partParams.clone()));
     parts.put("lengths", new MemoryDocumentLengths(partParams.clone()));
-    parts.put("extents", new MemoryExtents(partParams.clone()));
+    parts.put("extents", new MemoryWindowIndex(partParams.clone()));
 
     if (makecorpus) {
       parts.put("corpus", new MemoryCorpus(partParams.clone()));
     }
     if (nonstemming) {
-      parts.put("postings", new MemoryPostings(partParams.clone()));
+      parts.put("postings", new MemoryPositionalIndex(partParams.clone()));
     }
     if (stemming) {
       Parameters stemParams = partParams.clone();
       // should change this to support several stemmers...
       stemParams.set("stemmer", manifest.get("stemmer", Porter2Stemmer.class.getName()));
-      parts.put("stemmedPostings", new MemoryPostings(stemParams));
+      parts.put("stemmedPostings", new MemoryPositionalIndex(stemParams));
     }
 
     initializeIndexOperators();

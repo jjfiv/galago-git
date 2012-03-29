@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
 import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.mem.MemoryPostings;
+import org.lemurproject.galago.core.index.mem.MemoryPositionalIndex;
 import org.lemurproject.galago.core.index.merge.PositionIndexMerger;
 import org.lemurproject.galago.core.parse.NumericParameterAccumulator;
 import org.lemurproject.galago.core.types.KeyValuePair;
@@ -266,7 +266,7 @@ public class PositionIndexWriter implements
     actualParams.set("writerClass", getClass().getName());
     actualParams.set("readerClass", PositionIndexReader.class.getName());
     actualParams.set("mergerClass", PositionIndexMerger.class.getName());
-    actualParams.set("memoryClass", MemoryPostings.class.getName());
+    actualParams.set("memoryClass", MemoryPositionalIndex.class.getName());
     actualParams.set("defaultOperator", "counts");
 
     // Let's get those stats in there if we're receiving
