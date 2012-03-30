@@ -13,8 +13,8 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Parameters.Type;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.Sorter;
-import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
+import org.lemurproject.galago.tupleflow.TypeReader;
 import org.lemurproject.galago.tupleflow.types.TupleflowString;
 
 /**
@@ -40,19 +40,36 @@ import org.lemurproject.galago.tupleflow.types.TupleflowString;
  *   1 --> 3 [Combined]  no data
  *   2 --> 4 [Combined]
  *   3 --> 4 [Each]
+ *   4 --> 5 [Combined]
  *
  *  2.2: two connection types incomming (multi-multi-combined + multi-multi-each)
- *   1 --> 2 [Combined]
- *   1 --> 3 [Each]
+ *   1 --> 2 [Combined]  nodata
+ *   1 --> 3 [Each]  nodata
  *   2 --> 4 [Combined]
  *   3 --> 4 [Each]
+ *   4 --> 5 [Combined]
  *
  *  2.3: two connection types incomming (multi-multi-combined + multi-multi-each)
- *   1 --> 2 [Each]
- *   1 --> 3 [Each]
+ *   1 --> 2 [Each]  nodata
+ *   1 --> 3 [Each]  nodata
  *   2 --> 4 [Combined]
  *   3 --> 4 [Each]
- * 
+ *   4 --> 5 [Combined]
+ *
+ *  2.4: two connections outgoing (multi-single-combined + multi-multi-each)
+ *   1 --> 2 [Combined]  nodata
+ *   2 --> 3 [Combined]
+ *   2 --> 4 [Each]
+ *   3 --> 5 [Combined]
+ *   4 --> 5 [Combined]
+ *
+ *  2.5: two connections outgoing (multi-single-combined + multi-multi-each)
+ *   1 --> 2 [Each]  nodata
+ *   2 --> 3 [Combined]
+ *   2 --> 4 [Each]
+ *   3 --> 5 [Combined]
+ *   4 --> 5 [Combined]
+ *
  * @author sjh
  */
 public class ConnectionTest extends TestCase {
@@ -73,8 +90,8 @@ public class ConnectionTest extends TestCase {
     Stage two = new Stage("two");
     two.add(new StageConnectionPoint(ConnectionPointType.Input,
             "conn-1-2", new TupleflowString.ValueOrder()));
-    two.add(new InputStep("conn-1-2"));
-    two.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":10}")));
+    // should recieve 10 items from one
+    two.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":10, \"connIn\" : [\"conn-1-2\"]}")));
     job.add(two);
 
     job.connect("one", "two", ConnectionAssignmentType.Combined);
@@ -108,8 +125,8 @@ public class ConnectionTest extends TestCase {
     Stage three = new Stage("three");
     three.add(new StageConnectionPoint(ConnectionPointType.Input,
             "conn-2-3", new TupleflowString.ValueOrder()));
-    three.add(new InputStep("conn-2-3"));
-    three.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":20}")));
+    // should recieve 10 items from each instance of two (20 total)
+    three.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":20, \"connIn\" : [\"conn-2-3\"]}")));
     job.add(three);
 
     job.connect("one", "two", ConnectionAssignmentType.Each);
@@ -124,7 +141,6 @@ public class ConnectionTest extends TestCase {
     }
   }
 
-    /*
   public void testMultiMultiEach() throws Exception {
     Job job = new Job();
 
@@ -147,22 +163,269 @@ public class ConnectionTest extends TestCase {
             "conn-2-3", new TupleflowString.ValueOrder()));
     three.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-3-4", new TupleflowString.ValueOrder()));
-    three.add(new InputStep("conn-2-3"));
-    three.add(new Step(PassThrough.class));
-    three.add(new OutputStep("conn-3-4"));
+    three.add(new Step(PassThrough.class, Parameters.parse("{\"name\":\"three\", \"connIn\" : [\"conn-2-3\"], \"connOut\" : [\"conn-3-4\"]}")));
     job.add(three);
 
     Stage four = new Stage("four");
     four.add(new StageConnectionPoint(ConnectionPointType.Input,
             "conn-3-4", new TupleflowString.ValueOrder()));
-    four.add(new InputStep("conn-3-4"));
-    four.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":20}")));
+    // should recieve 10 items from each instance of two - they will be passed through three
+    four.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":20, \"connIn\" : [\"conn-3-4\"]}")));
     job.add(four);
 
 
     job.connect("one", "two", ConnectionAssignmentType.Each);
     job.connect("two", "three", ConnectionAssignmentType.Each);
     job.connect("three", "four", ConnectionAssignmentType.Combined);
+
+    job.properties.put("hashCount", "2");
+    ErrorStore err = new ErrorStore();
+    Verification.verify(job, err);
+
+    JobExecutor.runLocally(job, err, new Parameters());
+    if (err.hasStatements()) {
+      throw new RuntimeException(err.toString());
+    }
+  }
+
+  public void testCombinedCombinedIntoMulti() throws Exception {
+    Job job = new Job();
+
+    Stage one = new Stage("one");
+    one.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-1-2", new TupleflowString.ValueOrder()));
+    one.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-1-3", new TupleflowString.ValueOrder()));
+    one.add(new Step(NullSource.class));
+    job.add(one);
+
+    Stage two = new Stage("two");
+    two.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-1-2", new TupleflowString.ValueOrder()));
+    two.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-2-4", new TupleflowString.ValueOrder()));
+    two.add(new Step(Generator.class, Parameters.parse("{\"name\":\"two\", \"conn\":[\"conn-2-4\"]}")));
+    job.add(two);
+
+    Stage three = new Stage("three");
+    three.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-1-3", new TupleflowString.ValueOrder()));
+    three.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-3-4", new TupleflowString.ValueOrder()));
+    three.add(new Step(Generator.class, Parameters.parse("{\"name\":\"three\", \"conn\":[\"conn-3-4\"]}")));
+    job.add(three);
+
+    Stage four = new Stage("four");
+    four.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-2-4", new TupleflowString.ValueOrder()));
+    four.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-3-4", new TupleflowString.ValueOrder()));
+    four.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-4-5", new TupleflowString.ValueOrder()));
+    four.add(new Step(Merge.class, Parameters.parse("{\"name\":\"four\", \"connIn\" : [\"conn-2-4\",\"conn-3-4\"], \"connOut\" : \"conn-4-5\"}")));
+    job.add(four);
+
+
+    Stage five = new Stage("five");
+    five.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-4-5", new TupleflowString.ValueOrder()));
+    // should recieve 10 items two and 10 from three - they will be passed through four
+    five.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":20, \"connIn\" : [\"conn-4-5\"]}")));
+    job.add(five);
+
+
+    job.connect("one", "two", ConnectionAssignmentType.Combined);
+    job.connect("one", "three", ConnectionAssignmentType.Combined);
+    job.connect("two", "four", ConnectionAssignmentType.Combined);
+    job.connect("three", "four", ConnectionAssignmentType.Each);
+    job.connect("four", "five", ConnectionAssignmentType.Combined);
+
+    job.properties.put("hashCount", "2");
+    ErrorStore err = new ErrorStore();
+    Verification.verify(job, err);
+
+    JobExecutor.runLocally(job, err, new Parameters());
+    if (err.hasStatements()) {
+      throw new RuntimeException(err.toString());
+    }
+  }
+
+  public void testCombinedMultiIntoMulti() throws Exception {
+    Job job = new Job();
+
+    Stage one = new Stage("one");
+    one.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-1-2", new TupleflowString.ValueOrder()));
+    one.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-1-3", new TupleflowString.ValueOrder()));
+    one.add(new Step(NullSource.class));
+    job.add(one);
+
+    Stage two = new Stage("two");
+    two.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-1-2", new TupleflowString.ValueOrder()));
+    two.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-2-4", new TupleflowString.ValueOrder()));
+    two.add(new Step(Generator.class, Parameters.parse("{\"name\":\"two\", \"conn\":[\"conn-2-4\"]}")));
+    job.add(two);
+
+    Stage three = new Stage("three");
+    three.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-1-3", new TupleflowString.ValueOrder()));
+    three.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-3-4", new TupleflowString.ValueOrder()));
+    three.add(new Step(Generator.class, Parameters.parse("{\"name\":\"three\", \"conn\":[\"conn-3-4\"]}")));
+    job.add(three);
+
+    Stage four = new Stage("four");
+    four.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-2-4", new TupleflowString.ValueOrder()));
+    four.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-3-4", new TupleflowString.ValueOrder()));
+    four.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-4-5", new TupleflowString.ValueOrder()));
+    four.add(new Step(Merge.class, Parameters.parse("{\"name\":\"four\", \"connIn\" : [\"conn-2-4\",\"conn-3-4\"], \"connOut\" : \"conn-4-5\"}")));
+    job.add(four);
+
+
+    Stage five = new Stage("five");
+    five.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-4-5", new TupleflowString.ValueOrder()));
+    // should recieve 10 items two and 10 from each instance of three (20 total) - they will be passed through four
+    five.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":30, \"connIn\" : [\"conn-4-5\"]}")));
+    job.add(five);
+
+
+    job.connect("one", "two", ConnectionAssignmentType.Combined);
+    job.connect("one", "three", ConnectionAssignmentType.Each);
+    job.connect("two", "four", ConnectionAssignmentType.Combined);
+    job.connect("three", "four", ConnectionAssignmentType.Each);
+    job.connect("four", "five", ConnectionAssignmentType.Combined);
+
+    job.properties.put("hashCount", "2");
+    ErrorStore err = new ErrorStore();
+    Verification.verify(job, err);
+
+    JobExecutor.runLocally(job, err, new Parameters());
+    if (err.hasStatements()) {
+      throw new RuntimeException(err.toString());
+    }
+  }
+
+  public void testMultiMultiIntoMulti() throws Exception {
+    Job job = new Job();
+
+    Stage one = new Stage("one");
+    one.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-1-2", new TupleflowString.ValueOrder()));
+    one.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-1-3", new TupleflowString.ValueOrder()));
+    one.add(new Step(NullSource.class));
+    job.add(one);
+
+    Stage two = new Stage("two");
+    two.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-1-2", new TupleflowString.ValueOrder()));
+    two.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-2-4", new TupleflowString.ValueOrder()));
+    two.add(new Step(Generator.class, Parameters.parse("{\"name\":\"two\", \"conn\":[\"conn-2-4\"]}")));
+    job.add(two);
+
+    Stage three = new Stage("three");
+    three.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-1-3", new TupleflowString.ValueOrder()));
+    three.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-3-4", new TupleflowString.ValueOrder()));
+    three.add(new Step(Generator.class, Parameters.parse("{\"name\":\"three\", \"conn\":[\"conn-3-4\"]}")));
+    job.add(three);
+
+    Stage four = new Stage("four");
+    four.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-2-4", new TupleflowString.ValueOrder()));
+    four.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-3-4", new TupleflowString.ValueOrder()));
+    four.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-4-5", new TupleflowString.ValueOrder()));
+    four.add(new Step(Merge.class, Parameters.parse("{\"name\":\"four\", \"connIn\" : [\"conn-2-4\",\"conn-3-4\"], \"connOut\" : \"conn-4-5\"}")));
+    job.add(four);
+
+
+    Stage five = new Stage("five");
+    five.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-4-5", new TupleflowString.ValueOrder()));
+    // two generates 10 items per instance (20) - all 20 are duplicated for each instance of four - creating 40 total
+    // three generates 10 items per instance (20) - passed through four without duplication
+    // should recieve 60 total
+    five.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":60, \"connIn\" : [\"conn-4-5\"]}")));
+    job.add(five);
+
+
+    job.connect("one", "two", ConnectionAssignmentType.Each);
+    job.connect("one", "three", ConnectionAssignmentType.Each);
+    job.connect("two", "four", ConnectionAssignmentType.Combined);
+    job.connect("three", "four", ConnectionAssignmentType.Each);
+    job.connect("four", "five", ConnectionAssignmentType.Combined);
+
+    job.properties.put("hashCount", "2");
+    ErrorStore err = new ErrorStore();
+    Verification.verify(job, err);
+
+    //JobExecutor.runLocally(job, err, new Parameters());
+    //if (err.hasStatements()) {
+    //  throw new RuntimeException(err.toString());
+    //}
+  }
+
+  public void testSingleIntoSingleMulti() throws Exception {
+    Job job = new Job();
+
+    Stage one = new Stage("one");
+    one.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-1-2", new TupleflowString.ValueOrder()));
+    one.add(new Step(NullSource.class));
+    job.add(one);
+
+    Stage two = new Stage("two");
+    two.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-1-2", new TupleflowString.ValueOrder()));
+    two.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-2-x", new TupleflowString.ValueOrder()));
+    two.add(new Step(Generator.class, Parameters.parse("{\"name\":\"two\", \"conn\":[\"conn-2-x\"]}")));
+    job.add(two);
+
+    Stage three = new Stage("three");
+    three.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-2-x", new TupleflowString.ValueOrder()));
+    three.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-3-5", new TupleflowString.ValueOrder()));
+    three.add(new Step(PassThrough.class, Parameters.parse("{\"name\":\"three\", \"connIn\" : [\"conn-2-x\"], \"connOut\" : [\"conn-3-5\"]}")));
+    job.add(three);
+
+    Stage four = new Stage("four");
+    four.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-2-x", new TupleflowString.ValueOrder()));
+    four.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-4-5", new TupleflowString.ValueOrder()));
+    four.add(new Step(PassThrough.class, Parameters.parse("{\"name\":\"four\", \"connIn\" : [\"conn-2-x\"], \"connOut\" : [\"conn-4-5\"]}")));
+    job.add(four);
+
+
+    Stage five = new Stage("five");
+    five.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-3-5", new TupleflowString.ValueOrder()));
+    five.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-4-5", new TupleflowString.ValueOrder()));
+    // two generates 10 items
+    // items are passed through both three and four - duplicating the items
+    // should recieve 20 total
+    five.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":20, \"connIn\" : [\"conn-3-5\",\"conn-4-5\"]}")));
+    job.add(five);
+
+    job.connect("one", "two", ConnectionAssignmentType.Combined);
+    job.connect("two", "three", ConnectionAssignmentType.Combined);
+    job.connect("two", "four", ConnectionAssignmentType.Each);
+    job.connect("three", "five", ConnectionAssignmentType.Combined);
+    job.connect("four", "five", ConnectionAssignmentType.Combined);
 
     System.err.println(job.toDotString());
 
@@ -175,10 +438,71 @@ public class ConnectionTest extends TestCase {
       throw new RuntimeException(err.toString());
     }
   }
-    */
-  
 
-  
+  public void testMultiIntoSingleMulti() throws Exception {
+    Job job = new Job();
+
+    Stage one = new Stage("one");
+    one.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-1-2", new TupleflowString.ValueOrder()));
+    one.add(new Step(NullSource.class));
+    job.add(one);
+
+    Stage two = new Stage("two");
+    two.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-1-2", new TupleflowString.ValueOrder()));
+    two.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-2-x", new TupleflowString.ValueOrder()));
+    two.add(new Step(Generator.class, Parameters.parse("{\"name\":\"two\", \"conn\":[\"conn-2-x\"]}")));
+    job.add(two);
+
+    Stage three = new Stage("three");
+    three.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-2-x", new TupleflowString.ValueOrder()));
+    three.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-3-5", new TupleflowString.ValueOrder()));
+    three.add(new Step(PassThrough.class, Parameters.parse("{\"name\":\"three\", \"connIn\" : [\"conn-2-x\"], \"connOut\" : [\"conn-3-5\"]}")));
+    job.add(three);
+
+    Stage four = new Stage("four");
+    four.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-2-x", new TupleflowString.ValueOrder()));
+    four.add(new StageConnectionPoint(ConnectionPointType.Output,
+            "conn-4-5", new TupleflowString.ValueOrder()));
+    four.add(new Step(PassThrough.class, Parameters.parse("{\"name\":\"four\", \"connIn\" : [\"conn-2-x\"], \"connOut\" : [\"conn-4-5\"]}")));
+    job.add(four);
+
+
+    Stage five = new Stage("five");
+    five.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-3-5", new TupleflowString.ValueOrder()));
+    five.add(new StageConnectionPoint(ConnectionPointType.Input,
+            "conn-4-5", new TupleflowString.ValueOrder()));
+    // two generates 10 items per instance (20) total
+    // items are passed through both three and four - duplicating the items
+    // should recieve 40 total
+    five.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":40, \"connIn\" : [\"conn-3-5\",\"conn-4-5\"]}")));
+    job.add(five);
+
+    job.connect("one", "two", ConnectionAssignmentType.Each);
+    job.connect("two", "three", ConnectionAssignmentType.Combined);
+    job.connect("two", "four", ConnectionAssignmentType.Each);
+    job.connect("three", "five", ConnectionAssignmentType.Combined);
+    job.connect("four", "five", ConnectionAssignmentType.Combined);
+
+    System.err.println(job.toDotString());
+
+    job.properties.put("hashCount", "2");
+    ErrorStore err = new ErrorStore();
+    Verification.verify(job, err);
+
+    JobExecutor.runLocally(job, err, new Parameters());
+    if (err.hasStatements()) {
+      throw new RuntimeException(err.toString());
+    }
+  }
+
+  // Classes used to generate/pass/recieve data
   public static class NullSource implements ExNihiloSource {
 
     @Override
@@ -228,81 +552,149 @@ public class ConnectionTest extends TestCase {
 
     public static void verify(TupleFlowParameters parameters, ErrorHandler handler) throws IOException {
       if (!parameters.getJSON().isString("name")) {
-        handler.addError("Could not find the name of the stage in parameters");
+        handler.addError("Generator - Could not find the name of the stage in parameters");
       }
       if (!parameters.getJSON().isList("conn", Type.STRING)) {
-        handler.addError("Could not find any connections specified in parameters");
+        handler.addError("Generator - Could not find any connections specified in parameters");
       }
       for (String conn : (List<String>) parameters.getJSON().getList("conn")) {
         if (!parameters.writerExists(conn, TupleflowString.class.getName(), TupleflowString.ValueOrder.getSpec())) {
-          handler.addError("Could not verify connection: " + conn);
+          handler.addError("Generator - Could not verify connection: " + conn);
         }
       }
     }
   }
 
-  public static class PassThrough extends StandardStep<TupleflowString, TupleflowString> {
+  public static class PassThrough implements ExNihiloSource {
 
     TupleFlowParameters params;
     String suffix;
 
     public PassThrough(TupleFlowParameters params) {
       this.params = params;
-      String conn = params.getJSON().getString("name");
-      suffix = "-("+conn+")";
+      String name = params.getJSON().getString("name");
+      suffix = String.format("-(%s-%d)", name, params.getInstanceId());
     }
 
     @Override
-    public void process(TupleflowString s) throws IOException {
-      processor.process(new TupleflowString(s + suffix));
+    public void run() throws IOException {
+      List<String> connIn = (List<String>) params.getJSON().getList("connIn");
+      List<String> connOut = (List<String>) params.getJSON().getList("connOut");
+
+      for (int i = 0; i < connIn.size(); i++) {
+        TypeReader<TupleflowString> reader = params.getTypeReader(connIn.get(i));
+        Processor<TupleflowString> writer = params.getTypeWriter(connOut.get(i));
+        TupleflowString obj = reader.read();
+        while (obj != null) {
+          obj.value += suffix;
+          writer.process(obj);
+          obj = reader.read();
+        }
+        writer.close();
+      }
     }
 
-  public static String getInputClass(TupleFlowParameters parameters) {
-    return "org.lemurproject.galago.tupleflow.types.TupleflowString";
-  }
-
-  public static String getOutputClass(TupleFlowParameters parameters) {
-    return "org.lemurproject.galago.tupleflow.types.TupleflowString";
-  }
-
-  public static String[] getOutputOrder(TupleFlowParameters parameters) {
-    return TupleflowString.ValueOrder.getSpec();
-  }
-
+    @Override
+    public void setProcessor(org.lemurproject.galago.tupleflow.Step processor) throws IncompatibleProcessorException {
+      Linkage.link(this, processor);
+    }
 
     public static void verify(TupleFlowParameters parameters, ErrorHandler handler) throws IOException {
       if (!parameters.getJSON().isString("name")) {
-        handler.addError("Could not find the name of the stage in parameters");
+        handler.addError("PassThrough - Could not find the name of the stage in parameters");
+      }
+      if (!parameters.getJSON().isList("connIn", Type.STRING)) {
+        handler.addError("PassThrough - Could not find any Input connections specified in parameters");
+      }
+      if (!parameters.getJSON().isList("connOut", Type.STRING)) {
+        handler.addError("PassThrough - Could not find any Output connections specified in parameters");
       }
     }
   }
 
-  public static class Receiver implements Processor<TupleflowString> {
+  public static class Merge implements ExNihiloSource {
 
     TupleFlowParameters params;
-    int counter = 0;
+    String suffix;
+
+    public Merge(TupleFlowParameters params) {
+      this.params = params;
+      String name = params.getJSON().getString("name");
+      suffix = String.format("-(%s-%d)", name, params.getInstanceId());
+    }
+
+    @Override
+    public void run() throws IOException {
+      List<String> connIn = (List<String>) params.getJSON().getList("connIn");
+      String connOut = params.getJSON().getString("connOut");
+      Processor<TupleflowString> writer = params.getTypeWriter(connOut);
+      Sorter sorter = new Sorter(new TupleflowString.ValueOrder(), null, writer);
+
+      for (int i = 0; i < connIn.size(); i++) {
+        TypeReader<TupleflowString> reader = params.getTypeReader(connIn.get(i));
+        TupleflowString obj = reader.read();
+        while (obj != null) {
+          obj.value += suffix;
+          sorter.process(obj);
+          obj = reader.read();
+        }
+      }
+      sorter.close();
+    }
+
+    @Override
+    public void setProcessor(org.lemurproject.galago.tupleflow.Step processor) throws IncompatibleProcessorException {
+      Linkage.link(this, processor);
+    }
+
+    public static void verify(TupleFlowParameters parameters, ErrorHandler handler) throws IOException {
+      if (!parameters.getJSON().isString("name")) {
+        handler.addError("PassThrough - Could not find the name of the stage in parameters");
+      }
+      if (!parameters.getJSON().isList("connIn", Type.STRING)) {
+        handler.addError("PassThrough - Could not find any Input connections specified in parameters");
+      }
+      if (!parameters.getJSON().isString("connOut")) {
+        handler.addError("PassThrough - Could not find an Output connection specified in parameters");
+      }
+    }
+  }
+
+  public static class Receiver implements ExNihiloSource {
+
+    TupleFlowParameters params;
 
     public Receiver(TupleFlowParameters params) {
       this.params = params;
     }
 
     @Override
-    public void process(TupleflowString s) throws IOException {
-      System.err.println("REC - " + params.getInstanceId() + " : " + s.value);
-      counter += 1;
+    public void run() throws IOException {
+      int counter = 0;
+      List<String> connIn = (List<String>) params.getJSON().getList("connIn");
+      for (int i = 0; i < connIn.size(); i++) {
+        TypeReader<TupleflowString> reader = params.getTypeReader(connIn.get(i));
+        TupleflowString obj = reader.read();
+        while (obj != null) {
+          System.err.println("REC - " + params.getInstanceId() + " : " + obj.value);
+          counter++;
+          obj = reader.read();
+        }
+      }
+      if(counter != params.getJSON().getLong("expectedCount")){
+        throw new IOException("Did not receive the expected number of items.");
+      }
     }
 
     @Override
-    public void close() throws IOException {
-      assert counter == params.getJSON().getLong("expectedCount");
+    public void setProcessor(org.lemurproject.galago.tupleflow.Step processor) throws IncompatibleProcessorException {
+      Linkage.link(this, processor);
     }
 
     public static void verify(TupleFlowParameters parameters, ErrorHandler handler) throws IOException {
-      // nothing to verify yet
-    }
-
-    public static String getInputClass(TupleFlowParameters parameters) {
-      return TupleflowString.class.getName();
+      if (!parameters.getJSON().isList("connIn", Type.STRING)) {
+        handler.addError("PassThrough - Could not find any Input connections specified in parameters");
+      }
     }
   }
 }
