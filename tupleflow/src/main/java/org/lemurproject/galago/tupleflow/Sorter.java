@@ -73,7 +73,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   public static final long DEFAULT_FILE_LIMIT = 20;
   public static final long DEFAULT_REDUCE_INTERVAL = 100 * 1000;
   public static final double DEFAULT_MEMORY_FRACTION = 0.7;
-  public static final boolean DEFAULT_FLUSH_PAUSE = false;
+  public static final boolean DEFAULT_FLUSH_PAUSE = true;
   // instance limits and parameters
   private long limit;
   private int fileLimit;
@@ -115,9 +115,9 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     this.temporaryFiles = new ArrayList<File>();
     this.lessThanCompare = order.lessThan();
 
-    requestMemoryWarnings();
-
     setLimits(new Parameters());
+
+    requestMemoryWarnings();
   }
 
   @SuppressWarnings("unchecked")
@@ -146,9 +146,9 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     this.filesWritten = parameters.getCounter("Sorter Files Written");
     this.sorterCombineSteps = parameters.getCounter("Sorter Combine Steps");
 
-    requestMemoryWarnings();
-
     setLimits(new Parameters());
+
+    requestMemoryWarnings();
   }
 
   private void setLimits(Parameters localParameters) {
@@ -227,7 +227,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
       };
 
       if (this.pauseToFlush) {
-        // this should never happen
+        // this check should never be true
         if (flushThread != null && flushThread.isAlive()) {
           pause();
         }
