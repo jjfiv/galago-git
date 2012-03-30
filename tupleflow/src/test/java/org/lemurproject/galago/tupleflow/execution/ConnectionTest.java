@@ -78,6 +78,7 @@ public class ConnectionTest extends TestCase {
     super(name);
   }
 
+  /*
   public void testSingleSingleComb() throws Exception {
     Job job = new Job();
 
@@ -311,7 +312,8 @@ public class ConnectionTest extends TestCase {
       throw new RuntimeException(err.toString());
     }
   }
-
+*/
+  
   public void testMultiMultiIntoMulti() throws Exception {
     Job job = new Job();
 
@@ -370,12 +372,13 @@ public class ConnectionTest extends TestCase {
     ErrorStore err = new ErrorStore();
     Verification.verify(job, err);
 
-    //JobExecutor.runLocally(job, err, new Parameters());
-    //if (err.hasStatements()) {
-    //  throw new RuntimeException(err.toString());
-    //}
+    JobExecutor.runLocally(job, err, new Parameters());
+    if (err.hasStatements()) {
+      throw new RuntimeException(err.toString());
+    }
   }
 
+  /*
   public void testSingleIntoSingleMulti() throws Exception {
     Job job = new Job();
 
@@ -501,7 +504,7 @@ public class ConnectionTest extends TestCase {
       throw new RuntimeException(err.toString());
     }
   }
-
+*/
   // Classes used to generate/pass/recieve data
   public static class NullSource implements ExNihiloSource {
 
