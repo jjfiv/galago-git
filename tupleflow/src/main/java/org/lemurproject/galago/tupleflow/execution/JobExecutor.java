@@ -23,32 +23,30 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
-import javax.xml.parsers.ParserConfigurationException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.commons.io.FileUtils;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.xml.sax.SAXException;
 
 /**
  * <p>This class is responsible for executing TupleFlow jobs.</p>
  *
- * <p>A job is specified using the TupleFlow Job class.  The Job class has an XML form
- * which can be parsed by JobConstructor, but you can create one programmatically as well.</p>
+ * <p>A job is specified using the TupleFlow Job class. The Job class has an XML
+ * form which can be parsed by JobConstructor, but you can create one
+ * programmatically as well.</p>
  *
- * <p>Before the job is executed, it is verified.  JobExecutor verifies that all the
- * classes references by the Job object actually exist, and that the connections point
- * sensible places.  Once it has been verified, the JobExecutor builds an execution plan
- * that will execute the job with as much parallelism as possible while not violate any
- * ordering constraints dictated by stage connections.  After the plan is generated,
- * the job is sent to a StageExecutor for the low-level details of execution.</p>
+ * <p>Before the job is executed, it is verified. JobExecutor verifies that all
+ * the classes references by the Job object actually exist, and that the
+ * connections point sensible places. Once it has been verified, the JobExecutor
+ * builds an execution plan that will execute the job with as much parallelism
+ * as possible while not violate any ordering constraints dictated by stage
+ * connections. After the plan is generated, the job is sent to a StageExecutor
+ * for the low-level details of execution.</p>
  *
- * <p>TupleFlow has many different kinds of StageExecutors you can use.  To get started
- * and to debug your code, use the LocalStageExecutor or ThreadedExecutor.  To harness
- * more parallelism, use the SSHStageExecutor or the DRMAAStageExecutor.</p>
+ * <p>TupleFlow has many different kinds of StageExecutors you can use. To get
+ * started and to debug your code, use the LocalStageExecutor or
+ * ThreadedExecutor. To harness more parallelism, use the SSHStageExecutor or
+ * the DRMAAStageExecutor.</p>
  *
- * <p>(12/01/2010, irmarc): Added a bit of code to print out the server url on command. Hit 'space'
- * to see it.</p>
+ * <p>(12/01/2010, irmarc): Added a bit of code to print out the server url on
+ * command. Hit 'space' to see it.</p>
  *
  * @author trevor
  * @author irmarc
@@ -76,15 +74,14 @@ public class JobExecutor {
   /**
    * This method tries to combine stages together to reduce overhead.
    *
-   * In particular, this method looks for two stages, A and B, where each
-   * copy of B takes input from only one copy of stage A.  In this case,
-   * all the steps from B are moved into stage A, saving a lot of file overhead
-   * in transferring tuples from A to B.
+   * In particular, this method looks for two stages, A and B, where each copy
+   * of B takes input from only one copy of stage A. In this case, all the steps
+   * from B are moved into stage A, saving a lot of file overhead in
+   * transferring tuples from A to B.
    *
-   * This method is particularly useful for jobs that are created
-   * automatically.
+   * This method is particularly useful for jobs that are created automatically.
    *
-   * @param job  The job instance to optimize.
+   * @param job The job instance to optimize.
    * @return A new job instance, perhaps with fewer stages.
    */
   public static Job optimize(Job job) {
@@ -264,8 +261,8 @@ public class JobExecutor {
   }
 
   /**
-   * Find stages that need to open a lot of files for reading when running,
-   * and add some intermediate merge stages to reduce problems with open files.
+   * Find stages that need to open a lot of files for reading when running, and
+   * add some intermediate merge stages to reduce problems with open files.
    *
    * @param job
    */
@@ -361,11 +358,12 @@ public class JobExecutor {
   }
 
   /**
-   * In the parameter file, each stage has a connections section that describes a set of
-   * connection endpoints for the stage (inputs and outputs).  This method verifies that
-   * all of those endpoints are connected to valid connections, defined under the
-   * connections tag in the job.  If the method finds an dangling (unconnected) endpoint,
-   * an error message is added to the ErrorStore.
+   * In the parameter file, each stage has a connections section that describes
+   * a set of connection endpoints for the stage (inputs and outputs). This
+   * method verifies that all of those endpoints are connected to valid
+   * connections, defined under the connections tag in the job. If the method
+   * finds an dangling (unconnected) endpoint, an error message is added to the
+   * ErrorStore.
    */
   public void findDanglingEndpoints(final Job job) {
     TreeSet<EndPointName> endPointNames = new TreeSet();
@@ -558,18 +556,23 @@ public class JobExecutor {
       int result = 1;
 
       if (isHashed()) {
-        String hashCount = job.properties.get("hashCount");
+        String globalHashCount = job.properties.get("hashCount");
 
         if (connection.getHashCount() > 0) {
           result = connection.getHashCount();
-        } else if (hashCount != null
-                && Utility.isInteger(hashCount)) {
-          result = Integer.parseInt(hashCount);
+
+        } else if (globalHashCount != null
+                && Utility.isInteger(globalHashCount)) {
+          result = Integer.parseInt(globalHashCount);
+
         } else {
           result = defaultHashCount;
+
         }
+
       } else {
         result = getInputCount();
+
       }
 
       return result;
@@ -667,11 +670,11 @@ public class JobExecutor {
   }
 
   /**
-   * Creates ConnectionDescription objects for each connection listed in
-   * the Job object.  The ConnectionDescription objects combine information
-   * from the StageConnectionPoints (in the Stages) and the ConnectionEndPoints
-   * (in the Job.Connection objects) to make them easier to access.  In the process
-   * of making these objects, this method typechecks all of the connections.
+   * Creates ConnectionDescription objects for each connection listed in the Job
+   * object. The ConnectionDescription objects combine information from the
+   * StageConnectionPoints (in the Stages) and the ConnectionEndPoints (in the
+   * Job.Connection objects) to make them easier to access. In the process of
+   * making these objects, this method typechecks all of the connections.
    */
   private void buildConnections(final Job job) {
     for (Connection connection : job.connections) {
@@ -694,10 +697,10 @@ public class JobExecutor {
   }
 
   /**
-   * This method computes the number of copies of each stage to run.
-   * The execution count of stage depends on its inputs.  If the input
-   * for a stage is hashed 200 ways, for instance, then there will need
-   * to be 200 copies of the stage.
+   * This method computes the number of copies of each stage to run. The
+   * execution count of stage depends on its inputs. If the input for a stage is
+   * hashed 200 ways, for instance, then there will need to be 200 copies of the
+   * stage.
    */
   private void countStages() {
     HashMap<String, HashSet<EndPointDescription>> stageInputs = new HashMap();
@@ -794,7 +797,8 @@ public class JobExecutor {
                 new DataPipeRegion(pipe,
                 startIndex,
                 startIndex + description.getInstanceCount(),
-                ConnectionPointType.Input));
+                ConnectionPointType.Input,
+                input.connectionPoint.getAssignment()));
         startIndex += description.getInstanceCount();
       }
 
@@ -804,7 +808,8 @@ public class JobExecutor {
                 new DataPipeRegion(pipe,
                 0,
                 connection.getOutputCount(),
-                ConnectionPointType.Output));
+                ConnectionPointType.Output,
+                output.connectionPoint.getAssignment()));
       }
 
       pipes.add(pipe);
@@ -944,8 +949,8 @@ public class JobExecutor {
     }
 
     /**
-     * Returns the maximum amount of memory that can be used by this
-     * Java virtual machine.
+     * Returns the maximum amount of memory that can be used by this Java
+     * virtual machine.
      */
     public long getMaxMemory() {
       return Runtime.getRuntime().maxMemory();
@@ -1040,8 +1045,8 @@ public class JobExecutor {
     }
 
     /**
-     * Polls all the running stages to see if they've completed.  When one completes,
-     * it is added to completedStages and the method returns.
+     * Polls all the running stages to see if they've completed. When one
+     * completes, it is added to completedStages and the method returns.
      *
      * @param runningStages
      * @param completedStages
@@ -1079,11 +1084,11 @@ public class JobExecutor {
     }
 
     /**
-     * Reads through all completed stages, trying to find any connections
-     * that have been satisfied.  By satisfied, we mean that all the input
-     * has been generated for a particular connection.  Once a connection
-     * is satisfied, stages that require that read input from that connection
-     * can start running.
+     * Reads through all completed stages, trying to find any connections that
+     * have been satisfied. By satisfied, we mean that all the input has been
+     * generated for a particular connection. Once a connection is satisfied,
+     * stages that require that read input from that connection can start
+     * running.
      *
      * @param completedStages
      * @param completedConnections
@@ -1141,8 +1146,12 @@ public class JobExecutor {
 
     File stdout = new File(tempFolder + File.separator + "stdout");
     File stderr = new File(tempFolder + File.separator + "stderr");
-    if(stdout.isDirectory()){Utility.deleteDirectory(stdout);}
-    if(stderr.isDirectory()){Utility.deleteDirectory(stderr);}
+    if (stdout.isDirectory()) {
+      Utility.deleteDirectory(stdout);
+    }
+    if (stderr.isDirectory()) {
+      Utility.deleteDirectory(stderr);
+    }
 
     String mode = p.get("mode", "local");
 
@@ -1192,55 +1201,44 @@ public class JobExecutor {
       }
     }
 
-    if(p.get("deleteJobDir", true)){
-      Utility.deleteDirectory( tempFolder );
+    if (p.get("deleteJobDir", true)) {
+      Utility.deleteDirectory(tempFolder);
     }
 
     return !store.hasStatements();
   }
-
-  /***** DEPRECATED ***********
-  public static void main(String[] args) throws ParserConfigurationException, SAXException,
-          IOException, InterruptedException, ExecutionException {
-    if (args.length < 3) {
-      System.out.println("usage: executionModel parameterFile temporaryStorage");
-      System.out.println(
-              "   where executionModel is one of: local, drmaa, ssh, debug, remotedebug");
-      System.exit(-1);
-    }
-
-    String executionModel = args[0];
-    String parameterFile = args[1];
-    String temporaryStorage = args[2];
-    String[] remaining = Utility.subarray(args, 3);
-    StageExecutor executor = null;
-
-    Logger logger = Logger.getLogger(JobExecutor.class.toString());
-    logger.setLevel(Level.INFO);
-
-    executor = StageExecutorFactory.newInstance(executionModel, remaining);
-    ErrorStore store = new ErrorStore();
-
-    // First, parse the job -- need to rethink that one
-    Job job;
-    if (true) throw new UnsupportedOperationException("Currently cannot parse a job file. New format required.\n");
-
-    if (store.hasStatements()) {
-      System.out.println(store.toString());
-      System.exit(-1);
-    }
-
-    JobExecutor jobExecutor = new JobExecutor(job, temporaryStorage, store);
-    jobExecutor.prepare();
-
-    if (store.hasStatements()) {
-      System.out.println(store.toString());
-      System.exit(-1);
-    }
-
-    jobExecutor.run(executor);
-    logger.info("Job complete");
-    executor.shutdown();
-  }
+  /**
+   * *** DEPRECATED *********** public static void main(String[] args) throws
+   * ParserConfigurationException, SAXException, IOException,
+   * InterruptedException, ExecutionException { if (args.length < 3) {
+   * System.out.println("usage: executionModel parameterFile temporaryStorage");
+   * System.out.println( " where executionModel is one of: local, drmaa, ssh,
+   * debug, remotedebug"); System.exit(-1); }
+   *
+   * String executionModel = args[0]; String parameterFile = args[1]; String
+   * temporaryStorage = args[2]; String[] remaining = Utility.subarray(args, 3);
+   * StageExecutor executor = null;
+   *
+   * Logger logger = Logger.getLogger(JobExecutor.class.toString());
+   * logger.setLevel(Level.INFO);
+   *
+   * executor = StageExecutorFactory.newInstance(executionModel, remaining);
+   * ErrorStore store = new ErrorStore();
+   *
+   * // First, parse the job -- need to rethink that one Job job; if (true)
+   * throw new UnsupportedOperationException("Currently cannot parse a job file.
+   * New format required.\n");
+   *
+   * if (store.hasStatements()) { System.out.println(store.toString());
+   * System.exit(-1); }
+   *
+   * JobExecutor jobExecutor = new JobExecutor(job, temporaryStorage, store);
+   * jobExecutor.prepare();
+   *
+   * if (store.hasStatements()) { System.out.println(store.toString());
+   * System.exit(-1); }
+   *
+   * jobExecutor.run(executor); logger.info("Job complete");
+   * executor.shutdown(); }
    */
 }

@@ -29,12 +29,15 @@ public class StageGroupDescription {
     int start;
     int end;
     ConnectionPointType direction;
+    /// Connection type assigment {One,Combined,Each}
+    ConnectionAssignmentType assignment;
 
-    public DataPipeRegion(DataPipe pipe, int start, int end, ConnectionPointType direction) {
+    public DataPipeRegion(DataPipe pipe, int start, int end, ConnectionPointType direction, ConnectionAssignmentType assignment) {
       this.pipe = pipe;
       this.start = start;
       this.end = end;
       this.direction = direction;
+      this.assignment = assignment;
     }
 
     public int fileCount() {
@@ -53,7 +56,9 @@ public class StageGroupDescription {
     this(stage, 1, "");
   }
 
-  /** Creates a new instance of StageGroupDescription */
+  /**
+   * Creates a new instance of StageGroupDescription
+   */
   public StageGroupDescription(Stage stage, int instanceCount, String masterURL) {
     this.stage = stage;
     this.inputs = new HashMap<String, DataPipeRegion>();
@@ -119,8 +124,8 @@ public class StageGroupDescription {
 
         if (region.end - region.start <= 1) {
           instanceInputs.put(key, new PipeOutput(region.pipe, 0));
-        } else if (instanceCount == 1 && region.end - region.start > 1) {
-          // assignment == "combined"
+        } else if ((instanceCount == 1 && region.end - region.start > 1)
+                || (region.assignment == ConnectionAssignmentType.Combined)) {
           instanceInputs.put(key, new PipeOutput(region.pipe, region.start, region.end));
         } else {
           assert region.end - region.start == instanceCount;

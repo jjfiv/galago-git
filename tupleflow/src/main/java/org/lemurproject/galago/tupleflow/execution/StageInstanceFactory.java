@@ -176,7 +176,7 @@ public class StageInstanceFactory {
           MultiInputStep step) throws IOException {
     String[] ids = step.getIds();
     PipeOutput[] pipes = new PipeOutput[ids.length];
-    for (int i = 0 ; i < ids.length; i++) {
+    for (int i = 0; i < ids.length; i++) {
       pipes[i] = instance.getReaders().get(ids[i]);
     }
     return getTypeReaderSource(pipes);

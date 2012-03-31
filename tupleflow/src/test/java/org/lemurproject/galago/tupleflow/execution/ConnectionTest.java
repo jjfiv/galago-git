@@ -18,8 +18,9 @@ import org.lemurproject.galago.tupleflow.TypeReader;
 import org.lemurproject.galago.tupleflow.types.TupleflowString;
 
 /**
- * Tests the connection of stages (single/distributed) using (combined/each) connections
- * 
+ * Tests the connection of stages (single/distributed) using (combined/each)
+ * connections
+ *
  *  [SIMPLE CONNECTIONS single data streams]
  *  1.1: single-single-combined
  *   1 --> 2 [Combined]
@@ -33,7 +34,7 @@ import org.lemurproject.galago.tupleflow.types.TupleflowString;
  *   2 --> 3 [Each]
  *   3 --> 4 [Combined]
  *
- * 
+ *
  *  [COMPLEX MULTICONNECTIONS multiple data streams]
  *  2.1: two connection types incomming (single-multi-combined + single-multi-each)
  *   1 --> 2 [Combined]  no data
@@ -78,7 +79,6 @@ public class ConnectionTest extends TestCase {
     super(name);
   }
 
-  /*
   public void testSingleSingleComb() throws Exception {
     Job job = new Job();
 
@@ -100,7 +100,7 @@ public class ConnectionTest extends TestCase {
     job.properties.put("hashCount", "2");
     ErrorStore err = new ErrorStore();
     Verification.verify(job, err);
-    JobExecutor.runLocally(job, err, new Parameters());
+    JobExecutor.runLocally(job, err, Parameters.parse("{\"server\":false}"));
     if (err.hasStatements()) {
       throw new RuntimeException(err.toString());
     }
@@ -136,7 +136,7 @@ public class ConnectionTest extends TestCase {
     job.properties.put("hashCount", "2");
     ErrorStore err = new ErrorStore();
     Verification.verify(job, err);
-    JobExecutor.runLocally(job, err, new Parameters());
+    JobExecutor.runLocally(job, err, Parameters.parse("{\"server\":false}"));
     if (err.hasStatements()) {
       throw new RuntimeException(err.toString());
     }
@@ -183,13 +183,13 @@ public class ConnectionTest extends TestCase {
     ErrorStore err = new ErrorStore();
     Verification.verify(job, err);
 
-    JobExecutor.runLocally(job, err, new Parameters());
+    JobExecutor.runLocally(job, err, Parameters.parse("{\"server\":false}"));
     if (err.hasStatements()) {
       throw new RuntimeException(err.toString());
     }
   }
 
-  public void testCombinedCombinedIntoMulti() throws Exception {
+  public void testSingleSingleIntoMulti() throws Exception {
     Job job = new Job();
 
     Stage one = new Stage("one");
@@ -230,8 +230,10 @@ public class ConnectionTest extends TestCase {
     Stage five = new Stage("five");
     five.add(new StageConnectionPoint(ConnectionPointType.Input,
             "conn-4-5", new TupleflowString.ValueOrder()));
-    // should recieve 10 items two and 10 from three - they will be passed through four
-    five.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":20, \"connIn\" : [\"conn-4-5\"]}")));
+    // two generates 10 items - all 10 should be passed to each instance of four (20)
+    // three generates 10 items - they are distributed to instances of four
+    // four passes all 30 to five
+    five.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":30, \"connIn\" : [\"conn-4-5\"]}")));
     job.add(five);
 
 
@@ -245,13 +247,13 @@ public class ConnectionTest extends TestCase {
     ErrorStore err = new ErrorStore();
     Verification.verify(job, err);
 
-    JobExecutor.runLocally(job, err, new Parameters());
+    JobExecutor.runLocally(job, err, Parameters.parse("{\"server\":false}"));
     if (err.hasStatements()) {
       throw new RuntimeException(err.toString());
     }
   }
 
-  public void testCombinedMultiIntoMulti() throws Exception {
+  public void testSingleMultiIntoMulti() throws Exception {
     Job job = new Job();
 
     Stage one = new Stage("one");
@@ -292,8 +294,10 @@ public class ConnectionTest extends TestCase {
     Stage five = new Stage("five");
     five.add(new StageConnectionPoint(ConnectionPointType.Input,
             "conn-4-5", new TupleflowString.ValueOrder()));
-    // should recieve 10 items two and 10 from each instance of three (20 total) - they will be passed through four
-    five.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":30, \"connIn\" : [\"conn-4-5\"]}")));
+    // two generates 10 items - all 10 should be passed to each instance of four (20)
+    // three generates 10 items per instance (20) - they are distributed to instances of four
+    // four passes all 40 to five
+    five.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":40, \"connIn\" : [\"conn-4-5\"]}")));
     job.add(five);
 
 
@@ -307,13 +311,12 @@ public class ConnectionTest extends TestCase {
     ErrorStore err = new ErrorStore();
     Verification.verify(job, err);
 
-    JobExecutor.runLocally(job, err, new Parameters());
+    JobExecutor.runLocally(job, err, Parameters.parse("{\"server\":false}"));
     if (err.hasStatements()) {
       throw new RuntimeException(err.toString());
     }
   }
-*/
-  
+
   public void testMultiMultiIntoMulti() throws Exception {
     Job job = new Job();
 
@@ -372,13 +375,12 @@ public class ConnectionTest extends TestCase {
     ErrorStore err = new ErrorStore();
     Verification.verify(job, err);
 
-    JobExecutor.runLocally(job, err, new Parameters());
+    JobExecutor.runLocally(job, err, Parameters.parse("{\"server\":false}"));
     if (err.hasStatements()) {
       throw new RuntimeException(err.toString());
     }
   }
 
-  /*
   public void testSingleIntoSingleMulti() throws Exception {
     Job job = new Job();
 
@@ -419,7 +421,9 @@ public class ConnectionTest extends TestCase {
     five.add(new StageConnectionPoint(ConnectionPointType.Input,
             "conn-4-5", new TupleflowString.ValueOrder()));
     // two generates 10 items
-    // items are passed through both three and four - duplicating the items
+    // the items are sent to three (combined - 10)
+    // the items are sent to four (each - 10)
+    // three and four send items to five
     // should recieve 20 total
     five.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":20, \"connIn\" : [\"conn-3-5\",\"conn-4-5\"]}")));
     job.add(five);
@@ -430,13 +434,11 @@ public class ConnectionTest extends TestCase {
     job.connect("three", "five", ConnectionAssignmentType.Combined);
     job.connect("four", "five", ConnectionAssignmentType.Combined);
 
-    System.err.println(job.toDotString());
-
     job.properties.put("hashCount", "2");
     ErrorStore err = new ErrorStore();
     Verification.verify(job, err);
 
-    JobExecutor.runLocally(job, err, new Parameters());
+    JobExecutor.runLocally(job, err, Parameters.parse("{\"server\":false}"));
     if (err.hasStatements()) {
       throw new RuntimeException(err.toString());
     }
@@ -481,8 +483,10 @@ public class ConnectionTest extends TestCase {
             "conn-3-5", new TupleflowString.ValueOrder()));
     five.add(new StageConnectionPoint(ConnectionPointType.Input,
             "conn-4-5", new TupleflowString.ValueOrder()));
-    // two generates 10 items per instance (20) total
-    // items are passed through both three and four - duplicating the items
+    // two generates 10 items per instance (20)
+    // the items are sent to three (combined - 20)
+    // the items are sent to four (each - 20)
+    // three and four send their items to five
     // should recieve 40 total
     five.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":40, \"connIn\" : [\"conn-3-5\",\"conn-4-5\"]}")));
     job.add(five);
@@ -493,19 +497,17 @@ public class ConnectionTest extends TestCase {
     job.connect("three", "five", ConnectionAssignmentType.Combined);
     job.connect("four", "five", ConnectionAssignmentType.Combined);
 
-    System.err.println(job.toDotString());
-
     job.properties.put("hashCount", "2");
     ErrorStore err = new ErrorStore();
     Verification.verify(job, err);
 
-    JobExecutor.runLocally(job, err, new Parameters());
+    JobExecutor.runLocally(job, err, Parameters.parse("{\"server\":false}"));
     if (err.hasStatements()) {
       throw new RuntimeException(err.toString());
     }
   }
-*/
-  // Classes used to generate/pass/recieve data
+
+  ///***** Classes used to generate/pass/merge/receive data ******///
   public static class NullSource implements ExNihiloSource {
 
     @Override
@@ -679,12 +681,13 @@ public class ConnectionTest extends TestCase {
         TypeReader<TupleflowString> reader = params.getTypeReader(connIn.get(i));
         TupleflowString obj = reader.read();
         while (obj != null) {
-          System.err.println("REC - " + params.getInstanceId() + " : " + obj.value);
+          // DEBUGGING //
+          // System.err.println("REC - " + params.getInstanceId() + " : " + obj.value);
           counter++;
           obj = reader.read();
         }
       }
-      if(counter != params.getJSON().getLong("expectedCount")){
+      if (counter != params.getJSON().getLong("expectedCount")) {
         throw new IOException("Did not receive the expected number of items.");
       }
     }

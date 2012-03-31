@@ -12,16 +12,15 @@ import java.util.TreeMap;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * A Job object specifies a TupleFlow execution: the objects used, their parameters,
- * and how they communicate.  A Job can be specified in XML (and parsed with JobConstructor),
- * or in code.
+ * A Job object specifies a TupleFlow execution: the objects used, their
+ * parameters, and how they communicate. A Job can be specified in XML (and
+ * parsed with JobConstructor), or in code.
  *
  * Usage: users create these, then run them using the JobExecutor
  *
- * Possible Improvements:
- * - the ability to branch on some condition
- * - arbitrary looping
- * 
+ * Possible Improvements: - the ability to branch on some condition - arbitrary
+ * looping
+ *
  * @author trevor
  */
 public class Job implements Serializable {
@@ -43,11 +42,11 @@ public class Job implements Serializable {
   }
 
   /**
-   * Sometimes its convenient to specify a group of stages as its own job,
-   * with connections that flow between stages specified in the job.  The
-   * add method allows you to add another job to this job.  To avoid name
-   * conflicts, all stages in the job are renamed from <tt>stageName</tt>
-   * to <tt>jobName.stageName</tt>.
+   * Sometimes its convenient to specify a group of stages as its own job, with
+   * connections that flow between stages specified in the job. The add method
+   * allows you to add another job to this job. To avoid name conflicts, all
+   * stages in the job are renamed from <tt>stageName</tt> to
+   * <tt>jobName.stageName</tt>.
    */
   public void add(String jobName, Job group) {
     assert this != group;
@@ -93,12 +92,13 @@ public class Job implements Serializable {
   }
 
   /**
-   * Add a merge stage to this job that merges the output of
-   * stageName called pointName.
+   * Add a merge stage to this job that merges the output of stageName called
+   * pointName.
    *
-   * @param stageName  The stage that contains the output that needs merging.
-   * @param pointName  The output point that needs merging in the stage stageName.
-   * @param factor     What the reduction factor is for each merger.
+   * @param stageName The stage that contains the output that needs merging.
+   * @param pointName The output point that needs merging in the stage
+   * stageName.
+   * @param factor What the reduction factor is for each merger.
    */
   public void addMergeStage(String stageName, String pointName, int factor) {
     // find the stage and the point, initialize class/order information
@@ -250,10 +250,9 @@ public class Job implements Serializable {
    * Connects outputs from stage sourceName to inputs from stage
    * destinationName.
    *
-   * Connect can make connections between any stage with the name
-   * sourceName, or that starts with sourceName (same goes for
-   * destinationName), which makes this particularly useful for
-   * making connections between sub-jobs.
+   * Connect can make connections between any stage with the name sourceName, or
+   * that starts with sourceName (same goes for destinationName), which makes
+   * this particularly useful for making connections between sub-jobs.
    */
   public void connect(String sourceName, String destinationName, ConnectionAssignmentType assignment) {
     connect(sourceName, destinationName, assignment, null, -1);
@@ -294,12 +293,17 @@ public class Job implements Serializable {
 
         // this is only really applicable when assignment is 'Each'
         //  - it is ignored in other cases
-        String[] connectionHashType;
+        String[] connectionHashType = null;
         if (hashType != null) {
           connectionHashType = hashType;
         } else {
           connectionHashType = sourcePoint.point.getOrder();
         }
+        
+        if(assignment == ConnectionAssignmentType.Combined){
+          connectionHashType = null;
+        }
+        
         connect(sourcePoint, destinationPoint, assignment, connectionHashType, hashCount);
       }
     }
@@ -351,9 +355,8 @@ public class Job implements Serializable {
   }
 
   /**
-   * Returns this job as a graph in the DOT language.  This DOT text can be
-   * used with GraphViz (http://www.graphviz.org) to display a picture of
-   * the job.
+   * Returns this job as a graph in the DOT language. This DOT text can be used
+   * with GraphViz (http://www.graphviz.org) to display a picture of the job.
    */
   public String toDotString() {
     StringBuilder builder = new StringBuilder();
