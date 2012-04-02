@@ -25,8 +25,9 @@ public class CoordinateAscent extends Learner {
     super(p);
     
     this.minStepSize = p.get("minStepSize", 0.02);
-    this.minStepSize = p.get("maxStepRatio", 0.01);
+    this.maxStepRatio = p.get("maxStepRatio", 0.5);
     this.stepScale = p.get("stepScale", 2.0);
+    this.maxIterations = (int) p.get("maxIterations", 5);
   }
 
   @Override
@@ -62,7 +63,7 @@ public class CoordinateAscent extends Learner {
         boolean change = true;
         while(change){
           double curr = paramValues.getDouble(coord);
-          paramValues.set(coord, curr + step);
+          paramValues.set(coord, curr + step);          
           double evaluation = this.evaluate(paramValues);
           logger.info(String.format("Coordinate (%s) ++%f... Metric: %f.", coord, step, evaluation));
           if(evaluation > rightBest){
@@ -89,9 +90,9 @@ public class CoordinateAscent extends Learner {
         change = true;
         while(change){
           double curr = paramValues.getDouble(coord);
-          paramValues.set(coord, curr + step);
+          paramValues.set(coord, curr - step);
           double evaluation = this.evaluate(paramValues);
-          logger.info(String.format("Coordinate (%s) ++%f... Metric: %f.", coord, step, evaluation));
+          logger.info(String.format("Coordinate (%s) --%f... Metric: %f.", coord, step, evaluation));
           if(evaluation > leftBest){
             leftBest = evaluation;
             leftStep += step;

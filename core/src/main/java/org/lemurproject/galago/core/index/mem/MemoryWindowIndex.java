@@ -77,17 +77,21 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
       return;
     }
 
+    ExtentList extentList = new ExtentList(key);
+    
     while (!iterator.isDone()) {
       int document = iterator.currentCandidate();
       ExtentArrayIterator extentsIterator = new ExtentArrayIterator(((MovableExtentIterator) iterator).extents());
       while (!extentsIterator.isDone()) {
         int begin = extentsIterator.currentBegin();
         int end = extentsIterator.currentEnd();
-        addExtent(key, document, begin, end);
+
+        extentList.add(document, begin, end);
         extentsIterator.next();
       }
       iterator.next();
     }
+    extents.put(key, extentList);
   }
 
   private void addExtent(byte[] byteExtentName, int document, int begin, int end) {

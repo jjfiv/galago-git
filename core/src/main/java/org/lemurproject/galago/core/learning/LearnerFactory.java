@@ -11,7 +11,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class LearnerFactory {
 
-  public static Learner instance(Parameters p) throws Exception {
+  public static Learner instance(Parameters p) throws Exception {    
     return new CoordinateAscent(p);
   }
   

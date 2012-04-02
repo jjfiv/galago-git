@@ -13,7 +13,9 @@ import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.core.tools.BatchSearch;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -44,7 +46,7 @@ public abstract class Learner {
   protected Logger logger;
   protected final Retrieval retrieval;
   protected final List<Parameters> queries;
-  protected final Map<String,Node> queryRoots;
+  protected final Map<String, Node> queryRoots;
   protected final QuerySetJudgments qrels;
   protected final QuerySetEvaluator evalFunction;
   protected final Set<String> learnableParameters;
@@ -62,7 +64,7 @@ public abstract class Learner {
     logger = Logger.getLogger(this.getClass().getName());
 
     retrieval = RetrievalFactory.instance(p);
-    queries = (List<Parameters>) p.getList("queries");
+    queries = BatchSearch.collectQueries(p);
     qrels = new QuerySetJudgments(p.getString("qrels"));
     evalFunction = QuerySetEvaluatorFactory.instance(p.get("metric", "map"));
 
@@ -87,11 +89,11 @@ public abstract class Learner {
     // randomizeParameterValues = p.get("randomizeParameterValues", true);
     // randomRestarts = (int) p.get("randomRestarts", 5);
     // initialParameters = (p.containsKey("initialParameters")) ? (List<Parameters>) p.getList("initialParameters") : new ArrayList();
-    
+
 
     // we only want to parse queries once.
     queryRoots = new HashMap();
-    for(Parameters query : this.queries){
+    for (Parameters query : this.queries) {
       String number = query.getString("number");
       String text = query.getString("text");
       Node root = StructuredQuery.parse(text);
@@ -130,22 +132,61 @@ public abstract class Learner {
    */
   public double evaluate(Parameters settings) throws Exception {
     HashMap<String, ScoredDocument[]> resMap = new HashMap();
-    for(String number : this.queryRoots.keySet()){
-      // try to replace parameters here?
-      Node root = this.queryRoots.get(number);
-      // or try to replace parameters here?
-    }
     
+    // ensure the global parameters contain the current settings.
+    this.retrieval.getGlobalParameters().copyFrom(settings);
+
+    for (String number : this.queryRoots.keySet()) {
+      Node root = this.queryRoots.get(number).clone();
+      root = this.ensureSettings(root, settings);
+      root = this.retrieval.transformQuery(root, settings);
+
+      //  need to add queryProcessing params some extra stuff to 'settings'
+      ScoredDocument[] scoredDocs = this.retrieval.runQuery(root, settings);
+      
+      if(scoredDocs != null){
+        resMap.put(number, scoredDocs);
+      }
+    }
+
     QuerySetResults results = new QuerySetResults(resMap);
-    evalFunction.evaluate(results, qrels);
-    // for each query - run it with the parameter settings
-    // collect the ScoredDocument[]s - run the set evaluator - return score.
-    return 0.0;
+    return evalFunction.evaluate(results, qrels);
   }
-  
-  public Parameters normalizeParameters(Parameters params){
-    // run the normalization functions
-    // e.g weight parameters might need to sum to 1.
+
+  /**
+   * normalizes parameters according to rules (sumTo x, multipyTo x, etc)
+   */
+  public Parameters normalizeParameters(Parameters params) {
+    // currently assuming that if there's more than one parameter - then all parameters must sum to one.
+    if(this.learnableParameters.size() > 1){
+      double total = 0.0;
+      for(String p : this.learnableParameters){
+        total += params.getDouble(p);
+      }
+      if(total != 0.0){
+        for(String p : this.learnableParameters){
+          params.set(p, params.getDouble(p) / total);
+        }
+      }
+    }
     return params;
+  }
+
+  /**
+   * This could be a traversal. This function will replace the parameters that
+   * are present in the query already. Other parameters 
+   *
+   */
+  public Node ensureSettings(Node n, Parameters settings) {
+    NodeParameters np = n.getNodeParameters();
+    for (String k : np.getKeySet()) {
+      if (settings.containsKey(k)) {
+        np.set(k, settings.getDouble(k));
+      }
+    }
+    for (Node c : n.getInternalNodes()) {
+      ensureSettings(c, settings);
+    }
+    return n;
   }
 }

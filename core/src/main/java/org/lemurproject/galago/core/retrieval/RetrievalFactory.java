@@ -84,7 +84,11 @@ public class RetrievalFactory {
   }
 
   public static Retrieval instance(List<String> indexes, Parameters parameters) throws Exception {
-
+    
+    if(indexes.size() == 1){
+      return instance(indexes.get(0), parameters);
+    }
+    
     ArrayList<Thread> openers = new ArrayList();
     final Parameters shardParameters = parameters;
     final List<Retrieval> retrievals = Collections.synchronizedList(new ArrayList());
