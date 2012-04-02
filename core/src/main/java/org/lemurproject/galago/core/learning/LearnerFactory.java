@@ -3,6 +3,7 @@
  */
 package org.lemurproject.galago.core.learning;
 
+import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -11,8 +12,12 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class LearnerFactory {
 
-  public static Learner instance(Parameters p) throws Exception {    
-    return new CoordinateAscent(p);
+  public static Learner instance(Parameters p, Retrieval retrieval) throws Exception {
+    if(p.get("xfolds", 1) > 1){
+      return new XFoldLearner(p, retrieval);
+    } else {
+      return new CoordinateAscentLearner(p, retrieval);
+    }
   }
   
 }

@@ -7,13 +7,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
  * @author sjh
  */
-public class CoordinateAscent extends Learner {
+public class CoordinateAscentLearner extends Learner {
   
   // coord ascent specific parameters
   protected int maxIterations;
@@ -21,8 +22,8 @@ public class CoordinateAscent extends Learner {
   protected double maxStepRatio;
   protected double stepScale;
   
-  public CoordinateAscent(Parameters p) throws Exception {
-    super(p);
+  public CoordinateAscentLearner(Parameters p, Retrieval r) throws Exception {
+    super(p, r);
     
     this.minStepSize = p.get("minStepSize", 0.02);
     this.maxStepRatio = p.get("maxStepRatio", 0.5);
@@ -31,9 +32,7 @@ public class CoordinateAscent extends Learner {
   }
 
   @Override
-  public Parameters learn() throws Exception {
-    Random rnd = new Random();
-    Parameters paramValues = generateRandomInitalValues(rnd);
+  public Parameters learn(Parameters paramValues) throws Exception {
 
     double best = this.evaluate(paramValues);
     logger.info(String.format( "Initial parameter weights: %s Metric: %f. Starting optimization...", paramValues.toString(), best));
@@ -42,7 +41,7 @@ public class CoordinateAscent extends Learner {
     int iters = 0;
     while(optimized && iters < maxIterations){
       List<String> optimizationOrder = new ArrayList(this.learnableParameters);
-      Collections.shuffle(optimizationOrder, rnd);
+      Collections.shuffle(optimizationOrder, this.random);
       logger.info(String.format("Starting a new coordinate sweep...."));
       iters += 1;
       optimized = false;
@@ -116,11 +115,11 @@ public class CoordinateAscent extends Learner {
         } else if(leftBest > rightBest){
           optimized = true;
           double curr = paramValues.getDouble(coord);
-          paramValues.set(coord, curr + leftStep);
+          paramValues.set(coord, curr - leftStep);
           best = leftBest;
-          logger.info(String.format("Finished optimizing coordinate (%s). ++%f. Metric: %f", coord, leftStep, best));
+          logger.info(String.format("Finished optimizing coordinate (%s). --%f. Metric: %f", coord, leftStep, best));
         } else {
-          logger.info(String.format("Finished optimizing coordinate (%s). No Change.", coord));
+          logger.info(String.format("Finished optimizing coordinate (%s). No Change. Best: %f", coord, best));
         }
         
         paramValues = this.normalizeParameters(paramValues);

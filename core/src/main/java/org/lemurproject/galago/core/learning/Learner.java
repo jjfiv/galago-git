@@ -3,6 +3,7 @@
  */
 package org.lemurproject.galago.core.learning;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.eval.QuerySetJudgments;
@@ -10,13 +11,13 @@ import org.lemurproject.galago.core.eval.QuerySetResults;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluator;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluatorFactory;
 import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.BatchSearch;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Parameters.Type;
 
 /**
  * Main interface for learning methods - eg. coord-ascent, gradient ascent, etc.
@@ -43,27 +44,67 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public abstract class Learner {
 
-  protected Logger logger;
+  protected final Logger logger;
+  protected final Random random;
   protected final Retrieval retrieval;
-  protected final List<Parameters> queries;
-  protected final Map<String, Node> queryRoots;
-  protected final QuerySetJudgments qrels;
-  protected final QuerySetEvaluator evalFunction;
-  protected final Set<String> learnableParameters;
-  protected final Map<String, Double> learnableParametersMax;
-  protected final Map<String, Double> learnableParametersMin;
-  protected final Map<String, Double> learnableParametersRange;
-  // statistics
-  protected Map<Parameters, Double> testedParameters;
+  // variable parameters
+  protected List<Parameters> queries;
+  protected Map<String, Node> queryRoots;
+  protected QuerySetJudgments qrels;
+  protected QuerySetEvaluator evalFunction;
+  protected Set<String> learnableParameters;
+  protected Map<String, Double> learnableParametersMax;
+  protected Map<String, Double> learnableParametersMin;
+  protected Map<String, Double> learnableParametersRange;
+  // optimized parameters - mapping is from index of initial settings to optimal parameters
+  protected List<Parameters> initialSettings;
+  protected Map<Integer, Double> optimizedParameterScores;
+  protected Map<Integer, Parameters> optimizedParameters;
+  // evaluation cache to avoid recalculating scores for known settings
+  protected Map<String, Double> testedParameters;
 
-  //  optional
-  // protected final boolean randomizeParameterValues;
-  // protected final int randomRestarts;
-  // protected final List<Parameters> initialParameters;
-  public Learner(Parameters p) throws Exception {
+  public Learner(Parameters p, Retrieval r) throws Exception {
     logger = Logger.getLogger(this.getClass().getName());
+    retrieval = r;
+    random = (p.isLong("rndInit"))? new Random(p.getLong("rndInit")) : new Random() ;
 
-    retrieval = RetrievalFactory.instance(p);
+    initialize(p);
+  }
+
+  /**
+   * learning function
+   *  - returns a list of learnt parameters
+   */
+  public List<Parameters> learn() throws Exception {
+    for (int i = 0; i < this.initialSettings.size(); i++) {
+      Parameters s = learn(this.initialSettings.get(i).clone());
+      optimizedParameters.put(i, s);
+      optimizedParameterScores.put(i, this.evaluate(s));
+    }
+    return new ArrayList(optimizedParameters.values());
+  }
+
+  /**
+   * instance learning function - should return the best parameters discovered for these initial settings.
+   */
+  public abstract Parameters learn(Parameters initialSettings) throws Exception;
+
+  /**
+   * Getters and Setters
+   *  - currently only for the initial settings
+   */
+  public List<Parameters> getInitialSettings() {
+    return this.initialSettings;
+  }
+
+  public void setInitialSettings(List<Parameters> initialSettings) {
+    this.initialSettings = initialSettings;
+  }
+
+  /**
+   * UTILITY FUNCTIONS : functions that can be used inside of any implemented learner
+   */
+  protected void initialize(Parameters p) throws IOException {
     queries = BatchSearch.collectQueries(p);
     qrels = new QuerySetJudgments(p.getString("qrels"));
     evalFunction = QuerySetEvaluatorFactory.instance(p.get("metric", "map"));
@@ -85,11 +126,18 @@ public abstract class Learner {
     }
 
     testedParameters = new HashMap();
+    optimizedParameters = new HashMap();
+    optimizedParameterScores = new HashMap();
 
-    // randomizeParameterValues = p.get("randomizeParameterValues", true);
-    // randomRestarts = (int) p.get("randomRestarts", 5);
-    // initialParameters = (p.containsKey("initialParameters")) ? (List<Parameters>) p.getList("initialParameters") : new ArrayList();
-
+    long restarts = p.get("restarts", 3);
+    if (p.isList("initialParameters", Type.MAP)) {
+      initialSettings = (List<Parameters>) p.getList("initialParameters");
+    } else {
+      initialSettings = new ArrayList();
+    }
+    while (initialSettings.size() < restarts) {
+      initialSettings.add(generateRandomInitalValues());
+    }
 
     // we only want to parse queries once.
     queryRoots = new HashMap();
@@ -102,21 +150,12 @@ public abstract class Learner {
   }
 
   /**
-   * main learning function - should return the best parameters discovered.
-   */
-  public abstract Parameters learn() throws Exception;
-
-  
-  /**
-   * UTILITY FUNCTIONS : functions that can be used inside of any implemented learner
-   */
-  /**
    * generateRandomInitalValues
    */
-  public Parameters generateRandomInitalValues(Random rnd) {
+  protected Parameters generateRandomInitalValues() {
     Parameters init = new Parameters();
     for (String p : this.learnableParameters) {
-      double val = rnd.nextDouble();
+      double val = random.nextDouble();
       val *= this.learnableParametersRange.get(p);
       val += this.learnableParametersMin.get(p);
       init.set(p, val);
@@ -131,7 +170,12 @@ public abstract class Learner {
    * Runs all of the queries with the new parameter settings
    *
    */
-  public double evaluate(Parameters settings) throws Exception {
+  protected double evaluate(Parameters settings) throws Exception {
+    String settingString = settings.toString();
+    if(testedParameters.containsKey(settingString)){
+      return testedParameters.get(settingString);
+    }
+
     HashMap<String, ScoredDocument[]> resMap = new HashMap();
 
     // ensure the global parameters contain the current settings.
@@ -151,13 +195,15 @@ public abstract class Learner {
     }
 
     QuerySetResults results = new QuerySetResults(resMap);
-    return evalFunction.evaluate(results, qrels);
+    double r = evalFunction.evaluate(results, qrels);
+    testedParameters.put(settingString, r);
+    return r;
   }
 
   /**
    * normalizes parameters according to rules (sumTo x, multipyTo x, etc)
    */
-  public Parameters normalizeParameters(Parameters params) {
+  protected Parameters normalizeParameters(Parameters params) {
     // currently assuming that if there's more than one parameter - then all parameters must sum to one.
     if (this.learnableParameters.size() > 1) {
       double total = 0.0;
@@ -178,7 +224,7 @@ public abstract class Learner {
    * are present in the query already. Other parameters
    *
    */
-  public Node ensureSettings(Node n, Parameters settings) {
+  protected Node ensureSettings(Node n, Parameters settings) {
     NodeParameters np = n.getNodeParameters();
     for (String k : np.getKeySet()) {
       if (settings.containsKey(k)) {

@@ -3,8 +3,10 @@
  */
 package org.lemurproject.galago.core.learning;
 
-import java.io.IOException;
 import java.io.PrintStream;
+import java.util.List;
+import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.App.AppFunction;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -23,8 +25,14 @@ public class LearnQueryParameters extends AppFunction {
   public void run(Parameters p, PrintStream output) throws Exception {
     // should check parameters here.
 
-    Learner learner = LearnerFactory.instance(p);
-    Parameters tunedParameters = learner.learn();
+    Retrieval retrieval = RetrievalFactory.instance(p);
+    Learner learner = LearnerFactory.instance(p, retrieval);
+    List<Parameters> tunedParameters = learner.learn();
+    for(int run = 0; run < tunedParameters.size(); run++){
+      output.print(run);
+      output.print("\t");
+      output.println(tunedParameters.get(run));
+    }
   }
 
   public static void main(String[] args) throws Exception {
