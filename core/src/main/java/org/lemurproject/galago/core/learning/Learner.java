@@ -102,12 +102,13 @@ public abstract class Learner {
   }
 
   /**
-   * main learning function - returns a local optima for the parameters
+   * main learning function - should return the best parameters discovered.
    */
   public abstract Parameters learn() throws Exception;
 
+  
   /**
-   * UTILITY FUNCTIONS : for any implementing learner *
+   * UTILITY FUNCTIONS : functions that can be used inside of any implemented learner
    */
   /**
    * generateRandomInitalValues
@@ -132,7 +133,7 @@ public abstract class Learner {
    */
   public double evaluate(Parameters settings) throws Exception {
     HashMap<String, ScoredDocument[]> resMap = new HashMap();
-    
+
     // ensure the global parameters contain the current settings.
     this.retrieval.getGlobalParameters().copyFrom(settings);
 
@@ -143,8 +144,8 @@ public abstract class Learner {
 
       //  need to add queryProcessing params some extra stuff to 'settings'
       ScoredDocument[] scoredDocs = this.retrieval.runQuery(root, settings);
-      
-      if(scoredDocs != null){
+
+      if (scoredDocs != null) {
         resMap.put(number, scoredDocs);
       }
     }
@@ -158,13 +159,13 @@ public abstract class Learner {
    */
   public Parameters normalizeParameters(Parameters params) {
     // currently assuming that if there's more than one parameter - then all parameters must sum to one.
-    if(this.learnableParameters.size() > 1){
+    if (this.learnableParameters.size() > 1) {
       double total = 0.0;
-      for(String p : this.learnableParameters){
+      for (String p : this.learnableParameters) {
         total += params.getDouble(p);
       }
-      if(total != 0.0){
-        for(String p : this.learnableParameters){
+      if (total != 0.0) {
+        for (String p : this.learnableParameters) {
           params.set(p, params.getDouble(p) / total);
         }
       }
@@ -174,7 +175,7 @@ public abstract class Learner {
 
   /**
    * This could be a traversal. This function will replace the parameters that
-   * are present in the query already. Other parameters 
+   * are present in the query already. Other parameters
    *
    */
   public Node ensureSettings(Node n, Parameters settings) {
