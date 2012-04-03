@@ -4,12 +4,14 @@
 package org.lemurproject.galago.core.learning;
 
 import java.io.IOException;
+import java.lang.RuntimeException;
 import java.util.*;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.eval.QuerySetJudgments;
 import org.lemurproject.galago.core.eval.QuerySetResults;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluator;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluatorFactory;
+import org.lemurproject.galago.core.retrieval.CachedRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -56,6 +58,8 @@ public abstract class Learner {
   protected Map<String, Double> learnableParametersMax;
   protected Map<String, Double> learnableParametersMin;
   protected Map<String, Double> learnableParametersRange;
+  // normalization rules:
+  protected List<Parameters> normalization;
   // optimized parameters - mapping is from index of initial settings to optimal parameters
   protected List<Parameters> initialSettings;
   protected Map<Integer, Double> optimizedParameterScores;
@@ -66,14 +70,13 @@ public abstract class Learner {
   public Learner(Parameters p, Retrieval r) throws Exception {
     logger = Logger.getLogger(this.getClass().getName());
     retrieval = r;
-    random = (p.isLong("rndInit"))? new Random(p.getLong("rndInit")) : new Random() ;
+    random = (p.isLong("rndInit")) ? new Random(p.getLong("rndInit")) : new Random();
 
     initialize(p);
   }
 
   /**
-   * learning function
-   *  - returns a list of learnt parameters
+   * learning function - returns a list of learnt parameters
    */
   public List<Parameters> learn() throws Exception {
     for (int i = 0; i < this.initialSettings.size(); i++) {
@@ -85,13 +88,13 @@ public abstract class Learner {
   }
 
   /**
-   * instance learning function - should return the best parameters discovered for these initial settings.
+   * instance learning function - should return the best parameters discovered
+   * for these initial settings.
    */
   public abstract Parameters learn(Parameters initialSettings) throws Exception;
 
   /**
-   * Getters and Setters
-   *  - currently only for the initial settings
+   * Getters and Setters - currently only for the initial settings
    */
   public List<Parameters> getInitialSettings() {
     return this.initialSettings;
@@ -102,7 +105,8 @@ public abstract class Learner {
   }
 
   /**
-   * UTILITY FUNCTIONS : functions that can be used inside of any implemented learner
+   * UTILITY FUNCTIONS : functions that can be used inside of any implemented
+   * learner
    */
   protected void initialize(Parameters p) throws IOException {
     queries = BatchSearch.collectQueries(p);
@@ -125,6 +129,18 @@ public abstract class Learner {
       learnableParametersRange.put(param, max - min);
     }
 
+    if (p.isList("normalization", Type.MAP)) {
+      normalization = p.getList("normalization");
+    } else if (p.isMap("normalization")) { // might have forgotten to wrap rule : [{}]
+      normalization = Collections.singletonList(p.getMap("normalization"));
+    } else if (learnableParameters.size() > 1) {
+      Parameters defaultRule = new Parameters();
+      defaultRule.set("mode", "sum");
+      defaultRule.set("params", new ArrayList(this.learnableParameters));
+      defaultRule.set("value", 1.0);
+      normalization = Collections.singletonList(defaultRule);
+    }
+
     testedParameters = new HashMap();
     optimizedParameters = new HashMap();
     optimizedParameterScores = new HashMap();
@@ -135,8 +151,10 @@ public abstract class Learner {
     } else {
       initialSettings = new ArrayList();
     }
+    // 
     while (initialSettings.size() < restarts) {
       initialSettings.add(generateRandomInitalValues());
+      logger.info("Generated initial values: " + initialSettings.get(initialSettings.size() - 1));
     }
 
     // we only want to parse queries once.
@@ -146,6 +164,11 @@ public abstract class Learner {
       String text = query.getString("text");
       Node root = StructuredQuery.parse(text);
       queryRoots.put(number, root);
+    }
+
+    // caching system
+    if (retrieval instanceof CachedRetrieval) {
+      // call sub f
     }
   }
 
@@ -172,7 +195,7 @@ public abstract class Learner {
    */
   protected double evaluate(Parameters settings) throws Exception {
     String settingString = settings.toString();
-    if(testedParameters.containsKey(settingString)){
+    if (testedParameters.containsKey(settingString)) {
       return testedParameters.get(settingString);
     }
 
@@ -204,18 +227,31 @@ public abstract class Learner {
    * normalizes parameters according to rules (sumTo x, multipyTo x, etc)
    */
   protected Parameters normalizeParameters(Parameters params) {
-    // currently assuming that if there's more than one parameter - then all parameters must sum to one.
-    if (this.learnableParameters.size() > 1) {
+    /*
+     * We have some normalization rules normalization rules should be in the
+     * form:
+     *
+     * [ {"mode" : "sum", "params" : ["p1", "p2", "p3"], "value" : double-value
+     * }, {"mode" : "sum", "params" : ["p4", "p5"], "value" : double-value } ]
+     *
+     * rules are applied in specified order - this may mean that later rules
+     * force values to violate earlier rules
+     */
+    for (Parameters rule : normalization) {
       double total = 0.0;
-      for (String p : this.learnableParameters) {
-        total += params.getDouble(p);
-      }
-      if (total != 0.0) {
-        for (String p : this.learnableParameters) {
-          params.set(p, params.getDouble(p) / total);
+      if (rule.getString("mode").startsWith("sum")) { // rule: sums to value //
+        for (String p : (List<String>) rule.getList("params")) {
+          total += params.getDouble(p);
         }
+        double normalizer = rule.getDouble("value") / total;
+        for (String p : (List<String>) rule.getList("params")) {
+          params.set(p, params.getDouble(p) * normalizer);
+        }
+      } else {
+        throw new RuntimeException("Don't know how to deal with: " + rule);
       }
     }
+
     return params;
   }
 
