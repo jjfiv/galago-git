@@ -85,7 +85,8 @@ public class App {
     appFunctions.put("merge-index", new MergeIndex());
     appFunctions.put("subcollection", new BuildSubCollection());
     appFunctions.put("overwrite-manifest", new OverwriteManifest());
-
+    appFunctions.put("stemmer-conflation", new BuildStemmerConflation());
+    
     // background functions
     appFunctions.put("build-background", new BuildBackground());
     appFunctions.put("install-background", new BuildBackground());
