@@ -71,7 +71,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   // defaults
   public static final long DEFAULT_OBJECT_LIMIT = 50000000;
   public static final long DEFAULT_FILE_LIMIT = 20;
-  public static final long DEFAULT_REDUCE_INTERVAL = 100 * 1000;
+  public static final long DEFAULT_REDUCE_INTERVAL = 10 * 1000;
   public static final double DEFAULT_MEMORY_FRACTION = 0.7;
   public static final boolean DEFAULT_FLUSH_PAUSE = true;
   // instance limits and parameters
@@ -204,6 +204,13 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     if (notification.getType().equals(MemoryNotificationInfo.MEMORY_THRESHOLD_EXCEEDED)) {
       final Sorter f = this;
 
+      //if (this.pauseToFlush) {
+      //  // this check should never be true
+      //  if (flushThread != null && flushThread.isAlive()) {
+      //    return;
+      //  }
+      // }
+        
       // if there's nothing we can do at the moment; return.
       if (size() == 0) {
         return;
@@ -226,14 +233,14 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
         }
       };
 
-      if (this.pauseToFlush) {
-        // this check should never be true
-        if (flushThread != null && flushThread.isAlive()) {
-          pause();
-        }
-        
-        flushThread = t;
-      }
+      //if (this.pauseToFlush) {
+      //  // this check should never be true
+      //  if (flushThread != null && flushThread.isAlive()) {
+      //    pause();
+      //  }
+      //  
+      //  flushThread = t;
+      //}
 
       t.start();
     }
@@ -309,9 +316,9 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
 
   @Override
   public synchronized void process(T object) throws IOException {
-    if (this.pauseToFlush && flushThread != null && flushThread.isAlive()) {
-      pause();
-    }
+      // if (this.pauseToFlush && flushThread != null && flushThread.isAlive()) {
+      //   pause();
+      // } 
 
     objects.add(object);
     flushIfNecessary();
