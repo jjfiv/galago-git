@@ -15,29 +15,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
+import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
-/** 
- * This class holds retrieval results for a set of queries.
- * Each query corresponds to a QueryResult which contains the list of returned ScoredDocuments
- * 
+/**
+ * This class holds retrieval results for a set of queries. Each query
+ * corresponds to a QueryResult which contains the list of returned
+ * ScoredDocuments
+ *
  * @author sjh
+ * @author jdalton
  */
 public class QuerySetResults {
 
-  private Map<String, QueryResults> querySetResults;
+  private Map<String, QueryResults> querySetResults = new TreeMap<String, QueryResults>();
 
   public QuerySetResults(Map<String, ScoredDocument[]> results) {
-    this.querySetResults = new HashMap();
     for (String query : results.keySet()) {
       List<ScoredDocument> rankedList = Arrays.asList(results.get(query));
       Collections.sort(rankedList, new RankComparator());
-      this.querySetResults.put(query, new QueryResults(query, rankedList));
+      querySetResults.put(query, new QueryResults(query, rankedList));
     }
   }
 
   public QuerySetResults(String filename) throws IOException {
-    this.querySetResults = loadRanking(filename);
+    loadRanking(filename);
   }
 
   public Iterable<String> getQueryIterator() {
@@ -52,13 +54,13 @@ public class QuerySetResults {
    * Reads in a TREC ranking file.
    *
    * @param filename The filename of the ranking file.
-   * @return A map from query numbers to document ranking lists.
+   * @return
    */
-  public TreeMap<String, QueryResults> loadRanking(String filename) throws IOException {
+  public void loadRanking(String filename) throws IOException {
     // open file
     BufferedReader in = new BufferedReader(new FileReader(filename), 256 * 1024);
     String line = null;
-    TreeMap<String, List<ScoredDocument>> ranking = new TreeMap();
+    TreeMap<String, List<ScoredDocument>> ranking = new TreeMap<String, List<ScoredDocument>>();
 
     while ((line = in.readLine()) != null) {
       int[] splits = splits(line, 6);
@@ -81,20 +83,32 @@ public class QuerySetResults {
     }
 
     // ensure sorted order 
-    TreeMap<String, QueryResults> output = new TreeMap();
     for (String query : ranking.keySet()) {
       List<ScoredDocument> documents = ranking.get(query);
       Collections.sort(documents, new RankComparator());
-      output.put(query, new QueryResults(query, documents));
+      querySetResults.put(query, new QueryResults(query, documents));
     }
 
     in.close();
-    return output;
   }
 
   /**
-   * Finds characters to split a line 
-   *  of a ranking file or a judgment file
+   * Given a list of queries this function ensures that all queries exist in the
+   * query set - avoids problems where no documents are returned
+   */
+  public void ensureQuerySet(List<Parameters> queries) {
+    for (Parameters query : queries) {
+      if (query.isString("number")) {
+        String num = query.getString("number");
+        if (!querySetResults.containsKey(num)) {
+          querySetResults.put(num, new QueryResults(num, new ArrayList()));
+        }
+      }
+    }
+  }
+
+  /**
+   * Finds characters to split a line of a ranking file or a judgment file
    */
   private int[] splits(String s, int columns) {
     int[] result = new int[2 * columns];

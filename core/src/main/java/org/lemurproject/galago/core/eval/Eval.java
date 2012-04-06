@@ -3,10 +3,16 @@ package org.lemurproject.galago.core.eval;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluator;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluatorFactory;
 import org.lemurproject.galago.core.eval.compare.QuerySetComparator;
 import org.lemurproject.galago.core.eval.compare.QuerySetComparatorFactory;
+import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.tools.App.AppFunction;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Parameters.Type;
@@ -16,7 +22,7 @@ import org.lemurproject.galago.tupleflow.Parameters.Type;
  * Evaluates query results using a set of standard TREC metrics
  * 
  * 
- * @author trevor, sjh
+ * @author trevor, sjh, jdalton
  */
 public class Eval extends AppFunction {
   
@@ -84,20 +90,34 @@ public class Eval extends AppFunction {
     assert (p.isString("judgments")) : "eval requires 'judgments' parameter.";
     assert (p.isString("baseline")) : "eval requires 'baseline' parameter.";
     assert (!p.containsKey("treatment") || p.isString("treatment")) : "eval parameter 'treatment' must be a string.";
+    assert (!p.containsKey("queries") || p.isList("queries", Type.MAP)) : "eval parameter 'queries' must be a list.";
     assert (!p.containsKey("summary") || p.isBoolean("summary")) : "eval parameter 'summary' must be a boolean.";
     assert (!p.containsKey("details") || p.isBoolean("details")) : "eval parameter 'details' must be a boolean.";
     assert (!p.containsKey("metrics") || p.isList("metrics", Type.STRING)) : "eval parameter 'metrics' must be a list of strings.";
     assert (p.get("summary", true) || p.get("details", false)) : "eval requires either 'summary' or 'details' to be set true.";
     assert (!p.containsKey("comparisons") || p.isList("comparisons", Type.STRING)) : "eval parameter 'comparisons' must be a list of strings.";
     
+    
+    QuerySetResults baseline = new QuerySetResults(p.getString("baseline"));
+    QuerySetJudgments judgments = new QuerySetJudgments(p.getString("judgments"));    
+
+    // this ensure that queries that return no documents are represented in the ranking
+    if (p.isList("queries", Type.MAP)) {
+      List<Parameters> queries = (List<Parameters>) p.getList("queries");
+      baseline.ensureQuerySet(queries);
+    }
+    
     if (!p.containsKey("treatment")) {
-      QuerySetResults results = new QuerySetResults(p.getString("baseline"));
-      QuerySetJudgments judgments = new QuerySetJudgments(p.getString("judgments"));
-      singleEvaluation(p, results, judgments, output);
+      singleEvaluation(p, baseline, judgments, output);
     } else {
-      QuerySetResults baseline = new QuerySetResults(p.getString("baseline"));
       QuerySetResults treatment = new QuerySetResults(p.getString("treatment"));
-      QuerySetJudgments judgments = new QuerySetJudgments(p.getString("judgments"));
+
+      // this ensure that queries that return no documents are represented in the ranking
+      if (p.isList("queries", Type.MAP)) {
+        List<Parameters> queries = (List<Parameters>) p.getList("queries");
+        treatment.ensureQuerySet(queries);
+      }
+
       comparisonEvaluation(p, baseline, treatment, judgments, output);
     }
   }
