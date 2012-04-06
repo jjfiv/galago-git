@@ -1,7 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -73,9 +75,9 @@ public class AppTest extends TestCase {
       assertTrue(new File(corpusFile2, "split.keys").exists());
       assertTrue(new File(corpusFile2, "0").exists());
 
-      assertTrue( SplitBTreeReader.isBTree(new File(corpusFile2, "split.keys")) );
-      assertFalse( SplitBTreeReader.isBTree(new File(corpusFile2, "0")) );
-      
+      assertTrue(SplitBTreeReader.isBTree(new File(corpusFile2, "split.keys")));
+      assertFalse(SplitBTreeReader.isBTree(new File(corpusFile2, "0")));
+
       // now, try to build an index from that
       indexFile1 = Utility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + indexFile1.getAbsolutePath(),
@@ -108,8 +110,7 @@ public class AppTest extends TestCase {
       }
     }
   }
-}
-  /*
+
   public void testSimplePipeline() throws Exception {
     File relsFile = null;
     File queryFile1 = null;
@@ -230,9 +231,9 @@ public class AppTest extends TestCase {
       Utility.copyStringToFile("9 Q0 55 1\n", relsFile);
 
       // for now this is just a smoke test.
-      new App().run(new String[]{"eval", 
-        "--baseline="+scoresFile.getAbsolutePath(), 
-        "--judgments="+relsFile.getAbsolutePath()}, 
+      new App().run(new String[]{"eval",
+                "--baseline=" + scoresFile.getAbsolutePath(),
+                "--judgments=" + relsFile.getAbsolutePath()},
               printStream);
 
 
@@ -282,69 +283,4 @@ public class AppTest extends TestCase {
       }
     }
   }
-
-  public void testBuildFast() throws IOException, Exception {
-    File trecCorpusFile = null;
-    File indexFile = null;
-    File queryFile = null;
-
-    try {
-      String trecCorpus = trecDocument("55", "This is a sample document")
-              + trecDocument("59", "sample document two");
-      trecCorpusFile = Utility.createTemporary();
-      Utility.copyStringToFile(trecCorpus, trecCorpusFile);
-
-      indexFile = Utility.createTemporaryDirectory();
-      // now, try to build an index from that
-      App.main(new String[]{"build", "--indexPath=" + indexFile.getAbsolutePath(),
-                "--inputPath=" + trecCorpusFile.getAbsolutePath()});
-
-      // Checks path and components
-      verifyIndexStructures(indexFile);
-
-      // try to batch search that index with a no-match string
-      String queries = "{ \"queries\" : ["
-              + "{ \"number\" : \"5\", \"text\" : \"nothing\"},\n"
-              + "{ \"number\" : \"9\", \"text\" : \"sample\"},\n"
-              + "{ \"number\" : \"10\", \"text\" : \"nothing sample\"},\n"
-              + "{ \"number\" : \"14\", \"text\" : \"#combine(#1(this is) sample)\"}\n"
-              + "]}";
-
-      queryFile = Utility.createTemporary();
-      Utility.copyStringToFile(queries, queryFile);
-
-      // Smoke test with batch search
-      ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
-      PrintStream printStream = new PrintStream(byteArrayStream);
-
-      new App().run(new String[]{"batch-search",
-                "--index=" + indexFile.getAbsolutePath(),
-                queryFile.getAbsolutePath()}, printStream);
-
-      // Now, verify that some stuff exists
-      String output = byteArrayStream.toString();
-      String expectedScores =
-              "9 Q0 59 1 -1.38562925 galago\n"
-              + "9 Q0 55 2 -1.38695903 galago\n"
-              + "10 Q0 59 1 -2.08010799 galago\n"
-              + "10 Q0 55 2 -2.08143777 galago\n"
-              + "14 Q0 55 1 -1.73220460 galago\n"
-              + "14 Q0 59 2 -1.73353440 galago\n";
-
-      assertEquals(expectedScores, output);
-
-    } finally {
-      if (trecCorpusFile != null) {
-        trecCorpusFile.delete();
-      }
-      if (queryFile != null) {
-        queryFile.delete();
-      }
-      if (indexFile != null) {
-        Utility.deleteDirectory(indexFile);
-      }
-    }
-  }
 }
-
- */
