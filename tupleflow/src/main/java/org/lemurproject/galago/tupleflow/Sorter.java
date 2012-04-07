@@ -87,8 +87,8 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   private ArrayList<T> objects;
   private ArrayList<List<T>> runs;
   private ArrayList<File> temporaryFiles;
-  // flush thread - this variable is only used when pauseToFlush = true;
-  private Thread flushThread = null;
+  // force flush - this variable is only used when pauseToFlush = true;
+  private volatile boolean forceFlush;
   // statistics + logging
   private long runsCount = 0;
   private Counter filesWritten = null;
@@ -159,6 +159,8 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     this.reduceInterval = localParameters.get("reduce-interval", globalParameters.get("reduce-interval", Sorter.DEFAULT_REDUCE_INTERVAL));
     this.memoryFraction = localParameters.get("mem-fraction", globalParameters.get("mem-fraction", Sorter.DEFAULT_MEMORY_FRACTION));
     this.pauseToFlush = localParameters.get("flush-pause", globalParameters.get("flush-pause", Sorter.DEFAULT_FLUSH_PAUSE));
+
+    this.forceFlush = false;
   }
 
   public void requestMemoryWarnings() {
@@ -204,13 +206,6 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     if (notification.getType().equals(MemoryNotificationInfo.MEMORY_THRESHOLD_EXCEEDED)) {
       final Sorter f = this;
 
-      //if (this.pauseToFlush) {
-      //  // this check should never be true
-      //  if (flushThread != null && flushThread.isAlive()) {
-      //    return;
-      //  }
-      // }
-        
       // if there's nothing we can do at the moment; return.
       if (size() == 0) {
         return;
@@ -221,6 +216,12 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
         minFlushSize = size();
       }
 
+      if (this.pauseToFlush) {
+        // this check should never be true
+        this.forceFlush = true;
+        return;
+      }
+              
       Thread t = new Thread() {
 
         @Override
@@ -232,15 +233,6 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
           }
         }
       };
-
-      //if (this.pauseToFlush) {
-      //  // this check should never be true
-      //  if (flushThread != null && flushThread.isAlive()) {
-      //    pause();
-      //  }
-      //  
-      //  flushThread = t;
-      //}
 
       t.start();
     }
@@ -284,14 +276,14 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   }
 
   public boolean needsReduce() {
-    if (needsFlush()) {
+    if (needsFlush() || this.forceFlush) {
       return true;
     }
     return objects.size() > reduceInterval;
   }
 
   public boolean needsFlush() {
-    return size() > limit;
+    return size() > limit || this.forceFlush;
   }
 
   public synchronized void flushIfNecessary() throws IOException {
@@ -302,24 +294,11 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
         flush();
       }
     }
-  }
-
-  private void pause() {
-    if (flushThread != null && flushThread.isAlive()) {
-      try {
-        flushThread.join();
-      } catch (InterruptedException ex) {
-        Logger.getLogger(Sorter.class.getName()).log(Level.SEVERE, null, ex);
-      }
-    }
+    this.forceFlush = false;
   }
 
   @Override
   public synchronized void process(T object) throws IOException {
-      // if (this.pauseToFlush && flushThread != null && flushThread.isAlive()) {
-      //   pause();
-      // } 
-
     objects.add(object);
     flushIfNecessary();
   }
