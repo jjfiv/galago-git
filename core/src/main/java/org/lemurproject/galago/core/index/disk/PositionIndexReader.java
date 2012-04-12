@@ -252,6 +252,9 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     // If we have skips - it's go time
     @Override
     public void moveTo(int document) throws IOException {
+      if (skips != null) {
+        synchronizeSkipPositions();
+      }
       if (skips != null && document > nextSkipDocument) {
 
         // if we're here, we're skipping
@@ -294,6 +297,17 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       }
       skipsRead++;
       lastSkipPosition = currentSkipPosition;
+    }
+
+    // This makes sure the skip list pointers are still ahead of the current document.
+    // If we called "next" a lot, these may be out of sync.
+    //
+    private void synchronizeSkipPositions() throws IOException {
+      while (nextSkipDocument <= currentDocument) {
+        int cd = currentDocument;
+        skipOnce();
+        currentDocument = cd;
+      }
     }
 
     private void repositionMainStreams() throws IOException {
@@ -537,6 +551,9 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     // If we have skips - it's go time
     @Override
     public void moveTo(int document) throws IOException {
+      if (skips != null) {
+        synchronizeSkipPositions();
+      }
       if (skips != null && document > nextSkipDocument) {
         // if we're here, we're skipping
         while (skipsRead < numSkips
@@ -578,6 +595,17 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       }
       skipsRead++;
       lastSkipPosition = currentSkipPosition;
+    }
+
+    // This makes sure the skip list pointers are still ahead of the current document.
+    // If we called "next" a lot, these may be out of sync.
+    //
+    private void synchronizeSkipPositions() throws IOException {
+      while (nextSkipDocument <= currentDocument) {
+        int cd = currentDocument;
+        skipOnce();
+        currentDocument = cd;
+      }
     }
 
     private void repositionMainStreams() throws IOException {

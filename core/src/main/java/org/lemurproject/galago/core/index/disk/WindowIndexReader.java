@@ -24,15 +24,15 @@ import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
 /**
- * Reads a simple positions-based index, where each inverted list in the
- * index contains both term count information and term position information.
- * The term counts data is stored separately from term position information for
- * faster query processing when no positions are needed.
+ * Reads a simple positions-based index, where each inverted list in the index
+ * contains both term count information and term position information. The term
+ * counts data is stored separately from term position information for faster
+ * query processing when no positions are needed.
  *
  * (12/16/2010, irmarc): In order to facilitate faster count-only processing,
- *                        the default iterator created will not even open the
- *                        positions list when iterating. This is an interesting
- *                        enough change that there are now two versions of the iterator
+ * the default iterator created will not even open the positions list when
+ * iterating. This is an interesting enough change that there are now two
+ * versions of the iterator
  *
  * @author trevor, irmarc
  */
@@ -258,6 +258,9 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     // If we have skips - it's go time
     @Override
     public void moveTo(int document) throws IOException {
+      if (skips != null) {
+        synchronizeSkipPositions();
+      }
       if (skips != null && document > nextSkipDocument) {
 
         // if we're here, we're skipping
@@ -300,6 +303,17 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       }
       skipsRead++;
       lastSkipPosition = currentSkipPosition;
+    }
+
+    // This makes sure the skip list pointers are still ahead of the current document.
+    // If we called "next" a lot, these may be out of sync.
+    //
+    private void synchronizeSkipPositions() throws IOException {
+      while (nextSkipDocument <= currentDocument) {
+        int cd = currentDocument;
+        skipOnce();
+        currentDocument = cd;
+      }
     }
 
     private void repositionMainStreams() throws IOException {
@@ -375,8 +389,9 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
   }
 
   /**
-   * This iterator simply ignores the positions information - faster b/c when incrementing or loading or skipping,
-   * we don't have to bookkeep the positions buffer. Overall smaller footprint and faster execution.
+   * This iterator simply ignores the positions information - faster b/c when
+   * incrementing or loading or skipping, we don't have to bookkeep the
+   * positions buffer. Overall smaller footprint and faster execution.
    *
    */
   public class TermCountIterator extends KeyListReader.ListIterator
@@ -536,6 +551,9 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     // If we have skips - it's go time
     @Override
     public void moveTo(int document) throws IOException {
+      if (skips != null) {
+        synchronizeSkipPositions();
+      }
       if (skips != null && document > nextSkipDocument) {
         // if we're here, we're skipping
         while (skipsRead < numSkips
@@ -546,7 +564,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       }
 
       // linear from here
-      while (!isDone() && document > currentDocument){
+      while (!isDone() && document > currentDocument) {
         next();
       }
     }
@@ -577,6 +595,17 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       }
       skipsRead++;
       lastSkipPosition = currentSkipPosition;
+    }
+
+    // This makes sure the skip list pointers are still ahead of the current document.
+    // If we called "next" a lot, these may be out of sync.
+    //
+    private void synchronizeSkipPositions() throws IOException {
+      while (nextSkipDocument <= currentDocument) {
+        int cd = currentDocument;
+        skipOnce();
+        currentDocument = cd;
+      }
     }
 
     private void repositionMainStreams() throws IOException {
@@ -669,8 +698,8 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
   }
 
   /**
-   * Returns an iterator pointing at the specified term, or
-   * null if the term doesn't exist in the inverted file.
+   * Returns an iterator pointing at the specified term, or null if the term
+   * doesn't exist in the inverted file.
    */
   public TermExtentIterator getTermExtents(String term) throws IOException {
     term = stemAsRequired(term);

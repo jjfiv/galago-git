@@ -22,11 +22,11 @@ import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
 /**
- * Reads a count based index structure
- *  mapping( term -> list(document-id), list(document-freq) )
- * 
- *  Skip lists are supported
- * 
+ * Reads a count based index structure mapping( term -> list(document-id),
+ * list(document-freq) )
+ *
+ * Skip lists are supported
+ *
  * @author sjh
  */
 public class CountIndexReader extends KeyListReader implements AggregateReader {
@@ -66,7 +66,6 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     public String getKeyString() throws IOException {
       return Utility.toString(iterator.getKey());
     }
-
   }
 
   public class TermCountIterator extends KeyListReader.ListIterator
@@ -221,19 +220,21 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     // If we have skips - it's go time
     @Override
     public void moveTo(int document) throws IOException {
-      /*
+      if (skips != null) {
+        synchronizeSkipPositions();
+      }
       if (skips != null && document > nextSkipDocument) {
-      // if we're here, we're skipping
-      while (skipsRead < numSkips
-      && document > nextSkipDocument) {
-      skipOnce();
+        // if we're here, we're skipping
+        while (skipsRead < numSkips
+                && document > nextSkipDocument) {
+          skipOnce();
+        }
+        repositionMainStreams();
       }
-      repositionMainStreams();
-      }
-       */
+
 
       // linear from here
-      while (!isDone() && document > currentDocument){
+      while (!isDone() && document > currentDocument) {
         next();
       }
     }
@@ -265,6 +266,17 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
       lastSkipPosition = currentSkipPosition;
     }
 
+    // This makes sure the skip list pointers are still ahead of the current document.
+    // If we called "next" a lot, these may be out of sync.
+    //
+    private void synchronizeSkipPositions() throws IOException {
+      while (nextSkipDocument <= currentDocument) {
+        int cd = currentDocument;
+        skipOnce();
+        currentDocument = cd;
+      }
+    }
+
     private void repositionMainStreams() throws IOException {
       // If we just reset the floors, don't read the 2nd tier again
       if ((skipsRead - 1) % skipResetDistance == 0) {
@@ -290,7 +302,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     }
 
     @Override
-    public boolean hasAllCandidates(){
+    public boolean hasAllCandidates() {
       return false;
     }
 
@@ -348,8 +360,8 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
   }
 
   /**
-   * Returns an iterator pointing at the specified term, or
-   * null if the term doesn't exist in the inverted file.
+   * Returns an iterator pointing at the specified term, or null if the term
+   * doesn't exist in the inverted file.
    */
   public TermCountIterator getTermCounts(byte[] key) throws IOException {
     BTreeReader.BTreeIterator iterator = reader.getIterator(key);
