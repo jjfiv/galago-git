@@ -181,8 +181,13 @@ public class DiskIndex implements Index {
     return (index + File.separator + part);
   }
 
+  @Override
   public IndexPartReader getIndexPart(String part) throws IOException {
-    return openIndexPart(location + File.separator + part);
+    if(parts.containsKey(part)){
+      return parts.get(part);
+    } else {
+      return null;
+    }
   }
 
   /**

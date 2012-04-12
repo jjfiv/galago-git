@@ -36,6 +36,7 @@ public class GridSearchLearner extends Learner {
       // depth first grid search
       Parameters settings = new Parameters();
       gridLearn(params.remove(0), params, settings);
+      logger.info("Best settings: " + settings.toString());
       return settings;
     } else {
       return new Parameters();
@@ -63,6 +64,7 @@ public class GridSearchLearner extends Learner {
       if (score > bestScore) {
         bestScore = score;
         bestParamValue = paramValue;
+        logger.info(String.format("Found better param value: %s = %f ; score = %f\nSettings: %s", param, paramValue, score, settings));
       }
       // move to the next grid 
       paramValue += step;

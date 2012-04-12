@@ -16,9 +16,14 @@ import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- * When performing distributed retrieval it is necessary to collect
- * correct collection statistics.
- *
+ * Class collects collections statistics:
+ *  - collectionLength : number of terms in index part / collection
+ *  - documentCount : number of documents in index part / collection
+ *  - vocabCount : number of unique terms in index part
+ *  - nodeFrequency : number of matching instances of node in index part / collection
+ *  - nodeDocumentCount : number of matching documents for node in index part / collection
+ *  - collectionProbability : nodeFrequency / collectionLength
+ * 
  * @author sjh
  */
 public class AnnotateCollectionStatistics extends Traversal {

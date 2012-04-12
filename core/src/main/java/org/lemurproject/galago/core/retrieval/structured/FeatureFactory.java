@@ -338,7 +338,8 @@ public class FeatureFactory {
       int childIdx = 0;
       while (formals.size() > 0) {
         if (formals.get(0) == Parameters.class) {
-          // dealing w/ immutable parameters  -- front only
+          // dealing w/ globale parameters  -- front only
+          // - sjh - deprecated - use @RequiredParameters(parameters = {"paramName"})
           if (arguments.isEmpty()) {
             arguments.add(this.parameters);
           } else {
