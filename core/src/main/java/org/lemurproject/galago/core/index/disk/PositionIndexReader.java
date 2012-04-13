@@ -583,7 +583,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
         // now set the floor values
         documentsByteFloor = skipPositions.readInt();
         countsByteFloor = skipPositions.readInt();
-        skipPositions.readLong(); // throw away, but we have to move it forward
       }
       currentDocument = (int) nextSkipDocument;
 

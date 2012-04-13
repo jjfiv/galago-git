@@ -586,8 +586,6 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
         // now set the floor values
         documentsByteFloor = skipPositions.readInt();
         countsByteFloor = skipPositions.readInt();
-        skipPositions.readLong(); // begins - throw away, but we have to move it forward
-        skipPositions.readLong(); // ends - throw away, but we have to move it forward
       }
       currentDocument = (int) nextSkipDocument;
 
