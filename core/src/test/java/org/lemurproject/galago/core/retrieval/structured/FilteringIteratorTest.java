@@ -39,29 +39,37 @@ public class FilteringIteratorTest extends TestCase {
   }
 
   public void testFilteredXCountOperator() throws Exception {
-    // Run an Xcount over this particular query
+    File queryFile1 = null;
+    try {
+      // Run an Xcount over this particular query
 
-    // try to batch search that index with a no-match string
-    String q = "#require( #between( date 1/1/1900 1/1/2020 ) a )";
-    String queries ="{ \"x\" : [\""+q+"\"]}";
+      // try to batch search that index with a no-match string
+      String q = "#require( #between( date 1/1/1900 1/1/2020 ) a )";
+      String queries = "{ \"x\" : [\"" + q + "\"]}";
 
-    File queryFile1 = Utility.createTemporary();
-    Utility.copyStringToFile(queries, queryFile1);
+      queryFile1 = Utility.createTemporary();
+      Utility.copyStringToFile(queries, queryFile1);
 
 
-    // Smoke test with batch search
-    ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
-    PrintStream printStream = new PrintStream(byteArrayStream);
+      // Smoke test with batch search
+      ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
+      PrintStream printStream = new PrintStream(byteArrayStream);
 
-    new App().run(new String[]{"xcount",
-              "--index=" + tempPath.getAbsolutePath(),
-              queryFile1.getAbsolutePath()}, printStream);
+      new App().run(new String[]{"xcount",
+                "--index=" + tempPath.getAbsolutePath(),
+                queryFile1.getAbsolutePath()}, printStream);
 
-    // Now, verify that we got the right count
-    String output = byteArrayStream.toString().trim();
-    String expected = "4\t" + q;
+      // Now, verify that we got the right count
+      String output = byteArrayStream.toString().trim();
+      String expected = "4\t" + q;
 
-    assertEquals(expected, output);
+      assertEquals(expected, output);
+
+    } finally {
+      if (queryFile1 != null) {
+        queryFile1.delete();
+      }
+    }
   }
 
   public void testRequireOperator() throws Exception {
