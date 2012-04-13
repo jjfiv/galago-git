@@ -553,14 +553,14 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     public void moveTo(int document) throws IOException {
       if (skips != null) {
         synchronizeSkipPositions();
-      }
-      if (skips != null && document > nextSkipDocument) {
-        // if we're here, we're skipping
-        while (skipsRead < numSkips
-                && document > nextSkipDocument) {
-          skipOnce();
+        if (document > nextSkipDocument) {
+          // if we're here, we're skipping
+          while (skipsRead < numSkips
+                  && document > nextSkipDocument) {
+            skipOnce();
+          }
+          repositionMainStreams();
         }
-        repositionMainStreams();
       }
 
       // linear from here

@@ -107,7 +107,8 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     long lastSkipPosition;
     long documentsByteFloor;
     long countsByteFloor;
-    long windowsByteFloor;
+    long beginsByteFloor;
+    long endsByteFloor;
 
     public TermExtentIterator(BTreeReader.BTreeIterator iterator) throws IOException {
       super(iterator.getKey());
@@ -186,7 +187,8 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
         nextSkipDocument = skips.readInt();
         documentsByteFloor = 0;
         countsByteFloor = 0;
-        windowsByteFloor = 0;
+        beginsByteFloor = 0;
+        endsByteFloor = 0;
       } else {
         assert endsEnd == endPosition - startPosition;
         skips = null;
@@ -291,7 +293,8 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
         // now set the floor values
         documentsByteFloor = skipPositions.readInt();
         countsByteFloor = skipPositions.readInt();
-        windowsByteFloor = skipPositions.readLong();
+        beginsByteFloor = skipPositions.readLong();
+        endsByteFloor = skipPositions.readLong();
       }
       currentDocument = (int) nextSkipDocument;
 
@@ -321,14 +324,14 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       if ((skipsRead - 1) % skipResetDistance == 0) {
         documentsStream.seek(documentsByteFloor);
         countsStream.seek(countsByteFloor);
-        beginsStream.seek(windowsByteFloor);
-        endsStream.seek(windowsByteFloor);
+        beginsStream.seek(beginsByteFloor);
+        endsStream.seek(endsByteFloor);
       } else {
         skipPositionsStream.seek(lastSkipPosition);
         documentsStream.seek(documentsByteFloor + skipPositions.readInt());
         countsStream.seek(countsByteFloor + skipPositions.readInt());
-        beginsStream.seek(windowsByteFloor + skipPositions.readLong());
-        endsStream.seek(windowsByteFloor + skipPositions.readLong());
+        beginsStream.seek(beginsByteFloor + skipPositions.readLong());
+        endsStream.seek(endsByteFloor + skipPositions.readLong());
       }
       documentIndex = (int) (skipDistance * skipsRead) - 1;
     }
@@ -553,14 +556,14 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     public void moveTo(int document) throws IOException {
       if (skips != null) {
         synchronizeSkipPositions();
-      }
-      if (skips != null && document > nextSkipDocument) {
-        // if we're here, we're skipping
-        while (skipsRead < numSkips
-                && document > nextSkipDocument) {
-          skipOnce();
+        if (document > nextSkipDocument) {
+          // if we're here, we're skipping
+          while (skipsRead < numSkips
+                  && document > nextSkipDocument) {
+            skipOnce();
+          }
+          repositionMainStreams();
         }
-        repositionMainStreams();
       }
 
       // linear from here
@@ -583,7 +586,8 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
         // now set the floor values
         documentsByteFloor = skipPositions.readInt();
         countsByteFloor = skipPositions.readInt();
-        skipPositions.readLong(); // throw away, but we have to move it forward
+        skipPositions.readLong(); // begins - throw away, but we have to move it forward
+        skipPositions.readLong(); // ends - throw away, but we have to move it forward
       }
       currentDocument = (int) nextSkipDocument;
 

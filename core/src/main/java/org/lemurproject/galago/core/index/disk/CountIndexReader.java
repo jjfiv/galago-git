@@ -222,14 +222,14 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
     public void moveTo(int document) throws IOException {
       if (skips != null) {
         synchronizeSkipPositions();
-      }
-      if (skips != null && document > nextSkipDocument) {
-        // if we're here, we're skipping
-        while (skipsRead < numSkips
-                && document > nextSkipDocument) {
-          skipOnce();
+        if (document > nextSkipDocument) {
+          // if we're here, we're skipping
+          while (skipsRead < numSkips
+                  && document > nextSkipDocument) {
+            skipOnce();
+          }
+          repositionMainStreams();
         }
-        repositionMainStreams();
       }
 
 

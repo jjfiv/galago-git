@@ -158,7 +158,8 @@ public class WindowIndexWriter implements
         this.lastDocumentSkipped = 0;
         this.lastDocumentSkip = 0;
         this.lastCountSkip = 0;
-        this.lastPositionSkip = 0;
+        this.lastBeginSkip = 0;
+        this.lastEndSkip = 0;
         this.numSkips = 0;
       }
 
@@ -210,13 +211,14 @@ public class WindowIndexWriter implements
           skipPositions.add(ends.length());
           lastDocumentSkip = documents.length();
           lastCountSkip = counts.length();
-          lastPositionSkip = begins.length();
+          lastBeginSkip = begins.length();
+          lastEndSkip = ends.length();
         } else {
           // d-gap skip
           skipPositions.add(documents.length() - lastDocumentSkip);
           skipPositions.add(counts.length() - lastCountSkip);
-          skipPositions.add((long) (begins.length() - lastPositionSkip));
-          skipPositions.add((long) (ends.length() - lastPositionSkip));
+          skipPositions.add((long) (begins.length() - lastBeginSkip));
+          skipPositions.add((long) (ends.length() - lastEndSkip));
         }
         numSkips++;
       }
@@ -238,7 +240,8 @@ public class WindowIndexWriter implements
     private long lastSkipPosition;
     private long lastDocumentSkip;
     private long lastCountSkip;
-    private long lastPositionSkip;
+    private long lastBeginSkip;
+    private long lastEndSkip;
     private long numSkips;
     private long lastCount;
     private int docsSinceLastSkip;
