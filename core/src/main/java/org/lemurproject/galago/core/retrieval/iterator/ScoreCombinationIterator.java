@@ -2,15 +2,16 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
  * @author trevor, sjh, irmarc
  */
+@RequiredParameters(parameters = {"norm"})
 public class ScoreCombinationIterator extends DisjunctionIterator implements MovableScoreIterator {
 
   protected double[] weights;
@@ -18,7 +19,7 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Mov
   protected boolean done;
   protected boolean printing;
 
-  public ScoreCombinationIterator(Parameters globalParams, NodeParameters parameters,
+  public ScoreCombinationIterator(NodeParameters parameters,
           MovableScoreIterator[] childIterators) {
     super(childIterators);
 
@@ -34,7 +35,7 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Mov
     printing = parameters.get("print", false);
 
     // if weights are to be normalized:
-    if (parameters.get("norm", globalParams.get("norm", true))) {
+    if (parameters.get("norm", true)) {
       for (int i = 0; i < weights.length; i++) {
         weights[i] = weights[i] / weightSum;
       }

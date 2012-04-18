@@ -36,36 +36,50 @@ public class AnnotateParameters extends Traversal {
 
   }
 
+  @Override
   public void beforeNode(Node node) {
   }
 
+  @Override
   public Node afterNode(Node node) throws Exception {
     // need to get list of required statistics
     RequiredParameters required = null;
-    Class<? extends StructuredIterator> c = retrieval.getNodeType(node).getIteratorClass();
-    required = c.getAnnotation(RequiredParameters.class);
+    Class c = retrieval.getNodeType(node).getIteratorClass();
 
-    // then annotate the node with any of:
-    // -- nodeFreq, nodeDocCount, collLen, docCount, collProb
-    if (required != null) {
-      for (String p : required.parameters()) {
-        if (!node.getNodeParameters().containsKey(p)) {
-          if (queryParameters.isBoolean(p) || globalParameters.isBoolean(p)) {
-            node.getNodeParameters().set(p, queryParameters.get(p, globalParameters.getBoolean(p)));
-          } else if (queryParameters.isDouble(p) || globalParameters.isDouble(p)) {
-            node.getNodeParameters().set(p, queryParameters.get(p, globalParameters.getDouble(p)));
-          } else if (queryParameters.isLong(p) || globalParameters.isLong(p)) {
-            node.getNodeParameters().set(p, queryParameters.get(p, globalParameters.getLong(p)));
-          } else if (queryParameters.isString(p) || globalParameters.isString(p)) {
-            node.getNodeParameters().set(p, queryParameters.get(p, globalParameters.getString(p)));
+    // need to cascade down super classes to find sub-annotations.
+    while (c != null && StructuredIterator.class.isAssignableFrom(c)) {
+      Class<? extends StructuredIterator> d = c;
+      required = d.getAnnotation(RequiredParameters.class);
+
+      // then annotate the node with any of:
+      // -- nodeFreq, nodeDocCount, collLen, docCount, collProb
+      if (required != null) {
+        for (String p : required.parameters()) {
+          if (!node.getNodeParameters().containsKey(p)
+                  && (queryParameters.containsKey(p) || globalParameters.containsKey(p))) {
+            if (queryParameters.isBoolean(p) || globalParameters.isBoolean(p)) {
+              node.getNodeParameters().set(p, queryParameters.get(p, globalParameters.getBoolean(p)));
+            } else if (queryParameters.isDouble(p) || globalParameters.isDouble(p)) {
+              node.getNodeParameters().set(p, queryParameters.get(p, globalParameters.getDouble(p)));
+            } else if (queryParameters.isLong(p) || globalParameters.isLong(p)) {
+              node.getNodeParameters().set(p, queryParameters.get(p, globalParameters.getLong(p)));
+            } else if (queryParameters.isString(p) || globalParameters.isString(p)) {
+              node.getNodeParameters().set(p, queryParameters.get(p, globalParameters.getString(p)));
+            } else {
+              throw new RuntimeException("Parameter " + p + " was specified for this query or globally"
+                      + "\nbut it could not be annotated into node: " + node.toString()
+                      + "\nPlease ensure the parameter is specified as a simple type : {String,boolean,long,double} "
+                      + "in the query parameters or global parameters.");
+            }
+            // debugging code.
           } else {
-            throw new RuntimeException("Parameter " + p + " could not be annotated into node: " + node.toString() + "\nPlease ensure the parameter is specified in the query parameters or global parameters.");
+            Logger.getLogger(this.getClass().getName()).info("Parameter " + p + " not found - using default value.");
           }
-          // debugging code.
-          // } else {
-          // Logger.getLogger(this.getClass().getName()).info("Parameter " +p+ " not found - using default value.");
         }
       }
+
+      // recurse up to the next superclass
+      c = c.getSuperclass();
     }
     return node;
   }

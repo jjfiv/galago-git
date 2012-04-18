@@ -46,25 +46,8 @@ import org.lemurproject.galago.core.retrieval.iterator.ThresholdIterator;
 import org.lemurproject.galago.core.retrieval.iterator.UniversalIndicatorIterator;
 import org.lemurproject.galago.core.retrieval.iterator.UnorderedWindowIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.retrieval.traversal.BM25RelevanceFeedbackTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.AnnotateCollectionStatistics;
-import org.lemurproject.galago.core.retrieval.traversal.BM25FTraversal;
+import org.lemurproject.galago.core.retrieval.traversal.*;
 import org.lemurproject.galago.core.retrieval.traversal.optimize.FlattenWindowTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.FullDependenceTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.ImplicitFeatureCastTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.IndriWeightConversionTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.IndriWindowCompatibilityTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.InsideToFieldPartTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.PL2FTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.PRMS2Traversal;
-import org.lemurproject.galago.core.retrieval.traversal.PRMSTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.RelevanceModelTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.RemoveStopwordsTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.SequentialDependenceTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.TextFieldRewriteTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.TransformRootTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.WeightedDependenceTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.WindowRewriteTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.optimize.FlattenCombineTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.optimize.MergeCombineChildrenTraversal;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -104,9 +87,9 @@ public class FeatureFactory {
     {PassageFilterIterator.class.getName(), "passagefilter"}
   };
   static String[][] sFeatureLookup = {
-    {DirichletProbabilityScoringIterator.class.getName(), "dirichlet-raw"},
-    {JelinekMercerProbabilityScoringIterator.class.getName(), "linear-raw"},
-    {JelinekMercerProbabilityScoringIterator.class.getName(), "jm-raw"},
+    {DirichletProbabilityScoringIterator.class.getName(), "dirichlet-raw"}, // this should go away
+    {JelinekMercerProbabilityScoringIterator.class.getName(), "linear-raw"}, // this should go away
+    {JelinekMercerProbabilityScoringIterator.class.getName(), "jm-raw"}, // this should go away
     {DirichletScoringIterator.class.getName(), "dirichlet"},
     {JelinekMercerScoringIterator.class.getName(), "linear"},
     {JelinekMercerScoringIterator.class.getName(), "jm"},
@@ -140,6 +123,7 @@ public class FeatureFactory {
     MergeCombineChildrenTraversal.class.getName(),
     RelevanceModelTraversal.class.getName(),
     BM25RelevanceFeedbackTraversal.class.getName(),
+    AnnotateParameters.class.getName(),
     AnnotateCollectionStatistics.class.getName()
   };
 
@@ -299,14 +283,14 @@ public class FeatureFactory {
   }
 
   /**
-   * Given a query node, generates the corresponding iterator object that can be used
-   * for structured retrieval.  This method just calls getClass() on the node,
-   * then instantiates the resulting class.
+   * Given a query node, generates the corresponding iterator object that can be
+   * used for structured retrieval. This method just calls getClass() on the
+   * node, then instantiates the resulting class.
    *
-   * If the class returned by getClass() is a ScoringFunction, it must contain
-   * a constructor that takes a single Parameters object.  If the class returned by
-   * getFeatureClass() is some kind of StructuredIterator,
-   * it must take a Parameters object and an ArrayList of DocumentDataIterators as parameters.
+   * If the class returned by getClass() is a ScoringFunction, it must contain a
+   * constructor that takes a single Parameters object. If the class returned by
+   * getFeatureClass() is some kind of StructuredIterator, it must take a
+   * Parameters object and an ArrayList of DocumentDataIterators as parameters.
    */
   public StructuredIterator getIterator(Node node, ArrayList<StructuredIterator> childIterators) throws Exception {
     NodeType type = getNodeType(node);
@@ -337,10 +321,10 @@ public class FeatureFactory {
       formals.addAll(Arrays.asList(constructor.getParameterTypes()));
       int childIdx = 0;
       while (formals.size() > 0) {
+        // - sjh - deprecated - use @RequiredParameters(parameters = {"paramName"})
         if (formals.get(0) == Parameters.class) {
-          // dealing w/ globale parameters  -- front only
-          // - sjh - deprecated - use @RequiredParameters(parameters = {"paramName"})
-          if (arguments.isEmpty()) {
+         // dealing w/ global parameters  -- front only
+         if (arguments.isEmpty()) {
             arguments.add(this.parameters);
           } else {
             fail = true;
@@ -417,21 +401,21 @@ public class FeatureFactory {
       Class<? extends Traversal> traversalClass =
               (Class<? extends Traversal>) Class.forName(spec.className);
       if (((Boolean) traversalClass.getMethod("isNeeded", Node.class).invoke(null, queryTree)).booleanValue()) {
-	  Constructor<? extends Traversal> constructor = (Constructor<? extends Traversal>) traversalClass.getConstructors()[0];
-	  Traversal traversal;
-	  switch (constructor.getParameterTypes().length) {
+        Constructor<? extends Traversal> constructor = (Constructor<? extends Traversal>) traversalClass.getConstructors()[0];
+        Traversal traversal;
+        switch (constructor.getParameterTypes().length) {
           case 0:
-	      traversal = constructor.newInstance();
-	      break;
+            traversal = constructor.newInstance();
+            break;
           case 1:
-	      traversal = constructor.newInstance(retrieval);
-	      break;
+            traversal = constructor.newInstance(retrieval);
+            break;
           case 2:
-	      traversal = constructor.newInstance(retrieval, queryParams);
-	      break;
+            traversal = constructor.newInstance(retrieval, queryParams);
+            break;
           default:
-	      throw new IllegalArgumentException("Traversals should not have more than 2 args.");
-	  }
+            throw new IllegalArgumentException("Traversals should not have more than 2 args.");
+        }
         result.add(traversal);
       }
     }

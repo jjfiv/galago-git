@@ -31,7 +31,7 @@ public class UnfilteredCombinationIteratorTest extends TestCase {
     FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
     FakeScoreIterator[] iterators = {one, two};
 
-    ScoreCombinationIterator instance = new ScoreCombinationIterator(new Parameters(), new NodeParameters(),
+    ScoreCombinationIterator instance = new ScoreCombinationIterator(new NodeParameters(),
             iterators);
 
     assertEquals(2, instance.currentCandidate());
@@ -47,7 +47,7 @@ public class UnfilteredCombinationIteratorTest extends TestCase {
     FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA);
     FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
     FakeScoreIterator[] iterators = {one, two};
-    ScoreCombinationIterator instance = new ScoreCombinationIterator(new Parameters(), new NodeParameters(),
+    ScoreCombinationIterator instance = new ScoreCombinationIterator(new NodeParameters(),
             iterators);
 
     assertFalse(instance.atCandidate(1));
@@ -60,7 +60,7 @@ public class UnfilteredCombinationIteratorTest extends TestCase {
     FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
     FakeScoreIterator[] iterators = {one, two};
 
-    ScoreCombinationIterator instance = new ScoreCombinationIterator(new Parameters(), new NodeParameters(),
+    ScoreCombinationIterator instance = new ScoreCombinationIterator(new NodeParameters(),
             iterators);
 
     ScoringContext context = new ScoringContext();
@@ -88,7 +88,7 @@ public class UnfilteredCombinationIteratorTest extends TestCase {
     FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
     FakeScoreIterator[] iterators = {one, two};
 
-    ScoreCombinationIterator instance = new ScoreCombinationIterator(new Parameters(), new NodeParameters(),
+    ScoreCombinationIterator instance = new ScoreCombinationIterator(new NodeParameters(),
             iterators);
 
     instance.movePast(5);
@@ -100,7 +100,7 @@ public class UnfilteredCombinationIteratorTest extends TestCase {
     FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
     FakeScoreIterator[] iterators = {one, two};
 
-    ScoreCombinationIterator instance = new ScoreCombinationIterator(new Parameters(), new NodeParameters(),
+    ScoreCombinationIterator instance = new ScoreCombinationIterator(new NodeParameters(),
             iterators);
 
     instance.moveTo(5);

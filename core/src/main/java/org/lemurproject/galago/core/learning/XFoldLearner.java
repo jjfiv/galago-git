@@ -17,6 +17,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class XFoldLearner extends Learner {
 
+  long folds;
   List<Learner> foldLearners;
   Map<Integer, List<Parameters>> queryFolds;
 
@@ -35,18 +36,31 @@ public class XFoldLearner extends Learner {
       List<Parameters> foldQueries = queriesCopy.subList(fid * foldSize, (fid + 1) * foldSize);
       Parameters copy = p.clone();
       copy.remove("query");
+      copy.remove("queries");
       copy.set("queries", foldQueries);
       queryFolds.put(fid, foldQueries);
       foldLearners.add(LearnerFactory.instance(copy, retrieval));
     }
+    
+    folds = p.getLong("xfolds");
   }
 
   @Override
   public Parameters learn(Parameters initialSettings) throws Exception {
     // for each fold return learnt parameters
-    return initialSettings;
+    List<Parameters> learntParams = new ArrayList();
+    Parameters avg = new Parameters();
+    for(Learner fl : foldLearners){
+      Parameters result = fl.learn(initialSettings);
+      learntParams.add(result);
+      for(String k : this.learnableParameters){
+        if(avg.containsKey(k)){
+          avg.set(k, result.getDouble(k) / folds);
+        } else {
+          avg.set(k, avg.getDouble(k) + (result.getDouble(k) / folds));
+        }
+      }
+    }
+    return avg;
   }
-
-
-  
 }
