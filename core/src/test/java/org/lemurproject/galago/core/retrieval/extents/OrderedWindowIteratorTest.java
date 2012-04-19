@@ -19,41 +19,42 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author trevor
  */
 public class OrderedWindowIteratorTest extends TestCase {
-    public OrderedWindowIteratorTest(String testName) {
-        super(testName);
-    }
 
-    public void testPhrase() throws IOException {
-        int[][] dataOne = {{1, 3}};
-        int[][] dataTwo = {{1, 4}};
-        FakeExtentIterator one = new FakeExtentIterator(dataOne);
-        FakeExtentIterator two = new FakeExtentIterator(dataTwo);
-        FakeExtentIterator[] iters = { one, two };
+  public OrderedWindowIteratorTest(String testName) {
+    super(testName);
+  }
 
-        NodeParameters oneParam = new NodeParameters();
-        oneParam.set("default", 1);
-        OrderedWindowIterator instance = new OrderedWindowIterator(new Parameters(), oneParam, iters);
+  public void testPhrase() throws IOException {
+    int[][] dataOne = {{1, 3}};
+    int[][] dataTwo = {{1, 4}};
+    FakeExtentIterator one = new FakeExtentIterator(dataOne);
+    FakeExtentIterator two = new FakeExtentIterator(dataTwo);
+    FakeExtentIterator[] iters = {one, two};
 
-        ExtentArray array = instance.extents();
+    NodeParameters oneParam = new NodeParameters();
+    oneParam.set("default", 1);
+    OrderedWindowIterator instance = new OrderedWindowIterator(oneParam, iters);
 
-        assertEquals(array.size(), 1);
-        assertEquals(array.getDocument(), 1);
-        assertEquals(array.begin(0), 3);
-        assertEquals(array.end(0), 5);
-    }
+    ExtentArray array = instance.extents();
 
-    public void testWrongOrder() throws IOException {
-        int[][] dataOne = {{1, 3}};
-        int[][] dataTwo = {{1, 4}};
-        FakeExtentIterator one = new FakeExtentIterator(dataOne);
-        FakeExtentIterator two = new FakeExtentIterator(dataTwo);
-        FakeExtentIterator[] iters = { two, one };
+    assertEquals(array.size(), 1);
+    assertEquals(array.getDocument(), 1);
+    assertEquals(array.begin(0), 3);
+    assertEquals(array.end(0), 5);
+  }
 
-        NodeParameters oneParam = new NodeParameters();
-        oneParam.set("default", 1);
-        OrderedWindowIterator instance = new OrderedWindowIterator(new Parameters(), oneParam, iters);
+  public void testWrongOrder() throws IOException {
+    int[][] dataOne = {{1, 3}};
+    int[][] dataTwo = {{1, 4}};
+    FakeExtentIterator one = new FakeExtentIterator(dataOne);
+    FakeExtentIterator two = new FakeExtentIterator(dataTwo);
+    FakeExtentIterator[] iters = {two, one};
 
-        ExtentArray array = instance.extents();
-        assertEquals(0, array.size());
-    }
+    NodeParameters oneParam = new NodeParameters();
+    oneParam.set("default", 1);
+    OrderedWindowIterator instance = new OrderedWindowIterator(oneParam, iters);
+
+    ExtentArray array = instance.extents();
+    assertEquals(0, array.size());
+  }
 }

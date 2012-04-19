@@ -309,7 +309,7 @@ public class AppTest extends TestCase {
       // try to batch search that index with a no-match string
       String queries =
               "{\n"
-              + "\"shareNodes\" : true, \"queries\" : [\n"
+              + "\"queries\" : [\n"
               + "{ \"number\" :\"5\", \"text\" : \"nothing\"},\n"
               + "{ \"number\" :\"9\", \"text\" : \"sample\"},\n"
               + "{ \"number\" :\"10\", \"text\" : \"nothing sample\"},\n"

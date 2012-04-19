@@ -11,8 +11,8 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class UniversalIndicatorIterator extends ConjunctionIterator implements MovableIndicatorIterator {
 
-  public UniversalIndicatorIterator(Parameters globalParams, NodeParameters p, MovableIterator[] children) {
-    super(globalParams, children);
+  public UniversalIndicatorIterator(NodeParameters p, MovableIterator[] children) {
+    super(p, children);
   }
 
   @Override

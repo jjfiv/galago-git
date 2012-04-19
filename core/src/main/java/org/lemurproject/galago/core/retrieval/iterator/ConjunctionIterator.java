@@ -4,12 +4,14 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 
 /**
  *
  * @author sjh
  */
+@RequiredParameters(parameters={"shareNodes"})
 public abstract class ConjunctionIterator implements MovableIterator {
 
   protected MovableIterator[] iterators;
@@ -17,8 +19,8 @@ public abstract class ConjunctionIterator implements MovableIterator {
   protected boolean hasAllCandidates;
   protected boolean sharedChildren;
 
-  public ConjunctionIterator(Parameters globalParams, MovableIterator[] queryIterators) {
-    this.sharedChildren = globalParams.get("shareNodes", false);
+  public ConjunctionIterator(NodeParameters parameters, MovableIterator[] queryIterators) {
+    this.sharedChildren = parameters.get("shareNodes", false);
     this.iterators = queryIterators;
 
     // count the number of iterators that dont have

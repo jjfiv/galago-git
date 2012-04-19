@@ -5,8 +5,8 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
-import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -17,8 +17,8 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
 
   protected ExtentArray extents;
 
-  public ExtentConjunctionIterator(Parameters globalParams, MovableExtentIterator[] iterators) throws IOException {
-    super(globalParams, iterators);
+  public ExtentConjunctionIterator(NodeParameters parameters, MovableExtentIterator[] iterators) throws IOException {
+    super(parameters, iterators);
     this.extents = new ExtentArray();
   }
 

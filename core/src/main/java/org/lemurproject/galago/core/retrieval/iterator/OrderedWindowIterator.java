@@ -5,17 +5,17 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
  * @author sjh
  */
 public class OrderedWindowIterator extends ExtentConjunctionIterator {
+
   private int width;
 
-  public OrderedWindowIterator(Parameters globalParams, NodeParameters parameters, MovableExtentIterator[] iterators) throws IOException {
-    super(globalParams, iterators);
+  public OrderedWindowIterator(NodeParameters parameters, MovableExtentIterator[] iterators) throws IOException {
+    super(parameters, iterators);
     this.width = (int) parameters.get("default", -1);
     moveTo(0);
   }
@@ -23,23 +23,23 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
   @Override
   public void loadExtents() {
     int document = currentCandidate();
-    
+
     ExtentArrayIterator[] arrayIterators;
     arrayIterators = new ExtentArrayIterator[iterators.length];
     for (int i = 0; i < iterators.length; i++) {
-      if(iterators[i].isDone() 
-              || !iterators[i].atCandidate(document)){
+      if (iterators[i].isDone()
+              || !iterators[i].atCandidate(document)) {
         // we can not load any extents if the iterator is done - or is at the wrong document.
         return;
       }
-      
+
       arrayIterators[i] = new ExtentArrayIterator(((MovableExtentIterator) iterators[i]).extents());
 
-      if(arrayIterators[i].isDone()){
+      if (arrayIterators[i].isDone()) {
         // if this document does not have any extents we can not load any extents
         return;
       }
-      
+
     }
 
     extents.reset();
