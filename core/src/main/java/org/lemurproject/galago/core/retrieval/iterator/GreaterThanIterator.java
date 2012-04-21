@@ -4,8 +4,6 @@
  */
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.text.ParseException;
-import java.text.DateFormat;
 import org.lemurproject.galago.core.index.disk.FieldIndexReader;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 

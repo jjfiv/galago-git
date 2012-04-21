@@ -4,8 +4,8 @@ package org.lemurproject.galago.core.scoring;
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * A Dirichlet smoothing node, applied over a raw term count node.
@@ -13,14 +13,15 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author trevor
  */
 @RequiredStatistics(statistics = {"collectionProbability"})
+@RequiredParameters(parameters = {"mu"})
 public class DirichletScorer implements ScoringFunction {
 
   double background;
   double mu;
 
-  public DirichletScorer(Parameters globalParams, NodeParameters parameters, MovableCountIterator iterator) throws IOException {
+  public DirichletScorer(NodeParameters parameters, MovableCountIterator iterator) throws IOException {
 
-    mu = parameters.get("mu", globalParams.get("mu", 1500D));
+    mu = parameters.get("mu", 1500D);
     background = parameters.getDouble("collectionProbability");
   }
 

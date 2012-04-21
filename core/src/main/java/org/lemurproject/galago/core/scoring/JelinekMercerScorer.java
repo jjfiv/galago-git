@@ -4,8 +4,8 @@ package org.lemurproject.galago.core.scoring;
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * Jelinek-Mercer smoothing node, applied over raw counts.
@@ -13,14 +13,15 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author irmarc
  */
 @RequiredStatistics(statistics = {"collectionProbability"})
+@RequiredParameters(parameters = {"lambda"})
 public class JelinekMercerScorer implements ScoringFunction {
 
   double background;
   double lambda;
 
-  public JelinekMercerScorer(Parameters globalParameters, NodeParameters parameters, MovableCountIterator iterator) throws IOException {
+  public JelinekMercerScorer(NodeParameters parameters, MovableCountIterator iterator) throws IOException {
 
-    lambda = parameters.get("lambda", globalParameters.get("lambda", 0.5D));
+    lambda = parameters.get("lambda", 0.5D);
     background = parameters.getDouble("collectionProbability");
   }
 

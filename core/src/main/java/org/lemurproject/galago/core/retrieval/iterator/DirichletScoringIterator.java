@@ -3,23 +3,24 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.scoring.DirichletScorer;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
- * A ScoringIterator that makes use of the DirichletScorer function
- * for converting a count into a score.
+ * A ScoringIterator that makes use of the DirichletScorer function for
+ * converting a count into a score.
  *
  * @author irmarc
  */
 @RequiredStatistics(statistics = {"collectionProbability"})
+@RequiredParameters(parameters = {"mu"})
 public class DirichletScoringIterator extends ScoringFunctionIterator {
 
-  public DirichletScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
+  public DirichletScoringIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(it, new DirichletScorer(globalParams, p, it));
+    super(it, new DirichletScorer(p, it));
   }
 
   @Override

@@ -8,7 +8,6 @@ import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.scoring.InverseDocumentFrequencyScorer;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -17,9 +16,9 @@ import org.lemurproject.galago.tupleflow.Parameters;
 @RequiredStatistics(statistics = {"nodeDocumentCount", "collectionLength", "documentCount"})
 public class InverseDocFrequencyIterator extends ScoringFunctionIterator {
 
-  public InverseDocFrequencyIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
+  public InverseDocFrequencyIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(it, new InverseDocumentFrequencyScorer(globalParams, p, it));
+    super(it, new InverseDocumentFrequencyScorer(p, it));
     // And now dump it
     iterator = null;
   }
@@ -37,8 +36,9 @@ public class InverseDocFrequencyIterator extends ScoringFunctionIterator {
   }
 
   /**
-   * For this particular scoring function, the parameters are irrelevant.
-   * Always returns the predetermined boosting score.
+   * For this particular scoring function, the parameters are irrelevant. Always
+   * returns the predetermined boosting score.
+   *
    * @return
    */
   @Override
@@ -47,8 +47,9 @@ public class InverseDocFrequencyIterator extends ScoringFunctionIterator {
   }
 
   /**
-   * For this particular scoring function, the parameters are irrelevant
-   * Always returns the predetermined boosting score.
+   * For this particular scoring function, the parameters are irrelevant Always
+   * returns the predetermined boosting score.
+   *
    * @return
    */
   @Override

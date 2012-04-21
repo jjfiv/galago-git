@@ -31,7 +31,7 @@ public class BM25ScorerTest extends TestCase {
     p.set("nodeDocumentCount", 0);
     FakeExtentIterator iterator = new FakeExtentIterator(dummy);
 
-    BM25Scorer scorer = new BM25Scorer(new Parameters(), p, iterator);
+    BM25Scorer scorer = new BM25Scorer(p, iterator);
     assertEquals(0.75, scorer.b);
     assertEquals(1.2, scorer.k);
     assertEquals(50.0, scorer.avgDocLength);
@@ -41,7 +41,7 @@ public class BM25ScorerTest extends TestCase {
     // Add in an iterator w/ some docs
     iterator = new FakeExtentIterator(five);
     p.set("nodeDocumentCount", 5);
-    scorer = new BM25Scorer(new Parameters(), p, iterator);
+    scorer = new BM25Scorer(p, iterator);
     assertEquals(0.75, scorer.b);
     assertEquals(1.2, scorer.k);
     assertEquals(50.0, scorer.avgDocLength);
@@ -52,7 +52,7 @@ public class BM25ScorerTest extends TestCase {
     p.set("b", 0.3);
     p.set("k", 2.0);
     p.set("nodeDocumentCount", 20);
-    scorer = new BM25Scorer(new Parameters(), p, null);
+    scorer = new BM25Scorer(p, null);
     assertEquals(0.3, scorer.b);
     assertEquals(2.0, scorer.k);
     assertEquals(50.0, scorer.avgDocLength);

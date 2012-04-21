@@ -20,7 +20,7 @@ public class DirichletScorerTest extends TestCase {
   public void testCollectionProbability() throws IOException {
     NodeParameters p = new NodeParameters();
     p.set("collectionProbability", 0.5);
-    DirichletScorer scorer = new DirichletScorer(new Parameters(), p, null);
+    DirichletScorer scorer = new DirichletScorer(p, null);
 
     assertEquals(1500.0, scorer.mu);
     assertEquals(0.5, scorer.background);
@@ -33,7 +33,7 @@ public class DirichletScorerTest extends TestCase {
     NodeParameters p = new NodeParameters();
     p.set("collectionProbability", 0.5);
     p.set("mu", 13);
-    DirichletScorer scorer = new DirichletScorer(new Parameters(), p, null);
+    DirichletScorer scorer = new DirichletScorer(p, null);
 
     assertEquals(13.0, scorer.mu);
     assertEquals(0.5, scorer.background);

@@ -69,7 +69,7 @@ public class ScoringFunctionIteratorTest extends TestCase {
     p.set("ft", 40);
     p.set("documentCount", 1000);
     p.set("factor", 0.45);
-    BM25RFScoringIterator iterator = new BM25RFScoringIterator(new Parameters(), p, extentIterator);
+    BM25RFScoringIterator iterator = new BM25RFScoringIterator(p, extentIterator);
     assertFalse(iterator.isDone());
     assertEquals(extents[0][0], iterator.currentCandidate());
     iterator.moveTo(extents[0][0]);

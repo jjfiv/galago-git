@@ -4,21 +4,21 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.scoring.BM25RFScorer;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- * Implements an iterator over the BM25RF scoring mechanism based on TSV (term-selection value) fitness.
- * This comes from some work by Stephen Robertson and others, I believe in TREC 2004 or so.
- * Obviously, don't quote me on that. A decent review of the original TSV algorithm was done by
- * Billerbeck and Zobel in using short document summaries for fast query expansion.
- * 
+ * Implements an iterator over the BM25RF scoring mechanism based on TSV
+ * (term-selection value) fitness. This comes from some work by Stephen
+ * Robertson and others, I believe in TREC 2004 or so. Obviously, don't quote me
+ * on that. A decent review of the original TSV algorithm was done by Billerbeck
+ * and Zobel in using short document summaries for fast query expansion.
+ *
  * @author irmarc
  */
 public class BM25RFScoringIterator extends ScoringFunctionIterator {
 
-  public BM25RFScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
+  public BM25RFScoringIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(it, new BM25RFScorer(globalParams, p, it));
+    super(it, new BM25RFScorer(p, it));
   }
 
   /**
@@ -39,8 +39,9 @@ public class BM25RFScoringIterator extends ScoringFunctionIterator {
   }
 
   /**
-   * For this particular scoring function, the parameters are irrelevant.
-   * Always returns the predetermined boosting score.
+   * For this particular scoring function, the parameters are irrelevant. Always
+   * returns the predetermined boosting score.
+   *
    * @return
    */
   public double maximumScore() {
@@ -48,8 +49,9 @@ public class BM25RFScoringIterator extends ScoringFunctionIterator {
   }
 
   /**
-   * For this particular scoring function, the parameters are irrelevant
-   * Always returns the predetermined boosting score.
+   * For this particular scoring function, the parameters are irrelevant Always
+   * returns the predetermined boosting score.
+   *
    * @return
    */
   public double minimumScore() {

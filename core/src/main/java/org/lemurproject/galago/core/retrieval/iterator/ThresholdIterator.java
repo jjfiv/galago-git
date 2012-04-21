@@ -16,7 +16,7 @@ public class ThresholdIterator extends TransformIterator implements MovableIndic
   double threshold;
   MovableScoreIterator scoreIterator;
 
-  public ThresholdIterator(Parameters globalParams, NodeParameters parameters, MovableScoreIterator scorer) {
+  public ThresholdIterator(NodeParameters parameters, MovableScoreIterator scorer) {
     super(scorer);
     this.scoreIterator = scorer;
     
@@ -29,17 +29,6 @@ public class ThresholdIterator extends TransformIterator implements MovableIndic
     
     } else if (parameters.containsKey("logprob")) {
       this.threshold = parameters.getDouble("logprob");
-      assert this.threshold < 0;
-    
-    } else if (globalParams.containsKey("raw")) {
-      this.threshold = globalParams.get("raw", 0.0);
-    
-    } else if (globalParams.containsKey("prob")) {
-      this.threshold = globalParams.get("prob", 0.0);
-      assert this.threshold < 0;
-    
-    } else if (globalParams.containsKey("logprob")) {
-      this.threshold = globalParams.get("logprob", 0.0);
       assert this.threshold < 0;
     
     } else {

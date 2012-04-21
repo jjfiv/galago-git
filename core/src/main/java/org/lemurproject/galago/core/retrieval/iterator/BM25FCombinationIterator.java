@@ -1,12 +1,7 @@
 // BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import gnu.trove.map.hash.TObjectDoubleHashMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
-import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -17,13 +12,13 @@ public class BM25FCombinationIterator extends ScoreCombinationIterator {
   double K = -1;
   double[] idfs;
 
-  public BM25FCombinationIterator(Parameters globalParams, NodeParameters parameters,
+  public BM25FCombinationIterator(NodeParameters parameters,
           MovableScoreIterator[] childIterators) {
     super(parameters, childIterators);
     K = parameters.getDouble("K");
     idfs = new double[iterators.length];
     for (int i = 0; i < idfs.length; i++) {
-        idfs[i] = parameters.getDouble("idf"+i);
+      idfs[i] = parameters.getDouble("idf" + i);
     }
   }
 

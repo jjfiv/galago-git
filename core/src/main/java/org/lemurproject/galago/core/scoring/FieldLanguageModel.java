@@ -57,7 +57,7 @@ public class FieldLanguageModel {
     } else {
       ArrayList<String> grams = new ArrayList<String>();
       int i = f.begin;
-      while (i <= (f.end - gramsize) + 1 && (i+gramsize <= terms.size())) {
+      while (i <= (f.end - gramsize) + 1 && (i + gramsize <= terms.size())) {
         grams.add(Utility.join(terms.subList(i, i + gramsize).toArray(new String[0])));
         i++;
       }
@@ -154,7 +154,9 @@ public class FieldLanguageModel {
   // P(T)
   public double getTermProbability(String t) {
     int num = termFrequencies.containsKey(t) ? termFrequencies.get(t) : 0;
-    if (num == 0) return smoothing;
+    if (num == 0) {
+      return smoothing;
+    }
     double den = (termCount > 0) ? (termCount + 0.0) : Double.MIN_VALUE;
     return (num + 0.0) / den;
   }

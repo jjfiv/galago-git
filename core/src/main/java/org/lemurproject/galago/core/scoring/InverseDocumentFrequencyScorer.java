@@ -8,10 +8,11 @@ import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- * Term-dependent-only function. Always returns the idf of the term iterator it was constructed from.
+ * Term-dependent-only function. Always returns the idf of the term iterator it
+ * was constructed from.
+ *
  * @author irmarc
  */
 @RequiredStatistics(statistics = {"nodeDocumentCount", "documentCount"})
@@ -19,7 +20,7 @@ public class InverseDocumentFrequencyScorer implements ScoringFunction {
 
   double idf;
 
-  public InverseDocumentFrequencyScorer(Parameters globalParams, NodeParameters parameters, MovableCountIterator iterator) throws IOException {
+  public InverseDocumentFrequencyScorer(NodeParameters parameters, MovableCountIterator iterator) throws IOException {
     // get idf for the provided term.
     double documentCount = parameters.getLong("documentCount");
     long df = parameters.getLong("nodeDocumentCount");

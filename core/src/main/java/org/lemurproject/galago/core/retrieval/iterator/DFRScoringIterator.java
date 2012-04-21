@@ -9,7 +9,6 @@ import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
-import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -22,10 +21,8 @@ public class DFRScoringIterator extends TransformIterator implements MovableScor
   double lambda;
   double qfratio;
   MovableScoreIterator scorer;
-  Parameters globals;
 
-  public DFRScoringIterator(Parameters globalParams,
-          NodeParameters parameters, MovableScoreIterator iterator) throws IOException {
+  public DFRScoringIterator(NodeParameters parameters, MovableScoreIterator iterator) throws IOException {
     super(iterator);
     scorer = iterator;
 
@@ -38,7 +35,6 @@ public class DFRScoringIterator extends TransformIterator implements MovableScor
     long termFrequency = parameters.getLong("nodeFrequency");
     long documentCount = parameters.getLong("documentCount");
     lambda = (termFrequency + 0.0) / (documentCount + 0.0);
-    globals = globalParams;
   }
 
   private double transform(double ts) {
@@ -58,9 +54,10 @@ public class DFRScoringIterator extends TransformIterator implements MovableScor
       // Need to do this at the aggregate level     
       dctx.startingPotentials[dctx.quorumIndex] = scorer.maximumScore();
       /*
-      System.err.printf("at qidx=%d: startingP=%f, inc=%f\n", dctx.quorumIndex,
-			dctx.startingPotentials[dctx.quorumIndex], transform(dctx.startingPotentials[dctx.quorumIndex]));
-      */
+       * System.err.printf("at qidx=%d: startingP=%f, inc=%f\n",
+       * dctx.quorumIndex, dctx.startingPotentials[dctx.quorumIndex],
+       * transform(dctx.startingPotentials[dctx.quorumIndex]));
+       */
       dctx.startingPotential += transform(dctx.startingPotentials[dctx.quorumIndex]);
       dctx.quorumIndex++;
     }
@@ -75,11 +72,11 @@ public class DFRScoringIterator extends TransformIterator implements MovableScor
 
   @Override
   public double maximumScore() {
-      return transform(scorer.maximumScore());
+    return transform(scorer.maximumScore());
   }
 
   @Override
   public double minimumScore() {
-      return transform(scorer.minimumScore());
+    return transform(scorer.minimumScore());
   }
 }

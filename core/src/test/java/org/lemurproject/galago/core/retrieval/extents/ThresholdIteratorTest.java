@@ -5,7 +5,6 @@ import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ThresholdIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -29,7 +28,7 @@ public class ThresholdIteratorTest extends TestCase {
     
     NodeParameters dummyParameters = new NodeParameters();
     dummyParameters.set("raw", 2.5);
-    ThresholdIterator iterator = new ThresholdIterator(new Parameters(), dummyParameters, inner);
+    ThresholdIterator iterator = new ThresholdIterator(dummyParameters, inner);
 
     assertFalse(iterator.isDone());
     dc.document = iterator.currentCandidate();

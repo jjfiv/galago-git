@@ -2,7 +2,6 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 
 /**
  * The internal iterator is expected to be an indicator

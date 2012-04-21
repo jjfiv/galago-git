@@ -321,16 +321,7 @@ public class FeatureFactory {
       formals.addAll(Arrays.asList(constructor.getParameterTypes()));
       int childIdx = 0;
       while (formals.size() > 0) {
-        // - sjh - deprecated - use @RequiredParameters(parameters = {"paramName"})
-        if (formals.get(0) == Parameters.class) {
-         // dealing w/ global parameters  -- front only
-         if (arguments.isEmpty()) {
-            arguments.add(this.parameters);
-          } else {
-            fail = true;
-            break;
-          }
-        } else if (formals.get(0) == NodeParameters.class) {
+        if (formals.get(0) == NodeParameters.class) {
           // Only valid if at the front or preceded by immutables
           if (arguments.isEmpty() || (arguments.size() == 1 && arguments.get(0) instanceof Parameters)) {
             NodeParameters params = node.getNodeParameters().clone();

@@ -28,7 +28,7 @@ public class BM25RFScorerTest extends TestCase {
     // test empty
     NodeParameters parameters = new NodeParameters();
     parameters.set("documentCount", 0);
-    BM25RFScorer scorer = new BM25RFScorer(new Parameters(), parameters, iterator);
+    BM25RFScorer scorer = new BM25RFScorer(parameters, iterator);
     assertEquals(0.0, scorer.score(1, 1));
     assertEquals(0.0, scorer.score(200, 957));
 
@@ -37,13 +37,13 @@ public class BM25RFScorerTest extends TestCase {
     parameters.set("rt", 3);
     parameters.set("R", 10);
     parameters.set("documentCount", 1000);
-    scorer = new BM25RFScorer(new Parameters(), parameters, iterator);
+    scorer = new BM25RFScorer(parameters, iterator);
     assertEquals(1.72186, scorer.score(1, 1), 0.001);
     assertEquals(1.72186, scorer.score(1, 234565), 0.001);
 
     // Fill in ft
     parameters.set("ft", 5);
-    scorer = new BM25RFScorer(new Parameters(), parameters, null);
+    scorer = new BM25RFScorer(parameters, null);
     assertEquals(1.72186, scorer.score(1, 1), 0.001);
     assertEquals(1.72186, scorer.score(9, 9), 0.001);
   }
