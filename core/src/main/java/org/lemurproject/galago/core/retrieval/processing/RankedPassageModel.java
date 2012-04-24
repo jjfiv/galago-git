@@ -55,7 +55,7 @@ public class RankedPassageModel extends ProcessingModel {
     int requested = (int) queryParams.get("requested", 1000);
     int passageSize = (int) queryParams.getLong("passageSize");
     int passageShift = (int) queryParams.getLong("passageShift");
-    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryTree, context);
+    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
     PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
     ProcessingModel.initializeLengths(retrieval, context);
 
@@ -103,7 +103,7 @@ public class RankedPassageModel extends ProcessingModel {
     int requested = (int) queryParams.get("requested", 1000);
     int passageSize = (int) queryParams.getLong("passageSize");
     int passageShift = (int) queryParams.getLong("passageShift");
-    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryTree, context);
+    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
     ProcessingModel.initializeLengths(retrieval, context);
     PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
 

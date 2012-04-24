@@ -52,7 +52,7 @@ public class RankedDocumentModel extends ProcessingModel {
     Arrays.sort(whitelist);
 
     // construct the query iterators
-    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryTree, context);
+    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
     int requested = (int) queryParams.get("requested", 1000);
 
     // now there should be an iterator at the root of this tree
@@ -91,7 +91,7 @@ public class RankedDocumentModel extends ProcessingModel {
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
 
     // construct the iterators -- we use tree processing
-    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryTree, context);
+    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
     ProcessingModel.initializeLengths(retrieval, context);
     
     

@@ -84,7 +84,7 @@ public class IndicatorIteratorTest extends TestCase {
     Node parsedTree = StructuredQuery.parse("#any( #counts:cat:part=postings() #counts:program:part=postings() )");
     ScoringContext context = new ScoringContext();
 
-    ExistentialIndicatorIterator eii = (ExistentialIndicatorIterator) retrieval.createIterator(parsedTree, context);
+    ExistentialIndicatorIterator eii = (ExistentialIndicatorIterator) retrieval.createIterator(new Parameters(), parsedTree, context);
 
     // initial state
     assertEquals(2, eii.currentCandidate());
@@ -110,7 +110,7 @@ public class IndicatorIteratorTest extends TestCase {
 
     Node parsedTree = StructuredQuery.parse("#all( #counts:document:part=postings() #counts:sample:part=postings() )");
     ScoringContext context = new ScoringContext();
-    UniversalIndicatorIterator uii = (UniversalIndicatorIterator) retrieval.createIterator(parsedTree, context);
+    UniversalIndicatorIterator uii = (UniversalIndicatorIterator) retrieval.createIterator(new Parameters(), parsedTree, context);
 
     // initial state
     assertEquals(0, uii.currentCandidate());
@@ -139,11 +139,11 @@ public class IndicatorIteratorTest extends TestCase {
 
     Node existTree = StructuredQuery.parse("#any( #counts:document:part=postings() )");
     ScoringContext dc1 = new ScoringContext();
-    ExistentialIndicatorIterator eii = (ExistentialIndicatorIterator) retrieval.createIterator(existTree,
+    ExistentialIndicatorIterator eii = (ExistentialIndicatorIterator) retrieval.createIterator(new Parameters(), existTree,
             dc1);
 
     Node universeTree = StructuredQuery.parse("#all( #counts:document:part=postings() )");
-    UniversalIndicatorIterator uii = (UniversalIndicatorIterator) retrieval.createIterator(universeTree, dc1);
+    UniversalIndicatorIterator uii = (UniversalIndicatorIterator) retrieval.createIterator(new Parameters(), universeTree, dc1);
 
     // Initialization
     assertFalse(eii.isDone());
@@ -183,7 +183,7 @@ public class IndicatorIteratorTest extends TestCase {
     root = retrieval.transformQuery(root, p);
 
     ScoringContext dc1 = new ScoringContext();
-    RequireIterator mi = (RequireIterator) retrieval.createIterator(root, dc1);
+    RequireIterator mi = (RequireIterator) retrieval.createIterator(new Parameters(), root, dc1);
 
     assertEquals(0, mi.currentCandidate());
     dc1.document = 0;

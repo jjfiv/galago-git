@@ -51,7 +51,7 @@ public class SetModel extends ProcessingModel {
     ScoringContext context = new ScoringContext();
 
     // construct the query iterators
-    MovableIndicatorIterator iterator = (MovableIndicatorIterator) retrieval.createIterator(queryTree, context);
+    MovableIndicatorIterator iterator = (MovableIndicatorIterator) retrieval.createIterator(queryParams, queryTree, context);
     ArrayList<ScoredDocument> list = new ArrayList<ScoredDocument>();
     while (!iterator.isDone()) {
       if (iterator.atCandidate(iterator.currentCandidate())) {
@@ -70,7 +70,7 @@ public class SetModel extends ProcessingModel {
     Arrays.sort(whitelist);
 
     // construct the query iterators
-    MovableIndicatorIterator iterator = (MovableIndicatorIterator) retrieval.createIterator(queryTree, context);
+    MovableIndicatorIterator iterator = (MovableIndicatorIterator) retrieval.createIterator(queryParams, queryTree, context);
     ArrayList<ScoredDocument> list = new ArrayList<ScoredDocument>();
 
     for (int i = 0; i < whitelist.length; i++) {

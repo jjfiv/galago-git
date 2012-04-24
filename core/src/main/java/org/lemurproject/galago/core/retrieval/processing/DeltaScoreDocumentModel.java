@@ -54,7 +54,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
         context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.getLong("numberOfTerms"))];
         Arrays.fill(context.startingPotentials, 0);
         
-        StructuredIterator iterator = retrieval.createIterator(queryTree, context);
+        StructuredIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
 
         PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
         ProcessingModel.initializeLengths(retrieval, context);
@@ -153,7 +153,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
 
         // Following operations are all just setup
         int requested = (int) queryParams.get("requested", 1000);
-        StructuredIterator iterator = retrieval.createIterator(queryTree, context);
+        StructuredIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
 
         PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
         ProcessingModel.initializeLengths(retrieval, context);

@@ -38,11 +38,10 @@ import org.lemurproject.galago.tupleflow.Parameters.Type;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * The responsibility of the LocalRetrieval object is to
- * provide a simpler interface on top of the DiskIndex.
- * Therefore, given a query or text string representing a query,
- * this object will perform the necessary transformations to make
- * it an executable object.
+ * The responsibility of the LocalRetrieval object is to provide a simpler
+ * interface on top of the DiskIndex. Therefore, given a query or text string
+ * representing a query, this object will perform the necessary transformations
+ * to make it an executable object.
  *
  * 10/7/2010 - Modified for asynchronous execution
  *
@@ -70,12 +69,12 @@ public class LocalRetrieval implements Retrieval {
     setIndex(index);
   }
 
-  /** 
-   * For this constructor, being sent a filename path to the indicies, 
-   * we first list out all the directories in the path. If there are none, then 
-   * we can safely assume that the filename specifies a single index (the files 
-   * listed are all parts), otherwise we will treat each subdirectory as a 
-   * separate logical index.
+  /**
+   * For this constructor, being sent a filename path to the indicies, we first
+   * list out all the directories in the path. If there are none, then we can
+   * safely assume that the filename specifies a single index (the files listed
+   * are all parts), otherwise we will treat each subdirectory as a separate
+   * logical index.
    */
   public LocalRetrieval(String filename, Parameters parameters)
           throws FileNotFoundException, IOException, Exception {
@@ -143,10 +142,8 @@ public class LocalRetrieval implements Retrieval {
 
   /*
    * {
-   *  <partName> : { <nodeName> : <iteratorClass>, stemming : false, ... },
-   *  <partName> : { <nodeName> : <iteratorClass>, ... },
-   *  ...
-   * }
+   * <partName> : { <nodeName> : <iteratorClass>, stemming : false, ... },
+   * <partName> : { <nodeName> : <iteratorClass>, ... }, ... }
    */
   @Override
   public Parameters getAvailableParts() throws IOException {
@@ -176,10 +173,10 @@ public class LocalRetrieval implements Retrieval {
   public Map<String, Document> getDocuments(List<String> identifier) throws IOException {
     return this.index.getDocuments(identifier);
   }
-  
+
   /**
-   * Accepts a transformed query, constructs the iterator tree from the node tree,
-   * then iterates over the iterator tree, and returns the results.
+   * Accepts a transformed query, constructs the iterator tree from the node
+   * tree, then iterates over the iterator tree, and returns the results.
    */
   public ScoredDocument[] runQuery(String query, Parameters p) throws Exception {
     Node root = StructuredQuery.parse(query);
@@ -221,8 +218,7 @@ public class LocalRetrieval implements Retrieval {
   }
 
   /*
-   * getArrayResults annotates a queue of scored documents
-   * returns an array
+   * getArrayResults annotates a queue of scored documents returns an array
    *
    */
   protected <T extends ScoredDocument> T[] getArrayResults(T[] results, String indexId) throws IOException {
@@ -262,25 +258,27 @@ public class LocalRetrieval implements Retrieval {
     return results;
   }
 
-  public StructuredIterator createIterator(Node node, ScoringContext context) throws Exception {
-    HashMap<String, StructuredIterator> iteratorCache = new HashMap();
-    return createNodeMergedIterator(node, context, iteratorCache);
+  public StructuredIterator createIterator(Parameters queryParameters, Node node, ScoringContext context) throws Exception {
+    if (globalParameters.get("shareNodes", false) || queryParameters.get("cache", false)) {
+      return createNodeMergedIterator(node, context, new HashMap());
+    } else {
+      return createNodeMergedIterator(node, context, null);
+    }
   }
 
   protected StructuredIterator createNodeMergedIterator(Node node, ScoringContext context,
-          HashMap<String, StructuredIterator> iteratorCache)
+          HashMap<String, StructuredIterator> queryIteratorCache)
           throws Exception {
     ArrayList<StructuredIterator> internalIterators = new ArrayList<StructuredIterator>();
     StructuredIterator iterator;
 
     // first check if the cache contains this node
-    if ((globalParameters.get("shareNodes", false) || node.getNodeParameters().get("cache", false))
-            && iteratorCache.containsKey(node.toString())) {
-      return iteratorCache.get(node.toString());
+    if (queryIteratorCache != null && queryIteratorCache.containsKey(node.toString())) {
+      return queryIteratorCache.get(node.toString());
     }
 
     for (Node internalNode : node.getInternalNodes()) {
-      StructuredIterator internalIterator = createNodeMergedIterator(internalNode, context, iteratorCache);
+      StructuredIterator internalIterator = createNodeMergedIterator(internalNode, context, queryIteratorCache);
       internalIterators.add(internalIterator);
     }
 
@@ -288,21 +286,21 @@ public class LocalRetrieval implements Retrieval {
     if (iterator == null) {
       iterator = features.getIterator(node, internalIterators);
     }
-    
+
     if (ContextualIterator.class.isInstance(iterator) && (context != null)) {
       ((ContextualIterator) iterator).setContext(context);
     }
 
     // we've created a new iterator - add to the cache for future nodes
-    if (globalParameters.get("shareNodes", false) || node.getNodeParameters().get("cache", false)) {
-      iteratorCache.put(node.toString(), iterator);
+    if (queryIteratorCache != null) {
+      queryIteratorCache.put(node.toString(), iterator);
     }
     return iterator;
   }
 
   @Override
   public Node transformQuery(Node queryTree, Parameters queryParams) throws Exception {
-      return transformQuery(features.getTraversals(this, queryTree, queryParams), queryTree);
+    return transformQuery(features.getTraversals(this, queryTree, queryParams), queryTree);
   }
 
   private Node transformQuery(List<Traversal> traversals, Node queryTree) throws Exception {
@@ -331,10 +329,10 @@ public class LocalRetrieval implements Retrieval {
     stats.collectionLength = getRetrievalStatistics().collectionLength;
     stats.documentCount = getRetrievalStatistics().documentCount;
 
-    StructuredIterator structIterator = createIterator(root, null);
+    StructuredIterator structIterator = createIterator(new Parameters(), root, null);
     if (AggregateIterator.class.isInstance(structIterator)) {
       stats = ((AggregateIterator) structIterator).getStatistics();
- 
+
     } else if (structIterator instanceof MovableCountIterator) {
       MovableCountIterator iterator = (MovableCountIterator) structIterator;
       while (!iterator.isDone()) {
