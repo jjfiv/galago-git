@@ -11,4 +11,5 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
  */
 public interface ContextualIterator {
   public void setContext(ScoringContext context);
+  public ScoringContext getContext();
 }

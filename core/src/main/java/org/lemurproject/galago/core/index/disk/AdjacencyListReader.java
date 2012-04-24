@@ -18,10 +18,10 @@ import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
 /**
- * Stores a mapping from string -> [(int,double)] 
- * 
+ * Stores a mapping from string -> [(int,double)]
+ *
  * Used for...
- * 
+ *
  * @author irmarc
  */
 public class AdjacencyListReader extends KeyListReader {
@@ -56,7 +56,6 @@ public class AdjacencyListReader extends KeyListReader {
     }
   }
 
-  
   protected ValueIterator getScores(String term) throws IOException {
     BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
     if (iterator != null) {
@@ -65,7 +64,6 @@ public class AdjacencyListReader extends KeyListReader {
     return null;
   }
 
-  
   public class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
@@ -154,10 +152,10 @@ public class AdjacencyListReader extends KeyListReader {
     }
 
     @Override
-    public boolean hasAllCandidates(){
+    public boolean hasAllCandidates() {
       return false;
     }
-    
+
     @Override
     public String getEntry() throws IOException {
       StringBuilder builder = new StringBuilder();
@@ -202,6 +200,11 @@ public class AdjacencyListReader extends KeyListReader {
     @Override
     public void setContext(ScoringContext context) {
       this.context = context;
+    }
+
+    @Override
+    public ScoringContext getContext() {
+      return this.context;
     }
 
     // private functions:

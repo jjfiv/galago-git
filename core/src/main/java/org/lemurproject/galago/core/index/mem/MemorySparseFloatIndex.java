@@ -4,30 +4,20 @@ package org.lemurproject.galago.core.index.mem;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.KeyIterator;
-import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
-import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.index.ValueIterator;
-import org.lemurproject.galago.core.index.disk.CountIndexWriter;
+import org.lemurproject.galago.core.index.disk.SparseFloatListWriter;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
+import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ModifiableIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
-import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -41,7 +31,7 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  * In-memory posting index
  *
  */
-public class MemorySparseFloatIndex implements MemoryIndexPart, AggregateReader {
+public class MemorySparseFloatIndex implements MemoryIndexPart {
 
   // this could be a bit big -- but we need random access here
   // should use a trie (but java doesn't have one?)
@@ -63,44 +53,37 @@ public class MemorySparseFloatIndex implements MemoryIndexPart, AggregateReader 
     collectionDocumentCount = parameters.get("statistics/documentCount", 0);
   }
 
-  // overridable function (for stemming etc) 
-  public Document preProcessDocument(Document doc) throws IOException {
-    return doc;
-  }
-
   @Override
   public void addDocument(Document doc) throws IOException {
     // do nothing
+    // - we have no way of extracting scores from documents at the moment
   }
 
   @Override
   public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
-
     // if  we have not already cached this data
     if (!postings.containsKey(key)) {
       PostingList postingList = new PostingList(key);
-      MovableCountIterator mi = (MovableCountIterator) iterator;
+      MovableScoreIterator mi = (MovableScoreIterator) iterator;
+      ScoringContext c = (mi instanceof ContextualIterator) ? ((ContextualIterator) mi).getContext() : null;
       while (!mi.isDone()) {
         int document = mi.currentCandidate();
-        int count = mi.count();
-        postingList.add(document, count);
+        if (c != null) {
+          c.document = document;
+          c.moveLengths(document);
+        }
+
+        double score = mi.score();
+        postingList.add(document, score);
         mi.next();
       }
-      
+
       // specifically wait until we have finished building the posting list to add it
       //  - we do not want to search partial data.
       postings.put(key, postingList);
-    }
-  }
 
-  protected void addPosting(byte[] byteWord, int document, int count) {
-    if (!postings.containsKey(byteWord)) {
-      PostingList postingList = new PostingList(byteWord);
-      postings.put(byteWord, postingList);
+      mi.reset();
     }
-
-    PostingList postingList = postings.get(byteWord);
-    postingList.add(document, count);
   }
 
   // Posting List Reader functions
@@ -111,36 +94,18 @@ public class MemorySparseFloatIndex implements MemoryIndexPart, AggregateReader 
 
   @Override
   public ValueIterator getIterator(Node node) throws IOException {
-    String term = stemAsRequired(node.getDefaultParameter());
-    byte[] byteWord = Utility.fromString(term);
-    if (node.getOperator().equals("counts")) {
-      return getTermCounts(byteWord);
+    String stringKey = stemAsRequired(node.getDefaultParameter());
+    byte[] key = Utility.fromString(stringKey);
+    if (node.getOperator().equals("scores")) {
+      return getNodeScores(key);
     }
     return null;
   }
 
-  @Override
-  public NodeStatistics getTermStatistics(String term) throws IOException {
-    term = stemAsRequired(term);
-    return getTermStatistics(Utility.fromString(term));
-  }
-
-  @Override
-  public NodeStatistics getTermStatistics(byte[] term) throws IOException {
-    PostingList postingList = postings.get(term);
+  protected ScoresIterator getNodeScores(byte[] key) throws IOException {
+    PostingList postingList = postings.get(key);
     if (postingList != null) {
-      CountsIterator counts = new CountsIterator(postingList);
-      return counts.getStatistics();
-    }
-    NodeStatistics stats = new NodeStatistics();
-    stats.node = Utility.toString(term);
-    return stats;
-  }
-
-  private CountsIterator getTermCounts(byte[] term) throws IOException {
-    PostingList postingList = postings.get(term);
-    if (postingList != null) {
-      return new CountsIterator(postingList);
+      return new ScoresIterator(postingList);
     }
     return null;
   }
@@ -154,13 +119,13 @@ public class MemorySparseFloatIndex implements MemoryIndexPart, AggregateReader 
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("counts", new NodeType(CountsIterator.class));
+    types.put("scores", new NodeType(ScoresIterator.class));
     return types;
   }
 
   @Override
   public String getDefaultOperator() {
-    return "counts";
+    return "scores";
   }
 
   @Override
@@ -170,11 +135,13 @@ public class MemorySparseFloatIndex implements MemoryIndexPart, AggregateReader 
 
   @Override
   public long getDocumentCount() {
+    // doesn't work/make sense
     return collectionDocumentCount;
   }
 
   @Override
   public long getCollectionLength() {
+    // doesn't work/make sense
     return collectionPostingsCount;
   }
 
@@ -190,17 +157,17 @@ public class MemorySparseFloatIndex implements MemoryIndexPart, AggregateReader 
     p.set("statistics/documentCount", this.getDocumentCount());
     p.set("statistics/collectionLength", this.getCollectionLength());
     p.set("statistics/vocabCount", this.getKeyCount());
-    CountIndexWriter writer = new CountIndexWriter(new FakeParameters(p));
+    SparseFloatListWriter writer = new SparseFloatListWriter(new FakeParameters(p));
 
     KIterator kiterator = new KIterator();
-    CountsIterator viterator;
+    ScoresIterator viterator;
     while (!kiterator.isDone()) {
-      viterator = (CountsIterator) kiterator.getValueIterator();
+      viterator = (ScoresIterator) kiterator.getValueIterator();
       writer.processWord(kiterator.getKey());
 
       while (!viterator.isDone()) {
-        writer.processDocument(viterator.currentCandidate());
-        writer.processTuple(viterator.count());
+        writer.processNumber(viterator.currentCandidate());
+        writer.processTuple(viterator.score());
         viterator.next();
       }
       kiterator.nextKey();
@@ -221,39 +188,28 @@ public class MemorySparseFloatIndex implements MemoryIndexPart, AggregateReader 
 
     byte[] key;
     CompressedByteBuffer documents_cbb = new CompressedByteBuffer();
-    CompressedByteBuffer counts_cbb = new CompressedByteBuffer();
-    //IntArray documents = new IntArray();
-    //IntArray termFreqCounts = new IntArray();
-    //IntArray termPositions = new IntArray();
-    int termDocumentCount = 0;
+    CompressedByteBuffer scores_cbb = new CompressedByteBuffer();
     int termPostingsCount = 0;
     int lastDocument = 0;
-    int lastCount = 0;
+    double maxScore = Double.MIN_VALUE;
+    double minScore = Double.MAX_VALUE;
 
     public PostingList(byte[] key) {
       this.key = key;
     }
 
-    public void add(int document, int count) {
-      if (termDocumentCount == 0) {
-        // first instance of term
-        lastDocument = document;
-        lastCount = count;
-        termDocumentCount += 1;
-        documents_cbb.add(document);
-      } else if (lastDocument == document) {
-        // additional instance of term in document
-        lastCount += count;
-      } else {
-        // new document
-        assert lastDocument == 0 || document > lastDocument;
-        documents_cbb.add(document - lastDocument);
-        lastDocument = document;
-        counts_cbb.add(lastCount);
-        lastCount = count;
-        termDocumentCount += 1;
-      }
-      termPostingsCount += count;
+    public void add(int document, double score) {
+      assert lastDocument == 0 || document > lastDocument : "Can not add documents in non-increasing order.";
+
+      documents_cbb.add(document - lastDocument);
+      lastDocument = document;
+
+      maxScore = Math.max(maxScore, score);
+      minScore = Math.min(minScore, score);
+
+      scores_cbb.addFloat((float) score);
+
+      termPostingsCount += 1;
     }
   }
   // iterator allows for query processing and for streaming posting list data
@@ -312,16 +268,10 @@ public class MemorySparseFloatIndex implements MemoryIndexPart, AggregateReader 
     @Override
     public String getValueString() throws IOException {
       long count = -1;
-      CountsIterator it = new CountsIterator(postings.get(currKey));
-      count = it.count();
+      ScoresIterator it = new ScoresIterator(postings.get(currKey));
       StringBuilder sb = new StringBuilder();
       sb.append(Utility.toString(getKey())).append(",");
-      sb.append("list of size: ");
-      if (count > 0) {
-        sb.append(count);
-      } else {
-        sb.append("Unknown");
-      }
+      sb.append("score:").append(it.score());
       return sb.toString();
     }
 
@@ -347,27 +297,27 @@ public class MemorySparseFloatIndex implements MemoryIndexPart, AggregateReader 
     @Override
     public ValueIterator getValueIterator() throws IOException {
       if (currKey != null) {
-        return new CountsIterator(postings.get(currKey));
+        return new ScoresIterator(postings.get(currKey));
       } else {
         return null;
       }
     }
   }
 
-  public class CountsIterator extends ValueIterator implements ModifiableIterator,
-          AggregateIterator, MovableCountIterator, ContextualIterator {
+  public class ScoresIterator extends ValueIterator implements
+          MovableScoreIterator, ContextualIterator {
 
     PostingList postings;
     VByteInput documents_reader;
-    VByteInput counts_reader;
+    VByteInput scores_reader;
     int iteratedDocs;
     int currDocument;
-    int currCount;
+    double currScore;
     boolean done;
     ScoringContext context;
     Map<String, Object> modifiers;
 
-    private CountsIterator(PostingList postings) throws IOException {
+    private ScoresIterator(PostingList postings) throws IOException {
       this.postings = postings;
       reset();
     }
@@ -377,25 +327,30 @@ public class MemorySparseFloatIndex implements MemoryIndexPart, AggregateReader 
       documents_reader = new VByteInput(
               new DataInputStream(
               new ByteArrayInputStream(postings.documents_cbb.getBytes())));
-      counts_reader = new VByteInput(
+      scores_reader = new VByteInput(
               new DataInputStream(
-              new ByteArrayInputStream(postings.counts_cbb.getBytes())));
+              new ByteArrayInputStream(postings.scores_cbb.getBytes())));
 
       iteratedDocs = 0;
       currDocument = 0;
-      currCount = 0;
+      currScore = 0;
 
       next();
     }
 
     @Override
-    public int count() {
-      return currCount;
+    public double score() {
+      return currScore;
     }
 
     @Override
-    public int maximumCount() {
-      return Integer.MAX_VALUE;
+    public double maximumScore() {
+      return postings.maxScore;
+    }
+
+    @Override
+    public double minimumScore() {
+      return postings.minScore;
     }
 
     @Override
@@ -420,15 +375,12 @@ public class MemorySparseFloatIndex implements MemoryIndexPart, AggregateReader 
 
     @Override
     public void next() throws IOException {
-      if (iteratedDocs >= postings.termDocumentCount) {
+      if (iteratedDocs >= postings.termPostingsCount) {
         done = true;
         return;
-      } else if (iteratedDocs == postings.termDocumentCount - 1) {
-        currDocument = postings.lastDocument;
-        currCount = postings.lastCount;
       } else {
         currDocument += documents_reader.readInt();
-        currCount = counts_reader.readInt();
+        currScore = scores_reader.readFloat();
       }
 
       iteratedDocs++;
@@ -437,7 +389,7 @@ public class MemorySparseFloatIndex implements MemoryIndexPart, AggregateReader 
     @Override
     public void moveTo(int identifier) throws IOException {
       // TODO: need to implement skip lists
-      
+
       while (!isDone() && (currDocument < identifier)) {
         next();
       }
@@ -456,28 +408,14 @@ public class MemorySparseFloatIndex implements MemoryIndexPart, AggregateReader 
       builder.append(",");
       builder.append(currDocument);
       builder.append(",");
-      builder.append(currCount);
+      builder.append(currScore);
 
       return builder.toString();
     }
 
     @Override
     public long totalEntries() {
-      return postings.termDocumentCount;
-    }
-
-    @Override
-    public NodeStatistics getStatistics() {
-      if (modifiers != null && modifiers.containsKey("background")) {
-        return (NodeStatistics) modifiers.get("background");
-      }
-      NodeStatistics stats = new NodeStatistics();
-      stats.node = Utility.toString(postings.key);
-      stats.nodeFrequency = postings.termPostingsCount;
-      stats.nodeDocumentCount = postings.termDocumentCount;
-      stats.collectionLength = collectionPostingsCount;
-      stats.documentCount = collectionDocumentCount;
-      return stats;
+      return postings.termPostingsCount;
     }
 
     @Override
@@ -494,42 +432,15 @@ public class MemorySparseFloatIndex implements MemoryIndexPart, AggregateReader 
       return currentCandidate() - other.currentCandidate();
     }
 
-    @Override
-    public void addModifier(String k, Object m) {
-      if (modifiers == null) {
-        modifiers = new HashMap<String, Object>();
-      }
-      modifiers.put(k, m);
-    }
-
-    @Override
-    public Set<String> getAvailableModifiers() {
-      return modifiers.keySet();
-    }
-
-    @Override
-    public boolean hasModifier(String key) {
-      return ((modifiers != null) && modifiers.containsKey(key));
-    }
-
-    @Override
-    public Object getModifier(String modKey) {
-      if (modifiers == null) {
-        return null;
-      }
-      return modifiers.get(modKey);
-    }
-
     // This will pass up topdocs information if it's available
     @Override
     public void setContext(ScoringContext context) {
-      if ((context != null) && TopDocsContext.class.isAssignableFrom(context.getClass())
-              && this.hasModifier("topdocs")) {
-        ((TopDocsContext) context).hold = ((ArrayList<TopDocument>) getModifier("topdocs"));
-        // remove the pointer to the mod (don't need it anymore)
-        this.modifiers.remove("topdocs");
-      }
       this.context = context;
+    }
+
+    @Override
+    public ScoringContext getContext() {
+      return this.context;
     }
 
     @Override

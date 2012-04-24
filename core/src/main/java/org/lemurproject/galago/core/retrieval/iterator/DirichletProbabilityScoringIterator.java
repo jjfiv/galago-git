@@ -105,6 +105,11 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
     }
   }
 
+  @Override
+  public ScoringContext getContext() {
+    return this.context;
+  }
+
   public void aggregatePotentials(DeltaScoringContext ctx) {
     for (double d : ctx.startingPotentials) {
       ctx.startingPotential += Math.log(d);

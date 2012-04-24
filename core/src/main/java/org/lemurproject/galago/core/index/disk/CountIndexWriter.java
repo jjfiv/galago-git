@@ -221,7 +221,7 @@ public class CountIndexWriter implements
   TIntHashSet uniqueDocs;
 
   /**
-   * Creates a new instance of PositionIndexWriter
+   * Creates a new instance of CountIndexWriter
    */
   public CountIndexWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
     Parameters actualParams = parameters.getJSON();

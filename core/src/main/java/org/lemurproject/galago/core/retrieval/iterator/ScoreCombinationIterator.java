@@ -18,13 +18,14 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Mov
   protected MovableScoreIterator[] scoreIterators;
   protected boolean done;
   protected boolean printing;
+  protected ScoringContext context;
 
   public ScoreCombinationIterator(NodeParameters parameters,
           MovableScoreIterator[] childIterators) {
     super(childIterators);
 
     this.scoreIterators = childIterators;
-    
+
     weights = new double[childIterators.length];
     double weightSum = 0.0;
 
@@ -77,6 +78,11 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Mov
 
   @Override
   public void setContext(ScoringContext context) {
-    // do nothing by default
+    this.context = context;
+  }
+
+  @Override
+  public ScoringContext getContext() {
+    return context;
   }
 }

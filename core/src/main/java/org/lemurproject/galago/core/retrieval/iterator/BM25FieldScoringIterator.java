@@ -130,4 +130,9 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
       dctx.scorers.add(this);
     }
   }
+
+  @Override
+  public ScoringContext getContext() {
+    return this.context;
+  }
 }

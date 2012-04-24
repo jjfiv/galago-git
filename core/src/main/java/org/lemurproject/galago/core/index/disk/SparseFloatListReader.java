@@ -172,6 +172,11 @@ public class SparseFloatListReader extends KeyListReader {
     public double minimumScore() {
       return Double.NEGATIVE_INFINITY;
     }
+
+    @Override
+    public ScoringContext getContext() {
+      return context;
+    }
   }
 
   public SparseFloatListReader(String pathname) throws FileNotFoundException, IOException {

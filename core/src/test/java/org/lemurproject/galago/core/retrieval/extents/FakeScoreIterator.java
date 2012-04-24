@@ -57,8 +57,15 @@ public class FakeScoreIterator implements MovableScoreIterator {
   }
 
   @Override
+  public void next() throws IOException {
+    if (!isDone()) {
+      moveTo(docs[index] + 1);
+    }
+  }
+
+  @Override
   public double score() {
-    if (docs[index] == context.document) {
+    if (!isDone() && docs[index] == context.document) {
       return scores[index];
     }
     return 0;
@@ -66,7 +73,7 @@ public class FakeScoreIterator implements MovableScoreIterator {
 
   @Override
   public boolean isDone() {
-    return index >= docs.length;
+    return (index >= docs.length);
   }
 
   @Override
@@ -89,9 +96,8 @@ public class FakeScoreIterator implements MovableScoreIterator {
     this.context = context;
   }
 
-  @Override
-  public void next() throws IOException {
-    throw new UnsupportedOperationException("Not supported yet.");
+  public ScoringContext getContext() {
+    return context;
   }
 
   @Override

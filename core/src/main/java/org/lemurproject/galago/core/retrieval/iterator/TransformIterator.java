@@ -21,6 +21,10 @@ public abstract class TransformIterator implements MovableIterator {
     this.context = context;
   }
 
+  public ScoringContext getContext() {
+    return this.context;
+  }
+
   @Override
   public void reset() throws IOException {
     iterator.reset();

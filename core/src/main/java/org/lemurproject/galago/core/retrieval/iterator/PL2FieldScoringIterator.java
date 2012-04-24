@@ -62,6 +62,11 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
+  public ScoringContext getContext() {
+    return this.context;
+  }
+
+  @Override
   public double score() {
     int count = 0;
 

@@ -112,6 +112,11 @@ public abstract class FilteredIterator implements MovableCountIterator, MovableS
   }
 
   @Override
+  public ScoringContext getContext() {
+    return this.context;
+  }
+
+  @Override
   public boolean isDone() {
     return mover.isDone();
   }

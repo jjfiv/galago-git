@@ -363,8 +363,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
     }
   }
 
-  public class CountsIterator extends ValueIterator implements ModifiableIterator,
-          AggregateIterator, MovableCountIterator, ContextualIterator {
+  public class CountsIterator extends ValueIterator implements AggregateIterator, MovableCountIterator {
 
     PostingList postings;
     VByteInput documents_reader;
@@ -502,45 +501,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
       }
       return currentCandidate() - other.currentCandidate();
     }
-
-    @Override
-    public void addModifier(String k, Object m) {
-      if (modifiers == null) {
-        modifiers = new HashMap<String, Object>();
-      }
-      modifiers.put(k, m);
-    }
-
-    @Override
-    public Set<String> getAvailableModifiers() {
-      return modifiers.keySet();
-    }
-
-    @Override
-    public boolean hasModifier(String key) {
-      return ((modifiers != null) && modifiers.containsKey(key));
-    }
-
-    @Override
-    public Object getModifier(String modKey) {
-      if (modifiers == null) {
-        return null;
-      }
-      return modifiers.get(modKey);
-    }
-
-    // This will pass up topdocs information if it's available
-    @Override
-    public void setContext(ScoringContext context) {
-      if ((context != null) && TopDocsContext.class.isAssignableFrom(context.getClass())
-              && this.hasModifier("topdocs")) {
-        ((TopDocsContext) context).hold = ((ArrayList<TopDocument>) getModifier("topdocs"));
-        // remove the pointer to the mod (don't need it anymore)
-        this.modifiers.remove("topdocs");
-      }
-      this.context = context;
-    }
-
+    
     @Override
     public String getKeyString() throws IOException {
       return Utility.toString(postings.key);

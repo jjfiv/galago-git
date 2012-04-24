@@ -387,6 +387,11 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       }
       this.context = context;
     }
+    
+    @Override
+    public ScoringContext getContext(){
+      return this.context;
+    }
   }
 
   /**
@@ -673,6 +678,11 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       }
       this.context = context;
     }
+    
+    @Override
+    public ScoringContext getContext(){
+      return this.context;
+    }    
   }
   Stemmer stemmer = null;
 

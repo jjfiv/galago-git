@@ -344,8 +344,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
       return new ExtentIterator();
     }
 
-    public class ExtentIterator extends ValueIterator implements ModifiableIterator,
-            AggregateIterator, MovableCountIterator, MovableExtentIterator, ContextualIterator {
+    public class ExtentIterator extends ValueIterator implements AggregateIterator, MovableCountIterator, MovableExtentIterator {
 
       VByteInput documents_reader;
       VByteInput counts_reader;
@@ -356,8 +355,6 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
       int currCount;
       ExtentArray extents;
       boolean done;
-      ScoringContext context;
-      Map<String, Object> modifiers;
 
       public ExtentIterator() throws IOException {
         reset();
@@ -489,9 +486,6 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
 
       @Override
       public NodeStatistics getStatistics() {
-        if (modifiers != null && modifiers.containsKey("background")) {
-          return (NodeStatistics) modifiers.get("background");
-        }
         NodeStatistics stats = new NodeStatistics();
         stats.node = Utility.toString(m_termBytes);
         stats.nodeFrequency = extentPostingCount;
@@ -514,45 +508,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
         }
         return currentCandidate() - other.currentCandidate();
       }
-
-      @Override
-      public void addModifier(String k, Object m) {
-        if (modifiers == null) {
-          modifiers = new HashMap<String, Object>();
-        }
-        modifiers.put(k, m);
-      }
-
-      @Override
-      public Set<String> getAvailableModifiers() {
-        return modifiers.keySet();
-      }
-
-      @Override
-      public boolean hasModifier(String key) {
-        return ((modifiers != null) && modifiers.containsKey(key));
-      }
-
-      @Override
-      public Object getModifier(String modKey) {
-        if (modifiers == null) {
-          return null;
-        }
-        return modifiers.get(modKey);
-      }
-
-      // This will pass up topdocs information if it's available
-      @Override
-      public void setContext(ScoringContext context) {
-        if ((context != null) && TopDocsContext.class.isAssignableFrom(context.getClass())
-                && this.hasModifier("topdocs")) {
-          ((TopDocsContext) context).hold = ((ArrayList<TopDocument>) getModifier("topdocs"));
-          // remove the pointer to the mod (don't need it anymore)
-          this.modifiers.remove("topdocs");
-        }
-        this.context = context;
-      }
-
+      
       @Override
       public String getKeyString() throws IOException {
         return Utility.toString(m_termBytes);

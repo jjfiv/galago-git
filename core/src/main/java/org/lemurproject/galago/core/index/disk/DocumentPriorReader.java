@@ -18,7 +18,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * 
+ *
  * @author sjh
  */
 public class DocumentPriorReader extends KeyValueReader {
@@ -199,6 +199,11 @@ public class DocumentPriorReader extends KeyValueReader {
           throw new RuntimeException("Prior Reader - failed to convert index.getKeyBytes to an integer.");
         }
       }
+    }
+
+    @Override
+    public ScoringContext getContext() {
+      return this.context;
     }
 
     @Override

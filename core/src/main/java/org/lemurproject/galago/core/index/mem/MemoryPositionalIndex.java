@@ -578,6 +578,11 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
+    public ScoringContext getContext() {
+      return this.context;
+    }
+
+    @Override
     public boolean hasAllCandidates() {
       return false;
     }
@@ -767,6 +772,11 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
         this.modifiers.remove("topdocs");
       }
       this.context = context;
+    }
+
+    @Override
+    public ScoringContext getContext() {
+      return this.context;
     }
 
     @Override
