@@ -27,21 +27,17 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
 @InputClass(className = "org.lemurproject.galago.core.parse.Document")
 public class CorpusFileWriter implements Processor<Document> {
 
+  Parameters corpusParams;
   DiskBTreeWriter writer;
   Counter documentsWritten;
-  boolean compressed;
 
   public CorpusFileWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
-    compressed = parameters.getJSON().get("compressed", true);
-
+    corpusParams = parameters.getJSON();
     // create a writer;
-    Parameters p = new Parameters();
-    p.set("compressed", parameters.getJSON().get("compressed",true));
-    p.set("writerClass", getClass().getName());
-    p.set("readerClass", CorpusReader.class.getName());
-    p.set("mergerClass", CorpusMerger.class.getName());
-
-    writer = new DiskBTreeWriter(parameters.getJSON().getString("filename"), p);
+    corpusParams.set("writerClass", getClass().getName());
+    corpusParams.set("readerClass", CorpusReader.class.getName());
+    corpusParams.set("mergerClass", CorpusMerger.class.getName());
+    writer = new DiskBTreeWriter(parameters.getJSON().getString("filename"), corpusParams);
     documentsWritten = parameters.getCounter("Documents Written");
   }
 
@@ -50,7 +46,7 @@ public class CorpusFileWriter implements Processor<Document> {
   }
 
   public void process(Document document) throws IOException {
-    writer.add(new GenericElement(Utility.fromInt(document.identifier), Document.serialize(document, compressed)));
+    writer.add(new GenericElement(Utility.fromInt(document.identifier), Document.serialize(corpusParams, document)));
     if (documentsWritten != null) {
       documentsWritten.increment();
     }

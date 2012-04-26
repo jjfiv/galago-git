@@ -143,6 +143,9 @@ public class MakeCorpus {
     stage.add(new Step(KeyValuePairToDocument.class));
     p = new Parameters();
     p.set("filename", outputCorpus);
+    if(p.isMap("corpusParameters")){
+      p.copyFrom(corpusParameters.getMap("corpusParameters"));
+    }
     stage.add(new Step(CorpusFileWriter.class, p));
 
     job.add(stage);
@@ -169,10 +172,12 @@ public class MakeCorpus {
     }
 
     Parameters corpusWriterParameters = new Parameters();
-    corpusWriterParameters.set("compressed", corpusParams.get("compressed", true));
     corpusWriterParameters.set("readerClass", CorpusReader.class.getName());
     corpusWriterParameters.set("writerClass", CorpusFolderWriter.class.getName());
     corpusWriterParameters.set("filename", corpus.getAbsolutePath());
+    if(corpusParams.isMap("corpusParameters")){
+      corpusWriterParameters.copyFrom(corpusParams.getMap("corpusParameters"));
+    }
 
     Job job = new Job();
 

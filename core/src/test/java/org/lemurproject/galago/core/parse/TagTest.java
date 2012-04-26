@@ -27,30 +27,6 @@ public class TagTest extends TestCase {
         assertEquals(1, t.attributes.size());
     }
 
-    public void testTrimTagAscii() {
-        Tag t = new Tag("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-                        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-                        "dcvbxhdhhggbsadkjfjehjhhdudhieuhyyipkjjhjehjwjdjdmnfjikkkklllkjl" +
-                        "dcvbxhdhhggbsadkjfjehjhhdudhieuhyyipkjjhjehjwjdjdmnfjikkkklllkjl" +
-                        "dcvbxhdhhggbsadkjfjehjhhdudhieuhyyipkjjhjehjwjdjdmnfjikkkklllkjl" +
-                        "dcvbxhdhhggbsadkjfjehjhhdudhieuhyyipkjjhjehjwjdjdmnfjikkkklllkjl",
-                        Collections.EMPTY_MAP, 0, 1);
-
-        assertEquals(255, t.name.length());
-    }
-
-    public void testTrimTagUnicode() {
-        Tag t = new Tag("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-                        "aaaaaaaa\u229aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-                        "dcvbxhdhhggbsadkjfjehjhhdudhieuhyyipkjjhjehjwjdjdmnfjikkkklllkjl" +
-                        "dcvbxhdhhggbsadkjfjehjhhdudhieuhyyipkjjhjehjwjdjdmnfjikkkklllkjl" +
-                        "dcvbxhdhhggbsadkjfjehjhhdudhieuhyyipkjjhjehjwjdjdmnfjikkkklllkjl" +
-                        "dcvbxhdhhggbsadkjfjehjhhdudhieuhyyipkjjhjehjwjdjdmnfjikkkklllkjl",
-                        Collections.EMPTY_MAP, 0, 1);
-
-        assertEquals(253, t.name.length());
-    }
-
     public void testToString() {
         Tag t = new Tag("a", Collections.singletonMap("b", "c"), 0, 1);
         assertEquals("<a b=\"c\">", t.toString());

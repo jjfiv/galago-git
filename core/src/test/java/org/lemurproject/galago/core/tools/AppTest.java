@@ -68,7 +68,8 @@ public class AppTest extends TestCase {
       // now, attempt to make a corpus folder from that.
       corpusFile2 = Utility.createTemporaryDirectory();
       App.main(new String[]{"make-corpus", "--corpusPath=" + corpusFile2.getAbsolutePath(),
-                "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--distrib=2"});
+                "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--distrib=2",
+                "--corpusParameters/corpusTags=false", "--corpusParameters/corpusTerms=false"});
 
       // make sure the corpus folder exists
       assertTrue(corpusFile2.exists());

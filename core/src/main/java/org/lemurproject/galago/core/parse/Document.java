@@ -4,33 +4,34 @@ package org.lemurproject.galago.core.parse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
+import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
+import org.xerial.snappy.SnappyInputStream;
+import org.xerial.snappy.SnappyOutputStream;
 
 public class Document implements Serializable {
 
-  // document id
+  // document id - this values are serialized
   public int identifier = -1;
-  // document data
+  // document data - these values are serialized
   public String name;
   public Map<String, String> metadata;
   public String text;
-  public List<String> terms = null;
-  public List<Tag> tags = null;
-  // other data - used to generate an identifier
+  public List<String> terms;
+  public List<Tag> tags;
+  // other data - used to generate an identifier; these values can not be serialized!
   public int fileId = -1;
   public int totalFileCount = -1;
 
   public Document() {
-    this.metadata = new HashMap<String, String>();
+    metadata = new HashMap();
   }
 
   public Document(String identifier, String text) {
@@ -75,57 +76,162 @@ public class Document implements Serializable {
     return sb.toString();
   }
 
-  public static byte[] serialize(Document doc, boolean compressed) throws IOException {
+  public static byte[] serialize(Parameters p, Document doc) throws IOException {
     ByteArrayOutputStream array = new ByteArrayOutputStream();
-    ObjectOutputStream output;
-    if (compressed) {
-      output = new ObjectOutputStream(new GZIPOutputStream(array));
-    } else {
-      output = new ObjectOutputStream(array);
+    DataOutputStream output = new DataOutputStream(new SnappyOutputStream(array));
+
+    boolean metadata = p.get("corpusMetadata", true);
+    boolean text = p.get("corpusText", true);
+    boolean terms = p.get("corpusTerms", true);
+    boolean tags = p.get("corpusTags", true);
+
+    // options
+    output.writeBoolean(metadata);
+    output.writeBoolean(text);
+    output.writeBoolean(terms);
+    output.writeBoolean(tags);
+
+    // identifier
+    output.writeInt(doc.identifier);
+
+    // name
+    output.writeInt(doc.name.length());
+    output.write(Utility.fromString(doc.name));
+
+    if (metadata) {
+      // metadata
+      output.writeInt(doc.metadata.size());
+      for (String key : doc.metadata.keySet()) {
+        output.writeInt(key.length());
+        output.write(Utility.fromString(key));
+        output.writeInt(doc.metadata.get(key).length());
+        output.write(Utility.fromString(doc.metadata.get(key)));
+      }
     }
 
-    output.writeObject(doc);
+    if (text) {
+      // text
+      output.writeInt(doc.text.length());
+      output.write(Utility.fromString(doc.text));
+    }
+
+    if (terms) {
+      // terms
+      output.writeInt(doc.terms.size());
+      for (String term : doc.terms) {
+        output.writeInt(term.length());
+        output.write(Utility.fromString(term));
+      }
+    }
+
+    if (tags) {
+      // tags
+      output.writeInt(doc.tags.size());
+      for (Tag tag : doc.tags) {
+        output.writeInt(tag.name.length());
+        output.write(Utility.fromString(tag.name));
+        output.writeInt(tag.begin);
+        output.writeInt(tag.end);
+        output.writeInt(tag.attributes.size());
+        for (String key : tag.attributes.keySet()) {
+          output.writeInt(key.length());
+          output.write(Utility.fromString(key));
+          output.writeInt(tag.attributes.get(key).length());
+          output.write(Utility.fromString(tag.attributes.get(key)));
+        }
+      }
+    }
+
     output.close();
 
     return array.toByteArray();
   }
 
-  public static Document deserialize(byte[] data, boolean compressed) throws IOException {
+  public static Document deserialize(byte[] data) throws IOException {
     ByteArrayInputStream stream = new ByteArrayInputStream(data);
-    ObjectInputStream docInput;
-    if (compressed) {
-      docInput = new ObjectInputStream(new GZIPInputStream(stream));
-    } else {
-      docInput = new ObjectInputStream(stream);
-    }
-
-    Document document = null;
-    try {
-      document = (Document) docInput.readObject();
-    } catch (ClassNotFoundException ex) {
-      throw new IOException("Expected to find a serialized document here, " + "but found something else instead.", ex);
-    }
-
-    docInput.close();
-    return document;
+    return deserialize(new DataInputStream(stream));
   }
-  
-  public static Document deserialize(DataInputStream stream, boolean compressed) throws IOException {
-    ObjectInputStream docInput;
-    if (compressed) {
-      docInput = new ObjectInputStream(new GZIPInputStream(stream));
-    } else {
-      docInput = new ObjectInputStream(stream);
+
+  public static Document deserialize(DataInputStream stream) throws IOException {
+    DataInputStream input = new DataInputStream(new SnappyInputStream(stream));
+    Document d = new Document();
+
+    // options
+    boolean metadata = input.readBoolean();
+    boolean text = input.readBoolean();
+    boolean terms = input.readBoolean();
+    boolean tags = input.readBoolean();
+
+    // identifier
+    d.identifier = input.readInt();
+
+    // name
+    byte[] docNameBytes = new byte[input.readInt()];
+    input.readFully(docNameBytes);
+    d.name = Utility.toString(docNameBytes);
+
+    if (metadata) {
+      // metadata
+      int metadataCount = input.readInt();
+      d.metadata = new HashMap(metadataCount);
+      for (int i = 0; i < metadataCount; i++) {
+
+        byte[] keyBytes = new byte[input.readInt()];
+        input.readFully(keyBytes);
+        String key = Utility.toString(keyBytes);
+
+        byte[] valueBytes = new byte[input.readInt()];
+        input.readFully(valueBytes);
+        String value = Utility.toString(valueBytes);
+
+        d.metadata.put(key, value);
+      }
+    }
+    if (text) {
+      // text
+      byte[] textBytes = new byte[input.readInt()];
+      input.readFully(textBytes);
+      d.text = Utility.toString(textBytes);
     }
 
-    Document document = null;
-    try {
-      document = (Document) docInput.readObject();
-    } catch (ClassNotFoundException ex) {
-      throw new IOException("Expected to find a serialized document here, " + "but found something else instead.", ex);
+    if (terms) {
+      // terms
+      int termCount = input.readInt();
+      d.terms = new ArrayList(termCount);
+      for (int i = 0; i < termCount; i++) {
+        byte[] termBytes = new byte[input.readInt()];
+        input.readFully(termBytes);
+        d.terms.add(Utility.toString(termBytes));
+      }
     }
 
-    docInput.close();
-    return document;
+    if (tags) {
+      // tags
+      int tagCount = input.readInt();
+      d.tags = new ArrayList(tagCount);
+      for (int i = 0; i < tagCount; i++) {
+        byte[] tagNameBytes = new byte[input.readInt()];
+        input.readFully(tagNameBytes);
+        String tagName = Utility.toString(tagNameBytes);
+        int tagBegin = input.readInt();
+        int tagEnd = input.readInt();
+        HashMap<String, String> attributes = new HashMap();
+        int attrCount = input.readInt();
+        for (int j = 0; j < attrCount; j++) {
+          byte[] keyBytes = new byte[input.readInt()];
+          input.readFully(keyBytes);
+          String key = Utility.toString(keyBytes);
+          byte[] valueBytes = new byte[input.readInt()];
+          input.readFully(valueBytes);
+          String value = Utility.toString(valueBytes);
+          attributes.put(key, value);
+        }
+        Tag t = new Tag(tagName, attributes, tagBegin, tagEnd);
+        d.tags.add(t);
+      }
+    }
+
+    input.close();
+    return d;
   }
 }
