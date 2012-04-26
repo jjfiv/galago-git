@@ -20,11 +20,11 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-    <scm>
-        <connection>scm:hg:http://lemur.hg.sourceforge.net:8000/hgroot/lemur/galago</connection>
-        <developerConnection>scm:hg:ssh://USERNAME@lemur.hg.sourceforge.net/hgroot/lemur/galago</developerConnection>
-        <url>http://lemur.hg.sourceforge.net/hgweb/lemur/galago/</url>
-    </scm>
+  <scm>
+    <connection>scm:hg:http://lemur.hg.sourceforge.net:8000/hgroot/lemur/galago</connection>
+    <developerConnection>scm:hg:ssh://USERNAME@lemur.hg.sourceforge.net/hgroot/lemur/galago</developerConnection>
+    <url>http://lemur.hg.sourceforge.net/hgweb/lemur/galago/</url>
+  </scm>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -56,6 +56,11 @@
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.xerial.snappy</groupId>
+      <artifactId>snappy-java</artifactId>
+      <version>1.0.4.1</version>
     </dependency>
   </dependencies>
   <reporting>
