@@ -71,9 +71,9 @@ public class AnnotateParameters extends Traversal {
                       + "\nPlease ensure the parameter is specified as a simple type : {String,boolean,long,double} "
                       + "in the query parameters or global parameters.");
             }
-            // debugging code.
-          } else {
-            Logger.getLogger(this.getClass().getName()).info("Parameter " + p + " not found - using default value.");
+          // debugging code.
+          //} else {
+          // Logger.getLogger(this.getClass().getName()).info("Parameter " + p + " not found - using default value.");
           }
         }
       }
