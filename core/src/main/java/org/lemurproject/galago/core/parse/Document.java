@@ -80,6 +80,7 @@ public class Document implements Serializable {
     ByteArrayOutputStream array = new ByteArrayOutputStream();
     DataOutputStream output = new DataOutputStream(new SnappyOutputStream(array));
 
+
     boolean metadata = p.get("corpusMetadata", true);
     boolean text = p.get("corpusText", true);
     boolean terms = p.get("corpusTerms", true);
@@ -100,44 +101,60 @@ public class Document implements Serializable {
 
     if (metadata) {
       // metadata
-      output.writeInt(doc.metadata.size());
-      for (String key : doc.metadata.keySet()) {
-        output.writeInt(key.length());
-        output.write(Utility.fromString(key));
-        output.writeInt(doc.metadata.get(key).length());
-        output.write(Utility.fromString(doc.metadata.get(key)));
+      if (doc.metadata == null) {
+        output.writeInt(0);
+      } else {
+        output.writeInt(doc.metadata.size());
+        for (String key : doc.metadata.keySet()) {
+          output.writeInt(key.length());
+          output.write(Utility.fromString(key));
+          output.writeInt(doc.metadata.get(key).length());
+          output.write(Utility.fromString(doc.metadata.get(key)));
+        }
       }
     }
 
     if (text) {
       // text
-      output.writeInt(doc.text.length());
-      output.write(Utility.fromString(doc.text));
+      if (doc.text == null) {
+        output.writeInt(0);
+      } else {
+        output.writeInt(doc.text.length());
+        output.write(Utility.fromString(doc.text));
+      }
     }
 
     if (terms) {
       // terms
-      output.writeInt(doc.terms.size());
-      for (String term : doc.terms) {
-        output.writeInt(term.length());
-        output.write(Utility.fromString(term));
+      if (doc.terms == null) {
+        output.writeInt(0);
+      } else {
+        output.writeInt(doc.terms.size());
+        for (String term : doc.terms) {
+          output.writeInt(term.length());
+          output.write(Utility.fromString(term));
+        }
       }
     }
 
     if (tags) {
       // tags
-      output.writeInt(doc.tags.size());
-      for (Tag tag : doc.tags) {
-        output.writeInt(tag.name.length());
-        output.write(Utility.fromString(tag.name));
-        output.writeInt(tag.begin);
-        output.writeInt(tag.end);
-        output.writeInt(tag.attributes.size());
-        for (String key : tag.attributes.keySet()) {
-          output.writeInt(key.length());
-          output.write(Utility.fromString(key));
-          output.writeInt(tag.attributes.get(key).length());
-          output.write(Utility.fromString(tag.attributes.get(key)));
+      if (doc.tags == null) {
+        output.writeInt(0);
+      } else {
+        output.writeInt(doc.tags.size());
+        for (Tag tag : doc.tags) {
+          output.writeInt(tag.name.length());
+          output.write(Utility.fromString(tag.name));
+          output.writeInt(tag.begin);
+          output.writeInt(tag.end);
+          output.writeInt(tag.attributes.size());
+          for (String key : tag.attributes.keySet()) {
+            output.writeInt(key.length());
+            output.write(Utility.fromString(key));
+            output.writeInt(tag.attributes.get(key).length());
+            output.write(Utility.fromString(tag.attributes.get(key)));
+          }
         }
       }
     }

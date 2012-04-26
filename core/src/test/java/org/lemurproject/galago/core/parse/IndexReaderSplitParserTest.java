@@ -55,7 +55,6 @@ public class IndexReaderSplitParserTest extends TestCase {
     document.metadata.put("Something", "Else");
 
     Parameters corpusWriterParameters = new Parameters();
-    corpusWriterParameters.set("compressed", true);
     corpusWriterParameters.set("readerClass", CorpusReader.class.getName());
     corpusWriterParameters.set("writerClass", CorpusFolderWriter.class.getName());
     corpusWriterParameters.set("filename", temporary.getAbsolutePath());
