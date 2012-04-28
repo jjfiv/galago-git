@@ -96,8 +96,9 @@ public class Document implements Serializable {
     output.writeInt(doc.identifier);
 
     // name
-    output.writeInt(doc.name.length());
-    output.write(Utility.fromString(doc.name));
+    byte[] bytes = Utility.fromString(doc.name);
+    output.writeInt(bytes.length);
+    output.write(bytes);
 
     if (metadata) {
       // metadata
@@ -106,10 +107,13 @@ public class Document implements Serializable {
       } else {
         output.writeInt(doc.metadata.size());
         for (String key : doc.metadata.keySet()) {
-          output.writeInt(key.length());
-          output.write(Utility.fromString(key));
-          output.writeInt(doc.metadata.get(key).length());
-          output.write(Utility.fromString(doc.metadata.get(key)));
+          bytes = Utility.fromString(key);
+          output.writeInt(bytes.length);
+          output.write(bytes);
+
+          bytes = Utility.fromString(doc.metadata.get(key));
+          output.writeInt(bytes.length);
+          output.write(bytes);
         }
       }
     }
@@ -119,8 +123,9 @@ public class Document implements Serializable {
       if (doc.text == null) {
         output.writeInt(0);
       } else {
-        output.writeInt(doc.text.length());
-        output.write(Utility.fromString(doc.text));
+        bytes = Utility.fromString(doc.text);
+        output.writeInt(bytes.length);
+        output.write(bytes);
       }
     }
 
@@ -131,8 +136,9 @@ public class Document implements Serializable {
       } else {
         output.writeInt(doc.terms.size());
         for (String term : doc.terms) {
-          output.writeInt(term.length());
-          output.write(Utility.fromString(term));
+          bytes = Utility.fromString(term);
+          output.writeInt(bytes.length);
+          output.write(bytes);
         }
       }
     }
@@ -144,16 +150,19 @@ public class Document implements Serializable {
       } else {
         output.writeInt(doc.tags.size());
         for (Tag tag : doc.tags) {
-          output.writeInt(tag.name.length());
-          output.write(Utility.fromString(tag.name));
+          bytes = Utility.fromString(tag.name);
+          output.writeInt(bytes.length);
+          output.write(bytes);
           output.writeInt(tag.begin);
           output.writeInt(tag.end);
           output.writeInt(tag.attributes.size());
           for (String key : tag.attributes.keySet()) {
-            output.writeInt(key.length());
-            output.write(Utility.fromString(key));
-            output.writeInt(tag.attributes.get(key).length());
-            output.write(Utility.fromString(tag.attributes.get(key)));
+            bytes = Utility.fromString(key);
+            output.writeInt(bytes.length);
+            output.write(bytes);
+            bytes = Utility.fromString(tag.attributes.get(key));
+            output.writeInt(bytes.length);
+            output.write(bytes);
           }
         }
       }
