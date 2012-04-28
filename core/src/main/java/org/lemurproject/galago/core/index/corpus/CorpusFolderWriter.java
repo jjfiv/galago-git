@@ -29,26 +29,20 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 @InputClass(className = "org.lemurproject.galago.core.parse.Document")
 @OutputClass(className = "org.lemurproject.galago.core.types.KeyValuePair")
 public class CorpusFolderWriter implements Processor<Document>, Source<KeyValuePair> {
-
-  boolean compressed;
+  Parameters corpusParams;
   SplitBTreeValueWriter writer;
 
   public CorpusFolderWriter(TupleFlowParameters parameters) throws IOException, IncompatibleProcessorException {
-    compressed = parameters.getJSON().get("compressed", true);
-
+    corpusParams = parameters.getJSON();
     // create a writer;
-    Parameters p = new Parameters();
-    p.set("compressed", parameters.getJSON().get("compressed",true));
-    p.set("writerClass", getClass().getName());
-    p.set("readerClass", CorpusReader.class.getName());
-    p.set("mergerClass", CorpusMerger.class.getName());
-    p.set("filename", parameters.getJSON().getString("filename"));
+    corpusParams.set("writerClass", getClass().getName());
+    corpusParams.set("readerClass", CorpusReader.class.getName());
+    corpusParams.set("mergerClass", CorpusMerger.class.getName());
     writer = new SplitBTreeValueWriter(parameters);
-    // note that the setProcessor function needs to be modified!
   }
 
   public void process(Document document) throws IOException {
-    writer.add(new GenericElement(Utility.fromInt(document.identifier), Document.serialize(document, compressed)));
+    writer.add(new GenericElement(Utility.fromInt(document.identifier), Document.serialize(corpusParams, document)));
   }
 
   public void close() throws IOException {

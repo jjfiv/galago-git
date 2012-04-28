@@ -70,7 +70,7 @@ public class TypeBuilderMojo extends AbstractMojo {
         File outputFile = new File(outputFilename);
 
         // always generate new types.
-        //if (!outputFile.exists() || f.lastModified() > outputFile.lastModified()) {
+        if (!outputFile.exists() || f.lastModified() > outputFile.lastModified()) {
         System.err.println("Generating " + spec.getTypeName());
         new File(outputFile.getParent()).mkdirs();
         TemplateTypeBuilder builder = new TemplateTypeBuilder(spec);
@@ -90,7 +90,7 @@ public class TypeBuilderMojo extends AbstractMojo {
         } catch (IOException e) {
           throw new MojoExecutionException("Trouble writing " + outputFilename);
         }
-        //}
+        }
       }
     }
   }

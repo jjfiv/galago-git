@@ -351,12 +351,10 @@ public class BuildIndex extends AppFunction {
       // these parameters
       if (globalParameters.isBoolean("corpus") && globalParameters.getBoolean("corpus")) {
         Parameters corpusParameters = (globalParameters.isMap("corpusParameters")) ? globalParameters.getMap("corpusParameters") : new Parameters();
-        corpusParameters.set("compressed", corpusParameters.get("compressed", true));
         corpusParameters.set("readerClass", CorpusReader.class.getName());
         corpusParameters.set("writerClass", CorpusFolderWriter.class.getName());
         corpusParameters.set("mergerClass", CorpusMerger.class.getName());
-        corpusParameters.set("filename",
-                globalParameters.getString("indexPath") + File.separator + "corpus");
+        corpusParameters.set("filename", globalParameters.getString("indexPath") + File.separator + "corpus");
         globalParameters.set("corpusParameters", corpusParameters);
       }
     }

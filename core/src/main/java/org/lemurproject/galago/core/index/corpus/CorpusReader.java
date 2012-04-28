@@ -27,16 +27,12 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class CorpusReader extends KeyValueReader implements DocumentReader {
 
-  boolean compressed;
-
   public CorpusReader(String fileName) throws FileNotFoundException, IOException {
     super(fileName);
-    compressed = reader.getManifest().get("compressed", true);
   }
 
   public CorpusReader(BTreeReader r) {
     super(r);
-    compressed = reader.getManifest().get("compressed", true);
   }
   
   @Override
@@ -86,7 +82,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
     @Override
     public Document getDocument() throws IOException {
-      return Document.deserialize(iterator.getValueBytes(), compressed);
+      return Document.deserialize(iterator.getValueBytes());
     }
     
     @Override
