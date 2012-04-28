@@ -12,65 +12,85 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * Very simple grid search learning algorithm - divides the n dimensional space
  * evenly using 'gridSize'. Searches from min to max for each dimension.
  *
- * Useful for very low values of n (e.g. 1,2,3) and low values of gridSize 
- * ( gridSize < 10 )
+ * Useful for very low values of n (e.g. 1,2,3) and low values of gridSize (
+ * gridSize < 10 )
+ *
+ *
+ *
+
  *
  * @author sjh
  */
 public class GridSearchLearner extends Learner {
-
+  
   double gridSize;
-
+  
   public GridSearchLearner(Parameters p, Retrieval r) throws Exception {
     super(p, r);
 
+    // check required parameters
+    assert (p.isLong("gridSize")) : this.getClass().getName() + " requires `gridSize' parameter, of type long";
+
     // collect local parameters
-    gridSize = p.getDouble("gridSize");
+    gridSize = p.getLong("gridSize");
   }
-
+  
   @Override
-  public Parameters learn(Parameters initialSettings) throws Exception {
-    List<String> params = new ArrayList(this.learnableParameters);
-
+  public LearnableParameterInstance learn(LearnableParameterInstance initialSettings) throws Exception {
+    List<String> params = new ArrayList(initialSettings.params.getParams());
+    
     if (params.size() > 0) {
       // depth first grid search
-      Parameters settings = new Parameters();
-      gridLearn(params.remove(0), params, settings);
-      logger.info("Best settings: " + settings.toString());
-      return settings;
-    } else {
-      return new Parameters();
+      LearnableParameterInstance best = gridLearn(0, params, initialSettings.clone());
+      
+      best.normalize();
+      logger.info("Best settings: " + best.toParameters().toString());
+      return best;
     }
+    
+    logger.info("No learnable parameters found. Quitting.");
+    return initialSettings;
   }
-
-  private void gridLearn(String param, List<String> params, Parameters settings) throws Exception {
-
-    double step = this.learnableParametersRange.get(param) / gridSize;
-    double paramValue = this.learnableParametersMin.get(param);
+  
+  private LearnableParameterInstance gridLearn(int i, List<String> params, LearnableParameterInstance settings) throws Exception {
+    
+    String param = params.get(i);
+    
+    double paramValue = this.learnableParameters.getMin(param);
+    double maxParamValue = this.learnableParameters.getMax(param);
+    double step = this.learnableParameters.getRange(param) / gridSize;
+    // ensure a minimum step size
+    if(step == 0){
+      step = 0.01;
+    }
+    
     double bestScore = 0.0;
     double bestParamValue = paramValue;
-
-    String nextParam = (params.size() > 0) ? params.remove(0) : null;
-
-    while (paramValue < this.learnableParametersMax.get(param)) {
-      settings.set(param, paramValue);
+    
+    while (paramValue <= maxParamValue) {
+      settings.unsafeSet(param, paramValue);
 
       // recurse to find the best settings of the other parameters given this setting
-      if (nextParam != null) {
-        gridLearn(nextParam, params, settings);
+      if (i + 1 < params.size()) {
+        gridLearn(i + 1, params, settings);
       }
-
+      
       double score = this.evaluate(settings);
+      
       if (score > bestScore) {
         bestScore = score;
         bestParamValue = paramValue;
         logger.info(String.format("Found better param value: %s = %f ; score = %f\nSettings: %s", param, paramValue, score, settings));
       }
-      // move to the next grid 
+      // move to the next grid line
       paramValue += step;
     }
 
     // ensure when we return the settings contain the best found parameter value
-    settings.set(param, bestParamValue);
+    settings.unsafeSet(param, bestParamValue);
+    
+    
+    
+    return settings;
   }
 }

@@ -36,8 +36,7 @@ public class LearnQueryParameters extends AppFunction {
   }
 
   public static void main(String[] args) throws Exception {
-    Parameters p = new Parameters();
-    p = new Parameters(args);
+    Parameters p = new Parameters(args);
     new LearnQueryParameters().run(p, System.out);
   }
 }

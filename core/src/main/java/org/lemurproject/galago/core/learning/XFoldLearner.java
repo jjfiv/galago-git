@@ -17,50 +17,50 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class XFoldLearner extends Learner {
 
-  long folds;
+  int xfoldCount;
   List<Learner> foldLearners;
   Map<Integer, List<Parameters>> queryFolds;
 
   public XFoldLearner(Parameters p, Retrieval r) throws Exception {
     super(p, r);
 
-    // split up queries into folds
-    // open a new learner for each fold
-    foldLearners = new ArrayList();
-    queryFolds = new HashMap();
+    // required parameters:
+    assert (p.isLong("xfolds")) : this.getClass().getName() + " requires `xfolds' parameter, of type long";
+    assert (!p.containsKey("xfoldLearner")
+            || p.isString("xfoldLearner")) : this.getClass().getName() + " requires `xfoldLeaner' parameter, of type String";
 
+    // create one learner for each xfold.
+    xfoldCount = (int) p.getLong("xfolds");
+    foldLearners = new ArrayList(xfoldCount);
+    queryFolds = new HashMap(xfoldCount);
+
+    // randomize order of queries
     List<Parameters> queriesCopy = new ArrayList(this.queries);
     Collections.shuffle(queriesCopy, random);
-    int foldSize = (int) Math.ceil((double) queriesCopy.size() / (double) p.getLong("xfolds"));
-    for (int fid = 0; fid < p.getLong("xfolds"); fid++) {
-      List<Parameters> foldQueries = queriesCopy.subList(fid * foldSize, (fid + 1) * foldSize);
+
+    // split queries into folds
+    int foldSize = (int) Math.ceil((double) queriesCopy.size() / (double) xfoldCount);
+    for (int foldId = 0; foldId < xfoldCount; foldId++) {
+      List<Parameters> foldQueries = queriesCopy.subList(foldId * foldSize, (foldId + 1) * foldSize);
+      // create new learner for each fold
       Parameters copy = p.clone();
+      copy.set("learner", p.get("xfoldLearner", "default")); // overwrite //
       copy.remove("query");
-      copy.remove("queries");
-      copy.set("queries", foldQueries);
-      queryFolds.put(fid, foldQueries);
+      copy.set("queries", foldQueries); // overwrite //
+      queryFolds.put(foldId, foldQueries);
       foldLearners.add(LearnerFactory.instance(copy, retrieval));
     }
-    
-    folds = p.getLong("xfolds");
   }
 
   @Override
-  public Parameters learn(Parameters initialSettings) throws Exception {
+  public LearnableParameterInstance learn(LearnableParameterInstance initialSettings) throws Exception {
     // for each fold return learnt parameters
-    List<Parameters> learntParams = new ArrayList();
-    Parameters avg = new Parameters();
-    for(Learner fl : foldLearners){
-      Parameters result = fl.learn(initialSettings);
+    List<LearnableParameterInstance> learntParams = new ArrayList();
+    for (Learner fl : foldLearners) {
+      LearnableParameterInstance result = fl.learn(initialSettings);
       learntParams.add(result);
-      for(String k : this.learnableParameters){
-        if(avg.containsKey(k)){
-          avg.set(k, result.getDouble(k) / folds);
-        } else {
-          avg.set(k, avg.getDouble(k) + (result.getDouble(k) / folds));
-        }
-      }
     }
-    return avg;
+
+    return LearnableParameterInstance.average(learntParams);
   }
 }
