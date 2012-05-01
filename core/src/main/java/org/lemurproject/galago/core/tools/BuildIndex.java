@@ -347,16 +347,22 @@ public class BuildIndex extends AppFunction {
                 + "Default creates a compressed corpus folder in a folder called 'corpus'. "
                 + "This parameter is only active when the 'corpus' parameter is true.");
       }
-    } else {
-      // these parameters
-      if (globalParameters.isBoolean("corpus") && globalParameters.getBoolean("corpus")) {
-        Parameters corpusParameters = (globalParameters.isMap("corpusParameters")) ? globalParameters.getMap("corpusParameters") : new Parameters();
-        corpusParameters.set("readerClass", CorpusReader.class.getName());
-        corpusParameters.set("writerClass", CorpusFolderWriter.class.getName());
-        corpusParameters.set("mergerClass", CorpusMerger.class.getName());
-        corpusParameters.set("filename", globalParameters.getString("indexPath") + File.separator + "corpus");
-        globalParameters.set("corpusParameters", corpusParameters);
+    }
+    // ensure there are some specific parameters
+    if (globalParameters.isBoolean("corpus") && globalParameters.getBoolean("corpus")) {
+      Parameters corpusParameters = new Parameters();
+      corpusParameters.set("readerClass", CorpusReader.class.getName());
+      corpusParameters.set("writerClass", CorpusFolderWriter.class.getName());
+      corpusParameters.set("mergerClass", CorpusMerger.class.getName());
+      corpusParameters.set("filename", globalParameters.getString("indexPath") + File.separator + "corpus");
+      
+      // copy over the other parameters
+      if(globalParameters.isMap("corpusParameters")){
+        corpusParameters.copyFrom( globalParameters.getMap("corpusParameters"));
       }
+
+      // insert back into the globalParams
+      globalParameters.set("corpusParameters", corpusParameters);
     }
 
     // nonStemmedPostings must be a boolean [optional parameter]
@@ -646,7 +652,7 @@ public class BuildIndex extends AppFunction {
     File buildManifest = new File(indexPath, "buildManifest.json");
     Utility.makeParentDirectories(buildManifest);
     Utility.copyStringToFile(buildParameters.toString(), buildManifest);
-    
+
     List<String> inputPaths = buildParameters.getAsList("inputPath");
 
     // common steps + connections
