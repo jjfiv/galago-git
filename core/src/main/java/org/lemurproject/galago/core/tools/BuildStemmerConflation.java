@@ -28,7 +28,7 @@ public class BuildStemmerConflation extends AppFunction {
 
   @Override
   public String getHelpString() {
-    return "galago stemmer-conflations [flags] --outputPath=<outputPath> --stemmer=<stemmer> "
+    return "galago stemmer-conflation [flags] --outputPath=<outputPath> --stemmer=<stemmer> "
             + "                                (--inputPath+<input>)+\n\n"
             + "  Builds an index part that maps a stemmed term to a list of "
             + "  conflated terms. \n\n"
