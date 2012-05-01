@@ -31,6 +31,21 @@ public class Bytes implements Comparable<Bytes> {
   }
 
   @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final Bytes other = (Bytes) obj;
+    if (!Arrays.equals(this.bytes, other.bytes)) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
   public int compareTo(Bytes that) {
     return Utility.compare(this.bytes, that.bytes);
   }
