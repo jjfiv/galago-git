@@ -71,7 +71,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   // defaults
   public static final long DEFAULT_OBJECT_LIMIT = 50 * 1024 * 1024;
   public static final long DEFAULT_FILE_LIMIT = 20;
-  public static final long DEFAULT_REDUCE_INTERVAL = 10 * 1024 * 1024;
+  public static final long DEFAULT_REDUCE_INTERVAL = 1 * 1024 * 1024;
   public static final double DEFAULT_MEMORY_FRACTION = 0.7;
   public static final boolean DEFAULT_FLUSH_PAUSE = true;
   // instance limits and parameters
@@ -204,12 +204,10 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   @Override
   public void handleNotification(Notification notification, Object handback) {
     if (notification.getType().equals(MemoryNotificationInfo.MEMORY_THRESHOLD_EXCEEDED)) {
-      final Sorter f = this;
 
       // if there's nothing we can do at the moment; return.
       if (size() == 0) {
         return;
-
       }
       // store the smallest mem-limit flush op
       if (size() < minFlushSize) {
@@ -221,6 +219,8 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
         this.forceFlush = true;
         return;
       }
+
+      final Sorter f = this;
 
       Thread t = new Thread() {
 
@@ -292,10 +292,10 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
 
       if (needsFlush()) {
         flush();
-      }
 
-      // encourage a garbage collection
-      System.gc();
+        // encourage a garbage collection
+        System.gc();
+      }
     }
     this.forceFlush = false;
   }
@@ -476,6 +476,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
         output.process(wrapper.top);
       } while (wrapper.next());
     }
+
 
     runs.clear();
     runsCount = 0;
