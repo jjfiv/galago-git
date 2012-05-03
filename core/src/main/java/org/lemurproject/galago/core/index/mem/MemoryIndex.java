@@ -265,12 +265,12 @@ public class MemoryIndex implements DynamicIndex, Index {
   }
 
   @Override
-  public Document getDocument(String document) throws IOException{
+  public Document getDocument(String document, Parameters p) throws IOException{
     if(parts.containsKey("corpus")){
       try {
         CorpusReader corpus = (CorpusReader) parts.get("corpus");
         int docId = getIdentifier(document);
-        corpus.getDocument(docId);
+        corpus.getDocument(docId, p);
       } catch (Exception e){
         // ignore the exception
       }
@@ -279,32 +279,37 @@ public class MemoryIndex implements DynamicIndex, Index {
   }
 
   @Override
-  public Map<String,Document> getDocuments(List<String> documents) throws IOException{
+  public Map<String,Document> getDocuments(List<String> documents, Parameters p) throws IOException{
     HashMap<String, Document> results = new HashMap();
 
     // should get a names iterator + sort requested documents
     for(String name : documents){
-      results.put(name, getDocument(name));
+      results.put(name, getDocument(name, p));
     }
     return results;
   }  
   
+  @Override
   public LengthsReader.Iterator getLengthsIterator() throws IOException {
     return ((MemoryDocumentLengths) parts.get("lengths")).getLengthsIterator();
   }
 
+  @Override
   public NamesReader.Iterator getNamesIterator() throws IOException {
     return ((MemoryDocumentNames) parts.get("names")).getNamesIterator();
   }
 
+  @Override
   public Parameters getManifest() {
     return manifest;
   }
 
+  @Override
   public Set<String> getPartNames() {
     return parts.keySet();
   }
 
+  @Override
   public Map<String, NodeType> getPartNodeTypes(String partName) throws IOException {
     if (!parts.containsKey(partName)) {
       throw new IOException("The index has no part named '" + partName + "'");
