@@ -1,12 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -77,21 +72,8 @@ public class Document implements Serializable {
   }
 
   public static byte[] serialize(Parameters p, Document doc) throws IOException {
-    ByteArrayOutputStream array = new ByteArrayOutputStream();
-    DataOutputStream output = new DataOutputStream(new SnappyOutputStream(array));
-
-
-    boolean metadata = p.get("corpusMetadata", true);
-    boolean text = p.get("corpusText", true);
-    boolean terms = p.get("corpusTerms", true);
-    boolean tags = p.get("corpusTags", true);
-
-    // options
-    output.writeBoolean(metadata);
-    output.writeBoolean(text);
-    output.writeBoolean(terms);
-    output.writeBoolean(tags);
-
+    ByteArrayOutputStream headerArray = new ByteArrayOutputStream();
+    DataOutputStream output = new DataOutputStream(headerArray);
     // identifier
     output.writeInt(doc.identifier);
 
@@ -99,94 +81,119 @@ public class Document implements Serializable {
     byte[] bytes = Utility.fromString(doc.name);
     output.writeInt(bytes.length);
     output.write(bytes);
+    output.close();
 
-    if (metadata) {
-      // metadata
-      if (doc.metadata == null) {
-        output.writeInt(0);
-      } else {
-        output.writeInt(doc.metadata.size());
-        for (String key : doc.metadata.keySet()) {
+
+    ByteArrayOutputStream metadataArray = new ByteArrayOutputStream();
+    output = new DataOutputStream(metadataArray);
+    // metadata
+    if (doc.metadata == null) {
+      output.writeInt(0);
+    } else {
+      output.writeInt(doc.metadata.size());
+      for (String key : doc.metadata.keySet()) {
+        bytes = Utility.fromString(key);
+        output.writeInt(bytes.length);
+        output.write(bytes);
+
+        bytes = Utility.fromString(doc.metadata.get(key));
+        output.writeInt(bytes.length);
+        output.write(bytes);
+      }
+    }
+    output.close();
+
+
+    ByteArrayOutputStream textArray = new ByteArrayOutputStream();
+    output = new DataOutputStream(textArray);
+    // text
+    if (doc.text == null) {
+      output.writeInt(0);
+    } else {
+      bytes = Utility.fromString(doc.text);
+      output.writeInt(bytes.length);
+      output.write(bytes);
+    }
+    output.close();
+
+
+    ByteArrayOutputStream tagsArray = new ByteArrayOutputStream();
+    output = new DataOutputStream(tagsArray);
+    // tags
+    if (doc.tags == null) {
+      output.writeInt(0);
+    } else {
+      output.writeInt(doc.tags.size());
+      for (Tag tag : doc.tags) {
+        bytes = Utility.fromString(tag.name);
+        output.writeInt(bytes.length);
+        output.write(bytes);
+        output.writeInt(tag.begin);
+        output.writeInt(tag.end);
+        output.writeInt(tag.attributes.size());
+        for (String key : tag.attributes.keySet()) {
           bytes = Utility.fromString(key);
           output.writeInt(bytes.length);
           output.write(bytes);
-
-          bytes = Utility.fromString(doc.metadata.get(key));
+          bytes = Utility.fromString(tag.attributes.get(key));
           output.writeInt(bytes.length);
           output.write(bytes);
         }
       }
     }
+    output.close();
 
-    if (text) {
-      // text
-      if (doc.text == null) {
-        output.writeInt(0);
-      } else {
-        bytes = Utility.fromString(doc.text);
+
+    ByteArrayOutputStream termsArray = new ByteArrayOutputStream();
+    output = new DataOutputStream(termsArray);
+
+    // terms
+    if (doc.terms == null) {
+      output.writeInt(0);
+    } else {
+      output.writeInt(doc.terms.size());
+      for (String term : doc.terms) {
+        bytes = Utility.fromString(term);
         output.writeInt(bytes.length);
         output.write(bytes);
       }
     }
 
-    if (terms) {
-      // terms
-      if (doc.terms == null) {
-        output.writeInt(0);
-      } else {
-        output.writeInt(doc.terms.size());
-        for (String term : doc.terms) {
-          bytes = Utility.fromString(term);
-          output.writeInt(bytes.length);
-          output.write(bytes);
-        }
-      }
-    }
+    output.close();
 
-    if (tags) {
-      // tags
-      if (doc.tags == null) {
-        output.writeInt(0);
-      } else {
-        output.writeInt(doc.tags.size());
-        for (Tag tag : doc.tags) {
-          bytes = Utility.fromString(tag.name);
-          output.writeInt(bytes.length);
-          output.write(bytes);
-          output.writeInt(tag.begin);
-          output.writeInt(tag.end);
-          output.writeInt(tag.attributes.size());
-          for (String key : tag.attributes.keySet()) {
-            bytes = Utility.fromString(key);
-            output.writeInt(bytes.length);
-            output.write(bytes);
-            bytes = Utility.fromString(tag.attributes.get(key));
-            output.writeInt(bytes.length);
-            output.write(bytes);
-          }
-        }
-      }
-    }
+
+    ByteArrayOutputStream docArray = new ByteArrayOutputStream();
+    output = new DataOutputStream(new SnappyOutputStream(docArray));
+
+    output.writeInt(metadataArray.size());
+    output.writeInt(textArray.size());
+    output.writeInt(tagsArray.size());
+    output.writeInt(termsArray.size());
+
+    output.write(headerArray.toByteArray());
+    output.write(metadataArray.toByteArray());
+    output.write(textArray.toByteArray());
+    output.write(tagsArray.toByteArray());
+    output.write(termsArray.toByteArray());
 
     output.close();
 
-    return array.toByteArray();
+    return docArray.toByteArray();
   }
 
-  public static Document deserialize(byte[] data) throws IOException {
+  public static Document deserialize(byte[] data, Parameters p) throws IOException {
     ByteArrayInputStream stream = new ByteArrayInputStream(data);
-    return deserialize(new DataInputStream(stream));
+    return deserialize(new DataInputStream(stream), p);
   }
 
-  public static Document deserialize(DataInputStream stream) throws IOException {
+  public static Document deserialize(DataInputStream stream, Parameters p) throws IOException {
     DataInputStream input = new DataInputStream(new SnappyInputStream(stream));
     Document d = new Document();
 
-    // options
-    boolean metadata = input.readBoolean();
-    boolean text = input.readBoolean();
-    boolean terms = input.readBoolean();
-    boolean tags = input.readBoolean();
+    int metadataSize = input.readInt();
+    int textSize = input.readInt();
+    int tagsSize = input.readInt();
+    int termsSize = input.readInt();
 
     // identifier
     d.identifier = input.readInt();
@@ -196,7 +203,7 @@ public class Document implements Serializable {
     input.readFully(docNameBytes);
     d.name = Utility.toString(docNameBytes);
 
-    if (metadata) {
+    if (p.get("metadata", true)) {
       // metadata
       int metadataCount = input.readInt();
       d.metadata = new HashMap(metadataCount);
@@ -212,26 +219,24 @@ public class Document implements Serializable {
 
         d.metadata.put(key, value);
       }
+      // only both skipping if we need to
+    } else if (p.get("terms", true) || p.get("text", true) || p.get("tags", true)) {
+
+      input.skip(metadataSize);
     }
-    if (text) {
+
+    if (p.get("corpusText", true)) {
       // text
       byte[] textBytes = new byte[input.readInt()];
       input.readFully(textBytes);
       d.text = Utility.toString(textBytes);
+
+      // only both skipping if we need to
+    } else if (p.get("terms", true) || p.get("tags", true)) {
+      input.skip(metadataSize);
     }
 
-    if (terms) {
-      // terms
-      int termCount = input.readInt();
-      d.terms = new ArrayList(termCount);
-      for (int i = 0; i < termCount; i++) {
-        byte[] termBytes = new byte[input.readInt()];
-        input.readFully(termBytes);
-        d.terms.add(Utility.toString(termBytes));
-      }
-    }
-
-    if (tags) {
+    if (p.get("tags", true)) {
       // tags
       int tagCount = input.readInt();
       d.tags = new ArrayList(tagCount);
@@ -254,6 +259,21 @@ public class Document implements Serializable {
         }
         Tag t = new Tag(tagName, attributes, tagBegin, tagEnd);
         d.tags.add(t);
+      }
+
+      // only both skipping if we need to
+    } else if (p.get("terms", true)) {
+      input.skip(metadataSize);
+    }
+
+    if (p.get("terms", true)) {
+      // terms
+      int termCount = input.readInt();
+      d.terms = new ArrayList(termCount);
+      for (int i = 0; i < termCount; i++) {
+        byte[] termBytes = new byte[input.readInt()];
+        input.readFully(termBytes);
+        d.terms.add(Utility.toString(termBytes));
       }
     }
 

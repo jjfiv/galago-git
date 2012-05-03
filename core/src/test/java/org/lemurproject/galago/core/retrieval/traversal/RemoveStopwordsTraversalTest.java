@@ -144,12 +144,12 @@ public class RemoveStopwordsTraversalTest extends TestCase {
     }
 
     @Override
-    public Document getDocument(String identifier) throws IOException {
+    public Document getDocument(String identifier, Parameters p) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public Map<String, Document> getDocuments(List<String> identifier) throws IOException {
+    public Map<String, Document> getDocuments(List<String> identifier, Parameters p) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

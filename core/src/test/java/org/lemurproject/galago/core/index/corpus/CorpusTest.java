@@ -55,7 +55,7 @@ public class CorpusTest extends TestCase {
       writer.close();
 
       CorpusReader reader = new CorpusReader(corpus.getAbsolutePath());
-      Document testDoc = reader.getDocument(11);
+      Document testDoc = reader.getDocument(11, new Parameters());
       Document trueDoc = docs.get(11);
       assert (testDoc.identifier == trueDoc.identifier);
       assert (testDoc.name.equals(trueDoc.name));
@@ -69,9 +69,9 @@ public class CorpusTest extends TestCase {
       // test <text> only
       p = new Parameters();
       p.set("filename", corpus.getAbsolutePath());
-      p.set("corpusTerms", false);
-      p.set("corpusTags", false);
-      p.set("corpusMetadata", false);
+      p.set("terms", false);
+      p.set("tags", false);
+      p.set("metadata", false);
       writer = new CorpusFileWriter(new FakeParameters(p));
       for (Document d : docs) {
         writer.process(d);
@@ -79,11 +79,11 @@ public class CorpusTest extends TestCase {
       writer.close();
 
       reader = new CorpusReader(corpus.getAbsolutePath());
-      testDoc = reader.getDocument(11);
+      testDoc = reader.getDocument(11, p);
       trueDoc = docs.get(11);
       assert (testDoc.identifier == trueDoc.identifier);
       assert (testDoc.name.equals(trueDoc.name));
-      assert (testDoc.text.equals(trueDoc.text));
+      assert (testDoc.text.equals(trueDoc.text));      
       assert (testDoc.metadata.isEmpty());
       assert (testDoc.terms == null);
       assert (testDoc.tags == null);

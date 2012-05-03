@@ -89,7 +89,11 @@ public class SearchWebHandler extends ContextHandler {
   public void handleDocument(HttpServletRequest request, HttpServletResponse response) throws IOException {
     request.getParameterMap();
     String identifier = request.getParameter("identifier");
-    Document document = search.getDocument(identifier);
+    Parameters p = new Parameters();
+    p.set("metadata", false);
+    p.set("terms", false);
+    p.set("tags", false);
+    Document document = search.getDocument(identifier, p);
     response.setContentType("text/html; charset=UTF-8");
 
     PrintWriter writer = response.getWriter();
@@ -102,7 +106,10 @@ public class SearchWebHandler extends ContextHandler {
     String[] terms = request.getParameterValues("term");
     Set<String> queryTerms = new HashSet<String>(Arrays.asList(terms));
 
-    Document document = search.getDocument(identifier);
+    Parameters p = new Parameters();
+    p.set("terms", false);
+    p.set("tags", false);
+    Document document = search.getDocument(identifier,p);
 
     if (document == null) {
       response.setStatus(response.SC_NOT_FOUND);

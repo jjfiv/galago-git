@@ -159,7 +159,7 @@ public class RelevanceModel implements ExpansionModel {
     Document doc;
     String term;
     for (ScoredDocument sd : results) {
-      doc = retrieval.getDocument(retrieval.getDocumentName(sd.document));
+      doc = retrieval.getDocument(retrieval.getDocumentName(sd.document), new Parameters());
       tokenizer.tokenize(doc);
       for (String s : doc.terms) {
         if (stemmer == null) {

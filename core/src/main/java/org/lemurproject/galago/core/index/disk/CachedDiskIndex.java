@@ -111,28 +111,28 @@ public class CachedDiskIndex implements Index {
   }
 
   @Override
-  public Document getDocument(String document) throws IOException {
+  public Document getDocument(String document, Parameters p) throws IOException {
     if (memParts.containsKey("corpus")) {
       try {
         MemoryCorpus corpus = (MemoryCorpus) memParts.get("corpus");
         int docId = getIdentifier(document);
-        return corpus.getDocument(docId);
+        return corpus.getDocument(docId, p);
       } catch (Exception e) {
         // ignore the exception
       }
       return null;
     } else {
-      return diskIndex.getDocument(document);
+      return diskIndex.getDocument(document, p);
     }
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> documents) throws IOException {
+  public Map<String, Document> getDocuments(List<String> documents, Parameters p) throws IOException {
     HashMap<String, Document> results = new HashMap();
 
     // should get a names iterator + sort requested documents
     for (String name : documents) {
-      results.put(name, getDocument(name));
+      results.put(name, getDocument(name, p));
     }
     return results;
   }

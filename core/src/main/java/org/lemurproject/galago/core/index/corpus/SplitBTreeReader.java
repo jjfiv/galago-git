@@ -112,6 +112,7 @@ public class SplitBTreeReader extends BTreeReader {
     /**
      * Returns the value as a buffered stream.
      */
+    @Override
     public DataStream getValueStream() throws IOException {
       if (!valueLoaded) {
         loadValue();
@@ -123,6 +124,7 @@ public class SplitBTreeReader extends BTreeReader {
     /**
      * Returns the value as a buffered stream.
      */
+    @Override
     public DataStream getSubValueStream(long offset, long length) throws IOException {
       if (!valueLoaded) {
         loadValue();
@@ -179,7 +181,6 @@ public class SplitBTreeReader extends BTreeReader {
       if (dataFiles[file] == null) {
         dataFiles[file] = StreamCreator.inputStream(indexFolder + File.separator + file);
       }
-      // dataFiles[file].seek(valueOffset);
     }
   }
 

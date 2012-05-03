@@ -67,7 +67,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   }
 
   @Override
-  public Document getDocument(int key) throws IOException {
+  public Document getDocument(int key, Parameters p) throws IOException {
     return corpusData.get(Utility.fromInt(key));
   }
 
@@ -98,7 +98,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
     CorpusFileWriter writer = new CorpusFileWriter(new FakeParameters(p));
     DocumentIterator iterator = (DocumentIterator) getIterator();
     while (!iterator.isDone()) {
-      writer.process(iterator.getDocument());
+      writer.process(iterator.getDocument(new Parameters()));
       iterator.nextKey();
     }
     writer.close();
@@ -152,7 +152,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
       return currKey == null;
     }
 
-    public Document getDocument() throws IOException {
+    public Document getDocument(Parameters p) throws IOException {
       return corpusData.get(currKey);
     }
 
@@ -167,7 +167,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
     }
 
     public String getValueString() throws IOException {
-      return getDocument().toString();
+      return getDocument(new Parameters()).toString();
     }
 
     public void reset() throws IOException {

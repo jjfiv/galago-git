@@ -165,13 +165,13 @@ public class LocalRetrieval implements Retrieval {
   }
 
   @Override
-  public Document getDocument(String identifier) throws IOException {
-    return this.index.getDocument(identifier);
+  public Document getDocument(String identifier, Parameters p) throws IOException {
+    return this.index.getDocument(identifier, p);
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> identifier) throws IOException {
-    return this.index.getDocuments(identifier);
+  public Map<String, Document> getDocuments(List<String> identifier, Parameters p) throws IOException {
+    return this.index.getDocuments(identifier, p);
   }
 
   /**

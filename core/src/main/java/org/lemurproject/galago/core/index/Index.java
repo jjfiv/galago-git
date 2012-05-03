@@ -56,9 +56,9 @@ public interface Index {
 
   public int getIdentifier(String document) throws IOException;
 
-  public Document getDocument(String document) throws IOException;
+  public Document getDocument(String document, Parameters p) throws IOException;
 
-  public Map<String,Document> getDocuments(List<String> document) throws IOException;
+  public Map<String,Document> getDocuments(List<String> document, Parameters p) throws IOException;
   
   public LengthsReader.Iterator getLengthsIterator() throws IOException;
 

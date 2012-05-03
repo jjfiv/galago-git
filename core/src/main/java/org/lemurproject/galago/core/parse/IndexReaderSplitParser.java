@@ -8,6 +8,7 @@ import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator;
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -43,7 +44,10 @@ public class IndexReaderSplitParser implements DocumentStreamParser {
       return null;
     }
 
-    Document document = iterator.getDocument();
+    Parameters p = new Parameters();
+    p.set("terms", false);
+    p.set("tags", false);
+    Document document = iterator.getDocument(p);
     iterator.nextKey();
     return document;
   }

@@ -77,13 +77,13 @@ public class GroupRetrieval implements Retrieval {
   }
 
   @Override
-  public Document getDocument(String identifier) throws IOException{
-    return groups.get(defGroup).getDocument(identifier);
+  public Document getDocument(String identifier, Parameters p) throws IOException{
+    return groups.get(defGroup).getDocument(identifier, p);
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> identifier) throws IOException{
-    return groups.get(defGroup).getDocuments(identifier);
+  public Map<String, Document> getDocuments(List<String> identifier, Parameters p) throws IOException{
+    return groups.get(defGroup).getDocuments(identifier, p);
   }
 
   @Override
@@ -135,12 +135,12 @@ public class GroupRetrieval implements Retrieval {
     return groups.get(group).getAvailableParts();
   }
 
-  public Document getDocument(String identifier, String group) throws IOException{
-    return groups.get(group).getDocument(identifier);
+  public Document getDocument(String identifier, Parameters p, String group) throws IOException{
+    return groups.get(group).getDocument(identifier, p);
   }
 
-  public Map<String, Document> getDocuments(List<String> identifier, String group) throws IOException{
-    return groups.get(group).getDocuments(identifier);
+  public Map<String, Document> getDocuments(List<String> identifier, Parameters p, String group) throws IOException{
+    return groups.get(group).getDocuments(identifier, p);
   }
 
   public NodeType getNodeType(Node node, String group) throws Exception {

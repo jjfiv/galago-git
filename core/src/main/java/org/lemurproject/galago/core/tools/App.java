@@ -86,7 +86,7 @@ public class App {
     appFunctions.put("subcollection", new BuildSubCollection());
     appFunctions.put("overwrite-manifest", new OverwriteManifest());
     appFunctions.put("stemmer-conflation", new BuildStemmerConflation());
-    
+
     // background functions
     appFunctions.put("build-background", new BuildBackground());
     appFunctions.put("install-background", new BuildBackground());
@@ -142,7 +142,7 @@ public class App {
 
   }
 
-  /** 
+  /**
    * Function implementations - in alphbetical order
    */
   private static class BuildTopDocsFn extends AppFunction {
@@ -199,7 +199,10 @@ public class App {
       Retrieval r = RetrievalFactory.instance(indexPath, new Parameters());
       assert r.getAvailableParts().containsKey("corpus") : "Index does not contain a corpus part.";
 
-      Document document = r.getDocument(identifier);
+      Parameters p = new Parameters();
+      p.set("terms", false);
+      p.set("tags", false);
+      Document document = r.getDocument(identifier, p);
       if (document != null) {
         output.println("#IDENTIFIER: " + document.name);
         output.println(document.text);
@@ -323,7 +326,11 @@ public class App {
 
       while (!iterator.isDone()) {
         output.println("#IDENTIFIER: " + iterator.getKeyString());
-        Document document = iterator.getDocument();
+        Parameters p = new Parameters();
+        p.set("terms", false);
+        p.set("tags", false);
+
+        Document document = iterator.getDocument(p);
         output.println("#METADATA");
         for (Entry<String, String> entry : document.metadata.entrySet()) {
           output.println(entry.getKey() + "," + entry.getValue());

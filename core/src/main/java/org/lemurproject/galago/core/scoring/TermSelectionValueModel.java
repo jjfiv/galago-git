@@ -147,7 +147,7 @@ public class TermSelectionValueModel implements ExpansionModel {
     Document doc;
     HashSet<String> seen = new HashSet<String>();
     for (ScoredDocument sd : results) {
-      doc = cReader.getDocument(sd.document);
+      doc = cReader.getDocument(sd.document, new Parameters());
       tokenizer.tokenize(doc);
       seen.clear();
       for (String term : doc.terms) {

@@ -361,12 +361,12 @@ public class DiskIndex implements Index {
   }
 
   @Override
-  public Document getDocument(String document) throws IOException {
+  public Document getDocument(String document, Parameters p) throws IOException {
     if (parts.containsKey("corpus")) {
       try {
         CorpusReader corpus = (CorpusReader) parts.get("corpus");
         int docId = getIdentifier(document);
-        return corpus.getDocument(docId);
+        return corpus.getDocument(docId,  p);
       } catch (Exception e) {
         // ignore the exception
         Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Failed to get document: {0}\n{1}", new Object[]{document, e.toString()});
@@ -376,12 +376,12 @@ public class DiskIndex implements Index {
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> documents) throws IOException {
+  public Map<String, Document> getDocuments(List<String> documents, Parameters p) throws IOException {
     HashMap<String, Document> results = new HashMap();
 
     // should get a names iterator + sort requested documents
     for (String name : documents) {
-      results.put(name, getDocument(name));
+      results.put(name, getDocument(name, p));
     }
     return results;
   }

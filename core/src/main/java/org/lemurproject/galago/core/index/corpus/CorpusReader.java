@@ -13,14 +13,13 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.iterator.MovableDataIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
+import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
- * Reader for corpus folders
- *  - corpus folder is a parallel index structure:
- *  - one key.index file
- *  - several data files (0 -> n)
+ * Reader for corpus folders - corpus folder is a parallel index structure: -
+ * one key.index file - several data files (0 -> n)
  *
  *
  * @author sjh
@@ -34,18 +33,18 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
   public CorpusReader(BTreeReader r) {
     super(r);
   }
-  
+
   @Override
   public KeyIterator getIterator() throws IOException {
     return new KeyIterator(reader);
   }
 
   @Override
-  public Document getDocument(int key) throws IOException {
+  public Document getDocument(int key, Parameters p) throws IOException {
     KeyIterator i = new KeyIterator(reader);
     byte[] k = Utility.fromInt(key);
     if (i.findKey(k)) {
-      return i.getDocument();
+      return i.getDocument(p);
     } else {
       return null;
     }
@@ -74,21 +73,23 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
       super(reader);
     }
 
-    
     @Override
-    public String getKeyString(){
+    public String getKeyString() {
       return Integer.toString(Utility.toInt(getKey()));
     }
 
     @Override
-    public Document getDocument() throws IOException {
-      return Document.deserialize(iterator.getValueBytes());
+    public Document getDocument(Parameters p) throws IOException {
+      return Document.deserialize(iterator.getValueBytes(), p);
     }
-    
+
     @Override
     public String getValueString() throws IOException {
       try {
-        return getDocument().toString();
+        Parameters p = new Parameters();
+        p.set("terms", false);
+        p.set("tags", false);
+        return getDocument(p).toString();
       } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
@@ -98,7 +99,6 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     public ValueIterator getValueIterator() throws IOException {
       return new CorpusIterator(this);
     }
-
   }
 
   public class CorpusIterator extends KeyToListIterator implements MovableDataIterator<Document> {
@@ -109,7 +109,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
     @Override
     public String getEntry() throws IOException {
-      return ((KeyIterator) iterator).getDocument().toString();
+      return ((KeyIterator) iterator).getValueString();
     }
 
     @Override
@@ -120,7 +120,8 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     @Override
     public Document getData() {
       try {
-        return ((KeyIterator) iterator).getDocument();
+        Parameters p = new Parameters();
+        return ((KeyIterator) iterator).getDocument(p);
       } catch (IOException ioe) {
         throw new RuntimeException(ioe);
       }

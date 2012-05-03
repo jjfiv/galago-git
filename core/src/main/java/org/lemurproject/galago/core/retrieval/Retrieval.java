@@ -50,7 +50,7 @@ public interface Retrieval {
    * @return If found, the Document object. Null otherwise.
    * @throws IOException
    */
-  public Document getDocument(String identifier) throws IOException;
+  public Document getDocument(String identifier, Parameters p) throws IOException;
 
 
   /**
@@ -61,7 +61,7 @@ public interface Retrieval {
    * @return
    * @throws IOException
    */
-  public Map<String, Document> getDocuments(List<String> identifier) throws IOException;
+  public Map<String, Document> getDocuments(List<String> identifier, Parameters p) throws IOException;
 
   /**
    * Attempts to return a NodeType object for the supplied Node.

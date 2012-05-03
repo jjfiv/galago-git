@@ -1,14 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.corpus;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import org.lemurproject.galago.core.index.BTreeReader;
-import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 import org.lemurproject.galago.core.index.KeyIterator;
-import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * Interface that allows different corpus formats
@@ -18,10 +15,10 @@ import org.lemurproject.galago.core.parse.Document;
  */
 public interface DocumentReader extends IndexPartReader {
 
-  public abstract Document getDocument(int key) throws IOException;
+  public abstract Document getDocument(int key, Parameters p) throws IOException;
 
   public interface DocumentIterator extends KeyIterator {
 
-    public abstract Document getDocument() throws IOException;
+    public abstract Document getDocument(Parameters p) throws IOException;
   }
 }

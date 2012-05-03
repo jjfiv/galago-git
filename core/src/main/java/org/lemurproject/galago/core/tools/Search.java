@@ -98,11 +98,11 @@ public class Search {
     return StructuredQuery.parse(query);
   }
 
-  public Document getDocument(String identifier) throws IOException {
-    return retrieval.getDocument(identifier);
+  public Document getDocument(String identifier, Parameters p) throws IOException {
+    return retrieval.getDocument(identifier, p);
   }
-  public Map<String,Document> getDocuments(List<String> identifier) throws IOException {
-    return retrieval.getDocuments(identifier);
+  public Map<String,Document> getDocuments(List<String> identifier, Parameters p) throws IOException {
+    return retrieval.getDocuments(identifier, p);
   }
 
   public long xCount(String nodeString) throws Exception {
@@ -133,9 +133,13 @@ public class Search {
 
     result.transformedQuery = root;
 
+    Parameters c = new Parameters();
+    c.set("terms", false);
+    c.set("tags", false);
+    
     for (int i = startAt; i < Math.min(startAt + count, results.length); i++) {
       String identifier = results[i].documentName;
-      Document document = getDocument(identifier);
+      Document document = getDocument(identifier, c);
       SearchResultItem item = new SearchResultItem();
 
       item.rank = i + 1;

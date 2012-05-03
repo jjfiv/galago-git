@@ -275,12 +275,12 @@ public class GeometricIndex implements DynamicIndex, Index {
   }
 
   @Override
-  public Document getDocument(String document) throws IOException {
+  public Document getDocument(String document, Parameters p) throws IOException {
     throw new RuntimeException("UNIMPLEMENTED function: getdocument");
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> documents) throws IOException {
+  public Map<String, Document> getDocuments(List<String> documents, Parameters p) throws IOException {
     throw new RuntimeException("UNIMPLEMENTED function: getdocuments");
   }
 

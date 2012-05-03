@@ -72,9 +72,9 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public Document getDocument(String identifier) throws IOException{
+  public Document getDocument(String identifier, Parameters p) throws IOException{
     for(Retrieval r : this.retrievals){
-      Document d = r.getDocument(identifier);
+      Document d = r.getDocument(identifier, p);
       if(d != null){
         return d;
       }
@@ -83,10 +83,10 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> identifiers) throws IOException{
+  public Map<String, Document> getDocuments(List<String> identifiers, Parameters p) throws IOException{
     HashMap<String,Document> results = new HashMap();
     for(Retrieval r : this.retrievals){
-      results.putAll(r.getDocuments(identifiers));
+      results.putAll(r.getDocuments(identifiers, p));
     }
     return results;
   }

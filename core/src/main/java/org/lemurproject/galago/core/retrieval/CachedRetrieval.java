@@ -130,13 +130,13 @@ public class CachedRetrieval implements Retrieval {
   }
 
   @Override
-  public Document getDocument(String identifier) throws IOException {
-    return retrieval.getDocument(identifier);
+  public Document getDocument(String identifier, Parameters p) throws IOException {
+    return retrieval.getDocument(identifier, p);
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> identifiers) throws IOException {
-    return retrieval.getDocuments(identifiers);
+  public Map<String, Document> getDocuments(List<String> identifiers, Parameters p) throws IOException {
+    return retrieval.getDocuments(identifiers, p);
   }
 
   @Override
