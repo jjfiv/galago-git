@@ -75,7 +75,7 @@ public class UnfilteredCombinationIteratorTest extends TestCase {
       assertFalse(instance.isDone());
       assertTrue(instance.atCandidate(docsTogether[i]));
       context.document = docsTogether[i];
-      assertEquals(scoresTogether[i], instance.score());
+      assertEquals(scoresTogether[i], instance.score(), 0.0000001);
 
       instance.movePast(docsTogether[i]);
     }

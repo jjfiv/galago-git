@@ -7,33 +7,32 @@
  */
 package org.lemurproject.galago.core.retrieval.extents;
 
-import org.lemurproject.galago.core.retrieval.iterator.ScoreCombinationIterator;
+import org.lemurproject.galago.core.retrieval.iterator.WeightedSumIterator;
 import java.io.IOException;
 import java.util.Arrays;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.FakeLengthIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
  * @author trevor
  */
-public class ScoreCombinationIteratorTest extends TestCase {
+public class WeightedSumIteratorTest extends TestCase {
 
   int[] docsA = new int[]{5, 10, 15, 20};
-  double[] scoresA = new double[]{1.0, 2.0, 3.0, 4.0};
+  double[] scoresA = new double[]{-1.0, -2.0, -3.0, -4.0};
   int[] docsB = new int[]{2, 4, 6, 8, 10, 12, 14, 16, 18, 20};
-  double[] scoresB = new double[]{2, 4, 6, 8, 10, 12, 14, 16, 18, 20};
+  double[] scoresB = new double[]{-2, -4, -6, -8, -10, -12, -14, -16, -18, -20};
   int[] docsTogether = new int[]{2, 4, 5, 6, 8, 10, 12, 14, 15, 16, 18, 20};
-  double[] scoresTogether = new double[]{1, 2, 0.5, 3, 4, 6, 6, 7, 1.5, 8, 9, 12};
+  double[] scoresTogether = new double[]{-2, -4, -1, -6, -8, -1.99966, -12, -14, -3, -16, -18, -3.99999};
   // sjh: weight testing
   double[] weights = new double[]{0.4, 1.6}; 
-  double[] weightedScoresTogether = new double[]{3.2, 6.4, 0.4, 9.6, 12.8, 16.8, 19.2, 22.4, 1.2, 25.6, 28.8, 33.6};
-  double[] normalWeightedScoresTogether = new double[]{1.6, 3.2, 0.2, 4.8, 6.4, 8.4, 9.6, 11.2, 0.6, 12.8, 14.4, 16.8};
-
-  public ScoreCombinationIteratorTest(String testName) {
+  double[] unnormalweightedScoresTogether = new double[]{-1.52999,-3.52999,-1.91629,-5.52999,-7.52999,-2.91494,-11.52999,-13.52999,-3.91629,-15.52999,-17.52999,-4.91629};
+  double[] normalWeightedScoresTogether = new double[]{-2.22314,-4.22314,-2.60943,-6.22314,-8.22314,-3.60809,-12.22314,-14.22314,-4.60943,-16.22314,-18.22314,-5.60943};
+  
+  public WeightedSumIteratorTest(String testName) {
     super(testName);
   }
 
@@ -42,7 +41,7 @@ public class ScoreCombinationIteratorTest extends TestCase {
     FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
     FakeScoreIterator[] iterators = {one, two};
 
-    ScoreCombinationIterator instance = new ScoreCombinationIterator(new NodeParameters(), iterators);
+    WeightedSumIterator instance = new WeightedSumIterator(new NodeParameters(), iterators);
     int[] lengths = new int[12];
     Arrays.fill(lengths, 100);
     ScoringContext ctx = new ScoringContext();
@@ -57,7 +56,7 @@ public class ScoreCombinationIteratorTest extends TestCase {
     }
   }
 
-  public void testWeightedScore() throws IOException {
+  public void testNormalWeightedScore() throws IOException {
     FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA);
     FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
     FakeScoreIterator[] iterators = {one, two};
@@ -65,7 +64,8 @@ public class ScoreCombinationIteratorTest extends TestCase {
     NodeParameters weightParameters = new NodeParameters();
     weightParameters.set("0", weights[0]);
     weightParameters.set("1", weights[1]);
-    ScoreCombinationIterator instance = new ScoreCombinationIterator(weightParameters, iterators);
+    weightParameters.set("norm", true);
+    WeightedSumIterator instance = new WeightedSumIterator(weightParameters, iterators);
     int[] lengths = new int[12];
     Arrays.fill(lengths, 100);
     ScoringContext ctx = new ScoringContext();
@@ -75,7 +75,7 @@ public class ScoreCombinationIteratorTest extends TestCase {
     for (int i = 0; i < 12; i++) {
       ctx.document = docsTogether[i];
       ctx.moveLengths(docsTogether[i]);
-      assert (Math.abs(normalWeightedScoresTogether[i] - instance.score()) < 0.000001);
+      assertEquals(normalWeightedScoresTogether[i], instance.score(), 0.0001);
       instance.movePast(docsTogether[i]);
     }
   }
@@ -89,7 +89,7 @@ public class ScoreCombinationIteratorTest extends TestCase {
     weightParameters.set("0", weights[0]);
     weightParameters.set("1", weights[1]);
     weightParameters.set("norm", false);
-    ScoreCombinationIterator instance = new ScoreCombinationIterator(weightParameters, iterators);
+    WeightedSumIterator instance = new WeightedSumIterator(weightParameters, iterators);
     int[] lengths = new int[12];
     Arrays.fill(lengths, 100);
     ScoringContext ctx = new ScoringContext();
@@ -99,8 +99,8 @@ public class ScoreCombinationIteratorTest extends TestCase {
     for (int i = 0; i < 12; i++) {
       ctx.document = docsTogether[i];
       ctx.moveLengths(docsTogether[i]);
-      assert (Math.abs(weightedScoresTogether[i] - instance.score()) < 0.000001);
-      instance.movePast(docsTogether[i]);
+      assertEquals(unnormalweightedScoresTogether[i], instance.score(), 0.0001);
+     instance.movePast(docsTogether[i]);
     }
   }
   
@@ -109,7 +109,7 @@ public class ScoreCombinationIteratorTest extends TestCase {
     FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
     FakeScoreIterator[] iterators = {one, two};
 
-    ScoreCombinationIterator instance = new ScoreCombinationIterator(new NodeParameters(), iterators);
+    WeightedSumIterator instance = new WeightedSumIterator(new NodeParameters(), iterators);
     instance.movePast(5);
   }
 
@@ -118,7 +118,7 @@ public class ScoreCombinationIteratorTest extends TestCase {
     FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
     FakeScoreIterator[] iterators = {one, two};
 
-    ScoreCombinationIterator instance = new ScoreCombinationIterator(new NodeParameters(), iterators);
+    WeightedSumIterator instance = new WeightedSumIterator(new NodeParameters(), iterators);
 
     instance.moveTo(5);
   }

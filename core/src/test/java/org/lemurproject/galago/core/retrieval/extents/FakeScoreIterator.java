@@ -68,7 +68,7 @@ public class FakeScoreIterator implements MovableScoreIterator {
     if (!isDone() && docs[index] == context.document) {
       return scores[index];
     }
-    return 0;
+    return - Math.pow(10, 10);
   }
 
   @Override
