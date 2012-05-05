@@ -17,7 +17,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.PriorityQueue;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.management.ListenerNotFoundException;
 import javax.management.Notification;
@@ -55,16 +54,7 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  * application. Using a Reducer allows the application to buffer fewer items and
  * hopefully reduce the reliance on the disk during sorting.</p>
  *
- * Parameters: - limit [ = DEFAULT_OBJECT_LIMIT] : maximum number of objects to
- * buffer before flushing to disk - fileLimit [ = DEFAULT_FILE_LIMIT] : maximum
- * number of files to merge an any time in the combine phase - reduceInterval [
- * = DEFAULT_REDUCE_INTERVAL] : number of items to buffer before trying to
- * reduce (may free some memory) - memoryFraction [ = DEFAULT_MEMORY_FRACTION] :
- * - pauseToFlush [ = DEFAULT_FLUSH_PAUSE] :
- *
- *
- * @author trevor
- * @author sjh
+ * @author Trevor Strohman
  */
 public class Sorter<T> extends StandardStep<T, T> implements NotificationListener {
 
@@ -73,13 +63,14 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   public static final long DEFAULT_FILE_LIMIT = 20;
   public static final long DEFAULT_REDUCE_INTERVAL = 1 * 1024 * 1024;
   public static final double DEFAULT_MEMORY_FRACTION = 0.7;
-  public static final boolean DEFAULT_FLUSH_PAUSE = true;
+  //public static final boolean DEFAULT_FLUSH_PAUSE = false;
+  
   // instance limits and parameters
   private long limit;
   private int fileLimit;
   private long reduceInterval;
   private double memoryFraction;
-  private boolean pauseToFlush;
+  //private boolean pauseToFlush;
   private Order<T> order;
   private Comparator<T> lessThanCompare;
   private Reducer<T> reducer;
@@ -158,9 +149,9 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     this.fileLimit = (int) localParameters.get("file-limit", globalParameters.get("file-limit", Sorter.DEFAULT_FILE_LIMIT));
     this.reduceInterval = localParameters.get("reduce-interval", globalParameters.get("reduce-interval", Sorter.DEFAULT_REDUCE_INTERVAL));
     this.memoryFraction = localParameters.get("mem-fraction", globalParameters.get("mem-fraction", Sorter.DEFAULT_MEMORY_FRACTION));
-    this.pauseToFlush = localParameters.get("flush-pause", globalParameters.get("flush-pause", Sorter.DEFAULT_FLUSH_PAUSE));
+    //this.pauseToFlush = localParameters.get("flush-pause", globalParameters.get("flush-pause", Sorter.DEFAULT_FLUSH_PAUSE));
 
-    this.forceFlush = false;
+    forceFlush = false;
   }
 
   public void requestMemoryWarnings() {
@@ -201,26 +192,19 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     }
   }
 
-  @Override
   public void handleNotification(Notification notification, Object handback) {
     if (notification.getType().equals(MemoryNotificationInfo.MEMORY_THRESHOLD_EXCEEDED)) {
+      //[sjh] - flushRequested = true;
+      final Sorter f = this;
 
       // if there's nothing we can do at the moment; return.
       if (size() == 0) {
         return;
+      } else {
+        if (size() < minFlushSize) {
+          minFlushSize = size();
+        }
       }
-      // store the smallest mem-limit flush op
-      if (size() < minFlushSize) {
-        minFlushSize = size();
-      }
-
-      if (this.pauseToFlush) {
-        // this check should never be true
-        this.forceFlush = true;
-        return;
-      }
-
-      final Sorter f = this;
 
       Thread t = new Thread() {
 
@@ -292,15 +276,10 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
 
       if (needsFlush()) {
         flush();
-
-        // encourage a garbage collection
-        System.gc();
       }
     }
-    this.forceFlush = false;
   }
 
-  @Override
   public synchronized void process(T object) throws IOException {
     objects.add(object);
     flushIfNecessary();
@@ -398,6 +377,8 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     if (filesWritten != null) {
       filesWritten.increment();
     }
+
+    forceFlush = false;
   }
 
   private class RunWrapper<T> implements Comparable<RunWrapper<T>> {
@@ -476,7 +457,6 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
         output.process(wrapper.top);
       } while (wrapper.next());
     }
-
 
     runs.clear();
     runsCount = 0;
