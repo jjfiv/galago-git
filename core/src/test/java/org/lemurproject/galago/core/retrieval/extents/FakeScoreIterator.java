@@ -14,13 +14,19 @@ public class FakeScoreIterator implements MovableScoreIterator {
 
   int[] docs;
   double[] scores;
+  double defaultScore;
   int index;
   ScoringContext context;
 
   public FakeScoreIterator(int[] docs, double[] scores) {
+    this(docs, scores, 0);
+  }
+  
+  public FakeScoreIterator(int[] docs, double[] scores, double defaultScore) {
     this.docs = docs;
     this.scores = scores;
     this.index = 0;
+    this.defaultScore = defaultScore;
   }
 
   @Override
@@ -68,7 +74,7 @@ public class FakeScoreIterator implements MovableScoreIterator {
     if (!isDone() && docs[index] == context.document) {
       return scores[index];
     }
-    return - Math.pow(10, 10);
+    return defaultScore;
   }
 
   @Override

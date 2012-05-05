@@ -26,19 +26,19 @@ public class WeightedSumIteratorTest extends TestCase {
   int[] docsB = new int[]{2, 4, 6, 8, 10, 12, 14, 16, 18, 20};
   double[] scoresB = new double[]{-2, -4, -6, -8, -10, -12, -14, -16, -18, -20};
   int[] docsTogether = new int[]{2, 4, 5, 6, 8, 10, 12, 14, 15, 16, 18, 20};
-  double[] scoresTogether = new double[]{-2, -4, -1, -6, -8, -1.99966, -12, -14, -3, -16, -18, -3.99999};
+  double[] scoresTogether = new double[]{-1.99999, -3.99999, -0.99999, -5.99999, -7.99999, -1.99966, -11.99999, -13.99998, -2.99999, -15.99987, -17.99908, -3.99999};
   // sjh: weight testing
-  double[] weights = new double[]{0.4, 1.6}; 
-  double[] unnormalweightedScoresTogether = new double[]{-1.52999,-3.52999,-1.91629,-5.52999,-7.52999,-2.91494,-11.52999,-13.52999,-3.91629,-15.52999,-17.52999,-4.91629};
-  double[] normalWeightedScoresTogether = new double[]{-2.22314,-4.22314,-2.60943,-6.22314,-8.22314,-3.60809,-12.22314,-14.22314,-4.60943,-16.22314,-18.22314,-5.60943};
-  
+  double[] weights = new double[]{0.4, 1.6};
+  double[] normalWeightedScoresTogether = new double[]{-2.22314, -4.22314, -2.60943, -6.22314, -8.22314, -3.60809, -12.22314, -14.22313, -4.60943, -16.22311, -18.22291, -5.60943};
+  double[] unnormalweightedScoresTogether = new double[]{-1.52999, -3.52999, -1.91629, -5.52999, -7.52999, -2.91494, -11.52999, -13.52999, -3.91629, -15.52996, -17.52976, -4.91629};
+
   public WeightedSumIteratorTest(String testName) {
     super(testName);
   }
 
   public void testScore() throws IOException {
-    FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA);
-    FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
+    FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA, -25);
+    FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB, -25);
     FakeScoreIterator[] iterators = {one, two};
 
     WeightedSumIterator instance = new WeightedSumIterator(new NodeParameters(), iterators);
@@ -57,8 +57,8 @@ public class WeightedSumIteratorTest extends TestCase {
   }
 
   public void testNormalWeightedScore() throws IOException {
-    FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA);
-    FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
+    FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA, -25);
+    FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB, -25);
     FakeScoreIterator[] iterators = {one, two};
 
     NodeParameters weightParameters = new NodeParameters();
@@ -81,8 +81,8 @@ public class WeightedSumIteratorTest extends TestCase {
   }
 
   public void testUnnormalizedWeightings() throws IOException {
-    FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA);
-    FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
+    FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA, -25);
+    FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB, -25);
     FakeScoreIterator[] iterators = {one, two};
 
     NodeParameters weightParameters = new NodeParameters();
@@ -100,13 +100,13 @@ public class WeightedSumIteratorTest extends TestCase {
       ctx.document = docsTogether[i];
       ctx.moveLengths(docsTogether[i]);
       assertEquals(unnormalweightedScoresTogether[i], instance.score(), 0.0001);
-     instance.movePast(docsTogether[i]);
+      instance.movePast(docsTogether[i]);
     }
   }
-  
+
   public void testMovePast() throws Exception {
-    FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA);
-    FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
+    FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA, -25);
+    FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB, -25);
     FakeScoreIterator[] iterators = {one, two};
 
     WeightedSumIterator instance = new WeightedSumIterator(new NodeParameters(), iterators);
@@ -114,8 +114,8 @@ public class WeightedSumIteratorTest extends TestCase {
   }
 
   public void testMoveTo() throws Exception {
-    FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA);
-    FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
+    FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA, -25);
+    FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB, -25);
     FakeScoreIterator[] iterators = {one, two};
 
     WeightedSumIterator instance = new WeightedSumIterator(new NodeParameters(), iterators);
