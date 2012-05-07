@@ -2,19 +2,10 @@
 package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
-import org.lemurproject.galago.core.retrieval.GroupRetrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
-import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -56,17 +47,33 @@ public class AnnotateParameters extends Traversal {
       if (required != null) {
         for (String p : required.parameters()) {
           if (!node.getNodeParameters().containsKey(p)
-                  && (queryParameters.containsKey(p) || globalParameters.containsKey(p))) {
-            if (queryParameters.isBoolean(p) || globalParameters.isBoolean(p)) {
-              node.getNodeParameters().set(p, queryParameters.get(p, globalParameters.getBoolean(p)));
-            } else if (queryParameters.isDouble(p) || globalParameters.isDouble(p)) {
-              node.getNodeParameters().set(p, queryParameters.get(p, globalParameters.getDouble(p)));
-            } else if (queryParameters.isLong(p) || globalParameters.isLong(p)) {
-              node.getNodeParameters().set(p, queryParameters.get(p, globalParameters.getLong(p)));
-            } else if (queryParameters.isString(p) || globalParameters.isString(p)) {
-              node.getNodeParameters().set(p, queryParameters.get(p, globalParameters.getString(p)));
+                  && (queryParameters.containsKey(p))) {
+            if (queryParameters.isBoolean(p)) {
+              node.getNodeParameters().set(p, queryParameters.getBoolean(p));
+            } else if (queryParameters.isDouble(p)) {
+              node.getNodeParameters().set(p, queryParameters.getDouble(p));
+            } else if (queryParameters.isLong(p)) {
+              node.getNodeParameters().set(p, queryParameters.getLong(p));
+            } else if (queryParameters.isString(p)) {
+              node.getNodeParameters().set(p, queryParameters.getString(p));
             } else {
-              throw new RuntimeException("Parameter " + p + " was specified for this query or globally"
+              throw new RuntimeException("Parameter " + p + " was specified for this query"
+                      + "\nbut it could not be annotated into node: " + node.toString()
+                      + "\nPlease ensure the parameter is specified as a simple type : {String,boolean,long,double} "
+                      + "in the query parameters or global parameters.");
+            }
+          } else if (!node.getNodeParameters().containsKey(p)
+                  && (globalParameters.containsKey(p))) {
+            if (globalParameters.isBoolean(p)) {
+              node.getNodeParameters().set(p, globalParameters.getBoolean(p));
+            } else if (globalParameters.isDouble(p)) {
+              node.getNodeParameters().set(p, globalParameters.getDouble(p));
+            } else if (globalParameters.isLong(p)) {
+              node.getNodeParameters().set(p, globalParameters.getLong(p));
+            } else if (globalParameters.isString(p)) {
+              node.getNodeParameters().set(p, globalParameters.getString(p));
+            } else {
+              throw new RuntimeException("Parameter " + p + " was specified for globally"
                       + "\nbut it could not be annotated into node: " + node.toString()
                       + "\nPlease ensure the parameter is specified as a simple type : {String,boolean,long,double} "
                       + "in the query parameters or global parameters.");
