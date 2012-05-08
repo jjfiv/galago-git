@@ -105,14 +105,22 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   }
 
   // unsupported functions - perhaps soon they will be supported.
+  @Override
   public ValueIterator getIterator(Node node) throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
+  @Override
+  public ValueIterator getIterator(byte[] nodeString) throws IOException {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
   public String getDefaultOperator() {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
+  @Override
   public Map<String, NodeType> getNodeTypes() {
     return new HashMap();
   }

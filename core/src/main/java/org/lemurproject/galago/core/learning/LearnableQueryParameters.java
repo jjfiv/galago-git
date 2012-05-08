@@ -49,7 +49,7 @@ public class LearnableQueryParameters {
       }
       range = max - min;
       // sanity check for impossible range
-      assert range > 0 : "Range of parameter " + name + " is negative.";
+      assert range >= 0 : "Range of parameter " + name + " is zero or negative.";
 
 
       // now store values:
@@ -58,19 +58,21 @@ public class LearnableQueryParameters {
       minValues.put(name, min);
       ranges.put(name, range);
 
-      // also generate new rules based on this range:
-      Parameters maxRule = new Parameters();
-      maxRule.set("mode", "max");
-      maxRule.set("value", max);
-      maxRule.set("params", Collections.singletonList(name));
+      if (param.get("rangeLimiting", false)) {
+        //  generate new rules based on this range:
+        Parameters maxRule = new Parameters();
+        maxRule.set("mode", "max");
+        maxRule.set("value", max);
+        maxRule.set("params", Collections.singletonList(name));
 
-      Parameters minRule = new Parameters();
-      minRule.set("mode", "min");
-      minRule.set("value", min);
-      minRule.set("params", Collections.singletonList(name));
+        Parameters minRule = new Parameters();
+        minRule.set("mode", "min");
+        minRule.set("value", min);
+        minRule.set("params", Collections.singletonList(name));
 
-      rules.add(maxRule);
-      rules.add(minRule);
+        rules.add(maxRule);
+        rules.add(minRule);
+      }
     }
 
     this.normalizationRules = new ParameterNormalizationRules(rules);

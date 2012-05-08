@@ -4,30 +4,23 @@ package org.lemurproject.galago.core.index.mem;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
-import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.disk.CountIndexWriter;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ModifiableIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
-import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -95,7 +88,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
         postingList.add(document, count);
         mi.next();
       }
-      
+
       // specifically wait until we have finished building the posting list to add it
       //  - we do not want to search partial data.
       postings.put(key, postingList);
@@ -126,6 +119,11 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
       return getTermCounts(byteWord);
     }
     return null;
+  }
+
+  @Override
+  public ValueIterator getIterator(byte[] key) throws IOException {
+    return getTermCounts(key);
   }
 
   @Override
@@ -445,7 +443,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
     @Override
     public void moveTo(int identifier) throws IOException {
       // TODO: need to implement skip lists
-      
+
       while (!isDone() && (currDocument < identifier)) {
         next();
       }
@@ -501,7 +499,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
       }
       return currentCandidate() - other.currentCandidate();
     }
-    
+
     @Override
     public String getKeyString() throws IOException {
       return Utility.toString(postings.key);

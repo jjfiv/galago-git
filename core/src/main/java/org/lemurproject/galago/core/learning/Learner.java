@@ -110,8 +110,9 @@ public abstract class Learner {
     assert (p.isList("learnableParameters", Type.MAP)) : this.getClass().getName() + " requires `learnableParameters' parameter, of type List<Map>.";
     assert (!p.containsKey("normalization") || (p.isMap("normalization") || p.isList("normalization", Type.MAP))) : this.getClass().getName() + " requires `learnableParameters' parameter to be of type List<Map>.";
 
-
     this.queries = BatchSearch.collectQueries(p);
+    assert ! this.queries.isEmpty() : this.getClass().getName() + " requires `queries' parameter, of type List(Parameters): see Batch-Search for an example.";
+
     this.qrels = new QuerySetJudgments(p.getString("qrels"));
     this.evalFunction = QuerySetEvaluatorFactory.instance(p.get("metric", "map"));
     

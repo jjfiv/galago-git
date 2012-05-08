@@ -116,6 +116,11 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   @Override
+  public ValueIterator getIterator(byte[] _key) throws IOException {
+    return new VIterator(getIterator());
+  }
+
+  @Override
   public Parameters getManifest() {
     return params;
   }

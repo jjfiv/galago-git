@@ -5,6 +5,7 @@ package org.lemurproject.galago.core.index.mem;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.index.IndexPartReader;
+import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 
@@ -44,4 +45,9 @@ public interface MemoryIndexPart extends IndexPartReader {
    * return the current number of keys in index
    */
   public long getKeyCount();
+
+  /*
+   * return a cached iterator - specifically used byte CachedRetrieval
+   */
+  public ValueIterator getIterator(byte[] key) throws IOException;
 }

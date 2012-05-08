@@ -28,6 +28,7 @@ public class CoordinateAscentLearner extends Learner {
 
   // coord ascent specific parameters
   protected int maxIterations;
+  protected Parameters specialMinStepSizes;
   protected double minStepSize;
   protected double maxStepRatio;
   protected double stepScale;
@@ -35,6 +36,11 @@ public class CoordinateAscentLearner extends Learner {
   public CoordinateAscentLearner(Parameters p, Retrieval r) throws Exception {
     super(p, r);
 
+    if (p.isMap("specialMinStepSize")) {
+      this.specialMinStepSizes = p.getMap("specialMinStepSize");
+    } else {
+      this.specialMinStepSizes = new Parameters();
+    }
     this.minStepSize = p.get("minStepSize", 0.02);
     this.maxStepRatio = p.get("maxStepRatio", 0.5);
     this.stepScale = p.get("stepScale", 2.0);
@@ -61,7 +67,7 @@ public class CoordinateAscentLearner extends Learner {
         logger.info(String.format("Iteration (%d of %d). Step (%d of %d). Starting to optimize coordinate (%s)...", iters, this.maxIterations, c + 1, optimizationOrder.size(), coord));
         double currParamValue = parameterSettings.get(coord); // Keep around the current parameter value
         // Take a step to the right 
-        double step = this.minStepSize;
+        double step = this.specialMinStepSizes.get(coord, this.minStepSize);
         if (parameterSettings.get(coord) != 0
                 && step > (this.maxStepRatio * Math.abs(parameterSettings.get(coord)))) {
           // Reduce the step size for very small weights
@@ -88,7 +94,7 @@ public class CoordinateAscentLearner extends Learner {
         parameterSettings.unsafeSet(coord, currParamValue);
 
         // Take a step to the right 
-        step = this.minStepSize;
+        step = this.specialMinStepSizes.get(coord, this.minStepSize);
         if (parameterSettings.get(coord) != 0
                 && step > (this.maxStepRatio * Math.abs(parameterSettings.get(coord)))) {
           // Reduce the step size for very small weights

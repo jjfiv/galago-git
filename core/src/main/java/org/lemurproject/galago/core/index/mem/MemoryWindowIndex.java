@@ -14,12 +14,13 @@ import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
-import org.lemurproject.galago.core.index.mem.MemoryWindowIndex.ExtentList.ExtentIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
+import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
@@ -30,29 +31,39 @@ import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.Utility.ByteArrComparator;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
+
 /*
  * author sjh
  *
  * In-memory window posting index
+ *
  */
 public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
 
   // this could be a bit big -- but we need random access here
-  // should use a trie (but java doesn't have one?)
-  private TreeMap<byte[], ExtentList> extents = new TreeMap(new ByteArrComparator());
-  private Parameters parameters;
-  private long collectionDocumentCount = 0;
-  private long collectionPostingCount = 0;
+  // perhaps we should use a trie (but java doesn't have one?)
+  protected TreeMap<byte[], WindowPostingList> postings = new TreeMap(new ByteArrComparator());
+  protected Parameters parameters;
+  protected long collectionDocumentCount = 0;
+  protected long collectionPostingsCount = 0;
+  protected Stemmer stemmer = null;
 
-  public MemoryWindowIndex(Parameters parameters) {
+  public MemoryWindowIndex(Parameters parameters) throws Exception {
     this.parameters = parameters;
-    this.parameters.set("writerClass", "org.lemurproject.galago.core.index.ExtentIndexWriter");
+
+    if (parameters.containsKey("stemmer")) {
+      stemmer = (Stemmer) Class.forName(parameters.getString("stemmer")).newInstance();
+    }
+
+    // if the parameters specify a collection length use them.
+    collectionPostingsCount = parameters.get("statistics/collectionLength", 0);
+    collectionDocumentCount = parameters.get("statistics/documentCount", 0);
   }
 
   @Override
-  public void addDocument(Document doc) {
+  public void addDocument(Document doc) throws IOException {
     collectionDocumentCount += 1;
-    collectionPostingCount += doc.terms.size();
+    collectionPostingsCount += doc.terms.size();
 
     int prevBegin = -1;
     for (Tag tag : doc.tags) {
@@ -64,38 +75,34 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
 
   @Override
   public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
-
-    if (extents.containsKey(key)) {
+    if (postings.containsKey(key)) {
       // do nothing - we have already cached this data
       return;
     }
 
-    ExtentList extentList = new ExtentList(key);
-    
-    while (!iterator.isDone()) {
-      int document = iterator.currentCandidate();
-      ExtentArrayIterator extentsIterator = new ExtentArrayIterator(((MovableExtentIterator) iterator).extents());
-      while (!extentsIterator.isDone()) {
-        int begin = extentsIterator.currentBegin();
-        int end = extentsIterator.currentEnd();
-
-        extentList.add(document, begin, end);
-        extentsIterator.next();
+    WindowPostingList postingList = new WindowPostingList(key);
+    MovableExtentIterator mi = (MovableExtentIterator) iterator;
+    while (!mi.isDone()) {
+      int document = mi.currentCandidate();
+      ExtentArrayIterator ei = new ExtentArrayIterator(mi.extents());
+      while (!ei.isDone()) {
+        postingList.add(document, ei.currentBegin(), ei.currentEnd());
+        ei.next();
       }
-      iterator.next();
+      mi.next();
     }
-    extents.put(key, extentList);
+
+    postings.put(key, postingList);
   }
 
-  private void addExtent(byte[] byteExtentName, int document, int begin, int end) {
-    ExtentList extentList;
-    if (!extents.containsKey(byteExtentName)) {
-      extentList = new ExtentList(byteExtentName);
-      extents.put(byteExtentName, extentList);
+  protected void addExtent(byte[] byteWord, int document, int begin, int end) {
+    if (!postings.containsKey(byteWord)) {
+      WindowPostingList postingList = new WindowPostingList(byteWord);
+      postings.put(byteWord, postingList);
     }
 
-    extentList = extents.get(byteExtentName);
-    extentList.add(document, begin, end);
+    WindowPostingList postingList = postings.get(byteWord);
+    postingList.add(document, begin, end);
   }
 
   // Posting List Reader functions
@@ -106,10 +113,38 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
 
   @Override
   public ValueIterator getIterator(Node node) throws IOException {
-    KeyIterator i = getIterator();
-    i.skipToKey(Utility.fromString(node.getDefaultParameter()));
-    if (0 == Utility.compare(i.getKey(), Utility.fromString(node.getDefaultParameter()))) {
-      return i.getValueIterator();
+    String term = stemAsRequired(node.getDefaultParameter());
+    byte[] byteWord = Utility.fromString(term);
+    return getTermExtents(byteWord);
+  }
+
+  @Override
+  public ValueIterator getIterator(byte[] key) throws IOException {
+    return getTermExtents(key);
+  }
+
+  @Override
+  public NodeStatistics getTermStatistics(String term) throws IOException {
+    term = stemAsRequired(term);
+    return getTermStatistics(Utility.fromString(term));
+  }
+
+  @Override
+  public NodeStatistics getTermStatistics(byte[] term) throws IOException {
+    WindowPostingList postingList = postings.get(term);
+    if (postingList != null) {
+      ExtentIterator counts = new ExtentIterator(postingList);
+      return counts.getStatistics();
+    }
+    NodeStatistics stats = new NodeStatistics();
+    stats.node = Utility.toString(term);
+    return stats;
+  }
+
+  private ExtentIterator getTermExtents(byte[] term) throws IOException {
+    WindowPostingList postingList = postings.get(term);
+    if (postingList != null) {
+      return new ExtentIterator(postingList);
     }
     return null;
   }
@@ -117,25 +152,14 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
   // try to free up memory.
   @Override
   public void close() throws IOException {
-    extents = null;
+    postings = null;
   }
 
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("counts", new NodeType(ExtentIterator.class));
     types.put("extents", new NodeType(ExtentIterator.class));
     return types;
-  }
-
-  @Override
-  public NodeStatistics getTermStatistics(String term) throws IOException {
-    return getTermStatistics(Utility.fromString(term));
-  }
-
-  @Override
-  public NodeStatistics getTermStatistics(byte[] term) throws IOException {
-    return extents.get(term).getExtentIterator().getStatistics();
   }
 
   @Override
@@ -155,33 +179,36 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
 
   @Override
   public long getCollectionLength() {
-    return collectionPostingCount;
+    return collectionPostingsCount;
   }
 
   @Override
   public long getKeyCount() {
-    return this.extents.size();
+    return postings.size();
   }
 
   @Override
   public void flushToDisk(String path) throws IOException {
     Parameters p = getManifest();
     p.set("filename", path);
+    p.set("statistics/documentCount", this.getDocumentCount());
+    p.set("statistics/collectionLength", this.getCollectionLength());
+    p.set("statistics/vocabCount", this.getKeyCount());
     WindowIndexWriter writer = new WindowIndexWriter(new FakeParameters(p));
 
     KIterator kiterator = new KIterator();
-    MovableExtentIterator viterator;
-    ExtentArray exts;
+    ExtentIterator viterator;
+    ExtentArray extents;
     while (!kiterator.isDone()) {
-      viterator = (MovableExtentIterator) kiterator.getValueIterator();
+      viterator = (ExtentIterator) kiterator.getValueIterator();
       writer.processExtentName(kiterator.getKey());
 
       while (!viterator.isDone()) {
         writer.processNumber(viterator.currentCandidate());
-        exts = viterator.extents();
-        for (int i = 0; i < exts.size(); i++) {
-          writer.processBegin(exts.begin(i));
-          writer.processTuple(exts.end(i));
+        extents = viterator.extents();
+        for (int i = 0; i < extents.size(); i++) {
+          writer.processBegin(extents.begin(i));
+          writer.processTuple(extents.end(i));
         }
         viterator.next();
       }
@@ -190,8 +217,61 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
     writer.close();
   }
 
+  // private functions
+  private String stemAsRequired(String term) {
+    if (stemmer != null) {
+      return stemmer.stem(term);
+    }
+    return term;
+  }
+
+  // sub classes:
+  public class WindowPostingList {
+
+    byte[] key;
+    CompressedByteBuffer documents_cbb = new CompressedByteBuffer();
+    CompressedByteBuffer counts_cbb = new CompressedByteBuffer();
+    CompressedByteBuffer begins_cbb = new CompressedByteBuffer();
+    CompressedByteBuffer ends_cbb = new CompressedByteBuffer();
+    //IntArray documents = new IntArray();
+    //IntArray termFreqCounts = new IntArray();
+    //IntArray termPositions = new IntArray();
+    int termDocumentCount = 0;
+    int termWindowCount = 0;
+    int lastDocument = 0;
+    int lastCount = 0;
+
+    public WindowPostingList(byte[] key) {
+      this.key = key;
+    }
+
+    public void add(int document, int begin, int end) {
+      if (termDocumentCount == 0) {
+        // first instance of term
+        lastDocument = document;
+        lastCount = 1;
+        termDocumentCount += 1;
+        documents_cbb.add(document);
+      } else if (lastDocument == document) {
+        // additional instance of term in document
+        lastCount += 1;
+      } else {
+        // new document
+        assert lastDocument == 0 || document > lastDocument;
+        documents_cbb.add(document - lastDocument);
+        lastDocument = document;
+        counts_cbb.add(lastCount);
+        lastCount = 1;
+        termDocumentCount += 1;
+      }
+      begins_cbb.add(begin);
+      ends_cbb.add(end);
+      termWindowCount += 1;
+    }
+  }
   // iterator allows for query processing and for streaming posting list data
-  //  public class Iterator extends ExtentIterator implements IndexIterator {
+  // public class Iterator extends ExtentIterator implements IndexIterator {
+
   public class KIterator implements KeyIterator {
 
     Iterator<byte[]> iterator;
@@ -199,13 +279,13 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
     boolean done = false;
 
     public KIterator() throws IOException {
-      iterator = extents.keySet().iterator();
+      iterator = postings.keySet().iterator();
       this.nextKey();
     }
 
     @Override
     public void reset() throws IOException {
-      iterator = extents.keySet().iterator();
+      iterator = postings.keySet().iterator();
     }
 
     @Override
@@ -232,20 +312,20 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
 
     @Override
     public boolean skipToKey(byte[] key) throws IOException {
-      iterator = extents.tailMap(key).keySet().iterator();
+      iterator = postings.tailMap(key).keySet().iterator();
       return nextKey();
     }
 
     @Override
     public boolean findKey(byte[] key) throws IOException {
-      iterator = extents.tailMap(key).keySet().iterator();
+      iterator = postings.tailMap(key).keySet().iterator();
       return nextKey();
     }
 
     @Override
     public String getValueString() throws IOException {
       long count = -1;
-      ExtentIterator it = extents.get(currKey).getExtentIterator();
+      ExtentIterator it = new ExtentIterator(postings.get(currKey));
       count = it.count();
       StringBuilder sb = new StringBuilder();
       sb.append(Utility.toString(getKey())).append(",");
@@ -279,238 +359,191 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
 
     @Override
     public ValueIterator getValueIterator() throws IOException {
-      return extents.get(currKey).getExtentIterator();
+      if (currKey != null) {
+        return new ExtentIterator(postings.get(currKey));
+      } else {
+        return null;
+      }
     }
   }
 
-  // sub classes:
-  public class ExtentList {
+  public class ExtentIterator extends ValueIterator implements AggregateIterator, MovableCountIterator, MovableExtentIterator {
 
-    private final byte[] m_termBytes;
-    CompressedByteBuffer documents_cbb = new CompressedByteBuffer();
-    CompressedByteBuffer counts_cbb = new CompressedByteBuffer();
-    CompressedByteBuffer begins_cbb = new CompressedByteBuffer();
-    CompressedByteBuffer ends_cbb = new CompressedByteBuffer();
-    //IntArray documents = new IntArray();
-    //IntArray termFreqCounts = new IntArray();
-    //IntArray termPositions = new IntArray();
-    int extentDocumentCount = 0;
-    int extentPostingCount = 0;
-    int lastDocument = 0;
-    int lastCount = 0;
-    int lastBegin = 0;
-    int lastEnd = 0;
+    WindowPostingList postings;
+    VByteInput documents_reader;
+    VByteInput counts_reader;
+    VByteInput begins_reader;
+    VByteInput ends_reader;
+    int iteratedDocs;
+    int currDocument;
+    int currCount;
+    ExtentArray extents;
+    boolean done;
+    ScoringContext context;
+    Map<String, Object> modifiers;
 
-    public ExtentList(byte[] termBytes) {
-      m_termBytes = termBytes;
+    private ExtentIterator(WindowPostingList postings) throws IOException {
+      this.postings = postings;
+      reset();
     }
 
-    public void add(int document, int begin, int end) {
-      if (extentDocumentCount == 0) {
-        // first instance of term
-        lastDocument = document;
-        lastCount = 1;
-        extentDocumentCount += 1;
-        documents_cbb.add(document);
-      } else if (lastDocument == document) {
-        // additional instance of term in document
-        lastCount += 1;
+    @Override
+    public void reset() throws IOException {
+      documents_reader = new VByteInput(
+              new DataInputStream(
+              new ByteArrayInputStream(postings.documents_cbb.getBytes())));
+      counts_reader = new VByteInput(
+              new DataInputStream(
+              new ByteArrayInputStream(postings.counts_cbb.getBytes())));
+      begins_reader = new VByteInput(
+              new DataInputStream(
+              new ByteArrayInputStream(postings.begins_cbb.getBytes())));
+      ends_reader = new VByteInput(
+              new DataInputStream(
+              new ByteArrayInputStream(postings.ends_cbb.getBytes())));
+
+      iteratedDocs = 0;
+      currDocument = 0;
+      currCount = 0;
+      extents = new ExtentArray();
+
+      next();
+    }
+
+    @Override
+    public int count() {
+      return currCount;
+    }
+
+    @Override
+    public int maximumCount() {
+      return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public ExtentArray extents() {
+      return extents;
+    }
+
+    @Override
+    public ExtentArray getData() {
+      return extents;
+    }
+
+    @Override
+    public boolean isDone() {
+      return done;
+    }
+
+    @Override
+    public int currentCandidate() {
+      return currDocument;
+    }
+
+    @Override
+    public boolean atCandidate(int identifier) {
+      return (!isDone() && identifier == currDocument);
+    }
+
+    @Override
+    public boolean hasAllCandidates() {
+      return false;
+    }
+
+    @Override
+    public void next() throws IOException {
+      if (iteratedDocs >= postings.termDocumentCount) {
+        done = true;
+        return;
+      } else if (iteratedDocs == postings.termDocumentCount - 1) {
+        currDocument = postings.lastDocument;
+        currCount = postings.lastCount;
       } else {
-        // new document
-        assert lastDocument == 0 || document > lastDocument;
-        documents_cbb.add(document - lastDocument);
-        lastDocument = document;
-        counts_cbb.add(lastCount);
-        lastCount = 1;
-        extentDocumentCount += 1;
-        lastBegin = 0;
-        lastEnd = 0;
+        currDocument += documents_reader.readInt();
+        currCount = counts_reader.readInt();
       }
-      assert begin >= lastBegin;
-      begins_cbb.add(begin - lastBegin);
-      ends_cbb.add(end);
-      extentPostingCount += 1;
-      lastBegin = 0;
+      loadExtents();
+
+      iteratedDocs++;
     }
 
-    private ExtentIterator getExtentIterator() throws IOException {
-      return new ExtentIterator();
+    public void loadExtents() throws IOException {
+      extents.reset();
+      extents.setDocument(currDocument);
+      int begin = 0;
+      int end;
+      for (int i = 0; i < currCount; i++) {
+        begin += begins_reader.readInt();
+        end = ends_reader.readInt();
+        extents.add(begin, end);
+      }
     }
 
-    public class ExtentIterator extends ValueIterator implements AggregateIterator, MovableCountIterator, MovableExtentIterator {
-
-      VByteInput documents_reader;
-      VByteInput counts_reader;
-      VByteInput begins_reader;
-      VByteInput ends_reader;
-      int iteratedDocs;
-      int currDocument;
-      int currCount;
-      ExtentArray extents;
-      boolean done;
-
-      public ExtentIterator() throws IOException {
-        reset();
-      }
-
-      @Override
-      public void reset() throws IOException {
-        documents_reader = new VByteInput(
-                new DataInputStream(
-                new ByteArrayInputStream(documents_cbb.getBytes())));
-        counts_reader = new VByteInput(
-                new DataInputStream(
-                new ByteArrayInputStream(counts_cbb.getBytes())));
-        begins_reader = new VByteInput(
-                new DataInputStream(
-                new ByteArrayInputStream(begins_cbb.getBytes())));
-        ends_reader = new VByteInput(
-                new DataInputStream(
-                new ByteArrayInputStream(ends_cbb.getBytes())));
-
-        iteratedDocs = 0;
-        currDocument = 0;
-        currCount = 0;
-        extents = new ExtentArray();
-
+    @Override
+    public void moveTo(int identifier) throws IOException {
+      while (!isDone() && (currDocument < identifier)) {
         next();
       }
+    }
 
-      @Override
-      public int count() {
-        return currCount;
-      }
+    @Override
+    public void movePast(int identifier) throws IOException {
+      moveTo(identifier + 1);
+    }
 
-      @Override
-      public int maximumCount() {
-        return Integer.MAX_VALUE;
-      }
+    @Override
+    public String getEntry() throws IOException {
+      StringBuilder builder = new StringBuilder();
 
-      @Override
-      public ExtentArray extents() {
-        return extents;
-      }
-
-      @Override
-      public ExtentArray getData() {
-        return extents;
-      }
-
-      @Override
-      public boolean isDone() {
-        return done;
-      }
-
-      @Override
-      public int currentCandidate() {
-        return currDocument;
-      }
-
-      @Override
-      public boolean atCandidate(int identifier) {
-        return (!isDone() && identifier == currDocument);
-      }
-
-      @Override
-      public boolean hasAllCandidates() {
-        return false;
-      }
-
-      @Override
-      public void next() throws IOException {
-        if (iteratedDocs >= extentDocumentCount) {
-          done = true;
-          return;
-        } else if (iteratedDocs == extentDocumentCount - 1) {
-          currDocument = lastDocument;
-          currCount = lastCount;
-        } else {
-          currDocument += documents_reader.readInt();
-          currCount = counts_reader.readInt();
-        }
-        loadExtents();
-
-        iteratedDocs++;
-      }
-
-      public void loadExtents() throws IOException {
-        extents.reset();
-        extents.setDocument(currDocument);
-        int begin = 0;
-        int end;
-        for (int i = 0; i < currCount; i++) {
-          begin += begins_reader.readInt();
-          end = ends_reader.readInt();
-          extents.add(begin, end);
-        }
-      }
-
-      @Override
-      public void moveTo(int identifier) throws IOException {
-        while (!isDone() && (currDocument < identifier)) {
-          next();
-        }
-      }
-
-      @Override
-      public void movePast(int identifier) throws IOException {
-        moveTo(identifier + 1);
-      }
-
-      @Override
-      public String getEntry() throws IOException {
-        StringBuilder builder = new StringBuilder();
-
-        builder.append(Utility.toString(m_termBytes));
+      builder.append(Utility.toString(postings.key));
+      builder.append(",");
+      builder.append(currDocument);
+      for (int i = 0; i < extents.size(); ++i) {
         builder.append(",");
-        builder.append(currDocument);
-        for (int i = 0; i < extents.size(); ++i) {
-          builder.append(",");
-          builder.append(extents.begin(i));
-        }
-
-        return builder.toString();
+        builder.append(extents.begin(i));
       }
 
-      @Override
-      public long totalEntries() {
-        return extentDocumentCount;
-      }
+      return builder.toString();
+    }
 
-      @Override
-      public NodeStatistics getStatistics() {
-        NodeStatistics stats = new NodeStatistics();
-        stats.node = Utility.toString(m_termBytes);
-        stats.nodeFrequency = extentPostingCount;
-        stats.nodeDocumentCount = extentDocumentCount;
-        stats.collectionLength = collectionPostingCount;
-        stats.documentCount = collectionDocumentCount;
-        return stats;
-      }
+    @Override
+    public long totalEntries() {
+      return postings.termDocumentCount;
+    }
 
-      @Override
-      public int compareTo(MovableIterator other) {
-        if (isDone() && !other.isDone()) {
-          return 1;
-        }
-        if (other.isDone() && !isDone()) {
-          return -1;
-        }
-        if (isDone() && other.isDone()) {
-          return 0;
-        }
-        return currentCandidate() - other.currentCandidate();
-      }
-      
-      @Override
-      public String getKeyString() throws IOException {
-        return Utility.toString(m_termBytes);
-      }
+    @Override
+    public NodeStatistics getStatistics() {
+      NodeStatistics stats = new NodeStatistics();
+      stats.node = Utility.toString(postings.key);
+      stats.nodeFrequency = postings.termWindowCount;
+      stats.nodeDocumentCount = postings.termDocumentCount;
+      stats.collectionLength = collectionPostingsCount;
+      stats.documentCount = collectionDocumentCount;
+      return stats;
+    }
 
-      @Override
-      public byte[] getKeyBytes() throws IOException {
-        return m_termBytes;
+    @Override
+    public int compareTo(MovableIterator other) {
+      if (isDone() && !other.isDone()) {
+        return 1;
       }
+      if (other.isDone() && !isDone()) {
+        return -1;
+      }
+      if (isDone() && other.isDone()) {
+        return 0;
+      }
+      return currentCandidate() - other.currentCandidate();
+    }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return Utility.toString(postings.key);
+    }
+
+    @Override
+    public byte[] getKeyBytes() throws IOException {
+      return postings.key;
     }
   }
 }

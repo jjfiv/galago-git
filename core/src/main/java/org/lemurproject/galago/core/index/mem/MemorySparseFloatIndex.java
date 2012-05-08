@@ -102,6 +102,12 @@ public class MemorySparseFloatIndex implements MemoryIndexPart {
     return null;
   }
 
+  @Override
+  public ValueIterator getIterator(byte[] key) throws IOException {
+    return getNodeScores(key);
+  }
+
+
   protected ScoresIterator getNodeScores(byte[] key) throws IOException {
     PostingList postingList = postings.get(key);
     if (postingList != null) {

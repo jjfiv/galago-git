@@ -86,16 +86,19 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       return;
     }
 
-    while (!iterator.isDone()) {
-      int document = iterator.currentCandidate();
-      ExtentArrayIterator extentsIterator = new ExtentArrayIterator(((MovableExtentIterator) iterator).extents());
-      while (!extentsIterator.isDone()) {
-        int begin = extentsIterator.currentBegin();
-        addPosting(key, document, begin);
-        extentsIterator.next();
+    PositionalPostingList postingList = new PositionalPostingList(key);
+    MovableExtentIterator mi = (MovableExtentIterator) iterator;
+    while (!mi.isDone()) {
+      int document = mi.currentCandidate();
+      ExtentArrayIterator ei = new ExtentArrayIterator(mi.extents());
+      while (!ei.isDone()) {
+        postingList.add(document, ei.currentBegin());
+        ei.next();
       }
-      iterator.next();
+      mi.next();
     }
+
+    postings.put(key, postingList);
   }
 
   protected void addPosting(byte[] byteWord, int document, int position) {
@@ -123,6 +126,11 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
     } else {
       return getTermExtents(byteWord);
     }
+  }
+
+  @Override
+  public ValueIterator getIterator(byte[] key) throws IOException {
+    return getTermExtents(key);
   }
 
   @Override

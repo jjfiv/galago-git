@@ -3,21 +3,16 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
+import org.lemurproject.galago.core.index.Index;
+import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.mem.*;
-import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
+import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.query.QueryType;
-import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.retrieval.structured.FeatureFactory;
-import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * The CacbedRetrieval object wraps a local retrieval object
@@ -26,12 +21,10 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public class CachedRetrieval implements Retrieval {
+public class CachedRetrieval extends LocalRetrieval {
 
   protected HashMap<String, MemoryIndexPart> cacheParts;
-  protected LocalRetrieval retrieval;
-  protected FeatureFactory features;
-  protected Parameters globalParameters;
+  protected HashMap<String, String> nodeCache;
 
   /**
    * One retrieval interacts with one index. Parameters dictate the behavior
@@ -39,14 +32,14 @@ public class CachedRetrieval implements Retrieval {
    * Additionally, the supplied parameters will be passed forward to the chosen
    * feature factory.
    */
-  public CachedRetrieval(LocalRetrieval retrieval) throws Exception {
-    this(retrieval, new Parameters());
+  public CachedRetrieval(Index index) throws Exception {
+    this(index, new Parameters());
   }
 
-  public CachedRetrieval(LocalRetrieval retrieval, Parameters parameters) throws IOException, Exception {
-    this.globalParameters = parameters;
-    this.retrieval = retrieval;
-    this.features = new FeatureFactory(globalParameters);
+  public CachedRetrieval(Index index, Parameters parameters) throws Exception {
+    super(index, parameters);
+
+    this.nodeCache = new HashMap();
 
     this.cacheParts = new HashMap();
     this.cacheParts.put("score", new MemorySparseFloatIndex(new Parameters()));
@@ -57,105 +50,21 @@ public class CachedRetrieval implements Retrieval {
   }
 
   @Override
-  public void close() throws IOException {
-    this.retrieval.close();
-    for (MemoryIndexPart mp : cacheParts.values()) {
-      mp.close();
+  public StructuredIterator createIterator(Parameters queryParameters, Node node, ScoringContext context) throws Exception {
+    String nodeString = node.toString();
+    if (nodeCache.containsKey(nodeString)) {
+      ValueIterator iterator = cacheParts.get(nodeCache.get(nodeString)).getIterator(Utility.fromString(nodeString));
+      if (iterator instanceof ContextualIterator) {
+        ((ContextualIterator) iterator).setContext(context);
+      }
+      return iterator;
     }
-  }
-
-  @Override
-  public Parameters getGlobalParameters() {
-    return globalParameters;
-  }
-
-  @Override
-  public Node transformQuery(Node root, Parameters queryParams) throws Exception {
-    List<Traversal> traversals = features.getTraversals(this, root, queryParams);
-    Node queryTree = root;
-    for (Traversal traversal : traversals) {
-      queryTree = StructuredQuery.walk(traversal, queryTree);
-    }
-    return queryTree;
-  }
-
-  @Override
-  public ScoredDocument[] runQuery(Node root) throws Exception {
-    // this should do something
-    return retrieval.runQuery(root);
-  }
-
-  @Override
-  public ScoredDocument[] runQuery(Node root, Parameters parameters) throws Exception {
-    // this should do something
-    return retrieval.runQuery(root, parameters);
-  }
-
-  @Override
-  public NodeStatistics nodeStatistics(String nodeString) throws Exception {
-    // this should do something
-    return retrieval.nodeStatistics(nodeString);
-  }
-
-  @Override
-  public NodeStatistics nodeStatistics(Node node) throws Exception {
-    // this should do something
-    return retrieval.nodeStatistics(node);
-  }
-
-  @Override
-  public int getDocumentLength(int docid) throws IOException {
-    // this should do something
-    return retrieval.getDocumentLength(docid);
-  }
-
-  @Override
-  public int getDocumentLength(String docname) throws IOException {
-    // this should do something
-    return retrieval.getDocumentLength(docname);
-  }
-
-  @Override
-  public String getDocumentName(int docid) throws IOException {
-    // this should do something
-    return retrieval.getDocumentName(docid);
+    return super.createIterator(queryParameters, node, context);
   }
 
   /**
-   * These functions pass through to the sub-index *
+   * caches an arbitary query node
    */
-  @Override
-  public Parameters getAvailableParts() throws IOException {
-    return retrieval.getAvailableParts();
-  }
-
-  @Override
-  public Document getDocument(String identifier, Parameters p) throws IOException {
-    return retrieval.getDocument(identifier, p);
-  }
-
-  @Override
-  public Map<String, Document> getDocuments(List<String> identifiers, Parameters p) throws IOException {
-    return retrieval.getDocuments(identifiers, p);
-  }
-
-  @Override
-  public NodeType getNodeType(Node node) throws Exception {
-    return retrieval.getNodeType(node);
-  }
-
-  @Override
-  public QueryType getQueryType(Node node) throws Exception {
-    return retrieval.getQueryType(node);
-  }
-
-  @Override
-  public CollectionStatistics getRetrievalStatistics() throws IOException {
-    return retrieval.getRetrievalStatistics();
-  }
-
-  @Override
-  public CollectionStatistics getRetrievalStatistics(String partName) throws IOException {
-    return retrieval.getRetrievalStatistics(partName);
+  public void cacheIterator(StructuredIterator iterator) {
   }
 }
