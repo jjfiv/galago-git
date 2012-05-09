@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.mem.*;
 import org.lemurproject.galago.core.retrieval.iterator.*;
+import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -117,7 +118,10 @@ public class CachedRetrieval extends LocalRetrieval {
    * score iterators.
    */
   public void addToCache(Node node) throws Exception {
-    StructuredIterator iterator = super.createIterator(new Parameters(), node, new ScoringContext());
+    ScoringContext sc = new ScoringContext();
+    StructuredIterator iterator = super.createIterator(new Parameters(), node, sc);
+    ProcessingModel.initializeLengths(this, sc);
+
 
     String nodeString = node.toString();
     if (!cachedNodes.containsKey(nodeString)) {
@@ -143,6 +147,9 @@ public class CachedRetrieval extends LocalRetrieval {
       } else {
         Logger.getLogger(this.getClass().getName()).info("Unable to cache node : " + nodeString);
       }
+    } else {
+      Logger.getLogger(this.getClass().getName()).info("Already cached node : " + nodeString);
+
     }
   }
 
