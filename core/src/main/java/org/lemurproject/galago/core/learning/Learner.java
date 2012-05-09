@@ -56,12 +56,9 @@ public abstract class Learner {
   protected QuerySetEvaluator evalFunction;
   protected LearnableQueryParameters learnableParameters;
   protected List<LearnableParameterInstance> initialSettings;
-
-  // optimized parameters - mapping is from index of initial settings to optimal parameters
-  // protected Map<Integer, Double> optimizedParameterScores;
-  // protected Map<Integer, LearnableParameterInstance> optimizedParameters;
   // evaluation cache to avoid recalculating scores for known settings
-  // protected Map<String, Double> testedParameters;
+  protected Map<String, Double> testedParameters;
+
   public Learner(Parameters p, Retrieval r) throws Exception {
     logger = Logger.getLogger(this.getClass().getName());
     retrieval = r;
@@ -77,7 +74,10 @@ public abstract class Learner {
     List<Parameters> learntParams = new ArrayList();
     for (int i = 0; i < this.initialSettings.size(); i++) {
       LearnableParameterInstance s = learn(this.initialSettings.get(i).clone());
-      learntParams.add(s.toParameters());
+      Parameters p = s.toParameters();
+      // annotate with score
+      p.set("score", this.evaluate(s));
+      learntParams.add(p);
     }
     return learntParams;
   }
@@ -143,7 +143,7 @@ public abstract class Learner {
 
     // now add more initial settings
     while (initialSettings.size() < restarts) {
-      initialSettings.add(new LearnableParameterInstance(learnableParameters, generateRandomInitalValues()));
+      initialSettings.add(generateRandomInitalValues());
       logger.log(Level.INFO, "Generated initial values: {0}", initialSettings.get(initialSettings.size() - 1).toParameters().toString());
     }
 
@@ -156,27 +156,18 @@ public abstract class Learner {
       queryRoots.put(number, root);
     }
 
+    testedParameters = new HashMap();
+
     // caching system
     if (retrieval instanceof CachedRetrieval) {
-      Parameters rnd1 = generateRandomInitalValues();
-      Parameters rnd2 = generateRandomInitalValues();
-
-      for (String number : this.queryRoots.keySet()) {
-        Node root1 = this.queryRoots.get(number).clone();
-        root1 = this.ensureSettings(root1, rnd1);
-        root1 = this.retrieval.transformQuery(root1, rnd1);
-        Node root2 = this.queryRoots.get(number).clone();
-        root2 = this.ensureSettings(root2, rnd2);
-        root2 = this.retrieval.transformQuery(root2, rnd2);
-        
-      }
+      ensureCachedQueryNodes((CachedRetrieval) retrieval);
     }
   }
 
   /**
    * generateRandomInitalValues
    */
-  protected Parameters generateRandomInitalValues() {
+  protected LearnableParameterInstance generateRandomInitalValues() {
     Parameters init = new Parameters();
     for (String p : this.learnableParameters.getParams()) {
       double val = random.nextDouble();
@@ -184,7 +175,7 @@ public abstract class Learner {
       val += this.learnableParameters.getMin(p);
       init.set(p, val);
     }
-    return init;
+    return new LearnableParameterInstance(learnableParameters, init);
   }
 
   /**
@@ -197,10 +188,10 @@ public abstract class Learner {
   protected double evaluate(LearnableParameterInstance instance) throws Exception {
     // check cache for previous evaluation
 
-    //String settingString = settings.toString();
-    //if (testedParameters.containsKey(settingString)) {
-    //  return testedParameters.get(settingString);
-    //}
+    String settingString = instance.toString();
+    if (testedParameters.containsKey(settingString)) {
+      return testedParameters.get(settingString);
+    }
 
     HashMap<String, ScoredDocument[]> resMap = new HashMap();
 
@@ -225,7 +216,7 @@ public abstract class Learner {
     double r = evalFunction.evaluate(results, qrels);
 
     // store score in cache for future reference
-    // testedParameters.put(settingString, r);
+    testedParameters.put(settingString, r);
     return r;
   }
 
@@ -236,14 +227,50 @@ public abstract class Learner {
    */
   protected Node ensureSettings(Node n, Parameters settings) {
     NodeParameters np = n.getNodeParameters();
-    for (String k : np.getKeySet()) {
-      if (settings.containsKey(k)) {
-        np.set(k, settings.getDouble(k));
+    for (String param : np.getKeySet()) {
+      if (settings.containsKey(param)) {
+        np.set(param, settings.getDouble(param));
       }
     }
     for (Node c : n.getInternalNodes()) {
       ensureSettings(c, settings);
     }
     return n;
+  }
+
+  private void ensureCachedQueryNodes(CachedRetrieval cache) throws Exception {
+    // generate two new
+    LearnableParameterInstance rnd1 = generateRandomInitalValues();
+    LearnableParameterInstance rnd2 = generateRandomInitalValues();
+    Parameters settings1 = rnd1.toParameters();
+    Parameters settings2 = rnd2.toParameters();
+
+
+    for (String number : this.queryRoots.keySet()) {
+      Node root1 = this.queryRoots.get(number).clone();
+      root1 = this.ensureSettings(root1, settings1);
+      root1 = this.retrieval.transformQuery(root1, settings1);
+      Set<String> cachableNodes1 = new HashSet();
+      collectCachableNodes(root1, cachableNodes1);
+
+      Node root2 = this.queryRoots.get(number).clone();
+      root2 = this.ensureSettings(root2, settings2);
+      root2 = this.retrieval.transformQuery(root2, settings2);
+      Set<String> cachableNodes2 = new HashSet();
+      collectCachableNodes(root2, cachableNodes2);
+
+      for (String nodeString : cachableNodes1) {
+        if (cachableNodes2.contains(nodeString)) {
+          cache.addToCache(StructuredQuery.parse(nodeString));
+        }
+      }
+    }
+  }
+
+  private void collectCachableNodes(Node root, Set nodeCache) {
+    for (Node child : root.getInternalNodes()) {
+      collectCachableNodes(child, nodeCache);
+    }
+    nodeCache.add(root.toString());
   }
 }

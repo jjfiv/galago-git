@@ -3,6 +3,7 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.Index;
@@ -50,23 +51,53 @@ public class CachedRetrieval extends LocalRetrieval {
   }
 
   @Override
-  public StructuredIterator createIterator(Parameters queryParameters, Node node, ScoringContext context) throws Exception {
+  protected StructuredIterator createNodeMergedIterator(Node node, ScoringContext context,
+          HashMap<String, StructuredIterator> queryIteratorCache)
+          throws Exception {
+
+    ArrayList<StructuredIterator> internalIterators = new ArrayList<StructuredIterator>();
+    StructuredIterator iterator;
+
+    // first check if the query cache already contains this iterator
+    if (queryIteratorCache != null && queryIteratorCache.containsKey(node.toString())) {
+      return queryIteratorCache.get(node.toString());
+    }
+
     String nodeString = node.toString();
     if (nodeCache.containsKey(nodeString)) {
-      ValueIterator iterator = cacheParts.get(nodeCache.get(nodeString)).getIterator(Utility.fromString(nodeString));
-      if (iterator instanceof ContextualIterator) {
-        ((ContextualIterator) iterator).setContext(context);
+      // new behaviour - check cache for this node.
+      iterator = cacheParts.get(nodeCache.get(nodeString)).getIterator(Utility.fromString(nodeString));
+    } else {
+      // otherwise create iterator
+      for (Node internalNode : node.getInternalNodes()) {
+        StructuredIterator internalIterator = createNodeMergedIterator(internalNode, context, queryIteratorCache);
+        internalIterators.add(internalIterator);
       }
-      return iterator;
+
+      iterator = index.getIterator(node);
+      if (iterator == null) {
+        iterator = features.getIterator(node, internalIterators);
+      }
     }
-    return super.createIterator(queryParameters, node, context);
+
+    // add a context if necessary
+    if (ContextualIterator.class.isInstance(iterator) && (context != null)) {
+      ((ContextualIterator) iterator).setContext(context);
+    }
+
+    // we've created a new iterator - add to the cache for future nodes
+    if (queryIteratorCache != null) {
+      queryIteratorCache.put(node.toString(), iterator);
+    }
+
+    return iterator;
   }
 
   /**
    * caches an arbitrary query node currently can store only count, extent, and
    * score iterators.
    */
-  public void cacheIterator(Node node) throws Exception {
+  public void addToCache(Node node) throws Exception {
     StructuredIterator iterator = super.createIterator(new Parameters(), node, new ScoringContext());
 
     String nodeString = node.toString();

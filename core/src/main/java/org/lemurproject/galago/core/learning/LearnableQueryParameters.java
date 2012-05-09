@@ -4,9 +4,10 @@
 package org.lemurproject.galago.core.learning;
 
 import gnu.trove.map.hash.TObjectDoubleHashMap;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.logging.Logger;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -19,7 +20,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 public class LearnableQueryParameters {
 
   private Logger logger;
-  private List<String> names;
+  private TreeSet<String> names;
   private ParameterNormalizationRules normalizationRules;
   private TObjectDoubleHashMap<String> maxValues;
   private TObjectDoubleHashMap<String> minValues;
@@ -27,7 +28,7 @@ public class LearnableQueryParameters {
 
   public LearnableQueryParameters(List<Parameters> learnableParameters, List<Parameters> rules) {
     this.logger = Logger.getLogger(this.getClass().getName());
-    this.names = new ArrayList();
+    this.names = new TreeSet();
     this.maxValues = new TObjectDoubleHashMap();
     this.minValues = new TObjectDoubleHashMap();
     this.ranges = new TObjectDoubleHashMap();
@@ -78,7 +79,11 @@ public class LearnableQueryParameters {
     this.normalizationRules = new ParameterNormalizationRules(rules);
   }
 
-  public List<String> getParams() {
+  public boolean includes(String param) {
+    return this.names.contains(param);
+  }
+
+  public Set<String> getParams() {
     return this.names;
   }
 
@@ -98,7 +103,7 @@ public class LearnableQueryParameters {
     return this.maxValues.get(param);
   }
 
-  int getCount() {
+  public int getCount() {
     return this.names.size();
   }
 }
