@@ -28,6 +28,7 @@ public class CachedDiskIndexTest extends TestCase {
     super(testName);
   }
 
+  /*
   public void testCacheDiskIndex() throws Exception {
     File trecCorpusFile = null,
             corpusFile = null,
@@ -161,4 +162,6 @@ public class CachedDiskIndexTest extends TestCase {
       }
     }
   }
+   * 
+   */
 }

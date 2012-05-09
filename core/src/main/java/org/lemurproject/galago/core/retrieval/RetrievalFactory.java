@@ -77,8 +77,9 @@ public class RetrievalFactory {
       InvocationHandler ih = new ProxyRetrieval(path, parameters);
       return (Retrieval) Proxy.newProxyInstance(Retrieval.class.getClassLoader(),
               new Class[]{Retrieval.class}, ih);
+    } else if(parameters.get("caching", false)){
+      return new CachedRetrieval(path, parameters);
     } else {
-      // check for drmaa
       return new LocalRetrieval(path, parameters);
     }
   }

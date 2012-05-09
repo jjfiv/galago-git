@@ -79,6 +79,7 @@ public class LocalRetrieval implements Retrieval {
   public LocalRetrieval(String filename, Parameters parameters)
           throws FileNotFoundException, IOException, Exception {
     this.globalParameters = parameters;
+    /*
     if (globalParameters.containsKey("cacheQueries")) {
       CachedDiskIndex cachedIndex = new CachedDiskIndex(filename);
       setIndex(cachedIndex);
@@ -101,14 +102,13 @@ public class LocalRetrieval implements Retrieval {
         Logger.getLogger(this.getClass().getName()).info("Could not process cachedQueries list. No posting list data cached.");
       }
     } else {
+     */
       setIndex(new DiskIndex(filename));
-    }
+//    }
   }
 
   private void setIndex(Index indx) throws IOException {
     this.index = indx;
-
-    // Handle parameters for this index (since some of these can be different)
     features = new FeatureFactory(globalParameters);
   }
 

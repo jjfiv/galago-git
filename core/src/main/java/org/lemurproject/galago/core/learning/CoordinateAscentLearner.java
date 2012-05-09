@@ -26,6 +26,8 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author sjh
  */
 public class CoordinateAscentLearner extends Learner {
+  // this is the max step size
+  private static final double MAX_STEP = Math.pow(10, 6);
 
   // coord ascent specific parameters
   protected int maxIterations;
@@ -81,15 +83,19 @@ public class CoordinateAscentLearner extends Learner {
         double rightStep = 0;
         boolean improving = true;
         // while we are ch
-        while (improving || rightBest == best) {
+        while (improving) {
           double curr = parameterSettings.get(coord);
           parameterSettings.unsafeSet(coord, curr + step);
           double evaluation = this.evaluate(parameterSettings);
           logger.info(String.format("Coordinate (%s) ++%f... Metric: %f.", coord, step, evaluation));
-          if (evaluation > rightBest) {
+          if (evaluation > rightBest || evaluation == best) {
             rightBest = evaluation;
             rightStep += step;
             step *= stepScale;
+            // avoid REALLY BIG steps
+            if(step > this.MAX_STEP){
+              improving = false;
+            }
           } else {
             improving = false;
           }
@@ -108,15 +114,19 @@ public class CoordinateAscentLearner extends Learner {
         double leftBest = best;
         double leftStep = 0;
         improving = true;
-        while (improving || rightBest == best) {
+        while (improving) {
           double curr = parameterSettings.get(coord);
           parameterSettings.unsafeSet(coord, curr - step);
           double evaluation = this.evaluate(parameterSettings);
           logger.info(String.format("Coordinate (%s) --%f... Metric: %f.", coord, step, evaluation));
-          if (evaluation > leftBest) {
+          if (evaluation > leftBest || evaluation == best) {
             leftBest = evaluation;
             leftStep += step;
             step *= stepScale;
+            // avoid REALLY BIG steps
+            if(step > this.MAX_STEP){
+              improving = false;
+            }
           } else {
             improving = false;
           }

@@ -3,11 +3,13 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Logger;
+import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
-import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.mem.*;
 import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -25,7 +27,8 @@ import org.lemurproject.galago.tupleflow.Utility;
 public class CachedRetrieval extends LocalRetrieval {
 
   protected HashMap<String, MemoryIndexPart> cacheParts;
-  protected HashMap<String, String> nodeCache;
+  protected HashMap<String, String> cachedNodes;
+  protected HashMap<String, NodeStatistics> cachedStats;
 
   /**
    * One retrieval interacts with one index. Parameters dictate the behavior
@@ -37,15 +40,31 @@ public class CachedRetrieval extends LocalRetrieval {
     this(index, new Parameters());
   }
 
-  public CachedRetrieval(Index index, Parameters parameters) throws Exception {
-    super(index, parameters);
+  public CachedRetrieval(String filename, Parameters parameters)
+          throws FileNotFoundException, IOException, Exception {
+    super(filename, parameters);
 
-    this.nodeCache = new HashMap();
+    this.cachedNodes = new HashMap();
+    this.cachedStats = new HashMap();
 
     this.cacheParts = new HashMap();
     this.cacheParts.put("score", new MemorySparseFloatIndex(new Parameters()));
     this.cacheParts.put("extent", new MemoryWindowIndex(new Parameters()));
     this.cacheParts.put("count", new MemoryCountIndex(new Parameters()));
+    // this.cacheParts.put("names", new MemoryDocumentNames(new Parameters()));
+    // this.cacheParts.put("lengths", new MemoryDocumentLengths(new Parameters()));
+  }
+
+  public CachedRetrieval(Index index, Parameters parameters) throws Exception {
+    super(index, parameters);
+
+    this.cachedNodes = new HashMap();
+    this.cachedStats = new HashMap();
+
+    this.cacheParts = new HashMap();
+    this.cacheParts.put("score", new MemorySparseFloatIndex(new Parameters()));
+    this.cacheParts.put("extent", new MemoryWindowIndex(index.getIndexPart("postings").getManifest()));
+    this.cacheParts.put("count", new MemoryCountIndex(index.getIndexPart("postings").getManifest()));
     // this.cacheParts.put("names", new MemoryDocumentNames(new Parameters()));
     // this.cacheParts.put("lengths", new MemoryDocumentLengths(new Parameters()));
   }
@@ -64,9 +83,9 @@ public class CachedRetrieval extends LocalRetrieval {
     }
 
     String nodeString = node.toString();
-    if (nodeCache.containsKey(nodeString)) {
+    if (cachedNodes.containsKey(nodeString)) {
       // new behaviour - check cache for this node.
-      iterator = cacheParts.get(nodeCache.get(nodeString)).getIterator(Utility.fromString(nodeString));
+      iterator = cacheParts.get(cachedNodes.get(nodeString)).getIterator(Utility.fromString(nodeString));
     } else {
       // otherwise create iterator
       for (Node internalNode : node.getInternalNodes()) {
@@ -101,19 +120,39 @@ public class CachedRetrieval extends LocalRetrieval {
     StructuredIterator iterator = super.createIterator(new Parameters(), node, new ScoringContext());
 
     String nodeString = node.toString();
-    if (!nodeCache.containsKey(nodeString)) {
+    if (!cachedNodes.containsKey(nodeString)) {
       if (iterator instanceof MovableScoreIterator) {
-        nodeCache.put(nodeString, "score");
+        cachedNodes.put(nodeString, "score");
         cacheParts.get("score").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
+        Logger.getLogger(this.getClass().getName()).info("Cached scoring node : " + nodeString);
+
       } else if (iterator instanceof MovableExtentIterator) {
-        nodeCache.put(nodeString, "extent");
+        NodeStatistics ns = super.nodeStatistics(node);
+        cachedStats.put(nodeString, ns);
+        cachedNodes.put(nodeString, "extent");
         cacheParts.get("extent").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
+        Logger.getLogger(this.getClass().getName()).info("Cached extent node : " + nodeString);
+
       } else if (iterator instanceof MovableCountIterator) {
-        nodeCache.put(nodeString, "count");
+        NodeStatistics ns = super.nodeStatistics(node);
+        cachedStats.put(nodeString, ns);
+        cachedNodes.put(nodeString, "count");
         cacheParts.get("count").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
+        Logger.getLogger(this.getClass().getName()).info("Cached count node : " + nodeString);
+
       } else {
         Logger.getLogger(this.getClass().getName()).info("Unable to cache node : " + nodeString);
       }
     }
+  }
+
+  @Override
+  public NodeStatistics nodeStatistics(Node node) throws Exception {
+    // check the node cache first - this will avoid zeros.
+    String nodeString = node.toString();
+    if (cachedNodes.containsKey(nodeString)) {
+      return this.cachedStats.get(nodeString);
+    }
+    return super.nodeStatistics(node);
   }
 }
