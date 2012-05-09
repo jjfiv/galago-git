@@ -4,11 +4,11 @@
 package org.lemurproject.galago.core.retrieval;
 
 import java.util.HashMap;
+import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.mem.*;
-import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -63,8 +63,26 @@ public class CachedRetrieval extends LocalRetrieval {
   }
 
   /**
-   * caches an arbitary query node
+   * caches an arbitrary query node currently can store only count, extent, and
+   * score iterators.
    */
-  public void cacheIterator(StructuredIterator iterator) {
+  public void cacheIterator(Node node) throws Exception {
+    StructuredIterator iterator = super.createIterator(new Parameters(), node, new ScoringContext());
+
+    String nodeString = node.toString();
+    if (!nodeCache.containsKey(nodeString)) {
+      if (iterator instanceof MovableScoreIterator) {
+        nodeCache.put(nodeString, "score");
+        cacheParts.get("score").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
+      } else if (iterator instanceof MovableExtentIterator) {
+        nodeCache.put(nodeString, "extent");
+        cacheParts.get("extent").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
+      } else if (iterator instanceof MovableCountIterator) {
+        nodeCache.put(nodeString, "count");
+        cacheParts.get("count").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
+      } else {
+        Logger.getLogger(this.getClass().getName()).info("Unable to cache node : " + nodeString);
+      }
+    }
   }
 }

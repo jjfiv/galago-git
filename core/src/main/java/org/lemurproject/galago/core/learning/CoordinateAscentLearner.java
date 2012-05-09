@@ -5,6 +5,7 @@ package org.lemurproject.galago.core.learning;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -28,7 +29,7 @@ public class CoordinateAscentLearner extends Learner {
 
   // coord ascent specific parameters
   protected int maxIterations;
-  protected Parameters specialMinStepSizes;
+  protected HashMap<String, Double> minStepSizes;
   protected double minStepSize;
   protected double maxStepRatio;
   protected double stepScale;
@@ -36,15 +37,18 @@ public class CoordinateAscentLearner extends Learner {
   public CoordinateAscentLearner(Parameters p, Retrieval r) throws Exception {
     super(p, r);
 
-    if (p.isMap("specialMinStepSize")) {
-      this.specialMinStepSizes = p.getMap("specialMinStepSize");
-    } else {
-      this.specialMinStepSizes = new Parameters();
-    }
-    this.minStepSize = p.get("minStepSize", 0.02);
     this.maxStepRatio = p.get("maxStepRatio", 0.5);
     this.stepScale = p.get("stepScale", 2.0);
     this.maxIterations = (int) p.get("maxIterations", 5);
+    this.minStepSizes = new HashMap();
+    this.minStepSize = p.get("minStepSize", 0.02);
+    Parameters specialMinStepSizes = new Parameters();
+    if (p.isMap("specialMinStepSize")) {
+      specialMinStepSizes = p.getMap("specialMinStepSize");
+    }
+    for (String param : learnableParameters.getParams()) {
+      minStepSizes.put(param, specialMinStepSizes.get(param, this.minStepSize));
+    }
   }
 
   @Override
@@ -67,7 +71,7 @@ public class CoordinateAscentLearner extends Learner {
         logger.info(String.format("Iteration (%d of %d). Step (%d of %d). Starting to optimize coordinate (%s)...", iters, this.maxIterations, c + 1, optimizationOrder.size(), coord));
         double currParamValue = parameterSettings.get(coord); // Keep around the current parameter value
         // Take a step to the right 
-        double step = this.specialMinStepSizes.get(coord, this.minStepSize);
+        double step = this.minStepSizes.get(coord);
         if (parameterSettings.get(coord) != 0
                 && step > (this.maxStepRatio * Math.abs(parameterSettings.get(coord)))) {
           // Reduce the step size for very small weights
@@ -75,8 +79,9 @@ public class CoordinateAscentLearner extends Learner {
         }
         double rightBest = best;
         double rightStep = 0;
-        boolean change = true;
-        while (change) {
+        boolean improving = true;
+        // while we are ch
+        while (improving || rightBest == best) {
           double curr = parameterSettings.get(coord);
           parameterSettings.unsafeSet(coord, curr + step);
           double evaluation = this.evaluate(parameterSettings);
@@ -86,7 +91,7 @@ public class CoordinateAscentLearner extends Learner {
             rightStep += step;
             step *= stepScale;
           } else {
-            change = false;
+            improving = false;
           }
         }
 
@@ -94,7 +99,7 @@ public class CoordinateAscentLearner extends Learner {
         parameterSettings.unsafeSet(coord, currParamValue);
 
         // Take a step to the right 
-        step = this.specialMinStepSizes.get(coord, this.minStepSize);
+        step = this.minStepSizes.get(coord);
         if (parameterSettings.get(coord) != 0
                 && step > (this.maxStepRatio * Math.abs(parameterSettings.get(coord)))) {
           // Reduce the step size for very small weights
@@ -102,8 +107,8 @@ public class CoordinateAscentLearner extends Learner {
         }
         double leftBest = best;
         double leftStep = 0;
-        change = true;
-        while (change) {
+        improving = true;
+        while (improving || rightBest == best) {
           double curr = parameterSettings.get(coord);
           parameterSettings.unsafeSet(coord, curr - step);
           double evaluation = this.evaluate(parameterSettings);
@@ -113,7 +118,7 @@ public class CoordinateAscentLearner extends Learner {
             leftStep += step;
             step *= stepScale;
           } else {
-            change = false;
+            improving = false;
           }
         }
 

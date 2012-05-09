@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.eval.QuerySetJudgments;
 import org.lemurproject.galago.core.eval.QuerySetResults;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluator;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluatorFactory;
+import org.lemurproject.galago.core.retrieval.CachedRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -48,7 +49,6 @@ public abstract class Learner {
   protected final Logger logger;
   protected final Random random;
   protected final Retrieval retrieval;
-
   // variable parameters
   protected List<Parameters> queries;
   protected Map<String, Node> queryRoots;
@@ -62,7 +62,6 @@ public abstract class Learner {
   // protected Map<Integer, LearnableParameterInstance> optimizedParameters;
   // evaluation cache to avoid recalculating scores for known settings
   // protected Map<String, Double> testedParameters;
-
   public Learner(Parameters p, Retrieval r) throws Exception {
     logger = Logger.getLogger(this.getClass().getName());
     retrieval = r;
@@ -104,19 +103,19 @@ public abstract class Learner {
    * UTILITY FUNCTIONS : functions that can be used inside of any implemented
    * learner
    */
-  protected void initialize(Parameters p) throws IOException {
+  protected void initialize(Parameters p) throws IOException, Exception {
 
     assert (p.isString("qrels")) : this.getClass().getName() + " requires `qrels' parameter, of type String.";
     assert (p.isList("learnableParameters", Type.MAP)) : this.getClass().getName() + " requires `learnableParameters' parameter, of type List<Map>.";
     assert (!p.containsKey("normalization") || (p.isMap("normalization") || p.isList("normalization", Type.MAP))) : this.getClass().getName() + " requires `learnableParameters' parameter to be of type List<Map>.";
 
     this.queries = BatchSearch.collectQueries(p);
-    assert ! this.queries.isEmpty() : this.getClass().getName() + " requires `queries' parameter, of type List(Parameters): see Batch-Search for an example.";
+    assert !this.queries.isEmpty() : this.getClass().getName() + " requires `queries' parameter, of type List(Parameters): see Batch-Search for an example.";
 
     this.qrels = new QuerySetJudgments(p.getString("qrels"));
     this.evalFunction = QuerySetEvaluatorFactory.instance(p.get("metric", "map"));
-    
-    
+
+
     List<Parameters> params = (List<Parameters>) p.getList("learnableParameters");
     List<Parameters> normalizationRules;
     if (p.isList("normalization", Type.MAP)) {
@@ -132,11 +131,11 @@ public abstract class Learner {
     }
 
     this.learnableParameters = new LearnableQueryParameters(params, normalizationRules);
-    
+
     long restarts = p.get("restarts", 3);
     initialSettings = new ArrayList(3);
     if (p.isList("initialParameters", Type.MAP)) {
-      for(Parameters init : (List<Parameters>) p.getList("initialParameters")){
+      for (Parameters init : (List<Parameters>) p.getList("initialParameters")) {
         LearnableParameterInstance inst = new LearnableParameterInstance(learnableParameters, init);
         initialSettings.add(inst);
       }
@@ -158,8 +157,20 @@ public abstract class Learner {
     }
 
     // caching system
-    // if (retrieval instanceof CachedRetrieval) {
-    // }
+    if (retrieval instanceof CachedRetrieval) {
+      Parameters rnd1 = generateRandomInitalValues();
+      Parameters rnd2 = generateRandomInitalValues();
+
+      for (String number : this.queryRoots.keySet()) {
+        Node root1 = this.queryRoots.get(number).clone();
+        root1 = this.ensureSettings(root1, rnd1);
+        root1 = this.retrieval.transformQuery(root1, rnd1);
+        Node root2 = this.queryRoots.get(number).clone();
+        root2 = this.ensureSettings(root2, rnd2);
+        root2 = this.retrieval.transformQuery(root2, rnd2);
+        
+      }
+    }
   }
 
   /**
@@ -185,7 +196,7 @@ public abstract class Learner {
    */
   protected double evaluate(LearnableParameterInstance instance) throws Exception {
     // check cache for previous evaluation
-    
+
     //String settingString = settings.toString();
     //if (testedParameters.containsKey(settingString)) {
     //  return testedParameters.get(settingString);
@@ -212,7 +223,7 @@ public abstract class Learner {
 
     QuerySetResults results = new QuerySetResults(resMap);
     double r = evalFunction.evaluate(results, qrels);
-    
+
     // store score in cache for future reference
     // testedParameters.put(settingString, r);
     return r;
