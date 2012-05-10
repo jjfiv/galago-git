@@ -246,6 +246,11 @@ public class SnippetGenerator {
         SnippetRegion merged = findSingleRegion(document, queryTerms);
         Snippet best = new Snippet(new ArrayList(Collections.singletonList(merged)));
 
+        // sjh nasty hack to return something, rather than erroring.
+        if(positions.isEmpty()){
+          return documentText;
+        }
+
         String result = buildHtmlString(best, document, positions);
         return result;
     }
