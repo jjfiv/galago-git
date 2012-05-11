@@ -86,7 +86,7 @@ class RandomizedTest extends QuerySetComparator {
       // our current p-value estimate.
       double estimatedIterations = Math.sqrt(pValue * (1.0 - pValue)) / maxDeviation;
 
-      if (estimatedIterations > iterations) {
+      if (estimatedIterations < iterations) {
         break;
       }
     }

@@ -22,7 +22,18 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class FlattenCombineTraversal extends Traversal {
 
-  public FlattenCombineTraversal() {
+  boolean flatten;
+
+  public FlattenCombineTraversal(Retrieval ret, Parameters queryParameters) {
+    Parameters globalParams = ret.getGlobalParameters();
+
+    flatten = true;
+    if (globalParams.isBoolean("flattenCombine")) {
+      flatten = globalParams.getBoolean("flattenCombine");
+    }
+    if (queryParameters.isBoolean("flattenCombine")) {
+      flatten = queryParameters.getBoolean("flattenCombine");
+    }
   }
 
   @Override
@@ -32,45 +43,47 @@ public class FlattenCombineTraversal extends Traversal {
   @Override
   public Node afterNode(Node original) throws Exception {
 
-    // flatten combine nodes
-    if (original.getOperator().equals("combine")) {
-      List<Node> children = original.getInternalNodes();
-      NodeParameters oldParameters = original.getNodeParameters();
+    if (flatten) {
+      // flatten combine nodes
+      if (original.getOperator().equals("combine")) {
+        List<Node> children = original.getInternalNodes();
+        NodeParameters oldParameters = original.getNodeParameters();
 
-      boolean nestedCombine = false;
-      ArrayList<Node> newChildren = new ArrayList();
-      NodeParameters newParameters = new NodeParameters();
+        boolean nestedCombine = false;
+        ArrayList<Node> newChildren = new ArrayList();
+        NodeParameters newParameters = new NodeParameters();
 
 
-      for (int i = 0; i < children.size(); i++) {
-        Node child = children.get(i);
-        // if we have a nested combine - collect sub children
-        if (child.getOperator().equals("combine")) {
-          nestedCombine = true;
-          List<Node> subChildren = child.getInternalNodes();
-          double weightSum = 0.0;
-          for (int j = 0; j < subChildren.size(); j++) {
-            weightSum += child.getNodeParameters().get(Integer.toString(j), 1.0);
+        for (int i = 0; i < children.size(); i++) {
+          Node child = children.get(i);
+          // if we have a nested combine - collect sub children
+          if (child.getOperator().equals("combine")) {
+            nestedCombine = true;
+            List<Node> subChildren = child.getInternalNodes();
+            double weightSum = 0.0;
+            for (int j = 0; j < subChildren.size(); j++) {
+              weightSum += child.getNodeParameters().get(Integer.toString(j), 1.0);
+            }
+            for (int j = 0; j < subChildren.size(); j++) {
+              Node subChild = subChildren.get(j);
+              double normWeight = child.getNodeParameters().get(Integer.toString(j), 1.0) / weightSum;
+              double newWeight = oldParameters.get(Integer.toString(i), 1.0) * normWeight;
+              newParameters.set(Integer.toString(newChildren.size()), newWeight);
+              newChildren.add(subChild);
+            }
+
+          } else {
+            // otherwise we have a normal child
+            // newChildren.size == the new index of this child
+            newParameters.set(Integer.toString(newChildren.size()), oldParameters.get(Integer.toString(i), 1.0));
+            newChildren.add(child);
           }
-          for (int j = 0; j < subChildren.size(); j++) {
-            Node subChild = subChildren.get(j);
-            double normWeight = child.getNodeParameters().get(Integer.toString(j), 1.0) / weightSum;
-            double newWeight = oldParameters.get(Integer.toString(i), 1.0) * normWeight;
-            newParameters.set(Integer.toString(newChildren.size()), newWeight);
-            newChildren.add(subChild);
-          }
-
-        } else {
-          // otherwise we have a normal child
-          // newChildren.size == the new index of this child
-          newParameters.set(Integer.toString(newChildren.size()), oldParameters.get(Integer.toString(i), 1.0));
-          newChildren.add(child);
         }
-      }
 
-      if (nestedCombine) {
-        // TODO: Check node tying
-        return new Node("combine", newParameters, Node.cloneNodeList(newChildren), original.getPosition());
+        if (nestedCombine) {
+          // TODO: Check node tying
+          return new Node("combine", newParameters, Node.cloneNodeList(newChildren), original.getPosition());
+        }
       }
     }
 

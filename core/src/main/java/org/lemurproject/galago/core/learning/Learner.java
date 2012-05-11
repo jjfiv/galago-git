@@ -188,6 +188,9 @@ public abstract class Learner {
   protected double evaluate(LearnableParameterInstance instance) throws Exception {
     // check cache for previous evaluation
 
+    long start = 0;
+    long end = 0;
+
     String settingString = instance.toString();
     if (testedParameters.containsKey(settingString)) {
       return testedParameters.get(settingString);
@@ -205,7 +208,9 @@ public abstract class Learner {
       root = this.retrieval.transformQuery(root, settings);
 
       //  need to add queryProcessing params some extra stuff to 'settings'
+      start = System.currentTimeMillis();
       ScoredDocument[] scoredDocs = this.retrieval.runQuery(root, settings);
+      end = System.currentTimeMillis();
 
       if (scoredDocs != null) {
         resMap.put(number, scoredDocs);
@@ -214,6 +219,9 @@ public abstract class Learner {
 
     QuerySetResults results = new QuerySetResults(resMap);
     double r = evalFunction.evaluate(results, qrels);
+
+    logger.info("Query run time: " + (end - start) + ", settings : " + settings.toString() + ", score : " + r);
+
 
     // store score in cache for future reference
     testedParameters.put(settingString, r);
