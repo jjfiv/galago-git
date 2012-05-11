@@ -26,6 +26,7 @@ import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
 import org.lemurproject.galago.core.index.merge.MergeIndex;
+import org.lemurproject.galago.core.learning.LearnQueryParameters;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
@@ -97,6 +98,9 @@ public class App {
 
     // eval 
     appFunctions.put("eval", new Eval());
+
+    // learning
+    appFunctions.put("learning", new LearnQueryParameters());
 
     // dump functions
     appFunctions.put("dump-connection", new DumpConnectionFn());

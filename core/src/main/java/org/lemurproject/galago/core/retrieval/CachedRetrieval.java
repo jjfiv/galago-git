@@ -86,8 +86,10 @@ public class CachedRetrieval extends LocalRetrieval {
     String nodeString = node.toString();
     if (cachedNodes.containsKey(nodeString)) {
       // new behaviour - check cache for this node.
+      //Logger.getLogger(this.getClass().getName()).info("Getting cached iterator cache for node : " + nodeString);
       iterator = cacheParts.get(cachedNodes.get(nodeString)).getIterator(Utility.fromString(nodeString));
     } else {
+      //Logger.getLogger(this.getClass().getName()).info("Failed to get cached iterator cache for node : " + nodeString);
       // otherwise create iterator
       for (Node internalNode : node.getInternalNodes()) {
         StructuredIterator internalIterator = createNodeMergedIterator(internalNode, context, queryIteratorCache);
@@ -149,7 +151,6 @@ public class CachedRetrieval extends LocalRetrieval {
       }
     } else {
       Logger.getLogger(this.getClass().getName()).info("Already cached node : " + nodeString);
-
     }
   }
 
@@ -158,6 +159,7 @@ public class CachedRetrieval extends LocalRetrieval {
     // check the node cache first - this will avoid zeros.
     String nodeString = node.toString();
     if (cachedNodes.containsKey(nodeString)) {
+      //Logger.getLogger(this.getClass().getName()).info("Getting stats from cache for node : " + nodeString);
       return this.cachedStats.get(nodeString);
     }
     return super.nodeStatistics(node);
