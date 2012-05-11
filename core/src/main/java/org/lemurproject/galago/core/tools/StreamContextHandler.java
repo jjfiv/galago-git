@@ -51,7 +51,7 @@ public class StreamContextHandler extends ContextHandler {
 
       // NOW we can get the method itself and invoke it on our retrieval object
       // with the extracted arguments
-      Method m = search.retrieval.getClass().getDeclaredMethod(methodName, argTypes);
+      Method m = search.retrieval.getClass().getMethod(methodName, argTypes);
       Object result = m.invoke(search.getRetrieval(), arguments);
 
       // Finally send back our result

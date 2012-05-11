@@ -38,6 +38,7 @@ public class FullDependenceTraversal extends Traversal {
     defaultWindowLimit = (int) parameters.get("windowLimit", -1);
   }
 
+  @Override
   public void beforeNode(Node original) throws Exception {
   }
 
@@ -46,6 +47,7 @@ public class FullDependenceTraversal extends Traversal {
     return (op.equals("fdm") || op.equals("fulldep"));
   }
 
+  @Override
   public Node afterNode(Node original) throws Exception {
     if (original.getOperator().equals("fdm")
             || original.getOperator().equals("fulldep")) {
@@ -115,7 +117,7 @@ public class FullDependenceTraversal extends Traversal {
       return original;
     }
   }
-  
+
   private ArrayList<ArrayList<Node>> powerSet(ArrayList<Node> children, int windowLimit) {
     // base case
     ArrayList<ArrayList<Node>> ps = new ArrayList();
@@ -126,11 +128,14 @@ public class FullDependenceTraversal extends Traversal {
       Node n = children.remove(0);
       ArrayList<ArrayList<Node>> subps = powerSet(children, windowLimit);
       for (ArrayList<Node> set : subps) {
-        // add a clone of the original
-        ps.add(new ArrayList(set));
-        // add the original + node n
-        set.add(0, n);
-        if(windowLimit >= set.size()){
+        if (set.size() < windowLimit) {
+          // add a clone of the original
+          ps.add(new ArrayList(set));
+          // add the original + node n
+          set.add(0, n);
+          ps.add(set);
+        } else {
+          // otherwise just add the original set -- pass through
           ps.add(set);
         }
       }
