@@ -56,7 +56,7 @@ public class FullDependenceTraversal extends Traversal {
       List<Node> children = original.getInternalNodes();
       for (Node child : children) {
         if (child.getOperator().equals("text") == false) {
-          throw new MalformedQueryException("seqdep operator needs text-only children");
+          throw new MalformedQueryException("fulldep operator needs text-only children");
         }
       }
 
@@ -73,7 +73,7 @@ public class FullDependenceTraversal extends Traversal {
       ArrayList<Node> ordered = new ArrayList<Node>();
       ArrayList<Node> unordered = new ArrayList<Node>();
 
-      ArrayList<ArrayList<Node>> nodePowerSet = powerSet(new ArrayList(children));
+      ArrayList<ArrayList<Node>> nodePowerSet = powerSet(new ArrayList(children), windowLimit);
       for (ArrayList<Node> set : nodePowerSet) {
         if ((windowLimit < 2) || (windowLimit >= set.size())) {
           if (set.size() >= 2) {
@@ -116,7 +116,7 @@ public class FullDependenceTraversal extends Traversal {
     }
   }
   
-  private ArrayList<ArrayList<Node>> powerSet(ArrayList<Node> children) {
+  private ArrayList<ArrayList<Node>> powerSet(ArrayList<Node> children, int windowLimit) {
     // base case
     ArrayList<ArrayList<Node>> ps = new ArrayList();
 
@@ -124,13 +124,15 @@ public class FullDependenceTraversal extends Traversal {
       ps.add(new ArrayList());
     } else {
       Node n = children.remove(0);
-      ArrayList<ArrayList<Node>> subps = powerSet(children);
+      ArrayList<ArrayList<Node>> subps = powerSet(children, windowLimit);
       for (ArrayList<Node> set : subps) {
         // add a clone of the original
         ps.add(new ArrayList(set));
         // add the original + node n
         set.add(0, n);
-        ps.add(set);
+        if(windowLimit >= set.size()){
+          ps.add(set);
+        }
       }
     }
     return ps;
