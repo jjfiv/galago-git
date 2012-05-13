@@ -229,7 +229,12 @@ public class CountIndexWriter implements
     actualParams.set("readerClass", CountIndexReader.class.getName());
     actualParams.set("defaultOperator", "counts");
 
-    uniqueDocs = new TIntHashSet();
+    if (!actualParams.isLong("statistics/documentCount")) {
+      //manifest.set("statistics/documentCount", uniqueDocs.size());
+      uniqueDocs = new TIntHashSet();
+    } else {
+      uniqueDocs = null;
+    }
 
     writer = new DiskBTreeWriter(parameters);
 
@@ -269,7 +274,9 @@ public class CountIndexWriter implements
   public void processDocument(int document) throws IOException {
     invertedList.addDocument(document);
     documentCount++;
-    uniqueDocs.add((int) document);
+    if(uniqueDocs != null){
+      uniqueDocs.add((int) document);
+    }
     maximumDocumentNumber = Math.max(document, maximumDocumentNumber);
   }
   int currentBegin;
