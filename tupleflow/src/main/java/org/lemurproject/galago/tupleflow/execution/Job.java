@@ -258,6 +258,10 @@ public class Job implements Serializable {
     connect(sourceName, destinationName, assignment, null, -1);
   }
 
+  public void connect(String sourceName, String destinationName, ConnectionAssignmentType assignment, String[] hashType) {
+    connect(sourceName, destinationName, assignment, hashType, -1);
+  }
+
   public void connect(String sourceName, String destinationName, ConnectionAssignmentType assignment, String[] hashType, int hashCount) {
     // scan the stages, looking for sources
     Map<String, Stage> sources = findStagesWithPrefix(sourceName);
