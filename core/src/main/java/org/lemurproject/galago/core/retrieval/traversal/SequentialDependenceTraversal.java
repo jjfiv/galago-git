@@ -25,6 +25,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class SequentialDependenceTraversal extends Traversal {
 
+  private int defaultWindowLimit;
   private double unigramDefault;
   private double orderedDefault;
   private double unorderedDefault;
@@ -34,6 +35,7 @@ public class SequentialDependenceTraversal extends Traversal {
     unigramDefault = parameters.get("uniw", 0.8);
     orderedDefault = parameters.get("odw", 0.15);
     unorderedDefault = parameters.get("uww", 0.05);
+    defaultWindowLimit = (int) parameters.get("windowLimit", 2);
   }
 
   public static boolean isNeeded(Node root) {
@@ -41,9 +43,11 @@ public class SequentialDependenceTraversal extends Traversal {
     return (op.equals("sdm") || op.equals("seqdep"));
   }
 
+  @Override
   public void beforeNode(Node original) throws Exception {
   }
 
+  @Override
   public Node afterNode(Node original) throws Exception {
     if (original.getOperator().equals("sdm")
             || original.getOperator().equals("seqdep")) {
@@ -69,19 +73,21 @@ public class SequentialDependenceTraversal extends Traversal {
       ArrayList<Node> ordered = new ArrayList<Node>();
       ArrayList<Node> unordered = new ArrayList<Node>();
 
-      for (int i = 0; i < (children.size() - 1); i++) {
-        ArrayList<Node> pair = new ArrayList<Node>();
-        pair.add(children.get(i));
-        pair.add(children.get(i + 1));
-        ordered.add(new Node("ordered", new NodeParameters(1), Node.cloneNodeList(pair)));
-        unordered.add(new Node("unordered", new NodeParameters(8), Node.cloneNodeList(pair)));
+      NodeParameters parameters = original.getNodeParameters();
+      double windowLimit = parameters.get("windowLimit", defaultWindowLimit);
+
+      for (int n = 2; n <= windowLimit; n++) {
+        for (int i = 0; i < (children.size() - n + 1); i++) {
+          List<Node> seq = children.subList(i, i+n);
+          ordered.add(new Node("ordered", new NodeParameters(1), Node.cloneNodeList(seq)));
+          unordered.add(new Node("unordered", new NodeParameters(4 * seq.size()), Node.cloneNodeList(seq)));
+        }
       }
 
       Node orderedWindowNode = new Node("combine", ordered);
       Node unorderedWindowNode = new Node("combine", unordered);
 
       // now get the weights for each component, and add to immediate children
-      NodeParameters parameters = original.getNodeParameters();
       double uni = parameters.get("uniw", unigramDefault);
       double odw = parameters.get("odw", orderedDefault);
       double uww = parameters.get("uww", unorderedDefault);
