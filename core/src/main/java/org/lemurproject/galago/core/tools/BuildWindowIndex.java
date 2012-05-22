@@ -32,6 +32,7 @@ import org.lemurproject.galago.core.window.WindowFilter;
 import org.lemurproject.galago.core.window.WindowToNumberWordCount;
 import org.lemurproject.galago.core.window.WindowToNumberedExtent;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Parameters.Type;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
 import org.lemurproject.galago.tupleflow.execution.ConnectionPointType;
@@ -47,6 +48,11 @@ import org.lemurproject.galago.tupleflow.execution.Step;
  * Time efficient algorithm for ngram indexing
  *  - uses more temporary space
  *  - estimate the space required as (n*|C|)
+ *
+ * Space efficient algorithm
+ *  - uses a hash function to create a filter
+ *  - filter allows the discard of many infrequent ngrams
+ *  - space requirement is very close to the final index
  *
  * @author sjh
  */
@@ -105,11 +111,10 @@ public class BuildWindowIndex extends AppFunction {
             "featureData", new TextFeature.FeatureOrder()));
 
     stage.add(new InputStep("splits"));
-    stage.add(new Step(UniversalParser.class));
-    stage.add(new Step(TagTokenizer.class));
+    stage.add(BuildStageTemplates.getParserStep(buildParameters));
+    stage.add(BuildStageTemplates.getTokenizerStep(buildParameters));
 
     if (stemming) {
-      String stemmer = buildParameters.get("stemmer", "porter");
       stage.add(BuildStageTemplates.getStemmerStep(new Parameters(), stemmerClass));
     }
 
@@ -122,6 +127,9 @@ public class BuildWindowIndex extends AppFunction {
     p2.set("n", n);
     p2.set("width", width);
     p2.set("ordered", ordered);
+    if (buildParameters.isString("fields") || buildParameters.isList("fields", Type.STRING)) {
+      p2.set("fields", (List<String>) buildParameters.getAsList("fields"));
+    }
     stage.add(new Step(WindowProducer.class, p2));
 
     stage.add(new Step(WindowFeaturer.class));
@@ -181,8 +189,8 @@ public class BuildWindowIndex extends AppFunction {
     }
 
     stage.add(new InputStep("splits"));
-    stage.add(new Step(UniversalParser.class));
-    stage.add(new Step(TagTokenizer.class));
+    stage.add(BuildStageTemplates.getParserStep(buildParameters));
+    stage.add(BuildStageTemplates.getTokenizerStep(buildParameters));
     if (stemming) {
       Class stemmer = Class.forName(buildParameters.get("stemmer", Porter2Stemmer.class.getName()));
       stage.add(BuildStageTemplates.getStemmerStep(new Parameters(), stemmer));
@@ -196,6 +204,9 @@ public class BuildWindowIndex extends AppFunction {
     p2.set("n", n);
     p2.set("width", width);
     p2.set("ordered", ordered);
+    if (buildParameters.isString("fields") || buildParameters.isList("fields", Type.STRING)) {
+      p2.set("fields", (List<String>) buildParameters.getAsList("fields"));
+    }
     stage.add(new Step(WindowProducer.class, p2));
 
     if (spaceEfficient) {
@@ -309,6 +320,12 @@ public class BuildWindowIndex extends AppFunction {
       spaceEfficient = false;
     }
 
+    // tokenizer - fields
+    if (buildParameters.isList("fields", Type.STRING) || buildParameters.isString("fields")) {
+      buildParameters.set("tokenizer", new Parameters());
+      buildParameters.getMap("tokenizer").set("fields", buildParameters.getAsList("fields"));
+    }
+
     // we intend to add to the index;
     // so verify that the index submitted is a valid index
     try {
@@ -385,6 +402,8 @@ public class BuildWindowIndex extends AppFunction {
             + "                           [default = false]\n"
             + "  --stemming={true|false}: Selects to stem terms with which to build a stemmed ngram inverted list.\n"
             + "                           [default=true]\n"
+            + "  --fields+{field-name}:   Selects field parts to index.\n"
+            + "                           [omitted]\n"
             + "  --spaceEfficient={true|false}: Selects whether to use a space efficient algorithm.\n"
             + "                           (The cost is an extra pass over the input data).\n"
             + "                           [default=false]\n"

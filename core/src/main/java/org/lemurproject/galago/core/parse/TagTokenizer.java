@@ -84,10 +84,10 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
   public TagTokenizer(TupleFlowParameters parameters) {
     this();
     Parameters tokenizerParams = parameters.getJSON();
-    if (tokenizerParams.isList("fields")) {
-        for (String value : (List<String>) tokenizerParams.getList("fields")) {
-	    whitelist.add(Pattern.compile(value));
-        }
+    if (tokenizerParams.isList("fields") || tokenizerParams.isString("fields")) {
+      for (String value : (List<String>) tokenizerParams.getAsList("fields")) {
+        whitelist.add(Pattern.compile(value));
+      }
     }
   }
 
