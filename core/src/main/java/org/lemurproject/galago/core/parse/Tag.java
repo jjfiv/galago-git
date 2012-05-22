@@ -44,7 +44,7 @@ public class Tag implements Comparable<Tag>, Serializable {
   public int compareTo(Tag other) {
     int deltaBegin = begin - other.begin;
     if (deltaBegin == 0) {
-      return end - other.end;
+      return other.end - end;
     }
     return deltaBegin;
   }
