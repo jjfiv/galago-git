@@ -68,7 +68,8 @@ public class LocalStageExecutor implements StageExecutor {
       } catch (Throwable err) {
         // this will try to catch even memory exceptions //
         synchronized (this) {
-          exceptions.add(new Exception(err.toString()));
+          err.printStackTrace();
+          exceptions.add(new Exception(err.getMessage()));
         }
       } finally {
         synchronized (this) {

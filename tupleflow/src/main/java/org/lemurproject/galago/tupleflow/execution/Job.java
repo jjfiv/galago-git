@@ -507,9 +507,9 @@ public class Job implements Serializable {
         String parametersString = step.getParameters().toString();
 
         // strip out the beginning and end parts
-        int start = parametersString.indexOf("<parameters>") + "<parameters>".length();
-        int end = parametersString.lastIndexOf("</parameters>");
-        parametersString = parametersString.substring(start, end);
+        //int start = parametersString.indexOf("<parameters>") + "<parameters>".length();
+        //int end = parametersString.lastIndexOf("</parameters>");
+        //parametersString = parametersString.substring(start, end);
 
         builder.append(parametersString);
         builder.append("                </step>\n");
