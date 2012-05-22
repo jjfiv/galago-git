@@ -50,6 +50,7 @@ public class DRMAAStageExecutor extends RemoteStageExecutor {
   // Arbitrary starting and max heap sizes.
   public static final String MEMORY_X = "-Xmx1700m";
   public static final String MEMORY_S = "-Xms1700m";
+  public static final String DEFAULT_ENCODING = System.getProperty("file.encoding","UTF-8");
   // This holds the location that should be used to write temporary files
   // on the nodes.
   public static final String NODE_TEMP_DIR =
@@ -353,7 +354,8 @@ public class DRMAAStageExecutor extends RemoteStageExecutor {
         // path to the job to run.
         String[] arguments = new String[]{"-ea", memory_x, memory_s,
           "-Djava.io.tmpdir=" + nodeTempDir,
-          "-cp", classPath, className, jobPaths.get(i)};
+          "-Dfile.encoding=" + DEFAULT_ENCODING,
+	   "-cp", classPath, className, jobPaths.get(i)};
 
 
         // Create the fill a DRMAA job template.
