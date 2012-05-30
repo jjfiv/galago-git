@@ -72,12 +72,12 @@ public abstract class FilteredIterator implements MovableCountIterator, MovableS
   }
 
   @Override
-  public ExtentArray extents() {
+  public ExtentArray extents() throws IOException {
     return extents.extents();
   }
 
   @Override
-  public ExtentArray getData() {
+  public ExtentArray getData() throws IOException {
     return extents.getData();
   }
 

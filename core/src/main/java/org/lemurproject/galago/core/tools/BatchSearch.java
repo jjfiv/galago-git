@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
+import gnu.trove.map.hash.TObjectLongHashMap;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -66,15 +67,30 @@ public class BatchSearch extends AppFunction {
       return;
     }
 
+    ScoredDocument[] results = null;
+    TObjectLongHashMap times = new TObjectLongHashMap();
+    long querystarttime, queryendtime;
+    long endtime;
     List<Parameters> queries = collectQueries(parameters);
+    // Look for a range
+    int[] queryrange = new int[2];
+    if (parameters.containsKey("range")) {
+      String[] parts = parameters.getString("range").split("-");
+      queryrange[0] = Integer.parseInt(parts[0]);
+      queryrange[1] = Integer.parseInt(parts[1]);
+    } else {
+      queryrange[0] = 0;
+      queryrange[1] = queries.size();
+    }
+
+    // And repeats
+    int repeats = (int) parameters.get("repeats", 1);
 
     // open index
     Retrieval retrieval = RetrievalFactory.instance(parameters);
 
     // record results requested
     int requested = (int) parameters.get("requested", 1000);
-    long starttime = System.currentTimeMillis();
-    long sumtime = 0;
 
     // for each query, run it, get the results, print in TREC format
     if (parameters.containsKey("seed")) {
@@ -83,7 +99,10 @@ public class BatchSearch extends AppFunction {
       Collections.shuffle(queries, r);
     }
 
-    for (Parameters query : queries) {
+    long starttime = System.currentTimeMillis();
+
+    for (int idx = queryrange[0]; idx < queryrange[1]; idx++) {
+      Parameters query = queries.get(idx);
       String queryText = query.getString("text");
       Parameters p = new Parameters();
       p.set("requested", requested);
@@ -92,27 +111,51 @@ public class BatchSearch extends AppFunction {
       if (parameters.containsKey("working")) {
         p.set("working", parameters.getList("working"));
       }
-      Node root = StructuredQuery.parse(queryText);
-      Node transformed = retrieval.transformQuery(root, p);
 
-      if (parameters.get("printTransformation", false)) {
-        System.err.println("Text:" + queryText);
-        System.err.println("Parsed Node:" + root.toString());
-        System.err.println("Transformed Node:" + transformed.toString());
+      for (int rep = 0; rep < repeats; rep++) {
+        if (rep < (repeats - 1)) {
+          CallTable.turnOff();
+        } else {
+          CallTable.turnOn();
+        }
+
+        querystarttime = System.currentTimeMillis();
+        Node root = StructuredQuery.parse(queryText);
+        Node transformed = retrieval.transformQuery(root, p);
+
+        // These must be done after parsing and transformation b/c they're
+        // overrides or post-processing
+        String[] overrides = {"processingModel", "longModel", "shortModel"};
+        for (String o : overrides) {
+          if (parameters.containsKey(o)) {
+            p.set(o, parameters.getString(o));
+          }
+        }
+
+        if (parameters.containsKey("deltaReady")) {
+          p.set("deltaReady", parameters.getBoolean("deltaReady"));
+        }
+
+        if (parameters.get("printTransformation", false)) {
+          System.err.println("Text:" + queryText);
+          System.err.println("Parsed Node:" + root.toString());
+          System.err.println("Transformed Node:" + transformed.toString());
+        }
+
+        results = retrieval.runQuery(transformed, p);
+        queryendtime = System.currentTimeMillis();
+        times.put(query.getString("number") + '.' + (rep + 1), queryendtime - querystarttime);
       }
-
-      long querystarttime = System.currentTimeMillis();
-      ScoredDocument[] results = retrieval.runQuery(transformed, p);
-      long queryendtime = System.currentTimeMillis();
-      sumtime += queryendtime - querystarttime;
 
       if (results != null) {
         for (int i = 0; i < results.length; i++) {
-          double score = results[i].score;
+          ScoredDocument doc = results[i];
+          double score = doc.score;
           int rank = i + 1;
 
-          out.format("%s Q0 %s %d %s galago\n", query.getString("number"), results[i].documentName, rank,
+          out.format("%s Q0 %s %d %s galago\n", query.getString("number"), doc.documentName, rank,
                   formatScore(score));
+
         }
       }
       if (parameters.get("print_calls", false)) {
@@ -121,12 +164,25 @@ public class BatchSearch extends AppFunction {
       CallTable.reset();
     }
 
-    long endtime = System.currentTimeMillis();
-
+    endtime = System.currentTimeMillis();
+    long runtotal = 0;
     if (parameters.get("time", false)) {
-      System.err.println("TotalTime: " + (endtime - starttime));
-      System.err.println("AvgTime: " + ((endtime - starttime) / queries.size()));
-      System.err.println("AvgQueryTime: " + (sumtime / queries.size()));
+      for (int i = queryrange[0]; i < queryrange[1]; i++) {
+        Parameters query = queries.get(i);
+        String id = query.getString("number");
+        for (int rep = 1; rep <= repeats; rep++) {
+          String label = id + "." + rep;
+          long timeInMS = times.get(label);
+          System.err.printf("RUN-ONE\t%s\t%d\n", label, timeInMS);
+          if (rep == repeats) {
+            runtotal += timeInMS;
+          }
+        }
+      }
+
+      long timeInMS = (endtime - starttime);
+      System.err.printf("RUN-TOT\truns\t%d\n", runtotal);
+      System.err.printf("RUN-TOT\ttotal\t%d\n", timeInMS);
     }
   }
 
@@ -166,11 +222,11 @@ public class BatchSearch extends AppFunction {
         queries.add(Parameters.parse(String.format("{\"number\":\"%s\", \"text\":\"%s\"}", id, q)));
       }
     }
-    if(parameters.isList("query", Type.MAP)){
-      queries.addAll( parameters.getList("query"));
+    if (parameters.isList("query", Type.MAP)) {
+      queries.addAll(parameters.getList("query"));
     }
-    if(parameters.isList("queries", Type.MAP)){
-      queries.addAll( parameters.getList("queries"));
+    if (parameters.isList("queries", Type.MAP)) {
+      queries.addAll(parameters.getList("queries"));
     }
     return queries;
   }

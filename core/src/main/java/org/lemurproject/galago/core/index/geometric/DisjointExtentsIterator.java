@@ -3,6 +3,7 @@
  */
 package org.lemurproject.galago.core.index.geometric;
 
+import java.io.IOException;
 import java.util.Collection;
 import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
@@ -29,12 +30,12 @@ public class DisjointExtentsIterator extends DisjointIndexesIterator implements 
   }
 
   @Override
-  public ExtentArray extents() {
+  public ExtentArray extents() throws IOException {
     return ((MovableExtentIterator) head).extents();
   }
 
   @Override
-  public ExtentArray getData() {
+  public ExtentArray getData() throws IOException {
     return ((MovableExtentIterator) head).getData();
   }
 }

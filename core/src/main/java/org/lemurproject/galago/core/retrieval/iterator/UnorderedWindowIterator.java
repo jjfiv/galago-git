@@ -40,7 +40,11 @@ public class UnorderedWindowIterator extends ExtentConjunctionIterator {
         return;
       }
 
-      arrayIterators[i] = new ExtentArrayIterator(((MovableExtentIterator) iterators[i]).extents());
+      try {
+        arrayIterators[i] = new ExtentArrayIterator(((MovableExtentIterator) iterators[i]).extents());
+      } catch (IOException ioe) {
+        throw new RuntimeException(ioe);
+      }
 
       if (arrayIterators[i].isDone()) {
         // if this document does not have any extents we can not load any extents

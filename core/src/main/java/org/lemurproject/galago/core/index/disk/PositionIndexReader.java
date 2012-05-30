@@ -109,6 +109,9 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     long documentsByteFloor;
     long countsByteFloor;
     long positionsByteFloor;
+    // Supports lazy-loading of extents
+    boolean extentsLoaded;
+    int extentsByteSize;
 
     public TermExtentIterator(BTreeReader.BTreeIterator iterator) throws IOException {
       super(iterator.getKey());
@@ -189,27 +192,41 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
         skipPositions = null;
       }
 
+      // Initialization
       documentIndex = 0;
-      loadExtents();
+      extentsLoaded = true; // Not really, but we're reading the beginning of the list immediately.
+      loadNextPosting();
     }
 
-    // Loads up a single set of positions for an intID. Basically it's the
-    // load that needs to be done when moving forward one in the posting list.
-    private void loadExtents() throws IOException {
+    private void loadNextPosting() throws IOException {
       currentDocument += documents.readInt();
       currentCount = counts.readInt();
+      if (!extentsLoaded) {
+        positions.skipBytes(extentsByteSize);
+      }
+      long pos = positionsStream.getPosition();
+      extentsByteSize = positions.readInt();
       extentArray.reset();
+      extentsLoaded = false;
+    }
 
-      extentArray.setDocument(currentDocument);
-      int position = 0;
-      for (int i = 0; i < currentCount; i++) {
-        position += positions.readInt();
-        extentArray.add(position);
+    // Loads up a single set of positions for an intID.
+    // In this version loading these can be skipped
+    private void loadExtents() throws IOException {
+      if (!extentsLoaded) {
+        extentArray.setDocument(currentDocument);
+        int position = 0;
+        for (int i = 0; i < currentCount; i++) {
+          position += positions.readInt();
+          extentArray.add(position);
+        }
+        extentsLoaded = true;
       }
     }
 
     @Override
     public String getEntry() throws IOException {
+      loadExtents();
       StringBuilder builder = new StringBuilder();
 
       builder.append(getKeyString());
@@ -229,7 +246,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       key = iterator.getKey();
       startPosition = iterator.getValueStart();
       endPosition = iterator.getValueEnd();
-      // input = iterator.getInput();
       reset();
     }
 
@@ -245,7 +261,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     public void next() throws IOException {
       documentIndex = Math.min(documentIndex + 1, documentCount);
       if (!isDone()) {
-        loadExtents();
+        loadNextPosting();
       }
     }
 
@@ -256,7 +272,8 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
         synchronizeSkipPositions();
       }
       if (skips != null && document > nextSkipDocument) {
-
+        extentsLoaded = false;
+        extentsByteSize = 0;
         // if we're here, we're skipping
         while (skipsRead < numSkips
                 && document > nextSkipDocument) {
@@ -331,12 +348,14 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     }
 
     @Override
-    public ExtentArray getData() {
+    public ExtentArray getData() throws IOException {
+      loadExtents();
       return extentArray;
     }
 
     @Override
-    public ExtentArray extents() {
+    public ExtentArray extents() throws IOException {
+      loadExtents();
       return extentArray;
     }
 
@@ -387,9 +406,9 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       }
       this.context = context;
     }
-    
+
     @Override
-    public ScoringContext getContext(){
+    public ScoringContext getContext() {
       return this.context;
     }
   }
@@ -678,11 +697,11 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       }
       this.context = context;
     }
-    
+
     @Override
-    public ScoringContext getContext(){
+    public ScoringContext getContext() {
       return this.context;
-    }    
+    }
   }
   Stemmer stemmer = null;
 

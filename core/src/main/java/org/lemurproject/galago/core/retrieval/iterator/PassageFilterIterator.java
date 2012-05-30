@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
+import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.processing.PassageScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -30,18 +31,22 @@ public class PassageFilterIterator extends TransformIterator implements MovableE
    */
   @Override
   public ExtentArray extents() {
-    if (passageContext == null) {
-      return extentIterator.extents();
-    }
+    try {
+      if (passageContext == null) {
+        return extentIterator.extents();
+      }
 
-    if (docid != passageContext.document || begin != passageContext.begin
-            || end != passageContext.end) {
-      loadExtents();
+      if (docid != passageContext.document || begin != passageContext.begin
+              || end != passageContext.end) {
+        loadExtents();
+      }
+      return cached;
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
     }
-    return cached;
   }
 
-  private void loadExtents() {
+  private void loadExtents() throws IOException {
     cached = new ExtentArray();
     ExtentArray internal = extentIterator.extents();
 
