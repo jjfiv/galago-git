@@ -95,6 +95,11 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
     postings.put(key, postingList);
   }
 
+  @Override
+  public void removeIteratorData(byte[] key) throws IOException {
+    postings.remove(key);
+  }
+  
   protected void addExtent(byte[] byteWord, int document, int begin, int end) {
     if (!postings.containsKey(byteWord)) {
       WindowPostingList postingList = new WindowPostingList(byteWord);

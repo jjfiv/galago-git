@@ -256,12 +256,14 @@ public abstract class Learner {
 
     for (String number : this.queryRoots.keySet()) {
       Node root1 = this.queryRoots.get(number).clone();
+      this.retrieval.getGlobalParameters().copyFrom(settings1);
       root1 = this.ensureSettings(root1, settings1);
       root1 = this.retrieval.transformQuery(root1, settings1);
       Set<String> cachableNodes1 = new HashSet();
       collectCachableNodes(root1, cachableNodes1);
 
       Node root2 = this.queryRoots.get(number).clone();
+      this.retrieval.getGlobalParameters().copyFrom(settings2);
       root2 = this.ensureSettings(root2, settings2);
       root2 = this.retrieval.transformQuery(root2, settings2);
       Set<String> cachableNodes2 = new HashSet();

@@ -115,6 +115,14 @@ public class CachedRetrieval extends LocalRetrieval {
     return iterator;
   }
 
+  /*
+   * Checks if a particular node is cached or not.
+   */
+  public boolean isCached(Node node) {
+    String nodeString = node.toString();
+    return cachedNodes.containsKey(nodeString);
+  }
+
   /**
    * caches an arbitrary query node currently can store only count, extent, and
    * score iterators.

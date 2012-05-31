@@ -101,6 +101,11 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
     postings.put(key, postingList);
   }
 
+  @Override
+  public void removeIteratorData(byte[] key) throws IOException {
+    postings.remove(key);
+  }
+  
   protected void addPosting(byte[] byteWord, int document, int position) {
     if (!postings.containsKey(byteWord)) {
       PositionalPostingList postingList = new PositionalPostingList(byteWord);

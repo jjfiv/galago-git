@@ -82,6 +82,23 @@ public class CompressedByteBuffer {
   }
 
   /**
+   * Adds a floating point value, (4 bytes) to the buffer.
+   * This is an uncompressed value.
+   */
+  public void addDouble(double value) {
+    long bits = Double.doubleToLongBits(value);
+
+    addRaw((int) ((bits >>> 56) & 0xFF));
+    addRaw((int) ((bits >>> 48) & 0xFF));
+    addRaw((int) ((bits >>> 40) & 0xFF));
+    addRaw((int) ((bits >>> 32) & 0xFF));
+    addRaw((int) ((bits >>> 24) & 0xFF));
+    addRaw((int) ((bits >>> 16) & 0xFF));
+    addRaw((int) ((bits >>> 8) & 0xFF));
+    addRaw((int) (bits & 0xFF));
+  }
+
+  /**
    * Copies the entire contents of another compressed
    * buffer to the end of this one.
    *

@@ -32,6 +32,11 @@ public interface MemoryIndexPart extends IndexPartReader {
   public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException;
   
   /*
+   * 
+   */
+  public void removeIteratorData(byte[] key) throws IOException;
+  
+  /*
    * return the current number of documents in index part
    */
   public long getDocumentCount();

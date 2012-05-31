@@ -70,6 +70,11 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       iterator.next();
     }
   }
+  
+  @Override
+  public void removeIteratorData(byte[] key) throws IOException {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
 
   @Override
   public int getLength(int docNum) {

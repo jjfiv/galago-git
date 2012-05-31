@@ -95,6 +95,11 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
     }
   }
 
+  @Override
+  public void removeIteratorData(byte[] key) throws IOException {
+    postings.remove(key);
+  }
+
   protected void addPosting(byte[] byteWord, int document, int count) {
     if (!postings.containsKey(byteWord)) {
       PostingList postingList = new PostingList(byteWord);

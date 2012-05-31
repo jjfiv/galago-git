@@ -56,6 +56,11 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   }
 
   @Override
+  public void removeIteratorData(byte[] key) throws IOException {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
   public void close() throws IOException {
     // clean up data.
     corpusData = null;

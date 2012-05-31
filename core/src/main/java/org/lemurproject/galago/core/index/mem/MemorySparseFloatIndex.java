@@ -85,6 +85,11 @@ public class MemorySparseFloatIndex implements MemoryIndexPart {
     }
   }
 
+  @Override
+  public void removeIteratorData(byte[] key) throws IOException {
+    postings.remove(key);
+  }
+  
   // Posting List Reader functions
   @Override
   public KeyIterator getIterator() throws IOException {
@@ -211,7 +216,7 @@ public class MemorySparseFloatIndex implements MemoryIndexPart {
       maxScore = Math.max(maxScore, score);
       minScore = Math.min(minScore, score);
 
-      scores_cbb.addFloat((float) score);
+      scores_cbb.addDouble(score);
 
       termPostingsCount += 1;
     }
@@ -384,7 +389,7 @@ public class MemorySparseFloatIndex implements MemoryIndexPart {
         return;
       } else {
         currDocument += documents_reader.readInt();
-        currScore = scores_reader.readFloat();
+        currScore = scores_reader.readDouble();
       }
 
       iteratedDocs++;

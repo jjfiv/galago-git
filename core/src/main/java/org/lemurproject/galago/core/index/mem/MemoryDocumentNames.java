@@ -75,6 +75,11 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     }
   }
 
+  @Override
+  public void removeIteratorData(byte[] key) throws IOException {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
   public String getDocumentName(int docNum) {
     int index = docNum - offset;
     assert ((index >= 0) && (index < names.getPosition())) : "Document identifier not found in this index.";
