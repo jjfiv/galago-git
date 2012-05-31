@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
@@ -15,7 +16,9 @@ import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Parameters.Type;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -45,20 +48,17 @@ public class CachedRetrieval extends LocalRetrieval {
           throws FileNotFoundException, IOException, Exception {
     super(filename, parameters);
 
-    this.cachedNodes = new HashMap();
-    this.cachedStats = new HashMap();
-
-    this.cacheParts = new HashMap();
-    this.cacheParts.put("score", new MemorySparseDoubleIndex(new Parameters()));
-    this.cacheParts.put("extent", new MemoryWindowIndex(new Parameters()));
-    this.cacheParts.put("count", new MemoryCountIndex(new Parameters()));
-    // this.cacheParts.put("names", new MemoryDocumentNames(new Parameters()));
-    // this.cacheParts.put("lengths", new MemoryDocumentLengths(new Parameters()));
+    init();
   }
 
   public CachedRetrieval(Index index, Parameters parameters) throws Exception {
     super(index, parameters);
 
+    init();
+  }
+  
+  private void init() throws Exception{
+    
     this.cachedNodes = new HashMap();
     this.cachedStats = new HashMap();
 
@@ -68,6 +68,26 @@ public class CachedRetrieval extends LocalRetrieval {
     this.cacheParts.put("count", new MemoryCountIndex(index.getIndexPart("postings").getManifest()));
     // this.cacheParts.put("names", new MemoryDocumentNames(new Parameters()));
     // this.cacheParts.put("lengths", new MemoryDocumentLengths(new Parameters()));
+    
+    if (globalParameters.containsKey("cacheQueries")) {
+      if (globalParameters.isList("cacheQueries", Type.STRING)) {
+        List<String> queries = globalParameters.getAsList("cacheQueries");
+        for (String q : queries) {
+          Node queryTree = StructuredQuery.parse(q);
+          queryTree = transformQuery(queryTree, new Parameters());
+          addAllToCache(queryTree);
+        }
+      } else if (globalParameters.isList("cacheQueries", Type.MAP)) {
+        List<Parameters> queries = globalParameters.getAsList("cacheQueries");
+        for (Parameters q : queries) {
+          Node queryTree = StructuredQuery.parse(q.getString("text"));
+          queryTree = transformQuery(queryTree, new Parameters());
+          addAllToCache(queryTree);
+        }
+      } else {
+        Logger.getLogger(this.getClass().getName()).info("Could not process cachedQueries as a list<String> or list<Parameters>. No data cached.");
+      }
+    }
   }
 
   @Override
@@ -115,6 +135,20 @@ public class CachedRetrieval extends LocalRetrieval {
     return iterator;
   }
 
+  @Override
+  public NodeStatistics nodeStatistics(Node node) throws Exception {
+    // check the node cache first - this will avoid zeros.
+    String nodeString = node.toString();
+    if (cachedNodes.containsKey(nodeString)) {
+      //Logger.getLogger(this.getClass().getName()).info("Getting stats from cache for node : " + nodeString);
+      return this.cachedStats.get(nodeString);
+    }
+    return super.nodeStatistics(node);
+  }
+
+  
+  // caching functions
+  
   /*
    * Checks if a particular node is cached or not.
    */
@@ -123,6 +157,16 @@ public class CachedRetrieval extends LocalRetrieval {
     return cachedNodes.containsKey(nodeString);
   }
 
+  /*
+   * Recurses through a query tree to cache all nodes present
+   */
+  public void addAllToCache(Node queryTree) throws Exception {
+    for(Node child : queryTree.getInternalNodes()){
+      addAllToCache(child);
+    }
+    addToCache(queryTree);
+  }
+  
   /**
    * caches an arbitrary query node currently can store only count, extent, and
    * score iterators.
@@ -162,14 +206,34 @@ public class CachedRetrieval extends LocalRetrieval {
     }
   }
 
-  @Override
-  public NodeStatistics nodeStatistics(Node node) throws Exception {
-    // check the node cache first - this will avoid zeros.
+  public void removeFromCache(Node node) throws Exception {
+    ScoringContext sc = new ScoringContext();
+
     String nodeString = node.toString();
     if (cachedNodes.containsKey(nodeString)) {
-      //Logger.getLogger(this.getClass().getName()).info("Getting stats from cache for node : " + nodeString);
-      return this.cachedStats.get(nodeString);
+      if (cachedNodes.get(nodeString).equals("score")) {
+        cachedNodes.remove(nodeString);
+        cacheParts.get("score").removeIteratorData(Utility.fromString(nodeString));
+        Logger.getLogger(this.getClass().getName()).info("Deleted cached scoring node : " + nodeString);
+      } else if (cachedNodes.get(nodeString).equals("count")) {
+        NodeStatistics ns = super.nodeStatistics(node);
+        cachedNodes.remove(nodeString);
+        cachedStats.remove(nodeString);
+        cacheParts.get("extent").removeIteratorData(Utility.fromString(nodeString));
+        Logger.getLogger(this.getClass().getName()).info("Deleted cached extent node : " + nodeString);
+
+      } else if (cachedNodes.get(nodeString).equals("extent")) {
+        NodeStatistics ns = super.nodeStatistics(node);
+        cachedNodes.remove(nodeString);
+        cachedStats.remove(nodeString);
+        cacheParts.get("count").removeIteratorData(Utility.fromString(nodeString));
+        Logger.getLogger(this.getClass().getName()).info("Deleted cached count node : " + nodeString);
+
+      } else {
+        Logger.getLogger(this.getClass().getName()).info("Unable to delete cached node : " + nodeString);
+      }
+    } else {
+      Logger.getLogger(this.getClass().getName()).info("Ignoring non-cached node : " + nodeString);
     }
-    return super.nodeStatistics(node);
   }
 }

@@ -10,13 +10,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.NamesReader.Iterator;
-import org.lemurproject.galago.core.index.disk.CachedDiskIndex;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.structured.FeatureFactory;
@@ -34,7 +32,6 @@ import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Parameters.Type;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -64,47 +61,14 @@ public class LocalRetrieval implements Retrieval {
     this(index, new Parameters());
   }
 
+  public LocalRetrieval(String filename, Parameters parameters)
+          throws FileNotFoundException, IOException, Exception {
+    this(new DiskIndex(filename), parameters);
+  }
+
   public LocalRetrieval(Index index, Parameters parameters) throws IOException {
     this.globalParameters = parameters;
     setIndex(index);
-  }
-
-  /**
-   * For this constructor, being sent a filename path to the indicies, we first
-   * list out all the directories in the path. If there are none, then we can
-   * safely assume that the filename specifies a single index (the files listed
-   * are all parts), otherwise we will treat each subdirectory as a separate
-   * logical index.
-   */
-  public LocalRetrieval(String filename, Parameters parameters)
-          throws FileNotFoundException, IOException, Exception {
-    this.globalParameters = parameters;
-    /*
-    if (globalParameters.containsKey("cacheQueries")) {
-      CachedDiskIndex cachedIndex = new CachedDiskIndex(filename);
-      setIndex(cachedIndex);
-
-      if (globalParameters.isList("cacheQueries", Type.STRING)) {
-        List<String> queries = globalParameters.getAsList("cacheQueries");
-        for (String q : queries) {
-          Node queryTree = StructuredQuery.parse(q);
-          queryTree = transformQuery(queryTree, new Parameters());
-          cachedIndex.cacheQueryData(queryTree);
-        }
-      } else if (globalParameters.isList("cacheQueries", Type.MAP)) {
-        List<Parameters> queries = globalParameters.getAsList("cacheQueries");
-        for (Parameters q : queries) {
-          Node queryTree = StructuredQuery.parse(q.getString("text"));
-          queryTree = transformQuery(queryTree, new Parameters());
-          cachedIndex.cacheQueryData(queryTree);
-        }
-      } else {
-        Logger.getLogger(this.getClass().getName()).info("Could not process cachedQueries list. No posting list data cached.");
-      }
-    } else {
-     */
-      setIndex(new DiskIndex(filename));
-//    }
   }
 
   private void setIndex(Index indx) throws IOException {
