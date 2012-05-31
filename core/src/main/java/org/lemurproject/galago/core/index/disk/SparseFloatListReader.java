@@ -3,15 +3,17 @@ package org.lemurproject.galago.core.index.disk;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
@@ -69,7 +71,6 @@ public class SparseFloatListReader extends KeyListReader {
     int index;
     int currentDocument;
     double currentScore;
-    ScoringContext context;
 
     public ListIterator(BTreeReader.BTreeIterator iterator) throws IOException {
       super(iterator.getKey());
@@ -124,11 +125,6 @@ public class SparseFloatListReader extends KeyListReader {
     }
 
     @Override
-    public void setContext(ScoringContext dc) {
-      this.context = dc;
-    }
-
-    @Override
     public int currentCandidate() {
       return currentDocument;
     }
@@ -174,8 +170,16 @@ public class SparseFloatListReader extends KeyListReader {
     }
 
     @Override
-    public ScoringContext getContext() {
-      return context;
+    public AnnotatedNode getAnnotatedNode() throws IOException {
+      String type = "scores";
+      String className = this.getClass().getSimpleName();
+      String parameters = this.getKeyString();
+      int document = currentCandidate();
+      boolean atCandidate = atCandidate(this.context.document);
+      String returnValue = Double.toString(score());
+      List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
 

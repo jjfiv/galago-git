@@ -5,8 +5,11 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -17,13 +20,14 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 @RequiredStatistics(statistics = {"nodeFrequency", "documentCount"})
 public class DFRScoringIterator extends TransformIterator implements MovableScoreIterator {
-
+  NodeParameters np;
   double lambda;
   double qfratio;
   MovableScoreIterator scorer;
 
   public DFRScoringIterator(NodeParameters parameters, MovableScoreIterator iterator) throws IOException {
     super(iterator);
+    this.np = parameters;
     scorer = iterator;
 
     // Set the qf ratio
@@ -78,5 +82,18 @@ public class DFRScoringIterator extends TransformIterator implements MovableScor
   @Override
   public double minimumScore() {
     return transform(scorer.minimumScore());
+  }
+
+  @Override
+  public AnnotatedNode getAnnotatedNode() throws IOException {
+    String type = "score";
+    String className = this.getClass().getSimpleName();
+    String parameters = np.toString();
+    int document = currentCandidate();
+    boolean atCandidate = atCandidate(this.context.document);
+    String returnValue = Double.toString(score());
+    List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());
+
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 }

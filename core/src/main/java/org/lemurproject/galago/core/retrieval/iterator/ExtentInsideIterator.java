@@ -62,23 +62,19 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
       return;
     }
 
-    try {
-      ExtentArrayIterator inner = new ExtentArrayIterator(innerIterator.extents());
-      ExtentArrayIterator outer = new ExtentArrayIterator(outerIterator.extents());
+    ExtentArrayIterator inner = new ExtentArrayIterator(innerIterator.extents());
+    ExtentArrayIterator outer = new ExtentArrayIterator(outerIterator.extents());
 
-      extents.setDocument(document);
-      while (!inner.isDone() && !outer.isDone()) {
-        if (outer.currentlyContains(inner)) {
-          extents.add(inner.currentBegin(), inner.currentEnd());
-          inner.next();
-        } else if (outer.currentEnd() <= inner.currentBegin()) {
-          outer.next();
-        } else {
-          inner.next();
-        }
+    extents.setDocument(document);
+    while (!inner.isDone() && !outer.isDone()) {
+      if (outer.currentlyContains(inner)) {
+        extents.add(inner.currentBegin(), inner.currentEnd());
+        inner.next();
+      } else if (outer.currentEnd() <= inner.currentBegin()) {
+        outer.next();
+      } else {
+        inner.next();
       }
-    } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
     }
   }
 }

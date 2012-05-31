@@ -64,9 +64,9 @@ public class App {
         // don't want to wipe an existing parameter:
       }
 
-      if ((args.length > 0) && (!p.containsKey("command"))) {
-        p.set("command", Utility.join(args, " "));
-      }
+//      if ((args.length > 0) && (!p.containsKey("command"))) {
+//        p.set("command", Utility.join(args, " "));
+//      }
 
       run(p, output);
     }
@@ -134,7 +134,7 @@ public class App {
 
   public static void run(String[] args, PrintStream out) throws Exception {
     String fn = "help";
-    if (args.length > 0) {
+    if (args.length > 0 && appFunctions.containsKey(args[0])) {
       fn = args[0];
     }
     appFunctions.get(fn).run(args, out);

@@ -33,7 +33,7 @@ public class ScoringFunctionIteratorTest extends TestCase {
   public void testGenericIterator() throws Exception {
     Parameters parameters = new Parameters();
     FakeExtentIterator extentIterator = new FakeExtentIterator(extents);
-    ScoringFunctionIterator iterator = new ScoringFunctionIterator(extentIterator,
+    ScoringFunctionIterator iterator = new ScoringFunctionIterator(new NodeParameters(), extentIterator,
             new FakeScorer());
     ScoringContext context = new ScoringContext();
     int[] docs = {0, 34, 110};

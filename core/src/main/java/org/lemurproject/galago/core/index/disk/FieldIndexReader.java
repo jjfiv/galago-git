@@ -4,12 +4,15 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.DataInput;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.DataStream;
@@ -264,10 +267,10 @@ public class FieldIndexReader extends KeyListReader {
     }
 
     @Override
-    public boolean hasAllCandidates(){
+    public boolean hasAllCandidates() {
       return false;
     }
-    
+
     @Override
     public boolean isDone() {
       return (documentIndex >= documentCount);
@@ -281,6 +284,19 @@ public class FieldIndexReader extends KeyListReader {
     @Override
     public long totalEntries() {
       return this.documentCount;
+    }
+
+    @Override
+    public AnnotatedNode getAnnotatedNode() throws IOException {
+      String type = "field";
+      String className = this.getClass().getSimpleName();
+      String parameters = "";
+      int document = currentCandidate();
+      boolean atCandidate = atCandidate(this.context.document);
+      String returnValue = printValue();
+      List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
   Parameters formatMap = new Parameters();

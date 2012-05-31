@@ -4,19 +4,18 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.DataInput;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
@@ -335,14 +334,17 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
       return stats;
     }
 
-    // This will pass up topdocs information if it's available
-    public void setContext(ScoringContext context) {
-      if (TopDocsContext.class.isAssignableFrom(context.getClass())
-              && this.hasModifier("topdocs")) {
-        ((TopDocsContext) context).hold = ((ArrayList<TopDocument>) getModifier("topdocs"));
-        // remove the pointer to the mod (don't need it anymore)
-        this.modifiers.remove("topdocs");
-      }
+    @Override
+    public AnnotatedNode getAnnotatedNode() {
+      String type = "count";
+      String className = this.getClass().getSimpleName();
+      String parameters = "";
+      int document = currentCandidate();
+      boolean atCandidate = atCandidate(this.context.document);
+      String returnValue = Integer.toString(count());
+      List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
 

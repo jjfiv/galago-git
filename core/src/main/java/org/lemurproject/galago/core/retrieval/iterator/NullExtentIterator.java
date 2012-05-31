@@ -2,7 +2,11 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
 
@@ -108,5 +112,17 @@ public class NullExtentIterator extends ValueIterator implements MovableExtentIt
   @Override
   public byte[] getKeyBytes() throws IOException {
     return new byte[0];
+  }
+
+  @Override
+  public AnnotatedNode getAnnotatedNode() {
+    String type = "extent";
+    String className = this.getClass().getSimpleName();
+    String parameters = "";
+    int document = currentCandidate();
+    boolean atCandidate = atCandidate(this.context.document);
+    String returnValue = array.toString();
+    List<AnnotatedNode> children = Collections.EMPTY_LIST;
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 }

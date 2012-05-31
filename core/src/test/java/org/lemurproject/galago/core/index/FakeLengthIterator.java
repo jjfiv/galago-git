@@ -5,24 +5,29 @@
 package org.lemurproject.galago.core.index;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
  *
  * @author marc
  */
 public class FakeLengthIterator implements LengthsReader.Iterator {
-  int[] ids;
-  int[] lengths;
-  int position;
-  
+
+  private int[] ids;
+  private int[] lengths;
+  private int position;
+  private ScoringContext context;
+
   public FakeLengthIterator(int[] i, int[] l) {
     ids = i;
     lengths = l;
     position = 0;
   }
-  
-  
+
   @Override
   public int getCurrentLength() {
     return lengths[position];
@@ -50,12 +55,12 @@ public class FakeLengthIterator implements LengthsReader.Iterator {
 
   @Override
   public void next() throws IOException {
-    position = Math.min(position+1, ids.length);
+    position = Math.min(position + 1, ids.length);
   }
 
   @Override
   public void movePast(int identifier) throws IOException {
-    moveTo(identifier+1);
+    moveTo(identifier + 1);
   }
 
   @Override
@@ -88,5 +93,28 @@ public class FakeLengthIterator implements LengthsReader.Iterator {
   @Override
   public int compareTo(MovableIterator t) {
     throw new UnsupportedOperationException("Not supported yet.");
-  } 
+  }
+
+  @Override
+  public void setContext(ScoringContext context) {
+    this.context = context;
+  }
+
+  @Override
+  public ScoringContext getContext() {
+    return this.context;
+  }
+
+  @Override
+  public AnnotatedNode getAnnotatedNode() {
+    String type = "length";
+    String className = this.getClass().getSimpleName();
+    String parameters = "";
+    int document = currentCandidate();
+    boolean atCandidate = atCandidate(this.context.document);
+    String returnValue = Integer.toString(getCurrentLength());
+    List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+  }
 }

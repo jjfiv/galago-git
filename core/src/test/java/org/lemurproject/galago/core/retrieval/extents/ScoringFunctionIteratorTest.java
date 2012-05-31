@@ -13,6 +13,7 @@ import java.io.IOException;
 import org.lemurproject.galago.core.index.FakeLengthIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.scoring.ScoringFunction;
 
 /**
@@ -40,7 +41,7 @@ public class ScoringFunctionIteratorTest extends TestCase {
   public static class FakeScoreIterator extends ScoringFunctionIterator {
 
     public FakeScoreIterator(MovableCountIterator iter) throws IOException {
-      super(iter, new FakeScorer());
+      super(new NodeParameters(), iter, new FakeScorer());
     }
 
     public double scoreCount(int count, int length) {

@@ -2,9 +2,12 @@
 package org.lemurproject.galago.core.retrieval.extents;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
  *
@@ -21,7 +24,7 @@ public class FakeScoreIterator implements MovableScoreIterator {
   public FakeScoreIterator(int[] docs, double[] scores) {
     this(docs, scores, 0);
   }
-  
+
   public FakeScoreIterator(int[] docs, double[] scores, double defaultScore) {
     this.docs = docs;
     this.scores = scores;
@@ -102,6 +105,7 @@ public class FakeScoreIterator implements MovableScoreIterator {
     this.context = context;
   }
 
+  @Override
   public ScoringContext getContext() {
     return context;
   }
@@ -133,5 +137,18 @@ public class FakeScoreIterator implements MovableScoreIterator {
   @Override
   public boolean hasAllCandidates() {
     return false;
+  }
+
+  @Override
+  public AnnotatedNode getAnnotatedNode() {
+    String type = "score";
+    String className = this.getClass().getSimpleName();
+    String parameters = "";
+    int document = currentCandidate();
+    boolean atCandidate = atCandidate(this.context.document);
+    String returnValue = Double.toString(score());
+    List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 }

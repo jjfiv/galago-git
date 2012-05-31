@@ -17,10 +17,12 @@ public abstract class TransformIterator implements MovableIterator {
     this.iterator = iterator;
   }
 
+  @Override
   public void setContext(ScoringContext context) {
     this.context = context;
   }
 
+  @Override
   public ScoringContext getContext() {
     return this.context;
   }

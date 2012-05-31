@@ -3,7 +3,9 @@ package org.lemurproject.galago.core.index.disk;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,6 +13,7 @@ import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIndicatorIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -138,9 +141,9 @@ public class DocumentIndicatorReader extends KeyValueReader {
     public long totalEntries() {
       return manifest.get("keyCount", -1);
     }
-    
+
     @Override
-    public boolean hasAllCandidates(){
+    public boolean hasAllCandidates() {
       return true;
     }
 
@@ -166,6 +169,19 @@ public class DocumentIndicatorReader extends KeyValueReader {
     @Override
     public byte[] getKeyBytes() throws IOException {
       return Utility.fromString("indicators");
+    }
+
+    @Override
+    public AnnotatedNode getAnnotatedNode() throws IOException {
+      String type = "indicator";
+      String className = this.getClass().getSimpleName();
+      String parameters = "";
+      int document = currentCandidate();
+      boolean atCandidate = atCandidate(this.context.document);
+      String returnValue = Boolean.toString(indicator(this.context.document));
+      List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
 }

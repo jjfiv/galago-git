@@ -3,22 +3,20 @@ package org.lemurproject.galago.core.index.disk;
 
 import java.io.DataInput;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.disk.TopDocsReader.TopDocument;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
-import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -77,10 +75,9 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
   }
 
   public class TermExtentIterator extends KeyListReader.ListIterator
-          implements AggregateIterator, MovableCountIterator, MovableExtentIterator, ContextualIterator {
+          implements AggregateIterator, MovableCountIterator, MovableExtentIterator {
 
     BTreeReader.BTreeIterator iterator;
-    ScoringContext context;
     int documentCount;
     int totalPositionCount;
     int maximumPositionCount;
@@ -109,9 +106,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     long documentsByteFloor;
     long countsByteFloor;
     long positionsByteFloor;
-    // Supports lazy-loading of extents
-    boolean extentsLoaded;
-    int extentsByteSize;
 
     public TermExtentIterator(BTreeReader.BTreeIterator iterator) throws IOException {
       super(iterator.getKey());
@@ -192,56 +186,27 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
         skipPositions = null;
       }
 
-      // Initialization
       documentIndex = 0;
-      extentsLoaded = true; // Not really, but we're reading the beginning of the list immediately.
-      loadNextPosting();
+      loadExtents();
     }
 
-    private void loadNextPosting() throws IOException {
-      // This is making sure the positions pointer is in the
-      // current position for the next read, so we're
-      // "wrapping up" the last move - after a skip extByteSize == 0
-      // so we're protected from doing this after a skip.
-      if (!extentsLoaded && extentsByteSize != 0) {
-        if (extentsByteSize < 0) {
-          // Actually have to read the extents
-          loadExtents();
-        } else {
-          // Can skip the block
-          positions.skipBytes(extentsByteSize);
-        }
-      }
-      // Now we can move the document, count, and
-
+    // Loads up a single set of positions for an intID. Basically it's the
+    // load that needs to be done when moving forward one in the posting list.
+    private void loadExtents() throws IOException {
       currentDocument += documents.readInt();
       currentCount = counts.readInt();
-      if (currentCount > PositionIndexWriter.PositionsList.minimumExtentsLength) {
-        extentsByteSize = positions.readInt();
-      } else {
-        extentsByteSize = -1;
-      }
       extentArray.reset();
-      extentsLoaded = false;
-    }
 
-    // Loads up a single set of positions for an intID.
-    // In this version loading these can be skipped
-    private void loadExtents() throws IOException {
-      if (!extentsLoaded) {
-        extentArray.setDocument(currentDocument);
-        int position = 0;
-        for (int i = 0; i < currentCount; i++) {
-          position += positions.readInt();
-          extentArray.add(position);
-        }
-        extentsLoaded = true;
+      extentArray.setDocument(currentDocument);
+      int position = 0;
+      for (int i = 0; i < currentCount; i++) {
+        position += positions.readInt();
+        extentArray.add(position);
       }
     }
 
     @Override
     public String getEntry() throws IOException {
-      loadExtents();
       StringBuilder builder = new StringBuilder();
 
       builder.append(getKeyString());
@@ -261,6 +226,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       key = iterator.getKey();
       startPosition = iterator.getValueStart();
       endPosition = iterator.getValueEnd();
+      // input = iterator.getInput();
       reset();
     }
 
@@ -276,7 +242,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     public void next() throws IOException {
       documentIndex = Math.min(documentIndex + 1, documentCount);
       if (!isDone()) {
-        loadNextPosting();
+        loadExtents();
       }
     }
 
@@ -287,8 +253,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
         synchronizeSkipPositions();
       }
       if (skips != null && document > nextSkipDocument) {
-        extentsLoaded = false;
-        extentsByteSize = 0;
+
         // if we're here, we're skipping
         while (skipsRead < numSkips
                 && document > nextSkipDocument) {
@@ -363,14 +328,12 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     }
 
     @Override
-    public ExtentArray getData() throws IOException {
-      loadExtents();
+    public ExtentArray getData() {
       return extentArray;
     }
 
     @Override
-    public ExtentArray extents() throws IOException {
-      loadExtents();
+    public ExtentArray extents() {
       return extentArray;
     }
 
@@ -410,21 +373,17 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       return stats;
     }
 
-    // This will pass up topdocs information if it's available
     @Override
-    public void setContext(ScoringContext context) {
-      if ((context != null) && TopDocsContext.class.isAssignableFrom(context.getClass())
-              && this.hasModifier("topdocs")) {
-        ((TopDocsContext) context).hold = ((ArrayList<TopDocument>) getModifier("topdocs"));
-        // remove the pointer to the mod (don't need it anymore)
-        this.modifiers.remove("topdocs");
-      }
-      this.context = context;
-    }
+    public AnnotatedNode getAnnotatedNode() throws IOException {
+      String type = "extents";
+      String className = this.getClass().getSimpleName();
+      String parameters = this.getKeyString();
+      int document = currentCandidate();
+      boolean atCandidate = atCandidate(this.context.document);
+      String returnValue = extents().toString();
+      List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
-    @Override
-    public ScoringContext getContext() {
-      return this.context;
+      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
 
@@ -435,10 +394,9 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
    *
    */
   public class TermCountIterator extends KeyListReader.ListIterator
-          implements AggregateIterator, MovableCountIterator, ContextualIterator {
+          implements AggregateIterator, MovableCountIterator {
 
     BTreeReader.BTreeIterator iterator;
-    ScoringContext context;
     int documentCount;
     int collectionCount;
     int maximumPositionCount;
@@ -701,21 +659,17 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       return stats;
     }
 
-    // This will pass up topdocs information if it's available
     @Override
-    public void setContext(ScoringContext context) {
-      if ((context != null) && TopDocsContext.class.isAssignableFrom(context.getClass())
-              && this.hasModifier("topdocs")) {
-        ((TopDocsContext) context).hold = ((ArrayList<TopDocument>) getModifier("topdocs"));
-        // remove the pointer to the mod (don't need it anymore)
-        this.modifiers.remove("topdocs");
-      }
-      this.context = context;
-    }
+    public AnnotatedNode getAnnotatedNode() throws IOException {
+      String type = "counts";
+      String className = this.getClass().getSimpleName();
+      String parameters = this.getKeyString();
+      int document = currentCandidate();
+      boolean atCandidate = atCandidate(this.context.document);
+      String returnValue = Integer.toString(count());
+      List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
-    @Override
-    public ScoringContext getContext() {
-      return this.context;
+      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
   Stemmer stemmer = null;

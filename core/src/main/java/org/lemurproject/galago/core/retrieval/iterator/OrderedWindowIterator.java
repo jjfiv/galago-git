@@ -33,11 +33,7 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
         return;
       }
 
-      try {
-        arrayIterators[i] = new ExtentArrayIterator(((MovableExtentIterator) iterators[i]).extents());
-      } catch (IOException ioe) {
-        throw new RuntimeException(ioe);
-      }
+      arrayIterators[i] = new ExtentArrayIterator(((MovableExtentIterator) iterators[i]).extents());
 
       if (arrayIterators[i].isDone()) {
         // if this document does not have any extents we can not load any extents

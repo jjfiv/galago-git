@@ -27,14 +27,14 @@ public interface MemoryIndexPart extends IndexPartReader {
   /*
    * extract all data from iterator and add to index
    *  - should not expose partial information (oh-to-be-thread-safe)
-   *  - key
    */
   public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException;
-  
+
   /*
-   * 
+   * discard all data for a key
+   *  - this allows dynamic deletion of cached iterator data
    */
-  public void removeIteratorData(byte[] key) throws IOException;
+  public void removeIteratorData(byte[] fromString) throws IOException;
   
   /*
    * return the current number of documents in index part

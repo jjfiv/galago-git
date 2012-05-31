@@ -2,7 +2,9 @@
 package org.lemurproject.galago.core.index.disk;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeFactory;
 import org.lemurproject.galago.core.index.BTreeReader;
@@ -13,6 +15,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -137,10 +140,10 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     }
 
     @Override
-    public boolean hasAllCandidates(){
+    public boolean hasAllCandidates() {
       return true;
     }
-    
+
     @Override
     public String getData() {
       try {
@@ -170,6 +173,19 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     @Override
     public byte[] getKeyBytes() throws IOException {
       return Utility.fromString("names");
+    }
+
+    @Override
+    public AnnotatedNode getAnnotatedNode() throws IOException {
+      String type = "names";
+      String className = this.getClass().getSimpleName();
+      String parameters = "";
+      int document = currentCandidate();
+      boolean atCandidate = atCandidate(this.context.document);
+      String returnValue = getCurrentName();
+      List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
 }

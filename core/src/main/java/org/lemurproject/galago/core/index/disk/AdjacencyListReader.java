@@ -3,16 +3,18 @@ package org.lemurproject.galago.core.index.disk;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
@@ -109,7 +111,6 @@ public class AdjacencyListReader extends KeyListReader {
     int index;
     int currentIdentifier;
     double currentScore;
-    ScoringContext context;
 
     public IntegerListIterator(BTreeIterator iterator) throws IOException {
       super(iterator.getKey());
@@ -198,13 +199,16 @@ public class AdjacencyListReader extends KeyListReader {
     }
 
     @Override
-    public void setContext(ScoringContext context) {
-      this.context = context;
-    }
+    public AnnotatedNode getAnnotatedNode() {
+      String type = "score";
+      String className = this.getClass().getSimpleName();
+      String parameters = "";
+      int document = currentCandidate();
+      boolean atCandidate = atCandidate(this.context.document);
+      String returnValue = Double.toString(score());
+      List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
-    @Override
-    public ScoringContext getContext() {
-      return this.context;
+      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
 
     // private functions:

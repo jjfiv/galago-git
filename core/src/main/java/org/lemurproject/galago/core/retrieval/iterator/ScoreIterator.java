@@ -1,8 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-
 /**
  * 2/24/2010 (irmarc): Refactored to represent anything that
  * iterates and produces scores.
@@ -14,7 +12,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
  *
  * @author trevor, irmarc
  */
-public interface ScoreIterator extends ContextualIterator {
+public interface ScoreIterator {
 
   /**
    * Produce a score for the iterator's current candidate given the implicit

@@ -4,6 +4,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 
@@ -11,13 +12,14 @@ import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
  *
  * @author sjh
  */
-@RequiredParameters(parameters={"shareNodes"})
+@RequiredParameters(parameters = {"shareNodes"})
 public abstract class ConjunctionIterator implements MovableIterator {
 
   protected MovableIterator[] iterators;
   protected MovableIterator[] drivingIterators;
   protected boolean hasAllCandidates;
   protected boolean sharedChildren;
+  protected ScoringContext context;
 
   public ConjunctionIterator(NodeParameters parameters, MovableIterator[] queryIterators) {
     this.sharedChildren = parameters.get("shareNodes", false);
@@ -61,7 +63,7 @@ public abstract class ConjunctionIterator implements MovableIterator {
     for (MovableIterator iterator : iterators) {
       iterator.moveTo(candidate);
     }
-    
+
     // if we are not sharing children - we can be more aggressive here.
     if (!sharedChildren) {
       int currCandidate = currentCandidate();
@@ -72,7 +74,7 @@ public abstract class ConjunctionIterator implements MovableIterator {
           // if we skip too far:
           //   don't bother to move the other children
           //   we will need to pick a different candidate
-          if(!iterator.atCandidate(currCandidate)){
+          if (!iterator.atCandidate(currCandidate)) {
             break;
           }
         }
@@ -168,5 +170,15 @@ public abstract class ConjunctionIterator implements MovableIterator {
       return 0;
     }
     return this.currentCandidate() - other.currentCandidate();
+  }
+
+  @Override
+  public void setContext(ScoringContext context) {
+    this.context = context;
+  }
+
+  @Override
+  public ScoringContext getContext() {
+    return context;
   }
 }

@@ -7,8 +7,10 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.Collections;
+import java.util.List;
 import org.lemurproject.galago.core.index.disk.FieldIndexReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
@@ -20,7 +22,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  * @author irmarc
  */
 public abstract class FieldComparisonIterator extends TransformIterator implements MovableIndicatorIterator {
-
+  NodeParameters p;
   FieldIndexReader.ListIterator fieldIterator;
   String format;
   String strValue;
@@ -32,6 +34,7 @@ public abstract class FieldComparisonIterator extends TransformIterator implemen
 
   public FieldComparisonIterator(NodeParameters p, FieldIndexReader.ListIterator fieldIterator) {
     super(fieldIterator);
+    this.p = p;
     this.fieldIterator = fieldIterator;
     this.format = fieldIterator.getFormat();
   }
@@ -58,5 +61,18 @@ public abstract class FieldComparisonIterator extends TransformIterator implemen
     } catch (ParseException pe) {
       throw new RuntimeException(pe);
     }
+  }
+
+  @Override
+  public AnnotatedNode getAnnotatedNode() throws IOException {
+    String type = "indicator";
+    String className = this.getClass().getSimpleName();
+    String parameters = p.toString();
+    int document = currentCandidate();
+    boolean atCandidate = atCandidate(this.context.document);
+    String returnValue = Boolean.toString( this.indicator( this.context.document ) );
+    List<AnnotatedNode> children = Collections.singletonList( this.iterator.getAnnotatedNode() );
+    
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 }

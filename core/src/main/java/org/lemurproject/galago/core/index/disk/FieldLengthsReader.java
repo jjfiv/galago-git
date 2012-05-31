@@ -1,11 +1,14 @@
 package org.lemurproject.galago.core.index.disk;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.util.ExtentArray;
@@ -76,9 +79,9 @@ public class FieldLengthsReader implements LengthsReader {
 
   @Override
   public ValueIterator getIterator(Node node) throws IOException {
-        if (node.getOperator().equals("fieldlengths") && 
-                node.getNodeParameters().containsKey("part")) {
-          String part = node.getNodeParameters().getString("part");
+    if (node.getOperator().equals("fieldlengths")
+            && node.getNodeParameters().containsKey("part")) {
+      String part = node.getNodeParameters().getString("part");
       return new LengthIterator(reader.getTermExtents(part));
     } else {
       throw new UnsupportedOperationException(
@@ -91,7 +94,6 @@ public class FieldLengthsReader implements LengthsReader {
     return reader.getManifest();
   }
 
-  
   public class LengthIterator extends ValueIterator implements LengthsReader.Iterator {
 
     private WindowIndexReader.TermExtentIterator extentsIterator;
@@ -185,6 +187,19 @@ public class FieldLengthsReader implements LengthsReader {
     @Override
     public byte[] getKeyBytes() throws IOException {
       return Utility.fromString("lengths");
+    }
+
+    @Override
+    public AnnotatedNode getAnnotatedNode() throws IOException {
+      String type = "lengths";
+      String className = this.getClass().getSimpleName();
+      String parameters = "";
+      int document = currentCandidate();
+      boolean atCandidate = atCandidate(this.context.document);
+      String returnValue = Integer.toString(getCurrentLength());
+      List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
 }

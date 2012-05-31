@@ -3,7 +3,9 @@ package org.lemurproject.galago.core.index.disk;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,8 +14,8 @@ import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -113,7 +115,6 @@ public class DocumentPriorReader extends KeyValueReader {
   // needs to be an AbstractIndicator
   public class ValueIterator extends KeyToListIterator implements MovableScoreIterator {
 
-    ScoringContext context;
     double minScore;
     boolean nonmatching;
 
@@ -131,11 +132,6 @@ public class DocumentPriorReader extends KeyValueReader {
     @Override
     public String getEntry() throws IOException {
       return ((KeyIterator) iterator).getValueString();
-    }
-
-    @Override
-    public void setContext(ScoringContext context) {
-      this.context = context;
     }
 
     @Override
@@ -202,11 +198,6 @@ public class DocumentPriorReader extends KeyValueReader {
     }
 
     @Override
-    public ScoringContext getContext() {
-      return this.context;
-    }
-
-    @Override
     public boolean isDone() {
       if (nonmatching) {
         return true;
@@ -233,6 +224,19 @@ public class DocumentPriorReader extends KeyValueReader {
     @Override
     public byte[] getKeyBytes() throws IOException {
       return Utility.fromString("priors");
+    }
+
+    @Override
+    public AnnotatedNode getAnnotatedNode() throws IOException {
+      String type = "score";
+      String className = this.getClass().getSimpleName();
+      String parameters = "";
+      int document = currentCandidate();
+      boolean atCandidate = atCandidate(this.context.document);
+      String returnValue = Double.toString(score());
+      List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
 }

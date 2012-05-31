@@ -34,7 +34,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
 
   public BM25FieldScoringIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(it, new BM25FieldScorer(p, it));
+    super(p, it, new BM25FieldScorer(p, it));
     partName = p.getString("lengths");
     weight = p.getDouble("w");
     parentIdx = (int) p.getLong("pIdx");
@@ -129,10 +129,5 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
       DeltaScoringContext dctx = (DeltaScoringContext) ctx;
       dctx.scorers.add(this);
     }
-  }
-
-  @Override
-  public ScoringContext getContext() {
-    return this.context;
   }
 }

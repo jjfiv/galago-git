@@ -4,6 +4,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 
 /**
  *
@@ -13,7 +14,8 @@ public abstract class DisjunctionIterator implements MovableIterator {
 
   protected MovableIterator[] iterators;
   protected MovableIterator[] drivingIterators;
-  boolean hasAllCandidates;
+  protected ScoringContext context;
+  protected boolean hasAllCandidates;
 
   public DisjunctionIterator(MovableIterator[] queryIterators) {
     // first check that the iterators are all MovableIterators:
@@ -141,4 +143,14 @@ public abstract class DisjunctionIterator implements MovableIterator {
     }
     return this.currentCandidate() - other.currentCandidate();
   }
+  
+  @Override
+  public void setContext(ScoringContext context) {
+    this.context = context;
+  }
+
+  @Override
+  public ScoringContext getContext() {
+    return context;
+  }  
 }

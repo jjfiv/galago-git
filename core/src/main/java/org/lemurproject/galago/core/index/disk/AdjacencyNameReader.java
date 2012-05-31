@@ -2,14 +2,16 @@
 package org.lemurproject.galago.core.index.disk;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
-import org.lemurproject.galago.core.index.disk.DiskNameReader;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -109,6 +111,18 @@ public class AdjacencyNameReader extends DiskNameReader {
     @Override
     public byte[] getKeyBytes() {
       return Utility.fromString("adjacent");
+    }
+    @Override
+    public AnnotatedNode getAnnotatedNode() {
+      String type = "names";
+      String className = this.getClass().getSimpleName();
+      String parameters = "";
+      int document = currentCandidate();
+      boolean atCandidate = atCandidate(this.context.document);
+      String returnValue = getData();
+      List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
 }

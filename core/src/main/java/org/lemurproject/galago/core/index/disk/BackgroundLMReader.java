@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -240,6 +241,11 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
 
     @Override
     public long totalEntries() {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public AnnotatedNode getAnnotatedNode() {
       throw new UnsupportedOperationException("Not supported yet.");
     }
   }

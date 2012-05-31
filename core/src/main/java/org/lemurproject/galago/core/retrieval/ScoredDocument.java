@@ -2,6 +2,7 @@
 package org.lemurproject.galago.core.retrieval;
 
 import java.io.Serializable;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
  * Basic retrieval unit. The results returned by the Retrieval.runQuery typically return
@@ -49,4 +50,6 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
   public int document;
   public int rank;
   public double score;
+  
+  public AnnotatedNode annotation = null;
 }

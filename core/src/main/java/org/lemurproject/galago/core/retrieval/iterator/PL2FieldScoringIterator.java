@@ -2,9 +2,12 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import org.lemurproject.galago.core.index.disk.PositionIndexReader;
 import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
@@ -26,6 +29,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 public class PL2FieldScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {
 
+  NodeParameters np;
   String partName;
   double max;
   double min = 0.0001;
@@ -35,7 +39,8 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
 
   public PL2FieldScoringIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(it, new PL2FieldScorer(p, it));
+    super(p, it, new PL2FieldScorer(p, it));
+    this.np = p;
     partName = p.getString("lengths");
     weight = p.getDouble("w");
     parentIdx = (int) p.getLong("pIdx");
@@ -59,11 +64,6 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
       DeltaScoringContext dctx = (DeltaScoringContext) ctx;
       dctx.scorers.add(this);
     }
-  }
-
-  @Override
-  public ScoringContext getContext() {
-    return this.context;
   }
 
   @Override

@@ -4,8 +4,10 @@ package org.lemurproject.galago.core.index.mem;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import org.lemurproject.galago.core.index.AggregateReader;
@@ -20,10 +22,10 @@ import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -99,7 +101,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
   public void removeIteratorData(byte[] key) throws IOException {
     postings.remove(key);
   }
-  
+
   protected void addExtent(byte[] byteWord, int document, int begin, int end) {
     if (!postings.containsKey(byteWord)) {
       WindowPostingList postingList = new WindowPostingList(byteWord);
@@ -384,7 +386,6 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
     int currCount;
     ExtentArray extents;
     boolean done;
-    ScoringContext context;
     Map<String, Object> modifiers;
 
     private ExtentIterator(WindowPostingList postings) throws IOException {
@@ -549,6 +550,19 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
     @Override
     public byte[] getKeyBytes() throws IOException {
       return postings.key;
+    }
+
+    @Override
+    public AnnotatedNode getAnnotatedNode() throws IOException {
+      String type = "extents";
+      String className = this.getClass().getSimpleName();
+      String parameters = this.getKeyString();
+      int document = currentCandidate();
+      boolean atCandidate = atCandidate(this.context.document);
+      String returnValue = extents().toString();
+      List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
 }

@@ -5,6 +5,8 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -86,4 +88,20 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
   }
 
   public abstract void loadExtents();
+  
+
+  @Override
+  public AnnotatedNode getAnnotatedNode() throws IOException {
+    String type = "extent";
+    String className = this.getClass().getSimpleName();
+    String parameters = "";
+    int document = currentCandidate();
+    boolean atCandidate = atCandidate(this.context.document);
+    String returnValue = extents.toString();
+    List<AnnotatedNode> children = new ArrayList();
+    for (MovableIterator child : this.iterators) {
+      children.add(child.getAnnotatedNode());
+    }
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+  }  
 }

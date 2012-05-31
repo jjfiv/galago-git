@@ -82,7 +82,7 @@ public class CompressedByteBuffer {
   }
 
   /**
-   * Adds a floating point value, (4 bytes) to the buffer.
+   * Adds a double floating point value, (4 bytes) to the buffer.
    * This is an uncompressed value.
    */
   public void addDouble(double value) {
@@ -97,7 +97,8 @@ public class CompressedByteBuffer {
     addRaw((int) ((bits >>> 8) & 0xFF));
     addRaw((int) (bits & 0xFF));
   }
-
+  
+  
   /**
    * Copies the entire contents of another compressed
    * buffer to the end of this one.

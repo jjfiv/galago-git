@@ -2,7 +2,9 @@
 package org.lemurproject.galago.core.index.mem;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.KeyIterator;
@@ -12,6 +14,7 @@ import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
@@ -70,10 +73,10 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       iterator.next();
     }
   }
-  
+
   @Override
   public void removeIteratorData(byte[] key) throws IOException {
-    throw new UnsupportedOperationException("Not supported yet.");
+    throw new IOException("Can not remove Document Lengths iterator data");
   }
 
   @Override
@@ -318,6 +321,19 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     @Override
     public byte[] getKeyBytes() throws IOException {
       return Utility.fromString("lengths");
+    }
+
+    @Override
+    public AnnotatedNode getAnnotatedNode() throws IOException {
+      String type = "lengths";
+      String className = this.getClass().getSimpleName();
+      String parameters = this.getKeyString();
+      int document = currentCandidate();
+      boolean atCandidate = atCandidate(this.context.document);
+      String returnValue = Integer.toString(getCurrentLength());
+      List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
 }

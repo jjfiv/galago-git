@@ -1,6 +1,10 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
@@ -8,11 +12,12 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  * @author marc
  */
 public class BinaryCountIterator extends TransformIterator implements MovableCountIterator {
-
+  NodeParameters np;
   IndicatorIterator indicator;
   
   public BinaryCountIterator(NodeParameters p, MovableIndicatorIterator i) {
     super(i);
+    np = p;
     indicator = i;
   }
 
@@ -24,5 +29,18 @@ public class BinaryCountIterator extends TransformIterator implements MovableCou
   @Override
   public int maximumCount() {
     return 1;
+  }
+
+  @Override
+  public AnnotatedNode getAnnotatedNode() throws IOException {
+    String type = "count";
+    String className = this.getClass().getSimpleName();
+    String parameters = np.toString();
+    int document = currentCandidate();
+    boolean atCandidate = atCandidate(this.context.document);
+    String returnValue = Integer.toString(count());
+    List<AnnotatedNode> children = Collections.singletonList( this.iterator.getAnnotatedNode() );
+    
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 }

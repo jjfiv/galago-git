@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
 import org.lemurproject.galago.core.util.ExtentArray;
 
 /**
@@ -12,5 +11,5 @@ import org.lemurproject.galago.core.util.ExtentArray;
  * @author trevor, irmarc
  */
 public interface ExtentIterator extends DataIterator<ExtentArray>, CountIterator {
-    public ExtentArray extents() throws IOException;
+    public ExtentArray extents();
 }

@@ -20,7 +20,6 @@ public class SynonymIterator extends ExtentDisjunctionIterator {
     moveTo(0);
   }
 
-  @Override
   public void loadExtents() {
     if (isDone()) {
       return;
@@ -30,14 +29,10 @@ public class SynonymIterator extends ExtentDisjunctionIterator {
 
     // make a priority queue of extent array iterators
     PriorityQueue<ExtentArrayIterator> arrayIterators = new PriorityQueue<ExtentArrayIterator>();
-    try {
-      for (MovableExtentIterator iterator : this.extentIterators) {
-        if (!iterator.isDone() && iterator.atCandidate(document)) {
-          arrayIterators.offer(new ExtentArrayIterator(iterator.extents()));
-        }
+    for (MovableExtentIterator iterator : this.extentIterators) {
+      if (!iterator.isDone() && iterator.atCandidate(document)) {
+        arrayIterators.offer(new ExtentArrayIterator(iterator.extents()));
       }
-    } catch (IOException ioe) {
-      throw new RuntimeException(ioe);
     }
 
     while (arrayIterators.size() > 0) {

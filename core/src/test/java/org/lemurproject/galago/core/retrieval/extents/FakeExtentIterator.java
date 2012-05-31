@@ -1,11 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.extents;
 
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
  *
@@ -14,8 +18,9 @@ import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
  */
 public class FakeExtentIterator implements MovableExtentIterator, MovableCountIterator {
 
-  int[][] data;
-  int index;
+  private int[][] data;
+  private int index;
+  private ScoringContext context;
 
   public FakeExtentIterator(int[][] data) {
     this.data = data;
@@ -119,5 +124,28 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
   @Override
   public boolean hasAllCandidates() {
     return false;
+  }
+
+  @Override
+  public void setContext(ScoringContext context) {
+    this.context = context;
+  }
+
+  @Override
+  public ScoringContext getContext() {
+    return context;
+  }
+
+  @Override
+  public AnnotatedNode getAnnotatedNode() {
+    String type = "count";
+    String className = this.getClass().getSimpleName();
+    String parameters = "";
+    int document = currentCandidate();
+    boolean atCandidate = atCandidate(this.context.document);
+    String returnValue = extents().toString();
+    List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 }

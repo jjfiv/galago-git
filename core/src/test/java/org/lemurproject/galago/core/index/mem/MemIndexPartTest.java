@@ -117,7 +117,7 @@ public class MemIndexPartTest extends TestCase {
       // compare it to the SparseFloatDiskIndex
       // - the memoryindex test does not test this part.
 
-      MemorySparseFloatIndex memScores = new MemorySparseFloatIndex(new Parameters());
+      MemorySparseDoubleIndex memScores = new MemorySparseDoubleIndex(new Parameters());
 
       int[] docs = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 52};
       double[] scores = {0.2, 1.1, 73, 0.01, -2, 7, 0, 0.01, 0.02, -1, -2};
@@ -155,9 +155,9 @@ public class MemIndexPartTest extends TestCase {
         assertEquals(trueScoreItr.currentCandidate(), memScoreItr.currentCandidate());
         assertEquals(trueScoreItr.currentCandidate(), diskScoreItr.currentCandidate());
         
-        assertEquals(trueScoreItr.score(), memScoreItr.score(), 0.0001);
+        assertEquals(trueScoreItr.score(), memScoreItr.score(), 0.00000001);
         assertEquals(trueScoreItr.score(), diskScoreItr.score(), 0.0001);
-
+        
         trueScoreItr.next();
         memScoreItr.next();
         diskScoreItr.next();

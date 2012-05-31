@@ -7,7 +7,7 @@ import java.io.File;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.mem.MemoryCountIndex;
-import org.lemurproject.galago.core.index.mem.MemorySparseFloatIndex;
+import org.lemurproject.galago.core.index.mem.MemorySparseDoubleIndex;
 import org.lemurproject.galago.core.index.mem.MemoryWindowIndex;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
@@ -56,7 +56,7 @@ public class CachedRetrievalTest extends TestCase {
 
       MovableScoreIterator diskScoreIterator = (MovableScoreIterator) ret.createIterator(new Parameters(), score, sc);
       MovableScoreIterator cachedScoreIterator = (MovableScoreIterator) cachedRet.createIterator(new Parameters(), score, sc);
-      assert(cachedScoreIterator instanceof MemorySparseFloatIndex.ScoresIterator);
+      assert(cachedScoreIterator instanceof MemorySparseDoubleIndex.ScoresIterator);
 
       while (!diskScoreIterator.isDone() && !cachedScoreIterator.isDone()) {
         assertEquals(diskScoreIterator.currentCandidate(), cachedScoreIterator.currentCandidate());

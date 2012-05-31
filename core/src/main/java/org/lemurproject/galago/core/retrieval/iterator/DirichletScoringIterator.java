@@ -20,7 +20,7 @@ public class DirichletScoringIterator extends ScoringFunctionIterator {
 
   public DirichletScoringIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(it, new DirichletScorer(p, it));
+    super(p, it, new DirichletScorer(p, it));
   }
 
   @Override

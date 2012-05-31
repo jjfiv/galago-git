@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.disk.DiskNameWriter;
 import org.lemurproject.galago.core.index.KeyIterator;
@@ -18,6 +19,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.core.util.ObjectArray;
 import org.lemurproject.galago.tupleflow.DataStream;
@@ -51,7 +53,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
 
   @Override
   public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
-    while(!iterator.isDone()) {
+    while (!iterator.isDone()) {
       int identifier = ((NamesReader.Iterator) iterator).getCurrentIdentifier();
       String name = ((NamesReader.Iterator) iterator).getCurrentName();
 
@@ -77,7 +79,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
 
   @Override
   public void removeIteratorData(byte[] key) throws IOException {
-    throw new UnsupportedOperationException("Not supported yet.");
+    throw new IOException("Can not remove Document Names iterator data");
   }
 
   public String getDocumentName(int docNum) {
@@ -319,12 +321,25 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
 
     @Override
     public String getKeyString() throws IOException {
-      return "lengths";
+      return "names";
     }
 
     @Override
     public byte[] getKeyBytes() throws IOException {
-      return Utility.fromString("lengths");
+      return Utility.fromString("names");
+    }
+
+    @Override
+    public AnnotatedNode getAnnotatedNode() throws IOException {
+      String type = "names";
+      String className = this.getClass().getSimpleName();
+      String parameters = this.getKeyString();
+      int document = currentCandidate();
+      boolean atCandidate = atCandidate(this.context.document);
+      String returnValue = getCurrentName();
+      List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
 }

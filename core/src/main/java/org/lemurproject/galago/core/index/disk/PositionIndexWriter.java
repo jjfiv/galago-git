@@ -62,7 +62,6 @@ public class PositionIndexWriter implements
       documents = new CompressedRawByteBuffer();
       counts = new CompressedRawByteBuffer();
       positions = new CompressedRawByteBuffer();
-      positionBlock = new CompressedByteBuffer();
       header = new CompressedByteBuffer();
 
       if ((options & KeyListReader.ListIterator.HAS_SKIPS) == KeyListReader.ListIterator.HAS_SKIPS) {
@@ -77,12 +76,6 @@ public class PositionIndexWriter implements
 
       if (documents.length() > 0) {
         counts.add(positionCount);
-
-        // Now add in the skip marker and the array of position bytes
-        if (positionCount > minimumExtentsLength) {
-          positions.add(positionBlock.length());
-        }
-        positions.add(positionBlock);
         maximumPositionCount = Math.max(maximumPositionCount, positionCount);
       }
 
@@ -175,13 +168,6 @@ public class PositionIndexWriter implements
       // add the last document's counts
       if (documents.length() > 0) {
         counts.add(positionCount);
-
-        // Now add in the skip marker and the array of position bytes
-        if (positionCount > minimumExtentsLength) {
-          positions.add(positionBlock.length());
-        }
-        positions.add(positionBlock);
-
         maximumPositionCount = Math.max(maximumPositionCount, positionCount);
 
         // if we're skipping check that
@@ -194,7 +180,6 @@ public class PositionIndexWriter implements
 
       lastPosition = 0;
       positionCount = 0;
-      positionBlock.clear();
       documentCount++;
 
     }
@@ -202,7 +187,7 @@ public class PositionIndexWriter implements
     public void addPosition(int position) throws IOException {
       positionCount++;
       totalPositionCount++;
-      positionBlock.add(position - lastPosition);
+      positions.add(position - lastPosition);
       lastPosition = position;
     }
 
@@ -233,7 +218,6 @@ public class PositionIndexWriter implements
         numSkips++;
       }
     }
-    public static final int minimumExtentsLength = 2;
     private long lastDocument;
     private int lastPosition;
     private int positionCount;
@@ -245,7 +229,6 @@ public class PositionIndexWriter implements
     public CompressedRawByteBuffer documents;
     public CompressedRawByteBuffer counts;
     public CompressedRawByteBuffer positions;
-    public CompressedByteBuffer positionBlock;
     // to support skipping
     private long lastDocumentSkipped;
     private long lastSkipPosition;

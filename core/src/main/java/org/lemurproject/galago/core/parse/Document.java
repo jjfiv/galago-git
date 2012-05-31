@@ -233,7 +233,7 @@ public class Document implements Serializable {
 
       // only both skipping if we need to
     } else if (p.get("terms", true) || p.get("tags", true)) {
-      input.skip(metadataSize);
+      input.skip(textSize);
     }
 
     if (p.get("tags", true)) {
@@ -263,7 +263,7 @@ public class Document implements Serializable {
 
       // only both skipping if we need to
     } else if (p.get("terms", true)) {
-      input.skip(metadataSize);
+      input.skip(tagsSize);
     }
 
     if (p.get("terms", true)) {

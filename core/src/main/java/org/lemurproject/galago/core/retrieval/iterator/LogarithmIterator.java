@@ -4,6 +4,10 @@
  */
 package org.lemurproject.galago.core.retrieval.iterator;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
@@ -15,11 +19,12 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  * @author irmarc
  */
 public class LogarithmIterator extends TransformIterator implements MovableScoreIterator {
-
+  NodeParameters np;
   MovableScoreIterator scorer;
 
   public LogarithmIterator(NodeParameters params, MovableScoreIterator svi) {
     super(svi);
+    this.np = params;
     scorer = svi;
     context = null;
   }
@@ -38,4 +43,17 @@ public class LogarithmIterator extends TransformIterator implements MovableScore
   public double minimumScore() {
     return Math.log(scorer.minimumScore());
   }
+
+  @Override
+  public AnnotatedNode getAnnotatedNode() throws IOException {
+    String type = "score";
+    String className = this.getClass().getSimpleName();
+    String parameters = np.toString();
+    int document = currentCandidate();
+    boolean atCandidate = atCandidate(this.context.document);
+    String returnValue = Double.toString(score());
+    List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());
+
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+  }  
 }

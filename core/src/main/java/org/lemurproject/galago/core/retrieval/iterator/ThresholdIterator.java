@@ -1,8 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * #threshold: raw=[-]x.xx ( PriorReader ScoreIterator ) 
@@ -11,7 +14,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public class ThresholdIterator extends TransformIterator implements MovableIndicatorIterator, ContextualIterator {
+public class ThresholdIterator extends TransformIterator implements MovableIndicatorIterator {
 
   double threshold;
   MovableScoreIterator scoreIterator;
@@ -19,27 +22,39 @@ public class ThresholdIterator extends TransformIterator implements MovableIndic
   public ThresholdIterator(NodeParameters parameters, MovableScoreIterator scorer) {
     super(scorer);
     this.scoreIterator = scorer;
-    
+
     if (parameters.containsKey("raw")) {
       this.threshold = parameters.getDouble("raw");
 
     } else if (parameters.containsKey("prob")) {
       this.threshold = parameters.getDouble("prob");
       assert this.threshold < 0;
-    
+
     } else if (parameters.containsKey("logprob")) {
       this.threshold = parameters.getDouble("logprob");
       assert this.threshold < 0;
-    
+
     } else {
       throw new RuntimeException("#threshold operator requires a thresholding parameter: [raw|prob|logprob]");
     }
   }
 
-  
   /** note that this indicator may depends on the scoring context! **/
   @Override
   public boolean indicator(int identifier) {
     return (scoreIterator.score() >= threshold);
+  }
+
+  @Override
+  public AnnotatedNode getAnnotatedNode() throws IOException {
+    String type = "score";
+    String className = this.getClass().getSimpleName();
+    String parameters = "";
+    int document = currentCandidate();
+    boolean atCandidate = atCandidate(this.context.document);
+    String returnValue = Boolean.toString(indicator(this.context.document));
+    List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());
+
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 }

@@ -17,7 +17,7 @@ public class BM25ScoringIterator extends ScoringFunctionIterator {
 
   public BM25ScoringIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(it, new BM25Scorer(p, it));
+    super(p,it, new BM25Scorer(p, it));
   }
 
   /**

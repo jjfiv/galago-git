@@ -2,8 +2,10 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 
 /**
@@ -13,15 +15,16 @@ import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 @RequiredParameters(parameters = {"norm"})
 public class ScoreCombinationIterator extends DisjunctionIterator implements MovableScoreIterator {
 
+  NodeParameters np;
   protected double[] weights;
   protected MovableScoreIterator[] scoreIterators;
   protected boolean done;
   protected boolean printing;
-  protected ScoringContext context;
 
   public ScoreCombinationIterator(NodeParameters parameters,
           MovableScoreIterator[] childIterators) {
     super(childIterators);
+    this.np = parameters;
 
     this.scoreIterators = childIterators;
 
@@ -76,12 +79,18 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Mov
   }
 
   @Override
-  public void setContext(ScoringContext context) {
-    this.context = context;
-  }
+  public AnnotatedNode getAnnotatedNode() throws IOException {
+    String type = "score";
+    String className = this.getClass().getSimpleName();
+    String parameters = np.toString();
+    int document = currentCandidate();
+    boolean atCandidate = atCandidate(this.context.document);
+    String returnValue = Double.toString(score());
+    List<AnnotatedNode> children = new ArrayList();
+    for(MovableIterator child : this.iterators){
+      children.add(child.getAnnotatedNode());
+    }
 
-  @Override
-  public ScoringContext getContext() {
-    return context;
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 }

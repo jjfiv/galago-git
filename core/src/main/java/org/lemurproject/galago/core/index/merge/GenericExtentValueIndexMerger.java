@@ -44,11 +44,7 @@ public abstract class GenericExtentValueIndexMerger<S> extends GenericIndexMerge
 
     // changes the document numbers in the extent array
     private void load() {
-      try {
-        this.currentExtentArray = iterator.extents();
-      } catch (IOException ioe) {
-        throw new RuntimeException(ioe);
-      }
+      this.currentExtentArray = iterator.extents();
       this.currentDocument = mapping.map(indexId, currentExtentArray.getDocument());
       currentExtentArray.setDocument(this.currentDocument);
     }

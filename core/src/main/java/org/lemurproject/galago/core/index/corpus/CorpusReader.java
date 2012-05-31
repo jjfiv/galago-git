@@ -3,7 +3,9 @@ package org.lemurproject.galago.core.index.corpus;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
@@ -11,6 +13,7 @@ import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.iterator.MovableDataIterator;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -103,8 +106,11 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
   public class CorpusIterator extends KeyToListIterator implements MovableDataIterator<Document> {
 
+    Parameters docParams;
+
     public CorpusIterator(KeyIterator ki) {
       super(ki);
+      docParams = new Parameters();
     }
 
     @Override
@@ -119,11 +125,14 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
     @Override
     public Document getData() {
-      try {
-        Parameters p = new Parameters();
-        return ((KeyIterator) iterator).getDocument(p);
-      } catch (IOException ioe) {
-        throw new RuntimeException(ioe);
+      if (context.document != this.currentCandidate()) {
+        try {
+          return ((KeyIterator) iterator).getDocument(docParams);
+        } catch (IOException ioe) {
+          throw new RuntimeException(ioe);
+        }
+      } else {
+        return null;
       }
     }
 
@@ -140,6 +149,20 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     @Override
     public byte[] getKeyBytes() {
       return Utility.fromString("corpus");
+    }
+
+    @Override
+    public AnnotatedNode getAnnotatedNode() {
+      String type = "corpus";
+      String className = this.getClass().getSimpleName();
+      String parameters = "";
+      int document = currentCandidate();
+      boolean atCandidate = atCandidate(this.context.document);
+      String returnValue = getData().name;
+      String extraInfo = getData().toString();
+      List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, extraInfo, children);
     }
   }
 }

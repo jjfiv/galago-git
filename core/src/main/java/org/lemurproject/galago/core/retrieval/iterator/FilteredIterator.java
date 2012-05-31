@@ -2,11 +2,13 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * #filter ( AbstractIndicator ScoreIterator ) : Only scores documents that
@@ -19,7 +21,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author sjh
  */
 @RequiredParameters(parameters = {"shareNodes"})
-public abstract class FilteredIterator implements MovableCountIterator, MovableScoreIterator, MovableExtentIterator, ContextualIterator {
+public abstract class FilteredIterator implements MovableCountIterator, MovableScoreIterator, MovableExtentIterator {
 
   protected ScoringContext context;
   protected MovableIndicatorIterator indicator;
@@ -72,12 +74,12 @@ public abstract class FilteredIterator implements MovableCountIterator, MovableS
   }
 
   @Override
-  public ExtentArray extents() throws IOException {
+  public ExtentArray extents() {
     return extents.extents();
   }
 
   @Override
-  public ExtentArray getData() throws IOException {
+  public ExtentArray getData() {
     return extents.getData();
   }
 
@@ -193,5 +195,31 @@ public abstract class FilteredIterator implements MovableCountIterator, MovableS
       return 0;
     }
     return currentCandidate() - other.currentCandidate();
+  }
+  
+  @Override
+  public AnnotatedNode getAnnotatedNode() throws IOException {
+    String className = this.getClass().getSimpleName();
+    String parameters = "";
+    int document = currentCandidate();
+    boolean atCandidate = atCandidate(this.context.document);
+    List<AnnotatedNode> children = new ArrayList();
+    children.add(indicator.getAnnotatedNode());
+    children.add(mover.getAnnotatedNode());
+    
+    String type = "unknown";
+    String returnValue = "unknown";
+    if(this.counter != null){
+      type = "count";
+      returnValue = Integer.toString(count());
+    } else if(this.scorer != null){
+      type = "score";
+      returnValue = Double.toString(score());
+    } else if(this.counter != null){
+      type = "extents";
+      returnValue = extents().toString();
+    }
+    
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 }
