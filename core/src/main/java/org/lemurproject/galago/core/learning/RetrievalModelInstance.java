@@ -11,15 +11,15 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public class LearnableParameterInstance {
+public class RetrievalModelInstance {
 
-  LearnableQueryParameters params;
+  RetrievalModelParameters params;
   TObjectDoubleHashMap<String> settings;
 
-  private LearnableParameterInstance() {
+  private RetrievalModelInstance() {
   }
 
-  public LearnableParameterInstance(LearnableQueryParameters params, Parameters settings) {
+  public RetrievalModelInstance(RetrievalModelParameters params, Parameters settings) {
     this.params = params;
     this.settings = new TObjectDoubleHashMap();
     for (String p : params.getParams()) {
@@ -51,8 +51,8 @@ public class LearnableParameterInstance {
   }
 
   @Override
-  public LearnableParameterInstance clone() {
-    LearnableParameterInstance lpi = new LearnableParameterInstance();
+  public RetrievalModelInstance clone() {
+    RetrievalModelInstance lpi = new RetrievalModelInstance();
     lpi.params = this.params;
     lpi.settings = new TObjectDoubleHashMap(this.settings);
     return lpi;
@@ -70,11 +70,11 @@ public class LearnableParameterInstance {
     return ps;
   }
 
-  public static LearnableParameterInstance average(List<LearnableParameterInstance> settings) {
-    LearnableParameterInstance lpi = settings.get(0).clone();
+  public static RetrievalModelInstance average(List<RetrievalModelInstance> settings) {
+    RetrievalModelInstance lpi = settings.get(0).clone();
     for (String param : lpi.params.getParams()) {
       double value = 0;
-      for (LearnableParameterInstance setting : settings) {
+      for (RetrievalModelInstance setting : settings) {
         value += setting.get(param);
       }
       lpi.unsafeSet(param, value / settings.size());

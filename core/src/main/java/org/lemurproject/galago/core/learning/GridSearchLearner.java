@@ -36,12 +36,12 @@ public class GridSearchLearner extends Learner {
   }
   
   @Override
-  public LearnableParameterInstance learn(LearnableParameterInstance initialSettings) throws Exception {
+  public RetrievalModelInstance learn(RetrievalModelInstance initialSettings) throws Exception {
     List<String> params = new ArrayList(initialSettings.params.getParams());
     
     if (params.size() > 0) {
       // depth first grid search
-      LearnableParameterInstance best = gridLearn(0, params, initialSettings.clone());
+      RetrievalModelInstance best = gridLearn(0, params, initialSettings.clone());
       
       best.normalize();
       logger.info("Best settings: " + best.toParameters().toString());
@@ -52,7 +52,7 @@ public class GridSearchLearner extends Learner {
     return initialSettings;
   }
   
-  private LearnableParameterInstance gridLearn(int i, List<String> params, LearnableParameterInstance settings) throws Exception {
+  private RetrievalModelInstance gridLearn(int i, List<String> params, RetrievalModelInstance settings) throws Exception {
     
     String param = params.get(i);
     

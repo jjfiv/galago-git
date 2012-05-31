@@ -17,7 +17,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public class LearnableQueryParameters {
+public class RetrievalModelParameters {
 
   private Logger logger;
   private TreeSet<String> names;
@@ -26,7 +26,7 @@ public class LearnableQueryParameters {
   private TObjectDoubleHashMap<String> minValues;
   private TObjectDoubleHashMap<String> ranges;
 
-  public LearnableQueryParameters(List<Parameters> learnableParameters, List<Parameters> rules) {
+  public RetrievalModelParameters(List<Parameters> learnableParameters, List<Parameters> rules) {
     this.logger = Logger.getLogger(this.getClass().getName());
     this.names = new TreeSet();
     this.maxValues = new TObjectDoubleHashMap();

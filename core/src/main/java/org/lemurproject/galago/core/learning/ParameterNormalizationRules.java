@@ -39,7 +39,7 @@ public class ParameterNormalizationRules {
    * be applied before running queries - it will prevent values violating
    * important constraints.
    */
-  public void normalize(LearnableParameterInstance settings) {
+  public void normalize(RetrievalModelInstance settings) {
     for (Rule rule : rules) {
       if (rule.mode.startsWith("sum")) { // rule: sums to value //
         double total = 0.0;
@@ -64,7 +64,7 @@ public class ParameterNormalizationRules {
           }
         }
       } else {
-        throw new RuntimeException("Don't know how to deal with: " + rule);
+        throw new RuntimeException("Don't know how to apply: " + rule);
       }
     }
   }

@@ -31,17 +31,6 @@ import org.lemurproject.galago.tupleflow.Parameters.Type;
  *
  * Optional Parameters: 1. metric [default = map] -> see eval
  *
- *
- * TODO LIST:
- *
- * 2. randomizeParameterValues [default = true] 2.1 randomRestarts [default = 5]
- * : this value is used when randomizeParameterValues == true 2.2
- * initialParameters : this value is required if randomizeParameterValues ==
- * false e.g [{ "mu" : 1500, ... }, { "mu" : 1000, ...}, ...]
- *
- * 3. x-fold cross validation [default = 3] // - perhaps a meta learner - x
- * learning children each with a subset of queries
- *
  * @author sjh
  */
 public abstract class Learner {
@@ -50,12 +39,11 @@ public abstract class Learner {
   protected final Random random;
   protected final Retrieval retrieval;
   // variable parameters
-  protected List<Parameters> queries;
-  protected Map<String, Node> queryRoots;
+  protected Queries queries;
   protected QuerySetJudgments qrels;
   protected QuerySetEvaluator evalFunction;
-  protected LearnableQueryParameters learnableParameters;
-  protected List<LearnableParameterInstance> initialSettings;
+  protected RetrievalModelParameters learnableParameters;
+  protected List<RetrievalModelInstance> initialSettings;
   // evaluation cache to avoid recalculating scores for known settings
   protected Map<String, Double> testedParameters;
 
@@ -64,54 +52,22 @@ public abstract class Learner {
     retrieval = r;
     random = (p.isLong("randomSeed")) ? new Random(p.getLong("randomSeed")) : new Random();
 
-    initialize(p);
-  }
-
-  /**
-   * learning function - returns a list of learnt parameters
-   */
-  public List<Parameters> learn() throws Exception {
-    List<Parameters> learntParams = new ArrayList();
-    for (int i = 0; i < this.initialSettings.size(); i++) {
-      LearnableParameterInstance s = learn(this.initialSettings.get(i).clone());
-      Parameters p = s.toParameters();
-      // annotate with score
-      p.set("score", this.evaluate(s));
-      learntParams.add(p);
-    }
-    return learntParams;
-  }
-
-  /**
-   * instance learning function - should return the best parameters discovered
-   * for these initial settings.
-   */
-  public abstract LearnableParameterInstance learn(LearnableParameterInstance initialSettings) throws Exception;
-
-  /**
-   * Getters and Setters - currently only for the initial settings
-   */
-  public List<LearnableParameterInstance> getInitialSettings() {
-    return this.initialSettings;
-  }
-
-  public void setInitialSettings(List<LearnableParameterInstance> initialSettings) {
-    this.initialSettings = initialSettings;
+    initialize(p, r);
   }
 
   /**
    * UTILITY FUNCTIONS : functions that can be used inside of any implemented
    * learner
    */
-  protected void initialize(Parameters p) throws IOException, Exception {
+  protected void initialize(Parameters p, Retrieval r) throws IOException, Exception {
 
     assert (p.isString("qrels")) : this.getClass().getName() + " requires `qrels' parameter, of type String.";
     assert (p.isList("learnableParameters", Type.MAP)) : this.getClass().getName() + " requires `learnableParameters' parameter, of type List<Map>.";
     assert (!p.containsKey("normalization") || (p.isMap("normalization") || p.isList("normalization", Type.MAP))) : this.getClass().getName() + " requires `learnableParameters' parameter to be of type List<Map>.";
 
-    this.queries = BatchSearch.collectQueries(p);
+    this.queries = new Queries(BatchSearch.collectQueries(p), p);
     assert !this.queries.isEmpty() : this.getClass().getName() + " requires `queries' parameter, of type List(Parameters): see Batch-Search for an example.";
-
+    
     this.qrels = new QuerySetJudgments(p.getString("qrels"));
     this.evalFunction = QuerySetEvaluatorFactory.instance(p.get("metric", "map"));
 
@@ -130,13 +86,13 @@ public abstract class Learner {
       normalizationRules = new ArrayList();
     }
 
-    this.learnableParameters = new LearnableQueryParameters(params, normalizationRules);
+    this.learnableParameters = new RetrievalModelParameters(params, normalizationRules);
 
     long restarts = p.get("restarts", 3);
     initialSettings = new ArrayList(3);
     if (p.isList("initialParameters", Type.MAP)) {
       for (Parameters init : (List<Parameters>) p.getList("initialParameters")) {
-        LearnableParameterInstance inst = new LearnableParameterInstance(learnableParameters, init);
+        RetrievalModelInstance inst = new RetrievalModelInstance(learnableParameters, init);
         initialSettings.add(inst);
       }
     }
@@ -147,27 +103,52 @@ public abstract class Learner {
       logger.log(Level.INFO, "Generated initial values: {0}", initialSettings.get(initialSettings.size() - 1).toParameters().toString());
     }
 
-    // we only want to parse queries into nodes once --> we will, however, need to transform queries repeatedly
-    queryRoots = new HashMap();
-    for (Parameters query : this.queries) {
-      String number = query.getString("number");
-      String text = query.getString("text");
-      Node root = StructuredQuery.parse(text);
-      queryRoots.put(number, root);
-    }
-
     testedParameters = new HashMap();
 
     // caching system
     if (retrieval instanceof CachedRetrieval) {
+      logger.info("Starting. Caching query nodes");
       ensureCachedQueryNodes((CachedRetrieval) retrieval);
+      logger.info("Done. Caching query nodes");
     }
+  }
+
+  /**
+   * learning function - returns a list of learnt parameters
+   */
+  public List<Parameters> learn() throws Exception {
+    List<Parameters> learntParams = new ArrayList();
+    for (int i = 0; i < this.initialSettings.size(); i++) {
+      RetrievalModelInstance s = learn(this.initialSettings.get(i).clone());
+      Parameters p = s.toParameters();
+      // annotate with score
+      p.set("score", this.evaluate(s));
+      learntParams.add(p);
+    }
+    return learntParams;
+  }
+
+  /**
+   * instance learning function - should return the best parameters discovered
+   * for these initial settings.
+   */
+  public abstract RetrievalModelInstance learn(RetrievalModelInstance initialSettings) throws Exception;
+
+  /**
+   * Getters and Setters - currently only for the initial settings
+   */
+  public List<RetrievalModelInstance> getInitialSettings() {
+    return this.initialSettings;
+  }
+
+  public void setInitialSettings(List<RetrievalModelInstance> initialSettings) {
+    this.initialSettings = initialSettings;
   }
 
   /**
    * generateRandomInitalValues
    */
-  protected LearnableParameterInstance generateRandomInitalValues() {
+  protected RetrievalModelInstance generateRandomInitalValues() {
     Parameters init = new Parameters();
     for (String p : this.learnableParameters.getParams()) {
       double val = random.nextDouble();
@@ -175,7 +156,7 @@ public abstract class Learner {
       val += this.learnableParameters.getMin(p);
       init.set(p, val);
     }
-    return new LearnableParameterInstance(learnableParameters, init);
+    return new RetrievalModelInstance(learnableParameters, init);
   }
 
   /**
@@ -185,7 +166,7 @@ public abstract class Learner {
    * Runs all of the queries with the new parameter settings
    *
    */
-  protected double evaluate(LearnableParameterInstance instance) throws Exception {
+  protected double evaluate(RetrievalModelInstance instance) throws Exception {
     // check cache for previous evaluation
 
     long start = 0;
@@ -202,8 +183,8 @@ public abstract class Learner {
     Parameters settings = instance.toParameters();
     this.retrieval.getGlobalParameters().copyFrom(settings);
 
-    for (String number : this.queryRoots.keySet()) {
-      Node root = this.queryRoots.get(number).clone();
+    for (String number : this.queries.getQueryNumbers()) {
+      Node root = this.queries.getNode(number).clone();
       root = this.ensureSettings(root, settings);
       root = this.retrieval.transformQuery(root, settings);
 
@@ -247,22 +228,23 @@ public abstract class Learner {
   }
 
   private void ensureCachedQueryNodes(CachedRetrieval cache) throws Exception {
-    // generate two new
-    LearnableParameterInstance rnd1 = generateRandomInitalValues();
-    LearnableParameterInstance rnd2 = generateRandomInitalValues();
+    // generate some new random parameters
+
+    RetrievalModelInstance rnd1 = generateRandomInitalValues();
+    RetrievalModelInstance rnd2 = generateRandomInitalValues();
     Parameters settings1 = rnd1.toParameters();
     Parameters settings2 = rnd2.toParameters();
 
 
-    for (String number : this.queryRoots.keySet()) {
-      Node root1 = this.queryRoots.get(number).clone();
+    for (String number : this.queries.getQueryNumbers()) {
+      Node root1 = this.queries.getNode(number).clone();
       this.retrieval.getGlobalParameters().copyFrom(settings1);
       root1 = this.ensureSettings(root1, settings1);
       root1 = this.retrieval.transformQuery(root1, settings1);
       Set<String> cachableNodes1 = new HashSet();
       collectCachableNodes(root1, cachableNodes1);
 
-      Node root2 = this.queryRoots.get(number).clone();
+      Node root2 = this.queries.getNode(number).clone();
       this.retrieval.getGlobalParameters().copyFrom(settings2);
       root2 = this.ensureSettings(root2, settings2);
       root2 = this.retrieval.transformQuery(root2, settings2);

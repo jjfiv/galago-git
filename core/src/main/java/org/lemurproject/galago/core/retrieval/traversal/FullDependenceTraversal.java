@@ -30,12 +30,17 @@ public class FullDependenceTraversal extends Traversal {
   private double orderedDefault;
   private double unorderedDefault;
 
-  public FullDependenceTraversal(Retrieval retrieval) {
+  public FullDependenceTraversal(Retrieval retrieval, Parameters queryParameters) {
     Parameters parameters = retrieval.getGlobalParameters();
     unigramDefault = parameters.get("uniw", 0.8);
     orderedDefault = parameters.get("odw", 0.15);
     unorderedDefault = parameters.get("uww", 0.05);
     defaultWindowLimit = (int) parameters.get("windowLimit", -1);
+
+    unigramDefault = parameters.get("uniw", unigramDefault);
+    orderedDefault = parameters.get("odw", orderedDefault);
+    unorderedDefault = parameters.get("uww", unorderedDefault);
+    defaultWindowLimit = (int) parameters.get("windowLimit", defaultWindowLimit);
   }
 
   @Override

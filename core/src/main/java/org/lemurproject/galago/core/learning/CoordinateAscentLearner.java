@@ -54,7 +54,7 @@ public class CoordinateAscentLearner extends Learner {
   }
 
   @Override
-  public LearnableParameterInstance learn(LearnableParameterInstance parameterSettings) throws Exception {
+  public RetrievalModelInstance learn(RetrievalModelInstance parameterSettings) throws Exception {
 
     double best = this.evaluate(parameterSettings);
     logger.info(String.format("Initial parameter weights: %s Metric: %f. Starting optimization...", parameterSettings.toParameters().toString().toString(), best));

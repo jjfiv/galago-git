@@ -19,7 +19,7 @@ public class XFoldLearner extends Learner {
 
   int xfoldCount;
   List<Learner> foldLearners;
-  Map<Integer, List<Parameters>> queryFolds;
+  Map<Integer, List<String>> queryFolds;
 
   public XFoldLearner(Parameters p, Retrieval r) throws Exception {
     super(p, r);
@@ -35,32 +35,32 @@ public class XFoldLearner extends Learner {
     queryFolds = new HashMap(xfoldCount);
 
     // randomize order of queries
-    List<Parameters> queriesCopy = new ArrayList(this.queries);
-    Collections.shuffle(queriesCopy, random);
+    List<String> queryNumbersCopy = new ArrayList(this.queries.queryNumbers);
+    Collections.shuffle(queryNumbersCopy, random);
 
     // split queries into folds
-    int foldSize = (int) Math.ceil((double) queriesCopy.size() / (double) xfoldCount);
+    int foldSize = (int) Math.ceil((double) queryNumbersCopy.size() / (double) xfoldCount);
     for (int foldId = 0; foldId < xfoldCount; foldId++) {
-      List<Parameters> foldQueries = queriesCopy.subList(foldId * foldSize, (foldId + 1) * foldSize);
+      List<String> xfoldQueryNumbers = queryNumbersCopy.subList(foldId * foldSize, (foldId + 1) * foldSize);
       // create new learner for each fold
       Parameters copy = p.clone();
       copy.set("learner", p.get("xfoldLearner", "default")); // overwrite //
       copy.remove("query");
-      copy.set("queries", foldQueries); // overwrite //
-      queryFolds.put(foldId, foldQueries);
+      copy.set("queries", queries.getParametersSubset(xfoldQueryNumbers)); // overwrite //
+      queryFolds.put(foldId, xfoldQueryNumbers);
       foldLearners.add(LearnerFactory.instance(copy, retrieval));
     }
   }
 
   @Override
-  public LearnableParameterInstance learn(LearnableParameterInstance initialSettings) throws Exception {
+  public RetrievalModelInstance learn(RetrievalModelInstance initialSettings) throws Exception {
     // for each fold return learnt parameters
-    List<LearnableParameterInstance> learntParams = new ArrayList();
+    List<RetrievalModelInstance> learntParams = new ArrayList();
     for (Learner fl : foldLearners) {
-      LearnableParameterInstance result = fl.learn(initialSettings);
+      RetrievalModelInstance result = fl.learn(initialSettings);
       learntParams.add(result);
     }
 
-    return LearnableParameterInstance.average(learntParams);
+    return RetrievalModelInstance.average(learntParams);
   }
 }

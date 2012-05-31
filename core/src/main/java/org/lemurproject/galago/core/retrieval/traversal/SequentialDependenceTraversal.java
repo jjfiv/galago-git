@@ -30,12 +30,19 @@ public class SequentialDependenceTraversal extends Traversal {
   private double orderedDefault;
   private double unorderedDefault;
 
-  public SequentialDependenceTraversal(Retrieval retrieval) {
+  public SequentialDependenceTraversal(Retrieval retrieval, Parameters queryParameters) {
     Parameters parameters = retrieval.getGlobalParameters();
     unigramDefault = parameters.get("uniw", 0.8);
     orderedDefault = parameters.get("odw", 0.15);
     unorderedDefault = parameters.get("uww", 0.05);
     defaultWindowLimit = (int) parameters.get("windowLimit", 2);
+
+
+    unigramDefault = parameters.get("uniw", unigramDefault);
+    orderedDefault = parameters.get("odw", orderedDefault);
+    unorderedDefault = parameters.get("uww", unorderedDefault);
+    defaultWindowLimit = (int) parameters.get("windowLimit", defaultWindowLimit);
+
   }
 
   public static boolean isNeeded(Node root) {
@@ -78,7 +85,7 @@ public class SequentialDependenceTraversal extends Traversal {
 
       for (int n = 2; n <= windowLimit; n++) {
         for (int i = 0; i < (children.size() - n + 1); i++) {
-          List<Node> seq = children.subList(i, i+n);
+          List<Node> seq = children.subList(i, i + n);
           ordered.add(new Node("ordered", new NodeParameters(1), Node.cloneNodeList(seq)));
           unordered.add(new Node("unordered", new NodeParameters(4 * seq.size()), Node.cloneNodeList(seq)));
         }

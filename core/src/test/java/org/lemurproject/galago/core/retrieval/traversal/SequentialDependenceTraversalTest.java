@@ -40,7 +40,7 @@ public class SequentialDependenceTraversalTest extends TestCase {
   public void testTraversal() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
     LocalRetrieval retrieval = new LocalRetrieval(index, new Parameters());
-    SequentialDependenceTraversal traversal = new SequentialDependenceTraversal(retrieval);
+    SequentialDependenceTraversal traversal = new SequentialDependenceTraversal(retrieval, new Parameters());
     Node tree = StructuredQuery.parse("#seqdep( cat dog rat )");
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine:0=0.8:1=0.15:2=0.05( ");
@@ -57,7 +57,7 @@ public class SequentialDependenceTraversalTest extends TestCase {
     p.set("odw", 0.10);
     p.set("uww", 0.15);
     retrieval = new LocalRetrieval(index, p);
-    traversal = new SequentialDependenceTraversal(retrieval);
+    traversal = new SequentialDependenceTraversal(retrieval, new Parameters());
     tree = StructuredQuery.parse("#seqdep( cat dog rat )");
     transformed = new StringBuilder();
     transformed.append("#combine:0=0.75:1=0.1:2=0.15( ");
@@ -86,7 +86,7 @@ public class SequentialDependenceTraversalTest extends TestCase {
     p.set("uww", 0.15);
     p.set("windowLimit", 3);
     retrieval = new LocalRetrieval(index, p);
-    traversal = new SequentialDependenceTraversal(retrieval);
+    traversal = new SequentialDependenceTraversal(retrieval, new Parameters());
     tree = StructuredQuery.parse("#seqdep( cat dog rat )");
     transformed = new StringBuilder();
     transformed.append("#combine:0=0.75:1=0.1:2=0.15( ");
