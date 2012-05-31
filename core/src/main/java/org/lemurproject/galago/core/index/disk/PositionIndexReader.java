@@ -199,13 +199,28 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     }
 
     private void loadNextPosting() throws IOException {
+      // This is making sure the positions pointer is in the
+      // current position for the next read, so we're
+      // "wrapping up" the last move - after a skip extByteSize == 0
+      // so we're protected from doing this after a skip.
+      if (!extentsLoaded && extentsByteSize != 0) {
+        if (extentsByteSize < 0) {
+          // Actually have to read the extents
+          loadExtents();
+        } else {
+          // Can skip the block
+          positions.skipBytes(extentsByteSize);
+        }
+      }
+      // Now we can move the document, count, and
+
       currentDocument += documents.readInt();
       currentCount = counts.readInt();
-      if (!extentsLoaded) {
-        positions.skipBytes(extentsByteSize);
+      if (currentCount > PositionIndexWriter.PositionsList.minimumExtentsLength) {
+        extentsByteSize = positions.readInt();
+      } else {
+        extentsByteSize = -1;
       }
-      long pos = positionsStream.getPosition();
-      extentsByteSize = positions.readInt();
       extentArray.reset();
       extentsLoaded = false;
     }

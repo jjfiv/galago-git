@@ -79,7 +79,9 @@ public class PositionIndexWriter implements
         counts.add(positionCount);
 
         // Now add in the skip marker and the array of position bytes
-        positions.add(positionBlock.length());
+        if (positionCount > minimumExtentsLength) {
+          positions.add(positionBlock.length());
+        }
         positions.add(positionBlock);
         maximumPositionCount = Math.max(maximumPositionCount, positionCount);
       }
@@ -175,7 +177,9 @@ public class PositionIndexWriter implements
         counts.add(positionCount);
 
         // Now add in the skip marker and the array of position bytes
-        positions.add(positionBlock.length());
+        if (positionCount > minimumExtentsLength) {
+          positions.add(positionBlock.length());
+        }
         positions.add(positionBlock);
 
         maximumPositionCount = Math.max(maximumPositionCount, positionCount);
@@ -229,6 +233,7 @@ public class PositionIndexWriter implements
         numSkips++;
       }
     }
+    public static final int minimumExtentsLength = 2;
     private long lastDocument;
     private int lastPosition;
     private int positionCount;
