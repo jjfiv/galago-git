@@ -22,7 +22,6 @@ import org.lemurproject.galago.tupleflow.Utility;
 public class RemoveStopwordsTraversal extends Traversal {
 
   HashSet<String> words;
-  HashSet<String> conjops;
 
   public RemoveStopwordsTraversal(Retrieval retrieval) {
     Parameters parameters = retrieval.getGlobalParameters();
@@ -44,16 +43,9 @@ public class RemoveStopwordsTraversal extends Traversal {
     } else {
       words = new HashSet<String>();
     }
-
-    conjops = new HashSet();
-    conjops.add("inside");
-    conjops.add("ordered");
-    conjops.add("od");
-    conjops.add("unordered");
-    conjops.add("uw");
-    conjops.add("all");
   }
 
+  @Override
   public Node afterNode(Node node) throws Exception {
 
     // if the node is a stopword - replace with 'null' operator
@@ -63,36 +55,11 @@ public class RemoveStopwordsTraversal extends Traversal {
       return new Node("null", new ArrayList());
     }
 
-    // now if we have a conjunction node, we need to remove any null op children.
-    List<Node> children = node.getInternalNodes();
-    ArrayList<Node> newChildren = new ArrayList();
-    for (Node child : children) {
-      if (!child.getOperator().equals("null")) {
-        newChildren.add(child);
-      }
-    }
-
-    boolean hasNull = children.size() > newChildren.size();
-
-    if (hasNull && conjops.contains(node.getOperator())) {
-      // special case: inside 
-      if (node.getOperator().equals("inside")) {
-        return new Node("null", new ArrayList());
-      }
-
-      // all other cases - create a new list of non-null children
-      if (newChildren.size() == 0) {
-        return new Node("null", new ArrayList());
-      } else {
-        // TODO: Determine if node tying is a threat here, and why.
-        return new Node(node.getOperator(), node.getNodeParameters(), Node.cloneNodeList(newChildren), node.getPosition());
-      }
-    }
-
     // otherwise return the original
     return node;
   }
 
+  @Override
   public void beforeNode(Node node) throws Exception {
     // nothing
   }
