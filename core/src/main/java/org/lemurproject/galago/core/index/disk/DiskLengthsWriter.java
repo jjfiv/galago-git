@@ -40,7 +40,7 @@ public class DiskLengthsWriter extends KeyValueWriter<NumberedDocumentData> {
   /** Creates a new instance of DiskLengthsWriter */
   public DiskLengthsWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
     super(parameters, "Document lengths written");
-    Parameters p = writer.getManifest();
+    Parameters p = this.writer.getManifest();
     p.set("writerClass", DiskLengthsWriter.class.getName());
     p.set("mergerClass", DocumentLengthsMerger.class.getName());
     p.set("readerClass", DiskLengthsReader.class.getName());
