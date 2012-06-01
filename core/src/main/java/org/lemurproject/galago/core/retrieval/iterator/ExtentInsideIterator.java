@@ -56,8 +56,8 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
 
     int document = currentCandidate();
 
-    if (innerIterator.isDone() || !innerIterator.atCandidate(document)
-            || outerIterator.isDone() || !outerIterator.atCandidate(document)) {
+    if (innerIterator.isDone() || !innerIterator.hasMatch(document)
+            || outerIterator.isDone() || !outerIterator.hasMatch(document)) {
       // then we can't have any extents for this document
       return;
     }

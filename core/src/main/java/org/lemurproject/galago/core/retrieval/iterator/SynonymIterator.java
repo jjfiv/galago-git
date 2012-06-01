@@ -30,7 +30,7 @@ public class SynonymIterator extends ExtentDisjunctionIterator {
     // make a priority queue of extent array iterators
     PriorityQueue<ExtentArrayIterator> arrayIterators = new PriorityQueue<ExtentArrayIterator>();
     for (MovableExtentIterator iterator : this.extentIterators) {
-      if (!iterator.isDone() && iterator.atCandidate(document)) {
+      if (!iterator.isDone() && iterator.hasMatch(document)) {
         arrayIterators.offer(new ExtentArrayIterator(iterator.extents()));
       }
     }

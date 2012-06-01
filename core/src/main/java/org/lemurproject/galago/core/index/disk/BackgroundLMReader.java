@@ -185,7 +185,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
 
     @Override
-    public boolean atCandidate(int identifier) {
+    public boolean hasMatch(int identifier) {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

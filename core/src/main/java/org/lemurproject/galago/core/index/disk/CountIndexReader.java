@@ -340,7 +340,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
       String className = this.getClass().getSimpleName();
       String parameters = "";
       int document = currentCandidate();
-      boolean atCandidate = atCandidate(this.context.document);
+      boolean atCandidate = hasMatch(this.context.document);
       String returnValue = Integer.toString(count());
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

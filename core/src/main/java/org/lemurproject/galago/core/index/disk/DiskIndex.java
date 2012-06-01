@@ -211,7 +211,7 @@ public class DiskIndex implements Index {
   public boolean containsDocumentIdentifier(int document) throws IOException {
     NamesReader.Iterator ni = this.getNamesIterator();
     ni.moveTo(document);
-    return ni.atCandidate(document);
+    return ni.hasMatch(document);
   }
 
   protected void initializeIndexOperators() {

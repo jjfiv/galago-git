@@ -112,7 +112,6 @@ public class LocalRetrieval implements Retrieval {
   @Override
   public Parameters getAvailableParts() throws IOException {
     Parameters p = new Parameters();
-    ArrayList<String> parts = new ArrayList<String>();
     for (String partName : index.getPartNames()) {
       Parameters inner = new Parameters();
       Map<String, NodeType> nodeTypes = index.getPartNodeTypes(partName);
@@ -223,11 +222,13 @@ public class LocalRetrieval implements Retrieval {
   }
 
   public StructuredIterator createIterator(Parameters queryParameters, Node node, ScoringContext context) throws Exception {
-    if (globalParameters.get("shareNodes", false) || queryParameters.get("cache", false)) {
-      return createNodeMergedIterator(node, context, new HashMap());
-    } else {
-      return createNodeMergedIterator(node, context, null);
+    if (globalParameters.get("shareNodes", true)) {
+      if (queryParameters.get("shareNodes", true)) {
+        return createNodeMergedIterator(node, context, new HashMap());
+      }
     }
+
+    return createNodeMergedIterator(node, context, null);
   }
 
   protected StructuredIterator createNodeMergedIterator(Node node, ScoringContext context,
@@ -300,7 +301,7 @@ public class LocalRetrieval implements Retrieval {
     } else if (structIterator instanceof MovableCountIterator) {
       MovableCountIterator iterator = (MovableCountIterator) structIterator;
       while (!iterator.isDone()) {
-        if (iterator.atCandidate(iterator.currentCandidate())) {
+        if (iterator.hasMatch(iterator.currentCandidate())) {
           stats.nodeFrequency += iterator.count();
           stats.nodeDocumentCount++;
         }

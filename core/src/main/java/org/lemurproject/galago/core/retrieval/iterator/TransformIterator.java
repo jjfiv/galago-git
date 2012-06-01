@@ -48,8 +48,8 @@ public abstract class TransformIterator implements MovableIterator {
   }
 
   @Override
-  public boolean atCandidate(int identifier) {
-    return iterator.atCandidate(identifier);
+  public boolean hasMatch(int identifier) {
+    return iterator.hasMatch(identifier);
   }
 
   @Override

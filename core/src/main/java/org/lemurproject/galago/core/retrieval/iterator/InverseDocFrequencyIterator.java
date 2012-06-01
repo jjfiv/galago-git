@@ -73,7 +73,7 @@ public class InverseDocFrequencyIterator extends ScoringFunctionIterator {
   }
 
   @Override
-  public boolean atCandidate(int identifier) {
+  public boolean hasMatch(int identifier) {
     return false;
   }
 

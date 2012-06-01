@@ -56,7 +56,7 @@ public abstract class KeyToListIterator extends ValueIterator {
   }
 
   @Override
-  public boolean atCandidate(int identifier) {
+  public boolean hasMatch(int identifier) {
     return (currentCandidate() == identifier);
   }
   

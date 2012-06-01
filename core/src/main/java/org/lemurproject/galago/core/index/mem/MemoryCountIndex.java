@@ -422,7 +422,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
-    public boolean atCandidate(int identifier) {
+    public boolean hasMatch(int identifier) {
       return (!isDone() && identifier == currDocument);
     }
 
@@ -523,7 +523,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
       String className = this.getClass().getSimpleName();
       String parameters = this.getKeyString();
       int document = currentCandidate();
-      boolean atCandidate = atCandidate(this.context.document);
+      boolean atCandidate = hasMatch(this.context.document);
       String returnValue = Integer.toString(count());
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

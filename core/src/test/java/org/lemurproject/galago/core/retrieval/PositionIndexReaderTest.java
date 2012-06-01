@@ -165,11 +165,11 @@ public class PositionIndexReaderTest extends TestCase {
         assertEquals(1, termExtents.count());
 
         termExtents.moveTo(7);
-        assertTrue(termExtents.atCandidate(7));
+        assertTrue(termExtents.hasMatch(7));
 
         // Now move to a doc, but not one we have
         termExtents.moveTo(90);
-        assertFalse(termExtents.atCandidate(90));
+        assertFalse(termExtents.hasMatch(90));
 
         // Now move forward one
         termExtents.next();
@@ -187,7 +187,7 @@ public class PositionIndexReaderTest extends TestCase {
             assertEquals(i+1, ea.begin(i));
         }
         termExtents.moveTo(10005);
-        assertFalse(termExtents.atCandidate(10005));
+        assertFalse(termExtents.hasMatch(10005));
         assertTrue(termExtents.isDone());
 
         skipPath.delete();

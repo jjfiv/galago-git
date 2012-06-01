@@ -7,7 +7,6 @@ import java.util.List;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
-import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
 
 /**
@@ -20,19 +19,16 @@ import org.lemurproject.galago.core.util.ExtentArray;
  *
  * @author sjh
  */
-@RequiredParameters(parameters = {"shareNodes"})
-public abstract class FilteredIterator implements MovableCountIterator, MovableScoreIterator, MovableExtentIterator {
+public abstract class FilteredIterator extends ConjunctionIterator implements MovableCountIterator, MovableScoreIterator, MovableExtentIterator {
 
-  protected ScoringContext context;
   protected MovableIndicatorIterator indicator;
   protected MovableCountIterator counter;
   protected MovableScoreIterator scorer;
   protected MovableExtentIterator extents;
   protected MovableIterator mover;
-  protected boolean sharedChildren;
 
   public FilteredIterator(NodeParameters parameters, MovableIndicatorIterator indicator, MovableCountIterator counter) {
-    this.sharedChildren = parameters.get("shareNodes", false);
+    super(parameters, new MovableIterator[]{ indicator, counter });
     this.indicator = indicator;
     this.scorer = null;
     this.counter = counter;
@@ -45,7 +41,7 @@ public abstract class FilteredIterator implements MovableCountIterator, MovableS
   }
 
   public FilteredIterator(NodeParameters parameters, MovableIndicatorIterator indicator, MovableScoreIterator scorer) {
-    this.sharedChildren = parameters.get("shareNodes", false);
+    super(parameters, new MovableIterator[]{ indicator, scorer });
     this.indicator = indicator;
     this.counter = null;
     this.extents = null;
@@ -54,7 +50,7 @@ public abstract class FilteredIterator implements MovableCountIterator, MovableS
   }
 
   public FilteredIterator(NodeParameters parameters, MovableIndicatorIterator indicator, MovableExtentIterator extents) {
-    this.sharedChildren = parameters.get("shareNodes", false);
+    super(parameters, new MovableIterator[]{ indicator, extents });
     this.indicator = indicator;
     this.scorer = null;
     this.extents = extents;
@@ -65,12 +61,6 @@ public abstract class FilteredIterator implements MovableCountIterator, MovableS
     } else {
       this.counter = null;
     }
-  }
-
-  @Override
-  public void reset() throws IOException {
-    indicator.reset();
-    mover.reset();
   }
 
   @Override
@@ -109,68 +99,8 @@ public abstract class FilteredIterator implements MovableCountIterator, MovableS
   }
 
   @Override
-  public void setContext(ScoringContext context) {
-    this.context = context;
-  }
-
-  @Override
-  public ScoringContext getContext() {
-    return this.context;
-  }
-
-  @Override
-  public boolean isDone() {
-    return mover.isDone();
-  }
-
-  @Override
-  public int currentCandidate() {
-    return mover.currentCandidate();
-  }
-
-  @Override
   public boolean hasAllCandidates() {
     return false;
-  }
-
-  @Override
-  public void next() throws IOException {
-    moveTo(currentCandidate() + 1);
-  }
-
-  @Override
-  public void movePast(int identifier) throws IOException {
-    moveTo(identifier + 1);
-  }
-
-  @Override
-  public void moveTo(int identifier) throws IOException {
-    if (!isDone()) {
-      indicator.moveTo(identifier);
-      mover.moveTo(identifier);
-      if (!sharedChildren) {
-        findBestCandidate();
-      }
-    }
-  }
-
-  // Stops the iterators on the first document
-  // that passes the indicator and is contained by
-  // the mover list
-  // -- this is the aggressive option
-  private void findBestCandidate() throws IOException {
-    int lowestBest = 0;
-    while (!isDone()) {
-      lowestBest = Math.max(lowestBest, indicator.currentCandidate());
-      lowestBest = Math.max(lowestBest, mover.currentCandidate());
-      indicator.moveTo(lowestBest);
-      mover.moveTo(lowestBest);
-      if (this.atCandidate(lowestBest)) {
-        return;
-      }
-      // ensure we progress.
-      lowestBest += 1;
-    }
   }
 
   @Override
@@ -179,47 +109,28 @@ public abstract class FilteredIterator implements MovableCountIterator, MovableS
   }
 
   @Override
-  public long totalEntries() {
-    return Math.min(indicator.totalEntries(), mover.totalEntries());
-  }
-
-  @Override
-  public int compareTo(MovableIterator other) {
-    if (isDone() && !other.isDone()) {
-      return 1;
-    }
-    if (other.isDone() && !isDone()) {
-      return -1;
-    }
-    if (isDone() && other.isDone()) {
-      return 0;
-    }
-    return currentCandidate() - other.currentCandidate();
-  }
-  
-  @Override
   public AnnotatedNode getAnnotatedNode() throws IOException {
     String className = this.getClass().getSimpleName();
     String parameters = "";
     int document = currentCandidate();
-    boolean atCandidate = atCandidate(this.context.document);
+    boolean atCandidate = hasMatch(this.context.document);
     List<AnnotatedNode> children = new ArrayList();
     children.add(indicator.getAnnotatedNode());
     children.add(mover.getAnnotatedNode());
-    
+
     String type = "unknown";
     String returnValue = "unknown";
-    if(this.counter != null){
+    if (this.counter != null) {
       type = "count";
       returnValue = Integer.toString(count());
-    } else if(this.scorer != null){
+    } else if (this.scorer != null) {
       type = "score";
       returnValue = Double.toString(score());
-    } else if(this.counter != null){
+    } else if (this.counter != null) {
       type = "extents";
       returnValue = extents().toString();
     }
-    
+
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 }

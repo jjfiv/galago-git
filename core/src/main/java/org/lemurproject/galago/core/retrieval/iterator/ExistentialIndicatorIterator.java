@@ -20,7 +20,7 @@ public class ExistentialIndicatorIterator extends DisjunctionIterator implements
   @Override
   public boolean indicator(int identifier) {
     for (MovableIterator i : this.iterators) {
-      if (!i.isDone() && i.atCandidate(identifier)) {
+      if (!i.isDone() && i.hasMatch(identifier)) {
         return true;
       }
     }
@@ -38,7 +38,7 @@ public class ExistentialIndicatorIterator extends DisjunctionIterator implements
     String className = this.getClass().getSimpleName();
     String parameters = "";
     int document = currentCandidate();
-    boolean atCandidate = atCandidate(this.context.document);
+    boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Boolean.toString(this.indicator(this.context.document));
     List<AnnotatedNode> children = new ArrayList();
     for (MovableIterator child : this.iterators) {

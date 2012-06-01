@@ -26,7 +26,7 @@ public class BoostingIterator extends TransformIterator implements MovableScoreI
 
   @Override
   public double score() {
-    if (atCandidate(context.document)
+    if (hasMatch(context.document)
             && ((IndicatorIterator) iterator).indicator(context.document)) {
       return beta;
     } else {
@@ -50,7 +50,7 @@ public class BoostingIterator extends TransformIterator implements MovableScoreI
     String className = this.getClass().getSimpleName();
     String parameters = p.toString();
     int document = currentCandidate();
-    boolean atCandidate = atCandidate(this.context.document);
+    boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = Collections.singletonList( this.iterator.getAnnotatedNode() );
     

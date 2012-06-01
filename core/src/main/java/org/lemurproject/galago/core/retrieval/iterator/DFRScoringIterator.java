@@ -90,7 +90,7 @@ public class DFRScoringIterator extends TransformIterator implements MovableScor
     String className = this.getClass().getSimpleName();
     String parameters = np.toString();
     int document = currentCandidate();
-    boolean atCandidate = atCandidate(this.context.document);
+    boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());
 

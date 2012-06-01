@@ -157,7 +157,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
       String className = this.getClass().getSimpleName();
       String parameters = "";
       int document = currentCandidate();
-      boolean atCandidate = atCandidate(this.context.document);
+      boolean atCandidate = hasMatch(this.context.document);
       String returnValue = getData().name;
       String extraInfo = getData().toString();
       List<AnnotatedNode> children = Collections.EMPTY_LIST;

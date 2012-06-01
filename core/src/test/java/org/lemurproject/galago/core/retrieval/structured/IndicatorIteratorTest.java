@@ -88,12 +88,12 @@ public class IndicatorIteratorTest extends TestCase {
 
     // initial state
     assertEquals(2, eii.currentCandidate());
-    assertTrue(eii.atCandidate(2));
-    assertEquals(true, eii.atCandidate(eii.currentCandidate()));
+    assertTrue(eii.hasMatch(2));
+    assertEquals(true, eii.hasMatch(eii.currentCandidate()));
 
     eii.moveTo(3);
     assertEquals(4, eii.currentCandidate());
-    assertEquals(true, eii.atCandidate(eii.currentCandidate()));
+    assertEquals(true, eii.hasMatch(eii.currentCandidate()));
 
     eii.next();
     assertTrue(eii.isDone());
@@ -114,12 +114,12 @@ public class IndicatorIteratorTest extends TestCase {
 
     // initial state
     assertEquals(0, uii.currentCandidate());
-    assertTrue(uii.atCandidate(0));
-    assertEquals(true, uii.atCandidate(uii.currentCandidate()));
+    assertTrue(uii.hasMatch(0));
+    assertEquals(true, uii.hasMatch(uii.currentCandidate()));
 
     uii.moveTo(1);
     assertEquals(2, uii.currentCandidate());
-    assertEquals(true, uii.atCandidate(uii.currentCandidate()));
+    assertEquals(true, uii.hasMatch(uii.currentCandidate()));
 
     uii.next();
     assertEquals(4, uii.currentCandidate());
@@ -149,21 +149,21 @@ public class IndicatorIteratorTest extends TestCase {
     assertFalse(eii.isDone());
     assertFalse(uii.isDone());
     assertEquals(eii.currentCandidate(), uii.currentCandidate());
-    assertEquals(true, eii.atCandidate(eii.currentCandidate()));
-    assertEquals(true, uii.atCandidate(uii.currentCandidate()));
+    assertEquals(true, eii.hasMatch(eii.currentCandidate()));
+    assertEquals(true, uii.hasMatch(uii.currentCandidate()));
 
     // First step to doc 2
     uii.next();
     eii.next();
-    assertEquals(true, eii.atCandidate(eii.currentCandidate()));
-    assertEquals(true, uii.atCandidate(uii.currentCandidate()));
+    assertEquals(true, eii.hasMatch(eii.currentCandidate()));
+    assertEquals(true, uii.hasMatch(uii.currentCandidate()));
     assertEquals(eii.currentCandidate(), uii.currentCandidate());
 
     // Now on the doc 4
     uii.next();
     eii.next();
-    assertEquals(true, eii.atCandidate(eii.currentCandidate()));
-    assertEquals(true, uii.atCandidate(uii.currentCandidate()));
+    assertEquals(true, eii.hasMatch(eii.currentCandidate()));
+    assertEquals(true, uii.hasMatch(uii.currentCandidate()));
     assertEquals(eii.currentCandidate(), uii.currentCandidate());
 
     // Should be done now

@@ -12,7 +12,6 @@ import org.lemurproject.galago.core.util.ExtentArray;
 import java.io.IOException;
 import junit.framework.*;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *

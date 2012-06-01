@@ -31,8 +31,8 @@ public class RejectIterator extends FilteredIterator {
     moveTo(0);
   }
 
-  public boolean atCandidate(int identifier) {
+  public boolean hasMatch(int identifier) {
     return (!this.indicator.indicator(identifier))
-            && this.mover.atCandidate(identifier);
+            && this.mover.hasMatch(identifier);
   }
 }

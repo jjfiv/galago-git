@@ -28,7 +28,7 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
     arrayIterators = new ExtentArrayIterator[iterators.length];
     for (int i = 0; i < iterators.length; i++) {
       if (iterators[i].isDone()
-              || !iterators[i].atCandidate(document)) {
+              || !iterators[i].hasMatch(document)) {
         // we can not load any extents if the iterator is done - or is at the wrong document.
         return;
       }

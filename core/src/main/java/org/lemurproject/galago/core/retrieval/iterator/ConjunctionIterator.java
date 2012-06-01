@@ -6,23 +6,19 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 
 /**
  *
  * @author sjh
  */
-@RequiredParameters(parameters = {"shareNodes"})
 public abstract class ConjunctionIterator implements MovableIterator {
 
   protected MovableIterator[] iterators;
   protected MovableIterator[] drivingIterators;
   protected boolean hasAllCandidates;
-  protected boolean sharedChildren;
   protected ScoringContext context;
 
   public ConjunctionIterator(NodeParameters parameters, MovableIterator[] queryIterators) {
-    this.sharedChildren = parameters.get("shareNodes", false);
     this.iterators = queryIterators;
 
     // count the number of iterators that dont have
@@ -45,7 +41,7 @@ public abstract class ConjunctionIterator implements MovableIterator {
       // and will not report matches for all documents
       //
       // the driving iterators will ensure this iterator
-      //   does not stop at all documents
+      //   does not stop at ALL documents
       hasAllCandidates = false;
       drivingIterators = new MovableIterator[drivingIteratorCount];
       int i = 0;
@@ -62,28 +58,6 @@ public abstract class ConjunctionIterator implements MovableIterator {
   public void moveTo(int candidate) throws IOException {
     for (MovableIterator iterator : iterators) {
       iterator.moveTo(candidate);
-    }
-
-    // if we are not sharing children - we can be more aggressive here.
-    if (!sharedChildren) {
-      int currCandidate = currentCandidate();
-      while (!isDone()) {
-        for (MovableIterator iterator : iterators) {
-          iterator.moveTo(currCandidate);
-
-          // if we skip too far:
-          //   don't bother to move the other children
-          //   we will need to pick a different candidate
-          if (!iterator.atCandidate(currCandidate)) {
-            break;
-          }
-        }
-
-        if (atCandidate(currCandidate)) {
-          return;
-        }
-        currCandidate = Math.max(currCandidate + 1, currentCandidate());
-      }
     }
   }
 
@@ -118,9 +92,9 @@ public abstract class ConjunctionIterator implements MovableIterator {
   }
 
   @Override
-  public boolean atCandidate(int candidate) {
+  public boolean hasMatch(int candidate) {
     for (MovableIterator iterator : drivingIterators) {
-      if (iterator.isDone() || !iterator.atCandidate(candidate)) {
+      if (iterator.isDone() || !iterator.hasMatch(candidate)) {
         return false;
       }
     }

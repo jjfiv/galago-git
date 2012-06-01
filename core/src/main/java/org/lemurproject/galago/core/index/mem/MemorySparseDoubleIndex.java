@@ -73,7 +73,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
         int document = mi.currentCandidate();
         c.document = document;
         c.moveLengths(document);
-        if (mi.atCandidate(document)) {
+        if (mi.hasMatch(document)) {
           double score = mi.score();
           postingList.add(document, score);
         }
@@ -375,7 +375,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     }
 
     @Override
-    public boolean atCandidate(int identifier) {
+    public boolean hasMatch(int identifier) {
       return (!isDone() && identifier == currDocument);
     }
 
@@ -459,7 +459,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
       String className = this.getClass().getSimpleName();
       String parameters = this.getKeyString();
       int document = currentCandidate();
-      boolean atCandidate = atCandidate(this.context.document);
+      boolean atCandidate = hasMatch(this.context.document);
       String returnValue = Double.toString(score());
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

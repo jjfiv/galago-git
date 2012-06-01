@@ -181,7 +181,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
       String className = this.getClass().getSimpleName();
       String parameters = "";
       int document = currentCandidate();
-      boolean atCandidate = atCandidate(this.context.document);
+      boolean atCandidate = hasMatch(this.context.document);
       String returnValue = getCurrentName();
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

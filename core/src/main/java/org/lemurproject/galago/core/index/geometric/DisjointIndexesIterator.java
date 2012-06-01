@@ -37,7 +37,7 @@ public abstract class DisjointIndexesIterator extends ValueIterator {
   }
 
   @Override
-  public boolean atCandidate(int identifier) {
+  public boolean hasMatch(int identifier) {
     return (head.currentCandidate() == identifier);
   }
 

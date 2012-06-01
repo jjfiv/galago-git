@@ -21,7 +21,7 @@ public interface MovableIterator extends ContextualIterator, StructuredIterator,
   /**
    * returns true if the iterator is at this candidate
    */
-  public boolean atCandidate(int identifier);
+  public boolean hasMatch(int identifier);
 
   /**
    * returns true if the iterator has data for ALL candidates

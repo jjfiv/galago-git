@@ -69,7 +69,7 @@ public abstract class FieldComparisonIterator extends TransformIterator implemen
     String className = this.getClass().getSimpleName();
     String parameters = p.toString();
     int document = currentCandidate();
-    boolean atCandidate = atCandidate(this.context.document);
+    boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Boolean.toString( this.indicator( this.context.document ) );
     List<AnnotatedNode> children = Collections.singletonList( this.iterator.getAnnotatedNode() );
     

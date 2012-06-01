@@ -74,7 +74,7 @@ public class RankedPassageModel extends ProcessingModel {
       // Keep iterating over the same doc, but incrementing the begin/end fields of the
       // context until the next one
       while (context.end <= length) {
-        if (iterator.atCandidate(document)) {
+        if (iterator.hasMatch(document)) {
           double score = iterator.score();
           if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
             ScoredPassage scored = new ScoredPassage(document, score, context.begin, context.end);
@@ -121,7 +121,7 @@ public class RankedPassageModel extends ProcessingModel {
       // Keep iterating over the same doc, but incrementing the begin/end fields of the
       // context until the next one
       while (context.end <= length) {
-        if (iterator.atCandidate(document)) {
+        if (iterator.hasMatch(document)) {
           double score = iterator.score();
           if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
             ScoredPassage scored = new ScoredPassage(document, score, context.begin, context.end);

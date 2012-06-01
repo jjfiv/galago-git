@@ -35,7 +35,7 @@ public class FieldLengthsReader implements LengthsReader {
   public int getLength(int document) throws IOException {
     LengthsReader.Iterator li = getLengthsIterator();
     li.moveTo(document);
-    if (li.atCandidate(document)) {
+    if (li.hasMatch(document)) {
       return li.getCurrentLength();
     } else {
       return 0;
@@ -126,7 +126,7 @@ public class FieldLengthsReader implements LengthsReader {
     }
 
     @Override
-    public boolean atCandidate(int identifier) {
+    public boolean hasMatch(int identifier) {
       return (extentsIterator.currentCandidate() == identifier);
     }
 
@@ -195,7 +195,7 @@ public class FieldLengthsReader implements LengthsReader {
       String className = this.getClass().getSimpleName();
       String parameters = "";
       int document = currentCandidate();
-      boolean atCandidate = atCandidate(this.context.document);
+      boolean atCandidate = hasMatch(this.context.document);
       String returnValue = Integer.toString(getCurrentLength());
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

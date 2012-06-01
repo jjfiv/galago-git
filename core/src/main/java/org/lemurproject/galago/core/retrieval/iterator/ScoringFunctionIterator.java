@@ -36,7 +36,7 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
   public double score() {
     int count = 0;
 
-    if (iterator.atCandidate(context.document)) {
+    if (iterator.hasMatch(context.document)) {
       count = countIterator.count();
     }
     double score = function.score(count, context.getLength());
@@ -59,7 +59,7 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
     String className = this.getClass().getSimpleName();
     String parameters = np.toString();
     int document = currentCandidate();
-    boolean atCandidate = atCandidate(this.context.document);
+    boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());
 

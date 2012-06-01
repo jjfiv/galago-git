@@ -54,7 +54,7 @@ public class SetModel extends ProcessingModel {
     MovableIndicatorIterator iterator = (MovableIndicatorIterator) retrieval.createIterator(queryParams, queryTree, context);
     ArrayList<ScoredDocument> list = new ArrayList<ScoredDocument>();
     while (!iterator.isDone()) {
-      if (iterator.atCandidate(iterator.currentCandidate())) {
+      if (iterator.hasMatch(iterator.currentCandidate())) {
         list.add(new ScoredDocument(iterator.currentCandidate(), 1.0));
       }
       iterator.next();
@@ -76,7 +76,7 @@ public class SetModel extends ProcessingModel {
     for (int i = 0; i < whitelist.length; i++) {
       int document = whitelist[i];
       iterator.moveTo(document);
-      if (iterator.atCandidate(document)) {
+      if (iterator.hasMatch(document)) {
         list.add(new ScoredDocument(iterator.currentCandidate(), 1.0));
       }
     }

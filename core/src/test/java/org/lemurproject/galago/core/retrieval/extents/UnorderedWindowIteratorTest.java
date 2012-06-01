@@ -71,7 +71,6 @@ public class UnorderedWindowIteratorTest extends TestCase {
 
     NodeParameters twoParam = new NodeParameters();
     twoParam.set("default", 2);
-    twoParam.set("shareNodes", true);
 
     UnorderedWindowIterator instance = new UnorderedWindowIterator(twoParam, iters);
     ExtentArray array = instance.extents();
@@ -101,16 +100,19 @@ public class UnorderedWindowIteratorTest extends TestCase {
     assertEquals(array.end(0), 5);
 
     // move to 2
-    //instance.next();
-    //assertFalse(instance.isDone());
+    instance.next();
+    assertFalse(instance.isDone());
+    assertFalse(instance.hasMatch(2));
 
     // move to 4
-    //instance.next();
-    //assertFalse(instance.isDone());
+    instance.next();
+    assertFalse(instance.isDone());
+    assertFalse(instance.hasMatch(4));
 
     // move to 5
     instance.next();
     assertFalse(instance.isDone());
+    assertTrue(instance.hasMatch(5));
 
     array = instance.extents();
     assertEquals(array.size(), 1);

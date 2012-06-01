@@ -252,7 +252,7 @@ public class GeometricIndex implements DynamicIndex, Index {
   public int getLength(int document) throws IOException {
     LengthsReader.Iterator i = this.getLengthsIterator();
     i.moveTo(document);
-    if (i.atCandidate(document)) {
+    if (i.hasMatch(document)) {
       return i.getCurrentLength();
     } else {
       throw new IOException("Could not find document identifier " + document);
@@ -263,7 +263,7 @@ public class GeometricIndex implements DynamicIndex, Index {
   public String getName(int document) throws IOException {
     NamesReader.Iterator i = this.getNamesIterator();
     i.moveTo(document);
-    if (i.atCandidate(document)) {
+    if (i.hasMatch(document)) {
       return i.getCurrentName();
     } else {
       throw new IOException("Could not find document identifier " + document);

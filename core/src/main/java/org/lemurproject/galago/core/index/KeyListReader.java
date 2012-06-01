@@ -52,7 +52,7 @@ public abstract class KeyListReader extends KeyValueReader {
     }
 
     @Override
-    public boolean atCandidate(int id) {
+    public boolean hasMatch(int id) {
       return (!isDone() && currentCandidate() == id);
     }
 

@@ -31,8 +31,8 @@ public class RequireIterator extends FilteredIterator {
     moveTo(0);
   }
 
-  public boolean atCandidate(int identifier) {
-    return this.mover.atCandidate(identifier)
+  public boolean hasMatch(int identifier) {
+    return this.mover.hasMatch(identifier)
             && this.indicator.indicator(identifier);
   }
 }

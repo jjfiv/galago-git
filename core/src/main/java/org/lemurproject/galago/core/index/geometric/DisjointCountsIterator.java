@@ -37,7 +37,7 @@ public class DisjointCountsIterator extends DisjointIndexesIterator implements M
     String className = this.getClass().getSimpleName();
     String parameters = this.getKeyString();
     int document = currentCandidate();
-    boolean atCandidate = atCandidate(this.context.document);
+    boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Integer.toString(count());
     List<AnnotatedNode> children = new ArrayList();
     for(MovableIterator child : this.allIterators){

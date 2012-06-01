@@ -85,7 +85,7 @@ public class SparseFloatListReaderTest extends TestCase {
       assertEquals(aDocs[i], iter.currentCandidate());
       context.document = aDocs[i];
       assertEquals(aScores[i], iter.score(), 0.0001);
-      assertTrue(iter.atCandidate(aDocs[i]));
+      assertTrue(iter.hasMatch(aDocs[i]));
 
       iter.movePast(aDocs[i]);
     }
@@ -110,7 +110,7 @@ public class SparseFloatListReaderTest extends TestCase {
       assertEquals(bDocs[i], iter.currentCandidate());
       ctx.document = bDocs[i];
       assertEquals(bScores[i], iter.score(), 0.0001);
-      assertTrue(iter.atCandidate(bDocs[i]));
+      assertTrue(iter.hasMatch(bDocs[i]));
 
       iter.movePast(bDocs[i]);
     }
@@ -138,7 +138,7 @@ public class SparseFloatListReaderTest extends TestCase {
       assertEquals(lIter.currentCandidate(), aDocs[i]);
       context.document = aDocs[i];
       assertEquals(lIter.score(), aScores[i], 0.0001);
-      assertTrue(lIter.atCandidate(aDocs[i]));
+      assertTrue(lIter.hasMatch(aDocs[i]));
 
       lIter.movePast(aDocs[i]);
     }
@@ -160,7 +160,7 @@ public class SparseFloatListReaderTest extends TestCase {
       context.document = lIter.currentCandidate();
       context.moveLengths(context.document);
       assertEquals(lIter.score(), bScores[i], 0.0001);
-      assertTrue(lIter.atCandidate(bDocs[i]));
+      assertTrue(lIter.hasMatch(bDocs[i]));
 
       lIter.movePast(bDocs[i]);
     }
