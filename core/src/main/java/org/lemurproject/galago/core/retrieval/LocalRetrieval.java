@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
@@ -47,6 +48,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class LocalRetrieval implements Retrieval {
 
+  protected final Logger logger = Logger.getLogger(this.getClass().getName());
   protected Index index;
   protected FeatureFactory features;
   protected Parameters globalParameters;
@@ -67,7 +69,6 @@ public class LocalRetrieval implements Retrieval {
   }
 
   public LocalRetrieval(Index index, Parameters parameters) throws IOException {
-    this.globalParameters = parameters;
     setIndex(index);
   }
 

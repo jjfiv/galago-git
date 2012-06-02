@@ -62,7 +62,8 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());
-
-    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+    String extra = Integer.toString( context.getLength() );
+    
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, extra, children);
   }
 }

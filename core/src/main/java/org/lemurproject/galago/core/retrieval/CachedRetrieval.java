@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.mem.*;
@@ -30,6 +29,8 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class CachedRetrieval extends LocalRetrieval {
 
+  // scores are risky to cache -> dirichlet smoothed scores depend on the length of the document.
+  protected boolean cacheScores;
   protected HashMap<String, MemoryIndexPart> cacheParts;
   protected HashMap<String, String> cachedNodes;
   protected HashMap<String, NodeStatistics> cachedStats;
@@ -56,19 +57,22 @@ public class CachedRetrieval extends LocalRetrieval {
 
     init();
   }
-  
-  private void init() throws Exception{
+
+  private void init() throws Exception {
     
+    // default behaviour is not to cache scores - as mentioned above dirichlet scores carry some risk
+    this.cacheScores = this.globalParameters.get("cacheScores", false);
+
     this.cachedNodes = new HashMap();
     this.cachedStats = new HashMap();
-
     this.cacheParts = new HashMap();
+
     this.cacheParts.put("score", new MemorySparseDoubleIndex(new Parameters()));
     this.cacheParts.put("extent", new MemoryWindowIndex(index.getIndexPart("postings").getManifest()));
     this.cacheParts.put("count", new MemoryCountIndex(index.getIndexPart("postings").getManifest()));
     // this.cacheParts.put("names", new MemoryDocumentNames(new Parameters()));
     // this.cacheParts.put("lengths", new MemoryDocumentLengths(new Parameters()));
-    
+
     if (globalParameters.containsKey("cacheQueries")) {
       if (globalParameters.isList("cacheQueries", Type.STRING)) {
         List<String> queries = globalParameters.getAsList("cacheQueries");
@@ -85,7 +89,7 @@ public class CachedRetrieval extends LocalRetrieval {
           addAllToCache(queryTree);
         }
       } else {
-        Logger.getLogger(this.getClass().getName()).info("Could not process cachedQueries as a list<String> or list<Parameters>. No data cached.");
+        logger.info("Could not process cachedQueries as a list<String> or list<Parameters>. No data cached.");
       }
     }
   }
@@ -106,10 +110,10 @@ public class CachedRetrieval extends LocalRetrieval {
     String nodeString = node.toString();
     if (cachedNodes.containsKey(nodeString)) {
       // new behaviour - check cache for this node.
-      //Logger.getLogger(this.getClass().getName()).info("Getting cached iterator cache for node : " + nodeString);
+      //logger.info("Getting cached iterator cache for node : " + nodeString);
       iterator = cacheParts.get(cachedNodes.get(nodeString)).getIterator(Utility.fromString(nodeString));
     } else {
-      //Logger.getLogger(this.getClass().getName()).info("Failed to get cached iterator cache for node : " + nodeString);
+      //logger.info("Failed to get cached iterator cache for node : " + nodeString);
       // otherwise create iterator
       for (Node internalNode : node.getInternalNodes()) {
         StructuredIterator internalIterator = createNodeMergedIterator(internalNode, context, queryIteratorCache);
@@ -140,15 +144,13 @@ public class CachedRetrieval extends LocalRetrieval {
     // check the node cache first - this will avoid zeros.
     String nodeString = node.toString();
     if (cachedNodes.containsKey(nodeString)) {
-      //Logger.getLogger(this.getClass().getName()).info("Getting stats from cache for node : " + nodeString);
+      //logger.info("Getting stats from cache for node : " + nodeString);
       return this.cachedStats.get(nodeString);
     }
     return super.nodeStatistics(node);
   }
 
-  
   // caching functions
-  
   /*
    * Checks if a particular node is cached or not.
    */
@@ -161,12 +163,12 @@ public class CachedRetrieval extends LocalRetrieval {
    * Recurses through a query tree to cache all nodes present
    */
   public void addAllToCache(Node queryTree) throws Exception {
-    for(Node child : queryTree.getInternalNodes()){
+    for (Node child : queryTree.getInternalNodes()) {
       addAllToCache(child);
     }
     addToCache(queryTree);
   }
-  
+
   /**
    * caches an arbitrary query node currently can store only count, extent, and
    * score iterators.
@@ -180,29 +182,33 @@ public class CachedRetrieval extends LocalRetrieval {
     String nodeString = node.toString();
     if (!cachedNodes.containsKey(nodeString)) {
       if (iterator instanceof MovableScoreIterator) {
-        cachedNodes.put(nodeString, "score");
-        cacheParts.get("score").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
-        // Logger.getLogger(this.getClass().getName()).info("Cached scoring node : " + nodeString);
-
+        if(this.cacheScores){
+          cachedNodes.put(nodeString, "score");
+          cacheParts.get("score").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
+          // logger.info("Cached scoring node : " + nodeString);
+        } else {
+          // logger.info("Scoring node are not cachable : " + nodeString);
+        }
+        
       } else if (iterator instanceof MovableExtentIterator) {
         NodeStatistics ns = super.nodeStatistics(node);
         cachedStats.put(nodeString, ns);
         cachedNodes.put(nodeString, "extent");
         cacheParts.get("extent").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
-        // Logger.getLogger(this.getClass().getName()).info("Cached extent node : " + nodeString);
+        // logger.info("Cached extent node : " + nodeString);
 
       } else if (iterator instanceof MovableCountIterator) {
         NodeStatistics ns = super.nodeStatistics(node);
         cachedStats.put(nodeString, ns);
         cachedNodes.put(nodeString, "count");
         cacheParts.get("count").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
-        // Logger.getLogger(this.getClass().getName()).info("Cached count node : " + nodeString);
+        // logger.info("Cached count node : " + nodeString);
 
       } else {
-        // Logger.getLogger(this.getClass().getName()).info("Unable to cache node : " + nodeString);
+        // logger.info("Unable to cache node : " + nodeString);
       }
     } else {
-      // Logger.getLogger(this.getClass().getName()).info("Already cached node : " + nodeString);
+      // logger.info("Already cached node : " + nodeString);
     }
   }
 
@@ -214,26 +220,26 @@ public class CachedRetrieval extends LocalRetrieval {
       if (cachedNodes.get(nodeString).equals("score")) {
         cachedNodes.remove(nodeString);
         cacheParts.get("score").removeIteratorData(Utility.fromString(nodeString));
-        Logger.getLogger(this.getClass().getName()).info("Deleted cached scoring node : " + nodeString);
+        // logger.info("Deleted cached scoring node : " + nodeString);
       } else if (cachedNodes.get(nodeString).equals("count")) {
         NodeStatistics ns = super.nodeStatistics(node);
         cachedNodes.remove(nodeString);
         cachedStats.remove(nodeString);
         cacheParts.get("extent").removeIteratorData(Utility.fromString(nodeString));
-        Logger.getLogger(this.getClass().getName()).info("Deleted cached extent node : " + nodeString);
+        // logger.info("Deleted cached extent node : " + nodeString);
 
       } else if (cachedNodes.get(nodeString).equals("extent")) {
         NodeStatistics ns = super.nodeStatistics(node);
         cachedNodes.remove(nodeString);
         cachedStats.remove(nodeString);
         cacheParts.get("count").removeIteratorData(Utility.fromString(nodeString));
-        Logger.getLogger(this.getClass().getName()).info("Deleted cached count node : " + nodeString);
+        // logger.info("Deleted cached count node : " + nodeString);
 
       } else {
-        Logger.getLogger(this.getClass().getName()).info("Unable to delete cached node : " + nodeString);
+        // logger.info("Unable to delete cached node : " + nodeString);
       }
     } else {
-      Logger.getLogger(this.getClass().getName()).info("Ignoring non-cached node : " + nodeString);
+      // logger.info("Ignoring non-cached node : " + nodeString);
     }
   }
 }

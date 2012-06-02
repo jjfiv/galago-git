@@ -66,9 +66,17 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
   public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
     // if  we have not already cached this data
     if (!postings.containsKey(key)) {
-      PostingList postingList = new PostingList(key);
+
+
       MovableScoreIterator mi = (MovableScoreIterator) iterator;
       ScoringContext c = mi.getContext();
+      c.document = -1; // impossible document score - to extract defaulty score.
+
+      // note that dirichet should not have a static default score
+      //  -> this cache should not be used for dirichlet scores
+      double defaultScore = mi.score();
+      PostingList postingList = new PostingList(key, defaultScore);
+      
       while (!mi.isDone()) {
         int document = mi.currentCandidate();
         c.document = document;
@@ -205,9 +213,11 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     int lastDocument = 0;
     double maxScore = Double.MIN_VALUE;
     double minScore = Double.MAX_VALUE;
+    double defaultScore;
 
-    public PostingList(byte[] key) {
+    public PostingList(byte[] key, double defaultScore) {
       this.key = key;
+      this.defaultScore = defaultScore;
     }
 
     public void add(int document, double score) {
@@ -351,7 +361,11 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
 
     @Override
     public double score() {
-      return currScore;
+      if (context.document == currDocument) {
+        return currScore;
+      } else {
+        return postings.defaultScore;
+      }
     }
 
     @Override
