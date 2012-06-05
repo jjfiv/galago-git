@@ -53,6 +53,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     MBTEIParser.splitTag = parameters.get("splitTag", "pb");
   }
 
+  @Override
   public void process(DocumentSplit split) throws IOException {
     DocumentStreamParser parser = null;
     source = null;

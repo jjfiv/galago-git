@@ -28,56 +28,74 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 public class TextFeatureThresholder extends StandardStep<TextFeature, TextFeature>
         implements TextFeature.Source {
 
+  long debug_pass_count = 0;
   long debug_total_count = 0;
   int threshold;
-  LinkedList<TextFeature> current;
+  byte[] currentFeature;
+  LinkedList<TextFeature> currentBuffer;
   boolean currentPassesThreshold;
-
   Counter passing;
   Counter notPassing;
 
   public TextFeatureThresholder(TupleFlowParameters parameters) throws IOException, NoSuchAlgorithmException {
     threshold = (int) parameters.getJSON().getLong("threshold");
-    current = new LinkedList();
+    currentFeature = null;
+    currentBuffer = new LinkedList();
     currentPassesThreshold = false;
 
     passing = parameters.getCounter("Passed Features");
     notPassing = parameters.getCounter("Discarded Features");
   }
 
+  @Override
   public void process(TextFeature tf) throws IOException {
     debug_total_count++;
 
-    if ((current.size() > 0)
-            && (Utility.compare(tf.feature, current.peekFirst().feature) == 0)) {
-      current.offerLast(tf);
+    // first feature - record the feature + store the tf in the buffer
+    if (currentFeature == null) {
+      currentFeature = tf.feature;
+      currentBuffer.offerLast(tf);
+      // no point emitting here - threshold should be > 1
 
+    } else if (Utility.compare(tf.feature, currentFeature) == 0) {
+      currentBuffer.offerLast(tf);
       emitExtents();
+
     } else {
-      // try to emit any passing extents
-      emitExtents();
-      if (notPassing != null) notPassing.incrementBy( current.size() );
-      current.clear();
-      current.offerLast(tf);
+      if (notPassing != null) {
+        notPassing.incrementBy(currentBuffer.size());
+      }
+      currentBuffer.clear();
+
+      // now prepare for the next feature
+      currentFeature = tf.feature;
+      currentBuffer.offerLast(tf);
       currentPassesThreshold = false;
     }
   }
 
+  @Override
   public void close() throws IOException {
     // try to emit any passing extents
-    emitExtents();
+    //emitExtents();
     processor.close();
   }
 
   private void emitExtents() throws IOException {
 
-    if (current.size() >= threshold) {
+    if (currentBuffer.size() >= threshold) {
       currentPassesThreshold = true;
     }
     if (currentPassesThreshold) {
-      while (current.size() > 0) {
-        processor.process(current.poll());
-        if (passing != null) passing.increment();
+      while (currentBuffer.size() > 0) {
+        debug_pass_count++;
+        TextFeature tf = currentBuffer.pollFirst();
+        // zero out the feature.
+        tf.feature = new byte[0];
+        processor.process(tf);
+        if (passing != null) {
+          passing.increment();
+        }
       }
     }
   }

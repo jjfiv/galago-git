@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.window;
 
+import gnu.trove.set.hash.TLongHashSet;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
@@ -28,37 +29,53 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 public class NumberWordCountThresholder extends StandardStep<NumberWordCount, NumberWordCount>
         implements NumberWordCount.Source {
 
-  long debug_count = 0;
+  long debug_pass_count = 0;
   long debug_total_count = 0;
   int threshold;
   boolean threshdf;
-  LinkedList<NumberWordCount> current;
+  byte[] currentFeature;
+  LinkedList<NumberWordCount> currentBuffer;
+  TLongHashSet docs;
   boolean currentPassesThreshold;
-
+  
   Counter discards;
   Counter passing;
 
   public NumberWordCountThresholder(TupleFlowParameters parameters) throws IOException, NoSuchAlgorithmException {
     threshold = (int) parameters.getJSON().getLong("threshold");
     threshdf = parameters.getJSON().getBoolean("threshdf");
-    current = new LinkedList();
+    currentFeature = null;
+    docs = new TLongHashSet();
+    currentBuffer = new LinkedList();
 
     discards = parameters.getCounter("Discarded Extents");
     passing = parameters.getCounter("Passed Extents");
   }
 
+  @Override
   public void process(NumberWordCount nwc) throws IOException {
     debug_total_count++;
 
-    if ((current.size() > 0)
-            && (Utility.compare(nwc.word, current.peekFirst().word) == 0)) {
-      current.offerLast(nwc);
+    // first feature - record the feature + store the tf in the buffer
+    if (currentFeature == null) {
+      currentFeature = nwc.word;
+      currentBuffer.offerLast(nwc);
+      // no point emitting here - threshold should be > 1
+
+    } else if (Utility.compare(nwc.word, currentFeature) == 0) {
+      currentBuffer.offerLast(nwc);
       emitExtents();
+
     } else {
-      emitExtents();
-      if(discards != null) discards.incrementBy( current.size() );
-      current.clear();
-      current.offerLast(nwc);
+      //emitExtents();
+      if (discards != null) {
+        discards.incrementBy(currentBuffer.size());
+      }
+      currentBuffer.clear();
+
+      // now prepare for the next feature
+      currentFeature = nwc.word;
+      currentBuffer.offerLast(nwc);
       currentPassesThreshold = false;
     }
   }
@@ -68,7 +85,7 @@ public class NumberWordCountThresholder extends StandardStep<NumberWordCount, Nu
     // if we have more than threshold df
     if (threshdf) {
       HashSet<Integer> docs = new HashSet();
-      for(NumberWordCount e : current){
+      for(NumberWordCount e : currentBuffer){
         docs.add(e.document);
       }
       if(docs.size() >= threshold){
@@ -76,7 +93,7 @@ public class NumberWordCountThresholder extends StandardStep<NumberWordCount, Nu
       }
     } else {
       int totalCount = 0;
-      for(NumberWordCount e : current){
+      for(NumberWordCount e : currentBuffer){
         totalCount += e.count;
       }
       if (totalCount >= threshold) {
@@ -86,15 +103,15 @@ public class NumberWordCountThresholder extends StandardStep<NumberWordCount, Nu
 
     // now actually emit Extents
     if (currentPassesThreshold) {
-      while (current.size() > 0) {
-        processor.process(current.pollFirst());
+      while (currentBuffer.size() > 0) {
+        processor.process(currentBuffer.pollFirst());
         if(passing != null) passing.increment();
       }
     }
   }
 
   public void close() throws IOException {
-    emitExtents();
+    // emitExtents();
     processor.close();
   }
 }

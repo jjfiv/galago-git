@@ -34,6 +34,7 @@ public class WindowFeaturer extends StandardStep<Window, TextFeature> {
     hashFunction = MessageDigest.getInstance("MD5");
   }
 
+  @Override
   public void process(Window w) throws IOException {
     hashFunction.update(w.data);
     byte[] hashValue = hashFunction.digest();

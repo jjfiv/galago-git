@@ -1,11 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
-import org.lemurproject.galago.core.index.disk.DiskNameReader;
-import org.lemurproject.galago.core.index.disk.DiskIndex;
 import java.io.File;
 import java.io.IOException;
-
+import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.tupleflow.InputClass;
@@ -37,9 +35,10 @@ public class ExtractIndexDocumentNumbers extends StandardStep<Document, Document
     namesIterator = ((DiskNameReverseReader) DiskIndex.openIndexPart(namesPath)).getIterator();
   }
 
+  @Override
   public void process(Document doc) throws IOException {
-    // it's possible that documents already have numbers
-    if (doc.identifier >= 0) {
+    // it's possible that documents already have numbers - if so, leave them be.
+    if (doc.identifier < 0) {
       try {
         namesIterator.findKey(Utility.fromString(doc.name));
         doc.identifier = namesIterator.getCurrentIdentifier();

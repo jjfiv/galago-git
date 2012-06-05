@@ -1,9 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.window;
 
+import gnu.trove.set.hash.TLongHashSet;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashSet;
 import java.util.LinkedList;
 
 import org.lemurproject.galago.core.types.NumberedExtent;
@@ -27,37 +27,52 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 public class NumberedExtentThresholder extends StandardStep<NumberedExtent, NumberedExtent>
         implements NumberedExtent.Source {
 
-  long debug_count = 0;
+  long debug_pass_count = 0;
   long debug_total_count = 0;
   int threshold;
   boolean threshdf;
-  LinkedList<NumberedExtent> current;
+  byte[] currentFeature;
+  LinkedList<NumberedExtent> currentBuffer;
+  TLongHashSet docs;
   boolean currentPassesThreshold;
-
   Counter discards;
   Counter passing;
 
   public NumberedExtentThresholder(TupleFlowParameters parameters) throws IOException, NoSuchAlgorithmException {
     threshold = (int) parameters.getJSON().getLong("threshold");
     threshdf = parameters.getJSON().getBoolean("threshdf");
-    current = new LinkedList();
+    currentBuffer = new LinkedList();
+    currentFeature = null;
+    docs = new TLongHashSet();
 
     discards = parameters.getCounter("Discarded Extents");
     passing = parameters.getCounter("Passed Extents");
   }
 
+  @Override
   public void process(NumberedExtent ne) throws IOException {
     debug_total_count++;
 
-    if ((current.size() > 0)
-            && (Utility.compare(ne.extentName, current.peekFirst().extentName) == 0)) {
-      current.offerLast(ne);
+    // first feature - record the feature + store the tf in the buffer
+    if (currentFeature == null) {
+      currentFeature = ne.extentName;
+      currentBuffer.offerLast(ne);
+      // no point emitting here - threshold should be > 1
+
+    } else if (Utility.compare(ne.extentName, currentFeature) == 0) {
+      currentBuffer.offerLast(ne);
       emitExtents();
+
     } else {
-      emitExtents();
-      if(discards != null) discards.incrementBy( current.size() );
-      current.clear();
-      current.offerLast(ne);
+      //emitExtents();
+      if (discards != null) {
+        discards.incrementBy(currentBuffer.size());
+      }
+      currentBuffer.clear();
+
+      // now prepare for the next feature
+      currentFeature = ne.extentName;
+      currentBuffer.offerLast(ne);
       currentPassesThreshold = false;
     }
   }
@@ -66,30 +81,34 @@ public class NumberedExtentThresholder extends StandardStep<NumberedExtent, Numb
 
     // if we have more than threshold df
     if (threshdf) {
-      HashSet<Long> docs = new HashSet();
-      for(NumberedExtent e : current){
+      docs.clear();
+      for (NumberedExtent e : currentBuffer) {
         docs.add(e.number);
       }
-      if(docs.size() >= threshold){
+      if (docs.size() >= threshold) {
         currentPassesThreshold = true;
       }
     } else {
-      if (current.size() >= threshold) {
+      if (currentBuffer.size() >= threshold) {
         currentPassesThreshold = true;
       }
     }
 
     // now actually emit Extents
     if (currentPassesThreshold) {
-      while (current.size() > 0) {
-        processor.process(current.pollFirst());
-        if(passing != null) passing.increment();
+      while (currentBuffer.size() > 0) {
+        processor.process(currentBuffer.pollFirst());
+        debug_pass_count++;
+        if (passing != null) {
+          passing.increment();
+        }
       }
     }
   }
 
+  @Override
   public void close() throws IOException {
-    emitExtents();
+    //emitExtents();
     processor.close();
   }
 }

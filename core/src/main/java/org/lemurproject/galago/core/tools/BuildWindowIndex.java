@@ -257,6 +257,7 @@ public class BuildWindowIndex extends AppFunction {
 
     Parameters p2 = new Parameters();
     p2.set("filename", indexPath + File.separator + indexName);
+    p2.set("threshold", this.threshold);
     if (stemming) {
       p2.set("stemming", stemming); // slightly redundent only present if true //
       p2.set("stemmer", buildParameters.get("stemmer", Porter2Stemmer.class.getName()));
@@ -330,24 +331,30 @@ public class BuildWindowIndex extends AppFunction {
     // so verify that the index submitted is a valid index
     try {
       DiskIndex i = new DiskIndex(indexPath);
+      i.close();
     } catch (Exception e) {
       throw new IOException("Index " + indexPath + "is not a valid index\n" + e.toString());
     }
 
     String indexName;
-    if (ordered) {
-      indexName = "od.n" + n + ".w" + width + ".h" + threshold;
+    if (p.isString("outputIndexName")) {
+      indexName = p.getString("outputIndexName");
     } else {
-      indexName = "uw.n" + n + ".w" + width + ".h" + threshold;
+      if (ordered) {
+        indexName = "od.n" + n + ".w" + width + ".h" + threshold;
+      } else {
+        indexName = "uw.n" + n + ".w" + width + ".h" + threshold;
+      }
+
+      if (threshdf) {
+        indexName += ".df";
+      }
+
+      if (stemming) {
+        indexName += "." + stemmerName;
+      }
     }
 
-    if (threshdf) {
-      indexName += ".df";
-    }
-
-    if (stemming) {
-      indexName += "." + stemmerName;
-    }
 
 
     job.add(getSplitStage(inputPaths));

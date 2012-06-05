@@ -41,6 +41,7 @@ public class WindowFilter extends StandardStep<Window, Window> {
     passed = parameters.getCounter("Windows Passed");
   }
   
+  @Override
   public void process(Window w) throws IOException {
     totalCount++;
 
@@ -70,8 +71,9 @@ public class WindowFilter extends StandardStep<Window, Window> {
     }
   }
   
+  @Override
   public void close() throws IOException {
-    System.out.println("Dropped " + dropCount + " of " + totalCount);
+    // System.out.println("Dropped " + dropCount + " of " + totalCount);
     processor.close();
   }
 }

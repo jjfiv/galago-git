@@ -408,15 +408,25 @@ public class App {
 
     @Override
     public String getHelpString() {
-      return "galago dump-index-manifest --filename=<index-part>\n\n"
+      return "galago dump-index-manifest <index-path>\n\n"
               + "  Dumps the manifest for an index file.";
     }
 
     @Override
+    public void run(String[] args, PrintStream output) throws Exception {
+      if (args.length <= 1) {
+        output.println(getHelpString());
+        return;
+      }
+
+      BTreeReader indexReader = BTreeFactory.getBTreeReader(args[1]);
+      output.println(indexReader.getManifest().toPrettyString());
+    }
+
+    @Override
     public void run(Parameters p, PrintStream output) throws Exception {
-      String filename = p.getString("filename");
-      BTreeReader indexReader = BTreeFactory.getBTreeReader(filename);
-      output.println(indexReader.getManifest());
+      String indexPath = p.getString("indexPath");
+      run(new String[]{"", indexPath}, output);
     }
   }
 
@@ -610,7 +620,7 @@ public class App {
 
     @Override
     public String getHelpString() {
-      return "galago overwrite-manifest --filename=/path/to/index/file --key=value\n"
+      return "galago overwrite-manifest --indexPath=/path/to/index/file --key=value\n"
               + "  Rewrites internal index manifest data for index file.\n"
               + "  Allows parameters to be changed after index files have been written.\n\n"
               + "  WARNING : Use with caution - changing some parameters may make the index file non-readable.\n";
@@ -619,7 +629,7 @@ public class App {
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       // first open the index
-      String filename = p.getString("filename");
+      String filename = p.getString("indexPath");
       RandomAccessFile indexReaderWriter = new RandomAccessFile(filename, "rw");
 
       long length = indexReaderWriter.length();
