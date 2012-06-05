@@ -36,7 +36,7 @@ public class LearnerTest extends TestCase {
       index = files[2]; // index is required
       qrels = Utility.createTemporary();
 
-      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.parse("{\"caching\":true, \"flattenCombine\" : false}"));
+      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.parse("{\"caching\":true, \"flattenCombine\" : false, \"cacheScores\": true}"));
 
       String qrelData =
               "q1 x 2 1\n"

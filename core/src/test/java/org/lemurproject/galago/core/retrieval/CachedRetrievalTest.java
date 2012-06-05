@@ -44,6 +44,7 @@ public class CachedRetrievalTest extends TestCase {
 
       Parameters p = new Parameters();
       p.set("caching", true);
+      p.set("cacheScores", true);
       CachedRetrieval cachedRet = (CachedRetrieval) RetrievalFactory.instance(indexFile.getAbsolutePath(), p);
 
       // SCORE node

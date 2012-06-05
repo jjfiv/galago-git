@@ -69,6 +69,7 @@ public class LocalRetrieval implements Retrieval {
   }
 
   public LocalRetrieval(Index index, Parameters parameters) throws IOException {
+    this.globalParameters = parameters;
     setIndex(index);
   }
 
