@@ -257,6 +257,10 @@ public class BuildWindowIndex extends AppFunction {
 
     Parameters p2 = new Parameters();
     p2.set("filename", indexPath + File.separator + indexName);
+    p2.set("n", this.n);
+    p2.set("width", this.width);
+    p2.set("ordered", this.ordered);
+    p2.set("usedocfreq", this.threshdf);
     p2.set("threshold", this.threshold);
     if (stemming) {
       p2.set("stemming", stemming); // slightly redundent only present if true //
