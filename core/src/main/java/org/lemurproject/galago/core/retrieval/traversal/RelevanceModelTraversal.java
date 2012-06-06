@@ -37,11 +37,14 @@ public class RelevanceModelTraversal extends Traversal {
 
   englishStemmer stemmer = null;
   Parameters globalParameters;
+  Parameters queryParams;
   Parameters availableParts;
   Retrieval retrieval;
 
-  public RelevanceModelTraversal(Retrieval retrieval) throws IOException {
+  public RelevanceModelTraversal(Retrieval retrieval, Parameters queryParams) throws IOException {
+    this.queryParams = queryParams;
     this.retrieval = retrieval;
+
     this.globalParameters = retrieval.getGlobalParameters();
     this.availableParts = retrieval.getAvailableParts();
     if (globalParameters.get("stemming", true)) {

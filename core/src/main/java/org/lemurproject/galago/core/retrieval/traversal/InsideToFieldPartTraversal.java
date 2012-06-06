@@ -2,15 +2,17 @@
 package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- * Transforms an #inside operator into a
- *  #extents operator using the field parts.
+ * Transforms an #inside operator into a #extents operator using the field
+ * parts.
  *
  *
  * @author sjh
@@ -41,10 +43,10 @@ public class InsideToFieldPartTraversal extends Traversal {
       }
       Node text = children.get(0);
       Node field = children.get(1);
-      
-      assert(text.getOperator().equals("extents")
+
+      assert (text.getOperator().equals("extents")
               && text.getNodeParameters().isString("part"));
-      assert(field.getOperator().equals("extents")
+      assert (field.getOperator().equals("extents")
               && field.getNodeParameters().isString("part"));
 
       String fieldPart = text.getNodeParameters().getString("part").replaceFirst("postings", "field") + "." + field.getDefaultParameter();
@@ -53,7 +55,10 @@ public class InsideToFieldPartTraversal extends Traversal {
         return original;
       }
 
-      return TextPartAssigner.transformedNode(text.clone(), fieldPart, "extents");
+      NodeParameters parameters = text.getNodeParameters();
+      parameters.set("part", fieldPart);
+      return new Node("extents", parameters, new ArrayList(), original.getPosition());
+
     } else {
       return original;
     }

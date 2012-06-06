@@ -18,6 +18,7 @@ import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
+import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -61,6 +62,7 @@ public class TermSelectionValueModel implements ExpansionModel {
       return (this.score > that.score ? -1 : (this.score < that.score ? 1 : 0));
     }
   }
+  Retrieval retrieval;
   CollectionStatistics stats;
   Parameters parameters;
   DocumentReader cReader = null;
@@ -69,7 +71,8 @@ public class TermSelectionValueModel implements ExpansionModel {
   long N = 0;
   int fbDocs;
 
-  public TermSelectionValueModel(Parameters parameters, CollectionStatistics stats) {
+  public TermSelectionValueModel(Parameters parameters, Retrieval r, CollectionStatistics stats) {
+    this.retrieval = r;
     this.parameters = parameters;
     this.stats = stats;
   }
@@ -94,7 +97,7 @@ public class TermSelectionValueModel implements ExpansionModel {
     // Finally, we need an iterator from the index for the doc. frequencies
     // For now we only take AggregateReader objects, which can report that number. Meaning we need
     // a dummy text node to get the part assignment
-    Node dummy = TextPartAssigner.assignPart(new Node("text", "dummy"), parameters.getMap("parts"));
+    Node dummy = TextPartAssigner.assignPart(new Node("extents", "dummy"), retrieval, new Parameters());
     String indexPart = parameters.getString("index") + File.separator + dummy.getNodeParameters().getString("part");
     reader = DiskIndex.openIndexPart(indexPart);
   }
@@ -128,7 +131,7 @@ public class TermSelectionValueModel implements ExpansionModel {
       if (exclusionTerms.contains(g.term)) {
         continue;
       }
-      Node inner = TextPartAssigner.assignPart(new Node("text", g.term), parameters.getMap("parts"));
+      Node inner = TextPartAssigner.assignPart(new Node("extents", g.term), retrieval, new Parameters());
       ArrayList<Node> innerChild = new ArrayList<Node>();
       innerChild.add(inner);
       NodeParameters weightParameters = new NodeParameters();

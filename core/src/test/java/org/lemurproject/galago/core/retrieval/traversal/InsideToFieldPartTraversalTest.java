@@ -44,11 +44,10 @@ public class InsideToFieldPartTraversalTest extends TestCase {
   public void testTraversal() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
     LocalRetrieval retrieval = new LocalRetrieval(index);
-    TextFieldRewriteTraversal rewriter = new TextFieldRewriteTraversal(retrieval);
+    TextFieldRewriteTraversal rewriter = new TextFieldRewriteTraversal(retrieval, new Parameters());
     Parameters inner1 = new Parameters();
     inner1.set("extents", PositionIndexReader.TermExtentIterator.class.getName());
     inner1.set("counts", PositionIndexReader.TermCountIterator.class.getName());
-    rewriter.availableParts.set("field.subject", inner1);
     
     InsideToFieldPartTraversal traversal = new InsideToFieldPartTraversal(retrieval);
     Parameters inner2 = new Parameters();

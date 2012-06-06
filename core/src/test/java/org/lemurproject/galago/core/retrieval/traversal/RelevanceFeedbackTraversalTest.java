@@ -54,7 +54,7 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     p.set("corpus", corpusFile.getAbsolutePath());
     p.set("stemmedPostings", false);
     LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
-    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval);
+    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval, new Parameters());
 
     Node parsedTree = StructuredQuery.parse("#rm:fbTerms=3:fbDocs=2( #feature:dirichlet( #extents:fits:part=postings() ) )");
     Node transformed = StructuredQuery.copy(traversal, parsedTree);

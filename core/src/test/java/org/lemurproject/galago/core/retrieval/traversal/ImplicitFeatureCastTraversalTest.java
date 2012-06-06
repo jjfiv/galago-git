@@ -44,7 +44,7 @@ public class ImplicitFeatureCastTraversalTest extends TestCase {
     LocalRetrieval retrieval = new LocalRetrieval(index, new Parameters());
 
     ImplicitFeatureCastTraversal traversal = new ImplicitFeatureCastTraversal(retrieval);
-    TextFieldRewriteTraversal precedes = new TextFieldRewriteTraversal(retrieval);
+    TextFieldRewriteTraversal precedes = new TextFieldRewriteTraversal(retrieval, new Parameters());
     Node tree = StructuredQuery.parse("#combine( cat dog.title)");
     tree = StructuredQuery.copy(precedes, tree); // converts #text to #extents...
     StringBuilder transformed = new StringBuilder();

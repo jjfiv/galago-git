@@ -115,7 +115,7 @@ public class RelevanceModel implements ExpansionModel {
       if (exclusionTerms.contains(g.term)) {
         continue;
       }
-      Node inner = TextPartAssigner.assignPart(new Node("text", g.term), parameters.getMap("parts"));
+      Node inner = TextPartAssigner.assignPart(new Node("extents", g.term), this.retrieval, new Parameters());
       ArrayList<Node> innerChild = new ArrayList<Node>();
       innerChild.add(inner);
       String scorerType = parameters.get("scorer", "dirichlet");
