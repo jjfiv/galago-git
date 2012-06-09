@@ -79,7 +79,7 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
       } else if (split.fileType.equals("twitter")) {
         parser = new TwitterParser(getLocalBufferedReader(split));
       } else if (split.fileType.equals("corpus")) {
-        parser = new IndexReaderSplitParser(split);
+        parser = new CorpusSplitParser(split);
       } else if (split.fileType.equals("wiki")) {
         parser = new WikiParser(getLocalBufferedReader(split));
       } else if (split.fileType.equals("mbtei")) {

@@ -17,12 +17,12 @@ import org.lemurproject.galago.tupleflow.Utility;
  * 
  * @author trevor, sjh
  */
-public class IndexReaderSplitParser implements DocumentStreamParser {
+public class CorpusSplitParser implements DocumentStreamParser {
   DocumentReader reader;
   DocumentIterator iterator;
   DocumentSplit split;
 
-  public IndexReaderSplitParser(DocumentSplit split) throws FileNotFoundException, IOException {
+  public CorpusSplitParser(DocumentSplit split) throws FileNotFoundException, IOException {
     reader = new CorpusReader( split.fileName );
     iterator = (DocumentIterator) reader.getIterator();
     iterator.skipToKey(split.startKey);

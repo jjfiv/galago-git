@@ -44,6 +44,7 @@ public class SplitBTreeKeyWriter implements Processor<KeyValuePair> {
     keyCounter = parameters.getCounter("Document Keys Written");
   }
 
+  @Override
   public void process(KeyValuePair object) throws IOException {
     writer.add(new GenericElement(object.key, object.value));
     if (keyCounter != null) {
@@ -51,6 +52,7 @@ public class SplitBTreeKeyWriter implements Processor<KeyValuePair> {
     }
   }
 
+  @Override
   public void close() throws IOException {
     writer.close();
   }
