@@ -15,14 +15,13 @@ import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 public class BTreeFactory {
 
   /*
-   * Static function to open an index file or folder
+   * Static functions to open an index file or folder
    */
-  public static BTreeReader getBTreeReader(String pathname) throws IOException {
-    if (!pathname.contains(File.separator)) {
-      pathname = "." + File.separator + pathname;
-    }
-    File f = new File(pathname);
+  public static BTreeReader getBTreeReader(String filePath) throws IOException {
+    return getBTreeReader(new File(filePath));
+  }
 
+  public static BTreeReader getBTreeReader(File f) throws IOException {
     if (SplitBTreeReader.isBTree(f)) {
       return new SplitBTreeReader(f);
     } else if (DiskBTreeReader.isBTree(f)) {
@@ -33,14 +32,13 @@ public class BTreeFactory {
   }
 
   /**
-   * Static function to check if the path contains an index of some type
+   * Static functions to check if the path contains an index of some type
    */
-  public static boolean isBTree(String pathname) throws IOException {
-    if (!pathname.contains(File.separator)) {
-      pathname = "." + File.separator + pathname;
-    }
-    File f = new File(pathname);
+  public static boolean isBTree(String filePath) throws IOException {
+    return isBTree(new File(filePath));
+  }
 
+  public static boolean isBTree(File f) throws IOException {
     if (SplitBTreeReader.isBTree(f)) {
       return true;
     }

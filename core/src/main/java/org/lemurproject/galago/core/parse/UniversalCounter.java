@@ -166,7 +166,6 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
         stream = new BufferedInputStream(new GZIPInputStream(fileStream));
       } else { // bzip2
         BufferedInputStream bis = new BufferedInputStream(fileStream);
-        //bzipHeaderCheck(bis);
         stream = new BufferedInputStream(new BZip2CompressorInputStream(bis));
       }
     } else {
@@ -174,17 +173,4 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
     }
     return stream;
   }
-
-  /* -- this now cases errors...
-  private static void bzipHeaderCheck(BufferedInputStream stream) throws IOException {
-    char[] header = new char[2];
-    stream.mark(4);
-    header[0] = (char) stream.read();
-    header[1] = (char) stream.read();
-    String hdrStr = new String(header);
-    if (hdrStr.equals("BZ") == false) {
-      stream.reset();
-    }
-  }
-  */
 }
