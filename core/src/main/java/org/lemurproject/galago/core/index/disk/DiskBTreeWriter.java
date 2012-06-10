@@ -96,10 +96,12 @@ public class DiskBTreeWriter extends BTreeWriter {
    * Returns the current copy of the manifest, which will be stored in
    * the completed index file.  This data is not written until close() is called.
    */
+  @Override
   public Parameters getManifest() {
     return manifest;
   }
 
+  @Override
   public void add(IndexElement list) throws IOException {
     if (list.key().length >= this.keySize || list.key().length >= blockSize) {
       throw new IOException(String.format("Key %s is too long.", Utility.toString(list.key())));

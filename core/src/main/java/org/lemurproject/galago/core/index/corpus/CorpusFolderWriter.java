@@ -41,14 +41,17 @@ public class CorpusFolderWriter implements Processor<Document>, Source<KeyValueP
     writer = new SplitBTreeValueWriter(parameters);
   }
 
+  @Override
   public void process(Document document) throws IOException {
     writer.add(new GenericElement(Utility.fromInt(document.identifier), Document.serialize(corpusParams, document)));
   }
 
+  @Override
   public void close() throws IOException {
     writer.close();
   }
 
+  @Override
   public void setProcessor(Step next) throws IncompatibleProcessorException {
     Linkage.link(writer, next);
   }

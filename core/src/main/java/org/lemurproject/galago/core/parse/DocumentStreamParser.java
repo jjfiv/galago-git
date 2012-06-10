@@ -11,4 +11,5 @@ import java.io.IOException;
  */
 public interface DocumentStreamParser {
     public Document nextDocument() throws IOException;
+    public void close() throws IOException;
 }

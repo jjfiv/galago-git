@@ -6,15 +6,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.util.StreamReaderDelegate;
 import org.lemurproject.galago.core.types.DocumentSplit;
 
 /**
  * Produces page-level postings from books in MBTEI format. Pages with no text
- * are not emitted as documents, and the header is prepended to every emitted Document
- * object. Each document is emitted as an XML file, but only the header retains tags.
+ * are not emitted as documents, and the header is prepended to every emitted
+ * Document object. Each document is emitted as an XML file, but only the header
+ * retains tags.
  *
- * Otherwise the page text is just in a "<text>" element as one large span of text.
+ * Otherwise the page text is just in a "<text>" element as one large span of
+ * text.
  *
  * @author irmarc
  */
@@ -22,7 +25,6 @@ class MBTEIParser implements DocumentStreamParser {
 
   // External/global switch to flip for different level parsing.
   public static String splitTag;
-
   // For XML stream processing
   StreamReaderDelegate reader;
   XMLInputFactory factory;
@@ -48,14 +50,16 @@ class MBTEIParser implements DocumentStreamParser {
 
   @Override
   public Document nextDocument() throws IOException {
-    if (reader == null) return null;
+    if (reader == null) {
+      return null;
+    }
 
     StringBuilder builder = new StringBuilder();
     int status = 0;
     Document d;
     try {
       while (reader.hasNext()) {
-          status = reader.next();
+        status = reader.next();
         if (status == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(splitTag)) {
           d = buildDocument(builder);
           pagenumber = Integer.parseInt(reader.getAttributeValue(null, "n"));
@@ -76,8 +80,8 @@ class MBTEIParser implements DocumentStreamParser {
       d = buildDocument(builder);
       return d;
     } catch (Exception e) {
-	System.err.printf("EXCEPTION [%s, %d]: %s\n", bookIdentifier, pagenumber, e.getMessage());
-	return null;
+      System.err.printf("EXCEPTION [%s, %d]: %s\n", bookIdentifier, pagenumber, e.getMessage());
+      return null;
     }
   }
 
@@ -145,5 +149,14 @@ class MBTEIParser implements DocumentStreamParser {
     String basename = f.getName();
     String[] parts = basename.split("_");
     return parts[0];
+  }
+
+  @Override
+  public void close() throws IOException {
+    try {
+      reader.close();
+    } catch (XMLStreamException ex) {
+      System.err.printf("EXCEPTION CLOSING [%s, %d]: %s\n", bookIdentifier, pagenumber, ex.getMessage());
+    }
   }
 }

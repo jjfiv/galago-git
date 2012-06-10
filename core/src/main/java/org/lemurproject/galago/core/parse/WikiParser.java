@@ -28,7 +28,9 @@ public class WikiParser implements DocumentStreamParser {
   DocumentBuilder builder;
   WikiModel wikiParser;
 
-  /** Creates a new instance of TrecWebParser */
+  /**
+   * Creates a new instance of TrecWebParser
+   */
   public WikiParser(BufferedReader reader) throws FileNotFoundException, IOException {
     this.reader = reader;
     DocumentBuilderFactory builderFactory =
@@ -41,7 +43,7 @@ public class WikiParser implements DocumentStreamParser {
     }
     this.wikiParser = new WikiModel("http://en.wikipedia.org/wiki/${image}",
             "http://en.wikipedia.org/wiki/${title}");
-    
+
     this.specialPrefixWhiteList = new HashSet();
     this.specialPrefixWhiteList.add("Category:");
   }
@@ -98,10 +100,10 @@ public class WikiParser implements DocumentStreamParser {
       Element titleElement = (Element) titleList.item(0);
       documentTitle = ((CharacterData) titleElement.getFirstChild()).getData();
 
-      if(!checkTitle(documentTitle)){
+      if (!checkTitle(documentTitle)) {
         return null;
       }
-          
+
       // Highlander principle parsing - timestamp!
       NodeList timeList = xmlDoc.getElementsByTagName("timestamp");
       Element timeElement = (Element) timeList.item(0);
@@ -123,7 +125,7 @@ public class WikiParser implements DocumentStreamParser {
       }
 
       d = new Document(documentId, documentText.toString().toLowerCase());
-      
+
       d.metadata.put("url", "http://en.wikipedia.org/wiki/" + documentTitle.toLowerCase());
 
     } catch (Exception ex) {
@@ -134,14 +136,19 @@ public class WikiParser implements DocumentStreamParser {
   }
 
   private boolean checkTitle(String documentTitle) {
-    if(documentTitle.contains(":")){
-      for(String prefix : this.specialPrefixWhiteList){
-        if(documentTitle.startsWith(prefix)){
+    if (documentTitle.contains(":")) {
+      for (String prefix : this.specialPrefixWhiteList) {
+        if (documentTitle.startsWith(prefix)) {
           return true;
         }
       }
       return false;
     }
     return true;
+  }
+
+  @Override
+  public void close() throws IOException {
+    this.reader.close();
   }
 }

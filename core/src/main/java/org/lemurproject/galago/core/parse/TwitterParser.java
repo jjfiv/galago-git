@@ -8,9 +8,8 @@ import java.io.IOException;
 /**
  *
  * Twitter data parser
- * 
- * assumed data format:
- * <user> <timestamp> <tweet> <tweet-source>
+ *
+ * assumed data format: <user> <timestamp> <tweet> <tweet-source>
  *
  * @author sjh
  */
@@ -18,7 +17,9 @@ public class TwitterParser implements DocumentStreamParser {
 
   BufferedReader reader;
 
-  /** Creates a new instance of TrecTextParser */
+  /**
+   * Creates a new instance of TrecTextParser
+   */
   public TwitterParser(BufferedReader reader) throws FileNotFoundException, IOException {
     this.reader = reader;
   }
@@ -58,14 +59,17 @@ public class TwitterParser implements DocumentStreamParser {
     return null;
   }
 
-
   // currently not used.
-  
-  public String cleanTweet(String tweet){
+  public String cleanTweet(String tweet) {
     // remove user - references @xxxx
     tweet = tweet.replaceAll("@[^\\s]+", "");
     // remove urls - http://bit.ly/xxx
     tweet = tweet.replaceAll("http://[^\\s]+", "");
     return tweet;
+  }
+
+  @Override
+  public void close() throws IOException {
+    this.reader.close();
   }
 }

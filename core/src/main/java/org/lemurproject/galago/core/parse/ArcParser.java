@@ -19,7 +19,7 @@ public class ArcParser implements DocumentStreamParser {
     }
 
     private String readLine() throws IOException {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         boolean seenNonNewline = false;
 
         do {
@@ -102,4 +102,9 @@ public class ArcParser implements DocumentStreamParser {
         }
         return headerEnd;
     }
+
+  @Override
+  public void close() throws IOException {
+    stream.close();
+  }
 }

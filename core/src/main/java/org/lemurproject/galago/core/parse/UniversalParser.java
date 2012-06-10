@@ -34,8 +34,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 
   private Counter documentCounter;
   private Parameters parameters;
-  private Logger LOG = Logger.getLogger(getClass().toString());
-  private Closeable source;
+  private Logger logger = Logger.getLogger(getClass().toString());
   private byte[] subCollCheck = "subcoll".getBytes();
 
   public UniversalParser(TupleFlowParameters parameters) {
@@ -56,7 +55,6 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
   @Override
   public void process(DocumentSplit split) throws IOException {
     DocumentStreamParser parser = null;
-    source = null;
     long count = 0;
     long limit = Long.MAX_VALUE;
     if (split.startKey.length > 0) {
@@ -82,6 +80,10 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
       } else if (split.fileType.equals("twitter")) {
         parser = new TwitterParser(getLocalBufferedReader(split));
       } else if (split.fileType.equals("corpus")) {
+        int fk = (split.startKey.length > 0)? Utility.toInt(split.startKey): -1;
+        int lk = (split.endKey.length > 0)? Utility.toInt(split.endKey): -1;
+        
+        System.err.format("%s\t%d\t%d", split.fileName, fk, lk);
         parser = new CorpusSplitParser(split);
       } else if (split.fileType.equals("wiki")) {
         parser = new WikiParser(getLocalBufferedReader(split));
@@ -111,8 +113,11 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
         break;
       }
     }
-    if (source != null) {
-      source.close();
+    
+    System.err.format("%d\n", count);
+    
+    if (parser != null) {
+      parser.close();
     }
   }
 
@@ -132,7 +137,6 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 
   public BufferedReader getLocalBufferedReader(DocumentSplit split) throws IOException {
     BufferedReader br = getBufferedReader(split);
-    source = br;
     return br;
   }
 
@@ -157,7 +161,6 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 
   public BufferedInputStream getLocalBufferedInputStream(DocumentSplit split) throws IOException {
     BufferedInputStream bis = getBufferedInputStream(split);
-    source = bis;
     return bis;
   }
 
@@ -171,7 +174,6 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
         stream = new BufferedInputStream(new GZIPInputStream(fileStream));
       } else { // bzip2
         BufferedInputStream bis = new BufferedInputStream(fileStream);
-        //bzipHeaderCheck(bis);
         stream = new BufferedInputStream(new BZip2CompressorInputStream(bis));
       }
     } else {
@@ -179,17 +181,4 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     }
     return stream;
   }
-
-  /* -- this now cases errors...
-  private static void bzipHeaderCheck(BufferedInputStream stream) throws IOException {
-    char[] header = new char[2];
-    stream.mark(4);
-    header[0] = (char) stream.read();
-    header[1] = (char) stream.read();
-    String hdrStr = new String(header);
-    if (hdrStr.equals("BZ") == false) {
-      stream.reset();
-    }
-  }
-  */
 }
