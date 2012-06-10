@@ -173,7 +173,7 @@ public class WindowProducerTest extends TestCase {
 
     bigramProducer.process(doc1);
 
-    catcher.printAll();
+    //catcher.printAll();
 
     assert (catcher.data.size() == 6);
     assert (Utility.toString(catcher.data.get(0).data).equals("1~9"));
