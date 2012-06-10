@@ -39,7 +39,6 @@ public class CorpusSplitParser implements DocumentStreamParser {
     
     // Don't go past the end of the split.
     if (split.endKey.length > 0 && Utility.compare(keyBytes, split.endKey) >= 0) {
-      System.err.println();
       return null;
     }
 

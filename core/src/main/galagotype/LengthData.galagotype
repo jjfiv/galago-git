@@ -1,0 +1,9 @@
+package org.lemurproject.galago.core.types;
+
+type LengthData {
+    String field;
+    int document;
+    int length;
+    
+    order: +field +document;
+}

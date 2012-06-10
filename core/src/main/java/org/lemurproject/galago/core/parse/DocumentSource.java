@@ -15,7 +15,6 @@ import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
-import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 import org.lemurproject.galago.tupleflow.ExNihiloSource;
 import org.lemurproject.galago.tupleflow.FileSource;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
@@ -45,7 +44,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   static String[][] specialKnownExtensions = {
     {"_mbtei.xml.gz", "mbtei"}
   };
-  private Counter inputCounter, countCounter;
+  private Counter inputCounter;
   public Processor<DocumentSplit> processor;
   private TupleFlowParameters parameters;
   private int fileId = 0;
@@ -55,7 +54,6 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   public DocumentSource(TupleFlowParameters parameters) {
     this.parameters = parameters;
     this.inputCounter = parameters.getCounter("Inputs Processed");
-    this.countCounter = parameters.getCounter("Inputs counted");
   }
 
   public void run() throws IOException {
@@ -82,6 +80,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
     // now process each file
     for (DocumentSplit split : splitBuffer) {
+      inputCounter.increment();
       split.fileId = fileId;
       split.totalFileCount = totalFileCount;
       processor.process(split);

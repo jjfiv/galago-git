@@ -80,10 +80,6 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
       } else if (split.fileType.equals("twitter")) {
         parser = new TwitterParser(getLocalBufferedReader(split));
       } else if (split.fileType.equals("corpus")) {
-        int fk = (split.startKey.length > 0)? Utility.toInt(split.startKey): -1;
-        int lk = (split.endKey.length > 0)? Utility.toInt(split.endKey): -1;
-        
-        System.err.format("%s\t%d\t%d", split.fileName, fk, lk);
         parser = new CorpusSplitParser(split);
       } else if (split.fileType.equals("wiki")) {
         parser = new WikiParser(getLocalBufferedReader(split));
@@ -113,8 +109,6 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
         break;
       }
     }
-    
-    System.err.format("%d\n", count);
     
     if (parser != null) {
       parser.close();
