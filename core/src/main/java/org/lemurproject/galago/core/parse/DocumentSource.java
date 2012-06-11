@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import org.lemurproject.galago.core.index.BTreeFactory;
 import org.lemurproject.galago.core.index.BTreeReader;
@@ -259,9 +260,8 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     List<IndexBlockInfo> slots = vocabulary.getSlots();
     ArrayList<byte[]> keys = new ArrayList<byte[]>();
 
-
-    // look for the desired number of corpus pieces:
-    long pieces = this.parameters.getJSON().get("corpusPieces", -1);
+    // look for a manually specified number of corpus pieces:
+    long pieces = this.parameters.getJSON().get("corpusPieces", 10);
 
     // otherwise we want to divde the corpus up into ~50MB chunks
     if(pieces < 0){
@@ -279,9 +279,13 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         corpusSize = file.length();
       }
 
-      pieces = Math.max(2, (int) (corpusSize / chunkSize));
+      pieces = (int) (corpusSize / chunkSize);
     }
     
+    // otherwise we must always emit at least 2 pieces.
+    pieces = Math.max(2, pieces);
+    
+    Logger.getLogger("DOCSOURCE").info("Splitting corpus into " + pieces);
     
     for (int i = 1; i < pieces; ++i) {
       float fraction = (float) i / pieces;

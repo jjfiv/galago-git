@@ -64,7 +64,9 @@ public class BuildStemmerConflation extends AppFunction {
     List<String> inputPaths = p.getAsList("inputPath");
     File output = new File(p.getString("outputPath"));
     
-    job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class));
+    Parameters splitParameters = new Parameters();
+    splitParameters.set("corpusPieces", p.get("distrib", 10));
+    job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
     job.add(getParserStage(p));
     job.add(getWriterStage(output));
     

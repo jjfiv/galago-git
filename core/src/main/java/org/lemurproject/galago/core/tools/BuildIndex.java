@@ -354,6 +354,8 @@ public class BuildIndex extends AppFunction {
       corpusParameters.set("readerClass", CorpusReader.class.getName());
       corpusParameters.set("writerClass", CorpusFolderWriter.class.getName());
       corpusParameters.set("mergerClass", CorpusMerger.class.getName());
+      // we need a small block size because the stored values are small
+      corpusParameters.set("blockSize", globalParameters.get("corpusBlockSize", 512));
       corpusParameters.set("filename", globalParameters.getString("indexPath") + File.separator + "corpus");
       
       // copy over the other parameters
@@ -656,7 +658,11 @@ public class BuildIndex extends AppFunction {
     List<String> inputPaths = buildParameters.getAsList("inputPath");
 
     // common steps + connections
-    job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, buildParameters));
+
+    Parameters splitParameters = new Parameters();
+    splitParameters.set("corpusPieces", buildParameters.get("distrib", 10));
+    job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
+   
     job.add(getParsePostingsStage(buildParameters));
     job.add(BuildStageTemplates.getDocumentCounter("countDocuments", "numberedDocumentDataNumbers", "docCounts"));
     job.add(BuildStageTemplates.getWriteNamesStage("writeNames", new File(indexPath, "names"), "numberedDocumentDataNumbers"));

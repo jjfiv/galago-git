@@ -60,11 +60,6 @@ public class BuildSpecialPart extends AppFunction {
     stage.add(Utility.getSorter(new KeyValuePair.KeyOrder()));
     stage.add(new Step(NumberKeyValuePairs.class, indexParams));
 
-    // stage needs:
-    // nkvp -> local datatype
-    // local datatype sorter
-    // local datatype writer
-    
     return stage;
   }
   

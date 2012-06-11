@@ -38,7 +38,10 @@ public class BuildSubCollection extends AppFunction {
 
     // reading input files
     List<String> inputPaths = buildParameters.getAsList("inputPath");
-    job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class));
+
+    Parameters splitParameters = new Parameters();
+    splitParameters.set("corpusPieces", buildParameters.get("distrib", 10));
+    job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
 
     // split out, count 'em
     Stage stage = new Stage("countDocuments");

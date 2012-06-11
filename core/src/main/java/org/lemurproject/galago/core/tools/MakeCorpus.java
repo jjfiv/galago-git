@@ -37,12 +37,58 @@ import org.lemurproject.galago.tupleflow.execution.Step;
  */
 public class MakeCorpus {
 
-  public Stage getSplitStage(List<String> inputs) throws IOException {
+  public static Job getCorpusFileJob(String outputCorpus, List<String> inputs, Parameters corpusParameters) throws IOException {
+    Job job = new Job();
+
+    Stage stage = new Stage("make-corpus");
+
+    Parameters p = new Parameters();
+    ArrayList<String> inputFiles = new ArrayList<String>();
+    ArrayList<String> inputDirectories = new ArrayList<String>();
+    for (String input : inputs) {
+      File inputFile = new File(input);
+
+      if (inputFile.isFile()) {
+        inputFiles.add(inputFile.getAbsolutePath());
+      } else if (inputFile.isDirectory()) {
+        inputDirectories.add(inputFile.getAbsolutePath());
+      } else {
+        throw new IOException("Couldn't find file/directory: " + input);
+      }
+      p.set("filename", inputFiles);
+      p.set("directory", inputDirectories);
+    }
+
+    stage.add(new Step(DocumentSource.class, p));
+    stage.add(BuildStageTemplates.getParserStep(corpusParameters));
+    stage.add(BuildStageTemplates.getTokenizerStep(corpusParameters));
+    stage.add(new Step(DocumentNumberer.class));
+
+    stage.add(new Step(DocumentToKeyValuePair.class));
+    stage.add(Utility.getSorter(new KeyValuePair.KeyOrder()));
+    stage.add(new Step(KeyValuePairToDocument.class));
+    p = new Parameters();
+    p.set("filename", outputCorpus);
+    if(corpusParameters.isLong("corpusBlockSize")){
+      p.set("blockSize", corpusParameters.getLong("corpusBlockSize"));
+    }
+    if (p.isMap("corpusParameters")) {
+      p.copyFrom(corpusParameters.getMap("corpusParameters"));
+    }
+    stage.add(new Step(CorpusFileWriter.class, p));
+
+    job.add(stage);
+    return job;
+  }
+
+  public Stage getSplitStage(List<String> inputs, Parameters globalParams) throws IOException {
     Stage stage = new Stage("inputSplit");
     stage.add(new StageConnectionPoint(ConnectionPointType.Output, "splits",
             new DocumentSplit.FileIdOrder()));
 
     Parameters p = new Parameters();
+    p.set("corpusPieces", globalParams.get("distrib", 10));
+
     ArrayList<String> inputFiles = new ArrayList<String>();
     ArrayList<String> inputDirectories = new ArrayList<String>();
     for (String input : inputs) {
@@ -101,58 +147,6 @@ public class MakeCorpus {
     return stage;
   }
 
-  public static Job getCorpusFileJob(String outputCorpus, List<String> inputs, Parameters corpusParameters) throws IOException {
-    Job job = new Job();
-
-    Stage stage = new Stage("split");
-    stage.add(new StageConnectionPoint(ConnectionPointType.Output, "docs",
-            new KeyValuePair.KeyOrder()));
-    Parameters p = new Parameters();
-    ArrayList<String> inputFiles = new ArrayList<String>();
-    ArrayList<String> inputDirectories = new ArrayList<String>();
-    for (String input : inputs) {
-      File inputFile = new File(input);
-
-      if (inputFile.isFile()) {
-        inputFiles.add(inputFile.getAbsolutePath());
-      } else if (inputFile.isDirectory()) {
-        inputDirectories.add(inputFile.getAbsolutePath());
-      } else {
-        throw new IOException("Couldn't find file/directory: " + input);
-      }
-      p.set("filename", inputFiles);
-      p.set("directory", inputDirectories);
-    }
-
-    stage.add(new Step(DocumentSource.class, p));
-    p = new Parameters();
-    p.set("identifier", "stripped");
-    stage.add(BuildStageTemplates.getParserStep(corpusParameters));
-    stage.add(BuildStageTemplates.getTokenizerStep(corpusParameters));
-    stage.add(new Step(DocumentNumberer.class));
-
-    stage.add(new Step(DocumentToKeyValuePair.class));
-    stage.add(Utility.getSorter(new KeyValuePair.KeyOrder()));
-    stage.add(new OutputStep("docs"));
-    job.add(stage);
-
-    stage = new Stage("docwrite");
-    stage.add(new StageConnectionPoint(ConnectionPointType.Input, "docs",
-            new KeyValuePair.KeyOrder()));
-    stage.add(new InputStep("docs"));
-    stage.add(new Step(KeyValuePairToDocument.class));
-    p = new Parameters();
-    p.set("filename", outputCorpus);
-    if(p.isMap("corpusParameters")){
-      p.copyFrom(corpusParameters.getMap("corpusParameters"));
-    }
-    stage.add(new Step(CorpusFileWriter.class, p));
-
-    job.add(stage);
-    job.connect("split", "docwrite", ConnectionAssignmentType.Combined);
-    return job;
-  }
-
   public Job getMakeCorpusJob(Parameters corpusParams) throws IOException {
 
     List<String> inputPaths = corpusParams.getAsList("inputPath");
@@ -166,7 +160,7 @@ public class MakeCorpus {
     // otherwise we're creating a folder corpus
     //  -> clear the directory.
     if (corpus.isDirectory()) {
-      for(File f : corpus.listFiles()){
+      for (File f : corpus.listFiles()) {
         f.delete();
       }
     }
@@ -175,13 +169,17 @@ public class MakeCorpus {
     corpusWriterParameters.set("readerClass", CorpusReader.class.getName());
     corpusWriterParameters.set("writerClass", CorpusFolderWriter.class.getName());
     corpusWriterParameters.set("filename", corpus.getAbsolutePath());
-    if(corpusParams.isMap("corpusParameters")){
+    // we need a small block size because the stored values are small
+    corpusWriterParameters.set("blockSize", corpusParams.get("corpusBlockSize", 512));
+    if (corpusParams.isMap("corpusParameters")) {
       corpusWriterParameters.copyFrom(corpusParams.getMap("corpusParameters"));
     }
 
     Job job = new Job();
 
-    job.add(getSplitStage(inputPaths));
+    Parameters splitParameters = new Parameters();
+    splitParameters.set("corpusPieces", corpusParams.get("distrib", 10));
+    job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
     job.add(getParseWriteDocumentsStage(corpusParams, corpusWriterParameters));
     job.add(getIndexWriterStage(corpusWriterParameters));
 

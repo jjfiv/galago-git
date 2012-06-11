@@ -41,10 +41,12 @@ public class CorpusFileWriter implements Processor<Document> {
     documentsWritten = parameters.getCounter("Documents Written");
   }
 
+  @Override
   public void close() throws IOException {
     writer.close();
   }
 
+  @Override
   public void process(Document document) throws IOException {
     writer.add(new GenericElement(Utility.fromInt(document.identifier), Document.serialize(corpusParams, document)));
     if (documentsWritten != null) {

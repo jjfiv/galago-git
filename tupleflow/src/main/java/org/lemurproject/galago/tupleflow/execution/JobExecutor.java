@@ -310,7 +310,7 @@ public class JobExecutor {
             continue;
           }
           if (inputStageDesc.instanceCount > 1) {
-            job.addMergeStage(inputStageName, inputPointName, defaultHashCount);
+            job.addMergeStage(inputStageName, inputPointName, -1);
           }
         }
       }
@@ -554,15 +554,14 @@ public class JobExecutor {
 
     public int getOutputCount() {
       int result = 1;
-
+      
       if (isHashed()) {
         String globalHashCount = job.properties.get("hashCount");
 
         if (connection.getHashCount() > 0) {
           result = connection.getHashCount();
 
-        } else if (globalHashCount != null
-                && Utility.isInteger(globalHashCount)) {
+        } else if (globalHashCount != null && Utility.isInteger(globalHashCount)) {
           result = Integer.parseInt(globalHashCount);
 
         } else {

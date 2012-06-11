@@ -71,34 +71,6 @@ public class BuildWindowIndex extends AppFunction {
   String stemmerName;
   Class stemmerClass;
 
-  public Stage getSplitStage(List<String> inputs) throws IOException {
-    Stage stage = new Stage("inputSplit");
-    stage.add(new StageConnectionPoint(ConnectionPointType.Output, "splits",
-            new DocumentSplit.FileIdOrder()));
-
-    Parameters p = new Parameters();
-    ArrayList<String> inputFiles = new ArrayList<String>();
-    ArrayList<String> inputDirectories = new ArrayList<String>();
-    for (String input : inputs) {
-      File inputFile = new File(input);
-
-      if (inputFile.isFile()) {
-        inputFiles.add(inputFile.getAbsolutePath());
-      } else if (inputFile.isDirectory()) {
-        inputDirectories.add(inputFile.getAbsolutePath());
-      } else {
-        throw new IOException("Couldn't find file/directory: " + input);
-      }
-      p.set("filename", inputFiles);
-      p.set("directory", inputDirectories);
-    }
-
-    stage.add(new Step(DocumentSource.class, p));
-    stage.add(Utility.getSorter(new DocumentSplit.FileIdOrder()));
-    stage.add(new OutputStep("splits"));
-    return stage;
-  }
-
   public Stage getParseFilterStage() throws Exception {
     // reads through the corpus
     Stage stage = new Stage("parseFilter");
@@ -361,7 +333,9 @@ public class BuildWindowIndex extends AppFunction {
 
 
 
-    job.add(getSplitStage(inputPaths));
+    Parameters splitParameters = new Parameters();
+    splitParameters.set("corpusPieces", p.get("distrib", 10));
+    job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
     job.add(getParsePostingsStage());
     job.add(getWritePostingsStage("writePostings", "windows", indexName));
 
@@ -373,7 +347,7 @@ public class BuildWindowIndex extends AppFunction {
       job.add(getReduceFilterStage());
       job.connect("inputSplit", "parseFilter", ConnectionAssignmentType.Each);
       job.connect("parseFilter", "reduceFilter", ConnectionAssignmentType.Each);
-      job.connect("reduceFilter", "parsePostings", ConnectionAssignmentType.Each, new TextFeature.FileOrder().getOrderSpec(), -1);
+      job.connect("reduceFilter", "parsePostings", ConnectionAssignmentType.Each, new TextFeature.FileOrder().getOrderSpec(), (int) p.get("distrib", -1));
     }
 
     return job;

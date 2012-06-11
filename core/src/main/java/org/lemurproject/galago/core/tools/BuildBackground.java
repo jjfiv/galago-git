@@ -122,7 +122,11 @@ public class BuildBackground extends AppFunction {
     writerParams.set("filename", output);
 
     Job job = new Job();
-    job.add(BuildStageTemplates.getSplitStage(inputs, DocumentSource.class));
+
+    Parameters splitParameters = new Parameters();
+    splitParameters.set("corpusPieces", p.get("distrib", 10));
+    job.add(BuildStageTemplates.getSplitStage(inputs, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
+   
     job.add(getParseStage(p));
     job.add(BuildStageTemplates.getDocumentCounter("countDocuments", "numberedDocumentData", "docCounts"));
 

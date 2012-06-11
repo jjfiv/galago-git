@@ -153,14 +153,21 @@ public class BuildStageTemplates {
     return stage;
   }
 
-  public static Stage getSplitStage(ArrayList<String> inputPaths, Class<? extends ExNihiloSource> sourceClass, Order order)
+  public static Stage getSplitStage(List<String> inputPaths, Class<? extends ExNihiloSource<DocumentSplit>> sourceClass) throws IOException {
+    return getSplitStage(inputPaths, sourceClass, new DocumentSplit.FileIdOrder(), new Parameters());
+  }
+
+  public static Stage getSplitStage(List<String> inputPaths, Class<? extends ExNihiloSource<DocumentSplit>> sourceClass, Parameters p) throws IOException {
+    return getSplitStage(inputPaths, sourceClass, new DocumentSplit.FileIdOrder(), p);
+  }
+  
+  public static Stage getSplitStage(List<String> inputPaths, Class<? extends ExNihiloSource> sourceClass, Order order, Parameters p)
           throws IOException {
     Stage stage = new Stage("inputSplit");
     stage.addOutput("splits", order);
 
-    Parameters p = new Parameters();
-    ArrayList<String> inputFiles = new ArrayList<String>();
-    ArrayList<String> inputDirectories = new ArrayList<String>();
+    List<String> inputFiles = new ArrayList<String>();
+    List<String> inputDirectories = new ArrayList<String>();
     for (String input : inputPaths) {
       File inputFile = new File(input);
 
@@ -177,37 +184,6 @@ public class BuildStageTemplates {
 
     stage.add(new Step(sourceClass, p));
     stage.add(Utility.getSorter(order));
-    stage.add(new OutputStep("splits"));
-    return stage;
-  }
-
-  public static Stage getSplitStage(List<String> inputPaths, Class<? extends ExNihiloSource<DocumentSplit>> sourceClass) throws IOException {
-    return getSplitStage(inputPaths,sourceClass, new Parameters());
-  }
-
-  public static Stage getSplitStage(List<String> inputPaths, Class<? extends ExNihiloSource<DocumentSplit>> sourceClass,
-          Parameters p) throws IOException {
-    Stage stage = new Stage("inputSplit");
-    stage.add(new StageConnectionPoint(ConnectionPointType.Output, "splits",
-            new DocumentSplit.FileIdOrder()));
-    ArrayList<String> inputFiles = new ArrayList<String>();
-    ArrayList<String> inputDirectories = new ArrayList<String>();
-    for (String input : inputPaths) {
-      File inputFile = new File(input);
-
-      if (inputFile.isFile()) {
-        inputFiles.add(inputFile.getAbsolutePath());
-      } else if (inputFile.isDirectory()) {
-        inputDirectories.add(inputFile.getAbsolutePath());
-      } else {
-        throw new IOException("Couldn't find file/directory: " + input);
-      }
-      p.set("filename", inputFiles);
-      p.set("directory", inputDirectories);
-    }
-
-    stage.add(new Step(sourceClass, p));
-    stage.add(Utility.getSorter(new DocumentSplit.FileIdOrder()));
     stage.add(new OutputStep("splits"));
     return stage;
   }
