@@ -129,15 +129,13 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       return; // now considered processed
     }
 
-    if (file.getName().equals("corpus") || (BTreeFactory.isBTree(file))) {
+    if (UniversalParser.isParsable(extension)) {
+      fileType = extension;
+
+    } else if (file.getName().equals("corpus") || (BTreeFactory.isBTree(file))) {
       // perhaps the user has renamed the corpus index
       processCorpusFile(file);
       return; // done now;
-    }
-
-
-    if (UniversalParser.isParsable(extension)) {
-      fileType = extension;
 
     } else {
       fileType = detectTrecTextOrWeb(file);
@@ -264,29 +262,29 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     long pieces = this.parameters.getJSON().get("corpusPieces", 10);
 
     // otherwise we want to divde the corpus up into ~50MB chunks
-    if(pieces < 0){
+    if (pieces < 0) {
       long chunkSize = 50 * 1024 * 1024;
       long corpusSize = 0L;
- 
+
       // if we have a corpus folder sum the lengths of files in the folder
       if (SplitBTreeReader.isBTree(file)) {
         File folder = file.getParentFile();
         for (File f : folder.listFiles()) {
-         corpusSize += f.length();
+          corpusSize += f.length();
         }
-      } else { 
+      } else {
         // else must be a corpus file.
         corpusSize = file.length();
       }
 
       pieces = (int) (corpusSize / chunkSize);
     }
-    
+
     // otherwise we must always emit at least 2 pieces.
     pieces = Math.max(2, pieces);
-    
+
     Logger.getLogger("DOCSOURCE").info("Splitting corpus into " + pieces);
-    
+
     for (int i = 1; i < pieces; ++i) {
       float fraction = (float) i / pieces;
       int slot = (int) (fraction * slots.size());
