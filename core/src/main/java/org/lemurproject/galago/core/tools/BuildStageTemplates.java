@@ -83,35 +83,35 @@ public class BuildStageTemplates {
   /**
    * Writes document lengths to a document lengths file.
    */
-  public static Stage getWriteLengthsStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
-    return getGenericWriteStage(stageName, destination, inputPipeName,
-            DiskLengthsWriter.class, new NumberedDocumentData.NumberOrder(), p);
+  public static Stage getWriteLengthsStage(String stageName, File destination, String inputPipeName) throws IOException {
+    return getWriteLengthsStage(stageName, destination, inputPipeName, new Parameters());
   }
 
-  public static Stage getWriteLengthsStage(String stageName, File destination, String inputPipeName) throws IOException {
+  public static Stage getWriteLengthsStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
+    p.set("blockSize", 512);
     return getGenericWriteStage(stageName, destination, inputPipeName,
-            DiskLengthsWriter.class, new NumberedDocumentData.NumberOrder(), new Parameters());
+            DiskLengthsWriter.class, new NumberedDocumentData.NumberOrder(), p);
   }
 
   /**
    * Writes document names to a document names file.
    */
   public static Stage getWriteNamesStage(String stageName, File destination, String inputPipeName) throws IOException {
-    return getGenericWriteStage(stageName, destination, inputPipeName,
-            DiskNameWriter.class, new NumberedDocumentData.NumberOrder(), new Parameters());
+    return getWriteNamesStage(stageName, destination, inputPipeName, new Parameters());
   }
 
   public static Stage getWriteNamesStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
+    p.set("blockSize", 512);
     return getGenericWriteStage(stageName, destination, inputPipeName,
             DiskNameWriter.class, new NumberedDocumentData.NumberOrder(), p);
   }
   
   public static Stage getWriteNamesRevStage(String stageName, File destination, String inputPipeName) throws IOException {
-    return getGenericWriteStage(stageName, destination, inputPipeName,
-            DiskNameReverseWriter.class, new NumberedDocumentData.IdentifierOrder(), new Parameters());
+    return getWriteNamesRevStage(stageName, destination, inputPipeName, new Parameters());
   }
 
   public static Stage getWriteNamesRevStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
+    p.set("blockSize", 512);
     return getGenericWriteStage(stageName, destination, inputPipeName,
             DiskNameReverseWriter.class, new NumberedDocumentData.IdentifierOrder(), p);
   }

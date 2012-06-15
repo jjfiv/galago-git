@@ -421,6 +421,8 @@ public class App {
 
       BTreeReader indexReader = BTreeFactory.getBTreeReader(args[1]);
       output.println(indexReader.getManifest().toPrettyString());
+    
+      //output.println("\n\n Index Blocks: " + );
     }
 
     @Override

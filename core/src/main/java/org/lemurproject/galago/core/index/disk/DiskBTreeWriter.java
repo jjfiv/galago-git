@@ -47,6 +47,7 @@ public class DiskBTreeWriter extends BTreeWriter {
   private long filePosition = 0;
   private long listBytes = 0;
   private long keyCount = 0;
+  private int blockCount = 0;
   private byte[] lastKey = new byte[0];
   Counter recordsWritten = null;
   Counter blocksWritten = null;
@@ -69,27 +70,19 @@ public class DiskBTreeWriter extends BTreeWriter {
     manifest = new Parameters();
     manifest.copyFrom(parameters);
     lists = new ArrayList<IndexElement>();
+    
+    manifest.set("blockSize", blockSize);
+    manifest.set("maxKeySize", keySize);
+    //manifest.set("maxKeyOverlap", keyOverlap);
   }
 
   public DiskBTreeWriter(String outputFilename)
           throws FileNotFoundException, IOException {
-    Utility.makeParentDirectories(outputFilename);
-    output = new DataOutputStream(new BufferedOutputStream(
-            new FileOutputStream(outputFilename)));
-    vocabulary = new VocabularyWriter();
-    manifest = new Parameters();
-    lists = new ArrayList<IndexElement>();
-
-    // max sizes - each uses a max of 2 bytes
-    blockSize = 16383;
-    keySize = 16383;
-    keyOverlap = 16383;
+    this(outputFilename, new Parameters());
   }
 
   public DiskBTreeWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
     this(parameters.getJSON().getString("filename"), parameters.getJSON());
-    recordsWritten = parameters.getCounter("Records Written");
-    blocksWritten = parameters.getCounter("Blocks Written");
   }
 
   /**
@@ -131,6 +124,7 @@ public class DiskBTreeWriter extends BTreeWriter {
       manifest.set("emptyIndexFile", true);
     }
     manifest.set("keyCount", this.keyCount);
+    manifest.set("blockCount", this.blockCount);
 
     byte[] xmlData = manifest.toString().getBytes("UTF-8");
     long vocabularyOffset = filePosition;
@@ -165,7 +159,7 @@ public class DiskBTreeWriter extends BTreeWriter {
 
     // -- compute the length of the block --
     ListData listData = new ListData(blockLists);
-    
+
     // create header data
     byte[] headerBytes = getBlockHeader(blockLists);
 
@@ -188,6 +182,7 @@ public class DiskBTreeWriter extends BTreeWriter {
     assert filePosition >= Integer.MAX_VALUE || filePosition == output.size();
     assert endPosition - startPosition <= blockSize || blockLists.size() == 1;
 
+    blockCount++;
     if (blocksWritten != null) {
       blocksWritten.increment();
     }
@@ -234,7 +229,7 @@ public class DiskBTreeWriter extends BTreeWriter {
   }
 
   private boolean needsFlush(IndexElement list) {
-    long listExtra = 
+    long listExtra =
             2 + // byte for key length
             2;  // byte for overlap with previous key
 

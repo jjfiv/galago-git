@@ -238,15 +238,15 @@ public class DiskIndex implements Index {
 
     // HACK - for now //
     if (!this.defaultIndexOperators.containsKey("counts")) {
-      if (parts.containsKey("stemmedPostings")) {
-        this.defaultIndexOperators.put("counts", "stemmedPostings");
+      if (parts.containsKey("postings.porter")) {
+        this.defaultIndexOperators.put("counts", "postings.porter");
       } else if (parts.containsKey("postings")) {
         this.defaultIndexOperators.put("counts", "postings");
       }
     }
     if (!this.defaultIndexOperators.containsKey("extents")) {
-      if (parts.containsKey("stemmedPostings")) {
-        this.defaultIndexOperators.put("extents", "stemmedPostings");
+      if (parts.containsKey("postings.porter")) {
+        this.defaultIndexOperators.put("extents", "postings.porter");
       } else if (parts.containsKey("postings")) {
         this.defaultIndexOperators.put("extents", "postings");
       }
@@ -327,7 +327,7 @@ public class DiskIndex implements Index {
 
   @Override
   public CollectionStatistics getCollectionStatistics() {
-    return getCollectionStatistics("postings");
+    return getCollectionStatistics(this.getDefaultPart());
   }
 
   @Override

@@ -30,7 +30,7 @@ public abstract class KeyValueWriter<T> implements Processor<T> {
   }
 
   public KeyValueWriter(TupleFlowParameters parameters, String text) throws FileNotFoundException, IOException {
-    writer = new DiskBTreeWriter(parameters.getJSON().getString("filename"));
+    writer = new DiskBTreeWriter(parameters);
     elementsWritten = parameters.getCounter(text);
   }
 
