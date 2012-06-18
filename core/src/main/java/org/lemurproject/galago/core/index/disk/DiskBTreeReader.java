@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel.MapMode;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
 import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
@@ -223,6 +225,15 @@ public class DiskBTreeReader extends BTreeReader {
       return new BufferedFileDataStream(input, absoluteStart, absoluteEnd);
     }
 
+    @Override
+    public MappedByteBuffer getValueMemoryMap() throws IOException{
+      MappedByteBuffer buffer;
+      synchronized(input){
+        buffer = input.getChannel().map(MapMode.READ_ONLY, getValueStart(), getValueEnd());
+      }
+      return buffer;
+    }
+    
     private void cacheKeys() throws IOException {
       for (int i = 0; i < cacheGroupSize; i++) {
         // if we are done

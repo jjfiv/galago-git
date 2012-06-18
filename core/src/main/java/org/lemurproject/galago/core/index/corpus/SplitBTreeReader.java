@@ -4,6 +4,8 @@ package org.lemurproject.galago.core.index.corpus;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader;
@@ -119,6 +121,15 @@ public class SplitBTreeReader extends BTreeReader {
       }
 
       return new BufferedFileDataStream(dataFiles[file], getValueStart(), getValueEnd());
+    }
+
+    @Override
+    public MappedByteBuffer getValueMemoryMap() throws IOException{
+      MappedByteBuffer buffer;
+      synchronized(dataFiles[file]){
+        buffer = dataFiles[file].getChannel().map(FileChannel.MapMode.READ_ONLY, getValueStart(), getValueEnd());
+      }
+      return buffer;
     }
 
     /**

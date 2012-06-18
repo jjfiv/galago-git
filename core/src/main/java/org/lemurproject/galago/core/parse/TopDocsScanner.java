@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.logging.Logger;
+import org.lemurproject.galago.core.index.LengthsReader;
+import org.lemurproject.galago.core.index.LengthsReader.Iterator;
 import org.lemurproject.galago.core.index.disk.DiskLengthsReader;
 import org.lemurproject.galago.core.index.disk.PositionIndexReader;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
@@ -50,7 +52,7 @@ public class TopDocsScanner extends StandardStep<KeyValuePair, TopDocsEntry> {
   Counter counter;
   PriorityQueue<TopDocsEntry> topdocs;
   PositionIndexReader partReader;
-  DiskLengthsReader.KeyIterator docLengths;
+  LengthsReader.Iterator docLengths;
   DiskLengthsReader docReader;
   MovableCountIterator extentIterator;
   TopDocsEntry tde;
@@ -62,7 +64,7 @@ public class TopDocsScanner extends StandardStep<KeyValuePair, TopDocsEntry> {
     String indexLocation = parameters.getJSON().getString("directory");
     docReader = new DiskLengthsReader(indexLocation
             + File.separator + "lengths");
-    docLengths = docReader.getIterator();
+    docLengths = docReader.getLengthsIterator();
     partReader = new PositionIndexReader(DiskIndex.getPartPath(indexLocation, parameters.getJSON().getString("part")));
     counter = parameters.getCounter("lists scanned");
   }
@@ -87,7 +89,7 @@ public class TopDocsScanner extends StandardStep<KeyValuePair, TopDocsEntry> {
     docLengths.reset();
     while (!extentIterator.isDone()) {
       count++;
-      docLengths.skipToKey(extentIterator.currentCandidate());
+      docLengths.moveTo(extentIterator.currentCandidate());
       assert (docLengths.getCurrentIdentifier() == extentIterator.currentCandidate());
       int length = docLengths.getCurrentLength();
       double probability = (0.0 + extentIterator.count())

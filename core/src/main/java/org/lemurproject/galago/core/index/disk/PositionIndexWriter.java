@@ -28,34 +28,34 @@ import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
- * 12/14/2010 (irmarc): Adding a skip list to this structure. It's pretty
- * basic - we have a predefined skip distance in terms of how many entries to
- * skip. A skip is a two-tier structure:
+ * 12/14/2010 (irmarc): Adding a skip list to this structure. It's pretty basic
+ * - we have a predefined skip distance in terms of how many entries to skip. A
+ * skip is a two-tier structure:
  *
- * 1st tier: [d-gap doc id, d-gap byte offset to tier 2]
- * 2nd tier: [docs byte pos, counts byte pos, positions byte pos]
+ * 1st tier: [d-gap doc id, d-gap byte offset to tier 2] 2nd tier: [docs byte
+ * pos, counts byte pos, positions byte pos]
  *
- * Documents are d-gapped, but we already have those in tier 1. Counts are not d-gapped b/c
- * they store the # of positions, so they don't monotonically track. Positions are self-contained
- * (reset at a new doc boundary), so we only need the byte information in tier 2.
+ * Documents are d-gapped, but we already have those in tier 1. Counts are not
+ * d-gapped b/c they store the # of positions, so they don't monotonically
+ * track. Positions are self-contained (reset at a new doc boundary), so we only
+ * need the byte information in tier 2.
  *
- * Some variable names:
- * skipDistance: the maximum number of documents we store generating a skip.
- * skipResetDisance: the number of skips we generate before we reset the offset
- * base. Instead of storing the absolute values in the 2nd tier, all entries that are
- * some factor x*skipResetDistance are absolute values, and all values until (x+1)*skipResetDistance
- * entries away are d-gapped off that absolute value so there are a few extra reads (or if you're clever
- * only one extra read), but it keeps the 2nd tier values from ballooning fast, and we don't need to
- * read them all in order to recover the original values.
+ * Some variable names: skipDistance: the maximum number of documents we store
+ * generating a skip. skipResetDisance: the number of skips we generate before
+ * we reset the offset base. Instead of storing the absolute values in the 2nd
+ * tier, all entries that are some factor x*skipResetDistance are absolute
+ * values, and all values until (x+1)*skipResetDistance entries away are
+ * d-gapped off that absolute value so there are a few extra reads (or if you're
+ * clever only one extra read), but it keeps the 2nd tier values from ballooning
+ * fast, and we don't need to read them all in order to recover the original
+ * values.
  *
  * @author trevor, irmarc
  */
 @InputClass(className = "org.lemurproject.galago.core.types.NumberWordPosition", order = {"+word", "+document", "+position"})
 @OutputClass(className = "org.lemurproject.galago.core.types.KeyValuePair", order = {"+key"})
 public class PositionIndexWriter implements
-        NumberWordPosition.WordDocumentPositionOrder.ShreddedProcessor,
-        Source<KeyValuePair> // parallel index data output
-{
+        NumberWordPosition.WordDocumentPositionOrder.ShreddedProcessor {
 
   // writer variables //
   Parameters actualParams;
@@ -194,11 +194,6 @@ public class PositionIndexWriter implements
 
     String index = parameters.getJSON().getString("filename");
     Verification.requireWriteableFile(index, handler);
-  }
-
-  @Override
-  public void setProcessor(Step processor) throws IncompatibleProcessorException {
-    writer.setProcessor(processor);
   }
 
   public class PositionsList implements IndexElement {

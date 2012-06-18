@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.index.disk.DiskLengthsReader.KeyIterator;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.IndexPartReader;
+import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
@@ -85,10 +86,10 @@ public class DocumentLengthsMergerTest extends TestCase {
 
       // test that there are 100 keys and values.
       DiskLengthsReader tester = new DiskLengthsReader(output);
-      KeyIterator iterator = tester.getIterator();
+      LengthsReader.Iterator iterator = tester.getLengthsIterator();
       while (!iterator.isDone()) {
         assert (iterator.getCurrentIdentifier() + 1 == iterator.getCurrentLength());
-        iterator.nextKey();
+        iterator.next();
       }
 
     } finally {
@@ -133,10 +134,10 @@ public class DocumentLengthsMergerTest extends TestCase {
 
       // test that there are 100 keys and values.
       DiskLengthsReader tester = new DiskLengthsReader(output);
-      KeyIterator iterator = tester.getIterator();
+      LengthsReader.Iterator iterator = tester.getLengthsIterator();
       while (!iterator.isDone()) {
         assert (iterator.getCurrentIdentifier() + 1 == iterator.getCurrentLength());
-        iterator.nextKey();
+        iterator.next();
       }
 
 
