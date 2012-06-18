@@ -34,7 +34,7 @@ public class IndexPartMergeManager implements Processor<DocumentSplit> {
   HashMap<IndexPartReader, Integer> indexPartReaders = new HashMap();
   String mergerClassName = null;
   String writerClassName = null;
-  DocumentMappingReader mappingData = null;
+  DocumentMappingReader mappingData;
 
   public IndexPartMergeManager(TupleFlowParameters parameters) throws IOException {
     this.parameters = parameters;
@@ -44,6 +44,9 @@ public class IndexPartMergeManager implements Processor<DocumentSplit> {
       String mappingDataStreamName = parameters.getJSON().get("mappingDataStream", "");
       TypeReader mappingDataStream = parameters.getTypeReader(mappingDataStreamName);
       mappingData = new DocumentMappingReader(mappingDataStream);
+    } else {
+      // otherwise we are not mapping document ids
+      mappingData = new DocumentMappingReader();
     }
   }
 

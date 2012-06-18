@@ -3,14 +3,13 @@ package org.lemurproject.galago.core.index.disk;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.MappedByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.index.BTreeReader;
-import org.lemurproject.galago.core.index.KeyToListIterator;
-import org.lemurproject.galago.core.index.KeyValueReader;
-import org.lemurproject.galago.core.index.LengthsReader;
+import org.lemurproject.galago.core.index.*;
+import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -18,24 +17,41 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * Reads documents lengths from a document lengths file.
- * KeyValueIterator provides a useful interface for dumping the contents of the file.
- * 
+ * Reads documents lengths from a document lengths file. KeyValueIterator
+ * provides a useful interface for dumping the contents of the file.
+ *
  * @author trevor, sjh
  */
-public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
+public class DiskLengthsReader extends KeyListReader implements LengthsReader {
+
+  //final KeyIterator keyIterator;
+  // this is a special
+  private final LengthsIterator documentLengths;
 
   public DiskLengthsReader(String filename) throws FileNotFoundException, IOException {
     super(filename);
+    KeyIterator keyIterator = new KeyIterator(reader);
+    keyIterator.findKey(Utility.fromString("lengths"));
+    documentLengths = (LengthsIterator) keyIterator.getValueIterator();
   }
 
-  public DiskLengthsReader(BTreeReader r) {
+  public DiskLengthsReader(BTreeReader r) throws IOException {
     super(r);
+    KeyIterator keyIterator = new KeyIterator(reader);
+    keyIterator.findKey(Utility.fromString("lengths"));
+    documentLengths = (LengthsIterator) keyIterator.getValueIterator();
   }
 
   @Override
   public int getLength(int document) throws IOException {
-    return Utility.uncompressInt(reader.getValueBytes(Utility.fromInt(document)), 0);
+    int length = -1;
+    synchronized (documentLengths) {
+      documentLengths.moveTo(document);
+      if (documentLengths.hasMatch(document)) {
+        length = documentLengths.getCurrentLength();
+      }
+    }
+    return length;
   }
 
   @Override
@@ -45,7 +61,7 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
 
   @Override
   public LengthsReader.Iterator getLengthsIterator() throws IOException {
-    return (LengthsReader.Iterator) new ValueIterator(new KeyIterator(reader));
+    return (LengthsIterator) new KeyIterator(reader).getValueIterator();
   }
 
   @Override
@@ -58,120 +74,114 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
   @Override
   public ValueIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("lengths")) {
-      return new ValueIterator(new KeyIterator(reader));
+      String key = node.getNodeParameters().get("default", "lengths");
+      KeyIterator ki = new KeyIterator(reader);
+      ki.skipToKey(Utility.fromString(key));
+      return ki.getValueIterator();
     } else {
       throw new UnsupportedOperationException(
               "Index doesn't support operator: " + node.getOperator());
     }
   }
 
-  public class KeyIterator extends KeyValueReader.KeyValueIterator {
+  public class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
     }
 
     @Override
-    public String getKeyString() {
-      return Integer.toString(Utility.toInt(getKey()));
-    }
-
-    @Override
     public String getValueString() {
-      try {
-        return Integer.toString(Utility.uncompressInt(iterator.getValueBytes(), 0));
-      } catch (IOException ioe) {
-        throw new RuntimeException(ioe);
-      }
-    }
-
-    public boolean skipToKey(int key) throws IOException {
-      return skipToKey(Utility.fromInt(key));
-    }
-
-    public int getCurrentIdentifier() {
-      return Utility.toInt(iterator.getKey());
-    }
-
-    public int getCurrentLength() throws IOException {
-      return Utility.uncompressInt(iterator.getValueBytes(), 0);
+      return "length Data";
     }
 
     @Override
-    public boolean isDone() {
-      return iterator.isDone();
-    }
-
-    @Override
-    public ValueIterator getValueIterator() throws IOException {
-      return new ValueIterator(this);
-    }
-  }
-
-  public class ValueIterator extends KeyToListIterator implements MovableCountIterator, LengthsReader.Iterator {
-
-    public ValueIterator(KeyIterator it) {
-      super(it);
-    }
-
-    @Override
-    public String getEntry() throws IOException {
-      KeyIterator ki = (KeyIterator) iterator;
-      String output = Integer.toString(ki.getCurrentIdentifier()) + ","
-              + Integer.toString(ki.getCurrentLength());
-      return output;
-    }
-
-    @Override
-    public long totalEntries() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public boolean hasAllCandidates(){
-      return true;
-    }
-    
-    @Override
-    public int count() {
-      try {
-        return ((KeyIterator) iterator).getCurrentLength();
-      } catch (IOException ioe) {
-        throw new RuntimeException(ioe);
-      }
-    }
-
-    @Override
-    public int maximumCount() {
-      return Integer.MAX_VALUE;
-    }
-
-    @Override
-    public int getCurrentLength() {
-      KeyIterator ki = (KeyIterator) iterator;
-      try {
-        return ki.getCurrentLength();
-      } catch (IOException ioe) {
-        throw new RuntimeException(ioe);
-      }
-    }
-
-    @Override
-    public int getCurrentIdentifier() {
-      KeyIterator ki = (KeyIterator) iterator;
-      return ki.getCurrentIdentifier();
+    public org.lemurproject.galago.core.index.ValueIterator getValueIterator() throws IOException {
+      return new LengthsIterator(iterator);
     }
 
     @Override
     public String getKeyString() throws IOException {
-      return "lengths";
+      return Utility.toString(getKey());
+    }
+  }
+
+  public class LengthsIterator extends KeyListReader.ListIterator
+          implements MovableCountIterator, LengthsReader.Iterator {
+
+    private MappedByteBuffer data;
+    // data starts with two integers : (firstdoc, doccount)
+    int firstDocument;
+    int documentCount;
+    // iterator variables
+    int currDocument;
+    boolean done;
+
+    public LengthsIterator(BTreeReader.BTreeIterator iterator) throws IOException {
+      super(iterator.getKey());
+      reset(iterator);
     }
 
     @Override
-    public byte[] getKeyBytes() throws IOException {
-      return Utility.fromString("lengths");
+    public void reset(BTreeIterator it) throws IOException {
+      this.data = it.getValueMemoryMap();
+      this.firstDocument = data.getInt(0);
+      this.documentCount = data.getInt(4);
+
+      // offset is the first document
+      this.currDocument = firstDocument;
+      this.done = (documentCount == currDocument);
     }
-    
+
+    @Override
+    public int currentCandidate() {
+      return currDocument;
+    }
+
+    @Override
+    public boolean hasAllCandidates() {
+      return true;
+    }
+
+    @Override
+    public void next() throws IOException {
+      currDocument++;
+      if (currDocument == documentCount) {
+        currDocument = documentCount - 1;
+        done = true;
+      }
+    }
+
+    @Override
+    public void moveTo(int identifier) throws IOException {
+      currDocument = identifier;
+      if (currDocument == documentCount) {
+        currDocument = documentCount - 1;
+        done = true;
+      }
+    }
+
+    @Override
+    public void reset() throws IOException {
+      this.currDocument = 0;
+      this.done = (documentCount == currDocument);
+    }
+
+    @Override
+    public boolean isDone() {
+      return done;
+    }
+
+    @Override
+    public String getEntry() throws IOException {
+      return getCurrentIdentifier() + "," + getCurrentLength();
+    }
+
+    @Override
+    public long totalEntries() {
+      return documentCount;
+    }
+
     @Override
     public AnnotatedNode getAnnotatedNode() throws IOException {
       String type = "lengths";
@@ -183,6 +193,26 @@ public class DiskLengthsReader extends KeyValueReader implements LengthsReader {
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+    }
+
+    @Override
+    public int count() {
+      return getCurrentLength();
+    }
+
+    @Override
+    public int maximumCount() {
+      return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public int getCurrentLength() {
+      return this.data.getInt(8 + (4 * (this.currDocument - firstDocument)));
+    }
+
+    @Override
+    public int getCurrentIdentifier() {
+      return this.currDocument;
     }
   }
 }

@@ -20,7 +20,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 public abstract class GenericIndexMerger<T> {
 
   // document mapping data
-  protected DocumentMappingReader mappingReader = null;
+  protected DocumentMappingReader mappingReader;
   // input readers
   protected PriorityQueue<KeyIteratorWrapper> queue;
   protected HashMap<KeyIteratorWrapper, Integer> partIds;

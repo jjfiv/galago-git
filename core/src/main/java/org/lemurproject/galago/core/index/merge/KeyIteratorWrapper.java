@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.KeyIterator;
-import org.lemurproject.galago.core.index.ValueIterator;
-import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -30,12 +28,7 @@ public class KeyIteratorWrapper implements Comparable<KeyIteratorWrapper> {
     this.iterator = iterator;
     this.id = indexId;
     this.mappingKeys = mappingKeys;
-
-    if(mappingKeys){
-      this.mappingReader = mappingReader;
-    } else {
-      this.mappingReader = null;
-    }
+    this.mappingReader = mappingReader;
   }
 
   // Perform the mapping on the current key
@@ -59,5 +52,13 @@ public class KeyIteratorWrapper implements Comparable<KeyIteratorWrapper> {
 
   public boolean nextKey() throws IOException{
     return iterator.nextKey();
+  }
+
+  public KeyIterator getIterator() {
+    return this.iterator;
+  }
+  
+  public int getIndexId(){
+    return this.id;
   }
 }

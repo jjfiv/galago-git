@@ -14,11 +14,17 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-class DocumentMappingReader {
+public class DocumentMappingReader {
 
-  HashMap<Integer, Integer> indexIncrements = new HashMap();
+  private HashMap<Integer, Integer> indexIncrements = null;
 
-  DocumentMappingReader(TypeReader<DocumentMappingData> mappingDataStream) throws IOException {
+  public DocumentMappingReader() {
+    // this constructor creates a null mapping reader
+    // --> docId is return unchanged.
+  }
+  
+  public DocumentMappingReader(TypeReader<DocumentMappingData> mappingDataStream) throws IOException {
+    indexIncrements = new HashMap();
     DocumentMappingData dat;
     while ((dat = mappingDataStream.read()) != null) {
       indexIncrements.put(dat.indexId, dat.docNumIncrement);
@@ -26,10 +32,14 @@ class DocumentMappingReader {
   }
 
   public int map(int indexId, int docId) {
-    return docId + indexIncrements.get(indexId);
+    if(indexIncrements != null){
+      return docId + indexIncrements.get(indexId);
+    } else {
+      return docId;
+    }
   }
 
-  byte[] map(int indexId, byte[] keyBytes) {
-    return Utility.fromInt(map(indexId, Utility.toInt(keyBytes)));
+  public byte[] map(int indexId, byte[] keyBytes) {
+    return Utility.fromInt(this.map(indexId, Utility.toInt(keyBytes)));
   }
 }

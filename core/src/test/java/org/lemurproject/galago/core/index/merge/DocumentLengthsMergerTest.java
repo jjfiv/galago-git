@@ -79,7 +79,8 @@ public class DocumentLengthsMergerTest extends TestCase {
       Constructor c = m.getConstructor(TupleFlowParameters.class);
       GenericIndexMerger merger = (GenericIndexMerger) c.newInstance(new FakeParameters(p));
 
-      merger.setDocumentMapping(null);
+      merger.setDocumentMapping(new DocumentMappingReader());
+      
       merger.setInputs(indexPartReaders);
       merger.performKeyMerge();
       merger.close();
