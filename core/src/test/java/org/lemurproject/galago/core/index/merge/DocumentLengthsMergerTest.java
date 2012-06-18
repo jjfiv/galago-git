@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -35,9 +36,10 @@ public class DocumentLengthsMergerTest extends TestCase {
     Parameters p = new Parameters();
     p.set("filename", temp.getAbsolutePath());
     DiskLengthsWriter writer = new DiskLengthsWriter(new FakeParameters(p));
-
+    
+    byte[] key = Utility.fromString("document");
     for (int i = firstDocNum; i < firstDocNum + 100; i++) {
-      writer.process(new NumberedDocumentData("", "","", i, i + 1));
+      writer.process(new FieldLengthData(key, i, i + 1));
     }
 
     writer.close();

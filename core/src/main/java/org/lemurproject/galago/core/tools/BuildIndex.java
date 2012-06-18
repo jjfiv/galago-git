@@ -16,6 +16,7 @@ import org.lemurproject.galago.core.index.corpus.CorpusFolderWriter;
 import org.lemurproject.galago.core.index.merge.CorpusMerger;
 import org.lemurproject.galago.core.parse.DocumentNumberer;
 import org.lemurproject.galago.core.parse.DocumentSource;
+import org.lemurproject.galago.core.parse.FieldLengthExtractor;
 import org.lemurproject.galago.core.parse.LinkCombiner;
 import org.lemurproject.galago.core.parse.LinkExtractor;
 import org.lemurproject.galago.core.parse.NumberedDocumentDataExtractor;
@@ -30,6 +31,7 @@ import org.lemurproject.galago.core.tools.App.AppFunction;
 import org.lemurproject.galago.core.types.AdditionalDocumentText;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.ExtractedLink;
+import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.types.FieldNumberWordPosition;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.core.types.NumberWordPosition;
@@ -62,6 +64,7 @@ public class BuildIndex extends AppFunction {
 
     // connections
     stage.addInput("splits", new DocumentSplit.FileIdOrder());
+    stage.addOutput("fieldLengthData", new FieldLengthData.FieldDocumentOrder());
     stage.addOutput("numberedDocumentDataNumbers", new NumberedDocumentData.NumberOrder());
     stage.addOutput("numberedDocumentDataNames", new NumberedDocumentData.IdentifierOrder());
 
@@ -112,11 +115,17 @@ public class BuildIndex extends AppFunction {
     MultiStep processingFork = new MultiStep();
 
     // these forks are always executed
+    ArrayList<Step> lengthData =
+            BuildStageTemplates.getExtractionSteps("fieldLengthData", FieldLengthExtractor.class,
+            new FieldLengthData.FieldDocumentOrder());
+    processingFork.groups.add(lengthData);
+
     ArrayList<Step> documentData =
             BuildStageTemplates.getExtractionSteps("numberedDocumentDataNumbers", NumberedDocumentDataExtractor.class,
             new NumberedDocumentData.NumberOrder());
     processingFork.groups.add(documentData);
-
+    
+    
     ArrayList<Step> documentDataReverse =
             BuildStageTemplates.getExtractionSteps("numberedDocumentDataNames", NumberedDocumentDataExtractor.class,
             new NumberedDocumentData.IdentifierOrder());
@@ -317,10 +326,10 @@ public class BuildIndex extends AppFunction {
       try {
         long skipDist = globalParameters.getLong("skipDistance");
       } catch (Exception e) {
-        errorLog.add("Parameter 'skipDistance' should be a long value. Defaults to 100.");
+        errorLog.add("Parameter 'skipDistance' should be a long value. Defaults to 500.");
       }
     } else {
-      globalParameters.set("skipDistance", 100);
+      globalParameters.set("skipDistance", 500);
     }
 
 
@@ -667,7 +676,7 @@ public class BuildIndex extends AppFunction {
     job.add(BuildStageTemplates.getDocumentCounter("countDocuments", "numberedDocumentDataNumbers", "docCounts"));
     job.add(BuildStageTemplates.getWriteNamesStage("writeNames", new File(indexPath, "names"), "numberedDocumentDataNumbers"));
     job.add(BuildStageTemplates.getWriteNamesRevStage("writeNamesRev", new File(indexPath, "names.reverse"), "numberedDocumentDataNames"));
-    job.add(BuildStageTemplates.getWriteLengthsStage("writeLengths", new File(indexPath, "lengths"), "numberedDocumentDataNumbers"));
+    job.add(BuildStageTemplates.getWriteLengthsStage("writeLengths", new File(indexPath, "lengths"), "fieldLengthData"));
 
     job.connect("inputSplit", "parsePostings", ConnectionAssignmentType.Each);
     job.connect("parsePostings", "countDocuments", ConnectionAssignmentType.Each);

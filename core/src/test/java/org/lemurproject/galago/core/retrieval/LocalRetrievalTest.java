@@ -24,6 +24,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
+import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -156,8 +157,9 @@ public class LocalRetrievalTest extends TestCase {
     lp.set("filename", tempPath + File.separator + "lengths");
     DiskLengthsWriter lWriter = new DiskLengthsWriter(new FakeParameters(lp));
 
-    for (int i = 0; i < 20; i++) {
-      lWriter.process(new NumberedDocumentData("DOC" + i, "", "", i, 100));
+    byte[] d = Utility.fromString("document");
+    for (int i = 1; i < 19; i++) {
+      lWriter.process(new FieldLengthData(d, i, 100));
     }
     lWriter.close();
 

@@ -31,14 +31,14 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   public DiskLengthsReader(String filename) throws FileNotFoundException, IOException {
     super(filename);
     KeyIterator keyIterator = new KeyIterator(reader);
-    keyIterator.findKey(Utility.fromString("lengths"));
+    keyIterator.findKey(Utility.fromString("document"));
     documentLengths = (LengthsIterator) keyIterator.getValueIterator();
   }
 
   public DiskLengthsReader(BTreeReader r) throws IOException {
     super(r);
     KeyIterator keyIterator = new KeyIterator(reader);
-    keyIterator.findKey(Utility.fromString("lengths"));
+    keyIterator.findKey(Utility.fromString("document"));
     documentLengths = (LengthsIterator) keyIterator.getValueIterator();
   }
 
@@ -74,7 +74,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   @Override
   public ValueIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("lengths")) {
-      String key = node.getNodeParameters().get("default", "lengths");
+      String key = node.getNodeParameters().get("default", "document");
       KeyIterator ki = new KeyIterator(reader);
       ki.skipToKey(Utility.fromString(key));
       return ki.getValueIterator();
@@ -207,7 +207,11 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
     @Override
     public int getCurrentLength() {
-      return this.data.getInt(8 + (4 * (this.currDocument - firstDocument)));
+      // check for range.
+      if (firstDocument <= currDocument && currDocument < documentCount) {
+        return this.data.getInt(8 + (4 * (this.currDocument - firstDocument)));
+      }
+      return 0;
     }
 
     @Override

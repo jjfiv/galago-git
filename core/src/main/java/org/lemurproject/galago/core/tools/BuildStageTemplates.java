@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.parse.DocumentCounter;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.parse.UniversalParser;
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.core.types.NumberedExtent;
 import org.lemurproject.galago.core.types.NumberedField;
@@ -90,7 +91,7 @@ public class BuildStageTemplates {
   public static Stage getWriteLengthsStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
     p.set("blockSize", 512);
     return getGenericWriteStage(stageName, destination, inputPipeName,
-            DiskLengthsWriter.class, new NumberedDocumentData.NumberOrder(), p);
+            DiskLengthsWriter.class, new FieldLengthData.FieldDocumentOrder(), p);
   }
 
   /**

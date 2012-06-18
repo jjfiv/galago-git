@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -554,8 +555,9 @@ public class FieldTraversalTest extends TestCase {
     Parameters lp = new Parameters();
     lp.set("filename", tempPath + File.separator + "lengths");
     DiskLengthsWriter lWriter = new DiskLengthsWriter(new FakeParameters(lp));
+    byte[] d = Utility.fromString("document");
     for (int i = 1; i < 6; i++) {
-      lWriter.process(new NumberedDocumentData("DOC" + i, "", "", i, i));
+      lWriter.process(new FieldLengthData(d, i, i));
     }
     lWriter.close();
 

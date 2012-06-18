@@ -17,7 +17,7 @@ import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.types.NumberedDocumentData;
+import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.util.IntArray;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -155,10 +155,11 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     DiskLengthsWriter writer = new DiskLengthsWriter(new FakeParameters(p));
 
     KIterator iterator = new KIterator();
-    NumberedDocumentData d = new NumberedDocumentData();
+    FieldLengthData d = new FieldLengthData();
+    d.field = Utility.fromString("document");
     while (!iterator.isDone()) {
-      d.number = iterator.getCurrentIdentifier();
-      d.textLength = iterator.getCurrentLength();
+      d.document = iterator.getCurrentIdentifier();
+      d.length = iterator.getCurrentLength();
       writer.process(d);
       iterator.nextKey();
     }

@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.*;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.merge.DocumentLengthsMerger;
-import org.lemurproject.galago.core.types.NumberedDocumentData;
+import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
 import org.lemurproject.galago.tupleflow.execution.Verification;
@@ -22,12 +22,12 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  *
  * @author trevor, sjh, irmarc
  */
-@InputClass(className = "org.lemurproject.galago.core.types.NumberedDocumentData", order = {"+number"})
-public class DiskLengthsWriter implements Processor<NumberedDocumentData> {
+@InputClass(className = "org.lemurproject.galago.core.types.FieldLengthData", order = {"+field", "+document"})
+public class DiskLengthsWriter implements Processor<FieldLengthData> {
 
   private DiskBTreeWriter writer;
-  private LengthsList lengths;
-
+  private LengthsList fieldLengthData;
+  
   /**
    * Creates a new instance of DiskLengthsWriter
    */
@@ -38,18 +38,26 @@ public class DiskLengthsWriter implements Processor<NumberedDocumentData> {
     p.set("mergerClass", DocumentLengthsMerger.class.getName());
     p.set("readerClass", DiskLengthsReader.class.getName());
 
-    lengths = new LengthsList("lengths");
+    //lengths = new LengthsList("lengths");
+    fieldLengthData = null;
   }
 
   @Override
-  public void process(NumberedDocumentData object) throws IOException {
-    lengths.add(object.number, object.textLength);
+  public void process(FieldLengthData ld) throws IOException {
+    if(fieldLengthData == null){
+      fieldLengthData = new LengthsList(ld.field);
+    } else if( Utility.compare(fieldLengthData.key, ld.field) != 0) {
+      writer.add(fieldLengthData);
+      fieldLengthData = new LengthsList(ld.field);
+    }
+    
+    fieldLengthData.add(ld.document, ld.length);
   }
 
   @Override
   public void close() throws IOException {
-    writer.getManifest().set("firstDocument", lengths.firstDocument);
-    writer.add(lengths);
+    writer.getManifest().set("firstDocument", fieldLengthData.firstDocument);
+    writer.add(fieldLengthData);
     writer.close();
   }
 
@@ -73,11 +81,11 @@ public class DiskLengthsWriter implements Processor<NumberedDocumentData> {
     private int documentCount;
     private int prevDocument;
 
-    public LengthsList(String key) {
+    public LengthsList(byte[] key) {
       //this.lengthsData = new CompressedRawByteBuffer();
       buffer = new ByteArrayOutputStream();
       stream = new DataOutputStream(buffer);
-      this.key = Utility.fromString(key);
+      this.key = key;
       this.documentCount = 0;
       this.prevDocument = -1;
       this.firstDocument = -1;

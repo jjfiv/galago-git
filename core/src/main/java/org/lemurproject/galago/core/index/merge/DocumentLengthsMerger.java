@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
+import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
@@ -15,7 +16,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public class DocumentLengthsMerger extends GenericIndexMerger<NumberedDocumentData> {
+public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
 
   public DocumentLengthsMerger(TupleFlowParameters p) throws Exception {
     super(p);
@@ -27,7 +28,7 @@ public class DocumentLengthsMerger extends GenericIndexMerger<NumberedDocumentDa
   }
 
   @Override
-  public Processor<NumberedDocumentData> createIndexWriter(TupleFlowParameters parameters) throws IOException {
+  public Processor<FieldLengthData> createIndexWriter(TupleFlowParameters parameters) throws IOException {
     return new DiskLengthsWriter(parameters);
   }
 
@@ -35,13 +36,13 @@ public class DocumentLengthsMerger extends GenericIndexMerger<NumberedDocumentDa
   public void performValueMerge(byte[] key, List<KeyIteratorWrapper> keyIterators) throws IOException {
     PriorityQueue<LengthIteratorWrapper> lenQueue = new PriorityQueue();
     for (KeyIteratorWrapper wrapper : keyIterators) {
-      lenQueue.offer(new LengthIteratorWrapper(this.partIds.get( wrapper ), (LengthsReader.Iterator) wrapper.getIterator().getValueIterator(), this.mappingReader));
+      lenQueue.offer(new LengthIteratorWrapper(this.partIds.get(wrapper), (LengthsReader.Iterator) wrapper.getIterator().getValueIterator(), this.mappingReader));
     }
 
     while (!lenQueue.isEmpty()) {
       LengthIteratorWrapper head = lenQueue.poll();
       while (!head.isDone()) {
-        this.writer.process(new NumberedDocumentData(null, null, null, head.currentDocument, head.currentLength));
+        this.writer.process(new FieldLengthData(key, head.currentDocument, head.currentLength));
         head.next();
       }
     }
