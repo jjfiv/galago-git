@@ -8,12 +8,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
+import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -24,34 +28,31 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
-  //final KeyIterator keyIterator;
-  // this is a special
-  private final LengthsIterator documentLengths;
+  // this is a special memory map for document lengths
+  // it is used in the special documentLengths iterator
+  private byte[] doc;
+  private MappedByteBuffer documentLengths;
+  private MemoryMapLengthsIterator documentLengthsIterator;
 
   public DiskLengthsReader(String filename) throws FileNotFoundException, IOException {
     super(filename);
-    KeyIterator keyIterator = new KeyIterator(reader);
-    keyIterator.findKey(Utility.fromString("document"));
-    documentLengths = (LengthsIterator) keyIterator.getValueIterator();
+    init();
   }
 
   public DiskLengthsReader(BTreeReader r) throws IOException {
     super(r);
-    KeyIterator keyIterator = new KeyIterator(reader);
-    keyIterator.findKey(Utility.fromString("document"));
-    documentLengths = (LengthsIterator) keyIterator.getValueIterator();
+    init();
+  }
+
+  public void init() throws IOException {
+    doc = Utility.fromString("document");
+    documentLengths = reader.getValueMemoryMap(doc);
+    documentLengthsIterator = new MemoryMapLengthsIterator(doc, documentLengths);
   }
 
   @Override
   public int getLength(int document) throws IOException {
-    int length = -1;
-    synchronized (documentLengths) {
-      documentLengths.moveTo(document);
-      if (documentLengths.hasMatch(document)) {
-        length = documentLengths.getCurrentLength();
-      }
-    }
-    return length;
+    return documentLengthsIterator.getLength(document);
   }
 
   @Override
@@ -61,13 +62,13 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
   @Override
   public LengthsReader.Iterator getLengthsIterator() throws IOException {
-    return (LengthsIterator) new KeyIterator(reader).getValueIterator();
+    return new MemoryMapLengthsIterator(doc, documentLengths);
   }
 
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("lengths", new NodeType(ValueIterator.class));
+    types.put("lengths", new NodeType(MemoryMapLengthsIterator.class));
     return types;
   }
 
@@ -97,7 +98,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
     @Override
     public org.lemurproject.galago.core.index.ValueIterator getValueIterator() throws IOException {
-      return new LengthsIterator(iterator);
+      return new StreamLengthsIterator(iterator.getKey(), iterator);
     }
 
     @Override
@@ -106,10 +107,11 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
   }
 
-  public class LengthsIterator extends KeyListReader.ListIterator
+  public class MemoryMapLengthsIterator extends ValueIterator
           implements MovableCountIterator, LengthsReader.Iterator {
 
-    private MappedByteBuffer data;
+    byte[] key;
+    private MappedByteBuffer memBuffer = null;
     // data starts with two integers : (firstdoc, doccount)
     int firstDocument;
     int documentCount;
@@ -117,14 +119,9 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     int currDocument;
     boolean done;
 
-    public LengthsIterator(BTreeReader.BTreeIterator iterator) throws IOException {
-      super(iterator.getKey());
-      reset(iterator);
-    }
-
-    @Override
-    public void reset(BTreeIterator it) throws IOException {
-      this.data = it.getValueMemoryMap();
+    public MemoryMapLengthsIterator(byte[] key, MappedByteBuffer data) {
+      this.key = key;
+      this.memBuffer = data;
       this.firstDocument = data.getInt(0);
       this.documentCount = data.getInt(4);
 
@@ -163,7 +160,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
     @Override
     public void reset() throws IOException {
-      this.currDocument = 0;
+      this.currDocument = firstDocument;
       this.done = (documentCount == currDocument);
     }
 
@@ -209,9 +206,177 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     public int getCurrentLength() {
       // check for range.
       if (firstDocument <= currDocument && currDocument < documentCount) {
-        return this.data.getInt(8 + (4 * (this.currDocument - firstDocument)));
+        return this.memBuffer.getInt(8 + (4 * (this.currDocument - firstDocument)));
       }
       return 0;
+    }
+
+    @Override
+    public int getCurrentIdentifier() {
+      return this.currDocument;
+    }
+
+    private int getLength(int document) {
+      // check for range.
+      if (firstDocument <= document && document < documentCount) {
+        return this.memBuffer.getInt(8 + (4 * (document - firstDocument)));
+      }
+      return 0;
+    }
+
+    @Override
+    public String getKeyString() throws IOException {
+      return Utility.toString(key);
+    }
+
+    @Override
+    public byte[] getKeyBytes() throws IOException {
+      return key;
+    }
+
+    @Override
+    public boolean hasMatch(int identifier) {
+      return !isDone() && this.currDocument == identifier;
+    }
+
+    @Override
+    public void movePast(int identifier) throws IOException {
+      moveTo(identifier + 1);
+    }
+
+    @Override
+    public int compareTo(MovableIterator other) {
+      if (isDone() && !other.isDone()) {
+        return 1;
+      }
+      if (other.isDone() && !isDone()) {
+        return -1;
+      }
+      if (isDone() && other.isDone()) {
+        return 0;
+      }
+      return currentCandidate() - other.currentCandidate();
+    }
+  }
+
+  public class StreamLengthsIterator extends KeyListReader.ListIterator
+          implements MovableCountIterator, LengthsReader.Iterator {
+
+    private DataStream streamBuffer = null;
+    // data starts with two integers : (firstdoc, doccount)
+    int firstDocument;
+    int documentCount;
+    // iterator variables
+    int currDocument;
+    int currLength;
+    boolean done;
+
+    public StreamLengthsIterator(byte[] key, BTreeIterator it) throws IOException {
+      super(key);
+      reset(it);
+    }
+
+    @Override
+    public void reset(BTreeIterator it) throws IOException {
+      this.streamBuffer = it.getValueStream();
+      this.firstDocument = streamBuffer.readInt();
+      this.documentCount = streamBuffer.readInt();
+
+      // offset is the first document
+      this.currDocument = firstDocument;
+      this.currLength = -1;
+      this.done = (documentCount == currDocument);
+    }
+
+    @Override
+    public int currentCandidate() {
+      return this.currDocument;
+    }
+
+    @Override
+    public boolean hasAllCandidates() {
+      return true;
+    }
+
+    @Override
+    public void next() throws IOException {
+      this.currDocument++;
+      this.currLength = -1;
+      if (currDocument == documentCount) {
+        currDocument = documentCount - 1;
+        done = true;
+      }
+    }
+
+    @Override
+    public void moveTo(int identifier) throws IOException {
+      this.currDocument = identifier;
+      this.currLength = -1;
+      if (currDocument == documentCount) {
+        currDocument = documentCount - 1;
+        done = true;
+      }
+    }
+
+    @Override
+    public void reset() throws IOException {
+      this.currDocument = firstDocument;
+      this.currLength = -1;
+      this.done = (documentCount == currDocument);
+    }
+
+    @Override
+    public boolean isDone() {
+      return done;
+    }
+
+    @Override
+    public String getEntry() throws IOException {
+      return getCurrentIdentifier() + "," + getCurrentLength();
+    }
+
+    @Override
+    public long totalEntries() {
+      return documentCount;
+    }
+
+    @Override
+    public AnnotatedNode getAnnotatedNode() throws IOException {
+      String type = "lengths";
+      String className = this.getClass().getSimpleName();
+      String parameters = "";
+      int document = currentCandidate();
+      boolean atCandidate = hasMatch(this.context.document);
+      String returnValue = Integer.toString(getCurrentLength());
+      List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+    }
+
+    @Override
+    public int count() {
+      return getCurrentLength();
+    }
+
+    @Override
+    public int maximumCount() {
+      return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public int getCurrentLength() {
+      if (this.currLength < 0) {
+        this.currLength = 0;
+        // check for range.
+        if (firstDocument <= currDocument && currDocument < documentCount) {
+          try {
+            this.currLength = this.streamBuffer.readInt();
+          } catch (IOException ex) {
+            throw new RuntimeException(ex);
+          }
+        }
+      }
+      return currLength;
     }
 
     @Override

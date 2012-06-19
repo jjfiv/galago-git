@@ -9,25 +9,28 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * <p>This implements the core functionality for all inverted list readers.  It can
- * also be used as a read-only TreeMap for disk-based data structures.  In Galago,
- * it is used both to store index data and to store documents.</p>
- * 
- * <p>An index is a mapping from String to byte[].  If compression is turned on, the
- * value must be small enough that it fits in memory.  If compression is off, values
- * are streamed directly from disk so there is no size restriction.  Indexes support
- * iteration over all keys, or direct lookup of a single key.  The structure is optimized
- * to support fast random lookup on disks.</p>
- * 
- * <p>Data is stored in blocks, typically 32K each.  Each block has a prefix-compressed
- * set of keys at the beginning, followed by a block of value data. </p>
- * 
- * <p>Typically this class is extended by composition instead of inheritance.</p>
+ * <p>This implements the core functionality for all inverted list readers. It
+ * can also be used as a read-only TreeMap for disk-based data structures. In
+ * Galago, it is used both to store index data and to store documents.</p>
  *
- * <p> (11/29/2010, irmarc): After conferral with Sam, going to remove the requirement
- * that keys be Strings. It makes the mapping from other classes/primitives to Strings
- * really restrictive if they always have to be mapped to Strings. Therefore, mapping
- * byte[] keys to the client keyspace is the responsibility of the client of the DiskBTreeReader.</p>
+ * <p>An index is a mapping from String to byte[]. If compression is turned on,
+ * the value must be small enough that it fits in memory. If compression is off,
+ * values are streamed directly from disk so there is no size restriction.
+ * Indexes support iteration over all keys, or direct lookup of a single key.
+ * The structure is optimized to support fast random lookup on disks.</p>
+ *
+ * <p>Data is stored in blocks, typically 32K each. Each block has a
+ * prefix-compressed set of keys at the beginning, followed by a block of value
+ * data. </p>
+ *
+ * <p>Typically this class is extended by composition instead of
+ * inheritance.</p>
+ *
+ * <p> (11/29/2010, irmarc): After conferral with Sam, going to remove the
+ * requirement that keys be Strings. It makes the mapping from other
+ * classes/primitives to Strings really restrictive if they always have to be
+ * mapped to Strings. Therefore, mapping byte[] keys to the client keyspace is
+ * the responsibility of the client of the DiskBTreeReader.</p>
  *
  * Comments copied from DiskBTreeReader: author trevor, irmarc, sjh
  *
@@ -48,8 +51,8 @@ public abstract class BTreeReader {
     public abstract void find(byte[] key) throws IOException;
 
     /*
-     * Skip iterator to the provided key
-     *  - key must be greater than or equal to the current key.
+     * Skip iterator to the provided key - key must be greater than or equal to
+     * the current key.
      */
     public abstract void skipTo(byte[] key) throws IOException;
 
@@ -73,30 +76,29 @@ public abstract class BTreeReader {
      */
     public abstract DataStream getValueStream() throws IOException;
 
-     /**
+    /**
      * Returns a data stream for a subset of the value stream
      */
-    public abstract DataStream getSubValueStream(long offset, long length) throws IOException ;
+    public abstract DataStream getSubValueStream(long offset, long length) throws IOException;
 
-
-      /**
-       *  Returns the byte offset
-       *  of the beginning of the current value
-       *   - note that the corresponding file is returned by
-       */
-    
-
+    /**
+     * Returns the byte offset of the beginning of the current value - note that
+     * the corresponding file is returned by
+     */
     public abstract long getValueStart() throws IOException;
 
     /**
-     * Returns the byte offset
-     * of the end of the current value,
-     * relative to the start of the whole inverted file.
+     * Returns the byte offset of the end of the current value, relative to the
+     * start of the whole inverted file.
      */
     public abstract long getValueEnd() throws IOException;
 
+    /**
+     * Returns a memory mapped buffer for the current value - warning using this
+     * function may incur a very large memory requirement
+     */
     public abstract MappedByteBuffer getValueMemoryMap() throws IOException;
-    
+
     //**********************//
     // Implemented Functions
     /**
@@ -108,7 +110,7 @@ public abstract class BTreeReader {
       byte[] data = new byte[(int) stream.length()];
       stream.readFully(data);
       return data;
-    } 
+    }
 
     /**
      * Returns the value as a string.
@@ -128,31 +130,30 @@ public abstract class BTreeReader {
 
   // Abstract functions
   /**
-   * Returns a Parameters object that contains metadata about
-   * the contents of the index.  This is the place to store important
-   * data about the index contents, like what stemmer was used or the
-   * total number of terms in the collection.
+   * Returns a Parameters object that contains metadata about the contents of
+   * the index. This is the place to store important data about the index
+   * contents, like what stemmer was used or the total number of terms in the
+   * collection.
    */
   public abstract Parameters getManifest();
 
   /**
-   * Returns the vocabulary structure for this DiskBTreeReader.
-   *  - Note that the vocabulary contains only
-   *    the first key in each block.
+   * Returns the vocabulary structure for this DiskBTreeReader. - Note that the
+   * vocabulary contains only the first key in each block.
    */
   public abstract VocabularyReader getVocabulary();
 
   /**
-   * Returns an iterator pointing to the very first key in the index.
-   * This is typically used for iterating through the entire index,
-   * which might be useful for testing and debugging tools, but probably
-   * not for traditional document retrieval.
+   * Returns an iterator pointing to the very first key in the index. This is
+   * typically used for iterating through the entire index, which might be
+   * useful for testing and debugging tools, but probably not for traditional
+   * document retrieval.
    */
   public abstract BTreeIterator getIterator() throws IOException;
 
   /**
-   * Returns an iterator pointing at a specific key.  Returns
-   * null if the key is not found in the index.
+   * Returns an iterator pointing at a specific key. Returns null if the key is
+   * not found in the index.
    */
   public abstract BTreeIterator getIterator(byte[] key) throws IOException;
 
@@ -201,5 +202,21 @@ public abstract class BTreeReader {
       return null;
     }
     return iter.getValueStream();
+  }
+
+  /**
+   * Gets the value stored in the index associated with this key.
+   *
+   * @param key
+   * @return The index value for this key, or null if there is no such value.
+   * @throws java.io.IOException
+   */
+  public MappedByteBuffer getValueMemoryMap(byte[] key) throws IOException {
+    BTreeIterator iter = getIterator(key);
+
+    if (iter == null) {
+      return null;
+    }
+    return iter.getValueMemoryMap();
   }
 }
