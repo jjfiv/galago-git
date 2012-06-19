@@ -115,7 +115,6 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
 
       // we ignore zero length documents, as this is the default returned value
       if (length == 0) {
-        System.err.println(currentDocument + "\t" + length + "\t" + Utility.toString(field));
         return;
       }
 

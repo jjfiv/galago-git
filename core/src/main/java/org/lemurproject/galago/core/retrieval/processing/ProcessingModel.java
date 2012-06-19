@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.disk.FieldLengthsReader;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 
 /**
@@ -52,8 +53,16 @@ public abstract class ProcessingModel {
       fields = new ArrayList<String>();
     }
 
+    Node docLengths = new Node("lengths", new NodeParameters());
+    docLengths.getNodeParameters().set("default", "document");
+    docLengths.getNodeParameters().set("mode", global.get("lenMode", "memory"));
+    
     Index index = r.getIndex();
-    LengthsReader.Iterator documentLengths = index.getLengthsIterator();
+    LengthsReader.Iterator documentLengths = (LengthsReader.Iterator) index.getIterator(docLengths);
+    
+    //LengthsReader.Iterator documentLengths = index.getLengthsIterator();
+    
+    
     ctx.addLength("", documentLengths);
     if (index.containsPart("extents") && !fields.isEmpty()) {
       WindowIndexReader wir = (WindowIndexReader) index.getIndexPart("extents");
