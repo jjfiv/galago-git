@@ -29,7 +29,7 @@ public class FieldLengthExtractor extends StandardStep<Document, FieldLengthData
 
     fieldLengths.clear();
     for (Tag tag : doc.tags) {
-      int len = tag.end - tag.end;
+      int len = tag.end - tag.begin;
       fieldLengths.adjustOrPutValue(tag.name, len, len);
     }
 

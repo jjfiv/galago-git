@@ -8,8 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
@@ -23,8 +21,24 @@ import org.lemurproject.galago.tupleflow.Utility;
 /**
  * Reads documents lengths from a document lengths file. KeyValueIterator
  * provides a useful interface for dumping the contents of the file.
+ * 
+ * data stored in each document 'field' lengths list:
+ * 
+ *   stats:
+ *  - number of non-zero document lengths (document count)
+ *  - sum of document lengths (collection length)
+ *  - average document length
+ *  - maximum document length
+ *  - minimum document length
+ * 
+ *   utility values:
+ *  - first document id
+ *  - last document id (all documents inbetween have a value)
+ * 
+ *   finally:
+ *  - list of lengths (one per document)
  *
- * @author trevor, sjh
+ * @author sjh
  */
 public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
@@ -98,7 +112,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
     @Override
     public org.lemurproject.galago.core.index.ValueIterator getValueIterator() throws IOException {
-      return new StreamLengthsIterator(iterator.getKey(), iterator);
+      return new MemoryMapLengthsIterator(iterator.getKey(), iterator.getValueMemoryMap());
     }
 
     @Override
@@ -111,23 +125,41 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
           implements MovableCountIterator, LengthsReader.Iterator {
 
     byte[] key;
-    private MappedByteBuffer memBuffer = null;
-    // data starts with two integers : (firstdoc, doccount)
-    int firstDocument;
-    int documentCount;
-    // iterator variables
+    private MappedByteBuffer memBuffer;
+    // stats
+    private int nonZeroDocumentCount;
+    private int collectionLength;
+    private double avgLength;
+    private int maxLength;
+    private int minLength;
+    // utility
+    private int firstDocument;
+    private int lastDocument;
+    // iteration vars
+    int lengthsDataOffset;
     int currDocument;
-    boolean done;
+    private boolean done;
 
     public MemoryMapLengthsIterator(byte[] key, MappedByteBuffer data) {
       this.key = key;
       this.memBuffer = data;
-      this.firstDocument = data.getInt(0);
-      this.documentCount = data.getInt(4);
+
+      // collect stats
+      this.memBuffer.position(0);
+      this.nonZeroDocumentCount = data.getInt();
+      this.collectionLength = data.getInt();
+      this.avgLength = data.getDouble();
+      this.maxLength = data.getInt();
+      this.minLength = data.getInt();
+
+      this.firstDocument = data.getInt();
+      this.lastDocument = data.getInt();
+
+      this.lengthsDataOffset = this.memBuffer.position(); // probably == (4 * 6) + (8)
 
       // offset is the first document
       this.currDocument = firstDocument;
-      this.done = (documentCount == currDocument);
+      this.done = (currDocument > lastDocument);
     }
 
     @Override
@@ -143,8 +175,8 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     @Override
     public void next() throws IOException {
       currDocument++;
-      if (currDocument == documentCount) {
-        currDocument = documentCount - 1;
+      if (currDocument > lastDocument) {
+        currDocument = lastDocument;
         done = true;
       }
     }
@@ -152,8 +184,8 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     @Override
     public void moveTo(int identifier) throws IOException {
       currDocument = identifier;
-      if (currDocument == documentCount) {
-        currDocument = documentCount - 1;
+      if (currDocument > lastDocument) {
+        currDocument = lastDocument;
         done = true;
       }
     }
@@ -161,7 +193,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     @Override
     public void reset() throws IOException {
       this.currDocument = firstDocument;
-      this.done = (documentCount == currDocument);
+      this.done = (currDocument > lastDocument);
     }
 
     @Override
@@ -176,14 +208,14 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
     @Override
     public long totalEntries() {
-      return documentCount;
+      return nonZeroDocumentCount;
     }
 
     @Override
     public AnnotatedNode getAnnotatedNode() throws IOException {
       String type = "lengths";
       String className = this.getClass().getSimpleName();
-      String parameters = "";
+      String parameters = Utility.toString(key);
       int document = currentCandidate();
       boolean atCandidate = hasMatch(this.context.document);
       String returnValue = Integer.toString(getCurrentLength());
@@ -204,11 +236,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
     @Override
     public int getCurrentLength() {
-      // check for range.
-      if (firstDocument <= currDocument && currDocument < documentCount) {
-        return this.memBuffer.getInt(8 + (4 * (this.currDocument - firstDocument)));
-      }
-      return 0;
+      return getLength(currDocument);
     }
 
     @Override
@@ -218,8 +246,8 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
     private int getLength(int document) {
       // check for range.
-      if (firstDocument <= document && document < documentCount) {
-        return this.memBuffer.getInt(8 + (4 * (document - firstDocument)));
+      if (firstDocument <= document && document <= lastDocument) {
+        return this.memBuffer.getInt(this.lengthsDataOffset + (4 * (document - firstDocument)));
       }
       return 0;
     }
@@ -262,30 +290,54 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   public class StreamLengthsIterator extends KeyListReader.ListIterator
           implements MovableCountIterator, LengthsReader.Iterator {
 
-    private DataStream streamBuffer = null;
-    // data starts with two integers : (firstdoc, doccount)
-    int firstDocument;
-    int documentCount;
-    // iterator variables
-    int currDocument;
-    int currLength;
-    boolean done;
+    private final BTreeIterator iterator;
+    private DataStream streamBuffer;
+    // stats
+    private int nonZeroDocumentCount;
+    private int collectionLength;
+    private double avgLength;
+    private int maxLength;
+    private int minLength;
+    // utility
+    private int firstDocument;
+    private int lastDocument;
+    // iteration vars
+    private int currDocument;
+    private int currLength;
+    private long lengthsDataOffset;
+    private boolean done;
 
     public StreamLengthsIterator(byte[] key, BTreeIterator it) throws IOException {
       super(key);
+      this.iterator = it;
       reset(it);
     }
 
     @Override
     public void reset(BTreeIterator it) throws IOException {
       this.streamBuffer = it.getValueStream();
+
+      // collect stats
+      this.nonZeroDocumentCount = streamBuffer.readInt();
+      this.collectionLength = streamBuffer.readInt();
+      this.avgLength = streamBuffer.readDouble();
+      this.maxLength = streamBuffer.readInt();
+      this.minLength = streamBuffer.readInt();
+
       this.firstDocument = streamBuffer.readInt();
-      this.documentCount = streamBuffer.readInt();
+      this.lastDocument = streamBuffer.readInt();
+
+      this.lengthsDataOffset = this.streamBuffer.getPosition(); // should be == (4 * 6) + (8)
 
       // offset is the first document
       this.currDocument = firstDocument;
       this.currLength = -1;
-      this.done = (documentCount == currDocument);
+      this.done = (currDocument > lastDocument);
+    }
+
+    @Override
+    public void reset() throws IOException {
+      this.reset(iterator);
     }
 
     @Override
@@ -301,28 +353,32 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     @Override
     public void next() throws IOException {
       this.currDocument++;
-      this.currLength = -1;
-      if (currDocument == documentCount) {
-        currDocument = documentCount - 1;
+      if (currDocument > lastDocument) {
+        currDocument = lastDocument;
         done = true;
+      } else {
+        // we only delete the length if we moved
+        // this is because we can't re-read the length value
+        this.currLength = -1;
       }
     }
 
     @Override
     public void moveTo(int identifier) throws IOException {
-      this.currDocument = identifier;
-      this.currLength = -1;
-      if (currDocument == documentCount) {
-        currDocument = documentCount - 1;
-        done = true;
-      }
-    }
+      assert (identifier >= currDocument);
 
-    @Override
-    public void reset() throws IOException {
-      this.currDocument = firstDocument;
-      this.currLength = -1;
-      this.done = (documentCount == currDocument);
+      // we can't move past the last document
+      if (identifier > lastDocument) {
+        done = true;
+        identifier = lastDocument;
+      }
+
+      if (currDocument < identifier) {
+        // we only delete the length if we move
+        // this is because we can't re-read the length value
+        currDocument = identifier;
+        currLength = -1;
+      }
     }
 
     @Override
@@ -337,14 +393,14 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
     @Override
     public long totalEntries() {
-      return documentCount;
+      return this.nonZeroDocumentCount;
     }
 
     @Override
     public AnnotatedNode getAnnotatedNode() throws IOException {
       String type = "lengths";
       String className = this.getClass().getSimpleName();
-      String parameters = "";
+      String parameters = Utility.toString(key);
       int document = currentCandidate();
       boolean atCandidate = hasMatch(this.context.document);
       String returnValue = Integer.toString(getCurrentLength());
@@ -365,10 +421,14 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
     @Override
     public int getCurrentLength() {
+      // check if we need to read the length value from the stream
       if (this.currLength < 0) {
+        // ensure a defaulty value
         this.currLength = 0;
         // check for range.
-        if (firstDocument <= currDocument && currDocument < documentCount) {
+        if (firstDocument <= currDocument && currDocument < lastDocument) {
+          // seek to the required position - hopefully this will hit cache
+          this.streamBuffer.seek(lengthsDataOffset + (4 * (this.currDocument - firstDocument)));
           try {
             this.currLength = this.streamBuffer.readInt();
           } catch (IOException ex) {
