@@ -5,57 +5,28 @@ import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
- * This is a marker interface that represents any kind of
- * iterator over an inverted list or query operator.
+ * This is an interface that represents any kind of
+ *  iterator over an inverted list or query operator.
+ *  
+ * This class is for iteration across document ids, 
+ *  as in a document-ordered inverted index.
  * 
- * @author trevor
+ * Since iteration operation is a bit complicated, an example:
+ * 
+ *  while( ! itr.isDone() ){ 
+ *   int doc = itr.currentCandidate();
+ *   if( itr.hasMatch(doc)) {
+ *     itr.moveTo(doc);
+ *     // iterator tree should point at useful information, 
+ *     // e.g calls for counts or scores can go here:
+ *     //    score(doc), count(doc), etc
+ *   }
+ *   itr.next();
+ *  }
+ * 
+ * @author sjh
  */
 public interface MovableIterator extends ContextualIterator, StructuredIterator, Comparable<MovableIterator> {
-
-  /**
-   * returns the current candidate
-   *  - if isDone - returns Integer.MAX_VALUE
-   */
-  public int currentCandidate();
-
-  /**
-   * returns true if the iterator is at this candidate
-   */
-  public boolean hasMatch(int identifier);
-
-  /**
-   * returns true if the iterator has data for ALL candidates
-   *  - e.g. priors, lengths, names.
-   * 
-   * These iterators are assumed to be background information
-   * for iterators without all candidates
-   */
-  public boolean hasAllCandidates();
-
-  /**
-   * Moves to the next candidate
-   *  - this functions can be implemented as 
-   *    moveTo(currentCandidate() + 1)
-   * 
-   * -- boolean indicates if the iterator isDone()
-   */
-  public void next() throws IOException;
-
-  /**
-   * Moves to the next candidate
-   *  - this functions can be implemented as 
-   *    moveTo(identifier + 1)
-   */
-  public void movePast(int identifier) throws IOException;
-
-  /**
-   * Moves the iterator to the next candidate
-   *  - should check if the iterator can be passive or aggressive
-   *  - That is if the iterator shares children/leaf nodes with other iterators
-   * 
-   * -- boolean indicates if the iterator isDone()
-   */
-  public void moveTo(int identifier) throws IOException;
 
   /**
    * returns the iterator to the first candidate
@@ -63,10 +34,66 @@ public interface MovableIterator extends ContextualIterator, StructuredIterator,
   public void reset() throws IOException;
 
   /**
+   * returns the current document id as a candidate
+   * 
+   * Specical case:
+   *  if isDone() == true 
+   *   return Integer.MAX_VALUE
+   */
+  public int currentCandidate();
+
+  /**
    * return true if the iterator has no more candidates
    */
   public boolean isDone();
+
+  /**
+   * Moves to the next candidate
+   * 
+   * Implementing iterators should call next on children iterators carefully:
+   * 
+   * for each child:
+   *   if (hasAllCandidates() || !child.hasAllCandidates())
+   *     child.next()
+   *  
+   * this avoids making small (unnecessary) jumps for iterators that have all candidates
+   * 
+   */
+  public void next() throws IOException;
+
+  /**
+   * Moves to the next candidate
+   * 
+   * DEPRECATED
+   * 
+   */
+  public void movePast(int identifier) throws IOException;
+
+  /**
+   * Moves the iterator to the specified candidate
+   * 
+   * Unlike the 'next' function this should move all iterators.
+   * Even where 'hasAllCandidates' is true.
+   */
+  public void moveTo(int identifier) throws IOException;
   
+  /**
+   * returns true if the iterator is at this candidate,
+   * and can return a non-background value.
+   */
+  public boolean hasMatch(int identifier);
+
+  /**
+   * returns true if the iterator has data for ALL candidates
+   *  - e.g. priors, lengths, names.
+   * 
+   * These iterators are assumed to provide supporting information
+   *  for the current document to parent iterators. They should not
+   *  guide the tree's iteration (e.g. by stopping at every document).
+   *  
+   */
+  public boolean hasAllCandidates();
+
   /**
    * Returns a string representation of the current candidate + value
    */
@@ -76,10 +103,9 @@ public interface MovableIterator extends ContextualIterator, StructuredIterator,
    * Returns an over estimate of the total entries in the iterator
    */
   public long totalEntries();
-  
+
   /**
    * Returns an AnnotatedNode representation of the current state of this iterator
    */
   public AnnotatedNode getAnnotatedNode() throws IOException;
 }
-
