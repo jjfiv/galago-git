@@ -47,6 +47,9 @@ class FileParser implements DocumentStreamParser {
     return name;
   }
 
+  /**
+   * finds the first <title> in the string
+   */
   public String getTitle(String text) {
     int start = text.indexOf("<title>");
     if (start < 0) {
@@ -84,6 +87,8 @@ class FileParser implements DocumentStreamParser {
 
   @Override
   public void close() throws IOException {
-    reader.close();
+    if(reader!= null){
+      reader.close();
+    }
   }
 }

@@ -95,17 +95,19 @@ public interface MovableIterator extends ContextualIterator, StructuredIterator,
   public boolean hasAllCandidates();
 
   /**
-   * Returns a string representation of the current candidate + value
-   */
-  public String getEntry() throws IOException;
-
-  /**
    * Returns an over estimate of the total entries in the iterator
    */
   public long totalEntries();
 
   /**
+   * Returns a string representation of the current candidate + value
+   *  Useful for dump index/iterator functions
+   */
+  public String getEntry() throws IOException;
+
+  /**
    * Returns an AnnotatedNode representation of the current state of this iterator
+   *  Useful for debugging a query model
    */
   public AnnotatedNode getAnnotatedNode() throws IOException;
 }
