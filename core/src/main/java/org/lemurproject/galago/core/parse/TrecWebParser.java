@@ -31,7 +31,6 @@ public class TrecWebParser implements DocumentStreamParser {
 
     public void close() throws IOException {
         reader.close();
-        reader = null;
     }
 
     public String scrubUrl(String url) {
