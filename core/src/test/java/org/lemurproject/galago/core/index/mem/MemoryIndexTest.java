@@ -54,7 +54,7 @@ public class MemoryIndexTest extends TestCase {
     int total = 0;
     while(!ci.isDone()){
       total += ci.count();
-      ci.next();
+      ci.movePast(ci.currentCandidate());
     }
     assertEquals(total, 200);
   }

@@ -125,7 +125,7 @@ public class RankedDocumentModel extends ProcessingModel {
           }
         }
       }
-      iterator.next();
+      iterator.movePast(document);
     }
     return toReversedArray(queue);
   }

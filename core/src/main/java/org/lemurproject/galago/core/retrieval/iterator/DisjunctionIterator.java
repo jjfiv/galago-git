@@ -61,16 +61,9 @@ public abstract class DisjunctionIterator implements MovableIterator {
     }
   }
 
-  // these functions are final to ensure that they are never overridden
   @Override
-  public final void movePast(int candidate) throws IOException {
+  public void movePast(int candidate) throws IOException {
     this.moveTo(candidate + 1);
-  }
-
-  // these functions are final to ensure that they are never overridden
-  @Override
-  public final void next() throws IOException {
-    this.moveTo(currentCandidate() + 1);
   }
 
   @Override

@@ -21,11 +21,6 @@ public abstract class KeyToListIterator extends ValueIterator {
   }
 
   @Override
-  public void next() throws IOException {
-    iterator.nextKey();
-  }
-
-  @Override
   public void moveTo(int identifier) throws IOException {
     iterator.skipToKey(Utility.fromInt(identifier));
   }

@@ -57,7 +57,7 @@ public class SetModel extends ProcessingModel {
       if (iterator.hasMatch(iterator.currentCandidate())) {
         list.add(new ScoredDocument(iterator.currentCandidate(), 1.0));
       }
-      iterator.next();
+      iterator.movePast(iterator.currentCandidate());
     }
     return list.toArray(new ScoredDocument[0]);
   }

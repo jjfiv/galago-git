@@ -53,11 +53,6 @@ public abstract class TransformIterator implements MovableIterator {
   }
 
   @Override
-  public void next() throws IOException {
-    iterator.next();
-  }
-
-  @Override
   public void moveTo(int identifier) throws IOException {
     iterator.moveTo(identifier);
   }

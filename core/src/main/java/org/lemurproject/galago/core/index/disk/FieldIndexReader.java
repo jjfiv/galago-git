@@ -150,17 +150,12 @@ public class FieldIndexReader extends KeyListReader {
     }
 
     @Override
-    public void next() throws IOException {
-      documentIndex = Math.min(documentIndex + 1, documentCount);
-      if (!isDone()) {
-        loadValue();
-      }
-    }
-
-    @Override
     public void moveTo(int document) throws IOException {
       while (!isDone() && document > currentDocument) {
-        next();
+        documentIndex = Math.min(documentIndex + 1, documentCount);
+        if (!isDone()) {
+          loadValue();
+        }
       }
     }
 

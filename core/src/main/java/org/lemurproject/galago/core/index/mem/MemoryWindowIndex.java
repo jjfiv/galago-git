@@ -49,10 +49,10 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
   protected long collectionDocumentCount = 0;
   protected long collectionPostingsCount = 0;
   protected Stemmer stemmer = null;
-
+  
   public MemoryWindowIndex(Parameters parameters) throws Exception {
     this.parameters = parameters;
-
+    
     if (parameters.containsKey("stemmer")) {
       stemmer = (Stemmer) Class.forName(parameters.getString("stemmer")).newInstance();
     }
@@ -61,12 +61,12 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
     collectionPostingsCount = parameters.get("statistics/collectionLength", 0);
     collectionDocumentCount = parameters.get("statistics/documentCount", 0);
   }
-
+  
   @Override
   public void addDocument(Document doc) throws IOException {
     collectionDocumentCount += 1;
     collectionPostingsCount += doc.terms.size();
-
+    
     int prevBegin = -1;
     for (Tag tag : doc.tags) {
       assert tag.begin >= prevBegin;
@@ -74,14 +74,14 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
       addExtent(Utility.fromString(tag.name), doc.identifier, tag.begin, tag.end);
     }
   }
-
+  
   @Override
   public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
     if (postings.containsKey(key)) {
       // do nothing - we have already cached this data
       return;
     }
-
+    
     WindowPostingList postingList = new WindowPostingList(key);
     MovableExtentIterator mi = (MovableExtentIterator) iterator;
     while (!mi.isDone()) {
@@ -91,23 +91,23 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
         postingList.add(document, ei.currentBegin(), ei.currentEnd());
         ei.next();
       }
-      mi.next();
+      mi.movePast(document);
     }
-
+    
     postings.put(key, postingList);
   }
-
+  
   @Override
   public void removeIteratorData(byte[] key) throws IOException {
     postings.remove(key);
   }
-
+  
   protected void addExtent(byte[] byteWord, int document, int begin, int end) {
     if (!postings.containsKey(byteWord)) {
       WindowPostingList postingList = new WindowPostingList(byteWord);
       postings.put(byteWord, postingList);
     }
-
+    
     WindowPostingList postingList = postings.get(byteWord);
     postingList.add(document, begin, end);
   }
@@ -117,25 +117,25 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
   public KeyIterator getIterator() throws IOException {
     return new KIterator();
   }
-
+  
   @Override
   public ValueIterator getIterator(Node node) throws IOException {
     String term = stemAsRequired(node.getDefaultParameter());
     byte[] byteWord = Utility.fromString(term);
     return getTermExtents(byteWord);
   }
-
+  
   @Override
   public ValueIterator getIterator(byte[] key) throws IOException {
     return getTermExtents(key);
   }
-
+  
   @Override
   public NodeStatistics getTermStatistics(String term) throws IOException {
     term = stemAsRequired(term);
     return getTermStatistics(Utility.fromString(term));
   }
-
+  
   @Override
   public NodeStatistics getTermStatistics(byte[] term) throws IOException {
     WindowPostingList postingList = postings.get(term);
@@ -147,7 +147,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
     stats.node = Utility.toString(term);
     return stats;
   }
-
+  
   private ExtentIterator getTermExtents(byte[] term) throws IOException {
     WindowPostingList postingList = postings.get(term);
     if (postingList != null) {
@@ -161,39 +161,39 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
   public void close() throws IOException {
     postings = null;
   }
-
+  
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
     types.put("extents", new NodeType(ExtentIterator.class));
     return types;
   }
-
+  
   @Override
   public String getDefaultOperator() {
     return "extents";
   }
-
+  
   @Override
   public Parameters getManifest() {
     return parameters;
   }
-
+  
   @Override
   public long getDocumentCount() {
     return collectionDocumentCount;
   }
-
+  
   @Override
   public long getCollectionLength() {
     return collectionPostingsCount;
   }
-
+  
   @Override
   public long getKeyCount() {
     return postings.size();
   }
-
+  
   @Override
   public void flushToDisk(String path) throws IOException {
     Parameters p = getManifest();
@@ -202,14 +202,14 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
     p.set("statistics/collectionLength", this.getCollectionLength());
     p.set("statistics/vocabCount", this.getKeyCount());
     WindowIndexWriter writer = new WindowIndexWriter(new FakeParameters(p));
-
+    
     KIterator kiterator = new KIterator();
     ExtentIterator viterator;
     ExtentArray extents;
     while (!kiterator.isDone()) {
       viterator = (ExtentIterator) kiterator.getValueIterator();
       writer.processExtentName(kiterator.getKey());
-
+      
       while (!viterator.isDone()) {
         writer.processNumber(viterator.currentCandidate());
         extents = viterator.extents();
@@ -217,7 +217,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
           writer.processBegin(extents.begin(i));
           writer.processTuple(extents.end(i));
         }
-        viterator.next();
+        viterator.movePast(viterator.currentCandidate());
       }
       kiterator.nextKey();
     }
@@ -234,7 +234,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
 
   // sub classes:
   public class WindowPostingList {
-
+    
     byte[] key;
     CompressedByteBuffer documents_cbb = new CompressedByteBuffer();
     CompressedByteBuffer counts_cbb = new CompressedByteBuffer();
@@ -247,11 +247,11 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
     int termWindowCount = 0;
     int lastDocument = 0;
     int lastCount = 0;
-
+    
     public WindowPostingList(byte[] key) {
       this.key = key;
     }
-
+    
     public void add(int document, int begin, int end) {
       if (termDocumentCount == 0) {
         // first instance of term
@@ -280,31 +280,31 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
   // public class Iterator extends ExtentIterator implements IndexIterator {
 
   public class KIterator implements KeyIterator {
-
+    
     Iterator<byte[]> iterator;
     byte[] currKey;
     boolean done = false;
-
+    
     public KIterator() throws IOException {
       iterator = postings.keySet().iterator();
       this.nextKey();
     }
-
+    
     @Override
     public void reset() throws IOException {
       iterator = postings.keySet().iterator();
     }
-
+    
     @Override
     public String getKeyString() throws IOException {
       return Utility.toString(currKey);
     }
-
+    
     @Override
     public byte[] getKey() {
       return currKey;
     }
-
+    
     @Override
     public boolean nextKey() throws IOException {
       if (iterator.hasNext()) {
@@ -316,19 +316,19 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
         return false;
       }
     }
-
+    
     @Override
     public boolean skipToKey(byte[] key) throws IOException {
       iterator = postings.tailMap(key).keySet().iterator();
       return nextKey();
     }
-
+    
     @Override
     public boolean findKey(byte[] key) throws IOException {
       iterator = postings.tailMap(key).keySet().iterator();
       return nextKey();
     }
-
+    
     @Override
     public String getValueString() throws IOException {
       long count = -1;
@@ -344,17 +344,17 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
       }
       return sb.toString();
     }
-
+    
     @Override
     public byte[] getValueBytes() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
-
+    
     @Override
     public boolean isDone() {
       return done;
     }
-
+    
     @Override
     public int compareTo(KeyIterator t) {
       try {
@@ -363,7 +363,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
         throw new RuntimeException(ex);
       }
     }
-
+    
     @Override
     public ValueIterator getValueIterator() throws IOException {
       if (currKey != null) {
@@ -373,9 +373,9 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
       }
     }
   }
-
+  
   public class ExtentIterator extends ValueIterator implements AggregateIterator, MovableCountIterator, MovableExtentIterator {
-
+    
     WindowPostingList postings;
     VByteInput documents_reader;
     VByteInput counts_reader;
@@ -387,12 +387,12 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
     ExtentArray extents;
     boolean done;
     Map<String, Object> modifiers;
-
+    
     private ExtentIterator(WindowPostingList postings) throws IOException {
       this.postings = postings;
       reset();
     }
-
+    
     @Override
     public void reset() throws IOException {
       documents_reader = new VByteInput(
@@ -407,57 +407,56 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
       ends_reader = new VByteInput(
               new DataInputStream(
               new ByteArrayInputStream(postings.ends_cbb.getBytes())));
-
+      
       iteratedDocs = 0;
       currDocument = 0;
       currCount = 0;
       extents = new ExtentArray();
-
-      next();
+      
+      read();
     }
-
+    
     @Override
     public int count() {
       return currCount;
     }
-
+    
     @Override
     public int maximumCount() {
       return Integer.MAX_VALUE;
     }
-
+    
     @Override
     public ExtentArray extents() {
       return extents;
     }
-
+    
     @Override
     public ExtentArray getData() {
       return extents;
     }
-
+    
     @Override
     public boolean isDone() {
       return done;
     }
-
+    
     @Override
     public int currentCandidate() {
       return currDocument;
     }
-
+    
     @Override
     public boolean hasMatch(int identifier) {
       return (!isDone() && identifier == currDocument);
     }
-
+    
     @Override
     public boolean hasAllCandidates() {
       return false;
     }
-
-    @Override
-    public void next() throws IOException {
+    
+    private void read() throws IOException {
       if (iteratedDocs >= postings.termDocumentCount) {
         done = true;
         return;
@@ -469,10 +468,10 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
         currCount = counts_reader.readInt();
       }
       loadExtents();
-
+      
       iteratedDocs++;
     }
-
+    
     public void loadExtents() throws IOException {
       extents.reset();
       extents.setDocument(currDocument);
@@ -484,23 +483,23 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
         extents.add(begin, end);
       }
     }
-
+    
     @Override
     public void moveTo(int identifier) throws IOException {
       while (!isDone() && (currDocument < identifier)) {
-        next();
+        read();
       }
     }
-
+    
     @Override
     public void movePast(int identifier) throws IOException {
       moveTo(identifier + 1);
     }
-
+    
     @Override
     public String getEntry() throws IOException {
       StringBuilder builder = new StringBuilder();
-
+      
       builder.append(Utility.toString(postings.key));
       builder.append(",");
       builder.append(currDocument);
@@ -508,15 +507,15 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
         builder.append(",");
         builder.append(extents.begin(i));
       }
-
+      
       return builder.toString();
     }
-
+    
     @Override
     public long totalEntries() {
       return postings.termDocumentCount;
     }
-
+    
     @Override
     public NodeStatistics getStatistics() {
       NodeStatistics stats = new NodeStatistics();
@@ -527,7 +526,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
       stats.documentCount = collectionDocumentCount;
       return stats;
     }
-
+    
     @Override
     public int compareTo(MovableIterator other) {
       if (isDone() && !other.isDone()) {
@@ -541,17 +540,17 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
       }
       return currentCandidate() - other.currentCandidate();
     }
-
+    
     @Override
     public String getKeyString() throws IOException {
       return Utility.toString(postings.key);
     }
-
+    
     @Override
     public byte[] getKeyBytes() throws IOException {
       return postings.key;
     }
-
+    
     @Override
     public AnnotatedNode getAnnotatedNode() throws IOException {
       String type = "extents";
@@ -561,7 +560,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
       boolean atCandidate = hasMatch(this.context.document);
       String returnValue = extents().toString();
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
-
+      
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }

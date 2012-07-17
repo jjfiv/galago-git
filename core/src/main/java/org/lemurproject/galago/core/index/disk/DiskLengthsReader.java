@@ -215,15 +215,6 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
     
     @Override
-    public void next() throws IOException {
-      currDocument++;
-      if (currDocument > lastDocument) {
-        currDocument = lastDocument;
-        done = true;
-      }
-    }
-    
-    @Override
     public void moveTo(int identifier) throws IOException {
       currDocument = identifier;
       if (currDocument > lastDocument) {
@@ -392,19 +383,6 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     @Override
     public boolean hasAllCandidates() {
       return true;
-    }
-    
-    @Override
-    public void next() throws IOException {
-      this.currDocument++;
-      if (currDocument > lastDocument) {
-        currDocument = lastDocument;
-        done = true;
-      } else {
-        // we only delete the length if we moved
-        // this is because we can't re-read the length value
-        this.currLength = -1;
-      }
     }
     
     @Override

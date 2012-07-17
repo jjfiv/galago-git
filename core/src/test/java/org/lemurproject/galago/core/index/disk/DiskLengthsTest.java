@@ -56,17 +56,17 @@ public class DiskLengthsTest extends TestCase {
       StreamLengthsIterator streamItr = ki.getStreamValueIterator();
 
       while (!memItr.isDone() || !streamItr.isDone()) {
-        
+
         assertEquals(memItr.getCurrentIdentifier(), streamItr.getCurrentIdentifier());
         assertEquals(memItr.getCurrentLength(), streamItr.getCurrentLength());
-          
-        memItr.next();
-        streamItr.next();
+
+        memItr.movePast(memItr.currentCandidate());
+        streamItr.movePast(streamItr.currentCandidate());
       }
-      
+
       memItr.reset();
       streamItr.reset();
-      
+
       memItr.moveTo(50);
       streamItr.moveTo(50);
       assertEquals(memItr.currentCandidate(), 50);
@@ -80,7 +80,7 @@ public class DiskLengthsTest extends TestCase {
       assertEquals(streamItr.currentCandidate(), 90);
       assertEquals(memItr.getCurrentLength(), 91);
       assertEquals(streamItr.getCurrentLength(), 91);
-      
+
       memItr.moveTo(90);
       streamItr.moveTo(90);
       assertEquals(memItr.currentCandidate(), 90);
@@ -94,14 +94,14 @@ public class DiskLengthsTest extends TestCase {
       assertEquals(streamItr.currentCandidate(), 110);
       assertEquals(memItr.getCurrentLength(), 111);
       assertEquals(streamItr.getCurrentLength(), 111);
-      
+
       memItr.moveTo(200);
       streamItr.moveTo(200);
       assertEquals(memItr.currentCandidate(), 110);
       assertEquals(streamItr.currentCandidate(), 110);
       assertEquals(memItr.getCurrentLength(), 111);
       assertEquals(streamItr.getCurrentLength(), 111);
-      
+
       reader.close();
 
 

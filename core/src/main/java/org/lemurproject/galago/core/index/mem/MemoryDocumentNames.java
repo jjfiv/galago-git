@@ -73,7 +73,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
       docCount += 1;
       termCount += 1;
       names.add(name);
-      iterator.next();
+      iterator.movePast(identifier);
     }
   }
 

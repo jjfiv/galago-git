@@ -50,10 +50,10 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
   protected long collectionDocumentCount = 0;
   protected long collectionPostingsCount = 0;
   protected Stemmer stemmer = null;
-
+  
   public MemoryPositionalIndex(Parameters parameters) throws Exception {
     this.parameters = parameters;
-
+    
     if (parameters.containsKey("stemmer")) {
       stemmer = (Stemmer) Class.forName(parameters.getString("stemmer")).newInstance();
     }
@@ -62,12 +62,12 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
     collectionPostingsCount = parameters.get("statistics/collectionLength", 0);
     collectionDocumentCount = parameters.get("statistics/documentCount", 0);
   }
-
+  
   @Override
   public void addDocument(Document doc) throws IOException {
     collectionDocumentCount += 1;
     collectionPostingsCount += doc.terms.size();
-
+    
     int position = 0;
     for (String term : doc.terms) {
       String stem = stemAsRequired(term);
@@ -75,15 +75,15 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       position += 1;
     }
   }
-
+  
   @Override
   public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
-
+    
     if (postings.containsKey(key)) {
       // do nothing - we have already cached this data
       return;
     }
-
+    
     PositionalPostingList postingList = new PositionalPostingList(key);
     MovableExtentIterator mi = (MovableExtentIterator) iterator;
     while (!mi.isDone()) {
@@ -93,23 +93,23 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
         postingList.add(document, ei.currentBegin());
         ei.next();
       }
-      mi.next();
+      mi.movePast(document);
     }
-
+    
     postings.put(key, postingList);
   }
-
+  
   @Override
   public void removeIteratorData(byte[] key) throws IOException {
     postings.remove(key);
   }
-
+  
   protected void addPosting(byte[] byteWord, int document, int position) {
     if (!postings.containsKey(byteWord)) {
       PositionalPostingList postingList = new PositionalPostingList(byteWord);
       postings.put(byteWord, postingList);
     }
-
+    
     PositionalPostingList postingList = postings.get(byteWord);
     postingList.add(document, position);
   }
@@ -119,7 +119,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
   public KeyIterator getIterator() throws IOException {
     return new KIterator();
   }
-
+  
   @Override
   public ValueIterator getIterator(Node node) throws IOException {
     String term = stemAsRequired(node.getDefaultParameter());
@@ -130,18 +130,18 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       return getTermExtents(byteWord);
     }
   }
-
+  
   @Override
   public ValueIterator getIterator(byte[] key) throws IOException {
     return getTermExtents(key);
   }
-
+  
   @Override
   public NodeStatistics getTermStatistics(String term) throws IOException {
     term = stemAsRequired(term);
     return getTermStatistics(Utility.fromString(term));
   }
-
+  
   @Override
   public NodeStatistics getTermStatistics(byte[] term) throws IOException {
     PositionalPostingList postingList = postings.get(term);
@@ -153,7 +153,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
     stats.node = Utility.toString(term);
     return stats;
   }
-
+  
   private CountsIterator getTermCounts(byte[] term) throws IOException {
     PositionalPostingList postingList = postings.get(term);
     if (postingList != null) {
@@ -161,7 +161,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
     }
     return null;
   }
-
+  
   private ExtentsIterator getTermExtents(byte[] term) throws IOException {
     PositionalPostingList postingList = postings.get(term);
     if (postingList != null) {
@@ -175,7 +175,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
   public void close() throws IOException {
     postings = null;
   }
-
+  
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
@@ -183,32 +183,32 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
     types.put("extents", new NodeType(ExtentsIterator.class));
     return types;
   }
-
+  
   @Override
   public String getDefaultOperator() {
     return "extents";
   }
-
+  
   @Override
   public Parameters getManifest() {
     return parameters;
   }
-
+  
   @Override
   public long getDocumentCount() {
     return collectionDocumentCount;
   }
-
+  
   @Override
   public long getCollectionLength() {
     return collectionPostingsCount;
   }
-
+  
   @Override
   public long getKeyCount() {
     return postings.size();
   }
-
+  
   @Override
   public void flushToDisk(String path) throws IOException {
     Parameters p = getManifest();
@@ -217,14 +217,14 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
     p.set("statistics/collectionLength", this.getCollectionLength());
     p.set("statistics/vocabCount", this.getKeyCount());
     PositionIndexWriter writer = new PositionIndexWriter(new FakeParameters(p));
-
+    
     KIterator kiterator = new KIterator();
     ExtentsIterator viterator;
     ExtentArray extents;
     while (!kiterator.isDone()) {
       viterator = (ExtentsIterator) kiterator.getValueIterator();
       writer.processWord(kiterator.getKey());
-
+      
       while (!viterator.isDone()) {
         writer.processDocument(viterator.currentCandidate());
         extents = viterator.extents();
@@ -232,7 +232,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
           writer.processPosition(extents.begin(i));
           writer.processTuple();
         }
-        viterator.next();
+        viterator.movePast(viterator.currentCandidate());
       }
       kiterator.nextKey();
     }
@@ -249,7 +249,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
 
   // sub classes:
   public class PositionalPostingList {
-
+    
     byte[] key;
     CompressedByteBuffer documents_cbb = new CompressedByteBuffer();
     CompressedByteBuffer counts_cbb = new CompressedByteBuffer();
@@ -262,11 +262,11 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
     int lastDocument = 0;
     int lastCount = 0;
     int lastPosition = 0;
-
+    
     public PositionalPostingList(byte[] key) {
       this.key = key;
     }
-
+    
     public void add(int document, int position) {
       if (termDocumentCount == 0) {
         // first instance of term
@@ -297,31 +297,31 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
   // public class Iterator extends ExtentIterator implements IndexIterator {
 
   public class KIterator implements KeyIterator {
-
+    
     Iterator<byte[]> iterator;
     byte[] currKey;
     boolean done = false;
-
+    
     public KIterator() throws IOException {
       iterator = postings.keySet().iterator();
       this.nextKey();
     }
-
+    
     @Override
     public void reset() throws IOException {
       iterator = postings.keySet().iterator();
     }
-
+    
     @Override
     public String getKeyString() throws IOException {
       return Utility.toString(currKey);
     }
-
+    
     @Override
     public byte[] getKey() {
       return currKey;
     }
-
+    
     @Override
     public boolean nextKey() throws IOException {
       if (iterator.hasNext()) {
@@ -333,19 +333,19 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
         return false;
       }
     }
-
+    
     @Override
     public boolean skipToKey(byte[] key) throws IOException {
       iterator = postings.tailMap(key).keySet().iterator();
       return nextKey();
     }
-
+    
     @Override
     public boolean findKey(byte[] key) throws IOException {
       iterator = postings.tailMap(key).keySet().iterator();
       return nextKey();
     }
-
+    
     @Override
     public String getValueString() throws IOException {
       long count = -1;
@@ -361,17 +361,17 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       }
       return sb.toString();
     }
-
+    
     @Override
     public byte[] getValueBytes() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
-
+    
     @Override
     public boolean isDone() {
       return done;
     }
-
+    
     @Override
     public int compareTo(KeyIterator t) {
       try {
@@ -380,7 +380,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
         throw new RuntimeException(ex);
       }
     }
-
+    
     @Override
     public ValueIterator getValueIterator() throws IOException {
       if (currKey != null) {
@@ -390,10 +390,10 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       }
     }
   }
-
+  
   public class ExtentsIterator extends ValueIterator implements ModifiableIterator,
           AggregateIterator, MovableCountIterator, MovableExtentIterator {
-
+    
     PositionalPostingList postings;
     VByteInput documents_reader;
     VByteInput counts_reader;
@@ -404,12 +404,12 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
     ExtentArray extents;
     boolean done;
     Map<String, Object> modifiers;
-
+    
     private ExtentsIterator(PositionalPostingList postings) throws IOException {
       this.postings = postings;
       reset();
     }
-
+    
     @Override
     public void reset() throws IOException {
       documents_reader = new VByteInput(
@@ -421,50 +421,50 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       positions_reader = new VByteInput(
               new DataInputStream(
               new ByteArrayInputStream(postings.positions_cbb.getBytes())));
-
+      
       iteratedDocs = 0;
       currDocument = 0;
       currCount = 0;
       extents = new ExtentArray();
-
-      next();
+      
+      read();
     }
-
+    
     @Override
     public int count() {
       return currCount;
     }
-
+    
     @Override
     public int maximumCount() {
       return Integer.MAX_VALUE;
     }
-
+    
     @Override
     public ExtentArray extents() {
       return extents;
     }
-
+    
     @Override
     public ExtentArray getData() {
       return extents;
     }
-
+    
     @Override
     public boolean isDone() {
       return done;
     }
-
+    
     @Override
     public int currentCandidate() {
       return currDocument;
     }
-
+    
     @Override
     public boolean hasMatch(int identifier) {
       return (!isDone() && identifier == currDocument);
     }
-
+    
     public void loadExtents() throws IOException {
       extents.reset();
       extents.setDocument(currDocument);
@@ -474,9 +474,8 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
         extents.add(position);
       }
     }
-
-    @Override
-    public void next() throws IOException {
+    
+    public void read() throws IOException {
       if (iteratedDocs >= postings.termDocumentCount) {
         done = true;
         return;
@@ -488,26 +487,26 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
         currCount = counts_reader.readInt();
       }
       loadExtents();
-
+      
       iteratedDocs++;
     }
-
+    
     @Override
     public void moveTo(int identifier) throws IOException {
       while (!isDone() && (currDocument < identifier)) {
-        next();
+        read();
       }
     }
-
+    
     @Override
     public void movePast(int identifier) throws IOException {
       moveTo(identifier + 1);
     }
-
+    
     @Override
     public String getEntry() throws IOException {
       StringBuilder builder = new StringBuilder();
-
+      
       builder.append(Utility.toString(postings.key));
       builder.append(",");
       builder.append(currDocument);
@@ -515,15 +514,15 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
         builder.append(",");
         builder.append(extents.begin(i));
       }
-
+      
       return builder.toString();
     }
-
+    
     @Override
     public long totalEntries() {
       return postings.termDocumentCount;
     }
-
+    
     @Override
     public NodeStatistics getStatistics() {
       NodeStatistics stats = new NodeStatistics();
@@ -534,7 +533,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       stats.documentCount = collectionDocumentCount;
       return stats;
     }
-
+    
     @Override
     public int compareTo(MovableIterator other) {
       if (isDone() && !other.isDone()) {
@@ -548,7 +547,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       }
       return currentCandidate() - other.currentCandidate();
     }
-
+    
     @Override
     public void addModifier(String k, Object m) {
       if (modifiers == null) {
@@ -556,17 +555,17 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       }
       modifiers.put(k, m);
     }
-
+    
     @Override
     public Set<String> getAvailableModifiers() {
       return modifiers.keySet();
     }
-
+    
     @Override
     public boolean hasModifier(String key) {
       return ((modifiers != null) && modifiers.containsKey(key));
     }
-
+    
     @Override
     public Object getModifier(String modKey) {
       if (modifiers == null) {
@@ -574,22 +573,22 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       }
       return modifiers.get(modKey);
     }
-
+    
     @Override
     public boolean hasAllCandidates() {
       return false;
     }
-
+    
     @Override
     public String getKeyString() throws IOException {
       return Utility.toString(postings.key);
     }
-
+    
     @Override
     public byte[] getKeyBytes() throws IOException {
       return postings.key;
     }
-
+    
     @Override
     public AnnotatedNode getAnnotatedNode() throws IOException {
       String type = "extents";
@@ -599,14 +598,14 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       boolean atCandidate = hasMatch(this.context.document);
       String returnValue = extents().toString();
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
-
+      
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
-
+  
   public class CountsIterator extends ValueIterator implements ModifiableIterator,
           AggregateIterator, MovableCountIterator {
-
+    
     PositionalPostingList postings;
     VByteInput documents_reader;
     VByteInput counts_reader;
@@ -615,12 +614,12 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
     int currCount;
     boolean done;
     Map<String, Object> modifiers;
-
+    
     private CountsIterator(PositionalPostingList postings) throws IOException {
       this.postings = postings;
       reset();
     }
-
+    
     @Override
     public void reset() throws IOException {
       documents_reader = new VByteInput(
@@ -629,46 +628,45 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       counts_reader = new VByteInput(
               new DataInputStream(
               new ByteArrayInputStream(postings.counts_cbb.getBytes())));
-
+      
       iteratedDocs = 0;
       currDocument = 0;
       currCount = 0;
-
-      next();
+      
+      read();
     }
-
+    
     @Override
     public int count() {
       return currCount;
     }
-
+    
     @Override
     public int maximumCount() {
       return Integer.MAX_VALUE;
     }
-
+    
     @Override
     public boolean isDone() {
       return done;
     }
-
+    
     @Override
     public int currentCandidate() {
       return currDocument;
     }
-
+    
     @Override
     public boolean hasMatch(int identifier) {
       return (!isDone() && identifier == currDocument);
     }
-
+    
     @Override
     public boolean hasAllCandidates() {
       return false;
     }
-
-    @Override
-    public void next() throws IOException {
+    
+    public void read() throws IOException {
       if (iteratedDocs >= postings.termDocumentCount) {
         done = true;
         return;
@@ -679,40 +677,40 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
         currDocument += documents_reader.readInt();
         currCount = counts_reader.readInt();
       }
-
+      
       iteratedDocs++;
     }
-
+    
     @Override
     public void moveTo(int identifier) throws IOException {
       while (!isDone() && (currDocument < identifier)) {
-        next();
+        read();
       }
     }
-
+    
     @Override
     public void movePast(int identifier) throws IOException {
       moveTo(identifier + 1);
     }
-
+    
     @Override
     public String getEntry() throws IOException {
       StringBuilder builder = new StringBuilder();
-
+      
       builder.append(Utility.toString(postings.key));
       builder.append(",");
       builder.append(currDocument);
       builder.append(",");
       builder.append(currCount);
-
+      
       return builder.toString();
     }
-
+    
     @Override
     public long totalEntries() {
       return postings.termDocumentCount;
     }
-
+    
     @Override
     public NodeStatistics getStatistics() {
       if (modifiers != null && modifiers.containsKey("background")) {
@@ -726,7 +724,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       stats.documentCount = collectionDocumentCount;
       return stats;
     }
-
+    
     @Override
     public int compareTo(MovableIterator other) {
       if (isDone() && !other.isDone()) {
@@ -740,7 +738,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       }
       return currentCandidate() - other.currentCandidate();
     }
-
+    
     @Override
     public void addModifier(String k, Object m) {
       if (modifiers == null) {
@@ -748,17 +746,17 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       }
       modifiers.put(k, m);
     }
-
+    
     @Override
     public Set<String> getAvailableModifiers() {
       return modifiers.keySet();
     }
-
+    
     @Override
     public boolean hasModifier(String key) {
       return ((modifiers != null) && modifiers.containsKey(key));
     }
-
+    
     @Override
     public Object getModifier(String modKey) {
       if (modifiers == null) {
@@ -766,17 +764,17 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       }
       return modifiers.get(modKey);
     }
-
+    
     @Override
     public String getKeyString() throws IOException {
       return Utility.toString(postings.key);
     }
-
+    
     @Override
     public byte[] getKeyBytes() throws IOException {
       return postings.key;
     }
-
+    
     @Override
     public AnnotatedNode getAnnotatedNode() throws IOException {
       String type = "counts";
@@ -786,7 +784,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       boolean atCandidate = hasMatch(this.context.document);
       String returnValue = Integer.toString(count());
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
-
+      
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }

@@ -90,9 +90,9 @@ public class MemIndexPartTest extends TestCase {
 
           // System.err.println(dsk_vi.getEntry() + "\t" + mem1_vi.getEntry() + "\t" + mem2_vi.getEntry());
 
-          mem1_vi.next();
-          mem2_vi.next();
-          dsk_vi.next();
+          mem1_vi.movePast(mem1_vi.currentCandidate());
+          mem2_vi.movePast(mem2_vi.currentCandidate());
+          dsk_vi.movePast(dsk_vi.currentCandidate());
         }
         mem1_ki.nextKey();
         mem2_ki.nextKey();
@@ -154,13 +154,13 @@ public class MemIndexPartTest extends TestCase {
 
         assertEquals(trueScoreItr.currentCandidate(), memScoreItr.currentCandidate());
         assertEquals(trueScoreItr.currentCandidate(), diskScoreItr.currentCandidate());
-        
+
         assertEquals(trueScoreItr.score(), memScoreItr.score(), 0.00000001);
         assertEquals(trueScoreItr.score(), diskScoreItr.score(), 0.0001);
-        
-        trueScoreItr.next();
-        memScoreItr.next();
-        diskScoreItr.next();
+
+        trueScoreItr.movePast(trueScoreItr.currentCandidate());
+        memScoreItr.movePast(memScoreItr.currentCandidate());
+        diskScoreItr.movePast(diskScoreItr.currentCandidate());
       }
 
 

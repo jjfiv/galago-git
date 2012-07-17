@@ -51,7 +51,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
       Document doc = ((DataIterator<Document>) iterator).getData();
       // if the document already exists - no harm done.
       addDocument(doc);
-      iterator.next();
+      iterator.movePast(iterator.currentCandidate());
     }
   }
 

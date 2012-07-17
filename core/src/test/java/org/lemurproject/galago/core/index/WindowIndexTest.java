@@ -61,7 +61,7 @@ public class WindowIndexTest extends TestCase {
         while( !valueIterator.isDone() ){
           doccount++;
           windowcount += valueIterator.extents().size();
-          valueIterator.next();
+          valueIterator.movePast(valueIterator.currentCandidate());
         }
         assert doccount == 5;
         assert windowcount == 50;

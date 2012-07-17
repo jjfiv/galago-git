@@ -131,12 +131,6 @@ public class FieldLengthsReader implements LengthsReader {
     }
 
     @Override
-    public void next() throws IOException {
-      extentsIterator.next();
-      length = -1;
-    }
-
-    @Override
     public void moveTo(int identifier) throws IOException {
       extentsIterator.moveTo(identifier);
       length = -1;

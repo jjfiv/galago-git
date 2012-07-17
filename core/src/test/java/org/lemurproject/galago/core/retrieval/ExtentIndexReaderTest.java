@@ -92,7 +92,7 @@ public class ExtentIndexReaderTest extends TestCase {
         iter.next();
         assertTrue(iter.isDone());
 
-        extents.next();
+        extents.movePast(extents.currentCandidate());
         assertFalse(extents.isDone());
 
         e = extents.extents();
@@ -103,7 +103,7 @@ public class ExtentIndexReaderTest extends TestCase {
         assertEquals(5, iter.currentBegin());
         assertEquals(10, iter.currentEnd());
 
-        extents.next();
+        extents.movePast(extents.currentCandidate());
         assertTrue(extents.isDone());
 
         reader.close();
@@ -123,7 +123,7 @@ public class ExtentIndexReaderTest extends TestCase {
         assertEquals(9, iter.currentBegin());
         assertEquals(11, iter.currentEnd());
 
-        extents.next();
+        extents.movePast(extents.currentCandidate());
         assertTrue(extents.isDone());
 
         reader.close();
@@ -165,7 +165,7 @@ public class ExtentIndexReaderTest extends TestCase {
         extents.moveTo(453);
         assertFalse(extents.hasMatch(453));        
         assertEquals(454, extents.currentCandidate());
-        extents.next();
+        extents.movePast(extents.currentCandidate());
         assertEquals(457, extents.currentCandidate());
         assertEquals(27, extents.count());
         ExtentArray ea = extents.extents();

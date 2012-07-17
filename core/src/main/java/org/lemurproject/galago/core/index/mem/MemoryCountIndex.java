@@ -46,10 +46,10 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
   protected long collectionDocumentCount = 0;
   protected long collectionPostingsCount = 0;
   protected Stemmer stemmer = null;
-
+  
   public MemoryCountIndex(Parameters parameters) throws Exception {
     this.parameters = parameters;
-
+    
     if (parameters.containsKey("stemmer")) {
       stemmer = (Stemmer) Class.forName(parameters.getString("stemmer")).newInstance();
     }
@@ -63,7 +63,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
   public Document preProcessDocument(Document doc) throws IOException {
     return doc;
   }
-
+  
   @Override
   public void addDocument(Document doc) throws IOException {
     collectionDocumentCount += 1;
@@ -71,13 +71,13 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
 
     // stemming may shorten document
     doc = preProcessDocument(doc);
-
+    
     for (String term : doc.terms) {
       String stem = stemAsRequired(term);
       addPosting(Utility.fromString(stem), doc.identifier, 1);
     }
   }
-
+  
   @Override
   public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
 
@@ -89,7 +89,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
         int document = mi.currentCandidate();
         int count = mi.count();
         postingList.add(document, count);
-        mi.next();
+        mi.movePast(document);
       }
 
       // specifically wait until we have finished building the posting list to add it
@@ -97,18 +97,18 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
       postings.put(key, postingList);
     }
   }
-
+  
   @Override
   public void removeIteratorData(byte[] key) throws IOException {
     postings.remove(key);
   }
-
+  
   protected void addPosting(byte[] byteWord, int document, int count) {
     if (!postings.containsKey(byteWord)) {
       PostingList postingList = new PostingList(byteWord);
       postings.put(byteWord, postingList);
     }
-
+    
     PostingList postingList = postings.get(byteWord);
     postingList.add(document, count);
   }
@@ -118,7 +118,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
   public KeyIterator getIterator() throws IOException {
     return new KIterator();
   }
-
+  
   @Override
   public ValueIterator getIterator(Node node) throws IOException {
     String term = stemAsRequired(node.getDefaultParameter());
@@ -128,18 +128,18 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
     }
     return null;
   }
-
+  
   @Override
   public ValueIterator getIterator(byte[] key) throws IOException {
     return getTermCounts(key);
   }
-
+  
   @Override
   public NodeStatistics getTermStatistics(String term) throws IOException {
     term = stemAsRequired(term);
     return getTermStatistics(Utility.fromString(term));
   }
-
+  
   @Override
   public NodeStatistics getTermStatistics(byte[] term) throws IOException {
     PostingList postingList = postings.get(term);
@@ -151,7 +151,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
     stats.node = Utility.toString(term);
     return stats;
   }
-
+  
   private CountsIterator getTermCounts(byte[] term) throws IOException {
     PostingList postingList = postings.get(term);
     if (postingList != null) {
@@ -165,39 +165,39 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
   public void close() throws IOException {
     postings = null;
   }
-
+  
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
     types.put("counts", new NodeType(CountsIterator.class));
     return types;
   }
-
+  
   @Override
   public String getDefaultOperator() {
     return "counts";
   }
-
+  
   @Override
   public Parameters getManifest() {
     return parameters;
   }
-
+  
   @Override
   public long getDocumentCount() {
     return collectionDocumentCount;
   }
-
+  
   @Override
   public long getCollectionLength() {
     return collectionPostingsCount;
   }
-
+  
   @Override
   public long getKeyCount() {
     return postings.size();
   }
-
+  
   @Override
   public void flushToDisk(String path) throws IOException {
     Parameters p = getManifest();
@@ -206,17 +206,17 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
     p.set("statistics/collectionLength", this.getCollectionLength());
     p.set("statistics/vocabCount", this.getKeyCount());
     CountIndexWriter writer = new CountIndexWriter(new FakeParameters(p));
-
+    
     KIterator kiterator = new KIterator();
     CountsIterator viterator;
     while (!kiterator.isDone()) {
       viterator = (CountsIterator) kiterator.getValueIterator();
       writer.processWord(kiterator.getKey());
-
+      
       while (!viterator.isDone()) {
         writer.processDocument(viterator.currentCandidate());
         writer.processTuple(viterator.count());
-        viterator.next();
+        viterator.movePast(viterator.currentCandidate());
       }
       kiterator.nextKey();
     }
@@ -233,7 +233,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
 
   // sub classes:
   public class PostingList {
-
+    
     byte[] key;
     CompressedByteBuffer documents_cbb = new CompressedByteBuffer();
     CompressedByteBuffer counts_cbb = new CompressedByteBuffer();
@@ -244,11 +244,11 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
     int termPostingsCount = 0;
     int lastDocument = 0;
     int lastCount = 0;
-
+    
     public PostingList(byte[] key) {
       this.key = key;
     }
-
+    
     public void add(int document, int count) {
       if (termDocumentCount == 0) {
         // first instance of term
@@ -275,31 +275,31 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
   // public class Iterator extends ExtentIterator implements IndexIterator {
 
   public class KIterator implements KeyIterator {
-
+    
     Iterator<byte[]> iterator;
     byte[] currKey;
     boolean done = false;
-
+    
     public KIterator() throws IOException {
       iterator = postings.keySet().iterator();
       this.nextKey();
     }
-
+    
     @Override
     public void reset() throws IOException {
       iterator = postings.keySet().iterator();
     }
-
+    
     @Override
     public String getKeyString() throws IOException {
       return Utility.toString(currKey);
     }
-
+    
     @Override
     public byte[] getKey() {
       return currKey;
     }
-
+    
     @Override
     public boolean nextKey() throws IOException {
       if (iterator.hasNext()) {
@@ -311,19 +311,19 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
         return false;
       }
     }
-
+    
     @Override
     public boolean skipToKey(byte[] key) throws IOException {
       iterator = postings.tailMap(key).keySet().iterator();
       return nextKey();
     }
-
+    
     @Override
     public boolean findKey(byte[] key) throws IOException {
       iterator = postings.tailMap(key).keySet().iterator();
       return nextKey();
     }
-
+    
     @Override
     public String getValueString() throws IOException {
       long count = -1;
@@ -339,17 +339,17 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
       }
       return sb.toString();
     }
-
+    
     @Override
     public byte[] getValueBytes() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
-
+    
     @Override
     public boolean isDone() {
       return done;
     }
-
+    
     @Override
     public int compareTo(KeyIterator t) {
       try {
@@ -358,7 +358,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
         throw new RuntimeException(ex);
       }
     }
-
+    
     @Override
     public ValueIterator getValueIterator() throws IOException {
       if (currKey != null) {
@@ -368,9 +368,9 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
       }
     }
   }
-
+  
   public class CountsIterator extends ValueIterator implements AggregateIterator, MovableCountIterator {
-
+    
     PostingList postings;
     VByteInput documents_reader;
     VByteInput counts_reader;
@@ -379,12 +379,12 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
     int currCount;
     boolean done;
     Map<String, Object> modifiers;
-
+    
     private CountsIterator(PostingList postings) throws IOException {
       this.postings = postings;
       reset();
     }
-
+    
     @Override
     public void reset() throws IOException {
       documents_reader = new VByteInput(
@@ -393,46 +393,45 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
       counts_reader = new VByteInput(
               new DataInputStream(
               new ByteArrayInputStream(postings.counts_cbb.getBytes())));
-
+      
       iteratedDocs = 0;
       currDocument = 0;
       currCount = 0;
-
-      next();
+      
+      read();
     }
-
+    
     @Override
     public int count() {
       return currCount;
     }
-
+    
     @Override
     public int maximumCount() {
       return Integer.MAX_VALUE;
     }
-
+    
     @Override
     public boolean isDone() {
       return done;
     }
-
+    
     @Override
     public int currentCandidate() {
       return currDocument;
     }
-
+    
     @Override
     public boolean hasMatch(int identifier) {
       return (!isDone() && identifier == currDocument);
     }
-
+    
     @Override
     public boolean hasAllCandidates() {
       return false;
     }
-
-    @Override
-    public void next() throws IOException {
+    
+    private void read() throws IOException {
       if (iteratedDocs >= postings.termDocumentCount) {
         done = true;
         return;
@@ -443,42 +442,42 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
         currDocument += documents_reader.readInt();
         currCount = counts_reader.readInt();
       }
-
+      
       iteratedDocs++;
     }
-
+    
     @Override
     public void moveTo(int identifier) throws IOException {
       // TODO: need to implement skip lists
 
       while (!isDone() && (currDocument < identifier)) {
-        next();
+        read();
       }
     }
-
+    
     @Override
     public void movePast(int identifier) throws IOException {
       moveTo(identifier + 1);
     }
-
+    
     @Override
     public String getEntry() throws IOException {
       StringBuilder builder = new StringBuilder();
-
+      
       builder.append(Utility.toString(postings.key));
       builder.append(",");
       builder.append(currDocument);
       builder.append(",");
       builder.append(currCount);
-
+      
       return builder.toString();
     }
-
+    
     @Override
     public long totalEntries() {
       return postings.termDocumentCount;
     }
-
+    
     @Override
     public NodeStatistics getStatistics() {
       if (modifiers != null && modifiers.containsKey("background")) {
@@ -492,7 +491,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
       stats.documentCount = collectionDocumentCount;
       return stats;
     }
-
+    
     @Override
     public int compareTo(MovableIterator other) {
       if (isDone() && !other.isDone()) {
@@ -506,17 +505,17 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
       }
       return currentCandidate() - other.currentCandidate();
     }
-
+    
     @Override
     public String getKeyString() throws IOException {
       return Utility.toString(postings.key);
     }
-
+    
     @Override
     public byte[] getKeyBytes() throws IOException {
       return postings.key;
     }
-
+    
     @Override
     public AnnotatedNode getAnnotatedNode() throws IOException {
       String type = "counts";
@@ -526,7 +525,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
       boolean atCandidate = hasMatch(this.context.document);
       String returnValue = Integer.toString(count());
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
-
+      
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }

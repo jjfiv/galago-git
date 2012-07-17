@@ -66,7 +66,7 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
     }
 
     public void next() throws IOException {
-      iterator.next();
+      iterator.movePast(iterator.currentCandidate());
       if (!iterator.isDone()) {
         load();
       }

@@ -54,11 +54,6 @@ public class FakeLengthIterator implements LengthsReader.Iterator {
   }
 
   @Override
-  public void next() throws IOException {
-    position = Math.min(position + 1, ids.length);
-  }
-
-  @Override
   public void movePast(int identifier) throws IOException {
     moveTo(identifier + 1);
   }

@@ -28,13 +28,6 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
   }
 
   @Override
-  public void next() {
-    if (index < data.length) {
-      index++;
-    }
-  }
-
-  @Override
   public boolean isDone() {
     return index >= data.length;
   }

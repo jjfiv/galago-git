@@ -172,10 +172,10 @@ public class BuildWindowIndexTest extends TestCase {
             assertEquals(extents_NSE.end(p), extents__SE.end(p));
           }
 
-          counts_NSE_ci.next();
-          counts__SE_ci.next();
-          posits_NSE_ei.next();
-          posits__SE_ei.next();
+          counts_NSE_ci.movePast(doc);
+          counts__SE_ci.movePast(doc);
+          posits_NSE_ei.movePast(doc);
+          posits__SE_ei.movePast(doc);
         }
         counts_NSE_ki.nextKey();
         counts__SE_ki.nextKey();
@@ -345,10 +345,10 @@ public class BuildWindowIndexTest extends TestCase {
             assertEquals(extents_NSE.end(p), extents__SE.end(p));
           }
 
-          counts_NSE_ci.next();
-          counts__SE_ci.next();
-          posits_NSE_ei.next();
-          posits__SE_ei.next();
+          counts_NSE_ci.movePast(doc);
+          counts__SE_ci.movePast(doc);
+          posits_NSE_ei.movePast(doc);
+          posits__SE_ei.movePast(doc);
         }
         counts_NSE_ki.nextKey();
         counts__SE_ki.nextKey();

@@ -70,7 +70,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       docCount += 1;
       termCount += length;
       lengths.add(length);
-      iterator.next();
+      iterator.movePast(identifier);
     }
   }
 

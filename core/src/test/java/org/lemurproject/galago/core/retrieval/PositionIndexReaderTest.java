@@ -104,7 +104,7 @@ public class PositionIndexReaderTest extends TestCase {
                 iter.next();
             }
             assertTrue(iter.isDone());
-            termExtents.next();
+            termExtents.movePast(termExtents.currentCandidate());
         }
 
         assertEquals(((AggregateReader.AggregateIterator) termExtents).getStatistics().nodeFrequency, totalPositions);
@@ -172,7 +172,7 @@ public class PositionIndexReaderTest extends TestCase {
         assertFalse(termExtents.hasMatch(90));
 
         // Now move forward one
-        termExtents.next();
+        termExtents.movePast(93);
         assertEquals(94, termExtents.currentCandidate());
         assertEquals(2, termExtents.count());
 
@@ -200,7 +200,7 @@ public class PositionIndexReaderTest extends TestCase {
 
         assertEquals(dataB[0][0], termCounts.currentCandidate());
         assertEquals(dataB[0].length-1, termCounts.count());
-        termCounts.next();
+        termCounts.movePast(dataB[0][0]);
 
         assertEquals(dataB[1][0], termCounts.currentCandidate());
         assertEquals(dataB[1].length-1, termCounts.count());

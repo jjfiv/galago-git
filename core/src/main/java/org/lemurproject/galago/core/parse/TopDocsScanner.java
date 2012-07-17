@@ -105,7 +105,7 @@ public class TopDocsScanner extends StandardStep<KeyValuePair, TopDocsEntry> {
       if (topdocs.size() > size) {
         topdocs.poll();
       }
-      extentIterator.next();
+      extentIterator.movePast(extentIterator.currentCandidate());
     }
 
     // skip if it's too small

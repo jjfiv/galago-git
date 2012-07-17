@@ -13,16 +13,24 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
  * 
  * Since iteration operation is a bit complicated, an example:
  * 
+ *********************************** 
+ *  ScoringContext sc = itr.getContext();
  *  while( ! itr.isDone() ){ 
- *   int doc = itr.currentCandidate();
- *   if( itr.hasMatch(doc)) {
- *     itr.moveTo(doc);
- *     // iterator tree should point at useful information, 
- *     // e.g calls for counts or scores can go here:
- *     //    score(doc), count(doc), etc
- *   }
- *   itr.next();
+ * 
+ *    int doc = itr.currentCandidate();
+ *    sc.setDocument(doc);
+ * 
+ *    if( itr.hasMatch()) {
+ *      itr.prepareToEvaluate();
+ * 
+ *      // iterator tree should now point at useful information, 
+ *      // e.g calls for counts or scores can go here:
+ *      //    itr.score(doc), itr.count(doc), etc
+ * 
+ *    }
+ *    itr.movePast();
  *  }
+ * *******************************
  * 
  * @author sjh
  */
@@ -54,17 +62,9 @@ public interface MovableIterator extends ContextualIterator, StructuredIterator,
    * 
    * for each child:
    *   if (hasAllCandidates() || !child.hasAllCandidates())
-   *     child.next()
+   *     child.movePast()
    *  
    * this avoids making small (unnecessary) jumps for iterators that have all candidates
-   * 
-   */
-  public void next() throws IOException;
-
-  /**
-   * Moves to the next candidate
-   * 
-   * DEPRECATED
    * 
    */
   public void movePast(int identifier) throws IOException;

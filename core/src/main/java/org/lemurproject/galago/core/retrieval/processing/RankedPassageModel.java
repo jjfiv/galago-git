@@ -136,7 +136,7 @@ public class RankedPassageModel extends ProcessingModel {
         context.begin += passageShift;
         context.end += passageShift;
       }
-      iterator.next();
+      iterator.movePast(document);
     }
     return toReversedArray(queue);
   }

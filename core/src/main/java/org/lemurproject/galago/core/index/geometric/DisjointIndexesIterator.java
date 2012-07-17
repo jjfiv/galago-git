@@ -47,11 +47,6 @@ public abstract class DisjointIndexesIterator extends ValueIterator {
   }
 
   @Override
-  public void next() throws IOException {
-    moveTo(currentCandidate() + 1);
-  }
-
-  @Override
   public void moveTo(int identifier) throws IOException {
     queue.offer(head);
     while (!queue.isEmpty()) {

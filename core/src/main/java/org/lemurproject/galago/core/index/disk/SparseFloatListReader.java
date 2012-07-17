@@ -103,11 +103,6 @@ public class SparseFloatListReader extends KeyListReader {
     }
 
     @Override
-    public void next() throws IOException {
-      read();
-    }
-
-    @Override
     public void reset(BTreeReader.BTreeIterator iterator) throws IOException {
       DataStream buffered = iterator.getValueStream();
       stream = new VByteInput(buffered);

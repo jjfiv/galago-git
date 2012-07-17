@@ -36,7 +36,7 @@ public class DocumentLengthsMergerTest extends TestCase {
     Parameters p = new Parameters();
     p.set("filename", temp.getAbsolutePath());
     DiskLengthsWriter writer = new DiskLengthsWriter(new FakeParameters(p));
-    
+
     byte[] key = Utility.fromString("document");
     for (int i = firstDocNum; i < firstDocNum + 100; i++) {
       writer.process(new FieldLengthData(key, i, i + 1));
@@ -82,7 +82,7 @@ public class DocumentLengthsMergerTest extends TestCase {
       GenericIndexMerger merger = (GenericIndexMerger) c.newInstance(new FakeParameters(p));
 
       merger.setDocumentMapping(new DocumentMappingReader());
-      
+
       merger.setInputs(indexPartReaders);
       merger.performKeyMerge();
       merger.close();
@@ -92,7 +92,7 @@ public class DocumentLengthsMergerTest extends TestCase {
       LengthsReader.Iterator iterator = tester.getLengthsIterator();
       while (!iterator.isDone()) {
         assert (iterator.getCurrentIdentifier() + 1 == iterator.getCurrentLength());
-        iterator.next();
+        iterator.movePast(iterator.currentCandidate());
       }
 
     } finally {
@@ -140,7 +140,7 @@ public class DocumentLengthsMergerTest extends TestCase {
       LengthsReader.Iterator iterator = tester.getLengthsIterator();
       while (!iterator.isDone()) {
         assert (iterator.getCurrentIdentifier() + 1 == iterator.getCurrentLength());
-        iterator.next();
+        iterator.movePast(iterator.currentCandidate());
       }
 
 

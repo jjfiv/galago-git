@@ -85,7 +85,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
           double score = mi.score();
           postingList.add(document, score);
         }
-        mi.next();
+        mi.movePast(document);
       }
 
       // specifically wait until we have finished building the posting list to add it
@@ -188,7 +188,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
       while (!viterator.isDone()) {
         writer.processNumber(viterator.currentCandidate());
         writer.processTuple(viterator.score());
-        viterator.next();
+        viterator.movePast(viterator.currentCandidate());
       }
       kiterator.nextKey();
     }
@@ -356,7 +356,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
       currDocument = 0;
       currScore = 0;
 
-      next();
+      read();
     }
 
     @Override
@@ -398,8 +398,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
       return false;
     }
 
-    @Override
-    public void next() throws IOException {
+    private void read() throws IOException {
       if (iteratedDocs >= postings.termPostingsCount) {
         done = true;
         return;
@@ -416,7 +415,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
       // TODO: need to implement skip lists
 
       while (!isDone() && (currDocument < identifier)) {
-        next();
+        read();
       }
     }
 

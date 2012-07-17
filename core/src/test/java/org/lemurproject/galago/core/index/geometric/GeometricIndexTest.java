@@ -64,14 +64,14 @@ public class GeometricIndexTest extends TestCase {
       NamesReader.Iterator names = index.getNamesIterator();
       names.moveTo(99);
       assertEquals(names.getCurrentName(), "DOC-" + 99);
-      names.next();
+      names.movePast(99);
       assertEquals(names.getCurrentName(), "DOC-" + 100);
 
       LengthsReader.Iterator lengths = index.getLengthsIterator();
       lengths.moveTo(99);
       assertEquals(lengths.getCurrentIdentifier(), 99);
       assertEquals(lengths.getCurrentLength(), 5);
-      lengths.next();
+      lengths.movePast(99);
       assertEquals(lengths.getCurrentIdentifier(), 100);
       assertEquals(lengths.getCurrentLength(), 5);
 
@@ -81,7 +81,7 @@ public class GeometricIndexTest extends TestCase {
       ci1.moveTo(99);
       assertEquals(ci1.currentCandidate(), 99);
       assertEquals(ci1.count(), 1);
-      ci1.next();
+      ci1.movePast(99);
       assertEquals(ci1.currentCandidate(), 100);
       assertEquals(ci1.count(), 1);
 
@@ -89,12 +89,12 @@ public class GeometricIndexTest extends TestCase {
       MovableCountIterator ci2 = (MovableCountIterator) index.getIterator(q2);
       assertEquals(ci2.currentCandidate(), 101);
       assertEquals(ci2.count(), 1);
-      ci2.next();
+      ci2.movePast(99);
       assert (ci2.isDone());
       ci2.reset();
       assertEquals(ci2.currentCandidate(), 101);
       assertEquals(ci2.count(), 1);
-      ci2.next();
+      ci2.movePast(101);
       assert (ci2.isDone());
 
       index.close();

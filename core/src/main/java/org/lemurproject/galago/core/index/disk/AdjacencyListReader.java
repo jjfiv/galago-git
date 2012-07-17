@@ -143,11 +143,6 @@ public class AdjacencyListReader extends KeyListReader {
     }
 
     @Override
-    public void next() throws IOException {
-      read();
-    }
-
-    @Override
     public int currentCandidate() {
       return currentIdentifier;
     }

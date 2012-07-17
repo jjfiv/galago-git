@@ -248,14 +248,6 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       initialize();
     }
 
-    @Override
-    public void next() throws IOException {
-      documentIndex = Math.min(documentIndex + 1, documentCount);
-      if (!isDone()) {
-        loadExtents();
-      }
-    }
-
     // If we have skips - it's go time
     @Override
     public void moveTo(int document) throws IOException {
@@ -274,7 +266,10 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
 
       // Linear from here
       while (!isDone() && document > currentDocument) {
-        next();
+        documentIndex = Math.min(documentIndex + 1, documentCount);
+        if (!isDone()) {
+          loadExtents();
+        }
       }
     }
 
@@ -555,14 +550,6 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       initialize();
     }
 
-    @Override
-    public void next() throws IOException {
-      documentIndex = Math.min(documentIndex + 1, documentCount);
-      if (!isDone()) {
-        load();
-      }
-    }
-
     // If we have skips - it's go time
     @Override
     public void moveTo(int document) throws IOException {
@@ -580,7 +567,10 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
 
       // linear from here
       while (!isDone() && document > currentDocument) {
-        next();
+        documentIndex = Math.min(documentIndex + 1, documentCount);
+        if (!isDone()) {
+          load();
+        }
       }
     }
 

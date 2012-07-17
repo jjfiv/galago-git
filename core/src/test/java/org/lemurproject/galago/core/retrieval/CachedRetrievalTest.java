@@ -57,15 +57,15 @@ public class CachedRetrievalTest extends TestCase {
 
       MovableScoreIterator diskScoreIterator = (MovableScoreIterator) ret.createIterator(new Parameters(), score, sc);
       MovableScoreIterator cachedScoreIterator = (MovableScoreIterator) cachedRet.createIterator(new Parameters(), score, sc);
-      assert(cachedScoreIterator instanceof MemorySparseDoubleIndex.ScoresIterator);
+      assert (cachedScoreIterator instanceof MemorySparseDoubleIndex.ScoresIterator);
 
       while (!diskScoreIterator.isDone() && !cachedScoreIterator.isDone()) {
         assertEquals(diskScoreIterator.currentCandidate(), cachedScoreIterator.currentCandidate());
         sc.document = diskScoreIterator.currentCandidate();
         sc.moveLengths(diskScoreIterator.currentCandidate());
         assertEquals(diskScoreIterator.score(), cachedScoreIterator.score(), 0.000001);
-        diskScoreIterator.next();
-        cachedScoreIterator.next();
+        diskScoreIterator.movePast(sc.document);
+        cachedScoreIterator.movePast(sc.document);
       }
 
 
@@ -83,13 +83,13 @@ public class CachedRetrievalTest extends TestCase {
 
       MovableCountIterator diskCountIterator = (MovableCountIterator) ret.createIterator(new Parameters(), count, null);
       MovableCountIterator cachedCountIterator = (MovableCountIterator) cachedRet.createIterator(new Parameters(), count, null);
-      assert(cachedCountIterator instanceof MemoryCountIndex.CountsIterator);
+      assert (cachedCountIterator instanceof MemoryCountIndex.CountsIterator);
 
       while (!diskCountIterator.isDone() && !cachedCountIterator.isDone()) {
         assertEquals(diskCountIterator.currentCandidate(), cachedCountIterator.currentCandidate());
         assertEquals(diskCountIterator.count(), cachedCountIterator.count());
-        diskCountIterator.next();
-        cachedCountIterator.next();
+        diskCountIterator.movePast(diskCountIterator.currentCandidate());
+        cachedCountIterator.movePast(cachedCountIterator.currentCandidate());
       }
 
       // EXTENT node
@@ -106,7 +106,7 @@ public class CachedRetrievalTest extends TestCase {
 
       MovableExtentIterator diskExtentIterator = (MovableExtentIterator) ret.createIterator(new Parameters(), extent, null);
       MovableExtentIterator cachedExtentIterator = (MovableExtentIterator) cachedRet.createIterator(new Parameters(), extent, null);
-      assert(cachedExtentIterator instanceof MemoryWindowIndex.ExtentIterator);
+      assert (cachedExtentIterator instanceof MemoryWindowIndex.ExtentIterator);
 
       while (!diskExtentIterator.isDone() && !cachedExtentIterator.isDone()) {
         assertEquals(diskExtentIterator.currentCandidate(), cachedExtentIterator.currentCandidate());
@@ -116,8 +116,8 @@ public class CachedRetrievalTest extends TestCase {
         assertEquals(de.begin(0), ce.begin(0));
         assertEquals(de.end(0), ce.end(0));
 
-        diskExtentIterator.next();
-        cachedExtentIterator.next();
+        diskExtentIterator.movePast(diskExtentIterator.currentCandidate());
+        cachedExtentIterator.movePast(cachedExtentIterator.currentCandidate());
       }
 
 

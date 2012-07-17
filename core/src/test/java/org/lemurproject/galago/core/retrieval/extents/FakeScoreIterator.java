@@ -66,13 +66,6 @@ public class FakeScoreIterator implements MovableScoreIterator {
   }
 
   @Override
-  public void next() throws IOException {
-    if (!isDone()) {
-      moveTo(docs[index] + 1);
-    }
-  }
-
-  @Override
   public double score() {
     if (!isDone() && docs[index] == context.document) {
       return scores[index];

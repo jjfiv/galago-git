@@ -27,11 +27,6 @@ public class NullExtentIterator extends ValueIterator implements MovableExtentIt
     // nothing
   }
   
-  @Override
-  public void next() {
-    // do nothing
-  }
-
   public boolean nextEntry() {
     return false;
   }
