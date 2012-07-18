@@ -65,7 +65,7 @@ public class RankedPassageModel extends ProcessingModel {
       iterator.moveTo(document);
       context.moveLengths(document);
       int length = context.getLength();
-      
+
       // This context is shared among all scorers
       context.document = document;
       context.begin = 0;
@@ -117,6 +117,14 @@ public class RankedPassageModel extends ProcessingModel {
       context.document = document;
       context.begin = 0;
       context.end = passageSize;
+
+
+
+      // ensure we are at the document we wish to score
+      // -- this function will move ALL iterators, 
+      //     not just the ones that do not have all candidates
+      iterator.moveTo(document);
+
 
       // Keep iterating over the same doc, but incrementing the begin/end fields of the
       // context until the next one

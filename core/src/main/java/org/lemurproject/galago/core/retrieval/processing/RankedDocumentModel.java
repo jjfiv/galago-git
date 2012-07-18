@@ -12,8 +12,8 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- * Performs straightforward document-at-a-time (daat) processing of a fully annotated query,
- * processing scores over documents. 
+ * Performs straightforward document-at-a-time (daat) processing of a fully
+ * annotated query, processing scores over documents.
  *
  * @author irmarc
  */
@@ -109,6 +109,12 @@ public class RankedDocumentModel extends ProcessingModel {
       // This context is shared among all scorers
       context.document = document;
       context.moveLengths(document);
+
+      // ensure we are at the document we wish to score
+      // -- this function will move ALL iterators, 
+      //     not just the ones that do not have all candidates
+      iterator.moveTo(document);
+
 
       if (iterator.hasMatch(document)) {
         double score = iterator.score();

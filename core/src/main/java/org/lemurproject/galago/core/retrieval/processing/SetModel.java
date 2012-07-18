@@ -14,7 +14,8 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- * Implements standard boolean processing model. Results are not ranked, just returned.
+ * Implements standard boolean processing model. Results are not ranked, just
+ * returned.
  *
  *
  * @author irmarc
@@ -54,6 +55,12 @@ public class SetModel extends ProcessingModel {
     MovableIndicatorIterator iterator = (MovableIndicatorIterator) retrieval.createIterator(queryParams, queryTree, context);
     ArrayList<ScoredDocument> list = new ArrayList<ScoredDocument>();
     while (!iterator.isDone()) {
+
+      // ensure we are at the document we wish to score
+      // -- this function will move ALL iterators, 
+      //     not just the ones that do not have all candidates
+      iterator.moveTo(iterator.currentCandidate());
+
       if (iterator.hasMatch(iterator.currentCandidate())) {
         list.add(new ScoredDocument(iterator.currentCandidate(), 1.0));
       }

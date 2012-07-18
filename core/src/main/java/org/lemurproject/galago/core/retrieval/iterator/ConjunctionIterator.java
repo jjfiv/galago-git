@@ -63,7 +63,7 @@ public abstract class ConjunctionIterator implements MovableIterator {
 
   @Override
   public void movePast(int candidate) throws IOException {
-    for (MovableIterator iterator : iterators) {
+    for (MovableIterator iterator : this.drivingIterators) {
       iterator.movePast(candidate);
     }
   }
