@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.parse.AdditionalTextCombiner;
 import org.lemurproject.galago.core.parse.AnchorTextCreator;
 import org.lemurproject.galago.core.index.corpus.CorpusFolderWriter;
+import org.lemurproject.galago.core.index.disk.DiskNameReader;
 import org.lemurproject.galago.core.index.merge.CorpusMerger;
 import org.lemurproject.galago.core.parse.DocumentNumberer;
 import org.lemurproject.galago.core.parse.DocumentSource;
@@ -124,8 +125,8 @@ public class BuildIndex extends AppFunction {
             BuildStageTemplates.getExtractionSteps("numberedDocumentDataNumbers", NumberedDocumentDataExtractor.class,
             new NumberedDocumentData.NumberOrder());
     processingFork.groups.add(documentData);
-    
-    
+
+
     ArrayList<Step> documentDataReverse =
             BuildStageTemplates.getExtractionSteps("numberedDocumentDataNames", NumberedDocumentDataExtractor.class,
             new NumberedDocumentData.IdentifierOrder());
@@ -366,10 +367,10 @@ public class BuildIndex extends AppFunction {
       // we need a small block size because the stored values are small
       corpusParameters.set("blockSize", globalParameters.get("corpusBlockSize", 512));
       corpusParameters.set("filename", globalParameters.getString("indexPath") + File.separator + "corpus");
-      
+
       // copy over the other parameters
-      if(globalParameters.isMap("corpusParameters")){
-        corpusParameters.copyFrom( globalParameters.getMap("corpusParameters"));
+      if (globalParameters.isMap("corpusParameters")) {
+        corpusParameters.copyFrom(globalParameters.getMap("corpusParameters"));
       }
 
       // insert back into the globalParams
@@ -671,7 +672,7 @@ public class BuildIndex extends AppFunction {
     Parameters splitParameters = new Parameters();
     splitParameters.set("corpusPieces", buildParameters.get("distrib", 10));
     job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
-   
+
     job.add(getParsePostingsStage(buildParameters));
     job.add(BuildStageTemplates.getDocumentCounter("countDocuments", "numberedDocumentDataNumbers", "docCounts"));
     job.add(BuildStageTemplates.getWriteNamesStage("writeNames", new File(indexPath, "names"), "numberedDocumentDataNumbers"));
@@ -808,5 +809,12 @@ public class BuildIndex extends AppFunction {
     if (job != null) {
       App.runTupleFlowJob(job, p, output);
     }
+
+    output.println("Done Indexing.");
+    
+    // sanity check - get the number of documents out of ./names
+    DiskNameReader names = new DiskNameReader(p.getString("indexPath") + File.separator + "names");
+    Parameters namesParams = names.getManifest();
+    output.println("Documents Indexed: " + namesParams.getLong("keyCount") + ".");
   }
 }

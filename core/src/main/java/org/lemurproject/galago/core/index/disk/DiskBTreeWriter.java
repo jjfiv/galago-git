@@ -120,9 +120,7 @@ public class DiskBTreeWriter extends BTreeWriter {
     assert (lastKey.length < Integer.MAX_VALUE) : "Final key issue - can not be written.";
 
     byte[] vocabularyData = vocabulary.data();
-    if (vocabularyData.length == 0) {
-      manifest.set("emptyIndexFile", true);
-    }
+    manifest.set("emptyIndexFile", (vocabularyData.length == 0));
     manifest.set("keyCount", this.keyCount);
     manifest.set("blockCount", this.blockCount);
 

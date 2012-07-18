@@ -67,7 +67,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
 
   @Override
   public void close() throws IOException {
-    if (!fieldLengthData.isEmpty()) {
+    if (fieldLengthData != null && !fieldLengthData.isEmpty()) {
       writer.add(fieldLengthData);
     }
     writer.close();
