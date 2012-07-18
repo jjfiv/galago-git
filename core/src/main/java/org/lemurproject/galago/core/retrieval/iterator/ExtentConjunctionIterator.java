@@ -25,25 +25,14 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
   }
 
   @Override
-  public void moveTo(int identifier) throws IOException {
-    this.extents.reset();
-    // note that this function could repeatedly move child iterators
-    super.moveTo(identifier);
-  }
-
-  @Override
   public boolean hasMatch(int identifier) {
-    if(this.extents.size() == 0){
-      this.loadExtents();
-    }
+    this.loadExtents();
     return super.hasMatch(identifier) && this.extents.size() > 0;
   }
 
   @Override
   public String getEntry() throws IOException {
-    if(this.extents.size() == 0){
-      this.loadExtents();
-    }
+    this.loadExtents();
     ArrayList<String> strs = new ArrayList<String>();
     ExtentArrayIterator eai = new ExtentArrayIterator(extents);
     while (!eai.isDone()) {
@@ -55,25 +44,19 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
 
   @Override
   public ExtentArray getData() {
-    if(this.extents.size() == 0){
-      this.loadExtents();
-    }
+    this.loadExtents();
     return extents;
   }
 
   @Override
   public ExtentArray extents() {
-    if(this.extents.size() == 0){
-      this.loadExtents();
-    }
+    this.loadExtents();
     return extents;
   }
 
   @Override
   public int count() {
-    if(this.extents.size() == 0){
-      this.loadExtents();
-    }
+    this.loadExtents();
     return extents.size();
   }
 
@@ -84,14 +67,15 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
       min = Math.min(min, ((MovableCountIterator) iterators[i]).maximumCount());
     }
     return min;
-
   }
 
   public abstract void loadExtents();
-  
 
   @Override
   public AnnotatedNode getAnnotatedNode() throws IOException {
+    // ensure extents are loaded
+    this.loadExtents();
+
     String type = "extent";
     String className = this.getClass().getSimpleName();
     String parameters = "";
@@ -103,5 +87,5 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
       children.add(child.getAnnotatedNode());
     }
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
-  }  
+  }
 }

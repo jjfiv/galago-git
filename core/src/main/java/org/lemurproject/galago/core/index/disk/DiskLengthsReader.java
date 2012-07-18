@@ -222,6 +222,15 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
         done = true;
       }
     }
+
+    @Override
+    public void movePast(int identifier) throws IOException {
+      currDocument = identifier + 1;
+      if (currDocument > lastDocument) {
+        currDocument = lastDocument;
+        done = true;
+      }
+    }
     
     @Override
     public void reset() throws IOException {
@@ -300,11 +309,6 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     @Override
     public boolean hasMatch(int identifier) {
       return !isDone() && this.currDocument == identifier;
-    }
-    
-    @Override
-    public void movePast(int identifier) throws IOException {
-      moveTo(identifier + 1);
     }
     
     @Override
@@ -403,6 +407,27 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
       }
     }
     
+    @Override
+    public void movePast(int identifier) throws IOException {
+      // select the next document:
+      identifier += 1;
+      
+      assert (identifier >= currDocument);
+
+      // we can't move past the last document
+      if (identifier > lastDocument) {
+        done = true;
+        identifier = lastDocument;
+      }
+      
+      if (currDocument < identifier) {
+        // we only delete the length if we move
+        // this is because we can't re-read the length value
+        currDocument = identifier;
+        currLength = -1;
+      }
+    }
+
     @Override
     public boolean isDone() {
       return done;

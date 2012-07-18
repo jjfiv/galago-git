@@ -89,7 +89,7 @@ public class GeometricIndexTest extends TestCase {
       MovableCountIterator ci2 = (MovableCountIterator) index.getIterator(q2);
       assertEquals(ci2.currentCandidate(), 101);
       assertEquals(ci2.count(), 1);
-      ci2.movePast(99);
+      ci2.movePast(101);
       assert (ci2.isDone());
       ci2.reset();
       assertEquals(ci2.currentCandidate(), 101);

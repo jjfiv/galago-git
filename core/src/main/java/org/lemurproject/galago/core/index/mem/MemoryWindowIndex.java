@@ -486,6 +486,8 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
     
     @Override
     public void moveTo(int identifier) throws IOException {
+      // TODO implement skip lists
+      
       while (!isDone() && (currDocument < identifier)) {
         read();
       }
@@ -493,7 +495,10 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
     
     @Override
     public void movePast(int identifier) throws IOException {
-      moveTo(identifier + 1);
+
+      while (!isDone() && (currDocument <= identifier)) {
+        read();
+      }
     }
     
     @Override

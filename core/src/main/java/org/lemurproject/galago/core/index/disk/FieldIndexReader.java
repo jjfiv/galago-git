@@ -159,6 +159,16 @@ public class FieldIndexReader extends KeyListReader {
       }
     }
 
+    @Override
+    public void movePast(int document) throws IOException {
+      while (!isDone() && document >= currentDocument) {
+        documentIndex = Math.min(documentIndex + 1, documentCount);
+        if (!isDone()) {
+          loadValue();
+        }
+      }
+    }
+
     private void loadValue() throws IOException {
       currentDocument += data.readInt();
 
@@ -269,11 +279,6 @@ public class FieldIndexReader extends KeyListReader {
     @Override
     public boolean isDone() {
       return (documentIndex >= documentCount);
-    }
-
-    @Override
-    public void movePast(int identifier) throws IOException {
-      moveTo(identifier + 1);
     }
 
     @Override

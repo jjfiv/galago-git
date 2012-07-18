@@ -48,6 +48,8 @@ public class SynonymIteratorTest extends TestCase {
         assertEquals(4, array.end(0));
 
         instance.movePast( instance.currentCandidate() );
+
+        array = instance.extents();
         assertFalse(instance.isDone());
         assertEquals(1, array.size());
         assertEquals(2, array.getDocument());
@@ -55,6 +57,7 @@ public class SynonymIteratorTest extends TestCase {
         assertEquals(5, array.end(0));
 
         instance.movePast( instance.currentCandidate() );
+        array = instance.extents();
         assertTrue(instance.isDone());
     }
 

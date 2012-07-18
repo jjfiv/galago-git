@@ -248,6 +248,11 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       initialize();
     }
 
+    @Override
+    public void movePast(int document) throws IOException {
+      moveTo(document + 1);
+    }
+    
     // If we have skips - it's go time
     @Override
     public void moveTo(int document) throws IOException {
@@ -550,6 +555,11 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
       initialize();
     }
 
+    @Override
+    public void movePast(int document) throws IOException {
+      moveTo(document + 1);
+    }
+    
     // If we have skips - it's go time
     @Override
     public void moveTo(int document) throws IOException {

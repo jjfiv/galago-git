@@ -57,11 +57,6 @@ public abstract class KeyListReader extends KeyValueReader {
     }
 
     @Override
-    public void movePast(int id) throws IOException {
-      moveTo(id + 1);
-    }
-
-    @Override
     public int compareTo(MovableIterator other) {
       if (isDone() && !other.isDone()) {
         return 1;

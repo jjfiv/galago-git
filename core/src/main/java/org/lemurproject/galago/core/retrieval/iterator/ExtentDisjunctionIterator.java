@@ -24,24 +24,14 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
   }
 
   @Override
-  public void moveTo(int identifier) throws IOException {
-    super.moveTo(identifier);
-
-    extents.reset();
-    // check if all iterators are at the same document
-    if (!isDone() && super.hasMatch(this.currentCandidate())) {
-      // if so : load some extents
-      loadExtents();
-    }
-  }
-
-  @Override
   public boolean hasMatch(int identifier) {
+    this.loadExtents();
     return super.hasMatch(identifier) && this.extents.size() > 0;
   }
 
   @Override
   public String getEntry() throws IOException {
+    this.loadExtents();
     ArrayList<String> strs = new ArrayList<String>();
     ExtentArrayIterator eai = new ExtentArrayIterator(extents);
     while (!eai.isDone()) {
@@ -53,16 +43,19 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
 
   @Override
   public ExtentArray getData() {
+    this.loadExtents();
     return extents;
   }
 
   @Override
   public ExtentArray extents() {
+    this.loadExtents();
     return extents;
   }
 
   @Override
   public int count() {
+    this.loadExtents();
     return extents.size();
   }
 
@@ -80,6 +73,7 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
 
   @Override
   public AnnotatedNode getAnnotatedNode() throws IOException {
+    this.loadExtents();
     String type = "extent";
     String className = this.getClass().getSimpleName();
     String parameters = "";

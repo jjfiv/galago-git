@@ -130,6 +130,13 @@ public class SparseFloatListReader extends KeyListReader {
     }
 
     @Override
+    public void movePast(int document) throws IOException {
+      while (!isDone() && document >= currentDocument) {
+        read();
+      }
+    }
+    
+    @Override
     public void moveTo(int document) throws IOException {
       while (!isDone() && document > currentDocument) {
         read();

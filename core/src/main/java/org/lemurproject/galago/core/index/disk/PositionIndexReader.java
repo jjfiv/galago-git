@@ -238,6 +238,11 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       initialize();
     }
 
+    @Override
+    public void movePast(int document) throws IOException {
+      moveTo(document + 1);
+    }
+
     // If we have skips - it's go time
     @Override
     public void moveTo(int document) throws IOException {
@@ -530,6 +535,11 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       currentDocument = 0;
       currentCount = 0;
       initialize();
+    }
+
+    @Override
+    public void movePast(int document) throws IOException {
+      moveTo(document + 1);
     }
 
     // If we have skips - it's go time

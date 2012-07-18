@@ -53,8 +53,12 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
    */
   @Override
   public void loadExtents() {
-
     int document = currentCandidate();
+    if (isDone() || this.extents.getDocument() == document) {
+      return;
+    }
+    extents.reset();
+    extents.setDocument(document);
 
     if (innerIterator.isDone() || !innerIterator.hasMatch(document)
             || outerIterator.isDone() || !outerIterator.hasMatch(document)) {
@@ -65,7 +69,6 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
     ExtentArrayIterator inner = new ExtentArrayIterator(innerIterator.extents());
     ExtentArrayIterator outer = new ExtentArrayIterator(outerIterator.extents());
 
-    extents.setDocument(document);
     while (!inner.isDone() && !outer.isDone()) {
       if (outer.currentlyContains(inner)) {
         extents.add(inner.currentBegin(), inner.currentEnd());

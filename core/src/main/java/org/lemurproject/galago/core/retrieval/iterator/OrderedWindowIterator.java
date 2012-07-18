@@ -23,6 +23,11 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
   @Override
   public void loadExtents() {
     int document = currentCandidate();
+    if (isDone() || this.extents.getDocument() == document) {
+      return;
+    }
+    extents.reset();
+    extents.setDocument(document);
 
     ExtentArrayIterator[] arrayIterators;
     arrayIterators = new ExtentArrayIterator[iterators.length];
@@ -42,11 +47,7 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
 
     }
 
-    extents.reset();
-    extents.setDocument(document);
-
     boolean notDone = true;
-
     while (notDone) {
       // find the start of the first word
       boolean invalid = false;

@@ -421,7 +421,10 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
 
     @Override
     public void movePast(int identifier) throws IOException {
-      moveTo(identifier + 1);
+
+      while (!isDone() && (currDocument <= identifier)) {
+        read();
+      }
     }
 
     @Override

@@ -143,6 +143,13 @@ public class AdjacencyListReader extends KeyListReader {
     }
 
     @Override
+    public void movePast(int identifier) throws IOException {
+      while (!isDone() && identifier >= currentIdentifier) {
+        read();
+      }
+    }
+
+    @Override
     public int currentCandidate() {
       return currentIdentifier;
     }

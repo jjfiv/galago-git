@@ -43,7 +43,7 @@ public abstract class DisjointIndexesIterator extends ValueIterator {
 
   @Override
   public void movePast(int identifier) throws IOException {
-    moveTo(currentCandidate() + 1);
+    moveTo(identifier + 1);
   }
 
   @Override
