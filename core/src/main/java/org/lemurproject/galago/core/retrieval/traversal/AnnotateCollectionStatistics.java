@@ -123,8 +123,12 @@ public class AnnotateCollectionStatistics extends Traversal {
     // recurses down a stick (single children nodes only)
     if (isCountNode(node)) {
       return collectStatistics(node);
+    
     } else if (node.getInternalNodes().size() == 1) {
       return getNodeStatistics(node.getInternalNodes().get(0));
+
+    } else if (node.getInternalNodes().size() == 2) {
+      return getNodeStatistics(node.getInternalNodes().get(1));
     }
     return null;
   }

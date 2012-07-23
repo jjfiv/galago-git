@@ -67,7 +67,7 @@ public class GeometricIndexTest extends TestCase {
       names.movePast(99);
       assertEquals(names.getCurrentName(), "DOC-" + 100);
 
-      LengthsReader.Iterator lengths = index.getLengthsIterator();
+      LengthsReader.LengthsIterator lengths = index.getLengthsIterator();
       lengths.moveTo(99);
       assertEquals(lengths.getCurrentIdentifier(), 99);
       assertEquals(lengths.getCurrentLength(), 5);

@@ -89,7 +89,7 @@ public class DocumentLengthsMergerTest extends TestCase {
 
       // test that there are 100 keys and values.
       DiskLengthsReader tester = new DiskLengthsReader(output);
-      LengthsReader.Iterator iterator = tester.getLengthsIterator();
+      LengthsReader.LengthsIterator iterator = tester.getLengthsIterator();
       while (!iterator.isDone()) {
         assert (iterator.getCurrentIdentifier() + 1 == iterator.getCurrentLength());
         iterator.movePast(iterator.currentCandidate());
@@ -137,7 +137,7 @@ public class DocumentLengthsMergerTest extends TestCase {
 
       // test that there are 100 keys and values.
       DiskLengthsReader tester = new DiskLengthsReader(output);
-      LengthsReader.Iterator iterator = tester.getLengthsIterator();
+      LengthsReader.LengthsIterator iterator = tester.getLengthsIterator();
       while (!iterator.isDone()) {
         assert (iterator.getCurrentIdentifier() + 1 == iterator.getCurrentLength());
         iterator.movePast(iterator.currentCandidate());

@@ -75,7 +75,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
   
   @Override
-  public LengthsReader.Iterator getLengthsIterator() throws IOException {
+  public LengthsReader.LengthsIterator getLengthsIterator() throws IOException {
     return new MemoryMapLengthsIterator(doc, documentLengths);
   }
   
@@ -158,7 +158,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
   
   public class MemoryMapLengthsIterator extends ValueIterator
-          implements MovableCountIterator, LengthsReader.Iterator {
+          implements MovableCountIterator, LengthsReader.LengthsIterator {
     
     byte[] key;
     private MappedByteBuffer memBuffer;
@@ -327,7 +327,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
   
   public class StreamLengthsIterator extends KeyListReader.ListIterator
-          implements MovableCountIterator, LengthsReader.Iterator {
+          implements MovableCountIterator, LengthsReader.LengthsIterator {
     
     private final BTreeIterator iterator;
     private DataStream streamBuffer;
