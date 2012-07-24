@@ -76,7 +76,7 @@ public class PassageFilterIterator extends TransformIterator implements MovableE
 
   @Override
   public int count() {
-    return extents().size();
+      return extents().size();
   }
 
   @Override
