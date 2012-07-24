@@ -47,18 +47,18 @@ public class App {
 
   // this interface for each function
   public static abstract class AppFunction {
-    
+
     public abstract String getHelpString();
-    
+
     public abstract void run(Parameters p, PrintStream output) throws Exception;
-    
+
     public void run(String[] args, PrintStream output) throws Exception {
       Parameters p = new Parameters();
-      
+
       if (args.length == 1) {
         output.print(this.getHelpString());
         return;
-        
+
       } else if (args.length > 1) {
         p = new Parameters(Utility.subarray(args, 1));
         // don't want to wipe an existing parameter:
@@ -75,7 +75,7 @@ public class App {
    * function selection and processing
    */
   static protected HashMap<String, AppFunction> appFunctions = new HashMap();
-  
+
   static {
     // build functions
     appFunctions.put("build", new BuildIndex());
@@ -127,11 +127,11 @@ public class App {
   public static void main(String[] args) throws Exception {
     App.run(args);
   }
-  
+
   public static void run(String[] args) throws Exception {
     run(args, System.out);
   }
-  
+
   public static void run(String[] args, PrintStream out) throws Exception {
     String fn = "help";
     if (args.length > 0 && appFunctions.containsKey(args[0])) {
@@ -139,18 +139,18 @@ public class App {
     }
     appFunctions.get(fn).run(args, out);
   }
-  
+
   public static void run(String fn, Parameters p, PrintStream out) throws Exception {
     appFunctions.get(fn).run(p, out);
-    
-    
+
+
   }
 
   /**
    * Function implementations - in alphbetical order
    */
   private static class BuildTopDocsFn extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago build-topdocs --index=<index> --part=<part> [--size=<size>] [--minLength=<minlength>]\n\n"
@@ -158,14 +158,14 @@ public class App {
               + "  and only for lists longer than <minlength>. Note that\n"
               + "  <index> needs to point an index, while <part> is the part to scan.\n";
     }
-    
+
     @Override
     public void run(String[] args, PrintStream output) throws Exception {
       if (args.length < 3) {
         output.println(getHelpString());
         return;
       }
-      
+
       Parameters p = new Parameters(Utility.subarray(args, 1));
       assert (p.isString("index"));
       assert (p.isString("part"));
@@ -173,7 +173,7 @@ public class App {
       // assert(p.isLong("minLength"));
       run(p, output);
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       BuildTopDocs build = new BuildTopDocs();
@@ -181,9 +181,9 @@ public class App {
       runTupleFlowJob(job, p, output);
     }
   }
-  
+
   private static class DocFn extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago doc <index> <identifier>\n\n"
@@ -191,7 +191,7 @@ public class App {
               + "  The document is retrieved from a Corpus file named corpus."
               + "  <index> must contain a corpus structure.";
     }
-    
+
     @Override
     public void run(String[] args, PrintStream output) throws Exception {
       if (args.length <= 2) {
@@ -202,7 +202,7 @@ public class App {
       String identifier = args[2];
       Retrieval r = RetrievalFactory.instance(indexPath, new Parameters());
       assert r.getAvailableParts().containsKey("corpus") : "Index does not contain a corpus part.";
-      
+
       Parameters p = new Parameters();
       p.set("terms", false);
       p.set("tags", false);
@@ -214,7 +214,7 @@ public class App {
         output.println("Document " + identifier + " does not exist in index.");
       }
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       String indexPath = p.getString("indexPath");
@@ -222,15 +222,15 @@ public class App {
       run(new String[]{"", indexPath, identifier}, output);
     }
   }
-  
+
   private static class DocIdFn extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago doc-id <names.reverse> <identifier>\n"
               + "  Prints the internal document number of the document named by <identifier>.\n";
     }
-    
+
     @Override
     public void run(String[] args, PrintStream output) throws Exception {
       if (args.length <= 2) {
@@ -243,7 +243,7 @@ public class App {
       int docNum = reader.getDocumentIdentifier(identifier);
       output.println(docNum);
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       String indexPath = p.getString("indexPath");
@@ -251,15 +251,15 @@ public class App {
       run(new String[]{"", indexPath, identifier}, output);
     }
   }
-  
+
   private static class DocNameFn extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago doc-name <names> <internal-number>\n"
               + "  Prints the external document identifier of the document <internal-number>.\n";
     }
-    
+
     @Override
     public void run(String[] args, PrintStream output) throws Exception {
       if (args.length <= 2) {
@@ -272,7 +272,7 @@ public class App {
       String docIdentifier = reader.getDocumentName(Integer.parseInt(identifier));
       output.println(docIdentifier);
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       String indexPath = p.getString("indexPath");
@@ -280,9 +280,9 @@ public class App {
       run(new String[]{"", indexPath, identifier}, output);
     }
   }
-  
+
   private static class DumpConnectionFn extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago dump-connection <connection-file>\n\n"
@@ -290,7 +290,7 @@ public class App {
               + "  CSV format.  This can be useful for debugging strange problems \n"
               + "  in a TupleFlow execution.\n";
     }
-    
+
     @Override
     public void run(String[] args, PrintStream output) throws Exception {
       if (args.length <= 1) {
@@ -303,22 +303,22 @@ public class App {
         output.println(o);
       }
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       String connectionPath = p.getString("connectionPath");
       run(new String[]{"", connectionPath}, output);
     }
   }
-  
+
   private static class DumpCorpusFn extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago dump-corpus <corpus>\n\n"
               + "  Dumps all documents from a corpus file to stdout.\n";
     }
-    
+
     @Override
     public void run(String[] args, PrintStream output) throws Exception {
       if (args.length <= 1) {
@@ -326,14 +326,20 @@ public class App {
         return;
       }
       DocumentReader reader = new CorpusReader(args[1]);
+
+      if (reader.getManifest().get("emptyIndexFile", false)) {
+        output.println("Empty Corpus.");
+        return;
+      }
+
       DocumentReader.DocumentIterator iterator = (DocumentIterator) reader.getIterator();
-      
+
       while (!iterator.isDone()) {
         output.println("#IDENTIFIER: " + iterator.getKeyString());
         Parameters p = new Parameters();
         p.set("terms", false);
         p.set("tags", false);
-        
+
         Document document = iterator.getDocument(p);
         output.println("#METADATA");
         for (Entry<String, String> entry : document.metadata.entrySet()) {
@@ -345,16 +351,16 @@ public class App {
       }
       reader.close();
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       String corpusPath = p.getString("corpusPath");
       run(new String[]{"", corpusPath}, output);
     }
   }
-  
+
   private static class DumpIndexFn extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago dump-index <index-part>\n\n"
@@ -362,15 +368,21 @@ public class App {
               + "  (That is, any index that has a readerClass that's a subclass of\n"
               + "  StructuredIndexPartReader).  Output is in CSV format.\n";
     }
-    
+
     @Override
     public void run(String[] args, PrintStream output) throws Exception {
       if (args.length <= 1) {
         output.println(getHelpString());
         return;
       }
-      
+
       IndexPartReader reader = DiskIndex.openIndexPart(args[1]);
+
+      if (reader.getManifest().get("emptyIndexFile", false)) {
+        output.println("Empty Index File.");
+        return;
+      }
+
       KeyIterator iterator = reader.getIterator();
 
       // if we have a key-list index
@@ -393,62 +405,66 @@ public class App {
       } else {
         output.println("Unable to read index as a key-list or a key-value reader.");
       }
-      
+
       reader.close();
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       String indexPath = p.getString("indexPath");
       run(new String[]{"", indexPath}, output);
     }
   }
-  
+
   private static class DumpIndexManifestFn extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago dump-index-manifest <index-path>\n\n"
               + "  Dumps the manifest for an index file.";
     }
-    
+
     @Override
     public void run(String[] args, PrintStream output) throws Exception {
       if (args.length <= 1) {
         output.println(getHelpString());
         return;
       }
-      
+
       BTreeReader indexReader = BTreeFactory.getBTreeReader(args[1]);
       output.println(indexReader.getManifest().toPrettyString());
-
-      //output.println("\n\n Index Blocks: " + );
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       String indexPath = p.getString("indexPath");
       run(new String[]{"", indexPath}, output);
     }
   }
-  
+
   private static class DumpKeysFn extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago dump-keys <index-part>\n\n"
               + "  Dumps keys from an index file.\n"
               + "  Output is in CSV format.\n";
     }
-    
+
     @Override
     public void run(String[] args, PrintStream output) throws Exception {
       if (args.length <= 1) {
         output.println(getHelpString());
         return;
       }
-      
+
       IndexPartReader reader = DiskIndex.openIndexPart(args[1]);
+
+      if (reader.getManifest().get("emptyIndexFile", false)) {
+        output.println("Empty Index File.");
+        return;
+      }
+
       KeyIterator iterator = reader.getIterator();
       while (!iterator.isDone()) {
         output.println(iterator.getKeyString());
@@ -456,16 +472,16 @@ public class App {
       }
       reader.close();
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       String indexPath = p.getString("indexPath");
       run(new String[]{"", indexPath}, output);
     }
   }
-  
+
   private static class DumpKeyValueFn extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago dump-keys <indexwriter-file> <key>\n\n"
@@ -473,7 +489,7 @@ public class App {
               + "  created by IndexWriter.  This includes corpus files and all\n"
               + "  index files built by Galago.\n";
     }
-    
+
     @Override
     public void run(String[] args, PrintStream output) throws Exception {
       if (args.length <= 2) {
@@ -483,8 +499,14 @@ public class App {
       String key = args[2];
       output.printf("Dumping key: %s\n", key);
       IndexPartReader reader = DiskIndex.openIndexPart(args[1]);
+
+      if (reader.getManifest().get("emptyIndexFile", false)) {
+        output.println("Empty Index File.");
+        return;
+      }
+
       KeyIterator iterator = reader.getIterator();
-      
+
       if (iterator.skipToKey(Utility.fromString(key))) {
         if (KeyListReader.class.isAssignableFrom(reader.getClass())) {
           ValueIterator vIter = iterator.getValueIterator();
@@ -497,7 +519,7 @@ public class App {
         }
       }
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       String indexPath = p.getString("indexPath");
@@ -505,45 +527,52 @@ public class App {
       run(new String[]{"", indexPath, key}, output);
     }
   }
-  
+
   private static class DumpModifierFn extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago dump-modifier <modifier file>\n\n"
               + "  Dumps the contents of the specified modifier file.\n";
     }
-    
+
     @Override
     public void run(String[] args, PrintStream output) throws Exception {
       if (args.length <= 1) {
         output.println(getHelpString());
         return;
       }
-      
+
       IndexPartModifier modifier = DiskIndex.openIndexModifier(args[1]);
+
+      if (modifier.getManifest().get("emptyIndexFile", false)) {
+        output.println("Empty Index File.");
+        return;
+      }
+
+
       modifier.printContents(System.out);
       modifier.close();
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       String modifierPath = p.getString("modifierPath");
       run(new String[]{"", modifierPath}, output);
     }
   }
-  
+
   private static class HelpFn extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago help [<function>]+\n\n"
               + "   Prints the usage information for any galago function.";
     }
-    
+
     @Override
     public void run(String[] args, PrintStream output) throws Exception {
-      
+
       StringBuilder defaultOutput = new StringBuilder(
               "Type 'galago help <command>' to get more help about any command.\n\n"
               + "Popular commands:\n"
@@ -578,15 +607,15 @@ public class App {
         }
       }
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       run((String[]) p.getList("function").toArray(new String[0]), output);
     }
   }
-  
+
   private static class MakeCorpusFn extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago make-corpus [flags]+ --corpusPath=<corpus> (--inputPath=<input>)+\n\n"
@@ -605,7 +634,7 @@ public class App {
               + "                           [default=folder]\n\n"
               + getTupleFlowParameterString();
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       if (!p.containsKey("corpusPath") && !p.containsKey("inputPath")) {
@@ -617,9 +646,9 @@ public class App {
       runTupleFlowJob(job, p, output);
     }
   }
-  
+
   private static class OverwriteManifest extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago overwrite-manifest --indexPath=/path/to/index/file --key=value\n"
@@ -627,16 +656,16 @@ public class App {
               + "  Allows parameters to be changed after index files have been written.\n\n"
               + "  WARNING : Use with caution - changing some parameters may make the index file non-readable.\n";
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       // first open the index
       String filename = p.getString("indexPath");
       RandomAccessFile indexReaderWriter = new RandomAccessFile(filename, "rw");
-      
+
       long length = indexReaderWriter.length();
       long footerOffset = length - Integer.SIZE / 8 - 3 * Long.SIZE / 8;
-      
+
       indexReaderWriter.seek(footerOffset);
 
       // read metadata values:
@@ -644,13 +673,13 @@ public class App {
       long manifestOffset = indexReaderWriter.readLong();
       int blockSize = indexReaderWriter.readInt();
       long magicNumber = indexReaderWriter.readLong();
-      
+
       indexReaderWriter.seek(manifestOffset);
       byte[] xmlData = new byte[(int) (footerOffset - manifestOffset)];
       indexReaderWriter.read(xmlData);
       Parameters newParameters = Parameters.parse(xmlData);
       newParameters.copyFrom(p);
-      
+
       indexReaderWriter.seek(manifestOffset);
 
       // write the new data back to the file
@@ -663,9 +692,9 @@ public class App {
       indexReaderWriter.close();
     }
   }
-  
+
   private static class SearchFn extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago search <args> \n\n"
@@ -691,14 +720,14 @@ public class App {
               + "  </parameters>\n\n"
               + "  Note that the set of  parameters must include at least one index path.\n";
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       if (!p.containsKey("index")) {
         output.println(getHelpString());
         return;
       }
-      
+
       Search search = new Search(p);
       int port = (int) p.get("port", 0);
       if (port == 0) {
@@ -724,9 +753,9 @@ public class App {
       output.println("ServerIP: " + masterURL);
     }
   }
-  
+
   private static class XCountFn extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago xcount --x=<countable-query> --index=<index> \n\n"
@@ -734,37 +763,37 @@ public class App {
               + "  More than one index and expression can be specified.\n"
               + "  Examples of countable-expressions: terms, ordered windows and unordered windows.\n";
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       if (!p.containsKey("index") || !p.containsKey("x")) {
         output.println(this.getHelpString());
         return;
       }
-      
+
       Retrieval r = RetrievalFactory.instance(p);
-      
+
       long count;
       for (String query : (List<String>) p.getList("x")) {
         Node parsed = StructuredQuery.parse(query);
         parsed.getNodeParameters().set("queryType", "count");
         Node transformed = r.transformQuery(parsed, new Parameters());
-        
+
         if (p.get("printTransformation", false)) {
           System.err.println(query);
           System.err.println(parsed);
           System.err.println(transformed);
         }
-        
+
         count = r.nodeStatistics(transformed).nodeFrequency;
         output.println(count + "\t" + query);
       }
       r.close();
     }
   }
-  
+
   private static class XDocCountFn extends AppFunction {
-    
+
     @Override
     public String getHelpString() {
       return "galago doccount --x=<countable-query> --index=<index> \n\n"
@@ -772,35 +801,35 @@ public class App {
               + "  More than one index and expression can be specified.\n"
               + "  Examples of countable-expressions: terms, ordered windows and unordered windows.\n";
     }
-    
+
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
       if (!p.containsKey("index") || !p.containsKey("x")) {
         output.println(this.getHelpString());
         return;
       }
-      
+
       Retrieval r = RetrievalFactory.instance(p);
-      
+
       long count;
       for (String query : (List<String>) p.getList("x")) {
         Node parsed = StructuredQuery.parse(query);
         parsed.getNodeParameters().set("queryType", "count");
         Node transformed = r.transformQuery(parsed, new Parameters());
-        
+
         if (p.get("printTransformation", false)) {
           System.err.println(query);
           System.err.println(parsed);
           System.err.println(transformed);
         }
-        
+
         count = r.nodeStatistics(transformed).nodeDocumentCount;
         output.println(count + "\t" + query);
       }
       r.close();
     }
   }
-  
+
   public static String getTupleFlowParameterString() {
     return "Tupleflow Flags:\n"
             + "  --printJob={true|false}: Simply prints the execution plan of a Tupleflow-based job then exits.\n"
@@ -829,12 +858,12 @@ public class App {
       output.println(job.toDotString());
       return;
     }
-    
+
     int hash = (int) p.get("distrib", 0);
     if (hash > 0) {
       job.properties.put("hashCount", Integer.toString(hash));
     }
-    
+
     ErrorStore store = new ErrorStore();
     JobExecutor.runLocally(job, store, p);
     if (store.hasStatements()) {

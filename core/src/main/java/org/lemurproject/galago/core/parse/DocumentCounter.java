@@ -8,6 +8,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
+import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.types.SerializedParameters;
 
 /**
@@ -27,7 +28,12 @@ import org.lemurproject.galago.tupleflow.types.SerializedParameters;
 @OutputClass(className = "org.lemurproject.galago.tupleflow.types.SerializedParameters", order = {"+parameters"})
 public class DocumentCounter extends StandardStep<NumberedDocumentData, SerializedParameters> {
 
-  Parameters p = new Parameters();
+  Parameters p;
+
+  public DocumentCounter() {
+    p = new Parameters();
+    p.set("global", 0L);
+  }
 
   public void process(NumberedDocumentData data) {
     p.set("global", p.get("global", 0L) + 1);

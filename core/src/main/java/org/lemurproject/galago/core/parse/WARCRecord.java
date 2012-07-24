@@ -24,9 +24,13 @@ import java.util.Map.Entry;
 
 public class WARCRecord {
 
-	public static String WARC_VERSION = "WARC/0.18";
+	public static String WARC_VERSION = "WARC/";
 	public static String WARC_VERSION_LINE = "WARC/0.18\n";
-	private static String NEWLINE = "\n";
+
+	private static String NEWLINE= "\n";
+	private static String CR_NEWLINE = "\r\n";
+
+	private static String LINE_ENDING= "\n";
 
 	private static byte MASK_THREE_BYTE_CHAR = (byte) (0xE0);
 	private static byte MASK_TWO_BYTE_CHAR = (byte) (0xC0);
@@ -47,12 +51,14 @@ public class WARCRecord {
 	 */
 	private static String readLineFromInputStream(DataInputStream in) throws IOException {
 		StringBuilder retString = new StringBuilder();
+		boolean found_cr = false;
 
 		boolean keepReading = true;
 		try {
 			do {
 				char thisChar = 0;
 				byte readByte = in.readByte();
+				found_cr = false;
 
 				// check to see if it's a multibyte character
 				if ((readByte & MASK_THREE_BYTE_CHAR) == MASK_THREE_BYTE_CHAR) {
@@ -82,6 +88,7 @@ public class WARCRecord {
 					* (readByte & MASK_BOTTOM_FOUR_BITS);
 					thisChar = (char) finalVal;
 				} else if ((readByte & MASK_TWO_BYTE_CHAR) == MASK_TWO_BYTE_CHAR) {
+				        found_cr = false;
 					// need to read next byte
 					if (in.available() < 1) {
 						// treat this as individual characters
@@ -101,9 +108,19 @@ public class WARCRecord {
 					// interpret it as a single byte
 					thisChar = (char) readByte;
 				}
+				// Look for carriage return; if found set a flag
+				if (thisChar == '\r') {
+				   found_cr = true;
+				}
 
 				if (thisChar == '\n') {
-					keepReading = false;
+				   // if the linefeed is the next character after the carriage return
+				   if (found_cr) {
+				      LINE_ENDING = CR_NEWLINE;
+				   } else {
+				     LINE_ENDING = NEWLINE;
+				   }
+				   keepReading = false;
 				} else {
 					retString.append(thisChar);
 				}
@@ -148,6 +165,7 @@ public class WARCRecord {
 		// first - find our WARC header
 		while ((!foundMark) && ((line = readLineFromInputStream(in)) != null)) {
 			if (line.startsWith(WARC_VERSION)) {
+				WARC_VERSION_LINE = line;
 				foundMark = true;
 			}
 		}
@@ -166,7 +184,7 @@ public class WARCRecord {
 				inHeader = false;
 			} else {
 				headerBuffer.append(line);
-				headerBuffer.append(NEWLINE);
+				headerBuffer.append(LINE_ENDING);
 				String[] thisHeaderPieceParts = line.split(":", 2);
 				if (thisHeaderPieceParts.length == 2) {
 					if (thisHeaderPieceParts[0].toLowerCase().startsWith("content-length")) {
@@ -230,7 +248,7 @@ public class WARCRecord {
 
 		// extract out our header information
 		String thisHeaderString = recordHeader.toString();
-		String[] headerLines = thisHeaderString.split(NEWLINE);
+		String[] headerLines = thisHeaderString.split(LINE_ENDING);
 
 		WARCRecord retRecord = new WARCRecord();
 		for (int i = 0; i < headerLines.length; i++) {
@@ -342,24 +360,24 @@ public class WARCRecord {
 		public String toString() {
 			StringBuffer retBuffer = new StringBuffer();
 
-			retBuffer.append(WARC_VERSION);
-			retBuffer.append(NEWLINE);
+			retBuffer.append(WARC_VERSION_LINE);
+			retBuffer.append(LINE_ENDING);
 
-			retBuffer.append("WARC-Type: " + recordType + NEWLINE);
-			retBuffer.append("WARC-Date: " + dateString + NEWLINE);
+			retBuffer.append("WARC-Type: " + recordType + LINE_ENDING);
+			retBuffer.append("WARC-Date: " + dateString + LINE_ENDING);
 
-			retBuffer.append("WARC-Record-ID: " + UUID + NEWLINE);
+			retBuffer.append("WARC-Record-ID: " + UUID + LINE_ENDING);
 			Iterator<Entry<String, String>> metadataIterator = metadata.entrySet().iterator();
 			while (metadataIterator.hasNext()) {
 				Entry<String, String> thisEntry = metadataIterator.next();
 				retBuffer.append(thisEntry.getKey());
 				retBuffer.append(": ");
 				retBuffer.append(thisEntry.getValue());
-				retBuffer.append(NEWLINE);
+				retBuffer.append(LINE_ENDING);
 			}
 
-			retBuffer.append("Content-Type: " + contentType + NEWLINE);
-			retBuffer.append("Content-Length: " + contentLength + NEWLINE);
+			retBuffer.append("Content-Type: " + contentType + LINE_ENDING);
+			retBuffer.append("Content-Length: " + contentLength + LINE_ENDING);
 
 			return retBuffer.toString();
 		}
@@ -559,7 +577,7 @@ public class WARCRecord {
 	public String toString() {
 		StringBuffer retBuffer = new StringBuffer();
 		retBuffer.append(warcHeader.toString());
-		retBuffer.append(NEWLINE);
+		retBuffer.append(LINE_ENDING);
 		retBuffer.append(warcContent);
 		return retBuffer.toString();
 	}

@@ -168,7 +168,7 @@ public class DiskIndex implements Index {
       return "postings.porter";
     }
     if (parts.containsKey("postings.krovetz")) {
-      return "postings.porter";
+      return "postings.krovetz";
     }
     if (parts.containsKey("postings")) {
       return "postings";
