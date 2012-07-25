@@ -20,11 +20,11 @@ public class DirichletScorer implements ScoringFunction {
   double mu;
 
   public DirichletScorer(NodeParameters parameters, MovableCountIterator iterator) throws IOException {
-
     mu = parameters.get("mu", 1500D);
     background = parameters.getDouble("collectionProbability");
   }
 
+  @Override
   public double score(int count, int length) {
     double numerator = count + (mu * background);
     double denominator = length + mu;

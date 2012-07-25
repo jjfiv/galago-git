@@ -12,9 +12,9 @@ public interface LengthsReader extends IndexPartReader {
 
   public int getLength(int document) throws IOException;
 
-  public Iterator getLengthsIterator() throws IOException;
+  public LengthsIterator getLengthsIterator() throws IOException;
 
-  public interface Iterator extends MovableIterator {
+  public interface LengthsIterator extends MovableIterator {
 
     public int getCurrentLength();
 

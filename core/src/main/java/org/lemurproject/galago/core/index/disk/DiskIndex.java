@@ -387,7 +387,7 @@ public class DiskIndex implements Index {
   }
 
   @Override
-  public LengthsReader.Iterator getLengthsIterator() throws IOException {
+  public LengthsReader.LengthsIterator getLengthsIterator() throws IOException {
     return lengthsReader.getLengthsIterator();
   }
 
