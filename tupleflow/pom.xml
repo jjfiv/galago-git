@@ -4,12 +4,12 @@
   <parent>
     <groupId>org.lemurproject</groupId>
     <artifactId>galago</artifactId>
-    <version>3.3</version>
+    <version>3.3-SNAPSHOT</version>
   </parent>
   <groupId>org.lemurproject.galago</groupId>
   <artifactId>tupleflow</artifactId>
   <packaging>jar</packaging>
-  <version>3.3</version>
+  <version>${parent.version}</version>
   <name>tupleflow</name>
   <url>http://lemurproject.org/galago.php</url>
   <description>TupleFlow is the distributed computation layer of Galago.</description>
@@ -25,9 +25,21 @@
     <developerConnection>scm:hg:ssh://USERNAME@lemur.hg.sourceforge.net/hgroot/lemur/galago</developerConnection>
     <url>http://lemur.hg.sourceforge.net/hgweb/lemur/galago/</url>
   </scm>
-  <properties>
-    <skipTests>false</skipTests>
-  </properties> 
+    <distributionManagement>
+      <downloadUrl>http://lemur.sourceforge.net/repo</downloadUrl>
+      <repository>
+	<uniqueVersion>false</uniqueVersion>
+	<id>lemur.sf.net</id>
+	<name>Lemur Repository</name>
+	<url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo</url>
+	<layout>default</layout>
+      </repository>
+      <site>
+	<id>lemur.sf.net</id>
+	<name>Lemur Repository</name>
+	<url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo/${project.name}</url>	
+      </site>
+    </distributionManagement>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -77,9 +89,9 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jxr-maven-plugin</artifactId>
-        <version>2.2</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>2.3</version>
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -95,14 +107,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.7.1</version>
-        <configuration>
-          <skipTests>${skipTests}</skipTests>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>

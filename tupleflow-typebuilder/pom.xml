@@ -1,15 +1,14 @@
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.lemurproject</groupId>
     <artifactId>galago</artifactId>
-    <version>3.3</version>
+    <version>3.3-SNAPSHOT</version>
   </parent>
   <groupId>org.lemurproject.galago</groupId>
   <artifactId>tupleflow-typebuilder</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>3.3</version>
+  <version>${parent.version}</version>
   <name>tupleflow-typebuilder</name>
   <url>http://lemurproject.org/galago.php</url>
   <description>TypeBuilder generates code for serializing, hashing and comparing tuple objects.</description>
@@ -20,14 +19,26 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-  <scm>
-    <connection>scm:hg:http://lemur.hg.sourceforge.net:8000/hgroot/lemur/galago</connection>
-    <developerConnection>scm:hg:ssh://USERNAME@lemur.hg.sourceforge.net/hgroot/lemur/galago</developerConnection>
-    <url>http://lemur.hg.sourceforge.net/hgweb/lemur/galago/</url>
-  </scm>
-  <properties>
-    <skipTests>false</skipTests>
-  </properties> 
+    <scm>
+        <connection>scm:hg:http://lemur.hg.sourceforge.net:8000/hgroot/lemur/galago</connection>
+        <developerConnection>scm:hg:ssh://USERNAME@lemur.hg.sourceforge.net/hgroot/lemur/galago</developerConnection>
+        <url>http://lemur.hg.sourceforge.net/hgweb/lemur/galago/</url>
+    </scm>
+    <distributionManagement>
+      <downloadUrl>http://lemur.sourceforge.net/repo</downloadUrl>
+      <repository>
+	<uniqueVersion>false</uniqueVersion>
+	<id>lemur.sf.net</id>
+	<name>Lemur Repository</name>
+	<url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo</url>
+	<layout>default</layout>
+      </repository>
+      <site>
+	<id>lemur.sf.net</id>
+	<name>Lemur Repository</name>
+	<url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo/${project.name}</url>	
+      </site>
+    </distributionManagement>
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -67,9 +78,9 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jxr-maven-plugin</artifactId>
-        <version>2.2</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>2.3</version>
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -84,14 +95,6 @@
   </reporting>
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.7.1</version>
-        <configuration>
-          <skipTests>${skipTests}</skipTests>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>

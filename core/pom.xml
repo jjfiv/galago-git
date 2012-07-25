@@ -4,12 +4,12 @@
   <parent>
     <groupId>org.lemurproject</groupId>
     <artifactId>galago</artifactId>
-    <version>3.3</version>
+    <version>3.3-SNAPSHOT</version>
   </parent>
   <groupId>org.lemurproject.galago</groupId>
   <artifactId>core</artifactId>
   <packaging>jar</packaging>
-  <version>3.3</version>
+  <version>${parent.version}</version>
   <name>core</name>
   <url>http://lemurproject.org/galago/php</url>
   <description>Galago is a toolkit for experimenting with search engines and text processing.</description>
@@ -39,9 +39,9 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jxr-maven-plugin</artifactId>
-        <version>2.2</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>2.3</version>
       </plugin>
       <plugin>
         <version>2.7.1</version>
@@ -58,6 +58,21 @@
       </plugin>
     </plugins>
   </reporting>
+    <distributionManagement>
+      <downloadUrl>http://lemur.sourceforge.net/repo</downloadUrl>
+      <repository>
+	<uniqueVersion>false</uniqueVersion>
+	<id>lemur.sf.net</id>
+	<name>Lemur Repository</name>
+	<url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo</url>
+	<layout>default</layout>
+      </repository>
+      <site>
+	<id>lemur.sf.net</id>
+	<name>Lemur Repository</name>
+	<url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo/${project.name}</url>	
+      </site>
+    </distributionManagement>
   <repositories>
     <repository>
       <id>AdunaSoftware</id>
