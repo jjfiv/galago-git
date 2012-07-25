@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.parse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.regex.Pattern;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -11,152 +12,96 @@ import javax.xml.stream.util.StreamReaderDelegate;
 import org.lemurproject.galago.core.types.DocumentSplit;
 
 /**
- * Produces page-level postings from books in MBTEI format. Pages with no text
- * are not emitted as documents, and the header is prepended to every emitted
- * Document object. Each document is emitted as an XML file, but only the header
- * retains tags.
+ * STATES:
  *
- * Otherwise the page text is just in a "<text>" element as one large span of
- * text.
+ * S0 = starting state. Reads in header information. Stay in this state until
+ * you see the "text" open tag, then head to S1.
  *
- * @author irmarc
+ * S1 = "w" tags trigger a read from the "form" attribute, which is the 
+ *          outputted string.
+ *      "name" opening and closing tags are echoed to the output string.
+ *      "text" and "TEI" closing tags are also echoed to the output.
+ *
+ * S1 is a terminal state.
+ *
  */
-class MBTEIParser implements DocumentStreamParser {
-
-  // External/global switch to flip for different level parsing.
-  public static String splitTag;
-  // For XML stream processing
-  StreamReaderDelegate reader;
-  XMLInputFactory factory;
-  String headerdata;
-  String bookIdentifier;
-  int pagenumber;
-
-  public MBTEIParser(DocumentSplit split, InputStream is) {
-
-    // XML processing
-    try {
-      factory = XMLInputFactory.newInstance();
-      factory.setProperty(XMLInputFactory.IS_COALESCING, true);
-      reader = new StreamReaderDelegate(factory.createXMLStreamReader(is));
-      bookIdentifier = getIdentifier(split);
-      pagenumber = 0;
-      readHeader();
-    } catch (Exception e) {
-      System.err.printf("SKIPPING %s: Caught exception %s\n", split.fileName, e.getMessage());
-      reader = null;
-    }
-  }
-
-  @Override
-  public Document nextDocument() throws IOException {
-    if (reader == null) {
-      return null;
+class MBTEIBookParser extends MBTEIParserBase {
+    Pattern matchAll = Pattern.compile("[a-zA-Z0-9-_]+");
+    Pattern textTag = Pattern.compile("text");
+    Pattern teiTag = Pattern.compile("TEI", Pattern.CASE_INSENSITIVE);
+    Pattern wordTag = Pattern.compile("w");
+    Pattern nameTag = Pattern.compile("name");
+    String header;
+    int contentLength;  // use this to count actual terms, not tags.
+    
+    public MBTEIBookParser(DocumentSplit split, InputStream is) {
+	super(split, is);
+	// set up to parse the header       
+	S0();
     }
 
-    StringBuilder builder = new StringBuilder();
-    int status = 0;
-    Document d;
-    try {
-      while (reader.hasNext()) {
-        status = reader.next();
-        if (status == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals(splitTag)) {
-          d = buildDocument(builder);
-          pagenumber = Integer.parseInt(reader.getAttributeValue(null, "n"));
-          if (d != null) {
-            // Have a legitimate document built - send it up.
-            return d;
-          }
-          // Otherwise, keep going, because we didn't emit a document
-        }
+    protected void S0() {
+	// Put the more specific matches first
+	addStartElementAction(textTag, "moveToS1");
 
-        // if it's text, add it to the buffer
-        if (status == XMLStreamConstants.CHARACTERS) {
-          builder.append(scrub(reader.getText())).append(" ");
-        }
-      }
-
-      // All done - either emitting or returning nothing
-      d = buildDocument(builder);
-      return d;
-    } catch (Exception e) {
-      System.err.printf("EXCEPTION [%s, %d]: %s\n", bookIdentifier, pagenumber, e.getMessage());
-      return null;
+	// Collect everything else
+	addStartElementAction(matchAll, "echo");
+	addEndElementAction(matchAll, "echo");
+	setCharactersAction("echo");
     }
-  }
 
-  public String scrub(String dirty) {
-    String cleaned = dirty.replaceAll("&apos;", "'");
-    cleaned = cleaned.replaceAll("&quot;", "\"");
-    cleaned = cleaned.replaceAll("&amp;", "&");
-    return cleaned;
-  }
+    public void moveToS1(int ignored) {
+	header = buffer.toString();
+	buffer = new StringBuilder();
+	contentLength = 0;
+	// Matched on "text" opening, but that should be
+	// echoed. Do it manually.
+	echo(XMLStreamConstants.START_ELEMENT);
 
-  private Document buildDocument(StringBuilder builder) {
-    if (builder.length() == 0) {
-      // we stopped because there are no more tokens
-      // if the builder is empty, then we read nothing useful.
-      return null;
-    } else {
-      // We got something - let's emit it
-      StringBuilder content = new StringBuilder(headerdata);
-      content.append(builder);
-      content.append("</text></TEI>");
-      String pageIdentifier = String.format("%s_%d", bookIdentifier, pagenumber);
-      return new Document(pageIdentifier, content.toString());
+	// Move on to the new rules
+	// First remove old matchers
+	clearStartElementActions();
+	clearEndElementActions();
+	unsetCharactersAction();
+
+	// Now set up our normal processing matchers
+	addStartElementAction(wordTag, "echoFormAttribute");
+	addStartElementAction(nameTag, "echoWithAttributes");
+	addEndElementAction(nameTag, "echo");
+	addEndElementAction(textTag, "echo");
+	addEndElementAction(teiTag, "emitFinalDocument");
     }
-  }
 
-  public void readHeader() throws IOException {
-    boolean stop = false;
-    StringBuilder builder = new StringBuilder();
-    int status;
-    String previousStart = "";
-    try {
-
-      while (!stop && reader.hasNext()) {
-        status = reader.next();
-
-        // Emit element starts, text, and element ends
-        switch (status) {
-          case XMLStreamConstants.CHARACTERS:
-            builder.append(reader.getText());
-            break;
-          case XMLStreamConstants.START_ELEMENT:
-            builder.append("<").append(reader.getLocalName()).append(">");
-            break;
-          case XMLStreamConstants.END_ELEMENT:
-            builder.append("</").append(reader.getLocalName()).append(">");
-            break;
-        }
-
-        if (status == XMLStreamConstants.START_ELEMENT) {
-          previousStart = reader.getLocalName();
-          // Do we need to stop? DO WE EVEN KNOW HOW TO STOP?
-          if (reader.getLocalName().equals("text")) {
-            stop = true;
-          }
-        }
-      }
-    } catch (Exception e) {
-      throw new IOException(String.format("While scanning header of split %s", bookIdentifier), e);
+    // This needs some more focus. What do we put around punctuation?
+    // Right now it simply appends a space after every token. Probably
+    // not what we want.
+    public void echoFormAttribute(int ignored) {
+	String formValue = reader.getAttributeValue(null, "form");
+	String scrubbed = scrub(formValue);
+	if (scrubbed.length() > 0) {
+	    buffer.append(scrubbed).append(" ");
+	    ++contentLength;
+	}
     }
-    headerdata = builder.toString();
-  }
 
-  public String getIdentifier(DocumentSplit split) {
-    File f = new File(split.fileName);
-    String basename = f.getName();
-    String[] parts = basename.split("_");
-    return parts[0];
-  }
+    // This should only be called once but there isn't really a way 
+    // to handle that gracefully other than removing all the handlers.
+    public void emitFinalDocument(int ignored) {
+	if (contentLength > 0) {
+	    // Echo "</tei>" or whatever it is.
+	    echo(XMLStreamConstants.END_ELEMENT);
+	    
+	    StringBuilder documentContent = new StringBuilder(header);
+	    documentContent.append(buffer);
+	    String bookIdentifier = getArchiveIdentifier();
+	    parsedDocument = new Document(bookIdentifier, 
+					  documentContent.toString());
+	}
 
-  @Override
-  public void close() throws IOException {
-    try {
-      reader.close();
-    } catch (XMLStreamException ex) {
-      System.err.printf("EXCEPTION CLOSING [%s, %d]: %s\n", bookIdentifier, pagenumber, ex.getMessage());
+	// Emit 1 document per file, or none at all.
+	clearStartElementActions();
+	clearEndElementActions();
+	unsetCharactersAction();
+	contentLength = 0;
     }
-  }
 }

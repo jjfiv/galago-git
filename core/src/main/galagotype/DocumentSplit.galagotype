@@ -7,7 +7,7 @@ type DocumentSplit {
     bytes startKey;
     bytes endKey;
     int fileId;
-	int totalFileCount;
+    int totalFileCount;
     
 
     order: ;

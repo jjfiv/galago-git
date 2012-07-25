@@ -40,16 +40,6 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
   public UniversalParser(TupleFlowParameters parameters) {
     documentCounter = parameters.getCounter("Documents Parsed");
     this.parameters = parameters.getJSON();
-    initializeParsers();
-  }
-
-  /**
-   * Use this code to pick a different tag other than 'pb' to break documents.
-   * To do book-level parsing, use a tag that doesn't occur in the format, such as
-   * "book".
-   */
-  private void initializeParsers() {
-    MBTEIParser.splitTag = parameters.get("splitTag", "pb");
   }
 
   @Override
@@ -63,30 +53,40 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
       }
     }
     
-    try {
+    // Determine the file type either from the parameters
+    // or from the guess in the splits
+    String fileType;
+    if (parameters.containsKey("filetype")) {
+      fileType = parameters.getString("filetype");
+    } else {
+      fileType = split.fileType;
+    }
 
-      if (split.fileType.equals("html")
-              || split.fileType.equals("xml")
-              || split.fileType.equals("txt")) {
+    try {	
+      if (fileType.equals("html")
+              || fileType.equals("xml")
+              || fileType.equals("txt")) {
         parser = new FileParser(parameters, split.fileName, getLocalBufferedReader(split));
-      } else if (split.fileType.equals("arc")) {
+      } else if (fileType.equals("arc")) {
         parser = new ArcParser(getLocalBufferedInputStream(split));
-      } else if (split.fileType.equals("warc")) {
+      } else if (fileType.equals("warc")) {
         parser = new WARCParser(getLocalBufferedInputStream(split));
-      } else if (split.fileType.equals("trectext")) {
+      } else if (fileType.equals("trectext")) {
         parser = new TrecTextParser(getLocalBufferedReader(split));
-      } else if (split.fileType.equals("trecweb")) {
+      } else if (fileType.equals("trecweb")) {
         parser = new TrecWebParser(getLocalBufferedReader(split));
-      } else if (split.fileType.equals("twitter")) {
+      } else if (fileType.equals("twitter")) {
         parser = new TwitterParser(getLocalBufferedReader(split));
-      } else if (split.fileType.equals("corpus")) {
+      } else if (fileType.equals("corpus")) {
         parser = new CorpusSplitParser(split);
-      } else if (split.fileType.equals("wiki")) {
+      } else if (fileType.equals("wiki")) {
         parser = new WikiParser(getLocalBufferedReader(split));
-      } else if (split.fileType.equals("mbtei")) {
-        parser = new MBTEIParser(split, getLocalBufferedInputStream(split));
+      } else if (fileType.equals("mbtei.page")) {
+        parser = new MBTEIPageParser(split, getLocalBufferedInputStream(split));
+      } else if (fileType.equals("mbtei.book")) {
+	parser = new MBTEIBookParser(split, getLocalBufferedInputStream(split));
       } else {
-        throw new IOException("Unknown fileType: " + split.fileType
+        throw new IOException("Unknown fileType: " + fileType
                 + " for fileName: " + split.fileName);
       }
     } catch (EOFException ee) {
