@@ -18,15 +18,15 @@ import org.lemurproject.galago.core.index.LengthsReader;
 public class ScoringContext {
 
   public int document;
-  protected HashMap<String, LengthsReader.Iterator> lengths;
+  protected HashMap<String, LengthsReader.LengthsIterator> lengths;
   protected TObjectIntHashMap<String> current;
 
   public ScoringContext() {
-    lengths = new HashMap<String, LengthsReader.Iterator>();
+    lengths = new HashMap<String, LengthsReader.LengthsIterator>();
     current = new TObjectIntHashMap<String>();
   }
 
-  public void addLength(String key, LengthsReader.Iterator iterator) {
+  public void addLength(String key, LengthsReader.LengthsIterator iterator) {
     lengths.put(key, iterator);
   }
 
@@ -48,7 +48,7 @@ public class ScoringContext {
 
   public void moveLengths(int position) {
     try {
-      for (Map.Entry<String, LengthsReader.Iterator> pair : lengths.entrySet()) {
+      for (Map.Entry<String, LengthsReader.LengthsIterator> pair : lengths.entrySet()) {
         pair.getValue().moveTo(position);
         current.put(pair.getKey(), pair.getValue().getCurrentLength());
       }

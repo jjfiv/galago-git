@@ -39,53 +39,59 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
 
   private Counter documentCounter;
   private Parameters parameters;
-  private long count;
   private Logger LOG = Logger.getLogger(getClass().toString());
-  private Closeable source;
+  private byte[] subCollCheck = "subcoll".getBytes();
 
   public UniversalCounter(TupleFlowParameters parameters) {
     documentCounter = parameters.getCounter("Documents Parsed");
     this.parameters = parameters.getJSON();
-    initializeParsers();
   }
 
-  /**
-   * Use this code to pick a different tag other than 'pb' to break documents.
-   * To do book-level parsing, use a tag that doesn't occur in the format, such as
-   * "book".
-   */
-  private void initializeParsers() {
-    MBTEIParser.splitTag = parameters.get("splitTag", "pb");
-  }
-
+  @Override
   public void process(DocumentSplit split) throws IOException {
     DocumentStreamParser parser = null;
-    source = null;
+    long count = 0;
+    long limit = Long.MAX_VALUE;
+    if (split.startKey.length > 0) {
+      if (Utility.compare(subCollCheck, split.startKey) == 0) {
+        limit = Utility.uncompressLong(split.endKey, 0);
+      }
+    }
+
+    // Determine the file type either from the parameters
+    // or from the guess in the splits
+    String fileType;
+    if (parameters.containsKey("filetype")) {
+      fileType = parameters.getString("filetype");
+    } else {
+      fileType = split.fileType;
+    }
 
     try {
-
-      if (split.fileType.equals("html")
-              || split.fileType.equals("xml")
-              || split.fileType.equals("txt")) {
+      if (fileType.equals("html")
+              || fileType.equals("xml")
+              || fileType.equals("txt")) {
         parser = new FileParser(parameters, split.fileName, getLocalBufferedReader(split));
-      } else if (split.fileType.equals("arc")) {
+      } else if (fileType.equals("arc")) {
         parser = new ArcParser(getLocalBufferedInputStream(split));
-      } else if (split.fileType.equals("warc")) {
+      } else if (fileType.equals("warc")) {
         parser = new WARCParser(getLocalBufferedInputStream(split));
-      } else if (split.fileType.equals("trectext")) {
+      } else if (fileType.equals("trectext")) {
         parser = new TrecTextParser(getLocalBufferedReader(split));
-      } else if (split.fileType.equals("trecweb")) {
+      } else if (fileType.equals("trecweb")) {
         parser = new TrecWebParser(getLocalBufferedReader(split));
-      } else if (split.fileType.equals("twitter")) {
+      } else if (fileType.equals("twitter")) {
         parser = new TwitterParser(getLocalBufferedReader(split));
-      } else if (split.fileType.equals("corpus")) {
+      } else if (fileType.equals("corpus")) {
         parser = new CorpusSplitParser(split);
-      } else if (split.fileType.equals("wiki")) {
+      } else if (fileType.equals("wiki")) {
         parser = new WikiParser(getLocalBufferedReader(split));
-      } else if (split.fileType.equals("mbtei")) {
-        parser = new MBTEIParser(split, getLocalBufferedInputStream(split));
+      } else if (fileType.equals("mbtei.page")) {
+        parser = new MBTEIPageParser(split, getLocalBufferedInputStream(split));
+      } else if (fileType.equals("mbtei.book")) {
+        parser = new MBTEIBookParser(split, getLocalBufferedInputStream(split));
       } else {
-        throw new IOException("Unknown fileType: " + split.fileType
+        throw new IOException("Unknown fileType: " + fileType
                 + " for fileName: " + split.fileName);
       }
     } catch (EOFException ee) {
@@ -101,14 +107,15 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
         documentCounter.increment();
       }
     }
-    if (source != null) {
-      source.close();
-    }
 
     KeyValuePair kvp = new KeyValuePair();
     kvp.key = split.fileName.getBytes();
     kvp.value = Utility.compressLong(count);
     processor.process(kvp);
+
+    if (parser != null) {
+      parser.close();
+    }
   }
 
   public static boolean isParsable(String extension) {
@@ -127,7 +134,6 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
 
   public BufferedReader getLocalBufferedReader(DocumentSplit split) throws IOException {
     BufferedReader br = getBufferedReader(split);
-    source = br;
     return br;
   }
 
@@ -152,7 +158,6 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
 
   public BufferedInputStream getLocalBufferedInputStream(DocumentSplit split) throws IOException {
     BufferedInputStream bis = getBufferedInputStream(split);
-    source = bis;
     return bis;
   }
 

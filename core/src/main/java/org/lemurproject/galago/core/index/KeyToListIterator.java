@@ -6,8 +6,8 @@ import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * Iterates over the a KeyIterator as if it were a Value iterator.
- * Useful for iterating over document lengths or document names.
+ * Iterates over the a KeyIterator as if it were a Value iterator. Useful for
+ * iterating over document lengths or document names.
  *
  *
  * @author marc
@@ -35,7 +35,6 @@ public abstract class KeyToListIterator extends ValueIterator {
     iterator.reset();
   }
 
-
   @Override
   public boolean isDone() {
     return iterator.isDone();
@@ -52,9 +51,9 @@ public abstract class KeyToListIterator extends ValueIterator {
 
   @Override
   public boolean hasMatch(int identifier) {
-    return (currentCandidate() == identifier);
+    return (!isDone() && currentCandidate() == identifier);
   }
-  
+
   @Override
   public int compareTo(MovableIterator other) {
     if (isDone() && !other.isDone()) {

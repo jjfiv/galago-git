@@ -21,22 +21,17 @@ import org.lemurproject.galago.tupleflow.Utility;
 /**
  * Reads documents lengths from a document lengths file. KeyValueIterator
  * provides a useful interface for dumping the contents of the file.
- * 
+ *
  * data stored in each document 'field' lengths list:
- * 
- *   stats:
- *  - number of non-zero document lengths (document count)
- *  - sum of document lengths (collection length)
- *  - average document length
- *  - maximum document length
- *  - minimum document length
- * 
- *   utility values:
- *  - first document id
- *  - last document id (all documents inbetween have a value)
- * 
- *   finally:
- *  - list of lengths (one per document)
+ *
+ * stats: - number of non-zero document lengths (document count) - sum of
+ * document lengths (collection length) - average document length - maximum
+ * document length - minimum document length
+ *
+ * utility values: - first document id - last document id (all documents
+ * inbetween have a value)
+ *
+ * finally: - list of lengths (one per document)
  *
  * @author sjh
  */
@@ -77,7 +72,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
 
   @Override
-  public LengthsReader.Iterator getLengthsIterator() throws IOException {
+  public LengthsReader.LengthsIterator getLengthsIterator() throws IOException {
     return new MemoryMapLengthsIterator(doc, documentLengths);
   }
 
@@ -160,7 +155,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
 
   public class MemoryMapLengthsIterator extends ValueIterator
-          implements MovableCountIterator, LengthsReader.Iterator {
+          implements MovableCountIterator, LengthsReader.LengthsIterator {
 
     byte[] key;
     private MappedByteBuffer memBuffer;
@@ -328,9 +323,9 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
   }
 
-  public class StreamLengthsIterator extends KeyListReader.ListIterator
-          implements MovableCountIterator, LengthsReader.Iterator {
-
+  public class StreamLengthsIterator extends KeyListReader.ListIterator 
+          implements MovableCountIterator, LengthsReader.LengthsIterator {
+        
     private final BTreeIterator iterator;
     private DataStream streamBuffer;
     // stats

@@ -57,6 +57,9 @@ public class DocumentPriorWriter extends KeyValueWriter<DocumentFeature> {
     Parameters p = writer.getManifest();
     p.set("maxScore", this.maxObservedScore);
     p.set("minScore", this.minObservedScore);
+    if(!p.isDouble("default")){
+      p.set("defaultProb", this.minObservedScore);
+    }
     super.close();
   }
 

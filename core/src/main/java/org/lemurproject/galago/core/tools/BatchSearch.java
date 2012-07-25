@@ -136,8 +136,22 @@ public class BatchSearch extends AppFunction {
         }
 
         long queryStartTime = System.currentTimeMillis();
+
+
+        if (parameters.get("printTransformation", false)) {
+          // print the original query
+          System.err.println("Text:" + queryText);
+        }
         Node root = StructuredQuery.parse(queryText);
+        if (parameters.get("printTransformation", false)) {
+          // print the parsed query
+          System.err.println("Parsed Node:" + root.toString());
+        }
         Node transformed = retrieval.transformQuery(root, queryParameters);
+        if (parameters.get("printTransformation", false)) {
+          // print the transformed query
+          System.err.println("Transformed Node:" + transformed.toString());
+        }
 
         // These must be done after parsing and transformation b/c they're
         // overrides or post-processing
@@ -150,12 +164,6 @@ public class BatchSearch extends AppFunction {
 
         if (parameters.containsKey("deltaReady")) {
           queryParameters.set("deltaReady", parameters.getBoolean("deltaReady"));
-        }
-
-        if (parameters.get("printTransformation", false)) {
-          System.err.println("Text:" + queryText);
-          System.err.println("Parsed Node:" + root.toString());
-          System.err.println("Transformed Node:" + transformed.toString());
         }
 
         results = retrieval.runQuery(transformed, queryParameters);
