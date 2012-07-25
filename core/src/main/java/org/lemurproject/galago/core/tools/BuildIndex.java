@@ -663,7 +663,7 @@ public class BuildIndex extends AppFunction {
     // ensure the index folder exists
     File buildManifest = new File(indexPath, "buildManifest.json");
     Utility.makeParentDirectories(buildManifest);
-    Utility.copyStringToFile(buildParameters.toString(), buildManifest);
+    Utility.copyStringToFile(buildParameters.toPrettyString(), buildManifest);
 
     List<String> inputPaths = buildParameters.getAsList("inputPath");
 
