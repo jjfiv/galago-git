@@ -56,6 +56,7 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
 @OutputClass(className = "org.lemurproject.galago.core.types.KeyValuePair", order = {"+key"})
 public class PositionIndexWriter implements
         NumberWordPosition.WordDocumentPositionOrder.ShreddedProcessor {
+    static final int MARKER_MINIMUM = 2;
 
   // writer variables //
   Parameters actualParams;
@@ -114,6 +115,7 @@ public class PositionIndexWriter implements
     skipResetDistance = (int) parameters.getJSON().get("skipResetDistance", 20);
     options |= (skip ? KeyListReader.ListIterator.HAS_SKIPS : 0x0);
     options |= KeyListReader.ListIterator.HAS_MAXTF;
+    options |= KeyListReader.ListIterator.HAS_INLINING;
   }
 
   @Override
@@ -209,6 +211,7 @@ public class PositionIndexWriter implements
     public CompressedRawByteBuffer documents;
     public CompressedRawByteBuffer counts;
     public CompressedRawByteBuffer positions;
+    public CompressedByteBuffer positionBlock;
     // to support skipping
     private long lastDocumentSkipped;
     private long lastSkipPosition;
@@ -224,6 +227,7 @@ public class PositionIndexWriter implements
       documents = new CompressedRawByteBuffer();
       counts = new CompressedRawByteBuffer();
       positions = new CompressedRawByteBuffer();
+      positionBlock = new CompressedByteBuffer();
       header = new CompressedByteBuffer();
 
       if ((options & KeyListReader.ListIterator.HAS_SKIPS) == KeyListReader.ListIterator.HAS_SKIPS) {
@@ -238,7 +242,15 @@ public class PositionIndexWriter implements
 
       if (documents.length() > 0) {
         counts.add(positionCount);
+
+        // Now conditionally add in the skip marker and the array of position bytes
+	if (positionCount > MARKER_MINIMUM) {
+	    positions.add(positionBlock.length());
+	}
+        positions.add(positionBlock);
         maximumPositionCount = Math.max(maximumPositionCount, positionCount);
+
+
       }
 
       if (skips != null && skips.length() == 0) {
@@ -248,6 +260,9 @@ public class PositionIndexWriter implements
       } else {
         header.add(options);
       }
+
+      // Start with the inline length
+      header.add(MARKER_MINIMUM);
 
       header.add(documentCount);
       header.add(totalPositionCount);
@@ -323,13 +338,18 @@ public class PositionIndexWriter implements
         this.lastPositionSkip = 0;
         this.numSkips = 0;
       }
-
     }
 
     public void addDocument(long documentID) throws IOException {
       // add the last document's counts
       if (documents.length() > 0) {
         counts.add(positionCount);
+
+        // Now add in the skip marker and the array of position bytes
+	if (positionCount > MARKER_MINIMUM) {
+	    positions.add(positionBlock.length());
+	}
+        positions.add(positionBlock);
         maximumPositionCount = Math.max(maximumPositionCount, positionCount);
 
         // if we're skipping check that
@@ -342,6 +362,7 @@ public class PositionIndexWriter implements
 
       lastPosition = 0;
       positionCount = 0;
+      positionBlock.clear();
       documentCount++;
 
     }
@@ -349,7 +370,7 @@ public class PositionIndexWriter implements
     public void addPosition(int position) throws IOException {
       positionCount++;
       totalPositionCount++;
-      positions.add(position - lastPosition);
+      positionBlock.add(position - lastPosition);
       lastPosition = position;
     }
 

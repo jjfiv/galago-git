@@ -24,10 +24,8 @@ import java.util.Map.Entry;
 
 public class WARCRecord {
 
-	//public static String WARC_VERSION = "WARC/0.18";
-	//public static String WARC_VERSION_LINE = "WARC/0.18\n";
-	public static String WARC_VERSION = "WARC/1.0";
-	public static String WARC_VERSION_LINE = "WARC/1.0\n";
+	public static String WARC_VERSION = "WARC/";
+	public static String WARC_VERSION_LINE = "WARC/0.18\n";
 
 	private static String NEWLINE= "\n";
 	private static String CR_NEWLINE = "\r\n";
@@ -167,6 +165,7 @@ public class WARCRecord {
 		// first - find our WARC header
 		while ((!foundMark) && ((line = readLineFromInputStream(in)) != null)) {
 			if (line.startsWith(WARC_VERSION)) {
+				WARC_VERSION_LINE = line;
 				foundMark = true;
 			}
 		}
@@ -361,7 +360,7 @@ public class WARCRecord {
 		public String toString() {
 			StringBuffer retBuffer = new StringBuffer();
 
-			retBuffer.append(WARC_VERSION);
+			retBuffer.append(WARC_VERSION_LINE);
 			retBuffer.append(LINE_ENDING);
 
 			retBuffer.append("WARC-Type: " + recordType + LINE_ENDING);

@@ -55,8 +55,8 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
 
   @Override
   public int count() {
-    this.loadExtents();
-    return extents.size();
+      this.loadExtents();
+      return extents.size();
   }
 
   @Override
