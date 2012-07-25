@@ -81,7 +81,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
         parser = new CorpusSplitParser(split);
       } else if (fileType.equals("wiki")) {
         parser = new WikiParser(getLocalBufferedReader(split));
-      } else if (fileType.equals("mbtei.page")) {
+      } else if (fileType.equals("mbtei.page") || fileType.equals("mbtei")) {
         parser = new MBTEIPageParser(split, getLocalBufferedInputStream(split));
       } else if (fileType.equals("mbtei.book")) {
 	parser = new MBTEIBookParser(split, getLocalBufferedInputStream(split));

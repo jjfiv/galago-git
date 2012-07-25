@@ -67,6 +67,7 @@ class MBTEIParserBase implements DocumentStreamParser {
     public MBTEIParserBase(DocumentSplit split, InputStream is) {
 	try {
 	    this.split = split;
+	    System.out.printf("Processing split: %s\n", split.fileName);
 	    startElementActions = new LinkedList<Action>();
 	    endElementActions = new LinkedList<Action>();
 	    factory = XMLInputFactory.newInstance();
@@ -291,10 +292,12 @@ class MBTEIParserBase implements DocumentStreamParser {
     
     @Override
     public void close() throws IOException {
-	try {
-	    reader.close();
-	} catch (XMLStreamException ex) {
-	    System.err.printf("EXCEPTION CLOSING [%s]: %s\n", getArchiveIdentifier(), ex.getMessage());
+	if (reader != null) {
+	    try {
+		reader.close();
+	    } catch (XMLStreamException ex) {
+		System.err.printf("EXCEPTION CLOSING [%s]: %s\n", getArchiveIdentifier(), ex.getMessage());
+	    }
 	}
     }
 
