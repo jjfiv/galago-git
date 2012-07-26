@@ -39,24 +39,18 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
 
   private Counter documentCounter;
   private Parameters parameters;
+  private long count;
   private Logger LOG = Logger.getLogger(getClass().toString());
-  private byte[] subCollCheck = "subcoll".getBytes();
+  private Closeable source;
 
   public UniversalCounter(TupleFlowParameters parameters) {
     documentCounter = parameters.getCounter("Documents Parsed");
     this.parameters = parameters.getJSON();
   }
 
-  @Override
   public void process(DocumentSplit split) throws IOException {
     DocumentStreamParser parser = null;
-    long count = 0;
-    long limit = Long.MAX_VALUE;
-    if (split.startKey.length > 0) {
-      if (Utility.compare(subCollCheck, split.startKey) == 0) {
-        limit = Utility.uncompressLong(split.endKey, 0);
-      }
-    }
+    source = null;
 
     // Determine the file type either from the parameters
     // or from the guess in the splits
@@ -86,7 +80,7 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
         parser = new CorpusSplitParser(split);
       } else if (fileType.equals("wiki")) {
         parser = new WikiParser(getLocalBufferedReader(split));
-      } else if (fileType.equals("mbtei.page")) {
+      } else if (fileType.equals("mbtei.page") || fileType.equals("mbtei")) {
         parser = new MBTEIPageParser(split, getLocalBufferedInputStream(split));
       } else if (fileType.equals("mbtei.book")) {
         parser = new MBTEIBookParser(split, getLocalBufferedInputStream(split));
@@ -107,15 +101,14 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
         documentCounter.increment();
       }
     }
+    if (source != null) {
+      source.close();
+    }
 
     KeyValuePair kvp = new KeyValuePair();
     kvp.key = split.fileName.getBytes();
     kvp.value = Utility.compressLong(count);
     processor.process(kvp);
-
-    if (parser != null) {
-      parser.close();
-    }
   }
 
   public static boolean isParsable(String extension) {
@@ -134,6 +127,7 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
 
   public BufferedReader getLocalBufferedReader(DocumentSplit split) throws IOException {
     BufferedReader br = getBufferedReader(split);
+    source = br;
     return br;
   }
 
@@ -158,6 +152,7 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
 
   public BufferedInputStream getLocalBufferedInputStream(DocumentSplit split) throws IOException {
     BufferedInputStream bis = getBufferedInputStream(split);
+    source = bis;
     return bis;
   }
 
