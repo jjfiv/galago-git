@@ -85,6 +85,12 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
         parser = new MBTEIPageParser(split, getLocalBufferedInputStream(split));
       } else if (fileType.equals("mbtei.book")) {
 	parser = new MBTEIBookParser(split, getLocalBufferedInputStream(split));
+      } else if (fileType.equals("mbtei.enitity")) {
+	parser = new MBTEIEntityParser(split, getLocalBufferedInputStream(split));
+      } else if (fileType.equals("mbtei.person")) {
+	parser = new MBTEIPersonParser(split, getLocalBufferedInputStream(split));
+      } else if (fileType.equals("mbtei.location")) {
+	parser = new MBTEILocationParser(split, getLocalBufferedInputStream(split));
       } else {
         throw new IOException("Unknown fileType: " + fileType
                 + " for fileName: " + split.fileName);
@@ -126,7 +132,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
             || extension.equals("twitter")
             || extension.equals("corpus")
             || extension.equals("wiki")
-            || extension.equals("mbtei");
+     	    || extension.equals("mbtei");
   }
 
   public BufferedReader getLocalBufferedReader(DocumentSplit split) throws IOException {

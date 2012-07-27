@@ -49,6 +49,8 @@ public class ScoringContext {
   public void moveLengths(int position) {
     try {
       for (Map.Entry<String, LengthsReader.Iterator> pair : lengths.entrySet()) {
+	  if (pair == null) System.err.printf("Missing pair.\n");
+	  else if (pair.getValue() == null) System.err.printf("Missing value for key %s.\n", pair.getKey());
         pair.getValue().moveTo(position);
         current.put(pair.getKey(), pair.getValue().getCurrentLength());
       }

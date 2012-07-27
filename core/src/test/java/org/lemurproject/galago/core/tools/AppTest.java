@@ -195,14 +195,6 @@ public class AppTest extends TestCase {
       output = byteArrayStream.toString();
       assertEquals("0\n1\n", output);
 
-      // Verify doc works
-      byteArrayStream = new ByteArrayOutputStream();
-      printStream = new PrintStream(byteArrayStream);
-
-      new App().run(new String[]{"doc", indexFile.getAbsolutePath(), "55"}, printStream);
-      output = byteArrayStream.toString();
-      assertEquals("#IDENTIFIER: 55\n<TEXT>\nThis is a sample document</TEXT>\n\n", output);
-
       // Verify dump-index works
       byteArrayStream = new ByteArrayOutputStream();
       printStream = new PrintStream(byteArrayStream);
@@ -255,8 +247,8 @@ public class AppTest extends TestCase {
                 queryFile2.getAbsolutePath()}, printStream);
       output = byteArrayStream.toString();
       String expected = "2\tdocument\n"
-              + "1\t#counts:a:part=postings()\n"
-              + "1\t#counts:a:part=postings.porter()\n";
+	  + "1\t#counts:a:part=postings()\n"
+	  + "1\t#counts:a:part=postings.porter()\n";
 
       assertEquals(expected, output);
 

@@ -38,12 +38,17 @@ import org.lemurproject.galago.core.types.DocumentSplit;
  *
  * @author irmarc
  */
-class MBTEIParserBase implements DocumentStreamParser {
+abstract class MBTEIParserBase implements DocumentStreamParser {
     // For XML stream processing
     protected StreamReaderDelegate reader;
     protected XMLInputFactory factory;
 
     protected DocumentSplit split;
+    int contentLength;  // use this to count actual terms, not tags.
+
+    // This is called when the reader is out of tokens to
+    // produce, but the buffer of read tokens is non-empty.
+    public abstract void cleanup();
 
     // Using these directly is either tedious or stupid to
     // do. Use the functions provided.
@@ -201,6 +206,12 @@ class MBTEIParserBase implements DocumentStreamParser {
 	}
     }
 
+    protected void clearAllActions() {
+	startElementActions.clear();
+	endElementActions.clear();
+	charactersAction = null;
+    }
+
     protected void clearEndElementActions() {
 	endElementActions.clear();
     }
@@ -279,8 +290,14 @@ class MBTEIParserBase implements DocumentStreamParser {
 		return parsedDocument;
 	    }
 
-	    // If we're out of tokens, just return null.
-	    return null;
+	    // If there are no more tokens to consume but
+	    // the buffer is non-empty, try to emit the
+	    // last document.
+	    if (buffer.length() > 0) {
+		cleanup();
+	    }
+	    // Return the result of cleanup - either a document or null
+	    return parsedDocument;
 	} catch (Exception e) {
 	    System.err.printf("EXCEPTION [%s,%s]: %s\n", 
 			      getArchiveIdentifier(), 
@@ -300,6 +317,13 @@ class MBTEIParserBase implements DocumentStreamParser {
 	    }
 	}
     }
+
+    // UTILITY MATCHERS
+    Pattern matchAll = Pattern.compile("[a-zA-Z0-9-_]+");
+    Pattern textTag = Pattern.compile("text");
+    Pattern teiTag = Pattern.compile("TEI", Pattern.CASE_INSENSITIVE);
+    Pattern wordTag = Pattern.compile("w");
+    Pattern nameTag = Pattern.compile("name");
 
     // UTILITY FUNCTIONS
     public void echo(int eventType) {
@@ -326,6 +350,18 @@ class MBTEIParserBase implements DocumentStreamParser {
 	    buffer.append("\"");
 	}
 	buffer.append(">");
+    }
+
+    // This needs some more focus. What do we put around punctuation?
+    // Right now it simply appends a space after every token. Probably
+    // not what we want.
+    public void echoFormAttribute(int ignored) {
+	String formValue = reader.getAttributeValue(null, "form");
+	String scrubbed = scrub(formValue);
+	if (scrubbed.length() > 0) {
+	    buffer.append(scrubbed).append(" ");
+	    ++contentLength;
+	}
     }
 
     public String scrub(String dirty) {

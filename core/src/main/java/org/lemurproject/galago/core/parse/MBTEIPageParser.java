@@ -48,8 +48,8 @@ class MBTEIPageParser extends MBTEIBookParser {
 
 	// Now set up our normal processing matchers
 	addStartElementAction(wordTag, "echoFormAttribute");
-	addStartElementAction(nameTag, "echoWithAttributes");
-	addEndElementAction(nameTag, "echo");
+	addStartElementAction(nameTag, "transformNameTag");
+	addEndElementAction(nameTag, "transformNameTag");
 	addEndElementAction(textTag, "echo");
 	addStartElementAction(pageBreakTag, "emitSingleDocument");
     }
@@ -64,13 +64,14 @@ class MBTEIPageParser extends MBTEIBookParser {
 	if (contentLength > 0) {
 	    StringBuilder documentContent = new StringBuilder(header);
 	    documentContent.append("<text>");
-	    documentContent.append(buffer);
+	    documentContent.append(buffer.toString().trim());
 	    documentContent.append("</text></TEI>");
 	    String documentIdentifier = String.format("%s_%s",
 						      getArchiveIdentifier(),
 						      pageNumber);
 	    parsedDocument = new Document(documentIdentifier, 
 					  documentContent.toString());
+	    parsedDocument.metadata = metadata;
 	}
 	contentLength = 0;
 	pageNumber = reader.getAttributeValue(null, "n");

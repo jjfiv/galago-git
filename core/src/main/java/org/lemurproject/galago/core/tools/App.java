@@ -208,10 +208,9 @@ public class App {
       p.set("tags", false);
       Document document = r.getDocument(identifier, p);
       if (document != null) {
-        output.println("#IDENTIFIER: " + document.name);
-        output.println(document.text);
+	  output.println(document.toString());
       } else {
-        output.println("Document " + identifier + " does not exist in index.");
+        output.println("Document " + identifier + " does not exist in index " + indexPath + ".");
       }
     }
 

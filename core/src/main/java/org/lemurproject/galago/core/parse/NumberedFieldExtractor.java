@@ -9,6 +9,7 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import org.lemurproject.galago.core.types.NumberedField;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -72,6 +73,14 @@ public class NumberedFieldExtractor extends StandardStep<Document, NumberedField
       return Utility.fromLong(Double.doubleToLongBits(Double.parseDouble(stringForm)));
     } else if (format.equals("date")) {
       try {
+	// See if it fits a year
+	if (stringForm.length() == 4) {
+	    Calendar cal = Calendar.getInstance();
+	    cal.set(Integer.parseInt(stringForm), 1, 1);
+	    return Utility.fromLong(cal.getTimeInMillis());				   
+	}
+
+	// More generic
         DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
         return Utility.fromLong(df.parse(stringForm).getTime());
       } catch (ParseException pe) {
