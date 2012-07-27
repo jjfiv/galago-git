@@ -4,20 +4,23 @@ package org.lemurproject.galago.core.parse;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
  * @author trevor
  */
-public class TrecTextParser implements DocumentStreamParser {
+public class TrecTextParser extends DocumentStreamParser {
 
   BufferedReader reader;
 
   /**
    * Creates a new instance of TrecTextParser
    */
-  public TrecTextParser(BufferedReader reader) throws FileNotFoundException, IOException {
-    this.reader = reader;
+  public TrecTextParser(DocumentSplit split, Parameters p) throws FileNotFoundException, IOException {
+    super(split, p);
+    this.reader = getBufferedReader(split);
   }
 
   public String waitFor(String tag) throws IOException {
@@ -55,7 +58,7 @@ public class TrecTextParser implements DocumentStreamParser {
   public Document nextDocument() throws IOException {
     String line;
 
-    if (null == waitFor("<DOC>")) {
+    if (reader == null || null == waitFor("<DOC>")) {
       return null;
     }
     String identifier = parseDocNumber();
@@ -105,6 +108,9 @@ public class TrecTextParser implements DocumentStreamParser {
 
   @Override
   public void close() throws IOException {
-    this.reader.close();
+    if (this.reader != null) {
+      this.reader.close();
+      this.reader = null;
+    }
   }
 }

@@ -12,6 +12,8 @@ import java.util.HashSet;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.tupleflow.Parameters;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -21,7 +23,7 @@ import org.xml.sax.InputSource;
  *
  * @author irmarc
  */
-public class WikiParser implements DocumentStreamParser {
+public class WikiParser extends DocumentStreamParser {
 
   HashSet<String> specialPrefixWhiteList;
   BufferedReader reader;
@@ -31,8 +33,9 @@ public class WikiParser implements DocumentStreamParser {
   /**
    * Creates a new instance of TrecWebParser
    */
-  public WikiParser(BufferedReader reader) throws FileNotFoundException, IOException {
-    this.reader = reader;
+  public WikiParser(DocumentSplit split, Parameters p) throws FileNotFoundException, IOException {
+    super(split, p);
+    this.reader = getBufferedReader(split);
     DocumentBuilderFactory builderFactory =
             DocumentBuilderFactory.newInstance();
 

@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.parse;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -11,14 +12,16 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author trevor
  */
-class FileParser implements DocumentStreamParser {
+class FileParser extends DocumentStreamParser {
 
   BufferedReader reader;
   String identifier;
 
-  public FileParser(Parameters parameters, String fileName, BufferedReader bufferedReader) {
-    this.identifier = getIdentifier(parameters, fileName);
-    this.reader = bufferedReader;
+  public FileParser(DocumentSplit split, Parameters parameters) throws IOException {
+    super(split, parameters);
+//          Parameters parameters, String fileName, BufferedReader bufferedReader) {
+    this.identifier = getIdentifier(parameters, split.fileName);
+    this.reader = getBufferedReader(split);
   }
 
   public String getIdentifier(Parameters parameters, String fileName) {
@@ -40,6 +43,7 @@ class FileParser implements DocumentStreamParser {
   }
 
   public String stripExtensions(String name) {
+    name = stripExtension(name, ".bz2");
     name = stripExtension(name, ".gz");
     name = stripExtension(name, ".html");
     name = stripExtension(name, ".xml");
@@ -80,15 +84,15 @@ class FileParser implements DocumentStreamParser {
     result.name = identifier;
     result.text = builder.toString();
     result.metadata.put("title", getTitle(result.text));
-    reader.close();
-    reader = null;
+
     return result;
   }
 
   @Override
   public void close() throws IOException {
-    if(reader!= null){
+    if (reader != null) {
       reader.close();
+      reader = null;
     }
   }
 }
