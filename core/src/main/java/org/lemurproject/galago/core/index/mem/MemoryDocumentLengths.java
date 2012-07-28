@@ -52,8 +52,8 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   @Override
   public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
     while (!iterator.isDone()) {
-      int identifier = ((LengthsReader.Iterator) iterator).getCurrentIdentifier();
-      int length = ((LengthsReader.Iterator) iterator).getCurrentLength();
+      int identifier = ((LengthsReader.LengthsIterator) iterator).getCurrentIdentifier();
+      int length = ((LengthsReader.LengthsIterator) iterator).getCurrentLength();
 
       if (lengths.getPosition() == 0) {
         offset = identifier;
@@ -109,8 +109,8 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   @Override
-  public LengthsReader.Iterator getLengthsIterator() throws IOException {
-    return (LengthsReader.Iterator) new VIterator(new KIterator());
+  public LengthsReader.LengthsIterator getLengthsIterator() throws IOException {
+    return (LengthsReader.LengthsIterator) new VIterator(new KIterator());
   }
 
   @Override
@@ -260,7 +260,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
   }
 
-  private static class VIterator extends KeyToListIterator implements MovableCountIterator, LengthsReader.Iterator {
+  private static class VIterator extends KeyToListIterator implements MovableCountIterator, LengthsReader.LengthsIterator {
 
     public VIterator(KeyIterator it) {
       super(it);

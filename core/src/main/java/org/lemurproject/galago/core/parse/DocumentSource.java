@@ -28,7 +28,7 @@ import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.tupleflow.*;
 
 /**
  * From a set of inputs, splits the input into many DocumentSplit records. This
@@ -51,12 +51,27 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   private int fileId = 0;
   private int totalFileCount = 0;
   private List<DocumentSplit> splitBuffer;
+  private UniversalParser up;
+  private String forceFileType;
 
   public DocumentSource(TupleFlowParameters parameters) {
     this.parameters = parameters;
     this.inputCounter = parameters.getCounter("Inputs Processed");
+
+    if (this.parameters.getJSON().isString("filetype")) {
+      this.forceFileType = this.parameters.getJSON().getString("filetype");
+    }
+
+    if (this.parameters.getJSON().isMap("parser")) {
+      this.up = new UniversalParser(new FakeParameters(
+              this.parameters.getJSON().getMap("parser")));
+    } else {
+      this.up = new UniversalParser(new FakeParameters(
+              new Parameters()));
+    }
   }
 
+  @Override
   public void run() throws IOException {
     // splitBuffer stores the full list of documents to emit.
     splitBuffer = new ArrayList();
@@ -113,34 +128,36 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
     // Now try to detect what kind of file this is:
     boolean isCompressed = (file.getName().endsWith(".gz") || file.getName().endsWith(".bz2"));
-    String fileType = null;
+    String fileType = forceFileType;
 
     // We'll try to detect by extension first, so we don't have to open the file
-    String extension = getExtension(file);
+    if (fileType == null) {
+      String extension = getExtension(file);
 
-    // first lets look for special cases that require some processing here:
-    if (extension.equals("list")) {
-      processListFile(file);
-      return; // now considered processed
+      // first lets look for special cases that require some processing here:
+      if (extension.equals("list")) {
+        processListFile(file);
+        return; // now considered processed
+      }
+
+      if (extension.equals("subcoll")) {
+        processSubCollectionFile(file);
+        return; // now considered processed
+      }
+
+      if (up.isParsable(extension)) {
+        fileType = extension;
+
+      } else if (file.getName().equals("corpus") || (BTreeFactory.isBTree(file))) {
+        // perhaps the user has renamed the corpus index
+        processCorpusFile(file);
+        return; // done now;
+
+      } else {
+        // finally try to be 'clever'...
+        fileType = detectTrecTextOrWeb(file);
+      }
     }
-
-    if (extension.equals("subcoll")) {
-      processSubCollectionFile(file);
-      return; // now considered processed
-    }
-
-    if (UniversalParser.isParsable(extension)) {
-      fileType = extension;
-
-    } else if (file.getName().equals("corpus") || (BTreeFactory.isBTree(file))) {
-      // perhaps the user has renamed the corpus index
-      processCorpusFile(file);
-      return; // done now;
-
-    } else {
-      fileType = detectTrecTextOrWeb(file);
-    }
-    // Eventually it'd be nice to do more format detection here.
 
     if (fileType != null) {
       DocumentSplit split = new DocumentSplit(file.getAbsolutePath(), fileType, isCompressed, new byte[0], new byte[0], fileId, totalFileCount);
@@ -232,7 +249,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
         // We'll try to detect by extension first, so we don't have to open the file
         String extension = getExtension(file);
-        if (UniversalParser.isParsable(extension)) {
+        if (up.isParsable(extension)) {
           fileType = extension;
         } else {
           fileType = detectTrecTextOrWeb(file);

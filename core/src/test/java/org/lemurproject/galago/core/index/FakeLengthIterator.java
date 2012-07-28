@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
  *
  * @author marc
  */
-public class FakeLengthIterator implements LengthsReader.Iterator {
+public class FakeLengthIterator implements LengthsReader.LengthsIterator {
 
   private int[] ids;
   private int[] lengths;

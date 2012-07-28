@@ -671,6 +671,13 @@ public class BuildIndex extends AppFunction {
 
     Parameters splitParameters = new Parameters();
     splitParameters.set("corpusPieces", buildParameters.get("distrib", 10));
+    if(buildParameters.isMap("parser")){
+      splitParameters.set("parser", buildParameters.getMap("parser"));
+    }
+
+    if(buildParameters.isString("filetype")){
+      splitParameters.set("filetype", buildParameters.getString("filetype"));
+    }
     job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
 
     job.add(getParsePostingsStage(buildParameters));

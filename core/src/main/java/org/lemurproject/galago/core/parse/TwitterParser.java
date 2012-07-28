@@ -4,6 +4,8 @@ package org.lemurproject.galago.core.parse;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -13,15 +15,16 @@ import java.io.IOException;
  *
  * @author sjh
  */
-public class TwitterParser implements DocumentStreamParser {
+public class TwitterParser extends DocumentStreamParser {
 
   BufferedReader reader;
 
   /**
    * Creates a new instance of TrecTextParser
    */
-  public TwitterParser(BufferedReader reader) throws FileNotFoundException, IOException {
-    this.reader = reader;
+  public TwitterParser(DocumentSplit split, Parameters p) throws FileNotFoundException, IOException {
+    super(split, p);
+    this.reader = getBufferedReader(split);
   }
 
   public String waitFor(String tag) throws IOException {
@@ -70,6 +73,9 @@ public class TwitterParser implements DocumentStreamParser {
 
   @Override
   public void close() throws IOException {
-    this.reader.close();
+    if (reader != null) {
+      this.reader.close();
+      reader = null;
+    }
   }
 }

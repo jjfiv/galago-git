@@ -15,15 +15,15 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
  *
  * @author sjh
  */
-public class DisjointLengthsIterator extends DisjointIndexesIterator implements LengthsReader.Iterator {
+public class DisjointLengthsIterator extends DisjointIndexesIterator implements LengthsReader.LengthsIterator {
 
-  public DisjointLengthsIterator(Collection<LengthsReader.Iterator> iterators) {
+  public DisjointLengthsIterator(Collection<LengthsReader.LengthsIterator> iterators) {
     super((Collection) iterators);
   }
 
   public int getCurrentLength() {
     if (head != null) {
-      return ((LengthsReader.Iterator) this.head).getCurrentLength();
+      return ((LengthsReader.LengthsIterator) this.head).getCurrentLength();
     } else {
       throw new RuntimeException("Lengths Iterator is done.");
     }
@@ -31,7 +31,7 @@ public class DisjointLengthsIterator extends DisjointIndexesIterator implements 
 
   public int getCurrentIdentifier() {
     if (head != null) {
-      return ((LengthsReader.Iterator) this.head).getCurrentIdentifier();
+      return ((LengthsReader.LengthsIterator) this.head).getCurrentIdentifier();
     } else {
       throw new RuntimeException("Lengths Iterator is done.");
     }

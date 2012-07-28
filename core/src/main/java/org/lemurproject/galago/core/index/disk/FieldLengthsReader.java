@@ -33,7 +33,7 @@ public class FieldLengthsReader implements LengthsReader {
 
   @Override
   public int getLength(int document) throws IOException {
-    LengthsReader.Iterator li = getLengthsIterator();
+    LengthsReader.LengthsIterator li = getLengthsIterator();
     li.moveTo(document);
     if (li.hasMatch(document)) {
       return li.getCurrentLength();
@@ -46,12 +46,12 @@ public class FieldLengthsReader implements LengthsReader {
     this.field = f;
   }
 
-  public Iterator getLengthsIterator(String f) throws IOException {
+  public LengthsIterator getLengthsIterator(String f) throws IOException {
     return new LengthIterator(reader.getTermExtents(f));
   }
 
   @Override
-  public Iterator getLengthsIterator() throws IOException {
+  public LengthsIterator getLengthsIterator() throws IOException {
     return new LengthIterator(reader.getTermExtents(field));
   }
 
@@ -94,7 +94,7 @@ public class FieldLengthsReader implements LengthsReader {
     return reader.getManifest();
   }
 
-  public class LengthIterator extends ValueIterator implements LengthsReader.Iterator {
+  public class LengthIterator extends ValueIterator implements LengthsReader.LengthsIterator {
 
     private WindowIndexReader.TermExtentIterator extentsIterator;
     int length = -1;

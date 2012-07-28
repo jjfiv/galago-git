@@ -8,9 +8,9 @@ import java.util.Map;
 import org.lemurproject.galago.core.index.LengthsReader;
 
 /**
- * Currently represents the context that the entire query processor shares.
- * This is the most basic context we use.
- * 
+ * Currently represents the context that the entire query processor shares. This
+ * is the most basic context we use.
+ *
  * The lengths are generally managed from this construct.
  *
  * @author irmarc
@@ -18,15 +18,15 @@ import org.lemurproject.galago.core.index.LengthsReader;
 public class ScoringContext {
 
   public int document;
-  protected HashMap<String, LengthsReader.Iterator> lengths;
+  protected HashMap<String, LengthsReader.LengthsIterator> lengths;
   protected TObjectIntHashMap<String> current;
 
   public ScoringContext() {
-    lengths = new HashMap<String, LengthsReader.Iterator>();
+    lengths = new HashMap<String, LengthsReader.LengthsIterator>();
     current = new TObjectIntHashMap<String>();
   }
 
-  public void addLength(String key, LengthsReader.Iterator iterator) {
+  public void addLength(String key, LengthsReader.LengthsIterator iterator) {
     lengths.put(key, iterator);
   }
 
@@ -48,11 +48,15 @@ public class ScoringContext {
 
   public void moveLengths(int position) {
     try {
-      for (Map.Entry<String, LengthsReader.Iterator> pair : lengths.entrySet()) {
-	  if (pair == null) System.err.printf("Missing pair.\n");
-	  else if (pair.getValue() == null) System.err.printf("Missing value for key %s.\n", pair.getKey());
-        pair.getValue().moveTo(position);
-        current.put(pair.getKey(), pair.getValue().getCurrentLength());
+      for (Map.Entry<String, LengthsReader.LengthsIterator> pair : lengths.entrySet()) {
+        if (pair == null) {
+          System.err.printf("Missing pair.\n");
+        } else if (pair.getValue() == null) {
+          System.err.printf("Missing value for key %s.\n", pair.getKey());
+        } else {
+          pair.getValue().moveTo(position);
+          current.put(pair.getKey(), pair.getValue().getCurrentLength());
+        }
       }
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
