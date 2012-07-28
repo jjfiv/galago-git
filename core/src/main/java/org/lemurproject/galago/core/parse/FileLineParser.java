@@ -35,13 +35,14 @@ public class FileLineParser implements ExNihiloSource<String> {
     lines = parameters.getCounter("File Lines Read");
   }
 
+  @Override
   public void run() throws IOException {
     BufferedReader reader;
     for (String f : (List<String>) p.getList("inputPath")) {
       DocumentSplit split = new DocumentSplit();
       split.fileName = f;
       split.isCompressed = ( f.endsWith(".gz") || f.endsWith(".bz") );
-      reader = UniversalParser.getBufferedReader( split );
+      reader = DocumentStreamParser.getBufferedReader( split );
       String line;
       while (null != (line = reader.readLine())) {
         if(lines != null) lines.increment();
@@ -56,6 +57,7 @@ public class FileLineParser implements ExNihiloSource<String> {
     processor.close();
   }
 
+  @Override
   public void setProcessor(Step processor) throws IncompatibleProcessorException {
     Linkage.link(this, processor);
   }

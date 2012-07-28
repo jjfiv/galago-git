@@ -65,14 +65,20 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     documentStreamParsers.put("mbtei", MBTEIPageParser.class);
 
     // now add user defined/overriding document parsers:
-    Parameters parsers = parameters.getMap("parsers");
-    for (String ext : parsers.getKeys()) {
-      try {
-        documentStreamParsers.put(ext, Class.forName(parsers.getString(ext)));
-      } catch (ClassNotFoundException ex) {
-        System.err.println("Document Parser for " + ext + " : " + parsers.getString(ext) + " could not be found.");
+    if (parameters.containsKey("parsers")) {
+      Parameters parsers = parameters.getMap("parsers");
+      for (String ext : parsers.getKeys()) {
+        try {
+          documentStreamParsers.put(ext, Class.forName(parsers.getString(ext)));
+        } catch (ClassNotFoundException ex) {
+          System.err.println("Document Parser for " + ext + " : " + parsers.getString(ext) + " could not be found.");
+        }
       }
     }
+  }
+
+  public boolean isParsable(String extension) {
+    return parameters.isString("filetype") || this.documentStreamParsers.containsKey(extension);
   }
 
   @Override
@@ -85,16 +91,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
       }
     }
 
-    // Determine the file type either from the parameters
-    //   or from the guess in the splits
-    String fileType;
-    if (parameters.containsKey("filetype")) {
-      fileType = parameters.getString("filetype");
-    } else {
-      fileType = split.fileType;
-    }
-
-    if (this.documentStreamParsers.containsKey(fileType)) {
+    if (this.documentStreamParsers.containsKey(split.fileType)) {
       try {
         Class c = documentStreamParsers.get(split.fileType);
         Constructor cstr = c.getConstructor(DocumentSplit.class, Parameters.class);
@@ -123,57 +120,11 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
         }
 
       } catch (Exception ex) {
-        logger.log(Level.SEVERE, null, ex);
+        logger.log(Level.INFO, "Failed to parse document split - {0} as {1}\n", new Object[]{split.toString(), split.fileType});
+        logger.log(Level.SEVERE, ex.toString());
       }
     } else {
-      logger.log(Level.INFO, "Ignoring {0} - could not find a parser for file-type:{1}", new Object[]{split.toString(), split.fileType});
+      logger.log(Level.INFO, "Ignoring {0} - could not find a parser for file-type:{1}\n", new Object[]{split.toString(), split.fileType});
     }
-  }
-
-  public BufferedReader getLocalBufferedReader(DocumentSplit split) throws IOException {
-    BufferedReader br = getBufferedReader(split);
-    return br;
-  }
-
-  public static BufferedReader getBufferedReader(DocumentSplit split) throws IOException {
-    FileInputStream stream = StreamCreator.realInputStream(split.fileName);
-    BufferedReader reader;
-
-    if (split.isCompressed) {
-      // Determine compression type
-      if (split.fileName.endsWith("gz")) { // Gzip
-        reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(stream)));
-      } else { // BZip2
-        BufferedInputStream bis = new BufferedInputStream(stream);
-        //bzipHeaderCheck(bis);
-        reader = new BufferedReader(new InputStreamReader(new BZip2CompressorInputStream(bis)));
-      }
-    } else {
-      reader = new BufferedReader(new InputStreamReader(stream));
-    }
-    return reader;
-  }
-
-  public BufferedInputStream getLocalBufferedInputStream(DocumentSplit split) throws IOException {
-    BufferedInputStream bis = getBufferedInputStream(split);
-    return bis;
-  }
-
-  public static BufferedInputStream getBufferedInputStream(DocumentSplit split) throws IOException {
-    FileInputStream fileStream = StreamCreator.realInputStream(split.fileName);
-    BufferedInputStream stream;
-
-    if (split.isCompressed) {
-      // Determine compression algorithm
-      if (split.fileName.endsWith("gz")) { // Gzip
-        stream = new BufferedInputStream(new GZIPInputStream(fileStream));
-      } else { // bzip2
-        BufferedInputStream bis = new BufferedInputStream(fileStream);
-        stream = new BufferedInputStream(new BZip2CompressorInputStream(bis));
-      }
-    } else {
-      stream = new BufferedInputStream(fileStream);
-    }
-    return stream;
   }
 }

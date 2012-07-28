@@ -82,7 +82,7 @@ public class IndexReaderSplitParserTest extends TestCase {
     split.endKey = new byte[0];
 
     // Open up the file:
-    CorpusSplitParser parser = new CorpusSplitParser(split);
+    CorpusSplitParser parser = new CorpusSplitParser(split, new Parameters());
 
     // Check the document:
     Document actual = parser.nextDocument();
@@ -109,7 +109,7 @@ public class IndexReaderSplitParserTest extends TestCase {
     split.endKey = new byte[0];
 
     // Open up the file:
-    CorpusSplitParser parser = new CorpusSplitParser(split);
+    CorpusSplitParser parser = new CorpusSplitParser(split, new Parameters());
     assertNull(parser.nextDocument());
   }
 
@@ -123,7 +123,7 @@ public class IndexReaderSplitParserTest extends TestCase {
     split.endKey = Utility.fromInt(9);
 
     // Open up the file:
-    CorpusSplitParser parser = new CorpusSplitParser(split);
+    CorpusSplitParser parser = new CorpusSplitParser(split, new Parameters());
     assertNull(parser.nextDocument());
   }
 }

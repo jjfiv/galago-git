@@ -68,7 +68,7 @@ class FileParser extends DocumentStreamParser {
 
   @Override
   public Document nextDocument() throws IOException {
-    if (reader == null) {
+    if (reader == null || !reader.ready()) {
       return null;
     }
 
