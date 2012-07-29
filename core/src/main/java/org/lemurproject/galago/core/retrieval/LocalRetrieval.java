@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
-import org.lemurproject.galago.core.index.NamesReader.Iterator;
+import org.lemurproject.galago.core.index.NamesReader.NamesIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.structured.FeatureFactory;
@@ -208,7 +208,7 @@ public class LocalRetrieval implements Retrieval {
     });
 
     // TODO: fix this to use an iterator.
-    Iterator namesIterator = index.getNamesIterator();
+    NamesIterator namesIterator = index.getNamesIterator();
     
     for (T doc : byID) {
       namesIterator.moveTo(doc.document);

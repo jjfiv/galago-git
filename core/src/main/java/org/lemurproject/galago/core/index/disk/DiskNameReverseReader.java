@@ -47,7 +47,7 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
   }
 
   @Override
-  public NamesReader.Iterator getNamesIterator() throws IOException {
+  public NamesReader.NamesIterator getNamesIterator() throws IOException {
     throw new UnsupportedOperationException("This index file does not support doc int -> doc name mappings");
   }
 

@@ -61,7 +61,7 @@ public class GeometricIndexTest extends TestCase {
       assertTrue(stats.collectionLength == 1275);
       assertTrue(stats.documentCount == 255);
 
-      NamesReader.Iterator names = index.getNamesIterator();
+      NamesReader.NamesIterator names = index.getNamesIterator();
       names.moveTo(99);
       assertEquals(names.getCurrentName(), "DOC-" + 99);
       names.movePast(99);

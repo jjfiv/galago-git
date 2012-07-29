@@ -54,8 +54,8 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
   @Override
   public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
     while (!iterator.isDone()) {
-      int identifier = ((NamesReader.Iterator) iterator).getCurrentIdentifier();
-      String name = ((NamesReader.Iterator) iterator).getCurrentName();
+      int identifier = ((NamesReader.NamesIterator) iterator).getCurrentIdentifier();
+      String name = ((NamesReader.NamesIterator) iterator).getCurrentName();
 
       if (names.getPosition() == 0) {
         offset = identifier;
@@ -98,7 +98,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
   }
 
   @Override
-  public NamesReader.Iterator getNamesIterator() throws IOException {
+  public NamesReader.NamesIterator getNamesIterator() throws IOException {
     return new VIterator(new KIterator());
   }
 
@@ -272,7 +272,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     }
   }
 
-  public class VIterator extends KeyToListIterator implements DataIterator<String>, NamesReader.Iterator {
+  public class VIterator extends KeyToListIterator implements DataIterator<String>, NamesReader.NamesIterator {
 
     public VIterator(KeyIterator ki) {
       super(ki);

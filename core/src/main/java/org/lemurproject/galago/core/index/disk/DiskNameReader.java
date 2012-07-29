@@ -51,7 +51,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
   }
 
   @Override
-  public NamesReader.Iterator getNamesIterator() throws IOException {
+  public NamesReader.NamesIterator getNamesIterator() throws IOException {
     return new ValueIterator(getIterator());
   }
 
@@ -118,7 +118,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     }
   }
 
-  public class ValueIterator extends KeyToListIterator implements DataIterator<String>, NamesReader.Iterator {
+  public class ValueIterator extends KeyToListIterator implements DataIterator<String>, NamesReader.NamesIterator {
 
     public ValueIterator(KeyIterator ki) {
       super(ki);

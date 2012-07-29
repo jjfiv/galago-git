@@ -62,7 +62,7 @@ public interface Index {
   
   public LengthsReader.LengthsIterator getLengthsIterator() throws IOException;
 
-  public NamesReader.Iterator getNamesIterator() throws IOException;
+  public NamesReader.NamesIterator getNamesIterator() throws IOException;
 
   public Parameters getManifest();
 

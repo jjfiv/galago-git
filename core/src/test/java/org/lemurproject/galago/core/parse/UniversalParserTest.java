@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Random;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.NamesReader.Iterator;
+import org.lemurproject.galago.core.index.NamesReader.NamesIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.tools.BuildIndex;
 import org.lemurproject.galago.tupleflow.Parameters;

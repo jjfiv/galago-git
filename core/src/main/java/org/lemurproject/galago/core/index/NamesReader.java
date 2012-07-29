@@ -14,9 +14,9 @@ public interface NamesReader extends IndexPartReader {
 
   public int getDocumentIdentifier(String document) throws IOException;
 
-  public Iterator getNamesIterator() throws IOException;
+  public NamesIterator getNamesIterator() throws IOException;
 
-  public interface Iterator extends MovableIterator {
+  public interface NamesIterator extends MovableIterator {
 
     public String getCurrentName() throws IOException;
 

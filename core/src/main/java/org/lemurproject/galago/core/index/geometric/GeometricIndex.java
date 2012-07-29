@@ -261,7 +261,7 @@ public class GeometricIndex implements DynamicIndex, Index {
 
   @Override
   public String getName(int document) throws IOException {
-    NamesReader.Iterator i = this.getNamesIterator();
+    NamesReader.NamesIterator i = this.getNamesIterator();
     i.moveTo(document);
     if (i.hasMatch(document)) {
       return i.getCurrentName();
@@ -293,8 +293,8 @@ public class GeometricIndex implements DynamicIndex, Index {
     return new DisjointLengthsIterator(itrs);
   }
 
-  public NamesReader.Iterator getNamesIterator() throws IOException {
-    List<NamesReader.Iterator> itrs = new ArrayList();
+  public NamesReader.NamesIterator getNamesIterator() throws IOException {
+    List<NamesReader.NamesIterator> itrs = new ArrayList();
     itrs.add(currentMemoryIndex.getNamesIterator());
     for (DiskIndex di : this.geometricParts.getIndexes()) {
       itrs.add(di.getNamesIterator());

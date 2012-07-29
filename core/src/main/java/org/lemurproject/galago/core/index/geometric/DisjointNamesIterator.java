@@ -15,16 +15,16 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
  *
  * @author sjh
  */
-public class DisjointNamesIterator extends DisjointIndexesIterator implements NamesReader.Iterator {
+public class DisjointNamesIterator extends DisjointIndexesIterator implements NamesReader.NamesIterator {
 
-  public DisjointNamesIterator(Collection<NamesReader.Iterator> iterators) {
+  public DisjointNamesIterator(Collection<NamesReader.NamesIterator> iterators) {
     super((Collection) iterators);
   }
 
   @Override
   public String getCurrentName() throws IOException {
     if (head != null) {
-      return ((NamesReader.Iterator) this.head).getCurrentName();
+      return ((NamesReader.NamesIterator) this.head).getCurrentName();
     } else {
       throw new IOException("Names Iterator is done.");
     }
@@ -33,7 +33,7 @@ public class DisjointNamesIterator extends DisjointIndexesIterator implements Na
   @Override
   public int getCurrentIdentifier() throws IOException {
     if (head != null) {
-      return ((NamesReader.Iterator) this.head).getCurrentIdentifier();
+      return ((NamesReader.NamesIterator) this.head).getCurrentIdentifier();
     } else {
       throw new IOException("Names Iterator is done.");
     }
