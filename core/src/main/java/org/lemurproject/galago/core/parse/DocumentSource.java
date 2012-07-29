@@ -129,9 +129,9 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       return; // now considered processed
     }
 
-    if (UniversalParser.isParsable(extension)) {
+    if (UniversalParser.class.isAssignableFrom(processor.getClass()) &&
+	((UniversalParser) processor).isParsable(extension)) {
       fileType = extension;
-
     } else if (file.getName().equals("corpus") || (BTreeFactory.isBTree(file))) {
       // perhaps the user has renamed the corpus index
       processCorpusFile(file);
@@ -232,8 +232,9 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
         // We'll try to detect by extension first, so we don't have to open the file
         String extension = getExtension(file);
-        if (UniversalParser.isParsable(extension)) {
-          fileType = extension;
+        if (UniversalParser.class.isAssignableFrom(processor.getClass()) &&
+	    ((UniversalParser) processor).isParsable(extension)) {
+	  fileType = extension;
         } else {
           fileType = detectTrecTextOrWeb(file);
           // Eventually it'd be nice to do more format detection here.
