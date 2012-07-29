@@ -49,7 +49,6 @@ abstract class MBTEIParserBase implements DocumentStreamParser {
     // This is called when the reader is out of tokens to
     // produce, but the buffer of read tokens is non-empty.
     public abstract void cleanup();
-
     // Using these directly is either tedious or stupid to
     // do. Use the functions provided.
     class Action {
@@ -237,9 +236,14 @@ abstract class MBTEIParserBase implements DocumentStreamParser {
 	int status;
 	parsedDocument = null;
 	buffer = new StringBuilder();
+	
+	// Try to be pre-emptive
+	if (documentReady()) {
+	    return getParsedDocument();
+	}
       
 	try {
-	    while (reader.hasNext() && parsedDocument == null) {
+	    while (reader.hasNext() && !documentReady()) {
 		status = reader.next();
 		switch (status) {
 		case XMLStreamConstants.START_ELEMENT: {
@@ -286,25 +290,35 @@ abstract class MBTEIParserBase implements DocumentStreamParser {
 
 	    // Either no more tokens or have a document
 	    // If we have a document send it up
-	    if (parsedDocument != null) {
-		return parsedDocument;
+	    if (documentReady()) {
+		return getParsedDocument();
 	    }
 
 	    // If there are no more tokens to consume but
 	    // the buffer is non-empty, try to emit the
 	    // last document.
-	    if (buffer.length() > 0) {
+	    if (!reader.hasNext()) {
 		cleanup();
 	    }
+
 	    // Return the result of cleanup - either a document or null
-	    return parsedDocument;
+	    return getParsedDocument();
 	} catch (Exception e) {
 	    System.err.printf("EXCEPTION [%s,%s]: %s\n", 
 			      getArchiveIdentifier(), 
 			      buffer.toString(),
 			      e.getMessage());
+	    e.printStackTrace(System.err);
 	    return null;
 	}
+    }
+
+    protected Document getParsedDocument() {
+	return parsedDocument;
+    }
+    
+    protected boolean documentReady() {
+	return (parsedDocument != null);
     }
     
     @Override

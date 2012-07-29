@@ -83,6 +83,8 @@ public class DiskBTreeWriter extends BTreeWriter {
 
   public DiskBTreeWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
     this(parameters.getJSON().getString("filename"), parameters.getJSON());
+    blocksWritten = parameters.getCounter("Blocks Written");
+    recordsWritten = parameters.getCounter("Records Written");
   }
 
   /**

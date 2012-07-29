@@ -29,9 +29,9 @@ public class Document implements Serializable {
     metadata = new HashMap();
   }
 
-  public Document(String identifier, String text) {
+  public Document(String externalIdentifier, String text) {
     this();
-    this.name = identifier;
+    this.name = externalIdentifier;
     this.text = text;
   }
 
@@ -58,8 +58,15 @@ public class Document implements Serializable {
       }
     }
 
+    if (tags != null) {
+	sb.append("\nTags: \n");
+	for (Tag t : tags) {
+	    sb.append(t).append(" ");
+	}
+    }
+
     if (terms != null) {
-      sb.append("Term vector: \n");
+      sb.append("\nTerm vector: \n");
       for (String s : terms) {
         sb.append(s).append(" ");
       }
