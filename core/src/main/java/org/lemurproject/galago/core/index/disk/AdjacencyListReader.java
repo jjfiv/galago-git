@@ -165,9 +165,9 @@ public class AdjacencyListReader extends KeyListReader {
 
       builder.append(getKeyString());
       builder.append(",");
-      builder.append(currentIdentifier);
+      builder.append(currentCandidate());
       builder.append(",");
-      builder.append(currentScore);
+      builder.append(score());
 
       return builder.toString();
     }

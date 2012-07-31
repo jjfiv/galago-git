@@ -308,7 +308,10 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
 
     @Override
     public int count() {
-      return currentCount;
+      if(context == null || currentDocument == context.document){
+        return currentCount;
+      } 
+      return 0;
     }
 
     @Override
