@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.KeyIterator;
+import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.disk.CountIndexReader;
 import org.lemurproject.galago.core.index.disk.CountIndexWriter;
 import org.lemurproject.galago.core.index.disk.SparseFloatListReader;
@@ -71,7 +72,9 @@ public class MemIndexPartTest extends TestCase {
       MemoryCountIndex memcounts2 = new MemoryCountIndex(diskreader.getManifest());
       KeyIterator dsk_ki = diskreader.getIterator();
       while (!dsk_ki.isDone()) {
-        memcounts2.addIteratorData(dsk_ki.getKey(), dsk_ki.getValueIterator());
+        ValueIterator vi = dsk_ki.getValueIterator();
+        vi.setContext(new ScoringContext());
+        memcounts2.addIteratorData(dsk_ki.getKey(), vi);
         dsk_ki.nextKey();
       }
 
@@ -84,11 +87,17 @@ public class MemIndexPartTest extends TestCase {
         MovableCountIterator mem1_vi = (MovableCountIterator) mem1_ki.getValueIterator();
         MovableCountIterator mem2_vi = (MovableCountIterator) mem2_ki.getValueIterator();
         MovableCountIterator dsk_vi = (MovableCountIterator) dsk_ki.getValueIterator();
+
+        ScoringContext sc = new ScoringContext();
+        mem1_vi.setContext(sc);
+        mem2_vi.setContext(sc);
+        dsk_vi.setContext(sc);
+
         while (!mem1_vi.isDone() || !mem2_vi.isDone() || !dsk_vi.isDone()) {
           assert (dsk_vi.currentCandidate() == mem1_vi.currentCandidate() && mem1_vi.currentCandidate() == mem2_vi.currentCandidate());
-          assert (dsk_vi.count() == mem1_vi.count() && mem1_vi.count() == mem2_vi.count());
+          sc.document = dsk_vi.currentCandidate();
 
-          // System.err.println(dsk_vi.getEntry() + "\t" + mem1_vi.getEntry() + "\t" + mem2_vi.getEntry());
+          assert (dsk_vi.count() == mem1_vi.count() && mem1_vi.count() == mem2_vi.count());
 
           mem1_vi.movePast(mem1_vi.currentCandidate());
           mem2_vi.movePast(mem2_vi.currentCandidate());

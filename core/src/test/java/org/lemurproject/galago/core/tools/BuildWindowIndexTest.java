@@ -10,6 +10,7 @@ import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.disk.CountIndexReader;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -149,6 +150,12 @@ public class BuildWindowIndexTest extends TestCase {
         WindowIndexReader.TermExtentIterator posits_NSE_ei = (WindowIndexReader.TermExtentIterator) posits_NSE_ki.getValueIterator();
         WindowIndexReader.TermExtentIterator posits__SE_ei = (WindowIndexReader.TermExtentIterator) posits__SE_ki.getValueIterator();
 
+        ScoringContext sc = new ScoringContext();
+        counts_NSE_ci.setContext(sc);
+        counts__SE_ci.setContext(sc);
+        posits_NSE_ei.setContext(sc);
+        posits__SE_ei.setContext(sc);
+        
         while (!counts_NSE_ci.isDone()
                 || !counts__SE_ci.isDone()
                 || !posits_NSE_ei.isDone()
@@ -159,6 +166,8 @@ public class BuildWindowIndexTest extends TestCase {
           assertEquals(doc, posits_NSE_ei.currentCandidate());
           assertEquals(doc, posits__SE_ei.currentCandidate());
 
+          sc.document = doc;
+          
           int count = counts_NSE_ci.count();
           assertEquals(count, counts_NSE_ci.count());
           assertEquals(count, counts__SE_ci.count());
@@ -322,6 +331,12 @@ public class BuildWindowIndexTest extends TestCase {
         WindowIndexReader.TermExtentIterator posits_NSE_ei = (WindowIndexReader.TermExtentIterator) posits_NSE_ki.getValueIterator();
         WindowIndexReader.TermExtentIterator posits__SE_ei = (WindowIndexReader.TermExtentIterator) posits__SE_ki.getValueIterator();
 
+        ScoringContext sc = new ScoringContext();
+        counts_NSE_ci.setContext(sc);
+        counts__SE_ci.setContext(sc);
+        posits_NSE_ei.setContext(sc);
+        posits__SE_ei.setContext(sc);
+        
         while (!counts_NSE_ci.isDone()
                 || !counts__SE_ci.isDone()
                 || !posits_NSE_ei.isDone()
@@ -332,6 +347,8 @@ public class BuildWindowIndexTest extends TestCase {
           assertEquals(doc, posits_NSE_ei.currentCandidate());
           assertEquals(doc, posits__SE_ei.currentCandidate());
 
+          sc.document = doc;
+          
           int count = counts_NSE_ci.count();
           assertEquals(count, counts_NSE_ci.count());
           assertEquals(count, counts__SE_ci.count());

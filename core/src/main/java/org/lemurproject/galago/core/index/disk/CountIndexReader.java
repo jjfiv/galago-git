@@ -232,13 +232,12 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
         }
       }
     }
-    
-    
+
     @Override
     public void movePast(int document) throws IOException {
       moveTo(document + 1);
-    }    
-    
+    }
+
     // This only moves forward in tier 1, reads from tier 2 only when
     // needed to update floors
     //
@@ -308,9 +307,9 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
 
     @Override
     public int count() {
-      if(context == null || currentDocument == context.document){
+      if (currentDocument == context.document) {
         return currentCount;
-      } 
+      }
       return 0;
     }
 

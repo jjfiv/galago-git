@@ -23,6 +23,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -85,8 +86,10 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
     if (!postings.containsKey(key)) {
       PostingList postingList = new PostingList(key);
       MovableCountIterator mi = (MovableCountIterator) iterator;
+      ScoringContext c = mi.getContext();
       while (!mi.isDone()) {
         int document = mi.currentCandidate();
+        c.document = document;
         int count = mi.count();
         postingList.add(document, count);
         mi.movePast(document);
