@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -26,6 +27,21 @@ public abstract class DisjointIndexesIterator extends ValueIterator {
     head = queue.poll();
   }
 
+  @Override
+  public void setContext(ScoringContext context) {
+    this.context = context;
+    
+    // this is a special case
+    for(MovableIterator i : this.allIterators){
+      i.setContext(context);
+    }
+  }
+
+  @Override
+  public ScoringContext getContext() {
+    return context;
+  }  
+  
   @Override
   public boolean isDone() {
     return queue.isEmpty() && head.isDone();

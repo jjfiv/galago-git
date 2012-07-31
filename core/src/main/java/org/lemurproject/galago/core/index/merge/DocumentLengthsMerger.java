@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.types.FieldLengthData;
-import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -51,6 +51,7 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
   private class LengthIteratorWrapper implements Comparable<LengthIteratorWrapper> {
 
     int indexId;
+    ScoringContext sc;
     LengthsReader.LengthsIterator iterator;
     int currentDocument;
     int currentLength;
@@ -61,6 +62,9 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
       this.iterator = iterator;
       this.mapping = mapping;
 
+      this.sc = new ScoringContext();
+      this.iterator.setContext(sc);
+      
       // initialization
       load();
     }
@@ -75,6 +79,7 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
     // changes the document numbers in the extent array
     private void load() {
       int currentIdentifier = iterator.getCurrentIdentifier();
+      sc.document = currentIdentifier;
       this.currentDocument = mapping.map(indexId, currentIdentifier);
       this.currentLength = iterator.getCurrentLength();
     }

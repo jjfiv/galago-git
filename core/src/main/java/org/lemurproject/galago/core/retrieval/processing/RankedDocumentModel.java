@@ -63,10 +63,10 @@ public class RankedDocumentModel extends ProcessingModel {
     for (int i = 0; i < whitelist.length; i++) {
       int document = whitelist[i];
       iterator.moveTo(document);
-      context.moveLengths(document);
-
       // This context is shared among all scorers
       context.document = document;
+      context.moveLengths(document);
+
       double score = iterator.score();
       if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
         ScoredDocument scoredDocument = new ScoredDocument(document, score);

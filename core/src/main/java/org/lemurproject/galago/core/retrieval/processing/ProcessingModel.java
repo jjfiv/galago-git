@@ -58,10 +58,8 @@ public abstract class ProcessingModel {
     docLengths.getNodeParameters().set("mode", global.get("lenMode", "memory"));
     
     Index index = r.getIndex();
-    LengthsReader.LengthsIterator documentLengths = (LengthsReader.LengthsIterator) index.getIterator(docLengths);
-    
-    //LengthsReader.Iterator documentLengths = index.getLengthsIterator();
-    
+    LengthsReader.LengthsIterator documentLengths = (LengthsReader.LengthsIterator) index.getIterator(docLengths);    
+    documentLengths.setContext(ctx);
     
     ctx.addLength("", documentLengths);
     if (index.containsPart("extents") && !fields.isEmpty()) {

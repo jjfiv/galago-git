@@ -659,7 +659,7 @@ public class BuildIndex extends AppFunction {
 
     Job job = new Job();
 
-    String indexPath = new File(buildParameters.getString("indexPath")).getAbsolutePath(); // fail if no path.
+    String indexPath = new File(buildParameters.getString("indexPath")).getAbsolutePath();
     // ensure the index folder exists
     File buildManifest = new File(indexPath, "buildManifest.json");
     Utility.makeParentDirectories(buildManifest);

@@ -61,6 +61,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
   private Logger logger = Logger.getLogger(getClass().toString());
   private byte[] subCollCheck = "subcoll".getBytes();
   private HashMap<String, Class> documentStreamParsers;
+  private HashMap<String, Parameters> documentStreamParserParameters;
 
   public UniversalParser(TupleFlowParameters parameters) {
     this.documentCounter = parameters.getCounter("Documents Parsed");
@@ -72,17 +73,27 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
   private void buildFileTypeMap() {
     try {
       documentStreamParsers = new HashMap<String, Class>();
+      documentStreamParserParameters = new HashMap<String, Parameters>();
       for (String[] mapping : sFileTypeLookup) {
         documentStreamParsers.put(mapping[0], Class.forName(mapping[1]));
+        documentStreamParserParameters.put(mapping[0], new Parameters());
       }
 
       // Look for external mapping definitions
-      if (parameters.containsKey("externalParsers")) {
+      if (parameters.isList("externalParsers", Parameters.Type.MAP)
+              || parameters.isMap("externalParsers")) {
         List<Parameters> externalParsers =
                 (List<Parameters>) parameters.getAsList("externalParsers");
+
         for (Parameters extP : externalParsers) {
-          documentStreamParsers.put(extP.getString("filetype"),
-                  Class.forName(extP.getString("class")));
+          if (extP.isString("filetype") && extP.isString("class")) {
+            documentStreamParsers.put(extP.getString("filetype"),
+                    Class.forName(extP.getString("class")));
+            documentStreamParserParameters.put(extP.getString("filetype"), extP);
+          } else {
+            logger.log(Level.SEVERE, "Could not parse manually defined filetype :{0}\n ''filetype'' and ''class'' are required keys.", extP.toString());
+            throw new IllegalArgumentException("Could not parse manually defined filetype : " + extP.toString() + "\n ''filetype'' and ''class'' are required fields.");
+          }
         }
       }
 
@@ -92,7 +103,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
   }
 
   public boolean isParsable(String extension) {
-    return parameters.isString("filetype") || this.documentStreamParsers.containsKey(extension);
+    return this.documentStreamParsers.containsKey(extension);
   }
 
   @Override
@@ -108,8 +119,8 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     if (this.documentStreamParsers.containsKey(split.fileType)) {
       try {
         Class c = documentStreamParsers.get(split.fileType);
-        Constructor cstr = c.getConstructor(DocumentSplit.class, Parameters.class);
-        DocumentStreamParser parser = (DocumentStreamParser) cstr.newInstance(split, parameters);
+        Constructor cstr = c.getConstructor(DocumentSplit.class, Parameters.class);        
+        DocumentStreamParser parser = (DocumentStreamParser) cstr.newInstance(split, documentStreamParserParameters.get(split.fileType));
 
         Document document;
         while ((document = parser.nextDocument()) != null) {

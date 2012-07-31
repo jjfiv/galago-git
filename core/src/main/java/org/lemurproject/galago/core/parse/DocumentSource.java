@@ -45,6 +45,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   static String[][] specialKnownExtensions = {
     {"_mbtei.xml.gz", "mbtei"}
   };
+  
   private Counter inputCounter;
   public Processor<DocumentSplit> processor;
   private TupleFlowParameters parameters;

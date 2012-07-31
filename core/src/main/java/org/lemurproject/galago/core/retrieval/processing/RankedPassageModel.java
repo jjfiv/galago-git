@@ -62,14 +62,15 @@ public class RankedPassageModel extends ProcessingModel {
     // now there should be an iterator at the root of this tree
     for (int i = 0; i < whitelist.length; i++) {
       int document = whitelist[i];
-      iterator.moveTo(document);
-      context.moveLengths(document);
-      int length = context.getLength();
-
       // This context is shared among all scorers
       context.document = document;
       context.begin = 0;
       context.end = passageSize;
+
+      iterator.moveTo(document);
+      context.moveLengths(document);
+      int length = context.getLength();
+
 
       // Keep iterating over the same doc, but incrementing the begin/end fields of the
       // context until the next one
@@ -110,14 +111,13 @@ public class RankedPassageModel extends ProcessingModel {
     // now there should be an iterator at the root of this tree
     while (!iterator.isDone()) {
       int document = iterator.currentCandidate();
-      context.moveLengths(document);
-      int length = context.getLength();
-
       // This context is shared among all scorers
       context.document = document;
       context.begin = 0;
       context.end = passageSize;
 
+      context.moveLengths(document);
+      int length = context.getLength();
 
 
       // ensure we are at the document we wish to score

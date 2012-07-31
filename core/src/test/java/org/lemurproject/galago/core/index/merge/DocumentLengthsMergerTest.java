@@ -8,14 +8,13 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DiskLengthsReader;
-import org.lemurproject.galago.core.index.disk.DiskLengthsReader.KeyIterator;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.LengthsReader;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.FieldLengthData;
-import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
@@ -90,7 +89,10 @@ public class DocumentLengthsMergerTest extends TestCase {
       // test that there are 100 keys and values.
       DiskLengthsReader tester = new DiskLengthsReader(output);
       LengthsReader.LengthsIterator iterator = tester.getLengthsIterator();
+      ScoringContext sc = new ScoringContext();
+      iterator.setContext(sc);
       while (!iterator.isDone()) {
+        sc.document = iterator.getCurrentIdentifier();
         assert (iterator.getCurrentIdentifier() + 1 == iterator.getCurrentLength());
         iterator.movePast(iterator.currentCandidate());
       }
@@ -138,7 +140,10 @@ public class DocumentLengthsMergerTest extends TestCase {
       // test that there are 100 keys and values.
       DiskLengthsReader tester = new DiskLengthsReader(output);
       LengthsReader.LengthsIterator iterator = tester.getLengthsIterator();
+      ScoringContext sc = new ScoringContext();
+      iterator.setContext(sc);
       while (!iterator.isDone()) {
+        sc.document = iterator.getCurrentIdentifier();
         assert (iterator.getCurrentIdentifier() + 1 == iterator.getCurrentLength());
         iterator.movePast(iterator.currentCandidate());
       }

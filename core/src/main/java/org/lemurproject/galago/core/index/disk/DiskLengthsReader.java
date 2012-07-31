@@ -265,22 +265,18 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
     @Override
     public int count() {
-      return getCurrentLength();
-    }
-
-    @Override
-    public int maximumCount() {
-      return Integer.MAX_VALUE;
+      if (this.context.document == currDocument) {
+        return getLength(currDocument);
+      }
+      return 0;
     }
 
     @Override
     public int getCurrentLength() {
-      return getLength(currDocument);
-    }
-
-    @Override
-    public int getCurrentIdentifier() {
-      return this.currDocument;
+      if (this.context.document == currDocument) {
+        return getLength(currDocument);
+      }
+      return 0;
     }
 
     private int getLength(int document) {
@@ -291,6 +287,16 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
         }
       }
       return 0;
+    }
+
+    @Override
+    public int maximumCount() {
+      return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public int getCurrentIdentifier() {
+      return this.currDocument;
     }
 
     @Override
@@ -323,9 +329,9 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
   }
 
-  public class StreamLengthsIterator extends KeyListReader.ListIterator 
+  public class StreamLengthsIterator extends KeyListReader.ListIterator
           implements MovableCountIterator, LengthsReader.LengthsIterator {
-        
+
     private final BTreeIterator iterator;
     private DataStream streamBuffer;
     // stats
@@ -459,12 +465,8 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
 
     @Override
-    public int maximumCount() {
-      return Integer.MAX_VALUE;
-    }
-
-    @Override
     public int getCurrentLength() {
+      if(context.document == this.currDocument){
       // check if we need to read the length value from the stream
       if (this.currLength < 0) {
         // ensure a defaulty value
@@ -481,6 +483,14 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
         }
       }
       return currLength;
+      } else {
+        return 0;
+      }
+    }
+
+    @Override
+    public int maximumCount() {
+      return Integer.MAX_VALUE;
     }
 
     @Override

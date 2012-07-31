@@ -9,6 +9,7 @@ import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DiskLengthsReader.KeyIterator;
 import org.lemurproject.galago.core.index.disk.DiskLengthsReader.MemoryMapLengthsIterator;
 import org.lemurproject.galago.core.index.disk.DiskLengthsReader.StreamLengthsIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -54,10 +55,16 @@ public class DiskLengthsTest extends TestCase {
       KeyIterator ki = reader.getIterator();
       MemoryMapLengthsIterator memItr = ki.getMemoryValueIterator();
       StreamLengthsIterator streamItr = ki.getStreamValueIterator();
-
+      
+      ScoringContext sc = new ScoringContext();
+      memItr.setContext(sc);
+      streamItr.setContext(sc);
+      
       while (!memItr.isDone() || !streamItr.isDone()) {
 
         assertEquals(memItr.getCurrentIdentifier(), streamItr.getCurrentIdentifier());
+        sc.document = memItr.getCurrentIdentifier();
+        
         assertEquals(memItr.getCurrentLength(), streamItr.getCurrentLength());
 
         memItr.movePast(memItr.currentCandidate());
@@ -69,6 +76,7 @@ public class DiskLengthsTest extends TestCase {
 
       memItr.moveTo(50);
       streamItr.moveTo(50);
+      sc.document = 50;
       assertEquals(memItr.currentCandidate(), 50);
       assertEquals(streamItr.currentCandidate(), 50);
       assertEquals(memItr.getCurrentLength(), 51);
@@ -76,6 +84,7 @@ public class DiskLengthsTest extends TestCase {
 
       memItr.moveTo(90);
       streamItr.moveTo(90);
+      sc.document = 90;
       assertEquals(memItr.currentCandidate(), 90);
       assertEquals(streamItr.currentCandidate(), 90);
       assertEquals(memItr.getCurrentLength(), 91);
@@ -83,6 +92,7 @@ public class DiskLengthsTest extends TestCase {
 
       memItr.moveTo(90);
       streamItr.moveTo(90);
+      sc.document = 90;
       assertEquals(memItr.currentCandidate(), 90);
       assertEquals(streamItr.currentCandidate(), 90);
       assertEquals(memItr.getCurrentLength(), 91);
@@ -90,6 +100,7 @@ public class DiskLengthsTest extends TestCase {
 
       memItr.moveTo(110);
       streamItr.moveTo(110);
+      sc.document = 110;
       assertEquals(memItr.currentCandidate(), 110);
       assertEquals(streamItr.currentCandidate(), 110);
       assertEquals(memItr.getCurrentLength(), 111);
@@ -97,10 +108,11 @@ public class DiskLengthsTest extends TestCase {
 
       memItr.moveTo(200);
       streamItr.moveTo(200);
+      sc.document = 200;
       assertEquals(memItr.currentCandidate(), 110);
       assertEquals(streamItr.currentCandidate(), 110);
-      assertEquals(memItr.getCurrentLength(), 111);
-      assertEquals(streamItr.getCurrentLength(), 111);
+      assertEquals(memItr.getCurrentLength(), 0);
+      assertEquals(streamItr.getCurrentLength(), 0);
 
       reader.close();
 
