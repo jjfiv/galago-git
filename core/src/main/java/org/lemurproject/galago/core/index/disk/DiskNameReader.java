@@ -20,12 +20,14 @@ import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Reads a binary file of document names produced by DocumentNameWriter2
- * 
+ *
  * @author sjh
  */
 public class DiskNameReader extends KeyValueReader implements NamesReader {
 
-  /** Creates a new instance of DiskNameReader */
+  /**
+   * Creates a new instance of DiskNameReader
+   */
   public DiskNameReader(String fileName) throws IOException {
     super(BTreeFactory.getBTreeReader(fileName));
   }
@@ -147,7 +149,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     @Override
     public String getData() {
       try {
-        return getEntry();
+        return getCurrentName();
       } catch (IOException ioe) {
         throw new RuntimeException(ioe);
       }
@@ -155,8 +157,12 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
 
     @Override
     public String getCurrentName() throws IOException {
-      KeyIterator ki = (KeyIterator) iterator;
-      return ki.getCurrentName();
+      if (context.document == this.getCurrentIdentifier()) {
+        KeyIterator ki = (KeyIterator) iterator;
+        return ki.getCurrentName();
+      }
+      // return null by default
+      return null;
     }
 
     @Override

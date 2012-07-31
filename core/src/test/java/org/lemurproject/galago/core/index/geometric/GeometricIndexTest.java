@@ -62,14 +62,19 @@ public class GeometricIndexTest extends TestCase {
       assertTrue(stats.collectionLength == 1275);
       assertTrue(stats.documentCount == 255);
 
+
+      ScoringContext sc = new ScoringContext();
+      
       NamesReader.NamesIterator names = index.getNamesIterator();
+      names.setContext(sc);
       names.moveTo(99);
+      sc.document = 99;
       assertEquals(names.getCurrentName(), "DOC-" + 99);
       names.movePast(99);
+      sc.document = names.getCurrentIdentifier();
       assertEquals(names.getCurrentName(), "DOC-" + 100);
 
       LengthsReader.LengthsIterator lengths = index.getLengthsIterator();
-      ScoringContext sc = new ScoringContext();
       lengths.setContext(sc);
       lengths.moveTo(99);
       sc.document = 99;

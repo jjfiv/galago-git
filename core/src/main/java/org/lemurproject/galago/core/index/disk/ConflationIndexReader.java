@@ -13,7 +13,8 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Utility;
 
-/**
+/** 
+ * This index stores conflations produced by a stemmer.
  *
  * @author sjh
  */

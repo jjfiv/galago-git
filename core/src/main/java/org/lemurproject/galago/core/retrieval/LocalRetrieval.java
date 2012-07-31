@@ -207,15 +207,19 @@ public class LocalRetrieval implements Retrieval {
       }
     });
 
-    // TODO: fix this to use an iterator.
     NamesIterator namesIterator = index.getNamesIterator();
-    
+    ScoringContext sc = new ScoringContext();
+    namesIterator.setContext(sc);
+
     for (T doc : byID) {
       namesIterator.moveTo(doc.document);
+      sc.document = doc.document;
+
       if (doc.document == namesIterator.getCurrentIdentifier()) {
         doc.documentName = namesIterator.getCurrentName();
       } else {
         System.err.println("NAMES ITERATOR FAILED TO FIND DOCUMENT " + doc.document);
+        // now throw an error.
         doc.documentName = index.getName(doc.document);
       }
     }
