@@ -3,6 +3,7 @@ package org.lemurproject.galago.core.parse;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.regex.Pattern;
@@ -47,9 +48,9 @@ public abstract class MBTEIParserBase extends DocumentStreamParser {
   // This is called when the reader is out of tokens to
   // produce, but the buffer of read tokens is non-empty.
   public abstract void cleanup();
-
   // Using these directly is either tedious or stupid to
   // do. Use the functions provided.
+
   class Action {
 
     public Action(Pattern p, Method m) {
@@ -76,7 +77,7 @@ public abstract class MBTEIParserBase extends DocumentStreamParser {
       endElementActions = new LinkedList<Action>();
       factory = XMLInputFactory.newInstance();
       factory.setProperty(XMLInputFactory.IS_COALESCING, true);
-      reader = new StreamReaderDelegate(factory.createXMLStreamReader(getBufferedInputStream(split)));
+      reader = new StreamReaderDelegate(factory.createXMLStreamReader( getBufferedInputStream(split) ));
     } catch (Exception e) {
       System.err.printf("SKIPPING %s: Caught exception %s\n", split.fileName, e.getMessage());
       reader = null;
@@ -228,7 +229,6 @@ public abstract class MBTEIParserBase extends DocumentStreamParser {
     charactersAction = null;
   }
 
-  @Override
   public Document nextDocument() throws IOException {
     if (reader == null) {
       return null;
@@ -237,8 +237,13 @@ public abstract class MBTEIParserBase extends DocumentStreamParser {
     parsedDocument = null;
     buffer = new StringBuilder();
 
+    // Try to be pre-emptive
+    if (documentReady()) {
+      return getParsedDocument();
+    }
+
     try {
-      while (reader.hasNext() && parsedDocument == null) {
+      while (reader.hasNext() && !documentReady()) {
         status = reader.next();
         switch (status) {
           case XMLStreamConstants.START_ELEMENT: {
@@ -285,28 +290,37 @@ public abstract class MBTEIParserBase extends DocumentStreamParser {
 
       // Either no more tokens or have a document
       // If we have a document send it up
-      if (parsedDocument != null) {
-        return parsedDocument;
+      if (documentReady()) {
+        return getParsedDocument();
       }
 
       // If there are no more tokens to consume but
       // the buffer is non-empty, try to emit the
       // last document.
-      if (buffer.length() > 0) {
+      if (!reader.hasNext()) {
         cleanup();
       }
+
       // Return the result of cleanup - either a document or null
-      return parsedDocument;
+      return getParsedDocument();
     } catch (Exception e) {
       System.err.printf("EXCEPTION [%s,%s]: %s\n",
               getArchiveIdentifier(),
               buffer.toString(),
               e.getMessage());
+      e.printStackTrace(System.err);
       return null;
     }
   }
 
-  @Override
+  protected Document getParsedDocument() {
+    return parsedDocument;
+  }
+
+  protected boolean documentReady() {
+    return (parsedDocument != null);
+  }
+
   public void close() throws IOException {
     if (reader != null) {
       try {

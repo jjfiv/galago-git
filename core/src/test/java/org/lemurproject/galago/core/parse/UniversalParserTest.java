@@ -5,10 +5,10 @@ package org.lemurproject.galago.core.parse;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.NamesReader.NamesIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.tools.BuildIndex;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -173,11 +173,10 @@ public class UniversalParserTest extends TestCase {
       p.set("inputPath", Collections.singletonList(dataDir.getAbsolutePath()));
       p.set("indexPath", index.getAbsolutePath());
       p.set("parser", new Parameters());
-      p.getMap("parser").set("parsers", new Parameters());      
-      p.getMap("parser").getMap("parsers").set("qqe", TrecTextParser.class.getName());
-      p.getMap("parser").getMap("parsers").set("q2e", TrecWebParser.class.getName());
-      p.getMap("parser").getMap("parsers").set("trecweb", TrecTextParser.class.getName());
-
+      p.getMap("parser").set("externalParsers", new ArrayList<Parameters>());
+      p.getMap("parser").getList("externalParsers").add(Parameters.parse( "{\"filetype\" : \"qqe\", \"class\" :\""+TrecTextParser.class.getName()+"\"}"));
+      p.getMap("parser").getList("externalParsers").add(Parameters.parse( "{\"filetype\" : \"q2e\", \"class\" :\""+TrecWebParser.class.getName()+"\"}"));
+      p.getMap("parser").getList("externalParsers").add(Parameters.parse( "{\"filetype\" : \"trecweb\", \"class\" :\""+TrecTextParser.class.getName()+"\"}"));
       
       BuildIndex bi = new BuildIndex();
       bi.run(p, System.err);

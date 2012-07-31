@@ -62,6 +62,8 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       this.forceFileType = this.parameters.getJSON().getString("filetype");
     }
 
+    // we need a copy of the universal parser parameters 
+    //  this ensures manually specified extensions can pass through the DocSource
     if (this.parameters.getJSON().isMap("parser")) {
       this.up = new UniversalParser(new FakeParameters(
               this.parameters.getJSON().getMap("parser")));
@@ -251,6 +253,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         String extension = getExtension(file);
         if (up.isParsable(extension)) {
           fileType = extension;
+
         } else {
           fileType = detectTrecTextOrWeb(file);
           // Eventually it'd be nice to do more format detection here.

@@ -5,21 +5,58 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.logging.Level;
+import java.util.List;
 import java.util.logging.Logger;
+import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.tupleflow.InputClass;
+import org.lemurproject.galago.tupleflow.OutputClass;
+import org.lemurproject.galago.tupleflow.StandardStep;
+import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.*;
-import org.lemurproject.galago.tupleflow.execution.Verified;
 
 /**
+ * Determines the class type of the input split, either based on the "filetype"
+ * parameter passed in, or by guessing based on the file path extension.
  *
- * @author trevor, sjh
+ * (7/29/2012, irmarc): Refactored to be plug-and-play. External filetypes may
+ * be added via the parameters.
+ *
+ * Instantiation of a type-specific parser (TSP) is done by the UniversalParser.
+ * It checks the formal argument types of the (TSP) to match on the possible
+ * input methods it has available (i.e. an inputstream or a buffered reader over
+ * the input data. Additionally, any TSP may have TupleFlowParameters in its
+ * formal argument list, and the parameters provided to the UniversalParser will
+ * be forwarded to the TSP instance.
+ *
+ * @author trevor, sjh, irmarc
  */
 @Verified
 @InputClass(className = "org.lemurproject.galago.core.types.DocumentSplit")
 @OutputClass(className = "org.lemurproject.galago.core.parse.Document")
 public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 
+  // The built-in type map
+  static String[][] sFileTypeLookup = {
+    {"html", FileParser.class.getName()},
+    {"xml", FileParser.class.getName()},
+    {"txt", FileParser.class.getName()},
+    {"arc", ArcParser.class.getName()},
+    {"warc", WARCParser.class.getName()},
+    {"trectext", TrecTextParser.class.getName()},
+    {"trecweb", TrecWebParser.class.getName()},
+    {"twitter", TwitterParser.class.getName()},
+    {"corpus", CorpusSplitParser.class.getName()},
+    {"wiki", WikiParser.class.getName()},
+    {"mbtei.page", MBTEIPageParser.class.getName()},
+    {"mbtei.book", MBTEIBookParser.class.getName()},
+    {"mbtei.entity", MBTEIEntityParser.class.getName()},
+    {"mbtei.person", MBTEIPersonParser.class.getName()},
+    {"mbtei.location", MBTEILocationParser.class.getName()}
+  };
   private Counter documentCounter;
+  private TupleFlowParameters tfParameters;
   private Parameters parameters;
   private Logger logger = Logger.getLogger(getClass().toString());
   private byte[] subCollCheck = "subcoll".getBytes();
@@ -27,38 +64,30 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 
   public UniversalParser(TupleFlowParameters parameters) {
     this.documentCounter = parameters.getCounter("Documents Parsed");
+    this.tfParameters = parameters;
     this.parameters = parameters.getJSON();
-
-    initParsers();
+    buildFileTypeMap();
   }
 
-  private void initParsers() {
-    documentStreamParsers = new HashMap();
+  private void buildFileTypeMap() {
+    try {
+      documentStreamParsers = new HashMap<String, Class>();
+      for (String[] mapping : sFileTypeLookup) {
+        documentStreamParsers.put(mapping[0], Class.forName(mapping[1]));
+      }
 
-    documentStreamParsers.put("html", FileParser.class);
-    documentStreamParsers.put("xml", FileParser.class);
-    documentStreamParsers.put("txt", FileParser.class);
-    documentStreamParsers.put("arc", ArcParser.class);
-    documentStreamParsers.put("warc", WARCParser.class);
-    documentStreamParsers.put("trectext", TrecTextParser.class);
-    documentStreamParsers.put("trecweb", TrecWebParser.class);
-    documentStreamParsers.put("twitter", TwitterParser.class);
-    documentStreamParsers.put("corpus", CorpusSplitParser.class);
-    documentStreamParsers.put("wiki", WikiParser.class);
-    documentStreamParsers.put("mbtei.book", MBTEIBookParser.class);
-    documentStreamParsers.put("mbtei.page", MBTEIPageParser.class);
-    documentStreamParsers.put("mbtei", MBTEIPageParser.class);
-
-    // now add user defined/overriding document parsers:
-    if (parameters.containsKey("parsers")) {
-      Parameters parsers = parameters.getMap("parsers");
-      for (String ext : parsers.getKeys()) {
-        try {
-          documentStreamParsers.put(ext, Class.forName(parsers.getString(ext)));
-        } catch (ClassNotFoundException ex) {
-          System.err.println("Document Parser for " + ext + " : " + parsers.getString(ext) + " could not be found.");
+      // Look for external mapping definitions
+      if (parameters.containsKey("externalParsers")) {
+        List<Parameters> externalParsers =
+                (List<Parameters>) parameters.getAsList("externalParsers");
+        for (Parameters extP : externalParsers) {
+          documentStreamParsers.put(extP.getString("filetype"),
+                  Class.forName(extP.getString("class")));
         }
       }
+
+    } catch (Exception ex) {
+      throw new IllegalArgumentException(ex);
     }
   }
 
