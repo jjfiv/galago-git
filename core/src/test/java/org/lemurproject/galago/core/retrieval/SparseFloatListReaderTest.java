@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.FakeLengthIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
+import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -72,7 +73,7 @@ public class SparseFloatListReaderTest extends TestCase {
 
   public void testA() throws Exception {
     SparseFloatListReader instance = new SparseFloatListReader(tempPath.toString());
-    SparseFloatListReader.ListIterator iter = instance.getScores("a");
+    SparseFloatListReader.ListIterator iter = (SparseFloatListReader.ListIterator) instance.getIterator(new Node("scores", "a"));
     assertFalse(iter.isDone());
     int i;
     ScoringContext context = new ScoringContext();
@@ -96,7 +97,7 @@ public class SparseFloatListReaderTest extends TestCase {
 
   public void testB() throws Exception {
     SparseFloatListReader instance = new SparseFloatListReader(tempPath.toString());
-    SparseFloatListReader.ListIterator iter = instance.getScores("b");
+    SparseFloatListReader.ListIterator iter = (SparseFloatListReader.ListIterator) instance.getIterator(new Node("scores", "b"));
     int i;
 
     assertFalse(iter.isDone());

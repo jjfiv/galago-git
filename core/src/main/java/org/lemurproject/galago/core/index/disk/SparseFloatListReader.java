@@ -26,6 +26,43 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  */
 public class SparseFloatListReader extends KeyListReader {
 
+  private static double defaultScore = Math.log( Math.pow(10, -10) );
+  
+  public SparseFloatListReader(String pathname) throws FileNotFoundException, IOException {
+    super(pathname);
+  }
+
+  @Override
+  public KeyIterator getIterator() throws IOException {
+    return new KeyIterator(reader);
+  }
+
+  public ListIterator getListIterator() throws IOException {
+    return new ListIterator(reader.getIterator(), defaultScore);
+  }
+
+  private ListIterator getScores(String term, double defaultScore) throws IOException {
+    BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
+    return new ListIterator(iterator, defaultScore);
+  }
+
+  @Override
+  public Map<String, NodeType> getNodeTypes() {
+    HashMap<String, NodeType> nodeTypes = new HashMap<String, NodeType>();
+    nodeTypes.put("scores", new NodeType(ListIterator.class));
+    return nodeTypes;
+  }
+
+  @Override
+  public ValueIterator getIterator(Node node) throws IOException {
+    if (node.getOperator().equals("scores")) {
+      return getScores(node.getDefaultParameter(), node.getNodeParameters().get("defaultScore", defaultScore));
+    } else {
+      throw new UnsupportedOperationException(
+              "Index doesn't support operator: " + node.getOperator());
+    }
+  }
+
   public class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
@@ -37,7 +74,7 @@ public class SparseFloatListReader extends KeyListReader {
       ListIterator it;
       long count = -1;
       try {
-        it = new ListIterator(iterator);
+        it = new ListIterator(iterator, defaultScore);
         count = it.totalEntries();
       } catch (IOException ioe) {
       }
@@ -54,7 +91,7 @@ public class SparseFloatListReader extends KeyListReader {
 
     @Override
     public ListIterator getValueIterator() throws IOException {
-      return new ListIterator(iterator);
+      return new ListIterator(iterator, defaultScore);
     }
 
     @Override
@@ -71,10 +108,12 @@ public class SparseFloatListReader extends KeyListReader {
     int index;
     int currentDocument;
     double currentScore;
+    double def;
 
-    public ListIterator(BTreeReader.BTreeIterator iterator) throws IOException {
+    public ListIterator(BTreeReader.BTreeIterator iterator, double defaultScore) throws IOException {
       super(iterator.getKey());
       reset(iterator);
+      def = defaultScore;
     }
 
     void read() throws IOException {
@@ -135,7 +174,7 @@ public class SparseFloatListReader extends KeyListReader {
         read();
       }
     }
-    
+
     @Override
     public void moveTo(int document) throws IOException {
       while (!isDone() && document > currentDocument) {
@@ -148,7 +187,7 @@ public class SparseFloatListReader extends KeyListReader {
       if (currentDocument == context.document) {
         return currentScore;
       }
-      return Double.NEGATIVE_INFINITY;
+      return def;
     }
 
     @Override
@@ -182,41 +221,6 @@ public class SparseFloatListReader extends KeyListReader {
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
-    }
-  }
-
-  public SparseFloatListReader(String pathname) throws FileNotFoundException, IOException {
-    super(pathname);
-  }
-
-  @Override
-  public KeyIterator getIterator() throws IOException {
-    return new KeyIterator(reader);
-  }
-
-  public ListIterator getListIterator() throws IOException {
-    return new ListIterator(reader.getIterator());
-  }
-
-  public ListIterator getScores(String term) throws IOException {
-    BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
-    return new ListIterator(iterator);
-  }
-
-  @Override
-  public Map<String, NodeType> getNodeTypes() {
-    HashMap<String, NodeType> nodeTypes = new HashMap<String, NodeType>();
-    nodeTypes.put("scores", new NodeType(ListIterator.class));
-    return nodeTypes;
-  }
-
-  @Override
-  public ValueIterator getIterator(Node node) throws IOException {
-    if (node.getOperator().equals("scores")) {
-      return getScores(node.getDefaultParameter());
-    } else {
-      throw new UnsupportedOperationException(
-              "Index doesn't support operator: " + node.getOperator());
     }
   }
 }

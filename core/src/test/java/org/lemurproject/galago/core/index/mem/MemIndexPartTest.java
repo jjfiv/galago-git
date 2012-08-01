@@ -18,6 +18,7 @@ import org.lemurproject.galago.core.retrieval.extents.FakeScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.core.window.ReduceNumberWordCount;
 import org.lemurproject.galago.tupleflow.FakeParameters;
@@ -149,7 +150,7 @@ public class MemIndexPartTest extends TestCase {
 
       MovableScoreIterator trueScoreItr = new FakeScoreIterator(docs, scores);
       MovableScoreIterator memScoreItr = memScores.getNodeScores(Utility.fromString("key"));
-      MovableScoreIterator diskScoreItr = reader.getScores("key");
+      MovableScoreIterator diskScoreItr = (MovableScoreIterator) reader.getIterator(new Node("scores", "key"));
 
       context = new ScoringContext();
       trueScoreItr.setContext(context);

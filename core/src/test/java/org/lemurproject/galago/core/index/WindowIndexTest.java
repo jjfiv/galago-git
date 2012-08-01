@@ -9,6 +9,7 @@ import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader.KeyIterator;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader.TermExtentIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -56,10 +57,13 @@ public class WindowIndexTest extends TestCase {
       while (!iterator.isDone()) {
         iterator.getValueIterator();
         WindowIndexReader.TermExtentIterator valueIterator = (TermExtentIterator) iterator.getValueIterator();
+        valueIterator.setContext(new ScoringContext());
+        ScoringContext sc = valueIterator.getContext();
         int doccount = 0;
         int windowcount = 0;
-        while( !valueIterator.isDone() ){
+        while (!valueIterator.isDone()) {
           doccount++;
+          sc.document = valueIterator.currentCandidate();
           windowcount += valueIterator.extents().size();
           valueIterator.movePast(valueIterator.currentCandidate());
         }

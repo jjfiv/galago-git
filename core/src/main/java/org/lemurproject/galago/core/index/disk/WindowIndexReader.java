@@ -33,9 +33,111 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  * iterating. This is an interesting enough change that there are now two
  * versions of the iterator
  *
- * @author trevor, irmarc
+ * @author trevor, irmarc, sjh
  */
 public class WindowIndexReader extends KeyListReader implements AggregateReader {
+
+  Stemmer stemmer = null;
+
+  public WindowIndexReader(BTreeReader reader) throws Exception {
+    super(reader);
+    if (reader.getManifest().containsKey("stemmer")) {
+      stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
+    }
+  }
+
+  public WindowIndexReader(String pathname) throws Exception {
+    super(pathname);
+    if (reader.getManifest().containsKey("stemmer")) {
+      stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
+    }
+  }
+
+  @Override
+  public KeyIterator getIterator() throws IOException {
+    return new KeyIterator(reader);
+  }
+
+  /**
+   * Returns an iterator pointing at the specified term, or null if the term
+   * doesn't exist in the inverted file.
+   */
+  public TermExtentIterator getTermExtents(String term) throws IOException {
+    term = stemAsRequired(term);
+    BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
+    if (iterator != null) {
+      return new TermExtentIterator(iterator);
+    }
+    return null;
+  }
+
+  public TermCountIterator getTermCounts(String term) throws IOException {
+    term = stemAsRequired(term);
+    BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
+
+    if (iterator != null) {
+      return new TermCountIterator(iterator);
+    }
+    return null;
+  }
+
+  @Override
+  public Map<String, NodeType> getNodeTypes() {
+    HashMap<String, NodeType> types = new HashMap<String, NodeType>();
+    types.put("counts", new NodeType(TermCountIterator.class));
+    types.put("extents", new NodeType(TermExtentIterator.class));
+    return types;
+  }
+
+  @Override
+  public ValueIterator getIterator(Node node) throws IOException {
+    String term = stemAsRequired(node.getDefaultParameter());
+    if (node.getOperator().equals("counts")) {
+      return getTermCounts(term);
+    } else {
+      return getTermExtents(term);
+    }
+  }
+
+  @Override
+  public NodeStatistics getTermStatistics(String term) throws IOException {
+    term = stemAsRequired(term);
+    return getTermStatistics(Utility.fromString(term));
+  }
+
+  @Override
+  public NodeStatistics getTermStatistics(byte[] term) throws IOException {
+    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
+
+    if (iterator != null) {
+      TermCountIterator termCountIterator = new TermCountIterator(iterator);
+      return termCountIterator.getStatistics();
+    }
+    NodeStatistics stats = new NodeStatistics();
+    stats.node = Utility.toString(term);
+    return stats;
+  }
+
+  private String stemAsRequired(String window) {
+    if (stemmer != null) {
+      // window from: sample~sample~sample
+      //          to: sampl~sampl~sampl
+      String[] terms = window.split("~");
+      StringBuilder reconstructor = new StringBuilder();
+      boolean first = true;
+      for (String term : terms) {
+        if (!first) {
+          reconstructor.append("~");
+        }
+        first = false;
+        reconstructor.append(stemmer.stem(term));
+      }
+      return reconstructor.toString();
+    }
+
+    // otherwise no change.
+    return window;
+  }
 
   public class KeyIterator extends KeyListReader.KeyValueIterator {
 
@@ -76,42 +178,44 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
   public class TermExtentIterator extends KeyListReader.ListIterator
           implements AggregateIterator, MovableCountIterator, MovableExtentIterator {
 
-    BTreeReader.BTreeIterator iterator;
-    int documentCount;
-    int totalWindowCount;
-    int maximumPositionCount;
-    VByteInput documents;
-    VByteInput counts;
-    VByteInput begins;
-    VByteInput ends;
-    int documentIndex;
-    int currentDocument;
-    int currentCount;
-    ExtentArray extentArray;
+    private BTreeReader.BTreeIterator iterator;
+    private int documentCount;
+    private int totalWindowCount;
+    private int maximumPositionCount;
+    private VByteInput documents;
+    private VByteInput counts;
+    private VByteInput begins;
+    private VByteInput ends;
+    private int documentIndex;
+    private int currentDocument;
+    private int currentCount;
+    private ExtentArray extentArray;
+    private final ExtentArray emptyExtentArray;
     // to support resets
-    long startPosition, endPosition;
+    private long startPosition, endPosition;
     // to support skipping
-    VByteInput skips;
-    VByteInput skipPositions;
-    DataStream skipPositionsStream;
-    DataStream documentsStream;
-    DataStream countsStream;
-    DataStream beginsStream;
-    DataStream endsStream;
-    int skipDistance;
-    int skipResetDistance;
-    long numSkips;
-    long skipsRead;
-    long nextSkipDocument;
-    long lastSkipPosition;
-    long documentsByteFloor;
-    long countsByteFloor;
-    long beginsByteFloor;
-    long endsByteFloor;
+    private VByteInput skips;
+    private VByteInput skipPositions;
+    private DataStream skipPositionsStream;
+    private DataStream documentsStream;
+    private DataStream countsStream;
+    private DataStream beginsStream;
+    private DataStream endsStream;
+    private int skipDistance;
+    private int skipResetDistance;
+    private long numSkips;
+    private long skipsRead;
+    private long nextSkipDocument;
+    private long lastSkipPosition;
+    private long documentsByteFloor;
+    private long countsByteFloor;
+    private long beginsByteFloor;
+    private long endsByteFloor;
 
     public TermExtentIterator(BTreeReader.BTreeIterator iterator) throws IOException {
       super(iterator.getKey());
       extentArray = new ExtentArray();
+      emptyExtentArray = new ExtentArray();
       reset(iterator);
     }
 
@@ -252,7 +356,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     public void movePast(int document) throws IOException {
       moveTo(document + 1);
     }
-    
+
     // If we have skips - it's go time
     @Override
     public void moveTo(int document) throws IOException {
@@ -347,7 +451,18 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
 
     @Override
     public ExtentArray extents() {
-      return extentArray;
+      if (context.document == this.currentDocument) {
+        return extentArray;
+      }
+      return this.emptyExtentArray;
+    }
+
+    @Override
+    public int count() {
+      if (context.document == this.currentDocument) {
+        return currentCount;
+      }
+      return 0;
     }
 
     @Override
@@ -358,11 +473,6 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     @Override
     public boolean hasAllCandidates() {
       return false;
-    }
-
-    @Override
-    public int count() {
-      return currentCount;
     }
 
     @Override
@@ -559,7 +669,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     public void movePast(int document) throws IOException {
       moveTo(document + 1);
     }
-    
+
     // If we have skips - it's go time
     @Override
     public void moveTo(int document) throws IOException {
@@ -692,106 +802,5 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
-  }
-  Stemmer stemmer = null;
-
-  public WindowIndexReader(BTreeReader reader) throws Exception {
-    super(reader);
-    if (reader.getManifest().containsKey("stemmer")) {
-      stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
-    }
-  }
-
-  public WindowIndexReader(String pathname) throws Exception {
-    super(pathname);
-    if (reader.getManifest().containsKey("stemmer")) {
-      stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
-    }
-  }
-
-  @Override
-  public KeyIterator getIterator() throws IOException {
-    return new KeyIterator(reader);
-  }
-
-  /**
-   * Returns an iterator pointing at the specified term, or null if the term
-   * doesn't exist in the inverted file.
-   */
-  public TermExtentIterator getTermExtents(String term) throws IOException {
-    term = stemAsRequired(term);
-    BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
-    if (iterator != null) {
-      return new TermExtentIterator(iterator);
-    }
-    return null;
-  }
-
-  public TermCountIterator getTermCounts(String term) throws IOException {
-    term = stemAsRequired(term);
-    BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
-
-    if (iterator != null) {
-      return new TermCountIterator(iterator);
-    }
-    return null;
-  }
-
-  @Override
-  public Map<String, NodeType> getNodeTypes() {
-    HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("counts", new NodeType(TermCountIterator.class));
-    types.put("extents", new NodeType(TermExtentIterator.class));
-    return types;
-  }
-
-  @Override
-  public ValueIterator getIterator(Node node) throws IOException {
-    String term = stemAsRequired(node.getDefaultParameter());
-    if (node.getOperator().equals("counts")) {
-      return getTermCounts(term);
-    } else {
-      return getTermExtents(term);
-    }
-  }
-
-  @Override
-  public NodeStatistics getTermStatistics(String term) throws IOException {
-    term = stemAsRequired(term);
-    return getTermStatistics(Utility.fromString(term));
-  }
-
-  @Override
-  public NodeStatistics getTermStatistics(byte[] term) throws IOException {
-    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
-
-    if (iterator != null) {
-      TermCountIterator termCountIterator = new TermCountIterator(iterator);
-      return termCountIterator.getStatistics();
-    }
-    NodeStatistics stats = new NodeStatistics();
-    stats.node = Utility.toString(term);
-    return stats;
-  }
-
-  private String stemAsRequired(String window) {
-    if (stemmer != null) {
-      // window from: sample~sample~sample
-      //          to: sampl~sampl~sampl
-      String[] terms = window.split("~");
-      StringBuilder reconstructor = new StringBuilder();
-      boolean first = true;
-      for (String term : terms) {
-        if (!first) {
-          reconstructor.append("~");
-        }
-        first = false;
-        reconstructor.append(stemmer.stem(term));
-      }
-      return reconstructor.toString();
-    }
-
-    // otherwise no change.
-    return window;
   }
 }

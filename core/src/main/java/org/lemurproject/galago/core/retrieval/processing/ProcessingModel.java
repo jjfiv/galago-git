@@ -71,7 +71,7 @@ public abstract class ProcessingModel {
         if (!parts.containsKey(partName)) {
           continue;
         }
-        LengthsReader.LengthsIterator it = flr.getLengthsIterator(field);
+        LengthsReader.LengthsIterator it = flr.getLengthsIterator(field, ctx);
         ctx.addLength(field, it);
       }
     }
