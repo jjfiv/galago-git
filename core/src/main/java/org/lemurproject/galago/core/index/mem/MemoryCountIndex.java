@@ -86,10 +86,10 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
     if (!postings.containsKey(key)) {
       PostingList postingList = new PostingList(key);
       MovableCountIterator mi = (MovableCountIterator) iterator;
-      ScoringContext c = mi.getContext();
+      ScoringContext sc = mi.getContext();
       while (!mi.isDone()) {
         int document = mi.currentCandidate();
-        c.document = document;
+        sc.document = document;
         int count = mi.count();
         postingList.add(document, count);
         mi.movePast(document);
@@ -212,11 +212,13 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
 
     KIterator kiterator = new KIterator();
     CountsIterator viterator;
+    ScoringContext sc = new ScoringContext();
     while (!kiterator.isDone()) {
       viterator = (CountsIterator) kiterator.getValueIterator();
       writer.processWord(kiterator.getKey());
-
+      viterator.setContext(sc);
       while (!viterator.isDone()) {
+        sc.document = viterator.currentCandidate();
         writer.processDocument(viterator.currentCandidate());
         writer.processTuple(viterator.count());
         viterator.movePast(viterator.currentCandidate());
@@ -406,7 +408,10 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
 
     @Override
     public int count() {
-      return currCount;
+      if (context.document == this.currDocument) {
+        return currCount;
+      }
+      return 0;
     }
 
     @Override

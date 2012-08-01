@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -50,9 +51,12 @@ public class MemoryIndexTest extends TestCase {
 
     Node n = StructuredQuery.parse("#counts:sample:part=postings()");
     MovableCountIterator ci = (MovableCountIterator) index.getIterator(n);
+    ci.setContext(new ScoringContext());
+    ScoringContext sc = ci.getContext();
     assertEquals(ci.currentCandidate(), 0);
     int total = 0;
     while(!ci.isDone()){
+      sc.document = ci.currentCandidate();
       total += ci.count();
       ci.movePast(ci.currentCandidate());
     }

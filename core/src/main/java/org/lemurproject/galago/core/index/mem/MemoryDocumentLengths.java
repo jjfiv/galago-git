@@ -281,11 +281,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     @Override
     public int count() {
-      try {
-        return ((KIterator) iterator).getCurrentLength();
-      } catch (IOException ioe) {
-        throw new RuntimeException(ioe);
-      }
+      return this.getCurrentLength();
     }
 
     @Override
@@ -300,12 +296,14 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     @Override
     public int getCurrentLength() {
-      KIterator ki = (KIterator) iterator;
-      try {
-        return ki.getCurrentLength();
-      } catch (IOException ioe) {
-        throw new RuntimeException(ioe);
+      if (this.context.document == this.currentCandidate()) {
+        try {
+          return ((KIterator) iterator).getCurrentLength();
+        } catch (IOException ioe) {
+          throw new RuntimeException(ioe);
+        }
       }
+      return 0;
     }
 
     @Override

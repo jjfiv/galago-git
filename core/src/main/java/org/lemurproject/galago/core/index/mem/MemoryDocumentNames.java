@@ -293,7 +293,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
 
     public String getData() {
       try {
-        return getEntry();
+        return getCurrentName();
       } catch (IOException ioe) {
         throw new RuntimeException(ioe);
       }
@@ -310,8 +310,12 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     }
 
     public String getCurrentName() throws IOException {
-      KIterator ki = (KIterator) iterator;
-      return ki.getCurrentName();
+      if (context.document == this.getCurrentIdentifier()) {
+        KIterator ki = (KIterator) iterator;
+        return ki.getCurrentName();
+      }
+      // return null by default
+      return null;
     }
 
     public int getCurrentIdentifier() throws IOException {

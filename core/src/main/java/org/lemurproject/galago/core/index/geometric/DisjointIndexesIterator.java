@@ -31,7 +31,7 @@ public abstract class DisjointIndexesIterator extends ValueIterator {
   public void setContext(ScoringContext context) {
     this.context = context;
     
-    // this is a special case
+    // this is a special case - otherwise children iterators will not receive the context.
     for(MovableIterator i : this.allIterators){
       i.setContext(context);
     }
