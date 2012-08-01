@@ -152,7 +152,7 @@ public class DocumentPriorReader extends KeyValueReader {
     @Override
     public double score() {
       try {
-        if (this.currentCandidate() == context.document) {
+        if (currentCandidate() == context.document) {
           byte[] valueBytes = iterator.getValueBytes();
           if ((valueBytes == null) || (valueBytes.length == 0)) {
             return minScore;
@@ -165,15 +165,6 @@ public class DocumentPriorReader extends KeyValueReader {
       } catch (IOException ex) {
         Logger.getLogger(DocumentPriorReader.class.getName()).log(Level.SEVERE, null, ex);
         throw new RuntimeException(ex);
-      }
-    }
-
-    @Override
-    public int currentCandidate() {
-      try {
-        return Utility.toInt(this.iterator.getKey());
-      } catch (IOException ex) {
-        throw new RuntimeException("Prior Reader - failed to convert index.getKeyBytes to an integer.");
       }
     }
 

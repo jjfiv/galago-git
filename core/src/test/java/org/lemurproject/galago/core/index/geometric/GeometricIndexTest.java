@@ -87,22 +87,28 @@ public class GeometricIndexTest extends TestCase {
 
       Node q1 = StructuredQuery.parse("#counts:sample:part=postings()");
       MovableCountIterator ci1 = (MovableCountIterator) index.getIterator(q1);
+      ci1.setContext(sc);
       assert ci1 != null;
       ci1.moveTo(99);
+      sc.document = 99;
       assertEquals(ci1.currentCandidate(), 99);
       assertEquals(ci1.count(), 1);
       ci1.movePast(99);
+      sc.document = ci1.currentCandidate();
       assertEquals(ci1.currentCandidate(), 100);
       assertEquals(ci1.count(), 1);
 
       Node q2 = StructuredQuery.parse("#counts:@/101/:part=postings()");
       MovableCountIterator ci2 = (MovableCountIterator) index.getIterator(q2);
+      ci2.setContext(sc);
       assertEquals(ci2.currentCandidate(), 101);
+      sc.document = ci2.currentCandidate();
       assertEquals(ci2.count(), 1);
       ci2.movePast(101);
       assert (ci2.isDone());
       ci2.reset();
       assertEquals(ci2.currentCandidate(), 101);
+      sc.document = ci2.currentCandidate();
       assertEquals(ci2.count(), 1);
       ci2.movePast(101);
       assert (ci2.isDone());

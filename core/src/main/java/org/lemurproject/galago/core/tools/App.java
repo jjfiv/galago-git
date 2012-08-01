@@ -30,6 +30,7 @@ import org.lemurproject.galago.core.learning.LearnQueryParameters;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.FileOrderedReader;
@@ -114,6 +115,7 @@ public class App {
     // corpus + index querying
     appFunctions.put("doc", new DocFn());
     appFunctions.put("doc-id", new DocIdFn());
+    appFunctions.put("doc-name", new DocNameFn());
     appFunctions.put("xcount", new XCountFn());
     appFunctions.put("doccount", new XDocCountFn());
 
@@ -208,7 +210,7 @@ public class App {
       p.set("tags", false);
       Document document = r.getDocument(identifier, p);
       if (document != null) {
-	  output.println(document.toString());
+        output.println(document.toString());
       } else {
         output.println("Document " + identifier + " does not exist in index " + indexPath + ".");
       }
@@ -388,7 +390,9 @@ public class App {
       if (KeyListReader.class.isAssignableFrom(reader.getClass())) {
         while (!iterator.isDone()) {
           ValueIterator vIter = iterator.getValueIterator();
+          vIter.setContext(new ScoringContext());
           while (!vIter.isDone()) {
+            vIter.getContext().document = vIter.currentCandidate();
             output.println(vIter.getEntry());
             vIter.movePast(vIter.currentCandidate());
           }

@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.processing.PassageScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -64,9 +65,11 @@ public class PassageFilterIterator extends TransformIterator implements MovableE
   @Override
   public void setContext(ScoringContext context) {
     if (!PassageScoringContext.class.isAssignableFrom(context.getClass())) {
-      throw new RuntimeException("Trying to set a non-Passage-capable context as a PassageScoringContext");
+      Logger.getLogger(PassageFilterIterator.class.getName()).info("Setting a non-Passage-capable context as a PassageScoringContext - passages will not be used.");
+      context = null;
+    } else {
+      context = (PassageScoringContext) context;
     }
-    context = (PassageScoringContext) context;
   }
 
   @Override

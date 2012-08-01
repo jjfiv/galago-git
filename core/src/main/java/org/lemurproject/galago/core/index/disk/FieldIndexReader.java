@@ -193,77 +193,98 @@ public class FieldIndexReader extends KeyListReader {
     }
 
     private String printValue() throws RuntimeException {
-      if (format.equals("string")) {
-        return String.format("%s (String)", strValue);
-      } else if (format.equals("int")) {
-        return String.format("%d (Int)", intValue);
-      } else if (format.equals("long")) {
-        return String.format("%d (Long)", longValue);
-      } else if (format.equals("float")) {
-        return String.format("%f (Float)", floatValue);
-      } else if (format.equals("double")) {
-        return String.format("%f (Double)", doubleValue);
-      } else if (format.equals("date")) {
+      if (this.currentDocument == this.context.document) {
+        if (format.equals("string")) {
+          return String.format("%s (String)", strValue);
+        } else if (format.equals("int")) {
+          return String.format("%d (Int)", intValue);
+        } else if (format.equals("long")) {
+          return String.format("%d (Long)", longValue);
+        } else if (format.equals("float")) {
+          return String.format("%f (Float)", floatValue);
+        } else if (format.equals("double")) {
+          return String.format("%f (Double)", doubleValue);
+        } else if (format.equals("date")) {
 
-        return String.format("%s (Date)", new Date(dateValue).toString());
-      } else {
-        throw new RuntimeException(String.format("Don't have any plausible format for tag %s\n",
-                format));
+          return String.format("%s (Date)", new Date(dateValue).toString());
+        } else {
+          throw new RuntimeException(String.format("Don't have any plausible format for tag %s\n",
+                  format));
+        }
       }
+      return null;
     }
 
     public String stringValue() {
-      if (format.equals("string")) {
-        return strValue;
-      } else {
-        throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
-                "string", format));
+      if (this.currentDocument == this.context.document) {
+        if (format.equals("string")) {
+          return strValue;
+        } else {
+          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
+                  "string", format));
+        }
       }
+      return null;
     }
 
     public int intValue() {
-      if (format.equals("int")) {
-        return intValue;
-      } else {
-        throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
-                "int", format));
+      if (this.currentDocument == this.context.document) {
+        if (format.equals("int")) {
+          return intValue;
+        } else {
+          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
+                  "int", format));
+        }
       }
+      return 0;
     }
 
     public long longValue() {
-      if (format.equals("long")) {
-        return longValue;
-      } else {
-        throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
-                "long", format));
+      if (this.currentDocument == this.context.document) {
+        if (format.equals("long")) {
+          return longValue;
+        } else {
+          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
+                  "long", format));
+        }
       }
+      return 0l;
     }
 
     public float floatValue() {
-      if (format.equals("float")) {
-        return floatValue;
-      } else {
-        throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
-                "float", format));
+      if (this.currentDocument == this.context.document) {
+        if (format.equals("float")) {
+          return floatValue;
+        } else {
+          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
+                  "float", format));
+        }
       }
+      return 0f;
     }
 
     public double doubleValue() {
-      if (format.equals("double")) {
-        return doubleValue;
-      } else {
-        throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
-                "double", format));
+      if (this.currentDocument == this.context.document) {
+        if (format.equals("double")) {
+          return doubleValue;
+        } else {
+          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
+                  "double", format));
+        }
       }
+      return 0d;
     }
 
     public long dateValue() {
-      if (format.equals("date")) {
-        return dateValue;
-      } else {
-        throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
-                "date", format));
+      if (this.currentDocument == this.context.document) {
+        if (format.equals("date")) {
+          return dateValue;
+        } else {
+          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
+                  "date", format));
+        }
       }
+      return 0l;
     }
 
     @Override

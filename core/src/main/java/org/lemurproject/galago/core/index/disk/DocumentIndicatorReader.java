@@ -149,9 +149,7 @@ public class DocumentIndicatorReader extends KeyValueReader {
 
     @Override
     public boolean indicator(int document) {
-      if (document != ((KeyIterator) iterator).getCurrentDocument()) {
-        return defInst;
-      } else {
+      if (document == currentCandidate()) {
         try {
           return ((KeyIterator) iterator).getCurrentIndicator();
         } catch (IOException ex) {
@@ -159,6 +157,7 @@ public class DocumentIndicatorReader extends KeyValueReader {
           throw new RuntimeException("Failed to read indicator file.");
         }
       }
+      return this.defInst;
     }
 
     @Override

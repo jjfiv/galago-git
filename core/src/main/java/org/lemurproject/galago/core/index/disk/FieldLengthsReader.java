@@ -107,6 +107,7 @@ public class FieldLengthsReader implements LengthsReader {
     public int getCurrentLength() {
       if (length < 0) {
         length = 0;
+        // extentsIterator should check context for the document id.
         ExtentArray extents = extentsIterator.extents();
         for (int i = 0; i < extents.size(); i++) {
           length += extents.end(i) - extents.begin(i);

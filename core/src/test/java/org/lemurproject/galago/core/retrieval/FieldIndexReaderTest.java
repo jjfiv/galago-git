@@ -20,6 +20,7 @@ import org.lemurproject.galago.core.retrieval.iterator.EqualityIterator;
 import org.lemurproject.galago.core.retrieval.iterator.GreaterThanIterator;
 import org.lemurproject.galago.core.retrieval.iterator.InBetweenIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LessThanIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -113,21 +114,26 @@ public class FieldIndexReaderTest extends TestCase {
   public void testReadTitle() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("title");
-
+    fields.setContext(new ScoringContext());
+    ScoringContext sc = fields.getContext();
+      
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 1);
+    sc.document = fields.currentCandidate();
     assertEquals(fields.stringValue(), "doc1");
 
     fields.movePast(fields.currentCandidate());
 
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 9);
+    sc.document = fields.currentCandidate();
     assertEquals(fields.stringValue(), "doc2");
 
     fields.movePast(fields.currentCandidate());
 
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 34);
+    sc.document = fields.currentCandidate();
     assertEquals(fields.stringValue(), "doc9");
 
     fields.movePast(fields.currentCandidate());
@@ -138,23 +144,28 @@ public class FieldIndexReaderTest extends TestCase {
   public void testReadDate() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("date");
+    fields.setContext(new ScoringContext());
+    ScoringContext sc = fields.getContext();
 
     DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
 
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 15);
+    sc.document = fields.currentCandidate();
     assertEquals(fields.dateValue(), df.parse("6/12/1980").getTime());
 
     fields.movePast(fields.currentCandidate());
 
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 25);
+    sc.document = fields.currentCandidate();
     assertEquals(fields.dateValue(), df.parse("6/12/1949").getTime());
 
     fields.movePast(fields.currentCandidate());
 
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 47);
+    sc.document = fields.currentCandidate();
     assertEquals(fields.dateValue(), df.parse("1/1/1663").getTime());
 
     fields.movePast(fields.currentCandidate());
@@ -165,21 +176,26 @@ public class FieldIndexReaderTest extends TestCase {
   public void testReadVersion() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("version");
+    fields.setContext(new ScoringContext());
+    ScoringContext sc = fields.getContext();
 
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 1);
+    sc.document = fields.currentCandidate();
     assertEquals(fields.intValue(), 1);
 
     fields.movePast(fields.currentCandidate());
 
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 2);
+    sc.document = fields.currentCandidate();
     assertEquals(fields.intValue(), 12);
 
     fields.movePast(fields.currentCandidate());
 
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 3);
+    sc.document = fields.currentCandidate();
     assertEquals(fields.intValue(), 4);
 
     fields.movePast(fields.currentCandidate());
@@ -190,25 +206,31 @@ public class FieldIndexReaderTest extends TestCase {
   public void testGreaterThan() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("version");
+    fields.setContext(new ScoringContext());
+    ScoringContext sc = fields.getContext();
 
     NodeParameters p = new NodeParameters();
     p.set("0","5");
     GreaterThanIterator gti = new GreaterThanIterator(p, fields);
-
+    gti.setContext(sc);
+    
     assertFalse(gti.isDone());
     assertEquals(gti.currentCandidate(), 1);
+    sc.document = gti.currentCandidate();
     assertTrue(gti.hasMatch(gti.currentCandidate()));
     assertFalse(gti.indicator(gti.currentCandidate()));
     gti.movePast(gti.currentCandidate());
 
     assertFalse(gti.isDone());
     assertEquals(gti.currentCandidate(), 2);
+    sc.document = gti.currentCandidate();
     assertTrue(gti.hasMatch(gti.currentCandidate()));
     assertTrue(gti.indicator(gti.currentCandidate()));
     gti.movePast(gti.currentCandidate());
 
     assertFalse(gti.isDone());
     assertEquals(gti.currentCandidate(), 3);
+    sc.document = gti.currentCandidate();
     assertTrue(gti.hasMatch(gti.currentCandidate()));
     assertFalse(gti.indicator(gti.currentCandidate()));
     gti.movePast(gti.currentCandidate());
@@ -220,25 +242,31 @@ public class FieldIndexReaderTest extends TestCase {
   public void testLessThan() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("version");
+    fields.setContext(new ScoringContext());
+    ScoringContext sc = fields.getContext();
 
     NodeParameters p = new NodeParameters();
     p.set("0", "5");
     LessThanIterator lti = new LessThanIterator(p, fields);
+    lti.setContext(sc);
 
     assertFalse(lti.isDone());
     assertEquals(lti.currentCandidate(), 1);
+    sc.document = lti.currentCandidate();
     assertTrue(lti.hasMatch(lti.currentCandidate()));
     assertTrue(lti.indicator(lti.currentCandidate()));
     lti.movePast(lti.currentCandidate());
 
     assertFalse(lti.isDone());
     assertEquals(lti.currentCandidate(), 2);
+    sc.document = lti.currentCandidate();
     assertTrue(lti.hasMatch(lti.currentCandidate()));
     assertFalse(lti.indicator(lti.currentCandidate()));
     lti.movePast(lti.currentCandidate());
 
     assertFalse(lti.isDone());
     assertEquals(lti.currentCandidate(), 3);
+    sc.document = lti.currentCandidate();
     assertTrue(lti.hasMatch(lti.currentCandidate()));
     assertTrue(lti.indicator(lti.currentCandidate()));
     lti.movePast(lti.currentCandidate());
@@ -250,26 +278,32 @@ public class FieldIndexReaderTest extends TestCase {
   public void testInBetween() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("date");
+    fields.setContext(new ScoringContext());
+    ScoringContext sc = fields.getContext();
 
     NodeParameters p = new NodeParameters();
     p.set("0", "12/25/1939");
     p.set("1", "4/12/1984");
     InBetweenIterator ibi = new InBetweenIterator(p, fields);
+    ibi.setContext(sc);
 
     assertFalse(ibi.isDone());
     assertEquals(ibi.currentCandidate(), 15);
+    sc.document = ibi.currentCandidate();
     assertTrue(ibi.hasMatch(ibi.currentCandidate()));
     assertTrue(ibi.indicator(ibi.currentCandidate()));
     ibi.movePast(ibi.currentCandidate());
 
     assertFalse(ibi.isDone());
     assertEquals(ibi.currentCandidate(), 25);
+    sc.document = ibi.currentCandidate();
     assertTrue(ibi.hasMatch(ibi.currentCandidate()));
     assertTrue(ibi.indicator(ibi.currentCandidate()));
     ibi.movePast(ibi.currentCandidate());
 
     assertFalse(ibi.isDone());
     assertEquals(ibi.currentCandidate(), 47);
+    sc.document = ibi.currentCandidate();
     assertTrue(ibi.hasMatch(ibi.currentCandidate()));
     assertFalse(ibi.indicator(ibi.currentCandidate()));
     ibi.movePast(ibi.currentCandidate());
@@ -281,25 +315,31 @@ public class FieldIndexReaderTest extends TestCase {
   public void testEquality() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("title");
+    fields.setContext(new ScoringContext());
+    ScoringContext sc = fields.getContext();
 
     NodeParameters p = new NodeParameters();
     p.set("0", "doc9");
     EqualityIterator ei = new EqualityIterator(p, fields);
+    ei.setContext(sc);
 
     assertFalse(ei.isDone());
     assertEquals(ei.currentCandidate(), 1);
+    sc.document = ei.currentCandidate();
     assertTrue(ei.hasMatch(ei.currentCandidate()));
     assertFalse(ei.indicator(ei.currentCandidate()));
     ei.movePast(ei.currentCandidate());
 
     assertFalse(ei.isDone());
     assertEquals(ei.currentCandidate(), 9);
+    sc.document = ei.currentCandidate();
     assertTrue(ei.hasMatch(ei.currentCandidate()));
     assertFalse(ei.indicator(ei.currentCandidate()));
     ei.movePast(ei.currentCandidate());
 
     assertFalse(ei.isDone());
     assertEquals(ei.currentCandidate(), 34);
+    sc.document = ei.currentCandidate();
     assertTrue(ei.hasMatch(ei.currentCandidate()));
     assertTrue(ei.indicator(ei.currentCandidate()));
     ei.movePast(ei.currentCandidate());

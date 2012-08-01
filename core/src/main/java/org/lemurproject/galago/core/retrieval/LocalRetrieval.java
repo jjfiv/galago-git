@@ -300,13 +300,15 @@ public class LocalRetrieval implements Retrieval {
     stats.collectionLength = getRetrievalStatistics().collectionLength;
     stats.documentCount = getRetrievalStatistics().documentCount;
     
-    StructuredIterator structIterator = createIterator(new Parameters(), root, null);
+    ScoringContext sc = new ScoringContext();
+    StructuredIterator structIterator = createIterator(new Parameters(), root, sc);
     if (AggregateIterator.class.isInstance(structIterator)) {
       stats = ((AggregateIterator) structIterator).getStatistics();
       
     } else if (structIterator instanceof MovableCountIterator) {
       MovableCountIterator iterator = (MovableCountIterator) structIterator;
       while (!iterator.isDone()) {
+        sc.document = iterator.currentCandidate();
         if (iterator.hasMatch(iterator.currentCandidate())) {
           stats.nodeFrequency += iterator.count();
           stats.nodeDocumentCount++;

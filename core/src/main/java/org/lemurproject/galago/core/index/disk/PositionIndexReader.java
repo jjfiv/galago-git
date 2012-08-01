@@ -77,43 +77,45 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
   public class TermExtentIterator extends KeyListReader.ListIterator
           implements AggregateIterator, MovableCountIterator, MovableExtentIterator {
 
-    BTreeReader.BTreeIterator iterator;
-    int documentCount;
-    int totalPositionCount;
-    int maximumPositionCount;
-    VByteInput documents;
-    VByteInput counts;
-    VByteInput positions;
-    int documentIndex;
-    int currentDocument;
-    int currentCount;
-    ExtentArray extentArray;
+    private BTreeReader.BTreeIterator iterator;
+    private int documentCount;
+    private int totalPositionCount;
+    private int maximumPositionCount;
+    private VByteInput documents;
+    private VByteInput counts;
+    private VByteInput positions;
+    private int documentIndex;
+    private int currentDocument;
+    private int currentCount;
+    private ExtentArray extentArray;
+    private final ExtentArray emptyExtentArray;
     // to support resets
-    long startPosition, endPosition;
+    private long startPosition, endPosition;
     // to support skipping
-    VByteInput skips;
-    VByteInput skipPositions;
-    DataStream skipPositionsStream;
-    DataStream documentsStream;
-    DataStream countsStream;
-    DataStream positionsStream;
-    int skipDistance;
-    int skipResetDistance;
-    long numSkips;
-    long skipsRead;
-    long nextSkipDocument;
-    long lastSkipPosition;
-    long documentsByteFloor;
-    long countsByteFloor;
-    long positionsByteFloor;
+    private VByteInput skips;
+    private VByteInput skipPositions;
+    private DataStream skipPositionsStream;
+    private DataStream documentsStream;
+    private DataStream countsStream;
+    private DataStream positionsStream;
+    private int skipDistance;
+    private int skipResetDistance;
+    private long numSkips;
+    private long skipsRead;
+    private long nextSkipDocument;
+    private long lastSkipPosition;
+    private long documentsByteFloor;
+    private long countsByteFloor;
+    private long positionsByteFloor;
     // Supports lazy-loading of extents
-    boolean extentsLoaded;
-    int inlineMinimum;
-    int extentsByteSize;
+    private boolean extentsLoaded;
+    private int inlineMinimum;
+    private int extentsByteSize;
 
     public TermExtentIterator(BTreeReader.BTreeIterator iterator) throws IOException {
       super(iterator.getKey());
       extentArray = new ExtentArray();
+      emptyExtentArray = new ExtentArray();
       reset(iterator);
     }
 
@@ -129,9 +131,9 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       int options = stream.readInt();
 
       if ((options & HAS_INLINING) == HAS_INLINING) {
-	inlineMinimum = stream.readInt();
+        inlineMinimum = stream.readInt();
       } else {
-	inlineMinimum = Integer.MAX_VALUE;
+        inlineMinimum = Integer.MAX_VALUE;
       }
 
       documentCount = stream.readInt();
@@ -201,41 +203,41 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       extentsLoaded = true; // Not really, but this keeps it from reading ahead too soon.
       loadNextPosting();
     }
-  
-    private void loadNextPosting() throws IOException {
-	if (!extentsLoaded) {
-	    if (currentCount > inlineMinimum) {
-		positions.skipBytes(extentsByteSize);
-	    } else {
-		loadExtents();
-	    }
-	}
-	currentDocument += documents.readInt();
-	currentCount = counts.readInt();
 
-	// Prep the extents
-	extentArray.reset();
-	extentsLoaded = false;
-	if (currentCount > inlineMinimum) {
-	    extentsByteSize = positions.readInt();
-	} else {
-	    // Load them aggressively since we can't skip them
-	    loadExtents();
-	}	
+    private void loadNextPosting() throws IOException {
+      if (!extentsLoaded) {
+        if (currentCount > inlineMinimum) {
+          positions.skipBytes(extentsByteSize);
+        } else {
+          loadExtents();
+        }
+      }
+      currentDocument += documents.readInt();
+      currentCount = counts.readInt();
+
+      // Prep the extents
+      extentArray.reset();
+      extentsLoaded = false;
+      if (currentCount > inlineMinimum) {
+        extentsByteSize = positions.readInt();
+      } else {
+        // Load them aggressively since we can't skip them
+        loadExtents();
+      }
     }
 
     // Loads up a single set of positions for an intID. Basically it's the
     // load that needs to be done when moving forward one in the posting list.
     private void loadExtents() throws IOException {
-	if (!extentsLoaded) {
-	    extentArray.setDocument(currentDocument);
-	    int position = 0;
-	    for (int i = 0; i < currentCount; i++) {
-		position += positions.readInt();
-		extentArray.add(position);
-	    }
-	    extentsLoaded = true;
-	}
+      if (!extentsLoaded) {
+        extentArray.setDocument(currentDocument);
+        int position = 0;
+        for (int i = 0; i < currentCount; i++) {
+          position += positions.readInt();
+          extentArray.add(position);
+        }
+        extentsLoaded = true;
+      }
     }
 
     @Override
@@ -283,8 +285,8 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
         synchronizeSkipPositions();
       }
       if (skips != null && document > nextSkipDocument) {
-	  extentsLoaded = true;
-	  extentsByteSize = 0;
+        extentsLoaded = true;
+        extentsByteSize = 0;
         // if we're here, we're skipping
         while (skipsRead < numSkips
                 && document > nextSkipDocument) {
@@ -363,22 +365,28 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
 
     @Override
     public ExtentArray getData() {
-	try {
-	    loadExtents();
-	    return extentArray;
-	} catch (IOException ioe) {
-	    throw new RuntimeException(ioe);
-	}
+      if (context.document == this.currentCandidate()) {
+        try {
+          loadExtents();
+          return extentArray;
+        } catch (IOException ioe) {
+          throw new RuntimeException(ioe);
+        }
+      }
+      return this.emptyExtentArray;
     }
 
     @Override
     public ExtentArray extents() {
-	try {
-	    loadExtents();
-	    return extentArray;
-	} catch (IOException ioe) {
-	    throw new RuntimeException(ioe);
-	}
+      if (context.document == this.currentCandidate()) {
+        try {
+          loadExtents();
+          return extentArray;
+        } catch (IOException ioe) {
+          throw new RuntimeException(ioe);
+        }
+      }
+      return this.emptyExtentArray;
     }
 
     @Override
@@ -393,7 +401,10 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
 
     @Override
     public int count() {
-      return currentCount;
+      if (context.document == this.currentCandidate()) {
+        return currentCount;
+      }
+      return 0;
     }
 
     @Override
@@ -484,7 +495,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
 
       // Don't need to keep this value as positions are ignored.
       if ((options & HAS_INLINING) == HAS_INLINING) {
-	  int inlineMinimum = stream.readInt();
+        int inlineMinimum = stream.readInt();
       }
 
       documentCount = stream.readInt();
@@ -685,7 +696,10 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
 
     @Override
     public int count() {
-      return currentCount;
+      if (currentCandidate() == context.document) {
+        return currentCount;
+      }
+      return 0;
     }
 
     @Override

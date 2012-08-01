@@ -81,12 +81,13 @@ public class CachedRetrievalTest extends TestCase {
       assertEquals(diskNS.nodeDocumentCount, cachedNS.nodeDocumentCount);
       assertEquals(diskNS.nodeFrequency, cachedNS.nodeFrequency);
 
-      MovableCountIterator diskCountIterator = (MovableCountIterator) ret.createIterator(new Parameters(), count, null);
-      MovableCountIterator cachedCountIterator = (MovableCountIterator) cachedRet.createIterator(new Parameters(), count, null);
+      MovableCountIterator diskCountIterator = (MovableCountIterator) ret.createIterator(new Parameters(), count, sc);
+      MovableCountIterator cachedCountIterator = (MovableCountIterator) cachedRet.createIterator(new Parameters(), count, sc);
       assert (cachedCountIterator instanceof MemoryCountIndex.CountsIterator);
 
       while (!diskCountIterator.isDone() && !cachedCountIterator.isDone()) {
         assertEquals(diskCountIterator.currentCandidate(), cachedCountIterator.currentCandidate());
+        sc.document = diskCountIterator.currentCandidate();
         assertEquals(diskCountIterator.count(), cachedCountIterator.count());
         diskCountIterator.movePast(diskCountIterator.currentCandidate());
         cachedCountIterator.movePast(cachedCountIterator.currentCandidate());
@@ -104,12 +105,13 @@ public class CachedRetrievalTest extends TestCase {
       assertEquals(diskNS.nodeDocumentCount, cachedNS.nodeDocumentCount);
       assertEquals(diskNS.nodeFrequency, cachedNS.nodeFrequency);
 
-      MovableExtentIterator diskExtentIterator = (MovableExtentIterator) ret.createIterator(new Parameters(), extent, null);
-      MovableExtentIterator cachedExtentIterator = (MovableExtentIterator) cachedRet.createIterator(new Parameters(), extent, null);
+      MovableExtentIterator diskExtentIterator = (MovableExtentIterator) ret.createIterator(new Parameters(), extent, sc);
+      MovableExtentIterator cachedExtentIterator = (MovableExtentIterator) cachedRet.createIterator(new Parameters(), extent, sc);
       assert (cachedExtentIterator instanceof MemoryWindowIndex.ExtentIterator);
 
       while (!diskExtentIterator.isDone() && !cachedExtentIterator.isDone()) {
         assertEquals(diskExtentIterator.currentCandidate(), cachedExtentIterator.currentCandidate());
+        sc.document = cachedExtentIterator.currentCandidate();
         assertEquals(diskExtentIterator.count(), cachedExtentIterator.count());
         ExtentArray de = diskExtentIterator.extents();
         ExtentArray ce = cachedExtentIterator.extents();
