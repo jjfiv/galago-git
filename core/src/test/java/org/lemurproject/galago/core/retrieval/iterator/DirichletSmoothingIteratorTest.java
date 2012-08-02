@@ -37,48 +37,53 @@ public class DirichletSmoothingIteratorTest extends TestCase {
       App.run(new String[]{"build",
                 "--indexPath=" + idx.getAbsolutePath(),
                 "--inputPath+" + trec.getAbsolutePath()});
-      
+
       Parameters empty = new Parameters();
-      
+
       LocalRetrieval ret = new LocalRetrieval(idx.getAbsolutePath(), empty);
-      
+
       ScoringContext sc = new ScoringContext();
       Node dirNode1 = StructuredQuery.parse("#feature:dirichlet( one )");
       dirNode1 = ret.transformQuery(dirNode1, empty);
-      
+
       Node dirNode2 = StructuredQuery.parse("#dirichlet( #lengths:part=lengths() one )");
       dirNode2 = ret.transformQuery(dirNode2, empty);
 
       MovableScoreIterator dir1 = (MovableScoreIterator) ret.createIterator(empty, dirNode1, sc);
       MovableScoreIterator dir2 = (MovableScoreIterator) ret.createIterator(empty, dirNode2, sc);
-      
+
       Node lens = StructuredQuery.parse("#lengths:part=lengths()");
       sc.addLength("", (LengthsIterator) ret.createIterator(empty, lens, sc));
-      
-      while(!dir1.isDone() || !dir2.isDone()){
-        assertEquals( dir1.currentCandidate(), dir2.currentCandidate() );
+
+      while (!dir1.isDone() || !dir2.isDone()) {
+        assertEquals(dir1.currentCandidate(), dir2.currentCandidate());
         int d = dir1.currentCandidate();
         sc.document = d;
         sc.moveLengths(d);
-      
+
         dir1.moveTo(d);
         dir2.moveTo(d);
-        
-        assert(dir1.hasMatch(d));
-        assert(dir2.hasMatch(d));
-        
+
+        assert (dir1.hasMatch(d));
+        assert (dir2.hasMatch(d));
+
 //        System.err.println(dir1.getAnnotatedNode().toString());
 //        System.err.println(dir2.getAnnotatedNode().toString());
-        
+
         assertEquals(dir1.score(), dir2.score());
-        
+
         dir1.movePast(d);
         dir2.movePast(d);
       }
-      
-      
+
+
     } finally {
-      Utility.deleteDirectory(idx);
+      if (idx != null) {
+        Utility.deleteDirectory(idx);
+      }
+      if (trec != null) {
+        trec.delete();
+      }
     }
   }
 }
