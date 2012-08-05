@@ -21,8 +21,9 @@ import org.lemurproject.galago.core.types.DocumentSplit;
 // - Names cannot be nested
 class MBTEIEntityParser extends MBTEIParserBase {
     class Context {
-	public Context(LinkedList<String> previousText) {
-	    nameBuffer = new StringBuilder();
+	public Context(String name,
+		       LinkedList<String> previousText) {
+	    this.name = name;
 	    postText = new StringBuilder();
 	    StringBuilder preTextBuilder = new StringBuilder();
 	    for (String token : previousText) {
@@ -33,7 +34,6 @@ class MBTEIEntityParser extends MBTEIParserBase {
 	}
 	String name;
 	String type;
-	StringBuilder nameBuffer;
 	String preText;
 	StringBuilder postText;
 	int numTrailingWords;
@@ -80,7 +80,6 @@ class MBTEIEntityParser extends MBTEIParserBase {
 	
 	addStartElementAction(wordTag, "updateContexts");
 	addStartElementAction(nameTag, "openNewContext");
-	addEndElementAction(nameTag, "updateLastNamingContext");
 	addEndElementAction(textTag, "removeActionsAndEmit");
     }
 
@@ -91,11 +90,21 @@ class MBTEIEntityParser extends MBTEIParserBase {
     }
 
     public void openNewContext(int ignored) {
-	Context freshContext = new Context(slidingWindow);
-	freshContext.type = reader.getAttributeValue(null, "type").toLowerCase();
+	String type = reader.getAttributeValue(null, "type").toLowerCase();
+	if (restrict != null && !restrict.equals(type)) {
+	    return; // skip since it's not the restricted type
+	}
+	String name = reader.getAttributeValue(null, "name");
+	if (name == null) {
+	    return; // lazily skip anything without a name defined.
+	}
+	Context freshContext = new Context(name, slidingWindow);
+	freshContext.type = type;
 	openContexts.addLast(freshContext);
     }
 
+    // This is deprecated, but hang on to it for now just in case
+    /**
     public void updateLastNamingContext(int ignored) {
 	Context latestContext = openContexts.peekLast();
 	latestContext.name = latestContext.nameBuffer.toString().trim();
@@ -109,6 +118,7 @@ class MBTEIEntityParser extends MBTEIParserBase {
 	    }
 	}    
     }
+    */
 
     public void updateContexts(int ignored) {
 	String formValue = reader.getAttributeValue(null, "form");
@@ -119,12 +129,12 @@ class MBTEIEntityParser extends MBTEIParserBase {
 	}
 	
 	for (Context c : openContexts) {
-	    if (c.nameBuffer != null) {
-		c.nameBuffer.append(scrubbed).append(" ");
-	    } else {
+	    //if (c.nameBuffer != null) {
+	    // c.nameBuffer.append(scrubbed).append(" ");
+	    //} else {
 		c.postText.append(scrubbed).append(" ");
 		--c.numTrailingWords;
-	    }
+		//}
 	}
 
 	// Finally check for a finished context

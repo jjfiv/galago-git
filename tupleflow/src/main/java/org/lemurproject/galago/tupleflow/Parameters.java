@@ -9,6 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -502,6 +503,13 @@ public class Parameters implements Serializable {
     return p;
   }
 
+  public static Parameters parse(InputStream iStream) throws IOException {
+    JSONParser jp = new JSONParser(new InputStreamReader(iStream));
+    Parameters p = jp.parse();
+    return p;
+
+  }
+    
   public static Parameters parse(byte[] data) throws IOException {
     JSONParser jp = new JSONParser(new InputStreamReader(new ByteArrayInputStream(data)));
     Parameters p = jp.parse();
@@ -694,6 +702,14 @@ public class Parameters implements Serializable {
 
   public Parameters getMap(String key) {
     return (Parameters) _objects.get(key);
+  }
+    
+  public Parameters get(String key, Parameters def) {
+    if (_keys.containsKey(key)) {
+      return (Parameters) _objects.get(key);
+    } else {
+      return def;
+    }
   }
 
   public String getString(String key) {
@@ -943,7 +959,6 @@ public class Parameters implements Serializable {
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("{ ");
-
     try {
       String[] keys = _keys.keySet().toArray(new String[0]);
       Arrays.sort(keys);
@@ -1094,7 +1109,6 @@ public class Parameters implements Serializable {
   // faster to use static types for parsing and lookup
 
   public enum Type {
-
     BOOLEAN, LONG, DOUBLE, STRING, MAP, LIST
   };
 }

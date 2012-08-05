@@ -83,7 +83,7 @@ public class TermSelectionValueModel implements ExpansionModel {
 
     if (cReader == null) {
       // Let's make a corpus reader
-      String corpusLocation = parameters.get("corpus", null);
+	String corpusLocation = parameters.get("corpus", (String)null);
       if (corpusLocation == null) { // keep trying
         corpusLocation = parameters.getString("index") + File.separator + "corpus";
       }

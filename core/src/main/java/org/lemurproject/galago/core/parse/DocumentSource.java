@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import org.lemurproject.galago.core.index.BTreeFactory;
@@ -22,6 +24,7 @@ import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.Linkage;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.Step;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
@@ -51,10 +54,26 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   private int fileId = 0;
   private int totalFileCount = 0;
   private List<DocumentSplit> splitBuffer;
+  private Set<String> externalFileTypes;
+  private String dictatedFileType;
+  private Logger logger;
+  private String inputPolicy;
 
   public DocumentSource(TupleFlowParameters parameters) {
     this.parameters = parameters;
+    inputPolicy = parameters.getJSON().get("inputPolicy", "require");
     this.inputCounter = parameters.getCounter("Inputs Processed");
+    logger = Logger.getLogger("DOCSOURCE");
+    externalFileTypes = new HashSet<String>();
+    dictatedFileType = parameters.getJSON().get("filetype", (String)null);
+    if (parameters.getJSON().containsKey("externalParsers")) {
+	List<Parameters> extP = parameters.getJSON().getAsList("externalParsers");
+	for (Parameters p : extP) {
+	    logger.info(String.format("Adding external file type %s\n", 
+				      p.getString("filetype")));
+	    externalFileTypes.add(p.getString("filetype"));
+	}
+    }
   }
 
   public void run() throws IOException {
@@ -106,9 +125,17 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
   private void processFile(File file) throws IOException {
 
-    // First, make sure this file exists. If not, whine about it and die
+    // First, make sure this file exists. If not, whine about it.
     if (!file.exists()) {
-      throw new IOException(String.format("File %s was not found. Exiting.\n", file));
+	if (inputPolicy.equals("require")) {
+	    throw new IOException(String.format("File %s was not found. Exiting.\n", file));
+	} else if (inputPolicy.equals("warn")) {
+	    logger.warning(String.format("File %s was not found. Skipping.\n", file));
+	    return;
+	} else {
+	    // Return quietly
+	    return;
+	}
     }
 
     // Now try to detect what kind of file this is:
@@ -129,8 +156,9 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       return; // now considered processed
     }
 
-    if (UniversalParser.class.isAssignableFrom(processor.getClass()) &&
-	((UniversalParser) processor).isParsable(extension)) {
+    if (dictatedFileType != null) {
+	fileType = dictatedFileType;
+    } else if (UniversalParser.isParsable(extension) || isExternallyDefined(extension)) {
       fileType = extension;
     } else if (file.getName().equals("corpus") || (BTreeFactory.isBTree(file))) {
       // perhaps the user has renamed the corpus index
@@ -232,8 +260,9 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
         // We'll try to detect by extension first, so we don't have to open the file
         String extension = getExtension(file);
-        if (UniversalParser.class.isAssignableFrom(processor.getClass()) &&
-	    ((UniversalParser) processor).isParsable(extension)) {
+	if (dictatedFileType != null) {
+	    fileType = dictatedFileType;
+	} else if (UniversalParser.isParsable(extension) || isExternallyDefined(extension)) {
 	  fileType = extension;
         } else {
           fileType = detectTrecTextOrWeb(file);
@@ -284,7 +313,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     // otherwise we must always emit at least 2 pieces.
     pieces = Math.max(2, pieces);
 
-    Logger.getLogger("DOCSOURCE").info("Splitting corpus into " + pieces);
+    logger.info("Splitting corpus into " + pieces);
 
     for (int i = 1; i < pieces; ++i) {
       float fraction = (float) i / pieces;
@@ -409,6 +438,10 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       ioe.printStackTrace(System.err);
       return null;
     }
+  }
+
+  protected boolean isExternallyDefined(String extension) {
+      return externalFileTypes.contains(extension);
   }
 
   public void setProcessor(Step processor) throws IncompatibleProcessorException {

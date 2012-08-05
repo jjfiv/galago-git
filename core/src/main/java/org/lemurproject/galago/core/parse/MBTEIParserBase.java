@@ -243,6 +243,10 @@ abstract class MBTEIParserBase implements DocumentStreamParser {
 	}
       
 	try {
+	    // If the reader is empty, then nothing to do.
+	    if (!reader.hasNext()) {
+		return null;
+	    }
 	    while (reader.hasNext() && !documentReady()) {
 		status = reader.next();
 		switch (status) {
@@ -298,10 +302,9 @@ abstract class MBTEIParserBase implements DocumentStreamParser {
 	    // the buffer is non-empty, try to emit the
 	    // last document.
 	    if (!reader.hasNext()) {
-		cleanup();
+		cleanup();		
 	    }
 
-	    // Return the result of cleanup - either a document or null
 	    return getParsedDocument();
 	} catch (Exception e) {
 	    System.err.printf("EXCEPTION [%s,%s]: %s\n", 

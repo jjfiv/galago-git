@@ -87,6 +87,10 @@ public class App {
     appFunctions.put("subcollection", new BuildSubCollection());
     appFunctions.put("overwrite-manifest", new OverwriteManifest());
     appFunctions.put("stemmer-conflation", new BuildStemmerConflation());
+    appFunctions.put("link-indexes", new IndexLinker());
+    appFunctions.put("build-topics", new TopicIndexBuilder());
+    appFunctions.put("build-pictures", new BuildPictureStore()); 
+    appFunctions.put("build-dates", new BuildWordDateIndex());
 
     // background functions
     appFunctions.put("build-background", new BuildBackground());

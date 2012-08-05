@@ -1,0 +1,9 @@
+package org.lemurproject.galago.core.types;
+
+type WordDateCount {
+     bytes word;
+     int date;
+     long count;
+     
+     order: +word +date;
+}

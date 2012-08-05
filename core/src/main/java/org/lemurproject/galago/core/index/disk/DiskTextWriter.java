@@ -1,24 +1,29 @@
 // BSD License (http://lemurproject.org/galago-license)
 
-package org.lemurproject.galago.tupleflow;
+package org.lemurproject.galago.core.index.disk;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Processor;
+import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 
 /**
  * Writes a stream of objects to a text file.  Useful for debugging or as
- * output for simple jobs.
+ * output for simple jobs. The original version of this is the TextWriter
+ * class in the TupleFlow package, however that is restricted to emitting
+ * tuples (subclasses of the Type interface). This is more general.
  *
  * @author trevor
  */
 
-public class TextWriter<T extends Type> implements Processor<T> {
+public class DiskTextWriter<T> implements Processor<T> {
     BufferedWriter writer;
 
-    public TextWriter(TupleFlowParameters parameters) throws IOException {
+    public DiskTextWriter(TupleFlowParameters parameters) throws IOException {
         writer = new BufferedWriter(new FileWriter(parameters.getJSON().getString("filename")));
     }
 

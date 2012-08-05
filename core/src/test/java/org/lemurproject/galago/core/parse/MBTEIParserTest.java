@@ -10,6 +10,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import junit.framework.TestCase;
 
 /**
@@ -179,11 +180,64 @@ public class MBTEIParserTest extends TestCase {
 	assertNull(document);       
     }
 
+    public void testEntityLinking() throws IOException {
+	DocumentSplit split = new DocumentSplit();
+	split.fileName = "testdoc";
+	InputStream stream = new ByteArrayInputStream(entityDocument.getBytes());
+	MBTEIPageEntityLinker linker = new MBTEIPageEntityLinker(split, stream);
+	
+	ArrayList<Document> documents = new ArrayList<Document>();
+	// These things will show up in pairs
+	Document d1, d2;
+	Tag t1, t2;
+	// 2 for the book <-> blue emerald
+	// 2 for the page <-> blue emerald
+	for (int i = 0; i < 4; ++i) {
+	    d1 = linker.nextDocument();
+	    assertNotNull(d1);
+	    documents.add(d1);
+	}
+
+	// Concrete stuff
+	assertEquals("PAGE-LINK", documents.get(0).name);
+	assertEquals("OBJECT-LINK", documents.get(1).name);
+	assertEquals("COLLECTION-LINK", documents.get(2).name);
+	assertEquals("OBJECT-LINK", documents.get(3).name);
+	
+	// pairwise matching
+	// Variable name pattern: (t|d)(1|2) 
+	// - the (t|d) indicates tag or document form,
+	// - the (1|2) indicates the order it first appeared from the linker
+	for (int i = 0; i < 2; i+=2) {
+	    d1 = documents.get(i+0);
+	    assertEquals(1, d1.tags.size());
+	    d2 = documents.get(i+1);
+	    assertEquals(1, d2.tags.size());
+	    	    
+	    t1 = d2.tags.get(0);
+	    t2 = d1.tags.get(0);
+	    assertEquals(d1.name, t1.name);
+	    assertEquals(d2.name, t2.name);
+	    assertEquals(d1.metadata.get("id"),
+			 t1.attributes.get("id"));
+	    assertEquals(d2.metadata.get("id"),
+			 t2.attributes.get("id"));
+	    assertEquals(d1.metadata.get("type"),
+			 t1.attributes.get("type"));
+	    assertEquals(d2.metadata.get("type"),
+			 t2.attributes.get("type"));
+	    assertEquals(d1.metadata.get("pos"),
+			 t1.attributes.get("pos"));
+	    assertEquals(d2.metadata.get("pos"),
+			 t2.attributes.get("pos"));
+	}
+    }
+
     public static String teiDocument = 
 	"<?xml version=\"1.0\" encoding=\"UTF-8\"?><TEI><metadata><identifier>testDocument</identifier><collection>galago</collection><title>test1</title><date>1916</date><language>eng</language></metadata><text lang=\"eng\"><pb n=\"1\" /><cb /><pb n=\"2\" /><w form=\"The\" deprel=\"ROOT\">The</w><w form=\"blue\">blue</w><w form=\"emerald\">emerald</w><pb n=\"3\"><w form=\",\">,</w><w form=\"that\" deprel=\"ROOT\">that</w><w form=\"ugly\">ugly</w><w form=\"one\">one</w></pb><pb n=\"4\"></pb></text></TEI>";
 
     public static String entityDocument = 
-	"<?xml version=\"1.0\" encoding=\"UTF-8\"?><TEI><metadata><identifier>testDocument</identifier><collection>galago</collection><title>test1</title><date>1916</date><language>eng</language></metadata><text lang=\"eng\"><pb n=\"1\" /><cb /><pb n=\"2\" /><w form=\"The\" deprel=\"ROOT\">The</w><name type=\"object\"><w form=\"blue\">blue</w><w form=\"emerald\">emerald</w></name><pb n=\"3\"><w form=\",\">,</w><w form=\"that\" deprel=\"ROOT\">that</w><w form=\"ugly\">ugly</w><w form=\"one\">one</w></pb><pb n=\"4\"></pb></text></TEI>";
+	"<?xml version=\"1.0\" encoding=\"UTF-8\"?><TEI><metadata><identifier>testDocument</identifier><collection>galago</collection><title>test1</title><date>1916</date><language>eng</language></metadata><text lang=\"eng\"><pb n=\"1\" /><cb /><pb n=\"2\" /><w form=\"The\" deprel=\"ROOT\">The</w><name type=\"object\" name=\"blue emerald\"><w form=\"blue\">blue</w><w form=\"emerald\">emerald</w></name><pb n=\"3\"><w form=\",\">,</w><w form=\"that\" deprel=\"ROOT\">that</w><w form=\"ugly\">ugly</w><w form=\"one\">one</w></pb><pb n=\"4\"></pb></text></TEI>";
 
     public static String badTEIDocument = 
 	"<?xml version=\"1.0\" encoding=\"UTF-8\"?><TEI><metadata><identifier>testDocument</identifier><collection>galago</collection><title>test1</title><date>1916</date><language>eng</language></metadata><text lang=\"eng\"><pb n=\"1\" /><cb /><pb n=\"2\" /><w form=\"The\" deprel=\"ROOT\">The</w><w form=\"blue\">blue</w><w form=\"emerald\">emerald</w><pb n=\"3\"><w form=\",\">,</w><w form=\"that\" deprel=\"ROOT\">that</w><w form=\"ugly\">ugly</w><w form=\"one\">one</w></pb><pb n=\"4\"></pb><pb n=\"4\"><w coords=\"0234\" form=\"ha";

@@ -72,9 +72,7 @@ class MBTEIBookParser extends MBTEIParserBase {
 
 	// Move on to the new rules
 	// First remove old matchers
-	clearStartElementActions();
-	clearEndElementActions();
-	unsetCharactersAction();
+	clearAllActions();
 
 	// Now set up our normal processing matchers
 	addStartElementAction(wordTag, "echoFormAttribute");

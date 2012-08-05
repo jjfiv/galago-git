@@ -669,7 +669,7 @@ public class BuildIndex extends AppFunction {
 
     // common steps + connections
 
-    Parameters splitParameters = new Parameters();
+    Parameters splitParameters = buildParameters.get("parser", new Parameters()).clone();
     splitParameters.set("corpusPieces", buildParameters.get("distrib", 10));
     job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
 

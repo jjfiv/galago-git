@@ -23,12 +23,12 @@ import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
-import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.tupleflow.StreamCreator;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.execution.Verified;
 
 /**
  * Determines the class type of the input split, either based
@@ -185,9 +185,9 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 	  formals = constructor.getParameterTypes();
 	  actuals = new ArrayList<Object>(formals.length);
 	  for (Class formalClass : formals) {
-	      if (BufferedInputStream.class.isAssignableFrom(formalClass)) {
+	      if (formalClass.isAssignableFrom(BufferedInputStream.class)) {
 		  actuals.add(getLocalBufferedInputStream(split));
-	      } else if (BufferedReader.class.isAssignableFrom(formalClass)) {
+	      } else if (formalClass.isAssignableFrom(BufferedReader.class)) {
 		  actuals.add(getLocalBufferedReader(split));
 	      } else if (String.class.isAssignableFrom(formalClass)) {
 		  actuals.add(split.fileName);
@@ -206,17 +206,30 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
       }
       // None of the constructors worked. Complain.
       StringBuilder builder = new StringBuilder();
-      builder.append("No viable constructor for file type parser");
-      builder.append(parserClass.getName()).append("\n\n");
+      builder.append("No viable constructor for file type parser ");
+      builder.append(parserClass.getName()).append("\n\n");      
       builder.append("Valid formal parameters include TupleFlowParameters,");
       builder.append(" Parameters, BufferedInputStream or BufferedReader,\n");
-      builder.append(" String (fileName is passed as the actual), or\n");
-      builder.append(" DocumentSplit.\n");
+      builder.append(" String (fileName is passed as the actual), or");
+      builder.append(" DocumentSplit.\n\nConstuctors found:\n");
+      for (Constructor c : constructors) {
+	  builder.append("( ");
+	  formals = c.getParameterTypes();
+	  for (Class klazz : formals) {
+	      builder.append(klazz.getName()).append(",");
+	  }
+	  builder.append(")\n");
+      }
       throw new IllegalArgumentException(builder.toString());
   }
 
-  public boolean isParsable(String extension) {
-      return fileTypeMap.containsKey(extension);
+  public static boolean isParsable(String extension) {
+      for (String[] entry : sFileTypeLookup) {
+	  if (entry[0].equals(extension)) {
+	      return true;
+	  }
+      }
+      return false;
   }
 
   public BufferedReader getLocalBufferedReader(DocumentSplit split) throws IOException {

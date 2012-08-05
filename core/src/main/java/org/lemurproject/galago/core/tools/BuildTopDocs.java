@@ -21,7 +21,7 @@ import org.lemurproject.galago.tupleflow.execution.Step;
 
 /**
  *
- * @author marc
+ * @author irmarc
  */
 public class BuildTopDocs {
 
