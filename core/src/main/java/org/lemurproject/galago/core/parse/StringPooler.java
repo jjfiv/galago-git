@@ -31,7 +31,7 @@ public class StringPooler {
    * Replaces the strings within this document with strings in a
    * string pool.
    *
-   * String pool is weakly referenced - it can be garbaged collected
+   * String pool is weakly referenced - it can be garbage collected
    *
    * @param document
    */

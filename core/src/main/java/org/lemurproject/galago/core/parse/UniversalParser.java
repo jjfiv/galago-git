@@ -82,6 +82,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     this.tfParameters = parameters;
     documentCounter = parameters.getCounter("Documents Parsed");
     this.parameters = parameters.getJSON();
+    System.err.printf("Received parser parameters: %s\n", this.parameters.toPrettyString());
     buildFileTypeMap();
   }
 

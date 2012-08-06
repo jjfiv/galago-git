@@ -210,7 +210,12 @@ public class App {
 	    for (Parameters jobStep : serialJobs) {
                 if (jobStep.get("active", true)) {
                   Parameters stepParameters = findJobParameters(jobStep);
-                  App.run(jobStep.getString("command"), stepParameters, output);
+                  String cmdName = jobStep.get("command", "none");
+                  if (!appFunctions.containsKey(cmdName)) {
+                    output.printf("Couldn't find command %s.\n", cmdName);
+                    return;
+                  }
+                  App.run(cmdName, stepParameters, output);
               }
 	    }
 	} else if (jobs.isMap("jobs")) {
@@ -359,31 +364,23 @@ public class App {
 
     @Override
     public String getHelpString() {
-      return "galago dump-corpus <corpus>\n\n"
-              + "  Dumps all documents from a corpus file to stdout.\n";
+      return "galago dump-corpus --path=<corpus> [limit fields]\n\n"
+              + " Dumps all documents from a corpus file to stdout.\n"
+              + " Limits (all boolean) include:\n pseudo tags terms metadata"
+              + " text\n";
     }
 
     @Override
-    public void run(String[] args, PrintStream output) throws Exception {
-      if (args.length <= 1) {
-        output.println(getHelpString());
-        return;
-      }
-      DocumentReader reader = new CorpusReader(args[1]);
-
+    public void run(Parameters p, PrintStream output) throws Exception {
+      DocumentReader reader = new CorpusReader(p.getString("path"));
       if (reader.getManifest().get("emptyIndexFile", false)) {
         output.println("Empty Corpus.");
         return;
       }
 
       DocumentReader.DocumentIterator iterator = (DocumentIterator) reader.getIterator();
-
       while (!iterator.isDone()) {
         output.println("#IDENTIFIER: " + iterator.getKeyString());
-        Parameters p = new Parameters();
-        p.set("terms", false);
-        p.set("tags", false);
-
         Document document = iterator.getDocument(p);
         output.println("#METADATA");
         for (Entry<String, String> entry : document.metadata.entrySet()) {
@@ -394,12 +391,6 @@ public class App {
         iterator.nextKey();
       }
       reader.close();
-    }
-
-    @Override
-    public void run(Parameters p, PrintStream output) throws Exception {
-      String corpusPath = p.getString("corpusPath");
-      run(new String[]{"", corpusPath}, output);
     }
   }
 

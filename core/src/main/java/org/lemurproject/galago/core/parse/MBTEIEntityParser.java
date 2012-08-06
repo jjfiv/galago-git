@@ -1,17 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.PriorityQueue;
+import java.util.List;
 import java.util.regex.Pattern;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.util.StreamReaderDelegate;
 import org.lemurproject.galago.core.types.DocumentSplit;
 
 // Fundamentally operates differently than the book and page parsers,
@@ -20,22 +15,20 @@ import org.lemurproject.galago.core.types.DocumentSplit;
 // Assumptions
 // - Names cannot be nested
 class MBTEIEntityParser extends MBTEIParserBase {
+    protected StringPooler pooler = new StringPooler();
     class Context {
 	public Context(String name,
 		       LinkedList<String> previousText) {
 	    this.name = name;
-	    postText = new StringBuilder();
-	    StringBuilder preTextBuilder = new StringBuilder();
-	    for (String token : previousText) {
-		preTextBuilder.append(token).append(" ");
-	    }
-	    preText = preTextBuilder.toString().trim();
+	    tokens = new LinkedList<String>();
+            for (String s : previousText) {
+              tokens.add(scrub(s));
+            }
 	    numTrailingWords = windowSize;
 	}
 	String name;
 	String type;
-	String preText;
-	StringBuilder postText;
+	List<String> tokens;
 	int numTrailingWords;
     }   
 
@@ -112,7 +105,7 @@ class MBTEIEntityParser extends MBTEIParserBase {
 	}
 	
 	for (Context c : openContexts) {
-	    c.postText.append(scrubbed).append(" ");
+	    c.tokens.add(scrubbed);
 	    --c.numTrailingWords;
 	}
 
@@ -126,12 +119,12 @@ class MBTEIEntityParser extends MBTEIParserBase {
     public void buildDocument() {
 	if (openContexts.size() > 0) {
 	    Context closingContext = openContexts.poll();
-	    StringBuilder documentText = new StringBuilder(closingContext.preText);
-	    documentText.append(" ").append(closingContext.postText.toString().trim());
-	    parsedDocument = new Document(closingContext.name,
-					  documentText.toString());
+	    parsedDocument = new Document();
+            parsedDocument.name = closingContext.name;
 	    parsedDocument.identifier = closingContext.name.hashCode();
 	    parsedDocument.metadata.put("title", closingContext.name);
+            parsedDocument.terms = closingContext.tokens;
+            pooler.transform(parsedDocument);
 	} else {
 	    parsedDocument = null;
 	}

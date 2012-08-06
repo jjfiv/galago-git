@@ -168,7 +168,6 @@ public class Document implements Serializable {
 
     output.close();
 
-
     ByteArrayOutputStream docArray = new ByteArrayOutputStream();
     output = new DataOutputStream(new SnappyOutputStream(docArray));
 

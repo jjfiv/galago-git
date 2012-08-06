@@ -39,10 +39,10 @@ public class BTreeFactory {
   }
 
   public static boolean isBTree(File f) throws IOException {
-    if (SplitBTreeReader.isBTree(f)) {
+    if (f.isFile() && DiskBTreeReader.isBTree(f)) {
       return true;
     }
-    if (DiskBTreeReader.isBTree(f)) {
+    if (f.isDirectory() && SplitBTreeReader.isBTree(f)) {
       return true;
     }
     return false;

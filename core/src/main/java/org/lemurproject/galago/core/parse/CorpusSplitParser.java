@@ -21,12 +21,24 @@ public class CorpusSplitParser implements DocumentStreamParser {
   DocumentReader reader;
   DocumentIterator iterator;
   DocumentSplit split;
+  Parameters extractionParameters;
 
-    public CorpusSplitParser(DocumentSplit split) throws FileNotFoundException, IOException {
+  public CorpusSplitParser(DocumentSplit split) throws FileNotFoundException, IOException {
+    this(split, new Parameters());
+  }
+
+  public CorpusSplitParser(DocumentSplit split, Parameters p) throws FileNotFoundException, IOException {
+    System.err.printf("Creating corpus split parser with parameters:\n%s\n", p.toPrettyString());
     reader = new CorpusReader(split.fileName);
     iterator = (DocumentIterator) reader.getIterator();
     iterator.skipToKey(split.startKey);
     this.split = split;
+    if (p.isEmpty()) {
+      p.set("terms", false);
+      p.set("tags", false);
+    }
+    extractionParameters = p;
+    System.err.printf("Extraction parameters: %s\n", p.toPrettyString());
   }
 
   @Override
@@ -36,16 +48,13 @@ public class CorpusSplitParser implements DocumentStreamParser {
     }
 
     byte[] keyBytes = iterator.getKey();
-    
+
     // Don't go past the end of the split.
     if (split.endKey.length > 0 && Utility.compare(keyBytes, split.endKey) >= 0) {
       return null;
     }
 
-    Parameters p = new Parameters();
-    p.set("terms", false);
-    p.set("tags", false);
-    Document document = iterator.getDocument(p);
+    Document document = iterator.getDocument(extractionParameters);
     iterator.nextKey();
     return document;
   }

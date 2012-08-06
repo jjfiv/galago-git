@@ -4,7 +4,6 @@ package org.lemurproject.galago.core.index.corpus;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.zip.GZIPOutputStream;
 import org.lemurproject.galago.core.parse.Document;
 
 import org.lemurproject.galago.core.types.KeyValuePair;
@@ -14,6 +13,7 @@ import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.xerial.snappy.SnappyOutputStream;
 
 /**
  * Writes documents to a file - new output file is created in the folder
@@ -41,7 +41,7 @@ public class DocumentToKeyValuePair extends StandardStep<Document, KeyValuePair>
     ByteArrayOutputStream array = new ByteArrayOutputStream();
     ObjectOutputStream output;
     if (compressed) {
-      output = new ObjectOutputStream(new GZIPOutputStream(array));
+      output = new ObjectOutputStream(new SnappyOutputStream(array));
     } else {
       output = new ObjectOutputStream(array);
     }
