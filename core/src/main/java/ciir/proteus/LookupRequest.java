@@ -4,7 +4,7 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-package org.lemurproject.galago.core.thrift;
+package ciir.proteus;
 
 import org.apache.thrift.scheme.IScheme;
 import org.apache.thrift.scheme.SchemeFactory;
@@ -27,22 +27,22 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TermList implements org.apache.thrift.TBase<TermList, TermList._Fields>, java.io.Serializable, Cloneable {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TermList");
+public class LookupRequest implements org.apache.thrift.TBase<LookupRequest, LookupRequest._Fields>, java.io.Serializable, Cloneable {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("LookupRequest");
 
-  private static final org.apache.thrift.protocol.TField TERMS_FIELD_DESC = new org.apache.thrift.protocol.TField("terms", org.apache.thrift.protocol.TType.LIST, (short)1);
+  private static final org.apache.thrift.protocol.TField IDS_FIELD_DESC = new org.apache.thrift.protocol.TField("ids", org.apache.thrift.protocol.TType.LIST, (short)1);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new TermListStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new TermListTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new LookupRequestStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new LookupRequestTupleSchemeFactory());
   }
 
-  public List<WeightedTerm> terms; // required
+  public List<AccessIdentifier> ids; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    TERMS((short)1, "terms");
+    IDS((short)1, "ids");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -57,8 +57,8 @@ public class TermList implements org.apache.thrift.TBase<TermList, TermList._Fie
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // TERMS
-          return TERMS;
+        case 1: // IDS
+          return IDS;
         default:
           return null;
       }
@@ -102,91 +102,91 @@ public class TermList implements org.apache.thrift.TBase<TermList, TermList._Fie
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.TERMS, new org.apache.thrift.meta_data.FieldMetaData("terms", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.IDS, new org.apache.thrift.meta_data.FieldMetaData("ids", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, WeightedTerm.class))));
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, AccessIdentifier.class))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TermList.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(LookupRequest.class, metaDataMap);
   }
 
-  public TermList() {
+  public LookupRequest() {
   }
 
-  public TermList(
-    List<WeightedTerm> terms)
+  public LookupRequest(
+    List<AccessIdentifier> ids)
   {
     this();
-    this.terms = terms;
+    this.ids = ids;
   }
 
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public TermList(TermList other) {
-    if (other.isSetTerms()) {
-      List<WeightedTerm> __this__terms = new ArrayList<WeightedTerm>();
-      for (WeightedTerm other_element : other.terms) {
-        __this__terms.add(new WeightedTerm(other_element));
+  public LookupRequest(LookupRequest other) {
+    if (other.isSetIds()) {
+      List<AccessIdentifier> __this__ids = new ArrayList<AccessIdentifier>();
+      for (AccessIdentifier other_element : other.ids) {
+        __this__ids.add(new AccessIdentifier(other_element));
       }
-      this.terms = __this__terms;
+      this.ids = __this__ids;
     }
   }
 
-  public TermList deepCopy() {
-    return new TermList(this);
+  public LookupRequest deepCopy() {
+    return new LookupRequest(this);
   }
 
   @Override
   public void clear() {
-    this.terms = null;
+    this.ids = null;
   }
 
-  public int getTermsSize() {
-    return (this.terms == null) ? 0 : this.terms.size();
+  public int getIdsSize() {
+    return (this.ids == null) ? 0 : this.ids.size();
   }
 
-  public java.util.Iterator<WeightedTerm> getTermsIterator() {
-    return (this.terms == null) ? null : this.terms.iterator();
+  public java.util.Iterator<AccessIdentifier> getIdsIterator() {
+    return (this.ids == null) ? null : this.ids.iterator();
   }
 
-  public void addToTerms(WeightedTerm elem) {
-    if (this.terms == null) {
-      this.terms = new ArrayList<WeightedTerm>();
+  public void addToIds(AccessIdentifier elem) {
+    if (this.ids == null) {
+      this.ids = new ArrayList<AccessIdentifier>();
     }
-    this.terms.add(elem);
+    this.ids.add(elem);
   }
 
-  public List<WeightedTerm> getTerms() {
-    return this.terms;
+  public List<AccessIdentifier> getIds() {
+    return this.ids;
   }
 
-  public TermList setTerms(List<WeightedTerm> terms) {
-    this.terms = terms;
+  public LookupRequest setIds(List<AccessIdentifier> ids) {
+    this.ids = ids;
     return this;
   }
 
-  public void unsetTerms() {
-    this.terms = null;
+  public void unsetIds() {
+    this.ids = null;
   }
 
-  /** Returns true if field terms is set (has been assigned a value) and false otherwise */
-  public boolean isSetTerms() {
-    return this.terms != null;
+  /** Returns true if field ids is set (has been assigned a value) and false otherwise */
+  public boolean isSetIds() {
+    return this.ids != null;
   }
 
-  public void setTermsIsSet(boolean value) {
+  public void setIdsIsSet(boolean value) {
     if (!value) {
-      this.terms = null;
+      this.ids = null;
     }
   }
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case TERMS:
+    case IDS:
       if (value == null) {
-        unsetTerms();
+        unsetIds();
       } else {
-        setTerms((List<WeightedTerm>)value);
+        setIds((List<AccessIdentifier>)value);
       }
       break;
 
@@ -195,8 +195,8 @@ public class TermList implements org.apache.thrift.TBase<TermList, TermList._Fie
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case TERMS:
-      return getTerms();
+    case IDS:
+      return getIds();
 
     }
     throw new IllegalStateException();
@@ -209,8 +209,8 @@ public class TermList implements org.apache.thrift.TBase<TermList, TermList._Fie
     }
 
     switch (field) {
-    case TERMS:
-      return isSetTerms();
+    case IDS:
+      return isSetIds();
     }
     throw new IllegalStateException();
   }
@@ -219,21 +219,21 @@ public class TermList implements org.apache.thrift.TBase<TermList, TermList._Fie
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof TermList)
-      return this.equals((TermList)that);
+    if (that instanceof LookupRequest)
+      return this.equals((LookupRequest)that);
     return false;
   }
 
-  public boolean equals(TermList that) {
+  public boolean equals(LookupRequest that) {
     if (that == null)
       return false;
 
-    boolean this_present_terms = true && this.isSetTerms();
-    boolean that_present_terms = true && that.isSetTerms();
-    if (this_present_terms || that_present_terms) {
-      if (!(this_present_terms && that_present_terms))
+    boolean this_present_ids = true && this.isSetIds();
+    boolean that_present_ids = true && that.isSetIds();
+    if (this_present_ids || that_present_ids) {
+      if (!(this_present_ids && that_present_ids))
         return false;
-      if (!this.terms.equals(that.terms))
+      if (!this.ids.equals(that.ids))
         return false;
     }
 
@@ -245,20 +245,20 @@ public class TermList implements org.apache.thrift.TBase<TermList, TermList._Fie
     return 0;
   }
 
-  public int compareTo(TermList other) {
+  public int compareTo(LookupRequest other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
 
     int lastComparison = 0;
-    TermList typedOther = (TermList)other;
+    LookupRequest typedOther = (LookupRequest)other;
 
-    lastComparison = Boolean.valueOf(isSetTerms()).compareTo(typedOther.isSetTerms());
+    lastComparison = Boolean.valueOf(isSetIds()).compareTo(typedOther.isSetIds());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetTerms()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.terms, typedOther.terms);
+    if (isSetIds()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ids, typedOther.ids);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -280,14 +280,14 @@ public class TermList implements org.apache.thrift.TBase<TermList, TermList._Fie
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("TermList(");
+    StringBuilder sb = new StringBuilder("LookupRequest(");
     boolean first = true;
 
-    sb.append("terms:");
-    if (this.terms == null) {
+    sb.append("ids:");
+    if (this.ids == null) {
       sb.append("null");
     } else {
-      sb.append(this.terms);
+      sb.append(this.ids);
     }
     first = false;
     sb.append(")");
@@ -314,15 +314,15 @@ public class TermList implements org.apache.thrift.TBase<TermList, TermList._Fie
     }
   }
 
-  private static class TermListStandardSchemeFactory implements SchemeFactory {
-    public TermListStandardScheme getScheme() {
-      return new TermListStandardScheme();
+  private static class LookupRequestStandardSchemeFactory implements SchemeFactory {
+    public LookupRequestStandardScheme getScheme() {
+      return new LookupRequestStandardScheme();
     }
   }
 
-  private static class TermListStandardScheme extends StandardScheme<TermList> {
+  private static class LookupRequestStandardScheme extends StandardScheme<LookupRequest> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, TermList struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, LookupRequest struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -332,21 +332,21 @@ public class TermList implements org.apache.thrift.TBase<TermList, TermList._Fie
           break;
         }
         switch (schemeField.id) {
-          case 1: // TERMS
+          case 1: // IDS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list16 = iprot.readListBegin();
-                struct.terms = new ArrayList<WeightedTerm>(_list16.size);
-                for (int _i17 = 0; _i17 < _list16.size; ++_i17)
+                org.apache.thrift.protocol.TList _list162 = iprot.readListBegin();
+                struct.ids = new ArrayList<AccessIdentifier>(_list162.size);
+                for (int _i163 = 0; _i163 < _list162.size; ++_i163)
                 {
-                  WeightedTerm _elem18; // optional
-                  _elem18 = new WeightedTerm();
-                  _elem18.read(iprot);
-                  struct.terms.add(_elem18);
+                  AccessIdentifier _elem164; // optional
+                  _elem164 = new AccessIdentifier();
+                  _elem164.read(iprot);
+                  struct.ids.add(_elem164);
                 }
                 iprot.readListEnd();
               }
-              struct.setTermsIsSet(true);
+              struct.setIdsIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -362,17 +362,17 @@ public class TermList implements org.apache.thrift.TBase<TermList, TermList._Fie
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, TermList struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, LookupRequest struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      if (struct.terms != null) {
-        oprot.writeFieldBegin(TERMS_FIELD_DESC);
+      if (struct.ids != null) {
+        oprot.writeFieldBegin(IDS_FIELD_DESC);
         {
-          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.terms.size()));
-          for (WeightedTerm _iter19 : struct.terms)
+          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.ids.size()));
+          for (AccessIdentifier _iter165 : struct.ids)
           {
-            _iter19.write(oprot);
+            _iter165.write(oprot);
           }
           oprot.writeListEnd();
         }
@@ -384,50 +384,50 @@ public class TermList implements org.apache.thrift.TBase<TermList, TermList._Fie
 
   }
 
-  private static class TermListTupleSchemeFactory implements SchemeFactory {
-    public TermListTupleScheme getScheme() {
-      return new TermListTupleScheme();
+  private static class LookupRequestTupleSchemeFactory implements SchemeFactory {
+    public LookupRequestTupleScheme getScheme() {
+      return new LookupRequestTupleScheme();
     }
   }
 
-  private static class TermListTupleScheme extends TupleScheme<TermList> {
+  private static class LookupRequestTupleScheme extends TupleScheme<LookupRequest> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, TermList struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, LookupRequest struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetTerms()) {
+      if (struct.isSetIds()) {
         optionals.set(0);
       }
       oprot.writeBitSet(optionals, 1);
-      if (struct.isSetTerms()) {
+      if (struct.isSetIds()) {
         {
-          oprot.writeI32(struct.terms.size());
-          for (WeightedTerm _iter20 : struct.terms)
+          oprot.writeI32(struct.ids.size());
+          for (AccessIdentifier _iter166 : struct.ids)
           {
-            _iter20.write(oprot);
+            _iter166.write(oprot);
           }
         }
       }
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, TermList struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, LookupRequest struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(1);
       if (incoming.get(0)) {
         {
-          org.apache.thrift.protocol.TList _list21 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.terms = new ArrayList<WeightedTerm>(_list21.size);
-          for (int _i22 = 0; _i22 < _list21.size; ++_i22)
+          org.apache.thrift.protocol.TList _list167 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.ids = new ArrayList<AccessIdentifier>(_list167.size);
+          for (int _i168 = 0; _i168 < _list167.size; ++_i168)
           {
-            WeightedTerm _elem23; // optional
-            _elem23 = new WeightedTerm();
-            _elem23.read(iprot);
-            struct.terms.add(_elem23);
+            AccessIdentifier _elem169; // optional
+            _elem169 = new AccessIdentifier();
+            _elem169.read(iprot);
+            struct.ids.add(_elem169);
           }
         }
-        struct.setTermsIsSet(true);
+        struct.setIdsIsSet(true);
       }
     }
   }

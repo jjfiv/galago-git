@@ -81,66 +81,24 @@ public class MakeCorpus {
     return job;
   }
 
-  public Stage getSplitStage(List<String> inputs, Parameters globalParams) throws IOException {
-    Stage stage = new Stage("inputSplit");
-    stage.add(new StageConnectionPoint(ConnectionPointType.Output, "splits",
-            new DocumentSplit.FileIdOrder()));
-
-    Parameters p = new Parameters();
-    p.set("corpusPieces", globalParams.get("distrib", 10));
-
-    ArrayList<String> inputFiles = new ArrayList<String>();
-    ArrayList<String> inputDirectories = new ArrayList<String>();
-    for (String input : inputs) {
-      File inputFile = new File(input);
-
-      if (inputFile.isFile()) {
-        inputFiles.add(inputFile.getAbsolutePath());
-      } else if (inputFile.isDirectory()) {
-        inputDirectories.add(inputFile.getAbsolutePath());
-      } else {
-        throw new IOException("Couldn't find file/directory: " + input);
-      }
-      p.set("filename", inputFiles);
-      p.set("directory", inputDirectories);
-    }
-
-    stage.add(new Step(DocumentSource.class, p));
-    stage.add(Utility.getSorter(new DocumentSplit.FileIdOrder()));
-    stage.add(new OutputStep("splits"));
-
-    return stage;
-  }
-
   public Stage getParseWriteDocumentsStage(Parameters corpusParameters, Parameters corpusWriterParameters) {
     Stage stage = new Stage("parserWriter");
-
-    stage.add(new StageConnectionPoint(
-            ConnectionPointType.Input,
-            "splits", new DocumentSplit.FileIdOrder()));
-
-    stage.add(new StageConnectionPoint(
-            ConnectionPointType.Output,
-            "indexData", new KeyValuePair.KeyOrder()));
-
+    stage.addInput("splits", new DocumentSplit.FileIdOrder());
+    stage.addOutput("indexData", new KeyValuePair.KeyOrder());
     stage.add(new InputStep("splits"));
     stage.add(BuildStageTemplates.getParserStep(corpusParameters));
     stage.add(BuildStageTemplates.getTokenizerStep(corpusParameters));
     stage.add(new Step(DocumentNumberer.class));
-
     stage.add(new Step(CorpusFolderWriter.class, corpusWriterParameters.clone()));
     stage.add(Utility.getSorter(new KeyValuePair.KeyOrder()));
     stage.add(new OutputStep("indexData"));
-
     return stage;
   }
 
   public Stage getIndexWriterStage(Parameters corpusWriterParameters) {
     Stage stage = new Stage("indexWriter");
 
-    stage.add(new StageConnectionPoint(ConnectionPointType.Input,
-            "indexData", new KeyValuePair.KeyOrder()));
-
+    stage.addInput("indexData", new KeyValuePair.KeyOrder());
     stage.add(new InputStep("indexData"));
     stage.add(new Step(SplitBTreeKeyWriter.class, corpusWriterParameters.clone()));
 

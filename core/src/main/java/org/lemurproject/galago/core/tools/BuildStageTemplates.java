@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.index.disk.FieldIndexWriter;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.parse.DocumentCounter;
+import org.lemurproject.galago.core.parse.DocumentNumberer;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.parse.UniversalParser;
 import org.lemurproject.galago.core.types.DocumentSplit;
@@ -38,6 +39,12 @@ public class BuildStageTemplates {
 
   // Cannot instantiate - just a container class
   private BuildStageTemplates() {
+  }
+
+  public static void writeManifest(String indexPath, Parameters jobP) throws IOException {
+      File manifest = new File(indexPath, "buildManifest.json");
+      Utility.makeParentDirectories(manifest);
+      Utility.copyStringToFile(jobP.toPrettyString(), manifest);
   }
 
   public static Stage getGenericWriteStage(String stageName, File destination, String inputPipeName,
@@ -187,6 +194,14 @@ public class BuildStageTemplates {
     stage.add(Utility.getSorter(order));
     stage.add(new OutputStep("splits"));
     return stage;
+  }
+
+  public static Step getNumberingStep(Parameters p) {
+      return getNumberingStep(p, DocumentNumberer.class);
+  }
+
+  public static Step getNumberingStep(Parameters p, Class defaultClass) {
+    return getGenericStep("numberer", p, defaultClass);
   }
 
   public static Step getParserStep(Parameters p) {

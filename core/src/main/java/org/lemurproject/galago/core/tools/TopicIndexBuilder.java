@@ -14,7 +14,7 @@ import java.io.PrintStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.lemurproject.galago.core.thrift.*;
+import ciir.proteus.*;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import org.lemurproject.galago.core.index.GenericElement;

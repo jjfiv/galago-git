@@ -4,7 +4,7 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-package org.lemurproject.galago.core.thrift;
+package ciir.proteus;
 
 import org.apache.thrift.scheme.IScheme;
 import org.apache.thrift.scheme.SchemeFactory;
@@ -27,22 +27,22 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TermHistogram implements org.apache.thrift.TBase<TermHistogram, TermHistogram._Fields>, java.io.Serializable, Cloneable {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TermHistogram");
+public class LookupResponse implements org.apache.thrift.TBase<LookupResponse, LookupResponse._Fields>, java.io.Serializable, Cloneable {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("LookupResponse");
 
-  private static final org.apache.thrift.protocol.TField TERMS_FIELD_DESC = new org.apache.thrift.protocol.TField("terms", org.apache.thrift.protocol.TType.LIST, (short)1);
+  private static final org.apache.thrift.protocol.TField OBJECTS_FIELD_DESC = new org.apache.thrift.protocol.TField("objects", org.apache.thrift.protocol.TType.LIST, (short)1);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new TermHistogramStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new TermHistogramTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new LookupResponseStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new LookupResponseTupleSchemeFactory());
   }
 
-  public List<WeightedTerm> terms; // required
+  public List<ProteusObject> objects; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    TERMS((short)1, "terms");
+    OBJECTS((short)1, "objects");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -57,8 +57,8 @@ public class TermHistogram implements org.apache.thrift.TBase<TermHistogram, Ter
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // TERMS
-          return TERMS;
+        case 1: // OBJECTS
+          return OBJECTS;
         default:
           return null;
       }
@@ -102,91 +102,91 @@ public class TermHistogram implements org.apache.thrift.TBase<TermHistogram, Ter
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.TERMS, new org.apache.thrift.meta_data.FieldMetaData("terms", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.OBJECTS, new org.apache.thrift.meta_data.FieldMetaData("objects", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, WeightedTerm.class))));
+            new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, ProteusObject.class))));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TermHistogram.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(LookupResponse.class, metaDataMap);
   }
 
-  public TermHistogram() {
+  public LookupResponse() {
   }
 
-  public TermHistogram(
-    List<WeightedTerm> terms)
+  public LookupResponse(
+    List<ProteusObject> objects)
   {
     this();
-    this.terms = terms;
+    this.objects = objects;
   }
 
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public TermHistogram(TermHistogram other) {
-    if (other.isSetTerms()) {
-      List<WeightedTerm> __this__terms = new ArrayList<WeightedTerm>();
-      for (WeightedTerm other_element : other.terms) {
-        __this__terms.add(new WeightedTerm(other_element));
+  public LookupResponse(LookupResponse other) {
+    if (other.isSetObjects()) {
+      List<ProteusObject> __this__objects = new ArrayList<ProteusObject>();
+      for (ProteusObject other_element : other.objects) {
+        __this__objects.add(new ProteusObject(other_element));
       }
-      this.terms = __this__terms;
+      this.objects = __this__objects;
     }
   }
 
-  public TermHistogram deepCopy() {
-    return new TermHistogram(this);
+  public LookupResponse deepCopy() {
+    return new LookupResponse(this);
   }
 
   @Override
   public void clear() {
-    this.terms = null;
+    this.objects = null;
   }
 
-  public int getTermsSize() {
-    return (this.terms == null) ? 0 : this.terms.size();
+  public int getObjectsSize() {
+    return (this.objects == null) ? 0 : this.objects.size();
   }
 
-  public java.util.Iterator<WeightedTerm> getTermsIterator() {
-    return (this.terms == null) ? null : this.terms.iterator();
+  public java.util.Iterator<ProteusObject> getObjectsIterator() {
+    return (this.objects == null) ? null : this.objects.iterator();
   }
 
-  public void addToTerms(WeightedTerm elem) {
-    if (this.terms == null) {
-      this.terms = new ArrayList<WeightedTerm>();
+  public void addToObjects(ProteusObject elem) {
+    if (this.objects == null) {
+      this.objects = new ArrayList<ProteusObject>();
     }
-    this.terms.add(elem);
+    this.objects.add(elem);
   }
 
-  public List<WeightedTerm> getTerms() {
-    return this.terms;
+  public List<ProteusObject> getObjects() {
+    return this.objects;
   }
 
-  public TermHistogram setTerms(List<WeightedTerm> terms) {
-    this.terms = terms;
+  public LookupResponse setObjects(List<ProteusObject> objects) {
+    this.objects = objects;
     return this;
   }
 
-  public void unsetTerms() {
-    this.terms = null;
+  public void unsetObjects() {
+    this.objects = null;
   }
 
-  /** Returns true if field terms is set (has been assigned a value) and false otherwise */
-  public boolean isSetTerms() {
-    return this.terms != null;
+  /** Returns true if field objects is set (has been assigned a value) and false otherwise */
+  public boolean isSetObjects() {
+    return this.objects != null;
   }
 
-  public void setTermsIsSet(boolean value) {
+  public void setObjectsIsSet(boolean value) {
     if (!value) {
-      this.terms = null;
+      this.objects = null;
     }
   }
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case TERMS:
+    case OBJECTS:
       if (value == null) {
-        unsetTerms();
+        unsetObjects();
       } else {
-        setTerms((List<WeightedTerm>)value);
+        setObjects((List<ProteusObject>)value);
       }
       break;
 
@@ -195,8 +195,8 @@ public class TermHistogram implements org.apache.thrift.TBase<TermHistogram, Ter
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case TERMS:
-      return getTerms();
+    case OBJECTS:
+      return getObjects();
 
     }
     throw new IllegalStateException();
@@ -209,8 +209,8 @@ public class TermHistogram implements org.apache.thrift.TBase<TermHistogram, Ter
     }
 
     switch (field) {
-    case TERMS:
-      return isSetTerms();
+    case OBJECTS:
+      return isSetObjects();
     }
     throw new IllegalStateException();
   }
@@ -219,21 +219,21 @@ public class TermHistogram implements org.apache.thrift.TBase<TermHistogram, Ter
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof TermHistogram)
-      return this.equals((TermHistogram)that);
+    if (that instanceof LookupResponse)
+      return this.equals((LookupResponse)that);
     return false;
   }
 
-  public boolean equals(TermHistogram that) {
+  public boolean equals(LookupResponse that) {
     if (that == null)
       return false;
 
-    boolean this_present_terms = true && this.isSetTerms();
-    boolean that_present_terms = true && that.isSetTerms();
-    if (this_present_terms || that_present_terms) {
-      if (!(this_present_terms && that_present_terms))
+    boolean this_present_objects = true && this.isSetObjects();
+    boolean that_present_objects = true && that.isSetObjects();
+    if (this_present_objects || that_present_objects) {
+      if (!(this_present_objects && that_present_objects))
         return false;
-      if (!this.terms.equals(that.terms))
+      if (!this.objects.equals(that.objects))
         return false;
     }
 
@@ -245,20 +245,20 @@ public class TermHistogram implements org.apache.thrift.TBase<TermHistogram, Ter
     return 0;
   }
 
-  public int compareTo(TermHistogram other) {
+  public int compareTo(LookupResponse other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
 
     int lastComparison = 0;
-    TermHistogram typedOther = (TermHistogram)other;
+    LookupResponse typedOther = (LookupResponse)other;
 
-    lastComparison = Boolean.valueOf(isSetTerms()).compareTo(typedOther.isSetTerms());
+    lastComparison = Boolean.valueOf(isSetObjects()).compareTo(typedOther.isSetObjects());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetTerms()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.terms, typedOther.terms);
+    if (isSetObjects()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.objects, typedOther.objects);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -280,14 +280,14 @@ public class TermHistogram implements org.apache.thrift.TBase<TermHistogram, Ter
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("TermHistogram(");
+    StringBuilder sb = new StringBuilder("LookupResponse(");
     boolean first = true;
 
-    sb.append("terms:");
-    if (this.terms == null) {
+    sb.append("objects:");
+    if (this.objects == null) {
       sb.append("null");
     } else {
-      sb.append(this.terms);
+      sb.append(this.objects);
     }
     first = false;
     sb.append(")");
@@ -314,15 +314,15 @@ public class TermHistogram implements org.apache.thrift.TBase<TermHistogram, Ter
     }
   }
 
-  private static class TermHistogramStandardSchemeFactory implements SchemeFactory {
-    public TermHistogramStandardScheme getScheme() {
-      return new TermHistogramStandardScheme();
+  private static class LookupResponseStandardSchemeFactory implements SchemeFactory {
+    public LookupResponseStandardScheme getScheme() {
+      return new LookupResponseStandardScheme();
     }
   }
 
-  private static class TermHistogramStandardScheme extends StandardScheme<TermHistogram> {
+  private static class LookupResponseStandardScheme extends StandardScheme<LookupResponse> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, TermHistogram struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, LookupResponse struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -332,21 +332,21 @@ public class TermHistogram implements org.apache.thrift.TBase<TermHistogram, Ter
           break;
         }
         switch (schemeField.id) {
-          case 1: // TERMS
+          case 1: // OBJECTS
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                org.apache.thrift.protocol.TList _list16 = iprot.readListBegin();
-                struct.terms = new ArrayList<WeightedTerm>(_list16.size);
-                for (int _i17 = 0; _i17 < _list16.size; ++_i17)
+                org.apache.thrift.protocol.TList _list170 = iprot.readListBegin();
+                struct.objects = new ArrayList<ProteusObject>(_list170.size);
+                for (int _i171 = 0; _i171 < _list170.size; ++_i171)
                 {
-                  WeightedTerm _elem18; // optional
-                  _elem18 = new WeightedTerm();
-                  _elem18.read(iprot);
-                  struct.terms.add(_elem18);
+                  ProteusObject _elem172; // optional
+                  _elem172 = new ProteusObject();
+                  _elem172.read(iprot);
+                  struct.objects.add(_elem172);
                 }
                 iprot.readListEnd();
               }
-              struct.setTermsIsSet(true);
+              struct.setObjectsIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -362,17 +362,17 @@ public class TermHistogram implements org.apache.thrift.TBase<TermHistogram, Ter
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, TermHistogram struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, LookupResponse struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      if (struct.terms != null) {
-        oprot.writeFieldBegin(TERMS_FIELD_DESC);
+      if (struct.objects != null) {
+        oprot.writeFieldBegin(OBJECTS_FIELD_DESC);
         {
-          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.terms.size()));
-          for (WeightedTerm _iter19 : struct.terms)
+          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.objects.size()));
+          for (ProteusObject _iter173 : struct.objects)
           {
-            _iter19.write(oprot);
+            _iter173.write(oprot);
           }
           oprot.writeListEnd();
         }
@@ -384,50 +384,50 @@ public class TermHistogram implements org.apache.thrift.TBase<TermHistogram, Ter
 
   }
 
-  private static class TermHistogramTupleSchemeFactory implements SchemeFactory {
-    public TermHistogramTupleScheme getScheme() {
-      return new TermHistogramTupleScheme();
+  private static class LookupResponseTupleSchemeFactory implements SchemeFactory {
+    public LookupResponseTupleScheme getScheme() {
+      return new LookupResponseTupleScheme();
     }
   }
 
-  private static class TermHistogramTupleScheme extends TupleScheme<TermHistogram> {
+  private static class LookupResponseTupleScheme extends TupleScheme<LookupResponse> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, TermHistogram struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, LookupResponse struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetTerms()) {
+      if (struct.isSetObjects()) {
         optionals.set(0);
       }
       oprot.writeBitSet(optionals, 1);
-      if (struct.isSetTerms()) {
+      if (struct.isSetObjects()) {
         {
-          oprot.writeI32(struct.terms.size());
-          for (WeightedTerm _iter20 : struct.terms)
+          oprot.writeI32(struct.objects.size());
+          for (ProteusObject _iter174 : struct.objects)
           {
-            _iter20.write(oprot);
+            _iter174.write(oprot);
           }
         }
       }
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, TermHistogram struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, LookupResponse struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(1);
       if (incoming.get(0)) {
         {
-          org.apache.thrift.protocol.TList _list21 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.terms = new ArrayList<WeightedTerm>(_list21.size);
-          for (int _i22 = 0; _i22 < _list21.size; ++_i22)
+          org.apache.thrift.protocol.TList _list175 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.objects = new ArrayList<ProteusObject>(_list175.size);
+          for (int _i176 = 0; _i176 < _list175.size; ++_i176)
           {
-            WeightedTerm _elem23; // optional
-            _elem23 = new WeightedTerm();
-            _elem23.read(iprot);
-            struct.terms.add(_elem23);
+            ProteusObject _elem177; // optional
+            _elem177 = new ProteusObject();
+            _elem177.read(iprot);
+            struct.objects.add(_elem177);
           }
         }
-        struct.setTermsIsSet(true);
+        struct.setObjectsIsSet(true);
       }
     }
   }

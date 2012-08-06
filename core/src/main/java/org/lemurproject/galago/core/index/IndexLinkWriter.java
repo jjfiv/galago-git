@@ -13,7 +13,7 @@ import org.apache.thrift.protocol.TCompactProtocol.Factory;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.lemurproject.galago.core.types.IndexLink;
-import org.lemurproject.galago.core.thrift.Target;
+import ciir.proteus.Target;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
@@ -37,7 +37,7 @@ public class IndexLinkWriter implements Processor<IndexLink> {
     String to;
     String filePrefix;
     Counter linkCounter, listCounter;
-    org.lemurproject.galago.core.thrift.IndexLink postingList;
+    ciir.proteus.IndexLink postingList;
     byte[] lastPrimaryKey;
     Parameters parameters;
     TTransport transport;
@@ -122,7 +122,7 @@ public class IndexLinkWriter implements Processor<IndexLink> {
 		}
 	    }
 	}
-	postingList = new org.lemurproject.galago.core.thrift.IndexLink();
+	postingList = new ciir.proteus.IndexLink();
     }
 
     public void process(IndexLink link) throws IOException {

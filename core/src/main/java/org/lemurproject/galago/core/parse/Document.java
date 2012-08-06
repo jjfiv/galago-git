@@ -13,7 +13,7 @@ import org.xerial.snappy.SnappyOutputStream;
 
 public class Document implements Serializable {
 
-  // document id - this values are serialized
+  // document id - this value is serialized
   public int identifier = -1;
   // document data - these values are serialized
   public String name;
@@ -232,7 +232,7 @@ public class Document implements Serializable {
       input.skip(metadataSize);
     }
 
-    if (p.get("corpusText", true)) {
+    if (p.get("text", true)) {
       // text
       byte[] textBytes = new byte[input.readInt()];
       input.readFully(textBytes);

@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.RandomAccessFile;
@@ -77,12 +78,16 @@ public class App {
   static protected HashMap<String, AppFunction> appFunctions = new HashMap();
 
   static {
+    //
+    appFunctions.put("chain-jobs", new ChainJobs());  
+
     // build functions
     appFunctions.put("build", new BuildIndex());
     appFunctions.put("build-special", new BuildSpecialPart());
     appFunctions.put("build-topdocs", new BuildTopDocsFn());
     appFunctions.put("build-window", new BuildWindowIndex());
     appFunctions.put("make-corpus", new MakeCorpusFn());
+    appFunctions.put("build-entity-corpus", new BuildEntityCorpus());
     appFunctions.put("merge-index", new MergeIndex());
     appFunctions.put("subcollection", new BuildSubCollection());
     appFunctions.put("overwrite-manifest", new OverwriteManifest());
@@ -183,6 +188,40 @@ public class App {
       BuildTopDocs build = new BuildTopDocs();
       Job job = build.getIndexJob(p);
       runTupleFlowJob(job, p, output);
+    }
+  }
+    
+  private static class ChainJobs extends AppFunction {
+    @Override
+    public String getHelpString() {
+      return "galago chain-jobs <input parameter file>\n\n"
+	  + " Runs multiple jobs in a chain. Looks for the\n"
+	  + " 'jobs' element in the parameter file. If the\n"
+	  + " value is an array, the jobs are run in serial.\n"
+	  + " If the value is a map, the jobs are runs as separate\n"
+	  + " child threads. Each inner job should have 'command'"
+	  + " and 'parameters' field.";
+    }
+
+    @Override
+    public void run(Parameters jobs, PrintStream output) throws Exception {
+	if (jobs.isList("jobs")) {
+	    List<Parameters> serialJobs = (List<Parameters>) jobs.getAsList("jobs");
+	    for (Parameters jobStep : serialJobs) {
+		Parameters stepParameters = findJobParameters(jobStep);
+		App.run(jobStep.getString("command"), stepParameters, output);
+	    }
+	} else if (jobs.isMap("jobs")) {
+	    output.printf("Not implemented yet. Sorry.\n");	    
+	}
+    }
+
+    public Parameters findJobParameters(Parameters step) throws IOException {
+	if (step.isString("parameters")) {
+	   return Parameters.parse(new File(step.getString("parameters")));
+	} else {
+	    return step.getMap("parameters");
+	}
     }
   }
 

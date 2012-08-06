@@ -4,7 +4,7 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-package org.lemurproject.galago.core.thrift;
+package ciir.proteus;
 
 import org.apache.thrift.scheme.IScheme;
 import org.apache.thrift.scheme.SchemeFactory;
@@ -27,24 +27,24 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WeightedTerm implements org.apache.thrift.TBase<WeightedTerm, WeightedTerm._Fields>, java.io.Serializable, Cloneable {
-  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("WeightedTerm");
+public class WeightedDate implements org.apache.thrift.TBase<WeightedDate, WeightedDate._Fields>, java.io.Serializable, Cloneable {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("WeightedDate");
 
-  private static final org.apache.thrift.protocol.TField TERM_FIELD_DESC = new org.apache.thrift.protocol.TField("term", org.apache.thrift.protocol.TType.STRING, (short)1);
+  private static final org.apache.thrift.protocol.TField DATE_FIELD_DESC = new org.apache.thrift.protocol.TField("date", org.apache.thrift.protocol.TType.I64, (short)1);
   private static final org.apache.thrift.protocol.TField WEIGHT_FIELD_DESC = new org.apache.thrift.protocol.TField("weight", org.apache.thrift.protocol.TType.DOUBLE, (short)2);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
-    schemes.put(StandardScheme.class, new WeightedTermStandardSchemeFactory());
-    schemes.put(TupleScheme.class, new WeightedTermTupleSchemeFactory());
+    schemes.put(StandardScheme.class, new WeightedDateStandardSchemeFactory());
+    schemes.put(TupleScheme.class, new WeightedDateTupleSchemeFactory());
   }
 
-  public String term; // required
+  public long date; // required
   public double weight; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    TERM((short)1, "term"),
+    DATE((short)1, "date"),
     WEIGHT((short)2, "weight");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
@@ -60,8 +60,8 @@ public class WeightedTerm implements org.apache.thrift.TBase<WeightedTerm, Weigh
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // TERM
-          return TERM;
+        case 1: // DATE
+          return DATE;
         case 2: // WEIGHT
           return WEIGHT;
         default:
@@ -104,28 +104,32 @@ public class WeightedTerm implements org.apache.thrift.TBase<WeightedTerm, Weigh
   }
 
   // isset id assignments
-  private static final int __WEIGHT_ISSET_ID = 0;
-  private BitSet __isset_bit_vector = new BitSet(1);
+  private static final int __DATE_ISSET_ID = 0;
+  private static final int __WEIGHT_ISSET_ID = 1;
+  private BitSet __isset_bit_vector = new BitSet(2);
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.TERM, new org.apache.thrift.meta_data.FieldMetaData("term", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.DATE, new org.apache.thrift.meta_data.FieldMetaData("date", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.WEIGHT, new org.apache.thrift.meta_data.FieldMetaData("weight", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.DOUBLE)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
-    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(WeightedTerm.class, metaDataMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(WeightedDate.class, metaDataMap);
   }
 
-  public WeightedTerm() {
+  public WeightedDate() {
+    this.weight = 1;
+
   }
 
-  public WeightedTerm(
-    String term,
+  public WeightedDate(
+    long date,
     double weight)
   {
     this();
-    this.term = term;
+    this.date = date;
+    setDateIsSet(true);
     this.weight = weight;
     setWeightIsSet(true);
   }
@@ -133,55 +137,53 @@ public class WeightedTerm implements org.apache.thrift.TBase<WeightedTerm, Weigh
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public WeightedTerm(WeightedTerm other) {
+  public WeightedDate(WeightedDate other) {
     __isset_bit_vector.clear();
     __isset_bit_vector.or(other.__isset_bit_vector);
-    if (other.isSetTerm()) {
-      this.term = other.term;
-    }
+    this.date = other.date;
     this.weight = other.weight;
   }
 
-  public WeightedTerm deepCopy() {
-    return new WeightedTerm(this);
+  public WeightedDate deepCopy() {
+    return new WeightedDate(this);
   }
 
   @Override
   public void clear() {
-    this.term = null;
-    setWeightIsSet(false);
-    this.weight = 0.0;
+    setDateIsSet(false);
+    this.date = 0;
+    this.weight = 1;
+
   }
 
-  public String getTerm() {
-    return this.term;
+  public long getDate() {
+    return this.date;
   }
 
-  public WeightedTerm setTerm(String term) {
-    this.term = term;
+  public WeightedDate setDate(long date) {
+    this.date = date;
+    setDateIsSet(true);
     return this;
   }
 
-  public void unsetTerm() {
-    this.term = null;
+  public void unsetDate() {
+    __isset_bit_vector.clear(__DATE_ISSET_ID);
   }
 
-  /** Returns true if field term is set (has been assigned a value) and false otherwise */
-  public boolean isSetTerm() {
-    return this.term != null;
+  /** Returns true if field date is set (has been assigned a value) and false otherwise */
+  public boolean isSetDate() {
+    return __isset_bit_vector.get(__DATE_ISSET_ID);
   }
 
-  public void setTermIsSet(boolean value) {
-    if (!value) {
-      this.term = null;
-    }
+  public void setDateIsSet(boolean value) {
+    __isset_bit_vector.set(__DATE_ISSET_ID, value);
   }
 
   public double getWeight() {
     return this.weight;
   }
 
-  public WeightedTerm setWeight(double weight) {
+  public WeightedDate setWeight(double weight) {
     this.weight = weight;
     setWeightIsSet(true);
     return this;
@@ -202,11 +204,11 @@ public class WeightedTerm implements org.apache.thrift.TBase<WeightedTerm, Weigh
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case TERM:
+    case DATE:
       if (value == null) {
-        unsetTerm();
+        unsetDate();
       } else {
-        setTerm((String)value);
+        setDate((Long)value);
       }
       break;
 
@@ -223,8 +225,8 @@ public class WeightedTerm implements org.apache.thrift.TBase<WeightedTerm, Weigh
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case TERM:
-      return getTerm();
+    case DATE:
+      return Long.valueOf(getDate());
 
     case WEIGHT:
       return Double.valueOf(getWeight());
@@ -240,8 +242,8 @@ public class WeightedTerm implements org.apache.thrift.TBase<WeightedTerm, Weigh
     }
 
     switch (field) {
-    case TERM:
-      return isSetTerm();
+    case DATE:
+      return isSetDate();
     case WEIGHT:
       return isSetWeight();
     }
@@ -252,21 +254,21 @@ public class WeightedTerm implements org.apache.thrift.TBase<WeightedTerm, Weigh
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof WeightedTerm)
-      return this.equals((WeightedTerm)that);
+    if (that instanceof WeightedDate)
+      return this.equals((WeightedDate)that);
     return false;
   }
 
-  public boolean equals(WeightedTerm that) {
+  public boolean equals(WeightedDate that) {
     if (that == null)
       return false;
 
-    boolean this_present_term = true && this.isSetTerm();
-    boolean that_present_term = true && that.isSetTerm();
-    if (this_present_term || that_present_term) {
-      if (!(this_present_term && that_present_term))
+    boolean this_present_date = true;
+    boolean that_present_date = true;
+    if (this_present_date || that_present_date) {
+      if (!(this_present_date && that_present_date))
         return false;
-      if (!this.term.equals(that.term))
+      if (this.date != that.date)
         return false;
     }
 
@@ -287,20 +289,20 @@ public class WeightedTerm implements org.apache.thrift.TBase<WeightedTerm, Weigh
     return 0;
   }
 
-  public int compareTo(WeightedTerm other) {
+  public int compareTo(WeightedDate other) {
     if (!getClass().equals(other.getClass())) {
       return getClass().getName().compareTo(other.getClass().getName());
     }
 
     int lastComparison = 0;
-    WeightedTerm typedOther = (WeightedTerm)other;
+    WeightedDate typedOther = (WeightedDate)other;
 
-    lastComparison = Boolean.valueOf(isSetTerm()).compareTo(typedOther.isSetTerm());
+    lastComparison = Boolean.valueOf(isSetDate()).compareTo(typedOther.isSetDate());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetTerm()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.term, typedOther.term);
+    if (isSetDate()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.date, typedOther.date);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -332,15 +334,11 @@ public class WeightedTerm implements org.apache.thrift.TBase<WeightedTerm, Weigh
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("WeightedTerm(");
+    StringBuilder sb = new StringBuilder("WeightedDate(");
     boolean first = true;
 
-    sb.append("term:");
-    if (this.term == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.term);
-    }
+    sb.append("date:");
+    sb.append(this.date);
     first = false;
     if (!first) sb.append(", ");
     sb.append("weight:");
@@ -372,15 +370,15 @@ public class WeightedTerm implements org.apache.thrift.TBase<WeightedTerm, Weigh
     }
   }
 
-  private static class WeightedTermStandardSchemeFactory implements SchemeFactory {
-    public WeightedTermStandardScheme getScheme() {
-      return new WeightedTermStandardScheme();
+  private static class WeightedDateStandardSchemeFactory implements SchemeFactory {
+    public WeightedDateStandardScheme getScheme() {
+      return new WeightedDateStandardScheme();
     }
   }
 
-  private static class WeightedTermStandardScheme extends StandardScheme<WeightedTerm> {
+  private static class WeightedDateStandardScheme extends StandardScheme<WeightedDate> {
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot, WeightedTerm struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot, WeightedDate struct) throws org.apache.thrift.TException {
       org.apache.thrift.protocol.TField schemeField;
       iprot.readStructBegin();
       while (true)
@@ -390,10 +388,10 @@ public class WeightedTerm implements org.apache.thrift.TBase<WeightedTerm, Weigh
           break;
         }
         switch (schemeField.id) {
-          case 1: // TERM
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.term = iprot.readString();
-              struct.setTermIsSet(true);
+          case 1: // DATE
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.date = iprot.readI64();
+              struct.setDateIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -417,15 +415,13 @@ public class WeightedTerm implements org.apache.thrift.TBase<WeightedTerm, Weigh
       struct.validate();
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot, WeightedTerm struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot, WeightedDate struct) throws org.apache.thrift.TException {
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      if (struct.term != null) {
-        oprot.writeFieldBegin(TERM_FIELD_DESC);
-        oprot.writeString(struct.term);
-        oprot.writeFieldEnd();
-      }
+      oprot.writeFieldBegin(DATE_FIELD_DESC);
+      oprot.writeI64(struct.date);
+      oprot.writeFieldEnd();
       oprot.writeFieldBegin(WEIGHT_FIELD_DESC);
       oprot.writeDouble(struct.weight);
       oprot.writeFieldEnd();
@@ -435,27 +431,27 @@ public class WeightedTerm implements org.apache.thrift.TBase<WeightedTerm, Weigh
 
   }
 
-  private static class WeightedTermTupleSchemeFactory implements SchemeFactory {
-    public WeightedTermTupleScheme getScheme() {
-      return new WeightedTermTupleScheme();
+  private static class WeightedDateTupleSchemeFactory implements SchemeFactory {
+    public WeightedDateTupleScheme getScheme() {
+      return new WeightedDateTupleScheme();
     }
   }
 
-  private static class WeightedTermTupleScheme extends TupleScheme<WeightedTerm> {
+  private static class WeightedDateTupleScheme extends TupleScheme<WeightedDate> {
 
     @Override
-    public void write(org.apache.thrift.protocol.TProtocol prot, WeightedTerm struct) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol prot, WeightedDate struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetTerm()) {
+      if (struct.isSetDate()) {
         optionals.set(0);
       }
       if (struct.isSetWeight()) {
         optionals.set(1);
       }
       oprot.writeBitSet(optionals, 2);
-      if (struct.isSetTerm()) {
-        oprot.writeString(struct.term);
+      if (struct.isSetDate()) {
+        oprot.writeI64(struct.date);
       }
       if (struct.isSetWeight()) {
         oprot.writeDouble(struct.weight);
@@ -463,12 +459,12 @@ public class WeightedTerm implements org.apache.thrift.TBase<WeightedTerm, Weigh
     }
 
     @Override
-    public void read(org.apache.thrift.protocol.TProtocol prot, WeightedTerm struct) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol prot, WeightedDate struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(2);
       if (incoming.get(0)) {
-        struct.term = iprot.readString();
-        struct.setTermIsSet(true);
+        struct.date = iprot.readI64();
+        struct.setDateIsSet(true);
       }
       if (incoming.get(1)) {
         struct.weight = iprot.readDouble();

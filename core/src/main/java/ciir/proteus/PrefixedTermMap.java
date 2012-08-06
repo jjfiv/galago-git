@@ -4,7 +4,7 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-package org.lemurproject.galago.core.thrift;
+package ciir.proteus;
 
 import org.apache.thrift.scheme.IScheme;
 import org.apache.thrift.scheme.SchemeFactory;
@@ -340,16 +340,16 @@ public class PrefixedTermMap implements org.apache.thrift.TBase<PrefixedTermMap,
           case 1: // TERM_LISTS
             if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
               {
-                org.apache.thrift.protocol.TMap _map24 = iprot.readMapBegin();
-                struct.term_lists = new HashMap<String,TermList>(2*_map24.size);
-                for (int _i25 = 0; _i25 < _map24.size; ++_i25)
+                org.apache.thrift.protocol.TMap _map48 = iprot.readMapBegin();
+                struct.term_lists = new HashMap<String,TermList>(2*_map48.size);
+                for (int _i49 = 0; _i49 < _map48.size; ++_i49)
                 {
-                  String _key26; // required
-                  TermList _val27; // required
-                  _key26 = iprot.readString();
-                  _val27 = new TermList();
-                  _val27.read(iprot);
-                  struct.term_lists.put(_key26, _val27);
+                  String _key50; // required
+                  TermList _val51; // required
+                  _key50 = iprot.readString();
+                  _val51 = new TermList();
+                  _val51.read(iprot);
+                  struct.term_lists.put(_key50, _val51);
                 }
                 iprot.readMapEnd();
               }
@@ -377,10 +377,10 @@ public class PrefixedTermMap implements org.apache.thrift.TBase<PrefixedTermMap,
         oprot.writeFieldBegin(TERM_LISTS_FIELD_DESC);
         {
           oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRUCT, struct.term_lists.size()));
-          for (Map.Entry<String, TermList> _iter28 : struct.term_lists.entrySet())
+          for (Map.Entry<String, TermList> _iter52 : struct.term_lists.entrySet())
           {
-            oprot.writeString(_iter28.getKey());
-            _iter28.getValue().write(oprot);
+            oprot.writeString(_iter52.getKey());
+            _iter52.getValue().write(oprot);
           }
           oprot.writeMapEnd();
         }
@@ -411,10 +411,10 @@ public class PrefixedTermMap implements org.apache.thrift.TBase<PrefixedTermMap,
       if (struct.isSetTerm_lists()) {
         {
           oprot.writeI32(struct.term_lists.size());
-          for (Map.Entry<String, TermList> _iter29 : struct.term_lists.entrySet())
+          for (Map.Entry<String, TermList> _iter53 : struct.term_lists.entrySet())
           {
-            oprot.writeString(_iter29.getKey());
-            _iter29.getValue().write(oprot);
+            oprot.writeString(_iter53.getKey());
+            _iter53.getValue().write(oprot);
           }
         }
       }
@@ -426,16 +426,16 @@ public class PrefixedTermMap implements org.apache.thrift.TBase<PrefixedTermMap,
       BitSet incoming = iprot.readBitSet(1);
       if (incoming.get(0)) {
         {
-          org.apache.thrift.protocol.TMap _map30 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.term_lists = new HashMap<String,TermList>(2*_map30.size);
-          for (int _i31 = 0; _i31 < _map30.size; ++_i31)
+          org.apache.thrift.protocol.TMap _map54 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+          struct.term_lists = new HashMap<String,TermList>(2*_map54.size);
+          for (int _i55 = 0; _i55 < _map54.size; ++_i55)
           {
-            String _key32; // required
-            TermList _val33; // required
-            _key32 = iprot.readString();
-            _val33 = new TermList();
-            _val33.read(iprot);
-            struct.term_lists.put(_key32, _val33);
+            String _key56; // required
+            TermList _val57; // required
+            _key56 = iprot.readString();
+            _val57 = new TermList();
+            _val57.read(iprot);
+            struct.term_lists.put(_key56, _val57);
           }
         }
         struct.setTerm_listsIsSet(true);

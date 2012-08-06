@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.core.thrift.IndexLink;
+import ciir.proteus.IndexLink;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TCompactProtocol;

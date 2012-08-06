@@ -40,7 +40,7 @@ class MBTEIEntityParser extends MBTEIParserBase {
     }   
 
     // number of words before and after a name tag to associate
-    public int windowSize = 100; 
+    public int windowSize = 30; 
     public LinkedList<String> slidingWindow;
     public LinkedList<Context> openContexts;
     Pattern dateTag = Pattern.compile("date");
@@ -103,23 +103,6 @@ class MBTEIEntityParser extends MBTEIParserBase {
 	openContexts.addLast(freshContext);
     }
 
-    // This is deprecated, but hang on to it for now just in case
-    /**
-    public void updateLastNamingContext(int ignored) {
-	Context latestContext = openContexts.peekLast();
-	latestContext.name = latestContext.nameBuffer.toString().trim();
-	latestContext.nameBuffer = null;
-	
-	// We now apply the restriction if it exists, meaning if 
-	// we don't care about this entity, don't track terms for it.
-	if (restrict != null) {
-	    if (!restrict.equals(latestContext.type)) {
-		openContexts.pollLast();
-	    }
-	}    
-    }
-    */
-
     public void updateContexts(int ignored) {
 	String formValue = reader.getAttributeValue(null, "form");
 	String scrubbed = scrub(formValue);
@@ -129,12 +112,8 @@ class MBTEIEntityParser extends MBTEIParserBase {
 	}
 	
 	for (Context c : openContexts) {
-	    //if (c.nameBuffer != null) {
-	    // c.nameBuffer.append(scrubbed).append(" ");
-	    //} else {
-		c.postText.append(scrubbed).append(" ");
-		--c.numTrailingWords;
-		//}
+	    c.postText.append(scrubbed).append(" ");
+	    --c.numTrailingWords;
 	}
 
 	// Finally check for a finished context
@@ -151,6 +130,8 @@ class MBTEIEntityParser extends MBTEIParserBase {
 	    documentText.append(" ").append(closingContext.postText.toString().trim());
 	    parsedDocument = new Document(closingContext.name,
 					  documentText.toString());
+	    parsedDocument.identifier = closingContext.name.hashCode();
+	    parsedDocument.metadata.put("title", closingContext.name);
 	} else {
 	    parsedDocument = null;
 	}

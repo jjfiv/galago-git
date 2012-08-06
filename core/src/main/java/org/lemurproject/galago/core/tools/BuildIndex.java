@@ -105,8 +105,7 @@ public class BuildIndex extends AppFunction {
     stage.add(new InputStep("splits"));
     stage.add(BuildStageTemplates.getParserStep(buildParameters));
     stage.add(BuildStageTemplates.getTokenizerStep(buildParameters));
-    stage.add(new Step(DocumentNumberer.class));
-
+    stage.add(BuildStageTemplates.getNumberingStep(buildParameters));
     if (buildParameters.getBoolean("links")) {
       Parameters p = new Parameters();
       p.set("textSource", "anchorText");

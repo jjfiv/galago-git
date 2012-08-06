@@ -22,7 +22,7 @@ public class CorpusSplitParser implements DocumentStreamParser {
   DocumentIterator iterator;
   DocumentSplit split;
 
-  public CorpusSplitParser(DocumentSplit split) throws FileNotFoundException, IOException {
+    public CorpusSplitParser(DocumentSplit split) throws FileNotFoundException, IOException {
     reader = new CorpusReader(split.fileName);
     iterator = (DocumentIterator) reader.getIterator();
     iterator.skipToKey(split.startKey);
