@@ -790,7 +790,7 @@ public class Utility {
    */
   public static String toString(byte[] buffer, int offset, int len) {
     try {
-      return new String(word, offset, len, "UTF-8");
+      return new String(buffer, offset, len, "UTF-8");
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException("UTF-8 is not supported by your Java Virtual Machine.");
     }

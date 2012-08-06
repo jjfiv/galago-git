@@ -208,8 +208,10 @@ public class App {
 	if (jobs.isList("jobs")) {
 	    List<Parameters> serialJobs = (List<Parameters>) jobs.getAsList("jobs");
 	    for (Parameters jobStep : serialJobs) {
-		Parameters stepParameters = findJobParameters(jobStep);
-		App.run(jobStep.getString("command"), stepParameters, output);
+                if (jobStep.get("active", true)) {
+                  Parameters stepParameters = findJobParameters(jobStep);
+                  App.run(jobStep.getString("command"), stepParameters, output);
+              }
 	    }
 	} else if (jobs.isMap("jobs")) {
 	    output.printf("Not implemented yet. Sorry.\n");	    
