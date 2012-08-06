@@ -1,0 +1,11 @@
+{ "corpus" : true ,
+  "distrib" : 20 , 
+  "indexPath" : "/work1/allan/irmarc/data/megabooks/indexes/sigir2012-demo/portland/people" , 
+  "galagoJobDir" : "/work1/allan/irmarc/tmp/sigir2012-demo/portland/people" , 
+  "deleteJobDir" : false,
+  "inputPath" : [ "/home2/irmarc/portland_mbtei_2.list.gz" ] , 
+  "mode" : "drmaa" , 
+  "port" : 6803 , 
+  "tokenizer" : { "fields" : [ "name" ] , "formats" : {  } },	             
+  "parser" : { "filetype" : "mbtei.person" }
+}
