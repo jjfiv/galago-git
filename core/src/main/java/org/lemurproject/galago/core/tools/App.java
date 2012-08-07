@@ -236,39 +236,28 @@ public class App {
 
     @Override
     public String getHelpString() {
-      return "galago doc <index> <identifier>\n\n"
+      return "galago doc [--help] --index=<index> --id=<identifier> [format parameters]\n\n"
               + "  Prints the full text of the document named by <identifier>.\n"
               + "  The document is retrieved from a Corpus file named corpus."
               + "  <index> must contain a corpus structure.";
     }
 
     @Override
-    public void run(String[] args, PrintStream output) throws Exception {
-      if (args.length <= 2) {
+    public void run(Parameters p, PrintStream output) throws Exception {
+      if (p.get("help", false)) {
         output.println(getHelpString());
         return;
       }
-      String indexPath = args[1];
-      String identifier = args[2];
+      String indexPath = p.getString("index");
+      String identifier = p.getString("id");
       Retrieval r = RetrievalFactory.instance(indexPath, new Parameters());
       assert r.getAvailableParts().containsKey("corpus") : "Index does not contain a corpus part.";
-
-      Parameters p = new Parameters();
-      p.set("terms", false);
-      p.set("tags", false);
       Document document = r.getDocument(identifier, p);
       if (document != null) {
 	  output.println(document.toString());
       } else {
         output.println("Document " + identifier + " does not exist in index " + indexPath + ".");
       }
-    }
-
-    @Override
-    public void run(Parameters p, PrintStream output) throws Exception {
-      String indexPath = p.getString("indexPath");
-      String identifier = p.getString("identifier");
-      run(new String[]{"", indexPath, identifier}, output);
     }
   }
 

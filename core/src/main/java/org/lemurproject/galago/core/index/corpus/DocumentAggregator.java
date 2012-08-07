@@ -8,6 +8,7 @@ import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.PseudoDocument;
 import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
+import org.lemurproject.galago.core.index.merge.CorpusMerger;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
@@ -30,6 +31,11 @@ public class DocumentAggregator implements KeyValuePair.KeyOrder.ShreddedProcess
   public DocumentAggregator(TupleFlowParameters parameters) throws IOException, FileNotFoundException {
     docsIn = parameters.getCounter("Documents in");
     docsOut = parameters.getCounter("Documents out");
+    Parameters corpusParams = parameters.getJSON();
+    // create a writer;
+    corpusParams.set("writerClass", getClass().getName());
+    corpusParams.set("readerClass", CorpusReader.class.getName());
+    corpusParams.set("mergerClass", CorpusMerger.class.getName());
     writer = new DiskBTreeWriter(parameters);
     bufferedDocuments = new HashMap<String, PseudoDocument>();
   }

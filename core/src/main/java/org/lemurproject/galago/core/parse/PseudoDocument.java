@@ -1,3 +1,4 @@
+
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
@@ -22,7 +23,7 @@ public class PseudoDocument extends Document {
     public int location;
     public String content;
   }
-  ArrayList<Sample> samples;
+  public ArrayList<Sample> samples;
 
   public PseudoDocument() {
     super();
@@ -93,6 +94,7 @@ public class PseudoDocument extends Document {
       dataOStream.writeInt(buffer.length);
       dataOStream.write(buffer);
     }
+    dataOStream.close();
     ByteArrayOutputStream combinedBytes = new ByteArrayOutputStream();
     DataOutputStream combinedDataStream = new DataOutputStream(combinedBytes);
     System.err.printf("Writing sizes of %d and %d\n", start.length, sampleArray.size());
@@ -100,6 +102,7 @@ public class PseudoDocument extends Document {
     combinedDataStream.write(start);
     combinedDataStream.writeInt(sampleArray.size());
     combinedDataStream.write(sampleArray.toByteArray());
+    combinedDataStream.close();
     return combinedBytes.toByteArray();
   }
 
@@ -122,13 +125,16 @@ public class PseudoDocument extends Document {
     int samplesSize = 0;
     if (p.get("samples", true)) {
       samplesSize = dataIStream.readInt();
+      System.err.printf("Size of sample data: %d\n", samplesSize);
       byte[] sampleData = new byte[samplesSize];
       dataIStream.readFully(sampleData);
       ByteArrayInputStream sampleBytes = new ByteArrayInputStream(sampleData);
       DataInputStream sampleIStream = new DataInputStream(new SnappyInputStream(sampleBytes));
       int count = sampleIStream.readInt();
+      System.err.printf("Number of samples: %d\n", count);
       byte[] buffer;
       for (int i = 0; i < count; ++i) {
+	System.err.printf("reading sample %d\n", i);
         int len = sampleIStream.readInt();
         buffer = new byte[len];
         sampleIStream.readFully(buffer);
@@ -141,8 +147,6 @@ public class PseudoDocument extends Document {
         pd.addSample(source, location, content);
       }
     }
-    System.err.printf("Read PD(%d) |doc|=%d, |samples|=%d\n",
-             d.identifier, superSize, samplesSize);
     return pd;
   }
 }
