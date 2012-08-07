@@ -61,13 +61,11 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
   public DocumentSource(TupleFlowParameters parameters) {
     this.parameters = parameters;
-    System.err.printf("DocumentSource parameters: %s\n", this.parameters.getJSON().toPrettyString());
     inputPolicy = parameters.getJSON().get("inputPolicy", "require");
     this.inputCounter = parameters.getCounter("Inputs Processed");
     logger = Logger.getLogger("DOCSOURCE");
     externalFileTypes = new HashSet<String>();
     dictatedFileType = parameters.getJSON().get("filetype", (String) null);
-    System.err.printf("dictated: %s\n", dictatedFileType == null?"none":dictatedFileType);
     if (parameters.getJSON().containsKey("externalParsers")) {
       List<Parameters> extP = parameters.getJSON().getAsList("externalParsers");
       for (Parameters p : extP) {
