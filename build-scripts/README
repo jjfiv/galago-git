@@ -1,0 +1,3 @@
+Example scripts used to build various parts of the index. They can all be run
+independently, although obviously they should all point at the same input 
+source.

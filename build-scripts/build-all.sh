@@ -1,0 +1,9 @@
+galago build buildBooks.json
+galago build buildPages.json
+galago chain-job buildPerson.json
+galago chain-job buildLocation.json
+galago chain-job buildMisc.json
+galago build-pictures buildPictures.json
+galago build-dates buildDates.json
+galago build-topics buildTopics.json
+galago link-indexes buildLinks.json
