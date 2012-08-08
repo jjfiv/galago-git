@@ -123,7 +123,7 @@ public class TopicIndexBuilder extends AppFunction {
     public void readPageEntry(JsonReader reader) throws Exception {
 	String pageName = reader.nextName();
 	TermList tl = new TermList();
-	String[] parts = pageName.split("_");
+	String[] parts = pageName.split("###");
 	String bookName = parts[0];
 	String pageNum = parts[1];
 	reader.beginObject();

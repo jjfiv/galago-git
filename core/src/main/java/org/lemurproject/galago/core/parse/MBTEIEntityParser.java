@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.types.DocumentSplit;
 // Assumptions
 // - Names cannot be nested
 class MBTEIEntityParser extends MBTEIParserBase {
+    Pattern pageBreakTag = Pattern.compile("pb");
     protected StringPooler pooler = new StringPooler();
     class Context {
 	public Context(String name,
@@ -28,6 +29,9 @@ class MBTEIEntityParser extends MBTEIParserBase {
 	}
 	String name;
 	String type;
+	int startPage;
+	int startPos;
+	String externalLink;
 	List<String> tokens;
 	int numTrailingWords;
     }   
@@ -38,6 +42,8 @@ class MBTEIEntityParser extends MBTEIParserBase {
     public LinkedList<Context> openContexts;
     Pattern dateTag = Pattern.compile("date");
     String restrict = null;
+    int pageNumber = 0;
+    int pagePosition = 0;
 
     public MBTEIEntityParser(DocumentSplit split, InputStream is) {
 	super(split, is);
@@ -74,6 +80,12 @@ class MBTEIEntityParser extends MBTEIParserBase {
 	addStartElementAction(wordTag, "updateContexts");
 	addStartElementAction(nameTag, "openNewContext");
 	addEndElementAction(textTag, "removeActionsAndEmit");
+	addStartElementAction(pageBreakTag, "nextPage");
+    }
+
+    public void nextPage(int ignored) {
+	pageNumber = Integer.parseInt(reader.getAttributeValue(null, "n"));
+	pagePosition = 0;
     }
 
     public void removeActionsAndEmit(int event) {
@@ -93,6 +105,14 @@ class MBTEIEntityParser extends MBTEIParserBase {
 	}
 	Context freshContext = new Context(name, slidingWindow);
 	freshContext.type = type;
+	freshContext.startPos = pagePosition;
+	freshContext.startPage = pageNumber;
+	String wikiLink = reader.getAttributeValue(null, "Wiki_Title");
+	if (wikiLink == null || wikiLink.equals("NIL") || wikiLink.equals("IGNORE")) {
+	    freshContext.externalLink = null;
+	} else {
+	    freshContext.externalLink = wikiLink;
+	}
 	openContexts.addLast(freshContext);
     }
 
@@ -114,6 +134,7 @@ class MBTEIEntityParser extends MBTEIParserBase {
 	    openContexts.peek().numTrailingWords == 0) {
 	    buildDocument();
 	}
+	++pagePosition;
     }
 
     public void buildDocument() {
@@ -123,6 +144,12 @@ class MBTEIEntityParser extends MBTEIParserBase {
             parsedDocument.name = closingContext.name;
 	    parsedDocument.identifier = closingContext.name.hashCode();
 	    parsedDocument.metadata.put("title", closingContext.name);
+	    parsedDocument.metadata.put("sourceIdentifier", getArchiveIdentifier());
+	    if (closingContext.externalLink != null) {
+		parsedDocument.metadata.put("externalLink", closingContext.externalLink);
+	    }
+	    parsedDocument.metadata.put("startPage", Integer.toString(closingContext.startPage));
+	    parsedDocument.metadata.put("startPos", Integer.toString(closingContext.startPos));
             parsedDocument.terms = closingContext.tokens;
             pooler.transform(parsedDocument);
 	} else {

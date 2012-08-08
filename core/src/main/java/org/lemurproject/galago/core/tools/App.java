@@ -215,6 +215,7 @@ public class App {
                     output.printf("Couldn't find command %s.\n", cmdName);
                     return;
                   }
+		  output.printf("Executing command: %s\n", cmdName);
                   App.run(cmdName, stepParameters, output);
               }
 	    }
@@ -225,9 +226,16 @@ public class App {
 
     public Parameters findJobParameters(Parameters step) throws IOException {
 	if (step.isString("parameters")) {
-	   return Parameters.parse(new File(step.getString("parameters")));
-	} else {
+	    File parameterPath = new File(step.getString("parameters"));
+	    if (!parameterPath.exists()) {
+		throw new IOException(String.format("Unable to locate parameter file '%s'\n",
+						    step.getString("parameters")));
+	    }
+	    return Parameters.parse(parameterPath);
+	} else if (step.isMap("parameters")) {
 	    return step.getMap("parameters");
+	} else {
+	    throw new RuntimeException("No acceptable parameters found.");
 	}
     }
   }

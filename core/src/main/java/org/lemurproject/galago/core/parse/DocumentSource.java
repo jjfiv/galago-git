@@ -198,7 +198,6 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       if (entry.length() == 0) {
         continue;
       }
-
       processFile(new File(entry));
     }
     br.close();

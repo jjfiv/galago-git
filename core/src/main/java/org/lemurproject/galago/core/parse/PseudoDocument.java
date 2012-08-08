@@ -11,17 +11,30 @@ import org.xerial.snappy.SnappyInputStream;
 import org.xerial.snappy.SnappyOutputStream;
 
 public class PseudoDocument extends Document {
-
   public class Sample implements Serializable {
+    public Sample(String s, int l, String c, String e) {
+      source = s;
+      location = l;
+      content = c;
+      externalLink = e;
+    }
 
-    public Sample(String src, int loc, String text) {
-      source = src;
-      location = loc;
-      content = text;
+    public Sample(Document d) {
+      source = String.format("%s_%s", 
+			     d.metadata.get("sourceIdentifier"),
+			     d.metadata.get("startPage"));
+      location = Integer.parseInt(d.metadata.get("startPos"));
+      if (d.metadata.containsKey("externalLink")) {
+	  externalLink = d.metadata.get("externalLink");
+      } else {
+	  externalLink = null;
+      }
+      content = Utility.join(d.terms.toArray(new String[0]), " ");
     }
     public String source;
     public int location;
     public String content;
+    public String externalLink;
   }
   public ArrayList<Sample> samples;
 
@@ -30,40 +43,28 @@ public class PseudoDocument extends Document {
     samples = new ArrayList<Sample>();
   }
 
-  public PseudoDocument(String externalIdentifier, List<String> text) {
-    this();
-    this.name = externalIdentifier;
-    addSample("", 0, text);
-  }
-
   public PseudoDocument(Document first) {
     this();
-    identifier = first.identifier;
-    name = first.name;
-    metadata = first.metadata;
-    terms = first.terms;
-    tags = first.tags;
+    addSample(first);
   }
 
   public void addSample(Document d) {
     if (samples.isEmpty()) {
       identifier = d.identifier;
       name = d.name;
-      metadata = d.metadata;
-      terms = d.terms;
-      tags = d.tags;
+      metadata.putAll(d.metadata);
+      metadata.remove("sourceIndentifier");
+      metadata.remove("startPage");
+      metadata.remove("startPos");
+      terms = new ArrayList<String>();
     }
-    terms.add("##");
     terms.addAll(d.terms);
-    addSample(d.name, 0, d.terms);
+    terms.add("##");
+    samples.add(new Sample(d));
   }
 
-  public void addSample(String src, int loc, List<String> terms) {
-    samples.add(new Sample(src, loc, Utility.join(terms.toArray(new String[0]))));
-  }
-
-  private void addSample(String src, int loc, String content) {
-    samples.add(new Sample(src, loc, content));
+  private void addSample(String src, int loc, String content, String extLink) {
+	samples.add(new Sample(src, loc, content, extLink));
   }
 
   @Override
@@ -93,6 +94,13 @@ public class PseudoDocument extends Document {
       buffer = Utility.fromString(s.content);
       dataOStream.writeInt(buffer.length);
       dataOStream.write(buffer);
+      if (s.externalLink != null) {
+	buffer = Utility.fromString(s.externalLink);
+	dataOStream.writeInt(buffer.length);
+	dataOStream.write(buffer);
+      } else {
+	dataOStream.writeInt(0);
+      }
     }
     dataOStream.close();
     ByteArrayOutputStream combinedBytes = new ByteArrayOutputStream();
@@ -121,7 +129,13 @@ public class PseudoDocument extends Document {
     byte[] superData = new byte[superSize];
     dataIStream.readFully(superData);
     Document d = Document.deserialize(superData, noText);
-    PseudoDocument pd = new PseudoDocument(d);
+    PseudoDocument pd = new PseudoDocument();
+    pd.identifier = d.identifier;
+    pd.name = d.name;
+    pd.metadata = d.metadata;
+    pd.text = d.text;
+    pd.terms = d.terms;
+    pd.tags = d.tags;
     int samplesSize = 0;
     if (p.get("samples", true)) {
       samplesSize = dataIStream.readInt();
@@ -144,7 +158,14 @@ public class PseudoDocument extends Document {
         buffer = new byte[len];
         sampleIStream.readFully(buffer);
         String content = Utility.toString(buffer);
-        pd.addSample(source, location, content);
+	len = sampleIStream.readInt();
+	String externalLink = null;
+	if (len > 0) {
+	    buffer = new byte[len];
+	    sampleIStream.readFully(buffer);
+	    externalLink = Utility.toString(buffer);
+	}
+        pd.addSample(source, location, content, externalLink);
       }
     }
     return pd;

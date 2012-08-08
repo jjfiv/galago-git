@@ -30,7 +30,7 @@ import org.lemurproject.galago.core.types.DocumentSplit;
  *
  */
 class MBTEIBookParser extends MBTEIParserBase {
-    Pattern wantedMetadata = Pattern.compile("title|creator|language|subject|date");
+    Pattern wantedMetadata = Pattern.compile(".+");
     String header;
     HashMap<String, String> metadata;
     String currentMetaTag = null;
@@ -55,15 +55,15 @@ class MBTEIBookParser extends MBTEIParserBase {
 	addStartElementAction(textTag, "moveToS1");
 	addStartElementAction(wantedMetadata, "captureMetadata");
 	addEndElementAction(wantedMetadata, "stopCaptureMetadata");
-
-	// Collect everything else
-	addStartElementAction(matchAll, "echo");
-	addEndElementAction(matchAll, "echo");
 	setCharactersAction("echo");
+	// Collect everything else
+	//addStartElementAction(matchAll, "echo");
+	//addEndElementAction(matchAll, "echo");
+
     }
 
     public void moveToS1(int ignored) {
-	header = buffer.toString();
+	//header = buffer.toString();
 	buffer = new StringBuilder();
 	contentLength = 0;
 	// Matched on "text" opening, but that should be
@@ -104,20 +104,20 @@ class MBTEIBookParser extends MBTEIParserBase {
     }
 
     public void captureMetadata(int ignored) {
-	echo(XMLStreamConstants.START_ELEMENT);
 	currentMetaTag = reader.getLocalName();
 	tagBuilder = new StringBuilder();
     } 
 
     public void stopCaptureMetadata(int ignored) {
-	echo(XMLStreamConstants.END_ELEMENT);
-	metadata.put(currentMetaTag, tagBuilder.toString().trim());
-	currentMetaTag = null;
-	tagBuilder = null;
+	if (currentMetaTag != null && tagBuilder != null) {
+	    metadata.put(currentMetaTag, tagBuilder.toString().trim());
+	    currentMetaTag = null;
+	    tagBuilder = null;
+	}
     }
 
     public void echo(int event) {
-	super.echo(event);
+	//super.echo(event);
 	if (currentMetaTag != null &&
 	    event == XMLStreamConstants.CHARACTERS) {
 	    tagBuilder.append(reader.getText()).append(" ");
@@ -131,11 +131,10 @@ class MBTEIBookParser extends MBTEIParserBase {
 	    // Echo "</tei>" or whatever it is.
 	    echo(XMLStreamConstants.END_ELEMENT);		
 	    
-	    StringBuilder documentContent = new StringBuilder(header);
-	    documentContent.append(buffer.toString().trim());
+	    //StringBuilder documentContent = new StringBuilder(header);
 	    String bookIdentifier = getArchiveIdentifier();
 	    parsedDocument = new Document(bookIdentifier, 
-					  documentContent.toString());
+					  buffer.toString().trim());
 	    parsedDocument.metadata = metadata;
 	}
 
