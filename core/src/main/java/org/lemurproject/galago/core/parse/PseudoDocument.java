@@ -73,9 +73,13 @@ public class PseudoDocument extends Document {
     StringBuilder builder = new StringBuilder(start);
     builder.append("\n");
     for (Sample s : samples) {
-      builder.append(String.format("SOURCE: %s\n, LOCATION: %s\n, CONTENTS: %s\n\n",
+      builder.append(String.format("SOURCE: %s\n LOCATION: %s\n CONTENTS: %s\n",
               s.source, s.location, s.content));
+      if (s.externalLink != null) {
+	  builder.append(String.format("EXTERNAL LINK: %s\n", s.externalLink));
+      }
     }
+    builder.append("\n");
     return builder.toString();
   }
 
@@ -105,7 +109,6 @@ public class PseudoDocument extends Document {
     dataOStream.close();
     ByteArrayOutputStream combinedBytes = new ByteArrayOutputStream();
     DataOutputStream combinedDataStream = new DataOutputStream(combinedBytes);
-    System.err.printf("Writing sizes of %d and %d\n", start.length, sampleArray.size());
     combinedDataStream.writeInt(start.length);
     combinedDataStream.write(start);
     combinedDataStream.writeInt(sampleArray.size());
