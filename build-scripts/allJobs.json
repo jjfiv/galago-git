@@ -1,0 +1,12 @@
+{
+    "jobs" :[{ "command" : "build", "parameters" : "/work1/allan/irmarc/projects/lemur/linked/buildBooks.json", "active":false},
+	     { "command" : "build", "parameters" : "/work1/allan/irmarc/projects/lemur/linked/buildPages.json", "active":false},
+	     { "command" : "chain-jobs", "parameters" : "/work1/allan/irmarc/projects/lemur/linked/buildPerson.json", "active":false},
+	     { "command" : "chain-jobs", "parameters" : "/work1/allan/irmarc/projects/lemur/linked/buildLocation.json", "active":false},
+	     { "command" : "chain-jobs", "parameters" : "/work1/allan/irmarc/projects/lemur/linked/buildMisc.json","active":false},
+	     { "command" : "build-pictures", "parameters" : "/work1/allan/irmarc/projects/lemur/linked/buildPictures.json","active":false},
+	     { "command" : "build-dates", "parameters" : "/work1/allan/irmarc/projects/lemur/linked/buildDates.json", "active":false},
+	     { "command" : "build-topics", "parameters" : "/work1/allan/irmarc/projects/lemur/linked/buildTopics.json"},
+	     { "command" : "link-indexes", "parameters" : "/work1/allan/irmarc/projects/lemur/linked/buildLinks.json"}
+    ]
+}

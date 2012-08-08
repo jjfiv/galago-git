@@ -1,3 +1,7 @@
 Example scripts used to build various parts of the index. They can all be run
 independently, although obviously they should all point at the same input 
 source.
+
+allJobs.json can be called with 'chain-jobs' to run the entire pipeline
+(all 'active' parameters indicate whether the job is executed or not. Set them
+all to true to run everything).

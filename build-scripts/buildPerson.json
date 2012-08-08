@@ -5,7 +5,7 @@
 	  "parser" : { "filetype" : "mbtei.person" },
 	  "distrib" : 20 ,
 	  "port" : 6803,
-	  "inputPath" : [ "/home2/irmarc/portland_mbtei_3.list.gz" ], 
+	  "inputPath" : [ "/home2/irmarc/portland_linked_3.list.gz" ], 
   	  "corpusPath" : "/work1/allan/irmarc/data/megabooks/indexes/sigir2012-demo/portland.2/people", 
 	  "galagoJobDir" : "/work1/allan/irmarc/tmp/sigir2012-demo/portland.2/people-corpus" , 
 	  "deleteJobDir" : false,
@@ -13,6 +13,7 @@
 	},
 	{"command" : "build",
 	"parameters" : {
+	  "active" : false, 
 	  "corpus" : false,
 	  "distrib" : 20 ,
 	  "port" : 6803,
