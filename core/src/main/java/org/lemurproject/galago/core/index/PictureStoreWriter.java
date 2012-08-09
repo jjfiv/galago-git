@@ -13,9 +13,11 @@ import org.apache.thrift.protocol.TCompactProtocol.Factory;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.lemurproject.galago.core.types.PictureOccurrence;
-import ciir.proteus.Picture;
-import ciir.proteus.PictureList;
-import ciir.proteus.Coordinates;
+
+import ciir.proteus.galago.thrift.Coordinates;
+import ciir.proteus.galago.thrift.Picture;
+import ciir.proteus.galago.thrift.PictureList;
+
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
