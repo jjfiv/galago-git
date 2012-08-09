@@ -101,9 +101,19 @@ class MBTEIEntityParser extends MBTEIParserBase {
 	}
 	String name = reader.getAttributeValue(null, "name");
 	if (name == null) {
-	    return; // lazily skip anything without a name defined.
+	    return; // skip anything without a name defined.
 	}
-	Context freshContext = new Context(name, slidingWindow);
+
+	String normalized = normalize(name);
+	if (normalized == null || normalized.length() < 2) {
+	    return; // Also skip short names
+	}
+
+	if (isOnlyStopwords(normalized)) {
+	    return;
+	}
+
+	Context freshContext = new Context(normalized, slidingWindow);
 	freshContext.type = type;
 	freshContext.startPos = pagePosition;
 	freshContext.startPage = pageNumber;

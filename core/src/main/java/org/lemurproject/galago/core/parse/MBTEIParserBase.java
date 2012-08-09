@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.regex.Pattern;
 import javax.xml.stream.XMLInputFactory;
@@ -12,6 +13,7 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.util.StreamReaderDelegate;
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Generic superclass for dealing with events.
@@ -64,7 +66,7 @@ abstract class MBTEIParserBase implements DocumentStreamParser {
     protected LinkedList<Action> startElementActions;
     protected LinkedList<Action> endElementActions;
     protected Method charactersAction;
-
+    protected HashSet<String> stopwords;
     protected Document parsedDocument;
     protected StringBuilder buffer;
  
@@ -77,6 +79,8 @@ abstract class MBTEIParserBase implements DocumentStreamParser {
 	    factory = XMLInputFactory.newInstance();
 	    factory.setProperty(XMLInputFactory.IS_COALESCING, true);
 	    reader = new StreamReaderDelegate(factory.createXMLStreamReader(is));
+	    stopwords = 
+		Utility.readStreamToStringSet(getClass().getResourceAsStream("/stopwords/inquery"));	    
 	} catch (Exception e) {
 	    System.err.printf("SKIPPING %s: Caught exception %s\n", split.fileName, e.getMessage());
 	    reader = null;
@@ -379,6 +383,30 @@ abstract class MBTEIParserBase implements DocumentStreamParser {
 	    buffer.append(scrubbed).append(" ");
 	    ++contentLength;
 	}
+    }
+
+    public String normalize(String raw) {
+	return raw
+	    .replaceAll("-LRB-", "(")
+	    .replaceAll("-RRB-", ")")
+	    .replaceAll("-RSB-", "]")
+	    .replaceAll("-LSB-", "[")
+	    .replaceAll("-LCB-", "{")
+	    .replaceAll("-RCB-", "}")
+	    .toLowerCase()
+	    .replaceAll("[^a-z0-9]"," ")
+	    .replaceAll("\\s+", " ")
+	    .trim();
+    }
+
+    public boolean isOnlyStopwords(String s) {
+	String[] tokens = s.split(" ");
+	for (String token : tokens) {
+	    if (!stopwords.contains(token)) {
+		return false;
+	    }
+	}
+	return true;
     }
 
     public String scrub(String dirty) {

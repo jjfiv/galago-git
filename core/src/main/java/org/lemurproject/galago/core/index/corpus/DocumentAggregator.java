@@ -79,6 +79,10 @@ public class DocumentAggregator implements KeyValuePair.KeyOrder.ShreddedProcess
       ByteArrayOutputStream array = new ByteArrayOutputStream();
       PseudoDocument pd = bufferedDocuments.get(nameKey);
       pd.identifier = documentNumber;
+      // This is a hack to make the document smaller
+      if (pd.terms.size() > 1000000) {
+	  pd.terms = pd.terms.subList(0, 1000000);
+      }
       array.write(PseudoDocument.serialize(emptyParameters, pd));
       array.close();
       byte[] newKey = Utility.fromInt(pd.identifier);
