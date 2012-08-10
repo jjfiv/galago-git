@@ -61,18 +61,16 @@ class MBTEIPageParser extends MBTEIBookParser {
     // ...content here...
     // </text></TEI>
     public void emitSingleDocument(int ignored) {
-	if (contentLength > 0) {
-	    StringBuilder documentContent = new StringBuilder(header);
-	    documentContent.append("<text>");
-	    documentContent.append(buffer.toString().trim());
-	    documentContent.append("</text></TEI>");
-	    String documentIdentifier = String.format("%s_%s",
-						      getArchiveIdentifier(),
-						      pageNumber);
-	    parsedDocument = new Document(documentIdentifier, 
-					  documentContent.toString());
-	    parsedDocument.metadata = metadata;
-	}
+	StringBuilder documentContent = new StringBuilder(header);
+	documentContent.append("<text>");
+	documentContent.append(buffer.toString().trim());
+	documentContent.append("</text>");
+	String documentIdentifier = String.format("%s_%s",
+						  getArchiveIdentifier(),
+						  pageNumber);
+	parsedDocument = new Document(documentIdentifier, 
+				      documentContent.toString());
+	parsedDocument.metadata = metadata;
 	contentLength = 0;
 	pageNumber = reader.getAttributeValue(null, "n");
     }

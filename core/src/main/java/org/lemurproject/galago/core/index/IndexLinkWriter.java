@@ -53,6 +53,8 @@ public class IndexLinkWriter implements Processor<IndexLink> {
 
     public IndexLinkWriter(TupleFlowParameters parameters) throws IOException {
 	this.parameters = parameters.getJSON();
+	this.parameters.set("writerClass", this.getClass().getName());
+	this.parameters.set("readerClass", IndexLinkReader.class.getName());
 	filePrefix = this.parameters.getString("filename");
 	linkCounter = parameters.getCounter("Links written");
 	listCounter = parameters.getCounter("Lists written");

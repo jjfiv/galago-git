@@ -79,7 +79,9 @@ class MBTEIPageEntityLinker extends MBTEIParserBase {
 
     public void mapTag(int ignored) {
 	String innerType = reader.getAttributeValue(null, "type");
-	String identifier = reader.getAttributeValue(null, "name");
+	String identifier = filterName(reader.getAttributeValue(null, "name"));
+	if (identifier == null) return;
+
 	int length = identifier.split(" ").length;
 	HashMap<String, String> attributes = new HashMap<String, String>();
 	attributes.put("id", identifier);
@@ -124,6 +126,17 @@ class MBTEIPageEntityLinker extends MBTEIParserBase {
 	pageLinks.metadata.put("type", "page");
 	pageLinks.metadata.put("pos", "0");
 	pageLinks.tags = new LinkedList<Tag>();
+
+	// Add an entry to the bookLinks to map book --> page
+	HashMap<String, String> attributes = new HashMap<String, String>();
+	attributes.put("id", pageId);
+	attributes.put("type", "page");
+	attributes.put("pos", Integer.toString(bookPosition));
+	Tag pageToBookLink = new Tag("PAGE-LINK", 
+				     attributes, 
+				     bookPosition,
+				     bookPosition);
+	bookLinks.tags.add(pageToBookLink);
     }
 
     // Although we have links going one way (i.e. page --> person),

@@ -385,6 +385,18 @@ abstract class MBTEIParserBase implements DocumentStreamParser {
 	}
     }
 
+    public String filterName(String raw) {
+	if (raw == null) return null;
+	String normalized = normalize(raw);
+	if (normalized == null || normalized.length() < 2) {
+	    return null;
+	}
+	if (isOnlyStopwords(normalized)) {
+	    return null;
+	}
+	return normalized;
+    }
+
     public String normalize(String raw) {
 	return raw
 	    .replaceAll("-LRB-", "(")
