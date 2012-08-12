@@ -26,6 +26,8 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
 public class PictureDocumentWriter extends KeyValueWriter<KeyValuePair> {
     public PictureDocumentWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
 	super(parameters, "Pic Documents Written");
+	Parameters manifest = writer.getManifest();
+	manifest.set("writerClass", this.getClass().getName());
     }
 
     public GenericElement prepare(KeyValuePair kvp) {

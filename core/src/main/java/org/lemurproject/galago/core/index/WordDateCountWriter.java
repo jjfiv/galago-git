@@ -30,11 +30,13 @@ public class WordDateCountWriter implements WordDateCount.WordDateOrder.Shredded
 	byte[] key;
 	CompressedRawByteBuffer data;
 	int danglingCount;
+	int entryCount;
 
 	public InvertedList(byte[] key) {
 	    this.key = key;
 	    data = new CompressedRawByteBuffer();
 	    danglingCount = 0;
+	    entryCount = 0;
 	}
 
 	public byte[] key() { 
@@ -42,10 +44,11 @@ public class WordDateCountWriter implements WordDateCount.WordDateOrder.Shredded
 	}
 
 	public long dataLength() {
-	    return data.length();
+	    return data.length() + 4;
 	}
 	
 	public void write(final OutputStream oStream) throws IOException {
+	    oStream.write(Utility.fromInt(entryCount));
 	    data.write(oStream);
 	    data.clear();
 	}
@@ -56,6 +59,7 @@ public class WordDateCountWriter implements WordDateCount.WordDateOrder.Shredded
 	    }
 	    data.add((long)date);	    
 	    danglingCount = 0;
+	    ++entryCount;
 	}
 
 	public void incrementCount(long count) throws IOException {

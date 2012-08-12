@@ -435,6 +435,10 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
     position = text.length();
   }
 
+  public static String processToken(String t) {
+      return tokenComplexFix(t);
+  }
+
   protected void onSplit() {
     if (position - lastSplit > 1) {
       int start = lastSplit + 1;
@@ -491,7 +495,7 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
     tokenPositions.add(new Pair(start, end));
   }
 
-  protected String tokenComplexFix(String token) {
+  protected static String tokenComplexFix(String token) {
     token = tokenSimpleFix(token);
     token = token.toLowerCase();
 
@@ -572,7 +576,7 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
    * @param token
    * @return
    */
-  protected String tokenSimpleFix(String token) {
+  protected static String tokenSimpleFix(String token) {
     char[] chars = token.toCharArray();
     int j = 0;
 

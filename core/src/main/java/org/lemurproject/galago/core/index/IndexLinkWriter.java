@@ -1,10 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
+import ciir.proteus.galago.thrift.Constants;
 import java.io.IOException;
 import java.io.File;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -46,10 +48,9 @@ public class IndexLinkWriter implements Processor<IndexLink> {
     TCompactProtocol.Factory protocolFactory;
     ByteArrayOutputStream byteStream;
     Target currentTarget;
+    HashMap<String, String> extToInt;
     Direction direction;
-
-    // Describes src to target. As in, "src is IN target", or "src HAS target"
-    enum Direction { IN, HAS };
+    enum Direction { In, Has, Near };
 
     public IndexLinkWriter(TupleFlowParameters parameters) throws IOException {
 	this.parameters = parameters.getJSON();
@@ -58,6 +59,13 @@ public class IndexLinkWriter implements Processor<IndexLink> {
 	filePrefix = this.parameters.getString("filename");
 	linkCounter = parameters.getCounter("Links written");
 	listCounter = parameters.getCounter("Lists written");
+	extToInt = new HashMap<String, String>();
+	extToInt.put("PER", "person");
+	extToInt.put("LOC", "location");
+	extToInt.put("MISC", "miscellaneous");
+	extToInt.put("ORG", "organization");
+	extToInt.put("collection", "collection");
+	extToInt.put("page", "page");
 	writer = null;
 	from = to = null;
 	postingList = null;
@@ -84,11 +92,17 @@ public class IndexLinkWriter implements Processor<IndexLink> {
 	    writer = new DiskBTreeWriter(filename, this.parameters);
 	    from = link.srctype;
 	    to = link.targettype;
-	    if (from.equals("collection") ||
-		from.equals("page")) {
-		direction = Direction.HAS;
+	    String internalFrom = extToInt.get(link.srctype);
+	    String internalTo = extToInt.get(link.targettype);
+	    
+	    if (Constants.contains.containsKey(internalFrom) &&
+		Constants.contains.get(internalFrom).contains(internalTo)) {
+		direction = Direction.Has;
+	    } else if (Constants.isContainedBy.containsKey(internalFrom) &&
+		       Constants.isContainedBy.get(internalFrom).contains(internalTo)) {
+		direction = Direction.In;
 	    } else {
-		direction = Direction.IN;
+		direction = Direction.Near;
 	    }
 	}
     }
@@ -101,8 +115,9 @@ public class IndexLinkWriter implements Processor<IndexLink> {
 	    postingList.addToTarget(currentTarget);
 	}
 	switch (direction) {
-	case IN: currentTarget.addToPositions(link.pos); break;
-	case HAS: currentTarget.addToPositions(link.targetpos); break;
+	case In: currentTarget.addToPositions(link.pos); break;
+	case Has: currentTarget.addToPositions(link.targetpos); break;
+	case Near: currentTarget.addToPositions(link.targetpos - link.pos); break;
 	}
     }
 

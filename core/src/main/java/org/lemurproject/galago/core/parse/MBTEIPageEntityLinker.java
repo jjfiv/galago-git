@@ -17,7 +17,7 @@ import javax.xml.stream.util.StreamReaderDelegate;
 import org.lemurproject.galago.core.types.DocumentSplit;
 
 class MBTEIPageEntityLinker extends MBTEIParserBase {
-
+    LinkedList<Document> entitiesInScope;
     Document bookLinks;
     Document pageLinks;
     int bookPosition;
@@ -29,6 +29,7 @@ class MBTEIPageEntityLinker extends MBTEIParserBase {
     public MBTEIPageEntityLinker(DocumentSplit split, InputStream is) {
 	super(split, is);
 	S0();
+	entitiesInScope = new LinkedList<Document>();
 	bookLinks = new Document();
 	bookLinks.name = "COLLECTION-LINK";
 	bookLinks.metadata.put("id", getArchiveIdentifier());
@@ -56,10 +57,17 @@ class MBTEIPageEntityLinker extends MBTEIParserBase {
 
     @Override
     public void cleanup() {
+	// Close all entities
+	while (!entitiesInScope.isEmpty()) {
+	    emitLinks(entitiesInScope.poll());
+	}
+
+	// Last page if needed
 	if (pageLinks != null) {
 	    emitLinks(pageLinks);	    
 	}
-	// At this point we should emit links for the entire book.
+
+	// Finally emit links for the whole book.
 	emitLinks(bookLinks);
     }
 
@@ -71,7 +79,6 @@ class MBTEIPageEntityLinker extends MBTEIParserBase {
 
     public void moveToS1(int ignored) {
 	clearStartElementActions();
-
 	addStartElementAction(nameTag, "mapTag");
 	addStartElementAction(wordTag, "increment");
 	addStartElementAction(pageBreakTag, "emitPageLinks");
@@ -92,7 +99,7 @@ class MBTEIPageEntityLinker extends MBTEIParserBase {
 			       pagePosition, 
 			       pagePosition+length);
 	pageLinks.tags.add(pageLink);
-
+	updateInterEntityLinks(identifier, innerType, bookPosition, length);
 	Tag bookLink = new Tag(String.format("%s-LINK", innerType.toUpperCase()),
 			       null, 
 			       bookPosition, 
@@ -106,9 +113,46 @@ class MBTEIPageEntityLinker extends MBTEIParserBase {
 	bookLinks.tags.add(bookLink);
     }
 
+    public void updateInterEntityLinks(String identifier, 
+				       String type,
+				       int position,
+				       int length) {
+	// Make it as a Tag
+	HashMap<String, String> attributes = new HashMap<String, String>();
+	attributes.put("id", identifier);
+	attributes.put("type", type);
+	attributes.put("pos", Integer.toString(position));
+	Tag entityLink = new Tag(String.format("%s-LINK", type.toUpperCase()),
+				 attributes,
+				 position,
+				 position+length);
+	for (Document scopedEntity : entitiesInScope) {
+	    scopedEntity.tags.add(entityLink);
+	}
+				 
+	// Add it into the open scope
+	Document entityDocument = new Document();
+	entityDocument.name = String.format("%s-LINK", type);
+	entityDocument.metadata.put("id", identifier);
+	entityDocument.metadata.put("type", type);
+	entityDocument.metadata.put("pos", Integer.toString(position));
+	entityDocument.tags = new ArrayList<Tag>();
+	entitiesInScope.add(entityDocument);
+    }
+
     public void increment(int ignored) {
 	++pagePosition;
 	++bookPosition;
+	while (entitiesInScope.size() > 0) {
+	    Document lead = entitiesInScope.peek();
+	    int leadPosition = Integer.parseInt(lead.metadata.get("pos"));
+	    if (bookPosition - leadPosition > MBTEIEntityParser.WINDOW_SIZE) {
+		emitLinks(entitiesInScope.poll());
+	    } else {
+		break;
+	    }
+	}
+
     }
 
     public void emitPageLinks(int ignored) {

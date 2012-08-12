@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import javax.xml.stream.XMLStreamConstants;
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.tupleflow.Utility;
 
 // Fundamentally operates differently than the book and page parsers,
 // so it is subclassed higher up the hierarchy
@@ -15,6 +16,7 @@ import org.lemurproject.galago.core.types.DocumentSplit;
 // Assumptions
 // - Names cannot be nested
 class MBTEIEntityParser extends MBTEIParserBase {
+    public static final int WINDOW_SIZE = 30; 
     Pattern pageBreakTag = Pattern.compile("pb");
     protected StringPooler pooler = new StringPooler();
     class Context {
@@ -23,9 +25,9 @@ class MBTEIEntityParser extends MBTEIParserBase {
 	    this.name = name;
 	    tokens = new LinkedList<String>();
             for (String s : previousText) {
-              tokens.add(scrub(s));
+		tokens.add(TagTokenizer.processToken(scrub(s)));
             }
-	    numTrailingWords = windowSize;
+	    numTrailingWords = WINDOW_SIZE;
 	}
 	String name;
 	String type;
@@ -37,7 +39,6 @@ class MBTEIEntityParser extends MBTEIParserBase {
     }   
 
     // number of words before and after a name tag to associate
-    public int windowSize = 30; 
     public LinkedList<String> slidingWindow;
     public LinkedList<Context> openContexts;
     Pattern dateTag = Pattern.compile("date");
@@ -117,9 +118,9 @@ class MBTEIEntityParser extends MBTEIParserBase {
 
     public void updateContexts(int ignored) {
 	String formValue = reader.getAttributeValue(null, "form");
-	String scrubbed = scrub(formValue);
+	String scrubbed = TagTokenizer.processToken(scrub(formValue));
 	slidingWindow.addLast(scrubbed);
-	while (slidingWindow.size() > windowSize) {
+	while (slidingWindow.size() > WINDOW_SIZE) {
 	    slidingWindow.poll();
 	}
 	
