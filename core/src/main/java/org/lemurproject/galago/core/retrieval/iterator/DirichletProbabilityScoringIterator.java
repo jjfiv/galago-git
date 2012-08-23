@@ -5,16 +5,14 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import org.lemurproject.galago.core.index.disk.PositionIndexReader;
 import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.scoring.DirichletProbabilityScorer;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -28,24 +26,15 @@ import org.lemurproject.galago.core.scoring.DirichletProbabilityScorer;
 public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {
 
-  NodeParameters np;
   private double weight;
-  public double max;
   public double min;
   private int parentIdx;
   String partName;
 
-  public DirichletProbabilityScoringIterator(NodeParameters p, MovableCountIterator it)
+  public DirichletProbabilityScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(p, it, new DirichletProbabilityScorer(p, it));
-    this.np = p;
-
-    if (it instanceof PositionIndexReader.TermCountIterator) {
-      PositionIndexReader.TermCountIterator maxIter = (PositionIndexReader.TermCountIterator) it;
-      max = function.score(maxIter.maximumCount(), maxIter.maximumCount());
-    } else {
-      max = 0;  // Means we have a null extent iterator
-    }
+    super(it, new DirichletProbabilityScorer(globalParams, p, it));
+    max = getMaxTF(p, it);
     partName = p.getString("lengths");
     parentIdx = (int) p.getLong("pIdx");
     weight = p.getDouble("w");
@@ -56,13 +45,41 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
-  public double maximumScore() {
-    return max;
+  public double minimumScore() {
+    return min;
+  }
+
+  public double getWeight() {
+    return weight;
   }
 
   @Override
-  public double minimumScore() {
-    return min;
+  public void deltaScore(int count, int length) {
+    DeltaScoringContext ctx = (DeltaScoringContext) context;
+
+    double diff = weight * (function.score(count, length) - max);
+    double newValue = ctx.potentials[parentIdx] + diff;
+
+    ctx.runningScore += Math.log(newValue / ctx.potentials[parentIdx]);
+    ctx.potentials[parentIdx] = newValue;
+
+  }
+
+  @Override
+  public void deltaScore(int length) {
+    DeltaScoringContext ctx = (DeltaScoringContext) context;
+    int count = 0;
+
+    if (iterator.currentCandidate() == context.document) {
+      count = ((CountIterator) iterator).count();
+    }
+
+    double diff = weight * (function.score(count, length) - max);
+    double newValue = ctx.potentials[parentIdx] + diff;
+
+    ctx.runningScore += Math.log(newValue / ctx.potentials[parentIdx]);
+    ctx.potentials[parentIdx] = newValue;
+
   }
 
   @Override

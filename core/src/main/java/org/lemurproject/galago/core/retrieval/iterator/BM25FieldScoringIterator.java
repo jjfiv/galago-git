@@ -7,8 +7,8 @@ import org.lemurproject.galago.core.index.disk.PositionIndexReader;
 import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
+import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.scoring.BM25FieldScorer;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -25,27 +25,25 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {
 
   String partName;
-  double max;
   public ScoreCombinationIterator parent;
   public int parentIdx;
   public double weight;
   public double idf;
   public static double K;
 
-  public BM25FieldScoringIterator(NodeParameters p, MovableCountIterator it)
+  public BM25FieldScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(p, it, new BM25FieldScorer(p, it));
+    super(it, new BM25FieldScorer(globalParams, p, it));
     partName = p.getString("lengths");
     weight = p.getDouble("w");
     parentIdx = (int) p.getLong("pIdx");
     idf = p.getDouble("idf");
     K = p.getDouble("K"); // not the most efficient since it's a static, but meh
-    if (it instanceof PositionIndexReader.TermExtentIterator) {
-      PositionIndexReader.TermExtentIterator maxIter = (PositionIndexReader.TermExtentIterator) it;
-      max = function.score(maxIter.maximumCount(), maxIter.maximumCount());
-    } else {
-      max = 0;  // Means we have a null extent iterator
-    }
+    max = getMaxTF(p, it);
+  }
+
+  public double getWeight() {
+    return weight;
   }
 
   @Override
@@ -60,6 +58,45 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
   }
 
   // Use this to score for potentials, which is more of an "adjustment" than just scoring.
+  @Override
+  public void deltaScore(int count, int length) {
+    DeltaScoringContext ctx = (DeltaScoringContext) context;
+
+    double s = function.score(count, length);
+    double diff = weight * (s - max);
+    double numerator = idf * K * diff;
+    double fieldSum = ctx.potentials[parentIdx];
+    double denominator = fieldSum * (fieldSum + diff);
+
+    double inc = numerator / denominator;
+
+    ctx.runningScore += inc;
+    ctx.potentials[parentIdx] += diff;
+  }
+
+  @Override
+  public void deltaScore(int length) {
+    DeltaScoringContext ctx = (DeltaScoringContext) context;
+    int count = 0;
+
+    if (iterator.currentCandidate() == context.document) {
+      count = ((CountIterator) iterator).count();
+    }
+
+    double s = function.score(count, length);
+    double diff = weight * (s - max);
+    double numerator = idf * K * diff;
+    double fieldSum = ctx.potentials[parentIdx];
+    double denominator = fieldSum * (fieldSum + diff);
+
+    double inc = numerator / denominator;
+
+    ctx.runningScore += inc;
+    ctx.potentials[parentIdx] += diff;
+  }
+
+  // Use this to score for potentials, which is more of an "adjustment" than just scoring.
+  @Override
   public void deltaScore() {
     DeltaScoringContext ctx = (DeltaScoringContext) context;
     int count = 0;
@@ -75,12 +112,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
     double denominator = fieldSum * (fieldSum + diff);
 
     double inc = numerator / denominator;
-    /*
-     * System.err.printf("Update: (num=%f, den=%f, pot(%d)=%f, diff=%f, s=%f,
-     * max=%f, inc=%f) %f -> %f \n", numerator, denominator, parentIdx,
-     * ctx.potentials[parentIdx], diff, s, max, inc, ctx.runningScore,
-     * (ctx.runningScore+inc));
-     */
+
     ctx.runningScore += inc;
     ctx.potentials[parentIdx] += diff;
   }
@@ -110,11 +142,6 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
       ctx.startingPotential += idfs.get(i) * (num / den);
       ctx.startingPotentials[i] += this.K;
     }
-  }
-
-  @Override
-  public double maximumScore() {
-    return max;
   }
 
   @Override
