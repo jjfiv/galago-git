@@ -20,6 +20,7 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
   protected NodeParameters np;
   protected ScoringFunction function;
   protected CountIterator countIterator;
+  protected double max;
 
   public ScoringFunctionIterator(NodeParameters np, MovableCountIterator iterator, ScoringFunction function) throws IOException {
     super(iterator);
@@ -45,7 +46,7 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
 
   @Override
   public double maximumScore() {
-    return Double.POSITIVE_INFINITY;
+    return max;
   }
 
   @Override
