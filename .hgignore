@@ -4,3 +4,5 @@ syntax: glob
 *.class
 */types/*
 */target/*
+*.iml
+*.prj
