@@ -36,7 +36,8 @@ public class TextFieldRewriteTraversal extends Traversal {
     String operator = original.getOperator();
 
     if (operator.equals("text")) {
-      return TextPartAssigner.assignPart(new Node("extents", original.getNodeParameters()), retrieval, queryParams);
+      return TextPartAssigner.assignPart(new Node("extents", original.getNodeParameters()), 
+              retrieval.getGlobalParameters(), retrieval.getGlobalParameters());
     } else if (operator.equals("field")) {
       if (retrieval.getAvailableParts().getKeys().contains("extents")) {
         return TextPartAssigner.transformedNode(new Node("extents", original.getNodeParameters()), "extents");

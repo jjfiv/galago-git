@@ -25,9 +25,9 @@ public class BM25Scorer implements ScoringFunction {
   double idf;
   long documentCount;
   
-  public BM25Scorer(Parameters globalParams, NodeParameters parameters, MovableCountIterator iterator) throws IOException {
-    b = parameters.get("b", globalParams.get("b", 0.75));
-    k = parameters.get("k", globalParams.get("k", 1.2));
+  public BM25Scorer(NodeParameters parameters, MovableCountIterator iterator) throws IOException {
+    b = parameters.get("b", 0.75);
+    k = parameters.get("k", 1.2);
 
     double collectionLength = parameters.getLong("collectionLength");
     documentCount = parameters.getLong("documentCount");

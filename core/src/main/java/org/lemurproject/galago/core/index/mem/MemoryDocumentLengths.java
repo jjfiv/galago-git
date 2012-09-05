@@ -275,6 +275,11 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     @Override
+    public byte[] key() {
+      return Utility.fromString("MemDL");
+    }
+
+    @Override
     public long totalEntries() {
       throw new UnsupportedOperationException("Not supported yet.");
     }

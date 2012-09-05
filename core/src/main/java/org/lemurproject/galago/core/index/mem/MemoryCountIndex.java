@@ -430,6 +430,11 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
+    public byte[] key() {
+      return Utility.fromString("MemCI");
+    }
+
+    @Override
     public boolean hasMatch(int identifier) {
       return (!isDone() && identifier == currDocument);
     }

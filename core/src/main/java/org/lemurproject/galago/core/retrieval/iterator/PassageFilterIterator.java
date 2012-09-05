@@ -21,12 +21,19 @@ public class PassageFilterIterator extends TransformIterator implements MovableE
   PassageScoringContext passageContext;
   int begin, end, docid;
   ExtentArray cached;
+  protected byte[] key;
 
   public PassageFilterIterator(NodeParameters parameters, MovableExtentIterator extentIterator) {
     super(extentIterator);
     this.extentIterator = extentIterator;
     this.cached = new ExtentArray();
     docid = -1;
+    key = extentIterator.key();
+  }
+
+  @Override
+  public byte[] key() {
+    return key;
   }
 
   /**
@@ -79,7 +86,7 @@ public class PassageFilterIterator extends TransformIterator implements MovableE
 
   @Override
   public int count() {
-      return extents().size();
+    return extents().size();
   }
 
   @Override

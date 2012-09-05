@@ -28,9 +28,9 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
   int parentIdx;
   double min;
 
-  public DirichletScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
+  public DirichletScoringIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(it, new DirichletScorer(globalParams, p, it));
+    super(p, it, new DirichletScorer(p, it));
     weight = p.getDouble("w");
     parentIdx = (int) p.get("pIdx", 0);
     max = getMaxTF(p, it);

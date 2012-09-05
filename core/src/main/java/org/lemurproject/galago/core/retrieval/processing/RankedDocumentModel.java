@@ -52,7 +52,8 @@ public class RankedDocumentModel extends ProcessingModel {
     Arrays.sort(whitelist);
 
     // construct the query iterators
-    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryTree, context);
+    MovableScoreIterator iterator = 
+            (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
     int requested = (int) queryParams.get("requested", 1000);
 
     // now there should be an iterator at the root of this tree
@@ -94,7 +95,8 @@ public class RankedDocumentModel extends ProcessingModel {
     //System.err.printf("Executing %s\n", queryTree.toString());
 
     // construct the iterators -- we use tree processing
-    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryTree, context);
+    MovableScoreIterator iterator = 
+            (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
     ProcessingModel.initializeLengths(retrieval, context);
 
     // now there should be an iterator at the root of this tree
@@ -108,7 +110,7 @@ public class RankedDocumentModel extends ProcessingModel {
       context.document = document;
       context.moveLengths(document);
 
-      if (iterator.atCandidate(document)) {
+      if (iterator.hasMatch(document)) {
         double score = iterator.score();
         ////CallTable.increment("doc_finish");
         if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
@@ -124,7 +126,7 @@ public class RankedDocumentModel extends ProcessingModel {
         }
         ////CallTable.max("heap_max_size", queue.size());
       }
-      iterator.next();
+      iterator.movePast(document);
     }
     ////CallTable.set("heap_end_size", queue.size());
     return toReversedArray(queue);

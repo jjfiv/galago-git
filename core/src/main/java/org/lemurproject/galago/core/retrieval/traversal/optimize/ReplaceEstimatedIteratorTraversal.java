@@ -7,13 +7,13 @@ package org.lemurproject.galago.core.retrieval.traversal.optimize;
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
 import org.lemurproject.galago.core.retrieval.processing.SoftDeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.traversal.AnnotateCollectionStatistics;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -25,8 +25,9 @@ public class ReplaceEstimatedIteratorTraversal extends Traversal {
   public SoftDeltaScoringContext context = null;
   LocalRetrieval lr;
   AnnotateCollectionStatistics annotator;
-
-  public ReplaceEstimatedIteratorTraversal(Retrieval r) {
+  Parameters queryParams;
+  
+  public ReplaceEstimatedIteratorTraversal(Retrieval r, Parameters queryParameters) {
     passedWindow = false;
     if (r != null && LocalRetrieval.class.isAssignableFrom(r.getClass())) {
       lr = (LocalRetrieval) r;
@@ -36,6 +37,7 @@ public class ReplaceEstimatedIteratorTraversal extends Traversal {
         throw new RuntimeException(ioe);
       }
     }
+    queryParams = queryParameters;
   }
 
   @Override
@@ -49,7 +51,7 @@ public class ReplaceEstimatedIteratorTraversal extends Traversal {
               && lr != null && context != null) {
         // Let's make us an iterator - it sets itself to the context so no need to pass it up
         Node eligible = annotator.afterNode(newNode);
-        StructuredIterator iterator = lr.createIterator(eligible, context);
+        StructuredIterator iterator = lr.createIterator(queryParams, eligible, context);
       }
     }
     return newNode;

@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * We only land on docs that the indicator allows, otherwise we consider it a
@@ -34,5 +34,10 @@ public class RejectIterator extends FilteredIterator {
   public boolean hasMatch(int identifier) {
     return (!this.indicator.indicator(identifier))
             && this.mover.hasMatch(identifier);
+  }
+
+  @Override
+  public byte[] key() {
+    return Utility.fromString("REJ");
   }
 }

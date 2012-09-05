@@ -13,6 +13,13 @@ import org.lemurproject.galago.core.index.ValueIterator;
  */
 public interface CountIterator {
 
+  /**
+   * Shorthand set of bytes used to quickly identify this
+   * iterator. Useful for things like caching the iterator.
+   * @return 
+   */
+   public byte[] key();
+  
     /**
      * Returns the number of occurrences of this iterator's term in
      * the current identifier.

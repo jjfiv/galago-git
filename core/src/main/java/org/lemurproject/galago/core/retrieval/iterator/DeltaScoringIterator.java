@@ -11,8 +11,6 @@ import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
  * @author irmarc
  */
 public interface DeltaScoringIterator extends MovableScoreIterator {
-
-  public byte[] key();
   
   /**
    * The scoring method to use if scoring via delta functions. This score will
@@ -24,6 +22,7 @@ public interface DeltaScoringIterator extends MovableScoreIterator {
   
   public void deltaScore(int count, int length);
   
+  public byte[] key();
  
   /**
    * Returns the weight the iterator uses in delta scoring.

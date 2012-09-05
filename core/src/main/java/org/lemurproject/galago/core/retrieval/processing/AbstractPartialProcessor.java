@@ -7,18 +7,16 @@ package org.lemurproject.galago.core.retrieval.processing;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.hash.TIntHashSet;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.retrieval.EstimatedDocument;
-import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
+import org.lemurproject.galago.core.retrieval.StagedLocalRetrieval;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.traversal.optimize.ReplaceEstimatedIteratorTraversal;
-import org.lemurproject.galago.core.util.CallTable;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -30,7 +28,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public abstract class AbstractPartialProcessor extends ProcessingModel {
 
-  protected LocalRetrieval retrieval;
+  protected StagedLocalRetrieval retrieval;
   // Need this for sentinel checking
   double maxPartialScore;
 
@@ -100,7 +98,7 @@ public abstract class AbstractPartialProcessor extends ProcessingModel {
     context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     Arrays.fill(context.startingPotentials, 0);
-    ReplaceEstimatedIteratorTraversal traversal = new ReplaceEstimatedIteratorTraversal(retrieval);
+    ReplaceEstimatedIteratorTraversal traversal = new ReplaceEstimatedIteratorTraversal(retrieval, queryParams);
     traversal.context = context;
 
     Node newroot = StructuredQuery.walk(traversal, queryTree); // materializes scorers
@@ -193,7 +191,7 @@ public abstract class AbstractPartialProcessor extends ProcessingModel {
     context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     Arrays.fill(context.startingPotentials, 0);
-    ReplaceEstimatedIteratorTraversal traversal = new ReplaceEstimatedIteratorTraversal(retrieval);
+    ReplaceEstimatedIteratorTraversal traversal = new ReplaceEstimatedIteratorTraversal(retrieval, queryParams);
     traversal.context = context;
     Node newroot = StructuredQuery.walk(traversal, queryTree);
 
@@ -303,8 +301,8 @@ public abstract class AbstractPartialProcessor extends ProcessingModel {
 
       // Now move all matching sentinels members forward, and repeat
       for (k = 0; k < context.sentinelIndex; k++) {
-        if (context.scorers.get(k).atCandidate(candidate)) {
-          context.scorers.get(k).next();
+        if (context.scorers.get(k).hasMatch(candidate)) {
+          context.scorers.get(k).movePast(candidate);
         }
       }
     }
@@ -331,7 +329,7 @@ public abstract class AbstractPartialProcessor extends ProcessingModel {
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     Arrays.fill(context.startingPotentials, 0);
 
-    ReplaceEstimatedIteratorTraversal traversal = new ReplaceEstimatedIteratorTraversal(retrieval);
+    ReplaceEstimatedIteratorTraversal traversal = new ReplaceEstimatedIteratorTraversal(retrieval, queryParams);
 
     traversal.context = context;
 
@@ -436,7 +434,7 @@ public abstract class AbstractPartialProcessor extends ProcessingModel {
     context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     Arrays.fill(context.startingPotentials, 0);
-    ReplaceEstimatedIteratorTraversal traversal = new ReplaceEstimatedIteratorTraversal(retrieval);
+    ReplaceEstimatedIteratorTraversal traversal = new ReplaceEstimatedIteratorTraversal(retrieval, queryParams);
     traversal.context = context;
 
     // Also need to unload the heap now, b/c we need the list of docids for annotation

@@ -33,7 +33,6 @@ public abstract class KeyListReader extends KeyValueReader {
     public static final int HAS_SKIPS = 0x01;
     public static final int HAS_MAXTF = 0x02;
     public static final int HAS_INLINING = 0x04;
-    
     protected byte[] key;
     protected Map<String, Object> modifiers = null;
 
@@ -46,6 +45,10 @@ public abstract class KeyListReader extends KeyValueReader {
     @Override
     public String getKeyString() throws IOException {
       return Utility.toString(key);
+    }
+
+    public byte[] key() {
+      return key;
     }
 
     @Override

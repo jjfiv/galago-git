@@ -97,7 +97,8 @@ public class TermSelectionValueModel implements ExpansionModel {
     // Finally, we need an iterator from the index for the doc. frequencies
     // For now we only take AggregateReader objects, which can report that number. Meaning we need
     // a dummy text node to get the part assignment
-    Node dummy = TextPartAssigner.assignPart(new Node("extents", "dummy"), retrieval, new Parameters());
+    Node dummy = TextPartAssigner.assignPart(new Node("extents", "dummy"),
+            retrieval.getGlobalParameters(), retrieval.getAvailableParts());
     String indexPart = parameters.getString("index") + File.separator + dummy.getNodeParameters().getString("part");
     reader = DiskIndex.openIndexPart(indexPart);
   }
@@ -131,7 +132,8 @@ public class TermSelectionValueModel implements ExpansionModel {
       if (exclusionTerms.contains(g.term)) {
         continue;
       }
-      Node inner = TextPartAssigner.assignPart(new Node("extents", g.term), retrieval, new Parameters());
+      Node inner = TextPartAssigner.assignPart(new Node("extents", g.term), 
+              retrieval.getGlobalParameters(), retrieval.getAvailableParts());
       ArrayList<Node> innerChild = new ArrayList<Node>();
       innerChild.add(inner);
       NodeParameters weightParameters = new NodeParameters();

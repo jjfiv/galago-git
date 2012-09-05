@@ -14,15 +14,15 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class TextPartAssigner {
 
-  public static Node assignPart(Node original, Retrieval retrieval, Parameters queryParams) throws IOException {
+  public static Node assignPart(Node original, Parameters globalParams, Parameters availableParts) throws IOException {
     if (original.getNodeParameters().isString("part")) {
       return original;
-    } else if (queryParams.isString("defaultTextPart")) {
-      return transformedNode(original, queryParams.getString("defaultTextPart"));
-    } else if (retrieval.getGlobalParameters().isString("defaultTextPart")) {
-      return transformedNode(original, retrieval.getGlobalParameters().getString("defaultTextPart"));
+    } else if (availableParts.isString("defaultTextPart")) {
+      return transformedNode(original, availableParts.getString("defaultTextPart"));
+    } else if (globalParams.isString("defaultTextPart")) {
+      return transformedNode(original, globalParams.getString("defaultTextPart"));
     } else {
-      Set<String> available = retrieval.getAvailableParts().getKeys();
+      Set<String> available = availableParts.getKeys();
       if (available.contains("postings.porter")) {
         return transformedNode(original, "postings.porter");
       } else if (available.contains("postings.krovetz")) {

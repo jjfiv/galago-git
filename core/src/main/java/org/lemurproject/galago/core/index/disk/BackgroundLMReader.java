@@ -173,6 +173,11 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
 
     @Override
+    public byte[] key() {
+      return this.iterator.getKey();
+    }
+    
+    @Override
     public byte[] getKeyBytes() throws IOException {
       return this.iterator.getKey();
     }

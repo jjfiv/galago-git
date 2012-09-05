@@ -7,6 +7,7 @@ import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.MalformedQueryException;
 import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.StagedLocalRetrieval;
 import org.lemurproject.galago.core.retrieval.processing.AbstractPartialProcessor;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -96,8 +97,8 @@ public class SequentialDependenceTraversal extends Traversal {
           n.getNodeParameters().set("key", key);
           n.setOperator("mincount");
           if (cacheSynthCounts) {
-            LocalRetrieval lr = (LocalRetrieval)r;
-            n.getNodeParameters().set("maximumCount", lr.syntheticCounts.get(key).maximumCount);
+            StagedLocalRetrieval slr = (StagedLocalRetrieval)r;
+            n.getNodeParameters().set("maximumCount", slr.syntheticCounts.get(key).maximumCount);
           }
         }
         for (Node n : unordered) {
@@ -105,8 +106,8 @@ public class SequentialDependenceTraversal extends Traversal {
           n.getNodeParameters().set("key", key);
           n.setOperator("mincount");
           if (cacheSynthCounts) {
-            LocalRetrieval lr = (LocalRetrieval)r;
-            n.getNodeParameters().set("maximumCount", lr.syntheticCounts.get(key).maximumCount);
+            StagedLocalRetrieval slr = (StagedLocalRetrieval)r;
+            n.getNodeParameters().set("maximumCount", slr.syntheticCounts.get(key).maximumCount);
           }
         }
       }

@@ -20,9 +20,9 @@ public class DirichletScorer implements ScoringFunction {
   double background;
   double mu;
 
-  public DirichletScorer(Parameters globalParams, NodeParameters parameters, MovableCountIterator iterator) throws IOException {
+  public DirichletScorer(NodeParameters parameters, MovableCountIterator iterator) throws IOException {
 
-    mu = parameters.get("mu", globalParams.get("mu", 1500D));
+    mu = parameters.get("mu", 1500D);
     background = parameters.getDouble("collectionProbability");
   }
 

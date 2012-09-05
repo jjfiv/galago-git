@@ -10,6 +10,7 @@ import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.SoftDeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.scoring.BM25Scorer;
 import org.lemurproject.galago.core.scoring.Estimator;
@@ -21,7 +22,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  * @author irmarc
  */
 @RequiredStatistics(statistics = {"collectionLength", "documentCount"})
-@RequiredParameters(parameters = {"w"})
+@RequiredParameters(parameters = {"w", "syntheticCounts"})
 public class EstimatedBM25ScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator, Estimator {
 
@@ -34,15 +35,15 @@ public class EstimatedBM25ScoringIterator extends ScoringFunctionIterator
   public double lowEstimate, hiEstimate;
   boolean storedSyntheticCounts;
 
-  public EstimatedBM25ScoringIterator(Parameters globalParams, NodeParameters p, MinimumCountConjunctionIterator it)
+  public EstimatedBM25ScoringIterator(NodeParameters p, MinimumCountConjunctionIterator it)
           throws IOException {
-    super(it, null); // have to fake it at first
+    super(p, it, null); // have to fake it at first
     mcci = it;
     range = new double[2];
     weight = p.getDouble("w");
     documentCount = 0.0 + p.getLong("documentCount");
     p.set("nodeDocumentCount", 1);
-    function = new BM25Scorer(globalParams, p, it);
+    function = new BM25Scorer(p, it);
 
     // (4) -- see below in setContext
     if (p.containsKey("maximumCount")) {
@@ -50,7 +51,7 @@ public class EstimatedBM25ScoringIterator extends ScoringFunctionIterator
     } else if (it != null) {
       maxcount = it.maximumCount();
     }
-    storedSyntheticCounts = globalParams.containsKey("syntheticCounts");
+    storedSyntheticCounts = p.containsKey("syntheticCounts");
   }
 
   @Override
@@ -124,7 +125,7 @@ public class EstimatedBM25ScoringIterator extends ScoringFunctionIterator
   public double[] estimate(SoftDeltaScoringContext context) {
     int count = 0;
 
-    if (iterator.atCandidate(context.document)) {
+    if (iterator.hasMatch(context.document)) {
       count = mcci.count();
     }
 
@@ -137,13 +138,6 @@ public class EstimatedBM25ScoringIterator extends ScoringFunctionIterator
       score = ((BM25Scorer) function).score(0, context.getLength(), lowEstimate);
       range[0] = weight * score;
     }
-
-    if (context.document == 926080) {
-      System.err.printf("(%s, %s:%d) %s: %d --> [%f, %f]\n", Utility.tinyName(this),
-              Utility.tinyName(mcci), mcci.currentCandidate(),
-              Utility.toString(key()), count, range[0], range[1]);
-    }
-
     return range;
   }
 
@@ -162,7 +156,7 @@ public class EstimatedBM25ScoringIterator extends ScoringFunctionIterator
   public double[] estimateWithUpdate(SoftDeltaScoringContext context, int idx) {
     int count = 0;
 
-    if (iterator.atCandidate(context.document)) {
+    if (iterator.hasMatch(context.document)) {
       count = mcci.count();
     }
 

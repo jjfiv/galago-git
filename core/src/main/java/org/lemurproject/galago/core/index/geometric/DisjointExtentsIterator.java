@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.util.ExtentArray;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -41,6 +42,11 @@ public class DisjointExtentsIterator extends DisjointIndexesIterator implements 
   @Override
   public ExtentArray getData() {
     return ((MovableExtentIterator) head).getData();
+  }
+
+  @Override
+  public byte[] key() {
+    return Utility.fromString("DisEI");
   }
 
   @Override

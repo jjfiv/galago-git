@@ -8,9 +8,6 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.scoring.BM25Scorer;
-import org.lemurproject.galago.tupleflow.CallTable;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -25,9 +22,9 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
   int parentIdx;
   double min;
 
-  public BM25ScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
+  public BM25ScoringIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(it, new BM25Scorer(globalParams, p, it));
+    super(p, it, new BM25Scorer(p, it));
     weight = p.getDouble("w");
     parentIdx = (int) p.get("pIdx", 0);
     max = getMaxTF(p, it);

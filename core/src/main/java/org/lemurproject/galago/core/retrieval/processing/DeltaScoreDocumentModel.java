@@ -50,7 +50,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
     context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     Arrays.fill(context.startingPotentials, 0);
-    StructuredIterator iterator = retrieval.createIterator(queryTree, context);
+    StructuredIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
 
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
     ProcessingModel.initializeLengths(retrieval, context);
@@ -140,7 +140,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
       // Now move all matching sentinels members past the current doc, and repeat
       for (i = 0; i < context.sentinelIndex; i++) {
         DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
-        if (sortedSentinels.get(i).iterator.atCandidate(context.document)) {
+        if (sortedSentinels.get(i).iterator.hasMatch(context.document)) {
           sortedSentinels.get(i).iterator.movePast(context.document);
         }
       }
@@ -160,7 +160,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
     context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     Arrays.fill(context.startingPotentials, 0);
-    StructuredIterator iterator = retrieval.createIterator(queryTree, context);
+    StructuredIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
 
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
     ProcessingModel.initializeLengths(retrieval, context);

@@ -31,9 +31,9 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
   private int parentIdx;
   String partName;
 
-  public DirichletProbabilityScoringIterator(Parameters globalParams, NodeParameters p, MovableCountIterator it)
+  public DirichletProbabilityScoringIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(it, new DirichletProbabilityScorer(globalParams, p, it));
+    super(p, it, new DirichletProbabilityScorer(p, it));
     max = getMaxTF(p, it);
     partName = p.getString("lengths");
     parentIdx = (int) p.getLong("pIdx");

@@ -18,7 +18,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author irmarc
  */
 @RequiredStatistics(statistics = {"collectionLength", "documentCount"})
-@RequiredParameters(parameters = {"w"})
+@RequiredParameters(parameters = {"w", "collapsing, syntheticCounts"})
 public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator, Estimator {
 
@@ -32,18 +32,18 @@ public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
   boolean storedSyntheticCounts;
   int maxcount = 0;
 
-  public EstimatedDirichletScoringIterator(Parameters globalParams, NodeParameters p, MinimumCountConjunctionIterator it)
+  public EstimatedDirichletScoringIterator(NodeParameters p, MinimumCountConjunctionIterator it)
           throws IOException {
-    super(it, null); // have to fake it at first
+    super(p, it, null); // have to fake it at first
     mcci = it;
     range = new double[2];
-    collapsing = globalParams.get("collapsing", true);
+    collapsing = p.get("collapsing", true);
     weight = p.getDouble("w");
     collectionLength = p.getLong("collectionLength");
 
     // now create/set the function - the prob won't matter. We ignore it.
     p.set("collectionProbability", 1.0 / collectionLength);
-    function = new DirichletScorer(globalParams, p, it);
+    function = new DirichletScorer(p, it);
 
     documentCount = p.getLong("documentCount");
 
@@ -54,7 +54,7 @@ public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
       maxcount = it.maximumCount();
     }
 
-    storedSyntheticCounts = globalParams.containsKey("syntheticCounts");
+    storedSyntheticCounts = p.containsKey("syntheticCounts");
   }
 
   /**
@@ -68,7 +68,7 @@ public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
   public double[] estimate(SoftDeltaScoringContext context) {
     int count = 0;
 
-    if (iterator.atCandidate(context.document)) {
+    if (iterator.hasMatch(context.document)) {
       count = mcci.count();
     }
 
@@ -101,7 +101,7 @@ public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
   public double[] estimateWithUpdate(SoftDeltaScoringContext context, int idx) {
     int count = 0;
 
-    if (iterator.atCandidate(context.document)) {
+    if (iterator.hasMatch(context.document)) {
       count = mcci.count();
     }
 

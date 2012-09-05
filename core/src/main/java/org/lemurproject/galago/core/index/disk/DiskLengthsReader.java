@@ -202,6 +202,11 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
 
     @Override
+    public byte[] key() {
+      return Utility.fromString("MMLI");
+    }
+
+    @Override
     public int currentCandidate() {
       return currDocument;
     }
@@ -466,23 +471,23 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
     @Override
     public int getCurrentLength() {
-      if(context.document == this.currDocument){
-      // check if we need to read the length value from the stream
-      if (this.currLength < 0) {
-        // ensure a defaulty value
-        this.currLength = 0;
-        // check for range.
-        if (firstDocument <= currDocument && currDocument <= lastDocument) {
-          // seek to the required position - hopefully this will hit cache
-          this.streamBuffer.seek(lengthsDataOffset + (4 * (this.currDocument - firstDocument)));
-          try {
-            this.currLength = this.streamBuffer.readInt();
-          } catch (IOException ex) {
-            throw new RuntimeException(ex);
+      if (context.document == this.currDocument) {
+        // check if we need to read the length value from the stream
+        if (this.currLength < 0) {
+          // ensure a defaulty value
+          this.currLength = 0;
+          // check for range.
+          if (firstDocument <= currDocument && currDocument <= lastDocument) {
+            // seek to the required position - hopefully this will hit cache
+            this.streamBuffer.seek(lengthsDataOffset + (4 * (this.currDocument - firstDocument)));
+            try {
+              this.currLength = this.streamBuffer.readInt();
+            } catch (IOException ex) {
+              throw new RuntimeException(ex);
+            }
           }
         }
-      }
-      return currLength;
+        return currLength;
       } else {
         return 0;
       }

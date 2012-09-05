@@ -159,7 +159,9 @@ public class PL2FTraversal extends Traversal {
   
   private void setTermStatistics(Node dfr, String t, double normalizer) throws Exception {
     Node counter = new Node("counts", t);
-    Node parted = TextPartAssigner.assignPart(counter, retrieval.getAvailableParts());
+    Node parted = TextPartAssigner.assignPart(counter, 
+            retrieval.getGlobalParameters(),
+            retrieval.getAvailableParts());
     NodeStatistics ns = retrieval.nodeStatistics(parted);
     dfr.getNodeParameters().set("nodeFrequency", ns.nodeFrequency);
     dfr.getNodeParameters().set("documentCount", ns.documentCount);

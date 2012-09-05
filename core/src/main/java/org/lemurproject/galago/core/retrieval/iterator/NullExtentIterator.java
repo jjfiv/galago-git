@@ -19,14 +19,20 @@ public class NullExtentIterator extends ValueIterator implements MovableExtentIt
 
   ExtentArray array = new ExtentArray();
 
-  public NullExtentIterator(){
-    
+  public NullExtentIterator() {
   }
-  
-  public NullExtentIterator(NodeParameters p){
+
+  public NullExtentIterator(NodeParameters p) {
     // nothing
   }
-  
+
+  @Override
+  public byte[] key() {
+    byte[] k = new byte[1];
+    k[0] = 0x00;
+    return k;
+  }
+
   public boolean nextEntry() {
     return false;
   }
@@ -50,7 +56,7 @@ public class NullExtentIterator extends ValueIterator implements MovableExtentIt
   public int maximumCount() {
     return 0;
   }
-  
+
   @Override
   public void reset() {
     // do nothing

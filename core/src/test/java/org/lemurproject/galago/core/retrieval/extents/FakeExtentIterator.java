@@ -46,7 +46,7 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
   public void reset() throws IOException {
     index = 0;
   }
-
+ 
   @Override
   public ExtentArray getData() {
     return extents();
@@ -140,5 +140,10 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+  }
+
+  @Override
+  public byte[] key() {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 }

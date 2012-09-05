@@ -604,6 +604,11 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
     }
 
     @Override
+    public byte[] key() {
+      return postings.key;
+    }
+
+    @Override
     public byte[] getKeyBytes() throws IOException {
       return postings.key;
     }
@@ -795,6 +800,11 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
     @Override
     public String getKeyString() throws IOException {
       return Utility.toString(postings.key);
+    }
+
+    @Override
+    public byte[] key() {
+      return postings.key;
     }
 
     @Override

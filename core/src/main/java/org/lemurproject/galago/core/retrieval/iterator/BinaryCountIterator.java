@@ -6,15 +6,17 @@ import java.util.Collections;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
  * @author marc
  */
 public class BinaryCountIterator extends TransformIterator implements MovableCountIterator {
+
   NodeParameters np;
   IndicatorIterator indicator;
-  
+
   public BinaryCountIterator(NodeParameters p, MovableIndicatorIterator i) {
     super(i);
     np = p;
@@ -23,7 +25,7 @@ public class BinaryCountIterator extends TransformIterator implements MovableCou
 
   @Override
   public int count() {
-    return (indicator.indicator(this.currentCandidate()))? 1 : 0 ;
+    return (indicator.indicator(this.currentCandidate())) ? 1 : 0;
   }
 
   @Override
@@ -39,8 +41,13 @@ public class BinaryCountIterator extends TransformIterator implements MovableCou
     int document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Integer.toString(count());
-    List<AnnotatedNode> children = Collections.singletonList( this.iterator.getAnnotatedNode() );
-    
+    List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());
+
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+  }
+
+  @Override
+  public byte[] key() {
+    return Utility.fromString("BC");
   }
 }

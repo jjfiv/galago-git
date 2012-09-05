@@ -10,6 +10,7 @@ import java.util.List;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -32,6 +33,11 @@ public class DisjointCountsIterator extends DisjointIndexesIterator implements M
   }
 
   @Override
+  public byte[] key() {
+    return Utility.fromString("DisCI");
+  }
+
+  @Override
   public AnnotatedNode getAnnotatedNode() throws IOException {
     String type = "counts";
     String className = this.getClass().getSimpleName();
@@ -40,7 +46,7 @@ public class DisjointCountsIterator extends DisjointIndexesIterator implements M
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Integer.toString(count());
     List<AnnotatedNode> children = new ArrayList();
-    for(MovableIterator child : this.allIterators){
+    for (MovableIterator child : this.allIterators) {
       children.add(child.getAnnotatedNode());
     }
 

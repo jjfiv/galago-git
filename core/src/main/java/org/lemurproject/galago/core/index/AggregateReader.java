@@ -60,10 +60,12 @@ public interface AggregateReader {
     public long nodeDocumentCount = 0;
     public long collectionLength = 0;
     public long documentCount = 0;
+    public long maximumCount = 0;
 
     public String toString() {
       return "{ \"node\" : \"" + node + "\","
               + "\"nodeFrequency\" : " + nodeFrequency + ","
+              + "\"maximumCount\" : " + maximumCount + ","
               + "\"nodeDocumentCount\" : " + nodeDocumentCount + ","
               + "\"collectionLength\" : " + collectionLength + ","
               + "\"documentCount\" : " + documentCount + "}";
@@ -72,6 +74,7 @@ public interface AggregateReader {
     public void add(NodeStatistics other) {
       // assert this.node.equals(other.node); // doesn't work.. need to investigate why.
       nodeFrequency += other.nodeFrequency;
+      maximumCount = Math.max(this.maximumCount, other.maximumCount);
       nodeDocumentCount += other.nodeDocumentCount;
       collectionLength += other.collectionLength;
       documentCount += other.documentCount;

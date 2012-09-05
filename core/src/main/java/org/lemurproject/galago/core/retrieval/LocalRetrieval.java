@@ -73,7 +73,7 @@ public class LocalRetrieval implements Retrieval {
     setIndex(index);
   }
   
-  private void setIndex(Index indx) throws IOException {
+  protected void setIndex(Index indx) throws IOException {
     this.index = indx;
     features = new FeatureFactory(globalParameters);
   }
@@ -274,7 +274,7 @@ public class LocalRetrieval implements Retrieval {
     return transformQuery(features.getTraversals(this, queryTree, queryParams), queryTree);
   }
   
-  private Node transformQuery(List<Traversal> traversals, Node queryTree) throws Exception {
+  protected Node transformQuery(List<Traversal> traversals, Node queryTree) throws Exception {
     for (Traversal traversal : traversals) {
       queryTree = StructuredQuery.walk(traversal, queryTree);
     }
