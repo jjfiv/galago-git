@@ -43,7 +43,7 @@ public class InsideToFieldPartTraversal extends Traversal {
       }
       Node text = children.get(0);
       Node field = children.get(1);
-
+      
       assert (text.getOperator().equals("extents")
               && text.getNodeParameters().isString("part"));
       assert (field.getOperator().equals("extents")

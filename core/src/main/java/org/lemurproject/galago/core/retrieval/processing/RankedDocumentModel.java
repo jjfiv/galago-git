@@ -109,7 +109,7 @@ public class RankedDocumentModel extends ProcessingModel {
       // This context is shared among all scorers
       context.document = document;
       context.moveLengths(document);
-
+      
       if (iterator.hasMatch(document)) {
         double score = iterator.score();
         ////CallTable.increment("doc_finish");

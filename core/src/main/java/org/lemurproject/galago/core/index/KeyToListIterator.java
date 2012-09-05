@@ -9,8 +9,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  * Iterates over the a KeyIterator as if it were a Value iterator. Useful for
  * iterating over document lengths or document names.
  *
- *
- * @author marc
+ * @author irmarc
  */
 public abstract class KeyToListIterator extends ValueIterator {
 

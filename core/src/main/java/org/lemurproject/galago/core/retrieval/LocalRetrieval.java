@@ -159,7 +159,7 @@ public class LocalRetrieval implements Retrieval {
   public ScoredDocument[] runQuery(Node queryTree, Parameters queryParams) throws Exception {
     ScoredDocument[] results = null;
     ProcessingModel pm = ProcessingModel.instance(this, queryTree, queryParams);
-
+    
     // Figure out if there's a working set to deal with
     int[] workingSet = null;
     

@@ -17,6 +17,7 @@ import org.lemurproject.galago.core.util.ExtentArray;
  * what's needed for a filter. RequireIterator (require) and RejectIterator
  * (reject) now finish the job up.
  *
+ * @author irmarc
  * @author sjh
  */
 public abstract class FilteredIterator extends ConjunctionIterator implements MovableCountIterator, MovableScoreIterator, MovableExtentIterator {
