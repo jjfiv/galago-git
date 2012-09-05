@@ -579,7 +579,7 @@ public class App {
       StringBuilder defaultOutput = new StringBuilder(
               "Type 'galago help <command>' to get more help about any command.\n\n"
               + "Popular commands:\n"
-              + "   build-fast\n"
+              + "   build\n"
               + "   search\n"
               + "   batch-search\n\n"
               + "All commands:\n");

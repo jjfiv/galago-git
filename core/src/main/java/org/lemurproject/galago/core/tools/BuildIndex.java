@@ -803,7 +803,7 @@ public class BuildIndex extends AppFunction {
 
   @Override
   public void run(Parameters p, PrintStream output) throws Exception {
-    // build-fast index input
+    // build index input
     if (!p.isString("indexPath") && !p.isList("inputPath")) {
       output.println(getHelpString());
       return;
