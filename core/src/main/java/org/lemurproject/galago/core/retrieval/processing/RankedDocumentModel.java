@@ -56,6 +56,7 @@ public class RankedDocumentModel extends ProcessingModel {
     MovableScoreIterator iterator =
             (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
     int requested = (int) queryParams.get("requested", 1000);
+    boolean annotate = queryParams.get("annotate", false);
 
     // now there should be an iterator at the root of this tree
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>();
@@ -71,6 +72,9 @@ public class RankedDocumentModel extends ProcessingModel {
       double score = iterator.score();
       if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
         ScoredDocument scoredDocument = new ScoredDocument(document, score);
+        if (annotate) {
+          scoredDocument.annotation = iterator.getAnnotatedNode();
+        }
         queue.add(scoredDocument);
         if (requested > 0 && queue.size() > requested) {
           queue.poll();
@@ -87,6 +91,7 @@ public class RankedDocumentModel extends ProcessingModel {
 
     // Number of documents requested.
     int requested = (int) queryParams.get("requested", 1000);
+    boolean annotate = queryParams.get("annotate", false);
     int numScorers = (int) queryParams.get("numScorers", 0L);
 
     // Maintain a queue of candidates
@@ -113,6 +118,9 @@ public class RankedDocumentModel extends ProcessingModel {
         ////CallTable.increment("doc_finish");
         if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
           ScoredDocument scoredDocument = new ScoredDocument(document, score);
+          if (annotate) {
+            scoredDocument.annotation = iterator.getAnnotatedNode();
+          }
           queue.add(scoredDocument);
           ////CallTable.increment("heap_insert");
           if (requested > 0 && queue.size() > requested) {

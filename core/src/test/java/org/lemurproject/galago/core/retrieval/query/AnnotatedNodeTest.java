@@ -35,19 +35,13 @@ public class AnnotatedNodeTest extends TestCase {
       String qtext = "#combine( sample document )";
       Node qnode = StructuredQuery.parse(qtext);
       qnode = r.transformQuery(qnode, new Parameters());
-
       ProcessingModel proc = new RankedDocumentModel(r);
-
       Parameters p = new Parameters();
       p.set("requested", 100);
       p.set("annotate", true);
-
       ScoredDocument[] results = proc.execute(qnode, p);
-
-
       AnnotatedNode prev = null;
       for (ScoredDocument d : results) {
-
         assert (d.annotation != null);
         AnnotatedNode anode = d.annotation;
         assert (anode.atCandidate == true);
@@ -56,7 +50,6 @@ public class AnnotatedNodeTest extends TestCase {
         }
         prev = anode;
       }
-
     } finally {
       if (indexFile != null) {
         Utility.deleteDirectory(indexFile);
