@@ -8,9 +8,6 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.scoring.DirichletScorer;
-import org.lemurproject.galago.core.util.CallTable;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -31,7 +28,7 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
   public DirichletScoringIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
     super(p, it, new DirichletScorer(p, it));
-    weight = p.getDouble("w");
+    weight = p.get("w", 1.0);
     parentIdx = (int) p.get("pIdx", 0);
     max = getMaxTF(p, it);
     long collectionLength = p.getLong("collectionLength");

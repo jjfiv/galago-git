@@ -3,7 +3,6 @@ package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.MalformedQueryException;
 import org.lemurproject.galago.core.retrieval.Retrieval;
@@ -28,6 +27,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class SequentialDependenceTraversal extends Traversal {
 
+  private int defaultWindowLimit;
   private double unigramDefault;
   private double orderedDefault;
   private double unorderedDefault;
@@ -35,7 +35,7 @@ public class SequentialDependenceTraversal extends Traversal {
   private Parameters qp;
   private Retrieval r;
   private boolean cacheSynthCounts;
-  
+
   public SequentialDependenceTraversal(Retrieval retrieval, Parameters queryParameters) {
     r = retrieval;
     qp = queryParameters;
@@ -45,6 +45,7 @@ public class SequentialDependenceTraversal extends Traversal {
     unorderedDefault = parameters.get("uww", 0.05);
     goSoft = parameters.get("delayed", false);
     cacheSynthCounts = parameters.containsKey("syntheticCounts");
+    defaultWindowLimit = (int) parameters.get("windowLimit", 2);
   }
 
   public static boolean isNeeded(Node root) {
@@ -83,21 +84,24 @@ public class SequentialDependenceTraversal extends Traversal {
       ArrayList<Node> ordered = new ArrayList<Node>();
       ArrayList<Node> unordered = new ArrayList<Node>();
 
-      for (int i = 0; i < (children.size() - 1); i++) {
-        ArrayList<Node> pair = new ArrayList<Node>();
-        pair.add(children.get(i));
-        pair.add(children.get(i + 1));
-        ordered.add(new Node("ordered", new NodeParameters(1), Node.cloneNodeList(pair)));
-        unordered.add(new Node("unordered", new NodeParameters(8), Node.cloneNodeList(pair)));
-      }
+      NodeParameters parameters = original.getNodeParameters();
+      int windowLimit = (int) parameters.get("windowLimit", defaultWindowLimit);
       
-      if (goSoft) {
+      for (int n = 2; n <= windowLimit; n++) {
+        for (int i = 0; i < (children.size() - n + 1); i++) {
+          List<Node> seq = children.subList(i, i + n);
+          ordered.add(new Node("ordered", new NodeParameters(1), Node.cloneNodeList(seq)));
+          unordered.add(new Node("unordered", new NodeParameters(4 * seq.size()), Node.cloneNodeList(seq)));
+        }
+      }
+
+      if (goSoft && StagedLocalRetrieval.class.isAssignableFrom(r.getClass())) {
         for (Node n : ordered) {
           String key = AbstractPartialProcessor.makeNodeKey(n);
           n.getNodeParameters().set("key", key);
           n.setOperator("mincount");
           if (cacheSynthCounts) {
-            StagedLocalRetrieval slr = (StagedLocalRetrieval)r;
+            StagedLocalRetrieval slr = (StagedLocalRetrieval) r;
             n.getNodeParameters().set("maximumCount", slr.syntheticCounts.get(key).maximumCount);
           }
         }
@@ -106,17 +110,16 @@ public class SequentialDependenceTraversal extends Traversal {
           n.getNodeParameters().set("key", key);
           n.setOperator("mincount");
           if (cacheSynthCounts) {
-            StagedLocalRetrieval slr = (StagedLocalRetrieval)r;
+            StagedLocalRetrieval slr = (StagedLocalRetrieval) r;
             n.getNodeParameters().set("maximumCount", slr.syntheticCounts.get(key).maximumCount);
           }
         }
       }
-      
+
       Node orderedWindowNode = new Node("combine", ordered);
       Node unorderedWindowNode = new Node("combine", unordered);
 
       // now get the weights for each component, and add to immediate children
-      NodeParameters parameters = original.getNodeParameters();
       double uni = parameters.get("uniw", unigramDefault);
       double odw = parameters.get("odw", orderedDefault);
       double uww = parameters.get("uww", unorderedDefault);

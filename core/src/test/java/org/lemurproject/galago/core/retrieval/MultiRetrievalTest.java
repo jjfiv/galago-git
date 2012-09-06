@@ -58,17 +58,29 @@ public class MultiRetrievalTest extends TestCase {
       Parameters params = new Parameters();
       String[] indexes = {index1.getAbsolutePath(), index2.getAbsolutePath()};
       params.set("index", Arrays.asList(indexes));
-      MultiRetrieval mr = (MultiRetrieval) RetrievalFactory.instance(params);      
+      MultiRetrieval mr = (MultiRetrieval) RetrievalFactory.instance(params);
       String query = "#combine( sample document )";
       Node parsedQuery = StructuredQuery.parse(query);
       Parameters qp = new Parameters();
       Node queryTree = mr.transformQuery(parsedQuery, qp);
 
-      assertEquals(queryTree.toString(), "#combine( #feature:dirichlet:collectionProbability=0.21052631578947367( #counts:sample:part=postings.porter() ) #feature:dirichlet:collectionProbability=0.21052631578947367( #counts:document:part=postings.porter() ) )");
+      String expected = "#combine("
+              + " #feature:dirichlet:"
+              + "collectionLength=19:"
+              + "collectionProbability=0.21052631578947367:"
+              + "documentCount=4"
+              + "( #counts:sample:part=postings.porter() ) "
+              + "#feature:dirichlet:"
+              + "collectionLength=19:"
+              + "collectionProbability=0.21052631578947367:"
+              + "documentCount=4"
+              + "( #counts:document:part=postings.porter() ) )";
+
+      assertEquals(queryTree.toString(), expected);
 
       ScoredDocument[] res = mr.runQuery(queryTree, qp);
 
-      String[] expected = {"i1-59	1	-1.5569809573716442",
+      String[] expectedArray = {"i1-59	1	-1.5569809573716442",
         "i2-59	1	-1.5576460721284549",
         "i1-55	2	-1.5583107448016458",
         "i2-55	2	-1.5596387662451652"
@@ -76,11 +88,9 @@ public class MultiRetrievalTest extends TestCase {
 
       for (int i = 0; i < res.length; i++) {
         String r = res[i].documentName + "\t" + res[i].rank + "\t" + res[i].score;
-        assertEquals(r, expected[i]);
+        assertEquals(r, expectedArray[i]);
       }
-
     } finally {
-
       if (trecCorpusFile1 != null) {
         trecCorpusFile1.delete();
       }

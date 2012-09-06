@@ -25,7 +25,7 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
   public BM25ScoringIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
     super(p, it, new BM25Scorer(p, it));
-    weight = p.getDouble("w");
+    weight = p.get("w", 1.0);
     parentIdx = (int) p.get("pIdx", 0);
     max = getMaxTF(p, it);
     min = function.score(0, it.maximumCount());
