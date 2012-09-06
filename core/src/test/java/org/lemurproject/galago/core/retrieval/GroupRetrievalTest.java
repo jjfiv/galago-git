@@ -26,7 +26,7 @@ public class GroupRetrievalTest extends TestCase {
     super(name);
   }
 
-  public void testMultiRetrieval() throws Exception {
+  public void testGroupRetrieval() throws Exception {
     File trecCorpusFile1 = null;
     File trecCorpusFile2 = null;
     File index1 = null;
@@ -43,6 +43,7 @@ public class GroupRetrievalTest extends TestCase {
       index1 = Utility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + index1.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile1.getAbsolutePath()});
+      AppTest.verifyIndexStructures(index1.getAbsoluteFile());
 
       // create index 2
       trecCorpus = AppTest.trecDocument("i2-55", "This is a sample also a document")
@@ -54,6 +55,7 @@ public class GroupRetrievalTest extends TestCase {
       index2 = Utility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + index2.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile2.getAbsolutePath()});
+      AppTest.verifyIndexStructures(index2.getAbsoluteFile());
 
       Parameters params = new Parameters();
       params.set("defaultGroup", "group1");
@@ -69,7 +71,19 @@ public class GroupRetrievalTest extends TestCase {
 
       Parameters q1 = params.clone();
       Node queryTree1 = gr.transformQuery(parsedQuery, q1, "group1");
-      assertEquals(queryTree1.toString(), "#combine( #feature:dirichlet:collectionProbability=0.25( #counts:sample:part=postings.porter() ) #feature:dirichlet:collectionProbability=0.25( #counts:document:part=postings.porter() ) )");
+
+      String expected = "#combine( #feature:dirichlet:"
+              + "collectionLength=8:"
+              + "collectionProbability=0.25:"
+              + "documentCount=2("
+              + " #counts:sample:part=postings.porter() )"
+              + " #feature:dirichlet:"
+              + "collectionLength=8:"
+              + "collectionProbability=0.25:"
+              + "documentCount=2("
+              + " #counts:document:part=postings.porter() ) )";
+
+      assertEquals(expected, queryTree1.toString());
       ScoredDocument[] res1 = gr.runQuery(queryTree1, q1, "group1");
       String[] expected1 = {
         "i1-59	1	-1.38562924636308",
@@ -83,7 +97,20 @@ public class GroupRetrievalTest extends TestCase {
 
       Parameters q2 = params.clone();
       Node queryTree2 = gr.transformQuery(parsedQuery, q2, "group2");
-      assertEquals(queryTree2.toString(), "#combine( #feature:dirichlet:collectionProbability=0.21052631578947367( #counts:sample:part=postings.porter() ) #feature:dirichlet:collectionProbability=0.21052631578947367( #counts:document:part=postings.porter() ) )");
+
+      expected = "#combine("
+              + " #feature:dirichlet:"
+              + "collectionLength=19:"
+              + "collectionProbability=0.21052631578947367:"
+              + "documentCount=4"
+              + "( #counts:sample:part=postings.porter() ) "
+              + "#feature:dirichlet:"
+              + "collectionLength=19:"
+              + "collectionProbability=0.21052631578947367:"
+              + "documentCount=4"
+              + "( #counts:document:part=postings.porter() ) )";
+
+      assertEquals(expected, queryTree2.toString());
       ScoredDocument[] res2 = gr.runQuery(queryTree2, q2, "group2");
       String[] expected2 = {
         "i1-59	1	-1.5569809573716442",

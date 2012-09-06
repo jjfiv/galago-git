@@ -126,6 +126,7 @@ public class ImplicitFeatureCastTraversal extends Traversal {
   }
 
   // Put node modification in "before", since we're not replacing the node
+  @Override
   public void beforeNode(Node node) throws Exception {
     // Indicates we want "whole doc" matching
     if (node.getOperator().equals("intersect")) {
@@ -134,6 +135,7 @@ public class ImplicitFeatureCastTraversal extends Traversal {
     }
   }
 
+  @Override
   public Node afterNode(Node node) throws Exception {
     // This moves the interior nodes of a field comparison operator into its
     // globals, which is the appropriate syntax.

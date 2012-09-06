@@ -3,7 +3,6 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
-import gnu.trove.list.array.TIntArrayList;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -53,7 +52,7 @@ public class GroupRetrieval implements Retrieval {
   @Override
   public Node transformQuery(Node queryTree, Parameters queryParams) throws Exception {
     for (Traversal traversal : this.features.getTraversals(this, queryTree, queryParams)) {
-      queryTree = StructuredQuery.copy(traversal, queryTree);
+      queryTree = StructuredQuery.walk(traversal, queryTree);
     }
     return queryTree;
   }

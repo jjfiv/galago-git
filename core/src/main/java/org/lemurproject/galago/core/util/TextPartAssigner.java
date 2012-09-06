@@ -3,7 +3,6 @@ package org.lemurproject.galago.core.util;
 
 import java.io.IOException;
 import java.util.Set;
-import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
