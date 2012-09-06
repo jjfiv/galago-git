@@ -292,7 +292,6 @@ public class LocalRetrievalTest extends TestCase {
     ids.add("DOC2");
     ids.add("DOC5");
     p.set("working", ids);
-   
     ScoredDocument[] result = retrieval.runQuery(root, p);
 
     assertEquals(3, result.length);
@@ -321,7 +320,6 @@ public class LocalRetrievalTest extends TestCase {
       assertTrue(lastScore >= result[i].score);
       assertEquals(expname, result[i].documentName);
       assertEquals(expected, score, 0.0001);
-
       lastScore = score;
     }
   }

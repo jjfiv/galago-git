@@ -33,7 +33,6 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
     max = getMaxTF(p, it);
     long collectionLength = p.getLong("collectionLength");
     double cp = p.getDouble("collectionProbability");
-    //System.err.printf("%s: collProb=%f (cc=%d)\n", Utility.shortName(this), cp, Math.round(cp*collectionLength));
     long documentCount = p.getLong("documentCount");
     //int avgDocLength = (int) Math.round((collectionLength + 0.0) / (documentCount + 0.0));
     int avgDocLength = 1200; /// fuckin...UGH
@@ -45,6 +44,7 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
     return min;
   }
 
+  @Override
   public double getWeight() {
     return weight;
   }

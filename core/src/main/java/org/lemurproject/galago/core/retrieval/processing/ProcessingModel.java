@@ -61,8 +61,8 @@ public abstract class ProcessingModel {
     Index index = r.getIndex();
     LengthsReader.LengthsIterator documentLengths = (LengthsReader.LengthsIterator) index.getIterator(docLengths);    
     documentLengths.setContext(ctx);
-    
     ctx.addLength("", documentLengths);
+    
     if (index.containsPart("extents") && !fields.isEmpty()) {
       WindowIndexReader wir = (WindowIndexReader) index.getIndexPart("extents");
       FieldLengthsReader flr = new FieldLengthsReader(wir);

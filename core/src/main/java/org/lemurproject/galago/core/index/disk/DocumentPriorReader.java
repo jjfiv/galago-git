@@ -151,15 +151,20 @@ public class DocumentPriorReader extends KeyValueReader {
 
     @Override
     public double score() {
+      System.out.printf("Getting prior score for %d (current=%d): ",
+              context.document, currentCandidate());
       try {
         if (currentCandidate() == context.document) {
           byte[] valueBytes = iterator.getValueBytes();
           if ((valueBytes == null) || (valueBytes.length == 0)) {
+            System.out.printf("%f (0, minScore)\n", minScore);
             return minScore;
           } else {
+            System.out.printf("%f (1, value)\n", Utility.toDouble(valueBytes));
             return Utility.toDouble(valueBytes);
           }
         } else {
+          System.out.printf("%f (2, minScore)\n", minScore);
           return minScore;
         }
       } catch (IOException ex) {

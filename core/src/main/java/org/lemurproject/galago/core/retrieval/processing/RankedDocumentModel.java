@@ -52,7 +52,8 @@ public class RankedDocumentModel extends ProcessingModel {
     Arrays.sort(whitelist);
 
     // construct the query iterators
-    MovableScoreIterator iterator = 
+
+    MovableScoreIterator iterator =
             (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
     int requested = (int) queryParams.get("requested", 1000);
 
@@ -63,10 +64,10 @@ public class RankedDocumentModel extends ProcessingModel {
     for (int i = 0; i < whitelist.length; i++) {
       int document = whitelist[i];
       iterator.moveTo(document);
+      context.document = document;
       context.moveLengths(document);
 
       // This context is shared among all scorers
-      context.document = document;
       double score = iterator.score();
       if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
         ScoredDocument scoredDocument = new ScoredDocument(document, score);
@@ -81,7 +82,6 @@ public class RankedDocumentModel extends ProcessingModel {
 
   private ScoredDocument[] executeWholeCollection(Node queryTree, Parameters queryParams)
           throws Exception {
-
     // This model uses the simplest ScoringContext
     ScoringContext context = new ScoringContext();
 
@@ -92,10 +92,8 @@ public class RankedDocumentModel extends ProcessingModel {
     // Maintain a queue of candidates
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
 
-    //System.err.printf("Executing %s\n", queryTree.toString());
-
     // construct the iterators -- we use tree processing
-    MovableScoreIterator iterator = 
+    MovableScoreIterator iterator =
             (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
     ProcessingModel.initializeLengths(retrieval, context);
 
@@ -109,7 +107,7 @@ public class RankedDocumentModel extends ProcessingModel {
       // This context is shared among all scorers
       context.document = document;
       context.moveLengths(document);
-      
+
       if (iterator.hasMatch(document)) {
         double score = iterator.score();
         ////CallTable.increment("doc_finish");

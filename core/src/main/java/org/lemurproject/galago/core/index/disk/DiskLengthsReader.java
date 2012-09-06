@@ -33,6 +33,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * finally: - list of lengths (one per document)
  *
+ * @author irmarc
  * @author sjh
  */
 public class DiskLengthsReader extends KeyListReader implements LengthsReader {
@@ -291,6 +292,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
           return this.memBuffer.getInt(this.lengthsDataOffset + (4 * (document - firstDocument)));
         }
       }
+      System.out.printf("Returning 0.\n");
       return 0;
     }
 

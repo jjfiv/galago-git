@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
@@ -171,7 +170,7 @@ public class LocalRetrieval implements Retrieval {
     if (workingSet != null) {
       pm.defineWorkingSet(workingSet);
     }
-
+    
     // get some results
     results = pm.execute(queryTree, queryParams);
     if (results == null) {
