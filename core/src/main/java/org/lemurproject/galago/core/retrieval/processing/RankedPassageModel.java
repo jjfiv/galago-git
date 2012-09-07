@@ -4,7 +4,6 @@ package org.lemurproject.galago.core.retrieval.processing;
 import java.util.Arrays;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.Index;
-import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.ScoredPassage;
@@ -124,7 +123,6 @@ public class RankedPassageModel extends ProcessingModel {
       // -- this function will move ALL iterators, 
       //     not just the ones that do not have all candidates
       iterator.moveTo(document);
-
 
       // Keep iterating over the same doc, but incrementing the begin/end fields of the
       // context until the next one

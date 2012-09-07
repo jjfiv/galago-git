@@ -54,7 +54,6 @@ public class FeatureFactory {
     {LessThanIterator.class.getName(), "less"},
     {InBetweenIterator.class.getName(), "between"},
     {EqualityIterator.class.getName(), "equals"},
-    {DirichletSmoothingIterator.class.getName(), "dirichlet"},
     {PassageFilterIterator.class.getName(), "passagefilter"}
   };
   static String[][] sFeatureLookup = {

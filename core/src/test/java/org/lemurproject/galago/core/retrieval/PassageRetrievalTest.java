@@ -53,6 +53,7 @@ public class PassageRetrievalTest extends TestCase {
     root = retrieval.transformQuery(root, p);
 
     p.set("requested", 10);
+    System.out.printf("Query: %s\n", root.toString());
     ScoredPassage[] result = (ScoredPassage[]) retrieval.runQuery(root, p);
     assertEquals(6, result.length);
         
@@ -60,38 +61,36 @@ public class PassageRetrievalTest extends TestCase {
     assertEquals("9", result[0].documentName);
     assertEquals(0, result[0].begin);
     assertEquals(4, result[0].end);
+    assertEquals(result[0].score, -2.623394, 0.001);
     
     // Second entry
     assertEquals("8", result[1].documentName);
     assertEquals(2, result[1].begin);
     assertEquals(6, result[1].end);
+    assertEquals(result[1].score, -2.624723, 0.001);
     
     // Third entry
     assertEquals("8", result[2].documentName);
     assertEquals(0, result[2].begin);
     assertEquals(4, result[2].end);
+    assertEquals(result[2].score, -2.624723, 0.001);
     
     // Fourth entry
     assertEquals("1", result[3].documentName);
     assertEquals(0, result[3].begin);
     assertEquals(4, result[3].end);
+    assertEquals(result[3].score, -2.637740, 0.001);
     
     // Fifth entry
     assertEquals("2", result[4].documentName);
     assertEquals(2, result[4].begin);
     assertEquals(6, result[4].end);
+    assertEquals(result[4].score, -2.638404, 0.001);
     
     // Sixth entry
     assertEquals("2", result[5].documentName);
     assertEquals(0, result[5].begin);
     assertEquals(4, result[5].end);
-    
-    // Check scores
-    assertEquals(result[0].score, -2.623394, 0.001);
-    assertEquals(result[1].score, -2.624723, 0.001);
-    assertEquals(result[2].score, -2.624723, 0.001);
-    assertEquals(result[3].score, -2.637740, 0.001);
-    assertEquals(result[4].score, -2.638404, 0.001);
     assertEquals(result[5].score, -2.638404, 0.001);
   }
 }

@@ -73,20 +73,20 @@ public class PassageFilterIterator extends TransformIterator implements MovableE
   public void setContext(ScoringContext context) {
     if (!PassageScoringContext.class.isAssignableFrom(context.getClass())) {
       Logger.getLogger(PassageFilterIterator.class.getName()).info("Setting a non-Passage-capable context as a PassageScoringContext - passages will not be used.");
-      context = null;
+        passageContext = null;
     } else {
-      context = (PassageScoringContext) context;
+      passageContext = (PassageScoringContext) context;
     }
   }
 
   @Override
   public ExtentArray getData() {
-    return extents();
+    return cached;
   }
 
   @Override
   public int count() {
-    return extents().size();
+    return cached.size();
   }
 
   @Override
