@@ -53,8 +53,8 @@ public abstract class TransformIterator implements MovableIterator {
   }
 
   @Override
-  public void moveTo(int identifier) throws IOException {
-    iterator.moveTo(identifier);
+  public void syncTo(int identifier) throws IOException {
+    iterator.syncTo(identifier);
   }
 
   @Override

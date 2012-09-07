@@ -45,11 +45,11 @@ public class IndexReaderSkipTest extends TestCase {
       PositionIndexReader reader = new PositionIndexReader(parameters.getString("filename"));
       for (int i = 1; i < 1000; i++) {
         ValueIterator extents = reader.getTermExtents("key");
-        extents.moveTo(i);
+        extents.syncTo(i);
         assertEquals(extents.currentCandidate(), i);
 
         ValueIterator counts = reader.getTermCounts("key");
-        counts.moveTo(i);
+        counts.syncTo(i);
         assertEquals(counts.currentCandidate(), i);
       }
 
@@ -79,7 +79,7 @@ public class IndexReaderSkipTest extends TestCase {
       CountIndexReader reader = new CountIndexReader(parameters.getString("filename"));
       for (int i = 1; i < 1000; i++) {
         ValueIterator counts = reader.getTermCounts("key");
-        counts.moveTo(i);
+        counts.syncTo(i);
         assertEquals(counts.currentCandidate(), i);
       }
 
@@ -112,11 +112,11 @@ public class IndexReaderSkipTest extends TestCase {
       WindowIndexReader reader = new WindowIndexReader(parameters.getString("filename"));
       for (int i = 1; i < 1000; i++) {
         ValueIterator extents = reader.getTermExtents("key");
-        extents.moveTo(i);
+        extents.syncTo(i);
         assertEquals(extents.currentCandidate(), i);
 
         ValueIterator counts = reader.getTermCounts("key");
-        counts.moveTo(i);
+        counts.syncTo(i);
         assertEquals(counts.currentCandidate(), i);
       }
 

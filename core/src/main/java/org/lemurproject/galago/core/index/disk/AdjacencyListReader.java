@@ -136,7 +136,7 @@ public class AdjacencyListReader extends KeyListReader {
     }
 
     @Override
-    public void moveTo(int identifier) throws IOException {
+    public void syncTo(int identifier) throws IOException {
       while (!isDone() && identifier > currentIdentifier) {
         read();
       }

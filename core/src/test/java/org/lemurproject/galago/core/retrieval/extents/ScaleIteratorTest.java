@@ -63,7 +63,7 @@ public class ScaleIteratorTest extends TestCase {
     assertTrue(iterator.hasMatch(docsB[0]));
 
     for (int i = 0; i < docsB.length; i++) {
-      iterator.moveTo(docsB[i]);
+      iterator.syncTo(docsB[i]);
       context.document = docsB[i];
       context.moveLengths(docsB[i]);
       assertEquals(docsB[i], iterator.currentCandidate());

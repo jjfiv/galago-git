@@ -32,6 +32,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.structured.ContextFactory;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -159,7 +160,7 @@ public class LocalRetrieval implements Retrieval {
   public ScoredDocument[] runQuery(Node queryTree, Parameters queryParams) throws Exception {
     ScoredDocument[] results = null;
     ProcessingModel pm = ProcessingModel.instance(this, queryTree, queryParams);
-    
+
     // Figure out if there's a working set to deal with
     int[] workingSet = null;
 
@@ -170,7 +171,7 @@ public class LocalRetrieval implements Retrieval {
     if (workingSet != null) {
       pm.defineWorkingSet(workingSet);
     }
-    
+
     // get some results
     results = pm.execute(queryTree, queryParams);
     if (results == null) {
@@ -212,7 +213,7 @@ public class LocalRetrieval implements Retrieval {
     namesIterator.setContext(sc);
 
     for (T doc : byID) {
-      namesIterator.moveTo(doc.document);
+      namesIterator.syncTo(doc.document);
       sc.document = doc.document;
 
       if (doc.document == namesIterator.getCurrentIdentifier()) {
@@ -299,7 +300,7 @@ public class LocalRetrieval implements Retrieval {
     stats.collectionLength = getRetrievalStatistics().collectionLength;
     stats.documentCount = getRetrievalStatistics().documentCount;
 
-    ScoringContext sc = new ScoringContext();
+    ScoringContext sc = ContextFactory.createContext(globalParameters);
     StructuredIterator structIterator = createIterator(new Parameters(), root, sc);
     if (AggregateIterator.class.isInstance(structIterator)) {
       stats = ((AggregateIterator) structIterator).getStatistics();

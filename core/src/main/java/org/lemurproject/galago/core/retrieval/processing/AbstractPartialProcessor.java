@@ -147,7 +147,7 @@ public abstract class AbstractPartialProcessor extends ProcessingModel {
 
       // Score it fully (no checking)
       for (DeltaScoringIterator dsi : context.scorers) {
-        dsi.moveTo(context.document);
+        dsi.syncTo(context.document);
         if (rereadLengths) {
           dsi.deltaScore();
         } else {
@@ -232,7 +232,7 @@ public abstract class AbstractPartialProcessor extends ProcessingModel {
       int candidate = docids.get(i);
       for (int j = 0; j < context.sentinelIndex; j++) {
         if (!context.scorers.get(j).isDone()) {
-          context.scorers.get(j).moveTo(candidate);
+          context.scorers.get(j).syncTo(candidate);
         }
       }
 
@@ -264,7 +264,7 @@ public abstract class AbstractPartialProcessor extends ProcessingModel {
       // Now score the rest, but keep checking
       while (context.runningScore > context.minCandidateScore && k < context.scorers.size()) {
         DeltaScoringIterator dsi = context.scorers.get(k);
-        dsi.moveTo(context.document);
+        dsi.syncTo(context.document);
         if (rereadLengths) {
           dsi.deltaScore();
         } else {

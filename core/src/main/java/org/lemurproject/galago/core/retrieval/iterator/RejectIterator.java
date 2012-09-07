@@ -16,19 +16,19 @@ public class RejectIterator extends FilteredIterator {
   public RejectIterator(NodeParameters p, MovableIndicatorIterator indicator,
           MovableCountIterator counter) throws IOException {
     super(p, indicator, counter);
-    moveTo(0);
+    syncTo(0);
   }
 
   public RejectIterator(NodeParameters p, MovableIndicatorIterator indicator,
           MovableScoreIterator scorer) throws IOException {
     super(p, indicator, scorer);
-    moveTo(0);
+    syncTo(0);
   }
 
   public RejectIterator(NodeParameters p, MovableIndicatorIterator indicator,
           MovableExtentIterator extents) throws IOException {
     super(p, indicator, extents);
-    moveTo(0);
+    syncTo(0);
   }
 
   public boolean hasMatch(int identifier) {

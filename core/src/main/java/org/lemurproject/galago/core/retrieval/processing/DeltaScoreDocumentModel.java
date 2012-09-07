@@ -106,7 +106,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
       // Now score the rest, but keep checking
       while (context.runningScore > context.minCandidateScore && i < sortedSentinels.size()) {
         DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
-        dsi.moveTo(context.document);
+        dsi.syncTo(context.document);
         dsi.deltaScore();
         ////CallTable.increment("scops");
         i++;
@@ -183,7 +183,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
       int candidate = whitelist[i];
       for (int j = 0; j < context.sentinelIndex; j++) {
         if (!context.scorers.get(j).isDone()) {
-          context.scorers.get(j).moveTo(candidate);
+          context.scorers.get(j).syncTo(candidate);
         }
       }
 
@@ -204,7 +204,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
 
       // Now score the rest, but keep checking
       while (context.runningScore > context.minCandidateScore && j < context.scorers.size()) {
-        context.scorers.get(j).moveTo(context.document);
+        context.scorers.get(j).syncTo(context.document);
         context.scorers.get(j).deltaScore();
         j++;
       }

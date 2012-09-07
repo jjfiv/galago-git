@@ -218,7 +218,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
 
     @Override
-    public void moveTo(int identifier) throws IOException {
+    public void syncTo(int identifier) throws IOException {
       currDocument = identifier;
       if (currDocument > lastDocument) {
         currDocument = lastDocument;
@@ -400,7 +400,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
 
     @Override
-    public void moveTo(int identifier) throws IOException {
+    public void syncTo(int identifier) throws IOException {
       assert (identifier >= currDocument);
 
       // we can't move past the last document

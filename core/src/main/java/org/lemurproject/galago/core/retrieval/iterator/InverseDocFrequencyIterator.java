@@ -83,7 +83,7 @@ public class InverseDocFrequencyIterator extends ScoringFunctionIterator {
   }
 
   @Override
-  public void moveTo(int identifier) throws IOException {
+  public void syncTo(int identifier) throws IOException {
   }
 
   @Override

@@ -59,15 +59,15 @@ public abstract class DisjointIndexesIterator extends ValueIterator {
 
   @Override
   public void movePast(int identifier) throws IOException {
-    moveTo(identifier + 1);
+    syncTo(identifier + 1);
   }
 
   @Override
-  public void moveTo(int identifier) throws IOException {
+  public void syncTo(int identifier) throws IOException {
     queue.offer(head);
     while (!queue.isEmpty()) {
       head = queue.poll();
-      head.moveTo(identifier);
+      head.syncTo(identifier);
       if (queue.isEmpty()) {
         // if the queue is empty - we're done
         return;

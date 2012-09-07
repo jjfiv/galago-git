@@ -59,7 +59,7 @@ public class SetModel extends ProcessingModel {
       // ensure we are at the document we wish to score
       // -- this function will move ALL iterators, 
       //     not just the ones that do not have all candidates
-      iterator.moveTo(iterator.currentCandidate());
+      iterator.syncTo(iterator.currentCandidate());
 
       if (iterator.hasMatch(iterator.currentCandidate())) {
         list.add(new ScoredDocument(iterator.currentCandidate(), 1.0));
@@ -82,7 +82,7 @@ public class SetModel extends ProcessingModel {
 
     for (int i = 0; i < whitelist.length; i++) {
       int document = whitelist[i];
-      iterator.moveTo(document);
+      iterator.syncTo(document);
       if (iterator.hasMatch(document)) {
         list.add(new ScoredDocument(iterator.currentCandidate(), 1.0));
       }

@@ -354,12 +354,12 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
 
     @Override
     public void movePast(int document) throws IOException {
-      moveTo(document + 1);
+      syncTo(document + 1);
     }
 
     // If we have skips - it's go time
     @Override
-    public void moveTo(int document) throws IOException {
+    public void syncTo(int document) throws IOException {
       if (skips != null) {
         synchronizeSkipPositions();
       }
@@ -667,12 +667,12 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
 
     @Override
     public void movePast(int document) throws IOException {
-      moveTo(document + 1);
+      syncTo(document + 1);
     }
 
     // If we have skips - it's go time
     @Override
-    public void moveTo(int document) throws IOException {
+    public void syncTo(int document) throws IOException {
       if (skips != null) {
         synchronizeSkipPositions();
         if (document > nextSkipDocument) {

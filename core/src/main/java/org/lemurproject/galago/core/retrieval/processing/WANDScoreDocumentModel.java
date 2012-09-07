@@ -126,7 +126,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
           }
         } else {
           advancePosition = pickAdvancingSentinel(pivotPosition, pivot);
-          sortedSentinels[advancePosition].iterator.moveTo(pivot);
+          sortedSentinels[advancePosition].iterator.syncTo(pivot);
         }
       }
 
@@ -203,7 +203,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     int i;
     for (i = 0; i < sortedSentinels.length; i++) {
       DeltaScoringIterator dsi = sortedSentinels[i].iterator;
-      dsi.moveTo(context.document); // just in case
+      dsi.syncTo(context.document); // just in case
       dsi.deltaScore();
     }
   }

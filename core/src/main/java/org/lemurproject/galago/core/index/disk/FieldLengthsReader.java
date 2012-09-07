@@ -36,7 +36,7 @@ public class FieldLengthsReader implements LengthsReader {
   @Override
   public int getLength(int document) throws IOException {
     LengthsReader.LengthsIterator li = getLengthsIterator();
-    li.moveTo(document);
+    li.syncTo(document);
     if (li.hasMatch(document)) {
       return li.getCurrentLength();
     } else {
@@ -138,8 +138,8 @@ public class FieldLengthsReader implements LengthsReader {
     }
 
     @Override
-    public void moveTo(int identifier) throws IOException {
-      extentsIterator.moveTo(identifier);
+    public void syncTo(int identifier) throws IOException {
+      extentsIterator.syncTo(identifier);
       length = -1;
     }
 

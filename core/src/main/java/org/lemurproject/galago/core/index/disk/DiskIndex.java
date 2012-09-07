@@ -210,7 +210,7 @@ public class DiskIndex implements Index {
   @Override
   public boolean containsDocumentIdentifier(int document) throws IOException {
     NamesReader.NamesIterator ni = this.getNamesIterator();
-    ni.moveTo(document);
+    ni.syncTo(document);
     return ni.hasMatch(document);
   }
 

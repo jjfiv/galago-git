@@ -55,9 +55,9 @@ public abstract class DisjunctionIterator implements MovableIterator {
   }
 
   @Override
-  public void moveTo(int candidate) throws IOException {
+  public void syncTo(int candidate) throws IOException {
     for (MovableIterator iterator : iterators) {
-      iterator.moveTo(candidate);
+      iterator.syncTo(candidate);
     }
   }
 

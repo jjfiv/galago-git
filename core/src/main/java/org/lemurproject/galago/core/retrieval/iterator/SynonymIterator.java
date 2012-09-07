@@ -17,7 +17,7 @@ public class SynonymIterator extends ExtentDisjunctionIterator {
   public SynonymIterator(NodeParameters parameters, MovableExtentIterator[] iterators) throws IOException {
     super(iterators);
     extentIterators = iterators;
-    moveTo(0);
+    syncTo(0);
   }
 
   public void loadExtents() {

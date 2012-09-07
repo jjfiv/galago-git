@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.disk.DiskNameWriter;

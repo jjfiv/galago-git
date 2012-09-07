@@ -12,8 +12,9 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- * Performs passage-level retrieval scoring.
- *
+ * Performs passage-level retrieval scoring. Passage windows are currently
+ * generated the same as Indri: if we hit the end of the document prematurely,
+ * we generate a shortened last passage (i.e. window slides are constant). 
  *
  * @author irmarc
  */
@@ -66,10 +67,9 @@ public class RankedPassageModel extends ProcessingModel {
       context.begin = 0;
       context.end = passageSize;
 
-      iterator.moveTo(document);
+      iterator.syncTo(document);
       context.moveLengths(document);
       int length = context.getLength();
-
 
       // Keep iterating over the same doc, but incrementing the begin/end fields of the
       // context until the next one
@@ -112,21 +112,22 @@ public class RankedPassageModel extends ProcessingModel {
       int document = iterator.currentCandidate();
       // This context is shared among all scorers
       context.document = document;
-      context.begin = 0;
-      context.end = passageSize;
 
       context.moveLengths(document);
       int length = context.getLength();
-
-
+      context.begin = 0;
+      context.end = Math.min(passageSize, length);
+      
       // ensure we are at the document we wish to score
       // -- this function will move ALL iterators, 
       //     not just the ones that do not have all candidates
-      iterator.moveTo(document);
+      iterator.syncTo(document);
 
       // Keep iterating over the same doc, but incrementing the begin/end fields of the
       // context until the next one
-      while (context.end <= length) {
+      boolean lastIteration = false;
+      while (context.begin < length && !lastIteration) {
+        if (context.end == length) lastIteration = true;
         if (iterator.hasMatch(document)) {
           double score = iterator.score();
           if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
@@ -140,7 +141,7 @@ public class RankedPassageModel extends ProcessingModel {
 
         // Move the window forward
         context.begin += passageShift;
-        context.end += passageShift;
+        context.end = Math.min(passageSize+context.begin, length);
       }
       iterator.movePast(document);
     }

@@ -8,7 +8,11 @@ package org.lemurproject.galago.core.retrieval.processing;
  * @author irmarc
  */
 public class PassageScoringContext extends ScoringContext {
-  
+  public PassageScoringContext() {
+    super();
+    begin = 0;
+    end = Integer.MAX_VALUE;
+  }
   public int begin;
   public int end;
 }

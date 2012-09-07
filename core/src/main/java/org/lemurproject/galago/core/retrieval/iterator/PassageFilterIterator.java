@@ -86,6 +86,7 @@ public class PassageFilterIterator extends TransformIterator implements MovableE
 
   @Override
   public int count() {
+    loadExtents();
     return cached.size();
   }
 

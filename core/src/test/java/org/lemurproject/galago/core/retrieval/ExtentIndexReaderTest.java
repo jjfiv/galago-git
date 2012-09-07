@@ -141,7 +141,7 @@ public class ExtentIndexReaderTest extends TestCase {
     ScoringContext sc = extents.getContext();
 
     assertFalse(extents.isDone());
-    extents.moveTo(10);
+    extents.syncTo(10);
     assertTrue(extents.isDone());
 
     reader.close();
@@ -171,7 +171,7 @@ public class ExtentIndexReaderTest extends TestCase {
     ScoringContext sc = extents.getContext();
 
     assertFalse(extents.isDone());
-    extents.moveTo(453);
+    extents.syncTo(453);
     assertFalse(extents.hasMatch(453));
     assertEquals(454, extents.currentCandidate());
     extents.movePast(extents.currentCandidate());
@@ -187,7 +187,7 @@ public class ExtentIndexReaderTest extends TestCase {
       begin += 4;
       eait.next();
     }
-    extents.moveTo(1299);
+    extents.syncTo(1299);
     assertFalse(extents.hasMatch(1299));
     extents.movePast(2100);
     assertTrue(extents.isDone());

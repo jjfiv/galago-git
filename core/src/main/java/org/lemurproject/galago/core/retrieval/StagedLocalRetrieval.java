@@ -171,7 +171,7 @@ public class StagedLocalRetrieval extends LocalRetrieval {
     occurrenceCache.put(Utility.toString(it.key()), cache);
 
     for (int i = 0; i < sortedCandidates.size(); i++) {
-      it.moveTo(sortedCandidates.get(i));
+      it.syncTo(sortedCandidates.get(i));
       if (it.isDone()) {
         break;
       }

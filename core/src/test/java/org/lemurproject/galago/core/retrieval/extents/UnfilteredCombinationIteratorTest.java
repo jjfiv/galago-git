@@ -103,7 +103,7 @@ public class UnfilteredCombinationIteratorTest extends TestCase {
     ScoreCombinationIterator instance = new ScoreCombinationIterator(new NodeParameters(),
             iterators);
 
-    instance.moveTo(5);
+    instance.syncTo(5);
     assertEquals(5, instance.currentCandidate());
   }
 }

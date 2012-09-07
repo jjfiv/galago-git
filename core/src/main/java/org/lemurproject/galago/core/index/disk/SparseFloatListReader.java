@@ -176,7 +176,7 @@ public class SparseFloatListReader extends KeyListReader {
     }
 
     @Override
-    public void moveTo(int document) throws IOException {
+    public void syncTo(int document) throws IOException {
       while (!isDone() && document > currentDocument) {
         read();
       }

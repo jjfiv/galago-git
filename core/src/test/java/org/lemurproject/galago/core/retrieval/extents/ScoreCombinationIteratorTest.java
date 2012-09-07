@@ -120,6 +120,6 @@ public class ScoreCombinationIteratorTest extends TestCase {
 
     ScoreCombinationIterator instance = new ScoreCombinationIterator(new NodeParameters(), iterators);
 
-    instance.moveTo(5);
+    instance.syncTo(5);
   }
 }

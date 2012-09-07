@@ -42,7 +42,7 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
     this.innerIterator = innerIterator;
     this.outerIterator = outerIterator;
     // load the first document
-    moveTo(0);
+    syncTo(0);
   }
 
   /**

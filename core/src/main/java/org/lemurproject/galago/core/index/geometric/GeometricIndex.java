@@ -251,7 +251,7 @@ public class GeometricIndex implements DynamicIndex, Index {
   @Override
   public int getLength(int document) throws IOException {
     LengthsReader.LengthsIterator i = this.getLengthsIterator();
-    i.moveTo(document);
+    i.syncTo(document);
     if (i.hasMatch(document)) {
       return i.getCurrentLength();
     } else {
@@ -262,7 +262,7 @@ public class GeometricIndex implements DynamicIndex, Index {
   @Override
   public String getName(int document) throws IOException {
     NamesReader.NamesIterator i = this.getNamesIterator();
-    i.moveTo(document);
+    i.syncTo(document);
     if (i.hasMatch(document)) {
       return i.getCurrentName();
     } else {

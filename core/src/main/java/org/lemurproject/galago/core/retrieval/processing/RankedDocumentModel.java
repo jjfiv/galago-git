@@ -64,7 +64,7 @@ public class RankedDocumentModel extends ProcessingModel {
 
     for (int i = 0; i < whitelist.length; i++) {
       int document = whitelist[i];
-      iterator.moveTo(document);
+      iterator.syncTo(document);
       context.document = document;
       context.moveLengths(document);
 
@@ -112,7 +112,7 @@ public class RankedDocumentModel extends ProcessingModel {
       // This context is shared among all scorers
       context.document = document;
       context.moveLengths(document);
-      iterator.moveTo(document);
+      iterator.syncTo(document);
       if (iterator.hasMatch(document)) {
         double score = iterator.score();
         ////CallTable.increment("doc_finish");

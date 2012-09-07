@@ -17,7 +17,7 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
   public OrderedWindowIterator(NodeParameters parameters, MovableExtentIterator[] iterators) throws IOException {
     super(parameters, iterators);
     this.width = (int) parameters.get("default", -1);
-    moveTo(0);
+    syncTo(0);
   }
 
   @Override

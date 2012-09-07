@@ -20,7 +20,7 @@ public class UnorderedWindowIterator extends ExtentConjunctionIterator {
     super(parameters, evIterators);
     this.width = (int) parameters.get("default", -1);
     this.overlap = parameters.get("overlap", false);
-    moveTo(0);
+    syncTo(0);
   }
 
   public void loadExtents() {

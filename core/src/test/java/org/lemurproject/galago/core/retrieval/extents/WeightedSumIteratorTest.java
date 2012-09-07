@@ -120,6 +120,6 @@ public class WeightedSumIteratorTest extends TestCase {
 
     WeightedSumIterator instance = new WeightedSumIterator(new NodeParameters(), iterators);
 
-    instance.moveTo(5);
+    instance.syncTo(5);
   }
 }

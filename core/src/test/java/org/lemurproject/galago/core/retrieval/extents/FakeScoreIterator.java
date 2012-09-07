@@ -52,7 +52,7 @@ public class FakeScoreIterator implements MovableScoreIterator {
   }
 
   @Override
-  public void moveTo(int document) throws IOException {
+  public void syncTo(int document) throws IOException {
     while (!isDone() && document > docs[index]) {
       index++;
     }

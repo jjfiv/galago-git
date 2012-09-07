@@ -75,7 +75,7 @@ public interface MovableIterator extends ContextualIterator, StructuredIterator,
    * Unlike the 'next' function this should move all iterators.
    * Even where 'hasAllCandidates' is true.
    */
-  public void moveTo(int identifier) throws IOException;
+  public void syncTo(int identifier) throws IOException;
   
   /**
    * returns true if the iterator is at this candidate,

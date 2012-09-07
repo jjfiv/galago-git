@@ -54,7 +54,7 @@ public class ScoringContext {
         } else if (pair.getValue() == null) {
           System.err.printf("Missing value for key %s.\n", pair.getKey());
         } else {
-          pair.getValue().moveTo(position);
+          pair.getValue().syncTo(position);
           current.put(pair.getKey(), pair.getValue().getCurrentLength());
         }
       }

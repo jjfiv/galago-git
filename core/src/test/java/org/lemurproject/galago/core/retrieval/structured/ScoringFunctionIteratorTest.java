@@ -44,7 +44,7 @@ public class ScoringFunctionIteratorTest extends TestCase {
     iterator.setContext(context);
     assertFalse(iterator.isDone());
     assertEquals(extents[0][0], iterator.currentCandidate());
-    iterator.moveTo(extents[0][0]);
+    iterator.syncTo(extents[0][0]);
     assertEquals(extents[0][0], iterator.currentCandidate());
     context.document = 0;
     // score without explicit context
@@ -57,7 +57,7 @@ public class ScoringFunctionIteratorTest extends TestCase {
     context.document = iterator.currentCandidate();
     context.moveLengths(iterator.currentCandidate());
     assertEquals(44.0, iterator.score());
-    iterator.moveTo(120);
+    iterator.syncTo(120);
     assertTrue(iterator.isDone());
   }
 
@@ -72,7 +72,7 @@ public class ScoringFunctionIteratorTest extends TestCase {
     BM25RFScoringIterator iterator = new BM25RFScoringIterator(p, extentIterator);
     assertFalse(iterator.isDone());
     assertEquals(extents[0][0], iterator.currentCandidate());
-    iterator.moveTo(extents[0][0]);
+    iterator.syncTo(extents[0][0]);
     assertEquals(extents[0][0], iterator.currentCandidate());
     // score without explicit context
     ScoringContext context = new ScoringContext();
@@ -89,7 +89,7 @@ public class ScoringFunctionIteratorTest extends TestCase {
     context.document = iterator.currentCandidate();
     context.moveLengths(iterator.currentCandidate());
     assertEquals(1.11315, iterator.score(), 0.0001);
-    iterator.moveTo(120);
+    iterator.syncTo(120);
     assertTrue(iterator.isDone());
   }
 }

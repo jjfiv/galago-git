@@ -210,7 +210,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
 
     // If we have skips - it's go time
     @Override
-    public void moveTo(int document) throws IOException {
+    public void syncTo(int document) throws IOException {
       if (skips != null) {
         synchronizeSkipPositions();
         if (document > nextSkipDocument) {
@@ -235,7 +235,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
 
     @Override
     public void movePast(int document) throws IOException {
-      moveTo(document + 1);
+      syncTo(document + 1);
     }
 
     // This only moves forward in tier 1, reads from tier 2 only when

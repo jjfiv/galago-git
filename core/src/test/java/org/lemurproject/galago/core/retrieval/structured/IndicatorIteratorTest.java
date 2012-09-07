@@ -91,7 +91,7 @@ public class IndicatorIteratorTest extends TestCase {
     assertTrue(eii.hasMatch(2));
     assertEquals(true, eii.hasMatch(eii.currentCandidate()));
 
-    eii.moveTo(3);
+    eii.syncTo(3);
     assertEquals(4, eii.currentCandidate());
     assertEquals(true, eii.hasMatch(eii.currentCandidate()));
 
@@ -117,7 +117,7 @@ public class IndicatorIteratorTest extends TestCase {
     assertTrue(uii.hasMatch(0));
     assertEquals(true, uii.hasMatch(uii.currentCandidate()));
 
-    uii.moveTo(1);
+    uii.syncTo(1);
     assertEquals(2, uii.currentCandidate());
     assertEquals(true, uii.hasMatch(uii.currentCandidate()));
 

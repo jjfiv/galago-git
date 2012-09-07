@@ -195,7 +195,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
 
     @Override
-    public void moveTo(int identifier) throws IOException {
+    public void syncTo(int identifier) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

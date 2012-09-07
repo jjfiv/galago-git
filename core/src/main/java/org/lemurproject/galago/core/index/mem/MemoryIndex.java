@@ -248,7 +248,7 @@ public class MemoryIndex implements DynamicIndex, Index {
 
   public boolean containsDocumentIdentifier(int document) throws IOException {
     NamesReader.NamesIterator ni = this.getNamesIterator();
-    ni.moveTo(document);
+    ni.syncTo(document);
     return ni.getCurrentIdentifier() == document;
   }
 

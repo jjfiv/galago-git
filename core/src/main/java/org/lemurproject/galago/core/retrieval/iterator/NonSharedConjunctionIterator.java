@@ -58,15 +58,15 @@ public abstract class NonSharedConjunctionIterator implements MovableIterator {
   }
 
   @Override
-  public void moveTo(int candidate) throws IOException {
+  public void syncTo(int candidate) throws IOException {
     for (MovableIterator iterator : iterators) {
-      iterator.moveTo(candidate);
+      iterator.syncTo(candidate);
     }
 
     int currCandidate = currentCandidate();
     while (!isDone()) {
       for (MovableIterator iterator : iterators) {
-        iterator.moveTo(currCandidate);
+        iterator.syncTo(currCandidate);
 
         // if we skip too far:
         //   don't bother to move the other children
@@ -85,7 +85,7 @@ public abstract class NonSharedConjunctionIterator implements MovableIterator {
 
   @Override
   public void movePast(int candidate) throws IOException {
-    this.moveTo(candidate + 1);
+    this.syncTo(candidate + 1);
   }
 
   @Override

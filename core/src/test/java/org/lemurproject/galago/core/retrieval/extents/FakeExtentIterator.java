@@ -74,7 +74,7 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
   }
 
   @Override
-  public void moveTo(int identifier) throws IOException {
+  public void syncTo(int identifier) throws IOException {
     while (!isDone() && currentCandidate() < identifier) {
       index++;
     }
@@ -82,7 +82,7 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
 
   @Override
   public void movePast(int identifier) throws IOException {
-    moveTo(identifier + 1);
+    syncTo(identifier + 1);
   }
 
   @Override
