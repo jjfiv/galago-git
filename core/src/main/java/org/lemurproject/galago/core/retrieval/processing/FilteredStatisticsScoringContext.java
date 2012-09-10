@@ -29,7 +29,9 @@ public class FilteredStatisticsScoringContext extends ScoringContext
 
   @Override
   public void checkIterator(Node node, StructuredIterator iterator) {
-    if (CountIterator.class.isAssignableFrom(iterator.getClass())) {
+    String operator = node.getOperator();
+    if (CountIterator.class.isAssignableFrom(iterator.getClass()) &&
+            (operator.equals("counts") || operator.equals("extents"))) {
       trackedIterators.put(node.getDefaultParameter(),
               (CountIterator) iterator);
     }
