@@ -52,7 +52,7 @@ public class FilteredStatisticsTest extends TestCase {
             + "( #count:a() ) )");
     AdjustAnnotationsTraversal traversal = new AdjustAnnotationsTraversal(fssc);
     Node transformed = StructuredQuery.walk(traversal, root);
-    
+
     // Check parameters
     Node featureNode = transformed.getChild(0);
     NodeParameters np = featureNode.getNodeParameters();
@@ -65,7 +65,7 @@ public class FilteredStatisticsTest extends TestCase {
 
   public void testFilteredStatisticsModel() throws Exception {
     Parameters globalParams = new Parameters();
-    globalParams.set("processingModel", 
+    globalParams.set("processingModel",
             "org.lemurproject.galago.core.retrieval.processing.FilteredStatisticsRankedDocumentModel");
     LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), globalParams);
     String query = "#require( "
@@ -78,11 +78,11 @@ public class FilteredStatisticsTest extends TestCase {
     p.set("requested", 5);
     root = retrieval.transformQuery(root, globalParams);
     ScoredDocument[] results = retrieval.runQuery(root, p);
-    
+
     assertEquals(2, results.length);
     assertEquals(3, results[0].document);
-    assertEquals(-0.7518724, results[0].score, 0.0001);
+    assertEquals(-4.9214315, results[0].score, 0.0001);
     assertEquals(18, results[1].document);
-    assertEquals(-0.7522054, results[1].score, 0.0001);
+    assertEquals(-4.9840130, results[1].score, 0.0001);
   }
 }

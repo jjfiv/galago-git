@@ -6,6 +6,7 @@ import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -89,8 +90,6 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
     // FIRST PASS -- used to only gather statistics for the second pass
     FilteredStatisticsScoringContext fssContext = new FilteredStatisticsScoringContext();
 
-    System.out.printf("Original tree: %s\n", queryTree.toString());
-
     // construct the iterators -- we use tree processing
     MovableScoreIterator iterator =
             (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, fssContext);
@@ -111,17 +110,18 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
 
         // update per-term statistics
         for (String term : fssContext.trackedIterators.keySet()) {
-          int count = fssContext.trackedIterators.get(term).count();
-          if (count > 0) {
-            fssContext.tfs.adjustOrPutValue(term, count, count);
-            fssContext.dfs.adjustOrPutValue(term, 1, 1);
+          MovableCountIterator ci = fssContext.trackedIterators.get(term);
+          if (ci.hasMatch(document)) {
+            int count = ci.count();
+            if (count > 0) {
+              fssContext.tfs.adjustOrPutValue(term, count, count);
+              fssContext.dfs.adjustOrPutValue(term, 1, 1);
+            }
           }
         }
       }
       iterator.next();
     }
-
-    System.out.printf("Context: %s\n", fssContext.toString());
 
     // SECOND PASS -- should look like a normal run, except we run one more traversal
     // over the query tree to ''correct'' statistics, then instantiate the iterators.
@@ -129,8 +129,6 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
     // references outside this method.
     AdjustAnnotationsTraversal traversal = new AdjustAnnotationsTraversal(fssContext);
     queryTree = StructuredQuery.copy(traversal, queryTree);
-
-    System.out.printf("Modified tree: %s\n", queryTree.toString());
 
     // Nothing special needed here
     ScoringContext context = new ScoringContext();

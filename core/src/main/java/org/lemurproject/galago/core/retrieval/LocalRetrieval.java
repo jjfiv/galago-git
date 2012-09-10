@@ -164,8 +164,6 @@ public class LocalRetrieval implements Retrieval {
     }
     ProcessingModel pm = ProcessingModel.instance(this, queryTree, queryParams);
 
-    System.out.printf("ProcessingModel: %s\n", pm.getClass().getName());
-    
     // Figure out if there's a working set to deal with
     int[] workingSet = null;
 
