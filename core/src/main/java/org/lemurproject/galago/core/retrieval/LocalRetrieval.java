@@ -159,8 +159,13 @@ public class LocalRetrieval implements Retrieval {
   @Override
   public ScoredDocument[] runQuery(Node queryTree, Parameters queryParams) throws Exception {
     ScoredDocument[] results = null;
+    if (globalParameters.containsKey("processingModel")) {
+      queryParams.set("processingModel", globalParameters.getString("processingModel"));
+    }
     ProcessingModel pm = ProcessingModel.instance(this, queryTree, queryParams);
 
+    System.out.printf("ProcessingModel: %s\n", pm.getClass().getName());
+    
     // Figure out if there's a working set to deal with
     int[] workingSet = null;
 

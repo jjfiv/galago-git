@@ -68,6 +68,21 @@ public class FilteredStatisticsTest extends TestCase {
     globalParams.set("processingModel", 
             "org.lemurproject.galago.core.retrieval.processing.FilteredStatisticsRankedDocumentModel");
     LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), globalParams);
+    String query = "#require( "
+            + "#less( date 1/1/1900 ) "
+            + "#combine("
+            + " #feature:dirichlet:mu=1500( #counts:a() )"
+            + " #feature:dirichlet:mu=1500( #counts:b())))";
+    Node root = StructuredQuery.parse(query);
+    Parameters p = new Parameters();
+    p.set("requested", 5);
+    root = retrieval.transformQuery(root, globalParams);
+    ScoredDocument[] results = retrieval.runQuery(root, p);
     
+    assertEquals(2, results.length);
+    assertEquals(3, results[0].document);
+    assertEquals(-0.7518724, results[0].score, 0.0001);
+    assertEquals(18, results[1].document);
+    assertEquals(-0.7522054, results[1].score, 0.0001);
   }
 }

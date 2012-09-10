@@ -22,6 +22,12 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
   Index index;
   int[] whitelist;
 
+  public FilteredStatisticsRankedDocumentModel(LocalRetrieval lr) {
+    retrieval = lr;
+    this.index = retrieval.getIndex();
+    whitelist = null;
+  }
+
   @Override
   public ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception {
     if (whitelist == null) {
@@ -83,6 +89,8 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
     // FIRST PASS -- used to only gather statistics for the second pass
     FilteredStatisticsScoringContext fssContext = new FilteredStatisticsScoringContext();
 
+    System.out.printf("Original tree: %s\n", queryTree.toString());
+
     // construct the iterators -- we use tree processing
     MovableScoreIterator iterator =
             (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, fssContext);
@@ -117,8 +125,10 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
     // over the query tree to ''correct'' statistics, then instantiate the iterators.
     // We use a copy to make sure we don't perturb the original tree, in case there are
     // references outside this method.
-    AdjustAnnotationsTraversal traversal = new AdjustAnnotationsTraversal( fssContext);
+    AdjustAnnotationsTraversal traversal = new AdjustAnnotationsTraversal(fssContext);
     queryTree = StructuredQuery.copy(traversal, queryTree);
+
+    System.out.printf("Modified tree: %s\n", queryTree.toString());
 
     // Nothing special needed here
     ScoringContext context = new ScoringContext();

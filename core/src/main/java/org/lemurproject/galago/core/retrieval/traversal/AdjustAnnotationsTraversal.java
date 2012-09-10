@@ -49,8 +49,6 @@ public class AdjustAnnotationsTraversal extends Traversal {
       if (np.containsKey("collectionProbability")) {
         int collectionCount = context.tfs.get(key);
         if (collectionCount > 0) {
-          System.out.printf("collProb=%f\n",
-                  ((double) collectionCount) / context.collectionLength);
           np.set("collectionProbability",
                   ((double) collectionCount) / context.collectionLength);
         } else {
