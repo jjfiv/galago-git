@@ -88,7 +88,6 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
             (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, fssContext);
     ProcessingModel.initializeLengths(retrieval, fssContext);
 
-    // now there should be an iterator at the root of this tree
     while (!iterator.isDone()) {
       int document = iterator.currentCandidate();
 
@@ -97,20 +96,29 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
       fssContext.moveLengths(document);
 
       if (iterator.hasMatch(document)) {
-        // update globals
+
+        // update global statistics
         ++fssContext.documentCount;
-        fssContext.collectionCount += fssContext.getLength();
+        fssContext.collectionLength += fssContext.getLength();
 
         // update per-term statistics
-        
+        for (String term : fssContext.trackedIterators.keySet()) {
+          int count = fssContext.trackedIterators.get(term).count();
+          if (count > 0) {
+            fssContext.tfs.adjustOrPutValue(term, count, count);
+            fssContext.dfs.adjustOrPutValue(term, 1, 1);
+          }
+        }
       }
       iterator.next();
     }
 
     // SECOND PASS -- should look like a normal run, except we run one more traversal
     // over the query tree to ''correct'' statistics, then instantiate the iterators.
-    AdjustAnnotationsTraversal traversal = new AdjustAnnotationsTraversal(retrieval, fssContext);
-    queryTree = StructuredQuery.walk(traversal, queryTree);
+    // We use a copy to make sure we don't perturb the original tree, in case there are
+    // references outside this method.
+    AdjustAnnotationsTraversal traversal = new AdjustAnnotationsTraversal( fssContext);
+    queryTree = StructuredQuery.copy(traversal, queryTree);
 
     // Nothing special needed here
     ScoringContext context = new ScoringContext();

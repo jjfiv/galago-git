@@ -7,6 +7,7 @@ package org.lemurproject.galago.core.retrieval.traversal;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.processing.FilteredStatisticsScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
  *
@@ -14,22 +15,43 @@ import org.lemurproject.galago.core.retrieval.query.Node;
  */
 public class AdjustAnnotationsTraversal extends Traversal {
 
-  Retrieval retrieval;
   FilteredStatisticsScoringContext context;
-  
-  public AdjustAnnotationsTraversal(Retrieval r, FilteredStatisticsScoringContext c) {
-    this.retrieval = r;
+
+  public AdjustAnnotationsTraversal(FilteredStatisticsScoringContext c) {
     this.context = c;
   }
-  
+
   @Override
-  public Node afterNode(Node newNode) throws Exception {
-    throw new UnsupportedOperationException("Not supported yet.");
+  public Node afterNode(Node original) throws Exception {
+    return original;
   }
 
   @Override
   public void beforeNode(Node object) throws Exception {
-    throw new UnsupportedOperationException("Not supported yet.");
+    // Update statistics in place.
+    NodeParameters np = object.getNodeParameters();
+    if (np.containsKey("nodeFrequency")) {
+      np.set("nodeFrequency",
+              context.tfs.get(object.getDefaultParameter()));
+    }
+    if (np.containsKey("nodeDocumentCount")) {
+      np.set("nodeDocumentCount",
+              context.dfs.get(object.getDefaultParameter()));
+    }
+    if (np.containsKey("collectionLength")) {
+      np.set("collectionLength", context.collectionLength);
+    }
+    if (np.containsKey("documentCount")) {
+      np.set("documentCount", context.documentCount);
+    }
+    if (np.containsKey("collectionProbability")) {
+      int collectionCount = context.tfs.get(object.getDefaultParameter());
+      if (collectionCount > 0) {
+        np.set("collectionProbability",
+                ((double) collectionCount) / context.collectionLength);
+      } else {
+        np.set("collectionProbability", 0.5 / (double) context.collectionLength);
+      }
+    }
   }
-  
 }

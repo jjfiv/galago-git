@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.disk.DiskNameWriter;
@@ -189,7 +187,6 @@ public class LocalRetrievalTest extends TestCase {
     App.main(new String[]{"make-corpus", "--corpusPath=" + corpusFile.getAbsolutePath(),
               "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--distrib=2"});
 
-
     // make sure the corpus file exists
     assertTrue(corpusFile.exists());
 
@@ -199,12 +196,10 @@ public class LocalRetrievalTest extends TestCase {
               "--inputPath=" + corpusFile.getAbsolutePath()});
 
     AppTest.verifyIndexStructures(indexFile);
-
     File[] files = new File[3];
     files[0] = trecCorpusFile;
     files[1] = corpusFile;
     files[2] = indexFile;
-
     return files;
   }
 
@@ -284,7 +279,7 @@ public class LocalRetrievalTest extends TestCase {
     Node root = StructuredQuery.parse("#combine( #feature:dirichlet:mu=1500( #counts:a() ) #feature:dirichlet:mu=1500( #counts:b() ) )");
     Parameters p = new Parameters();
     p.set("requested", 5);
-    
+
     root = retrieval.transformQuery(root, p);
 
     List<String> ids = new ArrayList<String>();
@@ -292,7 +287,7 @@ public class LocalRetrievalTest extends TestCase {
     ids.add("DOC2");
     ids.add("DOC5");
     p.set("working", ids);
-   
+
     ScoredDocument[] result = retrieval.runQuery(root, p);
 
     assertEquals(3, result.length);

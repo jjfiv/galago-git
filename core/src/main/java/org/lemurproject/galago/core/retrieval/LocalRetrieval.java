@@ -32,6 +32,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.processing.ActiveContext;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -207,7 +208,6 @@ public class LocalRetrieval implements Retrieval {
       }
     });
 
-    // TODO: fix this to use an iterator.
     Iterator namesIterator = index.getNamesIterator();
 
     for (T doc : byID) {
@@ -256,6 +256,11 @@ public class LocalRetrieval implements Retrieval {
 
     if (ContextualIterator.class.isInstance(iterator) && (context != null)) {
       ((ContextualIterator) iterator).setContext(context);
+    }
+
+    if (context != null &&
+            ActiveContext.class.isAssignableFrom(context.getClass())) {
+        ((ActiveContext)context).checkIterator(node, iterator);
     }
 
     // we've created a new iterator - add to the cache for future nodes
