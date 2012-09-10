@@ -28,29 +28,34 @@ public class AdjustAnnotationsTraversal extends Traversal {
 
   @Override
   public void beforeNode(Node object) throws Exception {
-    // Update statistics in place.
-    NodeParameters np = object.getNodeParameters();
-    if (np.containsKey("nodeFrequency")) {
-      np.set("nodeFrequency",
-              context.tfs.get(object.getDefaultParameter()));
-    }
-    if (np.containsKey("nodeDocumentCount")) {
-      np.set("nodeDocumentCount",
-              context.dfs.get(object.getDefaultParameter()));
-    }
-    if (np.containsKey("collectionLength")) {
-      np.set("collectionLength", context.collectionLength);
-    }
-    if (np.containsKey("documentCount")) {
-      np.set("documentCount", context.documentCount);
-    }
-    if (np.containsKey("collectionProbability")) {
-      int collectionCount = context.tfs.get(object.getDefaultParameter());
-      if (collectionCount > 0) {
-        np.set("collectionProbability",
-                ((double) collectionCount) / context.collectionLength);
-      } else {
-        np.set("collectionProbability", 0.5 / (double) context.collectionLength);
+    if (object.numChildren() > 0 && object.getOperator().equals("feature")) {
+      String key = object.getChild(0).getDefaultParameter();
+      // Update statistics in place.
+      NodeParameters np = object.getNodeParameters();
+      if (np.containsKey("nodeFrequency")) {
+        np.set("nodeFrequency",
+                context.tfs.get(key));
+      }
+      if (np.containsKey("nodeDocumentCount")) {
+        np.set("nodeDocumentCount",
+                context.dfs.get(key));
+      }
+      if (np.containsKey("collectionLength")) {
+        np.set("collectionLength", context.collectionLength);
+      }
+      if (np.containsKey("documentCount")) {
+        np.set("documentCount", context.documentCount);
+      }
+      if (np.containsKey("collectionProbability")) {
+        int collectionCount = context.tfs.get(key);
+        if (collectionCount > 0) {
+          System.out.printf("collProb=%f\n",
+                  ((double) collectionCount) / context.collectionLength);
+          np.set("collectionProbability",
+                  ((double) collectionCount) / context.collectionLength);
+        } else {
+          np.set("collectionProbability", 0.5 / (double) context.collectionLength);
+        }
       }
     }
   }

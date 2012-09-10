@@ -37,6 +37,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
 
   private DiskBTreeWriter writer;
   private LengthsList fieldLengthData;
+  private Counter recordsWritten;
 
   /**
    * Creates a new instance of DiskLengthsWriter
@@ -47,7 +48,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     p.set("writerClass", DiskLengthsWriter.class.getName());
     p.set("mergerClass", DocumentLengthsMerger.class.getName());
     p.set("readerClass", DiskLengthsReader.class.getName());
-
+    recordsWritten = parameters.getCounter("records Written");
     fieldLengthData = null;
   }
 
@@ -63,6 +64,9 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     }
 
     fieldLengthData.add(ld.document, ld.length);
+    if (recordsWritten != null) {
+      recordsWritten.increment();
+    }
   }
 
   @Override

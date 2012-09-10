@@ -5,7 +5,10 @@ import java.io.File;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.processing.FilteredStatisticsScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.core.retrieval.traversal.AdjustAnnotationsTraversal;
+import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -42,16 +45,29 @@ public class FilteredStatisticsTest extends TestCase {
     Node root = StructuredQuery.parse(
             "#combine( #feature:dirichlet:"
             + "documentCount=1:"
-            + "collectionCount=1:"
+            + "collectionLength=1:"
             + "collectionProbability=0.1:"
             + "nodeFrequency=1:"
             + "nodeDocumentCount=1"
             + "( #count:a() ) )");
-    AdjustAnnotationsTraversal()
-    Node transformed = StructuredQuery.walk(null, root)
+    AdjustAnnotationsTraversal traversal = new AdjustAnnotationsTraversal(fssc);
+    Node transformed = StructuredQuery.walk(traversal, root);
+    
+    // Check parameters
+    Node featureNode = transformed.getChild(0);
+    NodeParameters np = featureNode.getNodeParameters();
+    assertEquals(45, (int)np.getLong("nodeFrequency"));
+    assertEquals(13, (int)np.getLong("nodeDocumentCount"));
+    assertEquals(1000, (int)np.getLong("collectionLength"));
+    assertEquals(100, (int)np.getLong("documentCount"));
+    assertEquals(((double)45)/1000, np.getDouble("collectionProbability"));
   }
 
   public void testFilteredStatisticsModel() throws Exception {
-
+    Parameters globalParams = new Parameters();
+    globalParams.set("processingModel", 
+            "org.lemurproject.galago.core.retrieval.processing.FilteredStatisticsRankedDocumentModel");
+    LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), globalParams);
+    
   }
 }
