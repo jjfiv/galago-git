@@ -121,6 +121,8 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
       iterator.next();
     }
 
+    System.out.printf("Context: %s\n", fssContext.toString());
+
     // SECOND PASS -- should look like a normal run, except we run one more traversal
     // over the query tree to ''correct'' statistics, then instantiate the iterators.
     // We use a copy to make sure we don't perturb the original tree, in case there are

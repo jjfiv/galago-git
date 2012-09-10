@@ -36,4 +36,15 @@ public class FilteredStatisticsScoringContext extends ScoringContext
               (CountIterator) iterator);
     }
   }
+
+    @Override
+  public String toString() {
+	StringBuilder sb = new StringBuilder();
+	sb.append("collLength=").append(collectionLength);
+	sb.append(",docCount=").append(documentCount);
+	for (String key : tfs.keySet()) {
+	    sb.append(",").append(key).append("_tf=")
+		.append(tfs.get(key));
+	}
+  }
 }
