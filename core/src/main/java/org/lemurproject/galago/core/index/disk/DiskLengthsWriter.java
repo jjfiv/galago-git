@@ -37,6 +37,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
 
   private DiskBTreeWriter writer;
   private LengthsList fieldLengthData;
+  private Counter lengthsProc;
 
   /**
    * Creates a new instance of DiskLengthsWriter
@@ -49,10 +50,15 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     p.set("readerClass", DiskLengthsReader.class.getName());
 
     fieldLengthData = null;
+    lengthsProc = parameters.getCounter("Lengths Processed");
   }
 
   @Override
   public void process(FieldLengthData ld) throws IOException {
+    if(lengthsProc != null){
+      lengthsProc.increment();
+    }
+    
     if (fieldLengthData == null) {
       fieldLengthData = new LengthsList(ld.field);
     } else if (Utility.compare(fieldLengthData.field, ld.field) != 0) {
@@ -84,8 +90,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
   }
 
   public class LengthsList implements IndexElement {
-
-    private ByteArrayOutputStream buffer;
+    private File tempFile;
     private DataOutputStream stream;
     private byte[] field;
     // stats
@@ -96,10 +101,10 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     private int firstDocument;
     private int prevDocument;
 
-    public LengthsList(byte[] key) {
+    public LengthsList(byte[] key) throws IOException {
       //this.lengthsData = new CompressedRawByteBuffer();
-      buffer = new ByteArrayOutputStream();
-      stream = new DataOutputStream(buffer);
+      tempFile = Utility.createTemporary();
+      stream = StreamCreator.realOutputStream(tempFile.getAbsolutePath());
       this.field = key;
 
       this.nonZeroDocumentCount = 0;
@@ -151,7 +156,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     @Override
     public long dataLength() {
       // data to be written is :
-      //  4 bytes for each of 6 integer statistics\
+      //  4 bytes for each of 6 integer statistics
       //  8 bytes for the avgLength
       //  and the stream data
       return (4 * 6) + (8) + stream.size();
@@ -166,6 +171,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
 
       assert (nonZeroDocumentCount > 0) : "Can not write an empty lengths file for field: " + Utility.toString(field);
 
+      // close the file writer
       stream.close();
 
       double avgLength = (double) collectionLength / (double) nonZeroDocumentCount;
@@ -179,7 +185,11 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
       fileStream.write(Utility.fromInt(firstDocument));
       fileStream.write(Utility.fromInt(prevDocument));
 
-      buffer.writeTo(fileStream);
+      // copy length data to index file
+      Utility.copyFileToStream(tempFile, fileStream);
+      
+      // delete temp data
+      tempFile.delete();
     }
   }
 }
