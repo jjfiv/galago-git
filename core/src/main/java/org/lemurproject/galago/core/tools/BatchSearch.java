@@ -2,7 +2,9 @@
 package org.lemurproject.galago.core.tools;
 
 import gnu.trove.map.hash.TObjectLongHashMap;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -13,8 +15,9 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.App.AppFunction;
-import org.lemurproject.galago.tupleflow.CallTable;
+import org.lemurproject.galago.core.util.CallTable;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Parameters.Type;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -214,5 +217,41 @@ public class BatchSearch extends AppFunction {
       return Integer.toString((int) score);
     }
     return String.format("%10.8f", score);
+  }
+
+  /**
+   * this function extracts a list of queries from a parameter object.
+   *  - there are several methods of inputting queries:
+   *  (query/queries) -> String/List(String)/List(Map)
+   * 
+   * if List(Map):
+   *  [{"number":"id", "text":"query text"}, ...]
+   */
+  public static List<Parameters> collectQueries(Parameters parameters) throws IOException {
+    List<Parameters> queries = new ArrayList();
+    int unnumbered = 0;
+    if (parameters.isString("query") || parameters.isList("query", Type.STRING)) {
+      String id;
+      for (String q : (List<String>) parameters.getAsList("query")) {
+        id = "unk-" + unnumbered;
+        unnumbered++;
+        queries.add(Parameters.parse(String.format("{\"number\":\"%s\", \"text\":\"%s\"}", id, q)));
+}
+    }
+    if (parameters.isString("queries") || parameters.isList("queries", Type.STRING)) {
+      String id;
+      for (String q : (List<String>) parameters.getAsList("query")) {
+        id = "unk-" + unnumbered;
+        unnumbered++;
+        queries.add(Parameters.parse(String.format("{\"number\":\"%s\", \"text\":\"%s\"}", id, q)));
+      }
+    }
+    if (parameters.isList("query", Type.MAP)) {
+      queries.addAll(parameters.getList("query"));
+    }
+    if (parameters.isList("queries", Type.MAP)) {
+      queries.addAll(parameters.getList("queries"));
+    }
+    return queries;
   }
 }
