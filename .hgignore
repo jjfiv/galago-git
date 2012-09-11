@@ -6,3 +6,4 @@ syntax: glob
 */target/*
 *.iml
 *.prj
+./ECIR2013

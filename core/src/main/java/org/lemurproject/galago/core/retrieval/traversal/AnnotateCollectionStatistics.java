@@ -183,8 +183,6 @@ public class AnnotateCollectionStatistics extends Traversal {
   }
 
   private double computeCollectionProbability(long collectionCount, double collectionLength) {
-    System.err.printf("Calculating collProb=(%d / %f) = %f\n",
-            collectionCount, collectionLength, ((double) collectionCount / collectionLength));
     if (collectionCount > 0) {
       return ((double) collectionCount / collectionLength);
     } else {
