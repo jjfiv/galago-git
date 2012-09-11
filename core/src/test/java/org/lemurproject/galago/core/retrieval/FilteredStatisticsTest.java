@@ -40,22 +40,27 @@ public class FilteredStatisticsTest extends TestCase {
             new FilteredStatisticsScoringContext();
     fssc.collectionLength = 1000;
     fssc.documentCount=100;
-    fssc.tfs.put("a", 45);
-    fssc.dfs.put("a", 13);
-    Node root = StructuredQuery.parse(
-            "#combine( #feature:dirichlet:"
-            + "documentCount=1:"
-            + "collectionLength=1:"
-            + "collectionProbability=0.1:"
-            + "nodeFrequency=1:"
-            + "nodeDocumentCount=1"
-            + "( #count:a() ) )");
+    
+    // 'a' node
+    Node aN = new Node("counts", "a");
+    Node fN = new Node("feature", "dirichlet");
+    fN.addChild(aN);
+    NodeParameters np = fN.getNodeParameters();
+    np.set("documentCount", 1);
+    np.set("collectionProbability", 0.1);
+    np.set("collectionLength", 1);
+    np.set("nodeFrequency", 1);
+    np.set("nodeDocumentCount", 1);
+    fssc.tfs.put(aN, 45);
+    fssc.dfs.put(aN, 13);
+    Node root = new Node("combine", new NodeParameters());
+    root.addChild(fN);
     AdjustAnnotationsTraversal traversal = new AdjustAnnotationsTraversal(fssc);
     Node transformed = StructuredQuery.walk(traversal, root);
 
     // Check parameters
     Node featureNode = transformed.getChild(0);
-    NodeParameters np = featureNode.getNodeParameters();
+    np = featureNode.getNodeParameters();
     assertEquals(45, (int)np.getLong("nodeFrequency"));
     assertEquals(13, (int)np.getLong("nodeDocumentCount"));
     assertEquals(1000, (int)np.getLong("collectionLength"));

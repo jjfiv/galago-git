@@ -8,6 +8,7 @@ import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.traversal.AdjustAnnotationsTraversal;
@@ -109,13 +110,21 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
         fssContext.collectionLength += fssContext.getLength();
 
         // update per-term statistics
-        for (String term : fssContext.trackedIterators.keySet()) {
-          MovableCountIterator ci = fssContext.trackedIterators.get(term);
-          if (ci.hasMatch(document)) {
-            int count = ci.count();
-            if (count > 0) {
-              fssContext.tfs.adjustOrPutValue(term, count, count);
-              fssContext.dfs.adjustOrPutValue(term, 1, 1);
+        for (StructuredIterator si : fssContext.iteratorsToNodes.keySet()) {
+          if (MovableCountIterator.class.isAssignableFrom(si.getClass())) {
+            MovableCountIterator ci = (MovableCountIterator) si;
+            Node n = fssContext.iteratorsToNodes.get(si);
+            if (ci.hasMatch(document)) {
+              try {
+                int count = ci.count();
+                if (count > 0) {
+                  System.out.printf("node=%s,tf+=%d,df+=1\n", n.toString(), count);
+                  fssContext.tfs.adjustOrPutValue(n, count, count);
+                  fssContext.dfs.adjustOrPutValue(n, 1, 1);
+                }
+              } catch (NullPointerException npe) {
+                // do nothing for this
+              }
             }
           }
         }
