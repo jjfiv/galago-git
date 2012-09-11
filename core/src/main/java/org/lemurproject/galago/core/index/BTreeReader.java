@@ -37,7 +37,6 @@ import org.lemurproject.galago.tupleflow.Utility;
  * @author sjh
  */
 public abstract class BTreeReader {
-
   public abstract class BTreeIterator implements Comparable<BTreeIterator> {
 
     /**

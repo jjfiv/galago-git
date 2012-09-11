@@ -301,7 +301,6 @@ public class Utility {
   }
 
   public static String join(Object[] args, String delimiter) {
-    String output = "";
     StringBuilder builder = new StringBuilder();
 
     for (Object arg : args) {
@@ -309,6 +308,57 @@ public class Utility {
         builder.append(delimiter);
       }
       builder.append(arg.toString());
+    }
+
+    return builder.toString();
+  }
+
+  public static String join(double[] numbers) {
+    return join(numbers, ",");
+  }
+
+  public static String join(double[] numbers, String delimiter) {
+    StringBuilder builder = new StringBuilder();
+
+    for (double arg : numbers) {
+      if (builder.length() > 0) {
+        builder.append(delimiter);
+      }
+      builder.append(arg);
+    }
+
+    return builder.toString();
+  }
+
+  public static String join(int[] numbers) {
+    return join(numbers, ",");
+  }
+
+  public static String join(int[] numbers, String delimiter) {
+    StringBuilder builder = new StringBuilder();
+
+    for (int arg : numbers) {
+      if (builder.length() > 0) {
+        builder.append(delimiter);
+      }
+      builder.append(arg);
+    }
+
+    return builder.toString();
+  }
+
+  public static String join(short[] numbers) {
+    return join(numbers, ",");
+  }
+
+  public static String join(short[] numbers, String delimiter) {
+    StringBuilder builder = new StringBuilder();
+
+    for (short arg : numbers) {
+      if (builder.length() > 0) {
+        builder.append(delimiter);
+      }
+      builder.append(arg);
     }
 
     return builder.toString();
@@ -1083,5 +1133,17 @@ public class Utility {
       sb.append(" ");
     }
     return sb.toString();
+  }
+
+  public static String shortName(Object o) {
+    String id = o.toString();
+    String[] parts = id.split("\\.");
+    return parts[parts.length - 1];
+}
+
+  public static String tinyName(Object o) {
+    String id = o.toString();
+    String[] parts = id.split("\\@");
+    return parts[parts.length - 1];
   }
 }

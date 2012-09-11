@@ -14,14 +14,10 @@ import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.mem.MemoryPositionalIndex;
 import org.lemurproject.galago.core.index.merge.PositionIndexMerger;
 import org.lemurproject.galago.core.parse.NumericParameterAccumulator;
-import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.core.types.NumberWordPosition;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.Source;
-import org.lemurproject.galago.tupleflow.Step;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
@@ -56,8 +52,8 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
 @OutputClass(className = "org.lemurproject.galago.core.types.KeyValuePair", order = {"+key"})
 public class PositionIndexWriter implements
         NumberWordPosition.WordDocumentPositionOrder.ShreddedProcessor {
-    static final int MARKER_MINIMUM = 2;
 
+  static final int MARKER_MINIMUM = 2;
   // writer variables //
   Parameters actualParams;
   BTreeWriter writer;
@@ -76,7 +72,7 @@ public class PositionIndexWriter implements
   int skipResetDistance;
 
   /**
-   * Creates a new instance of PositionIndexWriter
+   * Creates a new instance of the PositionIndexWriter.
    */
   public PositionIndexWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
     actualParams = parameters.getJSON();
@@ -198,6 +194,10 @@ public class PositionIndexWriter implements
     Verification.requireWriteableFile(index, handler);
   }
 
+  /**
+   * The IndexElement for the PositionIndex. This is Galago's primary implementation of
+   * a postings list with positions. 
+   */
   public class PositionsList implements IndexElement {
 
     private long lastDocument;
@@ -238,19 +238,22 @@ public class PositionIndexWriter implements
       }
     }
 
+    /**
+     * Close the posting list by finishing off counts and completing header data.
+     * 
+     * @throws IOException 
+     */
     public void close() throws IOException {
 
       if (documents.length() > 0) {
         counts.add(positionCount);
 
         // Now conditionally add in the skip marker and the array of position bytes
-	if (positionCount > MARKER_MINIMUM) {
-	    positions.add(positionBlock.length());
-	}
+        if (positionCount > MARKER_MINIMUM) {
+          positions.add(positionBlock.length());
+        }
         positions.add(positionBlock);
         maximumPositionCount = Math.max(maximumPositionCount, positionCount);
-
-
       }
 
       if (skips != null && skips.length() == 0) {
@@ -282,6 +285,13 @@ public class PositionIndexWriter implements
       }
     }
 
+    /**
+     * The length of the posting list. This is the sum of
+     * the docid, count, and position buffers plus the skip
+     * buffers (if they exist).
+     * @return 
+     */
+    @Override
     public long dataLength() {
       long listLength = 0;
 
@@ -297,6 +307,12 @@ public class PositionIndexWriter implements
       return listLength;
     }
 
+    /**
+     * Write this PositionsList to the provided OutputStream object.
+     * 
+     * @param output
+     * @throws IOException 
+     */
     public void write(final OutputStream output) throws IOException {
       header.write(output);
       header.clear();
@@ -318,10 +334,21 @@ public class PositionIndexWriter implements
       }
     }
 
+    /**
+     * Return the key for this PositionsList. This will be the set of bytes used to
+     * access this posting list after the index is completed.
+     * @return 
+     */
     public byte[] key() {
       return word;
     }
 
+    /**
+     * Sets the key for this PositionsList, and resets all internal buffers.
+     * Should be named 'setKey'. 
+     * 
+     * @param word 
+     */
     public void setWord(byte[] word) {
       this.word = word;
       this.lastDocument = 0;
@@ -340,15 +367,22 @@ public class PositionIndexWriter implements
       }
     }
 
+    /**
+     * Add a new document id to the PositionsList. Assumes there will be at least
+     * one position added afterwards (otherwise why add the docid?).
+     * 
+     * @param documentID
+     * @throws IOException 
+     */
     public void addDocument(long documentID) throws IOException {
       // add the last document's counts
       if (documents.length() > 0) {
         counts.add(positionCount);
 
         // Now add in the skip marker and the array of position bytes
-	if (positionCount > MARKER_MINIMUM) {
-	    positions.add(positionBlock.length());
-	}
+        if (positionCount > MARKER_MINIMUM) {
+          positions.add(positionBlock.length());
+        }
         positions.add(positionBlock);
         maximumPositionCount = Math.max(maximumPositionCount, positionCount);
 
@@ -367,6 +401,12 @@ public class PositionIndexWriter implements
 
     }
 
+    /**
+     * Adds a single position for the latest document added in the PositionsList.
+     *
+     * @param position
+     * @throws IOException 
+     */
     public void addPosition(int position) throws IOException {
       positionCount++;
       totalPositionCount++;
