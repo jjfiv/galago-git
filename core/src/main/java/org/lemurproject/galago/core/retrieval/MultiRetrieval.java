@@ -49,33 +49,38 @@ public class MultiRetrieval implements Retrieval {
     this.features = new FeatureFactory(this.globalParameters);
   }
 
+  @Override
   public void close() throws IOException {
     for (Retrieval r : retrievals) {
       r.close();
     }
   }
 
+  @Override
   public CollectionStatistics getRetrievalStatistics() throws IOException {
     return this.retrievalStatistics.get("postings");
   }
 
+  @Override
   public CollectionStatistics getRetrievalStatistics(String partName) throws IOException {
     return this.retrievalStatistics.get(partName);
   }
 
+  @Override
   public Parameters getAvailableParts() throws IOException {
     return this.retrievalParts;
   }
 
+  @Override
   public Parameters getGlobalParameters() {
     return this.globalParameters;
   }
 
   @Override
-  public Document getDocument(String identifier, Parameters p) throws IOException{
-    for(Retrieval r : this.retrievals){
+  public Document getDocument(String identifier, Parameters p) throws IOException {
+    for (Retrieval r : this.retrievals) {
       Document d = r.getDocument(identifier, p);
-      if(d != null){
+      if (d != null) {
         return d;
       }
     }
@@ -83,9 +88,9 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> identifiers, Parameters p) throws IOException{
-    HashMap<String,Document> results = new HashMap();
-    for(Retrieval r : this.retrievals){
+  public Map<String, Document> getDocuments(List<String> identifiers, Parameters p) throws IOException {
+    HashMap<String, Document> results = new HashMap();
+    for (Retrieval r : this.retrievals) {
       results.putAll(r.getDocuments(identifiers, p));
     }
     return results;
@@ -100,11 +105,13 @@ public class MultiRetrieval implements Retrieval {
    * @return
    * @throws Exception
    */
+  @Override
   public ScoredDocument[] runQuery(Node root) throws Exception {
     return runQuery(root, new Parameters());
   }
 
   // Based on the root of the tree, that dictates how we execute.
+  @Override
   public ScoredDocument[] runQuery(Node queryTree, Parameters p) throws Exception {
     ScoredDocument[] results = null;
     switch (this.getQueryType(queryTree)) {
@@ -138,7 +145,9 @@ public class MultiRetrieval implements Retrieval {
         public void run() {
           try {
             ScoredDocument[] results = r.runQuery(queryTree, shardParams);
-            queryResultCollector.addAll(Arrays.asList(results));
+            if (results != null) {
+              queryResultCollector.addAll(Arrays.asList(results));
+            }
           } catch (Exception e) {
             errorCollector.add(e.getMessage());
           }
@@ -172,6 +181,7 @@ public class MultiRetrieval implements Retrieval {
     return queryResultCollector.subList(0, Math.min(queryResultCollector.size(), requested)).toArray(new ScoredDocument[0]);
   }
 
+  @Override
   public Node transformQuery(Node root, Parameters qp) throws Exception {
     return transformQuery(features.getTraversals(this, root, qp), root);
   }
@@ -274,6 +284,7 @@ public class MultiRetrieval implements Retrieval {
    * contain mutually exclusive subcollections. If you're doing PAC-search
    * or another non-disjoint subset retrieval model, look out.
    */
+  @Override
   public NodeStatistics nodeStatistics(String nodeString) throws Exception {
     Node root = StructuredQuery.parse(nodeString);
     root.getNodeParameters().set("queryType", "count");
@@ -281,6 +292,7 @@ public class MultiRetrieval implements Retrieval {
     return nodeStatistics(root);
   }
 
+  @Override
   public NodeStatistics nodeStatistics(Node node) throws Exception {
 
     ArrayList<Thread> threads = new ArrayList();
@@ -325,6 +337,7 @@ public class MultiRetrieval implements Retrieval {
     return output;
   }
 
+  @Override
   public NodeType getNodeType(Node node) throws Exception {
     NodeType nodeType = getIndexNodeType(node);
     if (nodeType == null) {
@@ -354,6 +367,7 @@ public class MultiRetrieval implements Retrieval {
     return null;
   }
 
+  @Override
   public QueryType getQueryType(Node node) throws Exception {
     NodeType nodeType = getNodeType(node);
     Class outputClass = nodeType.getIteratorClass();
