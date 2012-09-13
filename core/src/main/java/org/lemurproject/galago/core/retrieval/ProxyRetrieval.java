@@ -40,6 +40,7 @@ public class ProxyRetrieval implements InvocationHandler {
     // Nothing to do - index is serving remotely - possibly to several handlers
   }
 
+  @Override
   public Object invoke(Object caller, Method method, Object[] args) throws Throwable {
     return invoke(method.getName(), args);
   }
@@ -66,6 +67,9 @@ public class ProxyRetrieval implements InvocationHandler {
     oos.writeUTF(methodName);
 
     // Write length of arguments
+    if (args == null) {
+      args = new Object[0];
+    }
     oos.writeShort((short) args.length);
 
     // Types of arguments
@@ -78,6 +82,7 @@ public class ProxyRetrieval implements InvocationHandler {
       Object arg = args[i];
       oos.writeObject(arg);
     }
+    oos.close();
 
     // Wait for response
     InputStream stream = connection.getInputStream();
