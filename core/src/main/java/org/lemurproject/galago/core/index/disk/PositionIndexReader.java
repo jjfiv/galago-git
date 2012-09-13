@@ -90,7 +90,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     private ExtentArray extentArray;
     private final ExtentArray emptyExtentArray;
     // to support resets
-    private long startPosition, endPosition;
+    protected long startPosition, endPosition;
     // to support skipping
     private VByteInput skips;
     private VByteInput skipPositions;
