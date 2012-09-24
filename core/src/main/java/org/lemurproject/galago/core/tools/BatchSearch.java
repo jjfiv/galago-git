@@ -65,7 +65,7 @@ public class BatchSearch extends AppFunction {
   public void run(Parameters parameters, PrintStream out) throws Exception {
     ScoredDocument[] results = null;
     TObjectLongHashMap times = new TObjectLongHashMap();
-    long querystarttime, queryendtime;
+    long querystarttime, querymidtime, queryendtime;
     long endtime;
 
     if (!(parameters.containsKey("query")
@@ -97,7 +97,7 @@ public class BatchSearch extends AppFunction {
 
     // open index
     Retrieval retrieval = RetrievalFactory.instance(parameters);
-
+    
     // record results requested
     int requested = (int) parameters.get("requested", 1000);
 
@@ -159,7 +159,7 @@ public class BatchSearch extends AppFunction {
           System.err.println("Parsed Node:" + root.toString());
           System.err.println("Transformed Node:" + transformed.toString());
         }
-
+        
         results = retrieval.runQuery(transformed, p);
         queryendtime = System.currentTimeMillis();
         times.put(query.getString("number") + '.' + (rep + 1), queryendtime - querystarttime);

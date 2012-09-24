@@ -40,7 +40,6 @@ public class Utility {
   private static final Parameters drmaaOptions = new Parameters();
   private static final Parameters sorterOptions = new Parameters();
   private static final List<String> roots = new ArrayList();
-
   // Some constant values
   public static final double log2 = Math.log(2);
   public static final double loge = Math.log(Math.E) / log2;
@@ -88,10 +87,10 @@ public class Utility {
   /** 
    * Sorter parameters
    */
-  public static Parameters getSorterOptions(){
+  public static Parameters getSorterOptions() {
     return sorterOptions;
   }
-  
+
   /**
    * <p>If the parent directories for this file don't exist, this function creates them.</p>
    *
@@ -365,15 +364,15 @@ public class Utility {
   }
 
   public static void normalize(double[] args) {
-      double total = 0.0;
-      int i;
-      for (i = 0; i < args.length; i++) {
-	  total += args[i];
-      }
+    double total = 0.0;
+    int i;
+    for (i = 0; i < args.length; i++) {
+      total += args[i];
+    }
 
-      for (i = 0; i < args.length; i++) {
-	  args[i] /= total;
-      }
+    for (i = 0; i < args.length; i++) {
+      args[i] /= total;
+    }
   }
 
   public static String caps(String input) {
@@ -1074,7 +1073,7 @@ public class Utility {
 
     return result;
   }
-
+  
   /*
    * The following methods are used to display bytes as strings
    */
@@ -1139,7 +1138,7 @@ public class Utility {
     String id = o.toString();
     String[] parts = id.split("\\.");
     return parts[parts.length - 1];
-}
+  }
 
   public static String tinyName(Object o) {
     String id = o.toString();

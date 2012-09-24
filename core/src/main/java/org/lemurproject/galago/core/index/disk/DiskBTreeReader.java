@@ -230,6 +230,7 @@ public class DiskBTreeReader extends BTreeReader {
       MappedByteBuffer buffer;
       synchronized(input){
         buffer = input.getChannel().map(MapMode.READ_ONLY, getValueStart(), getValueEnd());
+        buffer.load();
       }
       return buffer;
     }

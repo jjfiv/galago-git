@@ -98,10 +98,13 @@ public class RankedDocumentModel extends ProcessingModel {
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
 
     // construct the iterators -- we use tree processing
+    long createStart = System.currentTimeMillis();
     MovableScoreIterator iterator =
             (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
+    long createMid = System.currentTimeMillis();
     ProcessingModel.initializeLengths(retrieval, context);
-
+    long createEnd = System.currentTimeMillis();
+    
     // now there should be an iterator at the root of this tree
     while (!iterator.isDone()) {
       int document = iterator.currentCandidate();
