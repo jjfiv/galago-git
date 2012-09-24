@@ -10,14 +10,15 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- * Transforms a #fulldep operator into a full expansion of the
- * sequential dependence model. That means:
- * 
+ * Transforms a #fulldep operator into a full expansion of the sequential
+ * dependence model. That means:
+ *
  * #fulldep( #text:term1() #text:term2() ... termk ) -->
- * 
- * #weight ( 0.8 #combine ( term1 term2 ... termk)
- *           0.15 #combine ( #od(term1 term2) #od(term2 term3) #od(term1 term3) ... #od(term1 ... termk) )
- *           0.05 #combine ( #uw8(term1 term2) #uw8(term1 term2) #uw8(term1 term3) ... #uw8(term1 ... termk) ) )
+ *
+ * #weight ( 0.8 #combine ( term1 term2 ... termk) 0.15 #combine ( #od(term1
+ * term2) #od(term2 term3) #od(term1 term3) ... #od(term1 ... termk) ) 0.05
+ * #combine ( #uw8(term1 term2) #uw8(term1 term2) #uw8(term1 term3) ...
+ * #uw8(term1 ... termk) ) )
  *
  *
  *
@@ -37,19 +38,14 @@ public class FullDependenceTraversal extends Traversal {
     unorderedDefault = parameters.get("uww", 0.05);
     defaultWindowLimit = (int) parameters.get("windowLimit", -1);
 
-    unigramDefault = parameters.get("uniw", unigramDefault);
-    orderedDefault = parameters.get("odw", orderedDefault);
-    unorderedDefault = parameters.get("uww", unorderedDefault);
-    defaultWindowLimit = (int) parameters.get("windowLimit", defaultWindowLimit);
+    unigramDefault = queryParameters.get("uniw", unigramDefault);
+    orderedDefault = queryParameters.get("odw", orderedDefault);
+    unorderedDefault = queryParameters.get("uww", unorderedDefault);
+    defaultWindowLimit = (int) queryParameters.get("windowLimit", defaultWindowLimit);
   }
 
   @Override
   public void beforeNode(Node original) throws Exception {
-  }
-
-  public static boolean isNeeded(Node root) {
-    String op = root.getOperator();
-    return (op.equals("fdm") || op.equals("fulldep"));
   }
 
   @Override

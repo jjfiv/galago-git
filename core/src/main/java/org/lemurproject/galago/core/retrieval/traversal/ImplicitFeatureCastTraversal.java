@@ -41,7 +41,7 @@ public class ImplicitFeatureCastTraversal extends Traversal {
     this.globals = retrieval.getGlobalParameters();
   }
 
-  Node createSmoothingNode(Node child) throws Exception {
+  private Node createSmoothingNode(Node child) throws Exception {
 
     /** Check if the child is an 'extents' node
      *    If so - we can replace extents with counts.
@@ -66,7 +66,7 @@ public class ImplicitFeatureCastTraversal extends Traversal {
     return createTopdocsNode(smoothed);
   }
 
-  Node createTopdocsNode(Node child) throws Exception {
+  private Node createTopdocsNode(Node child) throws Exception {
     // First (and only) child should be a scoring function fieldIterator node
     if (!isScoringFunctionNode(child)) {
       return child;

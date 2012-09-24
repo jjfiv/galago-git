@@ -52,10 +52,6 @@ public class RelevanceModelTraversal extends Traversal {
     }
   }
 
-  public static boolean isNeeded(Node root) {
-    return (root.getOperator().equals("rm"));
-  }
-
   public Node afterNode(Node originalNode) throws Exception {
     if (originalNode.getOperator().equals("rm") == false) {
       return originalNode;

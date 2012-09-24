@@ -46,11 +46,16 @@ public class SequentialDependenceTraversal extends Traversal {
     goSoft = parameters.get("delayed", false);
     cacheSynthCounts = parameters.containsKey("syntheticCounts");
     defaultWindowLimit = (int) parameters.get("windowLimit", 2);
-  }
 
-  public static boolean isNeeded(Node root) {
-    String op = root.getOperator();
-    return (op.equals("sdm") || op.equals("seqdep"));
+    unigramDefault = queryParameters.get("uniw", unigramDefault);
+    orderedDefault = queryParameters.get("odw", orderedDefault);
+    unorderedDefault = queryParameters.get("uww", unorderedDefault);
+
+    // sjh : don't yet know how to ensure queryparameters override the global parameters
+    // 
+    // goSoft = queryParameters.get("delayed", goSoft);
+    // cacheSynthCounts = cacheSynthCounts || queryParameters.containsKey("syntheticCounts");
+    defaultWindowLimit = (int) queryParameters.get("windowLimit", defaultWindowLimit);
   }
 
   public void beforeNode(Node original) throws Exception {
@@ -86,7 +91,7 @@ public class SequentialDependenceTraversal extends Traversal {
 
       NodeParameters parameters = original.getNodeParameters();
       int windowLimit = (int) parameters.get("windowLimit", defaultWindowLimit);
-      
+
       for (int n = 2; n <= windowLimit; n++) {
         for (int i = 0; i < (children.size() - n + 1); i++) {
           List<Node> seq = children.subList(i, i + n);

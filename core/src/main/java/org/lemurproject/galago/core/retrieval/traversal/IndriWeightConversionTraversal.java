@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -15,9 +13,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class IndriWeightConversionTraversal extends Traversal {
 
-  public IndriWeightConversionTraversal() {
-  }
-
+  @Override
   public void beforeNode(Node object) throws Exception {
     // do nothing
   }
@@ -37,6 +33,7 @@ public class IndriWeightConversionTraversal extends Traversal {
     }
   }
 
+  @Override
   public Node afterNode(Node node) throws Exception {
     if (node.getOperator().equals("weight")) {
       List<Node> children = node.getInternalNodes();
@@ -58,8 +55,8 @@ public class IndriWeightConversionTraversal extends Traversal {
         newParameters.set(Integer.toString(i / 2), getWeight(weightNode));
       }
 
-      // TODO: Verify one way or the other:
-      // For now we clone the list to avoid tying -- not sure this is needed.
+      // For now we clone the list to ensure tree (not DAG)
+      // -- may not be required
       return new Node("combine", newParameters, Node.cloneNodeList(newChildren), node.getPosition());
     } else {
       return node;
