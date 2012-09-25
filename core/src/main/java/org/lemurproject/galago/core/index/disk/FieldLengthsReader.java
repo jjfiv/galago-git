@@ -18,9 +18,9 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * Wraps the WindowIndexReader to act as a lengths reader for a
- * particular field.
- * 
+ * Wraps the WindowIndexReader to act as a lengths reader for a particular
+ * field.
+ *
  * @author irmarc
  */
 public class FieldLengthsReader implements LengthsReader {
@@ -201,6 +201,11 @@ public class FieldLengthsReader implements LengthsReader {
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+    }
+
+    @Override
+    public byte[] getRegionBytes() {
+      return Utility.fromString("lengths");
     }
   }
 }

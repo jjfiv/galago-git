@@ -24,7 +24,7 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
 
   @Override
   public boolean mappingKeys() {
-    return false; // keys are no longer mappable
+    return false; // keys are not mappable
   }
 
   @Override

@@ -21,6 +21,7 @@ public class DisjointLengthsIterator extends DisjointIndexesIterator implements 
     super((Collection) iterators);
   }
 
+  @Override
   public int getCurrentLength() {
     if (head != null) {
       return ((LengthsReader.LengthsIterator) this.head).getCurrentLength();
@@ -29,6 +30,7 @@ public class DisjointLengthsIterator extends DisjointIndexesIterator implements 
     }
   }
 
+  @Override
   public int getCurrentIdentifier() {
     if (head != null) {
       return ((LengthsReader.LengthsIterator) this.head).getCurrentIdentifier();
@@ -51,5 +53,14 @@ public class DisjointLengthsIterator extends DisjointIndexesIterator implements 
     }
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+  }
+
+  @Override
+  public byte[] getRegionBytes() {
+    if (head != null) {
+      return ((LengthsReader.LengthsIterator) this.head).getRegionBytes();
+    } else {
+      throw new RuntimeException("Lengths Iterator is done.");
+    }
   }
 }

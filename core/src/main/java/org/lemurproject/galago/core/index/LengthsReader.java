@@ -15,6 +15,10 @@ public interface LengthsReader extends IndexPartReader {
   public LengthsIterator getLengthsIterator() throws IOException;
 
   public interface LengthsIterator extends MovableIterator {
+    // This function returns the name of the region:
+    // e.g. document, field-name, or #inside(field-name field-name)
+    public byte[] getRegionBytes();
+
 
     public int getCurrentLength();
 

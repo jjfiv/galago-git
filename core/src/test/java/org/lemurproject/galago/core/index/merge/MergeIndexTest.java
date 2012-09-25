@@ -58,7 +58,7 @@ public class MergeIndexTest extends TestCase {
 
       AppTest.verifyIndexStructures(index1);
       AppTest.verifyIndexStructures(index2);
-      
+
       indexmerged = Utility.createTemporaryDirectory();
 
       Parameters mergeParams = new Parameters();

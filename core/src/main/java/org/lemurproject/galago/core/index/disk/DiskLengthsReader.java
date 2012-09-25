@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
@@ -292,7 +293,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
           return this.memBuffer.getInt(this.lengthsDataOffset + (4 * (document - firstDocument)));
         }
       }
-      System.out.printf("Returning 0.\n");
+      Logger.getLogger(this.getClass().getName()).info("Returning 0.\n");
       return 0;
     }
 
@@ -333,6 +334,11 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
         return 0;
       }
       return currentCandidate() - other.currentCandidate();
+    }
+
+    @Override
+    public byte[] getRegionBytes() {
+      return this.key;
     }
   }
 
@@ -503,6 +509,11 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     @Override
     public int getCurrentIdentifier() {
       return this.currDocument;
+    }
+
+    @Override
+    public byte[] getRegionBytes() {
+      return this.key;
     }
   }
 }
