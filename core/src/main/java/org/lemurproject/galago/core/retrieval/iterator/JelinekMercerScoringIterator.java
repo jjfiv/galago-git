@@ -16,7 +16,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author irmarc
  */
-@RequiredStatistics(statistics = {"collectionProbability"})
+@RequiredStatistics(statistics = {"collectionLength","nodeFrequency"})
 @RequiredParameters(parameters = {"lambda"})
 public class JelinekMercerScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {

@@ -11,10 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.logging.Logger;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionAggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics2;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
+import org.lemurproject.galago.core.index.LengthsReader.LengthsIterator;
 import org.lemurproject.galago.core.index.NamesReader.NamesIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.parse.Document;
@@ -201,7 +204,6 @@ public class LocalRetrieval implements Retrieval {
     T[] byID = Arrays.copyOf(results, results.length);
 
     Arrays.sort(byID, new Comparator<T>() {
-
       @Override
       public int compare(T o1, T o2) {
         return Utility.compare(o1.document, o2.document);
@@ -282,6 +284,48 @@ public class LocalRetrieval implements Retrieval {
   }
 
   @Override
+  public CollectionStatistics2 collectionStatistics(String nodeString) throws Exception {
+    // first parse the node
+    Node root = StructuredQuery.parse(nodeString);
+    return collectionStatistics(root);
+  }
+
+  @Override
+  public CollectionStatistics2 collectionStatistics(Node root) throws Exception {
+
+    ScoringContext sc = ContextFactory.createContext(globalParameters);
+    StructuredIterator structIterator = createIterator(new Parameters(), root, sc);
+
+    // first check if this iterator is an aggregate iterator (has direct access to stats)
+    if (CollectionAggregateIterator.class.isInstance(structIterator)) {
+      return ((CollectionAggregateIterator) structIterator).getStatistics();
+
+    } else if (structIterator instanceof MovableCountIterator) {
+      LengthsIterator iterator = (LengthsIterator) structIterator;
+      CollectionStatistics2 stats = new CollectionStatistics2();
+      stats.fieldName = root.toString();
+      stats.minLength = Integer.MAX_VALUE;
+
+      while (!iterator.isDone()) {
+        sc.document = iterator.currentCandidate();        
+        if (iterator.hasMatch(iterator.currentCandidate())) {
+          int len = iterator.getCurrentLength();
+          stats.collectionLength += len;
+          stats.documentCount += 1;
+          stats.maxLength = Math.max(stats.maxLength, len);
+          stats.minLength = Math.min(stats.minLength, len);
+        }
+        iterator.movePast(sc.document);
+      }
+      
+      stats.avgLength = (stats.documentCount > 0)? (double) stats.collectionLength / (double) stats.documentCount: 0;
+      stats.minLength = (stats.documentCount > 0)? stats.minLength: 0;
+      return stats;
+    }
+    throw new IllegalArgumentException("Node " + root.toString() + " is not a lengths iterator.");
+  }
+
+  @Override
   public NodeStatistics nodeStatistics(String nodeString) throws Exception {
     // first parse the node
     Node root = StructuredQuery.parse(nodeString);
@@ -317,7 +361,7 @@ public class LocalRetrieval implements Retrieval {
       }
 
     } else {
-      throw new IllegalArgumentException("Node " + root.toString() + " did not return a counting iterator.");
+      throw new IllegalArgumentException("Node " + root.toString() + " is not a count iterator.");
     }
     return stats;
   }

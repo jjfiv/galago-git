@@ -13,7 +13,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author trevor, irmarc
  */
-@RequiredStatistics(statistics = {"collectionProbability"})
+@RequiredStatistics(statistics = {"nodeFrequency","collectionLength"})
 @RequiredParameters(parameters = {"mu"})
 public class DirichletScorer implements ScoringFunction {
 
@@ -23,7 +23,11 @@ public class DirichletScorer implements ScoringFunction {
   public DirichletScorer(NodeParameters parameters, MovableCountIterator iterator) throws IOException {
 
     mu = parameters.get("mu", 1500D);
-    background = parameters.getDouble("collectionProbability");
+    long collectionLength = parameters.getLong("collectionLength");
+    long collectionFrequency = parameters.getLong("nodeFrequency");
+    background = (collectionFrequency > 0)
+            ? (double) collectionFrequency / (double) collectionLength
+            : 0.5 / (double) collectionLength;
   }
 
   public double score(int count, int length) {

@@ -40,10 +40,8 @@ public class AnnotateCollectionStatistics extends Traversal {
     this.availableStatistics = new HashSet();
     this.availableStatistics.add("collectionLength");
     this.availableStatistics.add("documentCount");
-    this.availableStatistics.add("vocabCount");
     this.availableStatistics.add("nodeFrequency");
     this.availableStatistics.add("nodeDocumentCount");
-    this.availableStatistics.add("collectionProbability");
   }
 
   public void beforeNode(Node node) {
@@ -74,8 +72,7 @@ public class AnnotateCollectionStatistics extends Traversal {
   private void annotate(Node node, HashSet<String> reqStats) throws Exception {
     NodeParameters nodeParams = node.getNodeParameters();
     if (reqStats.contains("nodeFrequency")
-            || reqStats.contains("nodeDocumentCount")
-            || reqStats.contains("collectionProbability")) {
+            || reqStats.contains("nodeDocumentCount")) {
 
       NodeStatistics stats = getNodeStatistics(node);
       if (stats == null) {
@@ -89,10 +86,6 @@ public class AnnotateCollectionStatistics extends Traversal {
       if (reqStats.contains("nodeDocumentCount")
               && !nodeParams.containsKey("nodeDocumentCount")) {
         nodeParams.set("nodeDocumentCount", stats.nodeDocumentCount);
-      }
-      if (reqStats.contains("collectionProbability")
-              && !nodeParams.containsKey("collectionProbability")) {
-        nodeParams.set("collectionProbability", computeCollectionProbability(stats.nodeFrequency, stats.collectionLength));
       }
       if (reqStats.contains("collectionLength")
               && !nodeParams.containsKey("collectionLength")) {
@@ -112,10 +105,6 @@ public class AnnotateCollectionStatistics extends Traversal {
       if (reqStats.contains("documentCount")
               && !nodeParams.containsKey("documentCount")) {
         nodeParams.set("documentCount", stats.documentCount);
-      }
-      if (reqStats.contains("vocabCount")
-              && !nodeParams.containsKey("vocabCount")) {
-        nodeParams.set("vocabCount", stats.vocabCount);
       }
     }
   }
@@ -179,16 +168,6 @@ public class AnnotateCollectionStatistics extends Traversal {
         assignParts(c);
       }
       return n;
-    }
-  }
-
-  private double computeCollectionProbability(long collectionCount, double collectionLength) {
-    System.err.printf("Calculating collProb=(%d / %f) = %f\n",
-            collectionCount, collectionLength, ((double) collectionCount / collectionLength));
-    if (collectionCount > 0) {
-      return ((double) collectionCount / collectionLength);
-    } else {
-      return (0.5 / (double) collectionLength);
     }
   }
 }

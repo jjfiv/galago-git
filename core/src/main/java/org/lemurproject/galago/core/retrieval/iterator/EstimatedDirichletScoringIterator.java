@@ -42,7 +42,7 @@ public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
     collectionLength = p.getLong("collectionLength");
 
     // now create/set the function - the prob won't matter. We ignore it.
-    p.set("collectionProbability", 1.0 / collectionLength);
+    p.set("nodeFrequency", 1);
     function = new DirichletScorer(p, it);
 
     documentCount = p.getLong("documentCount");

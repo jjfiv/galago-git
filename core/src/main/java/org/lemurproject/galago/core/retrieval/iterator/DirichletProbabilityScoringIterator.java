@@ -21,7 +21,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author irmarc
  */
-@RequiredStatistics(statistics = {"collectionLength", "documentCount", "collectionProbability"})
+@RequiredStatistics(statistics = {"collectionLength", "documentCount", "nodeFrequency"})
 @RequiredParameters(parameters = {"mu"})
 public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {

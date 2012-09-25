@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics2;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
@@ -28,9 +29,9 @@ import org.lemurproject.galago.tupleflow.Parameters;
 /**
  * This class allows searching over a set of Retrievals.
  *
- * Although it is possible to list such objects as GroupRetrievals or
- * other MultiRetrievals under a MultiRetrieval, it is not recommended,
- * as this behavior has not been tested and is currently undefined.
+ * Although it is possible to list such objects as GroupRetrievals or other
+ * MultiRetrievals under a MultiRetrieval, it is not recommended, as this
+ * behavior has not been tested and is currently undefined.
  *
  * @author sjh
  */
@@ -140,7 +141,6 @@ public class MultiRetrieval implements Retrieval {
       final Parameters shardParams = parameters.clone();
       final Retrieval r = retrievals.get(i);
       Thread t = new Thread() {
-
         @Override
         public void run() {
           try {
@@ -279,10 +279,60 @@ public class MultiRetrieval implements Retrieval {
     return unifiedParts;
   }
 
+  @Override
+  public CollectionStatistics2 collectionStatistics(String nodeString) throws Exception {
+    Node root = StructuredQuery.parse(nodeString);
+    return collectionStatistics(root);
+  }
+
+  @Override
+  public CollectionStatistics2 collectionStatistics(Node node) throws Exception {
+
+    ArrayList<Thread> threads = new ArrayList();
+    final Node root = node;
+    final List<CollectionStatistics2> stats = Collections.synchronizedList(new ArrayList());
+    final List<String> errors = Collections.synchronizedList(new ArrayList());
+
+    for (int i = 0; i < this.retrievals.size(); i++) {
+      final Retrieval r = this.retrievals.get(i);
+      Thread t = new Thread() {
+        @Override
+        public void run() {
+          try {
+            CollectionStatistics2 ns = r.collectionStatistics(root);
+            stats.add(ns);
+          } catch (Exception ex) {
+            errors.add(ex.getMessage());
+          }
+        }
+      };
+      threads.add(t);
+      t.start();
+    }
+
+    for (Thread t : threads) {
+      t.join();
+    }
+
+    if (errors.size() > 0) {
+      System.err.println("Failed to count: " + root.toString());
+      for (String e : errors) {
+        System.err.println(e);
+      }
+      throw new IOException("Unable to count " + node.toString());
+    }
+
+    CollectionStatistics2 output = stats.remove(0);
+    for (CollectionStatistics2 s : stats) {
+      output.add(s);
+    }
+    return output;
+  }
+
   /**
-   * Note that this assumes the retrieval objects involved in the group
-   * contain mutually exclusive subcollections. If you're doing PAC-search
-   * or another non-disjoint subset retrieval model, look out.
+   * Note that this assumes the retrieval objects involved in the group contain
+   * mutually exclusive subcollections. If you're doing PAC-search or another
+   * non-disjoint subset retrieval model, look out.
    */
   @Override
   public NodeStatistics nodeStatistics(String nodeString) throws Exception {
@@ -303,7 +353,6 @@ public class MultiRetrieval implements Retrieval {
     for (int i = 0; i < this.retrievals.size(); i++) {
       final Retrieval r = this.retrievals.get(i);
       Thread t = new Thread() {
-
         @Override
         public void run() {
           try {
