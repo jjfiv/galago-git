@@ -8,6 +8,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.scoring.DirichletScorer;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -52,7 +53,7 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
   @Override
   public void deltaScore(int count, int length) {
     DeltaScoringContext ctx = (DeltaScoringContext) context;
-
+    
     double diff = weight * (function.score(count, length) - max);
     ctx.runningScore += diff;
   }
@@ -67,6 +68,7 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
     }
 
     double diff = weight * (function.score(count, length) - max);
+    
     ctx.runningScore += diff;
   }
 
@@ -75,11 +77,17 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
     DeltaScoringContext ctx = (DeltaScoringContext) context;
     int count = 0;
 
-    if (iterator.currentCandidate() == context.document) {
+    if (iterator.hasMatch(context.document)) {
       count = ((CountIterator) iterator).count();
     }
 
     double diff = weight * (function.score(count, context.getLength()) - max);
+    if (context.document == 12038803) {
+	System.err.printf("DELTA : %s -> match=%b, cand=%d, l=%d, c=%d, max=%f, weight=%f, score=%f, delta=%f\n",
+			  Utility.shortName(this), iterator.hasMatch(context.document), 
+			  iterator.currentCandidate(), context.getLength(), count, max, weight,
+			  function.score(count, context.getLength()), diff);
+    }
     ctx.runningScore += diff;
   }
 

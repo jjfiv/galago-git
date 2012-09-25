@@ -51,10 +51,18 @@ public class ImplicitFeatureCastTraversal extends Traversal {
     if (child.getOperator().equals("extents")) {
       child.setOperator("counts");
     }
-
+    
     ArrayList<Node> data = new ArrayList<Node>();
     data.add(child);
     String scorerType = globals.get("scorer", "dirichlet");
+    if (child.getOperator().equals("mincount")) { //experimental
+      scorerType = scorerType + "-est";
+      for (Node grandchild : child.getInternalNodes()) {
+        if (child.getOperator().equals("extents")) {
+          child.setOperator("counts");
+        }
+      }
+    }
     Node smoothed = new Node("feature", scorerType, data, child.getPosition());
     // TODO - add in smoothing globals, modifiers
 

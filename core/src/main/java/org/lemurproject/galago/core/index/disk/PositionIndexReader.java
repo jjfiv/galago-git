@@ -378,6 +378,11 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
 
     @Override
     public ExtentArray extents() {
+      if (context != null && context.document == 12038803) {
+        System.err.printf("EXTENT-MATCH: %s=%d, context=%d\n",
+                Utility.shortName(this), this.currentCandidate(),
+                context.document);
+      }
       if (context.document == this.currentCandidate()) {
         try {
           loadExtents();

@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.processing.*;
+import org.lemurproject.galago.core.retrieval.structured.ContextFactory;
 import org.lemurproject.galago.core.scoring.Estimator;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -92,7 +93,8 @@ public class StagedLocalRetrieval extends LocalRetrieval {
     stats.collectionLength = getRetrievalStatistics().collectionLength;
     stats.documentCount = getRetrievalStatistics().documentCount;
 
-    StructuredIterator structIterator = createIterator(new Parameters(), root, null);
+    ScoringContext sc = ContextFactory.createContext(globalParameters);
+    StructuredIterator structIterator = createIterator(new Parameters(), root, sc);
     if (AggregateIterator.class.isInstance(structIterator)) {
       stats = ((AggregateIterator) structIterator).getStatistics();
 
@@ -145,6 +147,7 @@ public class StagedLocalRetrieval extends LocalRetrieval {
       occurrenceCache = new HashMap<String, PriorityQueue<Pair>>();
     }
     PriorityQueue<Pair> cache = new PriorityQueue<Pair>();
+    System.err.printf("Getting key for %s\n", it.toString());
     occurrenceCache.put(Utility.toString(it.key()), cache);
 
     while (!it.isDone()) {

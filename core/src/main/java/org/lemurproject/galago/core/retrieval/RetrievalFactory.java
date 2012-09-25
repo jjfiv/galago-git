@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -77,19 +76,23 @@ public class RetrievalFactory {
       InvocationHandler ih = new ProxyRetrieval(path, parameters);
       return (Retrieval) Proxy.newProxyInstance(Retrieval.class.getClassLoader(),
               new Class[]{Retrieval.class}, ih);
-    } else if(parameters.get("caching", false)){
+    } else if (parameters.get("caching", false)) {
       return new CachedRetrieval(path, parameters);
     } else {
-      return new LocalRetrieval(path, parameters);
+      if (parameters.get("delayed", false)) {
+        return new StagedLocalRetrieval(path, parameters);
+      } else {
+        return new LocalRetrieval(path, parameters);
+      }
     }
   }
 
   public static Retrieval instance(List<String> indexes, Parameters parameters) throws Exception {
-    
-    if(indexes.size() == 1){
+
+    if (indexes.size() == 1) {
       return instance(indexes.get(0), parameters);
     }
-    
+
     ArrayList<Thread> openers = new ArrayList();
     final Parameters shardParameters = parameters;
     final List<Retrieval> retrievals = Collections.synchronizedList(new ArrayList());

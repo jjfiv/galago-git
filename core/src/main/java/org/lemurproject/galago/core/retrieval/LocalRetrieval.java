@@ -245,6 +245,8 @@ public class LocalRetrieval implements Retrieval {
 
     // first check if the cache contains this node
     if (queryIteratorCache != null && queryIteratorCache.containsKey(node.toString())) {
+      System.err.printf("CACHED: %s ->\n %s\n", node.toString(),
+              queryIteratorCache.get(node.toString()));
       return queryIteratorCache.get(node.toString());
     }
 
@@ -266,6 +268,8 @@ public class LocalRetrieval implements Retrieval {
     if (queryIteratorCache != null) {
       queryIteratorCache.put(node.toString(), iterator);
     }
+    System.err.printf("ADDED : %s ->\n %s\n", node.toString(),
+		      iterator.toString());
     return iterator;
   }
 

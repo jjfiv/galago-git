@@ -60,7 +60,7 @@ public class SequentialDependenceTraversal extends Traversal {
     if (original.getOperator().equals("sdm")
             || original.getOperator().equals("seqdep")) {
       // get to work
-
+        
       // First check format - should only contain text node children
       List<Node> children = original.getInternalNodes();
       for (Node child : children) {

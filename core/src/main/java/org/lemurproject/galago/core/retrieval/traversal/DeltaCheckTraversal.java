@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.lemurproject.galago.core.retrieval.traversal.optimize;
+package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.util.HashSet;
 import org.lemurproject.galago.core.retrieval.Retrieval;

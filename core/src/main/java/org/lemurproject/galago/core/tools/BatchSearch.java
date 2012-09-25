@@ -95,20 +95,19 @@ public class BatchSearch extends AppFunction {
     // And repeats
     int repeats = (int) parameters.get("repeats", 1);
 
-    // open index
-    Retrieval retrieval = RetrievalFactory.instance(parameters);
-    
-    // record results requested
-    int requested = (int) parameters.get("requested", 1000);
-
     // check for delayed execution
     if (parameters.containsKey("processingModel")) {
       String[] parts = parameters.getString("processingModel").split("\\.");
       if (parts[parts.length - 1].contains("Delayed")) {
         parameters.set("delayed", true);
-        //parameters.set("shareNodes", true);
       }
     }
+
+    // open index
+    Retrieval retrieval = RetrievalFactory.instance(parameters);
+
+    // record results requested
+    int requested = (int) parameters.get("requested", 1000);
 
     // for each query, run it, get the results, print in TREC format
     if (parameters.containsKey("seed")) {
@@ -159,7 +158,7 @@ public class BatchSearch extends AppFunction {
           System.err.println("Parsed Node:" + root.toString());
           System.err.println("Transformed Node:" + transformed.toString());
         }
-        
+
         results = retrieval.runQuery(transformed, p);
         queryendtime = System.currentTimeMillis();
         times.put(query.getString("number") + '.' + (rep + 1), queryendtime - querystarttime);
@@ -236,7 +235,7 @@ public class BatchSearch extends AppFunction {
         id = "unk-" + unnumbered;
         unnumbered++;
         queries.add(Parameters.parse(String.format("{\"number\":\"%s\", \"text\":\"%s\"}", id, q)));
-}
+      }
     }
     if (parameters.isString("queries") || parameters.isList("queries", Type.STRING)) {
       String id;

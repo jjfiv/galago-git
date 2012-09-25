@@ -25,6 +25,9 @@ public class UnorderedWindowIterator extends ExtentConjunctionIterator {
 
   public void loadExtents() {
     int document = currentCandidate();
+    if (context != null) {
+      document = context.document;
+    }
     if (isDone() || this.extents.getDocument() == document) {
       return;
     }

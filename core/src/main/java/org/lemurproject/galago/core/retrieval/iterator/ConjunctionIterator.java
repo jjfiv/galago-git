@@ -6,6 +6,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -56,8 +57,17 @@ public abstract class ConjunctionIterator implements MovableIterator {
 
   @Override
   public void syncTo(int candidate) throws IOException {
+    if (candidate == 12038803) {
+      System.err.printf("SYNC %d:\n", context.document);
+    }
     for (MovableIterator iterator : iterators) {
+      int prev = iterator.currentCandidate();
       iterator.syncTo(candidate);
+      if (candidate == 12038803) {
+        System.err.printf("\t%s: %d -> %d (matched=%b)\n",
+                Utility.shortName(iterator), prev,
+                iterator.currentCandidate(), iterator.hasMatch(candidate));
+      }
     }
   }
 

@@ -5,6 +5,8 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.util.ExtentArray;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -23,11 +25,25 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
   @Override
   public void loadExtents() {
     int document = currentCandidate();
+    if (context != null) {
+      document = context.document;
+    }
+
+    if (document == 12038803 && context != null) {
+      System.err.printf("\t%s: loading extent (context=%d, this=%d)\n",
+              Utility.shortName(this), context.document, document);
+    }
     if (isDone() || this.extents.getDocument() == document) {
+      if (document == 12038803) {
+        System.err.printf("\t%s: already loaded. Returning.\n",
+                Utility.shortName(this));
+      }
       return;
     }
     extents.reset();
-    extents.setDocument(document);
+    if (context != null) {
+      extents.setDocument(document);
+    }
 
     ExtentArrayIterator[] arrayIterators;
     arrayIterators = new ExtentArrayIterator[iterators.length];
@@ -35,11 +51,31 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
       if (iterators[i].isDone()
               || !iterators[i].hasMatch(document)) {
         // we can not load any extents if the iterator is done - or is at the wrong document.
+        if (document == 12038803) {
+          if (iterators[i].isDone()) {
+            System.err.printf("Iterator %s is done. Returning.\n",
+                    Utility.shortName(iterators[i]));
+          }
+          if (!iterators[i].hasMatch(document)) {
+            System.err.printf("Iterator %s doesn't match. Returning.\n",
+                    Utility.shortName(iterators[i]));
+          }
+        }
         return;
       }
 
+      ExtentArray ea = ((MovableExtentIterator) iterators[i]).extents();
+      StringBuilder sb = new StringBuilder();
+      sb.append("[");
+      for (int eai = 0; eai < ea.size(); ++eai) {
+        sb.append(ea.begin(eai)).append(",");
+      }
+      sb.append("]");
+      if (document == 12038803) {
+        System.err.printf("EXTENTS (%d): %s -> %s\n", ea.getDocument(),
+                Utility.shortName(iterators[i]), sb.toString());
+      }
       arrayIterators[i] = new ExtentArrayIterator(((MovableExtentIterator) iterators[i]).extents());
-
       if (arrayIterators[i].isDone()) {
         // if this document does not have any extents we can not load any extents
         return;

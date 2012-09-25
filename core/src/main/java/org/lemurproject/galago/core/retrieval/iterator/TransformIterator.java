@@ -3,6 +3,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -44,11 +45,15 @@ public abstract class TransformIterator implements MovableIterator {
 
   @Override
   public int currentCandidate() {
+//    System.err.printf("Iterator %s cc=%d\n", this.toString(), iterator.currentCandidate());
     return iterator.currentCandidate();
   }
 
   @Override
   public boolean hasMatch(int identifier) {
+//    System.err.printf("Iterator: isDone=%b, currentCandidate=%d, id=%d, hasMatch=%b (%s)\n",
+//             iterator.isDone(), iterator.currentCandidate(), identifier,
+//            iterator.hasMatch(identifier), iterator.toString());
     return iterator.hasMatch(identifier);
   }
 

@@ -34,6 +34,7 @@ public class FeatureFactory {
     {SynonymIterator.class.getName(), "syn"},
     {SynonymIterator.class.getName(), "synonym"},
     {ExtentInsideIterator.class.getName(), "inside"},
+    {MinimumCountConjunctionIterator.class.getName(), "mincount"},
     {OrderedWindowIterator.class.getName(), "ordered"},
     {OrderedWindowIterator.class.getName(), "od"},
     {OrderedWindowIterator.class.getName(), "quote"}, // don't rely on this - ImplicitFeatureCast does: quote -> od:1 for now. (irmarc)
@@ -61,6 +62,7 @@ public class FeatureFactory {
     {JelinekMercerProbabilityScoringIterator.class.getName(), "linear-raw"}, // this should go away
     {JelinekMercerProbabilityScoringIterator.class.getName(), "jm-raw"}, // this should go away
     {DirichletScoringIterator.class.getName(), "dirichlet"},
+    {EstimatedDirichletScoringIterator.class.getName(), "dirichlet-est"},
     {JelinekMercerScoringIterator.class.getName(), "linear"},
     {JelinekMercerScoringIterator.class.getName(), "jm"},
     {BM25ScoringIterator.class.getName(), "bm25"},
@@ -94,7 +96,8 @@ public class FeatureFactory {
     RelevanceModelTraversal.class.getName(),
     BM25RelevanceFeedbackTraversal.class.getName(),
     AnnotateParameters.class.getName(),
-    AnnotateCollectionStatistics.class.getName()
+    AnnotateCollectionStatistics.class.getName(),
+    DeltaCheckTraversal.class.getName()
   };
 
   public FeatureFactory(Parameters p) {

@@ -7,6 +7,7 @@ import java.util.List;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.scoring.ScoringFunction;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * An iterator that converts a count iterator's count into a score.
@@ -41,6 +42,12 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
       count = countIterator.count();
     }
     double score = function.score(count, context.getLength());
+    if (context.document == 12038803) {
+	System.err.printf("NORMAL: %s -> match=%b, cand=%d, l=%d, c=%d, score=%f\n",
+			  Utility.shortName(this), iterator.hasMatch(context.document),
+			  iterator.currentCandidate(), context.getLength(), count,
+			  score);
+    }
     return score;
   }
 
@@ -75,7 +82,7 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
   public byte[] key() {
     return ((CountIterator) iterator).key();
   }
-
+  
   public double getMaxTF(NodeParameters p, MovableCountIterator it) {
     int count = 0;
     if (p.containsKey("maximumCount")) {
