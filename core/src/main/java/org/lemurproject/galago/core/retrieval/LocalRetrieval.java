@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
+import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
@@ -302,8 +302,8 @@ public class LocalRetrieval implements Retrieval {
 
     ScoringContext sc = ContextFactory.createContext(globalParameters);
     StructuredIterator structIterator = createIterator(new Parameters(), root, sc);
-    if (AggregateIterator.class.isInstance(structIterator)) {
-      stats = ((AggregateIterator) structIterator).getStatistics();
+    if (NodeAggregateIterator.class.isInstance(structIterator)) {
+      stats = ((NodeAggregateIterator) structIterator).getStatistics();
 
     } else if (structIterator instanceof MovableCountIterator) {
       MovableCountIterator iterator = (MovableCountIterator) structIterator;

@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.KeyIterator;
-import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
+import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.index.ValueIterator;
@@ -137,24 +137,6 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
   @Override
   public ValueIterator getIterator(byte[] key) throws IOException {
     return getTermExtents(key);
-  }
-
-  @Override
-  public NodeStatistics getTermStatistics(String term) throws IOException {
-    term = stemAsRequired(term);
-    return getTermStatistics(Utility.fromString(term));
-  }
-
-  @Override
-  public NodeStatistics getTermStatistics(byte[] term) throws IOException {
-    PositionalPostingList postingList = postings.get(term);
-    if (postingList != null) {
-      CountsIterator counts = new CountsIterator(postingList);
-      return counts.getStatistics();
-    }
-    NodeStatistics stats = new NodeStatistics();
-    stats.node = Utility.toString(term);
-    return stats;
   }
 
   private CountsIterator getTermCounts(byte[] term) throws IOException {
@@ -398,7 +380,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
   }
 
   public class ExtentsIterator extends ValueIterator implements ModifiableIterator,
-          AggregateIterator, MovableCountIterator, MovableExtentIterator {
+          NodeAggregateIterator, MovableCountIterator, MovableExtentIterator {
 
     PositionalPostingList postings;
     VByteInput documents_reader;
@@ -628,7 +610,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
   }
 
   public class CountsIterator extends ValueIterator implements ModifiableIterator,
-          AggregateIterator, MovableCountIterator {
+          NodeAggregateIterator, MovableCountIterator {
 
     PositionalPostingList postings;
     VByteInput documents_reader;

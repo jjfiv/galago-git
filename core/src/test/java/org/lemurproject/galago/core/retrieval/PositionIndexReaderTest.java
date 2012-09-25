@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.IOException;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.AggregateReader;
+import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
+import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 
@@ -25,7 +27,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
  * @author trevor
  */
 public class PositionIndexReaderTest extends TestCase {
-  
+
   File tempPath;
   File skipPath = null;
   static int[][] dataA = {
@@ -36,50 +38,50 @@ public class PositionIndexReaderTest extends TestCase {
     {149, 15500, 30319},
     {555555, 2}
   };
-  
+
   public PositionIndexReaderTest(String testName) {
     super(testName);
   }
-  
+
   @Override
   public void setUp() throws Exception {
     // make a spot for the index
     tempPath = Utility.createTemporary();
     tempPath.delete();
-    
+
     skipPath = Utility.createTemporary();
     skipPath.delete();
-    
+
     Parameters p = new Parameters();
     p.set("filename", tempPath.toString());
     p.set("estimateDocumentCount", true);
-    
+
     PositionIndexWriter writer =
             new PositionIndexWriter(new org.lemurproject.galago.tupleflow.FakeParameters(p));
-    
+
     writer.processWord(Utility.fromString("a"));
-    
+
     for (int[] doc : dataA) {
       writer.processDocument(doc[0]);
-      
+
       for (int i = 1; i < doc.length; i++) {
         writer.processPosition(doc[i]);
       }
     }
-    
+
     writer.processWord(Utility.fromString("b"));
-    
+
     for (int[] doc : dataB) {
       writer.processDocument(doc[0]);
-      
+
       for (int i = 1; i < doc.length; i++) {
         writer.processPosition(doc[i]);
       }
     }
-    
+
     writer.close();
   }
-  
+
   @Override
   public void tearDown() throws Exception {
     tempPath.delete();
@@ -87,7 +89,7 @@ public class PositionIndexReaderTest extends TestCase {
       skipPath.delete();
     }
   }
-  
+
   public void internalTestIterator(
           MovableExtentIterator termExtents,
           int[][] data) throws IOException {
@@ -95,13 +97,13 @@ public class PositionIndexReaderTest extends TestCase {
     assertFalse(termExtents.isDone());
     assertEquals(data.length, termExtents.totalEntries());
     int totalPositions = 0;
-    
+
     ScoringContext sc = termExtents.getContext();
-    
+
     for (int[] doc : data) {
       assertFalse(termExtents.isDone());
       sc.document = termExtents.currentCandidate();
-      
+
       ExtentArray e = termExtents.extents();
       ExtentArrayIterator iter = new ExtentArrayIterator(e);
       totalPositions += (doc.length - 1); // first entry in doc array is docid
@@ -114,36 +116,37 @@ public class PositionIndexReaderTest extends TestCase {
       assertTrue(iter.isDone());
       termExtents.movePast(termExtents.currentCandidate());
     }
-    
-    assertEquals(((AggregateReader.AggregateIterator) termExtents).getStatistics().nodeFrequency, totalPositions);
+
+    assertEquals(((AggregateReader.NodeAggregateIterator) termExtents).getStatistics().nodeFrequency, totalPositions);
     assertTrue(termExtents.isDone());
   }
-  
+
   public void testA() throws Exception {
     PositionIndexReader reader = new PositionIndexReader(tempPath.toString());
     MovableExtentIterator termExtents = reader.getTermExtents("a");
     termExtents.setContext(new ScoringContext());
-    
+
     internalTestIterator(termExtents, dataA);
-    
-    assertEquals(2, reader.getTermStatistics("a").nodeDocumentCount);
-    assertEquals(4, reader.getTermStatistics("a").nodeFrequency);
-    assertEquals(7, reader.getTermStatistics("a").collectionLength);
-    assertEquals(2, reader.getTermStatistics("a").documentCount);
+    NodeStatistics a_stats = ((NodeAggregateIterator) termExtents).getStatistics();
+    assertEquals(2, a_stats.nodeDocumentCount);
+    assertEquals(4, a_stats.nodeFrequency);
+    assertEquals(7, a_stats.collectionLength);
+    assertEquals(2, a_stats.documentCount);
     reader.close();
   }
-  
+
   public void testB() throws Exception {
     PositionIndexReader reader = new PositionIndexReader(tempPath.toString());
     MovableExtentIterator termExtents = reader.getTermExtents("b");
     termExtents.setContext(new ScoringContext());
-    
+
     internalTestIterator(termExtents, dataB);
-    assertEquals(2, reader.getTermStatistics("b").nodeDocumentCount);
-    assertEquals(3, reader.getTermStatistics("b").nodeFrequency);
+    NodeStatistics b_stats = ((NodeAggregateIterator) termExtents).getStatistics();
+    assertEquals(2, b_stats.nodeDocumentCount);
+    assertEquals(3, b_stats.nodeFrequency);
     reader.close();
   }
-  
+
   public void testSkipLists() throws Exception {
     // internally fill the skip file
     Parameters p = new Parameters();
@@ -152,10 +155,10 @@ public class PositionIndexReaderTest extends TestCase {
     p.set("skipDistance", 20);
     p.set("skipResetDistance", 5);
     p.set("estimateDocumentCount", true);
-    
+
     PositionIndexWriter writer =
             new PositionIndexWriter(new org.lemurproject.galago.tupleflow.FakeParameters(p));
-    
+
     writer.processWord(Utility.fromString("a"));
     for (int docid = 1; docid < 5000; docid += 3) {
       writer.processDocument(docid);
@@ -170,14 +173,14 @@ public class PositionIndexReaderTest extends TestCase {
     PositionIndexReader.TermExtentIterator termExtents = reader.getTermExtents("a");
     termExtents.setContext(new ScoringContext());
     ScoringContext sc = termExtents.getContext();
-    
+
     assertEquals("a", termExtents.getKeyString());
 
     // Read first identifier
     assertEquals(1, termExtents.currentCandidate());
     sc.document = termExtents.currentCandidate();
     assertEquals(1, termExtents.count());
-    
+
     termExtents.syncTo(7);
     assertTrue(termExtents.hasMatch(7));
 
@@ -205,15 +208,15 @@ public class PositionIndexReaderTest extends TestCase {
     termExtents.syncTo(10005);
     assertFalse(termExtents.hasMatch(10005));
     assertTrue(termExtents.isDone());
-    
+
     skipPath.delete();
     skipPath = null;
   }
-  
+
   public void testCountIterator() throws Exception {
     PositionIndexReader reader = new PositionIndexReader(tempPath.toString());
     PositionIndexReader.TermCountIterator termCounts = reader.getTermCounts("b");
-    
+
     termCounts.setContext(new ScoringContext());
     ScoringContext sc = termCounts.getContext();
 
@@ -221,14 +224,15 @@ public class PositionIndexReaderTest extends TestCase {
     sc.document = termCounts.currentCandidate();
     assertEquals(dataB[0].length - 1, termCounts.count());
     termCounts.movePast(dataB[0][0]);
-    
+
     assertEquals(dataB[1][0], termCounts.currentCandidate());
     sc.document = termCounts.currentCandidate();
     assertEquals(dataB[1].length - 1, termCounts.count());
-    
-    assertEquals(2, reader.getTermStatistics("b").nodeDocumentCount);
-    assertEquals(3, reader.getTermStatistics("b").nodeFrequency);
-    
+
+    NodeStatistics b_stats = ((NodeAggregateIterator) termCounts).getStatistics();
+    assertEquals(2, b_stats.nodeDocumentCount);
+    assertEquals(3, b_stats.nodeFrequency);
+
     reader.close();
   }
 }

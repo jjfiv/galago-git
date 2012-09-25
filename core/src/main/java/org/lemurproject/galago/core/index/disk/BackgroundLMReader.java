@@ -72,31 +72,6 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
   }
 
-  @Override
-  public NodeStatistics getTermStatistics(String term) throws IOException {
-    return getTermStatistics(stemAsRequired(term));
-  }
-
-  @Override
-  public NodeStatistics getTermStatistics(byte[] term) throws IOException {
-    NodeStatistics stats = new AggregateReader.NodeStatistics();
-    stats.node = Utility.toString(term);
-    stats.collectionLength = reader.getManifest().get("statistics/collectionLength", 1);
-    stats.documentCount = reader.getManifest().get("statistics/documentCount", 1);
-
-    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
-    if (iterator == null) {
-      stats.nodeFrequency = 0;
-      stats.nodeDocumentCount = 0;
-    } else {
-      DataInput value = iterator.getValueStream();
-      stats.nodeFrequency = Utility.uncompressLong(value);
-      stats.nodeDocumentCount = Utility.uncompressLong(value);
-    }
-
-    return stats;
-  }
-
   private String stemAsRequired(String term) {
     if (stemmer != null) {
       return stemmer.stem(term);
@@ -154,7 +129,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
   }
 
   public class BackgroundLMIterator extends ValueIterator implements
-          AggregateIterator, MovableCountIterator {
+          NodeAggregateIterator, MovableCountIterator {
 
     protected KeyIterator iterator;
 

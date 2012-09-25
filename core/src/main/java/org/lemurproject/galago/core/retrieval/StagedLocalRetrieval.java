@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
+import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
@@ -93,8 +93,8 @@ public class StagedLocalRetrieval extends LocalRetrieval {
     stats.documentCount = getRetrievalStatistics().documentCount;
 
     StructuredIterator structIterator = createIterator(new Parameters(), root, null);
-    if (AggregateIterator.class.isInstance(structIterator)) {
-      stats = ((AggregateIterator) structIterator).getStatistics();
+    if (NodeAggregateIterator.class.isInstance(structIterator)) {
+      stats = ((NodeAggregateIterator) structIterator).getStatistics();
 
     } else if (syntheticCounts != null && windowOps.contains(root.getOperator())) {
       String key = AbstractPartialProcessor.makeNodeKey(root);

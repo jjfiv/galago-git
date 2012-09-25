@@ -12,6 +12,60 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public interface AggregateReader {
 
+  /**
+   * Collection Statistics. Stores aggregate values used for smoothing models of
+   * documents.
+   */
+  public class CollectionStatistics2 {
+    // 'document', 'field', or passage label
+
+    public String fieldName = null;
+    // total number of terms in field in the collection
+    public long collectionLength = -1;
+    // total number of documents that contain field
+    public long documentCount = -1;
+    // note for the next three values: 
+    //  - (instances of 'field' in a document are summed together)
+    // maximum length of 'field'
+    public long maxLength = -1;
+    // minimum length of 'field'
+    public long minLength = -1;
+    // average length of 'field' 
+    public double avgLength = -1;
+
+    public CollectionStatistics2() {
+    }
+
+    public CollectionStatistics2(Parameters p) {
+      this.fieldName = p.getString("fieldName");
+      this.collectionLength = p.getLong("collectionLength");
+      this.documentCount = p.getLong("documentCount");
+      this.maxLength = p.getLong("maxLength");
+      this.minLength = p.getLong("minLength");
+      this.avgLength = p.getDouble("avgLength");
+    }
+
+    public void add(CollectionStatistics2 other) {
+      assert (this.fieldName.equals(other.fieldName)) : "";
+      this.collectionLength += other.collectionLength;
+      this.documentCount += other.documentCount;
+      this.maxLength = Math.max(this.maxLength, other.maxLength);
+      this.minLength = Math.min(this.minLength, other.minLength);
+      this.avgLength = (this.documentCount > 0) ? this.collectionLength / this.documentCount : -1;
+    }
+
+    public Parameters toParameters() {
+      Parameters p = new Parameters();
+      p.set("fieldName", this.fieldName);
+      p.set("collectionLength", this.collectionLength);
+      p.set("documentCount", this.documentCount);
+      p.set("maxLength", this.maxLength);
+      p.set("minLength", this.minLength);
+      p.set("avgLength", this.avgLength);
+      return p;
+    }
+  }
+
   public class CollectionStatistics {
 
     public String partName;
@@ -21,11 +75,11 @@ public interface AggregateReader {
 
     public CollectionStatistics(String partName, Parameters parameters) {
       this.partName = partName;
-      collectionLength = parameters.get("statistics/collectionLength",0L);
-      documentCount = parameters.get("statistics/documentCount",0L);
-      vocabCount = parameters.get("statistics/vocabCount",0L);
+      collectionLength = parameters.get("statistics/collectionLength", 0L);
+      documentCount = parameters.get("statistics/documentCount", 0L);
+      vocabCount = parameters.get("statistics/vocabCount", 0L);
     }
-    
+
     public CollectionStatistics(String partName, MemoryIndex index) {
       this.partName = partName;
       collectionLength = index.getIndexPart(partName).getCollectionLength();
@@ -47,8 +101,8 @@ public interface AggregateReader {
       p.set("statistics/vocabCount", vocabCount);
       return p;
     }
-    
-    public String toString(){
+
+    public String toString() {
       return toParameters().toString();
     }
   }
@@ -81,13 +135,13 @@ public interface AggregateReader {
     }
   }
 
-  public static interface AggregateIterator {
+  public static interface CollectionAggregateIterator {
+
+    public CollectionStatistics2 getStatistics();
+  }
+
+  public static interface NodeAggregateIterator {
 
     public NodeStatistics getStatistics();
   }
-
-  // don't like these two anymore - they make the modifier stuff impossible...
-  public NodeStatistics getTermStatistics(String term) throws IOException;
-
-  public NodeStatistics getTermStatistics(byte[] term) throws IOException;
 }

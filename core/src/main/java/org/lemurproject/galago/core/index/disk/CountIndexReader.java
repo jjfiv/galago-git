@@ -68,7 +68,7 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
   }
 
   public class TermCountIterator extends KeyListReader.ListIterator
-          implements AggregateIterator, MovableCountIterator {
+          implements NodeAggregateIterator, MovableCountIterator {
 
     BTreeReader.BTreeIterator iterator;
     int documentCount;
@@ -399,23 +399,5 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
       return getTermCounts(node.getDefaultParameter());
     }
     return null;
-  }
-
-  @Override
-  public NodeStatistics getTermStatistics(String term) throws IOException {
-    return getTermStatistics(Utility.fromString(term));
-  }
-
-  @Override
-  public NodeStatistics getTermStatistics(byte[] term) throws IOException {
-    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
-
-    if (iterator != null) {
-      TermCountIterator termCountIterator = new TermCountIterator(iterator);
-      return termCountIterator.getStatistics();
-    }
-    NodeStatistics stats = new NodeStatistics();
-    stats.node = Utility.toString(term);
-    return stats;
   }
 }

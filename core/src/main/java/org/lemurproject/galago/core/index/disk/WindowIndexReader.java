@@ -99,25 +99,6 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
     }
   }
 
-  @Override
-  public NodeStatistics getTermStatistics(String term) throws IOException {
-    term = stemAsRequired(term);
-    return getTermStatistics(Utility.fromString(term));
-  }
-
-  @Override
-  public NodeStatistics getTermStatistics(byte[] term) throws IOException {
-    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
-
-    if (iterator != null) {
-      TermCountIterator termCountIterator = new TermCountIterator(iterator);
-      return termCountIterator.getStatistics();
-    }
-    NodeStatistics stats = new NodeStatistics();
-    stats.node = Utility.toString(term);
-    return stats;
-  }
-
   private String stemAsRequired(String window) {
     if (stemmer != null) {
       // window from: sample~sample~sample
@@ -176,7 +157,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
   }
 
   public class TermExtentIterator extends KeyListReader.ListIterator
-          implements AggregateIterator, MovableCountIterator, MovableExtentIterator {
+          implements NodeAggregateIterator, MovableCountIterator, MovableExtentIterator {
 
     private BTreeReader.BTreeIterator iterator;
     private int documentCount;
@@ -520,7 +501,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader 
    *
    */
   public class TermCountIterator extends KeyListReader.ListIterator
-          implements AggregateIterator, MovableCountIterator {
+          implements NodeAggregateIterator, MovableCountIterator {
 
     BTreeReader.BTreeIterator iterator;
     int documentCount;
