@@ -38,8 +38,14 @@ public class AnnotateCollectionStatistics extends Traversal {
     this.retrieval = retrieval;
 
     this.availableStatistics = new HashSet();
+    // field or document region statistics
     this.availableStatistics.add("collectionLength");
     this.availableStatistics.add("documentCount");
+    this.availableStatistics.add("maxLength");
+    this.availableStatistics.add("minLength");
+    this.availableStatistics.add("avgLength");
+
+    // countable-node statistics
     this.availableStatistics.add("nodeFrequency");
     this.availableStatistics.add("nodeDocumentCount");
   }
@@ -73,7 +79,11 @@ public class AnnotateCollectionStatistics extends Traversal {
     NodeParameters nodeParams = node.getNodeParameters();
 
     if (reqStats.contains("collectionLength")
-            || reqStats.contains("documentCount")) {
+            || reqStats.contains("documentCount")
+            || reqStats.contains("maxLength")
+            || reqStats.contains("minLength")
+            || reqStats.contains("avgLength")) {
+
       // extract field if possible:
       // use 'document' as the default context
       String field = node.getNodeParameters().get("lengths", "document");
@@ -86,6 +96,18 @@ public class AnnotateCollectionStatistics extends Traversal {
       if (reqStats.contains("documentCount")
               && !nodeParams.containsKey("documentCount")) {
         nodeParams.set("documentCount", stats.documentCount);
+      }
+      if (reqStats.contains("maxLength")
+              && !nodeParams.containsKey("maxLength")) {
+        nodeParams.set("maxLength", stats.maxLength);
+      }
+      if (reqStats.contains("minLength")
+              && !nodeParams.containsKey("minLength")) {
+        nodeParams.set("minLength", stats.minLength);
+      }
+      if (reqStats.contains("avgLength")
+              && !nodeParams.containsKey("avgLength")) {
+        nodeParams.set("avgLength", stats.avgLength);
       }
     }
 
