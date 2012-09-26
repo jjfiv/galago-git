@@ -10,9 +10,7 @@ import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.util.CallTable;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Assumes the use of delta functions for scoring, then prunes using Maxscore.
@@ -63,7 +61,11 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
     // Make sure the scorers are sorted properly
     buildSentinels(context, queryParams);
     determineSentinelIndex(context);
-
+    for (Sentinel s : sortedSentinels) {
+      System.err.printf("POTENTIALS: %s\n", s.toString());
+    }
+    System.err.printf("POTENTIALS starting: %f, cutoff index = %d\n",
+            context.startingPotential, context.sentinelIndex);
     // Routine is as follows:
     // 1) Find the next candidate from the sentinels
     // 2) Move sentinels and field length readers to candidate
@@ -96,7 +98,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
       if (context.document > 12038700 && context.document < 12038805) {
         System.err.printf("Scoring %d\n", candidate);
       }
-      
+
       // Otherwise move lengths
       context.document = candidate;
       context.moveLengths(candidate);
@@ -110,16 +112,16 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
 
       // now score sentinels w/out question
       int i;
-      if (context.document == 12038803) {
-	  System.err.printf("Running score: %f\n", context.runningScore); 
+      if (context.document == 12110526) {
+        System.err.printf("Running score: %f\n", context.runningScore);
       }
       for (i = 0; i < context.sentinelIndex; i++) {
         DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
         dsi.syncTo(context.document);
         dsi.deltaScore();
-	if (context.document == 12038803) {
-	    System.err.printf("Running score: %f\n", context.runningScore); 
-	}
+        if (context.document == 12110526) {
+          System.err.printf("Running score: %f\n", context.runningScore);
+        }
         ////CallTable.increment("scops");
       }
 

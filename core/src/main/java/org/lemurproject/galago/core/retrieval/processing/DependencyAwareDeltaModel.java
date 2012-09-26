@@ -59,6 +59,12 @@ public class DependencyAwareDeltaModel extends ProcessingModel {
     buildSentinels(context, queryParams);
     determineSentinelIndex(context);
 
+    for (Sentinel s : sortedSentinels) {
+      System.err.printf("POTENTIALS: %s\n", s.toString());
+    }
+
+    System.err.printf("POTENTIALS starting: %f, cutoff index = %d\n",
+            context.startingPotential, context.sentinelIndex);
     // Routine is as follows:
     // 1) Find the next candidate from the sentinels
     // 2) Move sentinels and field length readers to candidate
@@ -95,7 +101,7 @@ public class DependencyAwareDeltaModel extends ProcessingModel {
       int i;
       for (i = 0; i < context.sentinelIndex; i++) {
         DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
-	dsi.syncTo(context.document);
+        dsi.syncTo(context.document);
         dsi.deltaScore();
         ////CallTable.increment("scops");
       }
@@ -104,7 +110,6 @@ public class DependencyAwareDeltaModel extends ProcessingModel {
       while (context.runningScore > context.minCandidateScore && i < sortedSentinels.size()) {
         DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
         dsi.syncTo(context.document);
-        double current = context.runningScore;
         dsi.deltaScore();
         ////CallTable.increment("scops");
         i++;
@@ -245,6 +250,7 @@ public class DependencyAwareDeltaModel extends ProcessingModel {
         sortedSentinels.add(new Sentinel(ctx.scorers.get(0), ctx.startingPotential - ctx.runningScore));
       } else {
         // Stack scores based on dependencies
+        System.err.printf("SENTINEL: Building dependent structure.\n");
         sortedSentinels = SortStrategies.populateDependentSentinels(ctx);
       }
     } else {
@@ -253,8 +259,11 @@ public class DependencyAwareDeltaModel extends ProcessingModel {
     }
 
     // Now we figure out the sorting scheme.
-    String type = retrieval.getGlobalParameters().get("sort", "length-split");
-    if (type.equals("length-split")) {
+    String type = retrieval.getGlobalParameters().get("sort", "length");
+    System.err.printf("SENTINEL: sort = %s.\n", type);
+    if (type.equals("length")) {
+      SortStrategies.fullLengthSort(sortedSentinels);
+    } else if (type.equals("length-split")) {
       SortStrategies.splitLengthSort(sortedSentinels);
     } else if (type.equals("score-split")) {
       SortStrategies.splitScoreSort(sortedSentinels);
@@ -265,12 +274,6 @@ public class DependencyAwareDeltaModel extends ProcessingModel {
     } else {
       throw new IllegalArgumentException(String.format("What the hell is %s? %s doesn't do that.",
               type, this.getClass().getName()));
-    }
-
-    for (int i = 0; i < sortedSentinels.size(); i++) {
-      Sentinel s = sortedSentinels.get(i);
-      ctx.runningScore = ctx.startingPotential;
-      s.iterator.maximumDifference();
     }
   }
 

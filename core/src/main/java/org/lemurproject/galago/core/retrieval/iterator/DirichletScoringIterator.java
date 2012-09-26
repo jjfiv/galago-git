@@ -82,7 +82,7 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
     }
 
     double diff = weight * (function.score(count, context.getLength()) - max);
-    if (context.document == 12038803) {
+    if (context.document == 12110526) {
 	System.err.printf("DELTA : %s -> match=%b, cand=%d, l=%d, c=%d, max=%f, weight=%f, score=%f, delta=%f\n",
 			  Utility.shortName(this), iterator.hasMatch(context.document), 
 			  iterator.currentCandidate(), context.getLength(), count, max, weight,

@@ -42,7 +42,7 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
       count = countIterator.count();
     }
     double score = function.score(count, context.getLength());
-    if (context.document == 12038803) {
+    if (context.document == 12110526) {
 	System.err.printf("NORMAL: %s -> match=%b, cand=%d, l=%d, c=%d, score=%f\n",
 			  Utility.shortName(this), iterator.hasMatch(context.document),
 			  iterator.currentCandidate(), context.getLength(), count,

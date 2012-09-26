@@ -29,12 +29,12 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
       document = context.document;
     }
 
-    if (document == 12038803 && context != null) {
+    if (document == 12110526 && context != null) {
       System.err.printf("\t%s: loading extent (context=%d, this=%d)\n",
               Utility.shortName(this), context.document, document);
     }
     if (isDone() || this.extents.getDocument() == document) {
-      if (document == 12038803) {
+      if (document == 12110526) {
         System.err.printf("\t%s: already loaded. Returning.\n",
                 Utility.shortName(this));
       }
@@ -51,7 +51,7 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
       if (iterators[i].isDone()
               || !iterators[i].hasMatch(document)) {
         // we can not load any extents if the iterator is done - or is at the wrong document.
-        if (document == 12038803) {
+        if (document == 12110526) {
           if (iterators[i].isDone()) {
             System.err.printf("Iterator %s is done. Returning.\n",
                     Utility.shortName(iterators[i]));
@@ -71,7 +71,7 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
         sb.append(ea.begin(eai)).append(",");
       }
       sb.append("]");
-      if (document == 12038803) {
+      if (document == 12110526) {
         System.err.printf("EXTENTS (%d): %s -> %s\n", ea.getDocument(),
                 Utility.shortName(iterators[i]), sb.toString());
       }

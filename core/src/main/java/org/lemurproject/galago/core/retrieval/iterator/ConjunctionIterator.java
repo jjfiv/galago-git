@@ -57,13 +57,13 @@ public abstract class ConjunctionIterator implements MovableIterator {
 
   @Override
   public void syncTo(int candidate) throws IOException {
-    if (candidate == 12038803) {
+    if (candidate == 12110526) {
       System.err.printf("SYNC %d:\n", context.document);
     }
     for (MovableIterator iterator : iterators) {
       int prev = iterator.currentCandidate();
       iterator.syncTo(candidate);
-      if (candidate == 12038803) {
+      if (candidate == 12110526) {
         System.err.printf("\t%s: %d -> %d (matched=%b)\n",
                 Utility.shortName(iterator), prev,
                 iterator.currentCandidate(), iterator.hasMatch(candidate));

@@ -130,16 +130,10 @@ public class DelayedScoringModel extends AbstractPartialProcessor {
 
       // now score sentinels w/out question
       int i;
-      if (context.document == 12038803) {
-	  System.err.printf("Running score: %f\n", context.runningScore); 
-      }
       for (i = 0; i < context.sentinelIndex; ++i) {
         DeltaScoringIterator dsi = context.scorers.get(i);
 	dsi.syncTo(context.document);
         dsi.deltaScore();
-	if (context.document == 12038803) {
-	    System.err.printf("Running score: %f\n", context.runningScore); 
-	}
         ////CallTable.increment("scops");
       }
 
