@@ -115,7 +115,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
           return new MemoryMapLengthsIterator(keyBytes, i);
 
         } else {
-          throw new UnsupportedOperationException("Index doesn't support lengths node: " + node.toPrettyString());
+          throw new UnsupportedOperationException("Index can not support node: " + node.toPrettyString());
         }
       }
       // if the field name is not specified 

@@ -232,8 +232,8 @@ public class FieldTraversalTest extends TestCase {
     System.err.printf("Delta:\n");
     for (int i = 0; i < results.length; i++) {
       System.err.printf("%d : %s\n", i, results2[i].toString());
-    } 
-*/    
+    }
+    */
     
     assertEquals(results.length, results2.length);
     for (int i = 0; i < results.length; i++) {
@@ -309,7 +309,6 @@ public class FieldTraversalTest extends TestCase {
       System.err.printf("%d : %s\n", i, results2[i].toString());
     } 
     */
-
     assertEquals(results.length, results2.length);
 
     for (int i = 0; i < results.length; i++) {
@@ -317,7 +316,7 @@ public class FieldTraversalTest extends TestCase {
       assertEquals(results[i].score, results2[i].score, 0.00001);
     }
   }
-
+  
   public void testPRMSModelCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -350,7 +349,7 @@ public class FieldTraversalTest extends TestCase {
     assertEquals(results[4].score, -11.240375, 0.00001);
 
   }
-  
+ 
   public void testBM25FModelCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -398,10 +397,9 @@ public class FieldTraversalTest extends TestCase {
     assertEquals(results[3].score, 0.341049, 0.00001);
     assertEquals(3, results[4].document);
     assertEquals(results[4].score, 0.096271, 0.00001);
-
+  
   }
-
-
+  
   public void testPL2FModelCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -436,9 +434,8 @@ public class FieldTraversalTest extends TestCase {
     assertEquals(results[3].score, -3.088521, 0.00001);
     assertEquals(4, results[4].document);
     assertEquals(results[4].score, -3.462125, 0.00001);
-
   }
-
+  
   public static void addEntries(PositionIndexWriter writer, String term, int[][] entries) throws IOException {
     writer.processWord(Utility.fromString(term));
     for (int[] plist : entries) {
@@ -546,40 +543,54 @@ public class FieldTraversalTest extends TestCase {
     extParameters = new FakeParameters(extp);
 
     WindowIndexWriter ewriter = new WindowIndexWriter(extParameters);
-    addDummyLengths(ewriter, "anchor");
-    addDummyLengths(ewriter, "author");
-    addDummyLengths(ewriter, "title");
-    ewriter.close();
-
-    // These are dumb and wrong on purpose to make sure the test is operating correctly.
+    
     Parameters lp = new Parameters();
     lp.set("filename", tempPath + File.separator + "lengths");
-    DiskLengthsWriter lWriter = new DiskLengthsWriter(new FakeParameters(lp));
-    byte[] d = Utility.fromString("document");
-    for (int i = 1; i < 6; i++) {
-      lWriter.process(new FieldLengthData(d, i, i));
-    }
-    lWriter.close();
+    DiskLengthsWriter lwriter = new DiskLengthsWriter(new FakeParameters(lp));
+
+    addDummyLengths(ewriter, lwriter, "anchor", 0);
+    addDummyLengths(ewriter, lwriter, "author", 0);
+    // NOTE that 'document' lengths is intentionally different from the other fields
+    // -- this checks that we are reading and smoothing with field data.
+    addDummyLengths(ewriter, lwriter, "document", 100);
+    addDummyLengths(ewriter, lwriter, "title", 0);
+    ewriter.close();
+    
+    lwriter.close();
 
     return tempPath;
   }
 
-  private void addDummyLengths(WindowIndexWriter ewriter, String key) throws IOException {
+  /** 
+   * indexes lengths data
+   *  - note that the error parameter ensures the length data is WRONG 
+   *    (as compared with the extents)
+   */
+  private void addDummyLengths(WindowIndexWriter ewriter, DiskLengthsWriter lwriter, String key, int error) throws IOException {
     ewriter.processExtentName(Utility.fromString(key));
     ewriter.processNumber(1);
     ewriter.processBegin(1);
     ewriter.processTuple(121);
+    lwriter.process( new FieldLengthData(Utility.fromString(key), 1, (121 - 1) + error) );
+    
     ewriter.processNumber(2);
     ewriter.processBegin(1);
     ewriter.processTuple(101);
+    lwriter.process( new FieldLengthData(Utility.fromString(key), 2, (101 - 1) + error) );
+
     ewriter.processNumber(3);
     ewriter.processBegin(1);
     ewriter.processTuple(51);
+    lwriter.process( new FieldLengthData(Utility.fromString(key), 3, (51 - 1) + error) );
+
     ewriter.processNumber(4);
     ewriter.processBegin(1);
     ewriter.processTuple(81);
+    lwriter.process( new FieldLengthData(Utility.fromString(key), 4, (81 - 1) + error) );
+
     ewriter.processNumber(5);
     ewriter.processBegin(1);
     ewriter.processTuple(151);
+    lwriter.process( new FieldLengthData(Utility.fromString(key), 5, (151 - 1) + error ));
   }
 }

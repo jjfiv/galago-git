@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.io.IOException;
 import java.util.HashSet;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics2;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -74,8 +74,11 @@ public class AnnotateCollectionStatistics extends Traversal {
 
     if (reqStats.contains("collectionLength")
             || reqStats.contains("documentCount")) {
-      // this should be for the correct index part: if possible.
-      CollectionStatistics stats = getCollectionStatistics();
+      // extract field if possible:
+      // use 'document' as the default context
+      String field = node.getNodeParameters().get("lengths", "document");
+      CollectionStatistics2 stats = getCollectionStatistics(field);
+
       if (reqStats.contains("collectionLength")
               && !nodeParams.containsKey("collectionLength")) {
         nodeParams.set("collectionLength", stats.collectionLength);
@@ -105,15 +108,13 @@ public class AnnotateCollectionStatistics extends Traversal {
     }
   }
 
-  private CollectionStatistics getCollectionStatistics() throws Exception {
+  private CollectionStatistics2 getCollectionStatistics(String field) throws Exception {
     if (globalParameters.isString("backgroundIndex")) {
       assert (GroupRetrieval.class.isAssignableFrom(retrieval.getClass())) : "Retrieval object must be a GroupRetrieval to use the backgroundIndex parameter.";
-      return ((GroupRetrieval) retrieval).getRetrievalStatisticsGP(globalParameters.getString("backgroundIndex"));
-      //return ((GroupRetrieval) retrieval).collectionStatistics("#lengths:part=lengths()", globalParameters.getString("backgroundIndex"));
+      return ((GroupRetrieval) retrieval).collectionStatistics("#lengths:"+field+":part=lengths()", globalParameters.getString("backgroundIndex"));
 
     } else {
-      //return retrieval.collectionStatistics("#lengths:part=lengths()");
-      return retrieval.getRetrievalStatistics();
+      return retrieval.collectionStatistics("#lengths:"+field+":part=lengths()");
     }
   }
 

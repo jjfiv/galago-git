@@ -156,7 +156,7 @@ public class LocalRetrievalTest extends TestCase {
     DiskLengthsWriter lWriter = new DiskLengthsWriter(new FakeParameters(lp));
 
     byte[] d = Utility.fromString("document");
-    for (int i = 1; i < 19; i++) {
+    for (int i = 0; i < 20; i++) {
       lWriter.process(new FieldLengthData(d, i, 100));
     }
     lWriter.close();
@@ -249,11 +249,11 @@ public class LocalRetrievalTest extends TestCase {
 
     HashMap<Integer, Double> realScores = new HashMap<Integer, Double>();
 
-    realScores.put(1, -6.211080532397473);
-    realScores.put(3, -6.81814312029245);
-    realScores.put(5, -7.241792050486051);
-    realScores.put(18, -7.241792050486051);
-    realScores.put(2, -7.241792050486051);
+    realScores.put(1, -5.548387728381024);
+    realScores.put(3, -5.819614290181323);
+    realScores.put(5, -5.937808679213438);
+    realScores.put(18, -5.937808679213438);
+    realScores.put(2, -5.937808679213438);
 
     HashMap<Integer, String> realNames = new HashMap();
     realNames.put(1, "DOC1");
@@ -299,9 +299,9 @@ public class LocalRetrievalTest extends TestCase {
 
     HashMap<Integer, Double> realScores = new HashMap<Integer, Double>();
 
-    realScores.put(1, -6.211080532397473);
-    realScores.put(5, -7.241792050486051);
-    realScores.put(2, -7.241792050486051);
+    realScores.put(1, -5.548387728381024);
+    realScores.put(5, -5.937808679213438);
+    realScores.put(2, -5.937808679213438);
 
     HashMap<Integer, String> realNames = new HashMap();
     realNames.put(1, "DOC1");
@@ -337,8 +337,8 @@ public class LocalRetrievalTest extends TestCase {
 
     HashMap<Integer, Double> realScores = new HashMap<Integer, Double>();
 
-    realScores.put(1, -6.0968250627658085);
-    realScores.put(3, -6.907755278982137);
+    realScores.put(1, -5.585999438999818);
+    realScores.put(3, -5.991464547107982);
 
     HashMap<Integer, String> realNames = new HashMap();
     realNames.put(1, "DOC1");
