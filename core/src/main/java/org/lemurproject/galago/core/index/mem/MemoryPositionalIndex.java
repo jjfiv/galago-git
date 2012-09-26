@@ -530,8 +530,6 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       stats.node = Utility.toString(postings.key);
       stats.nodeFrequency = postings.termPostingsCount;
       stats.nodeDocumentCount = postings.termDocumentCount;
-      stats.collectionLength = collectionPostingsCount;
-      stats.documentCount = collectionDocumentCount;
       return stats;
     }
 
@@ -734,8 +732,6 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       stats.node = Utility.toString(postings.key);
       stats.nodeFrequency = postings.termPostingsCount;
       stats.nodeDocumentCount = postings.termDocumentCount;
-      stats.collectionLength = collectionPostingsCount;
-      stats.documentCount = collectionDocumentCount;
       return stats;
     }
 

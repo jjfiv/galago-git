@@ -523,8 +523,6 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
       stats.node = Utility.toString(postings.key);
       stats.nodeFrequency = postings.termWindowCount;
       stats.nodeDocumentCount = postings.termDocumentCount;
-      stats.collectionLength = collectionPostingsCount;
-      stats.documentCount = collectionDocumentCount;
       return stats;
     }
 

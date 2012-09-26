@@ -341,8 +341,6 @@ public class LocalRetrieval implements Retrieval {
     stats.node = root.toString();
     stats.nodeDocumentCount = 0;
     stats.nodeFrequency = 0;
-    stats.collectionLength = getRetrievalStatistics().collectionLength;
-    stats.documentCount = getRetrievalStatistics().documentCount;
 
     ScoringContext sc = ContextFactory.createContext(globalParameters);
     StructuredIterator structIterator = createIterator(new Parameters(), root, sc);

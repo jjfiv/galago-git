@@ -332,8 +332,6 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
       stats.node = Utility.toString(this.key);
       stats.nodeFrequency = this.collectionCount;
       stats.nodeDocumentCount = this.documentCount;
-      stats.collectionLength = reader.getManifest().get("statistics/collectionLength", -1);
-      stats.documentCount = reader.getManifest().get("statistics/documentCount", -1);
       return stats;
     }
 

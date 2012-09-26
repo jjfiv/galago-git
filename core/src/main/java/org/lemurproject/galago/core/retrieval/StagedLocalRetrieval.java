@@ -89,8 +89,6 @@ public class StagedLocalRetrieval extends LocalRetrieval {
     stats.nodeDocumentCount = 0;
     stats.maximumCount = 0;
     stats.nodeFrequency = 0;
-    stats.collectionLength = getRetrievalStatistics().collectionLength;
-    stats.documentCount = getRetrievalStatistics().documentCount;
 
     StructuredIterator structIterator = createIterator(new Parameters(), root, null);
     if (NodeAggregateIterator.class.isInstance(structIterator)) {
@@ -204,8 +202,6 @@ public class StagedLocalRetrieval extends LocalRetrieval {
         ns.nodeFrequency = Long.parseLong(parts[1]);
         ns.maximumCount = Long.parseLong(parts[2]);
         ns.nodeDocumentCount = Long.parseLong(parts[3]);
-        ns.collectionLength = cs.collectionLength;
-        ns.documentCount = cs.documentCount;
         syntheticCounts.put(key, ns);
       }
       br.close();

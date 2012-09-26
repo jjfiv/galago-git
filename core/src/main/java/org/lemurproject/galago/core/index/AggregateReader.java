@@ -112,17 +112,13 @@ public interface AggregateReader {
     public String node = "";
     public long nodeFrequency = 0;
     public long nodeDocumentCount = 0;
-    public long collectionLength = 0;
-    public long documentCount = 0;
     public long maximumCount = 0;
 
     public String toString() {
       return "{ \"node\" : \"" + node + "\","
               + "\"nodeFrequency\" : " + nodeFrequency + ","
               + "\"maximumCount\" : " + maximumCount + ","
-              + "\"nodeDocumentCount\" : " + nodeDocumentCount + ","
-              + "\"collectionLength\" : " + collectionLength + ","
-              + "\"documentCount\" : " + documentCount + "}";
+              + "\"nodeDocumentCount\" : " + nodeDocumentCount + "}";
     }
 
     public void add(NodeStatistics other) {
@@ -130,8 +126,6 @@ public interface AggregateReader {
       nodeFrequency += other.nodeFrequency;
       maximumCount = Math.max(this.maximumCount, other.maximumCount);
       nodeDocumentCount += other.nodeDocumentCount;
-      collectionLength += other.collectionLength;
-      documentCount += other.documentCount;
     }
   }
 

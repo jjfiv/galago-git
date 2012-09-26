@@ -130,8 +130,6 @@ public class PositionIndexReaderTest extends TestCase {
     NodeStatistics a_stats = ((NodeAggregateIterator) termExtents).getStatistics();
     assertEquals(2, a_stats.nodeDocumentCount);
     assertEquals(4, a_stats.nodeFrequency);
-    assertEquals(7, a_stats.collectionLength);
-    assertEquals(2, a_stats.documentCount);
     reader.close();
   }
 

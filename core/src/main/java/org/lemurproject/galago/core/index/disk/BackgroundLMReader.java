@@ -96,8 +96,6 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
 
         NodeStatistics stats = new AggregateReader.NodeStatistics();
         stats.node = getKeyString();
-        stats.collectionLength = this.collectionLength;
-        stats.documentCount = this.documentCount;
         stats.nodeFrequency = Utility.uncompressLong(value);
         stats.nodeDocumentCount = Utility.uncompressLong(value);
 

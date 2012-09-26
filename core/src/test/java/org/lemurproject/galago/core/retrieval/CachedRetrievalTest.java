@@ -76,8 +76,6 @@ public class CachedRetrievalTest extends TestCase {
       NodeStatistics diskNS = ret.nodeStatistics(count);
       NodeStatistics cachedNS = cachedRet.nodeStatistics(count);
 
-      assertEquals(diskNS.collectionLength, cachedNS.collectionLength);
-      assertEquals(diskNS.documentCount, cachedNS.documentCount);
       assertEquals(diskNS.nodeDocumentCount, cachedNS.nodeDocumentCount);
       assertEquals(diskNS.nodeFrequency, cachedNS.nodeFrequency);
 
@@ -100,8 +98,6 @@ public class CachedRetrievalTest extends TestCase {
       diskNS = ret.nodeStatistics(extent);
       cachedNS = cachedRet.nodeStatistics(extent);
 
-      assertEquals(diskNS.collectionLength, cachedNS.collectionLength);
-      assertEquals(diskNS.documentCount, cachedNS.documentCount);
       assertEquals(diskNS.nodeDocumentCount, cachedNS.nodeDocumentCount);
       assertEquals(diskNS.nodeFrequency, cachedNS.nodeFrequency);
 
