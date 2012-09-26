@@ -118,7 +118,6 @@ public class UniversalParserTest extends TestCase {
 
       DiskIndex di = new DiskIndex(index.getAbsolutePath());
 
-      assertEquals (di.getCollectionStatistics().documentCount , 32);
       assertEquals (di.getCollectionStatistics().collectionLength, 553);
 
     } finally {
@@ -149,7 +148,6 @@ public class UniversalParserTest extends TestCase {
 
       DiskIndex di = new DiskIndex(index.getAbsolutePath());
 
-      assertEquals (di.getCollectionStatistics().documentCount , 6);
       assertEquals (di.getCollectionStatistics().collectionLength , 129);
 
     } finally {
@@ -183,7 +181,6 @@ public class UniversalParserTest extends TestCase {
 
       DiskIndex di = new DiskIndex(index.getAbsolutePath());
 
-      assertEquals (di.getCollectionStatistics().documentCount, 41);
       assertEquals (di.getCollectionStatistics().collectionLength, 622);
 
     } finally {

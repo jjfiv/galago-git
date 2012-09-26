@@ -53,8 +53,8 @@ import org.lemurproject.galago.tupleflow.types.SerializedParameters;
 
 /**
  *
- * Builds an index using a faster method 
- * (it requires one less sort of the posting lists)
+ * Builds an index using a faster method (it requires one less sort of the
+ * posting lists)
  *
  * @author sjh
  */
@@ -254,22 +254,20 @@ public class BuildIndex extends AppFunction {
           String inputName, Order inputOrder, String indexName,
           Class indexWriter, String stemmerName) {
 
-    Stage stage = new Stage(stageName);
-
-    stage.addInput(inputName, inputOrder);
-    stage.addInput("docCounts", new SerializedParameters.ParametersOrder());
-
     Parameters p = new Parameters();
     p.set("filename", buildParameters.getString("indexPath") + File.separator + indexName);
-    p.set("pipename", "docCounts");
+    p.set("skipping", buildParameters.getBoolean("skipping"));
+    p.set("skipDistance", buildParameters.getLong("skipDistance"));
     if (stemmerName != null) {
       p.set("stemmer", buildParameters.getMap("stemmerClass").getString(stemmerName));
     }
-    p.set("skipping", buildParameters.getBoolean("skipping"));
-    p.set("skipDistance", buildParameters.getLong("skipDistance"));
 
+
+    Stage stage = new Stage(stageName);
+    stage.addInput(inputName, inputOrder);
     stage.add(new InputStep(inputName));
     stage.add(new Step(indexWriter, p));
+
     return stage;
   }
 
@@ -671,23 +669,21 @@ public class BuildIndex extends AppFunction {
 
     Parameters splitParameters = new Parameters();
     splitParameters.set("corpusPieces", buildParameters.get("distrib", 10));
-    if(buildParameters.isMap("parser")){
+    if (buildParameters.isMap("parser")) {
       splitParameters.set("parser", buildParameters.getMap("parser"));
     }
 
-    if(buildParameters.isString("filetype")){
+    if (buildParameters.isString("filetype")) {
       splitParameters.set("filetype", buildParameters.getString("filetype"));
     }
     job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
 
     job.add(getParsePostingsStage(buildParameters));
-    job.add(BuildStageTemplates.getDocumentCounter("countDocuments", "numberedDocumentDataNumbers", "docCounts"));
     job.add(BuildStageTemplates.getWriteNamesStage("writeNames", new File(indexPath, "names"), "numberedDocumentDataNumbers"));
     job.add(BuildStageTemplates.getWriteNamesRevStage("writeNamesRev", new File(indexPath, "names.reverse"), "numberedDocumentDataNames"));
     job.add(BuildStageTemplates.getWriteLengthsStage("writeLengths", new File(indexPath, "lengths"), "fieldLengthData"));
 
     job.connect("inputSplit", "parsePostings", ConnectionAssignmentType.Each);
-    job.connect("parsePostings", "countDocuments", ConnectionAssignmentType.Each);
     job.connect("parsePostings", "writeLengths", ConnectionAssignmentType.Combined);
     job.connect("parsePostings", "writeNames", ConnectionAssignmentType.Combined);
     job.connect("parsePostings", "writeNamesRev", ConnectionAssignmentType.Combined);
@@ -714,7 +710,6 @@ public class BuildIndex extends AppFunction {
               new NumberWordPosition.WordDocumentPositionOrder(), "postings",
               PositionIndexWriter.class, null));
 
-      job.connect("countDocuments", "writePostings", ConnectionAssignmentType.Combined);
       job.connect("parsePostings", "writePostings", ConnectionAssignmentType.Combined);
     }
 
@@ -726,7 +721,6 @@ public class BuildIndex extends AppFunction {
                 new NumberWordPosition.WordDocumentPositionOrder(),
                 "postings." + stemmer, PositionIndexWriter.class, stemmer));
         job.connect("parsePostings", "writePostings-" + stemmer, ConnectionAssignmentType.Combined);
-        job.connect("countDocuments", "writePostings-" + stemmer, ConnectionAssignmentType.Combined);
       }
     }
 
@@ -754,7 +748,6 @@ public class BuildIndex extends AppFunction {
                 new FieldNumberWordPosition.FieldWordDocumentPositionOrder(), "field.", PositionFieldIndexWriter.class, null));
 
         job.connect("parsePostings", "writeExtentPostings", ConnectionAssignmentType.Combined);
-        job.connect("countDocuments", "writeExtentPostings", ConnectionAssignmentType.Combined);
       }
       if (buildParameters.getMap("fieldIndexParameters").getBoolean("stemmedPostings")) {
         for (String stemmer : (List<String>) buildParameters.getMap("fieldIndexParameters").getList("stemmer")) {
@@ -762,7 +755,6 @@ public class BuildIndex extends AppFunction {
                   new FieldNumberWordPosition.FieldWordDocumentPositionOrder(), "field." + stemmer + ".", PositionFieldIndexWriter.class, stemmer));
 
           job.connect("parsePostings", "writeExtentPostings-" + stemmer, ConnectionAssignmentType.Combined);
-          job.connect("countDocuments", "writeExtentPostings-" + stemmer, ConnectionAssignmentType.Combined);
         }
       }
     }
@@ -818,7 +810,7 @@ public class BuildIndex extends AppFunction {
     }
 
     output.println("Done Indexing.");
-    
+
     // sanity check - get the number of documents out of ./names
     DiskNameReader names = new DiskNameReader(p.getString("indexPath") + File.separator + "names");
     Parameters namesParams = names.getManifest();

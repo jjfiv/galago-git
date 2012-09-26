@@ -84,8 +84,9 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     //truth data
     StringBuilder correct = new StringBuilder();
     correct.append("#combine( #feature:bm25( #extents:cat:part=postings() ) ");
-    correct.append("#feature:bm25rf:R=3:rt=1( #extents:jumped:part=postings() ) ");
-    correct.append("#feature:bm25rf:R=3:rt=2( #extents:moon:part=postings() ) )");
+    correct.append("#feature:bm25rf:R=3:rt=2( #extents:moon:part=postings() ) ");
+    correct.append("#feature:bm25rf:R=3:rt=1( #extents:jumped:part=postings() ) )");
+    
     assertEquals(correct.toString(), transformed.toString());
     
     retrieval.close();

@@ -78,11 +78,7 @@ public class MergeIndexTest extends TestCase {
       assertEquals(di_index1.getCollectionStatistics().collectionLength, 500);
       assertEquals(di_index2.getCollectionStatistics().collectionLength, 600);
       assertEquals(di_merged.getCollectionStatistics().collectionLength, 1100);
-
-      assertEquals(di_index1.getCollectionStatistics().documentCount, 100);
-      assertEquals(di_index2.getCollectionStatistics().documentCount, 100);
-      assertEquals(di_merged.getCollectionStatistics().documentCount, 200);
-
+      
       assertEquals(di_merged.getName(50), "DOCS1-50");
       assertEquals(di_merged.getName(150), "DOCS2-50");
 
@@ -154,10 +150,6 @@ public class MergeIndexTest extends TestCase {
       assertEquals(di_index1.getCollectionStatistics().collectionLength, 500);
       assertEquals(di_index2.getCollectionStatistics().collectionLength, 600);
       assertEquals(di_merged.getCollectionStatistics().collectionLength, 1100);
-
-      assertEquals(di_index1.getCollectionStatistics().documentCount, 100);
-      assertEquals(di_index2.getCollectionStatistics().documentCount, 100);
-      assertEquals(di_merged.getCollectionStatistics().documentCount, 200);
 
       assertEquals(di_merged.getName(50), mi1.getName(50));
       assertEquals(di_merged.getName(1050), mi2.getName(1050));

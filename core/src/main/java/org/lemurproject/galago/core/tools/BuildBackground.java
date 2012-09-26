@@ -39,7 +39,6 @@ public class BuildBackground extends AppFunction {
   private static Stage getParseStage(Parameters p) throws Exception {
     Stage stage = new Stage("inputParser");
     stage.addInput("splits", new DocumentSplit.FileIdOrder());
-    stage.addOutput("numberedDocumentData", new NumberedDocumentData.NumberOrder());
 
     stage.add(new InputStep("splits"));
     stage.add(BuildStageTemplates.getParserStep(p));
@@ -50,12 +49,7 @@ public class BuildBackground extends AppFunction {
     stage.add(new Step(DocumentNumberer.class));
     
     MultiStep fork = new MultiStep();
-    // stats - doc count
-    ArrayList<Step> documentData =
-            BuildStageTemplates.getExtractionSteps("numberedDocumentData", NumberedDocumentDataExtractor.class,
-            new NumberedDocumentData.NumberOrder());
-    fork.groups.add(documentData);
-
+    
     if (p.get("nonStemmedPostings", true)) {
       stage.addOutput("nonStemmedTermCounts", new WordCount.WordOrder());
 
@@ -92,11 +86,8 @@ public class BuildBackground extends AppFunction {
   private static Stage getWriterStage(String stageName, String inputName, Parameters writerParameters) {
     Stage stage = new Stage(stageName);
 
-    stage.addInput("docCounts", new SerializedParameters.ParametersOrder());
     stage.addInput(inputName, new WordCount.WordOrder());
 
-    writerParameters.set("pipename", "docCounts");
-    
     stage.add(new InputStep(inputName));
     stage.add(new Step(WordCountReducer.class));
     stage.add(new Step(BackgroundLMWriter.class, writerParameters));
@@ -128,10 +119,8 @@ public class BuildBackground extends AppFunction {
     job.add(BuildStageTemplates.getSplitStage(inputs, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
    
     job.add(getParseStage(p));
-    job.add(BuildStageTemplates.getDocumentCounter("countDocuments", "numberedDocumentData", "docCounts"));
 
     job.connect("inputSplit", "inputParser", ConnectionAssignmentType.Each);
-    job.connect("inputParser", "countDocuments", ConnectionAssignmentType.Each);
 
     if (p.getBoolean("nonStemmedPostings")) {
       Parameters params = writerParams.clone();
@@ -139,7 +128,6 @@ public class BuildBackground extends AppFunction {
       job.add(getWriterStage("nonStemmedWriter", "nonStemmedTermCounts", params));
 
       job.connect("inputParser", "nonStemmedWriter", ConnectionAssignmentType.Combined);
-      job.connect("countDocuments", "nonStemmedWriter", ConnectionAssignmentType.Combined);
     }
 
     if (p.getBoolean("stemmedPostings")) {
@@ -151,7 +139,6 @@ public class BuildBackground extends AppFunction {
         job.add(getWriterStage("stemmedWriter-" + stemmer, "stemmedTermCounts-"+stemmer, params));
 
         job.connect("inputParser", "stemmedWriter-" + stemmer, ConnectionAssignmentType.Combined);
-        job.connect("countDocuments", "stemmedWriter-" + stemmer, ConnectionAssignmentType.Combined);
       }
     }
 

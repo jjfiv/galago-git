@@ -74,8 +74,8 @@ public class BuildBackgroundTest extends TestCase {
               + "{ \"number\" : \"2\", \"text\": \"#combine( #feature:dirichlet( #counts:two:part=postings.porter() ) #feature:dirichlet( #counts:sample:part=postings.porter() ) )\"},"
               + "{ \"number\" : \"9\", \"text\" : \"#combine( #feature:dirichlet( #counts:sample:part=postings.porter() ) )\"},"
               + "{ \"number\" : \"11\", \"text\" : \"#combine( #feature:dirichlet( #counts:is:part=postings.porter() ) #feature:dirichlet( #counts:two:part=postings.porter() ) )\"},"
-//              + "]}";
-              + "], \"printTransformation\":true}";
+              + "]}";
+//              + "], \"printTransformation\":true}";
 
       queryFile = Utility.createTemporary();
       Utility.copyStringToFile(queries_reg, queryFile);

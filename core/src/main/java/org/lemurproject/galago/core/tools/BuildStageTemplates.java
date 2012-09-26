@@ -6,11 +6,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
+import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
 import org.lemurproject.galago.core.index.disk.DiskNameWriter;
 import org.lemurproject.galago.core.index.disk.FieldIndexWriter;
-import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
-import org.lemurproject.galago.core.parse.DocumentCounter;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.parse.UniversalParser;
 import org.lemurproject.galago.core.types.DocumentSplit;
@@ -28,7 +27,6 @@ import org.lemurproject.galago.tupleflow.execution.OutputStep;
 import org.lemurproject.galago.tupleflow.execution.Stage;
 import org.lemurproject.galago.tupleflow.execution.StageConnectionPoint;
 import org.lemurproject.galago.tupleflow.execution.Step;
-import org.lemurproject.galago.tupleflow.types.SerializedParameters;
 
 /**
  *
@@ -135,23 +133,6 @@ public class BuildStageTemplates {
   public static Stage getWriteFieldsStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
     return getGenericWriteStage(stageName, destination, inputPipeName,
             FieldIndexWriter.class, new NumberedField.FieldNameNumberOrder(), p);
-  }
-
-  public static Stage getDocumentCounter(String stageName, String inputPipeName, String outputPipeName) {
-    Stage stage = new Stage(stageName);
-
-    stage.add(new StageConnectionPoint(
-            ConnectionPointType.Input, inputPipeName,
-            new NumberedDocumentData.NumberOrder()));
-    stage.add(new StageConnectionPoint(
-            ConnectionPointType.Output, outputPipeName,
-            new SerializedParameters.ParametersOrder()));
-
-    stage.add(new InputStep(inputPipeName));
-    stage.add(new Step(DocumentCounter.class));
-    stage.add(new OutputStep(outputPipeName));
-
-    return stage;
   }
 
   public static Stage getSplitStage(List<String> inputPaths, Class<? extends ExNihiloSource<DocumentSplit>> sourceClass) throws IOException {
