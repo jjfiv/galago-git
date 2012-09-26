@@ -48,7 +48,6 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
     context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     Arrays.fill(context.startingPotentials, 0);
-    System.err.printf("Executing: %s\n", queryTree.toString());
     StructuredIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
 
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
@@ -61,11 +60,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
     // Make sure the scorers are sorted properly
     buildSentinels(context, queryParams);
     determineSentinelIndex(context);
-    for (Sentinel s : sortedSentinels) {
-      System.err.printf("POTENTIALS: %s\n", s.toString());
-    }
-    System.err.printf("POTENTIALS starting: %f, cutoff index = %d\n",
-            context.startingPotential, context.sentinelIndex);
+    
     // Routine is as follows:
     // 1) Find the next candidate from the sentinels
     // 2) Move sentinels and field length readers to candidate
@@ -73,19 +68,10 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
     // 4) while (runningScore > R)
     //      move iterator to candidate
     //      score candidate w/ iterator
-//    System.err.printf("Sentinel index is %d (out of %d)\n",
-//            context.sentinelIndex, sortedSentinels.size());
-//    int count = 0;
     while (true) {
-      //      if (count > 100) break;
-      //++count;
       int candidate = Integer.MAX_VALUE;
       for (int i = 0; i < context.sentinelIndex; i++) {
         if (!sortedSentinels.get(i).iterator.isDone()) {
-          if (context.document > 12038700 && context.document < 12038805) {
-            System.err.printf("Sentinel %d has candidate %d\n", i,
-                    sortedSentinels.get(i).iterator.currentCandidate());
-          }
           candidate = Math.min(candidate, sortedSentinels.get(i).iterator.currentCandidate());
         }
       }
@@ -93,10 +79,6 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
       // Means sentinels are done, we can quit
       if (candidate == Integer.MAX_VALUE) {
         break;
-      }
-
-      if (context.document > 12038700 && context.document < 12038805) {
-        System.err.printf("Scoring %d\n", candidate);
       }
 
       // Otherwise move lengths
@@ -112,16 +94,10 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
 
       // now score sentinels w/out question
       int i;
-      if (context.document == 12110526) {
-        System.err.printf("Running score: %f\n", context.runningScore);
-      }
       for (i = 0; i < context.sentinelIndex; i++) {
         DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
         dsi.syncTo(context.document);
         dsi.deltaScore();
-        if (context.document == 12110526) {
-          System.err.printf("Running score: %f\n", context.runningScore);
-        }
         ////CallTable.increment("scops");
       }
 
@@ -162,13 +138,8 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
       // Now move all matching sentinels members past the current doc, and repeat
       for (i = 0; i < context.sentinelIndex; i++) {
         DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
-        //if (dsi.hasMatch(context.document)) {
-        //System.err.printf("moving iterator %d past doc %d (%s)\n",
-        //        i, context.document, dsi.toString());
         dsi.movePast(context.document);
-        //} else {
-        //System.err.printf("NOT moving iterator %d (%s)\n", i, dsi.toString());
-        // }
+
       }
     }
 

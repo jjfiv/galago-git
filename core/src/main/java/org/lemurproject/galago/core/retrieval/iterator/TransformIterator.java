@@ -45,7 +45,6 @@ public abstract class TransformIterator implements MovableIterator {
 
   @Override
   public int currentCandidate() {
-//    System.err.printf("Iterator %s cc=%d\n", this.toString(), iterator.currentCandidate());
     return iterator.currentCandidate();
   }
 

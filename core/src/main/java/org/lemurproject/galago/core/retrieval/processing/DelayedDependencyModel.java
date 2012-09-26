@@ -360,8 +360,6 @@ public class DelayedDependencyModel extends AbstractPartialProcessor {
     if (ctx.sentinelIndex != i) {
       ////CallTable.increment("sentinel_change");
     }
-
-    //System.err.printf("Sentinel index is %d\n", i);
     ctx.sentinelIndex = i;
   }
 

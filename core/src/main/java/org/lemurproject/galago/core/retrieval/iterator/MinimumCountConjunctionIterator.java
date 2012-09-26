@@ -140,7 +140,6 @@ public class MinimumCountConjunctionIterator extends ConjunctionIterator impleme
         }
       }
     }
-    //System.err.printf("Best CF found: %d\n", cf);
     return cf;
   }
 

@@ -59,12 +59,6 @@ public class DependencyAwareDeltaModel extends ProcessingModel {
     buildSentinels(context, queryParams);
     determineSentinelIndex(context);
 
-    for (Sentinel s : sortedSentinels) {
-      System.err.printf("POTENTIALS: %s\n", s.toString());
-    }
-
-    System.err.printf("POTENTIALS starting: %f, cutoff index = %d\n",
-            context.startingPotential, context.sentinelIndex);
     // Routine is as follows:
     // 1) Find the next candidate from the sentinels
     // 2) Move sentinels and field length readers to candidate
@@ -250,7 +244,6 @@ public class DependencyAwareDeltaModel extends ProcessingModel {
         sortedSentinels.add(new Sentinel(ctx.scorers.get(0), ctx.startingPotential - ctx.runningScore));
       } else {
         // Stack scores based on dependencies
-        System.err.printf("SENTINEL: Building dependent structure.\n");
         sortedSentinels = SortStrategies.populateDependentSentinels(ctx);
       }
     } else {
@@ -260,7 +253,6 @@ public class DependencyAwareDeltaModel extends ProcessingModel {
 
     // Now we figure out the sorting scheme.
     String type = retrieval.getGlobalParameters().get("sort", "length");
-    System.err.printf("SENTINEL: sort = %s.\n", type);
     if (type.equals("length")) {
       SortStrategies.fullLengthSort(sortedSentinels);
     } else if (type.equals("length-split")) {

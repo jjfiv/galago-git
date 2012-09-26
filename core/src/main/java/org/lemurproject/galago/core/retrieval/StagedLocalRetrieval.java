@@ -118,8 +118,6 @@ public class StagedLocalRetrieval extends LocalRetrieval {
     } else {
       throw new IllegalArgumentException("Node " + root.toString() + " did not return a counting iterator.");
     }
-    System.err.printf("DELAYED STATS: computed stats for %s: %s\n",
-            root.toString(), stats.toString());
     return stats;
   }
 

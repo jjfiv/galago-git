@@ -43,7 +43,6 @@ public class BM25FieldScorer implements ScoringFunction {
   public double score(int count, int length) {
     double numerator = count;
     double denominator = 1.0 + (b * ((length / avgDocLength) - 1.0));
-    //System.err.printf("%s: b=%f, l=%d, avgdl=%f, count=%d, score=%f\n", this.toString(), b, length, avgDocLength, count, (numerator/denominator));
     return numerator / denominator;
   }
 }

@@ -64,8 +64,6 @@ public abstract class DisjunctionIterator implements MovableIterator {
   @Override
   public void movePast(int candidate) throws IOException {
     for (MovableIterator iterator : this.drivingIterators) {
-//      System.err.printf("%s: Moving driving iterator %s past %d\n",
-//              this.toString(), iterator.toString(), candidate);
       iterator.movePast(candidate);
     }
   }

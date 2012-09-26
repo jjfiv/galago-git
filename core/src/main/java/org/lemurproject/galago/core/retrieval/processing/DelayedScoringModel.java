@@ -102,7 +102,6 @@ public class DelayedScoringModel extends AbstractPartialProcessor {
     //  4) Determine if it should enter the queue (kth entry minimum is cutoff)
     // 
     // Can prune based on that score as well.
-    System.err.printf("main scorer index: %d\n", context.sentinelIndex);
     while (true) {
       int candidate = Integer.MAX_VALUE;
       for (int i = 0; i < context.sentinelIndex; i++) {

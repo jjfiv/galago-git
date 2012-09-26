@@ -29,11 +29,6 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
   @Override
   public boolean hasMatch(int identifier) {
     this.loadExtents();
-    if (identifier == 12110526) {
-      System.err.printf("\t%s: super.matched=%b, |extents|=%d\n",
-              Utility.shortName(this), super.hasMatch(identifier),
-              this.extents.size());
-    }
     return super.hasMatch(identifier) && this.extents.size() > 0;
   }
 
