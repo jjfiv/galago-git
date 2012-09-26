@@ -300,7 +300,7 @@ public class LocalRetrieval implements Retrieval {
     if (CollectionAggregateIterator.class.isInstance(structIterator)) {
       return ((CollectionAggregateIterator) structIterator).getStatistics();
 
-    } else if (structIterator instanceof MovableCountIterator) {
+    } else if (structIterator instanceof LengthsIterator) {
       LengthsIterator iterator = (LengthsIterator) structIterator;
       CollectionStatistics2 stats = new CollectionStatistics2();
       stats.fieldName = root.toString();

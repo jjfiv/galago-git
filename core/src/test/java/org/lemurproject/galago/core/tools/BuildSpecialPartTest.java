@@ -237,7 +237,6 @@ public class BuildSpecialPartTest extends TestCase {
               + "2 Q0 d10 4 -12.12470467 galago\n"
               + "2 Q0 d55 5 -12.12534503 galago\n";
 
-      System.out.printf("expected: %s\n\nactual: %s", expected, out);
       assertEquals(expected, out);
 
     } finally {

@@ -173,6 +173,10 @@ public class GroupRetrieval implements Retrieval {
     return groups.get(group).runQuery(root, parameters);
   }
 
+  public CollectionStatistics getRetrievalStatisticsGP(String group) throws IOException {
+    return groups.get(group).getRetrievalStatistics();
+  }
+
   public CollectionStatistics getRetrievalStatistics(String partName, String group) throws IOException {
     return groups.get(group).getRetrievalStatistics(partName);
   }

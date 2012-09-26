@@ -74,7 +74,8 @@ public class BuildBackgroundTest extends TestCase {
               + "{ \"number\" : \"2\", \"text\": \"#combine( #feature:dirichlet( #counts:two:part=postings.porter() ) #feature:dirichlet( #counts:sample:part=postings.porter() ) )\"},"
               + "{ \"number\" : \"9\", \"text\" : \"#combine( #feature:dirichlet( #counts:sample:part=postings.porter() ) )\"},"
               + "{ \"number\" : \"11\", \"text\" : \"#combine( #feature:dirichlet( #counts:is:part=postings.porter() ) #feature:dirichlet( #counts:two:part=postings.porter() ) )\"},"
-              + "]}";
+//              + "]}";
+              + "], \"printTransformation\":true}";
 
       queryFile = Utility.createTemporary();
       Utility.copyStringToFile(queries_reg, queryFile);
@@ -86,22 +87,16 @@ public class BuildBackgroundTest extends TestCase {
               + "11 Q0 59 1 -2.07877996 galago\n"
               + "11 Q0 55 2 -2.08010975 galago\n";
       runQueries(queryFile, expected_reg);
-
-      String queries_back1 = "{ \"index\" : \"" + indexFile1.getAbsolutePath() + "\", \"queries\" : ["
-              + "{ \"number\" : \"2\", \"text\": \"#combine( #feature:dirichlet( #counts:two:part=postings.porter() ) #feature:dirichlet( #counts:sample:part=postings.porter() ) )\"},"
-              + "{ \"number\" : \"9\", \"text\" : \"#combine( #feature:dirichlet( #counts:sample:part=postings.porter() ) )\"},"
-              + "{ \"number\" : \"11\", \"text\" : \"#combine( #feature:dirichlet( #counts:is:part=postings.porter() ) #feature:dirichlet( #counts:two:part=postings.porter() ) )\"},"
-              + "], \"backgroundPartMap\" : {\"postings.porter\" : \"background.porter\"}}";
-
-      Utility.copyStringToFile(queries_back1, queryFile);
-      String expected_back =
-              "2 Q0 59 1 -1.60833350 galago\n"
-              + "2 Q0 55 2 -1.61254386 galago\n"
-              + "9 Q0 59 1 -1.06094589 galago\n"
-              + "9 Q0 55 2 -1.06227568 galago\n"
-              + "11 Q0 55 1 -2.36122993 galago\n"
-              + "11 Q0 59 2 -2.36133423 galago\n";
-      runQueries(queryFile, expected_back);
+      
+//  DEPRECATED - need to rethink a bit before re-enabling
+//      String queries_back1 = "{ \"index\" : \"" + indexFile1.getAbsolutePath() + "\", \"queries\" : ["
+//              + "{ \"number\" : \"2\", \"text\": \"#combine( #feature:dirichlet( #counts:two:part=postings.porter() ) #feature:dirichlet( #counts:sample:part=postings.porter() ) )\"},"
+//              + "{ \"number\" : \"9\", \"text\" : \"#combine( #feature:dirichlet( #counts:sample:part=postings.porter() ) )\"},"
+//              + "{ \"number\" : \"11\", \"text\" : \"#combine( #feature:dirichlet( #counts:is:part=postings.porter() ) #feature:dirichlet( #counts:two:part=postings.porter() ) )\"},"
+//              + "], \"backgroundPartMap\" : {\"postings.porter\" : \"background.porter\"}}";
+//
+//      Utility.copyStringToFile(queries_back1, queryFile);
+//      runQueries(queryFile, expected_back);
 
       String queries_back2 = "{ \"index\" : {\"reg\" : \"" + indexFile1.getAbsolutePath() + "\","
               + "\"back\" : \"" + backgroundIndex.getAbsolutePath() + "\" }, "
@@ -114,6 +109,15 @@ public class BuildBackgroundTest extends TestCase {
               + "\"backgroundIndex\" : \"back\"}";
 
       Utility.copyStringToFile(queries_back2, queryFile);
+
+      String expected_back =
+              "2 Q0 59 1 -1.60833350 galago\n"
+              + "2 Q0 55 2 -1.61254386 galago\n"
+              + "9 Q0 59 1 -1.06094589 galago\n"
+              + "9 Q0 55 2 -1.06227568 galago\n"
+              + "11 Q0 55 1 -2.36122993 galago\n"
+              + "11 Q0 59 2 -2.36133423 galago\n";
+      
       runQueries(queryFile, expected_back);
 
     } finally {

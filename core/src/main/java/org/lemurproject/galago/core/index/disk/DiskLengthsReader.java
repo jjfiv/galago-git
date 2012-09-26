@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.*;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics2;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
@@ -157,7 +158,8 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
 
   public class MemoryMapLengthsIterator extends ValueIterator
-          implements MovableCountIterator, LengthsReader.LengthsIterator {
+          implements MovableCountIterator, LengthsReader.LengthsIterator,
+          AggregateReader.CollectionAggregateIterator {
 
     byte[] key;
     private MappedByteBuffer memBuffer;
@@ -340,10 +342,23 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     public byte[] getRegionBytes() {
       return this.key;
     }
+
+    @Override
+    public CollectionStatistics2 getStatistics() {
+      CollectionStatistics2 cs = new CollectionStatistics2();
+      cs.fieldName = Utility.toString(key);
+      cs.collectionLength = this.collectionLength;
+      cs.documentCount = this.nonZeroDocumentCount;
+      cs.maxLength = this.maxLength;
+      cs.minLength = this.minLength;
+      cs.avgLength = this.avgLength;
+      return cs;
+    }
   }
 
   public class StreamLengthsIterator extends KeyListReader.ListIterator
-          implements MovableCountIterator, LengthsReader.LengthsIterator {
+          implements MovableCountIterator, LengthsReader.LengthsIterator,
+          AggregateReader.CollectionAggregateIterator {
 
     private final BTreeIterator iterator;
     private DataStream streamBuffer;
@@ -514,6 +529,18 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     @Override
     public byte[] getRegionBytes() {
       return this.key;
+    }
+
+    @Override
+    public CollectionStatistics2 getStatistics() {
+      CollectionStatistics2 cs = new CollectionStatistics2();
+      cs.fieldName = Utility.toString(key);
+      cs.collectionLength = this.collectionLength;
+      cs.documentCount = this.nonZeroDocumentCount;
+      cs.maxLength = this.maxLength;
+      cs.minLength = this.minLength;
+      cs.avgLength = this.avgLength;
+      return cs;
     }
   }
 }

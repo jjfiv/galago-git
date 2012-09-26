@@ -21,17 +21,17 @@ public interface AggregateReader {
 
     public String fieldName = null;
     // total number of terms in field in the collection
-    public long collectionLength = -1;
+    public long collectionLength = 0;
     // total number of documents that contain field
-    public long documentCount = -1;
+    public long documentCount = 0;
     // note for the next three values: 
     //  - (instances of 'field' in a document are summed together)
     // maximum length of 'field'
-    public long maxLength = -1;
+    public long maxLength = 0;
     // minimum length of 'field'
-    public long minLength = -1;
+    public long minLength = 0;
     // average length of 'field' 
-    public double avgLength = -1;
+    public double avgLength = 0;
 
     public CollectionStatistics2() {
     }
