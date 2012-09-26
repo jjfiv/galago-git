@@ -5,6 +5,7 @@
 package org.lemurproject.galago.core.retrieval.processing;
 
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -18,5 +19,9 @@ public class Sentinel {
   public Sentinel(DeltaScoringIterator it, double s) {
     this.score = s;
     this.iterator = it;
+  }
+
+  public String toString() {
+    return String.format("%s -> %f\n", Utility.shortName(iterator), score);
   }
 }
