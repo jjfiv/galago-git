@@ -23,6 +23,7 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
   public ExtentConjunctionIterator(NodeParameters parameters, MovableExtentIterator[] iterators) throws IOException {
     super(parameters, iterators);
     this.extents = new ExtentArray();
+    buildKey(iterators);
   }
 
   @Override

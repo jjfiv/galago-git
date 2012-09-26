@@ -142,6 +142,9 @@ public abstract class AbstractPartialProcessor extends ProcessingModel {
         context.moveLengths(context.document);
       }
       context.runningScore = context.startingPotential + map.get(context.document).score;
+      System.err.printf("Completing %d: startingPot=%f, partial=%f\n",
+              context.document, context.startingPotential, 
+              map.get(context.document).score);
       System.arraycopy(context.startingPotentials, 0, context.potentials, 0,
               context.startingPotentials.length);
 

@@ -102,34 +102,32 @@ public class StagedLocalRetrieval extends LocalRetrieval {
       String key = AbstractPartialProcessor.makeNodeKey(root);
       stats = syntheticCounts.get(key); // use the cached numbers
     } else if (structIterator instanceof MovableCountIterator) {
-      // Make sure we're not sharing
-      boolean actuallySharing = globalParameters.get("shareNodes", false);
-      globalParameters.set("shareNodes", false);
-
       MovableCountIterator iterator = (MovableCountIterator) structIterator;
       if (this.globalParameters.containsKey("completion")) {
         String mode = this.globalParameters.getString("completion");
         if (mode.equals("onepass")) {
-          onepassStats(stats, iterator);
+          onepassStats(stats, iterator, sc);
         } else if (mode.equals("sampled")) {
-          sampleOnlyStats(stats, iterator);
+          sampleOnlyStats(stats, iterator, sc);
         } else {
-          defaultStats(stats, iterator);
+          defaultStats(stats, iterator, sc);
         }
       } else {
-        defaultStats(stats, iterator);
+        defaultStats(stats, iterator, sc);
       }
-      globalParameters.set("shareNodes", actuallySharing);
     } else {
       throw new IllegalArgumentException("Node " + root.toString() + " did not return a counting iterator.");
     }
-
+    System.err.printf("DELAYED STATS: computed stats for %s: %s\n",
+            root.toString(), stats.toString());
     return stats;
   }
 
   // Nothing special
-  private void defaultStats(NodeStatistics stats, MovableCountIterator it) throws Exception {
+  private void defaultStats(NodeStatistics stats,
+          MovableCountIterator it, ScoringContext sc) throws Exception {
     while (!it.isDone()) {
+      sc.document = it.currentCandidate();
       int candidate = it.currentCandidate();
       if (it.hasMatch(candidate)) {
         stats.maximumCount = Math.max(stats.maximumCount, it.count());
@@ -141,16 +139,16 @@ public class StagedLocalRetrieval extends LocalRetrieval {
   }
 
   // Do the whole thing, but cache the counts of the candidates for use later
-  private void onepassStats(NodeStatistics stats, MovableCountIterator it) throws Exception {
+  private void onepassStats(NodeStatistics stats, 
+          MovableCountIterator it, ScoringContext sc) throws Exception {
     assert (candidates != null);
     if (occurrenceCache == null) {
       occurrenceCache = new HashMap<String, PriorityQueue<Pair>>();
     }
     PriorityQueue<Pair> cache = new PriorityQueue<Pair>();
-    System.err.printf("Getting key for %s\n", it.toString());
     occurrenceCache.put(Utility.toString(it.key()), cache);
-
     while (!it.isDone()) {
+      sc.document = it.currentCandidate();
       int candidate = it.currentCandidate();
       if (it.hasMatch(candidate)) {
         stats.maximumCount = Math.max(stats.maximumCount, it.count());
@@ -159,13 +157,14 @@ public class StagedLocalRetrieval extends LocalRetrieval {
         if (candidates.contains(candidate)) {
           cache.add(new Pair(candidate, it.count()));
         }
-        it.movePast(candidate);
       }
+      it.movePast(candidate);
     }
   }
 
   // Only takes numbers from the supplied candidate list. :-o
-  private void sampleOnlyStats(NodeStatistics stats, MovableCountIterator it) throws Exception {
+  private void sampleOnlyStats(NodeStatistics stats, 
+          MovableCountIterator it, ScoringContext sc) throws Exception {
     assert (sortedCandidates != null);
     if (occurrenceCache == null) {
       occurrenceCache = new HashMap<String, PriorityQueue<Pair>>();
@@ -178,7 +177,7 @@ public class StagedLocalRetrieval extends LocalRetrieval {
       if (it.isDone()) {
         break;
       }
-
+      sc.document = sortedCandidates.get(i);
       if (it.hasMatch(sortedCandidates.get(i))) {
         stats.maximumCount = Math.max(stats.maximumCount, it.count());
         stats.nodeFrequency += it.count();

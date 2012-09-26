@@ -301,6 +301,7 @@ public class LocalRetrieval implements Retrieval {
     stats.node = root.toString();
     stats.nodeDocumentCount = 0;
     stats.nodeFrequency = 0;
+    stats.maximumCount = 0;
     stats.collectionLength = getRetrievalStatistics().collectionLength;
     stats.documentCount = getRetrievalStatistics().documentCount;
 
@@ -315,6 +316,7 @@ public class LocalRetrieval implements Retrieval {
         sc.document = iterator.currentCandidate();
         if (iterator.hasMatch(iterator.currentCandidate())) {
           stats.nodeFrequency += iterator.count();
+          stats.maximumCount = Math.max(iterator.count(), stats.maximumCount);
           stats.nodeDocumentCount++;
         }
         iterator.movePast(iterator.currentCandidate());
@@ -323,6 +325,8 @@ public class LocalRetrieval implements Retrieval {
     } else {
       throw new IllegalArgumentException("Node " + root.toString() + " did not return a counting iterator.");
     }
+    System.err.printf("NORMAL STATS: computed stats for %s: %s\n",
+            root.toString(), stats.toString());
     return stats;
   }
 

@@ -80,7 +80,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
       int candidate = Integer.MAX_VALUE;
       for (int i = 0; i < context.sentinelIndex; i++) {
         if (!sortedSentinels.get(i).iterator.isDone()) {
-          if (context.document > 12038300 && context.document < 12038805) {
+          if (context.document > 12038700 && context.document < 12038805) {
             System.err.printf("Sentinel %d has candidate %d\n", i,
                     sortedSentinels.get(i).iterator.currentCandidate());
           }
@@ -93,7 +93,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
         break;
       }
 
-      if (context.document > 12038300 && context.document < 12038805) {
+      if (context.document > 12038700 && context.document < 12038805) {
         System.err.printf("Scoring %d\n", candidate);
       }
       
@@ -110,10 +110,16 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
 
       // now score sentinels w/out question
       int i;
+      if (context.document == 12038803) {
+	  System.err.printf("Running score: %f\n", context.runningScore); 
+      }
       for (i = 0; i < context.sentinelIndex; i++) {
         DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
         dsi.syncTo(context.document);
         dsi.deltaScore();
+	if (context.document == 12038803) {
+	    System.err.printf("Running score: %f\n", context.runningScore); 
+	}
         ////CallTable.increment("scops");
       }
 

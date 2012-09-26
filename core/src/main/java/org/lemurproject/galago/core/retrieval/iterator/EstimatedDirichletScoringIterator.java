@@ -156,7 +156,6 @@ public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
     if (SoftDeltaScoringContext.class.isAssignableFrom(ctx.getClass())) {
       SoftDeltaScoringContext dctx = (SoftDeltaScoringContext) ctx;
       dctx.scorers.add(this);
-      dctx.startingPotential += (max * weight);
       if (!dctx.hi_accumulators.containsKey(this)) {
         lowEstimate = 1.0 / this.collectionLength;
 
@@ -176,6 +175,7 @@ public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
       // Allows for a slightly more conservative "worst-case"
       min = ((DirichletScorer) function).score(0, avgDocLength, lowEstimate);
       max = ((DirichletScorer) function).score(maxcount, avgDocLength, hiEstimate);
+      dctx.startingPotential += (max * weight);
     }
   }
 
