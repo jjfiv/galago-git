@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.DynamicIndex;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.IndexPartReader;
@@ -214,7 +214,7 @@ public class MemoryIndex implements DynamicIndex, Index {
     }
   }
 
-  public CollectionStatistics getCollectionStatistics() {
+  public IndexPartStatistics getCollectionStatistics() {
     if (parts.containsKey("postings")) {
       return getCollectionStatistics("postings");
     } else {
@@ -228,9 +228,9 @@ public class MemoryIndex implements DynamicIndex, Index {
    * @param part
    * @return
    */
-  public CollectionStatistics getCollectionStatistics(String part) {
+  public IndexPartStatistics getCollectionStatistics(String part) {
     if (this.containsPart(part)) {
-      return new CollectionStatistics(part, this);
+      return new IndexPartStatistics(part, this);
     } else {
       return null;
     }

@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -44,9 +44,9 @@ public interface Index {
 
   public NodeType getNodeType(Node node) throws Exception;
 
-  public CollectionStatistics getCollectionStatistics();
+  public IndexPartStatistics getCollectionStatistics();
 
-  public CollectionStatistics getCollectionStatistics(String part);
+  public IndexPartStatistics getCollectionStatistics(String part);
 
   public void close() throws IOException;
 

@@ -8,8 +8,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics2;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -107,22 +107,22 @@ public class GroupRetrieval implements Retrieval {
   }
 
   @Override
-  public CollectionStatistics getRetrievalStatistics() throws IOException {
+  public IndexPartStatistics getRetrievalStatistics() throws IOException {
     return groups.get(defGroup).getRetrievalStatistics();
   }
 
   @Override
-  public CollectionStatistics getRetrievalStatistics(String partName) throws IOException {
+  public IndexPartStatistics getRetrievalStatistics(String partName) throws IOException {
     return groups.get(defGroup).getRetrievalStatistics(partName);
   }
 
   @Override
-  public CollectionStatistics2 collectionStatistics(String nodeString) throws Exception {
+  public CollectionStatistics collectionStatistics(String nodeString) throws Exception {
     return groups.get(defGroup).collectionStatistics(nodeString);
   }
 
   @Override
-  public CollectionStatistics2 collectionStatistics(Node node) throws Exception {
+  public CollectionStatistics collectionStatistics(Node node) throws Exception {
     return groups.get(defGroup).collectionStatistics(node);
   }
 
@@ -173,19 +173,19 @@ public class GroupRetrieval implements Retrieval {
     return groups.get(group).runQuery(root, parameters);
   }
 
-  public CollectionStatistics getRetrievalStatisticsGP(String group) throws IOException {
+  public IndexPartStatistics getRetrievalStatisticsGP(String group) throws IOException {
     return groups.get(group).getRetrievalStatistics();
   }
 
-  public CollectionStatistics getRetrievalStatistics(String partName, String group) throws IOException {
+  public IndexPartStatistics getRetrievalStatistics(String partName, String group) throws IOException {
     return groups.get(group).getRetrievalStatistics(partName);
   }
 
-  public CollectionStatistics2 collectionStatistics(String nodeString, String group) throws Exception {
+  public CollectionStatistics collectionStatistics(String nodeString, String group) throws Exception {
     return groups.get(group).collectionStatistics(nodeString);
   }
 
-  public CollectionStatistics2 collectionStatistics(Node node, String group) throws Exception {
+  public CollectionStatistics collectionStatistics(Node node, String group) throws Exception {
     return groups.get(group).collectionStatistics(node);
   }
 

@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.parse.Document;
@@ -58,9 +58,8 @@ public class GeometricIndexTest extends TestCase {
       }
 
       assertTrue(index.globalDocumentCount == 255);
-      CollectionStatistics stats = index.getCollectionStatistics("postings");
+      IndexPartStatistics stats = index.getCollectionStatistics("postings");
       assertTrue(stats.collectionLength == 1275);
-      assertTrue(stats.documentCount == 255);
 
 
       ScoringContext sc = new ScoringContext();

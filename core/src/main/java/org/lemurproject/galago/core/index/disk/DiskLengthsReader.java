@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.*;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics2;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
@@ -344,8 +344,8 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
 
     @Override
-    public CollectionStatistics2 getStatistics() {
-      CollectionStatistics2 cs = new CollectionStatistics2();
+    public CollectionStatistics getStatistics() {
+      CollectionStatistics cs = new CollectionStatistics();
       cs.fieldName = Utility.toString(key);
       cs.collectionLength = this.collectionLength;
       cs.documentCount = this.nonZeroDocumentCount;
@@ -532,8 +532,8 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
 
     @Override
-    public CollectionStatistics2 getStatistics() {
-      CollectionStatistics2 cs = new CollectionStatistics2();
+    public CollectionStatistics getStatistics() {
+      CollectionStatistics cs = new CollectionStatistics();
       cs.fieldName = Utility.toString(key);
       cs.collectionLength = this.collectionLength;
       cs.documentCount = this.nonZeroDocumentCount;

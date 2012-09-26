@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics2;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
@@ -40,7 +40,7 @@ public class MultiRetrieval implements Retrieval {
   protected ArrayList<Retrieval> retrievals;
   protected FeatureFactory features;
   protected Parameters globalParameters;
-  protected HashMap<String, CollectionStatistics> retrievalStatistics;
+  protected HashMap<String, IndexPartStatistics> retrievalStatistics;
   protected Parameters retrievalParts;
 
   public MultiRetrieval(ArrayList<Retrieval> indexes, Parameters p) throws Exception {
@@ -58,12 +58,12 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public CollectionStatistics getRetrievalStatistics() throws IOException {
+  public IndexPartStatistics getRetrievalStatistics() throws IOException {
     return this.retrievalStatistics.get("postings");
   }
 
   @Override
-  public CollectionStatistics getRetrievalStatistics(String partName) throws IOException {
+  public IndexPartStatistics getRetrievalStatistics(String partName) throws IOException {
     return this.retrievalStatistics.get(partName);
   }
 
@@ -204,7 +204,7 @@ public class MultiRetrieval implements Retrieval {
     this.retrievalParts = mergeParts(parts);
     retrievalStatistics = new HashMap();
     for (String part : getAvailableParts().getKeys()) {
-      CollectionStatistics mergedStats = null;
+      IndexPartStatistics mergedStats = null;
       for (Retrieval r : this.retrievals) {
         if (mergedStats == null) {
           mergedStats = r.getRetrievalStatistics(part);
@@ -280,17 +280,17 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public CollectionStatistics2 collectionStatistics(String nodeString) throws Exception {
+  public CollectionStatistics collectionStatistics(String nodeString) throws Exception {
     Node root = StructuredQuery.parse(nodeString);
     return collectionStatistics(root);
   }
 
   @Override
-  public CollectionStatistics2 collectionStatistics(Node node) throws Exception {
+  public CollectionStatistics collectionStatistics(Node node) throws Exception {
 
     ArrayList<Thread> threads = new ArrayList();
     final Node root = node;
-    final List<CollectionStatistics2> stats = Collections.synchronizedList(new ArrayList());
+    final List<CollectionStatistics> stats = Collections.synchronizedList(new ArrayList());
     final List<String> errors = Collections.synchronizedList(new ArrayList());
 
     for (int i = 0; i < this.retrievals.size(); i++) {
@@ -299,7 +299,7 @@ public class MultiRetrieval implements Retrieval {
         @Override
         public void run() {
           try {
-            CollectionStatistics2 ns = r.collectionStatistics(root);
+            CollectionStatistics ns = r.collectionStatistics(root);
             stats.add(ns);
           } catch (Exception ex) {
             errors.add(ex.getMessage());
@@ -322,8 +322,8 @@ public class MultiRetrieval implements Retrieval {
       throw new IOException("Unable to count " + node.toString());
     }
 
-    CollectionStatistics2 output = stats.remove(0);
-    for (CollectionStatistics2 s : stats) {
+    CollectionStatistics output = stats.remove(0);
+    for (CollectionStatistics s : stats) {
       output.add(s);
     }
     return output;

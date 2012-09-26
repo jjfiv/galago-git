@@ -18,7 +18,7 @@ import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -357,7 +357,7 @@ public class SearchWebHandler extends ContextHandler {
 
   public void handleStats(HttpServletRequest request, HttpServletResponse response)
           throws IllegalStateException, IllegalArgumentException, IOException {
-    CollectionStatistics stats = search.getRetrievalStats();
+    IndexPartStatistics stats = search.getRetrievalStats();
     PrintWriter writer = response.getWriter();
     writer.write(stats.toString()); // parameters are output into an XML format already
     writer.close();

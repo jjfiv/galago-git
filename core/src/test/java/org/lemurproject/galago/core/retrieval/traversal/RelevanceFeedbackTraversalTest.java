@@ -1,15 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import org.lemurproject.galago.core.retrieval.traversal.BM25RelevanceFeedbackTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.RelevanceModelTraversal;
 import java.io.File;
 import junit.framework.TestCase;
+import org.lemurproject.galago.core.retrieval.LocalRetrieval;
+import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
+import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.retrieval.RetrievalFactory;
-import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
-import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -84,8 +82,8 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     //truth data
     StringBuilder correct = new StringBuilder();
     correct.append("#combine( #feature:bm25( #extents:cat:part=postings() ) ");
-    correct.append("#feature:bm25rf:R=3:rt=2( #extents:moon:part=postings() ) ");
-    correct.append("#feature:bm25rf:R=3:rt=1( #extents:jumped:part=postings() ) )");
+    correct.append("#feature:bm25rf:R=3:rt=1( #extents:jumped:part=postings() ) ");
+    correct.append("#feature:bm25rf:R=3:rt=2( #extents:moon:part=postings() ) )");
     
     assertEquals(correct.toString(), transformed.toString());
     

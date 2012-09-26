@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.BTreeFactory;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.Index;
@@ -53,7 +53,7 @@ public class DiskIndex implements Index {
   protected NamesReader namesReader = null;
   
   protected Map<String, IndexPartReader> parts = new HashMap<String, IndexPartReader>();
-  protected Map<String, CollectionStatistics> partStatistics = new HashMap<String, CollectionStatistics>();
+  protected Map<String, IndexPartStatistics> partStatistics = new HashMap<String, IndexPartStatistics>();
   protected Map<String, HashMap<String, IndexPartModifier>> modifiers = new HashMap<String, HashMap<String, IndexPartModifier>>();
   protected HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
   protected HashSet<String> knownIndexOperators = new HashSet<String>();
@@ -133,7 +133,7 @@ public class DiskIndex implements Index {
   protected void initializeComponent(String name, IndexComponentReader component) {
     if (IndexPartReader.class.isAssignableFrom(component.getClass())) {
       parts.put(name, (IndexPartReader) component);
-      partStatistics.put(name, new CollectionStatistics(name, component.getManifest()));
+      partStatistics.put(name, new IndexPartStatistics(name, component.getManifest()));
 
     } else if (IndexPartModifier.class.isAssignableFrom(component.getClass())) {
       // need to pop off the dirname : (e.g. mod/)
@@ -326,12 +326,12 @@ public class DiskIndex implements Index {
   }
 
   @Override
-  public CollectionStatistics getCollectionStatistics() {
+  public IndexPartStatistics getCollectionStatistics() {
     return getCollectionStatistics(this.getDefaultPart());
   }
 
   @Override
-  public CollectionStatistics getCollectionStatistics(String part) {
+  public IndexPartStatistics getCollectionStatistics(String part) {
     return this.partStatistics.get(part);
   }
 

@@ -9,7 +9,7 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.types.DocumentSplit;
@@ -29,7 +29,7 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 public class IndexPartMergeManager implements Processor<DocumentSplit> {
 
   TupleFlowParameters parameters;
-  CollectionStatistics partStats = null;
+  IndexPartStatistics partStats = null;
   String part;
   HashMap<IndexPartReader, Integer> indexPartReaders = new HashMap();
   String mergerClassName = null;
@@ -98,9 +98,9 @@ public class IndexPartMergeManager implements Processor<DocumentSplit> {
 
   private void mergeStatistics(Parameters manifest) {
     if (partStats == null) {
-      partStats = new CollectionStatistics(part, manifest);
+      partStats = new IndexPartStatistics(part, manifest);
     } else {
-      partStats.add(new CollectionStatistics(part, manifest));
+      partStats.add(new IndexPartStatistics(part, manifest));
     }
   }
 }

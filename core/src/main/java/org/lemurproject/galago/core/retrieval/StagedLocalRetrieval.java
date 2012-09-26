@@ -9,7 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.iterator.*;
@@ -193,7 +193,7 @@ public class StagedLocalRetrieval extends LocalRetrieval {
 
       // read in counts
       syntheticCounts = new HashMap<String, NodeStatistics>();
-      CollectionStatistics cs = this.getRetrievalStatistics();
+      IndexPartStatistics cs = this.getRetrievalStatistics();
       BufferedReader br = new BufferedReader(new FileReader(globalParameters.getString("syntheticCounts")));
       while (br.ready()) {
         String[] parts = br.readLine().split("\t");

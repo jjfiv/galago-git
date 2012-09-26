@@ -8,8 +8,8 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import junit.framework.TestCase;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics2;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.Retrieval;
@@ -128,21 +128,21 @@ public class RemoveStopwordsTraversalTest extends TestCase {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public CollectionStatistics getRetrievalStatistics() throws IOException {
+    public IndexPartStatistics getRetrievalStatistics() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public CollectionStatistics getRetrievalStatistics(String partName) throws IOException {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public CollectionStatistics2 collectionStatistics(String nodeString) throws Exception {
+    public IndexPartStatistics getRetrievalStatistics(String partName) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public CollectionStatistics2 collectionStatistics(Node node) throws Exception {
+    public CollectionStatistics collectionStatistics(String nodeString) throws Exception {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public CollectionStatistics collectionStatistics(Node node) throws Exception {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

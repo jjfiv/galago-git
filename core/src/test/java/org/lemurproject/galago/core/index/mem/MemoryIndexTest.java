@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
@@ -46,7 +46,6 @@ public class MemoryIndexTest extends TestCase {
     }
 
     assertEquals(index.getCollectionStatistics().collectionLength, 1000);
-    assertEquals(index.getCollectionStatistics().documentCount, 200);
     assertEquals(index.getCollectionStatistics().vocabCount, 204);
 
     Node n = StructuredQuery.parse("#counts:sample:part=postings()");
@@ -96,15 +95,13 @@ public class MemoryIndexTest extends TestCase {
       (new FlushToDisk()).flushMemoryIndex(index, output.getAbsolutePath(), false);
 
       Retrieval r = RetrievalFactory.instance(output.getAbsolutePath(), new Parameters());
-      CollectionStatistics postingsStats = r.getRetrievalStatistics();
-      CollectionStatistics stemmedPostingsStats = r.getRetrievalStatistics("stemmedPostings");
+      IndexPartStatistics postingsStats = r.getRetrievalStatistics();
+      IndexPartStatistics stemmedPostingsStats = r.getRetrievalStatistics("stemmedPostings");
 
       assertEquals(postingsStats.collectionLength, 1000);
-      assertEquals(postingsStats.documentCount, 200);
       assertEquals(postingsStats.vocabCount, 204);
 
       assertEquals(stemmedPostingsStats.collectionLength, 1000);
-      assertEquals(stemmedPostingsStats.documentCount, 200);
       assertEquals(stemmedPostingsStats.vocabCount, 204);
     } finally {
       if(output != null)

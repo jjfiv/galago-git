@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -59,7 +59,7 @@ public class PRMSTraversal extends Traversal {
       // Get the field length
       Map<String, Long> fieldLengths = new HashMap<String, Long>();
       for (String field : fieldList) {
-        CollectionStatistics p = retrieval.getRetrievalStatistics("field." + field);
+        IndexPartStatistics p = retrieval.getRetrievalStatistics("field." + field);
         fieldLengths.put(field, p.collectionLength);
       }
 

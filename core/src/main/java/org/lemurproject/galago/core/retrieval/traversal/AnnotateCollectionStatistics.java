@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.io.IOException;
 import java.util.HashSet;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics2;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -87,7 +87,7 @@ public class AnnotateCollectionStatistics extends Traversal {
       // extract field if possible:
       // use 'document' as the default context
       String field = node.getNodeParameters().get("lengths", "document");
-      CollectionStatistics2 stats = getCollectionStatistics(field);
+      CollectionStatistics stats = getCollectionStatistics(field);
 
       if (reqStats.contains("collectionLength")
               && !nodeParams.containsKey("collectionLength")) {
@@ -130,7 +130,7 @@ public class AnnotateCollectionStatistics extends Traversal {
     }
   }
 
-  private CollectionStatistics2 getCollectionStatistics(String field) throws Exception {
+  private CollectionStatistics getCollectionStatistics(String field) throws Exception {
     if (globalParameters.isString("backgroundIndex")) {
       assert (GroupRetrieval.class.isAssignableFrom(retrieval.getClass())) : "Retrieval object must be a GroupRetrieval to use the backgroundIndex parameter.";
       return ((GroupRetrieval) retrieval).collectionStatistics("#lengths:"+field+":part=lengths()", globalParameters.getString("backgroundIndex"));

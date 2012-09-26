@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionAggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics2;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.LengthsReader.LengthsIterator;
@@ -96,12 +96,12 @@ public class LocalRetrieval implements Retrieval {
    * expected.
    */
   @Override
-  public CollectionStatistics getRetrievalStatistics(String partName) throws IOException {
+  public IndexPartStatistics getRetrievalStatistics(String partName) throws IOException {
     return index.getCollectionStatistics(partName);
   }
 
   @Override
-  public CollectionStatistics getRetrievalStatistics() throws IOException {
+  public IndexPartStatistics getRetrievalStatistics() throws IOException {
     return index.getCollectionStatistics();
   }
 
@@ -284,14 +284,14 @@ public class LocalRetrieval implements Retrieval {
   }
 
   @Override
-  public CollectionStatistics2 collectionStatistics(String nodeString) throws Exception {
+  public CollectionStatistics collectionStatistics(String nodeString) throws Exception {
     // first parse the node
     Node root = StructuredQuery.parse(nodeString);
     return collectionStatistics(root);
   }
 
   @Override
-  public CollectionStatistics2 collectionStatistics(Node root) throws Exception {
+  public CollectionStatistics collectionStatistics(Node root) throws Exception {
 
     ScoringContext sc = ContextFactory.createContext(globalParameters);
     StructuredIterator structIterator = createIterator(new Parameters(), root, sc);
@@ -302,7 +302,7 @@ public class LocalRetrieval implements Retrieval {
 
     } else if (structIterator instanceof LengthsIterator) {
       LengthsIterator iterator = (LengthsIterator) structIterator;
-      CollectionStatistics2 stats = new CollectionStatistics2();
+      CollectionStatistics stats = new CollectionStatistics();
       stats.fieldName = root.toString();
       stats.minLength = Integer.MAX_VALUE;
 

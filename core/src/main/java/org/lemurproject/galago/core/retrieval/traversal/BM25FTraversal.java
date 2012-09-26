@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics2;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -92,7 +92,7 @@ public class BM25FTraversal extends Traversal {
 
   private double getIDF(Node termNode) throws Exception {
     // get the global document count:
-    CollectionStatistics2 cs = retrieval.collectionStatistics("#lengths:part=lengths()");
+    CollectionStatistics cs = retrieval.collectionStatistics("#lengths:part=lengths()");
     double documentCount = cs.documentCount;
     
     // get the number of documents this term occurs in:

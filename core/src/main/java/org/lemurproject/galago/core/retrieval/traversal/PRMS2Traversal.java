@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics2;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -84,7 +84,7 @@ public class PRMS2Traversal extends Traversal {
         int i = 0;
         double normalizer = 0.0; // sum_k of P(t|F_k)
         for (String field : fieldList) {
-          CollectionStatistics2 field_cs = retrieval.collectionStatistics("#lengths:" + field + ":part=lengths()");
+          CollectionStatistics field_cs = retrieval.collectionStatistics("#lengths:" + field + ":part=lengths()");
 
           String partName = "field." + field;
           if (!availableFields.containsKey(partName)) {

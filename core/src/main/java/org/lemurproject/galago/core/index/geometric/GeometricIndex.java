@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.DynamicIndex;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.IndexPartReader;
@@ -233,15 +233,15 @@ public class GeometricIndex implements DynamicIndex, Index {
 
   // Note: this data is correct only at time of requesting.
   // DO NOT CACHE THIS DATA.
-  public CollectionStatistics getCollectionStatistics() {
+  public IndexPartStatistics getCollectionStatistics() {
     return getCollectionStatistics(getDefaultPart());
   }
 
   // Note: this data is correct only at time of requesting.
   // DO NOT CACHE THIS DATA.
   @Override
-  public CollectionStatistics getCollectionStatistics(String part) {
-    CollectionStatistics stats = this.currentMemoryIndex.getCollectionStatistics(part);
+  public IndexPartStatistics getCollectionStatistics(String part) {
+    IndexPartStatistics stats = this.currentMemoryIndex.getCollectionStatistics(part);
     for (DiskIndex di : this.geometricParts.getIndexes()) {
       stats.add(di.getCollectionStatistics(part));
     }

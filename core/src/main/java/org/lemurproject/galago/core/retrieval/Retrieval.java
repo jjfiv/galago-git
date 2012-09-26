@@ -4,8 +4,8 @@ package org.lemurproject.galago.core.retrieval;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics2;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -112,13 +112,13 @@ public interface Retrieval {
   public ScoredDocument[] runQuery(Node root, Parameters parameters) throws Exception;
 
   // term and collection statistics gatherers
-  public CollectionStatistics getRetrievalStatistics() throws IOException;
+  public IndexPartStatistics getRetrievalStatistics() throws IOException;
 
-  public CollectionStatistics getRetrievalStatistics(String partName) throws IOException;
+  public IndexPartStatistics getRetrievalStatistics(String partName) throws IOException;
 
-  public CollectionStatistics2 collectionStatistics(String nodeString) throws Exception;
+  public CollectionStatistics collectionStatistics(String nodeString) throws Exception;
 
-  public CollectionStatistics2 collectionStatistics(Node node) throws Exception;
+  public CollectionStatistics collectionStatistics(Node node) throws Exception;
 
   public NodeStatistics nodeStatistics(String nodeString) throws Exception;
 

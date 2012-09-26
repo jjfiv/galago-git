@@ -164,7 +164,7 @@ public class PL2FTraversal extends Traversal {
     dfr.getNodeParameters().set("nodeFrequency", ns.nodeFrequency);
 
     // get global document count:
-    AggregateReader.CollectionStatistics2 cs = retrieval.collectionStatistics("#lengths:part=lengths()");
+    AggregateReader.CollectionStatistics cs = retrieval.collectionStatistics("#lengths:part=lengths()");
     dfr.getNodeParameters().set("documentCount", cs.documentCount);
 
     // Now echo these values down to the leaves

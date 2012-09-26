@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.SimpleQuery;
@@ -36,11 +36,11 @@ public class Search {
     return retrieval;
   }
 
-  public CollectionStatistics getRetrievalStats() throws IOException {
+  public IndexPartStatistics getRetrievalStats() throws IOException {
     return retrieval.getRetrievalStatistics();
   }
   
-  public CollectionStatistics getRetrievalStats(String part) throws IOException {
+  public IndexPartStatistics getRetrievalStats(String part) throws IOException {
     return retrieval.getRetrievalStatistics(part);
   }
 

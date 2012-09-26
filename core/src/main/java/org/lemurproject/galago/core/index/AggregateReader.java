@@ -16,7 +16,7 @@ public interface AggregateReader {
    * Collection Statistics. Stores aggregate values used for smoothing models of
    * documents.
    */
-  public class CollectionStatistics2 {
+  public class CollectionStatistics {
     // 'document', 'field', or passage label
 
     public String fieldName = null;
@@ -33,10 +33,10 @@ public interface AggregateReader {
     // average length of 'field' 
     public double avgLength = 0;
 
-    public CollectionStatistics2() {
+    public CollectionStatistics() {
     }
 
-    public CollectionStatistics2(Parameters p) {
+    public CollectionStatistics(Parameters p) {
       this.fieldName = p.getString("fieldName");
       this.collectionLength = p.getLong("collectionLength");
       this.documentCount = p.getLong("documentCount");
@@ -45,7 +45,7 @@ public interface AggregateReader {
       this.avgLength = p.getDouble("avgLength");
     }
 
-    public void add(CollectionStatistics2 other) {
+    public void add(CollectionStatistics other) {
       assert (this.fieldName.equals(other.fieldName)) : "";
       this.collectionLength += other.collectionLength;
       this.documentCount += other.documentCount;
@@ -66,38 +66,33 @@ public interface AggregateReader {
     }
   }
 
-  public class CollectionStatistics {
+  public class IndexPartStatistics {
 
     public String partName;
     public long collectionLength;
-    public long documentCount;
     public long vocabCount;
 
-    public CollectionStatistics(String partName, Parameters parameters) {
+    public IndexPartStatistics(String partName, Parameters parameters) {
       this.partName = partName;
       collectionLength = parameters.get("statistics/collectionLength", 0L);
-      documentCount = parameters.get("statistics/documentCount", 0L);
       vocabCount = parameters.get("statistics/vocabCount", 0L);
     }
 
-    public CollectionStatistics(String partName, MemoryIndex index) {
+    public IndexPartStatistics(String partName, MemoryIndex index) {
       this.partName = partName;
       collectionLength = index.getIndexPart(partName).getCollectionLength();
-      documentCount = index.getIndexPart(partName).getDocumentCount();
       vocabCount = index.getIndexPart(partName).getKeyCount();
     }
 
-    public void add(CollectionStatistics other) {
+    public void add(IndexPartStatistics other) {
       assert this.partName.equals(other.partName);
       this.collectionLength += other.collectionLength;
-      this.documentCount += other.documentCount;
       this.vocabCount += other.vocabCount;
     }
 
     public Parameters toParameters() {
       Parameters p = new Parameters();
       p.set("statistics/collectionLength", collectionLength);
-      p.set("statistics/documentCount", documentCount);
       p.set("statistics/vocabCount", vocabCount);
       return p;
     }
@@ -131,7 +126,7 @@ public interface AggregateReader {
 
   public static interface CollectionAggregateIterator {
 
-    public CollectionStatistics2 getStatistics();
+    public CollectionStatistics getStatistics();
   }
 
   public static interface NodeAggregateIterator {
