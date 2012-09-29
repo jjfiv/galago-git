@@ -104,29 +104,136 @@ public interface Retrieval {
    * annotated. An example is the query produced from transformQuery.
    *
    * @param root
-   * @return
+   * @return array of ScoredDocuments
    * @throws Exception
    */
   public ScoredDocument[] runQuery(Node root) throws Exception;
 
+  /**
+   * Runs the query against the retrieval. Assumes the query has been properly
+   * annotated. An example is the query produced from transformQuery.
+   * Parameters object allows any global execution parameters or default values
+   * to be overridden.
+   *
+   * @param root, parameters
+   * @return array of ScoredDocuments
+   * @throws Exception
+   */
   public ScoredDocument[] runQuery(Node root, Parameters parameters) throws Exception;
 
-  // term and collection statistics gatherers
+  /**
+   * Returns IndexPartStatistics for the default postings part.
+   * Usually the part is 'postings.porter' or 'postings'.
+   * Uses getDefaultPart() function to determine the part.
+   * 
+   * Data includes statistics for vocabulary size, 
+   * total number of postings stored and longest posting list.
+   * 
+   * @return IndexPartStatistics
+   * @throws IOException
+   */
   public IndexPartStatistics getRetrievalStatistics() throws IOException;
 
+  /**
+   * Returns IndexPartStatistics for the named postings part.
+   * 
+   * Data includes statistics for vocabulary size, 
+   * total number of postings stored and longest posting list.
+   * 
+   * @param partName
+   * @return IndexPartStatistics
+   * @throws IOException
+   */
   public IndexPartStatistics getRetrievalStatistics(String partName) throws IOException;
 
+  /**
+   * Returns statistics for a string representation of a lengths node.
+   * See collectionStatistics(Node node).
+   * 
+   * Data returned includes collectionLength, document count, longest document,
+   * shortest document, average document. 
+   *
+   * @param nodeString
+   * @return CollectionStatistics
+   * @throws Exception
+   */
   public CollectionStatistics collectionStatistics(String nodeString) throws Exception;
 
+  /**
+   * Returns statistics for a lengths node. This data is commonly used
+   * in probabilistic smoothing functions. 
+   * 
+   * The root-node must implement LengthsIterator.
+   * 
+   * Data returned includes collectionLength, document count, longest document,
+   * shortest document, average document. Where 'document' may be a 'field' or other
+   * specified region of indexed documents.
+   * 
+   *
+   * @param node
+   * @return CollectionStatistics
+   * @throws Exception
+   */
   public CollectionStatistics collectionStatistics(Node node) throws Exception;
 
+  /**
+   * Returns collection statistics for a count node. This data is commonly used
+   * as a feature in a retrieval model. 
+   * See nodeStatistics(Node node).
+   * 
+   * Data returned includes the frequency of the node in the collection, 
+   * the number of documents that return a non-zero count for the node, and
+   * the maximum frequency of the node in any single document.
+   * 
+   * @param nodeString
+   * @return NodeStatistics
+   * @throws Exception
+   */
   public NodeStatistics nodeStatistics(String nodeString) throws Exception;
 
+  /**
+   * Returns collection statistics for a count node. This data is commonly used
+   * as a feature in a retrieval model. 
+   * 
+   * The root-node must implement a 'MovableCountIterator'.
+   * 
+   * Data returned includes the frequency of the node in the collection, 
+   * the number of documents that return a non-zero count for the node, and
+   * the maximum frequency of the node in any single document.
+   * 
+   * @param nodeString
+   * @return NodeStatistics
+   * @throws Exception
+   */
   public NodeStatistics nodeStatistics(Node node) throws Exception;
 
+  /**
+   * Returns the length of a particular document. Where docid
+   * is the internal identifier of the document.
+   *
+   * @param docid
+   * @return document length
+   * @throws IOException
+   */
   public int getDocumentLength(int docid) throws IOException;
 
+  /**
+   * Returns the length of a particular document. Where docname
+   * is the internally stored name of the document.
+   *
+   * @param docid
+   * @return document length
+   * @throws IOException
+   */
   public int getDocumentLength(String docname) throws IOException;
 
+  /**
+   * Returns the internally stored name of a particular document. 
+   * Where docid is the internal identifier of the document.
+   * 
+   * @param docid
+   * @return document length
+   * @throws IOException
+   */
   public String getDocumentName(int docid) throws IOException;
 }
