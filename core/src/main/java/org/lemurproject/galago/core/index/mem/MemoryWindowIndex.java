@@ -13,6 +13,7 @@ import java.util.TreeMap;
 import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
+import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
@@ -41,7 +42,7 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  * In-memory window posting index
  *
  */
-public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
+public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader.AggregateIndexPart {
 
   // this could be a bit big -- but we need random access here
   // perhaps we should use a trie (but java doesn't have one?)
@@ -49,6 +50,9 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
   protected Parameters parameters;
   protected long collectionDocumentCount = 0;
   protected long collectionPostingsCount = 0;
+  protected long vocabCount = 0;
+  protected long highestFrequency = 0;
+  protected long highestDocumentCount = 0;
   protected Stemmer stemmer = null;
 
   public MemoryWindowIndex(Parameters parameters) throws Exception {
@@ -65,8 +69,6 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
 
   @Override
   public void addDocument(Document doc) throws IOException {
-    collectionDocumentCount += 1;
-    collectionPostingsCount += doc.terms.size();
 
     int prevBegin = -1;
     for (Tag tag : doc.tags) {
@@ -74,6 +76,10 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
       prevBegin = tag.begin;
       addExtent(Utility.fromString(tag.name), doc.identifier, tag.begin, tag.end);
     }
+
+    collectionDocumentCount += 1;
+    collectionPostingsCount += doc.terms.size();
+    vocabCount = postings.size();
   }
 
   @Override
@@ -98,6 +104,10 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
     }
 
     postings.put(key, postingList);
+
+    this.highestDocumentCount = Math.max(highestDocumentCount, postingList.termDocumentCount);
+    this.highestFrequency = Math.max(highestFrequency, postingList.termWindowCount);
+    this.vocabCount = postings.size();
   }
 
   @Override
@@ -113,6 +123,10 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
 
     WindowPostingList postingList = postings.get(byteWord);
     postingList.add(document, begin, end);
+
+    // this posting list has changed - check if the aggregate stats also need to change.
+    this.highestDocumentCount = Math.max(highestDocumentCount, postingList.termDocumentCount);
+    this.highestFrequency = Math.max(highestFrequency, postingList.termWindowCount);
   }
 
   // Posting List Reader functions
@@ -210,6 +224,17 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader {
       kiterator.nextKey();
     }
     writer.close();
+  }
+
+  @Override
+  public AggregateReader.IndexPartStatistics getStatistics() {
+    AggregateReader.IndexPartStatistics is = new AggregateReader.IndexPartStatistics();
+    is.partName = "MemoryCountIndex";
+    is.collectionLength = this.collectionPostingsCount;
+    is.vocabCount = this.vocabCount;
+    is.highestDocumentCount = this.highestDocumentCount;
+    is.highestFrequency = this.highestFrequency;
+    return is;
   }
 
   // private functions

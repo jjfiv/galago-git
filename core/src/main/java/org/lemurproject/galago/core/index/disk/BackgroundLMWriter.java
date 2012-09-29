@@ -31,7 +31,7 @@ public class BackgroundLMWriter extends KeyValueWriter<WordCount> {
   long collectionLength = 0;
   long highestFrequency = 0;
   long highestDocumentCount = 0;
-  long termCount = 0;
+  long vocabCount = 0;
 
   /**
    * Creates a new instance of DocumentLengthsWriter
@@ -48,7 +48,7 @@ public class BackgroundLMWriter extends KeyValueWriter<WordCount> {
   }
 
   public GenericElement prepare(WordCount object) throws IOException {
-    termCount++;
+    vocabCount++;
     collectionLength += object.count;
     highestDocumentCount = Math.max(object.documents, highestDocumentCount);
     highestFrequency = Math.max(object.count, highestFrequency);
@@ -73,7 +73,7 @@ public class BackgroundLMWriter extends KeyValueWriter<WordCount> {
   @Override
   public void close() throws IOException {
     Parameters manifest = writer.getManifest();
-    manifest.set("statistics/termCount", termCount);
+    manifest.set("statistics/vocabCount", vocabCount);
     manifest.set("statistics/collectionLength", collectionLength);
     manifest.set("statistics/highestDocumentCount", this.highestDocumentCount);
     manifest.set("statistics/highestFrequency", this.highestFrequency);

@@ -7,7 +7,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.index.AggregateReader;
+import org.lemurproject.galago.core.index.AggregateReader.AggregateIndexPart;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
+import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.ValueIterator;
@@ -19,6 +22,7 @@ import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.DataStream;
+import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
@@ -35,7 +39,7 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  *
  * @author trevor, irmarc
  */
-public class PositionIndexReader extends KeyListReader implements AggregateReader {
+public class PositionIndexReader extends KeyListReader implements AggregateIndexPart {
 
   public class KeyIterator extends KeyListReader.KeyValueIterator {
 
@@ -806,5 +810,17 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       return stemmer.stem(term);
     }
     return term;
+  }
+
+  @Override
+  public IndexPartStatistics getStatistics() {
+    Parameters manifest = this.getManifest();
+    IndexPartStatistics is = new IndexPartStatistics();
+    is.collectionLength = manifest.get("statistics/collectionLength", 0);
+    is.vocabCount = manifest.get("statistics/vocabCount", 0);
+    is.highestDocumentCount = manifest.get("statistics/highestDocumentCount", 0);
+    is.highestFrequency = manifest.get("statistics/highestFrequency", 0);
+    is.partName = manifest.get("filename", "PositionIndexPart");
+    return is;
   }
 }

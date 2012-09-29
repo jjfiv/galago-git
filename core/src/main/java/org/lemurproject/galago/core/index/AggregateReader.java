@@ -6,19 +6,60 @@ import org.lemurproject.galago.core.index.mem.MemoryIndex;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- * Interface provides access to useful statistics for a given term.
+ * Class holds
  *
  * @author sjh
  */
-public interface AggregateReader {
+public class AggregateReader {
+
+  public static class IndexPartStatistics {
+
+    public String partName = null;
+    public long collectionLength = 0;
+    public long vocabCount = 0;
+    public long highestDocumentCount = 0;
+    public long highestFrequency = 0;
+
+    public IndexPartStatistics(){
+    }
+    
+    public IndexPartStatistics(String partName, Parameters parameters) {
+      this.partName = partName;
+      collectionLength = parameters.get("statistics/collectionLength", 0L);
+      vocabCount = parameters.get("statistics/vocabCount", 0L);
+    }
+
+    public IndexPartStatistics(String partName, MemoryIndex index) {
+      this.partName = partName;
+      collectionLength = index.getIndexPart(partName).getCollectionLength();
+      vocabCount = index.getIndexPart(partName).getKeyCount();
+    }
+
+    public void add(IndexPartStatistics other) {
+      assert this.partName.equals(other.partName);
+      this.collectionLength += other.collectionLength;
+      this.vocabCount += other.vocabCount;
+    }
+
+    public Parameters toParameters() {
+      Parameters p = new Parameters();
+      p.set("statistics/collectionLength", collectionLength);
+      p.set("statistics/vocabCount", vocabCount);
+      return p;
+    }
+
+    public String toString() {
+      return toParameters().toString();
+    }
+  }
 
   /**
    * Collection Statistics. Stores aggregate values used for smoothing models of
    * documents.
    */
-  public class CollectionStatistics {
-    // 'document', 'field', or passage label
+  public static class CollectionStatistics {
 
+    // 'document', 'field', or passage label
     public String fieldName = null;
     // total number of terms in field in the collection
     public long collectionLength = 0;
@@ -66,45 +107,9 @@ public interface AggregateReader {
     }
   }
 
-  public class IndexPartStatistics {
+  public static class NodeStatistics {
 
-    public String partName;
-    public long collectionLength;
-    public long vocabCount;
-
-    public IndexPartStatistics(String partName, Parameters parameters) {
-      this.partName = partName;
-      collectionLength = parameters.get("statistics/collectionLength", 0L);
-      vocabCount = parameters.get("statistics/vocabCount", 0L);
-    }
-
-    public IndexPartStatistics(String partName, MemoryIndex index) {
-      this.partName = partName;
-      collectionLength = index.getIndexPart(partName).getCollectionLength();
-      vocabCount = index.getIndexPart(partName).getKeyCount();
-    }
-
-    public void add(IndexPartStatistics other) {
-      assert this.partName.equals(other.partName);
-      this.collectionLength += other.collectionLength;
-      this.vocabCount += other.vocabCount;
-    }
-
-    public Parameters toParameters() {
-      Parameters p = new Parameters();
-      p.set("statistics/collectionLength", collectionLength);
-      p.set("statistics/vocabCount", vocabCount);
-      return p;
-    }
-
-    public String toString() {
-      return toParameters().toString();
-    }
-  }
-
-  public class NodeStatistics {
-
-    public String node = "";
+    public String node = null;
     public long nodeFrequency = 0;
     public long nodeDocumentCount = 0;
     public long maximumCount = 0;
@@ -122,6 +127,11 @@ public interface AggregateReader {
       maximumCount = Math.max(this.maximumCount, other.maximumCount);
       nodeDocumentCount += other.nodeDocumentCount;
     }
+  }
+
+  public static interface AggregateIndexPart {
+
+    public IndexPartStatistics getStatistics();
   }
 
   public static interface CollectionAggregateIterator {

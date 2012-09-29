@@ -5,7 +5,9 @@ import java.io.DataInput;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.lemurproject.galago.core.index.AggregateReader;
+import org.lemurproject.galago.core.index.AggregateReader.AggregateIndexPart;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyValueReader;
@@ -23,7 +25,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  * 
  * @author sjh
  */
-public class BackgroundLMReader extends KeyValueReader implements AggregateReader {
+public class BackgroundLMReader extends KeyValueReader implements AggregateIndexPart {
 
   protected Parameters manifest;
   protected Stemmer stemmer;
@@ -79,6 +81,17 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     return term;
   }
 
+  @Override
+  public IndexPartStatistics getStatistics() {
+    IndexPartStatistics is = new IndexPartStatistics();
+    is.collectionLength = manifest.get("statistics/collectionLength", 0);
+    is.vocabCount = manifest.get("statistics/vocabCount", 0);
+    is.highestDocumentCount = manifest.get("statistics/highestDocumentCount", 0);
+    is.highestFrequency = manifest.get("statistics/highestFrequency", 0);
+    is.partName = manifest.get("filename", "BackgroundLMPart");
+    return is;
+  }
+
   public class KeyIterator extends KeyValueReader.KeyValueIterator {
 
     long collectionLength;
@@ -94,7 +107,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
       try {
         DataInput value = iterator.getValueStream();
 
-        NodeStatistics stats = new AggregateReader.NodeStatistics();
+        NodeStatistics stats = new NodeStatistics();
         stats.node = getKeyString();
         stats.nodeFrequency = Utility.uncompressLong(value);
         stats.nodeDocumentCount = Utility.uncompressLong(value);

@@ -14,6 +14,7 @@ import java.util.TreeMap;
 import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
+import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.index.ValueIterator;
@@ -42,7 +43,7 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  * In-memory posting index
  *
  */
-public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
+public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader.AggregateIndexPart {
 
   // this could be a bit big -- but we need random access here
   // perhaps we should use a trie (but java doesn't have one?)
@@ -50,6 +51,9 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
   protected Parameters parameters;
   protected long collectionDocumentCount = 0;
   protected long collectionPostingsCount = 0;
+  protected long vocabCount = 0;
+  protected long highestFrequency = 0;
+  protected long highestDocumentCount = 0;
   protected Stemmer stemmer = null;
 
   public MemoryPositionalIndex(Parameters parameters) throws Exception {
@@ -59,22 +63,22 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       stemmer = (Stemmer) Class.forName(parameters.getString("stemmer")).newInstance();
     }
 
-    // if the parameters specify a collection length use them.
-    collectionPostingsCount = parameters.get("statistics/collectionLength", 0);
-    collectionDocumentCount = parameters.get("statistics/documentCount", 0);
   }
 
   @Override
   public void addDocument(Document doc) throws IOException {
-    collectionDocumentCount += 1;
-    collectionPostingsCount += doc.terms.size();
-
     int position = 0;
     for (String term : doc.terms) {
       String stem = stemAsRequired(term);
-      addPosting(Utility.fromString(stem), doc.identifier, position);
-      position += 1;
+      if (stem != null) {
+        addPosting(Utility.fromString(stem), doc.identifier, position);
+        position += 1;
+      }
     }
+
+    collectionDocumentCount += 1;
+    collectionPostingsCount += doc.terms.size();
+    vocabCount = postings.size();
   }
 
   @Override
@@ -100,6 +104,10 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
     }
 
     postings.put(key, postingList);
+
+    this.highestDocumentCount = Math.max(highestDocumentCount, postingList.termDocumentCount);
+    this.highestFrequency = Math.max(highestFrequency, postingList.termPostingsCount);
+    this.vocabCount = postings.size();
   }
 
   @Override
@@ -115,6 +123,10 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
 
     PositionalPostingList postingList = postings.get(byteWord);
     postingList.add(document, position);
+
+    // this posting list has changed - check if the aggregate stats also need to change.
+    this.highestDocumentCount = Math.max(highestDocumentCount, postingList.termDocumentCount);
+    this.highestFrequency = Math.max(highestFrequency, postingList.termPostingsCount);
   }
 
   // Posting List Reader functions
@@ -225,6 +237,17 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader {
       kiterator.nextKey();
     }
     writer.close();
+  }
+
+  @Override
+  public AggregateReader.IndexPartStatistics getStatistics() {
+    AggregateReader.IndexPartStatistics is = new AggregateReader.IndexPartStatistics();
+    is.partName = "MemoryCountIndex";
+    is.collectionLength = this.collectionPostingsCount;
+    is.vocabCount = this.vocabCount;
+    is.highestDocumentCount = this.highestDocumentCount;
+    is.highestFrequency = this.highestFrequency;
+    return is;
   }
 
   // private functions

@@ -8,7 +8,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.index.AggregateReader;
+import org.lemurproject.galago.core.index.AggregateReader.AggregateIndexPart;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
+import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.ValueIterator;
@@ -17,6 +20,7 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.DataStream;
+import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
@@ -28,7 +32,7 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  *
  * @author sjh
  */
-public class CountIndexReader extends KeyListReader implements AggregateReader {
+public class CountIndexReader extends KeyListReader implements AggregateIndexPart{
 
   public class KeyIterator extends KeyListReader.KeyValueIterator {
 
@@ -397,5 +401,17 @@ public class CountIndexReader extends KeyListReader implements AggregateReader {
       return getTermCounts(node.getDefaultParameter());
     }
     return null;
+  }
+  
+  @Override
+  public IndexPartStatistics getStatistics() {
+    Parameters manifest = this.getManifest();
+    IndexPartStatistics is = new IndexPartStatistics();
+    is.collectionLength = manifest.get("statistics/collectionLength", 0);
+    is.vocabCount = manifest.get("statistics/vocabCount", 0);
+    is.highestDocumentCount = manifest.get("statistics/highestDocumentCount", 0);
+    is.highestFrequency = manifest.get("statistics/highestFrequency", 0);
+    is.partName = manifest.get("filename", "CountIndexPart");
+    return is;
   }
 }
