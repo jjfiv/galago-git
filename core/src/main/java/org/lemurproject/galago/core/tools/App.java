@@ -788,7 +788,7 @@ public class App {
           System.err.println(transformed);
         }
 
-        count = r.nodeStatistics(transformed).nodeFrequency;
+        count = r.getNodeStatistics(transformed).nodeFrequency;
         output.println(count + "\t" + query);
       }
       r.close();
@@ -826,7 +826,7 @@ public class App {
           System.err.println(transformed);
         }
 
-        count = r.nodeStatistics(transformed).nodeDocumentCount;
+        count = r.getNodeStatistics(transformed).nodeDocumentCount;
         output.println(count + "\t" + query);
       }
       r.close();

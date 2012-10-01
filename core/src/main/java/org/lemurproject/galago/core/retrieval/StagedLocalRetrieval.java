@@ -82,7 +82,7 @@ public class StagedLocalRetrieval extends LocalRetrieval {
   }
 
   @Override
-  public NodeStatistics nodeStatistics(Node root) throws Exception {
+  public NodeStatistics getNodeStatistics(Node root) throws Exception {
     NodeStatistics stats = new NodeStatistics();
     // set up initial values
     stats.node = root.toString();
@@ -193,7 +193,7 @@ public class StagedLocalRetrieval extends LocalRetrieval {
 
       // read in counts
       syntheticCounts = new HashMap<String, NodeStatistics>();
-      IndexPartStatistics cs = this.getRetrievalStatistics();
+      IndexPartStatistics cs = this.getIndexPartStatistics();
       BufferedReader br = new BufferedReader(new FileReader(globalParameters.getString("syntheticCounts")));
       while (br.ready()) {
         String[] parts = br.readLine().split("\t");

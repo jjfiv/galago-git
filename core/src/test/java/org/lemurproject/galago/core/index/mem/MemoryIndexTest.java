@@ -6,7 +6,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import junit.framework.TestCase;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionAggregateIterator;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
+import org.lemurproject.galago.core.index.LengthsReader.LengthsIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
@@ -45,6 +48,15 @@ public class MemoryIndexTest extends TestCase {
       index.process(d);
     }
 
+    CollectionAggregateIterator lengthsIterator = (CollectionAggregateIterator) index.getLengthsIterator();
+    CollectionStatistics collStats = lengthsIterator.getStatistics();
+    assertEquals(collStats.collectionLength, 1000);
+    assertEquals(collStats.documentCount, 200);
+    assertEquals(collStats.fieldName, "document");
+    assertEquals(collStats.maxLength, 5);
+    assertEquals(collStats.minLength, 5);
+
+
     assertEquals(index.getCollectionStatistics().collectionLength, 1000);
     assertEquals(index.getCollectionStatistics().vocabCount, 204);
 
@@ -54,7 +66,7 @@ public class MemoryIndexTest extends TestCase {
     ScoringContext sc = ci.getContext();
     assertEquals(ci.currentCandidate(), 0);
     int total = 0;
-    while(!ci.isDone()){
+    while (!ci.isDone()) {
       sc.document = ci.currentCandidate();
       total += ci.count();
       ci.movePast(ci.currentCandidate());
@@ -95,17 +107,30 @@ public class MemoryIndexTest extends TestCase {
       (new FlushToDisk()).flushMemoryIndex(index, output.getAbsolutePath(), false);
 
       Retrieval r = RetrievalFactory.instance(output.getAbsolutePath(), new Parameters());
-      IndexPartStatistics postingsStats = r.getRetrievalStatistics();
-      IndexPartStatistics stemmedPostingsStats = r.getRetrievalStatistics("stemmedPostings");
+      CollectionStatistics collStats = r.getCollectionStatistics("#lengths:part=lengths()");
+      assertEquals(collStats.collectionLength, 1000);
+      assertEquals(collStats.documentCount, 200);
+      assertEquals(collStats.fieldName, "document");
+      assertEquals(collStats.maxLength, 5);
+      assertEquals(collStats.minLength, 5);
 
+      IndexPartStatistics postingsStats = r.getIndexPartStatistics("postings");
       assertEquals(postingsStats.collectionLength, 1000);
       assertEquals(postingsStats.vocabCount, 204);
+      assertEquals(postingsStats.highestDocumentCount, 0);
+      assertEquals(postingsStats.highestFrequency, 0);
 
+      IndexPartStatistics stemmedPostingsStats = r.getIndexPartStatistics("stemmedPostings");
       assertEquals(stemmedPostingsStats.collectionLength, 1000);
       assertEquals(stemmedPostingsStats.vocabCount, 204);
+      assertEquals(stemmedPostingsStats.highestDocumentCount, 0);
+      assertEquals(stemmedPostingsStats.highestFrequency, 0);
+
+
     } finally {
-      if(output != null)
+      if (output != null) {
         Utility.deleteDirectory(output);
+      }
     }
   }
 }

@@ -136,7 +136,7 @@ public class AnnotateCollectionStatistics extends Traversal {
       return ((GroupRetrieval) retrieval).collectionStatistics("#lengths:"+field+":part=lengths()", globalParameters.getString("backgroundIndex"));
 
     } else {
-      return retrieval.collectionStatistics("#lengths:"+field+":part=lengths()");
+      return retrieval.getCollectionStatistics("#lengths:"+field+":part=lengths()");
     }
   }
 
@@ -163,7 +163,7 @@ public class AnnotateCollectionStatistics extends Traversal {
       return ((GroupRetrieval) retrieval).nodeStatistics(n, globalParameters.getString("backgroundIndex"));
 
     } else {
-      return retrieval.nodeStatistics(n);
+      return retrieval.getNodeStatistics(n);
     }
   }
 

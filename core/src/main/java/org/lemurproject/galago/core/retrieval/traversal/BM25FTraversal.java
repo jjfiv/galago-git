@@ -92,11 +92,11 @@ public class BM25FTraversal extends Traversal {
 
   private double getIDF(Node termNode) throws Exception {
     // get the global document count:
-    CollectionStatistics cs = retrieval.collectionStatistics("#lengths:part=lengths()");
+    CollectionStatistics cs = retrieval.getCollectionStatistics("#lengths:part=lengths()");
     double documentCount = cs.documentCount;
     
     // get the number of documents this term occurs in:
-    NodeStatistics ns = retrieval.nodeStatistics(termNode.toString());
+    NodeStatistics ns = retrieval.getNodeStatistics(termNode.toString());
     long df = ns.nodeDocumentCount;
 
     // compute idf and return

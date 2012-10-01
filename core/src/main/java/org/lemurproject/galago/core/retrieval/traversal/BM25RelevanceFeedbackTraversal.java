@@ -63,7 +63,7 @@ public class BM25RelevanceFeedbackTraversal extends Traversal {
     Parameters tsvParameters = globalParameters.clone();
     tsvParameters.set("fbDocs", fbDocs);
     tsvParameters.set("parts", availableParts);
-    TermSelectionValueModel tsvModel = new TermSelectionValueModel(tsvParameters, retrieval, retrieval.collectionStatistics("#lengths:part=lengths()"));
+    TermSelectionValueModel tsvModel = new TermSelectionValueModel(tsvParameters, retrieval, retrieval.getCollectionStatistics("#lengths:part=lengths()"));
     tsvModel.initialize();
     HashSet<String> stopwords = Utility.readStreamToStringSet(getClass().getResourceAsStream("/stopwords/inquery"));
     Set<String> queryTerms = StructuredQuery.findQueryTerms(combineNode, Collections.singleton("extents"));

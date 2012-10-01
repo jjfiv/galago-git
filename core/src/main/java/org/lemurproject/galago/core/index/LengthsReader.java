@@ -19,7 +19,6 @@ public interface LengthsReader extends IndexPartReader {
     // e.g. document, field-name, or #inside(field-name field-name)
     public byte[] getRegionBytes();
 
-
     public int getCurrentLength();
 
     public int getCurrentIdentifier();

@@ -84,7 +84,7 @@ public class PRMS2Traversal extends Traversal {
         int i = 0;
         double normalizer = 0.0; // sum_k of P(t|F_k)
         for (String field : fieldList) {
-          CollectionStatistics field_cs = retrieval.collectionStatistics("#lengths:" + field + ":part=lengths()");
+          CollectionStatistics field_cs = retrieval.getCollectionStatistics("#lengths:" + field + ":part=lengths()");
 
           String partName = "field." + field;
           if (!availableFields.containsKey(partName)) {
@@ -103,7 +103,7 @@ public class PRMS2Traversal extends Traversal {
               nw = prms.getDouble("weight_default");
             }
           } else {
-            NodeStatistics ns = retrieval.nodeStatistics(termCount);
+            NodeStatistics ns = retrieval.getNodeStatistics(termCount);
             nw = (ns.nodeFrequency + 0.0) / field_cs.collectionLength; // P(t|F_j)
             normalizer += nw;
           }

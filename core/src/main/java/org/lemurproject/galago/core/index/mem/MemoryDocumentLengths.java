@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.lemurproject.galago.core.index.AggregateReader;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
@@ -201,16 +203,16 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
   @Override
   public long getDocumentCount() {
-    if (lengths.containsKey("document")) {
-      return this.lengths.get("document").nonZeroDocumentCount;
+    if (lengths.containsKey(document)) {
+      return this.lengths.get(document).nonZeroDocumentCount;
     }
     return 0;
   }
 
   @Override
   public long getCollectionLength() {
-    if (lengths.containsKey("document")) {
-      return this.lengths.get("document").collectionLength;
+    if (lengths.containsKey(document)) {
+      return this.lengths.get(document).collectionLength;
     }
     return 0;
   }
@@ -324,7 +326,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
   }
 
-  private static class FieldLengthsIterator extends ValueIterator implements MovableCountIterator, LengthsReader.LengthsIterator {
+  private static class FieldLengthsIterator extends ValueIterator implements MovableCountIterator, LengthsReader.LengthsIterator, AggregateReader.CollectionAggregateIterator {
 
     FieldLengthPostingList fieldLengths;
     int currDoc;
@@ -459,6 +461,18 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     @Override
     public int getCurrentIdentifier() {
       return this.currDoc;
+    }
+
+    @Override
+    public CollectionStatistics getStatistics() {
+      CollectionStatistics cs = new CollectionStatistics();
+      cs.fieldName = Utility.toString(this.fieldLengths.fieldName.getBytes());
+      cs.collectionLength = this.fieldLengths.collectionLength;
+      cs.documentCount = this.fieldLengths.nonZeroDocumentCount;
+      cs.maxLength = this.fieldLengths.maxLength;
+      cs.minLength = this.fieldLengths.minLength;
+      cs.avgLength = (double) this.fieldLengths.collectionLength / (double) this.fieldLengths.nonZeroDocumentCount;
+      return cs;
     }
   }
 }

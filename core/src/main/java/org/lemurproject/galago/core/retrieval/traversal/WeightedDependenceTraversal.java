@@ -121,8 +121,8 @@ public class WeightedDependenceTraversal extends Traversal {
 
     if ((unigramWeights.getDouble("tf") != 0.0)
             && (unigramWeights.getDouble("df") != 0.0)) {
-      NodeStatistics c_stats = this.gRetrieval.nodeStatistics(text);
-      CollectionStatistics doc_stats = this.gRetrieval.collectionStatistics("#lengths:part=lengths()");
+      NodeStatistics c_stats = this.gRetrieval.getNodeStatistics(text);
+      CollectionStatistics doc_stats = this.gRetrieval.getCollectionStatistics("#lengths:part=lengths()");
       double mle_tf = (c_stats.nodeFrequency + 1) / doc_stats.collectionLength;
       double mle_df = (c_stats.nodeDocumentCount + 1) / doc_stats.documentCount;
       tf_w = unigramWeights.getDouble("tf") * Math.log(mle_tf);
@@ -133,7 +133,7 @@ public class WeightedDependenceTraversal extends Traversal {
     }
     if (unigramWeights.getDouble("wiki") != 0.0) {
       NodeStatistics w_stats = this.gRetrieval.nodeStatistics(text, "wiki");
-      CollectionStatistics wdoc_stats = this.gRetrieval.collectionStatistics("#lengths:part=lengths()");
+      CollectionStatistics wdoc_stats = this.gRetrieval.getCollectionStatistics("#lengths:part=lengths()");
       double mle_wf = (w_stats.nodeFrequency + 1) / wdoc_stats.collectionLength;
       wf_w = unigramWeights.getDouble("wiki") * Math.log(mle_wf);
 //      wf_w = unigramWeights.getDouble("wiki") * Math.log(w_stats.nodeFrequency + 1);
@@ -151,8 +151,8 @@ public class WeightedDependenceTraversal extends Traversal {
 
     if ((bigramWeights.getDouble("tf") != 0.0)
             && (bigramWeights.getDouble("df") != 0.0)) {
-      NodeStatistics c_stats = this.gRetrieval.nodeStatistics("#uw:8(" + text1 + " " + text2 + ")");
-      CollectionStatistics doc_stats = this.gRetrieval.collectionStatistics("#lengths:part=lengths()");
+      NodeStatistics c_stats = this.gRetrieval.getNodeStatistics("#uw:8(" + text1 + " " + text2 + ")");
+      CollectionStatistics doc_stats = this.gRetrieval.getCollectionStatistics("#lengths:part=lengths()");
       double mle_tf = c_stats.nodeFrequency / doc_stats.collectionLength;
       double mle_df = c_stats.nodeDocumentCount / doc_stats.documentCount;
       tf_w = bigramWeights.getDouble("tf") * Math.log(mle_tf);

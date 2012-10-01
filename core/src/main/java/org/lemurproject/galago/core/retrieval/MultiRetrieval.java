@@ -58,12 +58,12 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public IndexPartStatistics getRetrievalStatistics() throws IOException {
+  public IndexPartStatistics getIndexPartStatistics() throws IOException {
     return this.retrievalStatistics.get("postings");
   }
 
   @Override
-  public IndexPartStatistics getRetrievalStatistics(String partName) throws IOException {
+  public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException {
     return this.retrievalStatistics.get(partName);
   }
 
@@ -207,9 +207,9 @@ public class MultiRetrieval implements Retrieval {
       IndexPartStatistics mergedStats = null;
       for (Retrieval r : this.retrievals) {
         if (mergedStats == null) {
-          mergedStats = r.getRetrievalStatistics(part);
+          mergedStats = r.getIndexPartStatistics(part);
         } else {
-          mergedStats.add(r.getRetrievalStatistics(part));
+          mergedStats.add(r.getIndexPartStatistics(part));
         }
       }
       this.retrievalStatistics.put(part, mergedStats);
@@ -280,13 +280,13 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public CollectionStatistics collectionStatistics(String nodeString) throws Exception {
+  public CollectionStatistics getCollectionStatistics(String nodeString) throws Exception {
     Node root = StructuredQuery.parse(nodeString);
-    return collectionStatistics(root);
+    return getCollectionStatistics(root);
   }
 
   @Override
-  public CollectionStatistics collectionStatistics(Node node) throws Exception {
+  public CollectionStatistics getCollectionStatistics(Node node) throws Exception {
 
     ArrayList<Thread> threads = new ArrayList();
     final Node root = node;
@@ -299,7 +299,7 @@ public class MultiRetrieval implements Retrieval {
         @Override
         public void run() {
           try {
-            CollectionStatistics ns = r.collectionStatistics(root);
+            CollectionStatistics ns = r.getCollectionStatistics(root);
             stats.add(ns);
           } catch (Exception ex) {
             errors.add(ex.getMessage());
@@ -335,15 +335,15 @@ public class MultiRetrieval implements Retrieval {
    * non-disjoint subset retrieval model, look out.
    */
   @Override
-  public NodeStatistics nodeStatistics(String nodeString) throws Exception {
+  public NodeStatistics getNodeStatistics(String nodeString) throws Exception {
     Node root = StructuredQuery.parse(nodeString);
     root.getNodeParameters().set("queryType", "count");
     root = transformQuery(root, new Parameters());
-    return nodeStatistics(root);
+    return getNodeStatistics(root);
   }
 
   @Override
-  public NodeStatistics nodeStatistics(Node node) throws Exception {
+  public NodeStatistics getNodeStatistics(Node node) throws Exception {
 
     ArrayList<Thread> threads = new ArrayList();
     final Node root = node;
@@ -356,7 +356,7 @@ public class MultiRetrieval implements Retrieval {
         @Override
         public void run() {
           try {
-            NodeStatistics ns = r.nodeStatistics(root);
+            NodeStatistics ns = r.getNodeStatistics(root);
             stats.add(ns);
           } catch (Exception ex) {
             errors.add(ex.getMessage());

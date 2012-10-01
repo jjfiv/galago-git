@@ -161,14 +161,14 @@ public class FieldRelevanceModelTraversal extends Traversal {
 
       // First get all the term/field unnormalized statistics (creating a normalizer as we go)
       for (String field : fields) {
-        CollectionStatistics field_cs = retrieval.collectionStatistics("#lengths:"+field+":part=lengths()");
+        CollectionStatistics field_cs = retrieval.getCollectionStatistics("#lengths:"+field+":part=lengths()");
         
         String partName = "field." + field;
         NodeParameters par1 = new NodeParameters();
         par1.set("default", term);
         par1.set("part", partName);
         Node termCount = new Node("counts", par1, new ArrayList(), 0);
-        NodeStatistics ns = retrieval.nodeStatistics(termCount);
+        NodeStatistics ns = retrieval.getNodeStatistics(termCount);
         double fieldprob = (ns.nodeFrequency + 0.0) / field_cs.collectionLength; // P(t|F_j)
         inner.put(field, fieldprob);
         normalizer += fieldprob;
@@ -195,7 +195,7 @@ public class FieldRelevanceModelTraversal extends Traversal {
 
       // First get all the term/field unnormalized statistics (creating a normalizer as we go)
       for (String field : fields) {
-        CollectionStatistics field_cs = retrieval.collectionStatistics("#lengths:"+field+":part=lengths()");
+        CollectionStatistics field_cs = retrieval.getCollectionStatistics("#lengths:"+field+":part=lengths()");
 
         String partName = "field." + field;
 
@@ -214,7 +214,7 @@ public class FieldRelevanceModelTraversal extends Traversal {
         odCount.addChild(term1Count);
         odCount.addChild(term2Count);
 
-        NodeStatistics ns = retrieval.nodeStatistics(odCount);
+        NodeStatistics ns = retrieval.getNodeStatistics(odCount);
         double fieldprob = (ns.nodeFrequency + 0.0) / field_cs.collectionLength; // P(t|F_j)
         inner.put(field, fieldprob);
         normalizer += fieldprob;

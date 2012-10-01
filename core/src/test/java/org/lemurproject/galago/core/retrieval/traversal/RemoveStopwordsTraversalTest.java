@@ -128,29 +128,29 @@ public class RemoveStopwordsTraversalTest extends TestCase {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public IndexPartStatistics getRetrievalStatistics() throws IOException {
+    public IndexPartStatistics getIndexPartStatistics() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public IndexPartStatistics getRetrievalStatistics(String partName) throws IOException {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public CollectionStatistics collectionStatistics(String nodeString) throws Exception {
+    public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public CollectionStatistics collectionStatistics(Node node) throws Exception {
+    public CollectionStatistics getCollectionStatistics(String nodeString) throws Exception {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public NodeStatistics nodeStatistics(String nodeString) throws Exception {
+    @Override
+    public CollectionStatistics getCollectionStatistics(Node node) throws Exception {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public NodeStatistics nodeStatistics(Node node) throws Exception {
+    public NodeStatistics getNodeStatistics(String nodeString) throws Exception {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public NodeStatistics getNodeStatistics(Node node) throws Exception {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

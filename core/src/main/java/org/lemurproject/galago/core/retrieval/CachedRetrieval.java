@@ -140,14 +140,14 @@ public class CachedRetrieval extends LocalRetrieval {
   }
 
   @Override
-  public NodeStatistics nodeStatistics(Node node) throws Exception {
+  public NodeStatistics getNodeStatistics(Node node) throws Exception {
     // check the node cache first - this will avoid zeros.
     String nodeString = node.toString();
     if (cachedNodes.containsKey(nodeString)) {
       //logger.info("Getting stats from cache for node : " + nodeString);
       return this.cachedStats.get(nodeString);
     }
-    return super.nodeStatistics(node);
+    return super.getNodeStatistics(node);
   }
 
   // caching functions
@@ -191,14 +191,14 @@ public class CachedRetrieval extends LocalRetrieval {
         }
         
       } else if (iterator instanceof MovableExtentIterator) {
-        NodeStatistics ns = super.nodeStatistics(node);
+        NodeStatistics ns = super.getNodeStatistics(node);
         cachedStats.put(nodeString, ns);
         cachedNodes.put(nodeString, "extent");
         cacheParts.get("extent").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
         // logger.info("Cached extent node : " + nodeString);
 
       } else if (iterator instanceof MovableCountIterator) {
-        NodeStatistics ns = super.nodeStatistics(node);
+        NodeStatistics ns = super.getNodeStatistics(node);
         cachedStats.put(nodeString, ns);
         cachedNodes.put(nodeString, "count");
         cacheParts.get("count").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
@@ -222,14 +222,14 @@ public class CachedRetrieval extends LocalRetrieval {
         cacheParts.get("score").removeIteratorData(Utility.fromString(nodeString));
         // logger.info("Deleted cached scoring node : " + nodeString);
       } else if (cachedNodes.get(nodeString).equals("count")) {
-        NodeStatistics ns = super.nodeStatistics(node);
+        NodeStatistics ns = super.getNodeStatistics(node);
         cachedNodes.remove(nodeString);
         cachedStats.remove(nodeString);
         cacheParts.get("extent").removeIteratorData(Utility.fromString(nodeString));
         // logger.info("Deleted cached extent node : " + nodeString);
 
       } else if (cachedNodes.get(nodeString).equals("extent")) {
-        NodeStatistics ns = super.nodeStatistics(node);
+        NodeStatistics ns = super.getNodeStatistics(node);
         cachedNodes.remove(nodeString);
         cachedStats.remove(nodeString);
         cacheParts.get("count").removeIteratorData(Utility.fromString(nodeString));

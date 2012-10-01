@@ -132,7 +132,7 @@ public interface Retrieval {
    * @return IndexPartStatistics
    * @throws IOException
    */
-  public IndexPartStatistics getRetrievalStatistics() throws IOException;
+  public IndexPartStatistics getIndexPartStatistics() throws IOException;
 
   /**
    * Returns IndexPartStatistics for the named postings part.
@@ -144,7 +144,7 @@ public interface Retrieval {
    * @return IndexPartStatistics
    * @throws IOException
    */
-  public IndexPartStatistics getRetrievalStatistics(String partName) throws IOException;
+  public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException;
 
   /**
    * Returns statistics for a string representation of a lengths node.
@@ -157,7 +157,7 @@ public interface Retrieval {
    * @return CollectionStatistics
    * @throws Exception
    */
-  public CollectionStatistics collectionStatistics(String nodeString) throws Exception;
+  public CollectionStatistics getCollectionStatistics(String nodeString) throws Exception;
 
   /**
    * Returns statistics for a lengths node. This data is commonly used
@@ -174,7 +174,7 @@ public interface Retrieval {
    * @return CollectionStatistics
    * @throws Exception
    */
-  public CollectionStatistics collectionStatistics(Node node) throws Exception;
+  public CollectionStatistics getCollectionStatistics(Node node) throws Exception;
 
   /**
    * Returns collection statistics for a count node. This data is commonly used
@@ -189,7 +189,7 @@ public interface Retrieval {
    * @return NodeStatistics
    * @throws Exception
    */
-  public NodeStatistics nodeStatistics(String nodeString) throws Exception;
+  public NodeStatistics getNodeStatistics(String nodeString) throws Exception;
 
   /**
    * Returns collection statistics for a count node. This data is commonly used
@@ -205,7 +205,7 @@ public interface Retrieval {
    * @return NodeStatistics
    * @throws Exception
    */
-  public NodeStatistics nodeStatistics(Node node) throws Exception;
+  public NodeStatistics getNodeStatistics(Node node) throws Exception;
 
   /**
    * Returns the length of a particular document. Where docid

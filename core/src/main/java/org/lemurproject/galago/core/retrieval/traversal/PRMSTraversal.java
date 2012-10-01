@@ -59,7 +59,7 @@ public class PRMSTraversal extends Traversal {
       // Get the field length
       Map<String, Long> fieldLengths = new HashMap<String, Long>();
       for (String field : fieldList) {
-        IndexPartStatistics p = retrieval.getRetrievalStatistics("field." + field);
+        IndexPartStatistics p = retrieval.getIndexPartStatistics("field." + field);
         fieldLengths.put(field, p.collectionLength);
       }
 
@@ -78,7 +78,7 @@ public class PRMSTraversal extends Traversal {
           if (weightList != null) {
             weights.set(Integer.toString(i), weightList[i]);
           } else {
-            long f_term_field = retrieval.nodeStatistics(termCount).nodeFrequency;
+            long f_term_field = retrieval.getNodeStatistics(termCount).nodeFrequency;
             double f_term_field_prob = (double) f_term_field / fieldLengths.get(field);
             weights.set(Integer.toString(i), f_term_field_prob);
           }

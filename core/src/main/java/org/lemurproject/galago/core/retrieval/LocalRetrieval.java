@@ -96,12 +96,12 @@ public class LocalRetrieval implements Retrieval {
    * expected.
    */
   @Override
-  public IndexPartStatistics getRetrievalStatistics(String partName) throws IOException {
+  public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException {
     return index.getCollectionStatistics(partName);
   }
 
   @Override
-  public IndexPartStatistics getRetrievalStatistics() throws IOException {
+  public IndexPartStatistics getIndexPartStatistics() throws IOException {
     return index.getCollectionStatistics();
   }
 
@@ -284,14 +284,14 @@ public class LocalRetrieval implements Retrieval {
   }
 
   @Override
-  public CollectionStatistics collectionStatistics(String nodeString) throws Exception {
+  public CollectionStatistics getCollectionStatistics(String nodeString) throws Exception {
     // first parse the node
     Node root = StructuredQuery.parse(nodeString);
-    return collectionStatistics(root);
+    return getCollectionStatistics(root);
   }
 
   @Override
-  public CollectionStatistics collectionStatistics(Node root) throws Exception {
+  public CollectionStatistics getCollectionStatistics(Node root) throws Exception {
 
     ScoringContext sc = ContextFactory.createContext(globalParameters);
     StructuredIterator structIterator = createIterator(new Parameters(), root, sc);
@@ -326,16 +326,16 @@ public class LocalRetrieval implements Retrieval {
   }
 
   @Override
-  public NodeStatistics nodeStatistics(String nodeString) throws Exception {
+  public NodeStatistics getNodeStatistics(String nodeString) throws Exception {
     // first parse the node
     Node root = StructuredQuery.parse(nodeString);
     root.getNodeParameters().set("queryType", "count");
     root = transformQuery(root, new Parameters());
-    return nodeStatistics(root);
+    return getNodeStatistics(root);
   }
 
   @Override
-  public NodeStatistics nodeStatistics(Node root) throws Exception {
+  public NodeStatistics getNodeStatistics(Node root) throws Exception {
     NodeStatistics stats = new NodeStatistics();
     // set up initial values
     stats.node = root.toString();

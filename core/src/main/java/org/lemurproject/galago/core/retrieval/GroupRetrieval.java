@@ -107,33 +107,33 @@ public class GroupRetrieval implements Retrieval {
   }
 
   @Override
-  public IndexPartStatistics getRetrievalStatistics() throws IOException {
-    return groups.get(defGroup).getRetrievalStatistics();
+  public IndexPartStatistics getIndexPartStatistics() throws IOException {
+    return groups.get(defGroup).getIndexPartStatistics();
   }
 
   @Override
-  public IndexPartStatistics getRetrievalStatistics(String partName) throws IOException {
-    return groups.get(defGroup).getRetrievalStatistics(partName);
+  public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException {
+    return groups.get(defGroup).getIndexPartStatistics(partName);
   }
 
   @Override
-  public CollectionStatistics collectionStatistics(String nodeString) throws Exception {
-    return groups.get(defGroup).collectionStatistics(nodeString);
+  public CollectionStatistics getCollectionStatistics(String nodeString) throws Exception {
+    return groups.get(defGroup).getCollectionStatistics(nodeString);
   }
 
   @Override
-  public CollectionStatistics collectionStatistics(Node node) throws Exception {
-    return groups.get(defGroup).collectionStatistics(node);
+  public CollectionStatistics getCollectionStatistics(Node node) throws Exception {
+    return groups.get(defGroup).getCollectionStatistics(node);
   }
 
   @Override
-  public NodeStatistics nodeStatistics(String nodeString) throws Exception {
-    return groups.get(defGroup).nodeStatistics(nodeString);
+  public NodeStatistics getNodeStatistics(String nodeString) throws Exception {
+    return groups.get(defGroup).getNodeStatistics(nodeString);
   }
 
   @Override
-  public NodeStatistics nodeStatistics(Node node) throws Exception {
-    return groups.get(defGroup).nodeStatistics(node);
+  public NodeStatistics getNodeStatistics(Node node) throws Exception {
+    return groups.get(defGroup).getNodeStatistics(node);
   }
 
   // IDENTICAL FUNCTIONS THAT USE PARTICULAR GROUPS //
@@ -174,27 +174,27 @@ public class GroupRetrieval implements Retrieval {
   }
 
   public IndexPartStatistics getRetrievalStatisticsGP(String group) throws IOException {
-    return groups.get(group).getRetrievalStatistics();
+    return groups.get(group).getIndexPartStatistics();
   }
 
   public IndexPartStatistics getRetrievalStatistics(String partName, String group) throws IOException {
-    return groups.get(group).getRetrievalStatistics(partName);
+    return groups.get(group).getIndexPartStatistics(partName);
   }
 
   public CollectionStatistics collectionStatistics(String nodeString, String group) throws Exception {
-    return groups.get(group).collectionStatistics(nodeString);
+    return groups.get(group).getCollectionStatistics(nodeString);
   }
 
   public CollectionStatistics collectionStatistics(Node node, String group) throws Exception {
-    return groups.get(group).collectionStatistics(node);
+    return groups.get(group).getCollectionStatistics(node);
   }
 
   public NodeStatistics nodeStatistics(String nodeString, String group) throws Exception {
-    return groups.get(group).nodeStatistics(nodeString);
+    return groups.get(group).getNodeStatistics(nodeString);
   }
 
   public NodeStatistics nodeStatistics(Node node, String group) throws Exception {
-    return groups.get(group).nodeStatistics(node);
+    return groups.get(group).getNodeStatistics(node);
   }
 
   public int getDocumentLength(int docid, String group) throws IOException {
