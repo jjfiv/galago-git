@@ -30,36 +30,20 @@ import org.mortbay.jetty.handler.ContextHandler;
 import org.znerd.xmlenc.XMLOutputter;
 
 /**
- * <p>Handles web search requests against a Galago index.  Also handles XML requests for
- * documents, snippets and search results.</p>
+ * <p>Handles web search requests against a Galago index. Also handles XML
+ * requests for documents, snippets and search results.</p>
  *
- * <p>This class is set up to work with an embedded Jetty instance, but it should be
- * fairly easy to wrap into a Servlet for use with something else (Tomcat, Glassfish, etc.)</p>
+ * <p>This class is set up to work with an embedded Jetty instance, but it
+ * should be fairly easy to wrap into a Servlet for use with something else
+ * (Tomcat, Glassfish, etc.)</p>
  *
  * <p>URLs supported:</p>
  *
- * <table>
- *   <tr>
- *     <td>/</td>
- *     <td>Main Page</td>
- *   </tr>
- *   <tr>
- *     <td>/search</td>
- *     <td>HTML Search Results (q, start, n)</td>
- *   </tr>
- *   <tr>
- *     <td>/xmlsearch</td>
- *     <td>XML Search Results (q, start, n)</td>
- *   </tr>
- *   <tr>
- *     <td>/snippet</td>
- *     <td>XML Snippet Result (name, term+)</td>
- *   </tr>
- *   <tr>
- *     <td>/document</td>
- *     <td>Document Result (name)</td>
- *   </tr>
- * </table>
+ * <table> <tr> <td>/</td> <td>Main Page</td> </tr> <tr> <td>/search</td>
+ * <td>HTML Search Results (q, start, n)</td> </tr> <tr> <td>/xmlsearch</td>
+ * <td>XML Search Results (q, start, n)</td> </tr> <tr> <td>/snippet</td>
+ * <td>XML Snippet Result (name, term+)</td> </tr> <tr> <td>/document</td>
+ * <td>Document Result (name)</td> </tr> </table>
  *
  * @author trevor, irmarc
  */
@@ -109,7 +93,7 @@ public class SearchWebHandler extends ContextHandler {
     Parameters p = new Parameters();
     p.set("terms", false);
     p.set("tags", false);
-    Document document = search.getDocument(identifier,p);
+    Document document = search.getDocument(identifier, p);
 
     if (document == null) {
       response.setStatus(response.SC_NOT_FOUND);
@@ -338,7 +322,7 @@ public class SearchWebHandler extends ContextHandler {
     outputter.endDocument();
   }
 
-    public void handleDocCount(HttpServletRequest request, HttpServletResponse response)
+  public void handleDocCount(HttpServletRequest request, HttpServletResponse response)
           throws IllegalStateException, IllegalArgumentException, IOException, Exception {
     String exp = request.getParameter("expression");
     long count = search.docCount(exp);
@@ -357,7 +341,14 @@ public class SearchWebHandler extends ContextHandler {
 
   public void handleStats(HttpServletRequest request, HttpServletResponse response)
           throws IllegalStateException, IllegalArgumentException, IOException {
-    IndexPartStatistics stats = search.getRetrievalStats();
+
+    // handle this better...
+    Parameters parts = search.getAvailiableParts();
+    String part = "postings";
+    part = parts.containsKey("postings.krovetz") ? "postings.krovetz" : part;
+    part = parts.containsKey("postings.porter") ? "postings.porter" : part;
+
+    IndexPartStatistics stats = search.getIndexPartStatistics(part);
     PrintWriter writer = response.getWriter();
     writer.write(stats.toString()); // parameters are output into an XML format already
     writer.close();

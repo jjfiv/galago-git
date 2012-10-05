@@ -24,8 +24,7 @@ public class FlushToDisk {
 
     // first verify that there is at least one document
     //   and one term in the index
-    if (index.getCollectionLength() < 1
-            || index.getDocumentCount() < 1) {
+    if (index.documentsInIndex() < 1) {
       return;
     }
 

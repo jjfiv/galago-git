@@ -6,12 +6,12 @@ package org.lemurproject.galago.core.index.merge;
 import java.io.File;
 import java.util.ArrayList;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.mem.FlushToDisk;
 import org.lemurproject.galago.core.index.mem.MemoryIndex;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
+import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FakeParameters;
@@ -75,9 +75,21 @@ public class MergeIndexTest extends TestCase {
       DiskIndex di_index2 = new DiskIndex(index2.getAbsolutePath());
       DiskIndex di_merged = new DiskIndex(indexmerged.getAbsolutePath());
 
-      assertEquals(di_index1.getCollectionStatistics().collectionLength, 500);
-      assertEquals(di_index2.getCollectionStatistics().collectionLength, 600);
-      assertEquals(di_merged.getCollectionStatistics().collectionLength, 1100);
+      assertEquals(di_index1.getIndexPartStatistics("postings").collectionLength, 500);
+      assertEquals(di_index2.getIndexPartStatistics("postings").collectionLength, 600);
+      assertEquals(di_merged.getIndexPartStatistics("postings").collectionLength, 1100);
+
+      assertEquals(di_index1.getIndexPartStatistics("postings").vocabCount, 104);
+      assertEquals(di_index2.getIndexPartStatistics("postings").vocabCount, 105);
+      assertEquals(di_merged.getIndexPartStatistics("postings").vocabCount, 106);
+
+      assertEquals(di_index1.getIndexPartStatistics("postings").highestDocumentCount, 100);
+      assertEquals(di_index2.getIndexPartStatistics("postings").highestDocumentCount, 100);
+      assertEquals(di_merged.getIndexPartStatistics("postings").highestDocumentCount, 200);
+
+      assertEquals(di_index1.getIndexPartStatistics("postings").highestFrequency, 100);
+      assertEquals(di_index2.getIndexPartStatistics("postings").highestFrequency, 100);
+      assertEquals(di_merged.getIndexPartStatistics("postings").highestFrequency, 200);
       
       assertEquals(di_merged.getName(50), "DOCS1-50");
       assertEquals(di_merged.getName(150), "DOCS2-50");
@@ -147,10 +159,22 @@ public class MergeIndexTest extends TestCase {
       DiskIndex di_index2 = new DiskIndex(index2.getAbsolutePath());
       DiskIndex di_merged = new DiskIndex(indexmerged.getAbsolutePath());
 
-      assertEquals(di_index1.getCollectionStatistics().collectionLength, 500);
-      assertEquals(di_index2.getCollectionStatistics().collectionLength, 600);
-      assertEquals(di_merged.getCollectionStatistics().collectionLength, 1100);
+      assertEquals(di_index1.getIndexPartStatistics("postings").collectionLength, 500);
+      assertEquals(di_index2.getIndexPartStatistics("postings").collectionLength, 600);
+      assertEquals(di_merged.getIndexPartStatistics("postings").collectionLength, 1100);
 
+      assertEquals(di_index1.getIndexPartStatistics("postings").vocabCount, 104);
+      assertEquals(di_index2.getIndexPartStatistics("postings").vocabCount, 105);
+      assertEquals(di_merged.getIndexPartStatistics("postings").vocabCount, 106);
+
+      assertEquals(di_index1.getIndexPartStatistics("postings").highestDocumentCount, 100);
+      assertEquals(di_index2.getIndexPartStatistics("postings").highestDocumentCount, 100);
+      assertEquals(di_merged.getIndexPartStatistics("postings").highestDocumentCount, 200);
+
+      assertEquals(di_index1.getIndexPartStatistics("postings").highestFrequency, 100);
+      assertEquals(di_index2.getIndexPartStatistics("postings").highestFrequency, 100);
+      assertEquals(di_merged.getIndexPartStatistics("postings").highestFrequency, 200);
+      
       assertEquals(di_merged.getName(50), mi1.getName(50));
       assertEquals(di_merged.getName(1050), mi2.getName(1050));
 

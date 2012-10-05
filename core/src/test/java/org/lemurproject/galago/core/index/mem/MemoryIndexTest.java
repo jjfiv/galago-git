@@ -55,10 +55,18 @@ public class MemoryIndexTest extends TestCase {
     assertEquals(collStats.fieldName, "document");
     assertEquals(collStats.maxLength, 5);
     assertEquals(collStats.minLength, 5);
-
-
-    assertEquals(index.getCollectionStatistics().collectionLength, 1000);
-    assertEquals(index.getCollectionStatistics().vocabCount, 204);
+    
+    IndexPartStatistics is1 = index.getIndexPartStatistics("postings");
+    assertEquals(is1.collectionLength, 1000);
+    assertEquals(is1.vocabCount, 204);
+    assertEquals(is1.highestFrequency, 200);
+    assertEquals(is1.highestDocumentCount, 200);
+    
+    IndexPartStatistics is2 = index.getIndexPartStatistics("postings.porter");
+    assertEquals(is2.collectionLength, 1000);
+    assertEquals(is2.vocabCount, 204);
+    assertEquals(is2.highestFrequency, 200);
+    assertEquals(is2.highestDocumentCount, 200);
 
     Node n = StructuredQuery.parse("#counts:sample:part=postings()");
     MovableCountIterator ci = (MovableCountIterator) index.getIterator(n);
@@ -94,8 +102,6 @@ public class MemoryIndexTest extends TestCase {
 
       assertEquals(index.getLength(300), 5);
       assertEquals(index.getName(300), "DOC-199");
-      assertTrue(index.getCollectionLength() == 1000);
-      assertTrue(index.getDocumentCount() == 200);
 
       NodeParameters np = new NodeParameters();
       np.set("part", "postings");
@@ -117,14 +123,14 @@ public class MemoryIndexTest extends TestCase {
       IndexPartStatistics postingsStats = r.getIndexPartStatistics("postings");
       assertEquals(postingsStats.collectionLength, 1000);
       assertEquals(postingsStats.vocabCount, 204);
-      assertEquals(postingsStats.highestDocumentCount, 0);
-      assertEquals(postingsStats.highestFrequency, 0);
+      assertEquals(postingsStats.highestDocumentCount, 200);
+      assertEquals(postingsStats.highestFrequency, 200);
 
-      IndexPartStatistics stemmedPostingsStats = r.getIndexPartStatistics("stemmedPostings");
+      IndexPartStatistics stemmedPostingsStats = r.getIndexPartStatistics("postings.porter");
       assertEquals(stemmedPostingsStats.collectionLength, 1000);
       assertEquals(stemmedPostingsStats.vocabCount, 204);
-      assertEquals(stemmedPostingsStats.highestDocumentCount, 0);
-      assertEquals(stemmedPostingsStats.highestFrequency, 0);
+      assertEquals(stemmedPostingsStats.highestDocumentCount, 200);
+      assertEquals(stemmedPostingsStats.highestFrequency, 200);
 
 
     } finally {

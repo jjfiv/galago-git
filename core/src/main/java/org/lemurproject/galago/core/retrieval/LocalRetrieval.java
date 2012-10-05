@@ -97,12 +97,12 @@ public class LocalRetrieval implements Retrieval {
    */
   @Override
   public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException {
-    return index.getCollectionStatistics(partName);
+    return index.getIndexPartStatistics(partName);
   }
 
   @Override
   public IndexPartStatistics getIndexPartStatistics() throws IOException {
-    return index.getCollectionStatistics();
+    return index.getIndexPartStatistics();
   }
 
   @Override

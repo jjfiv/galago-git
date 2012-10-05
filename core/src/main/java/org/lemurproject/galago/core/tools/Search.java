@@ -36,11 +36,7 @@ public class Search {
     return retrieval;
   }
 
-  public IndexPartStatistics getRetrievalStats() throws IOException {
-    return retrieval.getIndexPartStatistics();
-  }
-  
-  public IndexPartStatistics getRetrievalStats(String part) throws IOException {
+  public IndexPartStatistics getIndexPartStatistics(String part) throws IOException {
     return retrieval.getIndexPartStatistics(part);
   }
 

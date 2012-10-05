@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 import junit.framework.TestCase;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.NamesReader;
@@ -45,6 +46,7 @@ public class GeometricIndexTest extends TestCase {
       p.set("indexBlockSize", 50);
       p.set("shardDirectory", shards.getAbsolutePath());
       GeometricIndex index = new GeometricIndex(new FakeParameters(p));
+      LocalRetrieval ret = new LocalRetrieval(index);
 
       for (int i = 0; i < 255; i++) {
         Document d = new Document();
@@ -57,11 +59,28 @@ public class GeometricIndexTest extends TestCase {
         index.process(d);
       }
 
-      assertTrue(index.globalDocumentCount == 255);
-      IndexPartStatistics stats = index.getCollectionStatistics("postings");
-      assertTrue(stats.collectionLength == 1275);
+      assertEquals(index.globalDocumentCount, 255);
 
+      CollectionStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
+      assertEquals(cs.collectionLength, 1275);
+      assertEquals(cs.documentCount, 255);
+      assertEquals(cs.maxLength, 5);
+      assertEquals(cs.minLength, 5);
+      
+      IndexPartStatistics stats = ret.getIndexPartStatistics("postings");
+      assertEquals(stats.collectionLength, 1275);
+      // these three are estimated as the max the set of shards
+      assertEquals(stats.vocabCount, 154); 
+      assertEquals(stats.highestFrequency, 150);
+      assertEquals(stats.highestDocumentCount, 150);
 
+      stats = ret.getIndexPartStatistics("postings.porter");
+      assertEquals(stats.collectionLength, 1275);
+      // these three are estimated as the max of the set of shards
+      assertEquals(stats.vocabCount, 154); 
+      assertEquals(stats.highestFrequency, 150);
+      assertEquals(stats.highestDocumentCount, 150);
+      
       ScoringContext sc = new ScoringContext();
       
       NamesReader.NamesIterator names = index.getNamesIterator();
@@ -121,9 +140,9 @@ public class GeometricIndexTest extends TestCase {
   }
 
   public void testRetrievalFunctions() throws Exception {
-    PrintStream oldErr = System.err;
-    PrintStream newErr = new PrintStream(new ByteArrayOutputStream());
-    System.setErr(newErr);
+    //PrintStream oldErr = System.err;
+    //PrintStream newErr = new PrintStream(new ByteArrayOutputStream());
+    //System.setErr(newErr);
     File shards = Utility.createTemporaryDirectory();
 
     Random rnd = new Random();
@@ -156,7 +175,7 @@ public class GeometricIndexTest extends TestCase {
       }
     } finally {
       Utility.deleteDirectory(shards);
-      System.setErr(oldErr);
+      //System.setErr(oldErr);
     }
   }
 }

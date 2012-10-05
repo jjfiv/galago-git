@@ -20,31 +20,31 @@ public class AggregateReader {
     public long highestDocumentCount = 0;
     public long highestFrequency = 0;
 
-    public IndexPartStatistics(){
-    }
-    
-    public IndexPartStatistics(String partName, Parameters parameters) {
-      this.partName = partName;
-      collectionLength = parameters.get("statistics/collectionLength", 0L);
-      vocabCount = parameters.get("statistics/vocabCount", 0L);
+    public IndexPartStatistics() {
     }
 
-    public IndexPartStatistics(String partName, MemoryIndex index) {
+    public IndexPartStatistics(String partName, Parameters parameters) {
       this.partName = partName;
-      collectionLength = index.getIndexPart(partName).getCollectionLength();
-      vocabCount = index.getIndexPart(partName).getKeyCount();
+      this.collectionLength = parameters.get("statistics/collectionLength", 0L);
+      this.vocabCount = parameters.get("statistics/vocabCount", 0L);
+      this.highestDocumentCount = parameters.get("statistics/highestDocumentCount", 0L);
+      this.highestFrequency = parameters.get("statistics/highestFrequency", 0L);
     }
 
     public void add(IndexPartStatistics other) {
-      assert this.partName.equals(other.partName);
       this.collectionLength += other.collectionLength;
-      this.vocabCount += other.vocabCount;
+      this.vocabCount = Math.max(this.vocabCount, other.vocabCount);
+      this.highestDocumentCount = Math.max(this.highestDocumentCount, other.highestDocumentCount);
+      this.highestFrequency = Math.max(this.highestFrequency, other.highestFrequency);
     }
 
     public Parameters toParameters() {
       Parameters p = new Parameters();
+      p.set("partName", partName);
       p.set("statistics/collectionLength", collectionLength);
       p.set("statistics/vocabCount", vocabCount);
+      p.set("statistics/highestDocumentCount", highestDocumentCount);
+      p.set("statistics/highestFrequency", highestFrequency);
       return p;
     }
 
@@ -77,17 +77,7 @@ public class AggregateReader {
     public CollectionStatistics() {
     }
 
-    public CollectionStatistics(Parameters p) {
-      this.fieldName = p.getString("fieldName");
-      this.collectionLength = p.getLong("collectionLength");
-      this.documentCount = p.getLong("documentCount");
-      this.maxLength = p.getLong("maxLength");
-      this.minLength = p.getLong("minLength");
-      this.avgLength = p.getDouble("avgLength");
-    }
-
     public void add(CollectionStatistics other) {
-      assert (this.fieldName.equals(other.fieldName)) : "";
       this.collectionLength += other.collectionLength;
       this.documentCount += other.documentCount;
       this.maxLength = Math.max(this.maxLength, other.maxLength);
@@ -105,6 +95,10 @@ public class AggregateReader {
       p.set("avgLength", this.avgLength);
       return p;
     }
+
+    public String toString() {
+      return toParameters().toString();
+    }
   }
 
   public static class NodeStatistics {
@@ -114,18 +108,23 @@ public class AggregateReader {
     public long nodeDocumentCount = 0;
     public long maximumCount = 0;
 
-    public String toString() {
-      return "{ \"node\" : \"" + node + "\","
-              + "\"nodeFrequency\" : " + nodeFrequency + ","
-              + "\"maximumCount\" : " + maximumCount + ","
-              + "\"nodeDocumentCount\" : " + nodeDocumentCount + "}";
-    }
-
     public void add(NodeStatistics other) {
-      // assert this.node.equals(other.node); // doesn't work.. need to investigate why.
       nodeFrequency += other.nodeFrequency;
       maximumCount = Math.max(this.maximumCount, other.maximumCount);
       nodeDocumentCount += other.nodeDocumentCount;
+    }
+
+    public Parameters toParameters() {
+      Parameters p = new Parameters();
+      p.set("fieldName", this.node);
+      p.set("nodeFrequency", this.nodeFrequency);
+      p.set("maximumCount", this.maximumCount);
+      p.set("nodeDocumentCount", this.nodeDocumentCount);
+      return p;
+    }
+
+    public String toString() {
+      return toParameters().toString();
     }
   }
 

@@ -233,18 +233,20 @@ public class GeometricIndex implements DynamicIndex, Index {
 
   // Note: this data is correct only at time of requesting.
   // DO NOT CACHE THIS DATA.
-  public IndexPartStatistics getCollectionStatistics() {
-    return getCollectionStatistics(getDefaultPart());
+  public IndexPartStatistics getIndexPartStatistics() {
+    return getIndexPartStatistics(getDefaultPart());
   }
 
   // Note: this data is correct only at time of requesting.
   // DO NOT CACHE THIS DATA.
   @Override
-  public IndexPartStatistics getCollectionStatistics(String part) {
-    IndexPartStatistics stats = this.currentMemoryIndex.getCollectionStatistics(part);
+  public IndexPartStatistics getIndexPartStatistics(String part) {
+    IndexPartStatistics stats = this.currentMemoryIndex.getIndexPartStatistics(part);
     for (DiskIndex di : this.geometricParts.getIndexes()) {
-      stats.add(di.getCollectionStatistics(part));
+      stats.add(di.getIndexPartStatistics(part));
     }
+    // fix the part name
+    stats.partName = part;
     return stats;
   }
 
@@ -342,7 +344,7 @@ public class GeometricIndex implements DynamicIndex, Index {
 
   private void flushCurrentIndexBlock() throws IOException {
     // First check that the final memory index contains some data:
-    if (currentMemoryIndex.getCollectionLength() < 1) {
+    if (currentMemoryIndex.documentsInIndex() < 1) {
       return;
     }
 

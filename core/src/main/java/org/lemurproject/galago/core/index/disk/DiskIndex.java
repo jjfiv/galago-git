@@ -17,7 +17,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
+import org.lemurproject.galago.core.index.AggregateReader.AggregateIndexPart;
 import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.BTreeFactory;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.Index;
@@ -35,14 +37,14 @@ import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * This is the main class for a disk based index structure
- * 
- * A index is a set of parts and modifiers
- * Each part is a index file that offers one or more iterators
- * Each modifier alters or extends the data provided by the corresponding part
- * Queries are be processed in this class using a tree of iterators
- * 
+ *
+ * A index is a set of parts and modifiers Each part is a index file that offers
+ * one or more iterators Each modifier alters or extends the data provided by
+ * the corresponding part Queries are be processed in this class using a tree of
+ * iterators
+ *
  * See the Index interface for the list of public functions.
- * 
+ *
  * @author trevor, sjh, irmarc
  */
 public class DiskIndex implements Index {
@@ -51,18 +53,16 @@ public class DiskIndex implements Index {
   protected Parameters manifest = new Parameters();
   protected LengthsReader lengthsReader = null;
   protected NamesReader namesReader = null;
-  
   protected Map<String, IndexPartReader> parts = new HashMap<String, IndexPartReader>();
-  protected Map<String, IndexPartStatistics> partStatistics = new HashMap<String, IndexPartStatistics>();
   protected Map<String, HashMap<String, IndexPartModifier>> modifiers = new HashMap<String, HashMap<String, IndexPartModifier>>();
   protected HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
   protected HashSet<String> knownIndexOperators = new HashSet<String>();
 
   // useful to assemble an index from odd pieces
-  public DiskIndex(Collection<String> indexParts) throws IOException{
+  public DiskIndex(Collection<String> indexParts) throws IOException {
     location = null;
 
-    for(String indexPart : indexParts){
+    for (String indexPart : indexParts) {
       File part = new File(indexPart);
       IndexComponentReader component = openIndexComponent(part.getAbsolutePath());
       initializeComponent(part.getName(), component);
@@ -77,7 +77,6 @@ public class DiskIndex implements Index {
 
     initializeIndexOperators();
   }
-
 
   public DiskIndex(String indexPath) throws IOException {
     // Make sure it's a valid location    
@@ -101,10 +100,10 @@ public class DiskIndex implements Index {
   }
 
   /**
-   * recursively open index parts
-   *  + infer if the file/folder is a part or a modifier
-   * 
-   *  prefix should be empty string or a path ending with a slash
+   * recursively open index parts + infer if the file/folder is a part or a
+   * modifier
+   *
+   * prefix should be empty string or a path ending with a slash
    */
   protected void openDiskParts(String name, File directory) throws IOException {
     // check if the directory is a split index folder: (e.g. corpus)
@@ -133,7 +132,6 @@ public class DiskIndex implements Index {
   protected void initializeComponent(String name, IndexComponentReader component) {
     if (IndexPartReader.class.isAssignableFrom(component.getClass())) {
       parts.put(name, (IndexPartReader) component);
-      partStatistics.put(name, new IndexPartStatistics(name, component.getManifest()));
 
     } else if (IndexPartModifier.class.isAssignableFrom(component.getClass())) {
       // need to pop off the dirname : (e.g. mod/)
@@ -183,7 +181,7 @@ public class DiskIndex implements Index {
 
   @Override
   public IndexPartReader getIndexPart(String part) throws IOException {
-    if(parts.containsKey(part)){
+    if (parts.containsKey(part)) {
       return parts.get(part);
     } else {
       return null;
@@ -275,9 +273,9 @@ public class DiskIndex implements Index {
   }
 
   /**
-   * Modifies the constructed iterator to contain any modifications
-   * requested, if they are found.
-   * 
+   * Modifies the constructed iterator to contain any modifications requested,
+   * if they are found.
+   *
    * @param iter
    * @param node
    * @throws IOException
@@ -326,13 +324,20 @@ public class DiskIndex implements Index {
   }
 
   @Override
-  public IndexPartStatistics getCollectionStatistics() {
-    return getCollectionStatistics(this.getDefaultPart());
+  public IndexPartStatistics getIndexPartStatistics() {
+    return getIndexPartStatistics(this.getDefaultPart());
   }
 
   @Override
-  public IndexPartStatistics getCollectionStatistics(String part) {
-    return this.partStatistics.get(part);
+  public IndexPartStatistics getIndexPartStatistics(String part) {
+    if (parts.containsKey(part)) {
+      IndexPartReader p = parts.get(part);
+      if (AggregateIndexPart.class.isInstance(p)) {
+        return ((AggregateIndexPart) p).getStatistics();
+      }
+      throw new RuntimeException("Index part, " + part + ", does not store aggregated statistics.");
+    }
+    throw new RuntimeException("Index part, " + part + ", could not be found in index, " + this.location.getAbsolutePath() );
   }
 
   @Override
@@ -366,7 +371,7 @@ public class DiskIndex implements Index {
       try {
         CorpusReader corpus = (CorpusReader) parts.get("corpus");
         int docId = getIdentifier(document);
-        return corpus.getDocument(docId,  p);
+        return corpus.getDocument(docId, p);
       } catch (Exception e) {
         // ignore the exception
         Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Failed to get document: {0}\n{1}", new Object[]{document, e.toString()});

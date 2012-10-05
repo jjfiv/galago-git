@@ -44,9 +44,9 @@ public interface Index {
 
   public NodeType getNodeType(Node node) throws Exception;
 
-  public IndexPartStatistics getCollectionStatistics();
+  public IndexPartStatistics getIndexPartStatistics();
 
-  public IndexPartStatistics getCollectionStatistics(String part);
+  public IndexPartStatistics getIndexPartStatistics(String part);
 
   public void close() throws IOException;
 

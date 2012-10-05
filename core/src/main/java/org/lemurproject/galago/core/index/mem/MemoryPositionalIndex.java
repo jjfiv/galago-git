@@ -210,9 +210,6 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader.A
   public void flushToDisk(String path) throws IOException {
     Parameters p = getManifest();
     p.set("filename", path);
-    p.set("statistics/documentCount", this.getDocumentCount());
-    p.set("statistics/collectionLength", this.getCollectionLength());
-    p.set("statistics/vocabCount", this.getKeyCount());
     PositionIndexWriter writer = new PositionIndexWriter(new FakeParameters(p));
 
     KIterator kiterator = new KIterator();
@@ -242,7 +239,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader.A
   @Override
   public AggregateReader.IndexPartStatistics getStatistics() {
     AggregateReader.IndexPartStatistics is = new AggregateReader.IndexPartStatistics();
-    is.partName = "MemoryCountIndex";
+    is.partName = "MemoryPositionIndex";
     is.collectionLength = this.collectionPostingsCount;
     is.vocabCount = this.vocabCount;
     is.highestDocumentCount = this.highestDocumentCount;

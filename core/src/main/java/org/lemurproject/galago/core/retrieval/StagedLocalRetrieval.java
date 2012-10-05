@@ -193,7 +193,6 @@ public class StagedLocalRetrieval extends LocalRetrieval {
 
       // read in counts
       syntheticCounts = new HashMap<String, NodeStatistics>();
-      IndexPartStatistics cs = this.getIndexPartStatistics();
       BufferedReader br = new BufferedReader(new FileReader(globalParameters.getString("syntheticCounts")));
       while (br.ready()) {
         String[] parts = br.readLine().split("\t");

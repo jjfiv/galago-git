@@ -40,7 +40,6 @@ public class MultiRetrieval implements Retrieval {
   protected ArrayList<Retrieval> retrievals;
   protected FeatureFactory features;
   protected Parameters globalParameters;
-  protected HashMap<String, IndexPartStatistics> retrievalStatistics;
   protected Parameters retrievalParts;
 
   public MultiRetrieval(ArrayList<Retrieval> indexes, Parameters p) throws Exception {
@@ -59,12 +58,21 @@ public class MultiRetrieval implements Retrieval {
 
   @Override
   public IndexPartStatistics getIndexPartStatistics() throws IOException {
-    return this.retrievalStatistics.get("postings");
+    return getIndexPartStatistics("fail");
   }
 
   @Override
   public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException {
-    return this.retrievalStatistics.get(partName);
+    IndexPartStatistics aggregate = null;
+    for (Retrieval r : retrievals) {
+      IndexPartStatistics stats = r.getIndexPartStatistics(partName);
+      if (aggregate == null) {
+        aggregate = stats;
+      } else {
+        aggregate.add(stats);
+      }
+    }
+    return aggregate;
   }
 
   @Override
@@ -202,18 +210,6 @@ public class MultiRetrieval implements Retrieval {
       parts.add(partSet);
     }
     this.retrievalParts = mergeParts(parts);
-    retrievalStatistics = new HashMap();
-    for (String part : getAvailableParts().getKeys()) {
-      IndexPartStatistics mergedStats = null;
-      for (Retrieval r : this.retrievals) {
-        if (mergedStats == null) {
-          mergedStats = r.getIndexPartStatistics(part);
-        } else {
-          mergedStats.add(r.getIndexPartStatistics(part));
-        }
-      }
-      this.retrievalStatistics.put(part, mergedStats);
-    }
   }
 
   // This takes the intersection of parts from constituent retrievals, and determines which

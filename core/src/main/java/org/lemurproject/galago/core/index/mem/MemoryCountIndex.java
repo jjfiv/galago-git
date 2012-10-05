@@ -200,9 +200,6 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader.Aggreg
   public void flushToDisk(String path) throws IOException {
     Parameters p = getManifest();
     p.set("filename", path);
-    p.set("statistics/documentCount", this.getDocumentCount());
-    p.set("statistics/collectionLength", this.getCollectionLength());
-    p.set("statistics/vocabCount", this.getKeyCount());
     CountIndexWriter writer = new CountIndexWriter(new FakeParameters(p));
 
     KIterator kiterator = new KIterator();
