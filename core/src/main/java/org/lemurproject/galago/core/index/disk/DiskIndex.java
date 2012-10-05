@@ -324,11 +324,6 @@ public class DiskIndex implements Index {
   }
 
   @Override
-  public IndexPartStatistics getIndexPartStatistics() {
-    return getIndexPartStatistics(this.getDefaultPart());
-  }
-
-  @Override
   public IndexPartStatistics getIndexPartStatistics(String part) {
     if (parts.containsKey(part)) {
       IndexPartReader p = parts.get(part);

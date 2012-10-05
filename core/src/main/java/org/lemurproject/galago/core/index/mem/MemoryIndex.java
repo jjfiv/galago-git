@@ -208,14 +208,6 @@ public class MemoryIndex implements DynamicIndex, Index {
     return result;
   }
 
-  public IndexPartStatistics getIndexPartStatistics() {
-    if (parts.containsKey("postings")) {
-      return getIndexPartStatistics("postings");
-    } else {
-      return getIndexPartStatistics("postings.porter");
-    }
-  }
-
   /**
    * WARNING: this function returns a static picture of the collection stats.
    * You should NEVER cache this object.

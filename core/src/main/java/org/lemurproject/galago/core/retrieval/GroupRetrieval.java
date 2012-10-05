@@ -107,11 +107,6 @@ public class GroupRetrieval implements Retrieval {
   }
 
   @Override
-  public IndexPartStatistics getIndexPartStatistics() throws IOException {
-    return groups.get(defGroup).getIndexPartStatistics();
-  }
-
-  @Override
   public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException {
     return groups.get(defGroup).getIndexPartStatistics(partName);
   }
@@ -171,10 +166,6 @@ public class GroupRetrieval implements Retrieval {
 
   public ScoredDocument[] runQuery(Node root, Parameters parameters, String group) throws Exception {
     return groups.get(group).runQuery(root, parameters);
-  }
-
-  public IndexPartStatistics getRetrievalStatisticsGP(String group) throws IOException {
-    return groups.get(group).getIndexPartStatistics();
   }
 
   public IndexPartStatistics getRetrievalStatistics(String partName, String group) throws IOException {

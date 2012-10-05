@@ -233,12 +233,6 @@ public class GeometricIndex implements DynamicIndex, Index {
 
   // Note: this data is correct only at time of requesting.
   // DO NOT CACHE THIS DATA.
-  public IndexPartStatistics getIndexPartStatistics() {
-    return getIndexPartStatistics(getDefaultPart());
-  }
-
-  // Note: this data is correct only at time of requesting.
-  // DO NOT CACHE THIS DATA.
   @Override
   public IndexPartStatistics getIndexPartStatistics(String part) {
     IndexPartStatistics stats = this.currentMemoryIndex.getIndexPartStatistics(part);

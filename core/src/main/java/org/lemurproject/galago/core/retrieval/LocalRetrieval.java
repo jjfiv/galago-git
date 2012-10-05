@@ -101,11 +101,6 @@ public class LocalRetrieval implements Retrieval {
   }
 
   @Override
-  public IndexPartStatistics getIndexPartStatistics() throws IOException {
-    return index.getIndexPartStatistics();
-  }
-
-  @Override
   public Parameters getGlobalParameters() {
     return this.globalParameters;
   }

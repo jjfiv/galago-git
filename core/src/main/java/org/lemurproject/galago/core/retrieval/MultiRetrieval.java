@@ -57,11 +57,6 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public IndexPartStatistics getIndexPartStatistics() throws IOException {
-    return getIndexPartStatistics("fail");
-  }
-
-  @Override
   public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException {
     IndexPartStatistics aggregate = null;
     for (Retrieval r : retrievals) {

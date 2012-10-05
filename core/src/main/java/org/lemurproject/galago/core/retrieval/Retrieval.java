@@ -122,19 +122,6 @@ public interface Retrieval {
   public ScoredDocument[] runQuery(Node root, Parameters parameters) throws Exception;
 
   /**
-   * Returns IndexPartStatistics for the default postings part.
-   * Usually the part is 'postings.porter' or 'postings'.
-   * Uses getDefaultPart() function to determine the part.
-   * 
-   * Data includes statistics for vocabulary size, 
-   * total number of postings stored and longest posting list.
-   * 
-   * @return IndexPartStatistics
-   * @throws IOException
-   */
-  public IndexPartStatistics getIndexPartStatistics() throws IOException;
-
-  /**
    * Returns IndexPartStatistics for the named postings part.
    * 
    * Data includes statistics for vocabulary size, 
