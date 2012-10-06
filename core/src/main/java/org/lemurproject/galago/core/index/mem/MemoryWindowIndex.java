@@ -260,6 +260,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader.Aggre
     int termWindowCount = 0;
     int lastDocument = 0;
     int lastCount = 0;
+    int maximumPostingsCount = 0;
 
     public WindowPostingList(byte[] key) {
       this.key = key;
@@ -287,6 +288,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader.Aggre
       begins_cbb.add(begin);
       ends_cbb.add(end);
       termWindowCount += 1;
+      maximumPostingsCount = Math.max(maximumPostingsCount, lastCount);
     }
   }
   // iterator allows for query processing and for streaming posting list data
@@ -548,6 +550,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateReader.Aggre
       stats.node = Utility.toString(postings.key);
       stats.nodeFrequency = postings.termWindowCount;
       stats.nodeDocumentCount = postings.termDocumentCount;
+      stats.maximumCount = postings.maximumPostingsCount;
       return stats;
     }
 

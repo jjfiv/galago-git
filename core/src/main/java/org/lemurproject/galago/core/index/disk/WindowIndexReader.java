@@ -483,13 +483,11 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader.
 
     @Override
     public NodeStatistics getStatistics() {
-      if (modifiers != null && modifiers.containsKey("background")) {
-        return (NodeStatistics) modifiers.get("background");
-      }
       NodeStatistics stats = new NodeStatistics();
       stats.node = Utility.toString(this.key);
       stats.nodeFrequency = this.totalWindowCount;
       stats.nodeDocumentCount = this.documentCount;
+      stats.maximumCount = this.maximumPositionCount;
       return stats;
     }
 
@@ -772,13 +770,11 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader.
 
     @Override
     public NodeStatistics getStatistics() {
-      if (modifiers != null && modifiers.containsKey("background")) {
-        return (NodeStatistics) modifiers.get("background");
-      }
       NodeStatistics stats = new NodeStatistics();
       stats.node = Utility.toString(this.key);
       stats.nodeFrequency = this.collectionCount;
       stats.nodeDocumentCount = this.documentCount;
+      stats.maximumCount = this.maximumPositionCount;
       return stats;
     }
 

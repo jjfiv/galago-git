@@ -427,6 +427,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
       stats.node = Utility.toString(this.key);
       stats.nodeFrequency = this.totalPositionCount;
       stats.nodeDocumentCount = this.documentCount;
+      stats.maximumCount = this.maximumPositionCount;
       return stats;
     }
 
@@ -720,6 +721,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
       stats.node = Utility.toString(this.key);
       stats.nodeFrequency = this.collectionCount;
       stats.nodeDocumentCount = this.documentCount;
+      stats.maximumCount = this.maximumPositionCount;
       return stats;
     }
 

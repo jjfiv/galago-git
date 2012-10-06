@@ -270,6 +270,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader.A
     int lastDocument = 0;
     int lastCount = 0;
     int lastPosition = 0;
+    int maximumPostingsCount = 0;
 
     public PositionalPostingList(byte[] key) {
       this.key = key;
@@ -299,6 +300,8 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader.A
       positions_cbb.add(position - lastPosition);
       termPostingsCount += 1;
       lastPosition = position;
+      // keep track of the document with the highest frequency of 'term'
+      maximumPostingsCount = Math.max(maximumPostingsCount, lastCount);
     }
   }
   // iterator allows for query processing and for streaming posting list data
@@ -550,6 +553,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader.A
       stats.node = Utility.toString(postings.key);
       stats.nodeFrequency = postings.termPostingsCount;
       stats.nodeDocumentCount = postings.termDocumentCount;
+      stats.maximumCount = postings.maximumPostingsCount;
       return stats;
     }
 
@@ -752,6 +756,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader.A
       stats.node = Utility.toString(postings.key);
       stats.nodeFrequency = postings.termPostingsCount;
       stats.nodeDocumentCount = postings.termDocumentCount;
+      stats.maximumCount = postings.maximumPostingsCount;
       return stats;
     }
 

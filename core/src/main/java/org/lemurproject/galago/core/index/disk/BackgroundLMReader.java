@@ -111,7 +111,8 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateIndex
         stats.node = getKeyString();
         stats.nodeFrequency = Utility.uncompressLong(value);
         stats.nodeDocumentCount = Utility.uncompressLong(value);
-
+        stats.maximumCount = Integer.MAX_VALUE;
+          
         return stats;
       } catch (IOException e) {
         throw new RuntimeException("Failed to collect statistics in BackgroundLMReader. " + e.getMessage());

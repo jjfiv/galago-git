@@ -252,6 +252,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader.Aggreg
     int termPostingsCount = 0;
     int lastDocument = 0;
     int lastCount = 0;
+    int maximumPostingsCount = 0;
 
     public PostingList(byte[] key) {
       this.key = key;
@@ -263,7 +264,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader.Aggreg
         lastDocument = document;
         lastCount = count;
         termDocumentCount += 1;
-        documents_cbb.add(document);
+        documents_cbb.add(document);  
       } else if (lastDocument == document) {
         // additional instance of term in document
         lastCount += count;
@@ -277,6 +278,8 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader.Aggreg
         termDocumentCount += 1;
       }
       termPostingsCount += count;
+       // keep track of the document with the highest frequency of 'term'
+     maximumPostingsCount = Math.max(lastCount, maximumPostingsCount);
     }
   }
   // iterator allows for query processing and for streaming posting list data
@@ -498,13 +501,11 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateReader.Aggreg
 
     @Override
     public NodeStatistics getStatistics() {
-      if (modifiers != null && modifiers.containsKey("background")) {
-        return (NodeStatistics) modifiers.get("background");
-      }
       NodeStatistics stats = new NodeStatistics();
       stats.node = Utility.toString(postings.key);
       stats.nodeFrequency = postings.termPostingsCount;
       stats.nodeDocumentCount = postings.termDocumentCount;
+      stats.maximumCount = postings.maximumPostingsCount;
       return stats;
     }
 
