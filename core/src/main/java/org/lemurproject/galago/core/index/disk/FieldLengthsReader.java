@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader.TermExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -35,7 +36,7 @@ public class FieldLengthsReader implements LengthsReader {
 
   @Override
   public int getLength(int document) throws IOException {
-    LengthsReader.LengthsIterator li = getLengthsIterator();
+    LengthIterator li = (LengthIterator) getLengthsIterator();
     li.syncTo(document);
     if (li.hasMatch(document)) {
       return li.getCurrentLength();
@@ -48,7 +49,7 @@ public class FieldLengthsReader implements LengthsReader {
     this.field = f;
   }
 
-  public LengthsIterator getLengthsIterator(String f, ScoringContext ctx) throws IOException {
+  public MovableLengthsIterator getLengthsIterator(String f, ScoringContext ctx) throws IOException {
     TermExtentIterator exts = reader.getTermExtents(f);
     LengthIterator lns = new LengthIterator(exts);
     exts.setContext(ctx);
@@ -57,7 +58,7 @@ public class FieldLengthsReader implements LengthsReader {
   }
 
   @Override
-  public LengthsIterator getLengthsIterator() throws IOException {
+  public MovableLengthsIterator getLengthsIterator() throws IOException {
     return new LengthIterator(reader.getTermExtents(field));
   }
 
@@ -100,7 +101,7 @@ public class FieldLengthsReader implements LengthsReader {
     return reader.getManifest();
   }
 
-  public class LengthIterator extends ValueIterator implements LengthsReader.LengthsIterator {
+  public class LengthIterator extends ValueIterator implements MovableLengthsIterator {
 
     private WindowIndexReader.TermExtentIterator extentsIterator;
     int length = -1;

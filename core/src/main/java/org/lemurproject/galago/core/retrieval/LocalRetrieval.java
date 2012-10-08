@@ -31,6 +31,7 @@ import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
@@ -295,14 +296,14 @@ public class LocalRetrieval implements Retrieval {
     if (CollectionAggregateIterator.class.isInstance(structIterator)) {
       return ((CollectionAggregateIterator) structIterator).getStatistics();
 
-    } else if (structIterator instanceof LengthsIterator) {
-      LengthsIterator iterator = (LengthsIterator) structIterator;
+    } else if (structIterator instanceof MovableLengthsIterator) {
+      MovableLengthsIterator iterator = (MovableLengthsIterator) structIterator;
       CollectionStatistics stats = new CollectionStatistics();
       stats.fieldName = root.toString();
       stats.minLength = Integer.MAX_VALUE;
 
       while (!iterator.isDone()) {
-        sc.document = iterator.currentCandidate();        
+        sc.document = iterator.currentCandidate();
         if (iterator.hasMatch(iterator.currentCandidate())) {
           int len = iterator.getCurrentLength();
           stats.collectionLength += len;
@@ -312,9 +313,9 @@ public class LocalRetrieval implements Retrieval {
         }
         iterator.movePast(sc.document);
       }
-      
-      stats.avgLength = (stats.documentCount > 0)? (double) stats.collectionLength / (double) stats.documentCount: 0;
-      stats.minLength = (stats.documentCount > 0)? stats.minLength: 0;
+
+      stats.avgLength = (stats.documentCount > 0) ? (double) stats.collectionLength / (double) stats.documentCount : 0;
+      stats.minLength = (stats.documentCount > 0) ? stats.minLength : 0;
       return stats;
     }
     throw new IllegalArgumentException("Node " + root.toString() + " is not a lengths iterator.");

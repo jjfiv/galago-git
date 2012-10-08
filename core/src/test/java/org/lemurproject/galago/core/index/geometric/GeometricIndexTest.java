@@ -11,13 +11,13 @@ import java.util.Random;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
-import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.parse.Document;
 
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -92,7 +92,7 @@ public class GeometricIndexTest extends TestCase {
       sc.document = names.getCurrentIdentifier();
       assertEquals(names.getCurrentName(), "DOC-" + 100);
 
-      LengthsReader.LengthsIterator lengths = index.getLengthsIterator();
+      MovableLengthsIterator lengths = index.getLengthsIterator();
       lengths.setContext(sc);
       lengths.syncTo(99);
       sc.document = 99;

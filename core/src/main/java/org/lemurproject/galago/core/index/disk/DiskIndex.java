@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.AggregateReader.AggregateIndexPart;
 import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.BTreeFactory;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.Index;
@@ -32,6 +31,7 @@ import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -387,7 +387,7 @@ public class DiskIndex implements Index {
   }
 
   @Override
-  public LengthsReader.LengthsIterator getLengthsIterator() throws IOException {
+  public MovableLengthsIterator getLengthsIterator() throws IOException {
     return lengthsReader.getLengthsIterator();
   }
 

@@ -28,6 +28,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.index.mem.FlushToDisk;
 import org.lemurproject.galago.core.index.mem.MemoryIndex;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -246,7 +247,7 @@ public class GeometricIndex implements DynamicIndex, Index {
 
   @Override
   public int getLength(int document) throws IOException {
-    LengthsReader.LengthsIterator i = this.getLengthsIterator();
+    MovableLengthsIterator i = (MovableLengthsIterator) this.getLengthsIterator();
     i.syncTo(document);
     if (i.hasMatch(document)) {
       return i.getCurrentLength();
@@ -280,7 +281,8 @@ public class GeometricIndex implements DynamicIndex, Index {
     throw new RuntimeException("UNIMPLEMENTED function: getdocuments");
   }
 
-  public LengthsIterator getLengthsIterator() throws IOException {
+  @Override
+  public MovableLengthsIterator getLengthsIterator() throws IOException {
     List<LengthsReader.LengthsIterator> itrs = new ArrayList();
     itrs.add(currentMemoryIndex.getLengthsIterator());
     for (DiskIndex di : this.geometricParts.getIndexes()) {

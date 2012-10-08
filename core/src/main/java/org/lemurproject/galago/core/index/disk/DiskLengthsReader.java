@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -75,7 +76,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
 
   @Override
-  public LengthsReader.LengthsIterator getLengthsIterator() throws IOException {
+  public MovableLengthsIterator getLengthsIterator() throws IOException {
     return new MemoryMapLengthsIterator(doc, documentLengths);
   }
 
@@ -158,7 +159,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
 
   public class MemoryMapLengthsIterator extends ValueIterator
-          implements MovableCountIterator, LengthsReader.LengthsIterator,
+          implements MovableCountIterator, MovableLengthsIterator,
           AggregateReader.CollectionAggregateIterator {
 
     byte[] key;
@@ -357,7 +358,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
 
   public class StreamLengthsIterator extends KeyListReader.ListIterator
-          implements MovableCountIterator, LengthsReader.LengthsIterator,
+          implements MovableCountIterator, MovableLengthsIterator,
           AggregateReader.CollectionAggregateIterator {
 
     private final BTreeIterator iterator;

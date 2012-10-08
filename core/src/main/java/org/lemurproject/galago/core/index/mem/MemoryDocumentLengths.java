@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
@@ -21,6 +20,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -171,7 +171,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   @Override
-  public LengthsReader.LengthsIterator getLengthsIterator() throws IOException {
+  public MovableLengthsIterator getLengthsIterator() throws IOException {
     return new FieldLengthsIterator(lengths.get(document));
   }
 
@@ -326,7 +326,8 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
   }
 
-  private static class FieldLengthsIterator extends ValueIterator implements MovableCountIterator, LengthsReader.LengthsIterator, AggregateReader.CollectionAggregateIterator {
+  private static class FieldLengthsIterator extends ValueIterator implements MovableCountIterator, 
+          MovableLengthsIterator, AggregateReader.CollectionAggregateIterator {
 
     FieldLengthPostingList fieldLengths;
     int currDoc;

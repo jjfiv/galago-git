@@ -11,10 +11,10 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
-import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.disk.FieldLengthsReader;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 
@@ -59,7 +59,7 @@ public abstract class ProcessingModel {
     docLengths.getNodeParameters().set("mode", global.get("lenMode", "memory"));
     
     Index index = r.getIndex();
-    LengthsReader.LengthsIterator documentLengths = (LengthsReader.LengthsIterator) index.getIterator(docLengths);    
+    MovableLengthsIterator documentLengths = (MovableLengthsIterator) index.getIterator(docLengths);    
     documentLengths.setContext(ctx);
     ctx.addLength("", documentLengths);
     
@@ -72,7 +72,7 @@ public abstract class ProcessingModel {
         if (!parts.containsKey(partName)) {
           continue;
         }
-        LengthsReader.LengthsIterator it = flr.getLengthsIterator(field, ctx);
+        MovableLengthsIterator it = flr.getLengthsIterator(field, ctx);
         ctx.addLength(field, it);
       }
     }

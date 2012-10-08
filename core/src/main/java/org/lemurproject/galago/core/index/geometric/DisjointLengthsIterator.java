@@ -9,13 +9,14 @@ import java.util.Collection;
 import java.util.List;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
  *
  * @author sjh
  */
-public class DisjointLengthsIterator extends DisjointIndexesIterator implements LengthsReader.LengthsIterator {
+public class DisjointLengthsIterator extends DisjointIndexesIterator implements MovableLengthsIterator {
 
   public DisjointLengthsIterator(Collection<LengthsReader.LengthsIterator> iterators) {
     super((Collection) iterators);

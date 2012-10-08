@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.index;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 
 /**
  *
@@ -12,9 +12,9 @@ public interface LengthsReader extends IndexPartReader {
 
   public int getLength(int document) throws IOException;
 
-  public LengthsIterator getLengthsIterator() throws IOException;
+  public MovableLengthsIterator getLengthsIterator() throws IOException;
 
-  public interface LengthsIterator extends MovableIterator {
+  public interface LengthsIterator {
     // This function returns the name of the region:
     // e.g. document, field-name, or #inside(field-name field-name)
     public byte[] getRegionBytes();
