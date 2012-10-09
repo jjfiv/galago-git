@@ -27,7 +27,8 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
 
   public JelinekMercerScoringIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(p, it, new JelinekMercerScorer(p, it));
+    super(p, it);
+    this.setScoringFunction(new JelinekMercerScorer(p, it));
     weight = p.get("w", 1.0);
     parentIdx = (int) p.get("pIdx", 0);
     max = getMaxTF(p, it);

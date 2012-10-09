@@ -18,7 +18,8 @@ public class InverseDocFrequencyIterator extends ScoringFunctionIterator {
 
   public InverseDocFrequencyIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(p, it, new InverseDocumentFrequencyScorer(p, it));
+    super(p, it);
+    this.setScoringFunction(new InverseDocumentFrequencyScorer(p, it));
     // And now dump it
     iterator = null;
   }

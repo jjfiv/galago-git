@@ -25,6 +25,7 @@ public class ScoringFunctionIteratorTest extends TestCase {
 
   private static class FakeScorer implements ScoringFunction {
 
+    @Override
     public double score(int count, int length) {
       return (count + length);
     }
@@ -33,8 +34,9 @@ public class ScoringFunctionIteratorTest extends TestCase {
   public void testGenericIterator() throws Exception {
     Parameters parameters = new Parameters();
     FakeExtentIterator extentIterator = new FakeExtentIterator(extents);
-    ScoringFunctionIterator iterator = new ScoringFunctionIterator(new NodeParameters(), extentIterator,
-            new FakeScorer());
+    ScoringFunctionIterator iterator = new ScoringFunctionIterator(new NodeParameters(), extentIterator);
+    iterator.setScoringFunction(new FakeScorer());
+
     ScoringContext context = new ScoringContext();
     int[] docs = {0, 34, 110};
     int[] lengths = {0, 99, 41};

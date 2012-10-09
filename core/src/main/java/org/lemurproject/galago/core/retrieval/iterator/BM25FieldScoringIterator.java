@@ -33,7 +33,8 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
 
   public BM25FieldScoringIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(p, it, new BM25FieldScorer(p, it));
+    super(p, it);
+    this.setScoringFunction(new BM25FieldScorer(p, it));
     partName = p.getString("lengths");
     weight = p.getDouble("w");
     parentIdx = (int) p.getLong("pIdx");

@@ -37,13 +37,13 @@ public class EstimatedBM25ScoringIterator extends ScoringFunctionIterator
 
   public EstimatedBM25ScoringIterator(NodeParameters p, MinimumCountConjunctionIterator it)
           throws IOException {
-    super(p, it, null); // have to fake it at first
+    super(p, it); // have to fake it at first
     mcci = it;
     range = new double[2];
     weight = p.getDouble("w");
     documentCount = 0.0 + p.getLong("documentCount");
     p.set("nodeDocumentCount", 1);
-    function = new BM25Scorer(p, it);
+    this.setScoringFunction(new BM25Scorer(p, it));
 
     // (4) -- see below in setContext
     if (p.containsKey("maximumCount")) {

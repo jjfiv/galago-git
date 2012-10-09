@@ -5,14 +5,12 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.disk.PositionIndexReader;
 import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.scoring.DirichletProbabilityScorer;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -33,7 +31,8 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
 
   public DirichletProbabilityScoringIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(p, it, new DirichletProbabilityScorer(p, it));
+    super(p, it);
+    this.setScoringFunction(new DirichletProbabilityScorer(p, it));
     max = getMaxTF(p, it);
     partName = p.getString("lengths");
     parentIdx = (int) p.getLong("pIdx");

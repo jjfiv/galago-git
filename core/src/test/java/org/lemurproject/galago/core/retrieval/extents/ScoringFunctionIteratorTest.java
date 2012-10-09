@@ -41,7 +41,8 @@ public class ScoringFunctionIteratorTest extends TestCase {
   public static class FakeScoreIterator extends ScoringFunctionIterator {
 
     public FakeScoreIterator(MovableCountIterator iter) throws IOException {
-      super(new NodeParameters(), iter, new FakeScorer());
+      super(new NodeParameters(), iter);
+      this.setScoringFunction(new FakeScorer());
     }
 
     public double scoreCount(int count, int length) {

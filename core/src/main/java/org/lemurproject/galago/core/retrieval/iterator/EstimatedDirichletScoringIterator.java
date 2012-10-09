@@ -34,7 +34,7 @@ public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
 
   public EstimatedDirichletScoringIterator(NodeParameters p, MinimumCountConjunctionIterator it)
           throws IOException {
-    super(p, it, null); // have to fake it at first
+    super(p, it); // have to fake it at first
     mcci = it;
     range = new double[2];
     collapsing = p.get("collapsing", true);
@@ -43,7 +43,7 @@ public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
 
     // now create/set the function - the prob won't matter. We ignore it.
     p.set("nodeFrequency", 1);
-    function = new DirichletScorer(p, it);
+    this.setScoringFunction(new DirichletScorer(p, it));
 
     documentCount = p.getLong("documentCount");
 

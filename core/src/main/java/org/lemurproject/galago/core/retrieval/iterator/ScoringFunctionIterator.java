@@ -9,9 +9,9 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.scoring.ScoringFunction;
 
 /**
- * An iterator that converts a count iterator's count into a score.
- * This is usually composed w/ a scoring function in order to produce an
- * appropriate score
+ * An iterator that converts a count iterator's count into a score. This is
+ * usually composed w/ a scoring function in order to produce an appropriate
+ * score
  *
  * @author irmarc
  */
@@ -19,14 +19,17 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
 
   protected NodeParameters np;
   protected ScoringFunction function;
-  protected CountIterator countIterator;
+  protected MovableCountIterator countIterator;
   protected double max;
 
-  public ScoringFunctionIterator(NodeParameters np, MovableCountIterator iterator, ScoringFunction function) throws IOException {
+  public ScoringFunctionIterator(NodeParameters np, MovableCountIterator iterator) throws IOException {
     super(iterator);
     this.np = np;
-    this.function = function;
     this.countIterator = iterator;
+  }
+
+  public void setScoringFunction(ScoringFunction f) {
+    this.function = f;
   }
 
   public ScoringFunction getScoringFunction() {
@@ -70,7 +73,8 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
 
   /**
    * Non-essential method to forward the count iterator key.
-   * @return 
+   *
+   * @return
    */
   public byte[] key() {
     return ((CountIterator) iterator).key();

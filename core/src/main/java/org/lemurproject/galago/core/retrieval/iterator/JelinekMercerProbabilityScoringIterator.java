@@ -20,7 +20,8 @@ public class JelinekMercerProbabilityScoringIterator extends ScoringFunctionIter
 
   public JelinekMercerProbabilityScoringIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(p, it, new JelinekMercerProbabilityScorer(p, it));
+    super(p, it);
+    this.setScoringFunction(new JelinekMercerProbabilityScorer(p, it));
     partName = p.getString("lengths");
   }
 

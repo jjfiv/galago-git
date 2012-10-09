@@ -18,7 +18,8 @@ public class BM25RFScoringIterator extends ScoringFunctionIterator {
 
   public BM25RFScoringIterator(NodeParameters p, MovableCountIterator it)
           throws IOException {
-    super(p, it, new BM25RFScorer(p, it));
+    super(p, it);
+    this.setScoringFunction(new BM25RFScorer(p, it));
   }
 
   /**
