@@ -54,11 +54,16 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
   @Override
   public void loadExtents() {
     int document = currentCandidate();
-    if (isDone() || this.extents.getDocument() == document) {
+    if (this.extents.getDocument() == document) {
       return;
     }
+
     extents.reset();
     extents.setDocument(document);
+
+    if (isDone()) {
+      return;
+    }
 
     if (innerIterator.isDone() || !innerIterator.hasMatch(document)
             || outerIterator.isDone() || !outerIterator.hasMatch(document)) {

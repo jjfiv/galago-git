@@ -44,12 +44,14 @@ public class ScoringFunctionIteratorTest extends TestCase {
     context.addLength("", fli);
 
     iterator.setContext(context);
+    extentIterator.setContext(context);
+    
     assertFalse(iterator.isDone());
     assertEquals(extents[0][0], iterator.currentCandidate());
     iterator.syncTo(extents[0][0]);
     assertEquals(extents[0][0], iterator.currentCandidate());
     context.document = 0;
-    // score without explicit context
+
     assertEquals(0.0, iterator.score());
     context.moveLengths(34);
     context.document = 34;
@@ -82,7 +84,10 @@ public class ScoringFunctionIteratorTest extends TestCase {
     int[] lengths = {0, 99, 41};
     FakeLengthIterator fli = new FakeLengthIterator(docs, lengths);
     context.addLength("", fli);
+
     iterator.setContext(context);
+    extentIterator.setContext(context);
+    
     context.document = iterator.currentCandidate();
     context.moveLengths(34);
     assertEquals(1.11315, iterator.score(), 0.0001);

@@ -22,7 +22,8 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
   protected MovableCountIterator countIterator;
   protected double max;
 
-  public ScoringFunctionIterator(NodeParameters np, MovableCountIterator iterator) throws IOException {
+  public ScoringFunctionIterator(NodeParameters np, 
+          MovableCountIterator iterator) throws IOException {
     super(iterator);
     this.np = np;
     this.countIterator = iterator;
@@ -38,11 +39,7 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
 
   @Override
   public double score() {
-    int count = 0;
-
-    if (iterator.hasMatch(context.document)) {
-      count = countIterator.count();
-    }
+    int count = countIterator.count();
     double score = function.score(count, context.getLength());
     return score;
   }

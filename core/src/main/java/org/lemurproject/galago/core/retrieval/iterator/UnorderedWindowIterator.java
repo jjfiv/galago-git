@@ -25,11 +25,16 @@ public class UnorderedWindowIterator extends ExtentConjunctionIterator {
 
   public void loadExtents() {
     int document = currentCandidate();
-    if (isDone() || this.extents.getDocument() == document) {
+    if (this.extents.getDocument() == document) {
       return;
     }
+
     extents.reset();
     extents.setDocument(document);
+
+    if (isDone()) {
+      return;
+    }
 
     ExtentArrayIterator[] arrayIterators;
     int maximumPosition = 0;

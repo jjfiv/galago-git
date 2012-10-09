@@ -39,14 +39,18 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
 
   @Override
   public int count() {
-    return data[index].length - 1;
+    if (context.document == data[index][0]) {
+      return data[index].length - 1;
+    } else {
+      return 0;
+    }
   }
 
   @Override
   public void reset() throws IOException {
     index = 0;
   }
- 
+
   @Override
   public ExtentArray getData() {
     return extents();
@@ -54,14 +58,18 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
 
   @Override
   public ExtentArray extents() {
-    ExtentArray array = new ExtentArray();
-    int[] datum = data[index];
-    array.setDocument(datum[0]);
-    for (int i = 1; i < datum.length; i++) {
-      array.add(datum[i]);
-    }
+    if (context.document == data[index][0]) {
+      ExtentArray array = new ExtentArray();
+      int[] datum = data[index];
+      array.setDocument(datum[0]);
+      for (int i = 1; i < datum.length; i++) {
+        array.add(datum[i]);
+      }
 
-    return array;
+      return array;
+    } else {
+      return new ExtentArray();
+    }
   }
 
   @Override

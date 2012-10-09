@@ -21,13 +21,17 @@ public class SynonymIterator extends ExtentDisjunctionIterator {
   }
 
   public void loadExtents() {
-    int document = this.currentCandidate();
-    if (isDone() || this.extents.getDocument() == document) {
+    int document = currentCandidate();
+    if (this.extents.getDocument() == document) {
       return;
     }
 
     extents.reset();
     extents.setDocument(document);
+
+    if (isDone()) {
+      return;
+    }
 
     // make a priority queue of extent array iterators
     PriorityQueue<ExtentArrayIterator> arrayIterators = new PriorityQueue<ExtentArrayIterator>();
