@@ -42,8 +42,10 @@ class MBTEIWordDateParser extends MBTEIParserBase {
     
     public void recordFormAttribute(int ignored) {
 	String formValue = reader.getAttributeValue(null, "form");
-	String scrubbed = scrub(formValue);
-	wholeDocument.terms.add(scrubbed);
+	String normalized = normalize(formValue);
+	if (normalized != null) {
+	    wholeDocument.terms.add(normalized);
+	}
     }
 
     public void grabDate(int ignored) {

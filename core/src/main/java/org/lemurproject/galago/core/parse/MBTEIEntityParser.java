@@ -94,7 +94,6 @@ class MBTEIEntityParser extends MBTEIParserBase {
 	clearAllActions();
 	buildDocument();
     }
-
     public void openNewContext(int ignored) {
 	String type = reader.getAttributeValue(null, "type").toLowerCase();
 	if (restrict != null && !restrict.equals(type)) {
