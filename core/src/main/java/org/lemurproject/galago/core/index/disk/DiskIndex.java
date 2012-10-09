@@ -369,7 +369,9 @@ public class DiskIndex implements Index {
         return corpus.getDocument(docId,  p);
       } catch (Exception e) {
         // ignore the exception
-        Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Failed to get document: {0}\n{1}", new Object[]{document, e.toString()});
+        Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, 
+							"Failed to get document: {0}\n{1}", 
+							new Object[]{document, e.toString()});
       }
     }
     return null;

@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import org.lemurproject.galago.core.index.BTreeFactory;
@@ -16,15 +18,6 @@ import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
-import org.lemurproject.galago.tupleflow.ExNihiloSource;
-import org.lemurproject.galago.tupleflow.FileSource;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.Linkage;
-import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.Step;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.core.types.DocumentSplit;
@@ -52,25 +45,25 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   private int fileId = 0;
   private int totalFileCount = 0;
   private List<DocumentSplit> splitBuffer;
-  private UniversalParser up;
+  private Set<String> externalFileTypes;
   private String forceFileType;
+  private Logger logger;
+  private String inputPolicy;
 
   public DocumentSource(TupleFlowParameters parameters) {
     this.parameters = parameters;
+    inputPolicy = parameters.getJSON().get("inputPolicy", "require");
     this.inputCounter = parameters.getCounter("Inputs Processed");
-
-    if (this.parameters.getJSON().isString("filetype")) {
-      this.forceFileType = this.parameters.getJSON().getString("filetype");
-    }
-
-    // we need a copy of the universal parser parameters 
-    //  this ensures manually specified extensions can pass through the DocSource
-    if (this.parameters.getJSON().isMap("parser")) {
-      this.up = new UniversalParser(new FakeParameters(
-              this.parameters.getJSON().getMap("parser")));
-    } else {
-      this.up = new UniversalParser(new FakeParameters(
-              new Parameters()));
+    logger = Logger.getLogger("DOCSOURCE");
+    externalFileTypes = new HashSet<String>();
+    forceFileType = parameters.getJSON().get("filetype", (String) null);
+    if (parameters.getJSON().containsKey("externalParsers")) {
+      List<Parameters> extP = parameters.getJSON().getAsList("externalParsers");
+      for (Parameters p : extP) {
+        logger.info(String.format("Adding external file type %s\n",
+                p.getString("filetype")));
+        externalFileTypes.add(p.getString("filetype"));
+      }
     }
   }
 
@@ -124,9 +117,17 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
   private void processFile(File file) throws IOException {
 
-    // First, make sure this file exists. If not, whine about it and die
+    // First, make sure this file exists. If not, whine about it.
     if (!file.exists()) {
-      throw new IOException(String.format("File %s was not found. Exiting.\n", file));
+      if (inputPolicy.equals("require")) {
+        throw new IOException(String.format("File %s was not found. Exiting.\n", file));
+      } else if (inputPolicy.equals("warn")) {
+        logger.warning(String.format("File %s was not found. Skipping.\n", file));
+        return;
+      } else {
+        // Return quietly
+        return;
+      }
     }
 
     // Now try to detect what kind of file this is:
@@ -134,13 +135,14 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     String fileType = forceFileType;
 
     // We'll try to detect by extension first, so we don't have to open the file
+    String extension = null;
     if (fileType == null) {
-      String extension = getExtension(file);
+      extension = getExtension(file);
 
       // first lets look for special cases that require some processing here:
       if (extension.equals("list")) {
         processListFile(file);
-        return; // now considered processed
+        return; // now considered processed1
       }
 
       if (extension.equals("subcoll")) {
@@ -148,7 +150,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         return; // now considered processed
       }
 
-      if (up.isParsable(extension)) {
+      if (UniversalParser.isParsable(extension)) {
         fileType = extension;
 
       } else if (file.getName().equals("corpus") || (BTreeFactory.isBTree(file))) {
@@ -160,6 +162,27 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         // finally try to be 'clever'...
         fileType = detectTrecTextOrWeb(file);
       }
+    }
+
+    if (extension.equals("subcoll")) {
+      processSubCollectionFile(file);
+      return; // now considered processed
+    }
+
+    if (forceFileType != null) {
+      fileType = forceFileType;
+    } else if (UniversalParser.isParsable(extension) || isExternallyDefined(extension)) {
+      fileType = extension;
+    } else {
+      fileType = detectTrecTextOrWeb(file);
+    }
+    // Eventually it'd be nice to do more format detection here.
+    
+    if (file.getName().equals("corpus")
+            || fileType.equals("corpus")) {
+      // perhaps the user has renamed the corpus index
+      processCorpusFile(file);
+      return; // done now;
     }
 
     if (fileType != null) {
@@ -188,7 +211,6 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       if (entry.length() == 0) {
         continue;
       }
-
       processFile(new File(entry));
     }
     br.close();
@@ -252,9 +274,10 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
         // We'll try to detect by extension first, so we don't have to open the file
         String extension = getExtension(file);
-        if (up.isParsable(extension)) {
+        if (forceFileType != null) {
+          fileType = forceFileType;
+        } else if (UniversalParser.isParsable(extension) || isExternallyDefined(extension)) {
           fileType = extension;
-
         } else {
           fileType = detectTrecTextOrWeb(file);
           // Eventually it'd be nice to do more format detection here.
@@ -304,7 +327,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     // otherwise we must always emit at least 2 pieces.
     pieces = Math.max(2, pieces);
 
-    Logger.getLogger("DOCSOURCE").info("Splitting corpus into " + pieces);
+    logger.info("Splitting corpus into " + pieces);
 
     for (int i = 1; i < pieces; ++i) {
       float fraction = (float) i / pieces;
@@ -379,7 +402,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   // tags: <docno> and (<text> or <html>)
   private String detectTrecTextOrWeb(File file) {
     String fileType = null;
-    BufferedReader br;
+    BufferedReader br = null;
     try {
       br = new BufferedReader(new FileReader(file));
       String line;
@@ -428,7 +451,17 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     } catch (IOException ioe) {
       ioe.printStackTrace(System.err);
       return null;
+    } finally {
+      try {
+        if (br != null) {
+          br.close();
+        }
+      } catch (Exception e){}
     }
+  }
+
+  protected boolean isExternallyDefined(String extension) {
+    return externalFileTypes.contains(extension);
   }
 
   public void setProcessor(Step processor) throws IncompatibleProcessorException {

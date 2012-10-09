@@ -1,0 +1,34 @@
+{"jobs" : [
+	{"command" : "build-entity-corpus",
+	"parameters" : {
+	  "active" : true, 
+	  "parser" : { "filetype" : "mbtei.misc",
+		       "externalParsers" :[{"filetype" : "mbtei.misc", 
+					   "class" : "org.lemurproject.galago.core.parse.MBTEIMiscParser" 
+					   }]
+		     },
+	  "distrib" : 20 ,
+	  "port" : 6803,
+	  "inputPath" : [ "/home2/irmarc/portland_linked_3.list.gz" ], 
+  	  "corpusPath" : "/work1/allan/irmarc/data/megabooks/indexes/sigir2012-demo/portland.2/misc", 
+	  "galagoJobDir" : "/work1/allan/irmarc/tmp/sigir2012-demo/portland.2/misc-corpus" , 
+	  "deleteJobDir" : false,
+	  "mode" : "drmaa"}
+	},
+	{"command" : "build",
+	"parameters" : {
+	  "active" : false,
+	  "corpus" : false,
+	  "distrib" : 20 ,
+	  "port" : 6803,
+	  "galagoJobDir" : "/work1/allan/irmarc/tmp/sigir2012-demo/portland.2/misc" , 
+	  "deleteJobDir" : false,
+  	  "inputPath" : "/work1/allan/irmarc/data/megabooks/indexes/sigir2012-demo/portland.2/misc/corpus",
+  	  "indexPath" : "/work1/allan/irmarc/data/megabooks/indexes/sigir2012-demo/portland.2/misc", 
+	  "mode" : "drmaa" ,
+	  "parser" : { "filetype": "corpus", "pseudo" : true, "samples": false },
+	  "tokenizer" : { "class" : "org.lemurproject.galago.core.parse.StringPoolTokenizer" },
+	  "numberer" : { "class" : "org.lemurproject.galago.core.parse.IdentityTokenizer" }}
+	}
+ ]
+}

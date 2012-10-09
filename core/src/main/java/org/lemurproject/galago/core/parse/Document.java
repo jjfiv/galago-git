@@ -12,8 +12,9 @@ import org.xerial.snappy.SnappyInputStream;
 import org.xerial.snappy.SnappyOutputStream;
 
 public class Document implements Serializable {
+  static final int BUFFER_SIZE = 5000;
 
-  // document id - this values are serialized
+  // document id - this value is serialized
   public int identifier = -1;
   // document data - these values are serialized
   public String name;
@@ -170,7 +171,6 @@ public class Document implements Serializable {
 
     output.close();
 
-
     ByteArrayOutputStream docArray = new ByteArrayOutputStream();
     output = new DataOutputStream(new SnappyOutputStream(docArray));
 
@@ -196,6 +196,8 @@ public class Document implements Serializable {
   }
 
   public static Document deserialize(DataInputStream stream, Parameters p) throws IOException {
+    byte[] buffer = new byte[BUFFER_SIZE];
+    int blen;
     DataInputStream input = new DataInputStream(new SnappyInputStream(stream));
     Document d = new Document();
 
@@ -208,37 +210,40 @@ public class Document implements Serializable {
     d.identifier = input.readInt();
 
     // name
-    byte[] docNameBytes = new byte[input.readInt()];
-    input.readFully(docNameBytes);
-    d.name = Utility.toString(docNameBytes);
+    blen = input.readInt();
+    buffer = sizeCheck(buffer, blen);
+    input.readFully(buffer, 0, blen);
+    d.name = Utility.toString(buffer, 0, blen);
 
     if (p.get("metadata", true)) {
       // metadata
       int metadataCount = input.readInt();
       d.metadata = new HashMap(metadataCount);
+      
       for (int i = 0; i < metadataCount; i++) {
-
-        byte[] keyBytes = new byte[input.readInt()];
-        input.readFully(keyBytes);
-        String key = Utility.toString(keyBytes);
-
-        byte[] valueBytes = new byte[input.readInt()];
-        input.readFully(valueBytes);
-        String value = Utility.toString(valueBytes);
+	blen = input.readInt();
+	buffer = sizeCheck(buffer, blen);
+        input.readFully(buffer, 0, blen);
+        String key = Utility.toString(buffer, 0, blen);
+	
+	blen = input.readInt();
+	buffer = sizeCheck(buffer, blen);
+        input.readFully(buffer, 0, blen);
+        String value = Utility.toString(buffer, 0, blen);
 
         d.metadata.put(key, value);
       }
       // only both skipping if we need to
     } else if (p.get("terms", true) || p.get("text", true) || p.get("tags", true)) {
-
       input.skip(metadataSize);
     }
 
-    if (p.get("corpusText", true)) {
+    if (p.get("text", true)) {
       // text
-      byte[] textBytes = new byte[input.readInt()];
-      input.readFully(textBytes);
-      d.text = Utility.toString(textBytes);
+      blen = input.readInt();
+      buffer = sizeCheck(buffer, blen);
+      input.readFully(buffer, 0, blen);
+      d.text = Utility.toString(buffer, 0, blen);
 
       // only both skipping if we need to
     } else if (p.get("terms", true) || p.get("tags", true)) {
@@ -250,20 +255,25 @@ public class Document implements Serializable {
       int tagCount = input.readInt();
       d.tags = new ArrayList(tagCount);
       for (int i = 0; i < tagCount; i++) {
-        byte[] tagNameBytes = new byte[input.readInt()];
-        input.readFully(tagNameBytes);
-        String tagName = Utility.toString(tagNameBytes);
+	blen = input.readInt();
+        buffer = sizeCheck(buffer, blen);
+        input.readFully(buffer, 0, blen);
+        String tagName = Utility.toString(buffer, 0, blen);
         int tagBegin = input.readInt();
         int tagEnd = input.readInt();
         HashMap<String, String> attributes = new HashMap();
         int attrCount = input.readInt();
         for (int j = 0; j < attrCount; j++) {
-          byte[] keyBytes = new byte[input.readInt()];
-          input.readFully(keyBytes);
-          String key = Utility.toString(keyBytes);
-          byte[] valueBytes = new byte[input.readInt()];
-          input.readFully(valueBytes);
-          String value = Utility.toString(valueBytes);
+	  blen = input.readInt();
+	  buffer = sizeCheck(buffer, blen);
+          input.readFully(buffer, 0, blen);
+          String key = Utility.toString(buffer, 0, blen);
+
+	  blen = input.readInt();
+	  buffer = sizeCheck(buffer, blen);
+          input.readFully(buffer, 0, blen);
+          String value = Utility.toString(buffer, 0, blen);
+
           attributes.put(key, value);
         }
         Tag t = new Tag(tagName, attributes, tagBegin, tagEnd);
@@ -279,14 +289,26 @@ public class Document implements Serializable {
       // terms
       int termCount = input.readInt();
       d.terms = new ArrayList(termCount);
+      if (termCount > 10000) {
+	  System.err.printf("Reading in %d terms of document %d, %s.\n", termCount, d.identifier, d.name);
+      }
       for (int i = 0; i < termCount; i++) {
-        byte[] termBytes = new byte[input.readInt()];
-        input.readFully(termBytes);
-        d.terms.add(Utility.toString(termBytes));
+	blen = input.readInt();
+	buffer = sizeCheck(buffer, blen);
+        input.readFully(buffer, 0, blen);
+        d.terms.add(Utility.toString(buffer, 0, blen));
       }
     }
 
     input.close();
     return d;
+  }
+
+  protected static byte[] sizeCheck(byte[] currentBuffer, int sz) {
+      if (sz > currentBuffer.length) {
+	  return new byte[sz];
+      } else {
+	  return currentBuffer;
+      }
   }
 }

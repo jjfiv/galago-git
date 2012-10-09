@@ -1,0 +1,18 @@
+{
+ "distrib" : 16,
+ "inputPath" : [ "/home2/irmarc/portland_abbyy_3.list.gz" ] , 
+ "picturesPath" : "/work1/allan/irmarc/data/megabooks/indexes/sigir2012-demo/portland.2/pictures",
+ "deleteJobDir" : false,
+ "galagoJobDir" : "/work1/allan/irmarc/tmp/sigir2012-demo/portland.2/pictures",
+ "mode" : "drmaa",
+ "port" : 6850,
+ "parser" : { 
+	"inputPolicy" : "warn",
+	"filetype" : "abbyy",
+	"externalParsers" : [
+	{ "filetype" : "abbyy",
+	  "class" : "org.lemurproject.galago.core.parse.MBTEIPictureParser" 
+	}
+	]	
+	 }
+}

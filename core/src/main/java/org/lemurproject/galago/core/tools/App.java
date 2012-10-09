@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.RandomAccessFile;
@@ -78,16 +79,24 @@ public class App {
   static protected HashMap<String, AppFunction> appFunctions = new HashMap();
 
   static {
+    //
+    appFunctions.put("chain-jobs", new ChainJobs());  
+
     // build functions
     appFunctions.put("build", new BuildIndex());
     appFunctions.put("build-special", new BuildSpecialPart());
     appFunctions.put("build-topdocs", new BuildTopDocsFn());
     appFunctions.put("build-window", new BuildWindowIndex());
     appFunctions.put("make-corpus", new MakeCorpusFn());
+    appFunctions.put("build-entity-corpus", new BuildEntityCorpus());
     appFunctions.put("merge-index", new MergeIndex());
     appFunctions.put("subcollection", new BuildSubCollection());
     appFunctions.put("overwrite-manifest", new OverwriteManifest());
     appFunctions.put("stemmer-conflation", new BuildStemmerConflation());
+    appFunctions.put("link-indexes", new IndexLinker());
+    appFunctions.put("build-topics", new TopicIndexBuilder());
+    appFunctions.put("build-pictures", new BuildPictureStore()); 
+    appFunctions.put("build-dates", new BuildWordDateIndex());
 
     // background functions
     appFunctions.put("build-background", new BuildBackground());
@@ -183,44 +192,82 @@ public class App {
       runTupleFlowJob(job, p, output);
     }
   }
+    
+  private static class ChainJobs extends AppFunction {
+    @Override
+    public String getHelpString() {
+      return "galago chain-jobs <input parameter file>\n\n"
+	  + " Runs multiple jobs in a chain. Looks for the\n"
+	  + " 'jobs' element in the parameter file. If the\n"
+	  + " value is an array, the jobs are run in serial.\n"
+	  + " If the value is a map, the jobs are runs as separate\n"
+	  + " child threads. Each inner job should have 'command'"
+	  + " and 'parameters' field.";
+    }
+
+    @Override
+    public void run(Parameters jobs, PrintStream output) throws Exception {
+	if (jobs.isList("jobs")) {
+	    List<Parameters> serialJobs = (List<Parameters>) jobs.getAsList("jobs");
+	    for (Parameters jobStep : serialJobs) {
+                if (jobStep.get("active", true)) {
+                  Parameters stepParameters = findJobParameters(jobStep);
+                  String cmdName = jobStep.get("command", "none");
+                  if (!appFunctions.containsKey(cmdName)) {
+                    output.printf("Couldn't find command %s.\n", cmdName);
+                    return;
+                  }
+		  output.printf("Executing command: %s\n", cmdName);
+                  App.run(cmdName, stepParameters, output);
+              }
+	    }
+	} else if (jobs.isMap("jobs")) {
+	    output.printf("Not implemented yet. Sorry.\n");	    
+	}
+    }
+
+    public Parameters findJobParameters(Parameters step) throws IOException {
+	if (step.isString("parameters")) {
+	    File parameterPath = new File(step.getString("parameters"));
+	    if (!parameterPath.exists()) {
+		throw new IOException(String.format("Unable to locate parameter file '%s'\n",
+						    step.getString("parameters")));
+	    }
+	    return Parameters.parse(parameterPath);
+	} else if (step.isMap("parameters")) {
+	    return step.getMap("parameters");
+	} else {
+	    throw new RuntimeException("No acceptable parameters found.");
+	}
+    }
+  }
 
   private static class DocFn extends AppFunction {
 
     @Override
     public String getHelpString() {
-      return "galago doc <index> <identifier>\n\n"
+      return "galago doc [--help] --index=<index> --id=<identifier> [format parameters]\n\n"
               + "  Prints the full text of the document named by <identifier>.\n"
               + "  The document is retrieved from a Corpus file named corpus."
               + "  <index> must contain a corpus structure.";
     }
 
     @Override
-    public void run(String[] args, PrintStream output) throws Exception {
-      if (args.length <= 2) {
+    public void run(Parameters p, PrintStream output) throws Exception {
+      if (p.get("help", false)) {
         output.println(getHelpString());
         return;
       }
-      String indexPath = args[1];
-      String identifier = args[2];
+      String indexPath = p.getString("index");
+      String identifier = p.getString("id");
       Retrieval r = RetrievalFactory.instance(indexPath, new Parameters());
       assert r.getAvailableParts().containsKey("corpus") : "Index does not contain a corpus part.";
-
-      Parameters p = new Parameters();
-      p.set("terms", false);
-      p.set("tags", false);
       Document document = r.getDocument(identifier, p);
       if (document != null) {
         output.println(document.toString());
       } else {
         output.println("Document " + identifier + " does not exist in index " + indexPath + ".");
       }
-    }
-
-    @Override
-    public void run(Parameters p, PrintStream output) throws Exception {
-      String indexPath = p.getString("indexPath");
-      String identifier = p.getString("identifier");
-      run(new String[]{"", indexPath, identifier}, output);
     }
   }
 
@@ -316,31 +363,23 @@ public class App {
 
     @Override
     public String getHelpString() {
-      return "galago dump-corpus <corpus>\n\n"
-              + "  Dumps all documents from a corpus file to stdout.\n";
+      return "galago dump-corpus --path=<corpus> [limit fields]\n\n"
+              + " Dumps all documents from a corpus file to stdout.\n"
+              + " Limits (all boolean) include:\n pseudo tags terms metadata"
+              + " text\n";
     }
 
     @Override
-    public void run(String[] args, PrintStream output) throws Exception {
-      if (args.length <= 1) {
-        output.println(getHelpString());
-        return;
-      }
-      DocumentReader reader = new CorpusReader(args[1]);
-
+    public void run(Parameters p, PrintStream output) throws Exception {
+      DocumentReader reader = new CorpusReader(p.getString("path"));
       if (reader.getManifest().get("emptyIndexFile", false)) {
         output.println("Empty Corpus.");
         return;
       }
 
       DocumentReader.DocumentIterator iterator = (DocumentIterator) reader.getIterator();
-
       while (!iterator.isDone()) {
         output.println("#IDENTIFIER: " + iterator.getKeyString());
-        Parameters p = new Parameters();
-        p.set("terms", false);
-        p.set("tags", false);
-
         Document document = iterator.getDocument(p);
         output.println("#METADATA");
         for (Entry<String, String> entry : document.metadata.entrySet()) {
@@ -351,12 +390,6 @@ public class App {
         iterator.nextKey();
       }
       reader.close();
-    }
-
-    @Override
-    public void run(Parameters p, PrintStream output) throws Exception {
-      String corpusPath = p.getString("corpusPath");
-      run(new String[]{"", corpusPath}, output);
     }
   }
 

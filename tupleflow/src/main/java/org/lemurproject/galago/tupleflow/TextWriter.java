@@ -9,7 +9,7 @@ import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
- * Writes a stream of tuples to a text file.  Useful for debugging or as
+ * Writes a stream of objects to a text file.  Useful for debugging or as
  * output for simple jobs.
  *
  * @author trevor

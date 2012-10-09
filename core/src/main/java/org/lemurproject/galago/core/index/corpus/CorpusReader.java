@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.PseudoDocument;
 import org.lemurproject.galago.core.retrieval.iterator.MovableDataIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -83,7 +84,11 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
     @Override
     public Document getDocument(Parameters p) throws IOException {
-      return Document.deserialize(iterator.getValueBytes(), p);
+      if (p.get("pseudo", false)) {
+        return PseudoDocument.deserialize(iterator.getValueBytes(), p);
+      } else {
+        return Document.deserialize(iterator.getValueBytes(), p);
+      }
     }
 
     @Override

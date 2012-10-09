@@ -1,8 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
+// BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.tupleflow;
 
 import java.io.DataInput;

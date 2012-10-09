@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.logging.Logger;
 import org.lemurproject.galago.tupleflow.execution.Step;
@@ -837,6 +836,14 @@ public class Utility {
    *  - integers to bytes
    *  - bytes to integers
    */
+  public static String toString(byte[] buffer, int offset, int len) {
+    try {
+      return new String(buffer, offset, len, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException("UTF-8 is not supported by your Java Virtual Machine.");
+    }
+  }
+
   public static String toString(byte[] word) {
     try {
       return new String(word, "UTF-8");

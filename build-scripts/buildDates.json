@@ -1,0 +1,18 @@
+{
+ "distrib" : 16,
+ "inputPath" : [ "/home2/irmarc/portland_linked_3.list.gz" ] , 
+ "indexPath" : "/work1/allan/irmarc/data/megabooks/indexes/sigir2012-demo/portland.2/dates",
+ "deleteJobDir" : false,
+ "galagoJobDir" : "/work1/allan/irmarc/tmp/sigir2012-demo/portland.2/dates",
+ "mode" : "drmaa",
+ "port" : 6850,
+ "parser" : { 
+	"inputPolicy" : "warn",
+	"filetype" : "mbtei.date",
+	"externalParsers" : [
+	{ "filetype" : "mbtei.date",
+	  "class" : "org.lemurproject.galago.core.parse.MBTEIWordDateParser" 
+	}
+	]	
+	 }
+}

@@ -21,13 +21,23 @@ public class CorpusSplitParser extends DocumentStreamParser {
   DocumentReader reader;
   DocumentIterator iterator;
   DocumentSplit split;
+  Parameters extractionParameters;
 
-  public CorpusSplitParser(DocumentSplit split, Parameters parameters) throws FileNotFoundException, IOException {
-    super(split, parameters);
+  public CorpusSplitParser(DocumentSplit split) throws FileNotFoundException, IOException {
+    this(split, new Parameters());
+  }
+
+  public CorpusSplitParser(DocumentSplit split, Parameters p) throws FileNotFoundException, IOException {
+    super(split, p);
     reader = new CorpusReader(split.fileName);
     iterator = (DocumentIterator) reader.getIterator();
     iterator.skipToKey(split.startKey);
     this.split = split;
+    if (p.isEmpty()) {
+      p.set("terms", false);
+      p.set("tags", false);
+    }
+    extractionParameters = p;
   }
 
   @Override
@@ -43,10 +53,7 @@ public class CorpusSplitParser extends DocumentStreamParser {
       return null;
     }
 
-    Parameters p = new Parameters();
-    p.set("terms", false);
-    p.set("tags", false);
-    Document document = iterator.getDocument(p);
+    Document document = iterator.getDocument(extractionParameters);
     iterator.nextKey();
     return document;
   }

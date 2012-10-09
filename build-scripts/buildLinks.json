@@ -1,0 +1,17 @@
+{
+ "distrib" : 16,
+ "inputPath" : [ "/home2/irmarc/portland_linked_3.list.gz" ] , 
+ "linksPath" : "/work1/allan/irmarc/data/megabooks/indexes/sigir2012-demo/portland.2/links",
+ "deleteJobDir" : false,
+ "galagoJobDir" : "/work1/allan/irmarc/tmp/sigir2012-demo/portland.2/links",
+ "mode" : "drmaa",
+ "port" : 6850,
+ "parser" : { 
+	"filetype" : "mbtei.page-entity",
+	"externalParsers" : [
+	{ "filetype" : "mbtei.page-entity",
+	  "class" : "org.lemurproject.galago.core.parse.MBTEIPageEntityLinker" 
+	}
+	]	
+	 }
+}
