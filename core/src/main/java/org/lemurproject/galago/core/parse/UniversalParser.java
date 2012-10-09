@@ -15,6 +15,7 @@ import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import org.lemurproject.galago.tupleflow.StreamCreator;
@@ -22,6 +23,7 @@ import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.tukaani.xz.XZInputStream;
 
 /**
  *
@@ -34,7 +36,8 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 
   private Counter documentCounter;
   private Parameters parameters;
-  private Logger logger = Logger.getLogger(getClass().toString());
+  private Logger LOG = Logger.getLogger(getClass().toString());
+  private Closeable source;
   private byte[] subCollCheck = "subcoll".getBytes();
 
   public UniversalParser(TupleFlowParameters parameters) {
@@ -52,7 +55,6 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     MBTEIParser.splitTag = parameters.get("splitTag", "pb");
   }
 
-  @Override
   public void process(DocumentSplit split) throws IOException {
     DocumentStreamParser parser = null;
     long count = 0;
@@ -75,6 +77,8 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
         parser = new WARCParser(getLocalBufferedInputStream(split));
       } else if (split.fileType.equals("trectext")) {
         parser = new TrecTextParser(getLocalBufferedReader(split));
+      } else if (split.fileType.equals("tactext")) {
+        parser = new TacTextParser(getLocalBufferedReader(split));
       } else if (split.fileType.equals("trecweb")) {
         parser = new TrecWebParser(getLocalBufferedReader(split));
       } else if (split.fileType.equals("twitter")) {
@@ -83,8 +87,14 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
         parser = new CorpusSplitParser(split);
       } else if (split.fileType.equals("wiki")) {
         parser = new WikiParser(getLocalBufferedReader(split));
+      } else if (split.fileType.equals("wex")) {
+          parser = new WikiWexParser(getLocalBufferedReader(split));
+      } else if (split.fileType.equals("sgm")) {
+          parser = new TacTextParser(getLocalBufferedReader(split));
       } else if (split.fileType.equals("mbtei")) {
         parser = new MBTEIParser(split, getLocalBufferedInputStream(split));
+      } else if (split.fileType.equals("xz")) {
+          parser = new TrecKBAParser(split, getLocalBufferedInputStream(split));
       } else {
         throw new IOException("Unknown fileType: " + split.fileType
                 + " for fileName: " + split.fileName);
@@ -93,6 +103,9 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
       System.err.printf("Found empty split %s. Skipping due to no content.", split.toString());
       return;
     }
+    
+    Logger.getLogger(getClass().toString()).log(Level.WARNING, "Now parsing split: " + split.fileName);
+    
     Document document;
     while ((document = parser.nextDocument()) != null) {
       document.fileId = split.fileId;
@@ -108,10 +121,15 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
       if (count >= limit) {
         break;
       }
+      
+      if (count % 10000 == 0) {
+    	  Logger.getLogger(getClass().toString()).log(Level.WARNING, "Read " + count + " from split: " + split.fileName);
+    	    
+      }
     }
-    
-    if (parser != null) {
-      parser.close();
+    Logger.getLogger(getClass().toString()).log(Level.WARNING, "Read " + count + " from split: " + split.fileName);
+    if (source != null) {
+      source.close();
     }
   }
 
@@ -126,11 +144,15 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
             || extension.equals("twitter")
             || extension.equals("corpus")
             || extension.equals("wiki")
-            || extension.equals("mbtei");
+            || extension.equals("wex")
+            || extension.equals("sgm")
+            || extension.equals("mbtei")
+            || extension.equals("xz");
   }
 
   public BufferedReader getLocalBufferedReader(DocumentSplit split) throws IOException {
     BufferedReader br = getBufferedReader(split);
+    source = br;
     return br;
   }
 
@@ -155,6 +177,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 
   public BufferedInputStream getLocalBufferedInputStream(DocumentSplit split) throws IOException {
     BufferedInputStream bis = getBufferedInputStream(split);
+    source = bis;
     return bis;
   }
 
@@ -166,8 +189,11 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
       // Determine compression algorithm
       if (split.fileName.endsWith("gz")) { // Gzip
         stream = new BufferedInputStream(new GZIPInputStream(fileStream));
+      } else if (split.fileName.endsWith("xz")) {
+          stream = new BufferedInputStream(new XZInputStream(fileStream), 10*1024);
       } else { // bzip2
         BufferedInputStream bis = new BufferedInputStream(fileStream);
+        //bzipHeaderCheck(bis);
         stream = new BufferedInputStream(new BZip2CompressorInputStream(bis));
       }
     } else {
@@ -175,4 +201,17 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     }
     return stream;
   }
+
+  /* -- this now cases errors...
+  private static void bzipHeaderCheck(BufferedInputStream stream) throws IOException {
+    char[] header = new char[2];
+    stream.mark(4);
+    header[0] = (char) stream.read();
+    header[1] = (char) stream.read();
+    String hdrStr = new String(header);
+    if (hdrStr.equals("BZ") == false) {
+      stream.reset();
+    }
+  }
+  */
 }

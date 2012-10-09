@@ -229,7 +229,15 @@ public class DiskBTreeReader extends BTreeReader {
     public MappedByteBuffer getValueMemoryMap() throws IOException{
       MappedByteBuffer buffer;
       synchronized(input){
-        buffer = input.getChannel().map(MapMode.READ_ONLY, getValueStart(), getValueEnd());
+        long length = input.length();
+        long start =  getValueStart();
+        long end = getValueEnd();
+        try {
+        buffer = input.getChannel().map(MapMode.READ_ONLY,start ,end );
+        } catch (IOException e) {
+           System.out.println("WTF..." + e.getMessage());
+           throw e;
+        }
       }
       return buffer;
     }

@@ -149,15 +149,14 @@ public class StructuredQuery {
     int position = tokens.current().position;
     tokens.next();
 
-    while (!tokens.currentEquals("\"") && tokens.hasCurrent()) {
-      children.add(parseTerm(tokens));
-    }
+    Node node = new Node("text", new NodeParameters(tokens.current().text), new ArrayList(), tokens.current().position);
+    tokens.next();
 
     if (tokens.currentEquals("\"")) {
       tokens.next();
     }
 
-    return new Node("quote", children, position);
+    return node;
   }
 
   public static Node parseTerm(TokenStream tokens) {

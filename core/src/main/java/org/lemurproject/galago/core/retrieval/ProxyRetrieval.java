@@ -66,6 +66,10 @@ public class ProxyRetrieval implements InvocationHandler {
     oos.writeUTF(methodName);
 
     // Write length of arguments
+    if (args == null ) {
+       // System.out.println("WARN: Null args being passed to remote Galago Methods.");
+        args = new Object[0];
+    }
     oos.writeShort((short) args.length);
 
     // Types of arguments
@@ -79,6 +83,8 @@ public class ProxyRetrieval implements InvocationHandler {
       oos.writeObject(arg);
     }
 
+    oos.close();
+    
     // Wait for response
     InputStream stream = connection.getInputStream();
 

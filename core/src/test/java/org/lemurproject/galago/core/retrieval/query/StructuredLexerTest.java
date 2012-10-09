@@ -86,31 +86,31 @@ public class StructuredLexerTest extends TestCase {
         assertFalse(iterator.hasNext());
     }
 
-    public void testQuotes() throws IOException {
-        StructuredLexer lexer = new StructuredLexer();
-        List<Token> tokens = lexer.tokens("\"b  cf d  \"");
-        Iterator<Token> iterator = tokens.iterator();
-
-        Token t = iterator.next();
-        assertEquals("\"", t.text);
-        assertEquals(0, t.position);
-
-        t = iterator.next();
-        assertEquals("b", t.text);
-        assertEquals(1, t.position);
-
-        t = iterator.next();
-        assertEquals("cf", t.text);
-        assertEquals(4, t.position);
-
-        t = iterator.next();
-        assertEquals("d", t.text);
-        assertEquals(7, t.position);
-
-        t = iterator.next();
-        assertEquals("\"", t.text);
-        assertEquals(10, t.position);
-    }
+//    public void testQuotes() throws IOException {
+//        StructuredLexer lexer = new StructuredLexer();
+//        List<Token> tokens = lexer.tokens("\"b  cf d  \"");
+//        Iterator<Token> iterator = tokens.iterator();
+//
+//        Token t = iterator.next();
+//        assertEquals("\"", t.text);
+//        assertEquals(0, t.position);
+//
+//        t = iterator.next();
+//        assertEquals("b", t.text);
+//        assertEquals(1, t.position);
+//
+//        t = iterator.next();
+//        assertEquals("cf", t.text);
+//        assertEquals(4, t.position);
+//
+//        t = iterator.next();
+//        assertEquals("d", t.text);
+//        assertEquals(7, t.position);
+//
+//        t = iterator.next();
+//        assertEquals("\"", t.text);
+//        assertEquals(10, t.position);
+//    }
 
     public void testEscapes() throws IOException {
         StructuredLexer lexer = new StructuredLexer();

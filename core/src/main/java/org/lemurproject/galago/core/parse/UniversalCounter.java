@@ -24,6 +24,7 @@ import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.tukaani.xz.XZInputStream;
 
 /**
  * A version of the UniversalParser which merely counts how many parseable
@@ -82,9 +83,13 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
         parser = new CorpusSplitParser(split);
       } else if (split.fileType.equals("wiki")) {
         parser = new WikiParser(getLocalBufferedReader(split));
+      } else if (split.fileType.equals("wex")) {
+          parser = new WikiWexParser(getLocalBufferedReader(split));
       } else if (split.fileType.equals("mbtei")) {
         parser = new MBTEIParser(split, getLocalBufferedInputStream(split));
-      } else {
+      } else if (split.fileType.equals("xz")) {
+        parser = new TrecKBAParser(split, getLocalBufferedInputStream(split));
+      }else {
         throw new IOException("Unknown fileType: " + split.fileType
                 + " for fileName: " + split.fileName);
       }
@@ -122,7 +127,9 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
             || extension.equals("twitter")
             || extension.equals("corpus")
             || extension.equals("wiki")
-            || extension.equals("mbtei");
+            || extension.equals("mbtei")
+            || extension.equals("xz")
+    		|| extension.equals("wex");
   }
 
   public BufferedReader getLocalBufferedReader(DocumentSplit split) throws IOException {
@@ -139,10 +146,14 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
       // Determine compression type
       if (split.fileName.endsWith("gz")) { // Gzip
         reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(stream)));
-      } else { // BZip2
+      } else if(split.fileName.endsWith("xz")) {
+        reader = new BufferedReader(new InputStreamReader(new XZInputStream(stream,  10*1024)));
+      } else if (split.fileName.endsWith("bz2")) { // BZip2
         BufferedInputStream bis = new BufferedInputStream(stream);
         //bzipHeaderCheck(bis);
         reader = new BufferedReader(new InputStreamReader(new BZip2CompressorInputStream(bis)));
+      } else {
+          throw new UnsupportedOperationException("Unsupported compressed File type! : " + split.fileName);
       }
     } else {
       reader = new BufferedReader(new InputStreamReader(stream));
@@ -164,6 +175,8 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
       // Determine compression algorithm
       if (split.fileName.endsWith("gz")) { // Gzip
         stream = new BufferedInputStream(new GZIPInputStream(fileStream));
+      }  else if (split.fileName.endsWith("xz")) {
+          stream = new BufferedInputStream(new XZInputStream(fileStream));
       } else { // bzip2
         BufferedInputStream bis = new BufferedInputStream(fileStream);
         stream = new BufferedInputStream(new BZip2CompressorInputStream(bis));

@@ -7,6 +7,7 @@ import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -56,13 +57,13 @@ public abstract class ProcessingModel {
     Node docLengths = new Node("lengths", new NodeParameters());
     docLengths.getNodeParameters().set("default", "document");
     docLengths.getNodeParameters().set("mode", global.get("lenMode", "memory"));
-    
+
     Index index = r.getIndex();
     LengthsReader.Iterator documentLengths = (LengthsReader.Iterator) index.getIterator(docLengths);
-    
+
     //LengthsReader.Iterator documentLengths = index.getLengthsIterator();
-    
-    
+
+
     ctx.addLength("", documentLengths);
     if (index.containsPart("extents") && !fields.isEmpty()) {
       WindowIndexReader wir = (WindowIndexReader) index.getIndexPart("extents");
@@ -79,8 +80,14 @@ public abstract class ProcessingModel {
     }
   }
 
-public static ProcessingModel instance(LocalRetrieval r, Node root, Parameters p)
-    throws Exception {
+  public static ProcessingModel instance(LocalRetrieval r, Node root, Parameters p)
+          throws Exception {
+    if (p.containsKey("processingModel")) {
+      String modelName = p.getString("processingModel");
+      Class clazz = Class.forName(modelName);
+      Constructor<ProcessingModel> cons = clazz.getConstructor(LocalRetrieval.class);
+      return cons.newInstance(r);
+    }
     QueryType qt = r.getQueryType(root);
     if (qt == QueryType.BOOLEAN) {
     } else if (qt == QueryType.RANKED) {

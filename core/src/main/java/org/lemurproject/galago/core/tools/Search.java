@@ -1,19 +1,21 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
-import org.lemurproject.galago.core.retrieval.*;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.corpus.SnippetGenerator;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.RetrievalFactory;
+import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.SimpleQuery;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.retrieval.RetrievalFactory;
-import org.lemurproject.galago.core.index.corpus.SnippetGenerator;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -74,6 +76,7 @@ public class Search {
     public Map<String, String> metadata;
     public String summary;
     public double score;
+    public Document document;
   }
 
   public String getSummary(Document document, Set<String> query) throws IOException {
@@ -133,20 +136,28 @@ public class Search {
 
     result.transformedQuery = root;
 
-    Parameters c = new Parameters();
-    c.set("terms", false);
-    c.set("tags", false);
+    if (results == null) {
+    	results = new  ScoredDocument[0];
+    }
     
+    Parameters p1 = new Parameters();
+    p1.set("terms", false);
+    p1.set("tags", false);
+
     for (int i = startAt; i < Math.min(startAt + count, results.length); i++) {
       String identifier = results[i].documentName;
-      Document document = getDocument(identifier, c);
+      Document document = null;
+      if (summarize) {
+    	  document = getDocument(identifier, p1);
+      }
       SearchResultItem item = new SearchResultItem();
 
       item.rank = i + 1;
       item.identifier = identifier;
       item.displayTitle = identifier;
-
-      if (document.metadata.containsKey("title")) {
+      item.document = document;
+      
+      if (document != null && document.metadata.containsKey("title")) {
         item.displayTitle = document.metadata.get("title");
       }
 
@@ -154,7 +165,7 @@ public class Search {
         item.displayTitle = generator.highlight(item.displayTitle, queryTerms);
       }
 
-      if (document.metadata.containsKey("url")) {
+      if (document != null && document.metadata.containsKey("url")) {
         item.url = document.metadata.get("url");
       }
 
@@ -162,7 +173,9 @@ public class Search {
         item.summary = getSummary(document, queryTerms);
       }
 
-      item.metadata = document.metadata;
+      if (document != null) {
+    	  item.metadata = document.metadata;
+      }
       item.score = results[i].score;
       result.items.add(item);
     }

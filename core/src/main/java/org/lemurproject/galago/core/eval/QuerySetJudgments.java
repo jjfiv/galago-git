@@ -60,6 +60,9 @@ public class QuerySetJudgments {
       String docno = line.substring(columns[4], columns[5]);
       String judgment = line.substring(columns[6]);
 
+      try {
+          queryNumber = String.format("%03d", Integer.parseInt(queryNumber));
+      } catch (Exception e){}
       // ensure the query is stored
       if (!judgments.containsKey(queryNumber)) {
         judgments.put(queryNumber, new QueryJudgments(queryNumber));

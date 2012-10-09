@@ -96,7 +96,7 @@ public class Indexer {
   public void addFile(String filename) throws IOException {
 
     // a split is a file with some annotations
-    boolean compressed = (filename.endsWith(".gz") || filename.endsWith(".bz2"));
+    boolean compressed = (filename.endsWith(".gz") || filename.endsWith(".bz2") || filename.endsWith(".xz"));
     DocumentSplit split = new DocumentSplit(filename, getExtension(filename), compressed, new byte[0], new byte[0], 0, 0);
     indexer.process(split);
 

@@ -59,7 +59,7 @@ public class LinkCombiner implements ExNihiloSource<IdentifiedLink>, IdentifiedL
     if (linkData != null) {
       processor.process(linkData);
       if (linksProcessed != null) {
-        linksProcessed.increment();
+        linksProcessed.incrementBy(linkData.links.size());
       }
     }
   }
@@ -67,9 +67,9 @@ public class LinkCombiner implements ExNihiloSource<IdentifiedLink>, IdentifiedL
   public void run() throws IOException {
     ExtractedLink link = extractedLinks.read();
     NumberedDocumentData docData = documentDatas.read();
-
     while (docData != null && link != null) {
-      int result = link.destUrl.compareTo(docData.url);
+      int result = link.destUrl.toLowerCase().compareTo(docData.url.toLowerCase());
+      System.out.println("Comparing destination url: " + link.destUrl + " with doc: "+ docData.url);
       if (result == 0) {
         match(docData, link);
         link = extractedLinks.read();
@@ -77,11 +77,12 @@ public class LinkCombiner implements ExNihiloSource<IdentifiedLink>, IdentifiedL
         if (result < 0) {
           link = extractedLinks.read();
         } else {
+          flush();
           docData = documentDatas.read();
         }
       }
     }
-
+    flush();
     processor.close();
   }
 
@@ -98,7 +99,7 @@ public class LinkCombiner implements ExNihiloSource<IdentifiedLink>, IdentifiedL
     String extractedLinksName = parameters.getJSON().getString("extractedLinks");
     String documentDatasName = parameters.getJSON().getString("documentDatas");
 
-    Verification.verifyTypeReader(extractedLinksName, ExtractedLink.class, parameters, handler);
-    Verification.verifyTypeReader(documentDatasName, DocumentData.class, parameters, handler);
+    //Verification.verifyTypeReader(extractedLinksName, ExtractedLink.class, parameters, handler);
+    //Verification.verifyTypeReader(documentDatasName, DocumentData.class, parameters, handler);
   }
 }

@@ -20,6 +20,7 @@ import org.lemurproject.galago.core.parse.TagTokenizer;
 public class SnippetGenerator {
     public static final int width = 5;
 
+    
     public static class Match {
         public Match(String term, int index) {
             this(term, index, index + 1);
@@ -346,6 +347,12 @@ public class SnippetGenerator {
 
             if (start >= 0) {
                 builder.append(stripTags(section.substring(start)));
+            }
+            
+            // terminate matches once we reached a max length.
+            int maxSnippetSize = 500;
+            if (builder.length() > maxSnippetSize) {
+                break;
             }
         }
 
