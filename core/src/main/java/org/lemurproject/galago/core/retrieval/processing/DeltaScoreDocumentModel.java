@@ -139,7 +139,6 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
       for (i = 0; i < context.sentinelIndex; i++) {
         DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
         dsi.movePast(context.document);
-
       }
     }
 

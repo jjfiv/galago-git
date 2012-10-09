@@ -50,9 +50,6 @@ public abstract class TransformIterator implements MovableIterator {
 
   @Override
   public boolean hasMatch(int identifier) {
-//    System.err.printf("Iterator: isDone=%b, currentCandidate=%d, id=%d, hasMatch=%b (%s)\n",
-//             iterator.isDone(), iterator.currentCandidate(), identifier,
-//            iterator.hasMatch(identifier), iterator.toString());
     return iterator.hasMatch(identifier);
   }
 
