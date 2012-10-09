@@ -24,6 +24,9 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Mov
   public ScoreCombinationIterator(NodeParameters parameters,
           MovableScoreIterator[] childIterators) {
     super(childIterators);
+    
+    assert(childIterators.length > 0): "#combine nodes must have more than 1 child.";
+    
     this.np = parameters;
 
     this.scoreIterators = childIterators;

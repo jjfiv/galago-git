@@ -53,6 +53,7 @@ public class FlattenCombineTraversal extends Traversal {
         ArrayList<Node> newChildren = new ArrayList();
         NodeParameters newParameters = new NodeParameters();
 
+        assert(children.size() > 0): "#combine operators must have more than one child.";
 
         for (int i = 0; i < children.size(); i++) {
           Node child = children.get(i);
