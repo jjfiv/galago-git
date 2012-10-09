@@ -131,7 +131,7 @@ public class Eval extends AppFunction {
   public void singleEvaluation(Parameters p, QuerySetResults results, QuerySetJudgments judgments, PrintStream output) {
     String formatString = "%2$-16s%1$3s %3$6.5f\n";
     String[] metrics = new String[]{"num_ret", "num_rel", "num_rel_ret", "map",
-      "R-prec", "bpref", "recip_rank", "ndcg", "ndcg5", "ndcg10", "ndcg20", "ERR", "ERR10", "ERR20",
+      "R-prec", "bpref", "recip_rank", "ndcg", "ndcg5", "ndcg10", "ndcg20", "ERR", "ERR10", "ERR20","P1",
       "P5", "P10", "P15", "P20", "P30", "P100", "P200", "P500", "P1000"};
 
     // override default list if specified:
@@ -139,7 +139,7 @@ public class Eval extends AppFunction {
       metrics = (String[]) p.getAsList("metrics").toArray(new String[0]);
     }
     
-    QuerySetEvaluator[] setEvaluators = createSetEvaluators(metrics);
+    QuerySetEvaluator[] setEvaluators = createSetEvaluators(metrics, p);
     
     if (p.get("details", false)) {
       for (String query : results.getQueryIterator()) {
@@ -160,7 +160,7 @@ public class Eval extends AppFunction {
           PrintStream output) {
     String formatString = "%1$-20s%2$-20s%3$6.4f\n";
     
-    String[] metrics = {"map", "R-prec", "bpref", "ndcg", "ndcg5", "ndcg10", "ndcg20", "P5", "P10", "P20"};
+    String[] metrics = {"map", "R-prec", "bpref", "ndcg", "ndcg5", "ndcg10", "ndcg20", "P1", "P5", "P10", "P20"};
     // override default list if specified:
     if (p.containsKey("metrics")) {
       metrics = (String[]) p.getAsList("metrics").toArray(new String[0]);
@@ -175,7 +175,7 @@ public class Eval extends AppFunction {
       tests = (String[]) p.getAsList("comparisons").toArray(new String[0]);
     }
     
-    QuerySetEvaluator[] setEvaluators = createSetEvaluators(metrics);
+    QuerySetEvaluator[] setEvaluators = createSetEvaluators(metrics, p);
     QuerySetComparator[] setComparators = createSetComparators(tests);
     
     for (QuerySetEvaluator evaluator : setEvaluators) {
@@ -189,10 +189,10 @@ public class Eval extends AppFunction {
     }
   }
   
-  private QuerySetEvaluator[] createSetEvaluators(String[] metrics) {
+  private QuerySetEvaluator[] createSetEvaluators(String[] metrics, Parameters p) {
     QuerySetEvaluator[] setEvaluators = new QuerySetEvaluator[metrics.length];
     for (int i = 0; i < metrics.length; i++) {
-      setEvaluators[i] = QuerySetEvaluatorFactory.instance(metrics[i]);
+      setEvaluators[i] = QuerySetEvaluatorFactory.instance(metrics[i], p);
     }
     return setEvaluators;
   }

@@ -4,6 +4,8 @@ package org.lemurproject.galago.core.parse;
 import java.io.IOException;
 import java.net.URL;
 import org.lemurproject.galago.core.types.ExtractedLink;
+import org.lemurproject.galago.core.types.IdentifiedLink;
+import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
@@ -16,6 +18,7 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
  */
 @Verified
 //Input class may be Document or some thing pretending to be a document...
+@InputClass(className = "org.lemurproject.galago.core.parse.Document")
 @OutputClass(className = "org.lemurproject.galago.core.types.ExtractedLink")
 public class LinkExtractor extends StandardStep<Document, ExtractedLink> {
 
@@ -23,8 +26,8 @@ public class LinkExtractor extends StandardStep<Document, ExtractedLink> {
   private boolean acceptNoFollowLinks;
 
   public LinkExtractor(TupleFlowParameters parameters) {
-    acceptLocalLinks = parameters.getJSON().get("acceptLocalLinks", false);
-    acceptNoFollowLinks = parameters.getJSON().get("acceptNoFollowLinks", false);
+    acceptLocalLinks = parameters.getJSON().get("acceptLocalLinks", true);
+    acceptNoFollowLinks = parameters.getJSON().get("acceptNoFollowLinks", true);
   }
 
   public String scrubUrl(String url) {
@@ -100,6 +103,7 @@ public class LinkExtractor extends StandardStep<Document, ExtractedLink> {
 
         link.anchorText = builder.toString().trim();
 
+        System.out.println("Discovered link: " + link.toString());
         if (t.attributes.containsKey("rel") && t.attributes.get("rel").equals("nofollow")) {
           link.noFollow = true;
         } else {
@@ -110,9 +114,18 @@ public class LinkExtractor extends StandardStep<Document, ExtractedLink> {
                 && (acceptLocalLinks || linkIsLocal == false);
 
         if (acceptable) {
+        	System.out.println("Processing link " + link.toString());
           processor.process(link);
         }
       }
     }
+  }
+  
+  public Class<Document> getInputClass() {
+      return Document.class;
+  }
+
+  public Class<ExtractedLink> getOutputClass() {
+      return ExtractedLink.class;
   }
 }

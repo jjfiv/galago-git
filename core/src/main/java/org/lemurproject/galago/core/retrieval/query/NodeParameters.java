@@ -30,6 +30,8 @@ public class NodeParameters implements Serializable {
   private TObjectByteHashMap<String> boolMap = null;
   private TObjectLongHashMap<String> longMap = null;
   private TObjectDoubleHashMap<String> doubleMap = null;
+  
+  private static final long serialVersionUID = 4553653651892088433L;
 
   public NodeParameters() {
     // do nothing

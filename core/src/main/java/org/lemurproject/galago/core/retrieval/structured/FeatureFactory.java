@@ -80,6 +80,7 @@ public class FeatureFactory {
     TransformRootTraversal.class.getName(),
     PRMSTraversal.class.getName(),
     PRMS2Traversal.class.getName(),
+    PRMS3Traversal.class.getName(),
     BM25FTraversal.class.getName(),
     PL2FTraversal.class.getName(),
     WindowRewriteTraversal.class.getName(),

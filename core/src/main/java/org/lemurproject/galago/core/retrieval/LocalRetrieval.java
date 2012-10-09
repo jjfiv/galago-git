@@ -281,6 +281,7 @@ public class LocalRetrieval implements Retrieval {
   private Node transformQuery(List<Traversal> traversals, Node queryTree) throws Exception {
     for (Traversal traversal : traversals) {
       queryTree = StructuredQuery.walk(traversal, queryTree);
+     // System.out.println(traversal.getClass().getSimpleName() + "\t" + queryTree.toPrettyString());
     }
     return queryTree;
   }
@@ -368,12 +369,18 @@ public class LocalRetrieval implements Retrieval {
   }
 
   public int[] getDocumentIds(List<String> docnames) throws IOException {
-    int[] ids = new int[docnames.size()];
-    int i = 0;
-    for (String name : docnames) {
-      ids[i] = index.getIdentifier(name);
-      i++;
-    }
-    return ids;
+      ArrayList<Integer> internalDocBuffer = new ArrayList<Integer>();
+
+      for (String name : docnames) {
+          try {
+              internalDocBuffer.add(index.getIdentifier(name));
+          } catch (Exception e) {}
+      }
+      int[] internalDocs = new int[internalDocBuffer.size()];
+      for (int i=0; i < internalDocBuffer.size(); i++) {
+          internalDocs[i] = internalDocBuffer.get(i);
+      }
+      return internalDocs;
   }
+  
 }

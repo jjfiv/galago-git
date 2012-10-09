@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
@@ -19,6 +22,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
@@ -41,7 +45,9 @@ public class MultiRetrieval implements Retrieval {
   protected Parameters globalParameters;
   protected HashMap<String, CollectionStatistics> retrievalStatistics;
   protected Parameters retrievalParts;
-
+  protected HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
+  protected HashSet<String> knownIndexOperators = new HashSet<String>();
+  
   public MultiRetrieval(ArrayList<Retrieval> indexes, Parameters p) throws Exception {
     this.retrievals = indexes;
     this.globalParameters = p;
@@ -138,7 +144,9 @@ public class MultiRetrieval implements Retrieval {
         public void run() {
           try {
             ScoredDocument[] results = r.runQuery(queryTree, shardParams);
-            queryResultCollector.addAll(Arrays.asList(results));
+            if (results != null) {
+                queryResultCollector.addAll(Arrays.asList(results));
+            }
           } catch (Exception e) {
             errorCollector.add(e.getMessage());
           }
@@ -179,7 +187,8 @@ public class MultiRetrieval implements Retrieval {
   // private functions
   private Node transformQuery(List<Traversal> traversals, Node queryTree) throws Exception {
     for (Traversal traversal : traversals) {
-      queryTree = StructuredQuery.copy(traversal, queryTree);
+        queryTree = StructuredQuery.walk(traversal, queryTree);
+        //System.out.println(traversal.getClass().getSimpleName() + "\t" + queryTree.toPrettyString());
     }
     return queryTree;
   }
@@ -204,6 +213,7 @@ public class MultiRetrieval implements Retrieval {
       }
       this.retrievalStatistics.put(part, mergedStats);
     }
+    initializeIndexOperators();
   }
 
   // This takes the intersection of parts from constituent retrievals, and determines which
@@ -217,11 +227,13 @@ public class MultiRetrieval implements Retrieval {
     // Get *all* parts
     HashSet<String> allParts = new HashSet<String>();
     for (Parameters j : ps) {
+      //System.out.println("*** Printing parameters: " + j.toPrettyString());
       allParts.addAll(j.getKeys());
     }
 
     // Now iterate over the keys, looking for matches
     for (String part : allParts) {
+        
       Parameters unifiedPart = new Parameters();
       // If one of the constituents doesn't have a part of this name, we skip
       // further processing of it
@@ -265,7 +277,7 @@ public class MultiRetrieval implements Retrieval {
         unifiedParts.set(part, unifiedPart);
       }
     }
-
+    //System.out.println("Unified parts: ***: " + unifiedParts.toPrettyString());
     return unifiedParts;
   }
 
@@ -334,27 +346,100 @@ public class MultiRetrieval implements Retrieval {
   }
 
   private NodeType getIndexNodeType(Node node) throws Exception {
-    if (node.getNodeParameters().containsKey("part")) {
+    if (node.getNodeParameters().containsKey("part") || node.getOperator().equals("field")) {
+   //   System.out.println("Trying to get operators for node... got part parameter");
       Parameters parts = getAvailableParts();
-      String partName = node.getNodeParameters().getString("part");
+      String partName = getPartName(node);
+      if (node.getOperator().equals("field")) {
+          partName = "fields";
+      }
 
+     // System.out.println("Fetching part : " + partName  + " in parts: " + parts.toPrettyString() );
       if (!parts.containsKey(partName)) {
         throw new IOException("The index has no part named '" + partName + "'");
       }
       String operator = node.getOperator();
+     // System.out.println("Trying to look up part: " + partName + " and operator: " + operator);
       Parameters partParams = parts.getMap(partName);
       if (!partParams.containsKey(operator)) {
         throw new IOException("The index has part called  iterator for the operator '" + operator + "'");
       }
       String iteratorClass = partParams.getString(operator);
-
+      //System.out.println("Got part for node.");
       // may need to do some checking here...
       return new NodeType((Class<? extends StructuredIterator>) Class.forName(iteratorClass));
+    } else {
+       // System.out.println("No part in node parameters. for node: " + node.toPrettyString() + " Not returning index part.");
     }
     return null;
   }
 
+  
+  public String getPartName(Node node) throws IOException {
+    String operator = node.getOperator();
+    String partName = null;
+    Parameters parts = getAvailableParts();
+
+    if (node.getNodeParameters().containsKey("part")) {
+      partName = node.getNodeParameters().getString("part");
+      if (!parts.containsKey(partName)) {
+        throw new IOException("The index has no part named '" + partName + "'");
+      }
+    } else if (knownIndexOperators.contains(operator)) {
+      if (!defaultIndexOperators.containsKey(operator)) {
+        throw new IOException("More than one index part supplies the operator '"
+                + operator + "', but no part name was specified.");
+      } else {
+        partName = defaultIndexOperators.get(operator);
+      }
+    }
+    return partName;
+  }
+  
+  
+  protected void initializeIndexOperators() throws IOException {
+      Parameters parts = getAvailableParts();
+
+      
+      for (String part : parts.getKeys()) {
+       
+          knownIndexOperators.add(part);
+
+          if (!defaultIndexOperators.containsKey(part)) {
+            defaultIndexOperators.put(part, part);
+          } else if (part.startsWith("default")) {
+            if (defaultIndexOperators.get(part).startsWith("default")) {
+              defaultIndexOperators.remove(part);
+            } else {
+              defaultIndexOperators.put(part, part);
+            }
+          } else {
+            defaultIndexOperators.remove(part);
+          }
+      }
+
+      // HACK - for now //
+      if (!this.defaultIndexOperators.containsKey("counts")) {
+        if (parts.containsKey("postings.porter")) {
+          this.defaultIndexOperators.put("counts", "postings.porter");
+        } else if (parts.containsKey("postings")) {
+          this.defaultIndexOperators.put("counts", "postings");
+        }
+      }
+      if (!this.defaultIndexOperators.containsKey("extents")) {
+        if (parts.containsKey("postings.porter")) {
+          this.defaultIndexOperators.put("extents", "postings.porter");
+        } else if (parts.containsKey("postings")) {
+          this.defaultIndexOperators.put("extents", "postings");
+        }
+      }
+    }
+
+  @Override
   public QueryType getQueryType(Node node) throws Exception {
+    if (node.getOperator().equals("text")) {
+      return QueryType.UNKNOWN;
+    }
     NodeType nodeType = getNodeType(node);
     Class outputClass = nodeType.getIteratorClass();
     if (ScoreIterator.class.isAssignableFrom(outputClass)
@@ -362,6 +447,8 @@ public class MultiRetrieval implements Retrieval {
       return QueryType.RANKED;
     } else if (IndicatorIterator.class.isAssignableFrom(outputClass)) {
       return QueryType.BOOLEAN;
+    } else if (CountIterator.class.isAssignableFrom(outputClass)) {
+      return QueryType.COUNT;
     } else {
       return QueryType.RANKED;
     }
@@ -369,12 +456,20 @@ public class MultiRetrieval implements Retrieval {
 
   @Override
   public int getDocumentLength(int docid) throws IOException {
-    throw new UnsupportedOperationException("Not supported yet.");
+      HashMap<Integer,Integer> results = new HashMap();
+      for(Retrieval r : this.retrievals){
+        results.put(docid, r.getDocumentLength(docid));
+      }
+      return results.get(docid);
   }
 
   @Override
   public int getDocumentLength(String docname) throws IOException {
-    throw new UnsupportedOperationException("Not supported yet.");
+      HashMap<String,Integer> results = new HashMap();
+      for(Retrieval r : this.retrievals){
+        results.put(docname, r.getDocumentLength(docname));
+      }
+      return results.get(docname);
   }
 
   @Override

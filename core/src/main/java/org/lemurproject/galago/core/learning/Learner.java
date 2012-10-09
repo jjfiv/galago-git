@@ -69,7 +69,7 @@ public abstract class Learner {
     assert !this.queries.isEmpty() : this.getClass().getName() + " requires `queries' parameter, of type List(Parameters): see Batch-Search for an example.";
     
     this.qrels = new QuerySetJudgments(p.getString("qrels"));
-    this.evalFunction = QuerySetEvaluatorFactory.instance(p.get("metric", "map"));
+    this.evalFunction = QuerySetEvaluatorFactory.instance(p.get("metric", "map"), p);
 
 
     List<Parameters> params = (List<Parameters>) p.getList("learnableParameters");

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="core/src/main/java"/>
+	<classpathentry kind="src" path="core/src/test/java"/>
+	<classpathentry kind="src" path="tupleflow/src/main/java"/>
+	<classpathentry kind="src" path="tupleflow/src/test/java"/>
+	<classpathentry kind="src" path="core/src/main/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="core/target/appassembler/lib/bliki-core-3.0.16.jar"/>
+	<classpathentry kind="lib" path="/usr/aubury/scratch1/jdalton/code/galago32/core/target/appassembler/lib/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="/usr/aubury/scratch1/jdalton/code/galago32/core/target/appassembler/lib/commons-compress-1.4.1.jar"/>
+	<classpathentry kind="lib" path="core/target/appassembler/lib/commons-httpclient-3.1.jar"/>
+	<classpathentry kind="lib" path="core/target/appassembler/lib/commons-io-2.1.jar"/>
+	<classpathentry kind="lib" path="core/target/appassembler/lib/drmaa-1.0.jar"/>
+	<classpathentry kind="lib" path="core/target/appassembler/lib/jetty-6.1.5.jar" sourcepath="/usr/dan/users4/jdalton/.m2/repository/org/mortbay/jetty/jetty/6.1.5/jetty-6.1.5-sources.jar"/>
+	<classpathentry kind="lib" path="core/target/appassembler/lib/jetty-embedded-6.1.5.jar"/>
+	<classpathentry kind="lib" path="core/target/appassembler/lib/jetty-util-6.1.5.jar" sourcepath="/usr/dan/users4/jdalton/.m2/repository/org/mortbay/jetty/jetty-util/6.1.5/jetty-util-6.1.5-sources.jar"/>
+	<classpathentry kind="lib" path="core/target/appassembler/lib/jsp-api-2.1.jar"/>
+	<classpathentry kind="lib" path="core/target/appassembler/lib/servlet-api-2.5-6.1.5.jar"/>
+	<classpathentry kind="lib" path="core/target/appassembler/lib/stringtemplate-3.0.jar"/>
+	<classpathentry kind="lib" path="core/target/appassembler/lib/trove4j-3.0.2.jar"/>
+	<classpathentry kind="lib" path="core/target/appassembler/lib/xmlenc-0.52.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-simple-1.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.6.6.jar"/>
+	<classpathentry kind="lib" path="lib/xz.jar" sourcepath="/usr/aubury/scratch1/jdalton/code/xz-java-1.1"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="lib" path="core/target/appassembler/lib/snappy-java-1.0.4.1.jar"/>
+	<classpathentry kind="lib" path="core/target/appassembler/lib/antlr-2.7.7.jar"/>
+	<classpathentry kind="lib" path="/usr/aubury/scratch1/jdalton/code/trec-kba/lib/libthrift-0.8.0.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/trec-kba"/>
+	<classpathentry kind="lib" path="/trec-kba/lib/log4j-1.2.14.jar"/>
+	<classpathentry kind="lib" path="/usr/aubury/scratch1/jdalton/code/galago32/core/target/appassembler/lib/gson-2.2.2.jar"/>
+	<classpathentry kind="lib" path="/usr/aubury/scratch1/jdalton/code/galago32/core/target/appassembler/lib/commons-lang-2.5.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

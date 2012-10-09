@@ -30,6 +30,7 @@ import org.lemurproject.galago.core.learning.LearnQueryParameters;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
+import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.FileOrderedReader;
@@ -110,7 +111,8 @@ public class App {
     appFunctions.put("dump-keyvalue", new DumpKeyValueFn()); // -- should be implemented in dump-index
     appFunctions.put("dump-modifier", new DumpModifierFn());
     appFunctions.put("dump-index-manifest", new DumpIndexManifestFn());
-
+    appFunctions.put("dump-term-stats", new DumpTermStatisticsFn());
+    
     // corpus + index querying
     appFunctions.put("doc", new DocFn());
     appFunctions.put("doc-id", new DocIdFn());
@@ -208,8 +210,7 @@ public class App {
       p.set("tags", false);
       Document document = r.getDocument(identifier, p);
       if (document != null) {
-        output.println("#IDENTIFIER: " + document.name);
-        output.println(document.text);
+        output.println(document.toString());
       } else {
         output.println("Document " + identifier + " does not exist in index.");
       }
@@ -462,6 +463,45 @@ public class App {
       String indexPath = p.getString("indexPath");
       run(new String[]{"", indexPath}, output);
     }
+  }
+  
+  private static class DumpTermStatisticsFn extends AppFunction {
+      
+      @Override
+      public String getHelpString() {
+        return "galago dump-term-stats <index-part> \n\n"
+                + "  Dumps <term> <frequency> <document count> statsistics from the" +
+                " the specified index part.\n";
+      }
+      
+      @Override
+      public void run(String[] args, PrintStream output) 
+              throws Exception {
+          IndexPartReader reader = DiskIndex.openIndexPart(args[1]);
+          KeyIterator iterator = reader.getIterator();
+          while (!iterator.isDone()) {
+              MovableCountIterator mci = (MovableCountIterator) iterator.getValueIterator();
+              long frequency = 0;
+              long documentCount = 0;
+              while (!mci.isDone()) {
+                  if (mci.hasMatch(mci.currentCandidate())) {
+                      frequency += mci.count();
+                      documentCount++;
+                  }
+                  mci.next();
+                }
+              output.printf("%s\t%d\t%d\n", iterator.getKeyString(), frequency, documentCount);
+              iterator.nextKey();
+          }
+          reader.close();
+      }
+      
+      @Override
+      public void run(Parameters p, PrintStream output) throws Exception {
+        String indexPath = p.getString("indexPath");
+        run(new String[]{"", indexPath}, output);
+      }
+
   }
 
   private static class DumpKeyValueFn extends AppFunction {
@@ -833,6 +873,7 @@ public class App {
     int hash = (int) p.get("distrib", 0);
     if (hash > 0) {
       job.properties.put("hashCount", Integer.toString(hash));
+      System.out.println(job.properties.get("hashCount"));
     }
 
     ErrorStore store = new ErrorStore();
