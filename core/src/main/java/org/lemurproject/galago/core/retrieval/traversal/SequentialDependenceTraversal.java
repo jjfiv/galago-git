@@ -60,11 +60,11 @@ public class SequentialDependenceTraversal extends Traversal {
     if (original.getOperator().equals("sdm")
             || original.getOperator().equals("seqdep")) {
       // get to work
-        
+
       // First check format - should only contain text node children
       List<Node> children = original.getInternalNodes();
       for (Node child : children) {
-        if (child.getOperator().equals("text") == false) {
+        if (child.getOperator().equals("text") == false && child.getOperator().equals("inside") == false) {
           throw new MalformedQueryException("seqdep operator needs text-only children");
         }
       }
@@ -86,7 +86,7 @@ public class SequentialDependenceTraversal extends Traversal {
 
       NodeParameters parameters = original.getNodeParameters();
       int windowLimit = (int) parameters.get("windowLimit", defaultWindowLimit);
-      
+
       for (int n = 2; n <= windowLimit; n++) {
         for (int i = 0; i < (children.size() - n + 1); i++) {
           List<Node> seq = children.subList(i, i + n);

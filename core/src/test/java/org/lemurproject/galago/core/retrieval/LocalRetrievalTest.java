@@ -187,7 +187,6 @@ public class LocalRetrievalTest extends TestCase {
     App.main(new String[]{"make-corpus", "--corpusPath=" + corpusFile.getAbsolutePath(),
               "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--distrib=2"});
 
-
     // make sure the corpus file exists
     assertTrue(corpusFile.exists());
 
@@ -197,12 +196,10 @@ public class LocalRetrievalTest extends TestCase {
               "--inputPath=" + corpusFile.getAbsolutePath()});
 
     AppTest.verifyIndexStructures(indexFile);
-
     File[] files = new File[3];
     files[0] = trecCorpusFile;
     files[1] = corpusFile;
     files[2] = indexFile;
-
     return files;
   }
 
@@ -282,7 +279,7 @@ public class LocalRetrievalTest extends TestCase {
     Node root = StructuredQuery.parse("#combine( #feature:dirichlet:mu=1500( #counts:a() ) #feature:dirichlet:mu=1500( #counts:b() ) )");
     Parameters p = new Parameters();
     p.set("requested", 5);
-    
+
     root = retrieval.transformQuery(root, p);
 
     List<String> ids = new ArrayList<String>();

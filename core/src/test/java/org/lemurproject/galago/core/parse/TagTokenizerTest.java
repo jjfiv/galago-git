@@ -79,4 +79,35 @@ public class TagTokenizerTest extends TestCase {
         assertEquals(title.begin, 5);
         assertEquals(title.end, 7);
     }
+    
+    public void testDoNotTokenizeAttributes() throws IncompatibleProcessorException, IOException {
+        
+        TagTokenizer tokenizer = new TagTokenizer();
+        tokenizer.addField("title");
+        tokenizer.addField("category");
+        tokenizer.addField("anchor");
+        Document document = new Document();
+        tokenizer.setProcessor(new NullProcessor(Document.class));
+
+        document.text = "<document> " + 
+                "<title>Aberdeen</title> \n" +
+                "<category tokenizeTagContent=\"false\">/location/citytown</category>\n" +
+                "<category tokenizeTagContent=\"false\">/base/scotland/topic</category>\n" +
+                "<anchor tokenizeTagContent=\"false\">Aberdeen Angus</anchor>\n" +
+                "</html>";
+
+        tokenizer.process(document);
+
+        // first, check tokens
+        String[] tokens = {"aberdeen", "/location/citytown", "/base/scotland/topic", "aberdeen angus"};
+
+        assertEquals("Token length", tokens.length, document.terms.size());
+        for (int i = 0; i < tokens.length; i++) {
+            assertEquals("Token text", tokens[i], document.terms.get(i));
+        }
+
+        // then, check tags
+        assertEquals(4, document.tags.size());
+        
+    }
 }

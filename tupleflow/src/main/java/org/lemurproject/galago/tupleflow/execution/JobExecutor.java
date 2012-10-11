@@ -1200,7 +1200,7 @@ public class JobExecutor {
       }
     }
 
-    if (p.get("deleteJobDir", true)) {
+    if (p.get("deleteJobDir", true) && !store.hasStatements()) {
       Utility.deleteDirectory(tempFolder);
     }
 

@@ -2,6 +2,7 @@
 package org.lemurproject.galago.core.index.disk;
 
 import java.io.*;
+
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.merge.DocumentLengthsMerger;
 import org.lemurproject.galago.core.types.FieldLengthData;
@@ -13,20 +14,20 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  * Writes the document lengths file,
  *  - stores the length data for each field, and for the entire document
  *  - note that 'document' is a special field for the entire document.
- * 
+ *
  * data stored in each document 'field' lengths list:
- * 
+ *
  *   stats:
  *  - number of non-zero document lengths (document count)
  *  - sum of document lengths (collection length)
  *  - average document length
  *  - maximum document length
  *  - minimum document length
- * 
+ *
  *   utility values:
  *  - first document id
  *  - last document id (all documents inbetween have a value)
- * 
+ *
  *   finally:
  *  - list of lengths (one per document)
  *
@@ -37,7 +38,11 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
 
   private DiskBTreeWriter writer;
   private LengthsList fieldLengthData;
-  private Counter lengthsProc;
+  private Counter recordsWritten;
+  private Counter recordsRead;
+  private Counter newFields;
+  private Counter fieldCounter;
+  private TupleFlowParameters tupleFlowParameters;
 
   /**
    * Creates a new instance of DiskLengthsWriter
@@ -48,27 +53,51 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     p.set("writerClass", DiskLengthsWriter.class.getName());
     p.set("mergerClass", DocumentLengthsMerger.class.getName());
     p.set("readerClass", DiskLengthsReader.class.getName());
-
+    recordsWritten = parameters.getCounter("records written");
+    recordsRead = parameters.getCounter("records read");
+    newFields = parameters.getCounter("new Fields");
+    tupleFlowParameters = parameters;
     fieldLengthData = null;
-    lengthsProc = parameters.getCounter("Lengths Processed");
   }
 
   @Override
   public void process(FieldLengthData ld) throws IOException {
-    if(lengthsProc != null){
-      lengthsProc.increment();
-    }
-    
     if (fieldLengthData == null) {
       fieldLengthData = new LengthsList(ld.field);
-    } else if (Utility.compare(fieldLengthData.field, ld.field) != 0) {
-      if (!fieldLengthData.isEmpty()) {
-        writer.add(fieldLengthData);
+      fieldCounter = tupleFlowParameters.getCounter(Utility.toString(ld.field) + " count");
+
+      if (newFields != null) {
+          newFields.increment();
       }
+
+    } else if (Utility.compare(fieldLengthData.field, ld.field) != 0) {
+
+      System.err.println("Found new field " + Utility.toString(ld.field));
+      if (newFields != null) {
+          newFields.increment();
+      }
+
+      if (!fieldLengthData.isEmpty()) {
+          System.err.println("Starting to write..." + Utility.toString(ld.field));
+
+        writer.add(fieldLengthData);
+        System.err.println("Done writing " + Utility.toString(ld.field));
+
+      }
+
+      fieldCounter = tupleFlowParameters.getCounter(Utility.toString(ld.field) + " count");
       fieldLengthData = new LengthsList(ld.field);
     }
 
+   // System.err.println("Starting to add " + ld.toString());
+
     fieldLengthData.add(ld.document, ld.length);
+    if (recordsWritten != null) {
+      recordsWritten.increment();
+    }
+    if (fieldCounter != null) {
+        fieldCounter.increment();
+    }
   }
 
   @Override
@@ -131,7 +160,6 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
 
       // the previous document should be less than the current document
       assert (this.prevDocument < currentDocument);
-
       if (this.prevDocument < 0) {
         this.firstDocument = currentDocument;
         this.prevDocument = currentDocument;
@@ -187,7 +215,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
 
       // copy length data to index file
       Utility.copyFileToStream(tempFile, fileStream);
-      
+
       // delete temp data
       tempFile.delete();
     }

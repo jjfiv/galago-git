@@ -96,31 +96,34 @@ public class StructuredLexer {
   private static void addQuotedTokens(String quotedString, ArrayList<Token> tokens, int offset) {
     tokens.add(new Token("\"", offset, TokenType.QUOTE));
     offset++;
-    int start = -1;
-    boolean wasSpace = true;
-    int j;
-    for (j = 0; j < quotedString.length(); j++) {
-      char c = quotedString.charAt(j);
-      boolean isSpace = Character.isSpaceChar(c);
-
-      if (isSpace) {
-        if (!wasSpace && start >= 0) {
-          tokens.add(new Token(quotedString.substring(start, j), start + offset, TokenType.QUOTE));
-        }
-        start = -1;
-      } else if (wasSpace) {
-        start = j;
-      }
-
-      wasSpace = isSpace;
-    }
-
-    // emit final token
-    if (start > 0 && start != j) {
-      tokens.add(new Token(quotedString.substring(start), start + offset, TokenType.QUOTE));
-    }
-
-    tokens.add(new Token("\"", offset + j, TokenType.QUOTE));
+//    int start = -1;
+//    boolean wasSpace = true;
+//    int j;
+//    for (j = 0; j < quotedString.length(); j++) {
+//      char c = quotedString.charAt(j);
+//      boolean isSpace = Character.isSpaceChar(c);
+//
+//      if (isSpace) {
+//        if (!wasSpace && start >= 0) {
+//          tokens.add(new Token(quotedString.substring(start, j), start + offset, TokenType.QUOTE));
+//        }
+//        start = -1;
+//      } else if (wasSpace) {
+//        start = j;
+//      }
+//
+//      wasSpace = isSpace;
+//    }
+//    
+//    tokens.add(new Token(quotedString, offset, TokenType.QUOTE));
+//
+//    // emit final token
+//    if (start > 0 && start != j) {
+//      tokens.add(new Token(quotedString.substring(start), start + offset, TokenType.QUOTE));
+//    }
+    tokens.add(new Token(quotedString, offset, TokenType.QUOTE));
+    offset += quotedString.length();
+    tokens.add(new Token("\"", offset, TokenType.QUOTE));
   }
 
   public static ArrayList<Token> tokens(String query) throws IOException {

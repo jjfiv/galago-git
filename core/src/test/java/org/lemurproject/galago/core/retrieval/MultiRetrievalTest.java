@@ -68,27 +68,31 @@ public class MultiRetrievalTest extends TestCase {
               + " #feature:dirichlet:"
               + "collectionLength=19:"
               + "collectionProbability=0.21052631578947367:"
-              + "documentCount=4"
+              + "documentCount=4:"
+              + "w=0.5"
               + "( #counts:sample:part=postings.porter() ) "
               + "#feature:dirichlet:"
               + "collectionLength=19:"
               + "collectionProbability=0.21052631578947367:"
-              + "documentCount=4"
+              + "documentCount=4:"
+              + "w=0.5"
               + "( #counts:document:part=postings.porter() ) )";
 
       assertEquals(queryTree.toString(), expected);
 
       ScoredDocument[] res = mr.runQuery(queryTree, qp);
 
-      String[] expectedArray = {"i1-59	1	-1.5569809573716442",
-        "i2-59	1	-1.5576460721284549",
-        "i1-55	2	-1.5583107448016458",
-        "i2-55	2	-1.5596387662451652"
-      };
+      ScoredDocument[] expDocs = new ScoredDocument[4];
+      expDocs[0] = new ScoredDocument("i1-59", 1, -1.5569809573716442);
+      expDocs[1] = new ScoredDocument("i2-59", 2, -1.5576460721284549);
+      expDocs[2] = new ScoredDocument("i1-55", 3, -1.5583107448016458);
+      expDocs[3] = new ScoredDocument("i2-55", 4, -1.5596387662451652);
 
+      assertEquals(expDocs.length, res.length);
       for (int i = 0; i < res.length; i++) {
-        String r = res[i].documentName + "\t" + res[i].rank + "\t" + res[i].score;
-        assertEquals(r, expectedArray[i]);
+        assertEquals(expDocs[i].documentName, res[i].documentName);
+        assertEquals(expDocs[i].rank, res[i].rank);
+        assertEquals(expDocs[i].score, res[i].score, 0.000001);
       }
     } finally {
       if (trecCorpusFile1 != null) {

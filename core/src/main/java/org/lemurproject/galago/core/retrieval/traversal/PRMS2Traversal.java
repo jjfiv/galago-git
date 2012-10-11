@@ -39,138 +39,131 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class PRMS2Traversal extends Traversal {
 
-  private int levels;
-  String[] fieldList;
-  Parameters availableFields;
-  Parameters weights;
-  Parameters prms = null;
-  Parameters globals, queryParams;
-  Retrieval retrieval;
-  
-    public PRMS2Traversal(Retrieval retrieval, Parameters qp) {
-    levels = 0;
-    queryParams = qp;
-    this.retrieval = retrieval;
-    try {
-      availableFields = retrieval.getAvailableParts();
-    } catch (Exception e) {
-      throw new RuntimeException("Unable to get available parts");
-    }
-  }
+    private int levels;
+    String[] fieldList;
+    Parameters availableFields;
+    Parameters weights;
+    Parameters prms = null;
+    Retrieval retrieval;
+    Parameters globals;
+    private final Parameters queryParameters;
 
-  public static boolean isNeeded(Node root) {
-    return (root.getOperator().equals("prms2"));
-  }
-
-  public void beforeNode(Node original) throws Exception {
-    levels++;
-  }
-
-  public Node afterNode(Node original) throws Exception {
-    levels--;
-    if (levels > 0) {
-      return original;
-    } else if (original.getOperator().equals("prms2")) {
-      globals = retrieval.getGlobalParameters();
-      if (globals.containsKey("fields")) {
-        getFieldsAndWeights(globals);
-      } else {
-        throw new IllegalArgumentException("PRMS expects fields to be specified in the parameters.");
-      }
-      String scorerType = globals.get("scorer", "dirichlet");
-
-      List<Node> children = original.getInternalNodes();
-      queryParams.set("numPotentials", children.size());
-      ArrayList<Node> terms = new ArrayList<Node>();
-      int j = 0;
-      for (Node child : children) {
-        ArrayList<Node> termFields = new ArrayList<Node>();
-        NodeParameters nodeweights = new NodeParameters();
-        int i = 0;
-        double normalizer = 0.0; // sum_k of P(t|F_k)
-        for (String field : fieldList) {
-          String partName = "field." + field;
-          if (!availableFields.containsKey(partName)) {
-            continue;
-          }
-
-          NodeParameters par1 = new NodeParameters();
-          par1.set("default", child.getDefaultParameter());
-          par1.set("part", partName);
-          Node termCount = new Node("counts", par1, new ArrayList(), 0);
-	  double nw;
-          if (weights != null && (weights.containsKey(field) || prms.containsKey("weight_default"))) {
-	      if (weights.containsKey(field)) {
-		  nw = weights.getDouble(field);
-	      } else {
-		  nw = prms.getDouble("weight_default");
-	      }
-          } else {
-            NodeStatistics ns = retrieval.nodeStatistics(termCount);
-            nw = (ns.nodeFrequency + 0.0) / ns.collectionLength; // P(t|F_j)
-            normalizer += nw;
-          }
-	  nodeweights.set(Integer.toString(i), nw);
-          Node termScore = new Node("feature", scorerType + "-raw");
-          termScore.getNodeParameters().set("lengths", field);
-
-	  // Following two sets are for delta-scoring
-	  termScore.getNodeParameters().set("w", nw);
-	  termScore.getNodeParameters().set("pIdx", j);
-
-          termScore.addChild(termCount);
-          termFields.add(termScore);
-          i++;
+    public PRMS2Traversal(Retrieval retrieval, Parameters queryParameters) {
+        this.queryParameters = queryParameters;
+        levels = 0;
+        this.retrieval = retrieval;
+        try {
+            availableFields = retrieval.getAvailableParts();
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to get available parts");
         }
+    }
 
-        // If we need to, apply the normalizer
-        if (normalizer > 0.0) {
-          for (i = 0; i < fieldList.length; i++) {
-            String key = Integer.toString(i);
-	    double normed = nodeweights.getDouble(key) / normalizer;
-            nodeweights.set(key, normed);
-	    termFields.get(i).getNodeParameters().set("w", normed);
-            if (retrieval.getGlobalParameters().get("printWeights", false)) {
-              double w = nodeweights.getDouble(key);
-              if (w > 0.0) {
-                System.err.printf("%s\t%s\t%f\n", child.getDefaultParameter(), fieldList[i], w);
-              }
+    public static boolean isNeeded(Node root) {
+        return (root.getOperator().equals("prms2"));
+    }
+
+    public void beforeNode(Node original) throws Exception {
+        levels++;
+    }
+
+    public Node afterNode(Node original) throws Exception {
+        levels--;
+        if (levels > 0) {
+            return original;
+        } else if (original.getOperator().equals("prms2")) {
+            globals = retrieval.getGlobalParameters();
+            if (globals.containsKey("fields")) {
+                getFieldsAndWeights(globals);
+            } else if (queryParameters.containsKey("fields")){
+                getFieldsAndWeights(queryParameters);
+            } else {
+                throw new IllegalArgumentException("PRMS expects fields to be specified in the parameters.");
             }
-          }
+            String scorerType = globals.get("scorer", "dirichlet");
+
+            List<Node> children = original.getInternalNodes();
+            globals.set("numberOfTerms", children.size()); // <-- filthy hack
+            ArrayList<Node> terms = new ArrayList<Node>();
+            for (Node child : children) {
+                ArrayList<Node> termFields = new ArrayList<Node>();
+                NodeParameters nodeweights = new NodeParameters();
+                int i = 0;
+                double normalizer = 0.0; // sum_k of P(t|F_k)
+                for (String field : fieldList) {
+                    String partName = "field." + field;
+                    if (!availableFields.containsKey(partName)) {
+                        continue;
+                    }
+
+                    NodeParameters par1 = new NodeParameters();
+                    par1.set("default", child.getDefaultParameter());
+                    par1.set("part", partName);
+                    Node termCount = new Node("counts", par1, new ArrayList(), 0);
+                    if (weights != null && (weights.containsKey(field) || prms.containsKey("weight_default"))) {
+                        if (weights.containsKey(field)) {
+                            nodeweights.set(Integer.toString(i), weights.getDouble(field));
+                        } else {
+                            nodeweights.set(Integer.toString(i), prms.getDouble("weight_default"));
+                        }
+                    } else {
+                        NodeStatistics ns = retrieval.nodeStatistics(termCount);
+                        double fieldprob = (ns.nodeFrequency + 0.0) / ns.collectionLength; // P(t|F_j)
+                        nodeweights.set(Integer.toString(i), fieldprob);
+                        normalizer += fieldprob;
+                    }
+                    Node termScore = new Node("feature", scorerType + "-raw");
+                    termScore.getNodeParameters().set("lengths", field);
+                    termScore.addChild(termCount);
+                    termFields.add(termScore);
+                    i++;
+                }
+
+                // If we need to, apply the normalizer
+                if (normalizer > 0.0) {
+                    for (i = 0; i < fieldList.length; i++) {
+                        String key = Integer.toString(i);
+                        nodeweights.set(key, nodeweights.getDouble(key) / normalizer);
+                        if (retrieval.getGlobalParameters().get("printWeights", false)) {
+                            double w = nodeweights.getDouble(key);
+                            if (w > 0.0) {
+                                System.err.printf("%s\t%s\t%f\n", child.getDefaultParameter(), fieldList[i], w);
+                            }
+                        }
+                    }
+                }
+
+                Node termFieldNodes = new Node("combine", nodeweights, termFields, 0);
+                Node logScoreNode = new Node("feature", "log");
+                logScoreNode.addChild(termFieldNodes);
+                terms.add(logScoreNode);
+            }
+            Node termNodes = new Node("combine", new NodeParameters(), terms, original.getPosition());
+            termNodes.getNodeParameters().set("norm", false);
+            return termNodes;
+        } else {
+            return original;
+        }
+    }
+
+    private void getFieldsAndWeights(Parameters p) {
+
+        if (!p.containsKey("fields")) {
+            throw new IllegalArgumentException("parameter map should contain a 'fields' array.");
         }
 
-        Node termFieldNodes = new Node("combine", nodeweights, termFields, 0);
-        Node logScoreNode = new Node("feature", "log");
-        logScoreNode.addChild(termFieldNodes);
-        terms.add(logScoreNode);
-	j++;
-      }
-      Node termNodes = new Node("combine", new NodeParameters(), terms, original.getPosition());
-      termNodes.getNodeParameters().set("norm", false);
-      return termNodes;
-    } else {
-      return original;
-    }
-  }
+        // Get out fields
+        List<String> fields = (List<String>) p.getList("fields");
+        fieldList = new String[fields.size()];
+        for (int i = 0; i < fields.size(); i++) {
+            fieldList[i] = fields.get(i);
+        }
 
-  private void getFieldsAndWeights(Parameters p) {
-
-    if (!p.containsKey("fields")) {
-      throw new IllegalArgumentException("parameter map should contain a 'fields' array.");
+        // Look for optional weights
+        if (p.containsKey("weights")) {
+            weights = p.getMap("weights");
+        } else {
+            weights = null;
+        }
     }
-
-    // Get out fields
-    List<String> fields = (List<String>) p.getList("fields");
-    fieldList = new String[fields.size()];
-    for (int i = 0; i < fields.size(); i++) {
-      fieldList[i] = fields.get(i);
-    }
-
-    // Look for optional weights
-    if (p.containsKey("weights")) {
-      weights = p.getMap("weights");
-    } else {
-      weights = null;
-    }
-  }
 }

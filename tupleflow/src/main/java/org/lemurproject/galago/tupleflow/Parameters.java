@@ -30,6 +30,9 @@ import java.util.regex.Pattern;
  */
 public class Parameters implements Serializable {
 
+	private static final long serialVersionUID = 4553653651892088433L;
+
+	  
   // Parsing in JSON
   private static class JSONParser {
 
@@ -741,7 +744,7 @@ public class Parameters implements Serializable {
   }
 
   public double get(String key, double def) {
-    if (_keys.containsKey(key)) {
+    if (_keys.containsKey(key) && _doubles != null && _doubles.containsKey(key)) {
       return _doubles.get(key);
     } else {
       return def;

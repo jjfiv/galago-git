@@ -417,7 +417,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       return ((long) documentCount);
     }
 
-    @Override
     public NodeStatistics getStatistics() {
       NodeStatistics stats = new NodeStatistics();
       stats.node = Utility.toString(this.key);
@@ -712,7 +711,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
       return documentCount;
     }
 
-    @Override
     public NodeStatistics getStatistics() {
       NodeStatistics stats = new NodeStatistics();
       stats.node = Utility.toString(this.key);
@@ -805,7 +803,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateReade
     }
   }
 
-  @Override
   public NodeStatistics getTermStatistics(String term) throws IOException {
     term = stemAsRequired(term);
     return getTermStatistics(Utility.fromString(term));

@@ -52,6 +52,7 @@ public class FieldTraversalTest extends TestCase {
 
   // We pull statistics directly from the index to make sure they are
   // generated correctly.
+    /*
   public void testPRMSTraversalCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -86,7 +87,7 @@ public class FieldTraversalTest extends TestCase {
     //System.err.printf("Expected: %s\nGot: %s\n", expected.toString(), q2.toString() );
     assertEquals(expected.toString(), q2.toString());
   }
-
+    */
   public void testBM25FTraversalCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -114,7 +115,7 @@ public class FieldTraversalTest extends TestCase {
 
     Parameters qp = new Parameters();
     BM25FTraversal traversal = new BM25FTraversal(retrieval, qp);
-    Node q1 = StructuredQuery.parse("#bm25f(#text:cat() #text:dog() #text:donkey())");
+    Node q1 = StructuredQuery.parse("#bm25f(cat dog donkey)");
     Node q2 = StructuredQuery.copy(traversal, q1);
 
     StringBuilder transformed = new StringBuilder();
@@ -241,7 +242,7 @@ public class FieldTraversalTest extends TestCase {
       assertEquals(results[i].score, results2[i].score, 0.00001);
     }
   }
-
+    /*
   public void testPRMSDeltaVsModel() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -269,7 +270,7 @@ public class FieldTraversalTest extends TestCase {
     }
 
   }
-
+    */
   public void testPL2FDeltaVsModel() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -318,16 +319,17 @@ public class FieldTraversalTest extends TestCase {
     }
   }
 
-  public void testPRMSModelCorrectness() throws Exception {
+  public void testPRMS2ModelCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
     // set fields
     String[] fields = {"title", "author", "anchor"};
     Parameters global = new Parameters();
-    global.set("fields", Arrays.asList(fields));
 
     LocalRetrieval retrieval = new LocalRetrieval(index, global);
     Parameters qp = new Parameters();
+    qp.set("fields", Arrays.asList(fields));
+    
     ScoredDocument[] results = retrieval.runQuery("#prms2(cat dog donkey)", qp);
 
     assertEquals(5, results.length);
@@ -387,7 +389,7 @@ public class FieldTraversalTest extends TestCase {
       System.err.printf("%d : %s\n", i, results[i].toString());
     } 
     */   
-    
+   
     assertEquals(1, results[0].document);
     assertEquals(results[0].score, 0.758854, 0.00001);
     assertEquals(5, results[1].document);
@@ -398,7 +400,6 @@ public class FieldTraversalTest extends TestCase {
     assertEquals(results[3].score, 0.341049, 0.00001);
     assertEquals(3, results[4].document);
     assertEquals(results[4].score, 0.096271, 0.00001);
-
   }
 
 

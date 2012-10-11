@@ -57,6 +57,8 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
   HashMap<String, ArrayList<BeginTag>> openTags;
   ArrayList<ClosedTag> closedTags;
   ArrayList<Pair> tokenPositions;
+  
+  private boolean tokenizeTagContent = true;
 
   public static class Pair {
 
@@ -254,7 +256,13 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
       closedTags.add(closedTag);
 
       tagList.remove(last);
+      
+      // switch out of Do not tokenize mode.
+      if (!tokenizeTagContent) {
+          tokenizeTagContent = true;
+      }
     }
+    
   }
 
   protected int indexOfNonSpace(int start) {
@@ -421,11 +429,19 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
         openTags.get(tagName).add(tag);
       }
 
+      if (attributes.containsKey("tokenizetagcontent") && !closeIt) {
+          String parseAttr = attributes.get("tokenizetagcontent");
+          try {
+              boolean tokenize = Boolean.parseBoolean(parseAttr);
+              tokenizeTagContent = tokenize;
+          } catch (Exception e){}
+      }
+
       if (closeIt) {
-        closeTag(tagName);
+          closeTag(tagName);
       }
     } else if (!closeIt) {
-      ignoreUntil = tagName;
+        ignoreUntil = tagName;
     }
 
     position = i;
@@ -758,7 +774,7 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
           continue;
         } else if (c == '&') {
           onAmpersand();
-        } else if (c < 256 && splits[c]) {
+        } else if (c < 256 && splits[c] && tokenizeTagContent) {
           onSplit();
         }
       }

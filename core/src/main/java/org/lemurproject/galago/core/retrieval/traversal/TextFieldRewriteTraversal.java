@@ -8,41 +8,45 @@ import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- * <p>StructuredQuery.parse parses queries using pseudo-operators, like #text
- * and #field, so that <tt>a.b.</tt> becomes <tt>#inside( #text:a() #field:b()
- * )</p>. These pseudo-operators are not supported by common index types. This
- * traversal renames <tt>#text</tt> and <tt>#field</tt> to something
- * sensible.</p>
+ * <p>StructuredQuery.parse parses queries using pseudo-operators, like #text and #field, so
+ * that <tt>a.b.</tt> becomes <tt>#inside( #text:a() #field:b() )</p>.  These pseudo-operators
+ * are not supported by common index types.  This traversal renames <tt>#text</tt> and
+ * <tt>#field</tt> to something sensible.</p>
  *
  * @author trevor
  */
 public class TextFieldRewriteTraversal extends Traversal {
 
-  Parameters queryParams;
+  Parameters availableParts;
+  Parameters globalParams;
   Retrieval retrieval;
 
-  public TextFieldRewriteTraversal(Retrieval retrieval, Parameters queryParams) throws IOException {
+  public TextFieldRewriteTraversal(Retrieval retrieval) throws IOException {
     this.retrieval = retrieval;
-    this.queryParams = queryParams;
+    this.availableParts = retrieval.getAvailableParts();
+    this.globalParams = retrieval.getGlobalParameters();
   }
 
-  @Override
   public void beforeNode(Node object) throws Exception {
     // do nothing
   }
 
-  @Override
   public Node afterNode(Node original) throws Exception {
     String operator = original.getOperator();
 
     if (operator.equals("text")) {
-      return TextPartAssigner.assignPart(new Node("extents", original.getNodeParameters()), 
+      return TextPartAssigner.assignPart(new Node("extents", original.getNodeParameters()),
               retrieval.getGlobalParameters(), retrieval.getAvailableParts());
     } else if (operator.equals("field")) {
-      if (retrieval.getAvailableParts().getKeys().contains("extents")) {
-        return TextPartAssigner.transformedNode(new Node("extents", original.getNodeParameters()), "extents");
+      if (availableParts.getKeys().contains("extents")) {
+        Node n = TextPartAssigner.transformedNode(original, "extents");
+        n.setOperator("extents");
+        return n;
+      } else {
+        return original;
       }
+    } else {
+      return original;
     }
-    return original;
   }
 }

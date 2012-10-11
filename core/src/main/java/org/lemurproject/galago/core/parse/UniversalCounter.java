@@ -15,7 +15,8 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Determines the class type of the input split, either based on the "filetype"

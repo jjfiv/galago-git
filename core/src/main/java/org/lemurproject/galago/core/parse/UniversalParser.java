@@ -5,29 +5,32 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.EOFException;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
-import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
+import org.lemurproject.galago.tupleflow.execution.Verified;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
 import org.lemurproject.galago.tupleflow.StreamCreator;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.tukaani.xz.XZInputStream;
 
 /**
  * Determines the class type of the input split, either based
@@ -35,9 +38,9 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
  * the file path extension.
  *
  * (7/29/2012, irmarc): Refactored to be plug-and-play. External filetypes
- * may be added via the parameters. 
+ * may be added via the parameters.
  *
- * Instantiation of a type-specific parser (TSP) is done by the UniversalParser. 
+ * Instantiation of a type-specific parser (TSP) is done by the UniversalParser.
  * It checks the formal argument types of the (TSP) to match on the possible
  * input methods it has available (i.e. an inputstream or a buffered reader over the
  * input data. Additionally, any TSP may have TupleFlowParameters in its formal argument
@@ -50,7 +53,7 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 @InputClass(className = "org.lemurproject.galago.core.types.DocumentSplit")
 @OutputClass(className = "org.lemurproject.galago.core.parse.Document")
 public class UniversalParser extends StandardStep<DocumentSplit, Document> {
-    
+
     // The built-in type map
     static String[][] sFileTypeLookup = {
 	{"html", FileParser.class.getName()},
@@ -74,7 +77,8 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
   private Counter documentCounter;
   private TupleFlowParameters tfParameters;
   private Parameters parameters;
-  private Logger logger = Logger.getLogger(getClass().toString());
+  private Logger LOG = Logger.getLogger(getClass().toString());
+  private Closeable source;
   private byte[] subCollCheck = "subcoll".getBytes();
 
   public UniversalParser(TupleFlowParameters parameters) {
@@ -90,7 +94,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 	  for (String[] mapping : sFileTypeLookup) {
 	      fileTypeMap.put(mapping[0], Class.forName(mapping[1]));
 	  }
-	  
+
 	  // Look for external mapping definitions
 	  if (parameters.containsKey("externalParsers")) {
 	      List<Parameters> externalParsers =
@@ -105,7 +109,6 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
       }
   }
 
-  @Override
   public void process(DocumentSplit split) throws IOException {
     DocumentStreamParser parser = null;
     long count = 0;
@@ -115,7 +118,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
         limit = Utility.uncompressLong(split.endKey, 0);
       }
     }
-    
+
     // Determine the file type either from the parameters
     // or from the guess in the splits
     String fileType;
@@ -139,25 +142,30 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 			      + " for fileName: " + split.fileName);
     }
 
-    // A parser is instantiated. Start producing documents for consumption 
+    // A parser is instantiated. Start producing documents for consumption
     // downstream.
     Document document;
     while ((document = parser.nextDocument()) != null) {
-	document.fileId = split.fileId;
-	document.totalFileCount = split.totalFileCount;
-	processor.process(document);
-	if (documentCounter != null) {
-	    documentCounter.increment();
-	}
-	count++;
-	
-	// Enforces limitations imposed by the endKey subcollection specifier.
-	// See DocumentSource for details.
-	if (count >= limit) {
-	    break;
-	}
+      document.fileId = split.fileId;
+      document.totalFileCount = split.totalFileCount;
+      processor.process(document);
+      if (documentCounter != null) {
+        documentCounter.increment();
+      }
+      count++;
+
+      // Enforces limitations imposed by the endKey subcollection specifier.
+      // See DocumentSource for details.
+      if (count >= limit) {
+        break;
+      }
+
+      if (count % 10000 == 0) {
+    	  Logger.getLogger(getClass().toString()).log(Level.WARNING, "Read " + count + " from split: " + split.fileName);
+
+      }
     }
-    
+
     if (parser != null) {
 	parser.close();
     }
@@ -165,10 +173,10 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 
   // Try like Hell to match up the formal parameter list with the available
   // objects/methods in this class.
-  // 
+  //
   // Longest constructor is built first.
-  private DocumentStreamParser constructParserWithSplit(Class parserClass, 
-							DocumentSplit split) 
+  private DocumentStreamParser constructParserWithSplit(Class parserClass,
+							DocumentSplit split)
       throws IOException, InstantiationException, IllegalAccessException,
       InvocationTargetException {
       Constructor[] constructors = parserClass.getConstructors();
@@ -199,14 +207,14 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 	      }
 	  }
 	  if (actuals.size() == formals.length) {
-	      return (DocumentStreamParser) 
+	      return (DocumentStreamParser)
 		  constructor.newInstance(actuals.toArray(new Object[0]));
 	  }
       }
       // None of the constructors worked. Complain.
       StringBuilder builder = new StringBuilder();
       builder.append("No viable constructor for file type parser ");
-      builder.append(parserClass.getName()).append("\n\n");      
+      builder.append(parserClass.getName()).append("\n\n");
       builder.append("Valid formal parameters include TupleFlowParameters,");
       builder.append(" Parameters, BufferedInputStream or BufferedReader,\n");
       builder.append(" String (fileName is passed as the actual), or");
@@ -233,6 +241,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 
   public BufferedReader getLocalBufferedReader(DocumentSplit split) throws IOException {
     BufferedReader br = getBufferedReader(split);
+    source = br;
     return br;
   }
 
@@ -257,6 +266,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 
   public BufferedInputStream getLocalBufferedInputStream(DocumentSplit split) throws IOException {
     BufferedInputStream bis = getBufferedInputStream(split);
+    source = bis;
     return bis;
   }
 
@@ -268,8 +278,11 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
       // Determine compression algorithm
       if (split.fileName.endsWith("gz")) { // Gzip
         stream = new BufferedInputStream(new GZIPInputStream(fileStream));
+      } else if (split.fileName.endsWith("xz")) {
+          stream = new BufferedInputStream(new XZInputStream(fileStream), 10*1024);
       } else { // bzip2
         BufferedInputStream bis = new BufferedInputStream(fileStream);
+        //bzipHeaderCheck(bis);
         stream = new BufferedInputStream(new BZip2CompressorInputStream(bis));
       }
     } else {
@@ -277,4 +290,17 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     }
     return stream;
   }
+
+  /* -- this now cases errors...
+  private static void bzipHeaderCheck(BufferedInputStream stream) throws IOException {
+    char[] header = new char[2];
+    stream.mark(4);
+    header[0] = (char) stream.read();
+    header[1] = (char) stream.read();
+    String hdrStr = new String(header);
+    if (hdrStr.equals("BZ") == false) {
+      stream.reset();
+    }
+  }
+  */
 }

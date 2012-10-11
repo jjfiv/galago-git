@@ -11,6 +11,7 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.StreamCreator;
+import org.tukaani.xz.XZInputStream;
 
 /**
  *
@@ -28,7 +29,7 @@ public abstract class DocumentStreamParser {
   public abstract void close() throws IOException;
 
   /*** static functions for opening files ***/
-  
+
   public static BufferedReader getBufferedReader(DocumentSplit split) throws IOException {
     FileInputStream stream = StreamCreator.realInputStream(split.fileName);
     BufferedReader reader;
@@ -56,6 +57,8 @@ public abstract class DocumentStreamParser {
       // Determine compression algorithm
       if (split.fileName.endsWith("gz")) { // Gzip
         stream = new BufferedInputStream(new GZIPInputStream(fileStream));
+      } else if (split.fileName.endsWith("xz")) { // xz
+        stream = new BufferedInputStream(new XZInputStream(fileStream));
       } else { // bzip2
         BufferedInputStream bis = new BufferedInputStream(fileStream);
         stream = new BufferedInputStream(new BZip2CompressorInputStream(bis));

@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import org.lemurproject.galago.core.retrieval.traversal.SequentialDependenceTraversal;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -39,8 +38,9 @@ public class SequentialDependenceTraversalTest extends TestCase {
 
   public void testTraversal() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
-    LocalRetrieval retrieval = new LocalRetrieval(index, new Parameters());
-    SequentialDependenceTraversal traversal = new SequentialDependenceTraversal(retrieval, new Parameters());
+    Parameters p = new Parameters();
+    LocalRetrieval retrieval = new LocalRetrieval(index, p);
+    SequentialDependenceTraversal traversal = new SequentialDependenceTraversal(retrieval, p);
     Node tree = StructuredQuery.parse("#seqdep( cat dog rat )");
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine:0=0.8:1=0.15:2=0.05( ");
@@ -48,16 +48,16 @@ public class SequentialDependenceTraversalTest extends TestCase {
     transformed.append("#combine( #ordered:1( #text:cat() #text:dog() ) #ordered:1( #text:dog() #text:rat() ) ) ");
     transformed.append("#combine( #unordered:8( #text:cat() #text:dog() ) #unordered:8( #text:dog() #text:rat() ) ) )");
     Node result = StructuredQuery.copy(traversal, tree);
-    
+
     assertEquals(transformed.toString(), result.toString());
 
     // now change weights
-    Parameters p = new Parameters();
+    p = new Parameters();
     p.set("uniw", 0.75);
     p.set("odw", 0.10);
     p.set("uww", 0.15);
     retrieval = new LocalRetrieval(index, p);
-    traversal = new SequentialDependenceTraversal(retrieval, new Parameters());
+    traversal = new SequentialDependenceTraversal(retrieval, p);
     tree = StructuredQuery.parse("#seqdep( cat dog rat )");
     transformed = new StringBuilder();
     transformed.append("#combine:0=0.75:1=0.1:2=0.15( ");
@@ -86,7 +86,7 @@ public class SequentialDependenceTraversalTest extends TestCase {
     p.set("uww", 0.15);
     p.set("windowLimit", 3);
     retrieval = new LocalRetrieval(index, p);
-    traversal = new SequentialDependenceTraversal(retrieval, new Parameters());
+    traversal = new SequentialDependenceTraversal(retrieval, p);
     tree = StructuredQuery.parse("#seqdep( cat dog rat )");
     transformed = new StringBuilder();
     transformed.append("#combine:0=0.75:1=0.1:2=0.15( ");
@@ -94,7 +94,7 @@ public class SequentialDependenceTraversalTest extends TestCase {
     transformed.append("#combine( #ordered:1( #text:cat() #text:dog() ) #ordered:1( #text:dog() #text:rat() ) #ordered:1( #text:cat() #text:dog() #text:rat() ) ) ");
     transformed.append("#combine( #unordered:8( #text:cat() #text:dog() ) #unordered:8( #text:dog() #text:rat() ) #unordered:12( #text:cat() #text:dog() #text:rat() ) ) )");
     result = StructuredQuery.copy(traversal, tree);
-        
+
     assertEquals(transformed.toString(), result.toString());
 
   }

@@ -34,103 +34,103 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class BM25FTraversal extends Traversal {
 
-  private int levels;
-  List<String> fieldList;
-  Parameters availableFields, weights, queryParams;
-  Retrieval retrieval;
-  
-  public BM25FTraversal(Retrieval retrieval, Parameters queryParams) {
-    levels = 0;
-    this.retrieval = retrieval;
-    this.queryParams = queryParams;
-    Parameters globals = retrieval.getGlobalParameters();
-    weights = globals.containsKey("bm25f") ? globals.getMap("bm25f") : new Parameters();
-    fieldList = globals.getAsList("fields");
-    try {
-	availableFields = retrieval.getAvailableParts();
-    } catch (Exception e) {
-	throw new RuntimeException(e);
+    private int levels;
+    List<String> fieldList;
+    Parameters availableFields, weights, queryParams;
+    Retrieval retrieval;
+
+    public BM25FTraversal(Retrieval retrieval, Parameters queryParams) {
+        levels = 0;
+        this.retrieval = retrieval;
+        this.queryParams = queryParams;
+        Parameters globals = retrieval.getGlobalParameters();
+        weights = globals.containsKey("bm25f") ? globals.getMap("bm25f") : new Parameters();
+        fieldList = globals.getAsList("fields");
+        try {
+            availableFields = retrieval.getAvailableParts();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
-  }
 
-  public static boolean isNeeded(Node root) {
-    return (root.getOperator().equals("bm25f"));
-  }
-
-  public void beforeNode(Node original) throws Exception {
-    levels++;
-  }
-
-  public Node afterNode(Node original) throws Exception {
-    levels--;
-    if (levels == 0 && original.getOperator().equals("bm25f")) {
-      // Create the replacing root
-      NodeParameters rootP = new NodeParameters();
-      rootP.set("K", weights.get("K", 0.5));
-      Parameters cumulativeWeights = weights.containsKey("weights") ? weights.getMap("weights") : new Parameters();
-      Parameters smoothing = weights.containsKey("smoothing") ? weights.getMap("smoothing") : new Parameters();
-      Node newRoot = new Node("bm25fcomb", rootP);
-      newRoot.getNodeParameters().set("norm", false);
-      // Now generate the field-based subtrees for all extent/count nodes
-      // NOTE : THIS IS BROKEN. IT WON'T RECOGNIZE WINDOW COUNT NODES, BUT IT SHOULD
-      List<Node> children = original.getInternalNodes();
-      queryParams.set("numPotentials", children.size());
-      for (int i = 0; i < children.size(); i++) {
-        Node termNode = children.get(i);
-        double idf = getIDF(termNode);
-        Node termCombiner = createFieldsOfTerm(termNode, smoothing, cumulativeWeights, i, weights.get("K", 0.5),
-                                               idf);
-        newRoot.addChild(termCombiner);
-        newRoot.getNodeParameters().set("idf"+i, idf);
-      }
-      return newRoot;
-    } else {
-      return original;
+    public static boolean isNeeded(Node root) {
+        return (root.getOperator().equals("bm25f"));
     }
-  }
 
-  private double getIDF(Node termNode) throws Exception {
-    NodeStatistics ns = retrieval.nodeStatistics(termNode.toString());
-    double documentCount = ns.documentCount;
-    long df = ns.nodeDocumentCount;
-    double idf = Math.log(documentCount / (df + 0.5));
-    return idf;
-  }
+    public void beforeNode(Node original) throws Exception {
+        levels++;
+    }
+
+    public Node afterNode(Node original) throws Exception {
+        levels--;
+        if (levels == 0 && original.getOperator().equals("bm25f")) {
+            // Create the replacing root
+            NodeParameters rootP = new NodeParameters();
+            rootP.set("K", weights.get("K", 0.5));
+            Parameters cumulativeWeights = weights.containsKey("weights") ? weights.getMap("weights") : new Parameters();
+            Parameters smoothing = weights.containsKey("smoothing") ? weights.getMap("smoothing") : new Parameters();
+            Node newRoot = new Node("bm25fcomb", rootP);
+            newRoot.getNodeParameters().set("norm", false);
+            // Now generate the field-based subtrees for all extent/count nodes
+            // NOTE : THIS IS BROKEN. IT WON'T RECOGNIZE WINDOW COUNT NODES, BUT IT SHOULD
+            List<Node> children = original.getInternalNodes();
+            queryParams.set("numPotentials", children.size());
+            for (int i = 0; i < children.size(); i++) {
+                Node termNode = children.get(i);
+                double idf = getIDF(termNode);
+                Node termCombiner = createFieldsOfTerm(termNode, smoothing, cumulativeWeights, i, weights.get("K", 0.5),
+                        idf);
+                newRoot.addChild(termCombiner);
+                newRoot.getNodeParameters().set("idf"+i, idf);
+            }
+            return newRoot;
+        } else {
+            return original;
+        }
+    }
+
+    private double getIDF(Node termNode) throws Exception {
+        NodeStatistics ns = retrieval.nodeStatistics(termNode.toString());
+        double documentCount = ns.documentCount;
+        long df = ns.nodeDocumentCount;
+        double idf = Math.log(documentCount / (df + 0.5));
+        return idf;
+    }
 
     private Node createFieldsOfTerm(Node termNode, Parameters smoothingWeights,
-				    Parameters cumulativeWeights, int pos, double K, double idf) throws Exception {
-    String term = termNode.getDefaultParameter();
+            Parameters cumulativeWeights, int pos, double K, double idf) throws Exception {
+        String term = termNode.getDefaultParameter();
 
-    // Use a straight weighting - no weight normalization
-    Node combiner = new Node("combine", new ArrayList<Node>());
-    combiner.getNodeParameters().set("norm", false);
+        // Use a straight weighting - no weight normalization
+        Node combiner = new Node("combine", new ArrayList<Node>());
+        combiner.getNodeParameters().set("norm", false);
 
-    for (String field : fieldList) {
-	// Make sure the part exists
-	String partName = "field." + field;
-	if (!availableFields.containsKey(partName)) continue;
-      // Actual count node
-      NodeParameters np = new NodeParameters();
-      np.set("default", term);
-      np.set("part", partName);
-      Node fieldTermNode = new Node("extents", np);
+        for (String field : fieldList) {
+            // Make sure the part exists
+            String partName = "field." + field;
+            if (!availableFields.containsKey(partName)) continue;
+            // Actual count node
+            NodeParameters np = new NodeParameters();
+            np.set("default", term);
+            np.set("part", partName);
+            Node fieldTermNode = new Node("extents", np);
 
-      // Now wrap it in the scorer
-      np = new NodeParameters();
-      np.set("b", smoothingWeights.get(field, weights.get("smoothing_default", 0.5)));
-      np.set("default", "bm25f");
-      np.set("lengths", field);
-      np.set("pIdx", pos);
-      np.set("K", K);
-      np.set("idf", idf);
-      np.set("w", cumulativeWeights.get(field, weights.get("weight_default", 0.5)));
-      Node fieldScoreNode = new Node("feature", np);
-      fieldScoreNode.addChild(fieldTermNode);
-      combiner.getNodeParameters().set(Integer.toString(combiner.getInternalNodes().size()),
-				       cumulativeWeights.get(field, weights.get("weight_default", 0.5)));
-      combiner.addChild(fieldScoreNode);
+            // Now wrap it in the scorer
+            np = new NodeParameters();
+            np.set("b", smoothingWeights.get(field, weights.get("smoothing_default", 0.5)));
+            np.set("default", "bm25f");
+            np.set("lengths", field);
+            np.set("pIdx", pos);
+            np.set("K", K);
+            np.set("idf", idf);
+            np.set("w", cumulativeWeights.get(field, weights.get("weight_default", 0.5)));
+            Node fieldScoreNode = new Node("feature", np);
+            fieldScoreNode.addChild(fieldTermNode);
+            combiner.getNodeParameters().set(Integer.toString(combiner.getInternalNodes().size()),
+                    cumulativeWeights.get(field, weights.get("weight_default", 0.5)));
+            combiner.addChild(fieldScoreNode);
+        }
+
+        return combiner;
     }
-
-    return combiner;
-  }
 }

@@ -30,6 +30,9 @@ public class Node implements Serializable {
   /// Additional nodeParameters for this operator; usually these are term statistics and smoothing nodeParameters.
   private NodeParameters nodeParameters;
 
+  private static final long serialVersionUID = 4553653651892088433L;
+
+  
   public Node() {
     operator = "";
     internalNodes = new ArrayList<Node>();

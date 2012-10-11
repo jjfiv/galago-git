@@ -27,7 +27,7 @@
   </scm>
   <properties>
     <skipTests>false</skipTests>
-  </properties> 
+  </properties>
   <reporting>
     <plugins>
       <plugin>
@@ -49,7 +49,7 @@
         <configuration>
           <forkMode>once</forkMode>
           <argLine>-Xms1500m -Xmx1900m -Dfile.encoding=UTF-8</argLine>
-       </configuration>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -58,21 +58,21 @@
       </plugin>
     </plugins>
   </reporting>
-    <distributionManagement>
-      <downloadUrl>http://lemur.sourceforge.net/repo</downloadUrl>
-      <repository>
-	<uniqueVersion>false</uniqueVersion>
-	<id>lemur.sf.net</id>
-	<name>Lemur Repository</name>
-	<url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo</url>
-	<layout>default</layout>
-      </repository>
-      <site>
-	<id>lemur.sf.net</id>
-	<name>Lemur Repository</name>
-	<url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo/${project.name}</url>	
-      </site>
-    </distributionManagement>
+  <distributionManagement>
+    <downloadUrl>http://lemur.sourceforge.net/repo</downloadUrl>
+    <repository>
+      <uniqueVersion>false</uniqueVersion>
+      <id>lemur.sf.net</id>
+      <name>Lemur Repository</name>
+      <url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo</url>
+      <layout>default</layout>
+    </repository>
+    <site>
+      <id>lemur.sf.net</id>
+      <name>Lemur Repository</name>
+      <url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo/${project.name}</url>
+    </site>
+  </distributionManagement>
   <repositories>
     <repository>
       <id>AdunaSoftware</id>
@@ -99,6 +99,16 @@
     </repository>
   </repositories>
   <dependencies>
+    <dependency>
+      <groupId>org.tukaani</groupId>
+      <artifactId>xz</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.2.2</version>
+    </dependency>
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>

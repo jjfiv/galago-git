@@ -20,7 +20,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * 
+ *
  * @author sjh
  */
 public class BackgroundLMReader extends KeyValueReader implements AggregateReader {
@@ -72,7 +72,6 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
   }
 
-  @Override
   public NodeStatistics getTermStatistics(String term) throws IOException {
     return getTermStatistics(stemAsRequired(term));
   }
@@ -162,7 +161,6 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
       this.iterator = ki;
     }
 
-    @Override
     public NodeStatistics getStatistics() {
       return this.iterator.getNodeStatistics();
     }
@@ -176,12 +174,11 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     public byte[] key() {
       return this.iterator.getKey();
     }
-    
+
     @Override
     public byte[] getKeyBytes() throws IOException {
       return this.iterator.getKey();
     }
-    
 
     // Nothing else works - this is not a normal iterator.
     @Override

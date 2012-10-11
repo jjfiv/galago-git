@@ -45,7 +45,7 @@ public abstract class QuerySetEvaluator {
     if(querySet != null && judgmentSet != null ){
       return evaluator.evaluate(querySet, judgmentSet);
     } else {
-      return 0;
+      return -1;
     }      
   }
 

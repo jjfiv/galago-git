@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import javax.servlet.ServletException;
@@ -89,14 +90,29 @@ public class SearchWebHandler extends ContextHandler {
   public void handleDocument(HttpServletRequest request, HttpServletResponse response) throws IOException {
     request.getParameterMap();
     String identifier = request.getParameter("identifier");
+    identifier = URLDecoder.decode(identifier);
     Parameters p = new Parameters();
-    p.set("metadata", false);
     p.set("terms", false);
     p.set("tags", false);
     Document document = search.getDocument(identifier, p);
     response.setContentType("text/html; charset=UTF-8");
 
     PrintWriter writer = response.getWriter();
+    
+    writer.write(document.name);
+    writer.write("<p>");
+    Map<String, String> metadata = document.metadata;
+    if (metadata != null) {
+        writer.append("META:<br>");
+        for (Map.Entry<String, String> entry : metadata.entrySet()) {
+            writer.write("key: " + entry.getKey());
+            writer.write(" value:" +getEscapedString(entry.getValue()));
+            writer.write("<br>");
+        }
+        writer.write("<p>");
+    }
+
+    writer.write("TEXT:");
     writer.write(getEscapedString(document.text));
     writer.close();
   }
@@ -475,6 +491,7 @@ public class SearchWebHandler extends ContextHandler {
       try {
         handleSearch(request, response);
       } catch (Exception e) {
+          e.printStackTrace();
         throw new ServletException("Caught exception from handleSearch", e);
       }
     } else if (request.getPathInfo().equals("/document")) {

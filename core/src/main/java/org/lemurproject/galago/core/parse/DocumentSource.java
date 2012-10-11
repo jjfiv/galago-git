@@ -38,7 +38,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   static String[][] specialKnownExtensions = {
     {"_mbtei.xml.gz", "mbtei"}
   };
-  
+
   private Counter inputCounter;
   public Processor<DocumentSplit> processor;
   private TupleFlowParameters parameters;
@@ -103,16 +103,33 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
   /// PRIVATE FUNCTIONS ///
   private void processDirectory(File root) throws IOException {
-    for (File file : root.listFiles()) {
-      if (file.isHidden()) {
-        continue;
+      System.out.println("Processing directory: " + root);
+      File[] subs = root.listFiles();
+      int count = 0;
+      while (subs == null && count < 100) {
+          try {
+              Thread.sleep(1000);
+          } catch (Exception e) {}
+          System.out.println("sleeping. subs is null. Wuh?");
+          count ++;
+          subs = root.listFiles();
       }
-      if (file.isDirectory()) {
-        processDirectory(file);
+
+      if (subs != null) {
+      for (File file : subs) {
+          if (file.isHidden()) {
+              continue;
+          }
+          if (file.isDirectory()) {
+              processDirectory(file);
+          } else {
+              processFile(file);
+          }
+      }
       } else {
-        processFile(file);
+          System.out.println("subs is still null... ");
+          throw new IllegalStateException("subs is null");
       }
-    }
   }
 
   private void processFile(File file) throws IOException {
@@ -131,7 +148,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     }
 
     // Now try to detect what kind of file this is:
-    boolean isCompressed = (file.getName().endsWith(".gz") || file.getName().endsWith(".bz2"));
+    boolean isCompressed = (file.getName().endsWith(".gz") || file.getName().endsWith(".bz2")|| file.getName().endsWith(".xz"));
     String fileType = forceFileType;
 
     // We'll try to detect by extension first, so we don't have to open the file
@@ -164,11 +181,6 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       }
     }
 
-    if (extension.equals("subcoll")) {
-      processSubCollectionFile(file);
-      return; // now considered processed
-    }
-
     if (forceFileType != null) {
       fileType = forceFileType;
     } else if (UniversalParser.isParsable(extension) || isExternallyDefined(extension)) {
@@ -177,13 +189,6 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       fileType = detectTrecTextOrWeb(file);
     }
     // Eventually it'd be nice to do more format detection here.
-    
-    if (file.getName().equals("corpus")
-            || fileType.equals("corpus")) {
-      // perhaps the user has renamed the corpus index
-      processCorpusFile(file);
-      return; // done now;
-    }
 
     if (fileType != null) {
       DocumentSplit split = new DocumentSplit(file.getAbsolutePath(), fileType, isCompressed, new byte[0], new byte[0], fileId, totalFileCount);
@@ -269,7 +274,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         }
 
         // Now try to detect what kind of file this is:
-        boolean isCompressed = (file.getName().endsWith(".gz") || file.getName().endsWith(".bz2"));
+        boolean isCompressed = (file.getName().endsWith(".gz") || file.getName().endsWith(".bz2") || file.getName().endsWith(".xz"));
         String fileType = null;
 
         // We'll try to detect by extension first, so we don't have to open the file

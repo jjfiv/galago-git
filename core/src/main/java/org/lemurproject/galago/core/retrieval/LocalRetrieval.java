@@ -159,6 +159,9 @@ public class LocalRetrieval implements Retrieval {
   @Override
   public ScoredDocument[] runQuery(Node queryTree, Parameters queryParams) throws Exception {
     ScoredDocument[] results = null;
+    if (globalParameters.containsKey("processingModel")) {
+      queryParams.set("processingModel", globalParameters.getString("processingModel"));
+    }
     ProcessingModel pm = ProcessingModel.instance(this, queryTree, queryParams);
 
     // Figure out if there's a working set to deal with
@@ -262,6 +265,10 @@ public class LocalRetrieval implements Retrieval {
       ((ContextualIterator) iterator).setContext(context);
     }
 
+    if (context != null && ContextualIterator.class.isAssignableFrom(iterator.getClass())) {
+      ((ContextualIterator)iterator).setContext(context);
+    }
+
     // we've created a new iterator - add to the cache for future nodes
     if (queryIteratorCache != null) {
       queryIteratorCache.put(node.toString(), iterator);
@@ -277,6 +284,7 @@ public class LocalRetrieval implements Retrieval {
   protected Node transformQuery(List<Traversal> traversals, Node queryTree) throws Exception {
     for (Traversal traversal : traversals) {
       queryTree = StructuredQuery.walk(traversal, queryTree);
+     // System.out.println(traversal.getClass().getSimpleName() + "\t" + queryTree.toPrettyString());
     }
     return queryTree;
   }
@@ -368,12 +376,18 @@ public class LocalRetrieval implements Retrieval {
   }
 
   public int[] getDocumentIds(List<String> docnames) throws IOException {
-    int[] ids = new int[docnames.size()];
-    int i = 0;
-    for (String name : docnames) {
-      ids[i] = index.getIdentifier(name);
-      i++;
-    }
-    return ids;
+      ArrayList<Integer> internalDocBuffer = new ArrayList<Integer>();
+
+      for (String name : docnames) {
+          try {
+              internalDocBuffer.add(index.getIdentifier(name));
+          } catch (Exception e) {}
+      }
+      int[] internalDocs = new int[internalDocBuffer.size()];
+      for (int i=0; i < internalDocBuffer.size(); i++) {
+          internalDocs[i] = internalDocBuffer.get(i);
+      }
+      return internalDocs;
   }
+
 }

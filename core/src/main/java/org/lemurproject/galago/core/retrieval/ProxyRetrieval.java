@@ -84,6 +84,8 @@ public class ProxyRetrieval implements InvocationHandler {
     }
     oos.close();
 
+    oos.close();
+    
     // Wait for response
     InputStream stream = connection.getInputStream();
 
