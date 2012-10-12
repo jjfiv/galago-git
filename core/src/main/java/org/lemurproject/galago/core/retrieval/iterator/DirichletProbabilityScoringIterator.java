@@ -19,7 +19,7 @@ import org.lemurproject.galago.core.scoring.DirichletProbabilityScorer;
  *
  * @author irmarc
  */
-@RequiredStatistics(statistics = {"collectionLength", "documentCount", "nodeFrequency"})
+@RequiredStatistics(statistics = {"maximumCount","collectionLength", "documentCount", "nodeFrequency"})
 @RequiredParameters(parameters = {"mu"})
 public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {

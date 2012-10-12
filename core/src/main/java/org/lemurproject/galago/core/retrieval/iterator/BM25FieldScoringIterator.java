@@ -17,7 +17,7 @@ import org.lemurproject.galago.core.scoring.BM25FieldScorer;
  *
  * @author irmarc
  */
-@RequiredStatistics(statistics = {"nodeDocumentCount", "collectionLength", "documentCount"})
+@RequiredStatistics(statistics = {"nodeDocumentCount", "collectionLength", "documentCount", "maximumCount"})
 @RequiredParameters(parameters = {"b"})
 public class BM25FieldScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {

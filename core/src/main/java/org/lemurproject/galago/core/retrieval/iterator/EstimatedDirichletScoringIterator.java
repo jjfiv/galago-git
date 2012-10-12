@@ -17,7 +17,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author irmarc
  */
-@RequiredStatistics(statistics = {"collectionLength", "documentCount"})
+@RequiredStatistics(statistics = {"maximumCount","collectionLength", "documentCount"})
 @RequiredParameters(parameters = {"w", "collapsing, syntheticCounts"})
 public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator, Estimator {

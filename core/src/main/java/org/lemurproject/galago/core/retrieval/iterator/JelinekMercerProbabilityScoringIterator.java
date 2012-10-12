@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.scoring.JelinekMercerProbabilityScorer;
  *
  * @author irmarc
  */
-@RequiredStatistics(statistics = {"collectionLength","nodeFrequency"})
+@RequiredStatistics(statistics = {"maximumCount","collectionLength","nodeFrequency"})
 @RequiredParameters(parameters = {"lambda"})
 public class JelinekMercerProbabilityScoringIterator extends ScoringFunctionIterator {
 
