@@ -31,7 +31,11 @@ public class FakeLengthIterator implements MovableLengthsIterator {
 
   @Override
   public int getCurrentLength() {
-    return lengths[position];
+    if(context.document == ids[position]){
+      return lengths[position];
+    } else {
+      return 0;
+    }
   }
 
   @Override

@@ -68,10 +68,10 @@ public class CachedRetrieval extends LocalRetrieval {
     this.cacheParts = new HashMap();
 
     this.cacheParts.put("score", new MemorySparseDoubleIndex(new Parameters()));
-    this.cacheParts.put("extent", new MemoryWindowIndex(index.getIndexPart("postings").getManifest()));
-    this.cacheParts.put("count", new MemoryCountIndex(index.getIndexPart("postings").getManifest()));
+    this.cacheParts.put("extent", new MemoryWindowIndex(new Parameters()));
+    this.cacheParts.put("count", new MemoryCountIndex(new Parameters()));
     // this.cacheParts.put("names", new MemoryDocumentNames(new Parameters()));
-    // this.cacheParts.put("lengths", new MemoryDocumentLengths(new Parameters()));
+    this.cacheParts.put("lengths", new MemoryDocumentLengths(new Parameters()));
 
     if (globalParameters.containsKey("cacheQueries")) {
       if (globalParameters.isList("cacheQueries", Type.STRING)) {
@@ -190,13 +190,16 @@ public class CachedRetrieval extends LocalRetrieval {
           // logger.info("Scoring node are not cachable : " + nodeString);
         }
         
+      } else if (iterator instanceof MovableLengthsIterator) {
+        cacheParts.get("lengths").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
+      
       } else if (iterator instanceof MovableExtentIterator) {
         NodeStatistics ns = super.getNodeStatistics(node);
         cachedStats.put(nodeString, ns);
         cachedNodes.put(nodeString, "extent");
         cacheParts.get("extent").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
         // logger.info("Cached extent node : " + nodeString);
-
+        
       } else if (iterator instanceof MovableCountIterator) {
         NodeStatistics ns = super.getNodeStatistics(node);
         cachedStats.put(nodeString, ns);

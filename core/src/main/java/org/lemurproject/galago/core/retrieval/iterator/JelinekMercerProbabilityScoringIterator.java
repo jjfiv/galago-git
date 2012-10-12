@@ -18,22 +18,12 @@ public class JelinekMercerProbabilityScoringIterator extends ScoringFunctionIter
   protected double loweredMaximum = Double.POSITIVE_INFINITY;
   protected String partName;
 
-  public JelinekMercerProbabilityScoringIterator(NodeParameters p, MovableCountIterator it)
+  public JelinekMercerProbabilityScoringIterator(NodeParameters p, 
+          MovableLengthsIterator ls, MovableCountIterator it)
           throws IOException {
-    super(p, it);
+    super(p, ls, it);
     this.setScoringFunction(new JelinekMercerProbabilityScorer(p, it));
     partName = p.getString("lengths");
-  }
-
-  @Override
-  public double score() {
-    int count = 0;
-
-    if (iterator.currentCandidate() == context.document) {
-      count = ((CountIterator) iterator).count();
-    }
-    double score = function.score(count, context.getLength(partName));
-    return score;
   }
 
   /**

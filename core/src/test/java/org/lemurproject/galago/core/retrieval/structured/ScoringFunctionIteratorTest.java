@@ -34,17 +34,19 @@ public class ScoringFunctionIteratorTest extends TestCase {
   public void testGenericIterator() throws Exception {
     Parameters parameters = new Parameters();
     FakeExtentIterator extentIterator = new FakeExtentIterator(extents);
-    ScoringFunctionIterator iterator = new ScoringFunctionIterator(new NodeParameters(), extentIterator);
-    iterator.setScoringFunction(new FakeScorer());
-
-    ScoringContext context = new ScoringContext();
     int[] docs = {0, 34, 110};
     int[] lengths = {0, 99, 41};
     FakeLengthIterator fli = new FakeLengthIterator(docs, lengths);
+
+    ScoringFunctionIterator iterator = new ScoringFunctionIterator(new NodeParameters(), fli, extentIterator);
+    iterator.setScoringFunction(new FakeScorer());
+
+    ScoringContext context = new ScoringContext();
     context.addLength("", fli);
 
     iterator.setContext(context);
     extentIterator.setContext(context);
+    fli.setContext(context);
     
     assertFalse(iterator.isDone());
     assertEquals(extents[0][0], iterator.currentCandidate());
@@ -67,26 +69,29 @@ public class ScoringFunctionIteratorTest extends TestCase {
 
   public void testBM25RFIterator() throws Exception {
     FakeExtentIterator extentIterator = new FakeExtentIterator(extents);
+    
+    int[] docs = {0, 34, 110};
+    int[] lengths = {0, 99, 41};
+    FakeLengthIterator fli = new FakeLengthIterator(docs, lengths);
+
     NodeParameters p = new NodeParameters();
     p.set("rt", 3);
     p.set("R", 10);
     p.set("ft", 40);
     p.set("documentCount", 1000);
-    p.set("factor", 0.45);
-    BM25RFScoringIterator iterator = new BM25RFScoringIterator(p, extentIterator);
+    p.set("factor", 0.45);    
+    BM25RFScoringIterator iterator = new BM25RFScoringIterator(p, fli, extentIterator);
     assertFalse(iterator.isDone());
     assertEquals(extents[0][0], iterator.currentCandidate());
     iterator.syncTo(extents[0][0]);
     assertEquals(extents[0][0], iterator.currentCandidate());
     // score without explicit context
     ScoringContext context = new ScoringContext();
-    int[] docs = {0, 34, 110};
-    int[] lengths = {0, 99, 41};
-    FakeLengthIterator fli = new FakeLengthIterator(docs, lengths);
     context.addLength("", fli);
 
     iterator.setContext(context);
     extentIterator.setContext(context);
+    fli.setContext(context);
     
     context.document = iterator.currentCandidate();
     context.moveLengths(34);

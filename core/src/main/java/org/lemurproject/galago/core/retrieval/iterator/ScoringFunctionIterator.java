@@ -19,13 +19,16 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
 
   protected NodeParameters np;
   protected ScoringFunction function;
+  protected MovableLengthsIterator lengthsIterator;
   protected MovableCountIterator countIterator;
-  protected double max;
+  protected double max = Double.MAX_VALUE;
 
   public ScoringFunctionIterator(NodeParameters np, 
+          MovableLengthsIterator lengths,
           MovableCountIterator iterator) throws IOException {
     super(iterator);
     this.np = np;
+    this.lengthsIterator = lengths;
     this.countIterator = iterator;
   }
 
@@ -37,10 +40,20 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
     return function;
   }
 
+  /**
+   * Over the lengths iterator trails the counts iterator.
+   * When 'syncTo' is called, the lengths iterator catches up.
+   */
+  @Override
+  public void syncTo(int document) throws IOException{
+    super.syncTo(document);
+    this.lengthsIterator.syncTo(document);
+  }
+  
   @Override
   public double score() {
     int count = countIterator.count();
-    double score = function.score(count, context.getLength());
+    double score = function.score(count, lengthsIterator.getCurrentLength());
     return score;
   }
 

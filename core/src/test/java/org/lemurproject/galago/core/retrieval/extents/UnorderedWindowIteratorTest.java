@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.retrieval.extents;
 import org.lemurproject.galago.core.retrieval.iterator.UnorderedWindowIterator;
 import java.io.IOException;
 import junit.framework.*;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
 
@@ -28,6 +29,12 @@ public class UnorderedWindowIteratorTest extends TestCase {
     twoParam.set("default", 2);
     UnorderedWindowIterator instance = new UnorderedWindowIterator(twoParam, iters);
 
+    ScoringContext cs = new ScoringContext();
+    one.setContext(cs);
+    two.setContext(cs);
+    instance.setContext(cs);
+
+    cs.document = instance.currentCandidate();
     ExtentArray array = instance.extents();
     assertFalse(instance.isDone());
 
@@ -50,6 +57,14 @@ public class UnorderedWindowIteratorTest extends TestCase {
     NodeParameters twoParam = new NodeParameters();
     twoParam.set("default", 2);
     UnorderedWindowIterator instance = new UnorderedWindowIterator(twoParam, iters);
+
+    ScoringContext cs = new ScoringContext();
+    one.setContext(cs);
+    two.setContext(cs);
+    instance.setContext(cs);
+
+    cs.document = instance.currentCandidate();
+    
     ExtentArray array = instance.extents();
     assertFalse(instance.isDone());
 
@@ -73,6 +88,14 @@ public class UnorderedWindowIteratorTest extends TestCase {
     twoParam.set("default", 2);
 
     UnorderedWindowIterator instance = new UnorderedWindowIterator(twoParam, iters);
+
+    ScoringContext cs = new ScoringContext();
+    one.setContext(cs);
+    two.setContext(cs);
+    instance.setContext(cs);
+
+    cs.document = instance.currentCandidate();
+    
     ExtentArray array = instance.extents();
     assertEquals(0, array.size());
     assertTrue(!instance.isDone());
@@ -91,6 +114,14 @@ public class UnorderedWindowIteratorTest extends TestCase {
     fiveParam.set("width", 5);
 
     UnorderedWindowIterator instance = new UnorderedWindowIterator(fiveParam, iters);
+
+    ScoringContext cs = new ScoringContext();
+    one.setContext(cs);
+    two.setContext(cs);
+    instance.setContext(cs);
+
+    cs.document = instance.currentCandidate();    
+    
     ExtentArray array = instance.extents();
     assertFalse(instance.isDone());
 
@@ -101,16 +132,22 @@ public class UnorderedWindowIteratorTest extends TestCase {
 
     // move to 2
     instance.movePast(instance.currentCandidate());
+    cs.document = instance.currentCandidate();    
+
     assertFalse(instance.isDone());
     assertFalse(instance.hasMatch(2));
 
     // move to 4
     instance.movePast(instance.currentCandidate());
+    cs.document = instance.currentCandidate();    
+
     assertFalse(instance.isDone());
     assertFalse(instance.hasMatch(4));
 
     // move to 5
     instance.movePast(instance.currentCandidate());
+    cs.document = instance.currentCandidate();    
+
     assertFalse(instance.isDone());
     assertTrue(instance.hasMatch(5));
 
@@ -121,6 +158,8 @@ public class UnorderedWindowIteratorTest extends TestCase {
     assertEquals(array.end(0), 12);
 
     instance.movePast(instance.currentCandidate());
+    cs.document = instance.currentCandidate();    
+
     assertTrue(instance.isDone());
   }
 }

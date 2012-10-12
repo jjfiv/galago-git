@@ -25,9 +25,9 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
   int parentIdx;
   double min;
 
-  public DirichletScoringIterator(NodeParameters p, MovableCountIterator it)
+  public DirichletScoringIterator(NodeParameters p, MovableLengthsIterator ls, MovableCountIterator it)
           throws IOException {
-    super(p, it);
+    super(p, ls, it);
     this.setScoringFunction(new DirichletScorer(p, it));
     weight = p.get("w", 1.0);
     parentIdx = (int) p.get("pIdx", 0);

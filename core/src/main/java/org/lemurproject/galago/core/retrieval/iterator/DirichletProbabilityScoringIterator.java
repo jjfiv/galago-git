@@ -29,9 +29,9 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
   private int parentIdx;
   String partName;
 
-  public DirichletProbabilityScoringIterator(NodeParameters p, MovableCountIterator it)
+  public DirichletProbabilityScoringIterator(NodeParameters p, MovableLengthsIterator ls, MovableCountIterator it)
           throws IOException {
-    super(p, it);
+    super(p, ls, it);
     this.setScoringFunction(new DirichletProbabilityScorer(p, it));
     max = getMaxTF(p, it);
     partName = p.getString("lengths");
@@ -96,18 +96,6 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
     ctx.runningScore += Math.log(newValue / ctx.potentials[parentIdx]);
     ctx.potentials[parentIdx] = newValue;
 
-  }
-
-  @Override
-  public double score() {
-    int count = 0;
-
-    if (iterator.currentCandidate() == context.document) {
-      count = ((CountIterator) iterator).count();
-    }
-    double score = function.score(count, context.getLength(partName));
-
-    return score;
   }
 
   @Override

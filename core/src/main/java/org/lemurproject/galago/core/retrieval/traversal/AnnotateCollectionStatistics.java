@@ -145,10 +145,10 @@ public class AnnotateCollectionStatistics extends Traversal {
     if (isCountNode(node)) {
       return collectStatistics(node);
 
-    } else if (node.getInternalNodes().size() == 1) {
+    } else if (node.numChildren() == 1) {
       return getNodeStatistics(node.getInternalNodes().get(0));
 
-    } else if (node.getInternalNodes().size() == 2) {
+    } else if (node.numChildren() == 2) {
       return getNodeStatistics(node.getInternalNodes().get(1));
     }
     return null;

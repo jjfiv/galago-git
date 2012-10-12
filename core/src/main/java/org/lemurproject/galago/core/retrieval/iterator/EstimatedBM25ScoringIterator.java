@@ -35,9 +35,9 @@ public class EstimatedBM25ScoringIterator extends ScoringFunctionIterator
   public double lowEstimate, hiEstimate;
   boolean storedSyntheticCounts;
 
-  public EstimatedBM25ScoringIterator(NodeParameters p, MinimumCountConjunctionIterator it)
+  public EstimatedBM25ScoringIterator(NodeParameters p, MovableLengthsIterator ls, MinimumCountConjunctionIterator it)
           throws IOException {
-    super(p, it); // have to fake it at first
+    super(p, ls, it); // have to fake it at first
     mcci = it;
     range = new double[2];
     weight = p.getDouble("w");

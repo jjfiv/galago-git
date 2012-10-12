@@ -12,6 +12,7 @@ import junit.framework.*;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.FakeLengthIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.scoring.ScoringFunction;
@@ -40,8 +41,8 @@ public class ScoringFunctionIteratorTest extends TestCase {
 
   public static class FakeScoreIterator extends ScoringFunctionIterator {
 
-    public FakeScoreIterator(MovableCountIterator iter) throws IOException {
-      super(new NodeParameters(), iter);
+    public FakeScoreIterator(MovableLengthsIterator ls, MovableCountIterator iter) throws IOException {
+      super(new NodeParameters(), ls, iter);
       this.setScoringFunction(new FakeScorer());
     }
 
@@ -53,16 +54,18 @@ public class ScoringFunctionIteratorTest extends TestCase {
   public void testScore() throws IOException {
 
     int[][] data = {{1, 3}, {5, 8, 9}};
-    FakeExtentIterator iterator = new FakeExtentIterator(data);
-    FakeScoreIterator instance = new FakeScoreIterator(iterator);
-
     int[] docs = {1, 2, 5};
     int[] lengths = {3, 5, 10};
-    FakeLengthIterator fli = new FakeLengthIterator(docs, lengths);
-
+    FakeExtentIterator iterator = new FakeExtentIterator(data);
+    FakeLengthIterator lens = new FakeLengthIterator(docs, lengths);
+    FakeScoreIterator instance = new FakeScoreIterator(lens, iterator);
+    
     ScoringContext ctx = new ScoringContext();
-    ctx.addLength("", fli);
+    ctx.addLength("", lens);
     instance.setContext(ctx);
+    lens.setContext(ctx);
+    iterator.setContext(ctx);
+    
     assertFalse(instance.isDone());
 
     ctx.document = instance.currentCandidate();

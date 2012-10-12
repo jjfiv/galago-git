@@ -76,12 +76,12 @@ public class GroupRetrievalTest extends TestCase {
               + "collectionLength=8:"
               + "documentCount=2:"
               + "nodeFrequency=2("
-              + " #counts:sample:part=postings.porter() )"
+              + " #lengths:document:part=lengths() #counts:sample:part=postings.porter() )"
               + " #feature:dirichlet:"
               + "collectionLength=8:"
               + "documentCount=2:"
               + "nodeFrequency=2("
-              + " #counts:document:part=postings.porter() ) )";
+              + " #lengths:document:part=lengths() #counts:document:part=postings.porter() ) )";
 
       assertEquals(expected, queryTree1.toString());
       ScoredDocument[] res1 = gr.runQuery(queryTree1, q1, "group1");
@@ -103,12 +103,12 @@ public class GroupRetrievalTest extends TestCase {
               + "collectionLength=19:"
               + "documentCount=4:"
               + "nodeFrequency=4"
-              + "( #counts:sample:part=postings.porter() ) "
+              + "( #lengths:document:part=lengths() #counts:sample:part=postings.porter() ) "
               + "#feature:dirichlet:"
               + "collectionLength=19:"
               + "documentCount=4:"
               + "nodeFrequency=4"
-              + "( #counts:document:part=postings.porter() ) )";
+              + "( #lengths:document:part=lengths() #counts:document:part=postings.porter() ) )";
 
       assertEquals(expected, queryTree2.toString());
       ScoredDocument[] res2 = gr.runQuery(queryTree2, q2, "group2");

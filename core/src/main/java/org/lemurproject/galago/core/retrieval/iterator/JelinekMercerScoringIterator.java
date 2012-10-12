@@ -25,9 +25,9 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
   int parentIdx;
   double min;
 
-  public JelinekMercerScoringIterator(NodeParameters p, MovableCountIterator it)
+  public JelinekMercerScoringIterator(NodeParameters p, MovableLengthsIterator ls, MovableCountIterator it)
           throws IOException {
-    super(p, it);
+    super(p, ls, it);
     this.setScoringFunction(new JelinekMercerScorer(p, it));
     weight = p.get("w", 1.0);
     parentIdx = (int) p.get("pIdx", 0);

@@ -87,6 +87,7 @@ public class FeatureFactory {
     TextFieldRewriteTraversal.class.getName(),
     InsideToFieldPartTraversal.class.getName(),
     ImplicitFeatureCastTraversal.class.getName(),
+    InsertLengthsTraversal.class.getName(),
     RemoveStopwordsTraversal.class.getName(),
     FlattenWindowTraversal.class.getName(),
     FlattenCombineTraversal.class.getName(),

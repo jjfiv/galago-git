@@ -69,12 +69,12 @@ public class MultiRetrievalTest extends TestCase {
               + "collectionLength=19:"
               + "documentCount=4:"
               + "nodeFrequency=4"
-              + "( #counts:sample:part=postings.porter() ) "
+              + "( #lengths:document:part=lengths() #counts:sample:part=postings.porter() ) "
               + "#feature:dirichlet:"
               + "collectionLength=19:"
               + "documentCount=4:"
               + "nodeFrequency=4"
-              + "( #counts:document:part=postings.porter() ) )";
+              + "( #lengths:document:part=lengths() #counts:document:part=postings.porter() ) )";
 
       assertEquals(queryTree.toString(), expected);
 

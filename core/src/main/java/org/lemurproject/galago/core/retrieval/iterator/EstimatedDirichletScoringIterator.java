@@ -32,9 +32,9 @@ public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
   boolean storedSyntheticCounts;
   int maxcount = 0;
 
-  public EstimatedDirichletScoringIterator(NodeParameters p, MinimumCountConjunctionIterator it)
+  public EstimatedDirichletScoringIterator(NodeParameters p, MovableLengthsIterator ls, MinimumCountConjunctionIterator it)
           throws IOException {
-    super(p, it); // have to fake it at first
+    super(p, ls, it); // have to fake it at first
     mcci = it;
     range = new double[2];
     collapsing = p.get("collapsing", true);

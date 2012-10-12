@@ -56,7 +56,6 @@ public class ImplicitFeatureCastTraversal extends Traversal {
     data.add(child);
     String scorerType = globals.get("scorer", "dirichlet");
     Node smoothed = new Node("feature", scorerType, data, child.getPosition());
-    // TODO - add in smoothing globals, modifiers
 
     if (!globals.get("topdocs", false)) {
       return smoothed;

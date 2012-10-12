@@ -120,7 +120,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
   @Override
   public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
-    byte[] fieldString = ((LengthsReader.LengthsIterator) iterator).getRegionBytes();
+    byte[] fieldString = key;
     Bytes field = new Bytes(fieldString);
     FieldLengthPostingList fieldLengths;
     if (lengths.containsKey(field)) {
