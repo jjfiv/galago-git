@@ -58,42 +58,42 @@ public class PassageRetrievalTest extends TestCase {
     assertEquals("9", result[0].documentName);
     assertEquals(0, result[0].begin);
     assertEquals(4, result[0].end);
-    assertEquals(result[0].score, -2.623394, 0.001);
+    assertEquals(result[0].score, -2.623394, 0.00001);
 
     // Second entry
     assertEquals("8", result[1].documentName);
     assertEquals(2, result[1].begin);
     assertEquals(6, result[1].end);
-    assertEquals(result[1].score, -2.629242, 0.001);
+    assertEquals(result[1].score, -2.629242, 0.00001);
 
     // Third entry
     assertEquals("8", result[2].documentName);
     assertEquals(0, result[2].begin);
     assertEquals(4, result[2].end);
-    assertEquals(result[2].score, -2.633802, 0.001);
+    assertEquals(result[2].score, -2.633802, 0.00001);
 
     // Fourth entry
     assertEquals("1", result[3].documentName);
     assertEquals(2, result[3].begin);
     assertEquals(5, result[3].end);
-    assertEquals(result[3].score, -2.637740, 0.001);
+    assertEquals(result[3].score, -2.637740, 0.00001);
 
     // Fifth entry
     assertEquals("2", result[4].documentName);
     assertEquals(0, result[4].begin);
     assertEquals(4, result[4].end);
-    assertEquals(result[4].score, -2.638404, 0.001);
+    assertEquals(result[4].score, -2.638404, 0.00001);
 
     // Sixth entry
     assertEquals("1", result[5].documentName);
     assertEquals(0, result[5].begin);
     assertEquals(4, result[5].end);
-    assertEquals(result[5].score, -2.642385, 0.001);
+    assertEquals(result[5].score, -2.642385, 0.000001);
 
     // Seventh entry
     assertEquals("2", result[6].documentName);
     assertEquals(2, result[6].begin);
     assertEquals(6, result[6].end);
-    assertEquals(result[6].score, -2.642385, 0.001);
+    assertEquals(result[6].score, -2.643049, 0.000001);
   }
 }

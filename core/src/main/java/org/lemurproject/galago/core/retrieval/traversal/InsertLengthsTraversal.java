@@ -4,6 +4,7 @@
  */
 package org.lemurproject.galago.core.retrieval.traversal;
 
+import java.util.ArrayList;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -16,14 +17,17 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author sjh
  */
 public class InsertLengthsTraversal extends Traversal {
-  
+  private Parameters queryParams;
+  private Parameters globalParams;
+
   private Node lenNode;
   private Retrieval retrieval;
-  private boolean passageRet;
   
   public InsertLengthsTraversal(Retrieval retrieval, Parameters queryParameters) {
     // TODO: devise mechanisms to use specific lengths smoothing methods
     this.retrieval = retrieval;
+    this.globalParams = retrieval.getGlobalParameters();
+    this.queryParams = queryParameters;
 
     // default lengths node.
     lenNode = new Node("lengths", new NodeParameters());
@@ -43,6 +47,9 @@ public class InsertLengthsTraversal extends Traversal {
         String field = node.getNodeParameters().get("lengths", "document");
         lenNodeClone.getNodeParameters().set("default", field);
         
+        // add passage length wrapper
+        lenNodeClone = addExtentFilters(lenNodeClone);
+        
         // add this node at position 0.
         node.addChild(lenNodeClone, 0);
       }
@@ -54,4 +61,25 @@ public class InsertLengthsTraversal extends Traversal {
   public void beforeNode(Node object) throws Exception {
     // Do nothing
   }
+  
+  
+  private Node addExtentFilters(Node in) throws Exception {
+    if (this.globalParams.containsKey("passageSize") || this.globalParams.containsKey("passageShift")) {
+      if (!this.globalParams.containsKey("passageSize")) {
+        throw new IllegalArgumentException("passage retrieval requires an explicit passageSize parameter.");
+      }
+
+      if (!this.globalParams.containsKey("passageShift")) {
+        throw new IllegalArgumentException("passage retrieval requires an explicit passageShift parameter.");
+      }
+
+      // replace here
+      ArrayList<Node> children = new ArrayList<Node>();
+      children.add(in);
+      Node replacement = new Node("passagelengths", children);
+      return replacement;
+    } else {
+     return in;
+    }
+  }  
 }

@@ -54,7 +54,8 @@ public class FeatureFactory {
     {LessThanIterator.class.getName(), "less"},
     {InBetweenIterator.class.getName(), "between"},
     {EqualityIterator.class.getName(), "equals"},
-    {PassageFilterIterator.class.getName(), "passagefilter"}
+    {PassageFilterIterator.class.getName(), "passagefilter"},
+    {PassageLengthIterator.class.getName(), "passagelengths"}
   };
   static String[][] sFeatureLookup = {
     {DirichletProbabilityScoringIterator.class.getName(), "dirichlet-raw"}, // this should go away
