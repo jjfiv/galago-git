@@ -10,6 +10,7 @@ import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -17,53 +18,65 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
  * @author irmarc
  */
 public class FakeExtentIterator implements MovableExtentIterator, MovableCountIterator {
-
+  
   private int[][] data;
   private int index;
   private ScoringContext context;
-
+  
   public FakeExtentIterator(int[][] data) {
     this.data = data;
     this.index = 0;
   }
-
+  
   @Override
   public boolean isDone() {
     return index >= data.length;
   }
-
+  
   @Override
   public int currentCandidate() {
-    return data[index][0];
+    if(index < data.length){
+      return data[index][0];
+    } else {
+      return Integer.MAX_VALUE;
+    }
   }
-
+  
   @Override
   public int count() {
-    return data[index].length - 1;
+    if (context.document == currentCandidate()) {
+      return data[index].length - 1;
+    } else {
+      return 0;
+    }
   }
-
+  
   @Override
   public void reset() throws IOException {
     index = 0;
   }
- 
+  
   @Override
   public ExtentArray getData() {
     return extents();
   }
-
+  
   @Override
   public ExtentArray extents() {
-    ExtentArray array = new ExtentArray();
-    int[] datum = data[index];
-    array.setDocument(datum[0]);
-    for (int i = 1; i < datum.length; i++) {
-      array.add(datum[i]);
+    if (context.document == currentCandidate()) {
+      ExtentArray array = new ExtentArray();
+      int[] datum = data[index];
+      array.setDocument(datum[0]);
+      for (int i = 1; i < datum.length; i++) {
+        array.add(datum[i]);
+      }
+      
+      return array;
+    } else {
+      return new ExtentArray();
     }
-
-    return array;
   }
-
+  
   @Override
   public boolean hasMatch(int identifier) {
     if (isDone()) {
@@ -72,24 +85,24 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
       return (currentCandidate() == identifier);
     }
   }
-
+  
   @Override
   public void syncTo(int identifier) throws IOException {
     while (!isDone() && currentCandidate() < identifier) {
       index++;
     }
   }
-
+  
   @Override
   public void movePast(int identifier) throws IOException {
     syncTo(identifier + 1);
   }
-
+  
   @Override
   public long totalEntries() {
     return data.length;
   }
-
+  
   @Override
   public int compareTo(MovableIterator other) {
     if (isDone() && !other.isDone()) {
@@ -103,32 +116,32 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
     }
     return currentCandidate() - other.currentCandidate();
   }
-
+  
   @Override
   public String getEntry() throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
-
+  
   @Override
   public int maximumCount() {
     throw new UnsupportedOperationException("Not supported yet.");
   }
-
+  
   @Override
   public boolean hasAllCandidates() {
     return false;
   }
-
+  
   @Override
   public void setContext(ScoringContext context) {
     this.context = context;
   }
-
+  
   @Override
   public ScoringContext getContext() {
     return context;
   }
-
+  
   @Override
   public AnnotatedNode getAnnotatedNode() {
     String type = "count";
@@ -138,12 +151,12 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = extents().toString();
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
-
+    
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
-
+  
   @Override
   public byte[] key() {
-    throw new UnsupportedOperationException("Not supported yet.");
+    return Utility.fromString("FAKE");
   }
 }

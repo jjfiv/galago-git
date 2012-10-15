@@ -23,12 +23,11 @@ import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * Tests for correctness of field-based retrieval models.
- * Currently this consists of BM25F, PRMS, PL2F
- * 
- * For each model we test:
- * - the transformation correctness of model.
- * - the correctness of the math involved in the model.
+ * Tests for correctness of field-based retrieval models. Currently this
+ * consists of BM25F, PRMS, PL2F
+ *
+ * For each model we test: - the transformation correctness of model. - the
+ * correctness of the math involved in the model.
  *
  * @author irmarc
  */
@@ -52,7 +51,7 @@ public class FieldTraversalTest extends TestCase {
 
   // We pull statistics directly from the index to make sure they are
   // generated correctly.
-    /*
+  /*
   public void testPRMSTraversalCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -84,10 +83,10 @@ public class FieldTraversalTest extends TestCase {
     transformed.append(" )");
 
     Node expected = StructuredQuery.parse(transformed.toString());
-    //System.err.printf("Expected: %s\nGot: %s\n", expected.toString(), q2.toString() );
     assertEquals(expected.toString(), q2.toString());
   }
-    */
+  */ 
+
   public void testBM25FTraversalCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -136,7 +135,6 @@ public class FieldTraversalTest extends TestCase {
     transformed.append(" )");
 
     Node expected = StructuredQuery.parse(transformed.toString());
-    //System.err.printf("Expected : %s\nReceived:%s\n", expected.toString(), q2.toString());
     assertEquals(expected.toString(), q2.toString());
   }
 
@@ -220,29 +218,17 @@ public class FieldTraversalTest extends TestCase {
     Node root = retrieval.transformQuery(raw, p);
     p.set("deltaReady", false);
     ScoredDocument[] results = retrieval.runQuery(root, p);
-    
+
     p.set("deltaReady", true);
     ScoredDocument[] results2 = retrieval.runQuery(root, p);
 
-    /*
-    System.err.printf("Original:\n");
-    for (int i = 0; i < results.length; i++) {
-      System.err.printf("%d : %s\n", i, results[i].toString());
-    } 
- 
-    System.err.printf("Delta:\n");
-    for (int i = 0; i < results.length; i++) {
-      System.err.printf("%d : %s\n", i, results2[i].toString());
-    } 
-*/    
-    
     assertEquals(results.length, results2.length);
     for (int i = 0; i < results.length; i++) {
       assertEquals(results[i].document, results2[i].document);
       assertEquals(results[i].score, results2[i].score, 0.00001);
     }
   }
-    /*
+  /*
   public void testPRMSDeltaVsModel() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -258,7 +244,7 @@ public class FieldTraversalTest extends TestCase {
     Node root = retrieval.transformQuery(raw, global);
     global.set("deltaReady", false);
     ScoredDocument[] results = retrieval.runQuery(root, global);
-    
+
     global.set("deltaReady", true);
     ScoredDocument[] results2 = retrieval.runQuery(root, global);
 
@@ -295,21 +281,9 @@ public class FieldTraversalTest extends TestCase {
     Node root = retrieval.transformQuery(raw, p);
     p.set("deltaReady", false);
     ScoredDocument[] results = retrieval.runQuery(root, p);
-    
+
     p.set("deltaReady", true);
     ScoredDocument[] results2 = retrieval.runQuery(root, p);
-
-    /*
-    System.err.printf("Original:\n");
-    for (int i = 0; i < results.length; i++) {
-      System.err.printf("%d : %s\n", i, results[i].toString());
-    } 
- 
-    System.err.printf("Delta:\n");
-    for (int i = 0; i < results.length; i++) {
-      System.err.printf("%d : %s\n", i, results2[i].toString());
-    } 
-    */
 
     assertEquals(results.length, results2.length);
 
@@ -319,6 +293,7 @@ public class FieldTraversalTest extends TestCase {
     }
   }
 
+  /*
   public void testPRMS2ModelCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -329,16 +304,10 @@ public class FieldTraversalTest extends TestCase {
     LocalRetrieval retrieval = new LocalRetrieval(index, global);
     Parameters qp = new Parameters();
     qp.set("fields", Arrays.asList(fields));
-    
+
     ScoredDocument[] results = retrieval.runQuery("#prms2(cat dog donkey)", qp);
 
     assertEquals(5, results.length);
-
-    /*
-    for (int i = 0; i < results.length; i++) {
-      System.err.printf("%d : %s\n", i, results[i].toString());
-    } 
-     */
 
     assertEquals(1, results[0].document);
     assertEquals(results[0].score, -11.160840, 0.00001);
@@ -350,9 +319,9 @@ public class FieldTraversalTest extends TestCase {
     assertEquals(results[3].score, -11.231324, 0.00001);
     assertEquals(3, results[4].document);
     assertEquals(results[4].score, -11.240375, 0.00001);
-
   }
-  
+  */ 
+
   public void testBM25FModelCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -380,16 +349,10 @@ public class FieldTraversalTest extends TestCase {
 
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
     ScoredDocument[] results = retrieval.runQuery("#bm25f(cat dog donkey)", p);
-    
+
     // Verify our results
     assertEquals(5, results.length);
 
-    /*
-    for (int i = 0; i < results.length; i++) {
-      System.err.printf("%d : %s\n", i, results[i].toString());
-    } 
-    */   
-   
     assertEquals(1, results[0].document);
     assertEquals(results[0].score, 0.758854, 0.00001);
     assertEquals(5, results[1].document);
@@ -401,7 +364,6 @@ public class FieldTraversalTest extends TestCase {
     assertEquals(3, results[4].document);
     assertEquals(results[4].score, 0.096271, 0.00001);
   }
-
 
   public void testPL2FModelCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());

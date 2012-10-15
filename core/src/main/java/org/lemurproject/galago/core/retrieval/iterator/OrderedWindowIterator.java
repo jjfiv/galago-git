@@ -5,8 +5,6 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.util.ExtentArray;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -24,17 +22,22 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
 
   @Override
   public void loadExtents() {
-    int document = currentCandidate();
-    if (context != null) {
-      document = context.document;
-    }
+    // get the document
+    int document = context.document;
 
-    if (isDone() || this.extents.getDocument() == document) {
+    // check if we're already there
+    if (this.extents.getDocument() == document) {
       return;
     }
+
+    // reset the extents
     extents.reset();
-    if (context != null) {
-      extents.setDocument(document);
+    extents.setDocument(document);
+
+    // if we're done - quit now 
+    //  -- (leaving extents object empty just in cast someone asks for them.)
+    if (isDone()) {
+      return;
     }
 
     ExtentArrayIterator[] arrayIterators;

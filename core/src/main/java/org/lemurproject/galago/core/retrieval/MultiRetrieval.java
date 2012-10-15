@@ -184,7 +184,16 @@ public class MultiRetrieval implements Retrieval {
     // get the best {requested} results
     int requested = (int) parameters.get("requested", 1000);
 
-    return queryResultCollector.subList(0, Math.min(queryResultCollector.size(), requested)).toArray(new ScoredDocument[0]);
+    // fix ranks
+    ScoredDocument[] results = queryResultCollector.subList(0, Math.min(queryResultCollector.size(), requested)).toArray(new ScoredDocument[0]);
+    int rank = 1;
+    for(ScoredDocument r : results){
+      r.rank = rank;
+      rank+=1;
+    }
+    
+    return results;
+    
   }
 
   @Override

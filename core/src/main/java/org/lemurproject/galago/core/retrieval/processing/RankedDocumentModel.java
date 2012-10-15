@@ -98,7 +98,7 @@ public class RankedDocumentModel extends ProcessingModel {
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
 
     // construct the iterators -- we use tree processing
-     MovableScoreIterator iterator =
+    MovableScoreIterator iterator =
             (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
     ProcessingModel.initializeLengths(retrieval, context);
 

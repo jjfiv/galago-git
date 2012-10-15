@@ -71,7 +71,7 @@ public class FilteredStatisticsTest extends TestCase {
   public void testFilteredStatisticsModel() throws Exception {
     Parameters globalParams = new Parameters();
     globalParams.set("processingModel",
-            "org.lemurproject.galago.core.retrieval.processing.FilteredStatisticsRankedDocumentModel");
+            "org.lemurproject.galago.core.retrieval.processing.FilteredStatisticsRankedDocumentModel");    
     LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), globalParams);
     String query = "#require( "
             + "#less( date 1/1/1900 ) "
@@ -86,8 +86,8 @@ public class FilteredStatisticsTest extends TestCase {
 
     assertEquals(2, results.length);
     assertEquals(3, results[0].document);
-    assertEquals(-4.9214315, results[0].score, 0.0001);
+    assertEquals(-5.819614, results[0].score, 0.0001);
     assertEquals(18, results[1].document);
-    assertEquals(-4.9840130, results[1].score, 0.0001);
+    assertEquals(-5.937809, results[1].score, 0.0001);
   }
 }

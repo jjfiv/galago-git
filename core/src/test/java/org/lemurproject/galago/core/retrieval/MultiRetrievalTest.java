@@ -87,7 +87,7 @@ public class MultiRetrievalTest extends TestCase {
       expDocs[1] = new ScoredDocument("i2-59", 2, -1.5576460721284549);
       expDocs[2] = new ScoredDocument("i1-55", 3, -1.5583107448016458);
       expDocs[3] = new ScoredDocument("i2-55", 4, -1.5596387662451652);
-
+      
       assertEquals(expDocs.length, res.length);
       for (int i = 0; i < res.length; i++) {
         assertEquals(expDocs[i].documentName, res[i].documentName);

@@ -24,15 +24,23 @@ public class UnorderedWindowIterator extends ExtentConjunctionIterator {
   }
 
   public void loadExtents() {
-    int document = currentCandidate();
-    if (context != null) {
-      document = context.document;
-    }
-    if (isDone() || this.extents.getDocument() == document) {
+    // get the document
+    int document = context.document;
+
+    // check if we're already there
+    if (this.extents.getDocument() == document) {
       return;
     }
+
+    // reset the extents
     extents.reset();
     extents.setDocument(document);
+
+    // if we're done - quit now 
+    //  -- (leaving extents object empty just in cast someone asks for them.)
+    if (isDone()) {
+      return;
+    }
 
     ExtentArrayIterator[] arrayIterators;
     int maximumPosition = 0;

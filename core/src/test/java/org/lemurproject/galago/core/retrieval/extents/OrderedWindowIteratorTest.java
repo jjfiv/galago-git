@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.retrieval.iterator.OrderedWindowIterator;
 import org.lemurproject.galago.core.util.ExtentArray;
 import java.io.IOException;
 import junit.framework.*;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
@@ -34,6 +35,12 @@ public class OrderedWindowIteratorTest extends TestCase {
     oneParam.set("default", 1);
     OrderedWindowIterator instance = new OrderedWindowIterator(oneParam, iters);
 
+    ScoringContext context = new ScoringContext();
+    one.setContext(context);
+    two.setContext(context);
+    instance.setContext(context);
+    
+    context.document = instance.currentCandidate();
     ExtentArray array = instance.extents();
 
     assertEquals(array.size(), 1);
@@ -47,12 +54,19 @@ public class OrderedWindowIteratorTest extends TestCase {
     int[][] dataTwo = {{1, 4}};
     FakeExtentIterator one = new FakeExtentIterator(dataOne);
     FakeExtentIterator two = new FakeExtentIterator(dataTwo);
+    // note the order is backwards
     FakeExtentIterator[] iters = {two, one};
 
     NodeParameters oneParam = new NodeParameters();
     oneParam.set("default", 1);
     OrderedWindowIterator instance = new OrderedWindowIterator(oneParam, iters);
 
+    ScoringContext context = new ScoringContext();
+    one.setContext(context);
+    two.setContext(context);
+    instance.setContext(context);
+    
+    context.document = instance.currentCandidate();    
     ExtentArray array = instance.extents();
     assertEquals(0, array.size());
   }

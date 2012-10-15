@@ -30,9 +30,8 @@ import java.util.regex.Pattern;
  */
 public class Parameters implements Serializable {
 
-	private static final long serialVersionUID = 4553653651892088433L;
+  private static final long serialVersionUID = 4553653651892088433L;
 
-	  
   // Parsing in JSON
   private static class JSONParser {
 
@@ -495,6 +494,10 @@ public class Parameters implements Serializable {
           }
           map.getList(key).add(value);
         } else {
+          // attempt to clean a string: 'string'
+          if (value.startsWith("'") && value.endsWith("'") && value.length() > 1) {
+            value = value.substring(1, value.length() - 1);
+          }
           map.set(key, value);
         }
     }
@@ -512,7 +515,7 @@ public class Parameters implements Serializable {
     return p;
 
   }
-    
+
   public static Parameters parse(byte[] data) throws IOException {
     JSONParser jp = new JSONParser(new InputStreamReader(new ByteArrayInputStream(data)));
     Parameters p = jp.parse();
@@ -706,7 +709,7 @@ public class Parameters implements Serializable {
   public Parameters getMap(String key) {
     return (Parameters) _objects.get(key);
   }
-    
+
   public Parameters get(String key, Parameters def) {
     if (_keys.containsKey(key)) {
       return (Parameters) _objects.get(key);
@@ -1112,6 +1115,7 @@ public class Parameters implements Serializable {
   // faster to use static types for parsing and lookup
 
   public enum Type {
+
     BOOLEAN, LONG, DOUBLE, STRING, MAP, LIST
   };
 }

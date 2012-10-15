@@ -3,9 +3,6 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
-import org.lemurproject.galago.core.retrieval.GroupRetrieval;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import java.io.File;
 import java.util.Arrays;
 import junit.framework.TestCase;
@@ -75,12 +72,12 @@ public class GroupRetrievalTest extends TestCase {
       String expected = "#combine( #feature:dirichlet:"
               + "collectionLength=8:"
               + "collectionProbability=0.25:"
-              + "documentCount=2("
+              + "documentCount=2:w=0.5("
               + " #counts:sample:part=postings.porter() )"
               + " #feature:dirichlet:"
               + "collectionLength=8:"
               + "collectionProbability=0.25:"
-              + "documentCount=2("
+              + "documentCount=2:w=0.5("
               + " #counts:document:part=postings.porter() ) )";
 
       assertEquals(expected, queryTree1.toString());
@@ -102,28 +99,27 @@ public class GroupRetrievalTest extends TestCase {
               + " #feature:dirichlet:"
               + "collectionLength=19:"
               + "collectionProbability=0.21052631578947367:"
-              + "documentCount=4"
+              + "documentCount=4:w=0.5"
               + "( #counts:sample:part=postings.porter() ) "
               + "#feature:dirichlet:"
               + "collectionLength=19:"
               + "collectionProbability=0.21052631578947367:"
-              + "documentCount=4"
+              + "documentCount=4:w=0.5"
               + "( #counts:document:part=postings.porter() ) )";
 
       assertEquals(expected, queryTree2.toString());
       ScoredDocument[] res2 = gr.runQuery(queryTree2, q2, "group2");
       String[] expected2 = {
         "i1-59	1	-1.5569809573716442",
-        "i2-59	1	-1.5576460721284549",
-        "i1-55	2	-1.5583107448016458",
-        "i2-55	2	-1.5596387662451652"
+        "i2-59	2	-1.5576460721284549",
+        "i1-55	3	-1.5583107448016458",
+        "i2-55	4	-1.5596387662451652"
       };
 
       for (int i = 0; i < res2.length; i++) {
         String r = res2[i].documentName + "\t" + res2[i].rank + "\t" + res2[i].score;
         assertEquals(r, expected2[i]);
       }
-
 
     } finally {
 

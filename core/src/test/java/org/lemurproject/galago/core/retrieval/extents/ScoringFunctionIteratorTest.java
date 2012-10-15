@@ -52,31 +52,34 @@ public class ScoringFunctionIteratorTest extends TestCase {
   public void testScore() throws IOException {
 
     int[][] data = {{1, 3}, {5, 8, 9}};
-    FakeExtentIterator iterator = new FakeExtentIterator(data);
-    FakeScoreIterator instance = new FakeScoreIterator(iterator);
+    FakeExtentIterator extentIterator = new FakeExtentIterator(data);
+    FakeScoreIterator scoreIterator = new FakeScoreIterator(extentIterator);
 
     int[] docs = {1, 2, 5};
     int[] lengths = {3, 5, 10};
-    FakeLengthIterator fli = new FakeLengthIterator(docs, lengths);
+    FakeLengthIterator lengthIterator = new FakeLengthIterator(docs, lengths);
 
     ScoringContext ctx = new ScoringContext();
-    ctx.addLength("", fli);
-    instance.setContext(ctx);
-    assertFalse(instance.isDone());
+    ctx.addLength("", lengthIterator);
+    lengthIterator.setContext(ctx);
+    extentIterator.setContext(ctx);
+    scoreIterator.setContext(ctx);
+    
+    assertFalse(scoreIterator.isDone());
 
-    ctx.document = instance.currentCandidate();
+    ctx.document = scoreIterator.currentCandidate();
     ctx.moveLengths(ctx.document);
-    assertEquals(instance.currentCandidate(), 1);
-    assertEquals(4.0, instance.score());
-    instance.movePast(1);
+    assertEquals(scoreIterator.currentCandidate(), 1);
+    assertEquals(4.0, scoreIterator.score());
+    scoreIterator.movePast(1);
 
-    ctx.document = instance.currentCandidate();
+    ctx.document = scoreIterator.currentCandidate();
     ctx.moveLengths(ctx.document);
 
-    assertFalse(instance.isDone());
-    assertEquals(12.0, instance.score());
-    instance.movePast(5);
+    assertFalse(scoreIterator.isDone());
+    assertEquals(12.0, scoreIterator.score());
+    scoreIterator.movePast(5);
 
-    assertTrue(instance.isDone());
+    assertTrue(scoreIterator.isDone());
   }
 }

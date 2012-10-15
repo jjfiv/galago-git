@@ -8,6 +8,7 @@ import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -48,7 +49,8 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
     context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     Arrays.fill(context.startingPotentials, 0);
-    StructuredIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
+    MovableScoreIterator iterator =
+            (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
 
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
     ProcessingModel.initializeLengths(retrieval, context);
@@ -60,7 +62,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
     // Make sure the scorers are sorted properly
     buildSentinels(context, queryParams);
     determineSentinelIndex(context);
-    
+
     // Routine is as follows:
     // 1) Find the next candidate from the sentinels
     // 2) Move sentinels and field length readers to candidate

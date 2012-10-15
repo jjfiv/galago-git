@@ -86,11 +86,14 @@ public class LearnerTest extends TestCase {
         r.getGlobalParameters().copyFrom(settings);
         root = learner.ensureSettings(root, settings);
         root = r.transformQuery(root, settings);
-        
-        // node is an SDM - root is not cached - all others are cached
+
+        // node is an SDM - root and direct children are not cached - all others are cached
         assertFalse(r.isCached(root));
-        for(Node child : root.getInternalNodes()){
-          assertTrue(r.isCached(child));
+        for (Node child : root.getInternalNodes()) {
+          assertFalse(r.isCached(child));
+          for (Node subchild : child.getInternalNodes()) {
+            assertTrue(r.isCached(subchild));
+          }
         }
       }
 

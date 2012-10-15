@@ -100,7 +100,6 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
       DeltaScoringContext dctx = (DeltaScoringContext) ctx;
       dctx.scorers.add(this);
       dctx.startingPotential += (max * weight);
-      ////CallTable.increment("aux_flops");
     }
   }
 
