@@ -13,7 +13,6 @@ import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.NullStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
-import org.lemurproject.galago.core.tools.App.AppFunction;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.core.types.NumberedExtent;
@@ -351,8 +350,13 @@ public class BuildWindowIndex extends AppFunction {
   }
 
   @Override
+  public String getName(){
+    return "build-window";
+  }
+
+  @Override
   public String getHelpString() {
-    return "galago window [flags] --indexPath=<index> (--inputPath+<input>)+\n\n"
+    return "galago build-window [flags] --indexPath=<index> (--inputPath+<input>)+\n\n"
             + "  Builds a Galago StructuredIndex window index file using TupleFlow. Program\n"
             + "  uses one thread for each CPU core on your computer.  While some debugging output\n"
             + "  will be displayed on the screen, most of the status information will\n"
@@ -392,7 +396,7 @@ public class BuildWindowIndex extends AppFunction {
             + "  --positionalIndex={true|false}: Selects whether to write positional data to the index file.\n"
             + "                           (The benefit is a large decrease in space usage).\n"
             + "                           [default=true]\n\n"
-            + App.getTupleFlowParameterString();
+            + getTupleFlowParameterString();
   }
 
   @Override
@@ -407,6 +411,6 @@ public class BuildWindowIndex extends AppFunction {
     BuildWindowIndex build = new BuildWindowIndex();
     job = build.getIndexJob(p);
 
-    App.runTupleFlowJob(job, p, output);
+    runTupleFlowJob(job, p, output);
   }
 }

@@ -139,8 +139,6 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
     AdjustAnnotationsTraversal traversal = new AdjustAnnotationsTraversal(fssContext);
     queryTree = StructuredQuery.copy(traversal, queryTree);
 
-    System.err.println(queryTree.toPrettyString());
-    
     // Nothing special needed here
     ScoringContext context = new ScoringContext();
     // Number of documents requested.

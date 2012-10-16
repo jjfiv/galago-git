@@ -13,7 +13,6 @@ import org.lemurproject.galago.core.parse.stem.ConflationExtractor;
 import org.lemurproject.galago.core.parse.stem.ConflationReducer;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
-import org.lemurproject.galago.core.tools.App.AppFunction;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -27,6 +26,11 @@ import org.lemurproject.galago.tupleflow.execution.*;
 public class BuildStemmerConflation extends AppFunction {
 
   @Override
+  public String getName() {
+    return "stemmer-conflation";
+  }
+
+  @Override
   public String getHelpString() {
     return "galago stemmer-conflation [flags] --outputPath=<outputPath> --stemmer=<stemmer> "
             + "                                (--inputPath+<input>)+\n\n"
@@ -38,7 +42,7 @@ public class BuildStemmerConflation extends AppFunction {
             + "          Files may be gzip compressed (.gz|.bz).\n"
             + "<outputPath>:  The path of the index part to produce.\n"
             + "<stemmer>: Name of a stemmer; [porter, krovetz, ...]\n\n"
-            + App.getTupleFlowParameterString();
+            + getTupleFlowParameterString();
     //TODO: need to design parameters for field indexes + stemming for field indexes
   }
 
@@ -53,7 +57,7 @@ public class BuildStemmerConflation extends AppFunction {
     job = getIndexJob(p);
 
     if (job != null) {
-      App.runTupleFlowJob(job, p, output);
+      runTupleFlowJob(job, p, output);
     }
 
   }
@@ -63,63 +67,63 @@ public class BuildStemmerConflation extends AppFunction {
 
     List<String> inputPaths = p.getAsList("inputPath");
     File output = new File(p.getString("outputPath"));
-    
+
     Parameters splitParameters = new Parameters();
     splitParameters.set("corpusPieces", p.get("distrib", 10));
     job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
     job.add(getParserStage(p));
     job.add(getWriterStage(output));
-    
+
     job.connect("inputSplit", "parsePostings", ConnectionAssignmentType.Each);
     job.connect("parsePostings", "writerStage", ConnectionAssignmentType.Combined);
-    
+
     return job;
   }
 
-  private Stage getParserStage(Parameters p) throws IOException{
+  private Stage getParserStage(Parameters p) throws IOException {
     Stage stage = new Stage("parsePostings");
 
     // connections
     stage.addInput("splits", new DocumentSplit.FileIdOrder());
     stage.addOutput("conflations", new KeyValuePair.KeyValueOrder());
-      
+
     // Steps
     stage.add(new InputStep("splits"));
     stage.add(BuildStageTemplates.getParserStep(p));
     stage.add(BuildStageTemplates.getTokenizerStep(p));
-    
+
     Parameters conflationParams = new Parameters();
     conflationParams.set("stemmerClass", getStemmerClass(p.getString("stemmer")));
-    
+
     stage.add(new Step(ConflationExtractor.class, conflationParams));
     stage.add(Utility.getSorter(new KeyValuePair.KeyValueOrder()));
     stage.add(new Step(ConflationReducer.class));
     stage.add(new OutputStep("conflations"));
-    
+
     return stage;
   }
 
   private Stage getWriterStage(File output) {
     Stage stage = new Stage("writerStage");
-    
+
     stage.addInput("conflations", new KeyValuePair.KeyValueOrder());
     stage.add(new InputStep("conflations"));
-    
+
     // repeat the discard step - over the newly combined data
     stage.add(new Step(ConflationReducer.class));
 
     Parameters writerParams = new Parameters();
     writerParams.set("filename", output.getAbsolutePath());
     stage.add(new Step(ConflationIndexWriter.class, writerParams));
-    
+
     return stage;
   }
-  
-  private String getStemmerClass(String stemmer){
-    if(stemmer.startsWith("porter")){
+
+  private String getStemmerClass(String stemmer) {
+    if (stemmer.startsWith("porter")) {
       return Porter2Stemmer.class.getName();
     }
-    if(stemmer.startsWith("krovetz")){
+    if (stemmer.startsWith("krovetz")) {
       return KrovetzStemmer.class.getName();
     }
     throw new RuntimeException("BuildStemmerConflation.class - Failed to find a class for stemmer " + stemmer);

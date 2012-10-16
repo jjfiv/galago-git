@@ -1,7 +1,7 @@
 /*
  *  BSD License (http://www.galagosearch.org/license)
  */
-package org.lemurproject.galago.core.learning;
+package org.lemurproject.galago.contrib.learning;
 
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import java.util.Collections;

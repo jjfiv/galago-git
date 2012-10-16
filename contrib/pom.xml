@@ -7,10 +7,10 @@
     <version>3.3</version>
   </parent>
   <groupId>org.lemurproject.galago</groupId>
-  <artifactId>core</artifactId>
+  <artifactId>contrib</artifactId>
   <packaging>jar</packaging>
   <version>${project.parent.version}</version>
-  <name>core</name>
+  <name>contrib</name>
   <url>http://lemurproject.org/galago/php</url>
   <description>Galago is a toolkit for experimenting with search engines and text processing.</description>
   <licenses>
@@ -35,7 +35,7 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>2.7</version>
         <configuration>
-          <excludePackageNames>org.lemurproject.galago.core.types</excludePackageNames>
+          <excludePackageNames>org.lemurproject.galago.contrib.types</excludePackageNames>
         </configuration>
       </plugin>
       <plugin>
@@ -103,16 +103,11 @@
       <groupId>org.reflections</groupId>
       <artifactId>reflections</artifactId>
       <version>0.9.8</version>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>org.tukaani</groupId>
       <artifactId>xz</artifactId>
       <version>1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.2.2</version>
     </dependency>
     <dependency>
       <groupId>com.google.code.gson</groupId>
@@ -137,6 +132,16 @@
     <dependency>
       <groupId>org.lemurproject.galago</groupId>
       <artifactId>tupleflow</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.lemurproject.galago</groupId>
+      <artifactId>core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.lemurproject.galago</groupId>
+      <artifactId>tupleflow-typebuilder</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

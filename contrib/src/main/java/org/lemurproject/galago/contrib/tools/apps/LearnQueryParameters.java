@@ -1,13 +1,15 @@
 /*
  *  BSD License (http://www.galagosearch.org/license)
  */
-package org.lemurproject.galago.core.learning;
+package org.lemurproject.galago.contrib.tools.apps;
 
 import java.io.PrintStream;
 import java.util.List;
+import org.lemurproject.galago.contrib.learning.Learner;
+import org.lemurproject.galago.contrib.learning.LearnerFactory;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
-import org.lemurproject.galago.core.tools.App.AppFunction;
+import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -16,6 +18,11 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class LearnQueryParameters extends AppFunction {
 
+  @Override
+  public String getName(){
+    return "learner";
+  }
+  
   @Override
   public String getHelpString() {
     return "galago learn <<parameters>>\n\n";

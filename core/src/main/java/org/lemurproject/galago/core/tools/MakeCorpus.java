@@ -3,6 +3,7 @@ package org.lemurproject.galago.core.tools;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
@@ -18,12 +19,10 @@ import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
-import org.lemurproject.galago.tupleflow.execution.ConnectionPointType;
 import org.lemurproject.galago.tupleflow.execution.InputStep;
 import org.lemurproject.galago.tupleflow.execution.Job;
 import org.lemurproject.galago.tupleflow.execution.OutputStep;
 import org.lemurproject.galago.tupleflow.execution.Stage;
-import org.lemurproject.galago.tupleflow.execution.StageConnectionPoint;
 import org.lemurproject.galago.tupleflow.execution.Step;
 
 /*
@@ -35,7 +34,7 @@ import org.lemurproject.galago.tupleflow.execution.Step;
  *  - index file stores: document-name --> (file, offset)
  * 
  */
-public class MakeCorpus {
+public class MakeCorpus extends AppFunction {
 
   public static Job getCorpusFileJob(String outputCorpus, List<String> inputs, Parameters corpusParameters) throws IOException {
     Job job = new Job();
@@ -69,7 +68,7 @@ public class MakeCorpus {
     stage.add(new Step(KeyValuePairToDocument.class));
     p = new Parameters();
     p.set("filename", outputCorpus);
-    if(corpusParameters.isLong("corpusBlockSize")){
+    if (corpusParameters.isLong("corpusBlockSize")) {
       p.set("blockSize", corpusParameters.getLong("corpusBlockSize"));
     }
     if (p.isMap("corpusParameters")) {
@@ -145,5 +144,44 @@ public class MakeCorpus {
     job.connect("parserWriter", "indexWriter", ConnectionAssignmentType.Combined);
 
     return job;
+  }
+
+  /*
+   *  Appfunction stuff
+   */
+
+  @Override
+  public String getName() {
+    return "make-corpus";
+  }
+
+  @Override
+  public String getHelpString() {
+    return "galago make-corpus [flags]+ --corpusPath=<corpus> (--inputPath=<input>)+\n\n"
+            + "  Copies documents from input files into a corpus file.  A corpus\n"
+            + "  structure is required to use any of the document lookup features in \n"
+            + "  Galago, like printing snippets of search results.\n\n"
+            + "<corpus>: Corpus output path or directory\n\n"
+            + "<input>:  Can be either a file or directory, and as many can be\n"
+            + "          specified as you like.  Galago can read html, xml, txt, \n"
+            + "          arc (Heritrix), trectext, trecweb and corpus files.\n"
+            + "          Files may be gzip compressed (.gz).\n\n"
+            + "Algorithm Flags:\n"
+            + "  --corpusFormat={folder|file}: Selects which format of corpus to produce.\n"
+            + "                           File is a single file corpus. Folder is a folder of data files with an index.\n"
+            + "                           The folder structure can be produce in a parallel manner.\n"
+            + "                           [default=folder]\n\n"
+            + getTupleFlowParameterString();
+  }
+
+  @Override
+  public void run(Parameters p, PrintStream output) throws Exception {
+    if (!p.containsKey("corpusPath") && !p.containsKey("inputPath")) {
+      output.println(getHelpString());
+      return;
+    }
+    MakeCorpus mc = new MakeCorpus();
+    Job job = mc.getMakeCorpusJob(p);
+    runTupleFlowJob(job, p, output);
   }
 }

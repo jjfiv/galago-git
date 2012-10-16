@@ -5,7 +5,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.lemurproject.galago.core.nasty.AnchorTextWriter;
 import org.lemurproject.galago.core.parse.AnchorTextCreator;
 import org.lemurproject.galago.core.parse.DocumentNumberer;
@@ -13,7 +12,6 @@ import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.parse.LinkCombiner;
 import org.lemurproject.galago.core.parse.LinkExtractor;
 import org.lemurproject.galago.core.parse.NumberedDocumentDataExtractor;
-import org.lemurproject.galago.core.tools.App.AppFunction;
 import org.lemurproject.galago.core.types.AdditionalDocumentText;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.ExtractedLink;
@@ -28,6 +26,10 @@ import org.lemurproject.galago.tupleflow.execution.OutputStep;
 import org.lemurproject.galago.tupleflow.execution.Stage;
 import org.lemurproject.galago.tupleflow.execution.Step;
 
+/**
+ * 
+ * @author jdalton
+ */
 public class ExtractWikiAnchorText extends AppFunction {
 
 
@@ -123,7 +125,7 @@ public class ExtractWikiAnchorText extends AppFunction {
 		job = build.getIndexJob(p);
 
 		if (job != null) {
-			App.runTupleFlowJob(job, p, output);
+			runTupleFlowJob(job, p, output);
 		}
 	}
 
@@ -137,9 +139,14 @@ public class ExtractWikiAnchorText extends AppFunction {
 		p.getMap("tokenizer").set("fields", Arrays.asList(fields));
 		ExtractWikiAnchorText textExtractor = new ExtractWikiAnchorText();
 		Job job = textExtractor.getAnchorTextJob(p);
-		App.runTupleFlowJob(job, p, System.err);
+		runTupleFlowJob(job, p, System.err);
 	}
 
+  @Override
+  public String getName(){
+    return "extract-wiki-anchor-text";
+  }
+  
 	@Override
 	public String getHelpString() {
 		// TODO Auto-generated method stub

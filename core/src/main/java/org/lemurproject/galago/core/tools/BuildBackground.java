@@ -10,12 +10,9 @@ import java.util.List;
 import org.lemurproject.galago.core.index.disk.BackgroundLMWriter;
 import org.lemurproject.galago.core.parse.DocumentNumberer;
 import org.lemurproject.galago.core.parse.DocumentSource;
-import org.lemurproject.galago.core.parse.NumberedDocumentDataExtractor;
 import org.lemurproject.galago.core.parse.WordCountReducer;
 import org.lemurproject.galago.core.parse.WordCounter;
-import org.lemurproject.galago.core.tools.App.AppFunction;
 import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.core.types.WordCount;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -26,12 +23,11 @@ import org.lemurproject.galago.tupleflow.execution.MultiStep;
 import org.lemurproject.galago.tupleflow.execution.OutputStep;
 import org.lemurproject.galago.tupleflow.execution.Stage;
 import org.lemurproject.galago.tupleflow.execution.Step;
-import org.lemurproject.galago.tupleflow.types.SerializedParameters;
 
 /**
- * builds a background language model from a set of documents
- *  - mapping from term to count.
- * 
+ * builds a background language model from a set of documents - mapping from
+ * term to count.
+ *
  * @author sjh
  */
 public class BuildBackground extends AppFunction {
@@ -47,9 +43,9 @@ public class BuildBackground extends AppFunction {
     // actual document numbers will not be written to index
     // they are only used to count the total number of documents.
     stage.add(new Step(DocumentNumberer.class));
-    
+
     MultiStep fork = new MultiStep();
-    
+
     if (p.get("nonStemmedPostings", true)) {
       stage.addOutput("nonStemmedTermCounts", new WordCount.WordOrder());
 
@@ -63,22 +59,22 @@ public class BuildBackground extends AppFunction {
 
     if (p.getBoolean("stemmedPostings")) {
       for (String stemmer : (List<String>) p.getList("stemmer")) {
-        stage.addOutput("stemmedTermCounts-"+stemmer, new WordCount.WordOrder());
+        stage.addOutput("stemmedTermCounts-" + stemmer, new WordCount.WordOrder());
 
         ArrayList<Step> stemmed = new ArrayList();
-        
-        Class stemmerClass = Class.forName( p.getMap("stemmerClass").getString(stemmer));
-        
+
+        Class stemmerClass = Class.forName(p.getMap("stemmerClass").getString(stemmer));
+
         stemmed.add(new Step(stemmerClass));
         stemmed.add(new Step(WordCounter.class));
         stemmed.add(Utility.getSorter(new WordCount.WordOrder()));
         stemmed.add(new Step(WordCountReducer.class));
-        stemmed.add(new OutputStep("stemmedTermCounts-"+stemmer));
+        stemmed.add(new OutputStep("stemmedTermCounts-" + stemmer));
         fork.groups.add(stemmed);
       }
     }
-    
-    
+
+
     stage.add(fork);
     return stage;
   }
@@ -99,10 +95,10 @@ public class BuildBackground extends AppFunction {
     // using the same as BuildIndex - ensures same schema.
     // some additional parameters will be set ( they will be ignored )
     p = BuildIndex.checkBuildIndexParameters(p);
-    if(p == null){
+    if (p == null) {
       throw new RuntimeException("Failed to parse parameters correctly.");
     }
-    
+
     // first check parameters
     String indexPath = p.getString("indexPath");
     assert (new File(indexPath).isDirectory());
@@ -117,7 +113,7 @@ public class BuildBackground extends AppFunction {
     Parameters splitParameters = new Parameters();
     splitParameters.set("corpusPieces", p.get("distrib", 10));
     job.add(BuildStageTemplates.getSplitStage(inputs, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
-   
+
     job.add(getParseStage(p));
 
     job.connect("inputSplit", "inputParser", ConnectionAssignmentType.Each);
@@ -136,13 +132,17 @@ public class BuildBackground extends AppFunction {
         params.set("filename", output + "." + stemmer);
         params.set("stemmer", p.getMap("stemmerClass").getString(stemmer));
 
-        job.add(getWriterStage("stemmedWriter-" + stemmer, "stemmedTermCounts-"+stemmer, params));
+        job.add(getWriterStage("stemmedWriter-" + stemmer, "stemmedTermCounts-" + stemmer, params));
 
         job.connect("inputParser", "stemmedWriter-" + stemmer, ConnectionAssignmentType.Combined);
       }
     }
 
     return job;
+  }
+
+  public String getName() {
+    return "build-background";
   }
 
   public String getHelpString() {
@@ -158,7 +158,7 @@ public class BuildBackground extends AppFunction {
             + "                            Selects a set of stemmer classes for the index part.\n"
             + "                            [default=porter]\n"
             + "\n"
-            + App.getTupleFlowParameterString();
+            + getTupleFlowParameterString();
   }
 
   public void run(Parameters p, PrintStream output) throws Exception {
@@ -169,7 +169,7 @@ public class BuildBackground extends AppFunction {
 
     Job job = getBuildJob(p);
     if (job != null) {
-      App.runTupleFlowJob(job, p, output);
+      runTupleFlowJob(job, p, output);
     }
   }
 

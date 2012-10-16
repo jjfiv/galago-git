@@ -14,7 +14,6 @@ import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
-import org.lemurproject.galago.core.tools.App.AppFunction;
 import org.lemurproject.galago.core.util.CallTable;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Parameters.Type;
@@ -30,6 +29,10 @@ public class BatchSearch extends AppFunction {
     (new BatchSearch()).run(new Parameters(args), System.out);
   }
 
+  public String getName(){
+    return "batch-search";
+  }
+  
   @Override
   public String getHelpString() {
     return "galago batch-search <args>\n\n"

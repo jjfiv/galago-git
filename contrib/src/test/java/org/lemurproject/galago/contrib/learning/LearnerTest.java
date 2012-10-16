@@ -1,17 +1,16 @@
 /*
  *  BSD License (http://www.galagosearch.org/license)
  */
-package org.lemurproject.galago.core.learning;
+package org.lemurproject.galago.contrib.learning;
 
 import java.io.File;
 import java.util.*;
 import junit.framework.TestCase;
+import org.lemurproject.galago.contrib.util.TestingUtils;
 import org.lemurproject.galago.core.retrieval.CachedRetrieval;
-import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -30,7 +29,7 @@ public class LearnerTest extends TestCase {
     File qrels = null;
 
     try {
-      File[] files = LocalRetrievalTest.make10DocIndex();
+      File[] files = TestingUtils.make10DocIndex();
       files[0].delete(); // trecCorpus not required
       Utility.deleteDirectory(files[1]); // corpus not required
       index = files[2]; // index is required
@@ -90,7 +89,6 @@ public class LearnerTest extends TestCase {
         // node is an SDM - root and direct children are not cached - all others are cached
         assertFalse(r.isCached(root));
         for (Node child : root.getInternalNodes()) {
-          assertFalse(r.isCached(child));
           for (Node subchild : child.getInternalNodes()) {
             assertTrue(r.isCached(subchild));
           }

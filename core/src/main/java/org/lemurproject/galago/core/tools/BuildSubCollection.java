@@ -6,7 +6,6 @@ import java.util.List;
 import org.lemurproject.galago.core.index.SubCollectionWriter;
 import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.parse.UniversalCounter;
-import org.lemurproject.galago.core.tools.App.AppFunction;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -25,12 +24,17 @@ import org.lemurproject.galago.tupleflow.execution.Step;
 public class BuildSubCollection extends AppFunction {
 
   @Override
+  public String getName() {
+    return "subcollection";
+  }
+
+  @Override
   public String getHelpString() {
-      return "galago subcollection [flags] --filename=path <options> \n\n"
-              + "Takes the same parameters as the build command, except\n"
-              + "you must additionally specify the size of the collection\n"
-              + "you want retained. This job builds a meta-input file that\n"
-              + "can be used to build a subset of a full collection.";
+    return "galago subcollection [flags] --filename=path <options> \n\n"
+            + "Takes the same parameters as the build command, except\n"
+            + "you must additionally specify the size of the collection\n"
+            + "you want retained. This job builds a meta-input file that\n"
+            + "can be used to build a subset of a full collection.";
   }
 
   private Job getIndexJob(Parameters buildParameters) throws Exception {
@@ -80,6 +84,6 @@ public class BuildSubCollection extends AppFunction {
     BuildSubCollection build = new BuildSubCollection();
     job = build.getIndexJob(p);
 
-    App.runTupleFlowJob(job, p, output);
+    runTupleFlowJob(job, p, output);
   }
 }

@@ -6,15 +6,15 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import org.lemurproject.galago.core.index.corpus.SplitBTreeKeyWriter;
-import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
-import org.lemurproject.galago.core.index.disk.PositionFieldIndexWriter;
+import org.lemurproject.galago.core.index.corpus.CorpusFolderWriter;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
+import org.lemurproject.galago.core.index.corpus.SplitBTreeKeyWriter;
+import org.lemurproject.galago.core.index.disk.DiskNameReader;
+import org.lemurproject.galago.core.index.disk.PositionFieldIndexWriter;
+import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
+import org.lemurproject.galago.core.index.merge.CorpusMerger;
 import org.lemurproject.galago.core.parse.AdditionalTextCombiner;
 import org.lemurproject.galago.core.parse.AnchorTextCreator;
-import org.lemurproject.galago.core.index.corpus.CorpusFolderWriter;
-import org.lemurproject.galago.core.index.disk.DiskNameReader;
-import org.lemurproject.galago.core.index.merge.CorpusMerger;
 import org.lemurproject.galago.core.parse.DocumentNumberer;
 import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.parse.FieldLengthExtractor;
@@ -22,13 +22,12 @@ import org.lemurproject.galago.core.parse.LinkCombiner;
 import org.lemurproject.galago.core.parse.LinkExtractor;
 import org.lemurproject.galago.core.parse.NumberedDocumentDataExtractor;
 import org.lemurproject.galago.core.parse.NumberedExtentExtractor;
-import org.lemurproject.galago.core.parse.NumberedFieldExtractor;
 import org.lemurproject.galago.core.parse.NumberedExtentPostingsExtractor;
+import org.lemurproject.galago.core.parse.NumberedFieldExtractor;
 import org.lemurproject.galago.core.parse.NumberedPostingsPositionExtractor;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.NullStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
-import org.lemurproject.galago.core.tools.App.AppFunction;
 import org.lemurproject.galago.core.types.AdditionalDocumentText;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.ExtractedLink;
@@ -39,9 +38,9 @@ import org.lemurproject.galago.core.types.NumberWordPosition;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.core.types.NumberedExtent;
 import org.lemurproject.galago.core.types.NumberedField;
+import org.lemurproject.galago.tupleflow.Order;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.Order;
 import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
 import org.lemurproject.galago.tupleflow.execution.InputStep;
 import org.lemurproject.galago.tupleflow.execution.Job;
@@ -49,7 +48,6 @@ import org.lemurproject.galago.tupleflow.execution.MultiStep;
 import org.lemurproject.galago.tupleflow.execution.OutputStep;
 import org.lemurproject.galago.tupleflow.execution.Stage;
 import org.lemurproject.galago.tupleflow.execution.Step;
-import org.lemurproject.galago.tupleflow.types.SerializedParameters;
 
 /**
  *
@@ -762,6 +760,11 @@ public class BuildIndex extends AppFunction {
   }
 
   @Override
+  public String getName(){
+    return "build";
+  }
+
+  @Override
   public String getHelpString() {
     return "galago build [flags] --indexPath=<index> (--inputPath+<input>)+\n\n"
             + "  Builds a Galago StructuredIndex with TupleFlow, using one thread\n"
@@ -788,7 +791,7 @@ public class BuildIndex extends AppFunction {
             + "  --tokenizer/fields+{field-name}:   \n"
             + "                           Selects field parts to index.\n"
             + "                           [omitted]\n\n"
-            + App.getTupleFlowParameterString();
+            + getTupleFlowParameterString();
     //TODO: need to design parameters for field indexes + stemming for field indexes
   }
 
@@ -805,7 +808,7 @@ public class BuildIndex extends AppFunction {
     job = build.getIndexJob(p);
 
     if (job != null) {
-      App.runTupleFlowJob(job, p, output);
+      runTupleFlowJob(job, p, output);
     }
 
     output.println("Done Indexing.");

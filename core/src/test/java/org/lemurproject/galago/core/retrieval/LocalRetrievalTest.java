@@ -196,6 +196,7 @@ public class LocalRetrievalTest extends TestCase {
               "--inputPath=" + corpusFile.getAbsolutePath()});
 
     AppTest.verifyIndexStructures(indexFile);
+    
     File[] files = new File[3];
     files[0] = trecCorpusFile;
     files[1] = corpusFile;

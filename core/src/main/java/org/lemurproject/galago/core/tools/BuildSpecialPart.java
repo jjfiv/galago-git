@@ -15,7 +15,6 @@ import org.lemurproject.galago.core.parse.IndicatorExtractor;
 import org.lemurproject.galago.core.parse.NumberKeyValuePairs;
 import org.lemurproject.galago.core.parse.LineSplitter;
 import org.lemurproject.galago.core.parse.PriorExtractor;
-import org.lemurproject.galago.core.tools.App.AppFunction;
 import org.lemurproject.galago.core.types.DocumentFeature;
 import org.lemurproject.galago.core.types.DocumentIndicator;
 import org.lemurproject.galago.core.types.KeyValuePair;
@@ -26,34 +25,33 @@ import org.lemurproject.galago.tupleflow.execution.Stage;
 import org.lemurproject.galago.tupleflow.execution.Step;
 
 /**
- * Reads a file in a standard format
- * Writes an indicator index from the data in the file
- *  
+ * Reads a file in a standard format Writes an indicator index from the data in
+ * the file
+ *
  * Format : Document Identifier \t [true | false] \n
- * 
- * Document Identifiers not in index 
- *  will not be ignored.
- * 
+ *
+ * Document Identifiers not in index will not be ignored.
+ *
  * @author sjh
  */
 public class BuildSpecialPart extends AppFunction {
 
   static PrintStream output;
 
-  public Stage getSpecialJobStage(String jobName, Parameters p){
+  public Stage getSpecialJobStage(String jobName, Parameters p) {
 
     Parameters parserParams = new Parameters();
     parserParams.set("inputPath", new ArrayList());
-    for(String filePath : (List<String>) p.getAsList("inputPath")){
-      parserParams.getList("inputPath").add( new File(filePath).getAbsolutePath() );
+    for (String filePath : (List<String>) p.getAsList("inputPath")) {
+      parserParams.getList("inputPath").add(new File(filePath).getAbsolutePath());
     }
 
     Parameters splitterParams = new Parameters();
     splitterParams.set("split", p.get("split", "\t"));
-    
+
     Parameters indexParams = new Parameters();
     indexParams.set("indexPath", p.getString("indexPath"));
-    
+
     Stage stage = new Stage(jobName);
     stage.add(new Step(FileLineParser.class, parserParams));
     stage.add(new Step(LineSplitter.class, splitterParams));
@@ -62,19 +60,19 @@ public class BuildSpecialPart extends AppFunction {
 
     return stage;
   }
-  
+
   public Job getIndicatorJob(Parameters p) throws IOException, ClassNotFoundException {
     String indexPath = new File(p.getString("indexPath")).getAbsolutePath(); // fail if no path.
     p.set("indexPath", indexPath);
     assert (new File(indexPath).isDirectory());
-    
+
     // get all defaulty steps.
     Stage stage = getSpecialJobStage("indicatorIndexer", p);
-    
+
     // add final steps
     stage.add(new Step(IndicatorExtractor.class, p));
     stage.add(Utility.getSorter(new DocumentIndicator.DocumentOrder()));
-    
+
     Parameters writerParams = new Parameters();
     writerParams.set("filename", indexPath + File.separator + p.getString("partName"));
     writerParams.set("default", p.get("default", false));
@@ -93,10 +91,10 @@ public class BuildSpecialPart extends AppFunction {
 
     // get all defaulty steps.
     Stage stage = getSpecialJobStage("priorIndexer", p);
-    
+
     stage.add(new Step(PriorExtractor.class, p));
     stage.add(Utility.getSorter(new DocumentFeature.DocumentOrder()));
-    
+
     Parameters writerParams = new Parameters();
     writerParams.set("filename", indexPath + File.separator + p.getString("partName"));
     stage.add(new Step(DocumentPriorWriter.class, writerParams));
@@ -105,6 +103,11 @@ public class BuildSpecialPart extends AppFunction {
     job.add(stage);
 
     return job;
+  }
+
+  @Override
+  public String getName() {
+    return "build-special";
   }
 
   @Override
@@ -132,7 +135,7 @@ public class BuildSpecialPart extends AppFunction {
             + "                     prior: [default=-inf\n\n"
             + "  --priorType={raw|prob|logprob}: Sets the type of prior to read. (Only for prior parts)\n"
             + "                            [default=raw]\n\n"
-            + App.getTupleFlowParameterString();
+            + getTupleFlowParameterString();
   }
 
   @Override
@@ -151,6 +154,6 @@ public class BuildSpecialPart extends AppFunction {
       job = build.getPriorJob(p);
     }
 
-    App.runTupleFlowJob(job, p, output);
+    runTupleFlowJob(job, p, output);
   }
 }

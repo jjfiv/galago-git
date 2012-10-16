@@ -6,6 +6,9 @@ import java.io.File;
 import java.io.PrintStream;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
+import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.RetrievalFactory;
+import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -23,25 +26,12 @@ public class AppTest extends TestCase {
             + "<TEXT>\n" + text + "</TEXT>\n</DOC>\n";
   }
 
-  public static void verifyIndexStructures(File indexPath) {
+  public static void verifyIndexStructures(File indexPath) throws Exception {
     // Check main path
     assertTrue(indexPath.isDirectory());
-
     // Time to check standard parts
-
-    // Manifest
-    //File childPath = new File(indexPath, "manifest");
-    //assertTrue(childPath.exists());
-
-    // doc lengths
-    File childPath = new File(indexPath, "lengths");
-    assertTrue(childPath.exists());
-
-    // doc names -- there are two files
-    childPath = new File(indexPath, "names");
-    assertTrue(childPath.exists());
-    childPath = new File(indexPath, "names.reverse");
-    assertTrue(childPath.exists());
+    Retrieval ret = RetrievalFactory.instance(indexPath.getAbsolutePath(), new Parameters());
+    Parameters availableParts = ret.getAvailableParts();
   }
 
   public void testMakeCorpora() throws Exception {
@@ -164,7 +154,7 @@ public class AppTest extends TestCase {
       ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
       PrintStream printStream = new PrintStream(byteArrayStream);
 
-      new App().run(new String[]{"batch-search",
+      App.run(new String[]{"batch-search",
                 "--index=" + indexFile.getAbsolutePath(),
                 queryFile1.getAbsolutePath()}, printStream);
 
@@ -191,7 +181,7 @@ public class AppTest extends TestCase {
       byteArrayStream = new ByteArrayOutputStream();
       printStream = new PrintStream(byteArrayStream);
 
-      new App().run(new String[]{"dump-keys", corpusFile.getAbsolutePath() + File.separator + "split.keys"}, printStream);
+      App.run(new String[]{"dump-keys", corpusFile.getAbsolutePath() + File.separator + "split.keys"}, printStream);
       output = byteArrayStream.toString();
       assertEquals("0\n1\n", output);
 
@@ -199,7 +189,7 @@ public class AppTest extends TestCase {
       byteArrayStream = new ByteArrayOutputStream();
       printStream = new PrintStream(byteArrayStream);
 
-      new App().run(new String[]{"doc", "--index=" + indexFile.getAbsolutePath(), "--id='55'"}, printStream);
+      App.run(new String[]{"doc", "--index=" + indexFile.getAbsolutePath(), "--id='55'"}, printStream);
       output = byteArrayStream.toString();
 //      assertEquals("#IDENTIFIER: 55\n<TEXT>\nThis is a sample document</TEXT>\n\n", output);
 
@@ -209,7 +199,7 @@ public class AppTest extends TestCase {
 
       String postingsName = Utility.join(new String[]{indexFile.getAbsolutePath(),
                 "postings.porter"}, File.separator);
-      new App().run(new String[]{"dump-index", postingsName}, printStream);
+      App.run(new String[]{"dump-index", postingsName}, printStream);
       output = byteArrayStream.toString();
       String correct = "a,0,2\n"
               + "document,0,4\n"
@@ -232,7 +222,7 @@ public class AppTest extends TestCase {
       Utility.copyStringToFile("9 Q0 55 1\n", relsFile);
 
       // for now this is just a smoke test.
-      new App().run(new String[]{"eval",
+      App.run(new String[]{"eval",
                 "--baseline=" + scoresFile.getAbsolutePath(),
                 "--judgments=" + relsFile.getAbsolutePath()},
               printStream);
@@ -250,7 +240,7 @@ public class AppTest extends TestCase {
       byteArrayStream = new ByteArrayOutputStream();
       printStream = new PrintStream(byteArrayStream);
       // now check xcount and doccount
-      new App().run(new String[]{"xcount",
+      App.run(new String[]{"xcount",
                 "--index=" + indexFile.getAbsolutePath(),
                 queryFile2.getAbsolutePath()}, printStream);
       output = byteArrayStream.toString();
@@ -258,7 +248,7 @@ public class AppTest extends TestCase {
               + "1\t#counts:a:part=postings()\n"
               + "1\t#counts:a:part=postings.porter()\n";
 
-      assertEquals(expected, output);
+       assertEquals(expected, output);
 
     } finally {
       if (relsFile != null) {

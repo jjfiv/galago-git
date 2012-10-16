@@ -7,12 +7,9 @@ import java.io.PrintStream;
 import java.util.List;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.Order;
-import org.lemurproject.galago.core.tools.App.AppFunction;
 import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
 import org.lemurproject.galago.tupleflow.execution.InputStep;
 import org.lemurproject.galago.tupleflow.execution.Job;
-import org.lemurproject.galago.tupleflow.execution.MultiStep;
 import org.lemurproject.galago.tupleflow.execution.OutputStep;
 import org.lemurproject.galago.tupleflow.execution.Stage;
 import org.lemurproject.galago.tupleflow.execution.Step;
@@ -23,77 +20,81 @@ import org.lemurproject.galago.core.parse.*;
 
 public class BuildWordDateIndex extends AppFunction {
 
-    public Stage getGenerateWordDatesStage(String name, 
-					   String inStream,
-					   String outStream,
-					   Parameters p) {
-	Stage stage = new Stage(name);
-	stage.addInput(inStream, new DocumentSplit.FileIdOrder());
-	stage.addOutput(outStream, new WordDateCount.WordDateOrder());
+  public Stage getGenerateWordDatesStage(String name,
+          String inStream,
+          String outStream,
+          Parameters p) {
+    Stage stage = new Stage(name);
+    stage.addInput(inStream, new DocumentSplit.FileIdOrder());
+    stage.addOutput(outStream, new WordDateCount.WordDateOrder());
 
-	stage.add(new InputStep(inStream));
-	stage.add(BuildStageTemplates.getParserStep(p));
-	stage.add(new Step(DateTokenizer.class));
-	stage.add(Utility.getSorter(new WordDateCount.WordDateOrder(),
-				    WordDateReducer.class));
-	stage.add(new OutputStep(outStream));
-	return stage;
-    }
+    stage.add(new InputStep(inStream));
+    stage.add(BuildStageTemplates.getParserStep(p));
+    stage.add(new Step(DateTokenizer.class));
+    stage.add(Utility.getSorter(new WordDateCount.WordDateOrder(),
+            WordDateReducer.class));
+    stage.add(new OutputStep(outStream));
+    return stage;
+  }
 
-    public Stage getWriteWordDatesStage(String name,
-					String inStream,
-					Parameters p) throws IOException {
-	Stage stage = new Stage(name);
-	stage.addInput(inStream, new WordDateCount.WordDateOrder());
-	stage.add(new InputStep(inStream));
-	Parameters copy = p.clone();
-	copy.set("filename", new File(p.getString("filename"), "postings").getCanonicalPath());
-	stage.add(new Step(WordDateCountWriter.class, copy));
-	return stage;
-    }
+  public Stage getWriteWordDatesStage(String name,
+          String inStream,
+          Parameters p) throws IOException {
+    Stage stage = new Stage(name);
+    stage.addInput(inStream, new WordDateCount.WordDateOrder());
+    stage.add(new InputStep(inStream));
+    Parameters copy = p.clone();
+    copy.set("filename", new File(p.getString("filename"), "postings").getCanonicalPath());
+    stage.add(new Step(WordDateCountWriter.class, copy));
+    return stage;
+  }
 
-    public Job getWordDateJob(Parameters jobParameters) throws Exception {
-	Job job = new Job();
-	
-	String wdPath = jobParameters.getString("indexPath");
-	File manifest = new File(wdPath, "buildManifest.json");
-	Utility.makeParentDirectories(manifest);
-	Utility.copyStringToFile(jobParameters.toPrettyString(), manifest);
-	
-	List<String> inputPaths = jobParameters.getAsList("inputPath");
-	Parameters splitParameters = jobParameters.get("parser", new Parameters()).clone();
-	job.add(BuildStageTemplates.getSplitStage(inputPaths,
-						  DocumentSource.class,
-						  new DocumentSplit.FileIdOrder(),
-						  splitParameters));
-	job.add(getGenerateWordDatesStage("generateWordDates",
-					  "splits",
-					  "worddates",
-					  jobParameters));
-	Parameters writeParameters = new Parameters();
-	writeParameters.set("filename", jobParameters.getString("indexPath"));
-	job.add(getWriteWordDatesStage("writeWordDates", "worddates", writeParameters));
+  public Job getWordDateJob(Parameters jobParameters) throws Exception {
+    Job job = new Job();
 
-	job.connect("inputSplit", "generateWordDates", ConnectionAssignmentType.Each);
-	job.connect("generateWordDates", "writeWordDates", ConnectionAssignmentType.Combined);
-	return job;
-    }
+    String wdPath = jobParameters.getString("indexPath");
+    File manifest = new File(wdPath, "buildManifest.json");
+    Utility.makeParentDirectories(manifest);
+    Utility.copyStringToFile(jobParameters.toPrettyString(), manifest);
 
+    List<String> inputPaths = jobParameters.getAsList("inputPath");
+    Parameters splitParameters = jobParameters.get("parser", new Parameters()).clone();
+    job.add(BuildStageTemplates.getSplitStage(inputPaths,
+            DocumentSource.class,
+            new DocumentSplit.FileIdOrder(),
+            splitParameters));
+    job.add(getGenerateWordDatesStage("generateWordDates",
+            "splits",
+            "worddates",
+            jobParameters));
+    Parameters writeParameters = new Parameters();
+    writeParameters.set("filename", jobParameters.getString("indexPath"));
+    job.add(getWriteWordDatesStage("writeWordDates", "worddates", writeParameters));
+
+    job.connect("inputSplit", "generateWordDates", ConnectionAssignmentType.Each);
+    job.connect("generateWordDates", "writeWordDates", ConnectionAssignmentType.Combined);
+    return job;
+  }
 
   @Override
   public void run(Parameters p, PrintStream output) throws Exception {
-      if (!p.isString("path") && !p.isList("inputPath")) {
-	  output.println(getHelpString());
-	  return;
-      }
-      
-      Job job;
-      BuildWordDateIndex dIndex = new BuildWordDateIndex();
-      job = dIndex.getWordDateJob(p);
-      
-      if (job != null) {
-	  App.runTupleFlowJob(job, p, output);
-      }
+    if (!p.isString("path") && !p.isList("inputPath")) {
+      output.println(getHelpString());
+      return;
+    }
+
+    Job job;
+    BuildWordDateIndex dIndex = new BuildWordDateIndex();
+    job = dIndex.getWordDateJob(p);
+
+    if (job != null) {
+      runTupleFlowJob(job, p, output);
+    }
+  }
+
+  @Override
+  public String getName() {
+    return "build-word-dates";
   }
 
   @Override
@@ -104,7 +105,7 @@ public class BuildWordDateIndex extends AppFunction {
             + "          specified as you like.  Galago can read html, xml, txt, \n"
             + "          arc (Heritrix), warc, trectext, trecweb and corpus files.\n"
             + "          Files may be gzip compressed (.gz|.bz).\n"
-	    + "<dir>:    The directory path for the produced pictures.\n\n"
-            + App.getTupleFlowParameterString();
+            + "<dir>:    The directory path for the produced pictures.\n\n"
+            + getTupleFlowParameterString();
   }
 }

@@ -14,7 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.tools.App;
-import org.lemurproject.galago.core.tools.App.AppFunction;
+import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentMappingData;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -133,6 +133,11 @@ public class MergeIndex extends AppFunction {
 
   // static main functions
   @Override
+  public String getName(){
+    return "merge-index";
+  }
+  
+  @Override
   public String getHelpString() {
     return "galago merge-index \n\n"
             + "  Merges 2 or more indexes. Assumes that the document numberings\n"
@@ -142,7 +147,7 @@ public class MergeIndex extends AppFunction {
             + "  --indexPath={/path/to/output} : Path to output index.\n"
             + "  --renumberDocuments={true|false} : Boolean determines if new document identifiers should be generated.\n"
             + "                                   [default=true]\n\n"
-            + App.getTupleFlowParameterString();
+            + getTupleFlowParameterString();
   }
 
   @Override
@@ -155,6 +160,6 @@ public class MergeIndex extends AppFunction {
 
     MergeIndex build = new MergeIndex();
     Job job = build.getJob(p);
-    App.runTupleFlowJob(job, p, output);
+    runTupleFlowJob(job, p, output);
   }
 }

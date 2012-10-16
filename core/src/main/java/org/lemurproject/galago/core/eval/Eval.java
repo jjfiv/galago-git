@@ -1,19 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.eval;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluator;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluatorFactory;
 import org.lemurproject.galago.core.eval.compare.QuerySetComparator;
 import org.lemurproject.galago.core.eval.compare.QuerySetComparatorFactory;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.core.tools.App.AppFunction;
+import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Parameters.Type;
 
@@ -26,6 +21,12 @@ import org.lemurproject.galago.tupleflow.Parameters.Type;
  */
 public class Eval extends AppFunction {
   
+  @Override
+  public String getName(){
+    return "eval";
+  }
+  
+  @Override
   public String getHelpString() {
     return "galago eval <parameters>+: \n"
             + "Parameters:\n"
