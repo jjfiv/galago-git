@@ -36,6 +36,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.processing.ActiveContext;
 import org.lemurproject.galago.core.retrieval.structured.ContextFactory;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -261,6 +262,10 @@ public class LocalRetrieval implements Retrieval {
 
     if (context != null && ContextualIterator.class.isAssignableFrom(iterator.getClass())) {
       ((ContextualIterator) iterator).setContext(context);
+    }
+
+    if (context != null && ActiveContext.class.isAssignableFrom(context.getClass())) {
+      ((ActiveContext) context).checkIterator(node, iterator);
     }
 
     // we've created a new iterator - add to the cache for future nodes

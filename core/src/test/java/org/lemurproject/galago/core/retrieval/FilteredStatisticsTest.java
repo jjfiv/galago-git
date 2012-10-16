@@ -88,10 +88,14 @@ public class FilteredStatisticsTest extends TestCase {
     
     ScoredDocument[] results = retrieval.runQuery(root, p);
 
+    for(ScoredDocument res : results){
+      System.err.println(res.toString());
+    }
+    
     assertEquals(2, results.length);
     assertEquals(3, results[0].document);
-    assertEquals(-5.819614, results[0].score, 0.0001);
+    assertEquals(-4.856893, results[0].score, 0.0001);
     assertEquals(18, results[1].document);
-    assertEquals(-5.937809, results[1].score, 0.0001);
+    assertEquals(-4.919475, results[1].score, 0.0001);
   }
 }

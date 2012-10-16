@@ -118,7 +118,7 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
               try {
                 int count = ci.count();
                 if (count > 0) {
-                  System.out.printf("node=%s,tf+=%d,df+=1\n", n.toString(), count);
+                  // System.out.printf("node=%s,tf+=%d,df+=1\n", n.toString(), count);
                   fssContext.tfs.adjustOrPutValue(n, count, count);
                   fssContext.dfs.adjustOrPutValue(n, 1, 1);
                 }
