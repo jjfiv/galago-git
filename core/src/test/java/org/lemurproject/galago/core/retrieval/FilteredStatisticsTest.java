@@ -86,8 +86,8 @@ public class FilteredStatisticsTest extends TestCase {
 
     assertEquals(2, results.length);
     assertEquals(3, results[0].document);
-    assertEquals(-5.819614, results[0].score, 0.0001);
+    assertEquals(-4.9214314, results[0].score, 0.0001);
     assertEquals(18, results[1].document);
-    assertEquals(-5.937809, results[1].score, 0.0001);
+    assertEquals(-4.9840130, results[1].score, 0.0001);
   }
 }
