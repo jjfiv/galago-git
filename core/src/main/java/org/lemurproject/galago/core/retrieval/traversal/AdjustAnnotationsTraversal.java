@@ -27,8 +27,9 @@ public class AdjustAnnotationsTraversal extends Traversal {
 
   @Override
   public void beforeNode(Node object) throws Exception {
-    if (object.numChildren() > 0 && object.getOperator().equals("feature")) {
-      Node key = object.getChild(0);
+    if (object.numChildren() == 2 && object.getOperator().equals("feature")) {
+      // second child is the count node
+      Node key = object.getChild(1);
       // Update statistics in place.
       NodeParameters np = object.getNodeParameters();
       if (np.containsKey("nodeFrequency")) {

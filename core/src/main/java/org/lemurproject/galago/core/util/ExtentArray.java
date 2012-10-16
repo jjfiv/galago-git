@@ -80,4 +80,8 @@ public class ExtentArray {
   public void reset() {
     _position = 0;
   }
+  
+  public String toString(){
+    return String.format("ExtentArray:doc=%d:count=%d", document, _position);
+  }
 }

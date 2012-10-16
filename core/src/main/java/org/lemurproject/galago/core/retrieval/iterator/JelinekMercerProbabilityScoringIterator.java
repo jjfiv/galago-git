@@ -11,28 +11,19 @@ import org.lemurproject.galago.core.scoring.JelinekMercerProbabilityScorer;
  *
  * @author irmarc
  */
-@RequiredStatistics(statistics = {"collectionProbability"})
+@RequiredStatistics(statistics = {"maximumCount","collectionLength","nodeFrequency"})
 @RequiredParameters(parameters = {"lambda"})
 public class JelinekMercerProbabilityScoringIterator extends ScoringFunctionIterator {
 
   protected double loweredMaximum = Double.POSITIVE_INFINITY;
   protected String partName;
 
-  public JelinekMercerProbabilityScoringIterator(NodeParameters p, MovableCountIterator it)
+  public JelinekMercerProbabilityScoringIterator(NodeParameters p, 
+          MovableLengthsIterator ls, MovableCountIterator it)
           throws IOException {
-    super(p, it, new JelinekMercerProbabilityScorer(p, it));
+    super(p, ls, it);
+    this.setScoringFunction(new JelinekMercerProbabilityScorer(p, it));
     partName = p.getString("lengths");
-  }
-
-  @Override
-  public double score() {
-    int count = 0;
-
-    if (iterator.currentCandidate() == context.document) {
-      count = ((CountIterator) iterator).count();
-    }
-    double score = function.score(count, context.getLength(partName));
-    return score;
   }
 
   /**

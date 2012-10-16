@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.lemurproject.galago.core.index.LengthsReader;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 
 /**
  * Currently represents the context that the entire query processor shares. This
@@ -18,15 +19,15 @@ import org.lemurproject.galago.core.index.LengthsReader;
 public class ScoringContext {
 
   public int document;
-  protected HashMap<String, LengthsReader.LengthsIterator> lengths;
+  protected HashMap<String, MovableLengthsIterator> lengths;
   protected TObjectIntHashMap<String> current;
 
   public ScoringContext() {
-    lengths = new HashMap<String, LengthsReader.LengthsIterator>();
+    lengths = new HashMap<String, MovableLengthsIterator>();
     current = new TObjectIntHashMap<String>();
   }
 
-  public void addLength(String key, LengthsReader.LengthsIterator iterator) {
+  public void addLength(String key, MovableLengthsIterator iterator) {
     lengths.put(key, iterator);
   }
 
@@ -48,7 +49,7 @@ public class ScoringContext {
 
   public void moveLengths(int position) {
     try {
-      for (Map.Entry<String, LengthsReader.LengthsIterator> pair : lengths.entrySet()) {
+      for (Map.Entry<String, MovableLengthsIterator> pair : lengths.entrySet()) {
         if (pair == null) {
           System.err.printf("Missing pair.\n");
         } else if (pair.getValue() == null) {

@@ -9,7 +9,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 import junit.framework.TestCase;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
+import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.BuildIndex;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -116,10 +120,22 @@ public class UniversalParserTest extends TestCase {
       BuildIndex bi = new BuildIndex();
       bi.run(p, System.err);
 
-      DiskIndex di = new DiskIndex(index.getAbsolutePath());
+      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), new Parameters());
 
-      assertEquals (di.getCollectionStatistics().documentCount , 32);
-      assertEquals (di.getCollectionStatistics().collectionLength, 553);
+      CollectionStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
+      assertEquals(cs.collectionLength, 553);
+      assertEquals(cs.documentCount, 32);
+      assertEquals(cs.maxLength, 22);
+      assertEquals(cs.minLength, 11);
+
+      IndexPartStatistics is1 = ret.getIndexPartStatistics("postings");
+      assertEquals(is1.collectionLength, 553);
+
+      IndexPartStatistics is2 = ret.getIndexPartStatistics("postings.porter");
+      assertEquals(is2.collectionLength, 553);
+
+      // should have about the same vocabs
+      assertEquals(is1.vocabCount, is2.vocabCount);
 
     } finally {
       Utility.deleteDirectory(index);
@@ -147,10 +163,22 @@ public class UniversalParserTest extends TestCase {
       BuildIndex bi = new BuildIndex();
       bi.run(p, System.err);
 
-      DiskIndex di = new DiskIndex(index.getAbsolutePath());
+      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), new Parameters());
 
-      assertEquals (di.getCollectionStatistics().documentCount , 6);
-      assertEquals (di.getCollectionStatistics().collectionLength , 129);
+      CollectionStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
+      assertEquals(cs.collectionLength, 129);
+      assertEquals(cs.documentCount, 6);
+      assertEquals(cs.maxLength, 22);
+      assertEquals(cs.minLength, 21);
+
+      IndexPartStatistics is1 = ret.getIndexPartStatistics("postings");
+      assertEquals(is1.collectionLength, 129);
+
+      IndexPartStatistics is2 = ret.getIndexPartStatistics("postings.porter");
+      assertEquals(is2.collectionLength, 129);
+
+      // should have about the same vocabs
+      assertEquals(is1.vocabCount, is2.vocabCount);
 
     } finally {
       Utility.deleteDirectory(index);
@@ -174,17 +202,29 @@ public class UniversalParserTest extends TestCase {
       p.set("indexPath", index.getAbsolutePath());
       p.set("parser", new Parameters());
       p.getMap("parser").set("externalParsers", new ArrayList<Parameters>());
-      p.getMap("parser").getList("externalParsers").add(Parameters.parse( "{\"filetype\" : \"qqe\", \"class\" :\""+TrecTextParser.class.getName()+"\"}"));
-      p.getMap("parser").getList("externalParsers").add(Parameters.parse( "{\"filetype\" : \"q2e\", \"class\" :\""+TrecWebParser.class.getName()+"\"}"));
-      p.getMap("parser").getList("externalParsers").add(Parameters.parse( "{\"filetype\" : \"trecweb\", \"class\" :\""+TrecTextParser.class.getName()+"\"}"));
-      
+      p.getMap("parser").getList("externalParsers").add(Parameters.parse("{\"filetype\" : \"qqe\", \"class\" :\"" + TrecTextParser.class.getName() + "\"}"));
+      p.getMap("parser").getList("externalParsers").add(Parameters.parse("{\"filetype\" : \"qwe\", \"class\" :\"" + TrecWebParser.class.getName() + "\"}"));
+      p.getMap("parser").getList("externalParsers").add(Parameters.parse("{\"filetype\" : \"trecweb\", \"class\" :\"" + TrecTextParser.class.getName() + "\"}"));
+
       BuildIndex bi = new BuildIndex();
       bi.run(p, System.err);
 
-      DiskIndex di = new DiskIndex(index.getAbsolutePath());
+      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), new Parameters());
 
-      assertEquals (di.getCollectionStatistics().documentCount, 41);
-      assertEquals (di.getCollectionStatistics().collectionLength, 622);
+      CollectionStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
+      assertEquals(cs.collectionLength, 822);
+      assertEquals(cs.documentCount, 41); 
+      assertEquals(cs.maxLength, 22);
+      assertEquals(cs.minLength, 20);
+
+      IndexPartStatistics is1 = ret.getIndexPartStatistics("postings");
+      assertEquals(is1.collectionLength, 822);
+
+      IndexPartStatistics is2 = ret.getIndexPartStatistics("postings.porter");
+      assertEquals(is2.collectionLength, 822);
+
+      // should have about the same vocabs
+      assertEquals(is1.vocabCount, is2.vocabCount);
 
     } finally {
       Utility.deleteDirectory(index);

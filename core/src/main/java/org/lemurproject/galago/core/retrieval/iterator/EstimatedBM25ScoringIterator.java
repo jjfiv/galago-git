@@ -21,7 +21,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author irmarc
  */
-@RequiredStatistics(statistics = {"collectionLength", "documentCount"})
+@RequiredStatistics(statistics = {"maximumCount","collectionLength", "documentCount"})
 @RequiredParameters(parameters = {"w", "syntheticCounts"})
 public class EstimatedBM25ScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator, Estimator {
@@ -35,15 +35,15 @@ public class EstimatedBM25ScoringIterator extends ScoringFunctionIterator
   public double lowEstimate, hiEstimate;
   boolean storedSyntheticCounts;
 
-  public EstimatedBM25ScoringIterator(NodeParameters p, MinimumCountConjunctionIterator it)
+  public EstimatedBM25ScoringIterator(NodeParameters p, MovableLengthsIterator ls, MinimumCountConjunctionIterator it)
           throws IOException {
-    super(p, it, null); // have to fake it at first
+    super(p, ls, it); // have to fake it at first
     mcci = it;
     range = new double[2];
     weight = p.getDouble("w");
     documentCount = 0.0 + p.getLong("documentCount");
     p.set("nodeDocumentCount", 1);
-    function = new BM25Scorer(p, it);
+    this.setScoringFunction(new BM25Scorer(p, it));
 
     // (4) -- see below in setContext
     if (p.containsKey("maximumCount")) {

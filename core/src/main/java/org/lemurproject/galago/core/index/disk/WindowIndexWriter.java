@@ -57,10 +57,8 @@ public class WindowIndexWriter implements
   byte[] lastWord;
   long vocabCount = 0;
   long collectionLength = 0;
-  boolean estimateDocumentCount = false;
-  long longestPostingList = 0;
-  boolean calculateDocumentCount = false;
-  TIntHashSet uniqueDocSet;
+  long highestFrequency = 0;
+  long highestDocumentCount = 0;
   // skipping parameters
   int options = 0;
   int skipDistance;
@@ -78,28 +76,6 @@ public class WindowIndexWriter implements
     actualParams.set("readerClass", WindowIndexReader.class.getName());
     actualParams.set("defaultOperator", "counts");
 
-    // vocab and collection length can be calculated - doc count is more complex
-    // option 1: predefined doccount
-    if (actualParams.containsKey("statistics/documentCount")) {
-      // great.
-      // option 2: there is a doccount pipe
-    } else if (actualParams.isString("pipename")) {
-      Parameters docCounts = NumericParameterAccumulator.accumulateParameters(parameters.getTypeReader(actualParams.getString("pipename")));
-      actualParams.set("statistics/documentCount", docCounts.getMap("documentCount").getLong("global"));
-
-      // option 3: estimated document count - as longest posting list
-    } else if (actualParams.isBoolean("estimateDocumentCount")) {
-      estimateDocumentCount = true;
-      longestPostingList = 0;
-
-      // option 4: default option - calculate document count (this may be a problem - it requires memory)
-    } else {
-      actualParams.set("calculateDocumentCount", true);
-      calculateDocumentCount = true;
-      uniqueDocSet = new TIntHashSet();
-    }
-
-
     writer = new DiskBTreeWriter(parameters);
 
     // look for skips
@@ -114,9 +90,8 @@ public class WindowIndexWriter implements
   @Override
   public void processExtentName(byte[] wordBytes) throws IOException {
     if (invertedList != null) {
-      if (estimateDocumentCount) {
-        longestPostingList = Math.max(longestPostingList, invertedList.documentCount);
-      }
+      highestDocumentCount = Math.max(highestDocumentCount, invertedList.documentCount);
+      highestFrequency = Math.max(highestFrequency, invertedList.totalWindowCount);
       collectionLength += invertedList.totalWindowCount;
       invertedList.close();
       writer.add(invertedList);
@@ -135,14 +110,10 @@ public class WindowIndexWriter implements
   @Override
   public void processNumber(long document) throws IOException {
     invertedList.addDocument(document);
-    if (calculateDocumentCount) {
-      this.uniqueDocSet.add((int) document);
-    }
   }
 
   @Override
   public void processBegin(int begin) throws IOException {
-    //invertedList.addBegin(begin);
     currentBegin = begin;
   }
 
@@ -151,13 +122,11 @@ public class WindowIndexWriter implements
     invertedList.addWindow(currentBegin, end);
   }
 
-
   @Override
   public void close() throws IOException {
     if (invertedList != null) {
-      if (estimateDocumentCount) {
-        longestPostingList = Math.max(longestPostingList, invertedList.documentCount);
-      }
+      highestDocumentCount = Math.max(highestDocumentCount, invertedList.documentCount);
+      highestFrequency = Math.max(highestFrequency, invertedList.totalWindowCount);
       collectionLength += invertedList.totalWindowCount;
       invertedList.close();
       writer.add(invertedList);
@@ -165,22 +134,10 @@ public class WindowIndexWriter implements
 
     // Add stats to the manifest if needed
     Parameters manifest = writer.getManifest();
-    if (!manifest.isLong("statistics/collectionLength")) {
-      manifest.set("statistics/collectionLength", collectionLength);
-    }
-    if (!manifest.isLong("statistics/vocabCount")) {
-      manifest.set("statistics/vocabCount", vocabCount);
-    }
-    if (!manifest.isLong("statistics/documentCount")) {
-      if (this.estimateDocumentCount) {
-        manifest.set("statistics/documentCount", this.longestPostingList);
-      } else if (this.calculateDocumentCount) {
-        manifest.set("statistics/documentCount", this.uniqueDocSet.size());
-        this.uniqueDocSet.clear();
-      } else {
-        Logger.getLogger(this.getClass().getName()).info("Could NOT find, calculate, or estimate a document count.");
-      }
-    }
+    manifest.set("statistics/collectionLength", collectionLength);
+    manifest.set("statistics/vocabCount", vocabCount);
+    manifest.set("statistics/highestDocumentCount", this.highestDocumentCount);
+    manifest.set("statistics/highestFrequency", this.highestFrequency);
 
     writer.close();
   }

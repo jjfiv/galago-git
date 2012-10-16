@@ -73,11 +73,9 @@ public class CachedRetrievalTest extends TestCase {
       Node count = StructuredQuery.parse("#counts:is:part=postings()");
       cachedRet.addToCache(count);
 
-      NodeStatistics diskNS = ret.nodeStatistics(count);
-      NodeStatistics cachedNS = cachedRet.nodeStatistics(count);
+      NodeStatistics diskNS = ret.getNodeStatistics(count);
+      NodeStatistics cachedNS = cachedRet.getNodeStatistics(count);
 
-      assertEquals(diskNS.collectionLength, cachedNS.collectionLength);
-      assertEquals(diskNS.documentCount, cachedNS.documentCount);
       assertEquals(diskNS.nodeDocumentCount, cachedNS.nodeDocumentCount);
       assertEquals(diskNS.nodeFrequency, cachedNS.nodeFrequency);
 
@@ -97,11 +95,9 @@ public class CachedRetrievalTest extends TestCase {
       Node extent = StructuredQuery.parse("#extents:sample:part=postings()");
       cachedRet.addToCache(extent);
 
-      diskNS = ret.nodeStatistics(extent);
-      cachedNS = cachedRet.nodeStatistics(extent);
+      diskNS = ret.getNodeStatistics(extent);
+      cachedNS = cachedRet.getNodeStatistics(extent);
 
-      assertEquals(diskNS.collectionLength, cachedNS.collectionLength);
-      assertEquals(diskNS.documentCount, cachedNS.documentCount);
       assertEquals(diskNS.nodeDocumentCount, cachedNS.nodeDocumentCount);
       assertEquals(diskNS.nodeFrequency, cachedNS.nodeFrequency);
 

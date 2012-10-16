@@ -12,6 +12,7 @@ import junit.framework.*;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.FakeLengthIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.scoring.ScoringFunction;
@@ -40,8 +41,9 @@ public class ScoringFunctionIteratorTest extends TestCase {
 
   public static class FakeScoreIterator extends ScoringFunctionIterator {
 
-    public FakeScoreIterator(MovableCountIterator iter) throws IOException {
-      super(new NodeParameters(), iter, new FakeScorer());
+    public FakeScoreIterator(MovableLengthsIterator ls, MovableCountIterator iter) throws IOException {
+      super(new NodeParameters(), ls, iter);
+      this.setScoringFunction(new FakeScorer());
     }
 
     public double scoreCount(int count, int length) {
@@ -52,17 +54,17 @@ public class ScoringFunctionIteratorTest extends TestCase {
   public void testScore() throws IOException {
 
     int[][] data = {{1, 3}, {5, 8, 9}};
-    FakeExtentIterator extentIterator = new FakeExtentIterator(data);
-    FakeScoreIterator scoreIterator = new FakeScoreIterator(extentIterator);
-
     int[] docs = {1, 2, 5};
     int[] lengths = {3, 5, 10};
-    FakeLengthIterator lengthIterator = new FakeLengthIterator(docs, lengths);
-
+    FakeExtentIterator iterator = new FakeExtentIterator(data);
+    FakeLengthIterator lens = new FakeLengthIterator(docs, lengths);
+    FakeScoreIterator scoreIterator = new FakeScoreIterator(lens, iterator);
+    scoreIterator.setScoringFunction( new FakeScorer() );
+    
     ScoringContext ctx = new ScoringContext();
-    ctx.addLength("", lengthIterator);
-    lengthIterator.setContext(ctx);
-    extentIterator.setContext(ctx);
+    ctx.addLength("", lens);
+    iterator.setContext(ctx);
+    lens.setContext(ctx);
     scoreIterator.setContext(ctx);
     
     assertFalse(scoreIterator.isDone());

@@ -16,9 +16,10 @@ import org.lemurproject.galago.core.scoring.BM25RFScorer;
  */
 public class BM25RFScoringIterator extends ScoringFunctionIterator {
 
-  public BM25RFScoringIterator(NodeParameters p, MovableCountIterator it)
+  public BM25RFScoringIterator(NodeParameters p, MovableLengthsIterator ls, MovableCountIterator it)
           throws IOException {
-    super(p, it, new BM25RFScorer(p, it));
+    super(p, ls, it);
+    this.setScoringFunction(new BM25RFScorer(p, it));
   }
 
   /**
@@ -32,7 +33,7 @@ public class BM25RFScoringIterator extends ScoringFunctionIterator {
   @Override
   public double score() {
     if (iterator.currentCandidate() == context.document) {
-      return function.score(((CountIterator) iterator).count(), context.getLength());
+      return function.score(((CountIterator) iterator).count(), lengthsIterator.getCurrentLength());
     } else {
       return 0;
     }
@@ -44,6 +45,7 @@ public class BM25RFScoringIterator extends ScoringFunctionIterator {
    *
    * @return
    */
+  @Override
   public double maximumScore() {
     return function.score(0, 0);
   }
@@ -54,6 +56,7 @@ public class BM25RFScoringIterator extends ScoringFunctionIterator {
    *
    * @return
    */
+  @Override
   public double minimumScore() {
     return function.score(0, 0);
   }

@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
@@ -23,9 +24,9 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * Provides a facility to map labels to an abstract retrieval. Therefore, if you
  * want a set of retrievals to be grouped under the "civil war" label, you can
  * tie them together using a MultiRetrieval, and list it here under "civil war".
- * 
- * Note that the GroupRetrieval implementation has no facility to explicitly group
- * retrieval objects - that has been left to the MultiRetrieval class.
+ *
+ * Note that the GroupRetrieval implementation has no facility to explicitly
+ * group retrieval objects - that has been left to the MultiRetrieval class.
  *
  * @author sjh
  */
@@ -76,12 +77,12 @@ public class GroupRetrieval implements Retrieval {
   }
 
   @Override
-  public Document getDocument(String identifier, Parameters p) throws IOException{
+  public Document getDocument(String identifier, Parameters p) throws IOException {
     return groups.get(defGroup).getDocument(identifier, p);
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> identifier, Parameters p) throws IOException{
+  public Map<String, Document> getDocuments(List<String> identifier, Parameters p) throws IOException {
     return groups.get(defGroup).getDocuments(identifier, p);
   }
 
@@ -106,23 +107,28 @@ public class GroupRetrieval implements Retrieval {
   }
 
   @Override
-  public CollectionStatistics getRetrievalStatistics() throws IOException {
-    return groups.get(defGroup).getRetrievalStatistics();
+  public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException {
+    return groups.get(defGroup).getIndexPartStatistics(partName);
   }
 
   @Override
-  public CollectionStatistics getRetrievalStatistics(String partName) throws IOException {
-    return groups.get(defGroup).getRetrievalStatistics(partName);
+  public CollectionStatistics getCollectionStatistics(String nodeString) throws Exception {
+    return groups.get(defGroup).getCollectionStatistics(nodeString);
   }
 
   @Override
-  public NodeStatistics nodeStatistics(String nodeString) throws Exception {
-    return groups.get(defGroup).nodeStatistics(nodeString);
+  public CollectionStatistics getCollectionStatistics(Node node) throws Exception {
+    return groups.get(defGroup).getCollectionStatistics(node);
   }
 
   @Override
-  public NodeStatistics nodeStatistics(Node node) throws Exception {
-    return groups.get(defGroup).nodeStatistics(node);
+  public NodeStatistics getNodeStatistics(String nodeString) throws Exception {
+    return groups.get(defGroup).getNodeStatistics(nodeString);
+  }
+
+  @Override
+  public NodeStatistics getNodeStatistics(Node node) throws Exception {
+    return groups.get(defGroup).getNodeStatistics(node);
   }
 
   // IDENTICAL FUNCTIONS THAT USE PARTICULAR GROUPS //
@@ -134,11 +140,11 @@ public class GroupRetrieval implements Retrieval {
     return groups.get(group).getAvailableParts();
   }
 
-  public Document getDocument(String identifier, Parameters p, String group) throws IOException{
+  public Document getDocument(String identifier, Parameters p, String group) throws IOException {
     return groups.get(group).getDocument(identifier, p);
   }
 
-  public Map<String, Document> getDocuments(List<String> identifier, Parameters p, String group) throws IOException{
+  public Map<String, Document> getDocuments(List<String> identifier, Parameters p, String group) throws IOException {
     return groups.get(group).getDocuments(identifier, p);
   }
 
@@ -162,16 +168,24 @@ public class GroupRetrieval implements Retrieval {
     return groups.get(group).runQuery(root, parameters);
   }
 
-  public CollectionStatistics getRetrievalStatistics(String partName, String group) throws IOException {
-    return groups.get(group).getRetrievalStatistics(partName);
+  public IndexPartStatistics getRetrievalStatistics(String partName, String group) throws IOException {
+    return groups.get(group).getIndexPartStatistics(partName);
+  }
+
+  public CollectionStatistics collectionStatistics(String nodeString, String group) throws Exception {
+    return groups.get(group).getCollectionStatistics(nodeString);
+  }
+
+  public CollectionStatistics collectionStatistics(Node node, String group) throws Exception {
+    return groups.get(group).getCollectionStatistics(node);
   }
 
   public NodeStatistics nodeStatistics(String nodeString, String group) throws Exception {
-    return groups.get(group).nodeStatistics(nodeString);
+    return groups.get(group).getNodeStatistics(nodeString);
   }
 
   public NodeStatistics nodeStatistics(Node node, String group) throws Exception {
-    return groups.get(group).nodeStatistics(node);
+    return groups.get(group).getNodeStatistics(node);
   }
 
   public int getDocumentLength(int docid, String group) throws IOException {

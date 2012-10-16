@@ -19,7 +19,7 @@ import org.lemurproject.galago.core.types.WordCount;
 import org.lemurproject.galago.tupleflow.types.SerializedParameters;
 
 /**
- * 
+ *
  * @author sjh
  */
 @InputClass(className = "org.lemurproject.galago.core.types.WordCount", order = {"+word"})
@@ -29,11 +29,13 @@ public class BackgroundLMWriter extends KeyValueWriter<WordCount> {
   ByteArrayOutputStream bstream;
   DataOutputStream stream;
   long collectionLength = 0;
-  long termCount = 0;
-  boolean estimateDocumentCount = false;
-  long longestPostingList = 0;
+  long highestFrequency = 0;
+  long highestDocumentCount = 0;
+  long vocabCount = 0;
 
-  /** Creates a new instance of DocumentLengthsWriter */
+  /**
+   * Creates a new instance of DocumentLengthsWriter
+   */
   public BackgroundLMWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
     super(parameters, "Term Counts written");
     Parameters p = writer.getManifest();
@@ -43,26 +45,14 @@ public class BackgroundLMWriter extends KeyValueWriter<WordCount> {
 
     bstream = new ByteArrayOutputStream();
     stream = new DataOutputStream(bstream);
-
-    // Let's get those stats in there if we're receiving
-    if (p.containsKey("statistics/documentCount")) {
-      // great.
-    } else if (p.isString("pipename")) {
-      Parameters docCounts = NumericParameterAccumulator.accumulateParameters(parameters.getTypeReader(p.getString("pipename")));
-      p.set("statistics/documentCount", docCounts.getMap("documentCount").getLong("global"));
-    } else if (p.isBoolean("estimateDocumentCount")) {
-      estimateDocumentCount = true;
-      longestPostingList = 0;
-    } else {
-      throw new IOException("BackgroundLMWriter expects a 'statistics/documentCount parameter, or a tupleflow stream to read document count data from.");
-    }
   }
 
   public GenericElement prepare(WordCount object) throws IOException {
-    termCount++;
-    collectionLength+=object.count;
-    longestPostingList = Math.max(object.documents, longestPostingList);
-    
+    vocabCount++;
+    collectionLength += object.count;
+    highestDocumentCount = Math.max(object.documents, highestDocumentCount);
+    highestFrequency = Math.max(object.count, highestFrequency);
+
     bstream.reset();
     Utility.compressLong(stream, object.count);
     Utility.compressLong(stream, object.documents);
@@ -83,37 +73,10 @@ public class BackgroundLMWriter extends KeyValueWriter<WordCount> {
   @Override
   public void close() throws IOException {
     Parameters manifest = writer.getManifest();
-    if (!manifest.isLong("statistics/termCount")) {
-      manifest.set("statistics/termCount", termCount);
-    }
-    if (this.estimateDocumentCount) {
-      manifest.set("statistics/documentCount", this.longestPostingList);
-    }
-    if (!manifest.isLong("statistics/collectionLength")) {
-      manifest.set("statistics/collectionLength", collectionLength);
-    }
+    manifest.set("statistics/vocabCount", vocabCount);
+    manifest.set("statistics/collectionLength", collectionLength);
+    manifest.set("statistics/highestDocumentCount", this.highestDocumentCount);
+    manifest.set("statistics/highestFrequency", this.highestFrequency);
     writer.close();
-  }
-
-  private Parameters collectStatistics(TypeReader<SerializedParameters> statsReader) throws IOException {
-    SerializedParameters serial;
-    Parameters stats = new Parameters();
-    if (statsReader != null) {
-      while ((serial = statsReader.read()) != null) {
-        Parameters fragment = Parameters.parse(serial.parameters);
-        for (String key : fragment.getKeys()) {
-          if (fragment.isLong(key)) {
-            long cumulativeStat = stats.get(key, 0L) + fragment.getLong(key);
-            stats.set(key, cumulativeStat);
-          } else if (fragment.isDouble(key)) {
-            double cumulativeStat = stats.get(key, 0.0) + fragment.getDouble(key);
-            stats.set(key, cumulativeStat);
-          } else {
-            throw new IOException("Unable to accumulate non numeric statistic: " + key);
-          }
-        }
-      }
-    }
-    return stats;
   }
 }

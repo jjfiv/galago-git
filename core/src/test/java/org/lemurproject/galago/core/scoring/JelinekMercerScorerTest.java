@@ -19,7 +19,8 @@ public class JelinekMercerScorerTest extends TestCase {
 
   public void testCollectionProbability() throws IOException {
     NodeParameters p = new NodeParameters();
-    p.set("collectionProbability", 0.5);
+    p.set("nodeFrequency", 1);
+    p.set("collectionLength", 2);
     JelinekMercerScorer scorer = new JelinekMercerScorer(p, null);
 
     assertEquals(0.5, scorer.lambda);
@@ -32,7 +33,8 @@ public class JelinekMercerScorerTest extends TestCase {
   public void testSetLambda() throws IOException {
     NodeParameters p = new NodeParameters();
     p.set("lambda", 0.2);
-    p.set("collectionProbability", 0.5);
+    p.set("nodeFrequency", 1);
+    p.set("collectionLength", 2);
     JelinekMercerScorer scorer = new JelinekMercerScorer(p, null);
 
     assertEquals(0.2, scorer.lambda);

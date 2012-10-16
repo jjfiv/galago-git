@@ -131,8 +131,8 @@ public class MinimumCountConjunctionIterator extends ConjunctionIterator impleme
   public int getBestCollectionFrequency() {
     int cf = Integer.MAX_VALUE;
     for (int i = 0; i < iterators.length; i++) {
-      if (AggregateReader.AggregateIterator.class.isAssignableFrom(iterators[i].getClass())) {
-        NodeStatistics ns = ((AggregateReader.AggregateIterator) iterators[i]).getStatistics();
+      if (AggregateReader.NodeAggregateIterator.class.isAssignableFrom(iterators[i].getClass())) {
+        NodeStatistics ns = ((AggregateReader.NodeAggregateIterator) iterators[i]).getStatistics();
         int nf = (int) ns.nodeFrequency;
         if (nf < cf) {
           cf = nf;
@@ -146,8 +146,8 @@ public class MinimumCountConjunctionIterator extends ConjunctionIterator impleme
   public int getBestDocumentFrequency() {
     int df = Integer.MAX_VALUE;
     for (int i = 0; i < iterators.length; i++) {
-      if (AggregateReader.AggregateIterator.class.isAssignableFrom(iterators[i].getClass())) {
-        NodeStatistics ns = ((AggregateReader.AggregateIterator) iterators[i]).getStatistics();
+      if (AggregateReader.NodeAggregateIterator.class.isAssignableFrom(iterators[i].getClass())) {
+        NodeStatistics ns = ((AggregateReader.NodeAggregateIterator) iterators[i]).getStatistics();
         int nf = (int) ns.nodeDocumentCount;
         if (nf < df) {
           df = nf;

@@ -17,14 +17,15 @@ import org.lemurproject.galago.core.scoring.BM25Scorer;
 @RequiredParameters(parameters = {"b", "k"})
 public class BM25ScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {
-
+  
   double weight;
   int parentIdx;
   double min;
-
-  public BM25ScoringIterator(NodeParameters p, MovableCountIterator it)
+  
+  public BM25ScoringIterator(NodeParameters p, MovableLengthsIterator ls, MovableCountIterator it)
           throws IOException {
-    super(p, it, new BM25Scorer(p, it));
+    super(p, ls, it);
+    this.setScoringFunction(new BM25Scorer(p, it));
     weight = p.get("w", 1.0);
     parentIdx = (int) p.get("pIdx", 0);
     max = getMaxTF(p, it);
@@ -39,42 +40,42 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
   public double minimumScore() {
     return min;
   }
-
+  
   public double getWeight() {
     return weight;
   }
-
+  
   @Override
   public void deltaScore(int count, int length) {
     DeltaScoringContext ctx = (DeltaScoringContext) context;
     double diff = weight * (function.score(count, length) - max);
     ctx.runningScore += diff;
   }
-
+  
   @Override
   public void deltaScore(int length) {
     DeltaScoringContext ctx = (DeltaScoringContext) context;
     int count = 0;
-
+    
     if (iterator.currentCandidate() == context.document) {
       count = ((CountIterator) iterator).count();
     }
     double diff = weight * (function.score(count, length) - max);
     ctx.runningScore += diff;
   }
-
+  
   @Override
   public void deltaScore() {
     DeltaScoringContext ctx = (DeltaScoringContext) context;
     int count = 0;
-
+    
     if (iterator.currentCandidate() == context.document) {
       count = ((CountIterator) iterator).count();
     }
     double diff = weight * (function.score(count, context.getLength()) - max);
     ctx.runningScore += diff;
   }
-
+  
   @Override
   public void maximumDifference() {
     DeltaScoringContext ctx = (DeltaScoringContext) context;
@@ -82,12 +83,12 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
     ctx.runningScore += diff;
     ////CallTable.increment("aux_flops");
   }
-
+  
   @Override
   public void aggregatePotentials(DeltaScoringContext ctx) {
     // Nothing to do here
   }
-
+  
   @Override
   public void setContext(ScoringContext ctx) {
     super.setContext(ctx);

@@ -17,16 +17,16 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * We run the query as a combine on the way back up, and add in the
- * expansion terms. This is similar to the RelevanceModelTraversal.
+ * We run the query as a combine on the way back up, and add in the expansion
+ * terms. This is similar to the RelevanceModelTraversal.
  *
- * Little weird here - we transform an operator over a subtree into
- * low-level feature operators that act on count iterators.
+ * Little weird here - we transform an operator over a subtree into low-level
+ * feature operators that act on count iterators.
  *
  * @author irmarc
  */
 public class BM25RelevanceFeedbackTraversal extends Traversal {
-
+  
   Parameters globalParameters;
   Parameters availableParts;
   Retrieval retrieval;
@@ -36,11 +36,11 @@ public class BM25RelevanceFeedbackTraversal extends Traversal {
     this.globalParameters = retrieval.getGlobalParameters();
     this.availableParts = retrieval.getAvailableParts();
   }
-
+  
   public static boolean isNeeded(Node root) {
     return (root.getOperator().equals("bm25rf"));
   }
-
+  
   public Node afterNode(Node original) throws Exception {
     if (original.getOperator().equals("bm25rf") == false) {
       return original;
@@ -56,14 +56,14 @@ public class BM25RelevanceFeedbackTraversal extends Traversal {
     Parameters localParameters = globalParameters.clone();
     localParameters.set("requested", fbDocs);
     combineNode = retrieval.transformQuery(combineNode, localParameters);
-    initialResults.addAll( Arrays.asList( retrieval.runQuery(combineNode, localParameters) ));
+    initialResults.addAll(Arrays.asList(retrieval.runQuery(combineNode, localParameters)));
 
     // while that's running, extract the feedback parameters
     int fbTerms = (int) parameters.get("fbTerms", 10);
     Parameters tsvParameters = globalParameters.clone();
     tsvParameters.set("fbDocs", fbDocs);
     tsvParameters.set("parts", availableParts);
-    TermSelectionValueModel tsvModel = new TermSelectionValueModel(tsvParameters, retrieval, retrieval.getRetrievalStatistics());
+    TermSelectionValueModel tsvModel = new TermSelectionValueModel(tsvParameters, retrieval, retrieval.getCollectionStatistics("#lengths:part=lengths()"));
     tsvModel.initialize();
     HashSet<String> stopwords = Utility.readStreamToStringSet(getClass().getResourceAsStream("/stopwords/inquery"));
     Set<String> queryTerms = StructuredQuery.findQueryTerms(combineNode, Collections.singleton("extents"));
@@ -84,7 +84,7 @@ public class BM25RelevanceFeedbackTraversal extends Traversal {
     newRoot = new Node("combine", new NodeParameters(), Node.cloneNodeList(newChildren), original.getPosition());
     return newRoot;
   }
-
+  
   public void beforeNode(Node object) throws Exception {
     // do nothing
   }

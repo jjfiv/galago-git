@@ -7,6 +7,7 @@ package org.lemurproject.galago.core.retrieval.traversal;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import java.util.ArrayList;
 import java.util.List;
+import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -15,9 +16,9 @@ import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- * Transforms a #pl2f( text1 text2 ) node into the fully expanded
- * PL2F model described in "Combining Fields in Known-Item Email Search"
- * by Macdonald and Ounis.
+ * Transforms a #pl2f( text1 text2 ) node into the fully expanded PL2F model
+ * described in "Combining Fields in Known-Item Email Search" by Macdonald and
+ * Ounis.
  *
  * It's not the most elaborate description, but it's succinct and easy to
  * follow.
@@ -164,15 +165,20 @@ public class PL2FTraversal extends Traversal {
     Node parted = TextPartAssigner.assignPart(counter,
             retrieval.getGlobalParameters(),
             retrieval.getAvailableParts());
-    NodeStatistics ns = retrieval.nodeStatistics(parted);
+
+    // get the frequency of the term in the collection:
+    NodeStatistics ns = retrieval.getNodeStatistics(parted);
     dfr.getNodeParameters().set("nodeFrequency", ns.nodeFrequency);
-    dfr.getNodeParameters().set("documentCount", ns.documentCount);
+
+    // get global document count:
+    AggregateReader.CollectionStatistics cs = retrieval.getCollectionStatistics("#lengths:part=lengths()");
+    dfr.getNodeParameters().set("documentCount", cs.documentCount);
 
     // Now echo these values down to the leaves
     List<Node> leaves = dfr.getInternalNodes().get(0).getInternalNodes();
     for (Node n : leaves) {
       n.getNodeParameters().set("nf", ns.nodeFrequency);
-      n.getNodeParameters().set("dc", ns.documentCount);
+      n.getNodeParameters().set("dc", cs.documentCount);
       n.getNodeParameters().set("w", n.getNodeParameters().getDouble("w") / normalizer);
     }
   }

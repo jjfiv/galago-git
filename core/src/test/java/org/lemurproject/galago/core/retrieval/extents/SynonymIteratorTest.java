@@ -35,7 +35,7 @@ public class SynonymIteratorTest extends TestCase {
     one.setContext(context);
     instance.setContext(context);
     context.document = instance.currentCandidate();
-
+    
     assertTrue(instance.isDone());
   }
 
@@ -45,7 +45,7 @@ public class SynonymIteratorTest extends TestCase {
     FakeExtentIterator one = new FakeExtentIterator(dataOne);
     FakeExtentIterator two = new FakeExtentIterator(dataTwo);
     FakeExtentIterator[] iters = {one, two};
-
+    
     SynonymIterator instance = new SynonymIterator(new NodeParameters(), iters);
 
     ScoringContext context = new ScoringContext();
@@ -95,7 +95,7 @@ public class SynonymIteratorTest extends TestCase {
     instance.setContext(context);
 
     context.document = instance.currentCandidate();
-
+    
     ExtentArray array = instance.extents();
 
     assertFalse(instance.isDone());

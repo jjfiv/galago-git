@@ -44,6 +44,7 @@ public class FilteredStatisticsTest extends TestCase {
     // 'a' node
     Node aN = new Node("counts", "a");
     Node fN = new Node("feature", "dirichlet");
+    fN.addChild(new Node("lengths", "document"));
     fN.addChild(aN);
     NodeParameters np = fN.getNodeParameters();
     np.set("documentCount", 1);
@@ -82,6 +83,9 @@ public class FilteredStatisticsTest extends TestCase {
     Parameters p = new Parameters();
     p.set("requested", 5);
     root = retrieval.transformQuery(root, globalParams);
+
+    System.err.println(root.toPrettyString());
+    
     ScoredDocument[] results = retrieval.runQuery(root, p);
 
     assertEquals(2, results.length);

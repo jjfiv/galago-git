@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.DynamicIndex;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.IndexPartReader;
@@ -18,6 +19,7 @@ import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
@@ -77,13 +79,22 @@ public class MemoryIndex implements DynamicIndex, Index {
       Parameters stemParams = partParams.clone();
       // should change this to support several stemmers...
       stemParams.set("stemmer", manifest.get("stemmer", Porter2Stemmer.class.getName()));
-      parts.put("stemmedPostings", new MemoryPositionalIndex(stemParams));
+      parts.put("postings.porter", new MemoryPositionalIndex(stemParams));
     }
 
     initializeIndexOperators();
     dirty = false;
   }
 
+  /**
+   * Special function to return the number of documents stored in memory
+   * @return documentCount
+   */
+  public int documentsInIndex() {
+    return (documentCount - documentNumberOffset);
+  }
+  
+  
   public void process(Document doc) throws IOException {
     doc.identifier = documentCount;
     for (MemoryIndexPart part : parts.values()) {
@@ -106,8 +117,8 @@ public class MemoryIndex implements DynamicIndex, Index {
     }
 
     // otherwise, try to default
-    if (parts.containsKey("stemmedPostings")) {
-      return "stemmedPostings";
+    if (parts.containsKey("postings.porter")) {
+      return "postings.porter";
     }
     if (parts.containsKey("postings")) {
       return "postings";
@@ -198,42 +209,22 @@ public class MemoryIndex implements DynamicIndex, Index {
     return result;
   }
 
-  public long getCollectionLength() {
-    if (parts.containsKey("postings")) {
-      return parts.get("postings").getCollectionLength();
-    } else {
-      return parts.get("stemmedPostings").getCollectionLength();
-    }
-  }
-
-  public long getDocumentCount() {
-    if (parts.containsKey("postings")) {
-      return parts.get("postings").getDocumentCount();
-    } else {
-      return parts.get("stemmedPostings").getDocumentCount();
-    }
-  }
-
-  public CollectionStatistics getCollectionStatistics() {
-    if (parts.containsKey("postings")) {
-      return getCollectionStatistics("postings");
-    } else {
-      return getCollectionStatistics("stemmedPostings");
-    }
-  }
-
   /**
    * WARNING: this function returns a static picture of the collection stats.
-   *  You should NEVER cache this object.
+   * You should NEVER cache this object.
+   *
    * @param part
    * @return
    */
-  public CollectionStatistics getCollectionStatistics(String part) {
-    if (this.containsPart(part)) {
-      return new CollectionStatistics(part, this);
-    } else {
-      return null;
+  public IndexPartStatistics getIndexPartStatistics(String part) {
+    if (parts.containsKey(part)) {
+      IndexPartReader p = parts.get(part);
+      if (AggregateReader.AggregateIndexPart.class.isInstance(p)) {
+        return ((AggregateReader.AggregateIndexPart) p).getStatistics();
+      }
+      throw new RuntimeException("Index part, " + part + ", does not store aggregated statistics.");
     }
+    throw new RuntimeException("Index part, " + part + ", could not be found in memory index.");
   }
 
   public void close() throws IOException {
@@ -265,13 +256,13 @@ public class MemoryIndex implements DynamicIndex, Index {
   }
 
   @Override
-  public Document getDocument(String document, Parameters p) throws IOException{
-    if(parts.containsKey("corpus")){
+  public Document getDocument(String document, Parameters p) throws IOException {
+    if (parts.containsKey("corpus")) {
       try {
         CorpusReader corpus = (CorpusReader) parts.get("corpus");
         int docId = getIdentifier(document);
         corpus.getDocument(docId, p);
-      } catch (Exception e){
+      } catch (Exception e) {
         // ignore the exception
       }
     }
@@ -279,18 +270,18 @@ public class MemoryIndex implements DynamicIndex, Index {
   }
 
   @Override
-  public Map<String,Document> getDocuments(List<String> documents, Parameters p) throws IOException{
+  public Map<String, Document> getDocuments(List<String> documents, Parameters p) throws IOException {
     HashMap<String, Document> results = new HashMap();
 
     // should get a names iterator + sort requested documents
-    for(String name : documents){
+    for (String name : documents) {
       results.put(name, getDocument(name, p));
     }
     return results;
-  }  
-  
+  }
+
   @Override
-  public LengthsReader.LengthsIterator getLengthsIterator() throws IOException {
+  public MovableLengthsIterator getLengthsIterator() throws IOException {
     return ((MemoryDocumentLengths) parts.get("lengths")).getLengthsIterator();
   }
 

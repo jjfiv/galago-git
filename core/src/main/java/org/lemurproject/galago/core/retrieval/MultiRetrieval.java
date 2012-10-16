@@ -10,10 +10,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
-import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
@@ -32,9 +30,9 @@ import org.lemurproject.galago.tupleflow.Parameters;
 /**
  * This class allows searching over a set of Retrievals.
  *
- * Although it is possible to list such objects as GroupRetrievals or
- * other MultiRetrievals under a MultiRetrieval, it is not recommended,
- * as this behavior has not been tested and is currently undefined.
+ * Although it is possible to list such objects as GroupRetrievals or other
+ * MultiRetrievals under a MultiRetrieval, it is not recommended, as this
+ * behavior has not been tested and is currently undefined.
  *
  * @author sjh
  */
@@ -43,11 +41,10 @@ public class MultiRetrieval implements Retrieval {
   protected ArrayList<Retrieval> retrievals;
   protected FeatureFactory features;
   protected Parameters globalParameters;
-  protected HashMap<String, CollectionStatistics> retrievalStatistics;
   protected Parameters retrievalParts;
   protected HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
   protected HashSet<String> knownIndexOperators = new HashSet<String>();
-  
+
   public MultiRetrieval(ArrayList<Retrieval> indexes, Parameters p) throws Exception {
     this.retrievals = indexes;
     this.globalParameters = p;
@@ -63,13 +60,17 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public CollectionStatistics getRetrievalStatistics() throws IOException {
-    return this.retrievalStatistics.get("postings");
-  }
-
-  @Override
-  public CollectionStatistics getRetrievalStatistics(String partName) throws IOException {
-    return this.retrievalStatistics.get(partName);
+  public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException {
+    IndexPartStatistics aggregate = null;
+    for (Retrieval r : retrievals) {
+      IndexPartStatistics stats = r.getIndexPartStatistics(partName);
+      if (aggregate == null) {
+        aggregate = stats;
+      } else {
+        aggregate.add(stats);
+      }
+    }
+    return aggregate;
   }
 
   @Override
@@ -146,7 +147,6 @@ public class MultiRetrieval implements Retrieval {
       final Parameters shardParams = parameters.clone();
       final Retrieval r = retrievals.get(i);
       Thread t = new Thread() {
-
         @Override
         public void run() {
           try {
@@ -187,13 +187,13 @@ public class MultiRetrieval implements Retrieval {
     // fix ranks
     ScoredDocument[] results = queryResultCollector.subList(0, Math.min(queryResultCollector.size(), requested)).toArray(new ScoredDocument[0]);
     int rank = 1;
-    for(ScoredDocument r : results){
+    for (ScoredDocument r : results) {
       r.rank = rank;
-      rank+=1;
+      rank += 1;
     }
-    
+
     return results;
-    
+
   }
 
   @Override
@@ -204,8 +204,8 @@ public class MultiRetrieval implements Retrieval {
   // private functions
   private Node transformQuery(List<Traversal> traversals, Node queryTree) throws Exception {
     for (Traversal traversal : traversals) {
-        queryTree = StructuredQuery.walk(traversal, queryTree);
-        //System.out.println(traversal.getClass().getSimpleName() + "\t" + queryTree.toPrettyString());
+      queryTree = StructuredQuery.walk(traversal, queryTree);
+      //System.out.println(traversal.getClass().getSimpleName() + "\t" + queryTree.toPrettyString());
     }
     return queryTree;
   }
@@ -218,19 +218,6 @@ public class MultiRetrieval implements Retrieval {
       parts.add(partSet);
     }
     this.retrievalParts = mergeParts(parts);
-    retrievalStatistics = new HashMap();
-    for (String part : getAvailableParts().getKeys()) {
-      CollectionStatistics mergedStats = null;
-      for (Retrieval r : this.retrievals) {
-        if (mergedStats == null) {
-          mergedStats = r.getRetrievalStatistics(part);
-        } else {
-          mergedStats.add(r.getRetrievalStatistics(part));
-        }
-      }
-      this.retrievalStatistics.put(part, mergedStats);
-    }
-    initializeIndexOperators();
   }
 
   // This takes the intersection of parts from constituent retrievals, and determines which
@@ -250,7 +237,7 @@ public class MultiRetrieval implements Retrieval {
 
     // Now iterate over the keys, looking for matches
     for (String part : allParts) {
-        
+
       Parameters unifiedPart = new Parameters();
       // If one of the constituents doesn't have a part of this name, we skip
       // further processing of it
@@ -298,21 +285,71 @@ public class MultiRetrieval implements Retrieval {
     return unifiedParts;
   }
 
-  /**
-   * Note that this assumes the retrieval objects involved in the group
-   * contain mutually exclusive subcollections. If you're doing PAC-search
-   * or another non-disjoint subset retrieval model, look out.
-   */
   @Override
-  public NodeStatistics nodeStatistics(String nodeString) throws Exception {
+  public CollectionStatistics getCollectionStatistics(String nodeString) throws Exception {
     Node root = StructuredQuery.parse(nodeString);
-    root.getNodeParameters().set("queryType", "count");
-    root = transformQuery(root, new Parameters());
-    return nodeStatistics(root);
+    return getCollectionStatistics(root);
   }
 
   @Override
-  public NodeStatistics nodeStatistics(Node node) throws Exception {
+  public CollectionStatistics getCollectionStatistics(Node node) throws Exception {
+
+    ArrayList<Thread> threads = new ArrayList();
+    final Node root = node;
+    final List<CollectionStatistics> stats = Collections.synchronizedList(new ArrayList());
+    final List<String> errors = Collections.synchronizedList(new ArrayList());
+
+    for (int i = 0; i < this.retrievals.size(); i++) {
+      final Retrieval r = this.retrievals.get(i);
+      Thread t = new Thread() {
+        @Override
+        public void run() {
+          try {
+            CollectionStatistics ns = r.getCollectionStatistics(root);
+            stats.add(ns);
+          } catch (Exception ex) {
+            errors.add(ex.getMessage());
+          }
+        }
+      };
+      threads.add(t);
+      t.start();
+    }
+
+    for (Thread t : threads) {
+      t.join();
+    }
+
+    if (errors.size() > 0) {
+      System.err.println("Failed to count: " + root.toString());
+      for (String e : errors) {
+        System.err.println(e);
+      }
+      throw new IOException("Unable to count " + node.toString());
+    }
+
+    CollectionStatistics output = stats.remove(0);
+    for (CollectionStatistics s : stats) {
+      output.add(s);
+    }
+    return output;
+  }
+
+  /**
+   * Note that this assumes the retrieval objects involved in the group contain
+   * mutually exclusive subcollections. If you're doing PAC-search or another
+   * non-disjoint subset retrieval model, look out.
+   */
+  @Override
+  public NodeStatistics getNodeStatistics(String nodeString) throws Exception {
+    Node root = StructuredQuery.parse(nodeString);
+    root.getNodeParameters().set("queryType", "count");
+    root = transformQuery(root, new Parameters());
+    return getNodeStatistics(root);
+  }
+
+  @Override
+  public NodeStatistics getNodeStatistics(Node node) throws Exception {
 
     ArrayList<Thread> threads = new ArrayList();
     final Node root = node;
@@ -322,11 +359,10 @@ public class MultiRetrieval implements Retrieval {
     for (int i = 0; i < this.retrievals.size(); i++) {
       final Retrieval r = this.retrievals.get(i);
       Thread t = new Thread() {
-
         @Override
         public void run() {
           try {
-            NodeStatistics ns = r.nodeStatistics(root);
+            NodeStatistics ns = r.getNodeStatistics(root);
             stats.add(ns);
           } catch (Exception ex) {
             errors.add(ex.getMessage());
@@ -367,19 +403,19 @@ public class MultiRetrieval implements Retrieval {
 
   private NodeType getIndexNodeType(Node node) throws Exception {
     if (node.getNodeParameters().containsKey("part") || node.getOperator().equals("field")) {
-   //   System.out.println("Trying to get operators for node... got part parameter");
+      //   System.out.println("Trying to get operators for node... got part parameter");
       Parameters parts = getAvailableParts();
       String partName = getPartName(node);
       if (node.getOperator().equals("field")) {
-          partName = "fields";
+        partName = "fields";
       }
 
-     // System.out.println("Fetching part : " + partName  + " in parts: " + parts.toPrettyString() );
+      // System.out.println("Fetching part : " + partName  + " in parts: " + parts.toPrettyString() );
       if (!parts.containsKey(partName)) {
         throw new IOException("The index has no part named '" + partName + "'");
       }
       String operator = node.getOperator();
-     // System.out.println("Trying to look up part: " + partName + " and operator: " + operator);
+      // System.out.println("Trying to look up part: " + partName + " and operator: " + operator);
       Parameters partParams = parts.getMap(partName);
       if (!partParams.containsKey(operator)) {
         throw new IOException("The index has part called  iterator for the operator '" + operator + "'");
@@ -389,12 +425,11 @@ public class MultiRetrieval implements Retrieval {
       // may need to do some checking here...
       return new NodeType((Class<? extends StructuredIterator>) Class.forName(iteratorClass));
     } else {
-       // System.out.println("No part in node parameters. for node: " + node.toPrettyString() + " Not returning index part.");
+      // System.out.println("No part in node parameters. for node: " + node.toPrettyString() + " Not returning index part.");
     }
     return null;
   }
 
-  
   public String getPartName(Node node) throws IOException {
     String operator = node.getOperator();
     String partName = null;
@@ -415,45 +450,44 @@ public class MultiRetrieval implements Retrieval {
     }
     return partName;
   }
-  
-  
+
   protected void initializeIndexOperators() throws IOException {
-      Parameters parts = getAvailableParts();
+    Parameters parts = getAvailableParts();
 
-      
-      for (String part : parts.getKeys()) {
-       
-          knownIndexOperators.add(part);
 
-          if (!defaultIndexOperators.containsKey(part)) {
-            defaultIndexOperators.put(part, part);
-          } else if (part.startsWith("default")) {
-            if (defaultIndexOperators.get(part).startsWith("default")) {
-              defaultIndexOperators.remove(part);
-            } else {
-              defaultIndexOperators.put(part, part);
-            }
-          } else {
-            defaultIndexOperators.remove(part);
-          }
-      }
+    for (String part : parts.getKeys()) {
 
-      // HACK - for now //
-      if (!this.defaultIndexOperators.containsKey("counts")) {
-        if (parts.containsKey("postings.porter")) {
-          this.defaultIndexOperators.put("counts", "postings.porter");
-        } else if (parts.containsKey("postings")) {
-          this.defaultIndexOperators.put("counts", "postings");
+      knownIndexOperators.add(part);
+
+      if (!defaultIndexOperators.containsKey(part)) {
+        defaultIndexOperators.put(part, part);
+      } else if (part.startsWith("default")) {
+        if (defaultIndexOperators.get(part).startsWith("default")) {
+          defaultIndexOperators.remove(part);
+        } else {
+          defaultIndexOperators.put(part, part);
         }
-      }
-      if (!this.defaultIndexOperators.containsKey("extents")) {
-        if (parts.containsKey("postings.porter")) {
-          this.defaultIndexOperators.put("extents", "postings.porter");
-        } else if (parts.containsKey("postings")) {
-          this.defaultIndexOperators.put("extents", "postings");
-        }
+      } else {
+        defaultIndexOperators.remove(part);
       }
     }
+
+    // HACK - for now //
+    if (!this.defaultIndexOperators.containsKey("counts")) {
+      if (parts.containsKey("postings.porter")) {
+        this.defaultIndexOperators.put("counts", "postings.porter");
+      } else if (parts.containsKey("postings")) {
+        this.defaultIndexOperators.put("counts", "postings");
+      }
+    }
+    if (!this.defaultIndexOperators.containsKey("extents")) {
+      if (parts.containsKey("postings.porter")) {
+        this.defaultIndexOperators.put("extents", "postings.porter");
+      } else if (parts.containsKey("postings")) {
+        this.defaultIndexOperators.put("extents", "postings");
+      }
+    }
+  }
 
   @Override
   public QueryType getQueryType(Node node) throws Exception {
@@ -476,20 +510,20 @@ public class MultiRetrieval implements Retrieval {
 
   @Override
   public int getDocumentLength(int docid) throws IOException {
-      HashMap<Integer,Integer> results = new HashMap();
-      for(Retrieval r : this.retrievals){
-        results.put(docid, r.getDocumentLength(docid));
-      }
-      return results.get(docid);
+    HashMap<Integer, Integer> results = new HashMap();
+    for (Retrieval r : this.retrievals) {
+      results.put(docid, r.getDocumentLength(docid));
+    }
+    return results.get(docid);
   }
 
   @Override
   public int getDocumentLength(String docname) throws IOException {
-      HashMap<String,Integer> results = new HashMap();
-      for(Retrieval r : this.retrievals){
-        results.put(docname, r.getDocumentLength(docname));
-      }
-      return results.get(docname);
+    HashMap<String, Integer> results = new HashMap();
+    for (Retrieval r : this.retrievals) {
+      results.put(docname, r.getDocumentLength(docname));
+    }
+    return results.get(docname);
   }
 
   @Override

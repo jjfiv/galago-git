@@ -19,7 +19,8 @@ public class DirichletScorerTest extends TestCase {
 
   public void testCollectionProbability() throws IOException {
     NodeParameters p = new NodeParameters();
-    p.set("collectionProbability", 0.5);
+    p.set("nodeFrequency", 1);
+    p.set("collectionLength", 2);
     DirichletScorer scorer = new DirichletScorer(p, null);
 
     assertEquals(1500.0, scorer.mu);
@@ -31,7 +32,8 @@ public class DirichletScorerTest extends TestCase {
 
   public void testSetMu() throws IOException {
     NodeParameters p = new NodeParameters();
-    p.set("collectionProbability", 0.5);
+    p.set("nodeFrequency", 1);
+    p.set("collectionLength", 2);
     p.set("mu", 13);
     DirichletScorer scorer = new DirichletScorer(p, null);
 

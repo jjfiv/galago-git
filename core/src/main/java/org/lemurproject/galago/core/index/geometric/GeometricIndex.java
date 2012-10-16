@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.DynamicIndex;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.IndexPartReader;
@@ -28,6 +28,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.index.mem.FlushToDisk;
 import org.lemurproject.galago.core.index.mem.MemoryIndex;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -233,24 +234,20 @@ public class GeometricIndex implements DynamicIndex, Index {
 
   // Note: this data is correct only at time of requesting.
   // DO NOT CACHE THIS DATA.
-  public CollectionStatistics getCollectionStatistics() {
-    return getCollectionStatistics(getDefaultPart());
-  }
-
-  // Note: this data is correct only at time of requesting.
-  // DO NOT CACHE THIS DATA.
   @Override
-  public CollectionStatistics getCollectionStatistics(String part) {
-    CollectionStatistics stats = this.currentMemoryIndex.getCollectionStatistics(part);
+  public IndexPartStatistics getIndexPartStatistics(String part) {
+    IndexPartStatistics stats = this.currentMemoryIndex.getIndexPartStatistics(part);
     for (DiskIndex di : this.geometricParts.getIndexes()) {
-      stats.add(di.getCollectionStatistics(part));
+      stats.add(di.getIndexPartStatistics(part));
     }
+    // fix the part name
+    stats.partName = part;
     return stats;
   }
 
   @Override
   public int getLength(int document) throws IOException {
-    LengthsReader.LengthsIterator i = this.getLengthsIterator();
+    MovableLengthsIterator i = (MovableLengthsIterator) this.getLengthsIterator();
     i.syncTo(document);
     if (i.hasMatch(document)) {
       return i.getCurrentLength();
@@ -284,7 +281,8 @@ public class GeometricIndex implements DynamicIndex, Index {
     throw new RuntimeException("UNIMPLEMENTED function: getdocuments");
   }
 
-  public LengthsIterator getLengthsIterator() throws IOException {
+  @Override
+  public MovableLengthsIterator getLengthsIterator() throws IOException {
     List<LengthsReader.LengthsIterator> itrs = new ArrayList();
     itrs.add(currentMemoryIndex.getLengthsIterator());
     for (DiskIndex di : this.geometricParts.getIndexes()) {
@@ -342,7 +340,7 @@ public class GeometricIndex implements DynamicIndex, Index {
 
   private void flushCurrentIndexBlock() throws IOException {
     // First check that the final memory index contains some data:
-    if (currentMemoryIndex.getCollectionLength() < 1) {
+    if (currentMemoryIndex.documentsInIndex() < 1) {
       return;
     }
 

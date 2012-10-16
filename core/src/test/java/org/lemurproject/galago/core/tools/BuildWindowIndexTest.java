@@ -114,7 +114,9 @@ public class BuildWindowIndexTest extends TestCase {
 
       long vocab = 10;
       long collectionLength = 44;
-      long documentCount = 3;
+      long highestFrequency = 7;
+      long highestDocumentCount = 3;
+      
       assertEquals(vocab, counts_notSE.getManifest().getLong("statistics/vocabCount"));
       assertEquals(vocab, counts_SE.getManifest().getLong("statistics/vocabCount"));
       assertEquals(vocab, pos_notSE.getManifest().getLong("statistics/vocabCount"));
@@ -122,12 +124,16 @@ public class BuildWindowIndexTest extends TestCase {
       assertEquals(collectionLength, counts_notSE.getManifest().getLong("statistics/collectionLength"));
       assertEquals(collectionLength, counts_SE.getManifest().getLong("statistics/collectionLength"));
       assertEquals(collectionLength, pos_notSE.getManifest().getLong("statistics/collectionLength"));
-      assertEquals(collectionLength, counts_notSE.getManifest().getLong("statistics/collectionLength"));
-      assertEquals(documentCount, counts_notSE.getManifest().getLong("statistics/documentCount"));
-      assertEquals(documentCount, counts_SE.getManifest().getLong("statistics/documentCount"));
-      assertEquals(documentCount, pos_notSE.getManifest().getLong("statistics/documentCount"));
-      assertEquals(documentCount, pos_SE.getManifest().getLong("statistics/documentCount"));
-
+      assertEquals(collectionLength, pos_notSE.getManifest().getLong("statistics/collectionLength"));
+      assertEquals(highestFrequency, counts_notSE.getManifest().getLong("statistics/highestFrequency"));
+      assertEquals(highestFrequency, counts_SE.getManifest().getLong("statistics/highestFrequency"));
+      assertEquals(highestFrequency, pos_notSE.getManifest().getLong("statistics/highestFrequency"));
+      assertEquals(highestFrequency, pos_notSE.getManifest().getLong("statistics/highestFrequency"));
+      assertEquals(highestDocumentCount, counts_notSE.getManifest().getLong("statistics/highestDocumentCount"));
+      assertEquals(highestDocumentCount, counts_SE.getManifest().getLong("statistics/highestDocumentCount"));
+      assertEquals(highestDocumentCount, pos_notSE.getManifest().getLong("statistics/highestDocumentCount"));
+      assertEquals(highestDocumentCount, pos_notSE.getManifest().getLong("statistics/highestDocumentCount"));
+      
       
       KeyIterator counts_NSE_ki = counts_notSE.getIterator();
       KeyIterator counts__SE_ki = counts_SE.getIterator();
@@ -295,7 +301,8 @@ public class BuildWindowIndexTest extends TestCase {
 
       long vocab = 19;
       long collectionLength = 2115;
-      long documentCount = 3;
+      long highestFrequency = 374;
+      long highestDocumentCount = 3;
       assertEquals(vocab, counts_notSE.getManifest().getLong("statistics/vocabCount"));
       assertEquals(vocab, counts_SE.getManifest().getLong("statistics/vocabCount"));
       assertEquals(vocab, pos_notSE.getManifest().getLong("statistics/vocabCount"));
@@ -304,10 +311,14 @@ public class BuildWindowIndexTest extends TestCase {
       assertEquals(collectionLength, counts_SE.getManifest().getLong("statistics/collectionLength"));
       assertEquals(collectionLength, pos_notSE.getManifest().getLong("statistics/collectionLength"));
       assertEquals(collectionLength, counts_notSE.getManifest().getLong("statistics/collectionLength"));
-      assertEquals(documentCount, counts_notSE.getManifest().getLong("statistics/documentCount"));
-      assertEquals(documentCount, counts_SE.getManifest().getLong("statistics/documentCount"));
-      assertEquals(documentCount, pos_notSE.getManifest().getLong("statistics/documentCount"));
-      assertEquals(documentCount, pos_SE.getManifest().getLong("statistics/documentCount"));
+      assertEquals(highestFrequency, counts_notSE.getManifest().getLong("statistics/highestFrequency"));
+      assertEquals(highestFrequency, counts_SE.getManifest().getLong("statistics/highestFrequency"));
+      assertEquals(highestFrequency, pos_notSE.getManifest().getLong("statistics/highestFrequency"));
+      assertEquals(highestFrequency, pos_notSE.getManifest().getLong("statistics/highestFrequency"));
+      assertEquals(highestDocumentCount, counts_notSE.getManifest().getLong("statistics/highestDocumentCount"));
+      assertEquals(highestDocumentCount, counts_SE.getManifest().getLong("statistics/highestDocumentCount"));
+      assertEquals(highestDocumentCount, pos_notSE.getManifest().getLong("statistics/highestDocumentCount"));
+      assertEquals(highestDocumentCount, pos_notSE.getManifest().getLong("statistics/highestDocumentCount"));
       
       
       KeyIterator counts_NSE_ki = counts_notSE.getIterator();

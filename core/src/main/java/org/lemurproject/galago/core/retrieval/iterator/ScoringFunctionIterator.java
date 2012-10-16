@@ -10,9 +10,9 @@ import org.lemurproject.galago.core.scoring.ScoringFunction;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * An iterator that converts a count iterator's count into a score.
- * This is usually composed w/ a scoring function in order to produce an
- * appropriate score
+ * An iterator that converts a count iterator's count into a score. This is
+ * usually composed w/ a scoring function in order to produce an appropriate
+ * score
  *
  * @author irmarc
  */
@@ -20,28 +20,41 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
 
   protected NodeParameters np;
   protected ScoringFunction function;
-  protected CountIterator countIterator;
-  protected double max;
+  protected MovableLengthsIterator lengthsIterator;
+  protected MovableCountIterator countIterator;
+  protected double max = Double.MAX_VALUE;
 
-  public ScoringFunctionIterator(NodeParameters np, MovableCountIterator iterator, ScoringFunction function) throws IOException {
+  public ScoringFunctionIterator(NodeParameters np, 
+          MovableLengthsIterator lengths,
+          MovableCountIterator iterator) throws IOException {
     super(iterator);
     this.np = np;
-    this.function = function;
+    this.lengthsIterator = lengths;
     this.countIterator = iterator;
+  }
+
+  public void setScoringFunction(ScoringFunction f) {
+    this.function = f;
   }
 
   public ScoringFunction getScoringFunction() {
     return function;
   }
 
+  /**
+   * Over the lengths iterator trails the counts iterator.
+   * When 'syncTo' is called, the lengths iterator catches up.
+   */
+  @Override
+  public void syncTo(int document) throws IOException{
+    super.syncTo(document);
+    this.lengthsIterator.syncTo(document);
+  }
+  
   @Override
   public double score() {
-    int count = 0;
-
-    if (iterator.hasMatch(context.document)) {
-      count = countIterator.count();
-    }
-    double score = function.score(count, context.getLength());
+    int count = countIterator.count();
+    double score = function.score(count, lengthsIterator.getCurrentLength());
     return score;
   }
 
@@ -71,7 +84,8 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
 
   /**
    * Non-essential method to forward the count iterator key.
-   * @return 
+   *
+   * @return
    */
   public byte[] key() {
     return ((CountIterator) iterator).key();

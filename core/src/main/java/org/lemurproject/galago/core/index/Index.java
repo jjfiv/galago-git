@@ -5,9 +5,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -44,9 +45,7 @@ public interface Index {
 
   public NodeType getNodeType(Node node) throws Exception;
 
-  public CollectionStatistics getCollectionStatistics();
-
-  public CollectionStatistics getCollectionStatistics(String part);
+  public IndexPartStatistics getIndexPartStatistics(String part);
 
   public void close() throws IOException;
 
@@ -60,7 +59,7 @@ public interface Index {
 
   public Map<String,Document> getDocuments(List<String> document, Parameters p) throws IOException;
   
-  public LengthsReader.LengthsIterator getLengthsIterator() throws IOException;
+  public MovableLengthsIterator getLengthsIterator() throws IOException;
 
   public NamesReader.NamesIterator getNamesIterator() throws IOException;
 

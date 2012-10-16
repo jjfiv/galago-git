@@ -18,30 +18,30 @@ import org.lemurproject.galago.tupleflow.Utility;
  * @author irmarc
  */
 public class FakeExtentIterator implements MovableExtentIterator, MovableCountIterator {
-  
+
   private int[][] data;
   private int index;
   private ScoringContext context;
-  
+
   public FakeExtentIterator(int[][] data) {
     this.data = data;
     this.index = 0;
   }
-  
+
   @Override
   public boolean isDone() {
     return index >= data.length;
   }
-  
+
   @Override
   public int currentCandidate() {
-    if(index < data.length){
+    if (index < data.length) {
       return data[index][0];
     } else {
       return Integer.MAX_VALUE;
     }
   }
-  
+
   @Override
   public int count() {
     if (context.document == currentCandidate()) {
@@ -50,17 +50,17 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
       return 0;
     }
   }
-  
+
   @Override
   public void reset() throws IOException {
     index = 0;
   }
-  
+
   @Override
   public ExtentArray getData() {
     return extents();
   }
-  
+
   @Override
   public ExtentArray extents() {
     if (context.document == currentCandidate()) {
@@ -70,13 +70,13 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
       for (int i = 1; i < datum.length; i++) {
         array.add(datum[i]);
       }
-      
+
       return array;
     } else {
       return new ExtentArray();
     }
   }
-  
+
   @Override
   public boolean hasMatch(int identifier) {
     if (isDone()) {
@@ -85,24 +85,24 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
       return (currentCandidate() == identifier);
     }
   }
-  
+
   @Override
   public void syncTo(int identifier) throws IOException {
     while (!isDone() && currentCandidate() < identifier) {
       index++;
     }
   }
-  
+
   @Override
   public void movePast(int identifier) throws IOException {
     syncTo(identifier + 1);
   }
-  
+
   @Override
   public long totalEntries() {
     return data.length;
   }
-  
+
   @Override
   public int compareTo(MovableIterator other) {
     if (isDone() && !other.isDone()) {
@@ -116,32 +116,32 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
     }
     return currentCandidate() - other.currentCandidate();
   }
-  
+
   @Override
   public String getEntry() throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
-  
+
   @Override
   public int maximumCount() {
     throw new UnsupportedOperationException("Not supported yet.");
   }
-  
+
   @Override
   public boolean hasAllCandidates() {
     return false;
   }
-  
+
   @Override
   public void setContext(ScoringContext context) {
     this.context = context;
   }
-  
+
   @Override
   public ScoringContext getContext() {
     return context;
   }
-  
+
   @Override
   public AnnotatedNode getAnnotatedNode() {
     String type = "count";
@@ -151,10 +151,10 @@ public class FakeExtentIterator implements MovableExtentIterator, MovableCountIt
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = extents().toString();
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
-    
+
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
-  
+
   @Override
   public byte[] key() {
     return Utility.fromString("FAKE");

@@ -19,20 +19,15 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
 @InputClass(className = "org.lemurproject.galago.core.types.FieldNumberWordPosition", order = {"+field", "+word", "+document", "+position"})
 public class PositionFieldIndexWriter implements Processor<FieldNumberWordPosition> {
 
-  NumberWordPosition.WordDocumentPositionOrder.TupleShredder shredder;
-  PositionIndexWriter writer;
-  String filePrefix;
-  String prevField;
+  private NumberWordPosition.WordDocumentPositionOrder.TupleShredder shredder;
+  private PositionIndexWriter writer;
+  private String filePrefix;
+  private String prevField;
   private final TupleFlowParameters p;
-  Parameters docCounts;
 
   public PositionFieldIndexWriter(TupleFlowParameters p) throws IOException {
     filePrefix = p.getJSON().getString("filename");
     this.p = p;
-    // Let's get those stats in there if we're receiving
-    if (p.getJSON().isString("pipename")) {
-      docCounts = NumericParameterAccumulator.accumulateParameters(p.getTypeReader(p.getJSON().getString("pipename")));
-    }
   }
 
   private void checkWriter(String fieldName) throws IOException {
@@ -42,8 +37,6 @@ public class PositionFieldIndexWriter implements Processor<FieldNumberWordPositi
       }
       p.getJSON().set("filename", filePrefix + fieldName);
       writer = new PositionIndexWriter(p);
-      // override the existing docCount
-      writer.actualParams.set("statistics/documentCount", docCounts.getMap("documentCount").getLong(fieldName));
       shredder = new NumberWordPosition.WordDocumentPositionOrder.TupleShredder(writer);
       prevField = fieldName;
     }

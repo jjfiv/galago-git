@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.Processor;
@@ -24,7 +25,7 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
 
   @Override
   public boolean mappingKeys() {
-    return false; // keys are no longer mappable
+    return false; // keys are not mappable
   }
 
   @Override
@@ -36,7 +37,7 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
   public void performValueMerge(byte[] key, List<KeyIteratorWrapper> keyIterators) throws IOException {
     PriorityQueue<LengthIteratorWrapper> lenQueue = new PriorityQueue();
     for (KeyIteratorWrapper wrapper : keyIterators) {
-      lenQueue.offer(new LengthIteratorWrapper(this.partIds.get(wrapper), (LengthsReader.LengthsIterator) wrapper.getIterator().getValueIterator(), this.mappingReader));
+      lenQueue.offer(new LengthIteratorWrapper(this.partIds.get(wrapper), (MovableLengthsIterator) wrapper.getIterator().getValueIterator(), this.mappingReader));
     }
 
     while (!lenQueue.isEmpty()) {
@@ -52,12 +53,12 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
 
     int indexId;
     ScoringContext sc;
-    LengthsReader.LengthsIterator iterator;
+    MovableLengthsIterator iterator;
     int currentDocument;
     int currentLength;
     DocumentMappingReader mapping;
 
-    private LengthIteratorWrapper(int indexId, LengthsReader.LengthsIterator iterator, DocumentMappingReader mapping) {
+    private LengthIteratorWrapper(int indexId, MovableLengthsIterator iterator, DocumentMappingReader mapping) {
       this.indexId = indexId;
       this.iterator = iterator;
       this.mapping = mapping;

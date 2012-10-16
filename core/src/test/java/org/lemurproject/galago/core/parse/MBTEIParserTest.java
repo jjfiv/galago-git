@@ -2,15 +2,8 @@
 package org.lemurproject.galago.core.parse;
 
 import java.io.*;
-import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.core.parse.MBTEIBookParser;
-import org.lemurproject.galago.core.parse.MBTEIPageParser;
 import org.lemurproject.galago.core.types.DocumentSplit;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import junit.framework.TestCase;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -55,7 +48,7 @@ public class MBTEIParserTest extends TestCase {
       f.delete();
     }
   }
-
+ 
   public void testBookParse() throws IOException {
     File f = Utility.createTemporary();
     try {

@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import junit.framework.TestCase;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
@@ -55,7 +56,7 @@ public class RemoveStopwordsTraversalTest extends TestCase {
     //removed = StructuredQuery.copy(traversal, root);
     //assertEquals(1, removed.getInternalNodes().size());
     //assertEquals("c", removed.getInternalNodes().get(0).getDefaultParameter());
-    
+
     temp.delete();
   }
 
@@ -82,15 +83,15 @@ public class RemoveStopwordsTraversalTest extends TestCase {
     //assertEquals("c", removed.getInternalNodes().get(0).getDefaultParameter());
 
   }
-  
-  
+
   private class MockRetrieval implements Retrieval {
+
     Parameters p;
-    
-    public MockRetrieval(Parameters p){
+
+    public MockRetrieval(Parameters p) {
       this.p = p;
     }
-    
+
     public void close() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -127,19 +128,29 @@ public class RemoveStopwordsTraversalTest extends TestCase {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public CollectionStatistics getRetrievalStatistics() throws IOException {
+    public IndexPartStatistics getIndexPartStatistics() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public CollectionStatistics getRetrievalStatistics(String partName) throws IOException {
+    public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public NodeStatistics nodeStatistics(String nodeString) throws Exception {
+    @Override
+    public CollectionStatistics getCollectionStatistics(String nodeString) throws Exception {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public NodeStatistics nodeStatistics(Node node) throws Exception {
+    @Override
+    public CollectionStatistics getCollectionStatistics(Node node) throws Exception {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public NodeStatistics getNodeStatistics(String nodeString) throws Exception {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public NodeStatistics getNodeStatistics(Node node) throws Exception {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -167,6 +178,5 @@ public class RemoveStopwordsTraversalTest extends TestCase {
     public String getDocumentName(int docid) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
-    
   }
 }

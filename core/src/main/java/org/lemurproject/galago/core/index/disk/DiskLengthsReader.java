@@ -8,10 +8,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.*;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -73,7 +76,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
 
   @Override
-  public LengthsReader.LengthsIterator getLengthsIterator() throws IOException {
+  public MovableLengthsIterator getLengthsIterator() throws IOException {
     return new MemoryMapLengthsIterator(doc, documentLengths);
   }
 
@@ -113,7 +116,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
           return new MemoryMapLengthsIterator(keyBytes, i);
 
         } else {
-          throw new UnsupportedOperationException("Index doesn't support lengths node: " + node.toPrettyString());
+          throw new UnsupportedOperationException("Index can not support node: " + node.toPrettyString());
         }
       }
       // if the field name is not specified 
@@ -156,7 +159,8 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
 
   public class MemoryMapLengthsIterator extends ValueIterator
-          implements MovableCountIterator, LengthsReader.LengthsIterator {
+          implements MovableCountIterator, MovableLengthsIterator,
+          AggregateReader.CollectionAggregateIterator {
 
     byte[] key;
     private MappedByteBuffer memBuffer;
@@ -292,7 +296,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
           return this.memBuffer.getInt(this.lengthsDataOffset + (4 * (document - firstDocument)));
         }
       }
-      System.out.printf("Returning 0.\n");
+      Logger.getLogger(this.getClass().getName()).info("Returning 0.\n");
       return 0;
     }
 
@@ -334,10 +338,28 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
       }
       return currentCandidate() - other.currentCandidate();
     }
+
+    @Override
+    public byte[] getRegionBytes() {
+      return this.key;
+    }
+
+    @Override
+    public CollectionStatistics getStatistics() {
+      CollectionStatistics cs = new CollectionStatistics();
+      cs.fieldName = Utility.toString(key);
+      cs.collectionLength = this.collectionLength;
+      cs.documentCount = this.nonZeroDocumentCount;
+      cs.maxLength = this.maxLength;
+      cs.minLength = this.minLength;
+      cs.avgLength = this.avgLength;
+      return cs;
+    }
   }
 
   public class StreamLengthsIterator extends KeyListReader.ListIterator
-          implements MovableCountIterator, LengthsReader.LengthsIterator {
+          implements MovableCountIterator, MovableLengthsIterator,
+          AggregateReader.CollectionAggregateIterator {
 
     private final BTreeIterator iterator;
     private DataStream streamBuffer;
@@ -503,6 +525,23 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     @Override
     public int getCurrentIdentifier() {
       return this.currDocument;
+    }
+
+    @Override
+    public byte[] getRegionBytes() {
+      return this.key;
+    }
+
+    @Override
+    public CollectionStatistics getStatistics() {
+      CollectionStatistics cs = new CollectionStatistics();
+      cs.fieldName = Utility.toString(key);
+      cs.collectionLength = this.collectionLength;
+      cs.documentCount = this.nonZeroDocumentCount;
+      cs.maxLength = this.maxLength;
+      cs.minLength = this.minLength;
+      cs.avgLength = this.avgLength;
+      return cs;
     }
   }
 }

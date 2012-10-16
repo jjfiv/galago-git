@@ -6,8 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.corpus.SnippetGenerator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.Retrieval;
@@ -38,12 +37,8 @@ public class Search {
     return retrieval;
   }
 
-  public CollectionStatistics getRetrievalStats() throws IOException {
-    return retrieval.getRetrievalStatistics();
-  }
-  
-  public CollectionStatistics getRetrievalStats(String part) throws IOException {
-    return retrieval.getRetrievalStatistics(part);
+  public IndexPartStatistics getIndexPartStatistics(String part) throws IOException {
+    return retrieval.getIndexPartStatistics(part);
   }
 
   public Parameters getAvailiableParts() throws IOException {
@@ -109,11 +104,11 @@ public class Search {
   }
 
   public long xCount(String nodeString) throws Exception {
-    return this.retrieval.nodeStatistics(nodeString).nodeFrequency;
+    return this.retrieval.getNodeStatistics(nodeString).nodeFrequency;
   }
 
   public long docCount(String nodeString) throws Exception {
-    return this.retrieval.nodeStatistics(nodeString).nodeDocumentCount;
+    return this.retrieval.getNodeStatistics(nodeString).nodeDocumentCount;
   }
 
   public SearchResult runQuery(String query, Parameters p, boolean summarize) throws Exception {

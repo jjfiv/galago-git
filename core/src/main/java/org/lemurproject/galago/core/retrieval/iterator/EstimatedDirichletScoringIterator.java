@@ -17,7 +17,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author irmarc
  */
-@RequiredStatistics(statistics = {"collectionLength", "documentCount"})
+@RequiredStatistics(statistics = {"maximumCount","collectionLength", "documentCount"})
 @RequiredParameters(parameters = {"w", "collapsing, syntheticCounts"})
 public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator, Estimator {
@@ -32,9 +32,9 @@ public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
   boolean storedSyntheticCounts;
   int maxcount = 0;
 
-  public EstimatedDirichletScoringIterator(NodeParameters p, MinimumCountConjunctionIterator it)
+  public EstimatedDirichletScoringIterator(NodeParameters p, MovableLengthsIterator ls, MinimumCountConjunctionIterator it)
           throws IOException {
-    super(p, it, null); // have to fake it at first
+    super(p, ls, it); // have to fake it at first
     mcci = it;
     range = new double[2];
     collapsing = p.get("collapsing", true);
@@ -42,8 +42,8 @@ public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
     collectionLength = p.getLong("collectionLength");
 
     // now create/set the function - the prob won't matter. We ignore it.
-    p.set("collectionProbability", 1.0 / collectionLength);
-    function = new DirichletScorer(p, it);
+    p.set("nodeFrequency", 1);
+    this.setScoringFunction(new DirichletScorer(p, it));
 
     documentCount = p.getLong("documentCount");
 

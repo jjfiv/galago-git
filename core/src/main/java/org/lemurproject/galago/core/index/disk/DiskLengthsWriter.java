@@ -72,24 +72,17 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
 
     } else if (Utility.compare(fieldLengthData.field, ld.field) != 0) {
 
-      System.err.println("Found new field " + Utility.toString(ld.field));
       if (newFields != null) {
           newFields.increment();
       }
 
       if (!fieldLengthData.isEmpty()) {
-          System.err.println("Starting to write..." + Utility.toString(ld.field));
-
         writer.add(fieldLengthData);
-        System.err.println("Done writing " + Utility.toString(ld.field));
-
       }
 
       fieldCounter = tupleFlowParameters.getCounter(Utility.toString(ld.field) + " count");
       fieldLengthData = new LengthsList(ld.field);
     }
-
-   // System.err.println("Starting to add " + ld.toString());
 
     fieldLengthData.add(ld.document, ld.length);
     if (recordsWritten != null) {

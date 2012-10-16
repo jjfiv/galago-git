@@ -10,8 +10,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
@@ -176,12 +176,12 @@ public class TermSelectionValueModel implements ExpansionModel {
 
     ArrayList<WeightedTerm> grams;
     int R;
-    AggregateReader reader;
+    IndexPartReader reader;
 
     public GramGenerator(ArrayList<WeightedTerm> g, IndexPartReader reader) {
       this.grams = g;
       this.R = fbDocs;
-      this.reader = (AggregateReader) reader;
+      this.reader = reader;
     }
 
     // Variable naming is consistent w/ the formula for TSV in the paper.
@@ -189,7 +189,8 @@ public class TermSelectionValueModel implements ExpansionModel {
       Gram g = new Gram((String) a);
       try {
         // Get df
-        long ft = reader.getTermStatistics(g.term).nodeDocumentCount;
+        NodeAggregateIterator iterator = (NodeAggregateIterator) reader.getIterator(new Node("counts", g.term));
+        long ft = iterator.getStatistics().nodeDocumentCount;
         double partone = java.lang.Math.pow(((ft + 0.0) / N), rt);
         double parttwo = org.lemurproject.galago.core.util.Math.binomialCoeff(R, rt);
         g.score = partone * parttwo;

@@ -10,15 +10,19 @@ import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.scoring.InverseDocumentFrequencyScorer;
 
 /**
+ * DEPRECATED: This is not an iterator. 
+ * Use RequiredStatistics{"documentCount"} then invert it.
  *
  * @author irmarc
  */
 @RequiredStatistics(statistics = {"nodeDocumentCount", "collectionLength", "documentCount"})
 public class InverseDocFrequencyIterator extends ScoringFunctionIterator {
 
-  public InverseDocFrequencyIterator(NodeParameters p, MovableCountIterator it)
+  public InverseDocFrequencyIterator(NodeParameters p, 
+          MovableLengthsIterator ls, MovableCountIterator it)
           throws IOException {
-    super(p, it, new InverseDocumentFrequencyScorer(p, it));
+    super(p, ls, it);
+    this.setScoringFunction(new InverseDocumentFrequencyScorer(p, it));
     // And now dump it
     iterator = null;
   }

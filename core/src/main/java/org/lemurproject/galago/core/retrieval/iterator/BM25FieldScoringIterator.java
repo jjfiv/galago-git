@@ -3,14 +3,12 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import java.io.IOException;
-import org.lemurproject.galago.core.index.disk.PositionIndexReader;
 import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.scoring.BM25FieldScorer;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -19,7 +17,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author irmarc
  */
-@RequiredStatistics(statistics = {"nodeDocumentCount", "collectionLength", "documentCount"})
+@RequiredStatistics(statistics = {"nodeDocumentCount", "collectionLength", "documentCount", "maximumCount"})
 @RequiredParameters(parameters = {"b"})
 public class BM25FieldScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {
@@ -31,9 +29,10 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
   public double idf;
   public static double K;
 
-  public BM25FieldScoringIterator(NodeParameters p, MovableCountIterator it)
+  public BM25FieldScoringIterator(NodeParameters p, MovableLengthsIterator ls, MovableCountIterator it)
           throws IOException {
-    super(p, it, new BM25FieldScorer(p, it));
+    super(p, ls, it);
+    this.setScoringFunction(new BM25FieldScorer(p, it));
     partName = p.getString("lengths");
     weight = p.getDouble("w");
     parentIdx = (int) p.getLong("pIdx");
@@ -48,12 +47,9 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
 
   @Override
   public double score() {
-    int count = 0;
-
-    if (iterator.currentCandidate() == context.document) {
-      count = ((CountIterator) iterator).count();
-    }
-    double score = function.score(count, context.getLength(partName));
+    int count = (countIterator).count();
+    //double score = function.score(count, context.getLength(partName));
+    double score = function.score(count, lengthsIterator.getCurrentLength());
     return score;
   }
 

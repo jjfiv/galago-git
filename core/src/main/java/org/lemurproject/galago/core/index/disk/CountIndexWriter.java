@@ -23,14 +23,13 @@ import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
- * Count Indexes are similar to a Position or Window Index Writer,
- * except that extent positions are not written.
- * 
- *  Structure: 
- *  mapping( term -> list(document-id), list(document-freq) )
+ * Count Indexes are similar to a Position or Window Index Writer, except that
+ * extent positions are not written.
  *
- *  Skip lists are supported
- * 
+ * Structure: mapping( term -> list(document-id), list(document-freq) )
+ *
+ * Skip lists are supported
+ *
  * @author sjh
  */
 @InputClass(className = "org.lemurproject.galago.core.types.NumberWordCount", order = {"+word", "+document"})
@@ -45,10 +44,8 @@ public class CountIndexWriter implements
   byte[] lastWord;
   long vocabCount = 0;
   long collectionLength = 0;
-  boolean estimateDocumentCount = false;
-  long longestPostingList = 0;
-  boolean calculateDocumentCount = false;
-  TIntHashSet uniqueDocSet;
+  long highestFrequency = 0;
+  long highestDocumentCount = 0;
   // skipping parameters
   int options = 0;
   int skipDistance;
@@ -62,27 +59,6 @@ public class CountIndexWriter implements
     this.actualParams.set("writerClass", CountIndexWriter.class.getName());
     this.actualParams.set("readerClass", CountIndexReader.class.getName());
     this.actualParams.set("defaultOperator", "counts");
-
-    // vocab and collection length can be calculated - doc count is more complex
-    // option 1: predefined doccount
-    if (this.actualParams.containsKey("statistics/documentCount")) {
-      // great.
-      // option 2: there is a doccount pipe
-    } else if (this.actualParams.isString("pipename")) {
-      Parameters docCounts = NumericParameterAccumulator.accumulateParameters(parameters.getTypeReader(actualParams.getString("pipename")));
-      this.actualParams.set("statistics/documentCount", docCounts.getMap("documentCount").getLong("global"));
-
-      // option 3: estimated document count - as longest posting list
-    } else if (this.actualParams.isBoolean("estimateDocumentCount")) {
-      this.estimateDocumentCount = true;
-      this.longestPostingList = 0;
-
-      // option 4: default option - calculate document count (this may be a problem - it requires memory)
-    } else {
-      this.actualParams.set("calculateDocumentCount", true);
-      this.calculateDocumentCount = true;
-      this.uniqueDocSet = new TIntHashSet();
-    }
 
     this.writer = new DiskBTreeWriter(parameters);
 
@@ -98,10 +74,9 @@ public class CountIndexWriter implements
   @Override
   public void processWord(byte[] wordBytes) throws IOException {
     if (invertedList != null) {
-      if (estimateDocumentCount) {
-        longestPostingList = Math.max(longestPostingList, invertedList.documentCount);
-      }
-      collectionLength += invertedList.totalWindowCount;
+      highestDocumentCount = Math.max(highestDocumentCount, invertedList.documentCount);
+      highestFrequency = Math.max(highestFrequency, invertedList.totalInstanceCount);
+      collectionLength += invertedList.totalInstanceCount;
       invertedList.close();
       writer.add(invertedList);
 
@@ -119,11 +94,7 @@ public class CountIndexWriter implements
   @Override
   public void processDocument(int document) throws IOException {
     invertedList.addDocument(document);
-    if (calculateDocumentCount) {
-      this.uniqueDocSet.add(document);
-    }
   }
-  int currentBegin;
 
   @Override
   public void processTuple(int count) throws IOException {
@@ -133,32 +104,19 @@ public class CountIndexWriter implements
   @Override
   public void close() throws IOException {
     if (invertedList != null) {
-      if (estimateDocumentCount) {
-        longestPostingList = Math.max(longestPostingList, invertedList.documentCount);
-      }
-      collectionLength += invertedList.totalWindowCount;
+      highestDocumentCount = Math.max(highestDocumentCount, invertedList.documentCount);
+      highestFrequency = Math.max(highestFrequency, invertedList.totalInstanceCount);
+      collectionLength += invertedList.totalInstanceCount;
       invertedList.close();
       writer.add(invertedList);
     }
 
     // Add stats to the manifest if needed
     Parameters manifest = writer.getManifest();
-    if (!manifest.isLong("statistics/collectionLength")) {
-      manifest.set("statistics/collectionLength", collectionLength);
-    }
-    if (!manifest.isLong("statistics/vocabCount")) {
-      manifest.set("statistics/vocabCount", vocabCount);
-    }
-    if (!manifest.isLong("statistics/documentCount")) {
-      if (this.estimateDocumentCount) {
-        manifest.set("statistics/documentCount", this.longestPostingList);
-      } else if (this.calculateDocumentCount) {
-        manifest.set("statistics/documentCount", this.uniqueDocSet.size());
-        this.uniqueDocSet.clear();
-      } else {
-        Logger.getLogger(this.getClass().getName()).info("Could NOT find, calculate, or estimate a document count.");
-      }
-    }
+    manifest.set("statistics/collectionLength", collectionLength);
+    manifest.set("statistics/vocabCount", vocabCount);
+    manifest.set("statistics/highestDocumentCount", highestDocumentCount);
+    manifest.set("statistics/highestFrequency", highestFrequency);
 
     writer.close();
   }
@@ -208,7 +166,7 @@ public class CountIndexWriter implements
       }
 
       header.add(documentCount);
-      header.add(totalWindowCount);
+      header.add(totalInstanceCount);
       header.add(maximumPositionCount);
       if (skips != null && skips.length() > 0) {
         header.add(skipDistance);
@@ -264,7 +222,7 @@ public class CountIndexWriter implements
       this.word = word;
       this.lastDocument = 0;
 
-      this.totalWindowCount = 0;
+      this.totalInstanceCount = 0;
       this.positionCount = 0;
       this.maximumPositionCount = 0;
       if (skips != null) {
@@ -300,7 +258,7 @@ public class CountIndexWriter implements
 
     public void addCount(int count) throws IOException {
       positionCount += count;
-      totalWindowCount += count;
+      totalInstanceCount += count;
     }
 
     private void updateSkipInformation() {
@@ -330,7 +288,7 @@ public class CountIndexWriter implements
     private long lastDocument;
     private int positionCount;
     private int documentCount;
-    private int totalWindowCount;
+    private int totalInstanceCount;
     private int maximumPositionCount;
     public byte[] word;
     public CompressedByteBuffer header;

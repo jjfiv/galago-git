@@ -8,8 +8,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.iterator.*;
@@ -21,8 +21,9 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * An extension to the LocalRetrieval to support certain statistics used
- * in staged evaluation.
+ * An extension to the LocalRetrieval to support certain statistics used in
+ * staged evaluation.
+ *
  * @author irmarc
  */
 public class StagedLocalRetrieval extends LocalRetrieval {
@@ -55,6 +56,7 @@ public class StagedLocalRetrieval extends LocalRetrieval {
     checkForSyntheticCounts();
   }
 
+  @Override
   protected StructuredIterator createNodeMergedIterator(Node node, ScoringContext context,
           HashMap<String, StructuredIterator> iteratorCache)
           throws Exception {
@@ -83,25 +85,26 @@ public class StagedLocalRetrieval extends LocalRetrieval {
   }
 
   @Override
-  public NodeStatistics nodeStatistics(Node root) throws Exception {
-    NodeStatistics stats = new NodeStatistics();
-    // set up initial values
-    stats.node = root.toString();
-    stats.nodeDocumentCount = 0;
-    stats.maximumCount = 0;
-    stats.nodeFrequency = 0;
-    stats.collectionLength = getRetrievalStatistics().collectionLength;
-    stats.documentCount = getRetrievalStatistics().documentCount;
+  public NodeStatistics getNodeStatistics(Node root) throws Exception {
 
-    ScoringContext sc = ContextFactory.createContext(globalParameters);
-    StructuredIterator structIterator = createIterator(new Parameters(), root, sc);
-    if (AggregateIterator.class.isInstance(structIterator)) {
-      stats = ((AggregateIterator) structIterator).getStatistics();
+    StructuredIterator structIterator = createIterator(new Parameters(), root, null);
+    if (NodeAggregateIterator.class.isInstance(structIterator)) {
+      return ((NodeAggregateIterator) structIterator).getStatistics();
 
     } else if (syntheticCounts != null && windowOps.contains(root.getOperator())) {
       String key = AbstractPartialProcessor.makeNodeKey(root);
-      stats = syntheticCounts.get(key); // use the cached numbers
+      return syntheticCounts.get(key); // use the cached numbers
     } else if (structIterator instanceof MovableCountIterator) {
+
+      ScoringContext sc = ContextFactory.createContext(globalParameters);
+      
+      NodeStatistics stats = new NodeStatistics();
+      // set up initial values
+      stats.node = root.toString();
+      stats.nodeDocumentCount = 0;
+      stats.maximumCount = 0;
+      stats.nodeFrequency = 0;
+
       MovableCountIterator iterator = (MovableCountIterator) structIterator;
       if (this.globalParameters.containsKey("completion")) {
         String mode = this.globalParameters.getString("completion");
@@ -115,10 +118,9 @@ public class StagedLocalRetrieval extends LocalRetrieval {
       } else {
         defaultStats(stats, iterator, sc);
       }
-    } else {
-      throw new IllegalArgumentException("Node " + root.toString() + " did not return a counting iterator.");
+      return stats;
     }
-    return stats;
+    throw new IllegalArgumentException("Node " + root.toString() + " did not return a counting iterator.");
   }
 
   // Nothing special
@@ -137,7 +139,7 @@ public class StagedLocalRetrieval extends LocalRetrieval {
   }
 
   // Do the whole thing, but cache the counts of the candidates for use later
-  private void onepassStats(NodeStatistics stats, 
+  private void onepassStats(NodeStatistics stats,
           MovableCountIterator it, ScoringContext sc) throws Exception {
     assert (candidates != null);
     if (occurrenceCache == null) {
@@ -161,7 +163,7 @@ public class StagedLocalRetrieval extends LocalRetrieval {
   }
 
   // Only takes numbers from the supplied candidate list. :-o
-  private void sampleOnlyStats(NodeStatistics stats, 
+  private void sampleOnlyStats(NodeStatistics stats,
           MovableCountIterator it, ScoringContext sc) throws Exception {
     assert (sortedCandidates != null);
     if (occurrenceCache == null) {
@@ -195,7 +197,6 @@ public class StagedLocalRetrieval extends LocalRetrieval {
 
       // read in counts
       syntheticCounts = new HashMap<String, NodeStatistics>();
-      CollectionStatistics cs = this.getRetrievalStatistics();
       BufferedReader br = new BufferedReader(new FileReader(globalParameters.getString("syntheticCounts")));
       while (br.ready()) {
         String[] parts = br.readLine().split("\t");
@@ -204,8 +205,6 @@ public class StagedLocalRetrieval extends LocalRetrieval {
         ns.nodeFrequency = Long.parseLong(parts[1]);
         ns.maximumCount = Long.parseLong(parts[2]);
         ns.nodeDocumentCount = Long.parseLong(parts[3]);
-        ns.collectionLength = cs.collectionLength;
-        ns.documentCount = cs.documentCount;
         syntheticCounts.put(key, ns);
       }
       br.close();

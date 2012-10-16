@@ -11,10 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.AggregateReader.AggregateIterator;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionAggregateIterator;
+import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
+import org.lemurproject.galago.core.index.LengthsReader.LengthsIterator;
 import org.lemurproject.galago.core.index.NamesReader.NamesIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.parse.Document;
@@ -28,6 +31,7 @@ import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
@@ -93,13 +97,8 @@ public class LocalRetrieval implements Retrieval {
    * expected.
    */
   @Override
-  public CollectionStatistics getRetrievalStatistics(String partName) throws IOException {
-    return index.getCollectionStatistics(partName);
-  }
-
-  @Override
-  public CollectionStatistics getRetrievalStatistics() throws IOException {
-    return index.getCollectionStatistics();
+  public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException {
+    return index.getIndexPartStatistics(partName);
   }
 
   @Override
@@ -204,7 +203,6 @@ public class LocalRetrieval implements Retrieval {
     T[] byID = Arrays.copyOf(results, results.length);
 
     Arrays.sort(byID, new Comparator<T>() {
-
       @Override
       public int compare(T o1, T o2) {
         return Utility.compare(o1.document, o2.document);
@@ -262,7 +260,7 @@ public class LocalRetrieval implements Retrieval {
     }
 
     if (context != null && ContextualIterator.class.isAssignableFrom(iterator.getClass())) {
-      ((ContextualIterator)iterator).setContext(context);
+      ((ContextualIterator) iterator).setContext(context);
     }
 
     // we've created a new iterator - add to the cache for future nodes
@@ -280,38 +278,80 @@ public class LocalRetrieval implements Retrieval {
   protected Node transformQuery(List<Traversal> traversals, Node queryTree) throws Exception {
     for (Traversal traversal : traversals) {
       queryTree = StructuredQuery.walk(traversal, queryTree);
-     // System.out.println(traversal.getClass().getSimpleName() + "\t" + queryTree.toPrettyString());
+      // System.out.println(traversal.getClass().getSimpleName() + "\t" + queryTree.toPrettyString());
     }
     return queryTree;
   }
 
   @Override
-  public NodeStatistics nodeStatistics(String nodeString) throws Exception {
+  public CollectionStatistics getCollectionStatistics(String nodeString) throws Exception {
+    // first parse the node
+    Node root = StructuredQuery.parse(nodeString);
+    return getCollectionStatistics(root);
+  }
+
+  @Override
+  public CollectionStatistics getCollectionStatistics(Node root) throws Exception {
+
+    ScoringContext sc = ContextFactory.createContext(globalParameters);
+    StructuredIterator structIterator = createIterator(new Parameters(), root, sc);
+
+    // first check if this iterator is an aggregate iterator (has direct access to stats)
+    if (CollectionAggregateIterator.class.isInstance(structIterator)) {
+      return ((CollectionAggregateIterator) structIterator).getStatistics();
+
+    } else if (structIterator instanceof MovableLengthsIterator) {
+      MovableLengthsIterator iterator = (MovableLengthsIterator) structIterator;
+      CollectionStatistics stats = new CollectionStatistics();
+      stats.fieldName = root.toString();
+      stats.minLength = Integer.MAX_VALUE;
+
+      while (!iterator.isDone()) {
+        sc.document = iterator.currentCandidate();
+        if (iterator.hasMatch(iterator.currentCandidate())) {
+          int len = iterator.getCurrentLength();
+          stats.collectionLength += len;
+          stats.documentCount += 1;
+          stats.maxLength = Math.max(stats.maxLength, len);
+          stats.minLength = Math.min(stats.minLength, len);
+        }
+        iterator.movePast(sc.document);
+      }
+
+      stats.avgLength = (stats.documentCount > 0) ? (double) stats.collectionLength / (double) stats.documentCount : 0;
+      stats.minLength = (stats.documentCount > 0) ? stats.minLength : 0;
+      return stats;
+    }
+    throw new IllegalArgumentException("Node " + root.toString() + " is not a lengths iterator.");
+  }
+
+  @Override
+  public NodeStatistics getNodeStatistics(String nodeString) throws Exception {
     // first parse the node
     Node root = StructuredQuery.parse(nodeString);
     root.getNodeParameters().set("queryType", "count");
     root = transformQuery(root, new Parameters());
-    return nodeStatistics(root);
+    return getNodeStatistics(root);
   }
 
   @Override
-  public NodeStatistics nodeStatistics(Node root) throws Exception {
-    NodeStatistics stats = new NodeStatistics();
-    // set up initial values
-    stats.node = root.toString();
-    stats.nodeDocumentCount = 0;
-    stats.nodeFrequency = 0;
-    stats.maximumCount = 0;
-    stats.collectionLength = getRetrievalStatistics().collectionLength;
-    stats.documentCount = getRetrievalStatistics().documentCount;
-
+  public NodeStatistics getNodeStatistics(Node root) throws Exception {
     ScoringContext sc = ContextFactory.createContext(globalParameters);
     StructuredIterator structIterator = createIterator(new Parameters(), root, sc);
-    if (AggregateIterator.class.isInstance(structIterator)) {
-      stats = ((AggregateIterator) structIterator).getStatistics();
+    if (NodeAggregateIterator.class.isInstance(structIterator)) {
+      return ((NodeAggregateIterator) structIterator).getStatistics();
 
     } else if (structIterator instanceof MovableCountIterator) {
+
+      NodeStatistics stats = new NodeStatistics();
+      // set up initial values
+      stats.node = root.toString();
+      stats.nodeDocumentCount = 0;
+      stats.nodeFrequency = 0;
+      stats.maximumCount = 0;
+      
       MovableCountIterator iterator = (MovableCountIterator) structIterator;
+
       while (!iterator.isDone()) {
         sc.document = iterator.currentCandidate();
         if (iterator.hasMatch(iterator.currentCandidate())) {
@@ -321,11 +361,11 @@ public class LocalRetrieval implements Retrieval {
         }
         iterator.movePast(iterator.currentCandidate());
       }
-
-    } else {
-      throw new IllegalArgumentException("Node " + root.toString() + " did not return a counting iterator.");
+      
+      return stats;
     }
-    return stats;
+    // otherwise :
+    throw new IllegalArgumentException("Node " + root.toString() + " is not a count iterator.");
   }
 
   @Override
@@ -372,18 +412,18 @@ public class LocalRetrieval implements Retrieval {
   }
 
   public int[] getDocumentIds(List<String> docnames) throws IOException {
-      ArrayList<Integer> internalDocBuffer = new ArrayList<Integer>();
+    ArrayList<Integer> internalDocBuffer = new ArrayList<Integer>();
 
-      for (String name : docnames) {
-          try {
-              internalDocBuffer.add(index.getIdentifier(name));
-          } catch (Exception e) {}
+    for (String name : docnames) {
+      try {
+        internalDocBuffer.add(index.getIdentifier(name));
+      } catch (Exception e) {
       }
-      int[] internalDocs = new int[internalDocBuffer.size()];
-      for (int i=0; i < internalDocBuffer.size(); i++) {
-          internalDocs[i] = internalDocBuffer.get(i);
-      }
-      return internalDocs;
+    }
+    int[] internalDocs = new int[internalDocBuffer.size()];
+    for (int i = 0; i < internalDocBuffer.size(); i++) {
+      internalDocs[i] = internalDocBuffer.get(i);
+    }
+    return internalDocs;
   }
-
 }

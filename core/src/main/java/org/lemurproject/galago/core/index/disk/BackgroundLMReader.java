@@ -5,7 +5,9 @@ import java.io.DataInput;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.lemurproject.galago.core.index.AggregateReader;
+import org.lemurproject.galago.core.index.AggregateReader.AggregateIndexPart;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyValueReader;
@@ -23,7 +25,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public class BackgroundLMReader extends KeyValueReader implements AggregateReader {
+public class BackgroundLMReader extends KeyValueReader implements AggregateIndexPart {
 
   protected Parameters manifest;
   protected Stemmer stemmer;
@@ -72,35 +74,22 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
     }
   }
 
-  public NodeStatistics getTermStatistics(String term) throws IOException {
-    return getTermStatistics(stemAsRequired(term));
-  }
-
-  @Override
-  public NodeStatistics getTermStatistics(byte[] term) throws IOException {
-    NodeStatistics stats = new AggregateReader.NodeStatistics();
-    stats.node = Utility.toString(term);
-    stats.collectionLength = reader.getManifest().get("statistics/collectionLength", 1);
-    stats.documentCount = reader.getManifest().get("statistics/documentCount", 1);
-
-    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
-    if (iterator == null) {
-      stats.nodeFrequency = 0;
-      stats.nodeDocumentCount = 0;
-    } else {
-      DataInput value = iterator.getValueStream();
-      stats.nodeFrequency = Utility.uncompressLong(value);
-      stats.nodeDocumentCount = Utility.uncompressLong(value);
-    }
-
-    return stats;
-  }
-
   private String stemAsRequired(String term) {
     if (stemmer != null) {
       return stemmer.stem(term);
     }
     return term;
+  }
+
+  @Override
+  public IndexPartStatistics getStatistics() {
+    IndexPartStatistics is = new IndexPartStatistics();
+    is.collectionLength = manifest.get("statistics/collectionLength", 0);
+    is.vocabCount = manifest.get("statistics/vocabCount", 0);
+    is.highestDocumentCount = manifest.get("statistics/highestDocumentCount", 0);
+    is.highestFrequency = manifest.get("statistics/highestFrequency", 0);
+    is.partName = manifest.get("filename", "BackgroundLMPart");
+    return is;
   }
 
   public class KeyIterator extends KeyValueReader.KeyValueIterator {
@@ -118,13 +107,12 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
       try {
         DataInput value = iterator.getValueStream();
 
-        NodeStatistics stats = new AggregateReader.NodeStatistics();
+        NodeStatistics stats = new NodeStatistics();
         stats.node = getKeyString();
-        stats.collectionLength = this.collectionLength;
-        stats.documentCount = this.documentCount;
         stats.nodeFrequency = Utility.uncompressLong(value);
         stats.nodeDocumentCount = Utility.uncompressLong(value);
-
+        stats.maximumCount = Integer.MAX_VALUE;
+          
         return stats;
       } catch (IOException e) {
         throw new RuntimeException("Failed to collect statistics in BackgroundLMReader. " + e.getMessage());
@@ -153,7 +141,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateReade
   }
 
   public class BackgroundLMIterator extends ValueIterator implements
-          AggregateIterator, MovableCountIterator {
+          NodeAggregateIterator, MovableCountIterator {
 
     protected KeyIterator iterator;
 

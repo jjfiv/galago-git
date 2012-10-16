@@ -17,7 +17,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author irmarc
  */
-@RequiredStatistics(statistics = {"collectionLength", "documentCount", "collectionProbability", "maximumCount"})
+@RequiredStatistics(statistics = {"collectionLength", "documentCount", "nodeFrequency", "maximumCount"})
 @RequiredParameters(parameters = {"mu"})
 public class DirichletScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {
@@ -26,17 +26,17 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
   int parentIdx;
   double min;
 
-  public DirichletScoringIterator(NodeParameters p, MovableCountIterator it)
+  public DirichletScoringIterator(NodeParameters p, MovableLengthsIterator ls, MovableCountIterator it)
           throws IOException {
-    super(p, it, new DirichletScorer(p, it));
+    super(p, ls, it);
+    this.setScoringFunction(new DirichletScorer(p, it));
     weight = p.get("w", 1.0);
     parentIdx = (int) p.get("pIdx", 0);
     max = getMaxTF(p, it);
-    long collectionLength = p.getLong("collectionLength");
-    double cp = p.getDouble("collectionProbability");
-    long documentCount = p.getLong("documentCount");
+    //long collectionLength = p.getLong("collectionLength");    
+    //long documentCount = p.getLong("documentCount");
     //int avgDocLength = (int) Math.round((collectionLength + 0.0) / (documentCount + 0.0));
-    int avgDocLength = 1200; /// fuckin...UGH
+    int avgDocLength = 1200; /// ...UGH
     min = function.score(0, avgDocLength); // Allows for a slightly more conservative "worst-case"
   }
 

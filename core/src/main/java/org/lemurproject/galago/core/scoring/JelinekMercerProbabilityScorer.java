@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
  *
  * @author irmarc
  */
-@RequiredStatistics(statistics = {"collectionProbability"})
+@RequiredStatistics(statistics = {"nodeFrequency","collectionLength"})
 @RequiredParameters(parameters = {"lambda"})
 public class JelinekMercerProbabilityScorer implements ScoringFunction {
 
@@ -22,7 +22,11 @@ public class JelinekMercerProbabilityScorer implements ScoringFunction {
   public JelinekMercerProbabilityScorer(NodeParameters parameters, MovableCountIterator iterator) throws IOException {
 
     lambda = parameters.get("lambda", 0.5D);
-    background = parameters.getDouble("collectionProbability");
+    long collectionLength = parameters.getLong("collectionLength");
+    long collectionFrequency = parameters.getLong("nodeFrequency");
+    background = (collectionFrequency > 0)
+            ? (double) collectionFrequency / (double) collectionLength
+            : 0.5 / (double) collectionLength;
   }
 
   public double score(int count, int length) {

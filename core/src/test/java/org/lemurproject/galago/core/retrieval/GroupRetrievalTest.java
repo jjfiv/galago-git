@@ -71,14 +71,16 @@ public class GroupRetrievalTest extends TestCase {
 
       String expected = "#combine( #feature:dirichlet:"
               + "collectionLength=8:"
-              + "collectionProbability=0.25:"
-              + "documentCount=2:w=0.5("
-              + " #counts:sample:part=postings.porter() )"
+              + "documentCount=2:"
+              + "nodeFrequency=2:"
+              + "w=0.5("
+              + " #lengths:document:part=lengths() #counts:sample:part=postings.porter() )"
               + " #feature:dirichlet:"
               + "collectionLength=8:"
-              + "collectionProbability=0.25:"
-              + "documentCount=2:w=0.5("
-              + " #counts:document:part=postings.porter() ) )";
+              + "documentCount=2:"
+              + "nodeFrequency=2:"
+              + "w=0.5("
+              + " #lengths:document:part=lengths() #counts:document:part=postings.porter() ) )";
 
       assertEquals(expected, queryTree1.toString());
       ScoredDocument[] res1 = gr.runQuery(queryTree1, q1, "group1");
@@ -98,14 +100,16 @@ public class GroupRetrievalTest extends TestCase {
       expected = "#combine("
               + " #feature:dirichlet:"
               + "collectionLength=19:"
-              + "collectionProbability=0.21052631578947367:"
-              + "documentCount=4:w=0.5"
-              + "( #counts:sample:part=postings.porter() ) "
+              + "documentCount=4:"
+              + "nodeFrequency=4:"
+              + "w=0.5"
+              + "( #lengths:document:part=lengths() #counts:sample:part=postings.porter() ) "
               + "#feature:dirichlet:"
               + "collectionLength=19:"
-              + "collectionProbability=0.21052631578947367:"
-              + "documentCount=4:w=0.5"
-              + "( #counts:document:part=postings.porter() ) )";
+              + "documentCount=4:"
+              + "nodeFrequency=4:"
+              + "w=0.5"
+              + "( #lengths:document:part=lengths() #counts:document:part=postings.porter() ) )";
 
       assertEquals(expected, queryTree2.toString());
       ScoredDocument[] res2 = gr.runQuery(queryTree2, q2, "group2");

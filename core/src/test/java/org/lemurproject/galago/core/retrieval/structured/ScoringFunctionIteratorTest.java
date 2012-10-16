@@ -25,6 +25,7 @@ public class ScoringFunctionIteratorTest extends TestCase {
 
   private static class FakeScorer implements ScoringFunction {
 
+    @Override
     public double score(int count, int length) {
       return (count + length);
     }
@@ -32,11 +33,12 @@ public class ScoringFunctionIteratorTest extends TestCase {
 
   public void testGenericIterator() throws Exception {
     FakeExtentIterator extentIterator = new FakeExtentIterator(extents);
-    ScoringFunctionIterator iterator = new ScoringFunctionIterator(new NodeParameters(), extentIterator,
-            new FakeScorer());
     int[] docs = {0, 34, 110};
     int[] lengths = {0, 99, 41};
     FakeLengthIterator lengthsIterator = new FakeLengthIterator(docs, lengths);
+
+    ScoringFunctionIterator iterator = new ScoringFunctionIterator(new NodeParameters(), lengthsIterator, extentIterator);
+    iterator.setScoringFunction(new FakeScorer());
 
     ScoringContext context = new ScoringContext();
     context.addLength("", lengthsIterator);
@@ -45,6 +47,7 @@ public class ScoringFunctionIteratorTest extends TestCase {
     iterator.setContext(context);
 
     // check initial setup
+
     assertFalse(iterator.isDone());
     assertEquals(extents[0][0], iterator.currentCandidate());
     iterator.syncTo(extents[0][0]);
@@ -52,6 +55,7 @@ public class ScoringFunctionIteratorTest extends TestCase {
 
     // score with bad context.document
     context.document = 0;
+
     assertEquals(0.0, iterator.score());
 
     // score with good context.document
@@ -72,32 +76,33 @@ public class ScoringFunctionIteratorTest extends TestCase {
   }
 
   public void testBM25RFIterator() throws Exception {
+    FakeExtentIterator extentIterator = new FakeExtentIterator(extents);
+    
+    int[] docs = {0, 34, 110};
+    int[] lengths = {0, 99, 41};
+    FakeLengthIterator lengthsIterator = new FakeLengthIterator(docs, lengths);
+
     NodeParameters p = new NodeParameters();
     p.set("rt", 3);
     p.set("R", 10);
     p.set("ft", 40);
     p.set("documentCount", 1000);
-    p.set("factor", 0.45);
+    p.set("factor", 0.45);    
+    BM25RFScoringIterator iterator = new BM25RFScoringIterator(p, lengthsIterator, extentIterator);
 
-    FakeExtentIterator extentIterator = new FakeExtentIterator(extents);
-    BM25RFScoringIterator iterator = new BM25RFScoringIterator(p, extentIterator);
-
-    int[] docs = {0, 34, 110};
-    int[] lengths = {0, 99, 41};
-    FakeLengthIterator lengthsIterator = new FakeLengthIterator(docs, lengths);
-
-    ScoringContext context = new ScoringContext();
-    context.addLength("", lengthsIterator);
-    lengthsIterator.setContext(context);
-    extentIterator.setContext(context);
-    iterator.setContext(context);
-
-    // check initial setup
     assertFalse(iterator.isDone());
     assertEquals(extents[0][0], iterator.currentCandidate());
     iterator.syncTo(extents[0][0]);
     assertEquals(extents[0][0], iterator.currentCandidate());
 
+    // score without explicit context
+    ScoringContext context = new ScoringContext();
+    context.addLength("", lengthsIterator);
+
+    iterator.setContext(context);
+    extentIterator.setContext(context);
+    lengthsIterator.setContext(context);
+    
     context.document = iterator.currentCandidate();
     context.moveLengths(34);
     assertEquals(1.11315, iterator.score(), 0.0001);

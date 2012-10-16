@@ -6,7 +6,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import junit.framework.TestCase;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionAggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
+import org.lemurproject.galago.core.index.LengthsReader.LengthsIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
@@ -45,9 +48,25 @@ public class MemoryIndexTest extends TestCase {
       index.process(d);
     }
 
-    assertEquals(index.getCollectionStatistics().collectionLength, 1000);
-    assertEquals(index.getCollectionStatistics().documentCount, 200);
-    assertEquals(index.getCollectionStatistics().vocabCount, 204);
+    CollectionAggregateIterator lengthsIterator = (CollectionAggregateIterator) index.getLengthsIterator();
+    CollectionStatistics collStats = lengthsIterator.getStatistics();
+    assertEquals(collStats.collectionLength, 1000);
+    assertEquals(collStats.documentCount, 200);
+    assertEquals(collStats.fieldName, "document");
+    assertEquals(collStats.maxLength, 5);
+    assertEquals(collStats.minLength, 5);
+    
+    IndexPartStatistics is1 = index.getIndexPartStatistics("postings");
+    assertEquals(is1.collectionLength, 1000);
+    assertEquals(is1.vocabCount, 204);
+    assertEquals(is1.highestFrequency, 200);
+    assertEquals(is1.highestDocumentCount, 200);
+    
+    IndexPartStatistics is2 = index.getIndexPartStatistics("postings.porter");
+    assertEquals(is2.collectionLength, 1000);
+    assertEquals(is2.vocabCount, 204);
+    assertEquals(is2.highestFrequency, 200);
+    assertEquals(is2.highestDocumentCount, 200);
 
     Node n = StructuredQuery.parse("#counts:sample:part=postings()");
     MovableCountIterator ci = (MovableCountIterator) index.getIterator(n);
@@ -55,7 +74,7 @@ public class MemoryIndexTest extends TestCase {
     ScoringContext sc = ci.getContext();
     assertEquals(ci.currentCandidate(), 0);
     int total = 0;
-    while(!ci.isDone()){
+    while (!ci.isDone()) {
       sc.document = ci.currentCandidate();
       total += ci.count();
       ci.movePast(ci.currentCandidate());
@@ -83,8 +102,6 @@ public class MemoryIndexTest extends TestCase {
 
       assertEquals(index.getLength(300), 5);
       assertEquals(index.getName(300), "DOC-199");
-      assertTrue(index.getCollectionLength() == 1000);
-      assertTrue(index.getDocumentCount() == 200);
 
       NodeParameters np = new NodeParameters();
       np.set("part", "postings");
@@ -96,19 +113,30 @@ public class MemoryIndexTest extends TestCase {
       (new FlushToDisk()).flushMemoryIndex(index, output.getAbsolutePath(), false);
 
       Retrieval r = RetrievalFactory.instance(output.getAbsolutePath(), new Parameters());
-      CollectionStatistics postingsStats = r.getRetrievalStatistics();
-      CollectionStatistics stemmedPostingsStats = r.getRetrievalStatistics("stemmedPostings");
+      CollectionStatistics collStats = r.getCollectionStatistics("#lengths:part=lengths()");
+      assertEquals(collStats.collectionLength, 1000);
+      assertEquals(collStats.documentCount, 200);
+      assertEquals(collStats.fieldName, "document");
+      assertEquals(collStats.maxLength, 5);
+      assertEquals(collStats.minLength, 5);
 
+      IndexPartStatistics postingsStats = r.getIndexPartStatistics("postings");
       assertEquals(postingsStats.collectionLength, 1000);
-      assertEquals(postingsStats.documentCount, 200);
       assertEquals(postingsStats.vocabCount, 204);
+      assertEquals(postingsStats.highestDocumentCount, 200);
+      assertEquals(postingsStats.highestFrequency, 200);
 
+      IndexPartStatistics stemmedPostingsStats = r.getIndexPartStatistics("postings.porter");
       assertEquals(stemmedPostingsStats.collectionLength, 1000);
-      assertEquals(stemmedPostingsStats.documentCount, 200);
       assertEquals(stemmedPostingsStats.vocabCount, 204);
+      assertEquals(stemmedPostingsStats.highestDocumentCount, 200);
+      assertEquals(stemmedPostingsStats.highestFrequency, 200);
+
+
     } finally {
-      if(output != null)
+      if (output != null) {
         Utility.deleteDirectory(output);
+      }
     }
   }
 }

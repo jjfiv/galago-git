@@ -3,6 +3,7 @@ package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -12,15 +13,13 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- * Weighted Sequential Dependency Model
- *   model is structurally similar to the Sequential Dependency Model,
- *   however node weights are the linear combination of some node features
+ * Weighted Sequential Dependency Model model is structurally similar to the
+ * Sequential Dependency Model, however node weights are the linear combination
+ * of some node features
  *
  * In particular the weight for a node "term" is determined to be:
- *  weight("term") =  unigram_constant
- *    + cf(term) * unigram_cf_lambda
- *    + df(term) * unigram_df_lambda
- *    + wiki_title_cf(term) * unigram_wiki_lambda
+ * weight("term") = unigram_constant + cf(term) * unigram_cf_lambda + df(term) *
+ * unigram_df_lambda + wiki_title_cf(term) * unigram_wiki_lambda
  *
  * bigram weights are determined using a similar method.
  *
@@ -122,18 +121,20 @@ public class WeightedDependenceTraversal extends Traversal {
 
     if ((unigramWeights.getDouble("tf") != 0.0)
             && (unigramWeights.getDouble("df") != 0.0)) {
-      NodeStatistics c_stats = this.gRetrieval.nodeStatistics(text);
-      double mle_tf = (c_stats.nodeFrequency + 1) / c_stats.collectionLength;
-      double mle_df = (c_stats.nodeDocumentCount + 1) / c_stats.documentCount;
+      NodeStatistics c_stats = this.gRetrieval.getNodeStatistics(text);
+      CollectionStatistics doc_stats = this.gRetrieval.getCollectionStatistics("#lengths:part=lengths()");
+      double mle_tf = (c_stats.nodeFrequency + 1) / doc_stats.collectionLength;
+      double mle_df = (c_stats.nodeDocumentCount + 1) / doc_stats.documentCount;
       tf_w = unigramWeights.getDouble("tf") * Math.log(mle_tf);
       df_w = unigramWeights.getDouble("df") * Math.log(mle_df);
-      
+
 //      tf_w = unigramWeights.getDouble("tf") * Math.log(c_stats.nodeFrequency + 1);
 //      df_w = unigramWeights.getDouble("df") * Math.log(c_stats.nodeDocumentCount + 1);
     }
     if (unigramWeights.getDouble("wiki") != 0.0) {
       NodeStatistics w_stats = this.gRetrieval.nodeStatistics(text, "wiki");
-      double mle_wf = (w_stats.nodeFrequency + 1) / w_stats.collectionLength;
+      CollectionStatistics wdoc_stats = this.gRetrieval.getCollectionStatistics("#lengths:part=lengths()");
+      double mle_wf = (w_stats.nodeFrequency + 1) / wdoc_stats.collectionLength;
       wf_w = unigramWeights.getDouble("wiki") * Math.log(mle_wf);
 //      wf_w = unigramWeights.getDouble("wiki") * Math.log(w_stats.nodeFrequency + 1);
     }
@@ -150,20 +151,22 @@ public class WeightedDependenceTraversal extends Traversal {
 
     if ((bigramWeights.getDouble("tf") != 0.0)
             && (bigramWeights.getDouble("df") != 0.0)) {
-      NodeStatistics c_stats = this.gRetrieval.nodeStatistics("#uw:8(" + text1 + " " + text2 + ")");
-      double mle_tf = c_stats.nodeFrequency / c_stats.collectionLength;
-      double mle_df = c_stats.nodeDocumentCount / c_stats.documentCount;
-      tf_w = unigramWeights.getDouble("tf") * Math.log(mle_tf);
-      df_w = unigramWeights.getDouble("df") * Math.log(mle_df);
+      NodeStatistics c_stats = this.gRetrieval.getNodeStatistics("#uw:8(" + text1 + " " + text2 + ")");
+      CollectionStatistics doc_stats = this.gRetrieval.getCollectionStatistics("#lengths:part=lengths()");
+      double mle_tf = c_stats.nodeFrequency / doc_stats.collectionLength;
+      double mle_df = c_stats.nodeDocumentCount / doc_stats.documentCount;
+      tf_w = bigramWeights.getDouble("tf") * Math.log(mle_tf);
+      df_w = bigramWeights.getDouble("df") * Math.log(mle_df);
 
 //      tf_w = bigramWeights.getDouble("tf") * Math.log(c_stats.nodeFrequency + 1);
 //      df_w = bigramWeights.getDouble("df") * Math.log(c_stats.nodeDocumentCount + 1);
     }
-    if (bigramWeights.getDouble("wiki") != 0.0) {
-      NodeStatistics w_stats = this.gRetrieval.nodeStatistics("#od:1(" + text1 + " " + text2 + ")", "wiki");
-
+//    if (bigramWeights.getDouble("wiki") != 0.0) {
+//      NodeStatistics w_stats = this.gRetrieval.nodeStatistics("#od:1(" + text1 + " " + text2 + ")", "wiki");
+//      CollectionStatistics2 wdoc_stats = this.gRetrieval.collectionStatistics("#lengths:part=lengths()");
+//
 //      wf_w = bigramWeights.getDouble("wiki") * Math.log(w_stats.nodeFrequency + 1);
-    }
+//  }
     return const_w + tf_w + df_w + wf_w;
   }
 }

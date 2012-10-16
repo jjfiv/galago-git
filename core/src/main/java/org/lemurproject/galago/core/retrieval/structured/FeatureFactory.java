@@ -55,7 +55,8 @@ public class FeatureFactory {
     {LessThanIterator.class.getName(), "less"},
     {InBetweenIterator.class.getName(), "between"},
     {EqualityIterator.class.getName(), "equals"},
-    {PassageFilterIterator.class.getName(), "passagefilter"}
+    {PassageFilterIterator.class.getName(), "passagefilter"},
+    {PassageLengthIterator.class.getName(), "passagelengths"}
   };
   static String[][] sFeatureLookup = {
     {DirichletProbabilityScoringIterator.class.getName(), "dirichlet-raw"}, // this should go away
@@ -89,6 +90,7 @@ public class FeatureFactory {
     TextFieldRewriteTraversal.class.getName(),
     InsideToFieldPartTraversal.class.getName(),
     ImplicitFeatureCastTraversal.class.getName(),
+    InsertLengthsTraversal.class.getName(),
     RemoveStopwordsTraversal.class.getName(),
     FlattenWindowTraversal.class.getName(),
     FlattenCombineTraversal.class.getName(),

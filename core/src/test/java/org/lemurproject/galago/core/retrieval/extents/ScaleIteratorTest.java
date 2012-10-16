@@ -28,6 +28,7 @@ public class ScaleIteratorTest extends TestCase {
     int[] lengths = new int[docsA.length];
     Arrays.fill(lengths, 100);
     FakeLengthIterator fli = new FakeLengthIterator(docsA, lengths);
+    fli.setContext(context);
     context.addLength("", fli);
 
     FakeScoreIterator inner = new FakeScoreIterator(docsA, scoresA);
@@ -52,6 +53,7 @@ public class ScaleIteratorTest extends TestCase {
     int[] lengths = new int[docsB.length];
     Arrays.fill(lengths, 100);
     FakeLengthIterator fli = new FakeLengthIterator(docsB, lengths);
+    fli.setContext(context);
     context.addLength("", fli);
 
     FakeScoreIterator inner = new FakeScoreIterator(docsB, scoresB);

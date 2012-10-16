@@ -87,8 +87,9 @@ public class FieldRetrievalTest extends TestCase {
               + "{ \"number\" : \"3\", \"text\" : \"#combine(#inside(sample #field:title()))\"},\n"
               + "{ \"number\" : \"4\", \"text\" : \"#combine(#inside:noOpt=true(#extents:sample:part=postings() #field:title()))\"},\n"
               + "{ \"number\" : \"5\", \"text\" : \"#combine(#inside(#extents:sample:part=postings() #field:title()))\"}\n"
-              + "]}";
-
+              //+ "], \"printTransformation\" : true}";
+              +"]}\n";
+              
       queryFile = Utility.createTemporary();
       Utility.copyStringToFile(queries, queryFile);
 
@@ -102,18 +103,29 @@ public class FieldRetrievalTest extends TestCase {
 
       // Now, verify that some stuff exists
       String output = byteArrayStream.toString();
-            
+
       String expectedScores =
               "1 Q0 55 1 -1.17683184 galago\n"
               + "1 Q0 59 2 -1.18048269 galago\n"
-              + "2 Q0 55 1 -0.29056168 galago\n"
-              + "2 Q0 59 2 -0.29078560 galago\n"
-              + "3 Q0 55 1 -0.29056168 galago\n"
-              + "3 Q0 59 2 -0.29078560 galago\n"
+              + "2 Q0 55 1 -1.46523173 galago\n"
+              + "2 Q0 59 2 -1.46744437 galago\n"
+              + "3 Q0 55 1 -1.46523173 galago\n"
+              + "3 Q0 59 2 -1.46744437 galago\n"
               + "4 Q0 59 1 -1.87147023 galago\n"
               + "4 Q0 55 2 -1.87213402 galago\n"
-              + "5 Q0 59 1 -0.69580676 galago\n"
-              + "5 Q0 55 2 -0.69647055 galago\n";
+              + "5 Q0 59 1 -1.87147023 galago\n"
+              + "5 Q0 55 2 -1.87213402 galago\n";
+        
+//              "1 Q0 55 1 -1.17683184 galago\n"
+//              + "1 Q0 59 2 -1.18048269 galago\n"
+//              + "2 Q0 55 1 -0.29056168 galago\n"
+//              + "2 Q0 59 2 -0.29078560 galago\n"
+//              + "3 Q0 55 1 -0.29056168 galago\n"
+//              + "3 Q0 59 2 -0.29078560 galago\n"
+//              + "4 Q0 59 1 -1.87147023 galago\n"
+//              + "4 Q0 55 2 -1.87213402 galago\n"
+//              + "5 Q0 59 1 -0.69580676 galago\n"
+//              + "5 Q0 55 2 -0.69647055 galago\n";
       
       assertEquals(expectedScores, output);
 
