@@ -1,7 +1,7 @@
 /*
  *  BSD License (http://www.galagosearch.org/license)
  */
-package org.lemurproject.galago.contrib.tools.apps;
+package org.lemurproject.galago.contrib.learning;
 
 import java.io.PrintStream;
 import java.util.List;
