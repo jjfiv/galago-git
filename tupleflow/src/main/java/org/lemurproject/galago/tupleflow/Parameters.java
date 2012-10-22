@@ -590,7 +590,7 @@ public class Parameters implements Serializable {
       return Type.BOOLEAN;
     }
 
-    if (Pattern.matches("\\d+", s)) {
+    if (Pattern.matches("\\-?\\d+", s)) {
       return Type.LONG;
     }
 
