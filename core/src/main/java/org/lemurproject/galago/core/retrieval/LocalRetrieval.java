@@ -80,6 +80,7 @@ public class LocalRetrieval implements Retrieval {
   protected void setIndex(Index indx) throws Exception {
     this.index = indx;
     features = new FeatureFactory(globalParameters);
+    cache = null;
     if (this.globalParameters.get("cache", false)) {
       cache = new CachedRetrieval(this.globalParameters);
     }
@@ -445,16 +446,20 @@ public class LocalRetrieval implements Retrieval {
 
   @Override
   public void addNodeToCache(Node node) throws Exception {
-    cache.addToCache(node, this.createIterator(new Parameters(), node, new ScoringContext()));
+    if (cache != null) {
+      cache.addToCache(node, this.createIterator(new Parameters(), node, new ScoringContext()));
+    }
   }
 
   @Override
   public void addAllNodesToCache(Node node) throws Exception {
-    // recursivly add all nodes
-    for (Node child : node.getInternalNodes()) {
-      addAllNodesToCache(child);
-    }
+    if (cache != null) {
+      // recursivly add all nodes
+      for (Node child : node.getInternalNodes()) {
+        addAllNodesToCache(child);
+      }
 
-    cache.addToCache(node, this.createIterator(new Parameters(), node, new ScoringContext()));
+      cache.addToCache(node, this.createIterator(new Parameters(), node, new ScoringContext()));
+    }
   }
 }
