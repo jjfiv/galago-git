@@ -34,11 +34,11 @@ public class StagedLocalRetrieval extends LocalRetrieval {
    * Additionally, the supplied parameters will be passed forward to the chosen
    * feature factory.
    */
-  public StagedLocalRetrieval(Index index) throws IOException {
+  public StagedLocalRetrieval(Index index) throws IOException, Exception {
     super(index, new Parameters());
   }
 
-  public StagedLocalRetrieval(Index index, Parameters parameters) throws IOException {
+  public StagedLocalRetrieval(Index index, Parameters parameters) throws IOException, Exception {
     super(index, parameters);
     checkForSyntheticCounts();
   }

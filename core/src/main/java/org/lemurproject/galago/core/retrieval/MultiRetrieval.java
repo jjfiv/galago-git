@@ -528,6 +528,20 @@ public class MultiRetrieval implements Retrieval {
 
   @Override
   public String getDocumentName(int docid) throws IOException {
-    throw new UnsupportedOperationException("Not supported yet.");
+    throw new UnsupportedOperationException("Not supported.");
+  }
+
+  @Override
+  public void addNodeToCache(Node node) throws Exception {
+    for (Retrieval r : this.retrievals) {
+      r.addNodeToCache(node);
+    }
+  }
+
+  @Override
+  public void addAllNodesToCache(Node node) throws Exception {
+    for (Retrieval r : this.retrievals) {
+      r.addAllNodesToCache(node);
+    }
   }
 }

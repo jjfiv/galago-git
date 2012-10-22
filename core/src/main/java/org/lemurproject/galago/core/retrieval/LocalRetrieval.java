@@ -1,43 +1,41 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
-import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionAggregateIterator;
-import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
-import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
+import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
-import org.lemurproject.galago.core.index.LengthsReader.LengthsIterator;
 import org.lemurproject.galago.core.index.NamesReader.NamesIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.core.retrieval.structured.FeatureFactory;
-import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.traversal.Traversal;
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.QueryType;
-import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
 import org.lemurproject.galago.core.retrieval.processing.ActiveContext;
+import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.NodeType;
+import org.lemurproject.galago.core.retrieval.query.QueryType;
+import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.structured.ContextFactory;
+import org.lemurproject.galago.core.retrieval.structured.FeatureFactory;
+import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -58,6 +56,7 @@ public class LocalRetrieval implements Retrieval {
   protected Index index;
   protected FeatureFactory features;
   protected Parameters globalParameters;
+  protected CachedRetrieval cache;
 
   /**
    * One retrieval interacts with one index. Parameters dictate the behavior
@@ -65,23 +64,25 @@ public class LocalRetrieval implements Retrieval {
    * Additionally, the supplied parameters will be passed forward to the chosen
    * feature factory.
    */
-  public LocalRetrieval(Index index) throws IOException {
+  public LocalRetrieval(Index index) throws Exception {
     this(index, new Parameters());
   }
 
-  public LocalRetrieval(String filename, Parameters parameters)
-          throws FileNotFoundException, IOException, Exception {
+  public LocalRetrieval(String filename, Parameters parameters) throws Exception {
     this(new DiskIndex(filename), parameters);
   }
 
-  public LocalRetrieval(Index index, Parameters parameters) throws IOException {
+  public LocalRetrieval(Index index, Parameters parameters) throws Exception {
     this.globalParameters = parameters;
     setIndex(index);
   }
 
-  protected void setIndex(Index indx) throws IOException {
+  protected void setIndex(Index indx) throws Exception {
     this.index = indx;
     features = new FeatureFactory(globalParameters);
+    if (this.globalParameters.get("cache", false)) {
+      cache = new CachedRetrieval(this.globalParameters);
+    }
   }
 
   /**
@@ -245,21 +246,31 @@ public class LocalRetrieval implements Retrieval {
     ArrayList<StructuredIterator> internalIterators = new ArrayList<StructuredIterator>();
     StructuredIterator iterator;
 
-    // first check if the cache contains this node
+    // first check if this is a repeated node in this tree:
     if (queryIteratorCache != null && queryIteratorCache.containsKey(node.toString())) {
       return queryIteratorCache.get(node.toString());
     }
 
-    for (Node internalNode : node.getInternalNodes()) {
-      StructuredIterator internalIterator = createNodeMergedIterator(internalNode, context, queryIteratorCache);
-      internalIterators.add(internalIterator);
+    // second check if this node is cached
+    if (cache != null && cache.isCached(node)) {
+      iterator = cache.getCachedIterator(node);
+    } else {
+
+      // otherwise we need to create a new iterator
+      // start by recursively creating children
+      for (Node internalNode : node.getInternalNodes()) {
+        StructuredIterator internalIterator = createNodeMergedIterator(internalNode, context, queryIteratorCache);
+        internalIterators.add(internalIterator);
+      }
+
+      iterator = index.getIterator(node);
+      if (iterator == null) {
+        iterator = features.getIterator(node, internalIterators);
+      }
     }
 
-    iterator = index.getIterator(node);
-    if (iterator == null) {
-      iterator = features.getIterator(node, internalIterators);
-    }
-
+    // we have now constructed the iterator from the cache or from the index:
+    //  --> deal with the context
     if (context != null && ContextualIterator.class.isAssignableFrom(iterator.getClass())) {
       ((ContextualIterator) iterator).setContext(context);
     }
@@ -354,7 +365,7 @@ public class LocalRetrieval implements Retrieval {
       stats.nodeDocumentCount = 0;
       stats.nodeFrequency = 0;
       stats.maximumCount = 0;
-      
+
       MovableCountIterator iterator = (MovableCountIterator) structIterator;
 
       while (!iterator.isDone()) {
@@ -366,7 +377,7 @@ public class LocalRetrieval implements Retrieval {
         }
         iterator.movePast(iterator.currentCandidate());
       }
-      
+
       return stats;
     }
     // otherwise :
@@ -430,5 +441,20 @@ public class LocalRetrieval implements Retrieval {
       internalDocs[i] = internalDocBuffer.get(i);
     }
     return internalDocs;
+  }
+
+  @Override
+  public void addNodeToCache(Node node) throws Exception {
+    cache.addToCache(node, this.createIterator(new Parameters(), node, new ScoringContext()));
+  }
+
+  @Override
+  public void addAllNodesToCache(Node node) throws Exception {
+    // recursivly add all nodes
+    for (Node child : node.getInternalNodes()) {
+      addAllNodesToCache(child);
+    }
+
+    cache.addToCache(node, this.createIterator(new Parameters(), node, new ScoringContext()));
   }
 }

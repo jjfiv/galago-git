@@ -178,5 +178,15 @@ public class RemoveStopwordsTraversalTest extends TestCase {
     public String getDocumentName(int docid) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public void addNodeToCache(Node node) throws Exception {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void addAllNodesToCache(Node node) throws Exception {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
   }
 }

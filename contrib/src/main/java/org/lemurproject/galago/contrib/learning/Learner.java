@@ -67,7 +67,7 @@ public abstract class Learner {
 
     this.queries = new Queries(BatchSearch.collectQueries(p), p);
     assert !this.queries.isEmpty() : this.getClass().getName() + " requires `queries' parameter, of type List(Parameters): see Batch-Search for an example.";
-    
+
     this.qrels = new QuerySetJudgments(p.getString("qrels"));
     this.evalFunction = QuerySetEvaluatorFactory.instance(p.get("metric", "map"), p);
 
@@ -106,9 +106,9 @@ public abstract class Learner {
     testedParameters = new HashMap();
 
     // caching system
-    if (retrieval instanceof CachedRetrieval) {
+    if (retrieval.getGlobalParameters().get("cache", false)) {
       logger.info("Starting. Caching query nodes");
-      ensureCachedQueryNodes((CachedRetrieval) retrieval);
+      ensureCachedQueryNodes(retrieval);
       logger.info("Done. Caching query nodes");
     }
   }
@@ -227,7 +227,7 @@ public abstract class Learner {
     return n;
   }
 
-  private void ensureCachedQueryNodes(CachedRetrieval cache) throws Exception {
+  private void ensureCachedQueryNodes(Retrieval cache) throws Exception {
     // generate some new random parameters
 
     RetrievalModelInstance rnd1 = generateRandomInitalValues();
@@ -253,7 +253,7 @@ public abstract class Learner {
 
       for (String nodeString : cachableNodes1) {
         if (cachableNodes2.contains(nodeString)) {
-          cache.addToCache(StructuredQuery.parse(nodeString));
+          cache.addNodeToCache(StructuredQuery.parse(nodeString));
         }
       }
     }

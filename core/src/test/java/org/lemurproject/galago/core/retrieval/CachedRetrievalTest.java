@@ -40,23 +40,23 @@ public class CachedRetrievalTest extends TestCase {
       corpusFile = files[1];
       indexFile = files[2];
 
-      LocalRetrieval ret = (LocalRetrieval) RetrievalFactory.instance(indexFile.getAbsolutePath(), new Parameters());
+      LocalRetrieval nonCacheRet = (LocalRetrieval) RetrievalFactory.instance(indexFile.getAbsolutePath(), new Parameters());
 
       Parameters p = new Parameters();
-      p.set("caching", true);
+      p.set("cache", true);
       p.set("cacheScores", true);
-      CachedRetrieval cachedRet = (CachedRetrieval) RetrievalFactory.instance(indexFile.getAbsolutePath(), p);
+      LocalRetrieval cacheRet = (LocalRetrieval) RetrievalFactory.instance(indexFile.getAbsolutePath(), p);
 
       // SCORE node
       Node score = StructuredQuery.parse("#feature:dirichlet(#counts:is:part=postings())");
-      score = cachedRet.transformQuery(score, p);
-      cachedRet.addToCache(score);
+      score = cacheRet.transformQuery(score, p);
+      cacheRet.addNodeToCache(score);
 
       ScoringContext sc = new ScoringContext();
-      ProcessingModel.initializeLengths(ret, sc);
+      ProcessingModel.initializeLengths(nonCacheRet, sc);
 
-      MovableScoreIterator diskScoreIterator = (MovableScoreIterator) ret.createIterator(new Parameters(), score, sc);
-      MovableScoreIterator cachedScoreIterator = (MovableScoreIterator) cachedRet.createIterator(new Parameters(), score, sc);
+      MovableScoreIterator diskScoreIterator = (MovableScoreIterator) nonCacheRet.createIterator(new Parameters(), score, sc);
+      MovableScoreIterator cachedScoreIterator = (MovableScoreIterator) cacheRet.createIterator(new Parameters(), score, sc);
       assert (cachedScoreIterator instanceof MemorySparseDoubleIndex.ScoresIterator);
 
       while (!diskScoreIterator.isDone() && !cachedScoreIterator.isDone()) {
@@ -71,16 +71,16 @@ public class CachedRetrievalTest extends TestCase {
 
       // COUNT node
       Node count = StructuredQuery.parse("#counts:is:part=postings()");
-      cachedRet.addToCache(count);
+      cacheRet.addNodeToCache(count);
 
-      NodeStatistics diskNS = ret.getNodeStatistics(count);
-      NodeStatistics cachedNS = cachedRet.getNodeStatistics(count);
+      NodeStatistics diskNS = nonCacheRet.getNodeStatistics(count);
+      NodeStatistics cachedNS = cacheRet.getNodeStatistics(count);
 
       assertEquals(diskNS.nodeDocumentCount, cachedNS.nodeDocumentCount);
       assertEquals(diskNS.nodeFrequency, cachedNS.nodeFrequency);
 
-      MovableCountIterator diskCountIterator = (MovableCountIterator) ret.createIterator(new Parameters(), count, sc);
-      MovableCountIterator cachedCountIterator = (MovableCountIterator) cachedRet.createIterator(new Parameters(), count, sc);
+      MovableCountIterator diskCountIterator = (MovableCountIterator) nonCacheRet.createIterator(new Parameters(), count, sc);
+      MovableCountIterator cachedCountIterator = (MovableCountIterator) cacheRet.createIterator(new Parameters(), count, sc);
       assert (cachedCountIterator instanceof MemoryCountIndex.CountsIterator);
 
       while (!diskCountIterator.isDone() && !cachedCountIterator.isDone()) {
@@ -93,16 +93,16 @@ public class CachedRetrievalTest extends TestCase {
 
       // EXTENT node
       Node extent = StructuredQuery.parse("#extents:sample:part=postings()");
-      cachedRet.addToCache(extent);
+      cacheRet.addNodeToCache(extent);
 
-      diskNS = ret.getNodeStatistics(extent);
-      cachedNS = cachedRet.getNodeStatistics(extent);
+      diskNS = nonCacheRet.getNodeStatistics(extent);
+      cachedNS = cacheRet.getNodeStatistics(extent);
 
       assertEquals(diskNS.nodeDocumentCount, cachedNS.nodeDocumentCount);
       assertEquals(diskNS.nodeFrequency, cachedNS.nodeFrequency);
 
-      MovableExtentIterator diskExtentIterator = (MovableExtentIterator) ret.createIterator(new Parameters(), extent, sc);
-      MovableExtentIterator cachedExtentIterator = (MovableExtentIterator) cachedRet.createIterator(new Parameters(), extent, sc);
+      MovableExtentIterator diskExtentIterator = (MovableExtentIterator) nonCacheRet.createIterator(new Parameters(), extent, sc);
+      MovableExtentIterator cachedExtentIterator = (MovableExtentIterator) cacheRet.createIterator(new Parameters(), extent, sc);
       assert (cachedExtentIterator instanceof MemoryWindowIndex.ExtentIterator);
 
       while (!diskExtentIterator.isDone() && !cachedExtentIterator.isDone()) {

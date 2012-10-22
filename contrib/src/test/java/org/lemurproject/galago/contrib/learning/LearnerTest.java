@@ -7,9 +7,13 @@ import java.io.File;
 import java.util.*;
 import junit.framework.TestCase;
 import org.lemurproject.galago.contrib.util.TestingUtils;
+import org.lemurproject.galago.core.index.mem.MemorySparseDoubleIndex;
 import org.lemurproject.galago.core.retrieval.CachedRetrieval;
+import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -35,7 +39,7 @@ public class LearnerTest extends TestCase {
       index = files[2]; // index is required
       qrels = Utility.createTemporary();
 
-      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.parse("{\"caching\" : true, \"flattenCombine\" : false, \"cacheScores\": true}"));
+      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.parse("{\"cache\" : true, \"flattenCombine\" : false, \"cacheScores\": true}"));
 
       String qrelData =
               "q1 x 2 1\n"
@@ -67,14 +71,13 @@ public class LearnerTest extends TestCase {
       learnParams.set("restarts", 1);
 
       Learner learner = LearnerFactory.instance(learnParams, ret);
-      // List<Parameters> params = learner.learn();
 
+      // List<Parameters> params = learner.learn();
       // for (Parameters p : params) {
       //  System.err.println(p);
       // }
 
-      assert (learner.retrieval instanceof CachedRetrieval);
-      CachedRetrieval r = (CachedRetrieval) learner.retrieval;
+      LocalRetrieval r = (LocalRetrieval) learner.retrieval;
 
       // generate some new random parameters
       RetrievalModelInstance rnd = learner.generateRandomInitalValues();
@@ -86,11 +89,17 @@ public class LearnerTest extends TestCase {
         root = learner.ensureSettings(root, settings);
         root = r.transformQuery(root, settings);
 
+        // check which nodes have been cached
+        
         // node is an SDM - root and direct children are not cached - all others are cached
-        assertFalse(r.isCached(root));
+        MovableIterator i = (MovableIterator) r.createIterator(new Parameters(), root, new ScoringContext());
+        assertFalse(i instanceof MemorySparseDoubleIndex.ScoresIterator);
         for (Node child : root.getInternalNodes()) {
+          i = (MovableIterator) r.createIterator(new Parameters(), child, new ScoringContext());
+          assertFalse(i instanceof MemorySparseDoubleIndex.ScoresIterator);
           for (Node subchild : child.getInternalNodes()) {
-            assertTrue(r.isCached(subchild));
+            i = (MovableIterator) r.createIterator(new Parameters(), subchild, new ScoringContext());
+            assertTrue(i instanceof MemorySparseDoubleIndex.ScoresIterator);
           }
         }
       }

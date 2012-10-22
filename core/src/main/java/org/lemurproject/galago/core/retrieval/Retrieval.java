@@ -223,4 +223,19 @@ public interface Retrieval {
    * @throws IOException
    */
   public String getDocumentName(int docid) throws IOException;
+
+  /**
+   * adds a node to the cache
+   *  -- can improve efficiency for repeated queries
+   *  -- if no cache is present, function does nothing
+   */
+  public void addNodeToCache(Node node) throws Exception;
+
+  /**
+   * recursively adds nodes to the cache
+   *  -- all children nodes in the tree are added to the cache
+   *  -- can improve efficiency for repeated queries
+   *  -- if no cache is present, function does nothing
+   */
+  public void addAllNodesToCache(Node node) throws Exception;
 }

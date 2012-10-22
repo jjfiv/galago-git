@@ -41,7 +41,7 @@ public class XCountFn extends AppFunction {
     Retrieval r = RetrievalFactory.instance(p);
 
     long count;
-    for (String query : (List<String>) p.getList("x")) {
+    for (String query : (List<String>) p.getAsList("x")) {
       Node parsed = StructuredQuery.parse(query);
       parsed.getNodeParameters().set("queryType", "count");
       Node transformed = r.transformQuery(parsed, new Parameters());

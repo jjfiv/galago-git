@@ -73,7 +73,10 @@ public class RankedPassageModel extends ProcessingModel {
 
       // Keep iterating over the same doc, but incrementing the begin/end fields of the
       // context until the next one
-      while (context.end <= length) {
+      boolean lastIteration = false;
+      while (context.begin < length && !lastIteration) {
+        if (context.end == length) lastIteration = true;
+
         if (iterator.hasMatch(document)) {
           double score = iterator.score();
           if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
@@ -87,7 +90,7 @@ public class RankedPassageModel extends ProcessingModel {
 
         // Move the window forward
         context.begin += passageShift;
-        context.end += passageShift;
+        context.end = Math.min(passageSize+context.begin, length);
       }
     }
     return toReversedArray(queue);
@@ -128,6 +131,7 @@ public class RankedPassageModel extends ProcessingModel {
       boolean lastIteration = false;
       while (context.begin < length && !lastIteration) {
         if (context.end == length) lastIteration = true;
+
         if (iterator.hasMatch(document)) {
           double score = iterator.score();
           if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {

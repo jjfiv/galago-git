@@ -131,6 +131,31 @@ public class GroupRetrieval implements Retrieval {
     return groups.get(defGroup).getNodeStatistics(node);
   }
 
+  @Override
+  public int getDocumentLength(int docid) throws IOException {
+    return groups.get(defGroup).getDocumentLength(docid);
+  }
+
+  @Override
+  public int getDocumentLength(String docname) throws IOException {
+    return groups.get(defGroup).getDocumentLength(docname);
+  }
+
+  @Override
+  public String getDocumentName(int docid) throws IOException {
+    return groups.get(defGroup).getDocumentName(docid);
+  }
+
+  @Override
+  public void addNodeToCache(Node node) throws Exception {
+    groups.get(defGroup).addNodeToCache(node);
+  }
+
+  @Override
+  public void addAllNodesToCache(Node node) throws Exception {
+    groups.get(defGroup).addAllNodesToCache(node);
+  }
+
   // IDENTICAL FUNCTIONS THAT USE PARTICULAR GROUPS //
   public Parameters getGlobalParameters(String group) {
     return groups.get(group).getGlobalParameters();
@@ -192,26 +217,19 @@ public class GroupRetrieval implements Retrieval {
     return groups.get(group).getDocumentLength(docid);
   }
 
-  @Override
-  public int getDocumentLength(int docid) throws IOException {
-    return groups.get(defGroup).getDocumentLength(docid);
-  }
-
   public int getDocumentLength(String docname, String group) throws IOException {
     return groups.get(group).getDocumentLength(docname);
   }
 
-  @Override
-  public int getDocumentLength(String docname) throws IOException {
-    return groups.get(defGroup).getDocumentLength(docname);
-  }
-
-  @Override
-  public String getDocumentName(int docid) throws IOException {
-    return groups.get(defGroup).getDocumentName(docid);
-  }
-
   public String getDocumentName(int docid, String group) throws IOException {
     return groups.get(group).getDocumentName(docid);
+  }
+
+  public void addNodeToCache(Node node, String group) throws Exception {
+    groups.get(group).addNodeToCache(node);
+  }
+
+  public void addAllNodesToCache(Node node, String group) throws Exception {
+    groups.get(group).addAllNodesToCache(node);
   }
 }

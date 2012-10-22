@@ -12,17 +12,16 @@ import org.lemurproject.galago.tupleflow.Parameters;
 /**
  * Class for creating retrieval objects based on provided parameters
  *
- * options for retrieval creation:
- *  { "index" : "/path/to/index" }
- * 
- *  { "index" : [ "/path/to/index1", "/path/to/index2" ] }
- * 
- *  { "index" : { "g1" : "/path/to/index1", "g2" : "/path/to/index2" } }
- * 
- *  { "index" : { "g1" : [ "/path/to/index1", "/path/to/index2" ]
- *                "g2" : "/path/to/index3" } }
- *  
- * 
+ * options for retrieval creation: { "index" : "/path/to/index" }
+ *
+ * { "index" : [ "/path/to/index1", "/path/to/index2" ] }
+ *
+ * { "index" : { "g1" : "/path/to/index1", "g2" : "/path/to/index2" } }
+ *
+ * { "index" : { "g1" : [ "/path/to/index1", "/path/to/index2" ] "g2" :
+ * "/path/to/index3" } }
+ *
+ *
  * @author irmarc, sjh
  */
 public class RetrievalFactory {
@@ -76,8 +75,6 @@ public class RetrievalFactory {
       InvocationHandler ih = new ProxyRetrieval(path, parameters);
       return (Retrieval) Proxy.newProxyInstance(Retrieval.class.getClassLoader(),
               new Class[]{Retrieval.class}, ih);
-    } else if (parameters.get("caching", false)) {
-      return new CachedRetrieval(path, parameters);
     } else {
       if (parameters.get("delayed", false)) {
         return new StagedLocalRetrieval(path, parameters);
@@ -99,7 +96,6 @@ public class RetrievalFactory {
 
     for (final String path : indexes) {
       Thread t = new Thread() {
-
         @Override
         public void run() {
           try {
