@@ -60,7 +60,7 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     StringBuilder correct = new StringBuilder();
     correct.append("#combine:0=0.5:1=0.5( ");
     correct.append("#combine( #feature:dirichlet( #extents:fits:part=postings() ) ) ");
-    correct.append("#combine:0=0.16677748226950356:1=0.12516622340425534:2=0.041611258865248225( ");
+    correct.append("#combine:0=0.16677748226950348:1=0.12516622340425526:2=0.04161125886524822( ");
     correct.append("#feature:dirichlet( #extents:fit:part=postings() ) ");
     correct.append("#feature:dirichlet( #extents:program:part=postings() ) ");
     correct.append("#feature:dirichlet( #extents:shoe:part=postings() ) ) )");

@@ -192,7 +192,7 @@ public class TermSelectionValueModel implements ExpansionModel {
         NodeAggregateIterator iterator = (NodeAggregateIterator) reader.getIterator(new Node("counts", g.term));
         long ft = iterator.getStatistics().nodeDocumentCount;
         double partone = java.lang.Math.pow(((ft + 0.0) / N), rt);
-        double parttwo = org.lemurproject.galago.core.util.Math.binomialCoeff(R, rt);
+        double parttwo = org.lemurproject.galago.core.util.MathUtils.binomialCoeff(R, rt);
         g.score = partone * parttwo;
         g.rt = rt;
         g.R = R;

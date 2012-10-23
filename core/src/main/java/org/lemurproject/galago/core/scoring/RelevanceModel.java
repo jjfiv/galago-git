@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.scoring;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,20 +8,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.util.MathUtils;
 import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.tartarus.snowball.ext.englishStemmer;
 
 /**
- * Implements the basic unigram Relevance Model, as described in
- * "Relevance Based Language Models" by Lavrenko and Croft in SIGIR 2001.
+ * Implements the basic unigram Relevance Model, as described in "Relevance
+ * Based Language Models" by Lavrenko and Croft in SIGIR 2001.
  *
  * @author irmarc
  */
@@ -115,8 +114,8 @@ public class RelevanceModel implements ExpansionModel {
       if (exclusionTerms.contains(g.term)) {
         continue;
       }
-      Node inner = TextPartAssigner.assignPart(new Node("extents", g.term), 
-              this.retrieval.getGlobalParameters(), 
+      Node inner = TextPartAssigner.assignPart(new Node("extents", g.term),
+              this.retrieval.getGlobalParameters(),
               this.retrieval.getAvailableParts());
       ArrayList<Node> innerChild = new ArrayList<Node>();
       innerChild.add(inner);
@@ -133,25 +132,23 @@ public class RelevanceModel implements ExpansionModel {
   // See RelevanceModel.cpp for details
   protected HashMap<Integer, Double> logstoposteriors(List<ScoredDocument> results) {
     HashMap<Integer, Double> scores = new HashMap<Integer, Double>();
-    if (results.size() == 0) {
+    if (results.isEmpty()) {
       return scores;
     }
 
-    // For normalization
-    double K = results.get(0).score;
+    double[] values = new double[results.size()];
+    for (int i = 0; i < results.size(); i++) {
+      values[i] = results.get(i).score;
+    }
 
-    // First pass to get the sum
-    double sum = 0;
+    // compute the denominator
+    double logSumExp = MathUtils.logSumExp(values);
+
     for (ScoredDocument sd : results) {
-      double recovered = Math.exp(K + sd.score);
-      scores.put(sd.document, recovered);
-      sum += recovered;
+      double logPosterior = sd.score - logSumExp;
+      scores.put(sd.document, Math.exp(logPosterior));
     }
 
-    // Normalize
-    for (Map.Entry<Integer, Double> entry : scores.entrySet()) {
-      entry.setValue(entry.getValue() / sum);
-    }
     return scores;
   }
 
@@ -186,7 +183,7 @@ public class RelevanceModel implements ExpansionModel {
   }
 
   protected ArrayList<WeightedTerm> scoreGrams(HashMap<String, HashMap<Integer, Integer>> counts,
-					       HashMap<Integer, Double> scores) throws IOException {
+          HashMap<Integer, Double> scores) throws IOException {
     ArrayList<WeightedTerm> grams = new ArrayList<WeightedTerm>();
     HashMap<Integer, Integer> termCounts;
     HashMap<Integer, Integer> lengthCache = new HashMap<Integer, Integer>();
