@@ -55,6 +55,7 @@ public class SplitBTreeReader extends BTreeReader {
     /**
      * Returns the key associated with the current inverted list.
      */
+    @Override
     public byte[] getKey() {
       return vocabIterator.getKey();
     }
@@ -62,6 +63,7 @@ public class SplitBTreeReader extends BTreeReader {
     /*
      * Skip iterator to the provided key
      */
+    @Override
     public void find(byte[] key) throws IOException {
       vocabIterator.find(key);
       valueLoaded = false;
@@ -70,6 +72,7 @@ public class SplitBTreeReader extends BTreeReader {
     /*
      * Skip iterator to the provided key
      */
+    @Override
     public void skipTo(byte[] key) throws IOException {
       vocabIterator.skipTo(key);
       valueLoaded = false;
@@ -78,6 +81,7 @@ public class SplitBTreeReader extends BTreeReader {
     /**
      * Advances to the next key in the index.
      */
+    @Override
     public boolean nextKey() throws IOException {
       valueLoaded = false;
       return vocabIterator.nextKey();
@@ -86,6 +90,7 @@ public class SplitBTreeReader extends BTreeReader {
     /**
      * Returns true if no more keys remain to be read.
      */
+    @Override
     public boolean isDone() {
       return vocabIterator.isDone();
     }
@@ -103,6 +108,7 @@ public class SplitBTreeReader extends BTreeReader {
     /**
      * Returns the length of the value, in bytes.
      */
+    @Override
     public long getValueLength() throws IOException {
       if (!valueLoaded) {
         loadValue();
@@ -155,6 +161,7 @@ public class SplitBTreeReader extends BTreeReader {
      * of the beginning of the current inverted list,
      * relative to the start of the whole inverted file.
      */
+    @Override
     public long getValueStart() throws IOException {
       if (!valueLoaded) {
         loadValue();
@@ -167,6 +174,7 @@ public class SplitBTreeReader extends BTreeReader {
      * of the end of the current inverted list,
      * relative to the start of the whole inverted file.
      */
+    @Override
     public long getValueEnd() throws IOException {
       if (!valueLoaded) {
         loadValue();
@@ -218,6 +226,7 @@ public class SplitBTreeReader extends BTreeReader {
    * data about the index contents, like what stemmer was used or the
    * total number of terms in the collection.
    */
+  @Override
   public Parameters getManifest() {
     return vocabIndex.getManifest();
   }
@@ -226,6 +235,7 @@ public class SplitBTreeReader extends BTreeReader {
    * Returns the vocabulary structure for this DiskBTreeReader.  Note that the vocabulary
    * contains only the first key in each block.
    */
+  @Override
   public VocabularyReader getVocabulary() {
     return vocabIndex.getVocabulary();
   }
@@ -236,6 +246,7 @@ public class SplitBTreeReader extends BTreeReader {
    * which might be useful for testing and debugging tools, but probably
    * not for traditional document retrieval.
    */
+  @Override
   public Iterator getIterator() throws IOException {
     return new Iterator(vocabIndex.getIterator());
   }
@@ -244,6 +255,7 @@ public class SplitBTreeReader extends BTreeReader {
    * Returns an iterator pointing at a specific key.  Returns
    * null if the key is not found in the index.
    */
+  @Override
   public Iterator getIterator(byte[] key) throws IOException {
     DiskBTreeReader.Iterator i = vocabIndex.getIterator(key);
     if (i == null) {
@@ -253,6 +265,7 @@ public class SplitBTreeReader extends BTreeReader {
     }
   }
 
+  @Override
   public void close() throws IOException {
     vocabIndex.close();
     for (RandomAccessFile f : dataFiles) {

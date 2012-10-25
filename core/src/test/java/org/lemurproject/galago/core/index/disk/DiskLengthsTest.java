@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DiskLengthsReader.KeyIterator;
-import org.lemurproject.galago.core.index.disk.DiskLengthsReader.MemoryMapLengthsIterator;
 import org.lemurproject.galago.core.index.disk.DiskLengthsReader.StreamLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.types.FieldLengthData;
@@ -53,65 +52,64 @@ public class DiskLengthsTest extends TestCase {
       assertEquals(reader.getLength(110), 111);
 
       KeyIterator ki = reader.getIterator();
-      MemoryMapLengthsIterator memItr = ki.getMemoryValueIterator();
+//      MemoryMapLengthsIterator memItr = ki.getMemoryValueIterator();
       StreamLengthsIterator streamItr = ki.getStreamValueIterator();
       
       ScoringContext sc = new ScoringContext();
-      memItr.setContext(sc);
+//      memItr.setContext(sc);
       streamItr.setContext(sc);
       
-      while (!memItr.isDone() || !streamItr.isDone()) {
+//      while (!memItr.isDone() || !streamItr.isDone()) {
+//        assertEquals(memItr.getCurrentIdentifier(), streamItr.getCurrentIdentifier());
+//        sc.document = memItr.getCurrentIdentifier();
+//        
+//        assertEquals(memItr.getCurrentLength(), streamItr.getCurrentLength());
+//
+//        memItr.movePast(memItr.currentCandidate());
+//        streamItr.movePast(streamItr.currentCandidate());
+//      }
 
-        assertEquals(memItr.getCurrentIdentifier(), streamItr.getCurrentIdentifier());
-        sc.document = memItr.getCurrentIdentifier();
-        
-        assertEquals(memItr.getCurrentLength(), streamItr.getCurrentLength());
+//      memItr.reset();
+//      streamItr.reset();
 
-        memItr.movePast(memItr.currentCandidate());
-        streamItr.movePast(streamItr.currentCandidate());
-      }
-
-      memItr.reset();
-      streamItr.reset();
-
-      memItr.syncTo(50);
+//      memItr.syncTo(50);
       streamItr.syncTo(50);
       sc.document = 50;
-      assertEquals(memItr.currentCandidate(), 50);
+//      assertEquals(memItr.currentCandidate(), 50);
       assertEquals(streamItr.currentCandidate(), 50);
-      assertEquals(memItr.getCurrentLength(), 51);
+//      assertEquals(memItr.getCurrentLength(), 51);
       assertEquals(streamItr.getCurrentLength(), 51);
 
-      memItr.syncTo(90);
+//      memItr.syncTo(90);
       streamItr.syncTo(90);
       sc.document = 90;
-      assertEquals(memItr.currentCandidate(), 90);
+//      assertEquals(memItr.currentCandidate(), 90);
       assertEquals(streamItr.currentCandidate(), 90);
-      assertEquals(memItr.getCurrentLength(), 91);
+//      assertEquals(memItr.getCurrentLength(), 91);
       assertEquals(streamItr.getCurrentLength(), 91);
 
-      memItr.syncTo(90);
+//      memItr.syncTo(90);
       streamItr.syncTo(90);
       sc.document = 90;
-      assertEquals(memItr.currentCandidate(), 90);
+//      assertEquals(memItr.currentCandidate(), 90);
       assertEquals(streamItr.currentCandidate(), 90);
-      assertEquals(memItr.getCurrentLength(), 91);
+//      assertEquals(memItr.getCurrentLength(), 91);
       assertEquals(streamItr.getCurrentLength(), 91);
 
-      memItr.syncTo(110);
+//      memItr.syncTo(110);
       streamItr.syncTo(110);
       sc.document = 110;
-      assertEquals(memItr.currentCandidate(), 110);
+//      assertEquals(memItr.currentCandidate(), 110);
       assertEquals(streamItr.currentCandidate(), 110);
-      assertEquals(memItr.getCurrentLength(), 111);
+//      assertEquals(memItr.getCurrentLength(), 111);
       assertEquals(streamItr.getCurrentLength(), 111);
 
-      memItr.syncTo(200);
+//      memItr.syncTo(200);
       streamItr.syncTo(200);
       sc.document = 200;
-      assertEquals(memItr.currentCandidate(), 110);
+//      assertEquals(memItr.currentCandidate(), 110);
       assertEquals(streamItr.currentCandidate(), 110);
-      assertEquals(memItr.getCurrentLength(), 0);
+//      assertEquals(memItr.getCurrentLength(), 0);
       assertEquals(streamItr.getCurrentLength(), 0);
 
       reader.close();

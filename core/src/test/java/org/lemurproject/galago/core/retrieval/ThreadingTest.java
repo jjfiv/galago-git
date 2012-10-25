@@ -45,6 +45,7 @@ public class ThreadingTest extends TestCase {
 
       final LocalRetrieval ret = (LocalRetrieval) RetrievalFactory.instance(retParams);
       final List<Exception> exceptions = Collections.synchronizedList(new ArrayList());
+
       // query generator:
       final Random r = new Random();
       final List<String> queries = new ArrayList();
@@ -61,43 +62,46 @@ public class ThreadingTest extends TestCase {
       for (int qid = 0; qid < qCount; qid++) {
         Node qnode = StructuredQuery.parse(queries.get(qid));
         qnode = ret.transformQuery(qnode, retParams);
+        ScoredDocument[] res = ret.runQuery(qnode);
       }
-      
-//      // start 10 threads.
-//      List<Thread> runningThreads = new ArrayList();
-//      for (int threadId = 0; threadId < 10; threadId++) {
-//        Thread t = new Thread() {
-//
-//          @Override
-//          public void run() {
-//            try {
-//              for (int qid = 0; qid < qCount; qid++) {
-//                Node qnode = StructuredQuery.parse(queries.get(qid));
-//                qnode = ret.transformQuery(qnode, retParams);
-//              }
-//            } catch (Exception e) {
-//              exceptions.add(e);
-//            }
-//          }
-//        };
-//        runningThreads.add(t);
-//
-//        t.start();
-//      }
-//
-//      for (Thread t : runningThreads) {
-//        t.join();
-//      }
-//
-//      for (Exception e : exceptions) {
-//        System.err.println(e.getMessage());
-//        e.printStackTrace();
-//      }
-//
-//      if (!exceptions.isEmpty()) {
-//        throw new RuntimeException("FAILED TEST.");
-//      }
-//
+
+      // start 10 threads.
+      List<Thread> runningThreads = new ArrayList();
+      for (int threadId = 0; threadId < 10; threadId++) {
+        Thread t = new Thread() {
+
+          @Override
+          public void run() {
+            try {
+              for (int qid = 0; qid < qCount; qid++) {
+                Node qnode = StructuredQuery.parse(queries.get(qid));
+                qnode = ret.transformQuery(qnode, retParams);
+                ScoredDocument[] res = ret.runQuery(qnode);
+
+              }
+            } catch (Exception e) {
+              exceptions.add(e);
+            }
+          }
+        };
+        runningThreads.add(t);
+
+        t.start();
+      }
+
+      for (Thread t : runningThreads) {
+        t.join();
+      }
+
+      for (Exception e : exceptions) {
+        System.err.println(e.getMessage());
+        e.printStackTrace();
+      }
+
+      if (!exceptions.isEmpty()) {
+        throw new RuntimeException("FAILED THREADING TEST.");
+      }
+
     } finally {
       if (index != null) {
         Utility.deleteDirectory(index);

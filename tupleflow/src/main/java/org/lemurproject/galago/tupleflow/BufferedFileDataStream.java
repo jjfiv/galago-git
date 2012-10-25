@@ -11,9 +11,9 @@ import java.io.RandomAccessFile;
  */
 public class BufferedFileDataStream implements DataStream {
 
-  // the stream object must be used in a synchronous manner
+  // the fileStream object must be used in a synchronous manner
   // as this class is used heavily by the IndexReader class
-  final RandomAccessFile stream;
+  final RandomAccessFile fileStream;
   long stopPosition;
   long startPosition;
   final static int cacheLength = 32768;
@@ -22,14 +22,10 @@ public class BufferedFileDataStream implements DataStream {
   byte[] cacheBuffer;
 
   /** Creates a new instance of BufferedFileDataStream */
-  public BufferedFileDataStream(RandomAccessFile stream, long stopPosition) throws IOException {
-    this(stream, stream.getFilePointer(), stopPosition);
-  }
-
-  public BufferedFileDataStream(RandomAccessFile stream, long start, long end) {
+  public BufferedFileDataStream(RandomAccessFile input, long start, long end) {
     assert start <= end;
 
-    this.stream = stream;
+    this.fileStream = input;
     this.stopPosition = end;
     this.cacheBuffer = new byte[0];
     this.bufferPosition = 0;
@@ -37,22 +33,26 @@ public class BufferedFileDataStream implements DataStream {
     this.startPosition = start;
   }
 
+  @Override
   public BufferedFileDataStream subStream(long start, long length) {
     assert start < length();
     assert start + length <= length();
     return new BufferedFileDataStream(
-            stream, bufferStart + start,
+            fileStream, bufferStart + start,
             bufferStart + start + length);
   }
 
+  @Override
   public boolean isDone() {
     return stopPosition <= bufferStart + bufferPosition;
   }
 
+  @Override
   public long length() {
     return stopPosition - startPosition;
   }
 
+  @Override
   public long getPosition() {
     return getAbsolutePosition() - startPosition;
   }
@@ -62,19 +62,20 @@ public class BufferedFileDataStream implements DataStream {
   }
 
   /**
-   * Seeks forward into the stream to a particular byte offset (reverse
+   * Seeks forward into the fileStream to a particular byte offset (reverse
    * seeks are not allowed).  The offset is relative to the start position of
-   * this data stream, not the beginning of the file.
+   * this data fileStream, not the beginning of the file.
    */
+  @Override
   public void seek(long offset) {
     seekAbsolute(offset + startPosition);
   }
 
   /**
-   * Seeks forward into the stream to a particular byte offset (reverse
+   * Seeks forward into the fileStream to a particular byte offset (reverse
    * seeks are not allowed).  The offset is relative to the start of the file.
    */
-  public void seekAbsolute(long offset) {
+  private void seekAbsolute(long offset) {
     assert bufferStart + bufferPosition <= offset;
 
     // is any of this data cached?
@@ -82,30 +83,34 @@ public class BufferedFileDataStream implements DataStream {
       // this cast is safe because we know it's smaller than cacheBuffer.length
       bufferPosition = (int) (offset - bufferStart);
     } else {
-      // this sets the stream position to the appropriate point,
+      // this sets the fileStream position to the appropriate point,
       // and effectively invalidates the current cache contents.
       bufferStart = offset - cacheBuffer.length;
       bufferPosition = cacheBuffer.length;
     }
   }
 
+  @Override
   public void readFully(byte[] buffer, int start, int length) throws IOException {
     cache(length);
     System.arraycopy(cacheBuffer, bufferPosition, buffer, start, length);
     update(length);
   }
 
+  @Override
   public void readFully(byte[] buffer) throws IOException {
     cache(buffer.length);
     System.arraycopy(cacheBuffer, bufferPosition, buffer, 0, buffer.length);
     update(buffer.length);
   }
 
+  @Override
   public int skipBytes(int n) throws IOException {
     update(n);
     return n;
   }
 
+  @Override
   public int readUnsignedShort() throws IOException {
     cache(2);
 
@@ -118,6 +123,7 @@ public class BufferedFileDataStream implements DataStream {
     return result;
   }
 
+  @Override
   public boolean readBoolean() throws IOException {
     cache(1);
     boolean result = (cacheByte(0) != 0) ? true : false;
@@ -125,6 +131,7 @@ public class BufferedFileDataStream implements DataStream {
     return result;
   }
 
+  @Override
   public byte readByte() throws IOException {
     cache(1);
     byte result = cacheByte(0);
@@ -132,10 +139,12 @@ public class BufferedFileDataStream implements DataStream {
     return result;
   }
 
+  @Override
   public char readChar() throws IOException {
     return (char) readShort();
   }
 
+  @Override
   public short readShort() throws IOException {
     cache(2);
     byte a = cacheByte(0);
@@ -145,16 +154,19 @@ public class BufferedFileDataStream implements DataStream {
     return result;
   }
 
+  @Override
   public double readDouble() throws IOException {
     long result = readLong();
     return Double.longBitsToDouble(result);
   }
 
+  @Override
   public float readFloat() throws IOException {
     int result = readInt();
     return Float.intBitsToFloat(result);
   }
 
+  @Override
   public int readInt() throws IOException {
     cache(4);
 
@@ -172,10 +184,12 @@ public class BufferedFileDataStream implements DataStream {
     return result;
   }
 
+  @Override
   public String readLine() throws IOException {
     throw new IOException("readLine is unimplemented and deprecated");
   }
 
+  @Override
   public long readLong() throws IOException {
     long a = readInt();
     long b = readInt();
@@ -188,11 +202,13 @@ public class BufferedFileDataStream implements DataStream {
     return a | b;
   }
 
+  @Override
   public String readUTF() throws IOException {
     throw new IOException("readUTF is unimplemented");
   }
 
   // inlining here for performance
+  @Override
   public int readUnsignedByte() throws IOException {
     if (cacheBuffer.length - bufferPosition >= 1) {
       int result = 0xff & (int) cacheBuffer[bufferPosition];
@@ -208,7 +224,7 @@ public class BufferedFileDataStream implements DataStream {
 
   private void cache(int length) throws IOException {
     assert length >= 0 : "Length can't be negative: " + length + " "
-            + bufferStart + bufferPosition + " " + stopPosition;
+            + bufferStart + " " + bufferPosition + " " + stopPosition;
 
     // quick check to see if it's already buffered
     if (cacheBuffer.length - bufferPosition >= length) {
@@ -225,10 +241,13 @@ public class BufferedFileDataStream implements DataStream {
     if (readLength != cacheBuffer.length) {
       cacheBuffer = new byte[readLength];
     }
-    synchronized (stream) {
-      stream.seek(current);
-      stream.readFully(cacheBuffer);
+
+    // this is the only time this file accesses the fileStream
+    synchronized (fileStream) {
+      fileStream.seek(current);
+      fileStream.readFully(cacheBuffer);
     }
+
     bufferStart = current;
     bufferPosition = 0;
   }

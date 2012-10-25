@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel.MapMode;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
 import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
@@ -43,15 +42,16 @@ import org.lemurproject.galago.tupleflow.Utility;
 public class DiskBTreeReader extends BTreeReader {
 
   // this input reader needs to be accesed in a synchronous manner.
-  final RandomAccessFile input;
+  final private RandomAccessFile input;
   // other variables do not
-  VocabularyReader vocabulary;
-  Parameters manifest;
-  int blockSize;
-  int cacheGroupSize = 5;
-  long vocabularyOffset;
-  long manifestOffset;
-  long footerOffset;
+  private VocabularyReader vocabulary;
+  private Parameters manifest;
+  private int blockSize;
+  private int cacheGroupSize = 5;
+  private long fileLength;
+  private long vocabularyOffset;
+  private long manifestOffset;
+  private long footerOffset;
 
   public class Iterator extends BTreeReader.BTreeIterator {
 
@@ -78,7 +78,7 @@ public class DiskBTreeReader extends BTreeReader {
       this.startFileOffset = this.blockInfo.begin;
 
       // read in a block of data here
-      blockStream = blockStream(this.startFileOffset, this.blockInfo.headerLength);
+      blockStream = new BufferedFileDataStream(input, startFileOffset, blockInfo.headerLength + startFileOffset);
 
       // now we decode everything from the stream
       this.endValueFileOffset = startFileOffset + blockInfo.length;
@@ -217,7 +217,6 @@ public class DiskBTreeReader extends BTreeReader {
     public DataStream getSubValueStream(long offset, long length) throws IOException {
       long absoluteStart = getValueStart() + offset;
       long absoluteEnd = getValueStart() + offset + length;
-      long fileLength = input.length();
       absoluteEnd = Math.min(Math.min(fileLength, absoluteEnd), getValueEnd());
 
       assert absoluteStart <= absoluteEnd;
@@ -228,20 +227,20 @@ public class DiskBTreeReader extends BTreeReader {
 
     @Override
     public MappedByteBuffer getValueMemoryMap() throws IOException {
-      MappedByteBuffer buffer;
-      synchronized (input) {
-        long length = input.length();
-        long start = getValueStart();
-        long end = getValueEnd();
+      return null;
+//      MappedByteBuffer buffer;
+//      synchronized (input) {
+//        long start = getValueStart();
+//        long end = getValueEnd();
 //        if(true) return null;
-        try {
-          buffer = input.getChannel().map(MapMode.READ_ONLY, start, end);
-        } catch (IOException e) {
-          System.out.println("WTF..." + e.getMessage());
-          throw e;
-        }
-      }
-      return buffer;
+//        try {
+//          buffer = input.getChannel().map(MapMode.READ_ONLY, start, end);
+//        } catch (IOException e) {
+//          System.out.println("Failed to open MemoryMap over key-value" + e.getMessage());
+//          throw e;
+//        }
+//      }
+//      return buffer;
     }
 
     private void cacheKeys() throws IOException {
@@ -293,11 +292,12 @@ public class DiskBTreeReader extends BTreeReader {
     input = new RandomAccessFile(pathname, "r");
 
     // Seek to the end of the file
-    long length = input.length();
-    footerOffset = length - Integer.SIZE / 8 - 3 * Long.SIZE / 8;
+    fileLength = input.length();
+    footerOffset = fileLength - Integer.SIZE / 8 - 3 * Long.SIZE / 8;
 
-    /* in a constructor this is not strictly necessary
-     * no other threads can use this object before it's creation
+    /** 
+     * In a constructor synchronized is not strictly necessary, 
+     *  no other threads can use this object before it's creation...
      * However, I'm wrapping *all* usage.
      */
     synchronized (input) {
@@ -314,12 +314,12 @@ public class DiskBTreeReader extends BTreeReader {
       long invertedListLength = vocabularyOffset;
       long vocabularyLength = manifestOffset - vocabularyOffset;
 
-      input.seek(vocabularyOffset);
-      vocabulary = new VocabularyReader(input, invertedListLength, vocabularyLength);
+      //input.seek(vocabularyOffset);
+      vocabulary = new VocabularyReader(new BufferedFileDataStream(input, vocabularyOffset, vocabularyOffset + vocabularyLength), invertedListLength);
 
-      input.seek(manifestOffset);
       byte[] xmlData = new byte[(int) (footerOffset - manifestOffset)];
-      input.read(xmlData);
+      input.seek(manifestOffset);
+      input.readFully(xmlData);
       manifest = Parameters.parse(xmlData);
     }
 
@@ -344,6 +344,7 @@ public class DiskBTreeReader extends BTreeReader {
    * data about the index contents, like what stemmer was used or the
    * total number of terms in the collection.
    */
+  @Override
   public Parameters getManifest() {
     return manifest;
   }
@@ -352,6 +353,7 @@ public class DiskBTreeReader extends BTreeReader {
    * Returns the vocabulary structure for this DiskBTreeReader.  Note that the vocabulary
    * contains only the first key in each block.
    */
+  @Override
   public VocabularyReader getVocabulary() {
     return vocabulary;
   }
@@ -362,6 +364,7 @@ public class DiskBTreeReader extends BTreeReader {
    * which might be useful for testing and debugging tools, but probably
    * not for traditional document retrieval.
    */
+  @Override
   public DiskBTreeReader.Iterator getIterator() throws IOException {
     // if we have an empty file - there is nothing to iterate over.
     if (manifest.get("emptyIndexFile", false)) {
@@ -377,6 +380,7 @@ public class DiskBTreeReader extends BTreeReader {
    * Returns an iterator pointing at a specific key.  Returns
    * null if the key is not found in the index.
    */
+  @Override
   public DiskBTreeReader.Iterator getIterator(byte[] key) throws IOException {
     // read from offset to offset in the vocab structure (right?)
     VocabularyReader.IndexBlockInfo slot = vocabulary.get(key);
@@ -395,26 +399,15 @@ public class DiskBTreeReader extends BTreeReader {
   /**
    * Closes all files associated with the DiskBTreeReader.
    */
+  @Override
   public void close() throws IOException {
-    synchronized (input) {
-      input.close();
-    }
+    //synchronized (input) {
+    input.close();
+    //}
   }
 
   /**************/
   // local functions
-  /**
-   * This convenience method returns a DataStream for
-   * a region of an inverted file.
-   */
-  private DataStream blockStream(long offset, long length) throws IOException {
-    long fileLength = input.length();
-    assert offset <= fileLength;
-    length = Math.min(fileLength - offset, length);
-
-    return new BufferedFileDataStream(input, offset, length + offset);
-  }
-
   /**
    * Returns true if the file specified by this pathname was probably written by DiskBTreeWriter.
    * If this method returns false, the file is definitely not readable by DiskBTreeReader.
