@@ -97,7 +97,7 @@ public class ThreadingTest extends TestCase {
 //      if (!exceptions.isEmpty()) {
 //        throw new RuntimeException("FAILED TEST.");
 //      }
-
+//
     } finally {
       if (index != null) {
         Utility.deleteDirectory(index);

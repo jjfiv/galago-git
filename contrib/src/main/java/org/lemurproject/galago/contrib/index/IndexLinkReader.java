@@ -1,19 +1,18 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.index;
+package org.lemurproject.galago.contrib.index;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-
 import ciir.proteus.galago.thrift.IndexLink;
-
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.protocol.TCompactProtocol.Factory;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TMemoryInputTransport;
+import org.lemurproject.galago.core.index.BTreeFactory;
+import org.lemurproject.galago.core.index.BTreeReader;
 
 /**
  * This is a dirty hack of a reader class. However it's not clear how

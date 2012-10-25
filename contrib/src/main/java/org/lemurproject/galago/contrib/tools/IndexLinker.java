@@ -1,12 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.tools;
+package org.lemurproject.galago.contrib.tools;
 
 import java.io.File;
 import java.io.PrintStream;
 import java.util.List;
-import org.lemurproject.galago.core.index.IndexLinkWriter;
+import org.lemurproject.galago.contrib.index.IndexLinkWriter;
 import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.parse.IndexLinkGenerator;
+import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.core.tools.BuildStageTemplates;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.IndexLink;
 import org.lemurproject.galago.tupleflow.Parameters;

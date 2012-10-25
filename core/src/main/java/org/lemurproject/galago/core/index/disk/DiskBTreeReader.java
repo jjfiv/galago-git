@@ -157,6 +157,7 @@ public class DiskBTreeReader extends BTreeReader {
       nextKey();
     }
 
+    @Override
     public void skipTo(byte[] key) throws IOException {
       // if the key is not in this block:
       if (Utility.compare(key, this.blockInfo.nextSlotKey) >= 0) {
@@ -226,29 +227,30 @@ public class DiskBTreeReader extends BTreeReader {
     }
 
     @Override
-    public MappedByteBuffer getValueMemoryMap() throws IOException{
+    public MappedByteBuffer getValueMemoryMap() throws IOException {
       MappedByteBuffer buffer;
-      synchronized(input){
+      synchronized (input) {
         long length = input.length();
-        long start =  getValueStart();
+        long start = getValueStart();
         long end = getValueEnd();
+//        if(true) return null;
         try {
-        buffer = input.getChannel().map(MapMode.READ_ONLY,start ,end );
+          buffer = input.getChannel().map(MapMode.READ_ONLY, start, end);
         } catch (IOException e) {
-           System.out.println("WTF..." + e.getMessage());
-           throw e;
+          System.out.println("WTF..." + e.getMessage());
+          throw e;
         }
       }
       return buffer;
     }
-    
+
     private void cacheKeys() throws IOException {
       for (int i = 0; i < cacheGroupSize; i++) {
         // if we are done
         if (cacheKeyCount >= keyCount) {
           return;
 
-        // first key
+          // first key
         } else if (this.cacheKeyCount == 0) {
           int keyLength = Utility.uncompressInt(blockStream);
           byte[] keyBytes = new byte[keyLength];
@@ -257,7 +259,7 @@ public class DiskBTreeReader extends BTreeReader {
           this.endValueOffsetCache[0] = Utility.uncompressInt(blockStream);
           cacheKeyCount++;
 
-        // second or later key
+          // second or later key
         } else {
           int common = Utility.uncompressInt(blockStream);
           int keyLength = Utility.uncompressInt(blockStream);

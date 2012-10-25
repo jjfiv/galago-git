@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.tools;
+package org.lemurproject.galago.contrib.tools;
 
 import ciir.proteus.galago.thrift.*;
 import com.google.gson.stream.JsonReader;
@@ -16,6 +16,7 @@ import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransport;
 import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
+import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
