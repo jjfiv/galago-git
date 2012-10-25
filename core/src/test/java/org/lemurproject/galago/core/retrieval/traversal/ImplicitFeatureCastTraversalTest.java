@@ -1,8 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import org.lemurproject.galago.core.retrieval.traversal.ImplicitFeatureCastTraversal;
-import org.lemurproject.galago.core.retrieval.traversal.TextFieldRewriteTraversal;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -43,7 +41,7 @@ public class ImplicitFeatureCastTraversalTest extends TestCase {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
     LocalRetrieval retrieval = new LocalRetrieval(index, new Parameters());
 
-    ImplicitFeatureCastTraversal traversal = new ImplicitFeatureCastTraversal(retrieval);
+    ImplicitFeatureCastTraversal traversal = new ImplicitFeatureCastTraversal(retrieval, new Parameters());
     TextFieldRewriteTraversal precedes = new TextFieldRewriteTraversal(retrieval);
     Node tree = StructuredQuery.parse("#combine( cat dog.title)");
     tree = StructuredQuery.copy(precedes, tree); // converts #text to #extents...
@@ -61,7 +59,7 @@ public class ImplicitFeatureCastTraversalTest extends TestCase {
     Parameters p = new Parameters();
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
 
-    ImplicitFeatureCastTraversal traversal = new ImplicitFeatureCastTraversal(retrieval);
+    ImplicitFeatureCastTraversal traversal = new ImplicitFeatureCastTraversal(retrieval, new Parameters());
     Node tree = StructuredQuery.parse("#combine( #between( title abba zztop )");
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine( #between:0=abba:1=zztop( #field:title() ) )");

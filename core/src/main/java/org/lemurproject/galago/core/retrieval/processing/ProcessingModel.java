@@ -59,7 +59,7 @@ public abstract class ProcessingModel {
     docLengths.getNodeParameters().set("mode", global.get("lenMode", "memory"));
 
     Index index = r.getIndex();
-    MovableLengthsIterator documentLengths = (MovableLengthsIterator) index.getIterator(docLengths);    
+    MovableLengthsIterator documentLengths = (MovableLengthsIterator) index.getIterator(docLengths);
     documentLengths.setContext(ctx);
     ctx.addLength("", documentLengths);
     if (index.containsPart("extents") && !fields.isEmpty()) {
@@ -114,7 +114,7 @@ public abstract class ProcessingModel {
         }
       }
 
-      if (p.containsKey("passageSize") || p.containsKey("passageShift")) {
+      if (p.get("passageQuery", false))  {
         return new RankedPassageModel(r);
       } else {
         if (p.get("deltaReady", false)) {
