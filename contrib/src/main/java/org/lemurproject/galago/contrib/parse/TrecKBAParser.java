@@ -1,9 +1,7 @@
-package org.lemurproject.galago.core.parse;
+package org.lemurproject.galago.contrib.parse;
 
-import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,9 +16,10 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
 import org.apache.thrift.transport.TTransportException;
+import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.DocumentStreamParser;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.tukaani.xz.XZInputStream;
 
 public class TrecKBAParser extends DocumentStreamParser {
 

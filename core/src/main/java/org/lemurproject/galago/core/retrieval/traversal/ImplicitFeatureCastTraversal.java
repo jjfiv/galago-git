@@ -33,10 +33,12 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class ImplicitFeatureCastTraversal extends Traversal {
 
+  Parameters queryParams;
   Parameters globals;
   Retrieval retrieval;
 
-  public ImplicitFeatureCastTraversal(Retrieval retrieval) {
+  public ImplicitFeatureCastTraversal(Retrieval retrieval, Parameters queryParams) {
+    this.queryParams = queryParams;
     this.retrieval = retrieval;
     this.globals = retrieval.getGlobalParameters();
   }
@@ -51,7 +53,7 @@ public class ImplicitFeatureCastTraversal extends Traversal {
     if (child.getOperator().equals("extents")) {
       child.setOperator("counts");
     }
-    
+
     ArrayList<Node> data = new ArrayList<Node>();
     data.add(child);
     String scorerType = globals.get("scorer", "dirichlet");
@@ -192,22 +194,16 @@ public class ImplicitFeatureCastTraversal extends Traversal {
   }
 
   private Node addExtentFilters(Node in) throws Exception {
-    if (this.globals.containsKey("passageSize") || this.globals.containsKey("passageShift")) {
-      if (!this.globals.containsKey("passageSize")) {
-        throw new IllegalArgumentException("passage retrieval requires an explicit passageSize parameter.");
-      }
-
-      if (!this.globals.containsKey("passageShift")) {
-        throw new IllegalArgumentException("passage retrieval requires an explicit passageShift parameter.");
-      }
-
+    boolean passageQuery = this.globals.get("passageQuery", false);
+    passageQuery = this.queryParams.get("passageQuery", passageQuery);
+    if (passageQuery) {
       // replace here
       ArrayList<Node> children = new ArrayList<Node>();
       children.add(in);
       Node replacement = new Node("passagefilter", children);
       return replacement;
     } else {
-     return in;
+      return in;
     }
   }
 

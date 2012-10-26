@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.index;
+package org.lemurproject.galago.contrib.index;
 
 import java.io.IOException;
 import java.io.File;
@@ -18,6 +18,7 @@ import ciir.proteus.galago.thrift.Coordinates;
 import ciir.proteus.galago.thrift.Picture;
 import ciir.proteus.galago.thrift.PictureList;
 
+import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;

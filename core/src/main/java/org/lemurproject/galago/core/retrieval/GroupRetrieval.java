@@ -132,17 +132,17 @@ public class GroupRetrieval implements Retrieval {
   }
 
   @Override
-  public int getDocumentLength(int docid) throws IOException {
+  public Integer getDocumentLength(Integer docid) throws IOException {
     return groups.get(defGroup).getDocumentLength(docid);
   }
 
   @Override
-  public int getDocumentLength(String docname) throws IOException {
+  public Integer getDocumentLength(String docname) throws IOException {
     return groups.get(defGroup).getDocumentLength(docname);
   }
 
   @Override
-  public String getDocumentName(int docid) throws IOException {
+  public String getDocumentName(Integer docid) throws IOException {
     return groups.get(defGroup).getDocumentName(docid);
   }
 
@@ -213,15 +213,15 @@ public class GroupRetrieval implements Retrieval {
     return groups.get(group).getNodeStatistics(node);
   }
 
-  public int getDocumentLength(int docid, String group) throws IOException {
+  public Integer getDocumentLength(Integer docid, String group) throws IOException {
     return groups.get(group).getDocumentLength(docid);
   }
 
-  public int getDocumentLength(String docname, String group) throws IOException {
+  public Integer getDocumentLength(String docname, String group) throws IOException {
     return groups.get(group).getDocumentLength(docname);
   }
 
-  public String getDocumentName(int docid, String group) throws IOException {
+  public String getDocumentName(Integer docid, String group) throws IOException {
     return groups.get(group).getDocumentName(docid);
   }
 

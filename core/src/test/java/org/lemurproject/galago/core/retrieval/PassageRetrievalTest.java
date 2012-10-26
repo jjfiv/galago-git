@@ -43,6 +43,7 @@ public class PassageRetrievalTest extends TestCase {
     Parameters p = new Parameters();
     p.set("passageSize", 4);
     p.set("passageShift", 2);
+    p.set("passageQuery", true);
 
     LocalRetrieval retrieval = new LocalRetrieval(indexFile.toString(), p);
 

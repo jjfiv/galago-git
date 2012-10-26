@@ -489,6 +489,8 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     // Even though we check for skips multiple times, in terms of how the data is loaded
     // its easier to do the parts when appropriate
     protected void initialize() throws IOException {
+
+
       DataStream valueStream = iterator.getSubValueStream(0, iterator.getValueLength());
       DataInput stream = new VByteInput(valueStream);
 
@@ -556,6 +558,10 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
         countsByteFloor = 0;
       } else {
 
+        // if we failed - give me a breakpoint.
+        if (positionsEnd != (endPosition - startPosition)) {
+          int i = 0;
+        }
         assert positionsEnd == endPosition - startPosition;
         skips = null;
         skipPositions = null;
@@ -589,7 +595,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
       iterator = i;
       startPosition = iterator.getValueStart();
       endPosition = iterator.getValueEnd();
-      key = iterator.getKey();
+
       initialize();
     }
 

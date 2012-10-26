@@ -49,6 +49,8 @@ public class StreamContextHandler extends ContextHandler {
         arguments[i] = ois.readObject();
       }
 
+      ois.close();
+      
       // NOW we can get the method itself and invoke it on our retrieval object
       // with the extracted arguments
       Method m = search.retrieval.getClass().getMethod(methodName, argTypes);
@@ -59,6 +61,10 @@ public class StreamContextHandler extends ContextHandler {
       oos.writeObject(result);
       response.flushBuffer();
     } catch (Exception e) {
+      
+      e.printStackTrace();
+      System.err.println(e.toString());
+      
       throw new RuntimeException(e);
     }
   }

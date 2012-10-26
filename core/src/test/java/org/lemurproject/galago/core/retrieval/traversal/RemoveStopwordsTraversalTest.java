@@ -165,17 +165,17 @@ public class RemoveStopwordsTraversalTest extends TestCase {
     }
 
     @Override
-    public int getDocumentLength(int docid) throws IOException {
+    public Integer getDocumentLength(Integer docid) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public int getDocumentLength(String docname) throws IOException {
+    public Integer getDocumentLength(String docname) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public String getDocumentName(int docid) throws IOException {
+    public String getDocumentName(Integer docid) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

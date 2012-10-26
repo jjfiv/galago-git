@@ -348,7 +348,8 @@ public class LocalRetrieval implements Retrieval {
     Node root = StructuredQuery.parse(nodeString);
     root.getNodeParameters().set("queryType", "count");
     root = transformQuery(root, new Parameters());
-    return getNodeStatistics(root);
+    NodeStatistics ns = getNodeStatistics(root);
+    return ns;
   }
 
   @Override
@@ -414,17 +415,17 @@ public class LocalRetrieval implements Retrieval {
   }
 
   @Override
-  public int getDocumentLength(int docid) throws IOException {
+  public Integer getDocumentLength(Integer docid) throws IOException {
     return index.getLength(docid);
   }
 
   @Override
-  public int getDocumentLength(String docname) throws IOException {
+  public Integer getDocumentLength(String docname) throws IOException {
     return index.getLength(index.getIdentifier(docname));
   }
 
   @Override
-  public String getDocumentName(int docid) throws IOException {
+  public String getDocumentName(Integer docid) throws IOException {
     return index.getName(docid);
   }
 

@@ -509,7 +509,7 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public int getDocumentLength(int docid) throws IOException {
+  public Integer getDocumentLength(Integer docid) throws IOException {
     HashMap<Integer, Integer> results = new HashMap();
     for (Retrieval r : this.retrievals) {
       results.put(docid, r.getDocumentLength(docid));
@@ -518,7 +518,7 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public int getDocumentLength(String docname) throws IOException {
+  public Integer getDocumentLength(String docname) throws IOException {
     HashMap<String, Integer> results = new HashMap();
     for (Retrieval r : this.retrievals) {
       results.put(docname, r.getDocumentLength(docname));
@@ -527,7 +527,7 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public String getDocumentName(int docid) throws IOException {
+  public String getDocumentName(Integer docid) throws IOException {
     throw new UnsupportedOperationException("Not supported.");
   }
 

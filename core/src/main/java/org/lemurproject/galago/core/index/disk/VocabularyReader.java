@@ -2,9 +2,9 @@
 package org.lemurproject.galago.core.index.disk;
 
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
+import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -23,10 +23,9 @@ public class VocabularyReader {
   }
   List<IndexBlockInfo> slots;
 
-  public VocabularyReader(RandomAccessFile input, long invertedFileLength,
-          long vocabularyLength) throws IOException {
+  public VocabularyReader(BufferedFileDataStream input, long valueDataEnd) throws IOException {
     slots = new ArrayList<IndexBlockInfo>();
-    read(invertedFileLength, vocabularyLength, input);
+    read(input, valueDataEnd);
   }
 
   public IndexBlockInfo getSlot(int id) {
@@ -41,25 +40,31 @@ public class VocabularyReader {
     return slots;
   }
 
-  public void read(long invertedFileLength, long vocabularyLength, RandomAccessFile input) throws IOException {
+  public void read(BufferedFileDataStream input, long valueDataEnd) throws IOException {
     long last = 0;
-    long start = input.getFilePointer();
 
     int finalKeyLength = input.readInt();
     byte[] finalIndexKey = new byte[finalKeyLength];
-    input.read(finalIndexKey);
+    input.readFully(finalIndexKey);
 
-    while (input.getFilePointer() < start + vocabularyLength) {
+    while (input.getPosition() < input.length()) {
+      // read - length of block key
       int length = Utility.uncompressInt(input);
-      //short length = input.readShort();
+
+      // read - block key
       byte[] data = new byte[length];
-      input.read(data);
+      input.readFully(data);
+      
+      // read  - offset of block
       long offset = Utility.uncompressLong(input);
-      //long offset = input.readLong();
+      
+      // read - length of block header 
       int headerLength = Utility.uncompressInt(input);
-      //short headerLength = input.readShort();
+
+      // save this info
       IndexBlockInfo slot = new IndexBlockInfo();
 
+      // set the length of the previous block, and a forward reference to this block
       if (slots.size() > 0) {
         slots.get(slots.size() - 1).length = offset - last;
         slots.get(slots.size() - 1).nextSlotKey = data;
@@ -75,10 +80,11 @@ public class VocabularyReader {
     }
 
     if (slots.size() > 0) {
-      slots.get(slots.size() - 1).length = invertedFileLength - last;
-      slots.get(slots.size() - 1).nextSlotKey = finalIndexKey;
+      IndexBlockInfo finalSlot = slots.get(slots.size()-1);
+      finalSlot.length = valueDataEnd - finalSlot.begin;
+      finalSlot.nextSlotKey = finalIndexKey;
     }
-    assert invertedFileLength >= last;
+    assert valueDataEnd >= last;
   }
 
   public IndexBlockInfo get(byte[] key) {
@@ -86,7 +92,7 @@ public class VocabularyReader {
   }
 
   public IndexBlockInfo get(byte[] key, int minBlock) {
-    if (slots.size() == 0) {
+    if (slots.isEmpty()) {
       return null;
     }
     int big = slots.size() - 1;
