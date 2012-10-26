@@ -84,8 +84,6 @@ public class ProxyRetrieval implements InvocationHandler {
     }
     oos.close();
 
-    oos.close();
-    
     // Wait for response
     InputStream stream = connection.getInputStream();
 
@@ -93,6 +91,7 @@ public class ProxyRetrieval implements InvocationHandler {
     // This requires that the return type is serializable
     ObjectInputStream ois = new ObjectInputStream(stream);
     Object response = ois.readObject();
+    ois.close();
 
     // Do we want to keep reconnecting and disconnecting?
     // Maybe a persistent connection is worth it?

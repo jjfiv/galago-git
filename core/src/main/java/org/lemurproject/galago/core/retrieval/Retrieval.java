@@ -202,7 +202,7 @@ public interface Retrieval {
    * @return document length
    * @throws IOException
    */
-  public int getDocumentLength(int docid) throws IOException;
+  public Integer getDocumentLength(Integer docid) throws IOException;
 
   /**
    * Returns the length of a particular document. Where docname
@@ -212,7 +212,7 @@ public interface Retrieval {
    * @return document length
    * @throws IOException
    */
-  public int getDocumentLength(String docname) throws IOException;
+  public Integer getDocumentLength(String docname) throws IOException;
 
   /**
    * Returns the internally stored name of a particular document. 
@@ -222,7 +222,7 @@ public interface Retrieval {
    * @return document length
    * @throws IOException
    */
-  public String getDocumentName(int docid) throws IOException;
+  public String getDocumentName(Integer docid) throws IOException;
 
   /**
    * adds a node to the cache

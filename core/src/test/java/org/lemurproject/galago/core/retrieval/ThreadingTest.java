@@ -8,7 +8,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -59,10 +61,12 @@ public class ThreadingTest extends TestCase {
       }
 
       // test that the test works in a single thread:
+      final Map<Integer, Integer> trueCounts = new HashMap();
       for (int qid = 0; qid < qCount; qid++) {
         Node qnode = StructuredQuery.parse(queries.get(qid));
         qnode = ret.transformQuery(qnode, retParams);
         ScoredDocument[] res = ret.runQuery(qnode);
+        trueCounts.put(qid, res.length);
       }
 
       // start 10 threads.
@@ -74,10 +78,11 @@ public class ThreadingTest extends TestCase {
           public void run() {
             try {
               for (int qid = 0; qid < qCount; qid++) {
-                Node qnode = StructuredQuery.parse(queries.get(qid));
+                int i = r.nextInt(qCount);
+                Node qnode = StructuredQuery.parse(queries.get(i));
                 qnode = ret.transformQuery(qnode, retParams);
                 ScoredDocument[] res = ret.runQuery(qnode);
-
+                assert(res.length == trueCounts.get(i));
               }
             } catch (Exception e) {
               exceptions.add(e);

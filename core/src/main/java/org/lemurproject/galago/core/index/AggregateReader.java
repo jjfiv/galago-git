@@ -1,10 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
-import java.io.IOException;
 import java.io.Serializable;
-
-import org.lemurproject.galago.core.index.mem.MemoryIndex;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -14,7 +11,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class AggregateReader {
 
-  public static class IndexPartStatistics {
+  public static class IndexPartStatistics implements Serializable {
 
     private static final long serialVersionUID = 5553653651892088433L;
     public String partName = null;
@@ -60,7 +57,7 @@ public class AggregateReader {
    * Collection Statistics. Stores aggregate values used for smoothing models of
    * documents.
    */
-  public static class CollectionStatistics {
+  public static class CollectionStatistics implements Serializable {
 
     private static final long serialVersionUID = 6553653651892088433L;
     // 'document', 'field', or passage label
@@ -105,7 +102,7 @@ public class AggregateReader {
     }
   }
 
-  public static class NodeStatistics {
+  public static class NodeStatistics implements Serializable {
 
     private static final long serialVersionUID = 7553653651892088433L;
     public String node = null;
