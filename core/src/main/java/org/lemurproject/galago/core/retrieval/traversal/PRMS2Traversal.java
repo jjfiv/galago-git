@@ -64,10 +64,12 @@ public class PRMS2Traversal extends Traversal {
     return (root.getOperator().equals("prms2"));
   }
 
+  @Override
   public void beforeNode(Node original) throws Exception {
     levels++;
   }
 
+  @Override
   public Node afterNode(Node original) throws Exception {
     levels--;
     if (levels > 0) {

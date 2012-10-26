@@ -93,7 +93,8 @@ public class RetrievalFactory {
     ArrayList<Thread> openers = new ArrayList();
     final Parameters shardParameters = parameters;
     final List<Retrieval> retrievals = Collections.synchronizedList(new ArrayList());
-
+    final List<String> errors = Collections.synchronizedList(new ArrayList());
+    
     for (final String path : indexes) {
       Thread t = new Thread() {
         @Override
@@ -104,6 +105,7 @@ public class RetrievalFactory {
           } catch (Exception e) {
             System.err.println("Unable to load index (" + shardParameters.toString() + ") at path " + path + ": " + e.getMessage());
             e.printStackTrace(System.err);
+            errors.add(e.toString());
           }
         }
       };
@@ -116,6 +118,10 @@ public class RetrievalFactory {
       opener.join();
     }
 
+    if(!errors.isEmpty()){
+      throw new RuntimeException("Failed to open one or more indexes.");
+    }
+    
     return new MultiRetrieval(new ArrayList(retrievals), parameters);
   }
 }
