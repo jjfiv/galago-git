@@ -1,5 +1,4 @@
 // BSD License (http://lemurproject.org/galago-license)
-
 package org.lemurproject.galago.tupleflow.execution;
 
 import java.io.Serializable;
@@ -10,53 +9,59 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author trevor
  */
 public class Step implements Serializable {
-    protected FileLocation location;
-    private String className;
-    private Parameters parameters;
 
-    public Step() {
-    }
+  protected FileLocation location;
+  private String className;
+  private Parameters parameters;
 
-    public Step(Class c) {
-        this(null, c.getName(), new Parameters());
-    }
+  public Step() {
+  }
 
-    public Step(String className) {
-        this(null, className, new Parameters());
-    }
-    
-    public Step(Class c, Parameters parameters) {
-        this(null, c.getName(), parameters);
-    }
+  public Step(Class c) {
+    this(null, c.getName(), new Parameters());
+  }
 
-    public Step(String className, Parameters parameters) {
-        this(null, className, parameters);
-    }
+  public Step(String className) {
+    this(null, className, new Parameters());
+  }
 
-    public Step(FileLocation location, String className, Parameters parameters) {
-        this.location = location;
-        this.className = className;
-        this.parameters = parameters;
-    }
+  public Step(Class c, Parameters parameters) {
+    this(null, c.getName(), parameters);
+  }
 
-    public FileLocation getLocation() {
-        return location;
-    }
+  public Step(String className, Parameters parameters) {
+    this(null, className, parameters);
+  }
 
-    public String getClassName() {
-        return className;
-    }
+  public Step(FileLocation location, String className, Parameters parameters) {
+    this.location = location;
+    this.className = className;
+    this.parameters = parameters;
+  }
 
-    public Parameters getParameters() {
-        return parameters;
+  public FileLocation getLocation() {
+    // ensure we return a non-null location.
+    if (location == null) {
+      return new FileLocation(className, 0, 0);
+    } else {
+      return location;
     }
+  }
 
-    public boolean isStepClassAvailable() {
-        return Verification.isClassAvailable(className);
-    }
+  public String getClassName() {
+    return className;
+  }
 
-    @Override
-    public String toString() {
-        return className;
-    }
+  public Parameters getParameters() {
+    return parameters;
+  }
+
+  public boolean isStepClassAvailable() {
+    return Verification.isClassAvailable(className);
+  }
+
+  @Override
+  public String toString() {
+    return className;
+  }
 }

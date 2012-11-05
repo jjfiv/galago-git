@@ -61,8 +61,8 @@ public class DiskBTreeWriter extends BTreeWriter {
 
     // max sizes - each uses a max of 2 bytes
     blockSize = (int) parameters.get("blockSize", 16383);
-    keySize = Math.min(blockSize, 16383);
-    keyOverlap = Math.min(blockSize, 16383);
+    keySize = (int) parameters.get("keySize", Math.min(blockSize, 16383));
+    keyOverlap = keySize;
     
     output = new DataOutputStream(new BufferedOutputStream(
             new FileOutputStream(outputFilename)));

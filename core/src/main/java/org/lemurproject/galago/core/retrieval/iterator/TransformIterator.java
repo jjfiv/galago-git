@@ -3,7 +3,6 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -11,8 +10,8 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public abstract class TransformIterator implements MovableIterator {
 
-  ScoringContext context;
-  MovableIterator iterator;
+  public ScoringContext context;
+  public MovableIterator iterator;
 
   public TransformIterator(MovableIterator iterator) {
     this.iterator = iterator;

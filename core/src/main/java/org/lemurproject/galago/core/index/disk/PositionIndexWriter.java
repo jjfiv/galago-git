@@ -1,23 +1,19 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import gnu.trove.set.hash.TIntHashSet;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.logging.Logger;
+import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
-import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.mem.MemoryPositionalIndex;
 import org.lemurproject.galago.core.index.merge.PositionIndexMerger;
-import org.lemurproject.galago.core.parse.NumericParameterAccumulator;
 import org.lemurproject.galago.core.types.NumberWordPosition;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
@@ -49,7 +45,6 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  * @author trevor, irmarc
  */
 @InputClass(className = "org.lemurproject.galago.core.types.NumberWordPosition", order = {"+word", "+document", "+position"})
-@OutputClass(className = "org.lemurproject.galago.core.types.KeyValuePair", order = {"+key"})
 public class PositionIndexWriter implements
         NumberWordPosition.WordDocumentPositionOrder.ShreddedProcessor {
 
@@ -275,6 +270,7 @@ public class PositionIndexWriter implements
      * @param output
      * @throws IOException
      */
+    @Override
     public void write(final OutputStream output) throws IOException {
       header.write(output);
       header.clear();
@@ -302,6 +298,7 @@ public class PositionIndexWriter implements
      *
      * @return
      */
+    @Override
     public byte[] key() {
       return word;
     }
