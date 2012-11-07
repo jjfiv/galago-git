@@ -38,7 +38,6 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   static String[][] specialKnownExtensions = {
     {"_mbtei.xml.gz", "mbtei"}
   };
-
   private Counter inputCounter;
   public Processor<DocumentSplit> processor;
   private TupleFlowParameters parameters;
@@ -92,7 +91,9 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
     // now process each file
     for (DocumentSplit split : splitBuffer) {
-      inputCounter.increment();
+      if (inputCounter != null) {
+        inputCounter.increment();
+      }
       split.fileId = fileId;
       split.totalFileCount = totalFileCount;
       processor.process(split);
@@ -103,33 +104,34 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
   /// PRIVATE FUNCTIONS ///
   private void processDirectory(File root) throws IOException {
-      System.out.println("Processing directory: " + root);
-      File[] subs = root.listFiles();
-      int count = 0;
-      while (subs == null && count < 100) {
-          try {
-              Thread.sleep(1000);
-          } catch (Exception e) {}
-          System.out.println("sleeping. subs is null. Wuh?");
-          count ++;
-          subs = root.listFiles();
+    System.out.println("Processing directory: " + root);
+    File[] subs = root.listFiles();
+    int count = 0;
+    while (subs == null && count < 100) {
+      try {
+        Thread.sleep(1000);
+      } catch (Exception e) {
       }
+      System.out.println("sleeping. subs is null. Wuh?");
+      count++;
+      subs = root.listFiles();
+    }
 
-      if (subs != null) {
+    if (subs != null) {
       for (File file : subs) {
-          if (file.isHidden()) {
-              continue;
-          }
-          if (file.isDirectory()) {
-              processDirectory(file);
-          } else {
-              processFile(file);
-          }
+        if (file.isHidden()) {
+          continue;
+        }
+        if (file.isDirectory()) {
+          processDirectory(file);
+        } else {
+          processFile(file);
+        }
       }
-      } else {
-          System.out.println("subs is still null... ");
-          throw new IllegalStateException("subs is null");
-      }
+    } else {
+      System.out.println("subs is still null... ");
+      throw new IllegalStateException("subs is null");
+    }
   }
 
   private void processFile(File file) throws IOException {
@@ -148,7 +150,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     }
 
     // Now try to detect what kind of file this is:
-    boolean isCompressed = (file.getName().endsWith(".gz") || file.getName().endsWith(".bz2")|| file.getName().endsWith(".xz"));
+    boolean isCompressed = (file.getName().endsWith(".gz") || file.getName().endsWith(".bz2") || file.getName().endsWith(".xz"));
     String fileType = forceFileType;
 
     // We'll try to detect by extension first, so we don't have to open the file
@@ -461,7 +463,8 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         if (br != null) {
           br.close();
         }
-      } catch (Exception e){}
+      } catch (Exception e) {
+      }
     }
   }
 
