@@ -76,7 +76,7 @@ public class TrecTextDocumentWriter implements Processor<Document> {
       currentWriter.close();
     }
 
-    String path = folder + File.separator + shardName + "." + uniqId + "." + currentFileId;
+    String path = folder + File.separator + shardName + "." + uniqId + "." + currentFileId + ".trectext";
     if (compress) {
       currentWriter = new BufferedOutputStream(StreamCreator.openOutputStream(path + ".gz"));
     } else {
