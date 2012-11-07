@@ -38,6 +38,7 @@ public class BuildFilteredCollection extends AppFunction {
     return "galago filtered-collection [parameters]\n"
             + "\t--inputPath+/path/to/input/collection\n"
             + "\t--outputPath=/path/to/output/collection\n"
+            + "\t--shardName=prefix for output shards\n"
             + "\t--outFileSize=[50 * 1024 * 1024]" // 50 mb
             + "\t--filter+/path/to/filterfile\n"
             + "\t--compress=true\n"
@@ -72,6 +73,7 @@ public class BuildFilteredCollection extends AppFunction {
 
     Parameters outputParameters = new Parameters();
     outputParameters.set("outputPath", buildParameters.getString("outputPath"));
+    outputParameters.set("shardName", buildParameters.get("shardName", "shard"));
     outputParameters.set("outFileSize", buildParameters.get("outFileSize", 50 * 1024 * 1024));
     outputParameters.set("compress", buildParameters.get("compress", true));
 

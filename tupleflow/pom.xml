@@ -24,21 +24,21 @@
     <developerConnection>scm:hg:ssh://USERNAME@lemur.hg.sourceforge.net/hgroot/lemur/galago</developerConnection>
     <url>http://lemur.hg.sourceforge.net/hgweb/lemur/galago/</url>
   </scm>
-    <distributionManagement>
-      <downloadUrl>http://lemur.sourceforge.net/repo</downloadUrl>
-      <repository>
-	<uniqueVersion>false</uniqueVersion>
-	<id>lemur.sf.net</id>
-	<name>Lemur Repository</name>
-	<url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo</url>
-	<layout>default</layout>
-      </repository>
-      <site>
-	<id>lemur.sf.net</id>
-	<name>Lemur Repository</name>
-	<url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo/${project.name}</url>	
-      </site>
-    </distributionManagement>
+  <distributionManagement>
+    <downloadUrl>http://lemur.sourceforge.net/repo</downloadUrl>
+    <repository>
+      <uniqueVersion>false</uniqueVersion>
+      <id>lemur.sf.net</id>
+      <name>Lemur Repository</name>
+      <url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo</url>
+      <layout>default</layout>
+    </repository>
+    <site>
+      <id>lemur.sf.net</id>
+      <name>Lemur Repository</name>
+      <url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo/${project.name}</url>	
+    </site>
+  </distributionManagement>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -76,6 +76,11 @@
       <artifactId>snappy-java</artifactId>
       <version>1.0.4.1</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+      <version>1.4.1</version>
+    </dependency>    
   </dependencies>
   <reporting>
     <plugins>

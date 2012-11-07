@@ -9,7 +9,7 @@
   <groupId>org.lemurproject.galago</groupId>
   <artifactId>contrib</artifactId>
   <packaging>jar</packaging>
-  <version>${project.parent.version}</version>
+  <version>3.3</version>
   <name>contrib</name>
   <url>http://lemurproject.org/galago/php</url>
   <description>Galago is a toolkit for experimenting with search engines and text processing.</description>

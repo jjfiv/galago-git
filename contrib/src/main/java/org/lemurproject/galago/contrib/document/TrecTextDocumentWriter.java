@@ -5,13 +5,12 @@ package org.lemurproject.galago.contrib.document;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.zip.GZIPOutputStream;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
+import org.lemurproject.galago.tupleflow.StreamCreator;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
@@ -21,11 +20,12 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
  * @author sjh
  */
 @Verified
-@InputClass(className="org.lemurproject.galago.core.parse.Document")
+@InputClass(className = "org.lemurproject.galago.core.parse.Document")
 public class TrecTextDocumentWriter implements Processor<Document> {
 
   private final int uniqId;
   private final String folder;
+  private final String shardName;
   private final long maxFileSize;
   private final boolean compress;
   BufferedOutputStream currentWriter;
@@ -37,6 +37,7 @@ public class TrecTextDocumentWriter implements Processor<Document> {
 
     uniqId = tp.getInstanceId();
     folder = p.getString("outputPath");
+    shardName = p.getString("shardName");
     maxFileSize = p.getLong("outFileSize");
     compress = p.getBoolean("compress");
 
@@ -51,7 +52,7 @@ public class TrecTextDocumentWriter implements Processor<Document> {
       flush();
     }
 
-    byte[] bytes = 
+    byte[] bytes =
             Utility.fromString(String.format("<DOC>\n"
             + "<DOCNO>%s</DOCNO>\n"
             + "<TEXT>\n"
@@ -67,7 +68,7 @@ public class TrecTextDocumentWriter implements Processor<Document> {
   public void close() throws IOException {
     if (currentWriter != null) {
       currentWriter.close();
-    }    
+    }
   }
 
   public void flush() throws IOException {
@@ -75,13 +76,13 @@ public class TrecTextDocumentWriter implements Processor<Document> {
       currentWriter.close();
     }
 
-    String path = folder + File.separator + "shard." + uniqId + "." + currentFileId;
+    String path = folder + File.separator + shardName + "." + uniqId + "." + currentFileId;
     if (compress) {
-      currentWriter = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(path)));
+      currentWriter = new BufferedOutputStream(StreamCreator.openOutputStream(path + ".gz"));
     } else {
-      currentWriter = new BufferedOutputStream(new FileOutputStream(path));
+      currentWriter = new BufferedOutputStream(StreamCreator.openOutputStream(path));
     }
-
+    
     currentFileSize = 0;
   }
 }
