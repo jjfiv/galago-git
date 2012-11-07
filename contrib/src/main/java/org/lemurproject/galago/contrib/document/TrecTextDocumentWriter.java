@@ -1,0 +1,87 @@
+/*
+ *  BSD License (http://lemurproject.org/galago-license)
+ */
+package org.lemurproject.galago.contrib.document;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.zip.GZIPOutputStream;
+import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.tupleflow.InputClass;
+import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Processor;
+import org.lemurproject.galago.tupleflow.TupleFlowParameters;
+import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.execution.Verified;
+
+/**
+ *
+ * @author sjh
+ */
+@Verified
+@InputClass(className="org.lemurproject.galago.core.parse.Document")
+public class TrecTextDocumentWriter implements Processor<Document> {
+
+  private final int uniqId;
+  private final String folder;
+  private final long maxFileSize;
+  private final boolean compress;
+  BufferedOutputStream currentWriter;
+  long currentFileId;
+  long currentFileSize;
+
+  public TrecTextDocumentWriter(TupleFlowParameters tp) {
+    Parameters p = tp.getJSON();
+
+    uniqId = tp.getInstanceId();
+    folder = p.getString("outputPath");
+    maxFileSize = p.getLong("outFileSize");
+    compress = p.getBoolean("compress");
+
+    currentWriter = null;
+    currentFileId = 0;
+    currentFileSize = maxFileSize;
+  }
+
+  @Override
+  public void process(Document d) throws IOException {
+    if (currentFileSize >= maxFileSize) {
+      flush();
+    }
+
+    byte[] bytes = 
+            Utility.fromString(String.format("<DOC>\n"
+            + "<DOCNO>%s</DOCNO>\n"
+            + "<TEXT>\n"
+            + "%s\n"
+            + "</TEXT>\n"
+            + "</DOC>\n", d.name, d.text));
+
+    currentWriter.write(bytes);
+    currentFileSize += bytes.length;
+  }
+
+  @Override
+  public void close() throws IOException {
+    if (currentWriter != null) {
+      currentWriter.close();
+    }    
+  }
+
+  public void flush() throws IOException {
+    if (currentWriter != null) {
+      currentWriter.close();
+    }
+
+    String path = folder + File.separator + "shard." + uniqId + "." + currentFileId;
+    if (compress) {
+      currentWriter = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(path)));
+    } else {
+      currentWriter = new BufferedOutputStream(new FileOutputStream(path));
+    }
+
+    currentFileSize = 0;
+  }
+}
