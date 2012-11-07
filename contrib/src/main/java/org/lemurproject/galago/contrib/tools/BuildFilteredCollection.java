@@ -72,15 +72,15 @@ public class BuildFilteredCollection extends AppFunction {
     }
 
     Parameters outputParameters = new Parameters();
-    outputParameters.set("outputPath", buildParameters.getString("outputPath"));
+    outputParameters.set("outputPath", (new File(buildParameters.getString("outputPath")).getAbsolutePath()));
     outputParameters.set("shardName", buildParameters.get("shardName", "shard"));
     outputParameters.set("outFileSize", buildParameters.get("outFileSize", 50 * 1024 * 1024));
     outputParameters.set("compress", buildParameters.get("compress", true));
 
     File out = (new File(outputParameters.getString("outputPath")));
-    if(out.isDirectory()){
+    if (out.isDirectory()) {
       Utility.deleteDirectory(out);
-    } else if(out.isFile()){
+    } else if (out.isFile()) {
       out.delete();
     }
     out.mkdirs();
