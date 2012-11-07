@@ -5,6 +5,8 @@ package org.lemurproject.galago.contrib.document;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.HashSet;
 import java.util.List;
 import org.lemurproject.galago.core.parse.Document;
@@ -36,9 +38,14 @@ public class DocumentFilter extends StandardStep<Document, Document> {
     Parameters p = tp.getJSON();
     filter = new HashSet();
     for (String f : (List<String>) p.getAsList("filter")) {
-      filter.addAll(Utility.readFileToStringSet(new File(f)));
+      BufferedReader reader = new BufferedReader(new FileReader(f));
+      String line;
+
+      while ((line = reader.readLine()) != null) {
+        filter.add(line.trim());
+      }
+      reader.close();
     }
-    
     
     require = p.getBoolean("require");
   }

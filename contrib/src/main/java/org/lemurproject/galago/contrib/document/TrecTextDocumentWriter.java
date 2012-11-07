@@ -83,6 +83,7 @@ public class TrecTextDocumentWriter implements Processor<Document> {
       currentWriter = new BufferedOutputStream(StreamCreator.openOutputStream(path));
     }
     
+    currentFileId+=1;
     currentFileSize = 0;
   }
 }
