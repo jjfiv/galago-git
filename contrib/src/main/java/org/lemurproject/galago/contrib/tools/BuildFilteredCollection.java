@@ -39,7 +39,7 @@ public class BuildFilteredCollection extends AppFunction {
             + "\t--inputPath+/path/to/input/collection\n"
             + "\t--outputPath=/path/to/output/collection\n"
             + "\t--shardName=prefix for output shards\n"
-            + "\t--outFileSize=[50 * 1024 * 1024]" // 50 mb
+            + "\t--outFileSize=[50 * 1024 * 1024]" // 50 mb uncompressed
             + "\t--filter+/path/to/filterfile\n"
             + "\t--compress=true\n"
             + "\n"
@@ -92,7 +92,7 @@ public class BuildFilteredCollection extends AppFunction {
 
     Parameters splitParameters = new Parameters();
     splitParameters.set("corpusPieces", buildParameters.get("distrib", 10));
-    job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
+    job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileNameStartKeyOrder(), splitParameters));
 
     Stage stage = new Stage("writers");
     stage.addInput("splits", new DocumentSplit.FileIdOrder());
