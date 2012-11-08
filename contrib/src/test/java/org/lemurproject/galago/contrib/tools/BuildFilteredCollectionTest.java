@@ -48,6 +48,7 @@ public class BuildFilteredCollectionTest extends TestCase {
 
       int dcount = 0;
       for (File o : output.listFiles()) {
+        // System.err.println(o);
         dcount += countDocuments(o);
       }
       
