@@ -95,7 +95,7 @@ public class BuildFilteredCollection extends AppFunction {
     job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileNameStartKeyOrder(), splitParameters));
 
     Stage stage = new Stage("writers");
-    stage.addInput("splits", new DocumentSplit.FileIdOrder());
+    stage.addInput("splits", new DocumentSplit.FileNameStartKeyOrder());
 
     stage.add(new InputStep("splits"));
     stage.add(new Step(UniversalParser.class, buildParameters));
