@@ -8,7 +8,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.contrib.document.DocumentFilter;
-import org.lemurproject.galago.contrib.document.TrecTextDocumentWriter;
+import org.lemurproject.galago.contrib.document.TrecWebDocumentWriter;
 import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.parse.UniversalParser;
 import org.lemurproject.galago.core.tools.AppFunction;
@@ -100,7 +100,7 @@ public class BuildFilteredCollection extends AppFunction {
     stage.add(new InputStep("splits"));
     stage.add(new Step(UniversalParser.class, buildParameters));
     stage.add(new Step(DocumentFilter.class, filterParameters));
-    stage.add(new Step(TrecTextDocumentWriter.class, outputParameters));
+    stage.add(new Step(TrecWebDocumentWriter.class, outputParameters));
     job.add(stage);
 
     // hook it up
