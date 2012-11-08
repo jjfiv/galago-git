@@ -74,7 +74,14 @@ public class Utility {
       sorterOptions.copyFrom(preferences.getMap("sorter"));
     }
   }
-
+  
+  /**
+   * All static parameters
+   */
+  public static Parameters getAllOptions(){
+    return preferences;
+  }
+  
   /**
    * Drmaa parameters
    *
