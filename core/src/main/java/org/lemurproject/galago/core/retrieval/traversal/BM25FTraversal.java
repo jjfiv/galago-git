@@ -98,6 +98,8 @@ public class BM25FTraversal extends Traversal {
     double documentCount = cs.documentCount;
 
     // get the number of documents this term occurs in:
+    termNode.getNodeParameters().set("queryType", "count");
+    termNode = retrieval.transformQuery(termNode, new Parameters());
     NodeStatistics ns = retrieval.getNodeStatistics(termNode.toString());
     long df = ns.nodeDocumentCount;
 
