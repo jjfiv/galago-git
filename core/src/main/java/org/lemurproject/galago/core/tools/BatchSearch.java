@@ -77,12 +77,7 @@ public class BatchSearch extends AppFunction {
       return;
     }
 
-    List<Parameters> queries;
-    if (parameters.containsKey("query")) {
-      queries = (List<Parameters>) parameters.getList("query");
-    } else {
-      queries = (List<Parameters>) parameters.getList("queries");
-    }
+    List<Parameters> queries = collectQueries(parameters);
 
     // Look for a range
     int[] queryrange = new int[2];

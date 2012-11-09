@@ -330,9 +330,9 @@ public class DiskIndex implements Index {
       if (AggregateIndexPart.class.isInstance(p)) {
         return ((AggregateIndexPart) p).getStatistics();
       }
-      throw new RuntimeException("Index part, " + part + ", does not store aggregated statistics.");
+      throw new IllegalArgumentException("Index part, " + part + ", does not store aggregated statistics.");
     }
-    throw new RuntimeException("Index part, " + part + ", could not be found in index, " + this.location.getAbsolutePath() );
+    throw new IllegalArgumentException("Index part, " + part + ", could not be found in index, " + this.location.getAbsolutePath() );
   }
 
   @Override

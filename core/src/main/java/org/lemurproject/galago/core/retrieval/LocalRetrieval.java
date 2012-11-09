@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
+import org.lemurproject.galago.core.index.LengthsReader.LengthsIterator;
 import org.lemurproject.galago.core.index.NamesReader.NamesIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.parse.Document;
@@ -346,8 +347,6 @@ public class LocalRetrieval implements Retrieval {
   public NodeStatistics getNodeStatistics(String nodeString) throws Exception {
     // first parse the node
     Node root = StructuredQuery.parse(nodeString);
-    root.getNodeParameters().set("queryType", "count");
-    root = transformQuery(root, new Parameters());
     NodeStatistics ns = getNodeStatistics(root);
     return ns;
   }
@@ -409,6 +408,8 @@ public class LocalRetrieval implements Retrieval {
       return QueryType.BOOLEAN;
     } else if (CountIterator.class.isAssignableFrom(outputClass)) {
       return QueryType.COUNT;
+//    } else if (LengthsIterator.class.isAssignableFrom(outputClass)) {
+//      return QueryType.LENGTH;
     } else {
       return QueryType.RANKED;
     }

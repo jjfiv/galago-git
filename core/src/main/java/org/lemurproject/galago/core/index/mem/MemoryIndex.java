@@ -93,8 +93,7 @@ public class MemoryIndex implements DynamicIndex, Index {
   public int documentsInIndex() {
     return (documentCount - documentNumberOffset);
   }
-  
-  
+
   public void process(Document doc) throws IOException {
     doc.identifier = documentCount;
     for (MemoryIndexPart part : parts.values()) {
@@ -222,9 +221,9 @@ public class MemoryIndex implements DynamicIndex, Index {
       if (AggregateReader.AggregateIndexPart.class.isInstance(p)) {
         return ((AggregateReader.AggregateIndexPart) p).getStatistics();
       }
-      throw new RuntimeException("Index part, " + part + ", does not store aggregated statistics.");
+      throw new IllegalArgumentException("Index part, " + part + ", does not store aggregated statistics.");
     }
-    throw new RuntimeException("Index part, " + part + ", could not be found in memory index.");
+    throw new IllegalArgumentException("Index part, " + part + ", could not be found in memory index.");
   }
 
   public void close() throws IOException {

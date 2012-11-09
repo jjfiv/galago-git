@@ -1034,6 +1034,10 @@ public class Parameters implements Serializable {
     return toPrettyString(this, "");
   }
 
+  public String toPrettyString(String prefix) {
+    return toPrettyString(this, prefix);
+  }
+
   private String toPrettyString(Object val, String prefix) {
     if (val == null) {
       return "null";
@@ -1057,7 +1061,7 @@ public class Parameters implements Serializable {
       Parameters p = (Parameters) val;
 
       StringBuilder builder = new StringBuilder();
-      builder.append("{\n");
+      builder.append(prefix).append("{\n");
 
       String internalPrefix = prefix + "  ";
 

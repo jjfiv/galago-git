@@ -343,8 +343,6 @@ public class MultiRetrieval implements Retrieval {
   @Override
   public NodeStatistics getNodeStatistics(String nodeString) throws Exception {
     Node root = StructuredQuery.parse(nodeString);
-    root.getNodeParameters().set("queryType", "count");
-    root = transformQuery(root, new Parameters());
     return getNodeStatistics(root);
   }
 
