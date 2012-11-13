@@ -35,9 +35,9 @@ public class QuerySetResults {
       List<ScoredDocument> rankedList = Arrays.asList(results.get(query));
       Collections.sort(rankedList, new RankComparator());
       try {
-          querySetResults.put(String.format("%03d", query), new QueryResults(query, rankedList));
+        querySetResults.put(String.format("%03d", query), new QueryResults(query, rankedList));
       } catch (Exception e) {
-          querySetResults.put(query, new QueryResults(query, rankedList));
+        querySetResults.put(query, new QueryResults(query, rankedList));
 
       }
     }
@@ -53,9 +53,9 @@ public class QuerySetResults {
 
   public QueryResults get(String query) {
     try {
-        return querySetResults.get(String.format("%03d", Integer.parseInt(query)));
+      return querySetResults.get(String.format("%03d", Integer.parseInt(query)));
     } catch (Exception e) {
-        return querySetResults.get(query);
+      return querySetResults.get(query);
     }
   }
 
@@ -95,12 +95,7 @@ public class QuerySetResults {
     for (String query : ranking.keySet()) {
       List<ScoredDocument> documents = ranking.get(query);
       Collections.sort(documents, new RankComparator());
-      try {
-      querySetResults.put(String.format("%03d", Integer.parseInt(query)), new QueryResults(query, documents));
-      } catch (Exception e){
-          querySetResults.put(query, new QueryResults(query, documents));
-
-      }
+      querySetResults.put(query, new QueryResults(query, documents));
     }
 
     in.close();
@@ -114,7 +109,6 @@ public class QuerySetResults {
     for (Parameters query : queries) {
       if (query.isString("number")) {
         String num = query.getString("number");
-        num = String.format("%03d", Integer.parseInt(num));
         if (!querySetResults.containsKey(num)) {
           querySetResults.put(num, new QueryResults(num, new ArrayList()));
         }
