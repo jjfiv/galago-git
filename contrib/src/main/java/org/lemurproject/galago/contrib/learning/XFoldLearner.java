@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import org.lemurproject.galago.core.eval.QuerySetResults;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -49,6 +50,8 @@ public class XFoldLearner extends Learner {
       List<String> xfoldQueryNumbers = queryNumbersCopy.subList(foldId * foldSize, (foldId + 1) * foldSize);
       List<String> xfoldQueryNumbersInverse = new ArrayList(queryNumbersCopy);
       xfoldQueryNumbersInverse.removeAll(xfoldQueryNumbers);
+
+      logger.log(Level.INFO, "Fold: {0} contains {1} + {2} = {3} queries", new Object[]{foldId, xfoldQueryNumbers.size(), xfoldQueryNumbersInverse.size(), this.queries.queryNumbers.size()});
 
       testQueryFolds.put(foldId, xfoldQueryNumbers);
       trainQueryFolds.put(foldId, xfoldQueryNumbersInverse);
