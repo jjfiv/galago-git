@@ -199,6 +199,7 @@ public abstract class Learner {
     }
 
     QuerySetResults results = new QuerySetResults(resMap);
+    results.ensureQuerySet(queries.getQueryParameters());
     double r = evalFunction.evaluate(results, qrels);
 
     logger.info("Query run time: " + (end - start) + ", settings : " + settings.toString() + ", score : " + r);

@@ -80,4 +80,12 @@ public class Queries {
     }
     return sublist;
   }
+
+  public List<Parameters> getQueryParameters() {
+    ArrayList<Parameters> list = new ArrayList();
+    for(String num : this.queryNumbers){
+      list.add(this.queryParams.get(num));
+    }
+    return list;
+  }
 }

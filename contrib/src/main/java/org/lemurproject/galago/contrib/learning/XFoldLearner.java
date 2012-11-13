@@ -20,12 +20,12 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author sjh
  */
 public class XFoldLearner extends Learner {
-
+  
   int xfoldCount;
   Map<Integer, Learner> foldLearners;
   Map<Integer, List<String>> trainQueryFolds;
   Map<Integer, List<String>> testQueryFolds;
-
+  
   public XFoldLearner(Parameters p, Retrieval r) throws Exception {
     super(p, r);
 
@@ -50,9 +50,9 @@ public class XFoldLearner extends Learner {
       List<String> xfoldQueryNumbers = queryNumbersCopy.subList(foldId * foldSize, (foldId + 1) * foldSize);
       List<String> xfoldQueryNumbersInverse = new ArrayList(queryNumbersCopy);
       xfoldQueryNumbersInverse.removeAll(xfoldQueryNumbers);
-
+      
       logger.log(Level.INFO, "Fold: {0} contains {1} + {2} = {3} queries", new Object[]{foldId, xfoldQueryNumbers.size(), xfoldQueryNumbersInverse.size(), this.queries.queryNumbers.size()});
-
+      
       testQueryFolds.put(foldId, xfoldQueryNumbers);
       trainQueryFolds.put(foldId, xfoldQueryNumbersInverse);
 
@@ -89,29 +89,29 @@ public class XFoldLearner extends Learner {
     }
     return learntParams;
   }
-
+  
   public RetrievalModelInstance learn(int fid, RetrievalModelInstance initialSettings) throws Exception {
     RetrievalModelInstance result = foldLearners.get(fid).learn(initialSettings);
     return result;
   }
-
+  
   @Override
   public RetrievalModelInstance learn(RetrievalModelInstance initialSettings) throws Exception {
     throw new RuntimeException("Function not availiable for xfold learner.");
   }
-
+  
   protected double evaluateTestQueries(int foldId, RetrievalModelInstance instance) throws Exception {
     long start = 0;
     long end = 0;
-
+    
     HashMap<String, ScoredDocument[]> resMap = new HashMap();
 
     // ensure the global parameters contain the current settings.
     Parameters settings = instance.toParameters();
     this.retrieval.getGlobalParameters().copyFrom(settings);
-
+    
     for (String number : this.testQueryFolds.get(foldId)) {
-
+      
       Node root = this.queries.getNode(number).clone();
       root = this.ensureSettings(root, settings);
       root = this.retrieval.transformQuery(root, settings);
@@ -120,17 +120,18 @@ public class XFoldLearner extends Learner {
       start = System.currentTimeMillis();
       ScoredDocument[] scoredDocs = this.retrieval.runQuery(root, settings);
       end = System.currentTimeMillis();
-
+      
       if (scoredDocs != null) {
         resMap.put(number, scoredDocs);
       }
     }
-
+    
     QuerySetResults results = new QuerySetResults(resMap);
+    results.ensureQuerySet(queries.getParametersSubset(this.testQueryFolds.get(foldId)));
     double r = evalFunction.evaluate(results, qrels);
-
+    
     logger.info("Test-query-set run time: " + (end - start) + ", settings : " + settings.toString() + ", score : " + r);
-
+    
     return r;
   }
 }
