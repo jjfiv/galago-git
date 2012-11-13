@@ -82,12 +82,13 @@ public class CoordinateAscentLearner extends Learner {
         double rightBest = best;
         double rightStep = 0;
         boolean improving = true;
-        // while we are ch
+
         while (improving) {
           double curr = parameterSettings.get(coord);
           parameterSettings.unsafeSet(coord, curr + step);
           double evaluation = this.evaluate(parameterSettings);
           logger.info(String.format("Coordinate (%s) ++%f... Metric: %f.", coord, step, evaluation));
+          // while we are improving, or equal to the current best - 
           if (evaluation > rightBest || evaluation == best) {
             rightBest = evaluation;
             rightStep += step;

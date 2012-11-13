@@ -25,7 +25,7 @@ public class LearnQueryParameters extends AppFunction {
   
   @Override
   public String getHelpString() {
-    return "galago learn <<parameters>>\n\n";
+    return "galago learn <<see learner.java for parameters>>\n\n";
   }
 
   @Override

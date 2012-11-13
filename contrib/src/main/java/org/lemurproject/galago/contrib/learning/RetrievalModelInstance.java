@@ -58,6 +58,7 @@ public class RetrievalModelInstance {
     return lpi;
   }
 
+  @Override
   public String toString() {
     return toParameters().toString();
   }
