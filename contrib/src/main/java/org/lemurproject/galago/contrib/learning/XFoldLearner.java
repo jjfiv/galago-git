@@ -81,8 +81,9 @@ public class XFoldLearner extends Learner {
         Parameters p = new Parameters();
         p.set("foldId", fid);
         p.set("repeatId", i);
-        p.set("trainScore", foldLearners.get(fid).evaluate(s));
-        p.set("testScore", this.evaluateTestQueries(fid, s));
+        p.set("testScore", this.evaluateSpecificQueries(fid, s, this.testQueryFolds.get(fid)));
+        p.set("trainScore", this.evaluateSpecificQueries(fid, s, this.trainQueryFolds.get(fid)));
+        p.set("score", this.evaluateSpecificQueries(fid, s, new ArrayList(this.queries.queryNumbers)));
         p.set("learntSettings", s.toParameters());
         learntParams.add(p);
       }
@@ -100,7 +101,7 @@ public class XFoldLearner extends Learner {
     throw new RuntimeException("Function not availiable for xfold learner.");
   }
   
-  protected double evaluateTestQueries(int foldId, RetrievalModelInstance instance) throws Exception {
+  protected double evaluateSpecificQueries(int foldId, RetrievalModelInstance instance, List<String> qids) throws Exception {
     long start = 0;
     long end = 0;
     
@@ -110,7 +111,7 @@ public class XFoldLearner extends Learner {
     Parameters settings = instance.toParameters();
     this.retrieval.getGlobalParameters().copyFrom(settings);
     
-    for (String number : this.testQueryFolds.get(foldId)) {
+    for (String number : qids) {
       
       Node root = this.queries.getNode(number).clone();
       root = this.ensureSettings(root, settings);
@@ -130,7 +131,7 @@ public class XFoldLearner extends Learner {
     results.ensureQuerySet(queries.getParametersSubset(this.testQueryFolds.get(foldId)));
     double r = evalFunction.evaluate(results, qrels);
     
-    logger.info("Test-query-set run time: " + (end - start) + ", settings : " + settings.toString() + ", score : " + r);
+    logger.info("Specific-query-set run time: " + (end - start) + ", settings : " + settings.toString() + ", score : " + r);
     
     return r;
   }
