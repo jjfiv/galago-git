@@ -21,10 +21,10 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class XFoldLearner extends Learner {
   
-  int xfoldCount;
-  Map<Integer, Learner> foldLearners;
-  Map<Integer, List<String>> trainQueryFolds;
-  Map<Integer, List<String>> testQueryFolds;
+  private int xfoldCount;
+  private Map<Integer, Learner> foldLearners;
+  private Map<Integer, List<String>> trainQueryFolds;
+  private Map<Integer, List<String>> testQueryFolds;
   
   public XFoldLearner(Parameters p, Retrieval r) throws Exception {
     super(p, r);
@@ -57,6 +57,7 @@ public class XFoldLearner extends Learner {
       trainQueryFolds.put(foldId, xfoldQueryNumbersInverse);
 
       // create new learner for each fold
+      // use the train queries for the fold
       Parameters copy = p.clone();
       copy.set("learner", p.get("xfoldLearner", "default")); // overwrite //
       copy.remove("query");
@@ -86,6 +87,8 @@ public class XFoldLearner extends Learner {
         p.set("score", this.evaluateSpecificQueries(fid, s, new ArrayList(this.queries.queryNumbers)));
         p.set("learntSettings", s.toParameters());
         learntParams.add(p);
+        
+        System.err.println(p.toPrettyString());
       }
     }
     return learntParams;

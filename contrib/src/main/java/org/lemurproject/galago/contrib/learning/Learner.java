@@ -50,7 +50,7 @@ public abstract class Learner {
   public Learner(Parameters p, Retrieval r) throws Exception {
     logger = Logger.getLogger(this.getClass().getName());
     retrieval = r;
-    random = (p.isLong("randomSeed")) ? new Random(p.getLong("randomSeed")) : new Random();
+    random = (p.isLong("randomSeed")) ? new Random(p.getLong("randomSeed")) : new Random(System.nanoTime());
 
     initialize(p, r);
   }
@@ -86,7 +86,7 @@ public abstract class Learner {
       normalizationRules = new ArrayList();
     }
 
-    this.learnableParameters = new RetrievalModelParameters(params, normalizationRules);
+    learnableParameters = new RetrievalModelParameters(params, normalizationRules);
 
     long restarts = p.get("restarts", 3);
     initialSettings = new ArrayList(3);
