@@ -8,7 +8,6 @@ import java.util.Random;
 import junit.framework.TestCase;
 import org.lemurproject.galago.contrib.index.InvertedSketchIndexReader;
 import org.lemurproject.galago.contrib.index.InvertedSketchIndexReader.KeyIterator;
-import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -60,23 +59,24 @@ public class BuildSketchIndexTest extends TestCase {
         count += 1;
         iterator.nextKey();
       }
-      assertEquals(count, 198);
-      
+      assert (count <= 198);
+
       Node indexed = StructuredQuery.parse("#counts:2~3:part=sketch-od1-e1-d2()");
       MovableCountIterator iter = (MovableCountIterator) sketchIdx.getIterator(indexed);
-      assert(iter != null);
+      assert (iter != null);
 
       ScoringContext sc = new ScoringContext();
       iter.setContext(sc);
-      while(!iter.isDone()){
+      while (!iter.isDone()) {
         sc.document = iter.currentCandidate();
-        if(iter.hasMatch(sc.document));
-        System.err.println( iter.currentCandidate() + " " + iter.count() );
+        if (iter.hasMatch(sc.document)) {
+          assert (iter.count() >= 1);
+        }
         iter.syncTo(sc.document + 1);
       }
-      
+
       ret.close();
-      
+
       sketchParams = new Parameters();
       sketchParams.set("inputPath", corpus.getAbsolutePath());
       sketchParams.set("indexPath", index.getAbsolutePath());
@@ -99,11 +99,25 @@ public class BuildSketchIndexTest extends TestCase {
         count += 1;
         iterator.nextKey();
       }
-      
-      assert(count < 198);
-      
-            
-      
+
+      assert (count < 198);
+
+      indexed = StructuredQuery.parse("#counts:2~3:part=sketch-od1-e1-d2()");
+      iter = (MovableCountIterator) sketchIdx.getIterator(indexed);
+      assert (iter != null);
+
+      sc = new ScoringContext();
+      iter.setContext(sc);
+      while (!iter.isDone()) {
+        sc.document = iter.currentCandidate();
+        if (iter.hasMatch(sc.document)) {
+          assert (iter.count() >= 1);
+        }
+        iter.syncTo(sc.document + 1);
+      }
+
+      ret.close();
+
     } finally {
       corpus.delete();
       Utility.deleteDirectory(index);

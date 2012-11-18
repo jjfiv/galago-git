@@ -192,4 +192,12 @@ public class MinCountIterator extends ValueIterator implements MovableCountItera
     maxCount = (maxCount == Integer.MAX_VALUE)? 0 : maxCount;
     return maxCount;
   }
+
+  @Override
+  public void setContext(ScoringContext sc){
+    this.context = sc;
+    for(MovableIterator itr : this.iterators){
+      itr.setContext(context);
+    }
+  }
 }
