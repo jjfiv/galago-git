@@ -48,7 +48,7 @@ public class WindowProducerTest extends TestCase {
 
     bigramProducer.process(doc1);
 
-    assert (catcher.data.size() == 15);
+    assert (catcher.data.size() == 15);    
     assert (Utility.toString(catcher.data.get(0).data).equals("1~9"));
     assert (Utility.toString(catcher.data.get(1).data).equals("1~2"));
     assert (Utility.toString(catcher.data.get(2).data).equals("9~2"));
@@ -93,7 +93,7 @@ public class WindowProducerTest extends TestCase {
 
     bigramProducer.process(doc);
 
-    assert (catcher.data.size() == 15);
+    assertEquals (catcher.data.size(), 15);
     assert (Utility.toString(catcher.data.get(0).data).equals("1~9"));
     assert (Utility.toString(catcher.data.get(1).data).equals("1~2"));
     assert (Utility.toString(catcher.data.get(2).data).equals("2~9"));
@@ -116,7 +116,7 @@ public class WindowProducerTest extends TestCase {
     doc1.fileId = 1;
     doc1.identifier = 10;
     doc1.terms = Arrays.asList(new String[]{"1", "9", "2", "8", "3", "7", "4", "6", "5"});
-    doc1.tags = Arrays.asList(new Tag[]{new Tag("one", null, 0, 4), new Tag("one", null, 5, 9)});
+    doc1.tags = Arrays.asList(new Tag[]{new Tag("one", null, 0, 4), new Tag("one", null, 5, 8)});
     // "5","6","4","7","3","8","2","9","1"} );
 
     Catcher<Window> catcher = new Catcher();
@@ -132,14 +132,14 @@ public class WindowProducerTest extends TestCase {
 
     bigramProducer.process(doc1);
 
-    assert (catcher.data.size() == 6);
+    assertEquals (catcher.data.size(), 5);
     assert (Utility.toString(catcher.data.get(0).data).equals("1~9"));
     assert (Utility.toString(catcher.data.get(1).data).equals("9~2"));
     assert (Utility.toString(catcher.data.get(2).data).equals("2~8"));
     assert (Utility.toString(catcher.data.get(3).data).equals("7~4"));
 
+    assertEquals(catcher.data.get(3).document, 10);
     assertEquals(catcher.data.get(4).document, 10);
-    assertEquals(catcher.data.get(5).document, 10);
 
     assertEquals(catcher.data.get(1).begin, 1);
     assertEquals(catcher.data.get(1).end, 3);
@@ -194,6 +194,7 @@ public class WindowProducerTest extends TestCase {
     assertEquals(catcher.data.get(4).filePosition, 4);
   }
 
+  
   public class Catcher<T> implements Processor<T> {
 
     ArrayList<T> data = new ArrayList();
