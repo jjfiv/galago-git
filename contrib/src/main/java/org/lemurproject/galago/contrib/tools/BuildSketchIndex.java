@@ -74,6 +74,9 @@ public class BuildSketchIndex extends AppFunction {
     Job job = new Job();
 
     String indexPath = new File(buildParameters.getString("indexPath")).getAbsolutePath();
+    // ensure full paths
+    buildParameters.set("indexPath", indexPath);
+
     List<String> inputPaths = buildParameters.getAsList("inputPath");
     Parameters splitParameters = buildParameters.get("parser", new Parameters()).clone();
     splitParameters.set("corpusPieces", buildParameters.get("distrib", 10));
