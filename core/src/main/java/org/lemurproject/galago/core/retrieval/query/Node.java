@@ -34,13 +34,13 @@ public class Node implements Serializable {
 
   
   public Node() {
-    operator = "";
-    internalNodes = new ArrayList<Node>();
-    nodeParameters = new NodeParameters();
-    position = 0;
-    parent = null;
+    this("", new NodeParameters(), new ArrayList(), 0);
   }
 
+  public Node(String operator){
+    this(operator, new NodeParameters(), new ArrayList(), 0);
+  }
+  
   public Node(String operator, List<Node> internalNodes) {
     this(operator, new NodeParameters(), internalNodes, 0);
   }
@@ -93,7 +93,6 @@ public class Node implements Serializable {
    */
   @Override
   public Node clone() {
-    ArrayList newInternals = new ArrayList();
     return new Node(operator, nodeParameters.clone(), cloneNodeList(this.internalNodes), position);
   }
 
