@@ -65,21 +65,21 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader.
    * Returns an iterator pointing at the specified term, or null if the term
    * doesn't exist in the inverted file.
    */
-  public TermExtentIterator getTermExtents(String term) throws IOException {
+  public WindowExtentIterator getTermExtents(String term) throws IOException {
     term = stemAsRequired(term);
     BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
     if (iterator != null) {
-      return new TermExtentIterator(iterator);
+      return new WindowExtentIterator(iterator);
     }
     return null;
   }
 
-  public TermCountIterator getTermCounts(String term) throws IOException {
+  public WindowCountIterator getTermCounts(String term) throws IOException {
     term = stemAsRequired(term);
     BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
 
     if (iterator != null) {
-      return new TermCountIterator(iterator);
+      return new WindowCountIterator(iterator);
     }
     return null;
   }
@@ -87,18 +87,17 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader.
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("counts", new NodeType(TermCountIterator.class));
-    types.put("extents", new NodeType(TermExtentIterator.class));
+    types.put("counts", new NodeType(WindowCountIterator.class));
+    types.put("extents", new NodeType(WindowExtentIterator.class));
     return types;
   }
 
   @Override
   public ValueIterator getIterator(Node node) throws IOException {
-    String term = stemAsRequired(node.getDefaultParameter());
     if (node.getOperator().equals("counts")) {
-      return getTermCounts(term);
+      return getTermCounts(node.getDefaultParameter());
     } else {
-      return getTermExtents(term);
+      return getTermExtents(node.getDefaultParameter());
     }
   }
 
@@ -116,22 +115,12 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader.
     
   private String stemAsRequired(String window) {
     if (stemmer != null) {
-      // window from: sample~sample~sample
-      //          to: sampl~sampl~sampl
-      String[] terms = window.split("~");
-      StringBuilder reconstructor = new StringBuilder();
-      boolean first = true;
-      for (String term : terms) {
-        if (!first) {
-          reconstructor.append("~");
-        }
-        first = false;
-        reconstructor.append(stemmer.stem(term));
+      if (window.contains("~")) {
+        return stemmer.stemWindow(window);
+      } else {
+        return stemmer.stem(window);
       }
-      return reconstructor.toString();
     }
-
-    // otherwise no change.
     return window;
   }
 
@@ -143,10 +132,10 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader.
 
     @Override
     public String getValueString() {
-      TermCountIterator it;
+      WindowCountIterator it;
       long count = -1;
       try {
-        it = new TermCountIterator(iterator);
+        it = new WindowCountIterator(iterator);
         count = it.count();
       } catch (IOException ioe) {
       }
@@ -162,7 +151,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader.
     }
 
     public ValueIterator getValueIterator() throws IOException {
-      return new TermExtentIterator(iterator);
+      return new WindowExtentIterator(iterator);
     }
 
     @Override
@@ -171,7 +160,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader.
     }
   }
 
-  public class TermExtentIterator extends KeyListReader.ListIterator
+  public class WindowExtentIterator extends KeyListReader.ListIterator
           implements NodeAggregateIterator, MovableCountIterator, MovableExtentIterator {
 
     private BTreeReader.BTreeIterator iterator;
@@ -208,7 +197,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader.
     private long beginsByteFloor;
     private long endsByteFloor;
 
-    public TermExtentIterator(BTreeReader.BTreeIterator iterator) throws IOException {
+    public WindowExtentIterator(BTreeReader.BTreeIterator iterator) throws IOException {
       super(iterator.getKey());
       extentArray = new ExtentArray();
       emptyExtentArray = new ExtentArray();
@@ -511,7 +500,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader.
    * positions buffer. Overall smaller footprint and faster execution.
    *
    */
-  public class TermCountIterator extends KeyListReader.ListIterator
+  public class WindowCountIterator extends KeyListReader.ListIterator
           implements NodeAggregateIterator, MovableCountIterator {
 
     BTreeReader.BTreeIterator iterator;
@@ -540,7 +529,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader.
     long documentsByteFloor;
     long countsByteFloor;
 
-    public TermCountIterator(BTreeReader.BTreeIterator iterator) throws IOException {
+    public WindowCountIterator(BTreeReader.BTreeIterator iterator) throws IOException {
       super(iterator.getKey());
       reset(iterator);
     }

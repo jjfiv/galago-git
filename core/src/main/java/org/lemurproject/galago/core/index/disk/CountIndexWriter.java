@@ -1,17 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import gnu.trove.set.hash.TIntHashSet;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
 import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.parse.NumericParameterAccumulator;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;
@@ -50,7 +47,7 @@ public class CountIndexWriter implements
   int options = 0;
   int skipDistance;
   int skipResetDistance;
-
+  
   /**
    * Creates a new instance of CountIndexWriter
    */

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.ValueIterator;
-import org.lemurproject.galago.core.index.disk.WindowIndexReader.TermExtentIterator;
+import org.lemurproject.galago.core.index.disk.WindowIndexReader.WindowExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -50,7 +50,7 @@ public class FieldLengthsReader implements LengthsReader {
   }
 
   public MovableLengthsIterator getLengthsIterator(String f, ScoringContext ctx) throws IOException {
-    TermExtentIterator exts = reader.getTermExtents(f);
+    WindowExtentIterator exts = reader.getTermExtents(f);
     LengthIterator lns = new LengthIterator(exts);
     exts.setContext(ctx);
     lns.setContext(ctx);
@@ -103,10 +103,10 @@ public class FieldLengthsReader implements LengthsReader {
 
   public class LengthIterator extends ValueIterator implements MovableLengthsIterator {
 
-    private WindowIndexReader.TermExtentIterator extentsIterator;
+    private WindowIndexReader.WindowExtentIterator extentsIterator;
     int length = -1;
 
-    public LengthIterator(WindowIndexReader.TermExtentIterator counts) {
+    public LengthIterator(WindowIndexReader.WindowExtentIterator counts) {
       this.extentsIterator = counts;
     }
 

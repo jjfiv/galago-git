@@ -31,17 +31,16 @@ import org.tartarus.snowball.ext.englishStemmer;
 public class WindowRewriteTraversal extends Traversal {
 
   Parameters availiableParts;
-  englishStemmer stemmer;
 
   public WindowRewriteTraversal(Retrieval retrieval) throws IOException {
     this.availiableParts = retrieval.getAvailableParts();
-    stemmer = new englishStemmer();
   }
 
   /*
    * before node checks that an ngram operator is possible
    * 
    */
+  @Override
   public void beforeNode(Node node) throws Exception {
     if (node.getOperator().equals("window")) {
       for (Node child : node.getInternalNodes()) {
@@ -62,6 +61,7 @@ public class WindowRewriteTraversal extends Traversal {
    * after node creates the extent node that accesses the correct ngram index
    * 
    */
+  @Override
   public Node afterNode(Node original) throws Exception {
 
     if (original.getOperator().equals("window")) {

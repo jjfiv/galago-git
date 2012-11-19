@@ -70,7 +70,7 @@ public class ExtentIndexReaderTest extends TestCase {
 
   public void testReadTitle() throws Exception {
     WindowIndexReader reader = new WindowIndexReader(new DiskBTreeReader(tempPath.toString()));
-    WindowIndexReader.TermExtentIterator extents = reader.getTermExtents("title");
+    WindowIndexReader.WindowExtentIterator extents = reader.getTermExtents("title");
     extents.setContext(new ScoringContext());
     ScoringContext sc = extents.getContext();
     
@@ -114,7 +114,7 @@ public class ExtentIndexReaderTest extends TestCase {
 
   public void testReadZ() throws Exception {
     WindowIndexReader reader = new WindowIndexReader(new DiskBTreeReader(tempPath.toString()));
-    WindowIndexReader.TermExtentIterator extents = reader.getTermExtents("z");
+    WindowIndexReader.WindowExtentIterator extents = reader.getTermExtents("z");
     extents.setContext(new ScoringContext());
     ScoringContext sc = extents.getContext();
 
@@ -136,7 +136,7 @@ public class ExtentIndexReaderTest extends TestCase {
 
   public void testSimpleSkipTitle() throws Exception {
     WindowIndexReader reader = new WindowIndexReader(new DiskBTreeReader(tempPath.toString()));
-    WindowIndexReader.TermExtentIterator extents = reader.getTermExtents("title");
+    WindowIndexReader.WindowExtentIterator extents = reader.getTermExtents("title");
     extents.setContext(new ScoringContext());
     ScoringContext sc = extents.getContext();
 
@@ -166,7 +166,7 @@ public class ExtentIndexReaderTest extends TestCase {
     writer.close();
 
     WindowIndexReader reader = new WindowIndexReader(new DiskBTreeReader(tempPath.toString()));
-    WindowIndexReader.TermExtentIterator extents = reader.getTermExtents("skippy");
+    WindowIndexReader.WindowExtentIterator extents = reader.getTermExtents("skippy");
     extents.setContext(new ScoringContext());
     ScoringContext sc = extents.getContext();
 

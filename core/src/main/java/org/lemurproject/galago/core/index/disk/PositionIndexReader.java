@@ -40,7 +40,98 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  * @author trevor, irmarc
  */
 public class PositionIndexReader extends KeyListReader implements AggregateIndexPart {
+  Stemmer stemmer = null;
 
+  public PositionIndexReader(BTreeReader reader) throws Exception {
+    super(reader);
+    if (reader.getManifest().containsKey("stemmer")) {
+      stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
+    }
+  }
+
+  public PositionIndexReader(String pathname) throws Exception {
+    super(pathname);
+    if (reader.getManifest().containsKey("stemmer")) {
+      stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
+    }
+  }
+
+  @Override
+  public KeyIterator getIterator() throws IOException {
+    return new KeyIterator(reader);
+  }
+
+  /**
+   * Returns an iterator pointing at the specified term, or null if the term
+   * doesn't exist in the inverted file.
+   */
+  public TermExtentIterator getTermExtents(String term) throws IOException {
+    return getTermExtents(Utility.fromString(stemAsRequired(term)));
+  }
+
+  public TermExtentIterator getTermExtents(byte[] term) throws IOException {
+    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
+    if (iterator != null) {
+      return new TermExtentIterator(iterator);
+    }
+    return null;
+  }
+
+  public TermCountIterator getTermCounts(String term) throws IOException {
+    return getTermCounts(Utility.fromString(stemAsRequired(term)));
+  }
+
+  public TermCountIterator getTermCounts(byte[] term) throws IOException {
+    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
+    if (iterator != null) {
+      return new TermCountIterator(iterator);
+    }
+    return null;
+  }
+
+  @Override
+  public Map<String, NodeType> getNodeTypes() {
+    HashMap<String, NodeType> types = new HashMap<String, NodeType>();
+    types.put("counts", new NodeType(TermCountIterator.class));
+    types.put("extents", new NodeType(TermExtentIterator.class));
+    return types;
+  }
+
+  @Override
+  public ValueIterator getIterator(Node node) throws IOException {
+    if (node.getOperator().equals("counts")) {
+      return getTermCounts(node.getDefaultParameter());
+    } else {
+      return getTermExtents(node.getDefaultParameter());
+    }
+  }
+
+  private String stemAsRequired(String term) {
+    if (stemmer != null) {
+      if (term.contains("~")) {
+        return stemmer.stemWindow(term);
+      } else {
+        return stemmer.stem(term);
+      }
+    }
+    return term;
+  }
+
+  @Override
+  public IndexPartStatistics getStatistics() {
+    Parameters manifest = this.getManifest();
+    IndexPartStatistics is = new IndexPartStatistics();
+    is.collectionLength = manifest.get("statistics/collectionLength", 0);
+    is.vocabCount = manifest.get("statistics/vocabCount", 0);
+    is.highestDocumentCount = manifest.get("statistics/highestDocumentCount", 0);
+    is.highestFrequency = manifest.get("statistics/highestFrequency", 0);
+    is.partName = manifest.get("filename", "PositionIndexPart");
+    return is;
+  }
+
+  
+  // subclasses 
+  
   public class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
@@ -741,92 +832,5 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
-  }
-  Stemmer stemmer = null;
-
-  public PositionIndexReader(BTreeReader reader) throws Exception {
-    super(reader);
-    if (reader.getManifest().containsKey("stemmer")) {
-      stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
-    }
-  }
-
-  public PositionIndexReader(String pathname) throws Exception {
-    super(pathname);
-    if (reader.getManifest().containsKey("stemmer")) {
-      stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
-    }
-  }
-
-  @Override
-  public KeyIterator getIterator() throws IOException {
-    return new KeyIterator(reader);
-  }
-
-  /**
-   * Returns an iterator pointing at the specified term, or null if the term
-   * doesn't exist in the inverted file.
-   */
-  public TermExtentIterator getTermExtents(String term) throws IOException {
-    term = stemAsRequired(term);
-    return getTermExtents(Utility.fromString(term));
-  }
-
-  public TermExtentIterator getTermExtents(byte[] term) throws IOException {
-    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
-    if (iterator != null) {
-      return new TermExtentIterator(iterator);
-    }
-    return null;
-  }
-
-  public TermCountIterator getTermCounts(String term) throws IOException {
-    term = stemAsRequired(term);
-    return getTermCounts(Utility.fromString(term));
-  }
-
-  public TermCountIterator getTermCounts(byte[] term) throws IOException {
-    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
-    if (iterator != null) {
-      return new TermCountIterator(iterator);
-    }
-    return null;
-  }
-
-  @Override
-  public Map<String, NodeType> getNodeTypes() {
-    HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("counts", new NodeType(TermCountIterator.class));
-    types.put("extents", new NodeType(TermExtentIterator.class));
-    return types;
-  }
-
-  @Override
-  public ValueIterator getIterator(Node node) throws IOException {
-    String term = node.getDefaultParameter();
-    if (node.getOperator().equals("counts")) {
-      return getTermCounts(term);
-    } else {
-      return getTermExtents(term);
-    }
-  }
-
-  private String stemAsRequired(String term) {
-    if (stemmer != null) {
-      return stemmer.stem(term);
-    }
-    return term;
-  }
-
-  @Override
-  public IndexPartStatistics getStatistics() {
-    Parameters manifest = this.getManifest();
-    IndexPartStatistics is = new IndexPartStatistics();
-    is.collectionLength = manifest.get("statistics/collectionLength", 0);
-    is.vocabCount = manifest.get("statistics/vocabCount", 0);
-    is.highestDocumentCount = manifest.get("statistics/highestDocumentCount", 0);
-    is.highestFrequency = manifest.get("statistics/highestFrequency", 0);
-    is.partName = manifest.get("filename", "PositionIndexPart");
-    return is;
   }
 }

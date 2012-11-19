@@ -132,14 +132,11 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
 
   private String stemAsRequired(String term) {
     if (stemmer != null) {
-      StringBuilder stemmed = new StringBuilder();
-      for (String s : term.split("~")) {
-        if (stemmed.length() > 0) {
-          stemmed.append("~");
-        }
-        stemmed.append(stemmer.stem(s));
+      if (term.contains("~")) {
+        return stemmer.stemWindow(term);
+      } else {
+        return stemmer.stem(term);
       }
-      return stemmed.toString();
     }
     return term;
   }

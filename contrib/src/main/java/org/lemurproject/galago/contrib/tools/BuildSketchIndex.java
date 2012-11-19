@@ -48,7 +48,8 @@ public class BuildSketchIndex extends AppFunction {
             + "\t--indexPath=/path/to/existing/index\n"
             + "\t--sketchIndexName=outputFileName\n"
             + "\t--depth=int [2]\n"
-            + "\t--\n"
+            + "\t--stemming=[boolean]\n"
+            + "\t--stemmer=[org.lemurproject.galago.core.parse.stem.Porter2Stemmer]\n"
             + getTupleFlowParameterString();
   }
 
@@ -88,12 +89,9 @@ public class BuildSketchIndex extends AppFunction {
       splitParameters.set("filetype", buildParameters.getString("filetype"));
     }
 
-    if (buildParameters.containsKey("stemmer")) {
-      if (buildParameters.isBoolean("stemmer")
-              && buildParameters.getBoolean("stemmer")) {
-        buildParameters.remove("stemmer");
-        buildParameters.set("stemmer", Porter2Stemmer.class.getName());
-      }
+    // ensure stemmer is set
+    if (buildParameters.get("stemming", false)) {
+      buildParameters.set("stemmer", buildParameters.get("stemmer", Porter2Stemmer.class.getName()));
     }
 
     buildParameters.set("filename", indexPath + File.separator + buildParameters.getString("sketchIndexName"));

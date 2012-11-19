@@ -153,8 +153,8 @@ public class BuildWindowIndexTest extends TestCase {
 
         CountIndexReader.TermCountIterator counts_NSE_ci = (CountIndexReader.TermCountIterator) counts_NSE_ki.getValueIterator();
         CountIndexReader.TermCountIterator counts__SE_ci = (CountIndexReader.TermCountIterator) counts__SE_ki.getValueIterator();
-        WindowIndexReader.TermExtentIterator posits_NSE_ei = (WindowIndexReader.TermExtentIterator) posits_NSE_ki.getValueIterator();
-        WindowIndexReader.TermExtentIterator posits__SE_ei = (WindowIndexReader.TermExtentIterator) posits__SE_ki.getValueIterator();
+        WindowIndexReader.WindowExtentIterator posits_NSE_ei = (WindowIndexReader.WindowExtentIterator) posits_NSE_ki.getValueIterator();
+        WindowIndexReader.WindowExtentIterator posits__SE_ei = (WindowIndexReader.WindowExtentIterator) posits__SE_ki.getValueIterator();
 
         ScoringContext sc = new ScoringContext();
         counts_NSE_ci.setContext(sc);
@@ -299,8 +299,8 @@ public class BuildWindowIndexTest extends TestCase {
       WindowIndexReader pos_notSE = (WindowIndexReader) DiskIndex.openIndexPart(new File(index, "pos.nse.3.index").getAbsolutePath());
       WindowIndexReader pos_SE = (WindowIndexReader) DiskIndex.openIndexPart(new File(index, "pos.se.3.index").getAbsolutePath());
 
-      long vocab = 19;
-      long collectionLength = 2115;
+      long vocab = 10;
+      long collectionLength = 1650;
       long highestFrequency = 374;
       long highestDocumentCount = 3;
       assertEquals(vocab, counts_notSE.getManifest().getLong("statistics/vocabCount"));
@@ -339,8 +339,8 @@ public class BuildWindowIndexTest extends TestCase {
 
         CountIndexReader.TermCountIterator counts_NSE_ci = (CountIndexReader.TermCountIterator) counts_NSE_ki.getValueIterator();
         CountIndexReader.TermCountIterator counts__SE_ci = (CountIndexReader.TermCountIterator) counts__SE_ki.getValueIterator();
-        WindowIndexReader.TermExtentIterator posits_NSE_ei = (WindowIndexReader.TermExtentIterator) posits_NSE_ki.getValueIterator();
-        WindowIndexReader.TermExtentIterator posits__SE_ei = (WindowIndexReader.TermExtentIterator) posits__SE_ki.getValueIterator();
+        WindowIndexReader.WindowExtentIterator posits_NSE_ei = (WindowIndexReader.WindowExtentIterator) posits_NSE_ki.getValueIterator();
+        WindowIndexReader.WindowExtentIterator posits__SE_ei = (WindowIndexReader.WindowExtentIterator) posits__SE_ki.getValueIterator();
 
         ScoringContext sc = new ScoringContext();
         counts_NSE_ci.setContext(sc);

@@ -32,15 +32,15 @@ public abstract class Stemmer implements Source<Document>, Processor<Document> {
   }
 
   @Override
-  public void close() throws IOException{
+  public void close() throws IOException {
     processor.close();
   }
-  
+
   @Override
   public void setProcessor(Step processor) throws IncompatibleProcessorException {
     Linkage.link(this, processor);
   }
-  
+
   public static void verify(TupleFlowParameters fullParameters, ErrorHandler handler) {
     return;
   }
@@ -56,7 +56,7 @@ public abstract class Stemmer implements Source<Document>, Processor<Document> {
   public static String[] getOutputOrder(TupleFlowParameters parameters) {
     return new String[0];
   }
-  
+
   public Document stem(Document document) {
     // new document is necessary - stemmed terms were being propagated unintentially
     Document newDocument = new Document(document);
@@ -81,6 +81,20 @@ public abstract class Stemmer implements Source<Document>, Processor<Document> {
     }
     return stemmedTerm;
   }
-  
+
   protected abstract String stemTerm(String term);
+
+  /**
+   * allows stemming of windows.
+   */
+  public String stemWindow(String term) {
+    StringBuilder window = new StringBuilder();
+    for (String t : term.split("~")) {
+      if (window.length() > 0) {
+        window.append("~");
+      }
+      window.append(stem(t));
+    }
+    return window.toString();
+  }
 }
