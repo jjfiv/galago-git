@@ -119,6 +119,11 @@ public class BatchSearch extends AppFunction {
     for (int idx = queryrange[0]; idx < queryrange[1]; idx++) {
       Parameters query = queries.get(idx);
       String queryText = query.getString("text");
+      
+      if (parameters.get("casefold", false)) {
+	  queryText = queryText.toLowerCase();
+      }
+
       Parameters p = new Parameters();
       p.set("requested", requested);
 
