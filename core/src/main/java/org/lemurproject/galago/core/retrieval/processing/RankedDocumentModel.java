@@ -92,7 +92,6 @@ public class RankedDocumentModel extends ProcessingModel {
     // Number of documents requested.
     int requested = (int) queryParams.get("requested", 1000);
     boolean annotate = queryParams.get("annotate", false);
-    int numScorers = (int) queryParams.get("numScorers", 0L);
 
     // Maintain a queue of candidates
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
@@ -106,8 +105,6 @@ public class RankedDocumentModel extends ProcessingModel {
     while (!iterator.isDone()) {
       int document = iterator.currentCandidate();
       ////CallTable.increment("doc_begin");
-      ////CallTable.increment("score_possible", numScorers);
-      ////CallTable.increment("scops", numScorers);
 
       // This context is shared among all scorers
       context.document = document;

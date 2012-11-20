@@ -73,17 +73,10 @@ public abstract class Learner {
 
 
     List<Parameters> params = (List<Parameters>) p.getList("learnableParameters");
-    List<Parameters> normalizationRules;
-    if (p.isList("normalization", Type.MAP)) {
-      normalizationRules = p.getList("normalization");
-
-      // might have forgotten to wrap rule : [{}]
-    } else if (p.isMap("normalization")) {
-      normalizationRules = new ArrayList();
-      normalizationRules.add(p.getMap("normalization"));
-
-    } else {
-      normalizationRules = new ArrayList();
+    List<Parameters> normalizationRules = new ArrayList();
+    if (p.isList("normalization", Type.MAP)
+            || p.isMap("normalization")) {
+      normalizationRules.addAll(p.getAsList("normalization"));
     }
 
     learnableParameters = new RetrievalModelParameters(params, normalizationRules);

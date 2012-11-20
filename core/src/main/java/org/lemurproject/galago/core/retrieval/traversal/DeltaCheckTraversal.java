@@ -54,10 +54,10 @@ public class DeltaCheckTraversal extends Traversal {
   @Override
   public void beforeNode(Node object) throws Exception {
     level++;
-    if (object.getOperator().equals("feature")) {
-      int c = (int) qp.get("numScorers", 0L);
-      qp.set("numScorers", c + 1);
-    }
+//    if (object.getOperator().equals("feature")) {
+//      int c = (int) qp.get("numScorers", 0L);
+//      qp.set("numScorers", c + 1);
+//    }
   }
 
   private boolean isDeltaCapable(Node n) throws Exception {
