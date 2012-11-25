@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
+import org.lemurproject.galago.core.retrieval.processing.RankedDocumentModel;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.types.FieldLengthData;
@@ -384,7 +385,12 @@ public class FieldTraversalTest extends TestCase {
     p.set("fields", Arrays.asList(fields));
 
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
-    ScoredDocument[] results = retrieval.runQuery("#pl2f(cat dog donkey)", p);
+    
+    Node query = StructuredQuery.parse("#pl2f(cat dog donkey)");
+    query = retrieval.transformQuery(query, p);    
+
+    RankedDocumentModel processingModel = new RankedDocumentModel(retrieval);
+    ScoredDocument[] results = processingModel.execute(query, p);
 
     assertEquals(5, results.length);
 

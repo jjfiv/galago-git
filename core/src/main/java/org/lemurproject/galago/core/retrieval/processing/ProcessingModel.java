@@ -40,6 +40,9 @@ public abstract class ProcessingModel {
     T[] items = (T[]) Array.newInstance(queue.peek().getClass(), queue.size());
     for (int i = queue.size() - 1; queue.isEmpty() == false; i--) {
       items[i] = queue.poll();
+
+      // set rank attributes here
+      items[i].rank = i+1;
     }
     return items;
   }

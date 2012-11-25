@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.processing.PassageScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -17,6 +18,8 @@ import org.lemurproject.galago.tupleflow.Utility;
  * @author sjh
  */
 public class PassageLengthIterator extends TransformIterator implements MovableLengthsIterator {
+
+  boolean lenCheck;
   NodeParameters np;
   PassageScoringContext passContext;
   MovableLengthsIterator lengths;
@@ -24,13 +27,20 @@ public class PassageLengthIterator extends TransformIterator implements MovableL
   public PassageLengthIterator(NodeParameters params, MovableLengthsIterator iterator) {
     super(iterator);
     np = params;
+    lenCheck = np.get("lenCheck", true);
     lengths = iterator;
+
     passContext = null;
-    if (this.context instanceof PassageScoringContext) {
+  }
+
+  @Override
+  public void setContext(ScoringContext context){
+    super.setContext(context);
+    if(context instanceof PassageScoringContext){
       passContext = (PassageScoringContext) context;
     }
   }
-
+  
   @Override
   public byte[] getRegionBytes() {
     return Utility.fromString("passagelengths");
@@ -38,20 +48,28 @@ public class PassageLengthIterator extends TransformIterator implements MovableL
 
   @Override
   public int getCurrentLength() {
-    if (passContext != null) {
-      int begin = passContext.begin;
-      int end = Math.min(passContext.end, lengths.getCurrentLength());
+    int begin, end;
 
-      // sjh: this is possible - where the lengths are based on fields.
-      if(begin > end){
-        //return 0;
-        throw new RuntimeException("PassageLengthIterator is trying to return a negative length value for document " + this.currentCandidate() + ".");
-      }
+    if (passContext != null && !lenCheck) {
+      begin = passContext.begin;
+      end = passContext.end;
 
-      return end - begin;
+    } else if (passContext != null && lenCheck) {
+      begin = passContext.begin;
+      end = Math.min(passContext.end, lengths.getCurrentLength());
+
     } else {
-      return lengths.getCurrentLength();
+      begin = 0;
+      end = lengths.getCurrentLength();
     }
+
+    // sjh: this is possible - where the lengths are based on fields, and we are 'lenCheck'.
+    if (begin >= end) {
+      return 0;
+//      throw new RuntimeException("PassageLengthIterator is trying to return a negative length value for document " + this.currentCandidate() + ".");
+    }
+
+    return end - begin;
   }
 
   @Override

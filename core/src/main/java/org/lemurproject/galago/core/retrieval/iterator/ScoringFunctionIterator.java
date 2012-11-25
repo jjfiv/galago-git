@@ -2,12 +2,11 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.scoring.ScoringFunction;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * An iterator that converts a count iterator's count into a score. This is
@@ -76,10 +75,11 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
     int document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Double.toString(score());
-    List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());
-    String extra = Integer.toString(context.getLength());
+    List<AnnotatedNode> children = new ArrayList();
+    children.add(this.lengthsIterator.getAnnotatedNode());
+    children.add(this.countIterator.getAnnotatedNode());
 
-    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, extra, children);
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 
   /**

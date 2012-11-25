@@ -86,8 +86,6 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
       // Otherwise move lengths
       context.document = candidate;
       context.moveLengths(candidate);
-      ////CallTable.increment("doc_begin");
-      ////CallTable.increment("score_possible", context.scorers.size());
 
       // Setup to score
       context.runningScore = context.startingPotential;
@@ -100,7 +98,6 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
         DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
         dsi.syncTo(context.document);
         dsi.deltaScore();
-        ////CallTable.increment("scops");
       }
 
       // Now score the rest, but keep checking
@@ -108,33 +105,22 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
         DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
         dsi.syncTo(context.document);
         dsi.deltaScore();
-        ////CallTable.increment("scops");
         ++i;
       }
 
       // Fully scored it
       if (i == context.scorers.size()) {
-        ////CallTable.increment("doc_finish");
         if (requested < 0 || queue.size() <= requested || context.runningScore > queue.peek().score) {
           ScoredDocument scoredDocument = new ScoredDocument(context.document, context.runningScore);
           queue.add(scoredDocument);
-          ////CallTable.increment("heap_insert");
           if (requested > 0 && queue.size() > requested) {
             queue.poll();
-            ////CallTable.increment("heap_eject");
             if (context.minCandidateScore < queue.peek().score) {
-              ////CallTable.increment("threshold_change");
               context.minCandidateScore = queue.peek().score;
               determineSentinelIndex(context);
             }
           }
-        } else {
-          ////CallTable.increment("heap_miss");
         }
-        ////CallTable.max("heap_max_size", queue.size());
-      } else {
-        ////CallTable.increment("doc_truncated");
-        ////CallTable.increment("scores_skipped", context.scorers.size() - i);
       }
 
       // Now move all matching sentinels members past the current doc, and repeat
@@ -144,7 +130,6 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
       }
     }
 
-    ////CallTable.increment("heap_end_size", queue.size());
     return toReversedArray(queue);
   }
 

@@ -60,13 +60,11 @@ public class RankedDocumentModel extends ProcessingModel {
 
     // now there should be an iterator at the root of this tree
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>();
-    ProcessingModel.initializeLengths(retrieval, context);
 
     for (int i = 0; i < whitelist.length; i++) {
       int document = whitelist[i];
       iterator.syncTo(document);
       context.document = document;
-      context.moveLengths(document);
 
       // This context is shared among all scorers
       double score = iterator.score();
@@ -98,7 +96,6 @@ public class RankedDocumentModel extends ProcessingModel {
 
     // construct the iterators -- we use tree processing
     MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
-    ProcessingModel.initializeLengths(retrieval, context);
 
     // now there should be an iterator at the root of this tree
     while (!iterator.isDone()) {
@@ -107,7 +104,6 @@ public class RankedDocumentModel extends ProcessingModel {
 
       // This context is shared among all scorers
       context.document = document;
-      context.moveLengths(document);
       iterator.syncTo(document);
       if (iterator.hasMatch(document)) {
         double score = iterator.score();

@@ -68,7 +68,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
     if (iterator.currentCandidate() == context.document) {
       count = ((CountIterator) iterator).count();
     }
-    double score = function.score(count, context.getLength(partName));
+    double score = function.score(count, this.lengthsIterator.getCurrentLength());
     score = (score > 0.0) ? score : min; // MY smoothing.
     return score;
   }

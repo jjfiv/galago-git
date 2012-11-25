@@ -36,6 +36,11 @@ public class PassageFilterIterator extends TransformIterator implements MovableE
     return key;
   }
 
+  @Override
+  public boolean hasMatch(int document){
+    return extents().size() > 0;
+  }
+  
   /**
    * Filters out extents that are not in the range of the current passage
    * window.
@@ -59,15 +64,17 @@ public class PassageFilterIterator extends TransformIterator implements MovableE
     cached.reset();
     ExtentArray internal = extentIterator.extents();
 
-    for (int i = 0; i < internal.size(); i++) {
-      if (internal.begin(i) >= passageContext.begin
-              && internal.end(i) <= passageContext.end) {
-        cached.add(internal.begin(i), internal.end(i));
+    if (passageContext != null) {
+      for (int i = 0; i < internal.size(); i++) {
+        if (internal.begin(i) >= passageContext.begin
+                && internal.end(i) <= passageContext.end) {
+          cached.add(internal.begin(i), internal.end(i));
+        }
       }
+      docid = passageContext.document;
+      begin = passageContext.begin;
+      end = passageContext.end;
     }
-    docid = passageContext.document;
-    begin = passageContext.begin;
-    end = passageContext.end;
   }
 
   @Override
@@ -76,7 +83,7 @@ public class PassageFilterIterator extends TransformIterator implements MovableE
 
     if (!PassageScoringContext.class.isAssignableFrom(context.getClass())) {
       // debugging info line.
-      Logger.getLogger(PassageFilterIterator.class.getName()).info("Setting a non-Passage-capable context as a PassageScoringContext - passages can not be used.");
+      // Logger.getLogger(PassageFilterIterator.class.getName()).info("Setting a non-Passage-capable context as a PassageScoringContext - passages can not be used.");
       passageContext = null;
     } else {
       passageContext = (PassageScoringContext) context;
@@ -85,13 +92,12 @@ public class PassageFilterIterator extends TransformIterator implements MovableE
 
   @Override
   public ExtentArray getData() {
-    return cached;
+    return extents();
   }
 
   @Override
   public int count() {
-    loadExtents();
-    return cached.size();
+    return extents().size();
   }
 
   @Override

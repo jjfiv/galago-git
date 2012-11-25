@@ -7,8 +7,10 @@ import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.ScoredPassage;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -56,26 +58,33 @@ public class RankedPassageModel extends ProcessingModel {
     int passageSize = (int) queryParams.getLong("passageSize");
     int passageShift = (int) queryParams.getLong("passageShift");
     MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
+    MovableLengthsIterator documentLengths = (MovableLengthsIterator) retrieval.createIterator(new Parameters(), StructuredQuery.parse("#lengths:part=lengths()"), context);
     PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
-    ProcessingModel.initializeLengths(retrieval, context);
 
     // now there should be an iterator at the root of this tree
     for (int i = 0; i < whitelist.length; i++) {
       int document = whitelist[i];
+      
       // This context is shared among all scorers
       context.document = document;
-      context.begin = 0;
-      context.end = passageSize;
+      documentLengths.syncTo(document);
+      int length = documentLengths.getCurrentLength();
 
+      // set the parameters for the first passage
+      context.begin = 0;
+      context.end = Math.min(passageSize, length);
+
+      
+      // ensure we are at the document we wish to score
+      // -- this function will move ALL iterators, 
+      //     not just the ones that do not have all candidates
       iterator.syncTo(document);
-      context.moveLengths(document);
-      int length = context.getLength();
 
       // Keep iterating over the same doc, but incrementing the begin/end fields of the
       // context until the next one
       boolean lastIteration = false;
       while (context.begin < length && !lastIteration) {
-        if (context.end > length) lastIteration = true;
+        if (context.end >= length) lastIteration = true;
 
         if (iterator.hasMatch(document)) {
           double score = iterator.score();
@@ -108,17 +117,20 @@ public class RankedPassageModel extends ProcessingModel {
     int passageSize = (int) queryParams.getLong("passageSize");
     int passageShift = (int) queryParams.getLong("passageShift");
     MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
-    ProcessingModel.initializeLengths(retrieval, context);
+    MovableLengthsIterator documentLengths = (MovableLengthsIterator) retrieval.createIterator(new Parameters(), StructuredQuery.parse("#lengths:part=lengths()"), context);
+    
     PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
 
     // now there should be an iterator at the root of this tree
     while (!iterator.isDone()) {
       int document = iterator.currentCandidate();
+      
       // This context is shared among all scorers
       context.document = document;
+      documentLengths.syncTo(document);
+      int length = documentLengths.getCurrentLength();
 
-      context.moveLengths(document);
-      int length = context.getLength();
+      // set the parameters for the first passage
       context.begin = 0;
       context.end = Math.min(passageSize, length);
       
@@ -131,7 +143,7 @@ public class RankedPassageModel extends ProcessingModel {
       // context until the next one
       boolean lastIteration = false;
       while (context.begin < length && !lastIteration) {
-        if (context.end == length) lastIteration = true;
+        if (context.end >= length) lastIteration = true;
 
         if (iterator.hasMatch(document)) {
           double score = iterator.score();
