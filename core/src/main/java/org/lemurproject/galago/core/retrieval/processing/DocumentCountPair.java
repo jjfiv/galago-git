@@ -7,11 +7,11 @@ package org.lemurproject.galago.core.retrieval.processing;
  * 
  * @author irmarc
  */
-public class Pair implements Comparable<Pair> {
+public class DocumentCountPair implements Comparable<DocumentCountPair> {
   public int doc;
   public int count;
   
-  public Pair(int d, int c) {
+  public DocumentCountPair(int d, int c) {
     doc = d;
     count = c;
   }
@@ -23,7 +23,7 @@ public class Pair implements Comparable<Pair> {
    * @return 
    */
   @Override
-  public int compareTo(Pair that) {
+  public int compareTo(DocumentCountPair that) {
     return this.doc - that.doc;
   }
 }

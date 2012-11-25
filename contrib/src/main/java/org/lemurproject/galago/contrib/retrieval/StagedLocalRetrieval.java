@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.retrieval;
+package org.lemurproject.galago.contrib.retrieval;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
@@ -8,10 +8,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import org.lemurproject.galago.contrib.retrieval.processing.AbstractPartialProcessor;
 import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
-import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
+import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.processing.*;
@@ -143,9 +144,9 @@ public class StagedLocalRetrieval extends LocalRetrieval {
           MovableCountIterator it, ScoringContext sc) throws Exception {
     assert (candidates != null);
     if (occurrenceCache == null) {
-      occurrenceCache = new HashMap<String, PriorityQueue<Pair>>();
+      occurrenceCache = new HashMap<String, PriorityQueue<DocumentCountPair>>();
     }
-    PriorityQueue<Pair> cache = new PriorityQueue<Pair>();
+    PriorityQueue<DocumentCountPair> cache = new PriorityQueue<DocumentCountPair>();
     occurrenceCache.put(Utility.toString(it.key()), cache);
     while (!it.isDone()) {
       sc.document = it.currentCandidate();
@@ -155,7 +156,7 @@ public class StagedLocalRetrieval extends LocalRetrieval {
         stats.nodeFrequency += it.count();
         stats.nodeDocumentCount++;
         if (candidates.contains(candidate)) {
-          cache.add(new Pair(candidate, it.count()));
+          cache.add(new DocumentCountPair(candidate, it.count()));
         }
       }
       it.movePast(candidate);
@@ -167,9 +168,9 @@ public class StagedLocalRetrieval extends LocalRetrieval {
           MovableCountIterator it, ScoringContext sc) throws Exception {
     assert (sortedCandidates != null);
     if (occurrenceCache == null) {
-      occurrenceCache = new HashMap<String, PriorityQueue<Pair>>();
+      occurrenceCache = new HashMap<String, PriorityQueue<DocumentCountPair>>();
     }
-    PriorityQueue<Pair> cache = new PriorityQueue<Pair>();
+    PriorityQueue<DocumentCountPair> cache = new PriorityQueue<DocumentCountPair>();
     occurrenceCache.put(Utility.toString(it.key()), cache);
 
     for (int i = 0; i < sortedCandidates.size(); i++) {
@@ -182,7 +183,7 @@ public class StagedLocalRetrieval extends LocalRetrieval {
         stats.maximumCount = Math.max(stats.maximumCount, it.count());
         stats.nodeFrequency += it.count();
         stats.nodeDocumentCount++;
-        cache.add(new Pair(sortedCandidates.get(i), it.count()));
+        cache.add(new DocumentCountPair(sortedCandidates.get(i), it.count()));
       }
     }
   }
@@ -217,7 +218,7 @@ public class StagedLocalRetrieval extends LocalRetrieval {
   // HAX
   public TIntArrayList sortedCandidates;
   public TIntHashSet candidates;
-  public HashMap<String, PriorityQueue<Pair>> occurrenceCache;
+  public HashMap<String, PriorityQueue<DocumentCountPair>> occurrenceCache;
   public HashSet<String> windowOps;
   public HashMap<String, NodeStatistics> syntheticCounts;
 }

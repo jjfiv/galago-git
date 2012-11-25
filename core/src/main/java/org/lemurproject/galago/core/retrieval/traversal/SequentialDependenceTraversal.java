@@ -6,8 +6,6 @@ import java.util.List;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.MalformedQueryException;
 import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.StagedLocalRetrieval;
-import org.lemurproject.galago.core.retrieval.processing.AbstractPartialProcessor;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -100,26 +98,27 @@ public class SequentialDependenceTraversal extends Traversal {
         }
       }
 
-      if (goSoft && StagedLocalRetrieval.class.isAssignableFrom(r.getClass())) {
-        for (Node n : ordered) {
-          String key = AbstractPartialProcessor.makeNodeKey(n);
-          n.getNodeParameters().set("key", key);
-          n.setOperator("mincount");
-          if (cacheSynthCounts) {
-            StagedLocalRetrieval slr = (StagedLocalRetrieval) r;
-            n.getNodeParameters().set("maximumCount", slr.syntheticCounts.get(key).maximumCount);
-          }
-        }
-        for (Node n : unordered) {
-          String key = AbstractPartialProcessor.makeNodeKey(n);
-          n.getNodeParameters().set("key", key);
-          n.setOperator("mincount");
-          if (cacheSynthCounts) {
-            StagedLocalRetrieval slr = (StagedLocalRetrieval) r;
-            n.getNodeParameters().set("maximumCount", slr.syntheticCounts.get(key).maximumCount);
-          }
-        }
-      }
+// Deprecated - StagedLocalRetrieval has been moved to contrib      
+//      if (goSoft && StagedLocalRetrieval.class.isAssignableFrom(r.getClass())) {
+//        for (Node n : ordered) {
+//          String key = AbstractPartialProcessor.makeNodeKey(n);
+//          n.getNodeParameters().set("key", key);
+//          n.setOperator("mincount");
+//          if (cacheSynthCounts) {
+//            StagedLocalRetrieval slr = (StagedLocalRetrieval) r;
+//            n.getNodeParameters().set("maximumCount", slr.syntheticCounts.get(key).maximumCount);
+//          }
+//        }
+//        for (Node n : unordered) {
+//          String key = AbstractPartialProcessor.makeNodeKey(n);
+//          n.getNodeParameters().set("key", key);
+//          n.setOperator("mincount");
+//          if (cacheSynthCounts) {
+//            StagedLocalRetrieval slr = (StagedLocalRetrieval) r;
+//            n.getNodeParameters().set("maximumCount", slr.syntheticCounts.get(key).maximumCount);
+//          }
+//        }
+//      }
 
       Node orderedWindowNode = new Node("combine", ordered);
       Node unorderedWindowNode = new Node("combine", unordered);

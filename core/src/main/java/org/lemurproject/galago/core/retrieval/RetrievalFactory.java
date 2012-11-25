@@ -76,11 +76,11 @@ public class RetrievalFactory {
       return (Retrieval) Proxy.newProxyInstance(Retrieval.class.getClassLoader(),
               new Class[]{Retrieval.class}, ih);
     } else {
-      if (parameters.get("delayed", false)) {
-        return new StagedLocalRetrieval(path, parameters);
-      } else {
+//      if (parameters.get("delayed", false)) {
+//        return new StagedLocalRetrieval(path, parameters);
+//      } else {
         return new LocalRetrieval(path, parameters);
-      }
+//      }
     }
   }
 

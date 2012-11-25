@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.lemurproject.galago.core.retrieval.processing;
+package org.lemurproject.galago.contrib.retrieval.processing;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -10,10 +10,15 @@ import gnu.trove.set.hash.TIntHashSet;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.PriorityQueue;
+import org.lemurproject.galago.contrib.retrieval.StagedLocalRetrieval;
 import org.lemurproject.galago.core.retrieval.EstimatedDocument;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.core.retrieval.StagedLocalRetrieval;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
+import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.DocumentCountPair;
+import org.lemurproject.galago.core.retrieval.processing.IteratorLengthComparator;
+import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
+import org.lemurproject.galago.core.retrieval.processing.SoftDeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.traversal.optimize.ReplaceEstimatedIteratorTraversal;
@@ -383,10 +388,10 @@ public abstract class AbstractPartialProcessor extends ProcessingModel {
       // Score it fully using the cached counts
       for (DeltaScoringIterator dsi : context.scorers) {
         int count = 0;
-        PriorityQueue<Pair> list = retrieval.occurrenceCache.get(Utility.toString(dsi.key()));
+        PriorityQueue<DocumentCountPair> list = retrieval.occurrenceCache.get(Utility.toString(dsi.key()));
         assert (list.peek().doc >= context.document);
         if (!list.isEmpty() && list.peek().doc == context.document) {
-          Pair top = list.poll();
+          DocumentCountPair top = list.poll();
           count = top.count;
         }
         if (rereadLengths) {
@@ -485,10 +490,10 @@ public abstract class AbstractPartialProcessor extends ProcessingModel {
       // Score it fully using the cached counts
       for (DeltaScoringIterator dsi : context.scorers) {
         int count = 0;
-        PriorityQueue<Pair> list = retrieval.occurrenceCache.get(Utility.toString(dsi.key()));
+        PriorityQueue<DocumentCountPair> list = retrieval.occurrenceCache.get(Utility.toString(dsi.key()));
         assert (list.peek().doc >= context.document);
         if (!list.isEmpty() && list.peek().doc == context.document) {
-          Pair top = list.poll();
+          DocumentCountPair top = list.poll();
           count = top.count;
         }
         if (rereadLengths) {

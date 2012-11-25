@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.retrieval.processing;
+package org.lemurproject.galago.contrib.retrieval.processing;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -10,6 +10,9 @@ import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
+import org.lemurproject.galago.core.retrieval.processing.SoftDeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.traversal.optimize.ReplaceEstimatedIteratorTraversal;
@@ -23,13 +26,13 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author irmarc
  */
-public class AdaptiveDelayedModel extends ProcessingModel {
+public class AdaptiveEveryDelayedModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   Index index;
   int[] whitelist;
 
-  public AdaptiveDelayedModel(LocalRetrieval lr) {
+  public AdaptiveEveryDelayedModel(LocalRetrieval lr) {
     retrieval = lr;
     this.index = retrieval.getIndex();
     whitelist = null;
@@ -49,16 +52,15 @@ public class AdaptiveDelayedModel extends ProcessingModel {
     SoftDeltaScoringContext context = new SoftDeltaScoringContext();
     int requested = (int) queryParams.get("requested", 1000);
 
-
     context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
-
     Arrays.fill(context.startingPotentials, 0);
 
     // Creates our nodes
     MovableIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
     computeNonEstimatorIndex(context);
     context.counts = new short[context.scorers.size() - context.sentinelIndex];
+
 
     // Split-heap
     PriorityQueue<EstimatedDocument> bottom = new PriorityQueue<EstimatedDocument>(requested,
@@ -128,7 +130,7 @@ public class AdaptiveDelayedModel extends ProcessingModel {
       context.min = context.max = 0;
       System.arraycopy(context.startingPotentials, 0, context.potentials, 0,
               context.startingPotentials.length);
-      
+
       // now score sentinels w/out question
       int i;
       for (i = 0; i < context.sentinelIndex; i++) {
@@ -142,7 +144,6 @@ public class AdaptiveDelayedModel extends ProcessingModel {
       // potential of the iterator from the main score and add the min/maxes of the soft scorer.
       while ((context.runningScore + context.max) > context.minCandidateScore
               && i < context.scorers.size()) {
-        // Not needed, but do it just in case
         context.scorers.get(i).syncTo(context.document);
 
         // remove the score from the runningScore
@@ -164,7 +165,9 @@ public class AdaptiveDelayedModel extends ProcessingModel {
         if (requested < 0 || top.size() < requested) {
           // Just throw it in there
           EstimatedDocument estimate =
-                  new EstimatedDocument(context.document, context.runningScore, context.min, context.max);
+                  new EstimatedDocument(context.document, context.runningScore,
+                  context.min, context.max, context.getLength(), context.counts);
+          estimate.length = (short) context.getLength();
           top.add(estimate);
           ////CallTable.increment("heap_top_insert");
           if (top.size() == requested) {
@@ -178,7 +181,9 @@ public class AdaptiveDelayedModel extends ProcessingModel {
           if (context.runningScore + context.min > context.minCandidateScore) {
             // It's going in the top heap, have a threshold change
             EstimatedDocument estimate =
-                    new EstimatedDocument(context.document, context.runningScore, context.min, context.max);
+                    new EstimatedDocument(context.document, context.runningScore,
+                    context.min, context.max, context.getLength(), context.counts);
+            estimate.length = (short) context.getLength();
             // shuffle things around
             top.add(estimate);
             ////CallTable.increment("heap_top_insert");
@@ -191,18 +196,16 @@ public class AdaptiveDelayedModel extends ProcessingModel {
             context.minCandidateScore = thresholdDoc.score + thresholdDoc.min;
             ////CallTable.increment("threshold_change");
 
-            // For now, try to pull stuff off the end
-            // This is really the only chance we get to shorten.
-            EstimatedDocument tail = bottom.peek();
-            while (tail != null && tail.score + tail.max < context.minCandidateScore) {
-              bottom.poll();
-              tail = bottom.peek();
-              ////CallTable.increment("heap_bottom_eject");
-            }
+            // Adjust the heaps
+            adjustTopHeap(top, context);
+            adjustBottomHeap(top, bottom, context);
+
           } else if (context.runningScore + context.max > context.minCandidateScore) {
             // It at least made it into the bottom heap
             EstimatedDocument estimate =
-                    new EstimatedDocument(context.document, context.runningScore, context.min, context.max);
+                    new EstimatedDocument(context.document, context.runningScore,
+                    context.min, context.max, context.getLength(), context.counts);
+            estimate.length = (short) context.getLength();
             bottom.add(estimate);
             ////CallTable.increment("heap_bottom_insert");
           } else {
@@ -220,9 +223,12 @@ public class AdaptiveDelayedModel extends ProcessingModel {
 
       // Now move all matching sentinel members forward, and repeat
       for (i = 0; i < context.sentinelIndex; i++) {
-          context.scorers.get(i).movePast(candidate);
+        context.scorers.get(i).movePast(candidate);
       }
     }
+
+    adjustTopHeap(top, context);
+    adjustBottomHeap(top, bottom, context);
 
     ////CallTable.set("heap_end_size", bottom.size() + top.size());
     // Want to use the top sort order
@@ -454,6 +460,40 @@ public class AdaptiveDelayedModel extends ProcessingModel {
       // The sentinels are moved at the top, so we don't do it here.
     }
     return toReversedArray(queue);
+  }
+
+  private void adjustTopHeap(PriorityQueue<EstimatedDocument> top, SoftDeltaScoringContext context) {
+    EstimatedDocument ed;
+    do {
+      ed = top.poll();
+      for (int i = context.sentinelIndex; i < context.scorers.size(); i++) {
+        Estimator e = (Estimator) context.scorers.get(i);
+        e.adjustEstimate(context, ed, i - context.sentinelIndex);
+      }
+      top.add(ed);
+    } while (ed != top.peek());
+
+    context.minCandidateScore = ed.score + ed.min;
+  }
+
+  private void adjustBottomHeap(PriorityQueue<EstimatedDocument> top, PriorityQueue<EstimatedDocument> bottom,
+          SoftDeltaScoringContext context) {
+    // Whittle off what we can
+    EstimatedDocument ed;
+    if (bottom.size() > 0) {
+      do {
+        ed = bottom.poll();
+        for (int i = context.sentinelIndex; i < context.scorers.size(); i++) {
+          Estimator e = (Estimator) context.scorers.get(i);
+          e.adjustEstimate(context, ed, i - context.sentinelIndex);
+        }
+        if (ed.score + ed.max > context.minCandidateScore) {
+          bottom.add(ed);
+        } else {
+          ////CallTable.increment("heap_bottom_eject");
+        }
+      } while (ed != bottom.peek() && !bottom.isEmpty());
+    }
   }
 
   private void computeNonEstimatorIndex(DeltaScoringContext ctx) {
