@@ -196,6 +196,7 @@ public class MinCountIterator extends ValueIterator implements MovableCountItera
   @Override
   public void setContext(ScoringContext sc){
     this.context = sc;
+
     for(MovableIterator itr : this.iterators){
       itr.setContext(context);
     }
