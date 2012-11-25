@@ -37,7 +37,8 @@ public class PassageFilterIterator extends TransformIterator implements MovableE
   }
 
   /**
-   * Filters out extents that are not in the range of the current passage window.
+   * Filters out extents that are not in the range of the current passage
+   * window.
    *
    * @return
    */
@@ -71,9 +72,12 @@ public class PassageFilterIterator extends TransformIterator implements MovableE
 
   @Override
   public void setContext(ScoringContext context) {
+    super.setContext(context);
+
     if (!PassageScoringContext.class.isAssignableFrom(context.getClass())) {
-      Logger.getLogger(PassageFilterIterator.class.getName()).info("Setting a non-Passage-capable context as a PassageScoringContext - passages will not be used.");
-        passageContext = null;
+      // debugging info line.
+      Logger.getLogger(PassageFilterIterator.class.getName()).info("Setting a non-Passage-capable context as a PassageScoringContext - passages can not be used.");
+      passageContext = null;
     } else {
       passageContext = (PassageScoringContext) context;
     }

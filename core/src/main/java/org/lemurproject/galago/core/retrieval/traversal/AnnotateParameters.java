@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.retrieval.traversal;
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -38,8 +38,8 @@ public class AnnotateParameters extends Traversal {
     Class c = retrieval.getNodeType(node).getIteratorClass();
 
     // need to cascade down super classes to find sub-annotations.
-    while (c != null && StructuredIterator.class.isAssignableFrom(c)) {
-      Class<? extends StructuredIterator> d = c;
+    while (c != null && MovableIterator.class.isAssignableFrom(c)) {
+      Class<? extends MovableIterator> d = c;
       required = d.getAnnotation(RequiredParameters.class);
 
       // then annotate the node with any of:

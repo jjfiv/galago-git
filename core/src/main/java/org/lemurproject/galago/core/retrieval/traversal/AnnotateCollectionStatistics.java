@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -55,7 +55,7 @@ public class AnnotateCollectionStatistics extends Traversal {
   public Node afterNode(Node node) throws Exception {
     // need to get list of required statistics
     RequiredStatistics required = null;
-    Class<? extends StructuredIterator> c = retrieval.getNodeType(node).getIteratorClass();
+    Class<? extends MovableIterator> c = retrieval.getNodeType(node).getIteratorClass();
     required = c.getAnnotation(RequiredStatistics.class);
 
     // then annotate the node with any of:

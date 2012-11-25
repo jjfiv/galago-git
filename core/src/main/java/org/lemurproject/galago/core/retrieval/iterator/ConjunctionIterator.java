@@ -146,6 +146,10 @@ public abstract class ConjunctionIterator implements MovableIterator {
   @Override
   public void setContext(ScoringContext context) {
     this.context = context;
+
+    for(MovableIterator i : this.iterators){
+      i.setContext(context);
+    }
   }
 
   @Override

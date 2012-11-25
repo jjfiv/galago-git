@@ -51,7 +51,6 @@ public class FieldTraversalTest extends TestCase {
 
   // We pull statistics directly from the index to make sure they are
   // generated correctly.
-  /*
   public void testPRMSTraversalCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -66,26 +65,27 @@ public class FieldTraversalTest extends TestCase {
     Node q1 = StructuredQuery.parse("#prms2(#text:cat() #text:dog() #text:donkey())");
     Node q2 = StructuredQuery.copy(traversal, q1);
 
+    System.err.println(q2.toPrettyString());
+    
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine:norm=false( ");
-    transformed.append("#feature:log ( #combine:0=0.3333333333333333:1=0.3333333333333333:2=0.3333333333333333 ( ");
-    transformed.append("#feature:dirichlet-raw:lengths=title:pIdx=0:w=0.3333333333333333( #counts:cat:part=field.title() ) ");
-    transformed.append("#feature:dirichlet-raw:lengths=author:pIdx=0:w=0.3333333333333333( #counts:cat:part=field.author() ) ");
-    transformed.append("#feature:dirichlet-raw:lengths=anchor:pIdx=0:w=0.3333333333333333( #counts:cat:part=field.anchor() ) ) ) ");
-    transformed.append("#feature:log ( #combine:0=0.3333333333333333:1=0.3333333333333333:2=0.3333333333333333 ( ");
-    transformed.append("#feature:dirichlet-raw:lengths=title:pIdx=1:w=0.3333333333333333( #counts:dog:part=field.title() ) ");
-    transformed.append("#feature:dirichlet-raw:lengths=author:pIdx=1:w=0.3333333333333333( #counts:dog:part=field.author() ) ");
-    transformed.append("#feature:dirichlet-raw:lengths=anchor:pIdx=1:w=0.3333333333333333( #counts:dog:part=field.anchor() ) ) ) ");
-    transformed.append("#feature:log ( #combine:0=0.3333333333333333:1=0.3333333333333333:2=0.3333333333333333 ( ");
-    transformed.append("#feature:dirichlet-raw:lengths=title:pIdx=2:w=0.3333333333333333( #counts:donkey:part=field.title() ) ");
-    transformed.append("#feature:dirichlet-raw:lengths=author:pIdx=2:w=0.3333333333333333( #counts:donkey:part=field.author() ) ");
-    transformed.append("#feature:dirichlet-raw:lengths=anchor:pIdx=2:w=0.3333333333333333( #counts:donkey:part=field.anchor() ) ) ) ");
+    transformed.append("#wsum:0=0.3333333333333333:1=0.3333333333333333:2=0.3333333333333333 ( ");
+    transformed.append("#feature:dirichlet:lengths=title( #lengths:title:part=lengths() #counts:cat:part=field.title() ) ");
+    transformed.append("#feature:dirichlet:lengths=author( #lengths:author:part=lengths() #counts:cat:part=field.author() ) ");
+    transformed.append("#feature:dirichlet:lengths=anchor( #lengths:anchor:part=lengths() #counts:cat:part=field.anchor() ) ) ");
+    transformed.append("#wsum:0=0.3333333333333333:1=0.3333333333333333:2=0.3333333333333333 ( ");
+    transformed.append("#feature:dirichlet:lengths=title( #lengths:title:part=lengths() #counts:dog:part=field.title() ) ");
+    transformed.append("#feature:dirichlet:lengths=author( #lengths:author:part=lengths() #counts:dog:part=field.author() ) ");
+    transformed.append("#feature:dirichlet:lengths=anchor( #lengths:anchor:part=lengths() #counts:dog:part=field.anchor() ) ) ");
+    transformed.append("#wsum:0=0.3333333333333333:1=0.3333333333333333:2=0.3333333333333333 ( ");
+    transformed.append("#feature:dirichlet:lengths=title( #lengths:title:part=lengths() #counts:donkey:part=field.title() ) ");
+    transformed.append("#feature:dirichlet:lengths=author( #lengths:author:part=lengths() #counts:donkey:part=field.author() ) ");
+    transformed.append("#feature:dirichlet:lengths=anchor( #lengths:anchor:part=lengths() #counts:donkey:part=field.anchor() ) ) ");
     transformed.append(" )");
 
     Node expected = StructuredQuery.parse(transformed.toString());
     assertEquals(expected.toString(), q2.toString());
   }
-  */ 
 
   public void testBM25FTraversalCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
@@ -188,6 +188,7 @@ public class FieldTraversalTest extends TestCase {
     assertEquals(expected.toString(), q2.toString());
   }
 
+  /*
   public void testBM25FDeltaVsModel() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -228,7 +229,7 @@ public class FieldTraversalTest extends TestCase {
       assertEquals(results[i].score, results2[i].score, 0.00001);
     }
   }
-  /*
+
   public void testPRMSDeltaVsModel() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -256,7 +257,7 @@ public class FieldTraversalTest extends TestCase {
     }
 
   }
-    */
+
   public void testPL2FDeltaVsModel() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -292,8 +293,8 @@ public class FieldTraversalTest extends TestCase {
       assertEquals(results[i].score, results2[i].score, 0.00001);
     }
   }
+  */ 
 
-  /*
   public void testPRMS2ModelCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -320,7 +321,6 @@ public class FieldTraversalTest extends TestCase {
     assertEquals(3, results[4].document);
     assertEquals(results[4].score, -11.240375, 0.00001);
   }
-  */ 
 
   public void testBM25FModelCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());

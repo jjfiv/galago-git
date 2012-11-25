@@ -12,6 +12,8 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  *  - however assumes that all descendents are not shared with any other iterators
  *  - this allows more aggressive movement.
  * 
+ * *** THIS FUNCTION IS NOT CURRENTLY USED ***
+ * 
  * @author sjh
  */
 public abstract class NonSharedConjunctionIterator implements MovableIterator {
@@ -164,6 +166,10 @@ public abstract class NonSharedConjunctionIterator implements MovableIterator {
   @Override
   public void setContext(ScoringContext context) {
     this.context = context;
+
+    for(MovableIterator i : this.iterators){
+      i.setContext(context);
+    }
   }
 
   @Override

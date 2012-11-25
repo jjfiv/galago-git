@@ -20,6 +20,7 @@ public abstract class TransformIterator implements MovableIterator {
   @Override
   public void setContext(ScoringContext context) {
     this.context = context;
+    iterator.setContext(context);
   }
 
   @Override

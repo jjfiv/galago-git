@@ -6,10 +6,10 @@ import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.DirichletScoringIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.iterator.OrderedWindowIterator;
 import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreCombinationIterator;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
 import org.lemurproject.galago.core.retrieval.iterator.SynonymIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -68,12 +68,12 @@ public class FeatureFactoryTest extends TestCase {
    */
   public void testGetIterator() throws Exception {
     FeatureFactory f = new FeatureFactory(new Parameters());
-    ArrayList<StructuredIterator> iterators = new ArrayList();
+    ArrayList<MovableIterator> iterators = new ArrayList();
     iterators.add(new NullExtentIterator());
 
     NodeParameters np = new NodeParameters();
     np.set("default", 5);
-    StructuredIterator iterator = f.getIterator(new Node("od", np, new ArrayList(), 0), iterators);
+    MovableIterator iterator = f.getIterator(new Node("od", np, new ArrayList(), 0), iterators);
     assertEquals(OrderedWindowIterator.class.getName(), iterator.getClass().getName());
   }
 

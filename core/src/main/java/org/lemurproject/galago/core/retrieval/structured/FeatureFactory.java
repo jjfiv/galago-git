@@ -13,11 +13,11 @@ import org.lemurproject.galago.core.retrieval.BadOperatorException;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.traversal.*;
-import org.lemurproject.galago.core.retrieval.traversal.optimize.FlattenWindowTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.optimize.FlattenCombineTraversal;
+import org.lemurproject.galago.core.retrieval.traversal.optimize.FlattenWindowTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.optimize.MergeCombineChildrenTraversal;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -242,14 +242,14 @@ public class FeatureFactory {
   }
 
   @SuppressWarnings("unchecked")
-  public Class<StructuredIterator> getClass(Node node) throws Exception {
+  public Class<MovableIterator> getClass(Node node) throws Exception {
     String className = getClassName(node);
     Class c = Class.forName(className);
 
-    if (StructuredIterator.class.isAssignableFrom(c)) {
-      return (Class<StructuredIterator>) c;
+    if (MovableIterator.class.isAssignableFrom(c)) {
+      return (Class<MovableIterator>) c;
     } else {
-      throw new Exception("Found a class, but it's not a StructuredIterator: " + className);
+      throw new Exception("Found a class, but it's not a MovableIterator: " + className);
     }
   }
 
@@ -264,17 +264,17 @@ public class FeatureFactory {
    *
    * If the class returned by getClass() is a ScoringFunction, it must contain a
    * constructor that takes a single Parameters object. If the class returned by
-   * getFeatureClass() is some kind of StructuredIterator, it must take a
+   * getFeatureClass() is some kind of MovableIterator, it must take a
    * Parameters object and an ArrayList of DocumentDataIterators as parameters.
    */
-  public StructuredIterator getIterator(Node node, ArrayList<StructuredIterator> childIterators) throws Exception {
+  public MovableIterator getIterator(Node node, ArrayList<MovableIterator> childIterators) throws Exception {
     NodeType type = getNodeType(node);
 
     // One type of constructor allowed: Parameters?, NodeParameters?, child+
     // Anything not conforming to that gets an exception
 
     // Get the matching class for the node
-    Class<? extends StructuredIterator> c = getClass(node);
+    Class<? extends MovableIterator> c = getClass(node);
     if (c == null) {
       return null;
     }
@@ -305,8 +305,8 @@ public class FeatureFactory {
             fail = true;
             break;
           }
-        } else if (StructuredIterator.class.isAssignableFrom(formals.get(0))) {
-          // Some number of structurediterators, can be different - just do the one at the front now
+        } else if (MovableIterator.class.isAssignableFrom(formals.get(0))) {
+          // Some number of MovableIterator, can be different - just do the one at the front now
           if (formals.get(0).isAssignableFrom(childIterators.get(childIdx).getClass())) {
             arguments.add(childIterators.get(childIdx));
             childIdx++;
@@ -348,7 +348,7 @@ public class FeatureFactory {
       throw new IllegalArgumentException(msg.toString());
     }
 
-    return (StructuredIterator) cons[ic].newInstance(arguments.toArray(new Object[0]));
+    return (MovableIterator) cons[ic].newInstance(arguments.toArray(new Object[0]));
   }
 
   public List<String> getTraversalNames() {

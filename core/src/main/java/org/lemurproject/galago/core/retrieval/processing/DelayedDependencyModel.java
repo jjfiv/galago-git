@@ -8,7 +8,7 @@ import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.StagedLocalRetrieval;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.scoring.Estimator;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -49,7 +49,7 @@ public class DelayedDependencyModel extends AbstractPartialProcessor {
     context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     Arrays.fill(context.startingPotentials, 0);
-    StructuredIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
+    MovableIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
 
     // Split-heap
     PriorityQueue<EstimatedDocument> bottom = new PriorityQueue<EstimatedDocument>(requested,
@@ -235,7 +235,7 @@ public class DelayedDependencyModel extends AbstractPartialProcessor {
     context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     Arrays.fill(context.startingPotentials, 0);
-    StructuredIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
+    MovableIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
 
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
     ProcessingModel.initializeLengths(retrieval, context);

@@ -9,7 +9,7 @@ import org.lemurproject.galago.core.retrieval.EstimatedDocument;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.traversal.optimize.ReplaceEstimatedIteratorTraversal;
@@ -54,7 +54,7 @@ public class AdaptiveEndDelayedModel extends ProcessingModel {
     Arrays.fill(context.startingPotentials, 0);
 
     // Creates our nodes
-    StructuredIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
+    MovableIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
     computeNonEstimatorIndex(context);
     context.counts = new short[context.scorers.size() - context.sentinelIndex];
 
@@ -419,7 +419,7 @@ public class AdaptiveEndDelayedModel extends ProcessingModel {
     context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     Arrays.fill(context.startingPotentials, 0);
-    StructuredIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
+    MovableIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
 
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
     ProcessingModel.initializeLengths(retrieval, context);

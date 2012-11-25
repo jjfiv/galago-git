@@ -57,10 +57,10 @@ public class StagedLocalRetrieval extends LocalRetrieval {
   }
 
   @Override
-  protected StructuredIterator createNodeMergedIterator(Node node, ScoringContext context,
-          HashMap<String, StructuredIterator> iteratorCache)
+  protected MovableIterator createNodeMergedIterator(Node node, ScoringContext context,
+          HashMap<String, MovableIterator> iteratorCache)
           throws Exception {
-    StructuredIterator iterator = super.createNodeMergedIterator(node, context, iteratorCache);
+    MovableIterator iterator = super.createNodeMergedIterator(node, context, iteratorCache);
     // Everything in the if will pre-load the collection statistics for the estimators.
     // This will cause the estimators to have accurate collection stats for the first pass.
     // So, obviously, correction is not needed.
@@ -87,7 +87,7 @@ public class StagedLocalRetrieval extends LocalRetrieval {
   @Override
   public NodeStatistics getNodeStatistics(Node root) throws Exception {
 
-    StructuredIterator structIterator = createIterator(new Parameters(), root, null);
+    MovableIterator structIterator = createIterator(new Parameters(), root, null);
     if (NodeAggregateIterator.class.isInstance(structIterator)) {
       return ((NodeAggregateIterator) structIterator).getStatistics();
 

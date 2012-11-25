@@ -11,6 +11,8 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
+ * *** DEPRECATED *** -> to be replaced by PRMS2Traversal
+ * 
  * Transforms a #prms operator into a full expansion of the
  * PRM-S model. That means:
  *

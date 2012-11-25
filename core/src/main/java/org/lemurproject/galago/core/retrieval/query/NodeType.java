@@ -3,14 +3,14 @@ package org.lemurproject.galago.core.retrieval.query;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * <p>A NodeType describes the class type and input types of an iterator.</p>
  * 
  * <p>Traversals that modify a tree may want to know what type of iterator will be generated
- * when a Node is converted into a StructuredIterator.  For instance, a Node with a
+ * when a Node is converted into a MovableIterator.  For instance, a Node with a
  * "counts" operator will turn into a TermCountIterator.  This is important to know because
  * a ScoreCombinationIterator can't take a TermCountIterator as an argument; it needs an
  * iterator between them to convert extents into scores.  A Traversal can check the types
@@ -23,13 +23,13 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class NodeType implements Serializable {
 
-  private Class<? extends StructuredIterator> nodeClass;
+  private Class<? extends MovableIterator> nodeClass;
 
-  public NodeType(Class<? extends StructuredIterator> nodeClass) {
+  public NodeType(Class<? extends MovableIterator> nodeClass) {
     this.nodeClass = nodeClass;
   }
 
-  public Class<? extends StructuredIterator> getIteratorClass() {
+  public Class<? extends MovableIterator> getIteratorClass() {
     return nodeClass;
   }
 
@@ -90,11 +90,11 @@ public class NodeType implements Serializable {
     }
   }
 
-  public boolean isStructuredIteratorOrArray(Class c) {
-    if (c.isArray() && StructuredIterator.class.isAssignableFrom(c.getComponentType())) {
+  public boolean isMovableIteratorOrArray(Class c) {
+    if (c.isArray() && MovableIterator.class.isAssignableFrom(c.getComponentType())) {
       return true;
     }
-    if (StructuredIterator.class.isAssignableFrom(c)) {
+    if (MovableIterator.class.isAssignableFrom(c)) {
       return true;
     }
     return false;
@@ -122,7 +122,7 @@ public class NodeType implements Serializable {
       // Check arguments for valid argument types.
       boolean validTypes = true;
       for (int i = pointer; i < types.length; ++i) {
-        if (!isStructuredIteratorOrArray(types[i])) {
+        if (!isMovableIteratorOrArray(types[i])) {
           validTypes = false;
           break;
         }

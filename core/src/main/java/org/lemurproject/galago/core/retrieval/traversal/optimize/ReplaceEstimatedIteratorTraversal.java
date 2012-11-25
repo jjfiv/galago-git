@@ -7,7 +7,7 @@ package org.lemurproject.galago.core.retrieval.traversal.optimize;
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.processing.SoftDeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -51,7 +51,7 @@ public class ReplaceEstimatedIteratorTraversal extends Traversal {
               && lr != null && context != null) {
         // Let's make us an iterator - it sets itself to the context so no need to pass it up
         Node eligible = annotator.afterNode(newNode);
-        StructuredIterator iterator = lr.createIterator(queryParams, eligible, context);
+        MovableIterator iterator = lr.createIterator(queryParams, eligible, context);
       }
     }
     return newNode;

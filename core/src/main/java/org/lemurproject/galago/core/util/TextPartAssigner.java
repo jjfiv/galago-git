@@ -16,10 +16,10 @@ public class TextPartAssigner {
   public static Node assignPart(Node original, Parameters globalParams, Parameters availableParts) throws IOException {
     if (original.getNodeParameters().isString("part")) {
       return original;
-    } else if (availableParts.isString("defaultTextPart")) {
-      return transformedNode(original, availableParts.getString("defaultTextPart"));
     } else if (globalParams.isString("defaultTextPart")) {
       return transformedNode(original, globalParams.getString("defaultTextPart"));
+    } else if (availableParts.isString("defaultTextPart")) {
+      return transformedNode(original, availableParts.getString("defaultTextPart"));
     } else {
       Set<String> available = availableParts.getKeys();
       if (available.contains("postings.porter")) {

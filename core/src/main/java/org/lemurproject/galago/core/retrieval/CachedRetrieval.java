@@ -76,7 +76,7 @@ public class CachedRetrieval {
 //    }
   }
 
-  public StructuredIterator getCachedIterator(Node node) throws IOException {
+  public MovableIterator getCachedIterator(Node node) throws IOException {
     String nodeString = node.toString();
     if (cachedNodes.containsKey(nodeString)) {
       // new behaviour - check cache for this node.
@@ -120,7 +120,7 @@ public class CachedRetrieval {
    * caches an arbitrary query node currently can store only count, extent, and
    * score iterators.
    */
-  public void addToCache(Node node, StructuredIterator iterator) throws Exception {
+  public void addToCache(Node node, MovableIterator iterator) throws Exception {
 
     String nodeString = node.toString();
     if (!cachedNodes.containsKey(nodeString)) {

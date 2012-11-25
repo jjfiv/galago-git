@@ -4,12 +4,11 @@ package org.lemurproject.galago.core.retrieval.processing;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.PriorityQueue;
-import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -22,13 +21,14 @@ import org.lemurproject.galago.tupleflow.Parameters;
 public class DeltaScoreDocumentModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
-  Index index;
   int[] whitelist;
+  
+  private ArrayList<Sentinel> sortedSentinels = null;
+
 
   public DeltaScoreDocumentModel(LocalRetrieval lr) {
-    retrieval = lr;
-    this.index = retrieval.getIndex();
-    whitelist = null;
+    this.retrieval = lr;
+    this.whitelist = null;
   }
 
   @Override
@@ -158,7 +158,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
     context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     Arrays.fill(context.startingPotentials, 0);
-    StructuredIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
+    MovableIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
 
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
     ProcessingModel.initializeLengths(retrieval, context);
@@ -247,7 +247,6 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
   public void defineWorkingSet(int[] docs) {
     whitelist = docs;
   }
-  ArrayList<Sentinel> sortedSentinels = null;
 
   private void buildSentinels(DeltaScoringContext ctx, Parameters qp) {
     String type = retrieval.getGlobalParameters().get("sort", "length");

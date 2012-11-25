@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.retrieval.processing;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 
 /**
@@ -29,5 +29,5 @@ public class DeltaScoringContext extends ScoringContext {
   public boolean stillScoring;
   
   // Diagnostic
-  public HashMap<StructuredIterator, Node> toNodes = new HashMap<StructuredIterator, Node>();
+  public HashMap<MovableIterator, Node> toNodes = new HashMap<MovableIterator, Node>();
 }

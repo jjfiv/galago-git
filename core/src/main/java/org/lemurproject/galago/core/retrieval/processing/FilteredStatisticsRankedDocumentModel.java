@@ -7,8 +7,8 @@ import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.traversal.AdjustAnnotationsTraversal;
@@ -110,7 +110,7 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
         fssContext.collectionLength += fssContext.getLength();
 
         // update per-term statistics
-        for (StructuredIterator si : fssContext.iteratorsToNodes.keySet()) {
+        for (MovableIterator si : fssContext.iteratorsToNodes.keySet()) {
           if (MovableCountIterator.class.isAssignableFrom(si.getClass())) {
             MovableCountIterator ci = (MovableCountIterator) si;
             Node n = fssContext.iteratorsToNodes.get(si);

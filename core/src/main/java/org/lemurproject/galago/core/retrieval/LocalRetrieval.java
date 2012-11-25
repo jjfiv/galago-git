@@ -15,7 +15,6 @@ import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
-import org.lemurproject.galago.core.index.LengthsReader.LengthsIterator;
 import org.lemurproject.galago.core.index.NamesReader.NamesIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.parse.Document;
@@ -23,10 +22,10 @@ import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
 import org.lemurproject.galago.core.retrieval.processing.ActiveContext;
 import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -233,7 +232,7 @@ public class LocalRetrieval implements Retrieval {
     return results;
   }
 
-  public StructuredIterator createIterator(Parameters queryParameters, Node node, ScoringContext context) throws Exception {
+  public MovableIterator createIterator(Parameters queryParameters, Node node, ScoringContext context) throws Exception {
     if (globalParameters.get("shareNodes", true)) {
       if (queryParameters.get("shareNodes", true)) {
         return createNodeMergedIterator(node, context, new HashMap());
@@ -242,11 +241,11 @@ public class LocalRetrieval implements Retrieval {
     return createNodeMergedIterator(node, context, null);
   }
 
-  protected StructuredIterator createNodeMergedIterator(Node node, ScoringContext context,
-          HashMap<String, StructuredIterator> queryIteratorCache)
+  protected MovableIterator createNodeMergedIterator(Node node, ScoringContext context,
+          HashMap<String, MovableIterator> queryIteratorCache)
           throws Exception {
-    ArrayList<StructuredIterator> internalIterators = new ArrayList<StructuredIterator>();
-    StructuredIterator iterator;
+    ArrayList<MovableIterator> internalIterators = new ArrayList<MovableIterator>();
+    MovableIterator iterator;
 
     // first check if this is a repeated node in this tree:
     if (queryIteratorCache != null && queryIteratorCache.containsKey(node.toString())) {
@@ -261,7 +260,7 @@ public class LocalRetrieval implements Retrieval {
       // otherwise we need to create a new iterator
       // start by recursively creating children
       for (Node internalNode : node.getInternalNodes()) {
-        StructuredIterator internalIterator = createNodeMergedIterator(internalNode, context, queryIteratorCache);
+        MovableIterator internalIterator = createNodeMergedIterator(internalNode, context, queryIteratorCache);
         internalIterators.add(internalIterator);
       }
 
@@ -285,6 +284,7 @@ public class LocalRetrieval implements Retrieval {
     if (queryIteratorCache != null) {
       queryIteratorCache.put(node.toString(), iterator);
     }
+
     return iterator;
   }
 
@@ -312,7 +312,7 @@ public class LocalRetrieval implements Retrieval {
   public CollectionStatistics getCollectionStatistics(Node root) throws Exception {
 
     ScoringContext sc = ContextFactory.createContext(globalParameters);
-    StructuredIterator structIterator = createIterator(new Parameters(), root, sc);
+    MovableIterator structIterator = createIterator(new Parameters(), root, sc);
 
     // first check if this iterator is an aggregate iterator (has direct access to stats)
     if (CollectionAggregateIterator.class.isInstance(structIterator)) {
@@ -354,7 +354,7 @@ public class LocalRetrieval implements Retrieval {
   @Override
   public NodeStatistics getNodeStatistics(Node root) throws Exception {
     ScoringContext sc = ContextFactory.createContext(globalParameters);
-    StructuredIterator structIterator = createIterator(new Parameters(), root, sc);
+    MovableIterator structIterator = createIterator(new Parameters(), root, sc);
     if (NodeAggregateIterator.class.isInstance(structIterator)) {
       return ((NodeAggregateIterator) structIterator).getStatistics();
 

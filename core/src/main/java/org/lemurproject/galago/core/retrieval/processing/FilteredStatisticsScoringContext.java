@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.retrieval.processing;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
 import java.util.HashMap;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 
 /**
@@ -17,17 +17,17 @@ public class FilteredStatisticsScoringContext extends ScoringContext
   public TObjectIntHashMap<Node> dfs;
   public long collectionLength = 0;
   public long documentCount = 0;
-  HashMap<StructuredIterator, Node> iteratorsToNodes;
+  HashMap<MovableIterator, Node> iteratorsToNodes;
   
   public FilteredStatisticsScoringContext() {
     super();
     tfs = new TObjectIntHashMap<Node>();
     dfs = new TObjectIntHashMap<Node>();
-    iteratorsToNodes = new HashMap<StructuredIterator, Node>();
+    iteratorsToNodes = new HashMap<MovableIterator, Node>();
   }
 
   @Override
-  public void checkIterator(Node node, StructuredIterator iterator) {
+  public void checkIterator(Node node, MovableIterator iterator) {
     iteratorsToNodes.put(iterator, node);
   }
 
