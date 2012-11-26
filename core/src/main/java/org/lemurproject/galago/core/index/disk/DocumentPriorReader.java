@@ -151,8 +151,8 @@ public class DocumentPriorReader extends KeyValueReader {
 
     @Override
     public double score() {
-      System.out.printf("Getting prior score for %d (current=%d): ",
-              context.document, currentCandidate());
+//      System.out.printf("Getting prior score for %d (current=%d): ",
+//              context.document, currentCandidate());
       try {
         if (currentCandidate() == context.document) {
           byte[] valueBytes = iterator.getValueBytes();

@@ -195,6 +195,7 @@ public class RankedPassageModelTest extends TestCase {
     Parameters p = new Parameters();
     p.set("inputPath", corpus.getAbsolutePath());
     p.set("indexPath", index.getAbsolutePath());
+    p.set("corpus", false);
     App.run("build", p, System.out);
   }
 }

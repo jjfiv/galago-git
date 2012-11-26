@@ -40,6 +40,6 @@ public class ScoredPassage extends ScoredDocument {
 
   @Override
   public String toString() {
-    return String.format("%d:%d-%d,%.8f", document, begin, end, score);
+    return String.format("%d (%s) : %d - %d : %.8f", document, documentName, begin, end, score);
   }
 }
