@@ -12,6 +12,7 @@ public class Porter2Stemmer extends Stemmer {
 
   englishStemmer stemmer = new englishStemmer();
 
+  @Override
   protected String stemTerm(String term) {
     String stem = term;
     stemmer.setCurrent(term);
@@ -20,5 +21,4 @@ public class Porter2Stemmer extends Stemmer {
     }
     return stem;
   }
-
 }

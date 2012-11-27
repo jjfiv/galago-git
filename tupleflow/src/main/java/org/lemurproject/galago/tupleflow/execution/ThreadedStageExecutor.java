@@ -4,14 +4,8 @@ package org.lemurproject.galago.tupleflow.execution;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import org.lemurproject.galago.tupleflow.ExNihiloSource;
 
 /**
@@ -68,6 +62,7 @@ public class ThreadedStageExecutor implements StageExecutor {
       this.isQueued = isQueued;
     }
 
+    @Override
     public void run() {
       try {
         setIsQueued(false);
@@ -88,19 +83,20 @@ public class ThreadedStageExecutor implements StageExecutor {
 
     StageGroupDescription stage;
     String temporaryDirectory;
-    boolean done = false;
-    ArrayList<InstanceRunnable> runnables = new ArrayList();
+    boolean done;
+    ArrayList<InstanceRunnable> runnables;
     List<StageInstanceDescription> instances;
     CountDownLatch latch;
     NetworkedCounterManager counterManager;
 
-    ThreadedStageContext(StageGroupDescription stage, String temporaryDirectory) {
+    public ThreadedStageContext(StageGroupDescription stage, String temporaryDirectory) {
+      this.done = false;
+      this.runnables = new ArrayList();
       this.stage = stage;
       this.counterManager = new NetworkedCounterManager();
       this.temporaryDirectory = temporaryDirectory;
       this.instances = stage.getInstances();
       this.latch = new CountDownLatch(instances.size());
-      counterManager.start();
 
       for (StageInstanceDescription instance : instances) {
         InstanceRunnable runnable = new InstanceRunnable(instance, counterManager, latch);
@@ -108,11 +104,17 @@ public class ThreadedStageExecutor implements StageExecutor {
       }
     }
 
+    @Override
     public synchronized boolean isDone() {
       return done;
     }
 
+    @Override
     public void run() {
+      synchronized (this) {
+        this.counterManager.start();
+      }
+
       for (InstanceRunnable instance : runnables) {
         threadPool.execute(instance);
       }
@@ -131,14 +133,17 @@ public class ThreadedStageExecutor implements StageExecutor {
       }
     }
 
+    @Override
     public String getName() {
       return stage.getName();
     }
 
+    @Override
     public int getBlockedInstances() {
       return 0;
     }
 
+    @Override
     public synchronized int getQueuedInstances() {
       int queuedInstances = 0;
 
@@ -151,6 +156,7 @@ public class ThreadedStageExecutor implements StageExecutor {
       return queuedInstances;
     }
 
+    @Override
     public int getRunningInstances() {
       int runningInstances = 0;
 

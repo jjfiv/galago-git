@@ -198,7 +198,7 @@ public class KrovetzStemmer extends Stemmer {
     boolean exception;
     String root;
 
-    DictEntry(String root, boolean isException) {
+    public DictEntry(String root, boolean isException) {
       this.root = root;
       this.exception = isException;
     }

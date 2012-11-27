@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author sjh, irmarc, trevor
@@ -26,7 +26,7 @@ public class App {
 
   // init function -- allows internal use of app function library
   static {
-    log = Logger.getLogger("Galago-App");
+    log = LoggerFactory.getLogger("Galago-App");
     appFunctions = new HashMap();
 
     // list of classpaths to scan
@@ -51,12 +51,12 @@ public class App {
 
           // if we have a duplicated function - use the first one.
           if (appFunctions.containsKey(fn.getName())) {
-            log.log(Level.INFO, "Found duplicated function name: " + c.getName() + ". Arbitrarily using: " + appFunctions.get(name).getClass().getName());
+            log.info("Found duplicated function name: " + c.getName() + ". Arbitrarily using: " + appFunctions.get(name).getClass().getName());
           } else {
             appFunctions.put(fn.getName(), fn);
           }
         } catch (Exception e) {
-          log.log(Level.INFO, "Failed to find constructor for app: {0}", c.getName());
+          log.info("Failed to find constructor for app: {0}", c.getName());
         }
       }
     }
@@ -86,7 +86,7 @@ public class App {
     if (appFunctions.containsKey(fn)) {
       appFunctions.get(fn).run(p, out);
     } else {
-      log.severe("Could not find app: " + fn);
+      log.warn("Could not find app: " + fn);
     }
   }
 }

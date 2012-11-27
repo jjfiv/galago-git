@@ -5,13 +5,16 @@ package org.lemurproject.galago.contrib.learning;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.eval.QuerySetJudgments;
 import org.lemurproject.galago.core.eval.QuerySetResults;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluator;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluatorFactory;
-import org.lemurproject.galago.core.retrieval.CachedRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -46,6 +49,9 @@ public abstract class Learner {
   protected List<RetrievalModelInstance> initialSettings;
   // evaluation cache to avoid recalculating scores for known settings
   protected Map<String, Double> testedParameters;
+  // threading
+  protected boolean threading;
+  protected ExecutorService threadPool;
 
   public Learner(Parameters p, Retrieval r) throws Exception {
     logger = Logger.getLogger(this.getClass().getName());
@@ -71,6 +77,10 @@ public abstract class Learner {
     this.qrels = new QuerySetJudgments(p.getString("qrels"));
     this.evalFunction = QuerySetEvaluatorFactory.instance(p.get("metric", "map"), p);
 
+    this.threading = p.get("threading", false);
+    if (threading) {
+      threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    }
 
     List<Parameters> params = (List<Parameters>) p.getList("learnableParameters");
     List<Parameters> normalizationRules = new ArrayList();
@@ -110,14 +120,61 @@ public abstract class Learner {
    * learning function - returns a list of learnt parameters
    */
   public List<Parameters> learn() throws Exception {
-    List<Parameters> learntParams = new ArrayList();
-    for (int i = 0; i < this.initialSettings.size(); i++) {
-      RetrievalModelInstance s = learn(this.initialSettings.get(i).clone());
-      Parameters p = s.toParameters();
-      // annotate with score
-      p.set("score", this.evaluate(s));
-      learntParams.add(p);
+    final List<Parameters> learntParams = Collections.synchronizedList(new ArrayList());
+
+    if (threading) {
+      final List<Exception> exceptions = Collections.synchronizedList(new ArrayList());
+      final CountDownLatch latch = new CountDownLatch(initialSettings.size());
+
+      for (int i = 0; i < initialSettings.size(); i++) {
+        final RetrievalModelInstance settingsInstance = initialSettings.get(i).clone();
+        settingsInstance.setIdentifier(i);
+        Thread t = new Thread() {
+
+          @Override
+          public void run() {
+            try {
+              RetrievalModelInstance s = learn(settingsInstance);
+              Parameters p = s.toParameters();
+              p.set("score", evaluate(s));
+              learntParams.add(p);
+            } catch (Exception e) {
+              exceptions.add(e);
+            } finally {
+              latch.countDown();
+            }
+          }
+        };
+        threadPool.execute(t);
+      }
+
+      while (latch.getCount() > 0) {
+        try {
+          latch.await();
+        } catch (InterruptedException e) {
+          // do nothing
+        }
+      }
+
+      if (!exceptions.isEmpty()) {
+        for (Exception e : exceptions) {
+          System.err.println("Caught exception: \n" + e.toString());
+          e.printStackTrace();
+        }
+      }
+
+    } else {
+
+      for (int i = 0; i < this.initialSettings.size(); i++) {
+        RetrievalModelInstance settingsInstance = initialSettings.get(i).clone();
+        settingsInstance.setIdentifier(i);
+        RetrievalModelInstance s = learn(settingsInstance);
+        Parameters p = s.toParameters();
+        p.set("score", evaluate(s));
+        learntParams.add(p);
+      }
     }
+
     return learntParams;
   }
 

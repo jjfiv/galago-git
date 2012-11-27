@@ -72,13 +72,13 @@ public class SequentialDependenceTraversal extends Traversal {
         }
       }
 
-      //  TODO: Remove this gross hack and use a proper dependency-graph builder.
-      qp.set("seqdep", true);
+//      //  TODO: Remove this gross hack and use a proper dependency-graph builder.
+//      qp.set("seqdep", true);
+//      qp.set("numberOfTerms", children.size());
 
       // formatting is ok - now reassemble
       // unigrams go as-is
       Node unigramNode = new Node("combine", Node.cloneNodeList(children));
-      qp.set("numberOfTerms", children.size());
       if (children.size() == 1) {
         return unigramNode;
       }

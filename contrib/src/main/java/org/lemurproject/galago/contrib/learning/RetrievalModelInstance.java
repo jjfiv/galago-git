@@ -15,6 +15,7 @@ public class RetrievalModelInstance {
 
   RetrievalModelParameters params;
   TObjectDoubleHashMap<String> settings;
+  int identifier;
 
   private RetrievalModelInstance() {
   }
@@ -25,9 +26,9 @@ public class RetrievalModelInstance {
     for (String p : params.getParams()) {
       unsafeSet(p, settings.getDouble(p));
     }
-    System.err.println("Created: "+ toString());
+//  System.err.println("Created: " + toString());
     this.normalize();
-    System.err.println("Normal: "+ toString());
+//  System.err.println("Normal: " + toString());
   }
 
   public double get(String p) {
@@ -83,5 +84,12 @@ public class RetrievalModelInstance {
     // ensure that the normalization rules are satisfied.
     lpi.normalize();
     return lpi;
+  }
+
+  public void setIdentifier(int id) {
+    identifier = id;
+  }
+  public int getIdentifier() {
+    return identifier;
   }
 }

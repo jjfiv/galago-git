@@ -22,6 +22,9 @@ import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
  */
 public abstract class Stemmer implements Source<Document>, Processor<Document> {
 
+  // each instance of Stemmer should have it's own lock
+  final Object lock = new Object();
+  
   long cacheLimit = 50000;
   HashMap<String, String> cache = new HashMap();
   public Processor<Document> processor;
@@ -72,7 +75,12 @@ public abstract class Stemmer implements Source<Document>, Processor<Document> {
     if (cache.containsKey(term)) {
       return cache.get(term);
     }
-    String stemmedTerm = stemTerm(term);
+    String stemmedTerm;
+    
+    synchronized (lock) {
+      stemmedTerm = stemTerm(term);
+    }
+    
     if (!cache.containsKey(stemmedTerm)) {
       cache.put(term, stemmedTerm);
     }
@@ -82,6 +90,7 @@ public abstract class Stemmer implements Source<Document>, Processor<Document> {
     return stemmedTerm;
   }
 
+  // This function should only be use synchronously (see 'lock')
   protected abstract String stemTerm(String term);
 
   /**
