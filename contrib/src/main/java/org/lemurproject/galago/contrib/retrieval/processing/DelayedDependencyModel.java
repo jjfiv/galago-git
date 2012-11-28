@@ -27,7 +27,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 public class DelayedDependencyModel extends AbstractPartialProcessor {
 
   Index index;
-  int[] whitelist;
+  List<Integer> whitelist;
 
   public DelayedDependencyModel(LocalRetrieval lr) {
     retrieval = (StagedLocalRetrieval) lr;
@@ -266,8 +266,8 @@ public class DelayedDependencyModel extends AbstractPartialProcessor {
     // 4) while (runningScore > R)
     //      move iterator to candidate
     //      score candidate w/ iterator
-    for (int i = 0; i < whitelist.length; i++) {
-      int candidate = whitelist[i];
+    for (int i = 0; i < whitelist.size(); i++) {
+      int candidate = whitelist.get(i);
       for (int j = 0; j < context.sentinelIndex; j++) {
         if (!context.scorers.get(j).isDone()) {
           context.scorers.get(j).syncTo(candidate);
@@ -379,7 +379,8 @@ public class DelayedDependencyModel extends AbstractPartialProcessor {
   }
 
   @Override
-  public void defineWorkingSet(int[] docs) {
+  public void defineWorkingSet(List<Integer> docs) {
+    Collections.sort(docs);
     whitelist = docs;
   }
 }

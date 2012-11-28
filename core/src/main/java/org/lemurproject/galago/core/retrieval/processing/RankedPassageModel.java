@@ -2,6 +2,8 @@
 package org.lemurproject.galago.core.retrieval.processing;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
@@ -24,7 +26,7 @@ public class RankedPassageModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   Index index;
-  int[] whitelist;
+  List<Integer> whitelist;
 
   public RankedPassageModel(LocalRetrieval lr) {
     this.retrieval = lr;
@@ -32,7 +34,8 @@ public class RankedPassageModel extends ProcessingModel {
   }
 
   @Override
-  public void defineWorkingSet(int[] docs) {
+  public void defineWorkingSet(List<Integer> docs) {
+    Collections.sort(docs);
     whitelist = docs;
   }
 
@@ -50,9 +53,6 @@ public class RankedPassageModel extends ProcessingModel {
 
     PassageScoringContext context = new PassageScoringContext();
 
-    // have to be sure
-    Arrays.sort(whitelist);
-
     // Following operations are all just setup
     int requested = (int) queryParams.get("requested", 1000);
     int passageSize = (int) queryParams.getLong("passageSize");
@@ -62,8 +62,8 @@ public class RankedPassageModel extends ProcessingModel {
     PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
 
     // now there should be an iterator at the root of this tree
-    for (int i = 0; i < whitelist.length; i++) {
-      int document = whitelist[i];
+    for (int i = 0; i < whitelist.size(); i++) {
+      int document = whitelist.get(i);
       
       // This context is shared among all scorers
       context.document = document;

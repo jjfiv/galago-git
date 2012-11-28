@@ -6,6 +6,8 @@ package org.lemurproject.galago.core.retrieval.processing;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -24,7 +26,7 @@ public class SetModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   Index index;
-  int[] whitelist;
+  List<Integer> whitelist;
 
   public SetModel(LocalRetrieval lr) {
     retrieval = lr;
@@ -33,7 +35,8 @@ public class SetModel extends ProcessingModel {
   }
 
   @Override
-  public void defineWorkingSet(int[] docs) {
+  public void defineWorkingSet(List<Integer> docs) {
+    Collections.sort(docs);
     whitelist = docs;
   }
 
@@ -73,15 +76,12 @@ public class SetModel extends ProcessingModel {
           throws Exception {
     ScoringContext context = new ScoringContext();
 
-    // have to be sure
-    Arrays.sort(whitelist);
-
     // construct the query iterators
     MovableIndicatorIterator iterator = (MovableIndicatorIterator) retrieval.createIterator(queryParams, queryTree, context);
     ArrayList<ScoredDocument> list = new ArrayList<ScoredDocument>();
 
-    for (int i = 0; i < whitelist.length; i++) {
-      int document = whitelist[i];
+    for (int i = 0; i < whitelist.size(); i++) {
+      int document = whitelist.get(i);
       iterator.syncTo(document);
       if (iterator.hasMatch(document)) {
         list.add(new ScoredDocument(iterator.currentCandidate(), 1.0));

@@ -3,6 +3,8 @@ package org.lemurproject.galago.core.retrieval.processing;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -21,7 +23,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 public class DeltaScoreDocumentModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
-  int[] whitelist;
+  List<Integer> whitelist;
   
   private ArrayList<Sentinel> sortedSentinels = null;
 
@@ -162,8 +164,8 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
     // 4) while (runningScore > R)
     //      move iterator to candidate
     //      score candidate w/ iterator
-    for (int i = 0; i < whitelist.length; i++) {
-      int candidate = whitelist[i];
+    for (int i = 0; i < whitelist.size(); i++) {
+      int candidate = whitelist.get(i);
       for (int j = 0; j < context.sentinelIndex; j++) {
         if (!context.scorers.get(j).isDone()) {
           context.scorers.get(j).syncTo(candidate);
@@ -229,7 +231,8 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
   }
 
   @Override
-  public void defineWorkingSet(int[] docs) {
+  public void defineWorkingSet(List<Integer> docs) {
+    Collections.sort(docs);
     whitelist = docs;
   }
 

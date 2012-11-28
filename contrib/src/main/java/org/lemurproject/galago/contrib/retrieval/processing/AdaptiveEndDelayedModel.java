@@ -29,7 +29,7 @@ public class AdaptiveEndDelayedModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   Index index;
-  int[] whitelist;
+  List<Integer> whitelist;
 
   public AdaptiveEndDelayedModel(LocalRetrieval lr) {
     retrieval = lr;
@@ -131,12 +131,12 @@ public class AdaptiveEndDelayedModel extends ProcessingModel {
       context.min = context.max = 0;
       System.arraycopy(context.startingPotentials, 0, context.potentials, 0,
               context.startingPotentials.length);
-      
+
       // now score sentinels w/out question
       int i;
       for (i = 0; i < context.sentinelIndex; i++) {
         DeltaScoringIterator dsi = context.scorers.get(i);
-	dsi.syncTo(context.document);
+        dsi.syncTo(context.document);
         dsi.deltaScore();
         ////CallTable.increment("scops");
       }
@@ -228,7 +228,7 @@ public class AdaptiveEndDelayedModel extends ProcessingModel {
 
       // Now move all matching sentinel members forward, and repeat
       for (i = 0; i < context.sentinelIndex; i++) {
-          context.scorers.get(i).movePast(candidate);
+        context.scorers.get(i).movePast(candidate);
       }
     }
 
@@ -289,7 +289,7 @@ public class AdaptiveEndDelayedModel extends ProcessingModel {
     context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     Arrays.fill(context.startingPotentials, 0);
-    ReplaceEstimatedIteratorTraversal traversal = 
+    ReplaceEstimatedIteratorTraversal traversal =
             new ReplaceEstimatedIteratorTraversal(retrieval, queryParams);
     traversal.context = context;
     Node newroot = StructuredQuery.walk(traversal, queryTree);
@@ -404,7 +404,7 @@ public class AdaptiveEndDelayedModel extends ProcessingModel {
 
       // Now move all matching sentinels members forward, and repeat
       for (k = 0; k < context.sentinelIndex; k++) {
-          context.scorers.get(k).movePast(candidate);
+        context.scorers.get(k).movePast(candidate);
       }
     }
 
@@ -447,8 +447,8 @@ public class AdaptiveEndDelayedModel extends ProcessingModel {
     // 4) while (runningScore > R)
     //      move iterator to candidate
     //      score candidate w/ iterator
-    for (int i = 0; i < whitelist.length; i++) {
-      int candidate = whitelist[i];
+    for (int i = 0; i < whitelist.size(); i++) {
+      int candidate = whitelist.get(i);
       for (int j = 0; j < context.sentinelIndex; j++) {
         if (!context.scorers.get(j).isDone()) {
           context.scorers.get(j).syncTo(candidate);
@@ -508,7 +508,8 @@ public class AdaptiveEndDelayedModel extends ProcessingModel {
   }
 
   @Override
-  public void defineWorkingSet(int[] docs) {
+  public void defineWorkingSet(List<Integer> docs) {
+    Collections.sort(docs);
     whitelist = docs;
   }
 }

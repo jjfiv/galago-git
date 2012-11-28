@@ -30,7 +30,7 @@ public abstract class ProcessingModel {
 
   public abstract ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception;
 
-  public abstract void defineWorkingSet(int[] docs);
+  public abstract void defineWorkingSet(List<Integer> docs);
 
   public static <T extends ScoredDocument> T[] toReversedArray(PriorityQueue<T> queue) {
     if (queue.size() == 0) {

@@ -4,7 +4,9 @@ package org.lemurproject.galago.core.retrieval.processing;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
@@ -29,7 +31,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   Index index;
-  int[] whitelist;
+  List<Integer> whitelist;
   Comparator<Sentinel> comp;
   double scoreMinimums;
 
@@ -160,12 +162,16 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     // Make sure the scorers are sorted properly
     buildSentinels(context, queryParams);
 
+    
     // Make iterative loop here, if I ever care to.
+
+    
     return toReversedArray(queue);
   }
 
   @Override
-  public void defineWorkingSet(int[] docs) {
+  public void defineWorkingSet(List<Integer> docs) {
+    Collections.sort(docs);
     whitelist = docs;
   }
   Sentinel[] sortedSentinels = null;

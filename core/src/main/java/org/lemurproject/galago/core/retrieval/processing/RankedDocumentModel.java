@@ -1,14 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.util.CallTable;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -21,7 +21,7 @@ public class RankedDocumentModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   Index index;
-  int[] whitelist;
+  List<Integer> whitelist;
 
   public RankedDocumentModel(LocalRetrieval lr) {
     retrieval = lr;
@@ -30,7 +30,8 @@ public class RankedDocumentModel extends ProcessingModel {
   }
 
   @Override
-  public void defineWorkingSet(int[] docs) {
+  public void defineWorkingSet(List<Integer> docs) {
+    Collections.sort(docs);
     whitelist = docs;
   }
 
@@ -48,11 +49,7 @@ public class RankedDocumentModel extends ProcessingModel {
     // This model uses the simplest ScoringContext
     ScoringContext context = new ScoringContext();
 
-    // have to be sure
-    Arrays.sort(whitelist);
-
     // construct the query iterators
-
     MovableScoreIterator iterator =
             (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
     int requested = (int) queryParams.get("requested", 1000);
@@ -61,8 +58,8 @@ public class RankedDocumentModel extends ProcessingModel {
     // now there should be an iterator at the root of this tree
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>();
 
-    for (int i = 0; i < whitelist.length; i++) {
-      int document = whitelist[i];
+    for (int i = 0; i < whitelist.size(); i++) {
+      int document = whitelist.get(i);
       iterator.syncTo(document);
       context.document = document;
 

@@ -167,13 +167,16 @@ public class LocalRetrieval implements Retrieval {
     ProcessingModel pm = ProcessingModel.instance(this, queryTree, queryParams);
 
     // Figure out if there's a working set to deal with
-    int[] workingSet = null;
-
     if (queryParams.containsKey("working")) {
-      workingSet = this.getDocumentIds(queryParams.getList("working"));
-    }
-
-    if (workingSet != null) {
+      List<Integer> workingSet;
+      if(queryParams.isList("working", Parameters.Type.LONG)){
+        workingSet = queryParams.getList("working");
+      } else if(queryParams.isList("working", Parameters.Type.STRING)){
+        List<String> workingSetNames = queryParams.getList("working");
+        workingSet = this.getDocumentIds(workingSetNames);
+      } else {
+        throw new IllegalArgumentException("Parameter 'working' must be a list of integers or a list of strings.");
+      }
       pm.defineWorkingSet(workingSet);
     }
 
@@ -430,20 +433,17 @@ public class LocalRetrieval implements Retrieval {
     return index.getName(docid);
   }
 
-  public int[] getDocumentIds(List<String> docnames) throws IOException {
+  public List<Integer> getDocumentIds(List<String> docnames) throws IOException {
     ArrayList<Integer> internalDocBuffer = new ArrayList<Integer>();
 
     for (String name : docnames) {
       try {
         internalDocBuffer.add(index.getIdentifier(name));
       } catch (Exception e) {
+        // ignore missing document-names (they could be from other index shards)
       }
     }
-    int[] internalDocs = new int[internalDocBuffer.size()];
-    for (int i = 0; i < internalDocBuffer.size(); i++) {
-      internalDocs[i] = internalDocBuffer.get(i);
-    }
-    return internalDocs;
+    return internalDocBuffer;
   }
 
   @Override

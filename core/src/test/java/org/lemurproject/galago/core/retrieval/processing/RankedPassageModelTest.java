@@ -4,9 +4,10 @@
 package org.lemurproject.galago.core.retrieval.processing;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.ScoredPassage;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -128,7 +129,7 @@ public class RankedPassageModelTest extends TestCase {
     query = ret.transformQuery(query, queryParams);
 
     RankedPassageModel model = new RankedPassageModel(ret);
-    model.defineWorkingSet(new int[]{2, 3, 4, 5, 6, 7, 8, 9, 10, 11});
+    model.defineWorkingSet(Arrays.asList(new Integer[]{2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
 
     ScoredPassage[] results = (ScoredPassage[]) model.execute(query, queryParams);
 
@@ -147,14 +148,14 @@ public class RankedPassageModelTest extends TestCase {
     query = StructuredQuery.parse("#combine( test text 80 )");
     query = ret.transformQuery(query, queryParams);
 
-    model.defineWorkingSet(new int[]{0, 1, 2, 3, 4, 89, 90, 91, 92, 93});
+    model.defineWorkingSet(Arrays.asList(new Integer[]{0, 1, 2, 3, 4, 89, 90, 91, 92, 93}));
     results = (ScoredPassage[]) model.execute(query, queryParams);
 
     assertEquals(results.length, 20);
 
     // higher documents, with the term '89', 
     // are ranked highest because 'test' and 'text' exist in every document (~= stopwords)
-    
+
     assertEquals(results[0].document, 89);
     assertEquals(results[0].begin, 75);
     assertEquals(results[0].end, 85);
@@ -178,7 +179,7 @@ public class RankedPassageModelTest extends TestCase {
     assertEquals(results[15].end, 10);
     assertEquals(results[15].rank, 16);
     assertEquals(results[15].score, -4.51151864, 0.000001);
-  
+
   }
 
   private void makeIndex(File corpus, File index) throws Exception {

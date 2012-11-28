@@ -4,6 +4,7 @@
 package org.lemurproject.galago.core.retrieval.processing;
 
 import java.io.File;
+import java.util.Arrays;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -99,7 +100,7 @@ public class RankedDocumentModelTest extends TestCase {
     query = ret.transformQuery(query, queryParams);
 
     RankedDocumentModel model = new RankedDocumentModel(ret);
-    model.defineWorkingSet(new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14});
+    model.defineWorkingSet(Arrays.asList(new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14}));
     ScoredDocument[] results = model.execute(query, queryParams);
 
     assertEquals(results.length, 10);
@@ -120,7 +121,7 @@ public class RankedDocumentModelTest extends TestCase {
     query = StructuredQuery.parse("#combine( test text 90 )");
     query = ret.transformQuery(query, queryParams);
 
-    model.defineWorkingSet(new int[]{0, 1, 2, 3, 4, 5, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99});
+    model.defineWorkingSet(Arrays.asList(new Integer[]{0, 1, 2, 3, 4, 5, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99}));
 
     results = model.execute(query, queryParams);
 

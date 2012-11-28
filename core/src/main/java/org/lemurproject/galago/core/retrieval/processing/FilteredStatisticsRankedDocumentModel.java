@@ -2,6 +2,8 @@
 package org.lemurproject.galago.core.retrieval.processing;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
@@ -22,7 +24,7 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   Index index;
-  int[] whitelist;
+  List<Integer> whitelist;
 
   public FilteredStatisticsRankedDocumentModel(LocalRetrieval lr) {
     retrieval = lr;
@@ -40,7 +42,8 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
   }
 
   @Override
-  public void defineWorkingSet(int[] docs) {
+  public void defineWorkingSet(List<Integer> docs) {
+    Collections.sort(docs);
     whitelist = docs;
   }
 
@@ -48,9 +51,6 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
           throws Exception {
     // This model uses the simplest ScoringContext
     ScoringContext context = new ScoringContext();
-
-    // have to be sure
-    Arrays.sort(whitelist);
 
     // construct the query iterators
     MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
@@ -61,8 +61,8 @@ public class FilteredStatisticsRankedDocumentModel extends ProcessingModel {
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>();
     ProcessingModel.initializeLengths(retrieval, context);
 
-    for (int i = 0; i < whitelist.length; i++) {
-      int document = whitelist[i];
+    for (int i = 0; i < whitelist.size(); i++) {
+      int document = whitelist.get(i);
       iterator.syncTo(document);
       context.moveLengths(document);
 
