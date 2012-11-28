@@ -169,6 +169,7 @@ public class ThreadedStageExecutor implements StageExecutor {
       return runningInstances;
     }
 
+    @Override
     public int getCompletedInstances() {
       int completedInstances = 0;
 
@@ -181,12 +182,14 @@ public class ThreadedStageExecutor implements StageExecutor {
       return completedInstances;
     }
 
+    @Override
     public synchronized List<Double> getRunTimes() {
       ArrayList<Double> times = new ArrayList();
       // do something
       return times;
     }
 
+    @Override
     public synchronized List<Exception> getExceptions() {
       ArrayList<Exception> exceptions = new ArrayList();
 
@@ -205,12 +208,14 @@ public class ThreadedStageExecutor implements StageExecutor {
     threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
   }
 
+  @Override
   public ThreadedStageContext execute(StageGroupDescription stage, String temporary) {
     ThreadedStageContext result = new ThreadedStageContext(stage, temporary);
     new Thread(result).start();
     return result;
   }
 
+  @Override
   public void shutdown() {
     threadPool.shutdown();
   }

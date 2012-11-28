@@ -156,6 +156,8 @@ public abstract class Learner {
         }
       }
 
+      threadPool.shutdown();
+      
       if (!exceptions.isEmpty()) {
         for (Exception e : exceptions) {
           System.err.println("Caught exception: \n" + e.toString());
