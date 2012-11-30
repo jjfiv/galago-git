@@ -39,17 +39,16 @@ public class DeltaScoreDocumentModelTest extends TestCase {
       Node query = StructuredQuery.parse("#combine( test text 0 1 2 3 4 )");
       query = ret.transformQuery(query, queryParams);
 
-      DeltaScoreDocumentModel deltaModel = new DeltaScoreDocumentModel(ret);      
+      MaxScoreDocumentModel deltaModel = new MaxScoreDocumentModel(ret);      
       ScoredDocument[] deltaResults = deltaModel.execute(query, queryParams);
       
       RankedDocumentModel safeModel = new RankedDocumentModel(ret);
       ScoredDocument[] safeResults = safeModel.execute(query, queryParams);
       
-      for(int r=0; r<10; r++){
-        System.err.println( safeResults[r].toString() );
-        System.err.println( deltaResults[r].toString() );
-      }
-      
+      for (int i = 0; i < safeResults.length; ++i) {
+        assertEquals(safeResults[i].document, deltaResults[i].document);
+        assertEquals(safeResults[i].score, deltaResults[i].score, 0.00001);
+      }      
     } finally {
       corpus.delete();
       Utility.deleteDirectory(index);

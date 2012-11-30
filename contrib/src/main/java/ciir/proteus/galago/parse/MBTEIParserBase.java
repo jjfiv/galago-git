@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.parse;
+package ciir.proteus.galago.parse;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -12,6 +12,8 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.util.StreamReaderDelegate;
+import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.DocumentStreamParser;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;

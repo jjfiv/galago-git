@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.index.disk.PositionIndexReader;
-import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.EarlyTerminationScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
@@ -51,9 +51,11 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
   @Override
   public void setContext(ScoringContext ctx) {
     super.setContext(ctx);
-    if (DeltaScoringContext.class.isAssignableFrom(ctx.getClass())) {
-      DeltaScoringContext dctx = (DeltaScoringContext) ctx;
+    if (EarlyTerminationScoringContext.class.isAssignableFrom(ctx.getClass())) {
+      EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
+      if (dctx.members.contains(this)) return;
       dctx.scorers.add(this);
+      dctx.members.add(this);
     }
   }
 
@@ -76,7 +78,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
   @Override
   public void deltaScore(int count, int length) {
 
-    DeltaScoringContext ctx = (DeltaScoringContext) context;
+    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
 
     double score = function.score(count, length);
     score = (score > 0.0) ? score : min; // MY smoothing again
@@ -99,7 +101,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
   public void deltaScore(int length) {
     int count = 0;
 
-    DeltaScoringContext ctx = (DeltaScoringContext) context;
+    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
     if (iterator.currentCandidate() == context.document) {
       count = ((CountIterator) iterator).count();
     }
@@ -124,7 +126,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
   public void deltaScore() {
     int count = 0;
 
-    DeltaScoringContext ctx = (DeltaScoringContext) context;
+    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
     if (iterator.currentCandidate() == context.document) {
       count = ((CountIterator) iterator).count();
     }
@@ -148,7 +150,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
 
   @Override
   public void maximumDifference() {
-    DeltaScoringContext ctx = (DeltaScoringContext) context;
+    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
     double phi = ctx.potentials[parentIdx];
     double psi = phi + (weight * (min - max));
     double logpsi = Math.log(psi) / Utility.log2;
@@ -165,7 +167,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
-  public void aggregatePotentials(DeltaScoringContext ctx) {
+  public void aggregatePotentials(EarlyTerminationScoringContext ctx) {
     // do nothing
   }
 

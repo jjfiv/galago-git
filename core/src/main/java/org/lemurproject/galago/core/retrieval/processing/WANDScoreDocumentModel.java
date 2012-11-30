@@ -64,7 +64,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
 
   public ScoredDocument[] executeWholeCollection(Node queryTree, Parameters queryParams)
           throws Exception {
-    DeltaScoringContext context = new DeltaScoringContext();
+    EarlyTerminationScoringContext context = new EarlyTerminationScoringContext();
     double factor = retrieval.getGlobalParameters().get("thresholdFactor", 1.0);
     int requested = (int) queryParams.get("requested", 1000);
 
@@ -142,7 +142,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
 
   public ScoredDocument[] executeWorkingSet(Node queryTree, Parameters queryParams)
           throws Exception {
-    DeltaScoringContext context = new DeltaScoringContext();
+    EarlyTerminationScoringContext context = new EarlyTerminationScoringContext();
 
     // Following operations are all just setup
     int requested = (int) queryParams.get("requested", 1000);
@@ -196,7 +196,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     }
   }
 
-  private void score(DeltaScoringContext context) throws IOException {
+  private void score(EarlyTerminationScoringContext context) throws IOException {
     context.moveLengths(context.document);
 
     // Setup to score
@@ -213,7 +213,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     }
   }
 
-  private void buildSentinels(DeltaScoringContext ctx, Parameters qp) {
+  private void buildSentinels(EarlyTerminationScoringContext ctx, Parameters qp) {
     String type = retrieval.getGlobalParameters().get("sort", "length");
     ArrayList<Sentinel> tmp = SortStrategies.populateIndependentSentinels(ctx, false);
 
@@ -237,7 +237,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     sortedSentinels = tmp.toArray(new Sentinel[0]);
   }
 
-  private int findPivot(double threshold, DeltaScoringContext context) {
+  private int findPivot(double threshold, EarlyTerminationScoringContext context) {
     if (threshold == Double.NEGATIVE_INFINITY) {
       return 0;
     }

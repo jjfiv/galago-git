@@ -71,7 +71,7 @@ public class SortStrategies {
             new SentinelLengthComparator());
   }
 
-  public static ArrayList<Sentinel> populateIndependentSentinels(DeltaScoringContext ctx, boolean useMaximums) {
+  public static ArrayList<Sentinel> populateIndependentSentinels(EarlyTerminationScoringContext ctx, boolean useMaximums) {
     ArrayList<Sentinel> s = new ArrayList<Sentinel>(ctx.scorers.size());
     double max = ctx.startingPotential;
     for (DeltaScoringIterator dsi : ctx.scorers) {
@@ -88,11 +88,11 @@ public class SortStrategies {
     return s;
   }
 
-  public static ArrayList<Sentinel> populateIndependentSentinels(DeltaScoringContext ctx) {
+  public static ArrayList<Sentinel> populateIndependentSentinels(EarlyTerminationScoringContext ctx) {
       return populateIndependentSentinels(ctx, true);
   }
 
-  public static ArrayList<Sentinel> populateDependentSentinels(DeltaScoringContext ctx) {
+  public static ArrayList<Sentinel> populateDependentSentinels(EarlyTerminationScoringContext ctx) {
     ArrayList<Sentinel> s = new ArrayList<Sentinel>(ctx.scorers.size());
     Comparator<Sentinel> comp = new SentinelScoreComparator();
     int numUnigrams = (ctx.scorers.size() + 2) / 3;

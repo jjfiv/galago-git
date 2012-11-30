@@ -65,12 +65,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 	{"trecweb", TrecWebParser.class.getName()},
 	{"twitter", TwitterParser.class.getName()},
 	{"corpus", CorpusSplitParser.class.getName()},
-	{"wiki", WikiParser.class.getName()},
-	{"mbtei.page", MBTEIPageParser.class.getName()},
-	{"mbtei.book", MBTEIBookParser.class.getName()},
-	{"mbtei.entity", MBTEIEntityParser.class.getName()},
-	{"mbtei.person", MBTEIPersonParser.class.getName()},
-	{"mbtei.location", MBTEILocationParser.class.getName()}
+	{"wiki", WikiParser.class.getName()}
     };
 
   private HashMap<String, Class> fileTypeMap;

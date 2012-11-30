@@ -1,10 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.index;
+package org.lemurproject.galago.contrib.index;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.GenericElement;
+import org.lemurproject.galago.core.index.GenericElement;
+import org.lemurproject.galago.core.index.KeyValueWriter;
 import org.lemurproject.galago.core.index.KeyValueWriter;
 import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import org.lemurproject.galago.core.types.KeyValuePair;

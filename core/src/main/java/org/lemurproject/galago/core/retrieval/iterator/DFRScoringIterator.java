@@ -7,7 +7,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.EarlyTerminationScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -55,8 +55,8 @@ public class DFRScoringIterator extends TransformIterator implements MovableScor
   public void setContext(ScoringContext ctx) {
     super.setContext(ctx);
 
-    if (ctx instanceof DeltaScoringContext) {
-      DeltaScoringContext dctx = (DeltaScoringContext) ctx;
+    if (ctx instanceof EarlyTerminationScoringContext) {
+      EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
 
       // Need to do this at the aggregate level     
       dctx.startingPotentials[dctx.sentinelIndex] = scorer.maximumScore();

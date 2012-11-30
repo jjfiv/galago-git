@@ -9,7 +9,7 @@ import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
-import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.EarlyTerminationScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
 import org.lemurproject.galago.core.retrieval.processing.Sentinel;
 import org.lemurproject.galago.core.retrieval.processing.SoftDeltaScoringContext;
@@ -235,7 +235,7 @@ public class DelayedDeltaModel extends AbstractPartialProcessor {
   }
   ArrayList<Sentinel> sortedSentinels = null;
 
-  private void buildSentinels(DeltaScoringContext ctx, Parameters qp) {
+  private void buildSentinels(EarlyTerminationScoringContext ctx, Parameters qp) {
     sortedSentinels = SortStrategies.populateIndependentSentinels(ctx);
 
     // Now we figure out the sorting scheme.

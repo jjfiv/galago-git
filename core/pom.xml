@@ -9,7 +9,7 @@
   <groupId>org.lemurproject.galago</groupId>
   <artifactId>core</artifactId>
   <packaging>jar</packaging>
-  <version>${project.parent.version}</version>
+  <version>3.3</version>
   <name>core</name>
   <url>http://lemurproject.org/galago/php</url>
   <description>Galago is a toolkit for experimenting with search engines and text processing.</description>
@@ -130,11 +130,6 @@
       <version>0.52</version>
     </dependency>
     <dependency>
-      <groupId>org.lemurproject.galago</groupId>
-      <artifactId>tupleflow</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>net.sf.trove4j</groupId>
       <artifactId>trove4j</artifactId>
       <version>3.0.2</version>
@@ -174,6 +169,11 @@
       <groupId>org.xerial.snappy</groupId>
       <artifactId>snappy-java</artifactId>
       <version>1.0.4.1</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>tupleflow</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
   <build>

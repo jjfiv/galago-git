@@ -1,4 +1,4 @@
-package org.lemurproject.galago.core.nasty;
+package org.lemurproject.galago.contrib.index;
 
 import java.io.File;
 import java.io.FileNotFoundException;

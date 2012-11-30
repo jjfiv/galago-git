@@ -5,7 +5,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.EarlyTerminationScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
@@ -19,7 +19,7 @@ import org.lemurproject.galago.core.scoring.DirichletProbabilityScorer;
  *
  * @author irmarc
  */
-@RequiredStatistics(statistics = {"maximumCount","collectionLength", "documentCount", "nodeFrequency"})
+@RequiredStatistics(statistics = {"maximumCount", "collectionLength", "documentCount", "nodeFrequency"})
 @RequiredParameters(parameters = {"mu"})
 public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {
@@ -54,7 +54,7 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
 
   @Override
   public void deltaScore(int count, int length) {
-    DeltaScoringContext ctx = (DeltaScoringContext) context;
+    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
 
     double diff = weight * (function.score(count, length) - max);
     double newValue = ctx.potentials[parentIdx] + diff;
@@ -66,7 +66,7 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
 
   @Override
   public void deltaScore(int length) {
-    DeltaScoringContext ctx = (DeltaScoringContext) context;
+    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
     int count = 0;
 
     if (iterator.currentCandidate() == context.document) {
@@ -83,7 +83,7 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
 
   @Override
   public void deltaScore() {
-    DeltaScoringContext ctx = (DeltaScoringContext) context;
+    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
     int count = 0;
 
     if (iterator.currentCandidate() == context.document) {
@@ -100,7 +100,7 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
 
   @Override
   public void maximumDifference() {
-    DeltaScoringContext ctx = (DeltaScoringContext) context;
+    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
     double diff = weight * (min - max);
     double newValue = ctx.potentials[parentIdx] + diff;
 
@@ -111,15 +111,17 @@ public class DirichletProbabilityScoringIterator extends ScoringFunctionIterator
   @Override
   public void setContext(ScoringContext ctx) {
     super.setContext(ctx);
-    if (DeltaScoringContext.class.isAssignableFrom(ctx.getClass())) {
-      DeltaScoringContext dctx = (DeltaScoringContext) ctx;
+    if (EarlyTerminationScoringContext.class.isAssignableFrom(ctx.getClass())) {
+      EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
+      if (dctx.members.contains(this)) return;
       dctx.scorers.add(this);
+      dctx.members.add(this);
       dctx.startingPotentials[parentIdx] += (max * weight);
     }
   }
 
   @Override
-  public void aggregatePotentials(DeltaScoringContext ctx) {
+  public void aggregatePotentials(EarlyTerminationScoringContext ctx) {
     for (double d : ctx.startingPotentials) {
       ctx.startingPotential += Math.log(d);
     }

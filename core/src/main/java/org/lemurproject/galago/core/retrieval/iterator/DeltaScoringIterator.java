@@ -1,7 +1,7 @@
 // BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.EarlyTerminationScoringContext;
 
 /**
  * Defines an interface for delta-score model operation. If all the used leaf
@@ -32,7 +32,7 @@ public interface DeltaScoringIterator extends MovableScoreIterator {
   public double getWeight();
 
   /**
-   * Modifies the runningScore of the DeltaScoringContext by the largest amount
+   * Modifies the runningScore of the EarlyTerminationScoringContext by the largest amount
    * possible for this iterator. This is primarily used when determining the
    * scoring quorum.
    */
@@ -48,5 +48,5 @@ public interface DeltaScoringIterator extends MovableScoreIterator {
    * Takes in the potential scores and aggregates them to make the final
    * startingPotential score. In some cases, nothing needs to be done.
    */
-  public void aggregatePotentials(DeltaScoringContext ctx);
+  public void aggregatePotentials(EarlyTerminationScoringContext ctx);
 }
