@@ -14,7 +14,7 @@ import org.lemurproject.galago.contrib.retrieval.StagedLocalRetrieval;
 import org.lemurproject.galago.core.retrieval.EstimatedDocument;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
-import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.EarlyTerminationScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.DocumentCountPair;
 import org.lemurproject.galago.core.retrieval.processing.IteratorLengthComparator;
 import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
@@ -68,7 +68,7 @@ public abstract class AbstractPartialProcessor extends ProcessingModel {
     }
   }
 
-  private void computeSentinels(DeltaScoringContext ctx) {
+  private void computeSentinels(EarlyTerminationScoringContext ctx) {
     // Now we try to find our sentinel set - have to use the best "partial" to make
     // it comparable to the finish doc scores
     ctx.runningScore = ctx.startingPotential + maxPartialScore;

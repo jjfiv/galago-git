@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.EstimatedDocument;
-import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.EarlyTerminationScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.SoftDeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -145,7 +145,7 @@ public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
 
   @Override
   public void maximumDifference() {
-    DeltaScoringContext ctx = (DeltaScoringContext) context;
+    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
     double diff = weight * (min - max);
     ctx.runningScore += diff;
   }
@@ -155,17 +155,19 @@ public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
     super.setContext(ctx);
     if (SoftDeltaScoringContext.class.isAssignableFrom(ctx.getClass())) {
       SoftDeltaScoringContext dctx = (SoftDeltaScoringContext) ctx;
-      dctx.scorers.add(this);
-      if (!dctx.hi_accumulators.containsKey(this)) {
-        lowEstimate = 1.0 / this.collectionLength;
+      if (dctx.members.contains(this)) return;
+        dctx.scorers.add(this);
+        dctx.members.add(this);
+        if (!dctx.hi_accumulators.containsKey(this)) {
+          lowEstimate = 1.0 / this.collectionLength;
 
-        if (collapsing) {
-          hiEstimate = (1.5) / this.collectionLength;
-        } else {
-          int estimate = mcci.getBestCollectionFrequency();
-          estimate = (estimate == Integer.MAX_VALUE) ? (int) collectionLength : estimate;
-          hiEstimate = (estimate + 0.0) / this.collectionLength;
-        }
+          if (collapsing) {
+            hiEstimate = (1.5) / this.collectionLength;
+          } else {
+           int estimate = mcci.getBestCollectionFrequency();
+            estimate = (estimate == Integer.MAX_VALUE) ? (int) collectionLength : estimate;
+            hiEstimate = (estimate + 0.0) / this.collectionLength;
+          }
       } else {
         lowEstimate = hiEstimate = (dctx.hi_accumulators.get(this) + 0.0) / this.collectionLength;
       }
@@ -180,7 +182,7 @@ public class EstimatedDirichletScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
-  public void aggregatePotentials(DeltaScoringContext ctx) {
+  public void aggregatePotentials(EarlyTerminationScoringContext ctx) {
     // Doesn't do anything
   }
 

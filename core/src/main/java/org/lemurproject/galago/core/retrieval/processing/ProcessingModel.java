@@ -121,7 +121,7 @@ public abstract class ProcessingModel {
         return new RankedPassageModel(r);
       } else {
         if (p.get("deltaReady", false)) {
-          return new DeltaScoreDocumentModel(r);
+          return new MaxScoreDocumentModel(r);
         } else {
           return new RankedDocumentModel(r);
         }

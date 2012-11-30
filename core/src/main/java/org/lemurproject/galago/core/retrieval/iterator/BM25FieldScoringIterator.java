@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import gnu.trove.map.hash.TIntDoubleHashMap;
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.EarlyTerminationScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
@@ -56,7 +56,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
   // Use this to score for potentials, which is more of an "adjustment" than just scoring.
   @Override
   public void deltaScore(int count, int length) {
-    DeltaScoringContext ctx = (DeltaScoringContext) context;
+    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
 
     double s = function.score(count, length);
     double diff = weight * (s - max);
@@ -72,7 +72,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
 
   @Override
   public void deltaScore(int length) {
-    DeltaScoringContext ctx = (DeltaScoringContext) context;
+    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
     int count = 0;
 
     if (iterator.currentCandidate() == context.document) {
@@ -94,7 +94,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
   // Use this to score for potentials, which is more of an "adjustment" than just scoring.
   @Override
   public void deltaScore() {
-    DeltaScoringContext ctx = (DeltaScoringContext) context;
+    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
     int count = 0;
 
     if (iterator.currentCandidate() == context.document) {
@@ -114,7 +114,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
   }
 
   public void maximumDifference() {
-    DeltaScoringContext ctx = (DeltaScoringContext) context;
+    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
     double diff = weight * (0 - max);
     double numerator = idf * K * diff;
     double fieldSum = ctx.potentials[parentIdx];
@@ -124,7 +124,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
     ctx.potentials[parentIdx] += diff;
   }
 
-  public void aggregatePotentials(DeltaScoringContext ctx) {
+  public void aggregatePotentials(EarlyTerminationScoringContext ctx) {
     TIntDoubleHashMap idfs = new TIntDoubleHashMap();
     for (int i = 0; i < ctx.scorers.size(); i++) {
       BM25FieldScoringIterator it = (BM25FieldScoringIterator) ctx.scorers.get(i);
@@ -148,9 +148,11 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
   @Override
   public void setContext(ScoringContext ctx) {
     super.setContext(ctx);
-    if (DeltaScoringContext.class.isAssignableFrom(ctx.getClass())) {
-      DeltaScoringContext dctx = (DeltaScoringContext) ctx;
+    if (EarlyTerminationScoringContext.class.isAssignableFrom(ctx.getClass())) {
+      EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
+      if (dctx.members.contains(this)) return;
       dctx.scorers.add(this);
+      dctx.members.add(this);
     }
   }
 }

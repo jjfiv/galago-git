@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.scoring.Estimator;
  * 
  * @author irmarc
  */
-public class SoftDeltaScoringContext extends DeltaScoringContext {
+public class SoftDeltaScoringContext extends EarlyTerminationScoringContext {
   public double min;
   public double max;
   public int estimatorIndex;

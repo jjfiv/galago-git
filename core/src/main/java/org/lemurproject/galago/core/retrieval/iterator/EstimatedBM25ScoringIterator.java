@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.EstimatedDocument;
-import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.EarlyTerminationScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.SoftDeltaScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -61,7 +61,7 @@ public class EstimatedBM25ScoringIterator extends ScoringFunctionIterator
 
   @Override
   public void maximumDifference() {
-    DeltaScoringContext ctx = (DeltaScoringContext) context;
+    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
     double diff = weight * (min - max);
     ctx.runningScore += diff;
   }
@@ -79,8 +79,10 @@ public class EstimatedBM25ScoringIterator extends ScoringFunctionIterator
     super.setContext(ctx);
     if (SoftDeltaScoringContext.class.isAssignableFrom(ctx.getClass())) {
       SoftDeltaScoringContext dctx = (SoftDeltaScoringContext) ctx;
+      if (dctx.members.contains(this)) return;
       // (1)
       dctx.scorers.add(this);
+      dctx.members.add(this);
       if (!dctx.hi_accumulators.containsKey(this)) {
         // (2)
         hiEstimate = Math.log(documentCount / 1.5);
@@ -105,7 +107,7 @@ public class EstimatedBM25ScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
-  public void aggregatePotentials(DeltaScoringContext ctx) {
+  public void aggregatePotentials(EarlyTerminationScoringContext ctx) {
     // Nothing to do here
   }
 

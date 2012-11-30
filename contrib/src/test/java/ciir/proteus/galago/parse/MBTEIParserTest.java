@@ -1,10 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.parse;
+package ciir.proteus.galago.parse;
 
+import ciir.proteus.galago.parse.MBTEIEntityParser;
+import ciir.proteus.galago.parse.MBTEIBookParser;
+import ciir.proteus.galago.parse.MBTEIPageParser;
 import java.io.*;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import java.io.IOException;
 import junit.framework.TestCase;
+import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 

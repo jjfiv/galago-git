@@ -9,7 +9,7 @@ import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
-import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.EarlyTerminationScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
 import org.lemurproject.galago.core.retrieval.processing.Sentinel;
 import org.lemurproject.galago.core.retrieval.processing.SoftDeltaScoringContext;
@@ -317,7 +317,7 @@ public class DelayedDependencyModel extends AbstractPartialProcessor {
   }
   ArrayList<Sentinel> sortedSentinels = null;
 
-  private void buildSentinels(DeltaScoringContext ctx, Parameters qp) {
+  private void buildSentinels(EarlyTerminationScoringContext ctx, Parameters qp) {
     // If we expanded using SDM, we have dependencies
     if (qp.get("seqdep", false)) {
       // Check for degenerate case

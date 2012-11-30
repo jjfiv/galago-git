@@ -3,23 +3,26 @@ package org.lemurproject.galago.core.retrieval.processing;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 
 /**
- * The scoring context needed for delta-function style processing.
+ * The scoring context needed for early-termination style processing.
  * 
  * @author irmarc
  */
-public class DeltaScoringContext extends ScoringContext {
+public class EarlyTerminationScoringContext extends ScoringContext {
 
 
-  public DeltaScoringContext() {
+  public EarlyTerminationScoringContext() {
     scorers = new ArrayList<DeltaScoringIterator>();
+    members = new HashSet<DeltaScoringIterator>();
     sentinelIndex = 0;
   }
   public ArrayList<DeltaScoringIterator> scorers;
+  public HashSet<DeltaScoringIterator> members;
   public double[] startingPotentials;
   public double[] potentials;
   public double runningScore;

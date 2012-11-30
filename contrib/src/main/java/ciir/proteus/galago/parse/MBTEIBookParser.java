@@ -1,11 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.parse;
+package ciir.proteus.galago.parse;
 
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.xml.stream.XMLStreamConstants;
+import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 

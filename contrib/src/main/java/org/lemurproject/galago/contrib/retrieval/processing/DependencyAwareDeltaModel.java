@@ -7,7 +7,7 @@ import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
-import org.lemurproject.galago.core.retrieval.processing.DeltaScoringContext;
+import org.lemurproject.galago.core.retrieval.processing.EarlyTerminationScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
 import org.lemurproject.galago.core.retrieval.processing.Sentinel;
 import org.lemurproject.galago.core.retrieval.processing.SortStrategies;
@@ -43,7 +43,7 @@ public class DependencyAwareDeltaModel extends ProcessingModel {
 
   public ScoredDocument[] executeWholeCollection(Node queryTree, Parameters queryParams)
           throws Exception {
-    DeltaScoringContext context = new DeltaScoringContext();
+    EarlyTerminationScoringContext context = new EarlyTerminationScoringContext();
 
     int requested = (int) queryParams.get("requested", 1000);
 
@@ -150,7 +150,7 @@ public class DependencyAwareDeltaModel extends ProcessingModel {
 
   public ScoredDocument[] executeWorkingSet(Node queryTree, Parameters queryParams)
           throws Exception {
-    DeltaScoringContext context = new DeltaScoringContext();
+    EarlyTerminationScoringContext context = new EarlyTerminationScoringContext();
 
     // Following operations are all just setup
     int requested = (int) queryParams.get("requested", 1000);
@@ -235,7 +235,7 @@ public class DependencyAwareDeltaModel extends ProcessingModel {
   }
   ArrayList<Sentinel> sortedSentinels = null;
 
-  private void buildSentinels(DeltaScoringContext ctx, Parameters qp) {
+  private void buildSentinels(EarlyTerminationScoringContext ctx, Parameters qp) {
     // If we expanded using SDM, we have dependencies
     if (qp.get("seqdep", false)) {
       // Check for degenerate case
@@ -273,7 +273,7 @@ public class DependencyAwareDeltaModel extends ProcessingModel {
     }
   }
 
-  private void determineSentinelIndex(DeltaScoringContext ctx) {
+  private void determineSentinelIndex(EarlyTerminationScoringContext ctx) {
     // Now we try to find our sentinel set
     ctx.runningScore = ctx.startingPotential;
 

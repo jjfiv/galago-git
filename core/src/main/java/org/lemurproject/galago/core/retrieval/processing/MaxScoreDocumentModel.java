@@ -20,7 +20,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author irmarc
  */
-public class DeltaScoreDocumentModel extends ProcessingModel {
+public class MaxScoreDocumentModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   List<Integer> whitelist;
@@ -28,7 +28,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
   private ArrayList<Sentinel> sortedSentinels = null;
 
 
-  public DeltaScoreDocumentModel(LocalRetrieval lr) {
+  public MaxScoreDocumentModel(LocalRetrieval lr) {
     this.retrieval = lr;
     this.whitelist = null;
   }
@@ -44,7 +44,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
 
   public ScoredDocument[] executeWholeCollection(Node queryTree, Parameters queryParams)
           throws Exception {
-    DeltaScoringContext context = new DeltaScoringContext();
+    EarlyTerminationScoringContext context = new EarlyTerminationScoringContext();
 
     int requested = (int) queryParams.get("requested", 1000);
 
@@ -137,7 +137,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
 
   public ScoredDocument[] executeWorkingSet(Node queryTree, Parameters queryParams)
           throws Exception {
-    DeltaScoringContext context = new DeltaScoringContext();
+    EarlyTerminationScoringContext context = new EarlyTerminationScoringContext();
 
     // Following operations are all just setup
     int requested = (int) queryParams.get("requested", 1000);
@@ -214,7 +214,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
     return toReversedArray(queue);
   }
 
-  private void determineSentinelIndex(DeltaScoringContext ctx) {
+  private void determineSentinelIndex(EarlyTerminationScoringContext ctx) {
     // Now we try to find our sentinel set
     ctx.runningScore = ctx.startingPotential;
 
@@ -236,7 +236,7 @@ public class DeltaScoreDocumentModel extends ProcessingModel {
     whitelist = docs;
   }
 
-  private void buildSentinels(DeltaScoringContext ctx, Parameters qp) {
+  private void buildSentinels(EarlyTerminationScoringContext ctx, Parameters qp) {
     String type = retrieval.getGlobalParameters().get("sort", "length");
     sortedSentinels = SortStrategies.populateIndependentSentinels(ctx);
 
