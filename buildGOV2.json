@@ -1,0 +1,10 @@
+{
+ "mode" : "drmaa",
+  "distrib" : 30,
+  "port"  : 6802,
+  "tokenizer" : { "fields" : ["title" , "body" , "a"] },
+  "galagoJobDir" : "/mnt/nfs/work2/irmarc/data/tmp/gov-f",
+  "deleteJobDir" : false,
+  "indexPath" : "/mnt/nfs/work2/irmarc/data/gov2-fielded",
+  "inputPath" : "/mnt/nfs/collections/gov2"
+}

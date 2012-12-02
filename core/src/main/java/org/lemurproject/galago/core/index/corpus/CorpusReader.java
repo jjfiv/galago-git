@@ -44,6 +44,17 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
   }
 
   @Override
+  public Document getDocument(byte[] key, Parameters p) throws IOException {
+    KeyIterator i = new KeyIterator(reader);
+    if (i.findKey(key)) {
+      return i.getDocument(p);
+    } else {
+      return null;
+    }
+  }
+
+
+  @Override
   public Document getDocument(int key, Parameters p) throws IOException {
     KeyIterator i = new KeyIterator(reader);
     byte[] k = Utility.fromInt(key);

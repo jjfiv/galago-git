@@ -157,6 +157,80 @@ public class Eval extends AppFunction {
     }
   }
 
+  /**
+   * These two methods allow for programmatic ways to receive test results without having to read it off
+   * a print stream.
+   */
+  public static Parameters singleEvaluation(Parameters p, QuerySetResults results, QuerySetJudgments judgments) {
+    String[] metrics = new String[]{"num_ret", "num_rel", "num_rel_ret", "map",
+      "R-prec", "bpref", "recip_rank", "ndcg", "ndcg5", "ndcg10", "ndcg20", "ERR", "ERR10", "ERR20",
+      "P5", "P10", "P15", "P20", "P30", "P100", "P200", "P500", "P1000"};
+
+    // override default list if specified:
+    if (p.containsKey("metrics")) {
+      metrics = (String[]) p.getAsList("metrics").toArray(new String[0]);
+    }
+    
+    QuerySetEvaluator[] setEvaluators = createSetEvaluators(metrics, p);
+    
+    Parameters recorded = new Parameters();
+    Parameters qRecord;
+    if (p.get("details", false)) {
+      for (String query : results.getQueryIterator()) {
+        qRecord = new Parameters();
+        for (QuerySetEvaluator setEvaluator : setEvaluators) {
+          qRecord.set(setEvaluator.getMetric(), setEvaluator.evaluate(results.get(query), judgments.get(query)));
+        }
+        recorded.set(query, qRecord);
+      }
+    }
+    
+    if (p.get("summary", true)) {
+      qRecord = new Parameters();
+      for (QuerySetEvaluator setEvaluator : setEvaluators) {
+        qRecord.set(setEvaluator.getMetric(), setEvaluator.evaluate(results, judgments));
+      }
+      recorded.set("all", qRecord);
+    }
+    
+    return recorded;
+  }
+  
+  public static Parameters comparisonEvaluation(Parameters p, QuerySetResults baseline, QuerySetResults treatment, QuerySetJudgments judgments) { 
+    String[] metrics = {"map", "R-prec", "bpref", "ndcg", "ndcg5", "ndcg10", "ndcg20", "P5", "P10", "P20"};
+    // override default list if specified:
+    if (p.containsKey("metrics")) {
+      metrics = (String[]) p.getAsList("metrics").toArray(new String[0]);
+    }
+    
+    
+    String[] tests = new String[]{"baseline", "treatment", "baseBetter", "treatBetter", "equal", "ttest", "signtest", "randomized",
+      "h-ttest-0.05", "h-signtest-0.05", "h-randomized-0.05", "h-ttest-0.01", "h-signtest-0.01", "h-randomized-0.01"};
+
+    // override default list if specified:
+    if (p.containsKey("comparisons")) {
+      tests = (String[]) p.getAsList("comparisons").toArray(new String[0]);
+    }
+    
+    QuerySetEvaluator[] setEvaluators = createSetEvaluators(metrics, p);
+    QuerySetComparator[] setComparators = createSetComparators(tests);
+    Parameters recorded = new Parameters();
+    
+    for (QuerySetEvaluator evaluator : setEvaluators) {
+      String metricString = evaluator.getMetric();
+      QuerySetEvaluation baseResults = evaluator.evaluateSet(baseline, judgments);
+      QuerySetEvaluation treatResults = evaluator.evaluateSet(treatment, judgments);
+      Parameters mRecord = new Parameters();
+              
+      for (QuerySetComparator comparator : setComparators) {
+        mRecord.set(comparator.getTestName(), comparator.evaluate(baseResults, treatResults));
+      }
+      recorded.set(metricString, mRecord);
+    }
+    
+    return recorded;
+  }
+
   public void comparisonEvaluation(Parameters p, QuerySetResults baseline, QuerySetResults treatment, QuerySetJudgments judgments,
           PrintStream output) {
     String formatString = "%1$-20s%2$-20s%3$6.4f\n";
@@ -190,7 +264,7 @@ public class Eval extends AppFunction {
     }
   }
 
-  private QuerySetEvaluator[] createSetEvaluators(String[] metrics, Parameters p) {
+  private static QuerySetEvaluator[] createSetEvaluators(String[] metrics, Parameters p) {
     QuerySetEvaluator[] setEvaluators = new QuerySetEvaluator[metrics.length];
     for (int i = 0; i < metrics.length; i++) {
       setEvaluators[i] = QuerySetEvaluatorFactory.instance(metrics[i], p);
@@ -198,7 +272,7 @@ public class Eval extends AppFunction {
     return setEvaluators;
   }
 
-  private QuerySetComparator[] createSetComparators(String[] comparasionMetrics) {
+  private static QuerySetComparator[] createSetComparators(String[] comparasionMetrics) {
     QuerySetComparator[] setComparators = new QuerySetComparator[comparasionMetrics.length];
     for (int i = 0; i < comparasionMetrics.length; i++) {
       setComparators[i] = QuerySetComparatorFactory.instance(comparasionMetrics[i]);

@@ -240,6 +240,25 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     return br;
   }
 
+  public static BufferedReader getBufferedReader(String filename, boolean isCompressed) throws IOException {
+    FileInputStream stream = StreamCreator.realInputStream(filename);
+    BufferedReader reader;
+
+    if (isCompressed) {
+      // Determine compression type
+      if (filename.endsWith("gz")) { // Gzip
+        reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(stream)));
+      } else { // BZip2
+        BufferedInputStream bis = new BufferedInputStream(stream);
+        //bzipHeaderCheck(bis);
+        reader = new BufferedReader(new InputStreamReader(new BZip2CompressorInputStream(bis)));
+      }
+    } else {
+      reader = new BufferedReader(new InputStreamReader(stream));
+    }
+    return reader;
+  }
+
   public static BufferedReader getBufferedReader(DocumentSplit split) throws IOException {
     FileInputStream stream = StreamCreator.realInputStream(split.fileName);
     BufferedReader reader;

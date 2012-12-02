@@ -1,0 +1,11 @@
+{
+ "inputPath" : "/mnt/nfs/work2/irmarc/data/openlib-logs/corpus",
+ "deleteJobDir" : false,
+ "galagoJobDir" : "/mnt/nfs/work2/irmarc/data/tmp/openlib-index-mixed",
+ "distrib" : 30,
+ "port" : 6800,
+ "indexPath" : "/mnt/nfs/work2/irmarc/data/openlib-mixed",
+ "tokenizer" : { "class" : "org.lemurproject.galago.core.parse.OLRecordtoDocumentParser",
+		"allowedRecords" : "edition|book|work|volume|doc|collection", "corpus" : "/mnt/nfs/work2/irmarc/data/openlib-logs/corpus" },
+  "mode" : "drmaa"
+}

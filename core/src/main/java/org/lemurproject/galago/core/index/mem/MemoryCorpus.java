@@ -76,6 +76,11 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   }
 
   @Override
+  public Document getDocument(byte[] key, Parameters p) throws IOException {
+    return corpusData.get(key);
+  }
+
+  @Override
   public Document getDocument(int key, Parameters p) throws IOException {
     return corpusData.get(Utility.fromInt(key));
   }

@@ -15,6 +15,8 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public interface DocumentReader extends IndexPartReader {
 
+  public abstract Document getDocument(byte[] key, Parameters p) throws IOException;
+
   public abstract Document getDocument(int key, Parameters p) throws IOException;
 
   public interface DocumentIterator extends KeyIterator {

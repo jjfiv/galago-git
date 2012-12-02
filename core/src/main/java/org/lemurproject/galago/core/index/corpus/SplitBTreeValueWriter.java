@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.types.KeyValuePair;
@@ -82,10 +83,10 @@ public class SplitBTreeValueWriter extends BTreeWriter
 
   @Override
   public void add(IndexElement list) throws IOException {
-    processKey(list.key());
-    valueOffset += list.dataLength();
-    valueLength += list.dataLength();
-    list.write(valueOutput);
+      processKey(list.key());
+      valueOffset += list.dataLength();
+      valueLength += list.dataLength();
+      list.write(valueOutput);
   }
 
   @Override
@@ -95,7 +96,6 @@ public class SplitBTreeValueWriter extends BTreeWriter
 
   @Override
   public void processKey(byte[] key) throws IOException {
-
     if (lastKey != null) {
       keyStream.writeLong(valueLength); // value length
       keyStream.close();
@@ -104,7 +104,6 @@ public class SplitBTreeValueWriter extends BTreeWriter
         docCounter.increment();
       }
     }
-
     lastKey = key;
     keyArray = new ByteArrayOutputStream();
     keyStream = new DataOutputStream(keyArray);

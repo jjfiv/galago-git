@@ -142,15 +142,15 @@ public class BuildStageTemplates {
             FieldIndexWriter.class, new NumberedField.FieldNameNumberOrder(), p);
   }
 
-  public static Stage getSplitStage(List<String> inputPaths, Class<? extends ExNihiloSource<DocumentSplit>> sourceClass) throws IOException {
+  public static Stage getSplitStage(List<String> inputPaths, Class sourceClass) throws IOException {
     return getSplitStage(inputPaths, sourceClass, new DocumentSplit.FileIdOrder(), new Parameters());
   }
 
-  public static Stage getSplitStage(List<String> inputPaths, Class<? extends ExNihiloSource<DocumentSplit>> sourceClass, Parameters p) throws IOException {
+  public static Stage getSplitStage(List<String> inputPaths, Class sourceClass, Parameters p) throws IOException {
     return getSplitStage(inputPaths, sourceClass, new DocumentSplit.FileIdOrder(), p);
   }
   
-  public static Stage getSplitStage(List<String> inputPaths, Class<? extends ExNihiloSource> sourceClass, Order order, Parameters p)
+  public static Stage getSplitStage(List<String> inputPaths, Class sourceClass, Order order, Parameters p)
           throws IOException {
     Stage stage = new Stage("inputSplit");
     stage.addOutput("splits", order);
