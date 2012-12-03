@@ -306,8 +306,11 @@ public class FieldTraversalTest extends TestCase {
     LocalRetrieval retrieval = new LocalRetrieval(index, global);
     Parameters qp = new Parameters();
     qp.set("fields", Arrays.asList(fields));
-
-    ScoredDocument[] results = retrieval.runQuery("#prms2(cat dog donkey)", qp);
+    String query = "#prms2(cat dog donkey)";
+    Node raw = StructuredQuery.parse(query);
+    Node root = retrieval.transformQuery(raw, qp);
+    qp.set("deltaReady", false);
+    ScoredDocument[] results = retrieval.runQuery(root, qp);
 
     assertEquals(5, results.length);
 

@@ -45,8 +45,7 @@ public class DeltaCheckTraversal extends Traversal {
 
     // Final judgment
     if (level == 0) {
-      // sjh: turned off for now - producing some errors in tests.
-      // qp.set("deltaReady", deltas.contains(original));
+	qp.set("deltaReady", deltas.contains(original));
     }
 
     return original;
