@@ -7,7 +7,8 @@ package org.lemurproject.galago.core.retrieval.traversal;
 import java.util.HashSet;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreCombinationIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DisjunctionIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -76,7 +77,8 @@ public class DeltaCheckTraversal extends Traversal {
 
     // Need to check the children,
     // also propagate weights downward in the hopes they can be used
-    boolean isScoreCombiner = ScoreCombinationIterator.class.isAssignableFrom(nt.getIteratorClass());
+    boolean isScoreCombiner = DisjunctionIterator.class.isAssignableFrom(nt.getIteratorClass()) &&
+	ScoreIterator.class.isAssignableFrom(nt.getIteratorClass());
     boolean isOk = true;
     NodeParameters np = n.getNodeParameters();
     double total = 0;
