@@ -22,15 +22,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 /**
  *
- * @author irmarc
+ * @author irmarc, sjh
  */
 public class Parameters implements Serializable {
 
   private static final long serialVersionUID = 4553653651892088433L;
+  // Data structures available in the class
+  // Tracks keys and their types
+  private HashMap<String, Type> _keys;
+  // Holds longs
+  private TObjectLongHashMap<String> _longs;
+  // holds bools as bytes - 0 == false, 1 == true
+  private TObjectByteHashMap<String> _bools;
+  // holds doubles
+  private TObjectDoubleHashMap<String> _doubles;
+  // holds Strings, maps, and lists - no interpretation is attempted.
+  private HashMap _objects;
+  // faster to use static types for parsing and lookup
+
+  public enum Type {
+
+    BOOLEAN, LONG, DOUBLE, STRING, MAP, LIST
+  };
 
   // Parsing in JSON
   private static class JSONParser {
@@ -43,12 +62,22 @@ public class Parameters implements Serializable {
       this.reader = new BufferedReader(input);
     }
 
+    /**
+     * Creates a new parameter object by inserting data from the reader
+     */
     public Parameters parse() throws IOException {
+      return parse(new Parameters());
+    }
+
+    /**
+     * Adds to an existing parameter object by inserting data from the reader
+     */
+    public Parameters parse(Parameters jp) throws IOException {
       skipWhitespace();
       if (delimiter != '{') {
         throw new IOException("Expected top-level JSON object definition (starting with '{'), got " + delimiter);
       }
-      Parameters jp = parseParameters();
+      jp = parseParameters(jp);
       skipWhitespace(); // eat any remaining whitespace
       // Need to catch output as an int in order to use the assert
       int last = reader.read();
@@ -57,11 +86,10 @@ public class Parameters implements Serializable {
       return jp;
     }
 
-    private Parameters parseParameters() throws IOException {
+    private Parameters parseParameters(Parameters container) throws IOException {
       // Need to move past the opening '{' and find the next meaningful character
       delimiter = (char) reader.read();
       skipWhitespace();
-      Parameters container = new Parameters();
       String key;
       Object value;
       while (delimiter != '}') {
@@ -161,7 +189,7 @@ public class Parameters implements Serializable {
           return parseList();
         case '{':
           valueType = Type.MAP;
-          return parseParameters();
+          return parseParameters(new Parameters());
         case 't':
           valueType = Type.BOOLEAN;
           return parseTrue();
@@ -528,60 +556,29 @@ public class Parameters implements Serializable {
     return p;
   }
 
-  // I do not like this method -- how can we rewrite it so it doesn't suck?
+  /**
+   * To ensure items are not shared across parameter objects
+   */
   public void copyFrom(Parameters other) {
-    if (other.isEmpty()) {
-      return;
+    try {
+      JSONParser jp = new JSONParser(new StringReader(other.toString()));
+      jp.parse(this);
+    } catch (IOException ex) {
+      Logger.getLogger(Parameters.class.getName()).log(Level.SEVERE, null, ex);
+      throw new RuntimeException(ex);
     }
-    for (String key : other._keys.keySet()) {
-      Type t = other._keys.get(key);
-      switch (t) {
-        case LONG:
-          set(key, other._longs.get(key));
-          break;
-        case DOUBLE:
-          set(key, other._doubles.get(key));
-          break;
-        case BOOLEAN:
-          set(key, other.getBoolean(key));
-          break;
-        case STRING:
-          set(key, (String) other._objects.get(key));
-          break;
-        case MAP:
-          set(key, (Parameters) other._objects.get(key));
-          break;
-        case LIST:
-          set(key, (List) other._objects.get(key));
-          break;
-      }
-    }
-
   }
 
+  /**
+   * To ensure items are not shared across parameter objects
+   */
   public void copyTo(Parameters other) {
-    for (String key : _keys.keySet()) {
-      Type t = _keys.get(key);
-      switch (t) {
-        case LONG:
-          other.set(key, _longs.get(key));
-          break;
-        case DOUBLE:
-          other.set(key, _doubles.get(key));
-          break;
-        case BOOLEAN:
-          other.set(key, getBoolean(key));
-          break;
-        case STRING:
-          other.set(key, (String) _objects.get(key));
-          break;
-        case MAP:
-          other.set(key, (Parameters) _objects.get(key));
-          break;
-        case LIST:
-          other.set(key, (List) _objects.get(key));
-          break;
-      }
+    try {
+      JSONParser jp = new JSONParser(new StringReader(toString()));
+      jp.parse(other);
+    } catch (IOException ex) {
+      Logger.getLogger(Parameters.class.getName()).log(Level.SEVERE, null, ex);
+      throw new RuntimeException(ex);
     }
   }
 
@@ -657,9 +654,12 @@ public class Parameters implements Serializable {
 
   @Override
   public Parameters clone() {
-    Parameters p = new Parameters();
-    this.copyTo(p);
-    return p;
+    try {
+      JSONParser jp = new JSONParser(new StringReader(toString()));
+      return jp.parse();
+    } catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   // Getters
@@ -1105,21 +1105,4 @@ public class Parameters implements Serializable {
       return val.toString();
     }
   }
-  // Data structures available in the class
-  // Tracks keys and their types
-  private HashMap<String, Type> _keys;
-  // Holds longs
-  private TObjectLongHashMap<String> _longs;
-  // holds bools as bytes - 0 == false, 1 == true
-  private TObjectByteHashMap<String> _bools;
-  // holds doubles
-  private TObjectDoubleHashMap<String> _doubles;
-  // holds Strings, maps, and lists - no interpretation is attempted.
-  private HashMap _objects;
-  // faster to use static types for parsing and lookup
-
-  public enum Type {
-
-    BOOLEAN, LONG, DOUBLE, STRING, MAP, LIST
-  };
 }
