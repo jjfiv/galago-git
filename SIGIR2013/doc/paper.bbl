@@ -1,0 +1,144 @@
+\begin{thebibliography}{10}
+
+\bibitem{broder-cikm-2003}
+A.~Z. Broder, D.~Carmel, M.~Herscovici, A.~Soffer, and J.~Zien.
+\newblock Efficient query evaluation using a two-level retrieval process.
+\newblock In {\em Proc. of the twelfth international conference on Information
+  and knowledge management}, CIKM '03, pages 426--434, New York, NY, USA, 2003.
+  ACM.
+
+\bibitem{brown-topdocs}
+E.~W. Brown.
+\newblock Fast evaluation of structured queries for information retrieval.
+\newblock In {\em Proc. of the 18th SIGIR}, pages 30--38, New York, NY, USA,
+  1995. ACM.
+
+\bibitem{cartright-cikm-2011}
+M.-A. Cartright and J.~Allan.
+\newblock Efficiency optimizations for interpolating subqueries.
+\newblock In {\em Proc. of the 20th ACM international conference on Information
+  and knowledge management}, CIKM '11, pages 297--306, New York, NY, USA, 2011.
+  ACM.
+
+\bibitem{cohen-kdd-1998}
+W.~W. Cohen and H.~Hirsh.
+\newblock Joins that generalize: Text classification using whirl.
+\newblock In {\em In Proc. of the Fourth Int'l Conference on Knowledge
+  Discovery and Data Mining}, KDD '98, pages 169--173, 1998.
+
+\bibitem{craswell-trec-web-2004}
+N.~Craswell and D.~Hawking.
+\newblock Overview of the trec-2004 web track.
+\newblock In {\em The Thirteenth Text REtrieval Conference}, TREC-2004,
+  Gaithersburg, Maryland, United States, 2004. National Institute of Standards
+  and Technology.
+
+\bibitem{ding-sigir-2011}
+S.~Ding and T.~Suel.
+\newblock Faster top-k document retrieval using block-max indexes.
+\newblock In {\em Proceedings of the 34th international ACM SIGIR conference on
+  Research and development in Information Retrieval}, SIGIR '11, pages
+  993--1002, New York, NY, USA, 2011. ACM.
+
+\bibitem{efron-bootstrap-1993}
+B.~Efron and R.~Tibshirani.
+\newblock {\em An introduction to the bootstrap}.
+\newblock New York : Chapman \& Hall, 1993.
+
+\bibitem{entlich-tois-1997}
+R.~Entlich, J.~Olsen, L.~Garson, M.~Lesk, L.~Normore, and S.~Weibel.
+\newblock Making a digital library: the contents of the {CORE} project.
+\newblock {\em ACM Trans. Inf. Syst.}, 15:103--123, April 1997.
+
+\bibitem{fox-dls-2003}
+E.~A. Fox and O.~Sornil.
+\newblock Digital libraries.
+\newblock In {\em Encyclopedia of Computer Science}, pages 576--581. John Wiley
+  and Sons Ltd., Chichester, UK, 2003.
+
+\bibitem{fuhr-inex-2002}
+N.~Fuhr, N.~G\"{o}vert, G.~Kazai, and M.~Lalmas.
+\newblock {INEX}: {IN}itiative for the {E}valuation of {XML} retrieval.
+\newblock {\em Proc. of the SIGIR 2002 Workshop on XML and Information
+  Retrieval}, 2006(November):1--9, 2002.
+
+\bibitem{kim-sigir-2009}
+J.~Kim and W.~B. Croft.
+\newblock Retrieval experiments using pseudo-desktop collections.
+\newblock In {\em Proceedings of the 18th ACM {C}onference on {I}nformation and
+  {K}nowledge {M}anagement}, CIKM '09, pages 1297--1306, New York, NY, USA,
+  2009. ACM.
+
+\bibitem{kim-sigir-2010}
+J.~Kim and W.~B. Croft.
+\newblock Ranking using multiple document types in desktop search.
+\newblock In {\em Proc. of the 33rd international ACM SIGIR conference on
+  Research and development in information retrieval}, SIGIR '10, pages 50--57,
+  New York, NY, USA, 2010. ACM.
+
+\bibitem{kim-cikm-2012}
+J.~Kim, H.~Feild, and M.-A. Cartright.
+\newblock Understanding {B}ook {S}earch {B}ehavior on the {W}eb.
+\newblock In {\em Proceedings of the 21st ACM {C}onference on {I}nformation and
+  {K}nowledge {M}anagement}, CIKM '12, pages 744--753, New York, NY, USA, 2012.
+  ACM.
+
+\bibitem{macdonald-trec-2005}
+C.~Macdonald, B.~He, V.~Plachouras, and I.~Ounis.
+\newblock University of glasgow at trec 2005: Experiments in terabyte and
+  enterprise tracks with terrier.
+\newblock In {\em The Fourteenth Text REtrieval Conference}, TREC-2005,
+  Gaithersburg, Maryland, United States, 2005. National Institute of Standards
+  and Technology.
+
+\bibitem{Macdonald-tois-2011}
+C.~Macdonald, I.~Ounis, and N.~Tonellotto.
+\newblock Upper-bound approximations for dynamic pruning.
+\newblock {\em ACM Trans. Inf. Syst.}, 29:17:1--17:28, Dec. 2011.
+
+\bibitem{ogilvie-sigir-2003}
+P.~Ogilvie and J.~Callan.
+\newblock Combining document representations for known-item search.
+\newblock In {\em Proc. of the 26th annual international ACM SIGIR conference
+  on Research and development in informaion retrieval}, SIGIR '03, pages
+  143--150, New York, NY, USA, 2003. ACM.
+
+\bibitem{Robertson-cikm-2004}
+S.~Robertson, H.~Zaragoza, and M.~Taylor.
+\newblock Simple {BM25} extension to multiple weighted fields.
+\newblock In {\em Proc. of the thirteenth ACM international conference on
+  Information and knowledge management}, CIKM '04, pages 42--49, New York, NY,
+  USA, 2004. ACM.
+
+\bibitem{strohman-sigir-2007}
+T.~Strohman and W.~B. Croft.
+\newblock Efficient document retrieval in main memory.
+\newblock In {\em Proceedings of the 30th annual international ACM SIGIR
+  conference on Research and development in information retrieval}, SIGIR '07,
+  pages 175--182, New York, NY, USA, 2007. ACM.
+
+\bibitem{strohman-topdocs}
+T.~Strohman, H.~Turtle, and W.~B. Croft.
+\newblock Optimization strategies for complex queries.
+\newblock In {\em Proc. of the 28th SIGIR}, pages 219--225, New York, NY, USA,
+  2005. ACM.
+
+\bibitem{turtle-ipm-1995}
+H.~Turtle and J.~Flood.
+\newblock Query evaluation: strategies and optimizations.
+\newblock {\em Information Processing \& Management}, 31:831--850, November
+  1995.
+
+\bibitem{yi-sigir-2007}
+X.~Yi, J.~Allan, and W.~B. Croft.
+\newblock Matching resumes and jobs based on relevance models.
+\newblock In {\em Proc. of the 30th annual international ACM SIGIR conference
+  on Research and development in information retrieval}, SIGIR '07, pages
+  809--810, New York, NY, USA, 2007. ACM.
+
+\bibitem{Zaragoza-trec-2004}
+H.~Zaragoza, N.~Craswell, M.~Taylor, S.~Saria, and S.~Robertson.
+\newblock Microsoft {C}ambridge at {TREC}-13: Web and {H}ard tracks.
+\newblock In {\em Proc. of TREC-2004}, TREC '04, 2004.
+
+\end{thebibliography}
