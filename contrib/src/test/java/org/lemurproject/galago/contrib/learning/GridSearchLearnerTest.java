@@ -66,10 +66,10 @@ public class GridSearchLearnerTest extends TestCase {
       learnParams.set("restarts", 1);
 
       Learner learner = LearnerFactory.instance(learnParams, ret);
-      List<Parameters> params = learner.learn();
+      List<RetrievalModelInstance> res = learner.learn();
 
-      for (Parameters p : params) {
-        System.err.println(p);
+      for (RetrievalModelInstance r : res) {
+        System.err.println(r.toParameters().toString());
       }
 
     } finally {

@@ -38,25 +38,27 @@ import org.lemurproject.galago.tupleflow.Parameters.Type;
  */
 public abstract class Learner {
 
+  protected final String name;
   protected final Logger logger;
   protected final Random random;
   protected final Retrieval retrieval;
   // variable parameters
-  protected Queries queries;
+  protected QuerySet queries;
   protected QuerySetJudgments qrels;
   protected QuerySetEvaluator evalFunction;
   protected RetrievalModelParameters learnableParameters;
   protected List<RetrievalModelInstance> initialSettings;
   // evaluation cache to avoid recalculating scores for known settings
   protected Map<String, Double> testedParameters;
-  // threading
+  // execution  
+  protected int restarts;
   protected boolean threading;
-  protected ExecutorService threadPool;
 
   public Learner(Parameters p, Retrieval r) throws Exception {
     logger = Logger.getLogger(this.getClass().getName());
     retrieval = r;
     random = (p.isLong("randomSeed")) ? new Random(p.getLong("randomSeed")) : new Random(System.nanoTime());
+    name = p.get("name", "default");
 
     initialize(p, r);
   }
@@ -71,16 +73,13 @@ public abstract class Learner {
     assert (p.isList("learnableParameters", Type.MAP)) : this.getClass().getName() + " requires `learnableParameters' parameter, of type List<Map>.";
     assert (!p.containsKey("normalization") || (p.isMap("normalization") || p.isList("normalization", Type.MAP))) : this.getClass().getName() + " requires `learnableParameters' parameter to be of type List<Map>.";
 
-    this.queries = new Queries(BatchSearch.collectQueries(p), p);
-    assert !this.queries.isEmpty() : this.getClass().getName() + " requires `queries' parameter, of type List(Parameters): see Batch-Search for an example.";
+    queries = new QuerySet(BatchSearch.collectQueries(p), p);
+    assert !queries.isEmpty() : this.getClass().getName() + " requires `queries' parameter, of type List(Parameters): see Batch-Search for an example.";
 
-    this.qrels = new QuerySetJudgments(p.getString("qrels"));
-    this.evalFunction = QuerySetEvaluatorFactory.instance(p.get("metric", "map"), p);
+    qrels = new QuerySetJudgments(p.getString("qrels"));
+    evalFunction = QuerySetEvaluatorFactory.instance(p.get("metric", "map"), p);
 
-    this.threading = p.get("threading", false);
-    if (threading) {
-      threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-    }
+    threading = p.get("threading", false);
 
     List<Parameters> params = (List<Parameters>) p.getList("learnableParameters");
     List<Parameters> normalizationRules = new ArrayList();
@@ -91,19 +90,14 @@ public abstract class Learner {
 
     learnableParameters = new RetrievalModelParameters(params, normalizationRules);
 
-    long restarts = p.get("restarts", 3);
-    initialSettings = new ArrayList(3);
+    restarts = (int) p.get("restarts", 3);
+    initialSettings = new ArrayList(restarts);
     if (p.isList("initialParameters", Type.MAP)) {
-      for (Parameters init : (List<Parameters>) p.getList("initialParameters")) {
+      List<Parameters> inits = (List<Parameters>) p.getAsList("initialParameters");
+      for (Parameters init : inits) {
         RetrievalModelInstance inst = new RetrievalModelInstance(learnableParameters, init);
         initialSettings.add(inst);
       }
-    }
-
-    // now add more initial settings
-    while (initialSettings.size() < restarts) {
-      initialSettings.add(generateRandomInitalValues());
-      logger.log(Level.INFO, "Generated initial values: {0}", initialSettings.get(initialSettings.size() - 1).toParameters().toString());
     }
 
     testedParameters = new HashMap();
@@ -119,25 +113,30 @@ public abstract class Learner {
   /**
    * learning function - returns a list of learnt parameters
    */
-  public List<Parameters> learn() throws Exception {
-    final List<Parameters> learntParams = Collections.synchronizedList(new ArrayList());
+  public List<RetrievalModelInstance> learn() throws Exception {
+    final List<RetrievalModelInstance> learntParams = Collections.synchronizedList(new ArrayList());
 
     if (threading) {
+      ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
       final List<Exception> exceptions = Collections.synchronizedList(new ArrayList());
-      final CountDownLatch latch = new CountDownLatch(initialSettings.size());
+      final CountDownLatch latch = new CountDownLatch(restarts);
 
-      for (int i = 0; i < initialSettings.size(); i++) {
-        final RetrievalModelInstance settingsInstance = initialSettings.get(i).clone();
-        settingsInstance.setIdentifier(i);
+      for (int i = 0; i < restarts; i++) {
+        final RetrievalModelInstance settingsInstance;
+        if (initialSettings.size() > i) {
+          settingsInstance = initialSettings.get(i).clone();
+        } else {
+          settingsInstance = generateRandomInitalValues();
+        }
+        settingsInstance.setAnnotation("name", name + "-randomStart-" + i);
         Thread t = new Thread() {
 
           @Override
           public void run() {
             try {
               RetrievalModelInstance s = learn(settingsInstance);
-              Parameters p = s.toParameters();
-              p.set("score", evaluate(s));
-              learntParams.add(p);
+              s.setAnnotation("score", Double.toString(evaluate(s)));
+              learntParams.add(s);
             } catch (Exception e) {
               exceptions.add(e);
             } finally {
@@ -157,7 +156,7 @@ public abstract class Learner {
       }
 
       threadPool.shutdown();
-      
+
       if (!exceptions.isEmpty()) {
         for (Exception e : exceptions) {
           System.err.println("Caught exception: \n" + e.toString());
@@ -167,13 +166,17 @@ public abstract class Learner {
 
     } else {
 
-      for (int i = 0; i < this.initialSettings.size(); i++) {
-        RetrievalModelInstance settingsInstance = initialSettings.get(i).clone();
-        settingsInstance.setIdentifier(i);
+      for (int i = 0; i < restarts; i++) {
+        final RetrievalModelInstance settingsInstance;
+        if (initialSettings.size() > i) {
+          settingsInstance = initialSettings.get(i).clone();
+        } else {
+          settingsInstance = generateRandomInitalValues();
+        }
+        settingsInstance.setAnnotation("name", name + "-randomStart-" + i);
         RetrievalModelInstance s = learn(settingsInstance);
-        Parameters p = s.toParameters();
-        p.set("score", evaluate(s));
-        learntParams.add(p);
+        s.setAnnotation("score", Double.toString(evaluate(s)));
+        learntParams.add(s);
       }
     }
 
