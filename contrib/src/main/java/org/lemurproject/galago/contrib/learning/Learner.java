@@ -148,8 +148,9 @@ public abstract class Learner {
       }
 
       while (latch.getCount() > 0) {
+        logger.info(String.format("Waiting for %d threads.", latch.getCount()));
         try {
-          latch.await();
+          latch.await(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
           // do nothing
         }
