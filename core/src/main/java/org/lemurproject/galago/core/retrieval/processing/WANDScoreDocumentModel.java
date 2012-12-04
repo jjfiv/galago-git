@@ -31,39 +31,18 @@ public class WANDScoreDocumentModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   Index index;
-  List<Integer> whitelist;
   Comparator<Sentinel> comp;
   double scoreMinimums;
-
+  Sentinel[] sortedSentinels = null;
+  
   public WANDScoreDocumentModel(LocalRetrieval lr) {
     retrieval = lr;
     this.index = retrieval.getIndex();
-    whitelist = null;
-    comp = new Comparator<Sentinel>() {
-
-      public int compare(Sentinel s1, Sentinel s2) {
-        if (s2.iterator.isDone()) {
-          return -1;
-        }
-        if (s1.iterator.isDone()) {
-          return 1;
-        }
-        return (s1.iterator.currentCandidate() - s2.iterator.currentCandidate());
-      }
-    };
+    comp = new SentinelPositionComparator();
   }
 
   @Override
   public ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception {
-    if (whitelist == null) {
-      return executeWholeCollection(queryTree, queryParams);
-    } else {
-      return executeWorkingSet(queryTree, queryParams);
-    }
-  }
-
-  public ScoredDocument[] executeWholeCollection(Node queryTree, Parameters queryParams)
-          throws Exception {
     EarlyTerminationScoringContext context = new EarlyTerminationScoringContext();
     double factor = retrieval.getGlobalParameters().get("thresholdFactor", 1.0);
     int requested = (int) queryParams.get("requested", 1000);
@@ -140,41 +119,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     return toReversedArray(queue);
   }
 
-  public ScoredDocument[] executeWorkingSet(Node queryTree, Parameters queryParams)
-          throws Exception {
-    EarlyTerminationScoringContext context = new EarlyTerminationScoringContext();
 
-    // Following operations are all just setup
-    int requested = (int) queryParams.get("requested", 1000);
-
-    context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
-    context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
-    Arrays.fill(context.startingPotentials, 0);
-    MovableIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
-
-    PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
-    ProcessingModel.initializeLengths(retrieval, context);
-    context.minCandidateScore = Double.NEGATIVE_INFINITY;
-    context.sentinelIndex = context.scorers.size();
-
-    // Compute the starting potential
-    context.scorers.get(0).aggregatePotentials(context);
-    // Make sure the scorers are sorted properly
-    buildSentinels(context, queryParams);
-
-    
-    // Make iterative loop here, if I ever care to.
-
-    
-    return toReversedArray(queue);
-  }
-
-  @Override
-  public void defineWorkingSet(List<Integer> docs) {
-    Collections.sort(docs);
-    whitelist = docs;
-  }
-  Sentinel[] sortedSentinels = null;
 
   private void fullSort(Sentinel[] s) {
     Arrays.sort(s, comp);
