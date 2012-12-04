@@ -61,9 +61,9 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     correct.append("#combine:0=0.5:1=0.5( ");
     correct.append("#combine( #feature:dirichlet( #extents:fits:part=postings() ) ) ");
     correct.append("#combine:0=0.16677748226950348:1=0.12516622340425526:2=0.04161125886524822( ");
-    correct.append("#feature:dirichlet( #extents:fit:part=postings() ) ");
-    correct.append("#feature:dirichlet( #extents:program:part=postings() ) ");
-    correct.append("#feature:dirichlet( #extents:shoe:part=postings() ) ) )");
+    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:fit:part=postings() ) ");
+    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:program:part=postings() ) ");
+    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:shoe:part=postings() ) ) )");
 
     assertEquals(correct.toString(), transformed.toString());
     retrieval.close();
