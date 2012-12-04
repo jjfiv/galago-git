@@ -255,7 +255,6 @@ public class FieldTraversalTest extends TestCase {
 
   }
   
-  /*
   public void testPL2FDeltaVsModel() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -291,7 +290,6 @@ public class FieldTraversalTest extends TestCase {
       assertEquals(results[i].score, results2[i].score, 0.00001);
     }
   }
-  */ 
 
   public void testPRMS2ModelCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());

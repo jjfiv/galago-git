@@ -84,14 +84,13 @@ public class GroupRetrievalTest extends TestCase {
 
       assertEquals(expected, queryTree1.toString());
       ScoredDocument[] res1 = gr.runQuery(queryTree1, q1, "group1");
-      String[] expected1 = {
-        "i1-59	1	-1.38562924636308",
-        "i1-55	2	-1.3869590337930815"
-      };
+      String[] expectedIds = { "i1-59", "i1-55" };
+      double[] expectedScores = { -1.38562924636308, -1.3869590337930815 }; 
 
       for (int i = 0; i < res1.length; i++) {
-        String r = res1[i].documentName + "\t" + res1[i].rank + "\t" + res1[i].score;
-        assertEquals(r, expected1[i]);
+        assertEquals(expectedIds[i], res1[i].documentName);
+        assertEquals(i+1, res1[i].rank);
+        assertEquals(expectedScores[i], res1[i].score, 0.00000001);
       }
 
       Parameters q2 = params.clone();
@@ -113,18 +112,18 @@ public class GroupRetrievalTest extends TestCase {
 
       assertEquals(expected, queryTree2.toString());
       ScoredDocument[] res2 = gr.runQuery(queryTree2, q2, "group2");
-      String[] expected2 = {
-        "i1-59	1	-1.5569809573716442",
-        "i2-59	2	-1.5576460721284549",
-        "i1-55	3	-1.5583107448016458",
-        "i2-55	4	-1.5596387662451652"
+      expectedIds = new String[]{"i1-59", "i2-59", "i1-55", "i2-55"};
+      expectedScores = new double[]{
+        -1.5569809573716442,
+        -1.5576460721284549, 
+        -1.5583107448016458,
+        -1.5596387662451652
       };
-
       for (int i = 0; i < res2.length; i++) {
-        String r = res2[i].documentName + "\t" + res2[i].rank + "\t" + res2[i].score;
-        assertEquals(r, expected2[i]);
+        assertEquals(expectedIds[i], res2[i].documentName);
+        assertEquals(i+1, res2[i].rank);
+        assertEquals(expectedScores[i], res2[i].score, 0.00000001);
       }
-
     } finally {
 
       if (trecCorpusFile1 != null) {

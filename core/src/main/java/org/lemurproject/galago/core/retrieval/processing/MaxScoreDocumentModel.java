@@ -24,9 +24,7 @@ public class MaxScoreDocumentModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   List<Integer> whitelist;
-  
   private ArrayList<Sentinel> sortedSentinels = null;
-
 
   public MaxScoreDocumentModel(LocalRetrieval lr) {
     this.retrieval = lr;
@@ -51,7 +49,7 @@ public class MaxScoreDocumentModel extends ProcessingModel {
     context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     Arrays.fill(context.startingPotentials, 0);
-    MovableScoreIterator iterator =
+    MovableScoreIterator rootIterator =
             (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
 
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
@@ -84,49 +82,54 @@ public class MaxScoreDocumentModel extends ProcessingModel {
       if (candidate == Integer.MAX_VALUE) {
         break;
       }
-
-      // Otherwise move lengths
+        
       context.document = candidate;
-      context.moveLengths(candidate);
+      // Due to different semantics between "currentCandidate" and 
+      // "hasMatch", we need to see if the candidate given actually matches
+      // properly before scoring.
+      if (rootIterator.hasMatch(candidate)) {
+        // Otherwise move lengths
+        context.moveLengths(candidate);
 
-      // Setup to score
-      context.runningScore = context.startingPotential;
-      System.arraycopy(context.startingPotentials, 0, context.potentials, 0,
-              context.startingPotentials.length);
+        // Setup to score
+        context.runningScore = context.startingPotential;
+        System.arraycopy(context.startingPotentials, 0, context.potentials, 0,
+                context.startingPotentials.length);
 
-      // now score sentinels w/out question
-      int i;
-      for (i = 0; i < context.sentinelIndex; i++) {
-        DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
-        dsi.syncTo(context.document);
-        dsi.deltaScore();
-      }
+        // now score sentinels w/out question
+        int i;
+        for (i = 0; i < context.sentinelIndex; i++) {
+          DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
+          dsi.syncTo(context.document);
+          dsi.deltaScore();
+        }
 
-      // Now score the rest, but keep checking
-      while (context.runningScore > context.minCandidateScore && i < sortedSentinels.size()) {
-        DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
-        dsi.syncTo(context.document);
-        dsi.deltaScore();
-        ++i;
-      }
+        // Now score the rest, but keep checking
+        while (context.runningScore > context.minCandidateScore && i < sortedSentinels.size()) {
+          DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
+          dsi.syncTo(context.document);
+          dsi.deltaScore();
+          ++i;
+        }
 
-      // Fully scored it
-      if (i == context.scorers.size()) {
-        if (requested < 0 || queue.size() <= requested || context.runningScore > queue.peek().score) {
-          ScoredDocument scoredDocument = new ScoredDocument(context.document, context.runningScore);
-          queue.add(scoredDocument);
-          if (requested > 0 && queue.size() > requested) {
-            queue.poll();
-            if (context.minCandidateScore < queue.peek().score) {
-              context.minCandidateScore = queue.peek().score;
-              determineSentinelIndex(context);
+        // Fully scored it
+        if (i == context.scorers.size()) {
+          if (requested < 0 || queue.size() <= requested || context.runningScore > queue.peek().score) {
+            ScoredDocument scoredDocument = new ScoredDocument(context.document, context.runningScore);
+            queue.add(scoredDocument);
+            if (requested > 0 && queue.size() > requested) {
+              queue.poll();
+              if (context.minCandidateScore < queue.peek().score) {
+                context.minCandidateScore = queue.peek().score;
+                determineSentinelIndex(context);
+              }
             }
           }
         }
       }
-
+      
       // Now move all matching sentinels members past the current doc, and repeat
-      for (i = 0; i < context.sentinelIndex; i++) {
+      for (int i = 0; i < context.sentinelIndex; i++) {
         DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
         dsi.movePast(context.document);
       }

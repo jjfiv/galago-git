@@ -252,7 +252,9 @@ public class LocalRetrieval implements Retrieval {
 
     // first check if this is a repeated node in this tree:
     if (queryIteratorCache != null && queryIteratorCache.containsKey(node.toString())) {
-      return queryIteratorCache.get(node.toString());
+      iterator = queryIteratorCache.get(node.toString());
+      context.toNodes.put(iterator, node);
+      return iterator;
     }
 
     // second check if this node is cached
@@ -287,7 +289,8 @@ public class LocalRetrieval implements Retrieval {
     if (queryIteratorCache != null) {
       queryIteratorCache.put(node.toString(), iterator);
     }
-
+    
+    context.toNodes.put(iterator, node);
     return iterator;
   }
 
