@@ -81,7 +81,7 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
       count = ((CountIterator) iterator).count();
     }
 
-    double diff = weight * (function.score(count, context.getLength()) - max);
+    double diff = weight * (function.score(count, lengthsIterator.getCurrentLength()) - max);
     ctx.runningScore += diff;
   }
 
