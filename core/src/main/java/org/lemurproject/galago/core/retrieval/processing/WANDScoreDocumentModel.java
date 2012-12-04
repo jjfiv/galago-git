@@ -69,12 +69,12 @@ public class WANDScoreDocumentModel extends ProcessingModel {
       s.score = s.iterator.getWeight() * (s.iterator.maximumScore() - s.iterator.minimumScore());
     }
 
-    context.document = 0;
+    context.document = -1;
     int advancePosition;
     fullSort(sortedSentinels);
     while (true) {
       advancePosition = -1;
-      int pivotPosition = findPivot(context.minCandidateScore, context);
+      int pivotPosition = findPivot(context.minCandidateScore);
 
       if (pivotPosition == -1) {
         break;
@@ -182,7 +182,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     sortedSentinels = tmp.toArray(new Sentinel[0]);
   }
 
-  private int findPivot(double threshold, EarlyTerminationScoringContext context) {
+  private int findPivot(double threshold) {
     if (threshold == Double.NEGATIVE_INFINITY) {
       return 0;
     }
