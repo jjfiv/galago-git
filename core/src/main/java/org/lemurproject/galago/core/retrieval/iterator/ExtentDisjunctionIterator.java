@@ -14,7 +14,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public abstract class ExtentDisjunctionIterator extends DisjunctionIterator implements MovableDataIterator<ExtentArray>, ExtentIterator, MovableCountIterator {
+public abstract class ExtentDisjunctionIterator extends DisjunctionIterator implements MovableDataIterator<ExtentArray>, MovableExtentIterator, MovableCountIterator {
 
   protected ExtentArray extents;
   protected byte[] key;

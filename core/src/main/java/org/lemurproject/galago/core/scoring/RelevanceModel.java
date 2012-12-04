@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.util.MathUtils;
 import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -118,6 +119,8 @@ public class RelevanceModel implements ExpansionModel {
               this.retrieval.getGlobalParameters(),
               this.retrieval.getAvailableParts());
       ArrayList<Node> innerChild = new ArrayList<Node>();
+      // by default - normalize using the entire document.
+      innerChild.add(StructuredQuery.parse("#lengths:document:part=lengths()"));
       innerChild.add(inner);
       String scorerType = parameters.get("scorer", "dirichlet");
       newChildren.add(new Node("feature", scorerType, innerChild));
