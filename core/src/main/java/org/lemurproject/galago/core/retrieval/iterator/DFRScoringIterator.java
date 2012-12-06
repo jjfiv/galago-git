@@ -57,11 +57,13 @@ public class DFRScoringIterator extends TransformIterator implements MovableScor
 
     if (ctx instanceof EarlyTerminationScoringContext) {
       EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
+      if (dctx.members.contains(this)) return;
 
-      // Need to do this at the aggregate level     
+      dctx.members.add(this);
+      // Need to do this at the aggregate level
       dctx.startingPotentials[dctx.sentinelIndex] = scorer.maximumScore();
       dctx.startingPotential += transform(dctx.startingPotentials[dctx.sentinelIndex]);
-      dctx.sentinelIndex++;
+      dctx.sentinelIndex++;     
     }
   }
 

@@ -7,17 +7,17 @@ package org.lemurproject.galago.core.retrieval.traversal;
 import java.util.HashSet;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreCombinationIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DisjunctionIterator;
+import org.lemurproject.galago.core.retrieval.iterator.FilteredIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * This ensures that the current query tree can be run using the delta scoring
  * model. If not, it shuts it off in the parameters.
- *
  *
  * @author irmarc
  */
@@ -38,14 +38,19 @@ public class DeltaCheckTraversal extends Traversal {
   @Override
   public Node afterNode(Node original) throws Exception {
     level--;
+    if (qp.containsKey("deltaReady") && qp.getBoolean("deltaReady") == false) {
+      // This means something already shut down the delta
+      // scoring possibility - e.g. a filtering node.
+      return original;
+    }
+      
     if (isDeltaCapable(original)) {
       deltas.add(original);
     }
 
     // Final judgment
     if (level == 0) {
-      // sjh: turned off for now - producing some errors in tests.
-      // qp.set("deltaReady", deltas.contains(original));
+	qp.set("deltaReady", deltas.contains(original));
     }
 
     return original;
@@ -54,10 +59,6 @@ public class DeltaCheckTraversal extends Traversal {
   @Override
   public void beforeNode(Node object) throws Exception {
     level++;
-//    if (object.getOperator().equals("feature")) {
-//      int c = (int) qp.get("numScorers", 0L);
-//      qp.set("numScorers", c + 1);
-//    }
   }
 
   private boolean isDeltaCapable(Node n) throws Exception {
@@ -65,8 +66,16 @@ public class DeltaCheckTraversal extends Traversal {
       return false;
     }
     NodeType nt = retrieval.getNodeType(n);
-    if (DeltaScoringIterator.class.isAssignableFrom(nt.getIteratorClass())) {
+    Class iteratorClass = nt.getIteratorClass();
+    // DeltaScoringIterators are good
+    if (DeltaScoringIterator.class.isAssignableFrom(iteratorClass)) {
       return true;
+    }
+    
+    // Filters, currently, will not work (candidate checking skips them)
+    if (FilteredIterator.class.isAssignableFrom(iteratorClass)) {
+      qp.set("deltaReady", false);   // shut down all checking.
+      return false;
     }
 
     // No children == no good
@@ -76,7 +85,8 @@ public class DeltaCheckTraversal extends Traversal {
 
     // Need to check the children,
     // also propagate weights downward in the hopes they can be used
-    boolean isScoreCombiner = ScoreCombinationIterator.class.isAssignableFrom(nt.getIteratorClass());
+    boolean isScoreCombiner = DisjunctionIterator.class.isAssignableFrom(iteratorClass) &&
+	ScoreIterator.class.isAssignableFrom(iteratorClass);
     boolean isOk = true;
     NodeParameters np = n.getNodeParameters();
     double total = 0;

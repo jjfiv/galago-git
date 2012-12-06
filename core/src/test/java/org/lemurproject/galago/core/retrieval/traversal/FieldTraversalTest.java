@@ -65,8 +65,6 @@ public class FieldTraversalTest extends TestCase {
     PRMS2Traversal traversal = new PRMS2Traversal(retrieval, qp);
     Node q1 = StructuredQuery.parse("#prms2(#text:cat() #text:dog() #text:donkey())");
     Node q2 = StructuredQuery.copy(traversal, q1);
-
-    System.err.println(q2.toPrettyString());
     
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine:norm=false( ");
@@ -185,11 +183,9 @@ public class FieldTraversalTest extends TestCase {
     transformed.append(" )");
 
     Node expected = StructuredQuery.parse(transformed.toString());
-    //System.err.printf("\n\nExpected: %s\n\n\nGot: %s\n", expected.toString(), q2.toString() );
     assertEquals(expected.toString(), q2.toString());
   }
 
-  /*
   public void testBM25FDeltaVsModel() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -230,7 +226,7 @@ public class FieldTraversalTest extends TestCase {
       assertEquals(results[i].score, results2[i].score, 0.00001);
     }
   }
-
+  
   public void testPRMSDeltaVsModel() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -258,7 +254,7 @@ public class FieldTraversalTest extends TestCase {
     }
 
   }
-
+  
   public void testPL2FDeltaVsModel() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 
@@ -294,7 +290,6 @@ public class FieldTraversalTest extends TestCase {
       assertEquals(results[i].score, results2[i].score, 0.00001);
     }
   }
-  */ 
 
   public void testPRMS2ModelCorrectness() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
@@ -306,8 +301,11 @@ public class FieldTraversalTest extends TestCase {
     LocalRetrieval retrieval = new LocalRetrieval(index, global);
     Parameters qp = new Parameters();
     qp.set("fields", Arrays.asList(fields));
-
-    ScoredDocument[] results = retrieval.runQuery("#prms2(cat dog donkey)", qp);
+    String query = "#prms2(cat dog donkey)";
+    Node raw = StructuredQuery.parse(query);
+    Node root = retrieval.transformQuery(raw, qp);
+    qp.set("deltaReady", false);
+    ScoredDocument[] results = retrieval.runQuery(root, qp);
 
     assertEquals(5, results.length);
 

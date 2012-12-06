@@ -23,27 +23,14 @@ import org.lemurproject.galago.tupleflow.Parameters;
 public class MaxScoreDocumentModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
-  List<Integer> whitelist;
-  
   private ArrayList<Sentinel> sortedSentinels = null;
-
 
   public MaxScoreDocumentModel(LocalRetrieval lr) {
     this.retrieval = lr;
-    this.whitelist = null;
   }
 
   @Override
   public ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception {
-    if (whitelist == null) {
-      return executeWholeCollection(queryTree, queryParams);
-    } else {
-      return executeWorkingSet(queryTree, queryParams);
-    }
-  }
-
-  public ScoredDocument[] executeWholeCollection(Node queryTree, Parameters queryParams)
-          throws Exception {
     EarlyTerminationScoringContext context = new EarlyTerminationScoringContext();
 
     int requested = (int) queryParams.get("requested", 1000);
@@ -51,7 +38,7 @@ public class MaxScoreDocumentModel extends ProcessingModel {
     context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     Arrays.fill(context.startingPotentials, 0);
-    MovableScoreIterator iterator =
+    MovableScoreIterator rootIterator =
             (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
 
     PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
@@ -84,133 +71,59 @@ public class MaxScoreDocumentModel extends ProcessingModel {
       if (candidate == Integer.MAX_VALUE) {
         break;
       }
-
-      // Otherwise move lengths
+        
       context.document = candidate;
-      context.moveLengths(candidate);
+      // Due to different semantics between "currentCandidate" and 
+      // "hasMatch", we need to see if the candidate given actually matches
+      // properly before scoring.
+      if (rootIterator.hasMatch(candidate)) {
+        // Otherwise move lengths
+        context.moveLengths(candidate);
 
-      // Setup to score
-      context.runningScore = context.startingPotential;
-      System.arraycopy(context.startingPotentials, 0, context.potentials, 0,
-              context.startingPotentials.length);
+        // Setup to score
+        context.runningScore = context.startingPotential;
+        System.arraycopy(context.startingPotentials, 0, context.potentials, 0,
+                context.startingPotentials.length);
 
-      // now score sentinels w/out question
-      int i;
-      for (i = 0; i < context.sentinelIndex; i++) {
-        DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
-        dsi.syncTo(context.document);
-        dsi.deltaScore();
-      }
+        // now score sentinels w/out question
+        int i;
+        for (i = 0; i < context.sentinelIndex; i++) {
+          DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
+          dsi.syncTo(context.document);
+          dsi.deltaScore();
+        }
 
-      // Now score the rest, but keep checking
-      while (context.runningScore > context.minCandidateScore && i < sortedSentinels.size()) {
-        DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
-        dsi.syncTo(context.document);
-        dsi.deltaScore();
-        ++i;
-      }
+        // Now score the rest, but keep checking
+        while (context.runningScore > context.minCandidateScore && i < sortedSentinels.size()) {
+          DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
+          dsi.syncTo(context.document);
+          dsi.deltaScore();
+          ++i;
+        }
 
-      // Fully scored it
-      if (i == context.scorers.size()) {
-        if (requested < 0 || queue.size() <= requested || context.runningScore > queue.peek().score) {
-          ScoredDocument scoredDocument = new ScoredDocument(context.document, context.runningScore);
-          queue.add(scoredDocument);
-          if (requested > 0 && queue.size() > requested) {
-            queue.poll();
-            if (context.minCandidateScore < queue.peek().score) {
-              context.minCandidateScore = queue.peek().score;
-              determineSentinelIndex(context);
+        // Fully scored it
+        if (i == context.scorers.size()) {
+          if (requested < 0 || queue.size() <= requested || context.runningScore > queue.peek().score) {
+            ScoredDocument scoredDocument = new ScoredDocument(context.document, context.runningScore);
+            queue.add(scoredDocument);
+            if (requested > 0 && queue.size() > requested) {
+              queue.poll();
+              if (context.minCandidateScore < queue.peek().score) {
+                context.minCandidateScore = queue.peek().score;
+                determineSentinelIndex(context);
+              }
             }
           }
         }
       }
-
+      
       // Now move all matching sentinels members past the current doc, and repeat
-      for (i = 0; i < context.sentinelIndex; i++) {
+      for (int i = 0; i < context.sentinelIndex; i++) {
         DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
         dsi.movePast(context.document);
       }
     }
 
-    return toReversedArray(queue);
-  }
-
-  public ScoredDocument[] executeWorkingSet(Node queryTree, Parameters queryParams)
-          throws Exception {
-    EarlyTerminationScoringContext context = new EarlyTerminationScoringContext();
-
-    // Following operations are all just setup
-    int requested = (int) queryParams.get("requested", 1000);
-
-    context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
-    context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
-    Arrays.fill(context.startingPotentials, 0);
-    MovableIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
-
-    PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
-    ProcessingModel.initializeLengths(retrieval, context);
-    context.minCandidateScore = Double.NEGATIVE_INFINITY;
-    context.sentinelIndex = context.scorers.size();
-
-    // Compute the starting potential
-    context.scorers.get(0).aggregatePotentials(context);
-    // Make sure the scorers are sorted properly
-    buildSentinels(context, queryParams);
-
-    // Routine is as follows:
-    // 1) Find the next candidate from the sentinels
-    // 2) Move sentinels and field length readers to candidate
-    // 3) Score sentinels unconditionally
-    // 4) while (runningScore > R)
-    //      move iterator to candidate
-    //      score candidate w/ iterator
-    for (int i = 0; i < whitelist.size(); i++) {
-      int candidate = whitelist.get(i);
-      for (int j = 0; j < context.sentinelIndex; j++) {
-        if (!context.scorers.get(j).isDone()) {
-          context.scorers.get(j).syncTo(candidate);
-        }
-      }
-
-      // Otherwise move lengths
-      context.document = candidate;
-      context.moveLengths(candidate);
-
-      // Setup to score
-      context.runningScore = context.startingPotential;
-      System.arraycopy(context.startingPotentials, 0, context.potentials, 0,
-              context.startingPotentials.length);
-
-      // now score sentinels w/out question
-      int j;
-      for (j = 0; j < context.sentinelIndex; j++) {
-        context.scorers.get(j).deltaScore();
-      }
-
-      // Now score the rest, but keep checking
-      while (context.runningScore > context.minCandidateScore && j < context.scorers.size()) {
-        context.scorers.get(j).syncTo(context.document);
-        context.scorers.get(j).deltaScore();
-        j++;
-      }
-
-
-      // Fully scored it
-      if (j == context.scorers.size()) {
-        if (requested < 0 || queue.size() <= requested) {
-          ScoredDocument scoredDocument = new ScoredDocument(context.document, context.runningScore);
-          queue.add(scoredDocument);
-          if (requested > 0 && queue.size() > requested) {
-            queue.poll();
-            if (context.minCandidateScore < queue.peek().score) {
-              context.minCandidateScore = queue.peek().score;
-              determineSentinelIndex(context);
-            }
-          }
-        }
-      }
-      // The sentinels is moved at the top, so we don't do it here.
-    }
     return toReversedArray(queue);
   }
 
@@ -228,12 +141,6 @@ public class MaxScoreDocumentModel extends ProcessingModel {
     }
 
     ctx.sentinelIndex = i;
-  }
-
-  @Override
-  public void defineWorkingSet(List<Integer> docs) {
-    Collections.sort(docs);
-    whitelist = docs;
   }
 
   private void buildSentinels(EarlyTerminationScoringContext ctx, Parameters qp) {

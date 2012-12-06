@@ -5,8 +5,9 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.lemurproject.galago.core.index.LengthsReader;
+import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.query.Node;
 
 /**
  * Currently represents the context that the entire query processor shares. This
@@ -21,7 +22,9 @@ public class ScoringContext {
   public int document;
   protected HashMap<String, MovableLengthsIterator> lengths;
   protected TObjectIntHashMap<String> current;
-
+  // Diagnostic
+  public HashMap<MovableIterator, Node> toNodes = new HashMap<MovableIterator, Node>();
+  
   public ScoringContext() {
     lengths = new HashMap<String, MovableLengthsIterator>();
     current = new TObjectIntHashMap<String>();

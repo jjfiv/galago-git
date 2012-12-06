@@ -131,7 +131,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
       count = ((CountIterator) iterator).count();
     }
 
-    double score = function.score(count, context.getLength(partName));
+    double score = function.score(count, lengthsIterator.getCurrentLength());
     score = (score > 0.0) ? score : min; // MY smoothing again
     double phi = ctx.potentials[parentIdx];
     double psi = phi + (weight * (score - max));

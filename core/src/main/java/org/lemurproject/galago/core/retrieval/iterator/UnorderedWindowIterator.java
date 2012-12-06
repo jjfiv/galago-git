@@ -23,6 +23,7 @@ public class UnorderedWindowIterator extends ExtentConjunctionIterator {
     syncTo(0);
   }
 
+  @Override
   public void loadExtents() {
     // get the document
     int document = context.document;

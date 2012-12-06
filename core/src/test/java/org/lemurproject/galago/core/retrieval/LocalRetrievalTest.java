@@ -328,10 +328,9 @@ public class LocalRetrievalTest extends TestCase {
     Parameters p = new Parameters();
     p.set("requested", 5);
     root = retrieval.transformQuery(root, p);
-
     ScoredDocument[] result = retrieval.runQuery(root, p);
 
-    assertEquals(result.length, 2);
+    assertEquals(2, result.length);
 
     HashMap<Integer, Double> realScores = new HashMap<Integer, Double>();
 

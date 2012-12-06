@@ -128,15 +128,16 @@ public class RankedPassageModelTest extends TestCase {
     Node query = StructuredQuery.parse("#combine( test text 0 1 )");
     query = ret.transformQuery(query, queryParams);
 
-    RankedPassageModel model = new RankedPassageModel(ret);
-    model.defineWorkingSet(Arrays.asList(new Integer[]{2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
+    WorkingSetPassageModel model = new WorkingSetPassageModel(ret);
+    queryParams.set("working",
+            Arrays.asList(new Integer[]{2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
 
     ScoredPassage[] results = (ScoredPassage[]) model.execute(query, queryParams);
 
     // --- all documents contain these terms in the first ten words --
     // -> this query should only ever return the first passage (0-10)
     // -> and all scores should be equal
-    assertEquals(results.length, 10);
+    assertEquals(10, results.length);
     for (int i = 0; i < results.length; i++) {
       assertEquals(results[i].document, i + 2);
       assertEquals(results[i].begin, 0);
@@ -148,7 +149,8 @@ public class RankedPassageModelTest extends TestCase {
     query = StructuredQuery.parse("#combine( test text 80 )");
     query = ret.transformQuery(query, queryParams);
 
-    model.defineWorkingSet(Arrays.asList(new Integer[]{0, 1, 2, 3, 4, 89, 90, 91, 92, 93}));
+    queryParams.set("working",
+            Arrays.asList(new Integer[]{0, 1, 2, 3, 4, 89, 90, 91, 92, 93}));
     results = (ScoredPassage[]) model.execute(query, queryParams);
 
     assertEquals(results.length, 20);

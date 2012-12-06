@@ -166,20 +166,6 @@ public class LocalRetrieval implements Retrieval {
     }
     ProcessingModel pm = ProcessingModel.instance(this, queryTree, queryParams);
 
-    // Figure out if there's a working set to deal with
-    if (queryParams.containsKey("working")) {
-      List<Integer> workingSet;
-      if(queryParams.isList("working", Parameters.Type.LONG)){
-        workingSet = queryParams.getList("working");
-      } else if(queryParams.isList("working", Parameters.Type.STRING)){
-        List<String> workingSetNames = queryParams.getList("working");
-        workingSet = this.getDocumentIds(workingSetNames);
-      } else {
-        throw new IllegalArgumentException("Parameter 'working' must be a list of integers or a list of strings.");
-      }
-      pm.defineWorkingSet(workingSet);
-    }
-
     // get some results
     results = pm.execute(queryTree, queryParams);
     if (results == null) {
@@ -252,7 +238,9 @@ public class LocalRetrieval implements Retrieval {
 
     // first check if this is a repeated node in this tree:
     if (queryIteratorCache != null && queryIteratorCache.containsKey(node.toString())) {
-      return queryIteratorCache.get(node.toString());
+      iterator = queryIteratorCache.get(node.toString());
+      context.toNodes.put(iterator, node);
+      return iterator;
     }
 
     // second check if this node is cached
@@ -287,7 +275,8 @@ public class LocalRetrieval implements Retrieval {
     if (queryIteratorCache != null) {
       queryIteratorCache.put(node.toString(), iterator);
     }
-
+    
+    context.toNodes.put(iterator, node);
     return iterator;
   }
 

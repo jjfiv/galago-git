@@ -101,7 +101,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
       count = ((CountIterator) iterator).count();
     }
 
-    double s = function.score(count, context.getLength(partName));
+    double s = function.score(count, lengthsIterator.getCurrentLength());
     double diff = weight * (s - max);
     double numerator = idf * K * diff;
     double fieldSum = ctx.potentials[parentIdx];

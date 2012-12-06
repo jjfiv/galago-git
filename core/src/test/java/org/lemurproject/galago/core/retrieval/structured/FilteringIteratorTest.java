@@ -81,7 +81,6 @@ public class FilteringIteratorTest extends TestCase {
 
     Parameters qp = new Parameters();
     tree = retrieval.transformQuery(tree, qp);
-
     ScoredDocument[] results = retrieval.runQuery(tree, qp);
     assertEquals(3, results.length);
 

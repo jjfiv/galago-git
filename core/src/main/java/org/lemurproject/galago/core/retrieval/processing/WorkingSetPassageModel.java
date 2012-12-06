@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -22,12 +22,12 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author irmarc
  */
-public class RankedPassageModel extends ProcessingModel {
+public class WorkingSetPassageModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   Index index;
 
-  public RankedPassageModel(LocalRetrieval lr) {
+  public WorkingSetPassageModel(LocalRetrieval lr) {
     this.retrieval = lr;
     this.index = lr.getIndex();
   }
@@ -36,33 +36,60 @@ public class RankedPassageModel extends ProcessingModel {
   public ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception {
     PassageScoringContext context = new PassageScoringContext();
 
+    // There should be a whitelist to deal with
+    List l = queryParams.getList("working");
+    if (l == null) {
+      throw new IllegalArgumentException("Parameters must contain a 'working' parameter specifying the working set");
+    }
+
+    Class containedType = l.get(0).getClass();
+    List<Integer> whitelist;
+    if (Integer.class.isAssignableFrom(containedType)) {
+      whitelist = (List<Integer>) l;
+    } else if (Long.class.isAssignableFrom(containedType)) {
+      // Sadly this will not directly translate for now - maybe when/if we move
+      // Galago to using longs instead of ints...
+      whitelist = new ArrayList<Integer>();
+      for (Long docid : (List<Long>) l) {
+        whitelist.add(docid.intValue());
+      }
+    } else if (String.class.isAssignableFrom(containedType)) {
+      whitelist = retrieval.getDocumentIds((List<String>) l);
+    } else {
+      throw new IllegalArgumentException(
+              String.format("Parameter 'working' must be a list of longs or a list of strings. Found type %s\n.",
+              containedType.toString()));
+    }
+    Collections.sort(whitelist);
+
     // Following operations are all just setup
     int requested = (int) queryParams.get("requested", 1000);
     int passageSize = (int) queryParams.getLong("passageSize");
     int passageShift = (int) queryParams.getLong("passageShift");
-    MovableScoreIterator iterator = 
-            (MovableScoreIterator) retrieval.createIterator(queryParams, 
-                      queryTree, 
-                      context);
-    MovableLengthsIterator documentLengths = 
-            (MovableLengthsIterator) retrieval.createIterator(new Parameters(), 
-            StructuredQuery.parse("#lengths:part=lengths()"), context);
     
+    MovableScoreIterator iterator =
+            (MovableScoreIterator) retrieval.createIterator(queryParams,
+            queryTree,
+            context);
+    MovableLengthsIterator documentLengths = 
+            (MovableLengthsIterator) retrieval.createIterator(new Parameters(),
+            StructuredQuery.parse("#lengths:part=lengths()"),
+            context);
+
     PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
 
     // now there should be an iterator at the root of this tree
-    while (!iterator.isDone()) {
-      int document = iterator.currentCandidate();
-      
-      // This context is shared among all scorers
+    for (int i = 0; i < whitelist.size(); i++) {
+      int document = whitelist.get(i);
+      iterator.syncTo(document);
       context.document = document;
       documentLengths.syncTo(document);
       int length = documentLengths.getCurrentLength();
-
+      
       // set the parameters for the first passage
       context.begin = 0;
       context.end = Math.min(passageSize, length);
-      
+
       // ensure we are at the document we wish to score
       // -- this function will move ALL iterators, 
       //     not just the ones that do not have all candidates
@@ -72,7 +99,9 @@ public class RankedPassageModel extends ProcessingModel {
       // context until the next one
       boolean lastIteration = false;
       while (context.begin < length && !lastIteration) {
-        if (context.end >= length) lastIteration = true;
+        if (context.end >= length) {
+          lastIteration = true;
+        }
 
         if (iterator.hasMatch(document)) {
           double score = iterator.score();
@@ -88,7 +117,7 @@ public class RankedPassageModel extends ProcessingModel {
         // Move the window forward
         context.begin += passageShift;
         // end must be bigger or equal to the begin, and less than the length of the document
-        context.end = Math.max(context.begin, Math.min(passageSize+context.begin, length));
+        context.end = Math.max(context.begin, Math.min(passageSize + context.begin, length));
       }
       iterator.movePast(document);
     }

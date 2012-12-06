@@ -30,8 +30,6 @@ public abstract class ProcessingModel {
 
   public abstract ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception;
 
-  public abstract void defineWorkingSet(List<Integer> docs);
-
   public static <T extends ScoredDocument> T[] toReversedArray(PriorityQueue<T> queue) {
     if (queue.size() == 0) {
       return null;
@@ -88,6 +86,11 @@ public abstract class ProcessingModel {
       Constructor<ProcessingModel> cons = clazz.getConstructor(LocalRetrieval.class);
       return cons.newInstance(r);
     }
+    
+    if (p.containsKey("working")) {
+      return new WorkingSetDocumentModel(r);
+    }
+    
     QueryType qt = r.getQueryType(root);
     if (qt == QueryType.BOOLEAN) {
       return new SetModel(r);
