@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.util.zip.GZIPInputStream;
 import org.lemurproject.galago.core.index.BTreeFactory;
 import org.lemurproject.galago.core.index.BTreeReader;
@@ -96,6 +97,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       }
       split.fileId = fileId;
       split.totalFileCount = totalFileCount;
+      logger.log(Level.INFO, "Sending split to processor: {0}\n", new Object[]{split.toString()});
       processor.process(split);
       fileId++;
     }

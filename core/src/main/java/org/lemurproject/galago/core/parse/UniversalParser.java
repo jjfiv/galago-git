@@ -157,7 +157,6 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 
       if (count % 10000 == 0) {
     	  Logger.getLogger(getClass().toString()).log(Level.WARNING, "Read " + count + " from split: " + split.fileName);
-
       }
     }
 
