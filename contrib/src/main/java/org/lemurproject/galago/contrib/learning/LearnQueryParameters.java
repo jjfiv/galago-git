@@ -5,8 +5,6 @@ package org.lemurproject.galago.contrib.learning;
 
 import java.io.PrintStream;
 import java.util.List;
-import org.lemurproject.galago.contrib.learning.Learner;
-import org.lemurproject.galago.contrib.learning.LearnerFactory;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.AppFunction;
@@ -31,14 +29,13 @@ public class LearnQueryParameters extends AppFunction {
   @Override
   public void run(Parameters p, PrintStream output) throws Exception {
     // should check parameters here.
-
     Retrieval retrieval = RetrievalFactory.instance(p);
     Learner learner = LearnerFactory.instance(p, retrieval);
-    List<Parameters> tunedParameters = learner.learn();
-    for(int run = 0; run < tunedParameters.size(); run++){
-      output.print(run);
-      output.print("\t");
-      output.println(tunedParameters.get(run));
+    List<RetrievalModelInstance> tunedParameters = learner.learn();
+    for(int id = 0; id < tunedParameters.size(); id++){
+      RetrievalModelInstance instance = tunedParameters.get(id);
+      Parameters instParams = instance.toParameters();
+      output.println(instParams.toString());
     }
   }
 

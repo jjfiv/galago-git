@@ -27,8 +27,8 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class CoordinateAscentLearner extends Learner {
   // this is the max step size
-  private static final double MAX_STEP = Math.pow(10, 6);
 
+  private static final double MAX_STEP = Math.pow(10, 6);
   // coord ascent specific parameters
   protected int maxIterations;
   protected HashMap<String, Double> minStepSizes;
@@ -38,6 +38,8 @@ public class CoordinateAscentLearner extends Learner {
 
   public CoordinateAscentLearner(Parameters p, Retrieval r) throws Exception {
     super(p, r);
+
+    // logger.info(p.toPrettyString());
 
     this.maxStepRatio = p.get("maxStepRatio", 0.5);
     this.stepScale = p.get("stepScale", 2.0);
@@ -86,7 +88,7 @@ public class CoordinateAscentLearner extends Learner {
         while (improving) {
           double curr = parameterSettings.get(coord);
           parameterSettings.unsafeSet(coord, curr + step);
-          double evaluation = this.evaluate(parameterSettings);
+          double evaluation = evaluate(parameterSettings);
           logger.info(String.format("Coordinate (%s) ++%f... Metric: %f.", coord, step, evaluation));
           // while we are improving, or equal to the current best - 
           if (evaluation > rightBest || evaluation == best) {
@@ -94,7 +96,7 @@ public class CoordinateAscentLearner extends Learner {
             rightStep += step;
             step *= stepScale;
             // avoid REALLY BIG steps
-            if(step > this.MAX_STEP){
+            if (step > this.MAX_STEP) {
               improving = false;
             }
           } else {
@@ -118,14 +120,14 @@ public class CoordinateAscentLearner extends Learner {
         while (improving) {
           double curr = parameterSettings.get(coord);
           parameterSettings.unsafeSet(coord, curr - step);
-          double evaluation = this.evaluate(parameterSettings);
+          double evaluation = evaluate(parameterSettings);
           logger.info(String.format("Coordinate (%s) --%f... Metric: %f.", coord, step, evaluation));
           if (evaluation > leftBest || evaluation == best) {
             leftBest = evaluation;
             leftStep += step;
             step *= stepScale;
             // avoid REALLY BIG steps
-            if(step > this.MAX_STEP){
+            if (step > this.MAX_STEP) {
               improving = false;
             }
           } else {

@@ -3,6 +3,7 @@
  */
 package org.lemurproject.galago.contrib.learning;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -17,33 +18,34 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public class Queries {
+public class QuerySet {
   
   private Logger logger;
   
-  protected TreeSet<String> queryNumbers;
-  protected TreeMap<String,String> queryTexts;
-  protected TreeMap<String,Node> queryNodes;
-  protected TreeMap<String,Parameters> queryParams;
+  protected TreeSet<String> queryIdentifiers;
+  protected TreeMap<String, String> queryTexts;
+  protected TreeMap<String, Node> queryNodes;
+  protected TreeMap<String, Parameters> queryParams;
   
-  public Queries(List<Parameters> queries, Parameters defaultQParams){
-    queryNumbers = new TreeSet<String>();
-    queryTexts = new TreeMap<String,String>();
-    queryNodes = new TreeMap<String,Node>();
-    queryParams = new TreeMap<String,Parameters>();
+  public QuerySet(List<Parameters> queries, Parameters defaultQParams) {
+    queryIdentifiers = new TreeSet<String>();
+    queryTexts = new TreeMap<String, String>();
+    queryNodes = new TreeMap<String, Node>();
+    queryParams = new TreeMap<String, Parameters>();
     
     logger = Logger.getLogger(this.getClass().getName());
     
     for(Parameters q : queries){
       String qnum = q.getString("number");
-      if(queryNumbers.contains(qnum)){
+      if(queryIdentifiers.contains(qnum)){
         logger.info("Ingoring duplicated query: number: " + qnum + "\t" + q.toString());
         continue;
       }
-      queryNumbers.add(qnum);
+      queryIdentifiers.add(qnum);
 
       // clone the defaultQParams + overwrite any settings
       Parameters qparams = defaultQParams.clone();
+      
       qparams.copyFrom(q);
       queryParams.put(qnum, qparams);
       
@@ -57,15 +59,15 @@ public class Queries {
   }
 
   public boolean isEmpty() {
-    return queryNumbers.isEmpty();
+    return queryIdentifiers.isEmpty();
   }
 
   public Iterable<String> getQueryNumbers() {
-    return queryNumbers;
+    return queryIdentifiers;
   }
 
   public Node getNode(String number) {
-    if(queryNumbers.contains(number)){
+    if(queryIdentifiers.contains(number)){
       return this.queryNodes.get(number);
     } else {
       logger.warning("Tried to get non-existant query: " + number);
@@ -76,14 +78,14 @@ public class Queries {
   public List<Parameters> getParametersSubset(List<String> numbers){
     ArrayList<Parameters> sublist = new ArrayList();
     for(String request : numbers){
-      sublist.add(this.queryParams.get(request));
+      sublist.add(this.queryParams.get(request).clone());
     }
     return sublist;
   }
 
   public List<Parameters> getQueryParameters() {
     ArrayList<Parameters> list = new ArrayList();
-    for(String num : this.queryNumbers){
+    for(String num : this.queryIdentifiers){
       list.add(this.queryParams.get(num));
     }
     return list;
