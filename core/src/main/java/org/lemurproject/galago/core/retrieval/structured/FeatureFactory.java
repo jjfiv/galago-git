@@ -12,6 +12,7 @@ import java.util.List;
 import org.lemurproject.galago.core.retrieval.BadOperatorException;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.*;
+import org.lemurproject.galago.core.retrieval.iterator.dfr.PL2ScoringIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -56,6 +57,7 @@ public class FeatureFactory {
     {InBetweenIterator.class.getName(), "between"},
     {EqualityIterator.class.getName(), "equals"},
     {PassageFilterIterator.class.getName(), "passagefilter"},
+    {PL2ScoringIterator.class.getName(), "pl2scorer"},
     {PassageLengthIterator.class.getName(), "passagelengths"}
   };
   static String[][] sFeatureLookup = {
@@ -78,6 +80,7 @@ public class FeatureFactory {
   static String[] sTraversalList = {
     WeightedDependenceTraversal.class.getName(),
     SequentialDependenceTraversal.class.getName(),
+    PL2Traversal.class.getName(),
     FullDependenceTraversal.class.getName(),
     TransformRootTraversal.class.getName(),
     PRMSTraversal.class.getName(),
@@ -131,10 +134,12 @@ public class FeatureFactory {
     ArrayList<TraversalSpec> beforeTraversals = new ArrayList<TraversalSpec>();
     ArrayList<TraversalSpec> insteadTraversals = new ArrayList<TraversalSpec>();
 
-    if (parameters.containsKey("traversals")) {
-      Parameters traversals = parameters.getMap("traversals");
-      for (String className : traversals.getKeys()) {
-        String order = traversals.get(className, "after");
+    if (parameters.isMap("traversals") || parameters.isList("traversals", Parameters.Type.MAP)) {
+      List<Parameters> traversals = (List<Parameters>) parameters.getAsList("traversals");
+      for (Parameters traversal : traversals) {
+        String className = traversal.getString("name");
+        String order = traversal.get("order", "after");
+
         TraversalSpec spec = new TraversalSpec();
         spec.className = className;
 

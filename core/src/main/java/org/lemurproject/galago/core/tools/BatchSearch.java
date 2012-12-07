@@ -158,8 +158,8 @@ public class BatchSearch extends AppFunction {
 
         if (parameters.get("printTransformation", false)) {
           System.err.println("Text:" + queryText);
-          System.err.println("Parsed Node:" + root.toString());
-          System.err.println("Transformed Node:" + transformed.toString());
+          System.err.println("Parsed Node:" + root.toPrettyString());
+          System.err.println("Transformed Node:" + transformed.toPrettyString());
         }
 
         results = retrieval.runQuery(transformed, p);
