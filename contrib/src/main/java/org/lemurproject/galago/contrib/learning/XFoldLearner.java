@@ -3,19 +3,20 @@
  */
 package org.lemurproject.galago.contrib.learning;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.lemurproject.galago.core.eval.QuerySetResults;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -28,7 +29,8 @@ public class XFoldLearner extends Learner {
   private Map<Integer, Learner> foldLearners;
   private Map<Integer, List<String>> trainQueryFolds;
   private Map<Integer, List<String>> testQueryFolds;
-  final private ArrayList queryNumbers;
+  private ArrayList queryNumbers;
+  private boolean execute;
 
   public XFoldLearner(Parameters p, Retrieval r) throws Exception {
     super(p, r);
@@ -38,6 +40,8 @@ public class XFoldLearner extends Learner {
     assert (!p.containsKey("xfoldLearner")
             || p.isString("xfoldLearner")) : this.getClass().getName() + " requires `xfoldLeaner' parameter, of type String";
 
+    execute = p.get("execute", true);
+    
     // create one set of parameters (and learner) for each xfold.
     xfoldCount = (int) p.getLong("xfolds");
     trainQueryFolds = new HashMap(xfoldCount);
@@ -56,7 +60,7 @@ public class XFoldLearner extends Learner {
       List<String> xfoldQueryNumbersInverse = new ArrayList(queryNumbers);
       xfoldQueryNumbersInverse.removeAll(xfoldQueryNumbers);
 
-      logger.info(String.format("Fold: %d contains %d + %d = %d queries", foldId, xfoldQueryNumbers.size(), xfoldQueryNumbersInverse.size(), this.queries.queryIdentifiers.size()));
+      outputTraceStream.println(String.format("Fold: %d contains %d + %d = %d queries", foldId, xfoldQueryNumbers.size(), xfoldQueryNumbersInverse.size(), this.queries.queryIdentifiers.size()));
 
       testQueryFolds.put(foldId, xfoldQueryNumbers);
       trainQueryFolds.put(foldId, xfoldQueryNumbersInverse);
@@ -70,7 +74,21 @@ public class XFoldLearner extends Learner {
       copy.remove("queries");
       copy.set("queries", queries.getParametersSubset(xfoldQueryNumbersInverse)); // overwrite //
       foldParameters.put(foldId, copy);
+
+      if (outputFolder != null) {
+        Utility.copyStringToFile(copy.toPrettyString(), new File(outputFolder, name + "-fold-" + foldId + ".json"));
+      }
+
       foldLearners.put(foldId, LearnerFactory.instance(copy, retrieval));
+    }
+
+    // copy each one of these to a file .fold1, .fold2, ...
+  }
+
+  public void close() {
+    super.close();
+    for (Learner l : this.foldLearners.values()) {
+      l.close();
     }
   }
 
@@ -78,80 +96,48 @@ public class XFoldLearner extends Learner {
    * learning function - returns a list of learnt parameters
    */
   @Override
-  public List<RetrievalModelInstance> learn() throws Exception {
-    final List<RetrievalModelInstance> learntParams = new ArrayList();
+  public RetrievalModelInstance learn() throws Exception {
+    if (execute) {
+      final List<RetrievalModelInstance> learntParams = new ArrayList();
 
-//    if (threading) {
-//      ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-//      final List<Exception> exceptions = Collections.synchronizedList(new ArrayList());
-//      final CountDownLatch latch = new CountDownLatch(foldLearners.size() * restarts);
-//
-//      // one set of results per fold.
-//      for (int fid : foldLearners.keySet()) {
-//        final int foldId = fid;
-//        final Learner foldLearner = foldLearners.get(foldId);
-//        Thread t = new Thread() {
-//
-//          @Override
-//          public void run() {
-//            try {
-//              List<RetrievalModelInstance> results = foldLearner.learn();
-//              for (RetrievalModelInstance res : results) {
-//                double testScore = evaluateSpecificQueries(foldId, res, testQueryFolds.get(foldId));
-//                res.setAnnotation("testScore", Double.toString(testScore));
-//                double allScore = evaluateSpecificQueries(foldId, res, queryNumbers);
-//                res.setAnnotation("allScore", Double.toString(allScore));
-//              }
-//              learntParams.addAll(results);
-//            } catch (Exception e) {
-//              exceptions.add(e);
-//            } finally {
-//              latch.countDown();
-//            }
-//          }
-//        };
-//        threadPool.execute(t);
-//      }
-//
-//      while (latch.getCount() > 0) {
-//        try {
-//          latch.await();
-//        } catch (InterruptedException e) {
-//          // do nothing
-//        }
-//      }
-//
-//      threadPool.shutdown();
-//
-//      if (!exceptions.isEmpty()) {
-//        for (Exception e : exceptions) {
-//          System.err.println("Caught exception: \n" + e.toString());
-//          e.printStackTrace();
-//        }
-//      }
-//
-//    } else {
       // one set of results per fold.
       for (int foldId : foldLearners.keySet()) {
-        List<RetrievalModelInstance> results = foldLearners.get(foldId).learn();
-        for (RetrievalModelInstance res : results) {
-          double testScore = evaluateSpecificQueries(foldId, res, testQueryFolds.get(foldId));
-          res.setAnnotation("testScore", Double.toString(testScore));
-          double allScore = evaluateSpecificQueries(foldId, res, queryNumbers);
-          res.setAnnotation("allScore", Double.toString(allScore));
-        }
-        learntParams.addAll(results);
+        RetrievalModelInstance result = foldLearners.get(foldId).learn();
+        double testScore = evaluateSpecificQueries(result, testQueryFolds.get(foldId));
+        result.setAnnotation("testScore", Double.toString(testScore));
+        double allScore = evaluateSpecificQueries(result, queryNumbers);
+        result.setAnnotation("allScore", Double.toString(allScore));
+
+        this.outputPrintStream.println(result.toString());
+
+        learntParams.add(result);
       }
-//    }
-    return learntParams;
+
+      // take an average value across fold instances
+      Parameters settings = new Parameters();
+      for (String param : this.learnableParameters.getParams()) {
+        double setting = 0.0;
+        for (RetrievalModelInstance foldOpt : learntParams) {
+          setting += foldOpt.get(param);
+        }
+        setting /= learntParams.size();
+        settings.set(param, setting);
+      }
+      RetrievalModelInstance averageParams = new RetrievalModelInstance(this.learnableParameters, settings);
+      double score = evaluateSpecificQueries(averageParams, queryNumbers);
+      averageParams.setAnnotation("score", Double.toString(score));
+      averageParams.setAnnotation("name", name + "-xfold-avg");
+
+      outputPrintStream.println(averageParams.toString());
+
+      return averageParams;
+    } else {
+      outputPrintStream.println("NOT OPTIMIZING, returning random parameters.");
+      return this.generateRandomInitalValues();
+    }
   }
 
-  @Override
-  public RetrievalModelInstance learn(RetrievalModelInstance initialSettings) throws Exception {
-    throw new RuntimeException("Function not availiable for xfold learner.");
-  }
-
-  protected double evaluateSpecificQueries(int foldId, RetrievalModelInstance instance, List<String> qids) throws Exception {
+  protected double evaluateSpecificQueries(RetrievalModelInstance instance, List<String> qids) throws Exception {
     long start = 0;
     long end = 0;
 
@@ -178,10 +164,10 @@ public class XFoldLearner extends Learner {
     }
 
     QuerySetResults results = new QuerySetResults(resMap);
-    results.ensureQuerySet(queries.getParametersSubset(this.testQueryFolds.get(foldId)));
+    results.ensureQuerySet(queries.getParametersSubset(qids));
     double r = evalFunction.evaluate(results, qrels);
 
-    logger.info("Specific-query-set run time: " + (end - start) + ", settings : " + settings.toString() + ", score : " + r);
+    outputTraceStream.println("Specific-query-set run time: " + (end - start) + ", settings : " + settings.toString() + ", score : " + r);
 
     return r;
   }

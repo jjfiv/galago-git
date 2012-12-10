@@ -27,7 +27,7 @@ public class QuerySet {
   protected TreeMap<String, Node> queryNodes;
   protected TreeMap<String, Parameters> queryParams;
   
-  public QuerySet(List<Parameters> queries, Parameters defaultQParams) {
+  public QuerySet(List<Parameters> queries) {
     queryIdentifiers = new TreeSet<String>();
     queryTexts = new TreeMap<String, String>();
     queryNodes = new TreeMap<String, Node>();
@@ -44,9 +44,7 @@ public class QuerySet {
       queryIdentifiers.add(qnum);
 
       // clone the defaultQParams + overwrite any settings
-      Parameters qparams = defaultQParams.clone();
-      
-      qparams.copyFrom(q);
+      Parameters qparams = q.clone();
       queryParams.put(qnum, qparams);
       
       String qtext = q.getString("text");

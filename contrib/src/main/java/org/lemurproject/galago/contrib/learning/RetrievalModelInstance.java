@@ -90,7 +90,11 @@ public class RetrievalModelInstance {
     return ps;
   }
 
-  public void setAnnotation(String string, String value) {
-    outParams.set(string, value);
+  public void setAnnotation(String key, String value) {
+    outParams.set(key, value);
+  }
+
+  public String getAnnotation(String key) {
+    return outParams.getString(key);
   }
 }

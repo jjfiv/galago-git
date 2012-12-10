@@ -3,13 +3,12 @@
  */
 package org.lemurproject.galago.contrib.learning;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.eval.QuerySetJudgments;
 import org.lemurproject.galago.core.eval.QuerySetResults;
@@ -37,7 +36,7 @@ import org.lemurproject.galago.tupleflow.Parameters.Type;
  * @author sjh
  */
 public abstract class Learner {
-
+  
   protected final String name;
   protected final Logger logger;
   protected final Random random;
@@ -53,14 +52,39 @@ public abstract class Learner {
   // execution  
   protected int restarts;
   protected boolean threading;
-
+  protected int threadCount;
+  // output
+  protected File outputFolder;
+  protected final PrintStream outputPrintStream;
+  protected final PrintStream outputTraceStream;
+  
   public Learner(Parameters p, Retrieval r) throws Exception {
     logger = Logger.getLogger(this.getClass().getName());
     retrieval = r;
     random = (p.isLong("randomSeed")) ? new Random(p.getLong("randomSeed")) : new Random(System.nanoTime());
     name = p.get("name", "default");
-
+    
+    if (p.isString("output")) {
+      outputFolder = new File(p.getString("output"));
+      if (!outputFolder.isDirectory()) {
+        outputFolder.mkdirs();
+      }
+      outputPrintStream = new PrintStream(new BufferedOutputStream(new FileOutputStream(new File(outputFolder, name + ".out"))));
+      outputTraceStream = new PrintStream(new BufferedOutputStream(new FileOutputStream(new File(outputFolder, name + ".trace"))));
+    } else {
+      outputFolder = null;
+      outputPrintStream = System.out;
+      outputTraceStream = System.err;
+    }
+    
     initialize(p, r);
+  }
+  
+  public void close() {
+    if (outputFolder != null) {
+      outputPrintStream.close();
+      outputTraceStream.close();
+    }
   }
 
   /**
@@ -68,29 +92,30 @@ public abstract class Learner {
    * learner
    */
   protected void initialize(Parameters p, Retrieval r) throws IOException, Exception {
-
+    
     assert (p.isString("qrels")) : this.getClass().getName() + " requires `qrels' parameter, of type String.";
     assert (p.isList("learnableParameters", Type.MAP)) : this.getClass().getName() + " requires `learnableParameters' parameter, of type List<Map>.";
-    assert (!p.containsKey("normalization") || (p.isMap("normalization") || p.isList("normalization", Type.MAP))) : this.getClass().getName() + " requires `learnableParameters' parameter to be of type List<Map>.";
-
-    queries = new QuerySet(BatchSearch.collectQueries(p), p);
+    assert (!p.containsKey("normalization") || (p.isMap("normalization") || p.isList("normalization", Type.MAP))) : this.getClass().getName() + " requires `normalization' parameter to be of type List<Map>.";
+    
+    queries = new QuerySet(BatchSearch.collectQueries(p));
     assert !queries.isEmpty() : this.getClass().getName() + " requires `queries' parameter, of type List(Parameters): see Batch-Search for an example.";
-
+    
     qrels = new QuerySetJudgments(p.getString("qrels"));
     evalFunction = QuerySetEvaluatorFactory.instance(p.get("metric", "map"), p);
-
+    
     threading = p.get("threading", false);
-
+    threadCount = (int) (p.isLong("threadCount") ? p.getLong("threadCount") : Runtime.getRuntime().availableProcessors());
+    
     List<Parameters> params = (List<Parameters>) p.getList("learnableParameters");
     List<Parameters> normalizationRules = new ArrayList();
     if (p.isList("normalization", Type.MAP)
             || p.isMap("normalization")) {
       normalizationRules.addAll(p.getAsList("normalization"));
     }
-
+    
     learnableParameters = new RetrievalModelParameters(params, normalizationRules);
-
-    restarts = (int) p.get("restarts", 3);
+    
+    restarts = (int) p.get("restarts", 1);
     initialSettings = new ArrayList(restarts);
     if (p.isList("initialParameters", Type.MAP)) {
       List<Parameters> inits = (List<Parameters>) p.getAsList("initialParameters");
@@ -99,96 +124,21 @@ public abstract class Learner {
         initialSettings.add(inst);
       }
     }
-
+    
     testedParameters = new HashMap();
 
     // caching system
     if (retrieval.getGlobalParameters().get("cache", false)) {
-      logger.info("Starting. Caching query nodes");
+      outputTraceStream.println("Starting. Caching query nodes");
       ensureCachedQueryNodes(retrieval);
-      logger.info("Done. Caching query nodes");
+      outputTraceStream.println("Done. Caching query nodes");
     }
   }
 
   /**
    * learning function - returns a list of learnt parameters
    */
-  public List<RetrievalModelInstance> learn() throws Exception {
-    final List<RetrievalModelInstance> learntParams = Collections.synchronizedList(new ArrayList());
-
-    if (threading) {
-      ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-      final List<Exception> exceptions = Collections.synchronizedList(new ArrayList());
-      final CountDownLatch latch = new CountDownLatch(restarts);
-
-      for (int i = 0; i < restarts; i++) {
-        final RetrievalModelInstance settingsInstance;
-        if (initialSettings.size() > i) {
-          settingsInstance = initialSettings.get(i).clone();
-        } else {
-          settingsInstance = generateRandomInitalValues();
-        }
-        settingsInstance.setAnnotation("name", name + "-randomStart-" + i);
-        Thread t = new Thread() {
-
-          @Override
-          public void run() {
-            try {
-              RetrievalModelInstance s = learn(settingsInstance);
-              s.setAnnotation("score", Double.toString(evaluate(s)));
-              learntParams.add(s);
-            } catch (Exception e) {
-              exceptions.add(e);
-            } finally {
-              latch.countDown();
-            }
-          }
-        };
-        threadPool.execute(t);
-      }
-
-      while (latch.getCount() > 0) {
-        logger.info(String.format("Waiting for %d threads.", latch.getCount()));
-        try {
-          latch.await(10, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-          // do nothing
-        }
-      }
-
-      threadPool.shutdown();
-
-      if (!exceptions.isEmpty()) {
-        for (Exception e : exceptions) {
-          System.err.println("Caught exception: \n" + e.toString());
-          e.printStackTrace();
-        }
-      }
-
-    } else {
-
-      for (int i = 0; i < restarts; i++) {
-        final RetrievalModelInstance settingsInstance;
-        if (initialSettings.size() > i) {
-          settingsInstance = initialSettings.get(i).clone();
-        } else {
-          settingsInstance = generateRandomInitalValues();
-        }
-        settingsInstance.setAnnotation("name", name + "-randomStart-" + i);
-        RetrievalModelInstance s = learn(settingsInstance);
-        s.setAnnotation("score", Double.toString(evaluate(s)));
-        learntParams.add(s);
-      }
-    }
-
-    return learntParams;
-  }
-
-  /**
-   * instance learning function - should return the best parameters discovered
-   * for these initial settings.
-   */
-  public abstract RetrievalModelInstance learn(RetrievalModelInstance initialSettings) throws Exception;
+  public abstract RetrievalModelInstance learn() throws Exception;
 
   /**
    * Getters and Setters - currently only for the initial settings
@@ -196,7 +146,7 @@ public abstract class Learner {
   public List<RetrievalModelInstance> getInitialSettings() {
     return this.initialSettings;
   }
-
+  
   public void setInitialSettings(List<RetrievalModelInstance> initialSettings) {
     this.initialSettings = initialSettings;
   }
@@ -227,18 +177,18 @@ public abstract class Learner {
 
     long start = 0;
     long end = 0;
-
+    
     String settingString = instance.toString();
     if (testedParameters.containsKey(settingString)) {
       return testedParameters.get(settingString);
     }
-
+    
     HashMap<String, ScoredDocument[]> resMap = new HashMap();
 
     // ensure the global parameters contain the current settings.
     Parameters settings = instance.toParameters();
     this.retrieval.getGlobalParameters().copyFrom(settings);
-
+    
     for (String number : this.queries.getQueryNumbers()) {
       Node root = this.queries.getNode(number).clone();
       root = this.ensureSettings(root, settings);
@@ -248,17 +198,17 @@ public abstract class Learner {
       start = System.currentTimeMillis();
       ScoredDocument[] scoredDocs = this.retrieval.runQuery(root, settings);
       end = System.currentTimeMillis();
-
+      
       if (scoredDocs != null) {
         resMap.put(number, scoredDocs);
       }
     }
-
+    
     QuerySetResults results = new QuerySetResults(resMap);
     results.ensureQuerySet(queries.getQueryParameters());
     double r = evalFunction.evaluate(results, qrels);
-
-    logger.info("Query run time: " + (end - start) + ", settings : " + settings.toString() + ", score : " + r);
+    
+    outputTraceStream.println("Query run time: " + (end - start) + ", settings : " + settings.toString() + ", score : " + r);
 
 
     // store score in cache for future reference
@@ -283,7 +233,7 @@ public abstract class Learner {
     }
     return n;
   }
-
+  
   private void ensureCachedQueryNodes(Retrieval cache) throws Exception {
     // generate some new random parameters
 
@@ -291,8 +241,8 @@ public abstract class Learner {
     RetrievalModelInstance rnd2 = generateRandomInitalValues();
     Parameters settings1 = rnd1.toParameters();
     Parameters settings2 = rnd2.toParameters();
-
-
+    
+    
     for (String number : this.queries.getQueryNumbers()) {
       Node root1 = this.queries.getNode(number).clone();
       this.retrieval.getGlobalParameters().copyFrom(settings1);
@@ -300,14 +250,14 @@ public abstract class Learner {
       root1 = this.retrieval.transformQuery(root1, settings1);
       Set<String> cachableNodes1 = new HashSet();
       collectCachableNodes(root1, cachableNodes1);
-
+      
       Node root2 = this.queries.getNode(number).clone();
       this.retrieval.getGlobalParameters().copyFrom(settings2);
       root2 = this.ensureSettings(root2, settings2);
       root2 = this.retrieval.transformQuery(root2, settings2);
       Set<String> cachableNodes2 = new HashSet();
       collectCachableNodes(root2, cachableNodes2);
-
+      
       for (String nodeString : cachableNodes1) {
         if (cachableNodes2.contains(nodeString)) {
           cache.addNodeToCache(StructuredQuery.parse(nodeString));
@@ -315,7 +265,7 @@ public abstract class Learner {
       }
     }
   }
-
+  
   private void collectCachableNodes(Node root, Set nodeCache) {
     for (Node child : root.getInternalNodes()) {
       collectCachableNodes(child, nodeCache);

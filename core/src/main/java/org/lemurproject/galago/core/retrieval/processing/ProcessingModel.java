@@ -19,9 +19,9 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 
 /**
- * An interface that defines the contract for processing a query.
- * There's one method : execute, which takes a fully annotated query
- * tree, and somehow produces a result list.
+ * An interface that defines the contract for processing a query. There's one
+ * method : execute, which takes a fully annotated query tree, and somehow
+ * produces a result list.
  *
  *
  * @author irmarc
@@ -40,7 +40,7 @@ public abstract class ProcessingModel {
       items[i] = queue.poll();
 
       // set rank attributes here
-      items[i].rank = i+1;
+      items[i].rank = i + 1;
     }
     return items;
   }
@@ -86,11 +86,15 @@ public abstract class ProcessingModel {
       Constructor<ProcessingModel> cons = clazz.getConstructor(LocalRetrieval.class);
       return cons.newInstance(r);
     }
-    
+
     if (p.containsKey("working")) {
-      return new WorkingSetDocumentModel(r);
+      if (p.get("passageQuery", false)) {
+        return new WorkingSetPassageModel(r);
+      } else {
+        return new WorkingSetDocumentModel(r);
+      }
     }
-    
+
     QueryType qt = r.getQueryType(root);
     if (qt == QueryType.BOOLEAN) {
       return new SetModel(r);
@@ -120,7 +124,7 @@ public abstract class ProcessingModel {
         }
       }
 
-      if (p.get("passageQuery", false))  {
+      if (p.get("passageQuery", false)) {
         return new RankedPassageModel(r);
       } else {
         if (p.get("deltaReady", false)) {

@@ -17,6 +17,10 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  *
  *
+ *
+ *
+ *
+ *
 
  *
  * @author sjh
@@ -36,20 +40,28 @@ public class GridSearchLearner extends Learner {
   }
 
   @Override
-  public RetrievalModelInstance learn(RetrievalModelInstance initialSettings) throws Exception {
-    List<String> params = new ArrayList(initialSettings.params.getParams());
+  public RetrievalModelInstance learn() throws Exception {
+    List<String> params = new ArrayList(this.learnableParameters.getParams());
+    RetrievalModelInstance settings;
+    if (this.initialSettings.isEmpty()) {
+      settings = super.generateRandomInitalValues();
+    } else {
+      settings = this.initialSettings.get(0);
+    }
+    settings.setAnnotation("name", name);
 
     if (params.size() > 0) {
       // depth first grid search
-      RetrievalModelInstance best = gridLearn(0, params, initialSettings.clone());
+      RetrievalModelInstance best = gridLearn(0, params, settings);
 
       best.normalize();
-      logger.info("Best settings: " + best.toParameters().toString());
+      outputPrintStream.println(best.toString());
+//      outputTraceStream.println("Best settings: " + best.toString());
       return best;
     }
 
-    logger.info("No learnable parameters found. Quitting.");
-    return initialSettings;
+    outputTraceStream.println("No learnable parameters found. Quitting.");
+    return settings;
   }
 
   private RetrievalModelInstance gridLearn(int i, List<String> params, RetrievalModelInstance settings) throws Exception {
@@ -59,15 +71,11 @@ public class GridSearchLearner extends Learner {
     double paramValue = this.learnableParameters.getMin(param);
     double maxParamValue = this.learnableParameters.getMax(param);
     double step = this.learnableParameters.getRange(param) / (double) gridSize;
-    // ensure a minimum step size
-    if (step == 0) {
-      step = 0.01;
-    }
 
     double bestScore = 0.0;
     double bestParamValue = paramValue;
 
-    while (paramValue < maxParamValue) {
+    while (paramValue <= maxParamValue) {
       settings.unsafeSet(param, paramValue);
 
       // recurse to find the best settings of the other parameters given this setting
@@ -80,7 +88,7 @@ public class GridSearchLearner extends Learner {
       if (score > bestScore) {
         bestScore = score;
         bestParamValue = paramValue;
-        logger.info(String.format("Found better param value: %s = %f ; score = %f\nSettings: %s", param, paramValue, score, settings));
+        outputTraceStream.println(String.format("Found better param value: %s = %f ; score = %f\nWhere settings: %s", param, paramValue, score, settings));
       }
       // move to the next grid line
       paramValue += step;

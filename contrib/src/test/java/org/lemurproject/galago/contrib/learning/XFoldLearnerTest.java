@@ -50,7 +50,7 @@ public class XFoldLearnerTest extends TestCase {
       learnParams.set("learner", "xfold");
       learnParams.set("xfolds", 2);
       learnParams.set("xfoldLearner", "coord");
-      
+
       learnParams.set("qrels", qrels.getAbsolutePath());
       // add two parameters
       List<Parameters> learnableParams = new ArrayList();
@@ -64,18 +64,15 @@ public class XFoldLearnerTest extends TestCase {
       normalRule.set("value", 1.0);
       learnParams.set("normalization", new ArrayList());
       learnParams.getList("normalization").add(normalRule);
-      
+
 
       learnParams.set("restarts", 1);
       learnParams.set("initialParameters", new ArrayList());
       learnParams.getList("initialParameters").add(Parameters.parse("{\"0\":0.9,\"1\":-0.2}"));
-      
-      Learner learner = LearnerFactory.instance(learnParams, ret);
-      List<RetrievalModelInstance> res = learner.learn();
 
-      for (RetrievalModelInstance r : res) {
-        System.err.println(r.toParameters().toString());
-      }
+      Learner learner = LearnerFactory.instance(learnParams, ret);
+      RetrievalModelInstance res = learner.learn();
+      System.err.println(res.toParameters().toString());
 
     } finally {
       if (index != null) {

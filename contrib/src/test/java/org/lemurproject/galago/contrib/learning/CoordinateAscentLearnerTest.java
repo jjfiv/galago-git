@@ -68,11 +68,8 @@ public class CoordinateAscentLearnerTest extends TestCase {
       learnParams.getList("initialParameters").add(Parameters.parse("{\"0\":0.9,\"1\":-0.2}"));
       
       Learner learner = LearnerFactory.instance(learnParams, ret);
-      List<RetrievalModelInstance> res = learner.learn();
-
-      for (RetrievalModelInstance r : res) {
-        System.err.println(r.toParameters().toString());
-      }
+      RetrievalModelInstance res = learner.learn();
+      System.err.println(res.toParameters().toString());
 
     } finally {
       if (index != null) {

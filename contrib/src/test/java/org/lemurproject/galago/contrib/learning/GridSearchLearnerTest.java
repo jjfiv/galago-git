@@ -61,16 +61,13 @@ public class GridSearchLearnerTest extends TestCase {
       normalRule.set("value", 1D);
       learnParams.set("normalization", new ArrayList());
       learnParams.getList("normalization").add(normalRule);
-      
+
       learnParams.set("gridSize", 3);
       learnParams.set("restarts", 1);
 
       Learner learner = LearnerFactory.instance(learnParams, ret);
-      List<RetrievalModelInstance> res = learner.learn();
-
-      for (RetrievalModelInstance r : res) {
-        System.err.println(r.toParameters().toString());
-      }
+      RetrievalModelInstance res = learner.learn();
+      System.err.println(res.toParameters().toString());
 
     } finally {
       if (index != null) {

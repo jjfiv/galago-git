@@ -31,22 +31,13 @@ public class DelayedDeltaModel extends AbstractPartialProcessor {
   List<Integer> whitelist;
 
   public DelayedDeltaModel(LocalRetrieval lr) {
-    retrieval = (StagedLocalRetrieval)lr;
+    retrieval = (StagedLocalRetrieval) lr;
     this.index = retrieval.getIndex();
     whitelist = null;
   }
 
   @Override
   public ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception {
-    if (whitelist == null) {
-      return executeWholeCollection(queryTree, queryParams);
-    } else {
-      return executeWorkingSet(queryTree, queryParams);
-    }
-  }
-
-  public ScoredDocument[] executeWholeCollection(Node queryTree, Parameters queryParams)
-          throws Exception {
     SoftDeltaScoringContext context = new SoftDeltaScoringContext();
     int requested = (int) queryParams.get("requested", 1000);
 
@@ -116,7 +107,7 @@ public class DelayedDeltaModel extends AbstractPartialProcessor {
       int i;
       for (i = 0; i < context.sentinelIndex; i++) {
         DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
-	dsi.syncTo(context.document);
+        dsi.syncTo(context.document);
         if (Estimator.class.isAssignableFrom(dsi.getClass())) {
           Estimator e = (Estimator) dsi;
           context.runningScore -= (dsi.getWeight() * dsi.maximumScore());
@@ -222,7 +213,7 @@ public class DelayedDeltaModel extends AbstractPartialProcessor {
 
       // Now move all matching sentinel members forward, and repeat
       for (i = 0; i < context.sentinelIndex; i++) {
-          sortedSentinels.get(i).iterator.movePast(context.document);
+        sortedSentinels.get(i).iterator.movePast(context.document);
       }
     }
     ////CallTable.set("heap_end_size", bottom.size() + top.size());
@@ -269,92 +260,6 @@ public class DelayedDeltaModel extends AbstractPartialProcessor {
     }
   }
 
-  public ScoredDocument[] executeWorkingSet(Node queryTree, Parameters queryParams)
-          throws Exception {
-    SoftDeltaScoringContext context = new SoftDeltaScoringContext();
-
-    // Following operations are all just setup
-    int requested = (int) queryParams.get("requested", 1000);
-
-    context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
-    context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
-    Arrays.fill(context.startingPotentials, 0);
-    MovableIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
-
-    PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
-    ProcessingModel.initializeLengths(retrieval, context);
-    context.minCandidateScore = Double.NEGATIVE_INFINITY;
-    context.sentinelIndex = context.scorers.size();
-
-    // Compute the starting potential
-    context.scorers.get(0).aggregatePotentials(context);
-    // Make sure the scorers are sorted properly
-    Collections.sort(context.scorers, new Comparator<DeltaScoringIterator>() {
-
-      @Override
-      public int compare(DeltaScoringIterator t, DeltaScoringIterator t1) {
-        return (int) (t.totalEntries() - t1.totalEntries());
-      }
-    });
-
-    // Routine is as follows:
-    // 1) Find the next candidate from the sentinels
-    // 2) Move sentinels and field length readers to candidate
-    // 3) Score sentinels unconditionally
-    // 4) while (runningScore > R)
-    //      move iterator to candidate
-    //      score candidate w/ iterator
-    for (int i = 0; i < whitelist.size(); i++) {
-      int candidate = whitelist.get(i);
-      for (int j = 0; j < context.sentinelIndex; j++) {
-        if (!context.scorers.get(j).isDone()) {
-          context.scorers.get(j).syncTo(candidate);
-        }
-      }
-
-      // Otherwise move lengths
-      context.document = candidate;
-      context.moveLengths(candidate);
-
-      // Setup to score
-      context.runningScore = context.startingPotential;
-      System.arraycopy(context.startingPotentials, 0, context.potentials, 0,
-              context.startingPotentials.length);
-
-      // now score sentinels w/out question
-      int j;
-      for (j = 0; j < context.sentinelIndex; j++) {
-        context.scorers.get(j).deltaScore();
-        ////CallTable.increment("hard_score");
-      }
-
-      // Now score the rest, but keep checking
-      while (context.runningScore > context.minCandidateScore && j < context.scorers.size()) {
-        context.scorers.get(j).syncTo(context.document);
-        context.scorers.get(j).deltaScore();
-        j++;
-        ////CallTable.increment("soft_score");
-      }
-
-      // Fully scored it
-      if (j == context.scorers.size()) {
-        if (requested < 0 || queue.size() <= requested) {
-          ScoredDocument scoredDocument = new ScoredDocument(context.document, context.runningScore);
-          queue.add(scoredDocument);
-          if (requested > 0 && queue.size() > requested) {
-            queue.poll();
-            if (context.minCandidateScore < queue.peek().score) {
-              context.minCandidateScore = queue.peek().score;
-              computeSentinels(context);
-            }
-          }
-        }
-      }
-      // The sentinels are moved at the top, so we don't do it here.
-    }
-    return toReversedArray(queue);
-  }
-
   private void determineSentinelIndex(SoftDeltaScoringContext ctx) {
     // Now we try to find our sentinel set
     ctx.runningScore = ctx.startingPotential;
@@ -397,11 +302,5 @@ public class DelayedDeltaModel extends AbstractPartialProcessor {
       i++;
     }
     ctx.estimatorIndex = i;
-  }
-
-  @Override
-  public void defineWorkingSet(List<Integer> docs) {
-    Collections.sort(docs);
-    whitelist = docs;
   }
 }
