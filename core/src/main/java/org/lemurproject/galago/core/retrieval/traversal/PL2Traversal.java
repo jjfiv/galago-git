@@ -5,6 +5,7 @@ package org.lemurproject.galago.core.retrieval.traversal;
 
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -12,7 +13,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author sjh
  */
 public class PL2Traversal extends Traversal {
-
+  
   private final Retrieval ret;
   private final Parameters queryParams;
   
@@ -28,6 +29,7 @@ public class PL2Traversal extends Traversal {
       pl2root.getNodeParameters().set("norm", false);
       for (int i = 0; i < original.numChildren(); i++) {
         Node scorer = new Node("pl2scorer");
+        scorer.addChild(StructuredQuery.parse("#lengths:document:part=lengths()"));
         scorer.addChild(original.getChild(i));
         pl2root.addChild(scorer);
       }
