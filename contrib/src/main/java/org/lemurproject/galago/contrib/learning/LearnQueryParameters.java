@@ -30,10 +30,14 @@ public class LearnQueryParameters extends AppFunction {
     // should check parameters here.
     Retrieval retrieval = RetrievalFactory.instance(p);
     Learner learner = LearnerFactory.instance(p, retrieval);
-    RetrievalModelInstance tunedParameters = learner.learn();
-    Parameters instParams = tunedParameters.toParameters();
-    output.println(instParams.toString());
-    learner.close();
+    try {
+      RetrievalModelInstance tunedParameters = learner.learn();
+      Parameters instParams = tunedParameters.toParameters();
+      output.println(instParams.toString());
+    } finally {
+      // ensure all buffered streams are correctly flushed.
+      learner.close();
+    }
   }
 
   public static void main(String[] args) throws Exception {
