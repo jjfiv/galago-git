@@ -27,9 +27,7 @@ public class PL2TraversalTest extends TestCase {
 
     Node pl2root = StructuredQuery.parse("#pl2( test query )");
     Node out = traversal.afterNode( pl2root );
-    Node exp = StructuredQuery.parse("#combine:norm=false( "
-            + "#pl2scorer( #lengths:document:part=lengths() test ) "
-            + "#pl2scorer( #lengths:document:part=lengths() query ) )");
+    Node exp = StructuredQuery.parse("#combine:norm=false( #pl2scorer( #lengths:document:part=lengths() test ) #pl2scorer( #lengths:document:part=lengths() query ) )");
     
     assertEquals(out.toString(), exp.toString());
   }

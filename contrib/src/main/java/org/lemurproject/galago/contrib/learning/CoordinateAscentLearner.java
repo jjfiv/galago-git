@@ -167,6 +167,7 @@ public class CoordinateAscentLearner extends Learner {
       best.setAnnotation("name", name + "-best");
       
       outputPrintStream.println(best.toString());
+      outputPrintStream.flush();
       
       return best;
     }
