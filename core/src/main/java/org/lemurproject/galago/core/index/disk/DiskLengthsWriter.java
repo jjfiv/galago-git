@@ -116,10 +116,10 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     private DataOutputStream stream;
     private byte[] field;
     // stats
-    private int nonZeroDocumentCount;
-    private int collectionLength;
-    private int maxLength;
-    private int minLength;
+    private long nonZeroDocumentCount;
+    private long collectionLength;
+    private long maxLength;
+    private long minLength;
     private int firstDocument;
     private int prevDocument;
 
@@ -177,10 +177,10 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     @Override
     public long dataLength() {
       // data to be written is :
-      //  4 bytes for each of 6 integer statistics
-      //  8 bytes for the avgLength
+      //  4 bytes for each of 2 integer statistics
+      //  8 bytes for each of 5 long/double stats
       //  and the stream data
-      return (4 * 6) + (8) + stream.size();
+      return (4 * 2) + (8 * 5) + stream.size();
     }
 
     public boolean isEmpty() {
@@ -197,11 +197,11 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
 
       double avgLength = (double) collectionLength / (double) nonZeroDocumentCount;
 
-      fileStream.write(Utility.fromInt(nonZeroDocumentCount));
-      fileStream.write(Utility.fromInt(collectionLength));
+      fileStream.write(Utility.fromLong(nonZeroDocumentCount));
+      fileStream.write(Utility.fromLong(collectionLength));
       fileStream.write(Utility.fromDouble(avgLength));
-      fileStream.write(Utility.fromInt(maxLength));
-      fileStream.write(Utility.fromInt(minLength));
+      fileStream.write(Utility.fromLong(maxLength));
+      fileStream.write(Utility.fromLong(minLength));
 
       fileStream.write(Utility.fromInt(firstDocument));
       fileStream.write(Utility.fromInt(prevDocument));

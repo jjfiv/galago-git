@@ -347,11 +347,11 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     private final BTreeIterator iterator;
     private DataStream streamBuffer;
     // stats
-    private int nonZeroDocumentCount;
-    private int collectionLength;
+    private long nonZeroDocumentCount;
+    private long collectionLength;
     private double avgLength;
-    private int maxLength;
-    private int minLength;
+    private long maxLength;
+    private long minLength;
     // utility
     private int firstDocument;
     private int lastDocument;
@@ -372,11 +372,11 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
       this.streamBuffer = it.getValueStream();
 
       // collect stats
-      this.nonZeroDocumentCount = streamBuffer.readInt();
-      this.collectionLength = streamBuffer.readInt();
+      this.nonZeroDocumentCount = streamBuffer.readLong();
+      this.collectionLength = streamBuffer.readLong();
       this.avgLength = streamBuffer.readDouble();
-      this.maxLength = streamBuffer.readInt();
-      this.minLength = streamBuffer.readInt();
+      this.maxLength = streamBuffer.readLong();
+      this.minLength = streamBuffer.readLong();
 
       this.firstDocument = streamBuffer.readInt();
       this.lastDocument = streamBuffer.readInt();
