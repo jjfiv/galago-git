@@ -25,9 +25,14 @@ import java.util.TreeMap;
 public class QuerySetJudgments {
 
   private Map<String, QueryJudgments> querySetJudgments;
+  private boolean binary;
+  private boolean positive;
+          
 
-  public QuerySetJudgments(String filename) throws IOException {
+  public QuerySetJudgments(String filename, boolean binary, boolean positive) throws IOException {
     querySetJudgments = loadJudgments(filename);
+    this.binary = binary;
+    this.positive = positive;
   }
 
   public Iterable<String> getQueryIterator() {
@@ -69,7 +74,13 @@ public class QuerySetJudgments {
       }
 
       // add this judgment to the query
-      judgments.get(queryNumber).add(docno, Integer.parseInt(judgment));
+      int j = Integer.parseInt(judgment);
+      if(binary){
+        j = (j > 0)? 1 : 0;
+      } else if(positive){
+        j = (j > 0)? j : 0;
+      }
+      judgments.get(queryNumber).add(docno, j);
     }
 
     in.close();

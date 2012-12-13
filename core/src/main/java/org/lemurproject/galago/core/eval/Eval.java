@@ -99,9 +99,11 @@ public class Eval extends AppFunction {
     assert (p.get("summary", true) || p.get("details", false)) : "eval requires either 'summary' or 'details' to be set true.";
     assert (!p.containsKey("comparisons") || p.isList("comparisons", Type.STRING)) : "eval parameter 'comparisons' must be a list of strings.";
 
+    boolean binaryJudgments = p.get("binary", false);
+    boolean positiveJudgments = p.get("postive", true);
 
     QuerySetResults baseline = new QuerySetResults(p.getString("baseline"));
-    QuerySetJudgments judgments = new QuerySetJudgments(p.getString("judgments"));
+    QuerySetJudgments judgments = new QuerySetJudgments(p.getString("judgments"), binaryJudgments, positiveJudgments);
 
     // this ensure that queries that return no documents are represented in the ranking
     if (p.isList("queries", Type.MAP)) {

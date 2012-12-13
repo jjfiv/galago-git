@@ -27,13 +27,13 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public class WeightedDependenceTraversal extends Traversal {
+public class WeightedSequentialDependenceTraversal extends Traversal {
 
   private GroupRetrieval gRetrieval;
   private Parameters unigramWeights;
   private Parameters bigramWeights;
 
-  public WeightedDependenceTraversal(Retrieval retrieval) {
+  public WeightedSequentialDependenceTraversal(Retrieval retrieval) {
     if (retrieval instanceof GroupRetrieval) {
       this.gRetrieval = (GroupRetrieval) retrieval;
       Parameters parameters = retrieval.getGlobalParameters();
