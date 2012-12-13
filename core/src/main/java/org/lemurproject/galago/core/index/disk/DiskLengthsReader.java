@@ -3,17 +3,14 @@ package org.lemurproject.galago.core.index.disk;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.MappedByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
@@ -85,8 +82,8 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
   @Override
   public MovableLengthsIterator getLengthsIterator() throws IOException {
-      BTreeIterator i = reader.getIterator(doc);
-      return new StreamLengthsIterator(doc, i);
+    BTreeIterator i = reader.getIterator(doc);
+    return new StreamLengthsIterator(doc, i);
 //    return new MemoryMapLengthsIterator(doc, documentLengths);
   }
 
@@ -133,7 +130,6 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 //    public MemoryMapLengthsIterator getMemoryValueIterator() throws IOException {
 //      return new MemoryMapLengthsIterator(iterator.getKey(), iterator);
 //    }
-
     @Override
     public String getKeyString() throws IOException {
       return Utility.toString(getKey());
@@ -339,7 +335,6 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 //      return cs;
 //    }
 //  }
-
   public class StreamLengthsIterator extends KeyListReader.ListIterator
           implements MovableCountIterator, MovableLengthsIterator,
           AggregateReader.CollectionAggregateIterator {
@@ -372,11 +367,20 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
       this.streamBuffer = it.getValueStream();
 
       // collect stats
-      this.nonZeroDocumentCount = streamBuffer.readLong();
-      this.collectionLength = streamBuffer.readLong();
-      this.avgLength = streamBuffer.readDouble();
-      this.maxLength = streamBuffer.readLong();
-      this.minLength = streamBuffer.readLong();
+      //** temporary fix - this allows current indexes to continue to work **/
+      if(reader.getManifest().get("longs", false)){
+        this.nonZeroDocumentCount = streamBuffer.readLong();
+        this.collectionLength = streamBuffer.readLong();
+        this.avgLength = streamBuffer.readDouble();
+        this.maxLength = streamBuffer.readLong();
+        this.minLength = streamBuffer.readLong();
+      } else {
+        this.nonZeroDocumentCount = streamBuffer.readInt();
+        this.collectionLength = streamBuffer.readInt();
+        this.avgLength = streamBuffer.readDouble();
+        this.maxLength = streamBuffer.readInt();
+        this.minLength = streamBuffer.readInt();
+      }
 
       this.firstDocument = streamBuffer.readInt();
       this.lastDocument = streamBuffer.readInt();

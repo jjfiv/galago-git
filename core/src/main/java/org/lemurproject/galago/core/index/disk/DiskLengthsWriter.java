@@ -53,6 +53,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     p.set("writerClass", DiskLengthsWriter.class.getName());
     p.set("mergerClass", DocumentLengthsMerger.class.getName());
     p.set("readerClass", DiskLengthsReader.class.getName());
+    p.set("longs", true);
     recordsWritten = parameters.getCounter("records written");
     recordsRead = parameters.getCounter("records read");
     newFields = parameters.getCounter("new Fields");
