@@ -14,9 +14,9 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * The CacbedRetrieval object exists in a retrieval
- *  - it allows in-memory caching of node iterators
- *  - particularly useful for caching complex nodes for repeated querying
+ * The CacbedRetrieval object exists in a retrieval - it allows in-memory
+ * caching of node iterators - particularly useful for caching complex nodes for
+ * repeated querying
  *
  * @author sjh
  */
@@ -25,6 +25,7 @@ public class CachedRetrieval {
   protected Parameters parameters;
   // scores are risky to cache -> dirichlet smoothed scores depend on the length of the document.
   protected boolean cacheScores;
+  protected boolean cacheLeafNodes;
   protected HashMap<String, MemoryIndexPart> cacheParts;
   protected HashMap<String, String> cachedNodes;
   protected HashMap<String, NodeStatistics> cachedStats;
@@ -44,6 +45,7 @@ public class CachedRetrieval {
 
     // default behaviour is not to cache scores - as mentioned above dirichlet scores carry some risk
     this.cacheScores = this.parameters.get("cacheScores", false);
+    this.cacheLeafNodes = this.parameters.get("cacheLeafNodes", true);
 
     this.cachedNodes = new HashMap();
     this.cachedStats = new HashMap();
@@ -115,7 +117,6 @@ public class CachedRetrieval {
 //    }
 //    addToCache(queryTree);
 //  }
-
   /**
    * caches an arbitrary query node currently can store only count, extent, and
    * score iterators.
@@ -124,37 +125,39 @@ public class CachedRetrieval {
 
     String nodeString = node.toString();
     if (!cachedNodes.containsKey(nodeString)) {
-      if (iterator instanceof MovableScoreIterator) {
-        if (this.cacheScores) {
-          cachedNodes.put(nodeString, "score");
-          cacheParts.get("score").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
-          // logger.info("Cached scoring node : " + nodeString);
+      if (this.cacheLeafNodes || node.numChildren() > 0) {
+        if (iterator instanceof MovableScoreIterator) {
+          if (this.cacheScores) {
+            cachedNodes.put(nodeString, "score");
+            cacheParts.get("score").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
+            // logger.info("Cached scoring node : " + nodeString);
+          } else {
+            // logger.info("Scoring node are not cachable : " + nodeString);
+          }
+
+        } else if (iterator instanceof MovableLengthsIterator) {
+          cacheParts.get("lengths").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
+
+        } else if (iterator instanceof MovableExtentIterator) {
+//        NodeStatistics ns = super.getNodeStatistics(node);
+//        cachedStats.put(nodeString, ns);
+          cachedNodes.put(nodeString, "extent");
+          cacheParts.get("extent").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
+          // logger.info("Cached extent node : " + nodeString);
+
+        } else if (iterator instanceof MovableCountIterator) {
+//        NodeStatistics ns = super.getNodeStatistics(node);
+//        cachedStats.put(nodeString, ns);
+          cachedNodes.put(nodeString, "count");
+          cacheParts.get("count").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
+          // logger.info("Cached count node : " + nodeString);
+
         } else {
-          // logger.info("Scoring node are not cachable : " + nodeString);
+          // logger.info("Unable to cache node : " + nodeString);
         }
-
-      } else if (iterator instanceof MovableLengthsIterator) {
-        cacheParts.get("lengths").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
-
-      } else if (iterator instanceof MovableExtentIterator) {
-//        NodeStatistics ns = super.getNodeStatistics(node);
-//        cachedStats.put(nodeString, ns);
-        cachedNodes.put(nodeString, "extent");
-        cacheParts.get("extent").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
-        // logger.info("Cached extent node : " + nodeString);
-
-      } else if (iterator instanceof MovableCountIterator) {
-//        NodeStatistics ns = super.getNodeStatistics(node);
-//        cachedStats.put(nodeString, ns);
-        cachedNodes.put(nodeString, "count");
-        cacheParts.get("count").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
-        // logger.info("Cached count node : " + nodeString);
-
       } else {
-        // logger.info("Unable to cache node : " + nodeString);
+        // logger.info("Already cached node : " + nodeString);
       }
-    } else {
-      // logger.info("Already cached node : " + nodeString);
     }
   }
 
