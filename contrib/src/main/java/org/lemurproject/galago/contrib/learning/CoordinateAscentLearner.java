@@ -261,7 +261,7 @@ public class CoordinateAscentLearner extends Learner {
         while (improving) {
           parameterSettings.unsafeSet(coord, currParamValue - step);
           double evaluation = evaluate(parameterSettings);
-          outputTraceStream.println(String.format("Coordinate (%s) --%f... Metric: %f.", coord, step, evaluation));
+          outputTraceStream.println(String.format("Coordinate (%s) (%f --%f)... Metric: %f.", coord, currParamValue, step, evaluation));
           if (evaluation > leftBest || evaluation == best) {
             leftBest = evaluation;
             leftStep = step;
@@ -311,6 +311,7 @@ public class CoordinateAscentLearner extends Learner {
 
         parameterSettings.normalize();
         outputTraceStream.println(String.format("Current source weights: %s", parameterSettings.toString()));
+        outputTraceStream.flush();
       }
       outputTraceStream.println(String.format("Finished coordinate sweep."));
       outputTraceStream.flush();
@@ -318,6 +319,7 @@ public class CoordinateAscentLearner extends Learner {
 
     outputTraceStream.println(String.format("No changes in the current round or maximum number of iterations reached... Done optimizing."));
     outputTraceStream.println(String.format("Best metric achieved: %s", best));
+    outputTraceStream.flush();
     return parameterSettings;
   }
 }
