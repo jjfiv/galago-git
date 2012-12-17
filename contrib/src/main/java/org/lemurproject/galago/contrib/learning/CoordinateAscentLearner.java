@@ -212,7 +212,7 @@ public class CoordinateAscentLearner extends Learner {
         while (improving) {
           parameterSettings.unsafeSet(coord, currParamValue + step);
           double evaluation = evaluate(parameterSettings);
-          outputTraceStream.println(String.format("Coordinate (%s) ++%f... Metric: %f.", coord, step, evaluation));
+          outputTraceStream.println(String.format("Coordinate (%s) (%f ++%f)... Metric: %f.", coord, currParamValue, step, evaluation));
 
           // while we are improving, or equal to the current best - 
           if (evaluation > rightBest || evaluation == best) {
