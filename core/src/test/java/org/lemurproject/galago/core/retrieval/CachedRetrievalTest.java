@@ -118,6 +118,24 @@ public class CachedRetrievalTest extends TestCase {
         cachedExtentIterator.movePast(cachedExtentIterator.currentCandidate());
       }
 
+      // check leaf node caching
+      Parameters p2 = new Parameters();
+      p2.set("cache", true);
+      p2.set("cacheScores", true);
+      p2.set("cacheLeafNodes", false);
+      LocalRetrieval cacheRet2 = (LocalRetrieval) RetrievalFactory.instance(indexFile.getAbsolutePath(), p2);
+
+      extent = StructuredQuery.parse("#extents:sample:part=postings()");
+      cacheRet2.addNodeToCache(extent);
+
+      Node extent2 = StructuredQuery.parse("#unordered:8( #extents:sample:part=postings() #extents:document:part=postings() )");
+      cacheRet2.addNodeToCache(extent2);
+      
+      cachedExtentIterator = (MovableExtentIterator) cacheRet2.createIterator(new Parameters(), extent, sc);
+      assertFalse(cachedExtentIterator instanceof MemoryWindowIndex.ExtentIterator);
+
+      cachedExtentIterator = (MovableExtentIterator) cacheRet2.createIterator(new Parameters(), extent2, sc);
+      assertTrue(cachedExtentIterator instanceof MemoryWindowIndex.ExtentIterator);
 
     } finally {
       if (trecCorpusFile != null) {
