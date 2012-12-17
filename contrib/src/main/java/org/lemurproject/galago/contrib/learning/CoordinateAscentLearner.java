@@ -39,6 +39,7 @@ public class CoordinateAscentLearner extends Learner {
   protected double minStepSize;
   protected double maxStepRatio;
   protected double stepScale;
+  protected boolean limitRange;
 
   public CoordinateAscentLearner(Parameters p, Retrieval r) throws Exception {
     super(p, r);
@@ -48,6 +49,8 @@ public class CoordinateAscentLearner extends Learner {
     this.maxIterations = (int) p.get("maxIterations", 5);
     this.minStepSizes = new HashMap();
     this.minStepSize = p.get("minStepSize", 0.02);
+    this.limitRange = p.get("limitRange", false);
+    
     Parameters specialMinStepSizes = new Parameters();
     if (p.isMap("specialMinStepSize")) {
       specialMinStepSizes = p.getMap("specialMinStepSize");
@@ -189,6 +192,9 @@ public class CoordinateAscentLearner extends Learner {
 
       for (int c = 0; c < optimizationOrder.size(); c++) { // outer iteration
         String coord = optimizationOrder.get(c);
+        double upperLimit = parameterSettings.getMax(coord);
+        double lowerLimit = parameterSettings.getMin(coord);
+        
         outputTraceStream.println(String.format("Iteration (%d of %d). Step (%d of %d). Starting to optimize coordinate (%s)...", iters, this.maxIterations, c + 1, optimizationOrder.size(), coord));
         double currParamValue = parameterSettings.get(coord); // Keep around the current parameter value
         // Take a step to the right 
@@ -201,20 +207,36 @@ public class CoordinateAscentLearner extends Learner {
         double rightBest = best;
         double rightStep = 0;
         boolean improving = true;
+        boolean atLimit = false;
 
         while (improving) {
-          double curr = parameterSettings.get(coord);
-          parameterSettings.unsafeSet(coord, curr + step);
+          parameterSettings.unsafeSet(coord, currParamValue + step);
           double evaluation = evaluate(parameterSettings);
           outputTraceStream.println(String.format("Coordinate (%s) ++%f... Metric: %f.", coord, step, evaluation));
+
           // while we are improving, or equal to the current best - 
           if (evaluation > rightBest || evaluation == best) {
+            // record the step as the current 'best'
             rightBest = evaluation;
-            rightStep += step;
+            rightStep = step;
+
+            // scale the step size up
             step *= stepScale;
+
             // avoid REALLY BIG steps
             if (step > this.MAX_STEP) {
               improving = false;
+            }
+
+            // avoid exceeding upper bound
+            if (limitRange && (currParamValue + step > upperLimit)){
+              if(atLimit || currParamValue == upperLimit){
+                improving = false;
+              } else {
+                atLimit = true;
+                step = upperLimit - currParamValue;
+                outputTraceStream.println("Hit limit : upper limit: " + step);
+              }
             }
           } else {
             improving = false;
@@ -234,18 +256,31 @@ public class CoordinateAscentLearner extends Learner {
         double leftBest = best;
         double leftStep = 0;
         improving = true;
+        atLimit = false;
+
         while (improving) {
-          double curr = parameterSettings.get(coord);
-          parameterSettings.unsafeSet(coord, curr - step);
+          parameterSettings.unsafeSet(coord, currParamValue - step);
           double evaluation = evaluate(parameterSettings);
           outputTraceStream.println(String.format("Coordinate (%s) --%f... Metric: %f.", coord, step, evaluation));
           if (evaluation > leftBest || evaluation == best) {
             leftBest = evaluation;
-            leftStep += step;
+            leftStep = step;
             step *= stepScale;
+
             // avoid REALLY BIG steps
             if (step > this.MAX_STEP) {
               improving = false;
+            }
+            
+            // avoid exceeding lower bound
+            if (limitRange && (currParamValue - step < lowerLimit)){
+              if(atLimit || currParamValue == lowerLimit){
+                improving = false;
+              } else {
+                atLimit = true;
+                step = currParamValue - lowerLimit;
+                outputTraceStream.println("Hit lower limit : new step: " + step);
+              }
             }
           } else {
             improving = false;

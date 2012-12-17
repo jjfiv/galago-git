@@ -38,6 +38,14 @@ public class RetrievalModelInstance {
     return settings.get(p);
   }
 
+  public double getMax(String coord) {
+    return params.getMax(coord);
+  }
+
+  public double getMin(String coord) {
+    return params.getMin(coord);
+  }
+  
   /**
    * This function allows learning modules to violate the normalization rules
    */

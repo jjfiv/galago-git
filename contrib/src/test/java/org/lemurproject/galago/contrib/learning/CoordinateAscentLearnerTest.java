@@ -46,13 +46,16 @@ public class CoordinateAscentLearnerTest extends TestCase {
       Utility.copyStringToFile(qrelData, qrels);
 
       // init learn params with queries
-      Parameters learnParams = Parameters.parse("{\"queries\": [{\"number\":\"q1\",\"text\":\"#combine:0=0.5:1=0.5( jump moon )\"}, {\"number\":\"q2\",\"text\":\"#combine:0=0.5:1=0.5( everything shoe )\"}]}");
+      Parameters learnParams = Parameters.parse("{\"queries\": ["
+              + "{\"number\":\"q1\",\"text\":\"#combine:0=0.5:1=0.5( jump moon )\"}, "
+              + "{\"number\":\"q2\",\"text\":\"#combine:0=0.5:1=0.5( everything shoe )"
+              + "\"}]}");
       learnParams.set("learner", "coord");
       learnParams.set("qrels", qrels.getAbsolutePath());
       // add two parameters
       List<Parameters> learnableParams = new ArrayList();
-      learnableParams.add(Parameters.parse("{\"name\":\"0\"}"));
-      learnableParams.add(Parameters.parse("{\"name\":\"1\"}"));
+      learnableParams.add(Parameters.parse("{\"name\":\"0\",\"min\":0.0,\"max\":1.0}"));
+      learnableParams.add(Parameters.parse("{\"name\":\"1\",\"min\":0.0,\"max\":1.0}"));
       learnParams.set("learnableParameters", learnableParams);
       // add sum rule to ensure sums to 1
       Parameters normalRule = new Parameters();
@@ -65,7 +68,8 @@ public class CoordinateAscentLearnerTest extends TestCase {
 
       learnParams.set("restarts", 1);
       learnParams.set("initialParameters", new ArrayList());
-      learnParams.getList("initialParameters").add(Parameters.parse("{\"0\":0.9,\"1\":-0.2}"));
+      learnParams.set("limitRange", true);
+      learnParams.getList("initialParameters").add(Parameters.parse("{\"0\":0.9,\"1\":0.2}"));
       
       Learner learner = LearnerFactory.instance(learnParams, ret);
       RetrievalModelInstance res = learner.learn();
