@@ -313,6 +313,7 @@ public class CoordinateAscentLearner extends Learner {
         outputTraceStream.println(String.format("Current source weights: %s", parameterSettings.toString()));
       }
       outputTraceStream.println(String.format("Finished coordinate sweep."));
+      outputTraceStream.flush();
     }
 
     outputTraceStream.println(String.format("No changes in the current round or maximum number of iterations reached... Done optimizing."));
