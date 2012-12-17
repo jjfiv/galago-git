@@ -50,7 +50,7 @@ public class CoordinateAscentLearner extends Learner {
     this.minStepSizes = new HashMap();
     this.minStepSize = p.get("minStepSize", 0.02);
     this.limitRange = p.get("limitRange", false);
-    
+
     Parameters specialMinStepSizes = new Parameters();
     if (p.isMap("specialMinStepSize")) {
       specialMinStepSizes = p.getMap("specialMinStepSize");
@@ -81,6 +81,7 @@ public class CoordinateAscentLearner extends Learner {
 
 
         Thread t = new Thread() {
+
           @Override
           public void run() {
             try {
@@ -161,17 +162,17 @@ public class CoordinateAscentLearner extends Learner {
 
       for (RetrievalModelInstance inst : learntParams) {
         double score = Double.parseDouble(inst.getAnnotation("score"));
-        if(bestScore < score){
+        if (bestScore < score) {
           best = inst;
           bestScore = score;
         }
       }
-      
+
       best.setAnnotation("name", name + "-best");
-      
+
       outputPrintStream.println(best.toString());
       outputPrintStream.flush();
-      
+
       return best;
     }
   }
@@ -180,6 +181,7 @@ public class CoordinateAscentLearner extends Learner {
 
     double best = this.evaluate(parameterSettings);
     outputTraceStream.println(String.format("Initial parameter weights: %s Metric: %f. Starting optimization...", parameterSettings.toParameters().toString().toString(), best));
+    outputTraceStream.flush();
 
     boolean optimized = true;
     int iters = 0;
@@ -187,6 +189,7 @@ public class CoordinateAscentLearner extends Learner {
       List<String> optimizationOrder = new ArrayList(this.learnableParameters.getParams());
       Collections.shuffle(optimizationOrder, this.random);
       outputTraceStream.println(String.format("Starting a new coordinate sweep...."));
+      outputTraceStream.flush();
       iters += 1;
       optimized = false;
 
@@ -194,8 +197,9 @@ public class CoordinateAscentLearner extends Learner {
         String coord = optimizationOrder.get(c);
         double upperLimit = parameterSettings.getMax(coord);
         double lowerLimit = parameterSettings.getMin(coord);
-        
+
         outputTraceStream.println(String.format("Iteration (%d of %d). Step (%d of %d). Starting to optimize coordinate (%s)...", iters, this.maxIterations, c + 1, optimizationOrder.size(), coord));
+        outputTraceStream.flush();
         double currParamValue = parameterSettings.get(coord); // Keep around the current parameter value
         // Take a step to the right 
         double step = this.minStepSizes.get(coord);
@@ -213,6 +217,7 @@ public class CoordinateAscentLearner extends Learner {
           parameterSettings.unsafeSet(coord, currParamValue + step);
           double evaluation = evaluate(parameterSettings);
           outputTraceStream.println(String.format("Coordinate (%s) (%f ++%f)... Metric: %f.", coord, currParamValue, step, evaluation));
+          outputTraceStream.flush();
 
           // while we are improving, or equal to the current best - 
           if (evaluation > rightBest || evaluation == best) {
@@ -229,13 +234,14 @@ public class CoordinateAscentLearner extends Learner {
             }
 
             // avoid exceeding upper bound
-            if (limitRange && (currParamValue + step > upperLimit)){
-              if(atLimit || currParamValue == upperLimit){
+            if (limitRange && (currParamValue + step > upperLimit)) {
+              if (atLimit || currParamValue == upperLimit) {
                 improving = false;
               } else {
                 atLimit = true;
                 step = upperLimit - currParamValue;
                 outputTraceStream.println("Hit limit : upper limit: " + step);
+                outputTraceStream.flush();
               }
             }
           } else {
@@ -262,6 +268,7 @@ public class CoordinateAscentLearner extends Learner {
           parameterSettings.unsafeSet(coord, currParamValue - step);
           double evaluation = evaluate(parameterSettings);
           outputTraceStream.println(String.format("Coordinate (%s) (%f --%f)... Metric: %f.", coord, currParamValue, step, evaluation));
+          outputTraceStream.flush();
           if (evaluation > leftBest || evaluation == best) {
             leftBest = evaluation;
             leftStep = step;
@@ -271,15 +278,16 @@ public class CoordinateAscentLearner extends Learner {
             if (step > this.MAX_STEP) {
               improving = false;
             }
-            
+
             // avoid exceeding lower bound
-            if (limitRange && (currParamValue - step < lowerLimit)){
-              if(atLimit || currParamValue == lowerLimit){
+            if (limitRange && (currParamValue - step < lowerLimit)) {
+              if (atLimit || currParamValue == lowerLimit) {
                 improving = false;
               } else {
                 atLimit = true;
                 step = currParamValue - lowerLimit;
                 outputTraceStream.println("Hit lower limit : new step: " + step);
+                outputTraceStream.flush();
               }
             }
           } else {
@@ -297,6 +305,7 @@ public class CoordinateAscentLearner extends Learner {
           parameterSettings.unsafeSet(coord, curr + rightStep);
           best = rightBest;
           outputTraceStream.println(String.format("Finished optimizing coordinate (%s). ++%f. Metric: %f", coord, rightStep, best));
+          outputTraceStream.flush();
 
         } else if ((leftBest > rightBest && leftBest > best) || leftBest > best) {
           optimized = true;
@@ -304,9 +313,11 @@ public class CoordinateAscentLearner extends Learner {
           parameterSettings.unsafeSet(coord, curr - leftStep);
           best = leftBest;
           outputTraceStream.println(String.format("Finished optimizing coordinate (%s). --%f. Metric: %f", coord, leftStep, best));
+          outputTraceStream.flush();
 
         } else {
           outputTraceStream.println(String.format("Finished optimizing coordinate (%s). No Change. Best: %f", coord, best));
+          outputTraceStream.flush();
         }
 
         parameterSettings.normalize();
