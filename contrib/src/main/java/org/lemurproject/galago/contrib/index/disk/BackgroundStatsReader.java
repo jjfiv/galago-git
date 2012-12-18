@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.index.disk;
+package org.lemurproject.galago.contrib.index.disk;
 
 import java.io.DataInput;
 import java.io.IOException;
@@ -25,12 +25,12 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public class BackgroundLMReader extends KeyValueReader implements AggregateIndexPart {
+public class BackgroundStatsReader extends KeyValueReader implements AggregateIndexPart {
 
   protected Parameters manifest;
   protected Stemmer stemmer;
 
-  public BackgroundLMReader(String filename) throws Exception {
+  public BackgroundStatsReader(String filename) throws Exception {
     super(filename);
     this.manifest = this.reader.getManifest();
     if (reader.getManifest().containsKey("stemmer")) {
@@ -38,7 +38,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateIndex
     }
   }
 
-  public BackgroundLMReader(BTreeReader r) throws Exception {
+  public BackgroundStatsReader(BTreeReader r) throws Exception {
     super(r);
     this.manifest = this.reader.getManifest();
     if (manifest.containsKey("stemmer")) {
@@ -87,20 +87,15 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateIndex
     is.collectionLength = manifest.get("statistics/collectionLength", 0);
     is.vocabCount = manifest.get("statistics/vocabCount", 0);
     is.highestDocumentCount = manifest.get("statistics/highestDocumentCount", 0);
-    is.highestFrequency = manifest.get("statistics/highestFrequency", 0);
+    is.highestFrequency = manifest.get("statistics/highestCollectionFrequency", 0);
     is.partName = manifest.get("filename", "BackgroundLMPart");
     return is;
   }
 
   public class KeyIterator extends KeyValueReader.KeyValueIterator {
 
-    long collectionLength;
-    long documentCount;
-
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
-      this.collectionLength = reader.getManifest().get("statistics/collectionLength", 1);
-      this.documentCount = reader.getManifest().get("statistics/documentCount", 1);
     }
 
     public NodeStatistics getNodeStatistics() {
@@ -111,8 +106,8 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateIndex
         stats.node = getKeyString();
         stats.nodeFrequency = Utility.uncompressLong(value);
         stats.nodeDocumentCount = Utility.uncompressLong(value);
-        stats.maximumCount = Integer.MAX_VALUE;
-          
+        stats.maximumCount = Utility.uncompressLong(value);
+
         return stats;
       } catch (IOException e) {
         throw new RuntimeException("Failed to collect statistics in BackgroundLMReader. " + e.getMessage());
@@ -140,8 +135,7 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateIndex
     }
   }
 
-  public class BackgroundLMIterator extends ValueIterator implements
-          NodeAggregateIterator, MovableCountIterator {
+  public class BackgroundLMIterator extends ValueIterator implements NodeAggregateIterator {
 
     protected KeyIterator iterator;
 
@@ -156,11 +150,6 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateIndex
     @Override
     public String getKeyString() throws IOException {
       return this.iterator.getKeyString();
-    }
-
-    @Override
-    public byte[] key() {
-      return this.iterator.getKey();
     }
 
     @Override
@@ -201,16 +190,6 @@ public class BackgroundLMReader extends KeyValueReader implements AggregateIndex
 
     @Override
     public boolean isDone() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public int count() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public int maximumCount() {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

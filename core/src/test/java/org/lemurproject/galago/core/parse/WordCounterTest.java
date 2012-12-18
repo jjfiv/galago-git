@@ -51,9 +51,9 @@ public class WordCounterTest extends TestCase {
     for (int i = 0; i < post.results.size(); ++i) {
       WordCount wc = post.results.get(i);
       if (Utility.compare(wc.word, Utility.fromString("one")) == 0) {
-        assertEquals(2, wc.count);
+        assertEquals(2, wc.collectionFrequency);
       } else if (Utility.compare(wc.word, Utility.fromString("one")) == 0) {
-        assertEquals(1, wc.count);
+        assertEquals(1, wc.collectionFrequency);
       }
     }
   }
@@ -95,13 +95,13 @@ public class WordCounterTest extends TestCase {
     for (int i = 0; i < post.results.size(); ++i) {
       WordCount wc = post.results.get(i);
       if (Utility.compare(wc.word, Utility.fromString("one")) == 0) {
-        assertEquals(3, wc.count);
+        assertEquals(3, wc.collectionFrequency);
       } else if (Utility.compare(wc.word, Utility.fromString("two")) == 0) {
-        assertEquals(3, wc.count);
+        assertEquals(3, wc.collectionFrequency);
       } else if (Utility.compare(wc.word, Utility.fromString("three")) == 0) {
-        assertEquals(2, wc.count);
+        assertEquals(2, wc.collectionFrequency);
       } else if (Utility.compare(wc.word, Utility.fromString("four")) == 0) {
-        assertEquals(1, wc.count);
+        assertEquals(1, wc.collectionFrequency);
       }
     }
   }
@@ -146,11 +146,11 @@ public class WordCounterTest extends TestCase {
     for (int i = 0; i < post.results.size(); ++i) {
       WordCount wc = post.results.get(i);
       if (Utility.compare(wc.word, Utility.fromString("one")) == 0) {
-        assertEquals(3, wc.count);
+        assertEquals(3, wc.collectionFrequency);
       } else if (Utility.compare(wc.word, Utility.fromString("two")) == 0) {
-        assertEquals(3, wc.count);
+        assertEquals(3, wc.collectionFrequency);
       } else if (Utility.compare(wc.word, Utility.fromString("three")) == 0) {
-        assertEquals(2, wc.count);
+        assertEquals(2, wc.collectionFrequency);
         //} else if (Utility.compare(wc.word, Utility.fromString("four")) == 0) {
         //  assertEquals(1, wc.count);
       }

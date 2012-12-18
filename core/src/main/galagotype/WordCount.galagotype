@@ -2,10 +2,9 @@ package org.lemurproject.galago.core.types;
 
 type WordCount {
     bytes word;
-    long count;
-    long documents;
+    long collectionFrequency;
+    long documentCount;
+    long maxDocumentFrequency;
     
     order: +word;
-    order: +count;
-    order: -count;
 }

@@ -55,14 +55,16 @@ public class HelpFn extends AppFunction {
       output.println(defaultOutput);
       output.println();
     } else {
-      for (String arg : Utility.subarray(args, 1)) {
-        output.println("function: " + arg + "\n");
-        if (App.appFunctions.containsKey(arg)) {
-          output.println(App.appFunctions.get(arg).getHelpString());
-        } else {
-          output.println("  UNKNOWN.");
+      for (String arg : args) {
+        if (!arg.equals("help")) {
+          output.println("function: " + arg + "\n");
+          if (App.appFunctions.containsKey(arg)) {
+            output.println(App.appFunctions.get(arg).getHelpString());
+          } else {
+            output.println("  UNKNOWN.");
+          }
+          output.println();
         }
-        output.println();
       }
     }
   }

@@ -24,8 +24,9 @@ public class WordCountFilter extends StandardStep<WordCount, WordCount> {
     minThreshold = p.getJSON().get("minThreshold", minThreshold);
   }
 
+  @Override
   public void process(WordCount wordCount) throws IOException {
-    if(wordCount.count >= minThreshold){
+    if(wordCount.collectionFrequency >= minThreshold){
       processor.process(wordCount);
     }
   }
