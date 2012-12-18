@@ -35,6 +35,7 @@ public class WordCounter extends StandardStep<Document, WordCount> {
     }
   }
 
+  @Override
   public void process(Document document) throws IOException {
     List<String> tokens = document.terms;
     ArrayList<WordCount> wordCounts = new ArrayList();
@@ -43,7 +44,7 @@ public class WordCounter extends StandardStep<Document, WordCount> {
       if (t != null) {
         if ((filterWords == null)
                 || (!filterWords.contains(t))) {
-          wordCounts.add(new WordCount(Utility.fromString(t), 1, 1));
+          wordCounts.add(new WordCount(Utility.fromString(t), 1, 1, 1));
         }
       }
     }
@@ -56,7 +57,8 @@ public class WordCounter extends StandardStep<Document, WordCount> {
       if (last == null) {
         last = wc;
       } else if (Utility.compare(wc.word, last.word) == 0) {
-        last.count += wc.count;
+        last.collectionFrequency += wc.collectionFrequency;
+        last.maxDocumentFrequency += wc.maxDocumentFrequency;
       } else {
         processor.process(last);
         last = wc;

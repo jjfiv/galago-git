@@ -1,10 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.tools;
+package org.lemurproject.galago.contrib.tools;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import junit.framework.TestCase;
+import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -55,10 +56,9 @@ public class BuildBackgroundTest extends TestCase {
       App.main(new String[]{"build", "--indexPath=" + indexFile1.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile1.getAbsolutePath()});
 
-      App.main(new String[]{"build-background", "--indexPath=" + indexFile1.getAbsolutePath(),
+      App.main(new String[]{"build-coll-background", "--indexPath=" + indexFile1.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile2.getAbsolutePath(),
-                "--nonStemmedPostings=false", "--stemmedPostings=true",
-                "--partName=background", "--stemmer+porter"});
+                "--partName=background", "--stemmer=porter"});
 
       backgroundIndex = Utility.createTemporary();
       backgroundIndex.delete();
@@ -66,8 +66,7 @@ public class BuildBackgroundTest extends TestCase {
                 "--inputPath=" + trecCorpusFile2.getAbsolutePath()});
 
 
-      assertFalse(new File(indexFile1.getAbsolutePath() + File.separator + "background").exists());
-      assertTrue(new File(indexFile1.getAbsolutePath() + File.separator + "background.porter").exists());
+      assertTrue(new File(indexFile1.getAbsolutePath() + File.separator + "background").exists());
 
       // try to batch search that index with a no-match string
       String queries_reg = "{ \"index\" : \"" + indexFile1.getAbsolutePath() + "\", \"queries\" : ["
