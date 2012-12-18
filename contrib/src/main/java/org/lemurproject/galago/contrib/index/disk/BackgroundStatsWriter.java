@@ -13,7 +13,6 @@ import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
 import org.lemurproject.galago.tupleflow.execution.Verification;
-import org.lemurproject.galago.core.types.TermCount;
 import org.lemurproject.galago.core.types.WordCount;
 
 /**
