@@ -54,11 +54,7 @@ public class NumberedFieldExtractor extends StandardStep<Document, NumberedField
           stringForm = document.text.substring(tag.charBegin, tag.charEnd);
         }
 
-        System.err.println(stringForm);
-        
         byte[] bytes = getByteData(tag.name, stringForm.trim());
-        
-        
         processor.process(new NumberedField(Utility.fromString(tag.name),
                 document.identifier, bytes));
       }
@@ -74,9 +70,9 @@ public class NumberedFieldExtractor extends StandardStep<Document, NumberedField
       baos.write(strBytes);
       return baos.toByteArray();
     } else if (format.equals("int")) {
-      return Utility.compressInt(Integer.parseInt(stringForm));
+      return Utility.fromInt(Integer.parseInt(stringForm));
     } else if (format.equals("long")) {
-      return Utility.compressLong(Long.parseLong(stringForm));
+      return Utility.fromLong(Long.parseLong(stringForm));
     } else if (format.equals("float")) {
       return Utility.fromInt(Float.floatToIntBits(Float.parseFloat(stringForm)));
     } else if (format.equals("double")) {

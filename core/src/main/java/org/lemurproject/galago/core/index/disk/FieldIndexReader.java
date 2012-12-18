@@ -26,6 +26,51 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  */
 public class FieldIndexReader extends KeyListReader {
 
+  Parameters formatMap = new Parameters();
+
+  public FieldIndexReader(BTreeReader reader) throws FileNotFoundException, IOException {
+    super(reader);
+    if (reader.getManifest().isMap("tokenizer")) {
+      Parameters tokenizer = reader.getManifest().getMap("tokenizer");
+      if (tokenizer.containsKey("formats")) {
+        formatMap.copyFrom(tokenizer.getMap("formats"));
+      }
+    }
+  }
+
+  @Override
+  public KeyIterator getIterator() throws IOException {
+    return new KeyIterator(reader);
+  }
+
+  @Override
+  public HashMap<String, NodeType> getNodeTypes() {
+    HashMap<String, NodeType> nodeTypes = new HashMap<String, NodeType>();
+    nodeTypes.put("field", new NodeType(ListIterator.class));
+    return nodeTypes;
+  }
+
+  public ListIterator getField(String fieldname) throws IOException {
+    BTreeReader.BTreeIterator iterator =
+            reader.getIterator(Utility.fromString(fieldname));
+    ListIterator it = new ListIterator(iterator);
+    return it;
+  }
+
+  @Override
+  public ValueIterator getIterator(Node node) throws IOException {
+    if (node.getOperator().equals("field")) {
+      ListIterator it = getField(node.getDefaultParameter());
+      if (node.getNodeParameters().containsKey("format")) {
+        it.format = node.getNodeParameters().getString("format");
+      }
+      return it;
+    } else {
+      throw new UnsupportedOperationException("Node type " + node.getOperator()
+              + " isn't supported.");
+    }
+  }
+
   public class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
@@ -52,6 +97,7 @@ public class FieldIndexReader extends KeyListReader {
       return sb.toString();
     }
 
+    @Override
     public ValueIterator getValueIterator() throws IOException {
       return new ListIterator(iterator);
     }
@@ -66,7 +112,7 @@ public class FieldIndexReader extends KeyListReader {
           implements MovableIterator {
 
     BTreeReader.BTreeIterator iterator;
-    VByteInput data;
+    //VByteInput data;
     long startPosition, endPosition;
     DataStream dataStream;
     int documentCount;
@@ -132,7 +178,7 @@ public class FieldIndexReader extends KeyListReader {
 
       // Load data stream
       dataStream = iterator.getSubValueStream(valueStream.getPosition(), endPosition);
-      data = new VByteInput(dataStream);
+      //data = new VByteInput(dataStream);
 
       // Determine the current format map based on the key - allows for
       // crossing lists, even though I hate that.
@@ -170,21 +216,25 @@ public class FieldIndexReader extends KeyListReader {
     }
 
     private void loadValue() throws IOException {
-      currentDocument += data.readInt();
+      currentDocument += Utility.uncompressInt(dataStream);
 
       // Need to figure out what to do here
       if (format.equals("string")) {
-        strValue = data.readString();
+        int len = Utility.uncompressInt(dataStream);
+        byte[] bytes = new byte[len];
+        dataStream.readFully(bytes);
+        strValue = Utility.toString(bytes);
+
       } else if (format.equals("int")) {
-        intValue = data.readInt();
+        intValue = dataStream.readInt();
       } else if (format.equals("long")) {
-        longValue = data.readLong();
+        longValue = dataStream.readLong();
       } else if (format.equals("float")) {
-        floatValue = data.readFloat();
+        floatValue = dataStream.readFloat();
       } else if (format.equals("double")) {
-        doubleValue = data.readDouble();
+        doubleValue = dataStream.readDouble();
       } else if (format.equals("date")) {
-        data.readFully(dateBytes);
+        dataStream.readFully(dateBytes);
         dateValue = Utility.toLong(dateBytes);
       } else {
         throw new RuntimeException(String.format("Don't have any plausible format for tag %s\n",
@@ -318,47 +368,6 @@ public class FieldIndexReader extends KeyListReader {
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
-    }
-  }
-  Parameters formatMap = new Parameters();
-
-  public FieldIndexReader(BTreeReader reader) throws FileNotFoundException, IOException {
-    super(reader);
-    if (reader.getManifest().isMap("tokenizer")) {
-      Parameters tokenizer = reader.getManifest().getMap("tokenizer");
-      if (tokenizer.containsKey("formats")) {
-        formatMap.copyFrom(tokenizer.getMap("formats"));
-      }
-    }
-  }
-
-  public KeyIterator getIterator() throws IOException {
-    return new KeyIterator(reader);
-  }
-
-  public HashMap<String, NodeType> getNodeTypes() {
-    HashMap<String, NodeType> nodeTypes = new HashMap<String, NodeType>();
-    nodeTypes.put("field", new NodeType(ListIterator.class));
-    return nodeTypes;
-  }
-
-  public ListIterator getField(String fieldname) throws IOException {
-    BTreeReader.BTreeIterator iterator =
-            reader.getIterator(Utility.fromString(fieldname));
-    ListIterator it = new ListIterator(iterator);
-    return it;
-  }
-
-  public ValueIterator getIterator(Node node) throws IOException {
-    if (node.getOperator().equals("field")) {
-      ListIterator it = getField(node.getDefaultParameter());
-      if (node.getNodeParameters().containsKey("format")) {
-        it.format = node.getNodeParameters().getString("format");
-      }
-      return it;
-    } else {
-      throw new UnsupportedOperationException("Node type " + node.getOperator()
-              + " isn't supported.");
     }
   }
 }

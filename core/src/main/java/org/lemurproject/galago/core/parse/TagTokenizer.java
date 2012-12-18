@@ -418,6 +418,8 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
       i = end;
     }
 
+    position = i + 1;
+
     if (!ignoredTags.contains(tagName)) {
       BeginTag tag = new BeginTag(tagName, attributes);
 
@@ -444,7 +446,6 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
         ignoreUntil = tagName;
     }
 
-    position = i;
   }
 
   protected void endParsing() {
