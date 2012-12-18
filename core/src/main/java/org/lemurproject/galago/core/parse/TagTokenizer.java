@@ -691,7 +691,7 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
       for (BeginTag tag : tagList) {
         for (Pattern p : whitelist) {
           if (p.matcher(tag.name).matches()) {
-            result.add(new Tag(tag.name, tag.attributes, tag.termPosition, tag.termPosition));
+            result.add(new Tag(tag.name, tag.attributes, tag.termPosition, tag.termPosition, tag.bytePosition, tag.bytePosition));
             break;
           }
         }
@@ -701,7 +701,7 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
     for (ClosedTag tag : closedTags) {
       for (Pattern p : whitelist) {
         if (p.matcher(tag.name).matches()) {
-          result.add(new Tag(tag.name, tag.attributes, tag.termStart, tag.termEnd));
+          result.add(new Tag(tag.name, tag.attributes, tag.termStart, tag.termEnd, tag.byteStart, tag.byteEnd));
           break;
         }
       }

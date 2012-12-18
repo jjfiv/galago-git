@@ -43,12 +43,22 @@ public class NumberedFieldExtractor extends StandardStep<Document, NumberedField
   public void process(Document document) throws IOException {
     for (Tag tag : document.tags) {
       if (trackedFields.containsKey(tag.name)) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = tag.begin; i < tag.end; i++) {
-          sb.append(document.terms.get(i)).append(" ");
+        String stringForm;
+        if(tag.charBegin < 0){
+          StringBuilder sb = new StringBuilder();
+          for (int i = tag.begin; i < tag.end; i++) {
+            sb.append(document.terms.get(i)).append(" ");
+          }
+          stringForm = sb.toString();
+        } else {
+          stringForm = document.text.substring(tag.charBegin, tag.charEnd);
         }
 
-        byte[] bytes = getByteData(tag.name, sb.toString().trim());
+        System.err.println(stringForm);
+        
+        byte[] bytes = getByteData(tag.name, stringForm.trim());
+        
+        
         processor.process(new NumberedField(Utility.fromString(tag.name),
                 document.identifier, bytes));
       }

@@ -4,7 +4,6 @@ package org.lemurproject.galago.core.parse;
 import java.io.Serializable;
 import java.util.Map.Entry;
 import java.util.Map;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * This class represents a tag in a XML/HTML document.
@@ -17,19 +16,37 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class Tag implements Comparable<Tag>, Serializable {
 
+  public String name;
+  public Map<String, String> attributes;
+  public int begin;
+  public int end;
+  public int charBegin;
+  public int charEnd;
+
   /**
    * Constructs a tag.
    *
    * @param tagName The tagName of the tag.
    * @param attributes Attributes of the tag.
    * @param begin Location of the start tag within the document, in tokens.
-   * @param end Location of the end tag within the document, in tokens.
+   * @param end, int charBegin, int charEnd Location of the end tag within the document, in tokens.
    */
-  public Tag(String name, Map<String, String> attributes, int begin, int end) {
+  public Tag(String name, Map<String, String> attributes, int termBegin, int termEnd, int charBegin, int charEnd) {
     this.name = name;
     this.attributes = attributes;
-    this.begin = begin;
-    this.end = end;
+    this.begin = termBegin;
+    this.end = termEnd;
+    this.charBegin = charBegin;
+    this.charEnd = charEnd;
+  }
+
+  public Tag(String name, Map<String, String> attributes, int termBegin, int termEnd) {
+    this.name = name;
+    this.attributes = attributes;
+    this.begin = termBegin;
+    this.end = termEnd;
+    this.charBegin = -1;
+    this.charEnd = -1;
   }
 
   /**
@@ -68,8 +85,4 @@ public class Tag implements Comparable<Tag>, Serializable {
     builder.append('>');
     return builder.toString();
   }
-  public String name;
-  public Map<String, String> attributes;
-  public int begin;
-  public int end;
 }
