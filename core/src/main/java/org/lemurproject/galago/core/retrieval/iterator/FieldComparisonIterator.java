@@ -44,13 +44,13 @@ public abstract class FieldComparisonIterator extends TransformIterator implemen
       if (format.equals("string")) {
         strValue = p.getString("0");
       } else if (format.equals("int")) {
-        intValue = Integer.parseInt(p.getString("0"));
+          intValue = (int) p.getLong("0");
       } else if (format.equals("long")) {
-        longValue = Long.parseLong(p.getString("0"));
+          longValue = p.getLong("0");
       } else if (format.equals("float")) {
-        floatValue = Float.parseFloat(p.getString("0"));
+          floatValue = (float) p.getDouble("0");
       } else if (format.equals("double")) {
-        doubleValue = Double.parseDouble(p.getString("0"));
+        doubleValue = p.getDouble("0");
       } else if (format.equals("date")) {
         DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
         dateValue = df.parse(p.getString("0")).getTime();

@@ -210,7 +210,7 @@ public class FieldIndexReaderTest extends TestCase {
     ScoringContext sc = fields.getContext();
 
     NodeParameters p = new NodeParameters();
-    p.set("0","5");
+    p.set("0", 5);
     GreaterThanIterator gti = new GreaterThanIterator(p, fields);
     gti.setContext(sc);
     
@@ -246,7 +246,7 @@ public class FieldIndexReaderTest extends TestCase {
     ScoringContext sc = fields.getContext();
 
     NodeParameters p = new NodeParameters();
-    p.set("0", "5");
+    p.set("0", 5);
     LessThanIterator lti = new LessThanIterator(p, fields);
     lti.setContext(sc);
 
