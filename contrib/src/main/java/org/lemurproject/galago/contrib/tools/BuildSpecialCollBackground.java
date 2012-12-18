@@ -8,11 +8,10 @@ import java.io.PrintStream;
 import java.util.List;
 import org.lemurproject.galago.contrib.index.disk.BackgroundStatsWriter;
 import org.lemurproject.galago.contrib.parse.ParseWordCountString;
+import org.lemurproject.galago.contrib.parse.WordCountCleaner;
 import org.lemurproject.galago.contrib.parse.WordCountStemmer;
 import org.lemurproject.galago.core.parse.DocumentSource;
-import org.lemurproject.galago.core.parse.FileLineParser;
 import org.lemurproject.galago.core.parse.WordCountReducer;
-import org.lemurproject.galago.core.parse.WordCounter;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
 import org.lemurproject.galago.core.tools.AppFunction;
@@ -45,7 +44,14 @@ public class BuildSpecialCollBackground extends AppFunction {
 
     Parameters parseParams = new Parameters();
     parseParams.set("delim", p.get("delim", "\t"));
+    parseParams.set("lower", p.get("lower", true));
+    parseParams.set("stripPunct", p.get("stripPunct", true));
+    parseParams.set("replacements", new Parameters());
+    parseParams.getMap("replacements").set("_","~");
+    parseParams.getMap("replacements").set(" ","~");
+    
     stage.add(new Step(ParseWordCountString.class, parseParams));
+    stage.add(new Step(WordCountCleaner.class, parseParams));
     
     if (p.containsKey("stemmer")) {
       Parameters stemParams = new Parameters();
@@ -105,8 +111,6 @@ public class BuildSpecialCollBackground extends AppFunction {
 
     job.connect("inputSplit", "parser", ConnectionAssignmentType.Each);
     job.connect("parser", "writer", ConnectionAssignmentType.Combined);
-
-
 
     return job;
   }
