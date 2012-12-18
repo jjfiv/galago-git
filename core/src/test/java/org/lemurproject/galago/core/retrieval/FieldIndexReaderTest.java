@@ -87,13 +87,13 @@ public class FieldIndexReaderTest extends TestCase {
     writer.processFieldName(Utility.fromString("version"));
 
     writer.processNumber(1);
-    writer.processTuple(Utility.compressInt(1));
+    writer.processTuple(Utility.fromInt(1));
 
     writer.processNumber(2);
-    writer.processTuple(Utility.compressInt(12));
+    writer.processTuple(Utility.fromInt(12));
 
     writer.processNumber(3);
-    writer.processTuple(Utility.compressInt(4));
+    writer.processTuple(Utility.fromInt(4));
 
     writer.close();
   }

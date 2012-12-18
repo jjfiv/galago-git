@@ -57,7 +57,6 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
   HashMap<String, ArrayList<BeginTag>> openTags;
   ArrayList<ClosedTag> closedTags;
   ArrayList<Pair> tokenPositions;
-  
   private boolean tokenizeTagContent = true;
 
   public static class Pair {
@@ -162,11 +161,11 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
 
   class BeginTag {
 
-    public BeginTag(String name, Map<String, String> attributes) {
+    public BeginTag(String name, Map<String, String> attributes, int bytePosition) {
       this.name = name;
       this.attributes = attributes;
 
-      this.bytePosition = position;
+      this.bytePosition = bytePosition;
       this.termPosition = tokens.size();
     }
     String name;
@@ -256,13 +255,13 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
       closedTags.add(closedTag);
 
       tagList.remove(last);
-      
+
       // switch out of Do not tokenize mode.
       if (!tokenizeTagContent) {
-          tokenizeTagContent = true;
+        tokenizeTagContent = true;
       }
     }
-    
+
   }
 
   protected int indexOfNonSpace(int start) {
@@ -418,10 +417,10 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
       i = end;
     }
 
-    position = i + 1;
+    position = i;
 
     if (!ignoredTags.contains(tagName)) {
-      BeginTag tag = new BeginTag(tagName, attributes);
+      BeginTag tag = new BeginTag(tagName, attributes, position + 1);
 
       if (!openTags.containsKey(tagName)) {
         ArrayList tagList = new ArrayList();
@@ -432,18 +431,19 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
       }
 
       if (attributes.containsKey("tokenizetagcontent") && !closeIt) {
-          String parseAttr = attributes.get("tokenizetagcontent");
-          try {
-              boolean tokenize = Boolean.parseBoolean(parseAttr);
-              tokenizeTagContent = tokenize;
-          } catch (Exception e){}
+        String parseAttr = attributes.get("tokenizetagcontent");
+        try {
+          boolean tokenize = Boolean.parseBoolean(parseAttr);
+          tokenizeTagContent = tokenize;
+        } catch (Exception e) {
+        }
       }
 
       if (closeIt) {
-          closeTag(tagName);
+        closeTag(tagName);
       }
     } else if (!closeIt) {
-        ignoreUntil = tagName;
+      ignoreUntil = tagName;
     }
 
   }
@@ -453,7 +453,7 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
   }
 
   public static String processToken(String t) {
-      return tokenComplexFix(t);
+    return tokenComplexFix(t);
   }
 
   protected void onSplit() {
