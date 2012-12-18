@@ -54,7 +54,7 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("counts", new NodeType(BackgroundLMIterator.class));
+    types.put("counts", new NodeType(BackgroundStatsIterator.class));
     return types;
   }
 
@@ -65,7 +65,7 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
       KeyIterator ki = new KeyIterator(reader);
       ki.findKey(Utility.fromString(stem));
       if (Utility.compare(ki.getKey(), Utility.fromString(stem)) == 0) {
-        return new BackgroundLMIterator(ki);
+        return new BackgroundStatsIterator(ki);
       }
       return null;
     } else {
@@ -121,7 +121,7 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
 
     @Override
     public ValueIterator getValueIterator() throws IOException {
-      return new BackgroundLMIterator(this);
+      return new BackgroundStatsIterator(this);
     }
 
     @Override
@@ -135,11 +135,11 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
     }
   }
 
-  public class BackgroundLMIterator extends ValueIterator implements NodeAggregateIterator {
+  public class BackgroundStatsIterator extends ValueIterator implements NodeAggregateIterator {
 
     protected KeyIterator iterator;
 
-    public BackgroundLMIterator(KeyIterator ki) {
+    public BackgroundStatsIterator(KeyIterator ki) {
       this.iterator = ki;
     }
 

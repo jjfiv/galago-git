@@ -7,7 +7,10 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.List;
 import org.lemurproject.galago.contrib.index.disk.BackgroundStatsWriter;
+import org.lemurproject.galago.contrib.parse.ParseWordCountString;
+import org.lemurproject.galago.contrib.parse.WordCountStemmer;
 import org.lemurproject.galago.core.parse.DocumentSource;
+import org.lemurproject.galago.core.parse.FileLineParser;
 import org.lemurproject.galago.core.parse.WordCountReducer;
 import org.lemurproject.galago.core.parse.WordCounter;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
@@ -31,7 +34,7 @@ import org.lemurproject.galago.tupleflow.execution.Step;
  *
  * @author sjh
  */
-public class BuildCollectionBackground extends AppFunction {
+public class BuildSpecialCollBackground extends AppFunction {
 
   private Stage getParseStage(String name, String inputName, String outputName, Parameters p) throws Exception {
     Stage stage = new Stage(name);
@@ -39,15 +42,17 @@ public class BuildCollectionBackground extends AppFunction {
     stage.addOutput(outputName, new WordCount.WordOrder());
 
     stage.add(new InputStep(inputName));
-    stage.add(BuildStageTemplates.getParserStep(p));
-    stage.add(BuildStageTemplates.getTokenizerStep(p));
 
+    Parameters parseParams = new Parameters();
+    parseParams.set("delim", p.get("delim", "\t"));
+    stage.add(new Step(ParseWordCountString.class, parseParams));
+    
     if (p.containsKey("stemmer")) {
-      Class stemmerClass = Class.forName(p.getString("stemmerClass"));
-      stage.add(new Step(stemmerClass));
+      Parameters stemParams = new Parameters();
+      stemParams.set("stemmer", p.getString("stemmerClass"));
+      stage.add(new Step(WordCountStemmer.class, stemParams));
     }
 
-    stage.add(new Step(WordCounter.class));
     stage.add(Utility.getSorter(new WordCount.WordOrder()));
     stage.add(new Step(WordCountReducer.class));
     stage.add(new OutputStep(outputName));
@@ -108,19 +113,22 @@ public class BuildCollectionBackground extends AppFunction {
 
   @Override
   public String getName() {
-    return "build-coll-background";
+    return "build-special-coll-background";
   }
 
   @Override
   public String getHelpString() {
     return "galago build-background [flags] --indexPath=<index> (--inputPath=<input>)+\n\n"
             + "  Builds a Galago Structured Index Part file with TupleFlow,\n"
-            + "<inputPath>:  Directory of input files. Files are assumed to be"
-            + "              indexable using a standard 'build' process. >\n\n"
+            + "<inputPath>:  One or more files in the format:\n"
+            + "           < document-identifier\tcf\tdc\tmax_df\n >\n"
+            + "             Missing fields will be assumed to be '1'."
+            + "             Deliminator is assumed to be '\\t'.\n"
             + "<indexPath>:  The directory path of the index to add to.\n\n"
             + "Algorithm Flags:\n"
             + "  --partName={String}:      Sets the name of index part.\n"
             + "                            [default=background]\n"
+            + "  --delim={String}:         Sets the deliminator for the input files.\n"
             + "  --stemmer={porter|korvetz}: \n"
             + "                            Selects a stemmer class for the index part.\n"
             + "                            [default=porter]\n"
@@ -142,6 +150,6 @@ public class BuildCollectionBackground extends AppFunction {
   }
 
   public static void main(String[] args) throws Exception {
-    new BuildCollectionBackground().run(new Parameters(args), System.out);
+    new BuildSpecialCollBackground().run(new Parameters(args), System.out);
   }
 }
