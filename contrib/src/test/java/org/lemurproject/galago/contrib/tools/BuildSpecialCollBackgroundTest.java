@@ -51,13 +51,13 @@ public class BuildSpecialCollBackgroundTest extends TestCase {
       p2.set("partName", "back");
       App.run("build-special-coll-background", p2, System.out);
 
-      Retrieval r = RetrievalFactory.instance(index.getAbsolutePath(), new Parameters());
-      // System.err.println(r.getAvailableParts().toPrettyString());
 
       BackgroundStatsReader backPart = (BackgroundStatsReader) DiskIndex.openIndexComponent(new File(index,"back").getAbsolutePath());
-      
-      System.err.println(backPart.getManifest().toPrettyString());
-      
+      assertEquals(backPart.getManifest().getLong("statistics/highestCollectionFrequency"), 8);
+
+      Retrieval r = RetrievalFactory.instance(index.getAbsolutePath(), new Parameters());
+      assertEquals(r.getNodeStatistics("#counts:@/0/:part=back()").nodeFrequency, 0);
+      assertEquals(r.getNodeStatistics("#counts:@/4/:part=back()").nodeFrequency, 8);
       
     } finally {
       docs.delete();
