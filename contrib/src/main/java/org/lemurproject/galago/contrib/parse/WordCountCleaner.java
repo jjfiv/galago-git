@@ -60,7 +60,7 @@ public class WordCountCleaner extends StandardStep<WordCount, WordCount> {
     }
 
     // empty strings should be removed
-    if (!t.isEmpty()) {
+    if (!t.isEmpty() || t.matches("~+")) {
       wc.word = Utility.fromString(t);
       processor.process(wc);
     }
