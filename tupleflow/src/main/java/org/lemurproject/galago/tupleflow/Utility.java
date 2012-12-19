@@ -42,6 +42,7 @@ public class Utility {
   // Some constant values
   public static final double log2 = Math.log(2);
   public static final double loge = Math.log(Math.E) / log2;
+  public static final double tinyLogProbScore = Math.log(Math.pow(10, -10));
 
   /**
    * Put all initialization here

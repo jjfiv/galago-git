@@ -3,6 +3,7 @@
  */
 package org.lemurproject.galago.core.retrieval.iterator.dfr;
 
+import org.lemurproject.galago.core.retrieval.iterator.PL2ScoringIterator;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.FakeLengthIterator;
 import org.lemurproject.galago.core.retrieval.extents.FakeExtentIterator;

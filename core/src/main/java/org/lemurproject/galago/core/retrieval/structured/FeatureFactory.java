@@ -12,7 +12,6 @@ import java.util.List;
 import org.lemurproject.galago.core.retrieval.BadOperatorException;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.*;
-import org.lemurproject.galago.core.retrieval.iterator.dfr.PL2ScoringIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -58,7 +57,8 @@ public class FeatureFactory {
     {EqualityIterator.class.getName(), "equals"},
     {PassageFilterIterator.class.getName(), "passagefilter"},
     {PL2ScoringIterator.class.getName(), "pl2scorer"},
-    {PassageLengthIterator.class.getName(), "passagelengths"}
+    {PassageLengthIterator.class.getName(), "passagelengths"},
+    {LogProbNotIterator.class.getName(), "logprobnot"}
   };
   static String[][] sFeatureLookup = {
     {DirichletProbabilityScoringIterator.class.getName(), "dirichlet-raw"}, // this should go away
@@ -88,8 +88,6 @@ public class FeatureFactory {
     BM25FTraversal.class.getName(),
     PL2FTraversal.class.getName(),
     WindowRewriteTraversal.class.getName(),
-    IndriWeightConversionTraversal.class.getName(),
-    IndriWindowCompatibilityTraversal.class.getName(),
     TextFieldRewriteTraversal.class.getName(),
     InsideToFieldPartTraversal.class.getName(),
     ImplicitFeatureCastTraversal.class.getName(),
