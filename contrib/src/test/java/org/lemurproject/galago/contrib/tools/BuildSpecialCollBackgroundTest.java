@@ -6,6 +6,8 @@ package org.lemurproject.galago.contrib.tools;
 import java.io.File;
 import java.util.Random;
 import junit.framework.TestCase;
+import org.lemurproject.galago.contrib.index.disk.BackgroundStatsReader;
+import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.App;
@@ -49,12 +51,13 @@ public class BuildSpecialCollBackgroundTest extends TestCase {
       p2.set("partName", "back");
       App.run("build-special-coll-background", p2, System.out);
 
-      for(File f : index.listFiles()){
-        System.err.println(f.getAbsolutePath());
-      }
-      
       Retrieval r = RetrievalFactory.instance(index.getAbsolutePath(), new Parameters());
-      System.err.println(r.getAvailableParts().toPrettyString());
+      // System.err.println(r.getAvailableParts().toPrettyString());
+
+      BackgroundStatsReader backPart = (BackgroundStatsReader) DiskIndex.openIndexComponent(new File(index,"back").getAbsolutePath());
+      
+      System.err.println(backPart.getManifest().toPrettyString());
+      
       
     } finally {
       docs.delete();

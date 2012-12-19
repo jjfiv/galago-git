@@ -53,7 +53,8 @@ public class ParseWordCountString extends StandardStep<DocumentSplit, WordCount>
           mxdf = Long.parseLong(parts[4]);
         }
 
-        processor.process(new WordCount(Utility.fromString(t), cf, dc, mxdf));
+        WordCount wc = new WordCount(Utility.fromString(t), cf, dc, mxdf);
+        processor.process(wc);
       }
     }
   }

@@ -104,6 +104,7 @@ public class BuildSpecialCollBackground extends AppFunction {
 
     Parameters splitParameters = new Parameters();
     splitParameters.set("corpusPieces", p.get("distrib", 10));
+    splitParameters.set("filetype", "misc");
     job.add(BuildStageTemplates.getSplitStage(inputs, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
 
     job.add(getParseStage("parser", "splits", "termCounts", p));
@@ -125,8 +126,8 @@ public class BuildSpecialCollBackground extends AppFunction {
     return "galago build-background [flags] --indexPath=<index> (--inputPath=<input>)+\n\n"
             + "  Builds a Galago Structured Index Part file with TupleFlow,\n"
             + "<inputPath>:  One or more files in the format:\n"
-            + "           < document-identifier\tcf\tdc\tmax_df\n >\n"
-            + "             Missing fields will be assumed to be '1'."
+            + "           < document-identifier\tcf\tdc\tmax_df >\n"
+            + "             Missing fields will be assumed to be '1'.\n"
             + "             Deliminator is assumed to be '\\t'.\n"
             + "<indexPath>:  The directory path of the index to add to.\n\n"
             + "Algorithm Flags:\n"
