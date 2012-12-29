@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -48,7 +49,7 @@ public class Job implements Serializable {
    * stages in the job are renamed from <tt>stageName</tt> to
    * <tt>jobName.stageName</tt>.
    */
-  public void add(String jobName, Job group) {
+  public Job add(String jobName, Job group) {
     assert this != group;
 
     for (Stage s : group.stages.values()) {
@@ -70,13 +71,15 @@ public class Job implements Serializable {
 
       connections.add(copy);
     }
+    return this;
   }
 
   /**
    * Adds a stage to the current job.
    */
-  public void add(Stage s) {
+  public Job add(Stage s) {
     stages.put(s.name, s);
+    return this;
   }
 
   Map<String, Stage> findStagesWithPrefix(String prefix) {
@@ -100,7 +103,7 @@ public class Job implements Serializable {
    * stageName.
    * @param factor What the reduction factor is for each merger.
    */
-  public void addMergeStage(String stageName, String pointName, int factor) {
+  public Job addMergeStage(String stageName, String pointName, int factor) {
     // find the stage and the point, initialize class/order information
     Stage inputStage = this.stages.get(stageName);
 
@@ -113,7 +116,7 @@ public class Job implements Serializable {
 
     // if this merge stage has already been added, don't add it again
     if (this.stages.containsKey(mergedStageName)) {
-      return;        // create the stage itself
+      return this;        // create the stage itself
     }
     Stage s = new Stage(mergedStageName);
     s.add(new StageConnectionPoint(ConnectionPointType.Input,
@@ -160,6 +163,7 @@ public class Job implements Serializable {
             ConnectionAssignmentType.Each,
             hash,
             hashCount);
+    return this;
   }
 
   public static class StagePoint implements Comparable<StagePoint> {
@@ -254,15 +258,17 @@ public class Job implements Serializable {
    * that starts with sourceName (same goes for destinationName), which makes
    * this particularly useful for making connections between sub-jobs.
    */
-  public void connect(String sourceName, String destinationName, ConnectionAssignmentType assignment) {
+  public Job connect(String sourceName, String destinationName, ConnectionAssignmentType assignment) {
     connect(sourceName, destinationName, assignment, null, -1);
+    return this;
   }
 
-  public void connect(String sourceName, String destinationName, ConnectionAssignmentType assignment, String[] hashType) {
+  public Job connect(String sourceName, String destinationName, ConnectionAssignmentType assignment, String[] hashType) {
     connect(sourceName, destinationName, assignment, hashType, -1);
+    return this;
   }
 
-  public void connect(String sourceName, String destinationName, ConnectionAssignmentType assignment, String[] hashType, int hashCount) {
+  public Job connect(String sourceName, String destinationName, ConnectionAssignmentType assignment, String[] hashType, int hashCount) {
     // scan the stages, looking for sources
     Map<String, Stage> sources = findStagesWithPrefix(sourceName);
     Map<String, Stage> destinations = findStagesWithPrefix(destinationName);
@@ -311,9 +317,10 @@ public class Job implements Serializable {
         connect(sourcePoint, destinationPoint, assignment, connectionHashType, hashCount);
       }
     }
+    return this;
   }
 
-  public void connect(StagePoint source, StagePoint destination, ConnectionAssignmentType assignment, String[] hashType, int hashCount) {
+  public Job connect(StagePoint source, StagePoint destination, ConnectionAssignmentType assignment, String[] hashType, int hashCount) {
     // first, try to find a usable connection
     Connection connection = null;
 
@@ -356,6 +363,7 @@ public class Job implements Serializable {
             assignment,
             ConnectionPointType.Output);
     connection.outputs.add(output);
+    return this;
   }
 
   /**
@@ -476,7 +484,7 @@ public class Job implements Serializable {
     return builder.toString();
   }
 
-  private void printSteps(final StringBuilder builder, final ArrayList<Step> steps, final String tag) {
+  private void printSteps(final StringBuilder builder, final List<Step> steps, final String tag) {
     builder.append(String.format("            <%s>\n", tag));
     for (Step step : steps) {
       if (step instanceof InputStep) {
@@ -494,8 +502,8 @@ public class Job implements Serializable {
       } else if (step instanceof MultiStep) {
         MultiStep multi = (MultiStep) step;
         builder.append("                <multi>\n");
-        for (ArrayList<Step> group : multi.groups) {
-          printSteps(builder, group, "group");
+	for (String name : multi) {
+	  printSteps(builder, multi.getGroup(name), "group");
         }
         builder.append("                </multi>\n");
       } else if (step.getParameters() == null || step.getParameters().isEmpty()) {

@@ -93,7 +93,7 @@ public class StageInstanceFactory {
 
   public org.lemurproject.galago.tupleflow.Step instantiate(
           StageInstanceDescription instance,
-          ArrayList<Step> steps)
+          List<Step> steps)
           throws IncompatibleProcessorException, IOException {
     org.lemurproject.galago.tupleflow.Step previous = null;
     org.lemurproject.galago.tupleflow.Step first = null;
@@ -193,11 +193,14 @@ public class StageInstanceFactory {
           StageInstanceDescription instance,
           final Step step) throws IncompatibleProcessorException, IOException {
     MultiStep multiStep = (MultiStep) step;
-    Processor[] processors = new Processor[multiStep.groups.size()];
+    Processor[] processors = new Processor[multiStep.size()];
 
-    for (int i = 0; i < multiStep.groups.size(); i++) {
-      ArrayList<Step> group = multiStep.groups.get(i);
-      processors[i] = (org.lemurproject.galago.tupleflow.Processor) instantiate(instance, group);
+    int i = 0;
+    for (String groupName : multiStep) {
+      processors[i] = 
+	  (org.lemurproject.galago.tupleflow.Processor) instantiate(instance, 
+								    multiStep.getGroup(groupName));
+      ++i;
     }
 
     return new org.lemurproject.galago.tupleflow.Multi(processors);

@@ -21,4 +21,8 @@ public class OutputStep extends Step {
     public String getId() {
         return id;
     }
+
+    public String toString() {
+	return id;
+    }
 }

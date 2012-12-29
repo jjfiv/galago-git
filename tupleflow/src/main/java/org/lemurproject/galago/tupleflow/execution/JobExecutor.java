@@ -151,14 +151,12 @@ public class JobExecutor {
       Stage source = stages.get(connectionInput.getStageName());
 
       MultiStep multi = new MultiStep();
-      multi.groups = new ArrayList<ArrayList<Step>>();
 
       for (ConnectionEndPoint connectionOutput : connection.outputs) {
         Stage destination = stages.get(connectionOutput.getStageName());
         // getting ready: remove the first step, add on to the multi
         int length = destination.steps.size();
-        ArrayList<Step> steps = new ArrayList<Step>(destination.steps.subList(1, length));
-        multi.groups.add(steps);
+	multi.addGroup(new ArrayList<Step>(destination.steps.subList(1, length)));
 
         renameConnections(job, source, destination);
 
@@ -174,8 +172,8 @@ public class JobExecutor {
       source.steps.remove(source.steps.size() - 1);
 
       // only add a multi step if there were multiple outputs
-      if (multi.groups.size() == 1) {
-        source.steps.addAll(multi.groups.get(0));
+      if (multi.isSingleton()) {
+	source.steps.addAll(multi.singleton());
       } else {
         source.steps.add(multi);
       }

@@ -32,50 +32,44 @@ public class BuildPictureStore extends AppFunction {
           String outStream,
           Parameters parameters) {
     Stage stage = new Stage(stageName);
-    stage.addInput(inStream, new DocumentSplit.FileIdOrder());
-    stage.addOutput(outStream, new PictureOccurrence.IdOrdinalTopLeftOrder());
-    stage.addOutput(outStream + "-docs", new KeyValuePair.KeyOrder());
-
-    stage.add(new InputStep(inStream));
-    stage.add(BuildStageTemplates.getParserStep(parameters));
+    stage.addInput(inStream, new DocumentSplit.FileIdOrder())
+	.addOutput(outStream, new PictureOccurrence.IdOrdinalTopLeftOrder())
+	.addOutput(outStream + "-docs", new KeyValuePair.KeyOrder())
+	.add(new InputStep(inStream))
+	.add(BuildStageTemplates.getParserStep(parameters));
 
     MultiStep fork = new MultiStep();
+    String name = "picture docs";
+    fork.addGroup(name)
+	.addToGroup(name, new Step(PictureDocumentSerializer.class, parameters))
+	.addToGroup(name, Utility.getSorter(new KeyValuePair.KeyOrder()))
+	.addToGroup(name, new OutputStep(outStream + "-docs"));
+    
+    name = "picture occurrences";
+    fork.addGroup(name)
+	.addToGroup(name, new Step(PictureOccurrenceGenerator.class))
+	.addToGroup(name, Utility.getSorter(new PictureOccurrence.IdOrdinalTopLeftOrder()))
+	.addToGroup(name, new OutputStep(outStream));
 
-    ArrayList<Step> writeDocuments = new ArrayList<Step>();
-    writeDocuments.add(new Step(PictureDocumentSerializer.class, parameters));
-    writeDocuments.add(Utility.getSorter(new KeyValuePair.KeyOrder()));
-    writeDocuments.add(new OutputStep(outStream + "-docs"));
-    fork.groups.add(writeDocuments);
-
-    ArrayList<Step> outputOccurrences = new ArrayList<Step>();
-    outputOccurrences.add(new Step(PictureOccurrenceGenerator.class));
-    outputOccurrences.add(Utility.getSorter(new PictureOccurrence.IdOrdinalTopLeftOrder()));
-    outputOccurrences.add(new OutputStep(outStream));
-    fork.groups.add(outputOccurrences);
-
-    stage.add(fork);
-    return stage;
+    return stage.add(fork);
   }
 
   public Stage getWritePicturesStage(String stageName,
           String inStream,
           Parameters parameters) {
-    Stage stage = new Stage(stageName);
-    stage.addInput(inStream, new PictureOccurrence.IdOrdinalTopLeftOrder());
-
-    stage.add(new InputStep(inStream));
-    stage.add(new Step(PictureStoreWriter.class, parameters));
-    return stage;
+    return new Stage(stageName)
+	.addInput(inStream, new PictureOccurrence.IdOrdinalTopLeftOrder())
+	.add(new InputStep(inStream))
+	.add(new Step(PictureStoreWriter.class, parameters));
   }
 
   public Stage writePictureDocumentsStage(String stageName,
           String inStream,
           Parameters jobParameters) {
-    Stage stage = new Stage(stageName);
-    stage.addInput(inStream, new KeyValuePair.KeyOrder());
-    stage.add(new InputStep(inStream));
-    stage.add(new Step(PictureDocumentWriter.class, jobParameters));
-    return stage;
+      return new Stage(stageName)
+	  .addInput(inStream, new KeyValuePair.KeyOrder())
+	  .add(new InputStep(inStream))
+	  .add(new Step(PictureDocumentWriter.class, jobParameters));
   }
 
   public Job getPicturesJob(Parameters jobParameters) throws Exception {
@@ -89,13 +83,13 @@ public class BuildPictureStore extends AppFunction {
     List<String> inputPaths = jobParameters.getAsList("inputPath");
     Parameters splitParameters = jobParameters.get("parser", new Parameters()).clone();
     job.add(BuildStageTemplates.getSplitStage(inputPaths,
-            DocumentSource.class,
-            new DocumentSplit.FileIdOrder(),
-            splitParameters));
-    job.add(getGeneratePicturesStage("generatePictures",
-            "splits",
-            "pictures",
-            jobParameters));
+					      DocumentSource.class,
+					      new DocumentSplit.FileIdOrder(),
+					      splitParameters))
+	.add(getGeneratePicturesStage("generatePictures",
+				      "splits",
+				      "pictures",
+				      jobParameters));
     Parameters writeParameters = new Parameters();
     writeParameters.set("filename", jobParameters.getString("picturesPath"));
     job.add(getWritePicturesStage("writePictures", "pictures", writeParameters));
@@ -103,11 +97,10 @@ public class BuildPictureStore extends AppFunction {
     Parameters docParams = writeParameters.clone();
     String corpusPath = new File(jobParameters.getString("picturesPath"), "pictures.corpus").getCanonicalPath();
     docParams.set("filename", corpusPath);
-    job.add(writePictureDocumentsStage("writeDocs", "pictures-docs", docParams));
-    job.connect("inputSplit", "generatePictures", ConnectionAssignmentType.Each);
-    job.connect("generatePictures", "writePictures", ConnectionAssignmentType.Combined);
-    job.connect("generatePictures", "writeDocs", ConnectionAssignmentType.Combined);
-    return job;
+    return job.add(writePictureDocumentsStage("writeDocs", "pictures-docs", docParams))
+	.connect("inputSplit", "generatePictures", ConnectionAssignmentType.Each)
+	.connect("generatePictures", "writePictures", ConnectionAssignmentType.Combined)
+	.connect("generatePictures", "writeDocs", ConnectionAssignmentType.Combined);
   }
 
   @Override

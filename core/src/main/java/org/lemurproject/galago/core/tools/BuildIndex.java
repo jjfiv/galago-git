@@ -59,13 +59,11 @@ import org.lemurproject.galago.tupleflow.execution.Step;
 public class BuildIndex extends AppFunction {
 
   public Stage getParsePostingsStage(Parameters buildParameters) throws ClassNotFoundException {
-    Stage stage = new Stage("parsePostings");
-
-    // connections
-    stage.addInput("splits", new DocumentSplit.FileIdOrder());
-    stage.addOutput("fieldLengthData", new FieldLengthData.FieldDocumentOrder());
-    stage.addOutput("numberedDocumentDataNumbers", new NumberedDocumentData.NumberOrder());
-    stage.addOutput("numberedDocumentDataNames", new NumberedDocumentData.IdentifierOrder());
+    Stage stage = new Stage("parsePostings")
+	.addInput("splits", new DocumentSplit.FileIdOrder())
+	.addOutput("fieldLengthData", new FieldLengthData.FieldDocumentOrder())
+	.addOutput("numberedDocumentDataNumbers", new NumberedDocumentData.NumberOrder())
+	.addOutput("numberedDocumentDataNames", new NumberedDocumentData.IdentifierOrder());
 
     if (buildParameters.getBoolean("links")) {
       stage.addInput("anchorText", new AdditionalDocumentText.IdentifierOrder());
@@ -100,10 +98,10 @@ public class BuildIndex extends AppFunction {
     }
 
     // Steps
-    stage.add(new InputStep("splits"));
-    stage.add(BuildStageTemplates.getParserStep(buildParameters));
-    stage.add(BuildStageTemplates.getTokenizerStep(buildParameters));
-    stage.add(BuildStageTemplates.getNumberingStep(buildParameters));
+    stage.add(new InputStep("splits"))
+	.add(BuildStageTemplates.getParserStep(buildParameters))
+	.add(BuildStageTemplates.getTokenizerStep(buildParameters))
+	.add(BuildStageTemplates.getNumberingStep(buildParameters));
     if (buildParameters.getBoolean("links")) {
       Parameters p = new Parameters();
       p.set("textSource", "anchorText");
@@ -113,105 +111,94 @@ public class BuildIndex extends AppFunction {
     MultiStep processingFork = new MultiStep();
 
     // these forks are always executed
-    ArrayList<Step> lengthData =
-            BuildStageTemplates.getExtractionSteps("fieldLengthData", FieldLengthExtractor.class,
-            new FieldLengthData.FieldDocumentOrder());
-    processingFork.groups.add(lengthData);
-
-    ArrayList<Step> documentData =
-            BuildStageTemplates.getExtractionSteps("numberedDocumentDataNumbers", NumberedDocumentDataExtractor.class,
-            new NumberedDocumentData.NumberOrder());
-    processingFork.groups.add(documentData);
-
-
-    ArrayList<Step> documentDataReverse =
-            BuildStageTemplates.getExtractionSteps("numberedDocumentDataNames", NumberedDocumentDataExtractor.class,
-            new NumberedDocumentData.IdentifierOrder());
-    processingFork.groups.add(documentDataReverse);
-
+    processingFork
+	.addGroup("fieldLengths",
+		  BuildStageTemplates.getExtractionSteps("fieldLengthData", 
+							 FieldLengthExtractor.class,
+							 new FieldLengthData.FieldDocumentOrder()))
+	.addGroup("numberedDocumentData",
+		  BuildStageTemplates.getExtractionSteps("numberedDocumentDataNumbers", 
+							 NumberedDocumentDataExtractor.class,
+							 new NumberedDocumentData.NumberOrder()))
+	.addGroup("numberedDocumentDataNames",
+		  BuildStageTemplates.getExtractionSteps("numberedDocumentDataNames", 
+							 NumberedDocumentDataExtractor.class,
+							 new NumberedDocumentData.IdentifierOrder()));
+		  
     // now optional forks
     if (buildParameters.getBoolean("corpus")) {
       Parameters corpusParameters = buildParameters.getMap("corpusParameters").clone();
-
-      ArrayList<Step> corpusSteps = new ArrayList();
-      corpusSteps.add(new Step(CorpusFolderWriter.class, corpusParameters.clone()));
-      corpusSteps.add(Utility.getSorter(new KeyValuePair.KeyOrder()));
-      corpusSteps.add(new OutputStep("corpusKeys"));
-      processingFork.groups.add(corpusSteps);
+      processingFork.addGroup("corpus")
+	  .addToGroup("corpus", new Step(CorpusFolderWriter.class, corpusParameters.clone()))
+	  .addToGroup("corpus", Utility.getSorter(new KeyValuePair.KeyOrder()))
+	  .addToGroup("corpus", new OutputStep("corpusKeys"));
     }
-
-
     if (buildParameters.getBoolean("nonStemmedPostings")) {
-      ArrayList<Step> text =
-              BuildStageTemplates.getExtractionSteps("numberedPostings", NumberedPostingsPositionExtractor.class,
-              new NumberWordPosition.WordDocumentPositionOrder());
-      processingFork.groups.add(text);
+	processingFork.addGroup("postings", 
+				BuildStageTemplates.getExtractionSteps("numberedPostings", 
+								       NumberedPostingsPositionExtractor.class,
+								       new NumberWordPosition.WordDocumentPositionOrder()));
     }
     if (!buildParameters.getMap("tokenizer").getList("fields").isEmpty()) {
-      ArrayList<Step> extents =
-              BuildStageTemplates.getExtractionSteps("numberedExtents", NumberedExtentExtractor.class,
-              new NumberedExtent.ExtentNameNumberBeginOrder());
-      processingFork.groups.add(extents);
+	processingFork.addGroup("extents",
+				BuildStageTemplates.getExtractionSteps("numberedExtents", 
+								       NumberedExtentExtractor.class,
+								       new NumberedExtent.ExtentNameNumberBeginOrder()));
     }
     if (!buildParameters.getMap("tokenizer").getMap("formats").isEmpty()) {
-      ArrayList<Step> fields =
-              BuildStageTemplates.getExtractionSteps("numberedFields", NumberedFieldExtractor.class,
-              buildParameters, new NumberedField.FieldNameNumberOrder());
-      processingFork.groups.add(fields);
+	processingFork.addGroup("comparable Fields",
+				BuildStageTemplates.getExtractionSteps("numberedFields", 
+								       NumberedFieldExtractor.class,
+								       buildParameters, 
+								       new NumberedField.FieldNameNumberOrder()));
     }
 
     if (buildParameters.getBoolean("stemmedPostings")) {
       for (String stemmer : (List<String>) buildParameters.getList("stemmer")) {
-        // produce a stemmed postings fork.
-        ArrayList<Step> stemmingSteps = new ArrayList<Step>();
-        stemmingSteps.add(BuildStageTemplates.getStemmerStep(new Parameters(),
-                Class.forName(buildParameters.getMap("stemmerClass").getString(stemmer))));
-        stemmingSteps.add(new Step(NumberedPostingsPositionExtractor.class));
-        stemmingSteps.add(Utility.getSorter(new NumberWordPosition.WordDocumentPositionOrder()));
-        stemmingSteps.add(new OutputStep("numberedStemmedPostings-" + stemmer));
-        processingFork.groups.add(stemmingSteps);
+	  String name = "postings-" + stemmer;
+	  processingFork.addGroup(name)
+	      .addToGroup(name, 
+			  BuildStageTemplates.getStemmerStep(new Parameters(),
+							     Class.forName(buildParameters.getMap("stemmerClass").getString(stemmer))))
+	      .addToGroup(name, new Step(NumberedPostingsPositionExtractor.class))
+	      .addToGroup(name, Utility.getSorter(new NumberWordPosition.WordDocumentPositionOrder()))
+	      .addToGroup(name, new OutputStep("numberedStemmedPostings-" + stemmer));
       }
     }
 
     if (buildParameters.getBoolean("fieldIndex")) {
       if (buildParameters.getMap("fieldIndexParameters").getBoolean("nonStemmedPostings")) {
-        ArrayList<Step> extentPostings =
-                BuildStageTemplates.getExtractionSteps("numberedExtentPostings", NumberedExtentPostingsExtractor.class,
-                new FieldNumberWordPosition.FieldWordDocumentPositionOrder());
-        processingFork.groups.add(extentPostings);
+	  processingFork.addGroup("fieldIndex", 
+				  BuildStageTemplates.getExtractionSteps("numberedExtentPostings", 
+									 NumberedExtentPostingsExtractor.class,
+									 new FieldNumberWordPosition.FieldWordDocumentPositionOrder()));
       }
 
       if (buildParameters.getMap("fieldIndexParameters").getBoolean("stemmedPostings")) {
-        for (String stemmer : (List<String>) buildParameters.getMap("fieldIndexParameters").getList("stemmer")) {
-          ArrayList<Step> stemmingSteps = new ArrayList<Step>();
-          stemmingSteps.add(BuildStageTemplates.getStemmerStep(new Parameters(),
-                  Class.forName(buildParameters.getMap("stemmerClass").getString(stemmer))));
-          stemmingSteps.add(new Step(NumberedExtentPostingsExtractor.class));
-          stemmingSteps.add(Utility.getSorter(new FieldNumberWordPosition.FieldWordDocumentPositionOrder()));
-          stemmingSteps.add(new OutputStep("numberedExtentPostings-" + stemmer));
-          processingFork.groups.add(stemmingSteps);
-        }
+	  for (String stemmer : (List<String>) buildParameters.getMap("fieldIndexParameters").getList("stemmer")) {
+	      String name = "fieldIndex-" + stemmer;
+	      processingFork.addGroup(name)
+		  .addToGroup(name, 
+			      BuildStageTemplates.getStemmerStep(new Parameters(),
+								 Class.forName(buildParameters.getMap("stemmerClass").getString(stemmer))))
+		  .addToGroup(name, new Step(NumberedExtentPostingsExtractor.class))
+		  .addToGroup(name, Utility.getSorter(new FieldNumberWordPosition.FieldWordDocumentPositionOrder()))
+		  .addToGroup(name, new OutputStep("numberedExtentPostings-" + stemmer));
+	  }
       }
-    }
-
-    stage.add(processingFork);
-
-    return stage;
+    }    
+    return stage.add(processingFork);
   }
 
   public Stage getParseLinksStage(Parameters buildParameters) {
-    Stage stage = new Stage("parseLinks");
-
-    // Connections
-    stage.addInput("splits", new DocumentSplit.FileIdOrder());
-    stage.addOutput("links", new ExtractedLink.DestUrlOrder());
-    stage.addOutput("documentUrls", new NumberedDocumentData.UrlOrder());
-
-    // Steps
-    stage.add(new InputStep("splits"));
-    stage.add(BuildStageTemplates.getParserStep(buildParameters));
-    stage.add(BuildStageTemplates.getTokenizerStep(buildParameters));
-    stage.add(new Step(DocumentNumberer.class));
+    Stage stage = new Stage("parseLinks")
+	.addInput("splits", new DocumentSplit.FileIdOrder())
+	.addOutput("links", new ExtractedLink.DestUrlOrder())
+	.addOutput("documentUrls", new NumberedDocumentData.UrlOrder())
+	.add(new InputStep("splits"))
+	.add(BuildStageTemplates.getParserStep(buildParameters))
+	.add(BuildStageTemplates.getTokenizerStep(buildParameters))
+	.add(new Step(DocumentNumberer.class));
 
     MultiStep multi = new MultiStep();
     ArrayList<Step> links =
@@ -219,12 +206,7 @@ public class BuildIndex extends AppFunction {
     ArrayList<Step> data =
             BuildStageTemplates.getExtractionSteps("documentUrls", NumberedDocumentDataExtractor.class,
             new NumberedDocumentData.UrlOrder());
-
-    multi.groups.add(links);
-    multi.groups.add(data);
-    stage.add(multi);
-
-    return stage;
+    return stage.add(multi.addGroup(links).addGroup(data));
   }
 
   public Stage getLinkCombineStage() {

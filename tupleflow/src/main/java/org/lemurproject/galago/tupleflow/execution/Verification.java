@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -314,7 +315,7 @@ public class Verification {
     }
   }
 
-  public static void verify(TypeState state, Stage stage, ArrayList<Step> steps, ErrorStore store) {
+  public static void verify(TypeState state, Stage stage, List<Step> steps, ErrorStore store) {
     for (int i = 0; i < steps.size(); i++) {
       Step step = steps.get(i);
       boolean isLastStep = (i == (steps.size() - 1));
@@ -396,8 +397,8 @@ public class Verification {
         // many different object groups.
         MultiStep multiStep = (MultiStep) step;
 
-        for (ArrayList<Step> group : multiStep.groups) {
-          verify(new TypeState(state), stage, group, store);
+	for (String groupName : multiStep) {
+	    verify(new TypeState(state), stage, multiStep.getGroup(groupName), store);
           state.setDefined(false);
         }
       } else {
