@@ -50,7 +50,8 @@ public class DumpKeyValueFn extends AppFunction {
 
     KeyIterator iterator = reader.getIterator();
 
-    if (iterator.skipToKey(Utility.fromString(key))) {
+    if (iterator.skipToKey(Utility.fromString(key)) &&
+	key.equals(iterator.getKeyString())) {
       if (KeyListReader.class.isAssignableFrom(reader.getClass())) {	
         ValueIterator vIter = iterator.getValueIterator();
 	ScoringContext context = new ScoringContext();
