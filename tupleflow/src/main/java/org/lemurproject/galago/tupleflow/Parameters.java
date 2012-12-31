@@ -697,7 +697,7 @@ public class Parameters implements Serializable {
           return tmp;
         case MAP:
           tmp = new ArrayList<Parameters>();
-          tmp.add(_longs.get(key));
+          tmp.add(_objects.get(key));
           return tmp;
       }
     } else {
