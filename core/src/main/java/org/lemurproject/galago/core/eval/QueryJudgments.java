@@ -3,7 +3,7 @@
  */
 package org.lemurproject.galago.core.eval;
 
-import java.util.HashMap;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -83,6 +83,10 @@ public class QueryJudgments {
 
   public Iterable<Integer> getIterator() {
     return judgments.values();
+  }
+  
+  public Set<String> getDocumentSet() {
+    return judgments.keySet();
   }
 
   public int size() {

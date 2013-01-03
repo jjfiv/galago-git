@@ -195,6 +195,7 @@ public class LocalRetrieval implements Retrieval {
     T[] byID = Arrays.copyOf(results, results.length);
 
     Arrays.sort(byID, new Comparator<T>() {
+
       @Override
       public int compare(T o1, T o2) {
         return Utility.compare(o1.document, o2.document);
@@ -275,7 +276,7 @@ public class LocalRetrieval implements Retrieval {
     if (queryIteratorCache != null) {
       queryIteratorCache.put(node.toString(), iterator);
     }
-    
+
     context.toNodes.put(iterator, node);
     return iterator;
   }
@@ -420,6 +421,10 @@ public class LocalRetrieval implements Retrieval {
   @Override
   public String getDocumentName(Integer docid) throws IOException {
     return index.getName(docid);
+  }
+
+  public Integer getDocumentId(String docname) throws IOException {
+    return index.getIdentifier(docname);
   }
 
   public List<Integer> getDocumentIds(List<String> docnames) throws IOException {
