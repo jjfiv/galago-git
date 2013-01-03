@@ -148,7 +148,7 @@ public class GenerateWorkingSetQueries extends AppFunction {
       if (numbers) {
         List<Integer> wsNumbers = new ArrayList(workingSetNumbers);
         Collections.sort(wsNames);
-        wsQ.set("workingIds", wsNames);
+        wsQ.set("workingIds", wsNumbers);
       }
     }
 
