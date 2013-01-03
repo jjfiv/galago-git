@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -55,6 +57,20 @@ public class WARCParser extends DocumentStreamParser {
     }
     doc.metadata.put("url", record.getHeaderMetadataItem("WARC-Target-URI"));
 
+    // extract html header from the document
+    String text = doc.text;
+    Matcher matcher = Pattern.compile("\n\n|\r\n\r\n").matcher(text);
+    if(matcher.find(0)){
+      int start = matcher.start();
+      int end = matcher.end();
+      
+      String header = text.substring(0, end);
+      String body = text.substring(end);
+      
+      doc.metadata.put("dochdr", header);
+      doc.text = body;
+    }
+    
     return doc;
   }
   
