@@ -80,6 +80,7 @@ public class WARCRecord {
   private static byte MASK_BOTTOM_FIVE_BITS = (byte) (0x3F);
   private static byte MASK_BOTTOM_FOUR_BITS = (byte) (0x0F);
   private static String LINE_ENDING = "\n";
+  private static int MAX_CONTENT_LENGTH = 100 * 1024 * 1024; // 100 MB
 
   private static String readLineFromInputStream(DataInputStream in) throws IOException {
     StringBuilder retString = new StringBuilder();
@@ -162,6 +163,23 @@ public class WARCRecord {
     return retString.toString();
   }
 
+  private static boolean findNextWARCRecord(DataInputStream in) throws IOException{
+    // cannot be using a buffered reader here!!!!
+    // just read the header
+    // first - find our WARC header
+    boolean foundMark = false;
+    String line;
+    
+    while ((!foundMark) && ((line = readLineFromInputStream(in)) != null)) {
+      if (line.startsWith(WARC_VERSION)) {
+        WARC_VERSION_LINE = line;
+        foundMark = true;
+      }
+    }
+    
+    return foundMark;
+  }
+  
   private static byte[] readNextRecord(DataInputStream in, StringBuffer headerBuffer) throws IOException {
     if (in == null) {
       return null;
@@ -171,18 +189,20 @@ public class WARCRecord {
     }
 
     String line = null;
-    boolean foundMark = false;
+//    boolean foundMark = false;
     byte[] retContent = null;
 
-    // cannot be using a buffered reader here!!!!
-    // just read the header
-    // first - find our WARC header
-    while ((!foundMark) && ((line = readLineFromInputStream(in)) != null)) {
-      if (line.startsWith(WARC_VERSION)) {
-        WARC_VERSION_LINE = line;
-        foundMark = true;
-      }
-    }
+    boolean foundMark = findNextWARCRecord(in);
+    
+//    // cannot be using a buffered reader here!!!!
+//    // just read the header
+//    // first - find our WARC header
+//    while ((!foundMark) && ((line = readLineFromInputStream(in)) != null)) {
+//      if (line.startsWith(WARC_VERSION)) {
+//        WARC_VERSION_LINE = line;
+//        foundMark = true;
+//      }
+//    }
 
     // no WARC mark?
     if (!foundMark) {
@@ -209,6 +229,16 @@ public class WARCRecord {
           try {
             contentLength = Integer.parseInt(parts[1].trim());
             // LOG.info("WARC record content length: " + contentLength);
+            
+            // if this document is too long
+            if(contentLength > MAX_CONTENT_LENGTH){
+              in.skip(contentLength);
+              if(!findNextWARCRecord(in)){
+                return null;
+              }
+              headerBuffer.delete(0, headerBuffer.length());
+            }
+            
           } catch (NumberFormatException nfEx) {
             contentLength = -1;
           }

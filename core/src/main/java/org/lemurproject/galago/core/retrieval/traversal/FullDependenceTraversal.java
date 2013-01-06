@@ -36,7 +36,7 @@ public class FullDependenceTraversal extends Traversal {
     unigramDefault = parameters.get("uniw", 0.8);
     orderedDefault = parameters.get("odw", 0.15);
     unorderedDefault = parameters.get("uww", 0.05);
-    defaultWindowLimit = (int) parameters.get("windowLimit", -1);
+    defaultWindowLimit = (int) parameters.get("windowLimit", 3);
 
     unigramDefault = queryParameters.get("uniw", unigramDefault);
     orderedDefault = queryParameters.get("odw", orderedDefault);
@@ -77,6 +77,7 @@ public class FullDependenceTraversal extends Traversal {
       ArrayList<Node> unordered = new ArrayList<Node>();
 
       ArrayList<ArrayList<Node>> nodePowerSet = powerSet(new ArrayList(children), windowLimit);
+
       for (ArrayList<Node> set : nodePowerSet) {
         if ((windowLimit < 2) || (windowLimit >= set.size())) {
           if (set.size() >= 2) {
@@ -129,7 +130,7 @@ public class FullDependenceTraversal extends Traversal {
       Node n = children.remove(0);
       ArrayList<ArrayList<Node>> subps = powerSet(children, windowLimit);
       for (ArrayList<Node> set : subps) {
-        if (set.size() < windowLimit) {
+        if (windowLimit < 2 || set.size() < windowLimit) {
           // add a clone of the original
           ps.add(new ArrayList(set));
           // add the original + node n
