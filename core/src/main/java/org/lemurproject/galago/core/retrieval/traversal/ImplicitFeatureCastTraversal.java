@@ -199,13 +199,14 @@ public class ImplicitFeatureCastTraversal extends Traversal {
     passageQuery = this.queryParams.get("passageQuery", passageQuery);
     if (passageQuery) {
       // replace here
-      ArrayList<Node> children = new ArrayList<Node>();
-      children.add(in);
-      Node replacement = new Node("passagefilter", children);
-      return replacement;
-    } else {
-      return in;
+      if (in.numChildren() == 0) {
+        ArrayList<Node> children = new ArrayList<Node>();
+        children.add(in);
+        Node replacement = new Node("passagefilter", children);
+        return replacement;
+      }
     }
+    return in;
   }
 
   public Node addScorers(Node node) throws Exception {
