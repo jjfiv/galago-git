@@ -78,6 +78,7 @@ public class FeatureFactory {
     {PL2FieldScoringIterator.class.getName(), "pl2f"}
   };
   static String[] sTraversalList = {
+    ReplaceOperatorTraversal.class.getName(),
     WeightedSequentialDependenceTraversal.class.getName(),
     SequentialDependenceTraversal.class.getName(),
     PL2Traversal.class.getName(),
