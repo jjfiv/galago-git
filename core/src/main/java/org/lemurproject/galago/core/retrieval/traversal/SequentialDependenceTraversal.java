@@ -56,21 +56,17 @@ public class SequentialDependenceTraversal extends Traversal {
     defaultWindowLimit = (int) queryParameters.get("windowLimit", defaultWindowLimit);
   }
 
+  @Override
   public void beforeNode(Node original) throws Exception {
   }
 
+  @Override
   public Node afterNode(Node original) throws Exception {
     if (original.getOperator().equals("sdm")
             || original.getOperator().equals("seqdep")) {
       // get to work
 
-      // First check format - should only contain text node children
       List<Node> children = original.getInternalNodes();
-      for (Node child : children) {
-        if (child.getOperator().equals("text") == false && child.getOperator().equals("inside") == false) {
-          throw new MalformedQueryException("seqdep operator needs text-only children");
-        }
-      }
 
 //      //  TODO: Remove this gross hack and use a proper dependency-graph builder.
 //      qp.set("seqdep", true);
