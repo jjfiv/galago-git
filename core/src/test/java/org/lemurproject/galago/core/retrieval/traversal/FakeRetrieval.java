@@ -30,7 +30,7 @@ public class FakeRetrieval implements Retrieval {
 
   @Override
   public Parameters getGlobalParameters() {
-    throw new UnsupportedOperationException("Not supported yet.");
+    return new Parameters();
   }
 
   @Override

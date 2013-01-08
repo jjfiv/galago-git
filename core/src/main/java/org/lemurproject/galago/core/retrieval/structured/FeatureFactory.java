@@ -75,14 +75,17 @@ public class FeatureFactory {
     {InverseDocFrequencyIterator.class.getName(), "idf"},
     {LogarithmIterator.class.getName(), "log"},
     {DFRScoringIterator.class.getName(), "dfr"},
-    {PL2FieldScoringIterator.class.getName(), "pl2f"}
+    {PL2FieldScoringIterator.class.getName(), "pl2f"},
+    {PL2ScoringIterator.class.getName(), "pl2"},
+    {InL2ScoringIterator.class.getName(), "inl2"},
+    {BiL2ScoringIterator.class.getName(), "bil2"}    
   };
   static String[] sTraversalList = {
     ReplaceOperatorTraversal.class.getName(),
     WeightedSequentialDependenceTraversal.class.getName(),
     SequentialDependenceTraversal.class.getName(),
-    PL2Traversal.class.getName(),
     FullDependenceTraversal.class.getName(),
+    ProximityDFRTraversal.class.getName(),
     TransformRootTraversal.class.getName(),
     PRMSTraversal.class.getName(),
     PRMS2Traversal.class.getName(),

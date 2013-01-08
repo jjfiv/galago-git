@@ -14,13 +14,13 @@ import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * Implements PL2 retrieval model from the DFR framework.
+ * Implements InL2 retrieval model from the DFR framework.
  *
  * @author sjh
  */
-@RequiredStatistics(statistics = {"collectionLength", "documentCount", "nodeFrequency", "maximumCount"})
+@RequiredStatistics(statistics = {"collectionLength", "documentCount", "nodeDocumentCount", "maximumCount"})
 @RequiredParameters(parameters = {"c"})
-public class PL2ScoringIterator extends TransformIterator implements MovableScoreIterator {
+public class InL2ScoringIterator extends TransformIterator implements MovableScoreIterator {
 
   private final MovableLengthsIterator lengths;
   private final MovableCountIterator counts;
@@ -29,11 +29,10 @@ public class PL2ScoringIterator extends TransformIterator implements MovableScor
   private final double c;
   // collectionStats and constants
   private final double averageDocumentLength;
-  private final double nodeFrequency;
+  private final double nodeDocumentCount;
   private final double documentCount;
-  private final double REC_LOG_2_OF_E;
 
-  public PL2ScoringIterator(NodeParameters np, MovableLengthsIterator lengths, MovableCountIterator counts) {
+  public InL2ScoringIterator(NodeParameters np, MovableLengthsIterator lengths, MovableCountIterator counts) {
     super(counts);
     this.np = np;
     this.counts = counts;
@@ -41,9 +40,8 @@ public class PL2ScoringIterator extends TransformIterator implements MovableScor
 
     c = np.get("c", 1.0);
     averageDocumentLength = (double) np.getLong("collectionLength") / (double) np.getLong("documentCount");
-    nodeFrequency = (double) np.getLong("nodeFrequency");
+    nodeDocumentCount = (double) np.getLong("nodeDocumentCount");
     documentCount = (double) np.getLong("documentCount");
-    REC_LOG_2_OF_E = 1.0 / Utility.log2;
   }
 
   @Override
@@ -60,15 +58,11 @@ public class PL2ScoringIterator extends TransformIterator implements MovableScor
     }
 
     double docLength = lengths.getCurrentLength();
-    double TF = tf * log2(1.0 + (c * averageDocumentLength) / docLength);
-    double NORM = 1.0 / (TF + 1.0);
-    double f = nodeFrequency / documentCount;
-
-    double score = NORM
-            * (TF * log2(1.0 / f)
-            + f * REC_LOG_2_OF_E
-            + 0.5 * log2(2.0 * Math.PI * TF)
-            + TF * (log2(TF) - REC_LOG_2_OF_E));
+    double TFN = tf * log2(1.0 + (c * averageDocumentLength) / docLength);
+    double NORM = 1.0 / (TFN + 1.0);
+    
+    double score = NORM * TFN
+            * log2( (documentCount + 1.0) / (nodeDocumentCount + 0.5) );
     return score;
   }
 
@@ -105,5 +99,5 @@ public class PL2ScoringIterator extends TransformIterator implements MovableScor
 
   private double log2(double value) {
     return Math.log(value) / Utility.log2;
-  }
+  }  
 }
