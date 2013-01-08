@@ -43,7 +43,7 @@ public class PL2ScoringIterator extends TransformIterator implements MovableScor
     averageDocumentLength = (double) np.getLong("collectionLength") / (double) np.getLong("documentCount");
     nodeFrequency = (double) np.getLong("nodeFrequency");
     documentCount = (double) np.getLong("documentCount");
-    REC_LOG_2_OF_E = 1.0 / Utility.log2;
+    REC_LOG_2_OF_E = 1.0 / Math.log(2.0); // also equivalent to log_2(e)
   }
 
   @Override
