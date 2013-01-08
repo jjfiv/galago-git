@@ -22,6 +22,7 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
   public ExtentDisjunctionIterator(MovableExtentIterator[] iterators) throws IOException {
     super(iterators);
     this.extents = new ExtentArray();
+    buildKey(iterators);
   }
 
   @Override
