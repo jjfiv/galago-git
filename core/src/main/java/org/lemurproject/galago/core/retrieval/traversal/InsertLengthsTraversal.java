@@ -1,12 +1,13 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ *  BSD License (http://lemurproject.org/galago-license)
  */
 package org.lemurproject.galago.core.retrieval.traversal;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.List;
 import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -18,63 +19,89 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class InsertLengthsTraversal extends Traversal {
 
-  private Parameters queryParams;
-  private Parameters globalParams;
-  private Node lenNode;
-  private Retrieval retrieval;
+    private Parameters queryParams;
+    private Parameters globalParams;
+    private Node lenNode;
+    private Retrieval retrieval;
 
-  public InsertLengthsTraversal(Retrieval retrieval, Parameters queryParameters) {
-    // TODO: devise mechanisms to use specific lengths smoothing methods
-    this.retrieval = retrieval;
-    this.globalParams = retrieval.getGlobalParameters();
-    this.queryParams = queryParameters;
+    public InsertLengthsTraversal(Retrieval retrieval, Parameters queryParameters) {
+        // TODO: devise mechanisms to use specific lengths smoothing methods
+        this.retrieval = retrieval;
+        this.globalParams = retrieval.getGlobalParameters();
+        this.queryParams = queryParameters;
 
-    // default lengths node.
-    lenNode = new Node("lengths", new NodeParameters());
-    lenNode.getNodeParameters().set("part", "lengths");
-  }
+        // default lengths node.
+        lenNode = new Node("lengths", new NodeParameters());
+        lenNode.getNodeParameters().set("part", "lengths");
+    }
 
   @Override
-  public Node afterNode(Node node) throws Exception {
-    NodeType nt = retrieval.getNodeType(node);
-    if (ScoringFunctionIterator.class.isAssignableFrom(nt.getIteratorClass())) {
-      // if we have only one child - (we assume it is a count node)
-      if (node.numChildren() == 1) {
+      public Node afterNode(Node node) throws Exception {
+      List<Node> children = node.getInternalNodes();
+      int childIdx = 0;
 
-        // default lengths node:
-        Node lenNodeClone = lenNode.clone();
-        // check if there is a specific field to smooth with
-        String field = node.getNodeParameters().get("lengths", "document");
-        lenNodeClone.getNodeParameters().set("default", field);
-
-        // add passage length wrapper
-        lenNodeClone = addExtentFilters(lenNodeClone);
-
-        // add this node at position 0.
-        node.addChild(lenNodeClone, 0);
+      if (children.isEmpty()) {
+          return node;
       }
-    }
-    return node;
+
+      NodeType nt = retrieval.getNodeType(node);
+
+      Constructor cons = nt.getConstructor();
+      Class[] params = cons.getParameterTypes();
+
+      for (int idx = 0; idx < params.length; idx++) {
+          if (MovableLengthsIterator.class.isAssignableFrom(params[idx])) {
+              Node child = (childIdx < children.size()) ? children.get(childIdx) : null;
+              NodeType cnt = (child != null) ? retrieval.getNodeType(child) : null;
+
+              boolean t1 = cnt.getIteratorClass().isAssignableFrom(MovableLengthsIterator.class);
+              boolean t2 = MovableLengthsIterator.class.isAssignableFrom(cnt.getIteratorClass());
+              boolean t3 = cnt.getIteratorClass().isInstance(MovableLengthsIterator.class);
+        
+        
+              if (cnt == null || !MovableLengthsIterator.class.isAssignableFrom(cnt.getIteratorClass())) {
+                  // then we need a lengths iterator here.
+                  // default lengths node:
+                  Node lenNodeClone = lenNode.clone();
+                  // check if there is a specific field to smooth with
+                  String field = node.getNodeParameters().get("lengths", "document");
+                  lenNodeClone.getNodeParameters().set("default", field);
+
+                  // add passage length wrapper
+                  lenNodeClone = addExtentFilters(lenNodeClone);
+
+                  // add this node at position 0.
+                  node.addChild(lenNodeClone, childIdx);
+                  childIdx++;
+              }
+          } else if (Parameters.class.isAssignableFrom(params[idx])) {
+              childIdx--;
+          } else if (NodeParameters.class.isAssignableFrom(params[idx])) {
+              childIdx--;
+          }
+          childIdx++;
+      }
+      return node;
   }
 
   @Override
-  public void beforeNode(Node object) throws Exception {
-    // Do nothing
+      public void beforeNode(Node object) throws Exception {
+      // Do nothing
   }
 
-  /** 
-   * this function inserts a passage restriction to length nodes.
-   */ 
-  private Node addExtentFilters(Node in) throws Exception {
-    boolean passageQuery = this.globalParams.get("passageQuery", false);
-    passageQuery = this.queryParams.get("passageQuery", passageQuery);
-    if (passageQuery){
-      ArrayList<Node> children = new ArrayList<Node>();
-      children.add(in);
-      Node replacement = new Node("passagelengths", children);
-      return replacement;
-    } else {
-      return in;
+    /**
+     * this function inserts a passage restriction to length nodes.
+     */
+    private Node addExtentFilters(Node in) throws Exception {
+        boolean passageQuery = this.globalParams.get("passageQuery", false);
+        passageQuery = this.queryParams.get("passageQuery", passageQuery);
+        if (passageQuery) {
+            ArrayList<Node> children = new ArrayList<Node>();
+            children.add(in);
+            Node replacement = new Node("passagelengths", children);
+            return replacement;
+        } else {
+            return in;
+        }
     }
-  }
 }
