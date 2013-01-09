@@ -83,7 +83,7 @@ public class TermSelectionValueModel implements ExpansionModel {
 
     if (cReader == null) {
       // Let's make a corpus reader
-	String corpusLocation = parameters.get("corpus", (String)null);
+      String corpusLocation = parameters.get("corpus", (String) null);
       if (corpusLocation == null) { // keep trying
         corpusLocation = parameters.getString("index") + File.separator + "corpus";
       }
@@ -132,7 +132,7 @@ public class TermSelectionValueModel implements ExpansionModel {
       if (exclusionTerms.contains(g.term)) {
         continue;
       }
-      Node inner = TextPartAssigner.assignPart(new Node("extents", g.term), 
+      Node inner = TextPartAssigner.assignPart(new Node("extents", g.term),
               retrieval.getGlobalParameters(), retrieval.getAvailableParts());
       ArrayList<Node> innerChild = new ArrayList<Node>();
       innerChild.add(inner);

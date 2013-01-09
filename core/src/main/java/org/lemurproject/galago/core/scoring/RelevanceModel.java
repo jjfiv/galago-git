@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
+import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -18,7 +18,6 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.util.MathUtils;
 import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.tartarus.snowball.ext.englishStemmer;
 
 /**
  * Implements the basic unigram Relevance Model, as described in "Relevance
@@ -64,7 +63,6 @@ public class RelevanceModel implements ExpansionModel {
   Parameters parameters;
   Retrieval retrieval;
   TagTokenizer tokenizer = null;
-  englishStemmer stemmer = null;
 
   public RelevanceModel(Parameters parameters, Retrieval r) {
     this.parameters = parameters;
@@ -77,11 +75,6 @@ public class RelevanceModel implements ExpansionModel {
    *
    */
   public void initialize() throws Exception {
-    // Stemming?
-    if (parameters.get("stemming", true) && stemmer == null) {
-      stemmer = new englishStemmer();
-    }
-
     if (tokenizer == null) {
       tokenizer = new TagTokenizer();
     }
@@ -90,10 +83,12 @@ public class RelevanceModel implements ExpansionModel {
   /*
    * Run this when the Relevance Model is no longer needed.
    */
+  @Override
   public void cleanup() throws Exception {
     tokenizer = null;
   }
 
+  @Override
   public ArrayList<WeightedTerm> generateGrams(List<ScoredDocument> initialResults) throws IOException {
     HashMap<Integer, Double> scores = logstoposteriors(initialResults);
     HashMap<String, HashMap<Integer, Integer>> counts = countGrams(initialResults);
@@ -102,6 +97,7 @@ public class RelevanceModel implements ExpansionModel {
     return scored;
   }
 
+  @Override
   public Node generateExpansionQuery(List<ScoredDocument> initialResults, int fbTerms,
           Set<String> exclusionTerms) throws IOException {
     List<WeightedTerm> scored = generateGrams(initialResults);
@@ -159,18 +155,10 @@ public class RelevanceModel implements ExpansionModel {
     HashMap<String, HashMap<Integer, Integer>> counts = new HashMap<String, HashMap<Integer, Integer>>();
     HashMap<Integer, Integer> termCounts;
     Document doc;
-    String term;
     for (ScoredDocument sd : results) {
       doc = retrieval.getDocument(retrieval.getDocumentName(sd.document), new Parameters());
       tokenizer.tokenize(doc);
-      for (String s : doc.terms) {
-        if (stemmer == null) {
-          term = s;
-        } else {
-          stemmer.setCurrent(s);
-          stemmer.stem();
-          term = stemmer.getCurrent();
-        }
+      for (String term : doc.terms) {
         if (!counts.containsKey(term)) {
           counts.put(term, new HashMap<Integer, Integer>());
         }

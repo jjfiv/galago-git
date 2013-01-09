@@ -60,10 +60,10 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     StringBuilder correct = new StringBuilder();
     correct.append("#combine:0=0.5:1=0.5( ");
     correct.append("#combine( #feature:dirichlet( #extents:fits:part=postings() ) ) ");
-    correct.append("#combine:0=0.16677748226950348:1=0.12516622340425526:2=0.04161125886524822( ");
-    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:fit:part=postings() ) ");
+    correct.append("#combine:0=0.12516622340425526:1=0.04161125886524822:2=0.04161125886524822( ");
     correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:program:part=postings() ) ");
-    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:shoe:part=postings() ) ) )");
+    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:shoe:part=postings() ) ");
+    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:ugly:part=postings() ) ) )");
 
     assertEquals(correct.toString(), transformed.toString());
     retrieval.close();
@@ -84,9 +84,9 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     correct.append("#combine( #feature:bm25( #extents:cat:part=postings() ) ");
     correct.append("#feature:bm25rf:R=3:rt=1( #extents:jumped:part=postings() ) ");
     correct.append("#feature:bm25rf:R=3:rt=2( #extents:moon:part=postings() ) )");
-    
+
     assertEquals(correct.toString(), transformed.toString());
-    
+
     retrieval.close();
   }
 
