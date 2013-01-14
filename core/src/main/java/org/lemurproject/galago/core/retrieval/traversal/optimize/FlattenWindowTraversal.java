@@ -31,6 +31,8 @@ public class FlattenWindowTraversal extends Traversal {
 
     // if we have a window operator with a single child
     if (original.getOperator().equals("ordered")
+            || original.getOperator().equals("syn")
+            || original.getOperator().equals("synonym")
             || original.getOperator().equals("od")
             || original.getOperator().equals("unordered")
             || original.getOperator().equals("uw")) {
