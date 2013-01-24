@@ -644,5 +644,11 @@ class KStemData8 {
 "zodiac","zombi","zombie","zonal","zone",
 "zoning","zonked","zoo","zoologist","zoology",
 "zoom","zoophyte","zouave","zucchini","zulu",
+"abbas", "activism", "agribusiness", "barfly", "basal", "batwing",
+"bedspring", "boric", "botfly", "bowstring", "centric",  "cation",
+"clonic", "cryptanalysis", "cursor", "daybed", "deaconess", "defocus",
+"fiance", "flatbed", "formic", "gator", "grizzly", "jowly", "kelly",
+"lacewing", "later", "lioness", "sawfly", "shoofly", "weber",
+"arbutus", "pupal"
 };
 }
