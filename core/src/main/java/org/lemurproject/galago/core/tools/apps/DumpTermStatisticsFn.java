@@ -42,11 +42,12 @@ public class DumpTermStatisticsFn extends AppFunction {
       long frequency = 0;
       long documentCount = 0;
       while (!mci.isDone()) {
-        if (mci.hasMatch(mci.currentCandidate())) {
-          frequency += mci.count();
-          documentCount++;
-        }
-        mci.movePast(mci.currentCandidate());
+          sc.document = mci.currentCandidate();
+          if (mci.hasMatch(mci.currentCandidate())) {
+              frequency += mci.count();
+              documentCount++;
+          }
+          mci.movePast(mci.currentCandidate());
       }
       output.printf("%s\t%d\t%d\n", iterator.getKeyString(), frequency, documentCount);
       iterator.nextKey();
