@@ -36,7 +36,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class DiskBTreeWriter extends BTreeWriter {
 
-  public static final long MAGIC_NUMBER = 0x1a2b3c4d5e6f7a8bL;
+  public static final long MAGIC_NUMBER = 0x1a2b3c4d5e6f7a8cL;
   private DataOutputStream output;
   private VocabularyWriter vocabulary;
   private Parameters manifest;
