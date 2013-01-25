@@ -8,6 +8,7 @@ import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -34,8 +35,10 @@ public class DumpTermStatisticsFn extends AppFunction {
           throws Exception {
     IndexPartReader reader = DiskIndex.openIndexPart(args[1]);
     KeyIterator iterator = reader.getIterator();
+    ScoringContext sc = new ScoringContext();
     while (!iterator.isDone()) {
       MovableCountIterator mci = (MovableCountIterator) iterator.getValueIterator();
+      mci.setContext(sc);
       long frequency = 0;
       long documentCount = 0;
       while (!mci.isDone()) {
