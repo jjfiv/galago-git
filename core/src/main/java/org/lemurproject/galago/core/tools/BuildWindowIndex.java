@@ -219,6 +219,7 @@ public class BuildWindowIndex extends AppFunction {
       if (positionalIndex) {
         stage.add(new Step(NumberedExtentThresholder.class, p));
       } else {
+        stage.add(new Step(ReduceNumberWordCount.class));
         stage.add(new Step(NumberWordCountThresholder.class, p));
       }
     }
@@ -238,7 +239,6 @@ public class BuildWindowIndex extends AppFunction {
     if (this.positionalIndex) {
       stage.add(new Step(WindowIndexWriter.class, p2));
     } else {
-      stage.add(new Step(ReduceNumberWordCount.class));
       stage.add(new Step(CountIndexWriter.class, p2));
     }
     return stage;

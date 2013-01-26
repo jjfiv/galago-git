@@ -64,7 +64,7 @@ public class NumberedExtentThresholder extends StandardStep<NumberedExtent, Numb
       emitExtents();
 
     } else {
-      //emitExtents();
+      emitExtents();
       if (discards != null) {
         discards.incrementBy(currentBuffer.size());
       }
@@ -108,7 +108,7 @@ public class NumberedExtentThresholder extends StandardStep<NumberedExtent, Numb
 
   @Override
   public void close() throws IOException {
-    //emitExtents();
+    emitExtents();
     processor.close();
   }
 }

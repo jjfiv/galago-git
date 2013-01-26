@@ -18,8 +18,8 @@ import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 
 /**
- * Discards NumberWordPosition items that contain words that
- * occur less than <threshold> times within the corpus.
+ * Discards NumberWordPosition items that contain words that occur less than
+ * <threshold> times within the corpus.
  *
  * @author sjh
  */
@@ -37,7 +37,6 @@ public class NumberWordCountThresholder extends StandardStep<NumberWordCount, Nu
   LinkedList<NumberWordCount> currentBuffer;
   TLongHashSet docs;
   boolean currentPassesThreshold;
-  
   Counter discards;
   Counter passing;
 
@@ -67,9 +66,11 @@ public class NumberWordCountThresholder extends StandardStep<NumberWordCount, Nu
       emitExtents();
 
     } else {
-      //emitExtents();
+      emitExtents();
       if (discards != null) {
-        discards.incrementBy(currentBuffer.size());
+        for(NumberWordCount c : currentBuffer) {
+          discards.incrementBy(c.count);
+        }
       }
       currentBuffer.clear();
 
@@ -85,15 +86,15 @@ public class NumberWordCountThresholder extends StandardStep<NumberWordCount, Nu
     // if we have more than threshold df
     if (threshdf) {
       HashSet<Integer> docs = new HashSet();
-      for(NumberWordCount e : currentBuffer){
+      for (NumberWordCount e : currentBuffer) {
         docs.add(e.document);
       }
-      if(docs.size() >= threshold){
+      if (docs.size() >= threshold) {
         currentPassesThreshold = true;
       }
     } else {
       int totalCount = 0;
-      for(NumberWordCount e : currentBuffer){
+      for (NumberWordCount e : currentBuffer) {
         totalCount += e.count;
       }
       if (totalCount >= threshold) {
@@ -104,14 +105,17 @@ public class NumberWordCountThresholder extends StandardStep<NumberWordCount, Nu
     // now actually emit Extents
     if (currentPassesThreshold) {
       while (currentBuffer.size() > 0) {
-        processor.process(currentBuffer.pollFirst());
-        if(passing != null) passing.increment();
+        NumberWordCount c = currentBuffer.pollFirst();
+        if (passing != null) {
+          passing.incrementBy(c.count);
+        }
+        processor.process(c);
       }
     }
   }
 
   public void close() throws IOException {
-    // emitExtents();
+    emitExtents();
     processor.close();
   }
 }
