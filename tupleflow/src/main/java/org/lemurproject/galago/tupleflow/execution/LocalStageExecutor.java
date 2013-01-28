@@ -209,7 +209,7 @@ public class LocalStageExecutor implements StageExecutor {
 
     if (context.getExceptions().size() > 0) {
       logger.severe("Exception thrown: " + context.getExceptions().get(0).toString());
-      System.exit(-1); // force quit on any remaining threads (particularly: NetworkCounter)
+      System.exit(1); // force quit on any remaining threads (particularly: NetworkCounter)
     } else {
       logger.info("Local Stage complete");
     }
