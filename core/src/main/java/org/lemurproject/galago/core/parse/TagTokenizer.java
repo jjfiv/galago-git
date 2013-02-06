@@ -788,6 +788,10 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
       onSplit();
     }
     document.terms = new ArrayList<String>(this.tokens);
+    for(Pair p : this.tokenPositions){
+      document.termCharBegin.add( p.start );
+      document.termCharEnd.add( p.end );
+    }
     document.tags = coalesceTags();
     pooler.transform(document);
   }

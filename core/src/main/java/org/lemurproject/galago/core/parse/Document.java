@@ -10,10 +10,11 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.xerial.snappy.SnappyInputStream;
 import org.xerial.snappy.SnappyOutputStream;
+import org.lemurproject.galago.core.parse.TagTokenizer.Pair;
 
 public class Document implements Serializable {
-  static final int BUFFER_SIZE = 5000;
 
+  static final int BUFFER_SIZE = 5000;
   // document id - this value is serialized
   public int identifier = -1;
   // document data - these values are serialized
@@ -21,6 +22,8 @@ public class Document implements Serializable {
   public Map<String, String> metadata;
   public String text;
   public List<String> terms;
+  public List<Integer> termCharBegin = new ArrayList();
+  public List<Integer> termCharEnd = new ArrayList();
   public List<Tag> tags;
   // other data - used to generate an identifier; these values can not be serialized!
   public int fileId = -1;
@@ -42,6 +45,8 @@ public class Document implements Serializable {
     this.metadata = new HashMap(d.metadata);
     this.text = d.text;
     this.terms = new ArrayList(d.terms);
+    this.termCharBegin = new ArrayList(d.termCharBegin);
+    this.termCharEnd = new ArrayList(d.termCharEnd);
     this.tags = new ArrayList(d.tags);
     this.fileId = d.fileId;
     this.totalFileCount = d.totalFileCount;
@@ -77,7 +82,7 @@ public class Document implements Serializable {
       sb.append("\nText :").append(text);
     }
     sb.append("\n");
-    
+
     return sb.toString();
   }
 
@@ -168,7 +173,6 @@ public class Document implements Serializable {
         output.write(bytes);
       }
     }
-
     output.close();
 
     ByteArrayOutputStream docArray = new ByteArrayOutputStream();
@@ -219,15 +223,15 @@ public class Document implements Serializable {
       // metadata
       int metadataCount = input.readInt();
       d.metadata = new HashMap(metadataCount);
-      
+
       for (int i = 0; i < metadataCount; i++) {
-	blen = input.readInt();
-	buffer = sizeCheck(buffer, blen);
+        blen = input.readInt();
+        buffer = sizeCheck(buffer, blen);
         input.readFully(buffer, 0, blen);
         String key = Utility.toString(buffer, 0, blen);
-	
-	blen = input.readInt();
-	buffer = sizeCheck(buffer, blen);
+
+        blen = input.readInt();
+        buffer = sizeCheck(buffer, blen);
         input.readFully(buffer, 0, blen);
         String value = Utility.toString(buffer, 0, blen);
 
@@ -255,7 +259,7 @@ public class Document implements Serializable {
       int tagCount = input.readInt();
       d.tags = new ArrayList(tagCount);
       for (int i = 0; i < tagCount; i++) {
-	blen = input.readInt();
+        blen = input.readInt();
         buffer = sizeCheck(buffer, blen);
         input.readFully(buffer, 0, blen);
         String tagName = Utility.toString(buffer, 0, blen);
@@ -264,13 +268,13 @@ public class Document implements Serializable {
         HashMap<String, String> attributes = new HashMap();
         int attrCount = input.readInt();
         for (int j = 0; j < attrCount; j++) {
-	  blen = input.readInt();
-	  buffer = sizeCheck(buffer, blen);
+          blen = input.readInt();
+          buffer = sizeCheck(buffer, blen);
           input.readFully(buffer, 0, blen);
           String key = Utility.toString(buffer, 0, blen);
 
-	  blen = input.readInt();
-	  buffer = sizeCheck(buffer, blen);
+          blen = input.readInt();
+          buffer = sizeCheck(buffer, blen);
           input.readFully(buffer, 0, blen);
           String value = Utility.toString(buffer, 0, blen);
 
@@ -290,25 +294,25 @@ public class Document implements Serializable {
       int termCount = input.readInt();
       d.terms = new ArrayList(termCount);
       if (termCount > 10000) {
-	  System.err.printf("Reading in %d terms of document %d, %s.\n", termCount, d.identifier, d.name);
+        System.err.printf("Reading in %d terms of document %d, %s.\n", termCount, d.identifier, d.name);
       }
       for (int i = 0; i < termCount; i++) {
-	blen = input.readInt();
-	buffer = sizeCheck(buffer, blen);
+        blen = input.readInt();
+        buffer = sizeCheck(buffer, blen);
         input.readFully(buffer, 0, blen);
         d.terms.add(Utility.toString(buffer, 0, blen));
       }
     }
-
+    
     input.close();
     return d;
   }
 
   protected static byte[] sizeCheck(byte[] currentBuffer, int sz) {
-      if (sz > currentBuffer.length) {
-	  return new byte[sz];
-      } else {
-	  return currentBuffer;
-      }
+    if (sz > currentBuffer.length) {
+      return new byte[sz];
+    } else {
+      return currentBuffer;
+    }
   }
 }
