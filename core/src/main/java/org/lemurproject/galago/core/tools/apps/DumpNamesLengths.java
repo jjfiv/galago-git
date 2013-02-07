@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import org.lemurproject.galago.core.index.NamesReader.NamesIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -36,7 +37,13 @@ public class DumpNamesLengths extends AppFunction {
 
     NamesIterator namesItr = index.getNamesIterator();
     MovableLengthsIterator lengthsItr = index.getLengthsIterator();
+    
+    ScoringContext sc = new ScoringContext();
+    namesItr.setContext(sc);
+    lengthsItr.setContext(sc);
+    
     while (!namesItr.isDone()) {
+      
       int docId = namesItr.currentCandidate();
       String docName = namesItr.getCurrentName();
 
