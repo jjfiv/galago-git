@@ -43,8 +43,10 @@ public class DumpNamesLengths extends AppFunction {
     lengthsItr.setContext(sc);
     
     while (!namesItr.isDone()) {
-      
       int docId = namesItr.currentCandidate();
+      
+      sc.document = docId;
+      
       String docName = namesItr.getCurrentName();
 
       lengthsItr.syncTo(docId);
