@@ -54,20 +54,19 @@ import org.tukaani.xz.XZInputStream;
 @OutputClass(className = "org.lemurproject.galago.core.parse.Document")
 public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 
-    // The built-in type map
-    static String[][] sFileTypeLookup = {
-	{"html", FileParser.class.getName()},
-	{"xml", FileParser.class.getName()},
-	{"txt", FileParser.class.getName()},
-	{"arc", ArcParser.class.getName()},
-	{"warc", WARCParser.class.getName()},
-	{"trectext", TrecTextParser.class.getName()},
-	{"trecweb", TrecWebParser.class.getName()},
-	{"twitter", TwitterParser.class.getName()},
-	{"corpus", CorpusSplitParser.class.getName()},
-	{"wiki", WikiParser.class.getName()}
-    };
-
+  // The built-in type map
+  static String[][] sFileTypeLookup = {
+    {"html", FileParser.class.getName()},
+    {"xml", FileParser.class.getName()},
+    {"txt", FileParser.class.getName()},
+    {"arc", ArcParser.class.getName()},
+    {"warc", WARCParser.class.getName()},
+    {"trectext", TrecTextParser.class.getName()},
+    {"trecweb", TrecWebParser.class.getName()},
+    {"twitter", TwitterParser.class.getName()},
+    {"corpus", CorpusSplitParser.class.getName()},
+    {"wiki", WikiParser.class.getName()}
+  };
   private HashMap<String, Class> fileTypeMap;
   private Counter documentCounter;
   private TupleFlowParameters tfParameters;
@@ -84,24 +83,24 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
   }
 
   private void buildFileTypeMap() {
-      try {
-	  fileTypeMap = new HashMap<String, Class>();
-	  for (String[] mapping : sFileTypeLookup) {
-	      fileTypeMap.put(mapping[0], Class.forName(mapping[1]));
-	  }
-
-	  // Look for external mapping definitions
-	  if (parameters.containsKey("externalParsers")) {
-	      List<Parameters> externalParsers =
-		  (List<Parameters>) parameters.getAsList("externalParsers");
-	      for (Parameters extP : externalParsers) {
-		  fileTypeMap.put(extP.getString("filetype"),
-				  Class.forName(extP.getString("class")));
-	      }
-	  }
-      } catch (ClassNotFoundException cnfe) {
-	  throw new IllegalArgumentException(cnfe);
+    try {
+      fileTypeMap = new HashMap<String, Class>();
+      for (String[] mapping : sFileTypeLookup) {
+        fileTypeMap.put(mapping[0], Class.forName(mapping[1]));
       }
+
+      // Look for external mapping definitions
+      if (parameters.containsKey("externalParsers")) {
+        List<Parameters> externalParsers =
+                (List<Parameters>) parameters.getAsList("externalParsers");
+        for (Parameters extP : externalParsers) {
+          fileTypeMap.put(extP.getString("filetype"),
+                  Class.forName(extP.getString("class")));
+        }
+      }
+    } catch (ClassNotFoundException cnfe) {
+      throw new IllegalArgumentException(cnfe);
+    }
   }
 
   public void process(DocumentSplit split) throws IOException {
@@ -124,17 +123,17 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     }
 
     if (fileTypeMap.containsKey(fileType)) {
-	try {
-	    parser = constructParserWithSplit(fileTypeMap.get(fileType), split);
-	} catch (EOFException ee) {
-	    System.err.printf("Found empty split %s. Skipping due to no content.", split.toString());
-	    return;
-	} catch (Exception e) {
-	    throw new RuntimeException(e);
-	}
+      try {
+        parser = constructParserWithSplit(fileTypeMap.get(fileType), split);
+      } catch (EOFException ee) {
+        System.err.printf("Found empty split %s. Skipping due to no content.", split.toString());
+        return;
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
     } else {
-        throw new IOException("Unknown fileType: " + fileType
-			      + " for fileName: " + split.fileName);
+      throw new IOException("Unknown fileType: " + fileType
+              + " for fileName: " + split.fileName);
     }
 
     // A parser is instantiated. Start producing documents for consumption
@@ -156,12 +155,12 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
       }
 
       if (count % 10000 == 0) {
-    	  Logger.getLogger(getClass().toString()).log(Level.WARNING, "Read " + count + " from split: " + split.fileName);
+        Logger.getLogger(getClass().toString()).log(Level.WARNING, "Read " + count + " from split: " + split.fileName);
       }
     }
 
     if (parser != null) {
-	parser.close();
+      parser.close();
     }
   }
 
@@ -170,67 +169,67 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
   //
   // Longest constructor is built first.
   private DocumentStreamParser constructParserWithSplit(Class parserClass,
-							DocumentSplit split)
-      throws IOException, InstantiationException, IllegalAccessException,
-      InvocationTargetException {
-      Constructor[] constructors = parserClass.getConstructors();
-      Arrays.sort(constructors, new Comparator<Constructor>() {
-	      public int compare(Constructor c1, Constructor c2) {
-		  return (c2.getParameterTypes().length -
-			  c1.getParameterTypes().length);
-	      }
-	  });
-      Class[] formals;
-      ArrayList<Object> actuals;
-      for (Constructor constructor : constructors) {
-	  formals = constructor.getParameterTypes();
-	  actuals = new ArrayList<Object>(formals.length);
-	  for (Class formalClass : formals) {
-	      if (formalClass.isAssignableFrom(BufferedInputStream.class)) {
-		  actuals.add(getLocalBufferedInputStream(split));
-	      } else if (formalClass.isAssignableFrom(BufferedReader.class)) {
-		  actuals.add(getLocalBufferedReader(split));
-	      } else if (String.class.isAssignableFrom(formalClass)) {
-		  actuals.add(split.fileName);
-	      } else if (DocumentSplit.class.isAssignableFrom(formalClass)) {
-		  actuals.add(split);
-	      } else if (Parameters.class.isAssignableFrom(formalClass)) {
-		  actuals.add(parameters);
-	      } else if (TupleFlowParameters.class.isAssignableFrom(formalClass)) {
-		  actuals.add(tfParameters);
-	      }
-	  }
-	  if (actuals.size() == formals.length) {
-	      return (DocumentStreamParser)
-		  constructor.newInstance(actuals.toArray(new Object[0]));
-	  }
+          DocumentSplit split)
+          throws IOException, InstantiationException, IllegalAccessException,
+          InvocationTargetException {
+    Constructor[] constructors = parserClass.getConstructors();
+    Arrays.sort(constructors, new Comparator<Constructor>() {
+
+      public int compare(Constructor c1, Constructor c2) {
+        return (c2.getParameterTypes().length
+                - c1.getParameterTypes().length);
       }
-      // None of the constructors worked. Complain.
-      StringBuilder builder = new StringBuilder();
-      builder.append("No viable constructor for file type parser ");
-      builder.append(parserClass.getName()).append("\n\n");
-      builder.append("Valid formal parameters include TupleFlowParameters,");
-      builder.append(" Parameters, BufferedInputStream or BufferedReader,\n");
-      builder.append(" String (fileName is passed as the actual), or");
-      builder.append(" DocumentSplit.\n\nConstuctors found:\n");
-      for (Constructor c : constructors) {
-	  builder.append("( ");
-	  formals = c.getParameterTypes();
-	  for (Class klazz : formals) {
-	      builder.append(klazz.getName()).append(",");
-	  }
-	  builder.append(")\n");
+    });
+    Class[] formals;
+    ArrayList<Object> actuals;
+    for (Constructor constructor : constructors) {
+      formals = constructor.getParameterTypes();
+      actuals = new ArrayList<Object>(formals.length);
+      for (Class formalClass : formals) {
+        if (formalClass.isAssignableFrom(BufferedInputStream.class)) {
+          actuals.add(getLocalBufferedInputStream(split));
+        } else if (formalClass.isAssignableFrom(BufferedReader.class)) {
+          actuals.add(getLocalBufferedReader(split));
+        } else if (String.class.isAssignableFrom(formalClass)) {
+          actuals.add(split.fileName);
+        } else if (DocumentSplit.class.isAssignableFrom(formalClass)) {
+          actuals.add(split);
+        } else if (Parameters.class.isAssignableFrom(formalClass)) {
+          actuals.add(parameters);
+        } else if (TupleFlowParameters.class.isAssignableFrom(formalClass)) {
+          actuals.add(tfParameters);
+        }
       }
-      throw new IllegalArgumentException(builder.toString());
+      if (actuals.size() == formals.length) {
+        return (DocumentStreamParser) constructor.newInstance(actuals.toArray(new Object[0]));
+      }
+    }
+    // None of the constructors worked. Complain.
+    StringBuilder builder = new StringBuilder();
+    builder.append("No viable constructor for file type parser ");
+    builder.append(parserClass.getName()).append("\n\n");
+    builder.append("Valid formal parameters include TupleFlowParameters,");
+    builder.append(" Parameters, BufferedInputStream or BufferedReader,\n");
+    builder.append(" String (fileName is passed as the actual), or");
+    builder.append(" DocumentSplit.\n\nConstuctors found:\n");
+    for (Constructor c : constructors) {
+      builder.append("( ");
+      formals = c.getParameterTypes();
+      for (Class klazz : formals) {
+        builder.append(klazz.getName()).append(",");
+      }
+      builder.append(")\n");
+    }
+    throw new IllegalArgumentException(builder.toString());
   }
 
   public static boolean isParsable(String extension) {
-      for (String[] entry : sFileTypeLookup) {
-	  if (entry[0].equals(extension)) {
-	      return true;
-	  }
+    for (String[] entry : sFileTypeLookup) {
+      if (entry[0].equals(extension)) {
+        return true;
       }
-      return false;
+    }
+    return false;
   }
 
   public BufferedReader getLocalBufferedReader(DocumentSplit split) throws IOException {
@@ -292,7 +291,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
       if (split.fileName.endsWith("gz")) { // Gzip
         stream = new BufferedInputStream(new GZIPInputStream(fileStream));
       } else if (split.fileName.endsWith("xz")) {
-          stream = new BufferedInputStream(new XZInputStream(fileStream), 10*1024);
+        stream = new BufferedInputStream(new XZInputStream(fileStream), 10 * 1024);
       } else { // bzip2
         BufferedInputStream bis = new BufferedInputStream(fileStream);
         //bzipHeaderCheck(bis);
@@ -306,14 +305,14 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 
   /* -- this now cases errors...
   private static void bzipHeaderCheck(BufferedInputStream stream) throws IOException {
-    char[] header = new char[2];
-    stream.mark(4);
-    header[0] = (char) stream.read();
-    header[1] = (char) stream.read();
-    String hdrStr = new String(header);
-    if (hdrStr.equals("BZ") == false) {
-      stream.reset();
-    }
+  char[] header = new char[2];
+  stream.mark(4);
+  header[0] = (char) stream.read();
+  header[1] = (char) stream.read();
+  String hdrStr = new String(header);
+  if (hdrStr.equals("BZ") == false) {
+  stream.reset();
   }
-  */
+  }
+   */
 }
