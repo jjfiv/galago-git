@@ -410,7 +410,12 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
     @Override
     public void syncTo(int identifier) throws IOException {
-      assert (identifier >= currDocument);
+      // it's possible that the first document has zero length, and we may wish to sync to it.
+      if(identifier < firstDocument){
+        return;
+      }
+      
+      assert (identifier >= currDocument): "StreamLengthsIterator reader can't move to a previous document.";
 
       // we can't move past the last document
       if (identifier > lastDocument) {
