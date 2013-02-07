@@ -788,9 +788,9 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
       onSplit();
     }
     document.terms = new ArrayList<String>(this.tokens);
-    for(Pair p : this.tokenPositions){
-      document.termCharBegin.add( p.start );
-      document.termCharEnd.add( p.end );
+    for (Pair p : this.tokenPositions) {
+      document.termCharBegin.add(p.start);
+      document.termCharEnd.add(p.end);
     }
     document.tags = coalesceTags();
     pooler.transform(document);
@@ -808,6 +808,15 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
     tokenize(document);
 
     return document;
+  }
+
+  /**
+   * Parses the text in the input string and returns a list of parsed terms.
+   * 
+   * @return a list of terms parsed from the input text
+   */
+  public List<String> simpleTokenize(String text) throws IOException {
+    return tokenize(text).terms;
   }
 
   public ArrayList<Pair> getTokenPositions() {
