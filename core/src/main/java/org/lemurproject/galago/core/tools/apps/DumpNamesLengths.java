@@ -23,7 +23,7 @@ public class DumpNamesLengths extends AppFunction {
 
   @Override
   public String getHelpString() {
-    return "galago dump-name-length --index=[indexPath]";
+    return "galago dump-name-length --index=[indexPath]\n";
   }
 
   @Override
@@ -32,7 +32,7 @@ public class DumpNamesLengths extends AppFunction {
       output.println(this.getHelpString());
     }
 
-    DiskIndex index = new DiskIndex(p.getString("index)"));
+    DiskIndex index = new DiskIndex(p.getString("index"));
 
     NamesIterator namesItr = index.getNamesIterator();
     MovableLengthsIterator lengthsItr = index.getLengthsIterator();
