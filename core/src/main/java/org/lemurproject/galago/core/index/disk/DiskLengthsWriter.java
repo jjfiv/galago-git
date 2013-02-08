@@ -53,7 +53,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     p.set("writerClass", DiskLengthsWriter.class.getName());
     p.set("mergerClass", DocumentLengthsMerger.class.getName());
     p.set("readerClass", DiskLengthsReader.class.getName());
-    p.set("longs", true);
+    p.set("version", 3);
     recordsWritten = parameters.getCounter("records written");
     recordsRead = parameters.getCounter("records read");
     newFields = parameters.getCounter("new Fields");
@@ -68,13 +68,13 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
       fieldCounter = tupleFlowParameters.getCounter(Utility.toString(ld.field) + " count");
 
       if (newFields != null) {
-          newFields.increment();
+        newFields.increment();
       }
 
     } else if (Utility.compare(fieldLengthData.field, ld.field) != 0) {
 
       if (newFields != null) {
-          newFields.increment();
+        newFields.increment();
       }
 
       if (!fieldLengthData.isEmpty()) {
@@ -90,7 +90,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
       recordsWritten.increment();
     }
     if (fieldCounter != null) {
-        fieldCounter.increment();
+      fieldCounter.increment();
     }
   }
 
@@ -113,10 +113,12 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
   }
 
   public class LengthsList implements IndexElement {
+
     private File tempFile;
     private DataOutputStream stream;
     private byte[] field;
     // stats
+    private long totalDocumentCount;
     private long nonZeroDocumentCount;
     private long collectionLength;
     private long maxLength;
@@ -130,6 +132,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
       stream = StreamCreator.realOutputStream(tempFile.getAbsolutePath());
       this.field = key;
 
+      this.totalDocumentCount = 0;
       this.nonZeroDocumentCount = 0;
       this.collectionLength = 0;
       this.maxLength = Integer.MIN_VALUE;
@@ -140,7 +143,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     }
 
     public void add(int currentDocument, int length) throws IOException {
-
+      totalDocumentCount++;
       // we ignore zero length documents, as this is the default returned value
       if (length == 0) {
         return;
@@ -179,9 +182,9 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     public long dataLength() {
       // data to be written is :
       //  4 bytes for each of 2 integer statistics
-      //  8 bytes for each of 5 long/double stats
+      //  8 bytes for each of 6 long/double stats
       //  and the stream data
-      return (4 * 2) + (8 * 5) + stream.size();
+      return (4 * 2) + (8 * 6) + stream.size();
     }
 
     public boolean isEmpty() {
@@ -191,13 +194,18 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     @Override
     public void write(OutputStream fileStream) throws IOException {
 
-      assert (nonZeroDocumentCount > 0) : "Can not write an empty lengths file for field: " + Utility.toString(field);
+      assert (totalDocumentCount > 0) : "Can not write an empty lengths file for field: " + Utility.toString(field);
 
-      // close the file writer
+      //  ensure the array of documents is at least totalDocumentCount long
+      //(in case someone asks for the length of docId =totalDocumentCount)
+
+      // close the length-list buffer
       stream.close();
 
-      double avgLength = (double) collectionLength / (double) nonZeroDocumentCount;
+      double avgLength = (double) collectionLength / (double) totalDocumentCount;
 
+
+      fileStream.write(Utility.fromLong(totalDocumentCount));
       fileStream.write(Utility.fromLong(nonZeroDocumentCount));
       fileStream.write(Utility.fromLong(collectionLength));
       fileStream.write(Utility.fromDouble(avgLength));

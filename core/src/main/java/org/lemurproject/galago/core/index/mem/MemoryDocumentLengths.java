@@ -37,12 +37,13 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     private Bytes fieldName;
     private IntArray fieldLengths;
-    private int nonZeroDocumentCount = 0;
-    private int collectionLength = 0;
-    private int maxLength = 0;
-    private int minLength = 0;
-    private int firstDocument = 0;
-    private int lastDocument = 0;
+    private long totalDocumentCount = 0;
+    private long nonZeroDocumentCount = 0;
+    private long collectionLength = 0;
+    private long maxLength = 0;
+    private long minLength = 0;
+    private long firstDocument = 0;
+    private long lastDocument = 0;
 
     public FieldLengthPostingList(Bytes fieldName) {
       this.fieldName = fieldName;
@@ -51,7 +52,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     public void add(int documentId, int fieldLength) throws IOException {
       // initialization step
-      if (nonZeroDocumentCount == 0) {
+      if (totalDocumentCount == 0) {
         firstDocument = documentId;
         maxLength = fieldLength;
         minLength = fieldLength;
@@ -61,6 +62,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
         maxLength = Math.max(fieldLength, this.maxLength);
         minLength = Math.min(fieldLength, this.minLength);
       }
+      totalDocumentCount += 1;
       nonZeroDocumentCount += 1;
       collectionLength += fieldLength;
 
@@ -77,9 +79,9 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     private int getLength(int docNum) throws IOException {
-      int arrayOffset = docNum - firstDocument;
+      long arrayOffset = docNum - firstDocument;
       if (0 <= arrayOffset && arrayOffset < this.fieldLengths.getPosition()) {
-        return fieldLengths.getBuffer()[docNum - firstDocument];
+        return fieldLengths.getBuffer()[(int) (docNum - firstDocument)];
       }
       throw new IOException("Document identifier not found in this index.");
     }
@@ -204,7 +206,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   @Override
   public long getDocumentCount() {
     if (lengths.containsKey(document)) {
-      return this.lengths.get(document).nonZeroDocumentCount;
+      return this.lengths.get(document).totalDocumentCount;
     }
     return 0;
   }
@@ -326,7 +328,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
   }
 
-  private static class FieldLengthsIterator extends ValueIterator implements MovableCountIterator, 
+  private static class FieldLengthsIterator extends ValueIterator implements MovableCountIterator,
           MovableLengthsIterator, AggregateReader.CollectionAggregateIterator {
 
     FieldLengthPostingList fieldLengths;
@@ -350,11 +352,11 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     @Override
     public void reset() throws IOException {
-      if (this.fieldLengths.nonZeroDocumentCount == 0) {
+      if (this.fieldLengths.totalDocumentCount == 0) {
         this.currDoc = Integer.MAX_VALUE;
         this.done = true;
       } else {
-        this.currDoc = fieldLengths.firstDocument;
+        this.currDoc = (int) fieldLengths.firstDocument;
         this.done = false;
       }
     }
@@ -376,7 +378,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     @Override
     public void syncTo(int identifier) throws IOException {
-      this.currDoc = Math.min(identifier, this.fieldLengths.lastDocument);
+      this.currDoc = Math.min(identifier, (int) this.fieldLengths.lastDocument);
       if (identifier > this.fieldLengths.lastDocument) {
         done = true;
       }
@@ -394,7 +396,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     @Override
     public long totalEntries() {
-      return this.fieldLengths.nonZeroDocumentCount;
+      return this.fieldLengths.totalDocumentCount;
     }
 
     @Override
@@ -441,7 +443,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     @Override
     public int maximumCount() {
-      return this.fieldLengths.maxLength;
+      return (int) this.fieldLengths.maxLength;
     }
 
     @Override
@@ -469,10 +471,11 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       CollectionStatistics cs = new CollectionStatistics();
       cs.fieldName = Utility.toString(this.fieldLengths.fieldName.getBytes());
       cs.collectionLength = this.fieldLengths.collectionLength;
-      cs.documentCount = this.fieldLengths.nonZeroDocumentCount;
+      cs.documentCount = this.fieldLengths.totalDocumentCount;
+      cs.nonZeroLenDocCount = this.fieldLengths.nonZeroDocumentCount;
       cs.maxLength = this.fieldLengths.maxLength;
       cs.minLength = this.fieldLengths.minLength;
-      cs.avgLength = (double) this.fieldLengths.collectionLength / (double) this.fieldLengths.nonZeroDocumentCount;
+      cs.avgLength = (double) this.fieldLengths.collectionLength / (double) this.fieldLengths.totalDocumentCount;
       return cs;
     }
   }

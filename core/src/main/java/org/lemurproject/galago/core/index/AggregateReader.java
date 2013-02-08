@@ -74,6 +74,7 @@ public class AggregateReader {
     public long minLength = 0;
     // average length of 'field' 
     public double avgLength = 0;
+    public long nonZeroLenDocCount = 0;
 
     public CollectionStatistics() {
     }
@@ -81,6 +82,7 @@ public class AggregateReader {
     public void add(CollectionStatistics other) {
       this.collectionLength += other.collectionLength;
       this.documentCount += other.documentCount;
+      this.nonZeroLenDocCount += other.nonZeroLenDocCount;
       this.maxLength = Math.max(this.maxLength, other.maxLength);
       this.minLength = Math.min(this.minLength, other.minLength);
       this.avgLength = (this.documentCount > 0) ? this.collectionLength / this.documentCount : -1;
@@ -91,6 +93,7 @@ public class AggregateReader {
       p.set("fieldName", this.fieldName);
       p.set("collectionLength", this.collectionLength);
       p.set("documentCount", this.documentCount);
+      p.set("nonZeroLenDocCount", this.nonZeroLenDocCount);
       p.set("maxLength", this.maxLength);
       p.set("minLength", this.minLength);
       p.set("avgLength", this.avgLength);

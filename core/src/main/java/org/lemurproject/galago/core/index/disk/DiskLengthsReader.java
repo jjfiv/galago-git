@@ -342,6 +342,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     private final BTreeIterator iterator;
     private DataStream streamBuffer;
     // stats
+    private long totalDocumentCount;
     private long nonZeroDocumentCount;
     private long collectionLength;
     private double avgLength;
@@ -368,18 +369,27 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
       // collect stats
       //** temporary fix - this allows current indexes to continue to work **/
-      if(reader.getManifest().get("longs", false)){
+      if (reader.getManifest().get("version", 1) == 3) {
+        this.totalDocumentCount = streamBuffer.readLong();
         this.nonZeroDocumentCount = streamBuffer.readLong();
         this.collectionLength = streamBuffer.readLong();
         this.avgLength = streamBuffer.readDouble();
         this.maxLength = streamBuffer.readLong();
         this.minLength = streamBuffer.readLong();
+      } else if (reader.getManifest().get("longs", false)) {
+        this.nonZeroDocumentCount = streamBuffer.readLong();
+        this.collectionLength = streamBuffer.readLong();
+        this.avgLength = streamBuffer.readDouble();
+        this.maxLength = streamBuffer.readLong();
+        this.minLength = streamBuffer.readLong();
+        this.totalDocumentCount = this.nonZeroDocumentCount;
       } else {
         this.nonZeroDocumentCount = streamBuffer.readInt();
         this.collectionLength = streamBuffer.readInt();
         this.avgLength = streamBuffer.readDouble();
         this.maxLength = streamBuffer.readInt();
         this.minLength = streamBuffer.readInt();
+        this.totalDocumentCount = this.nonZeroDocumentCount;
       }
 
       this.firstDocument = streamBuffer.readInt();
@@ -411,11 +421,11 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     @Override
     public void syncTo(int identifier) throws IOException {
       // it's possible that the first document has zero length, and we may wish to sync to it.
-      if(identifier < firstDocument){
+      if (identifier < firstDocument) {
         return;
       }
-      
-      assert (identifier >= currDocument): "StreamLengthsIterator reader can't move to a previous document.";
+
+      assert (identifier >= currDocument) : "StreamLengthsIterator reader can't move to a previous document.";
 
       // we can't move past the last document
       if (identifier > lastDocument) {
@@ -464,7 +474,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
     @Override
     public long totalEntries() {
-      return this.nonZeroDocumentCount;
+      return this.totalDocumentCount;
     }
 
     @Override
@@ -529,7 +539,8 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
       CollectionStatistics cs = new CollectionStatistics();
       cs.fieldName = Utility.toString(key);
       cs.collectionLength = this.collectionLength;
-      cs.documentCount = this.nonZeroDocumentCount;
+      cs.documentCount = this.totalDocumentCount;
+      cs.nonZeroLenDocCount = this.nonZeroDocumentCount;
       cs.maxLength = this.maxLength;
       cs.minLength = this.minLength;
       cs.avgLength = this.avgLength;

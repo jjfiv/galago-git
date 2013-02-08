@@ -323,6 +323,7 @@ public class LocalRetrieval implements Retrieval {
           int len = iterator.getCurrentLength();
           stats.collectionLength += len;
           stats.documentCount += 1;
+          stats.nonZeroLenDocCount += (len > 0) ? 1 : 0;
           stats.maxLength = Math.max(stats.maxLength, len);
           stats.minLength = Math.min(stats.minLength, len);
         }
