@@ -7,17 +7,22 @@ import gnu.trove.map.hash.TObjectByteHashMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import gnu.trove.map.hash.TObjectLongHashMap;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Set;
 import org.lemurproject.galago.tupleflow.Parameters.Type;
 
 /**
- * Currently the parameters that are attached to query Nodes are not quite the same
- * implementation as the generic Parameters object. We intend to fold these classes together
- * at some point in the future, most likely making this one a subclass of the Parameters object.
- * 
+ * Currently the parameters that are attached to query Nodes are not quite the
+ * same implementation as the generic Parameters object. We intend to fold these
+ * classes together at some point in the future, most likely making this one a
+ * subclass of the Parameters object.
+ *
  * For now, however, they are separate.
  *
  *
@@ -30,7 +35,6 @@ public class NodeParameters implements Serializable {
   private TObjectByteHashMap<String> boolMap = null;
   private TObjectLongHashMap<String> longMap = null;
   private TObjectDoubleHashMap<String> doubleMap = null;
-  
   private static final long serialVersionUID = 4553653651892088433L;
 
   public NodeParameters() {
@@ -175,6 +179,24 @@ public class NodeParameters implements Serializable {
     return null;
   }
 
+  public String getAsSimpleString(String key) {
+    if (keyMapping.containsKey(key)) {
+      switch (keyMapping.get(key)) {
+        case BOOLEAN:
+          return Boolean.toString(boolMap.get(key) != 0);
+        case LONG:
+          return Long.toString(longMap.get(key));
+        case DOUBLE:
+          BigDecimal bd = new BigDecimal(doubleMap.get(key));
+          bd = bd.round(new MathContext(3));
+          return bd.toString();
+        case STRING:
+          return stringMap.get(key);
+      }
+    }
+    return null;
+  }
+
   public void remove(String key) {
     if (keyMapping.containsKey(key)) {
       switch (keyMapping.get(key)) {
@@ -242,6 +264,71 @@ public class NodeParameters implements Serializable {
       }
     }
     return sb.toString();
+  }
+
+  public String toSimpleString(Set<String> ignoreParams, String operator) {
+    StringBuilder sb = new StringBuilder();
+
+    if (keyMapping.containsKey("default")) {
+      String value = getAsSimpleString("default");
+      value = escapeAsNecessary(value, keyMapping.get("default") == Type.STRING);
+      if (operator.equals("extents") || operator.equals("counts")) {
+        sb.append(value);
+      } else {
+        sb.append(":").append(value);
+      }
+    }
+
+    // sort remaining keys alphabetically.
+    ArrayList<String> keys = new ArrayList(keyMapping.keySet());
+    Collections.sort(keys);
+    for (String key : keys) {
+      // need to ensure "default" is not double written.
+      if (key.equals("combine")) {
+
+        String value = getAsSimpleString(key);
+        value = escapeAsNecessary(value, keyMapping.get(key) == Type.STRING); //double value
+        key = escapeAsNecessary(key, false);
+        sb.append(":").append(key).append("=").append(value);
+      } else if (!key.equals("default") && !ignoreParams.contains(key)) {
+        if (!key.matches("-?[0-9]+")) { //key is an integer
+          String value = getAsSimpleString(key);
+          value = escapeAsNecessary(value, keyMapping.get(key) == Type.STRING); //double value
+          key = escapeAsNecessary(key, false);
+          sb.append(":").append(key).append("=").append(value);
+        }
+      }
+    }
+
+    return sb.toString();
+  }
+
+  public ArrayList<String> collectCombineWeightList() {
+    ArrayList<String> combineWeightList = new ArrayList<String>();
+    ArrayList<String> keys = new ArrayList(keyMapping.keySet());
+    //Collections.sort(keys);
+    Collections.sort(keys, new Comparator<String>() {
+
+      public int compare(String s1, String s2) {
+        if (!s1.matches("-?[0-9]+") || !s2.matches("-?[0-9]+")) {
+          return s1.compareTo(s2);
+        } else {
+          return Integer.valueOf(s1).compareTo(Integer.valueOf(s2));
+        }
+      }
+    });
+    for (String key : keys) {
+      // need to ensure "default" is not double written.
+      if (!key.equals("default")) {
+        String value = getAsSimpleString(key);
+        value = escapeAsNecessary(value, keyMapping.get(key) == Type.STRING); //double value
+        key = escapeAsNecessary(key, false);
+        if (key.matches("-?[0-9]+")) { //key is an Integer
+          combineWeightList.add(value);
+        }
+      }
+    }
+    return combineWeightList;
   }
 
   public void parseSet(String key, String value) {
