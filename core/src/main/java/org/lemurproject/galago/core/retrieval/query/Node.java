@@ -2,18 +2,20 @@
 package org.lemurproject.galago.core.retrieval.query;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
 /**
  * <p>Node represents a single node in a query parse tree.</p>
  *
- * <p>In Galago, queries are parsed into a tree of Nodes.  The query tree can then
- * be modified using StructuredQuery.copy, or analyzed by using StructuredQuery.walk.
- * Once the query is in the proper form, the query is converted into a tree of iterators
- * that can be evaluated.</p>
+ * <p>In Galago, queries are parsed into a tree of Nodes. The query tree can
+ * then be modified using StructuredQuery.copy, or analyzed by using
+ * StructuredQuery.walk. Once the query is in the proper form, the query is
+ * converted into a tree of iterators that can be evaluated.</p>
  *
  * @author trevor
  */
@@ -29,18 +31,16 @@ public class Node implements Serializable {
   private int position;
   /// Additional nodeParameters for this operator; usually these are term statistics and smoothing nodeParameters.
   private NodeParameters nodeParameters;
-
   private static final long serialVersionUID = 4553653651892088433L;
 
-  
   public Node() {
     this("", new NodeParameters(), new ArrayList(), 0);
   }
 
-  public Node(String operator){
+  public Node(String operator) {
     this(operator, new NodeParameters(), new ArrayList(), 0);
   }
-  
+
   public Node(String operator, List<Node> internalNodes) {
     this(operator, new NodeParameters(), internalNodes, 0);
   }
@@ -86,8 +86,8 @@ public class Node implements Serializable {
   }
 
   /**
-   * Deep-clones this Node. Be aware this clones the *entire* subtree rooted at this node,
-   * therefore all descendants are also cloned.
+   * Deep-clones this Node. Be aware this clones the *entire* subtree rooted at
+   * this node, therefore all descendants are also cloned.
    *
    * @return
    */
@@ -115,7 +115,7 @@ public class Node implements Serializable {
   public void removeChildAt(int i) {
     Node child = internalNodes.remove(i);
     if (child != null) {
-      assert(child.parent == this);
+      assert (child.parent == this);
       child.parent = null;
     }
   }
@@ -130,7 +130,7 @@ public class Node implements Serializable {
   }
 
   public void removeChild(Node child) {
-    assert(child.parent == this);
+    assert (child.parent == this);
     child.parent = null;
     internalNodes.remove(child);
   }
@@ -207,7 +207,7 @@ public class Node implements Serializable {
 
   public String toPrettyString(String indent) {
     StringBuilder builder = new StringBuilder();
-    
+
     builder.append(indent);
 
     builder.append('#');
@@ -228,8 +228,122 @@ public class Node implements Serializable {
 
     return builder.toString();
   }
-  
-  
+
+  public String toSimplePrettyString() {
+    return toSimplePrettyString("", new HashSet<String>(), "");
+  }
+
+  public String toSimplePrettyString(HashSet<String> ignoreParams) {
+    return toSimplePrettyString("", ignoreParams, "");
+  }
+
+  public String toSimplePrettyString(String indent, HashSet<String> ignoreParams) {
+    return toSimplePrettyString(indent, ignoreParams, "");
+  }
+
+  public String toSimplePrettyString(String indent, HashSet<String> ignoreParams, String addOnString) {
+    StringBuilder builder = new StringBuilder();
+
+    if (ignoreParams.contains(operator)) {
+      if (internalNodes.size() != 0) {
+        for (Node child : internalNodes) {
+          String childString = child.toSimplePrettyString(indent, ignoreParams, addOnString);
+          if (!childString.replaceAll("\\s", "").equals("")) {
+            builder.append(childString);
+          }
+        }
+      }
+    } else {
+      if (operator.equals("combine")) {
+        builder.append(indent);
+        builder.append(addOnString);
+        builder.append('#');
+        assert !operator.contains(":") && !operator.contains("(") : "Operator can not contain ':' or '('.";
+        builder.append(operator);
+        ArrayList<String> combineWeightList = nodeParameters.collectCombineWeightList();
+        if (combineWeightList.size() == 0 && internalNodes.size() > 0) {
+          DecimalFormat formatter = new DecimalFormat("###.#####");
+          String weightString = formatter.format(1.0 / internalNodes.size());
+          int firstNonZeroIndex = -1;
+          for (int i = 0; i < weightString.length(); i++) {
+            if (weightString.charAt(i) != '0' && weightString.charAt(i) != '.') {
+              firstNonZeroIndex = i;
+              break;
+            }
+          }
+          if (firstNonZeroIndex != -1) {
+            if (weightString.length() >= 5) {
+              firstNonZeroIndex = firstNonZeroIndex >= 4 ? firstNonZeroIndex : 4;
+              weightString = weightString.substring(0, firstNonZeroIndex + 1);
+            }
+          }
+          for (int i = 0; i < internalNodes.size(); i++) {
+            combineWeightList.add(weightString);
+          }
+        }
+        //builder.append(nodeParameters.toSimpleString(ignoreParams, operator));
+        builder.append("(\n");
+        for (int i = 0; i < internalNodes.size(); i++) {
+          Node child = internalNodes.get(i);
+          String childString = child.toSimplePrettyString(indent + "    ", ignoreParams, "");
+          if (!childString.replaceAll("\\s", "").equals("")) {
+            if (i < combineWeightList.size()) {
+              builder.append(child.toSimplePrettyString(indent + "    ", ignoreParams, combineWeightList.get(i) + "\t"));
+            } else {
+              builder.append(child.toSimplePrettyString(indent + "    ", ignoreParams, ""));
+            }
+            builder.append("\n");
+          }
+        }
+        builder.append(indent).append(")");
+      } else if (operator.equals("unordered") || operator.equals("ordered") || operator.equals("syn")) {
+        builder.append(indent);
+        builder.append(addOnString);
+        builder.append('#');
+        assert !operator.contains(":") && !operator.contains("(") : "Operator can not contain ':' or '('.";
+        builder.append(operator);
+        builder.append(nodeParameters.toSimpleString(ignoreParams, operator));
+        builder.append("(");
+        for (Node child : internalNodes) {
+          String childString = child.toSimplePrettyString("", ignoreParams, "");
+          if (!childString.replaceAll("\\s", "").equals("")) {
+            builder.append(childString).append(" ");
+          }
+        }
+        builder.append(")");
+      } else if (operator.equals("extents") || operator.equals("counts")) {
+        builder.append(indent);
+        builder.append(addOnString);
+        builder.append(nodeParameters.toSimpleString(ignoreParams, operator));
+        for (Node child : internalNodes) {
+          String childString = child.toSimplePrettyString(indent + "    ", ignoreParams, "");
+          if (!childString.replaceAll("\\s", "").equals("")) {
+            builder.append(childString);
+          }
+        }
+      } else {
+        builder.append(indent);
+        builder.append(addOnString);
+        builder.append('#');
+        assert !operator.contains(":") && !operator.contains("(") : "Operator can not contain ':' or '('.";
+        builder.append(operator);
+        builder.append(nodeParameters.toSimpleString(ignoreParams, operator));
+        if (internalNodes.size() > 0) {
+          builder.append("(");
+          for (Node child : internalNodes) {
+            String childString = child.toSimplePrettyString(indent + "    ", ignoreParams, "");
+            if (!childString.replaceAll("\\s", "").equals("")) {
+              builder.append(childString);
+            }
+          }
+          builder.append(indent).append("    ").append(")");
+        }
+      }
+    }
+
+    return builder.toString();
+  }
+
   @Override
   public boolean equals(Object o) {
     if (!(o instanceof Node)) {
