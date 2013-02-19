@@ -34,12 +34,7 @@ public class QuerySetResults {
     for (String query : results.keySet()) {
       List<ScoredDocument> rankedList = Arrays.asList(results.get(query));
       Collections.sort(rankedList, new RankComparator());
-      try {
-        querySetResults.put(String.format("%03d", query), new QueryResults(query, rankedList));
-      } catch (Exception e) {
-        querySetResults.put(query, new QueryResults(query, rankedList));
-
-      }
+      querySetResults.put(query, new QueryResults(query, rankedList));
     }
   }
 
@@ -52,11 +47,7 @@ public class QuerySetResults {
   }
 
   public QueryResults get(String query) {
-    try {
-      return querySetResults.get(String.format("%03d", Integer.parseInt(query)));
-    } catch (Exception e) {
-      return querySetResults.get(query);
-    }
+    return querySetResults.get(query);
   }
 
   /**
