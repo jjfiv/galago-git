@@ -42,7 +42,7 @@ public class TwoPassDocumentModel extends ProcessingModel {
     }
     
     // it would be nice to automatically generate these firstPassQueries,
-    //   but there could be some complication in constructing a fast approximation
+    //   but there could be some difficultly in constructing a fast approximation
     //   of the query.
     Node firstPassQuery = StructuredQuery.parse(queryParams.getString("firstPassQuery"));
     firstPassQuery = retrieval.transformQuery(firstPassQuery, firstPassParams);

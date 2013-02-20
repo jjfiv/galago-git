@@ -35,7 +35,8 @@ public class WorkingSetPassageModel extends ProcessingModel {
   @Override
   public ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception {
     PassageScoringContext context = new PassageScoringContext();
-
+    context.cachable = false;
+    
     // There should be a whitelist to deal with
     List l = queryParams.getList("working");
     if (l == null) {

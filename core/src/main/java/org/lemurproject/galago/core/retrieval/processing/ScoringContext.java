@@ -22,6 +22,10 @@ public class ScoringContext {
   public int document;
   protected HashMap<String, MovableLengthsIterator> lengths;
   protected TObjectIntHashMap<String> current;
+  // indicates when nodes can/can't cache data
+  // -- useful for passage or extent retrieval.
+  public boolean cachable = true;
+
   // Diagnostic
   public HashMap<MovableIterator, Node> toNodes = new HashMap<MovableIterator, Node>();
   

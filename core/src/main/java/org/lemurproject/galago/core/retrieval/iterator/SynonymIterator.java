@@ -25,16 +25,16 @@ public class SynonymIterator extends ExtentDisjunctionIterator {
     int document = context.document;
 
     // check if we're already there
-    if (this.extents.getDocument() == document) {
+    if (context.cachable && this.extentCache.getDocument() == document) {
       return;
     }
 
-    // reset the extents
-    extents.reset();
-    extents.setDocument(document);
+    // reset the extentCache
+    extentCache.reset();
+    extentCache.setDocument(document);
 
     // if we're done - quit now 
-    //  -- (leaving extents object empty just in cast someone asks for them.)
+    //  -- (leaving extentCache object empty just in cast someone asks for them.)
     if (isDone()) {
       return;
     }
@@ -49,7 +49,7 @@ public class SynonymIterator extends ExtentDisjunctionIterator {
 
     while (arrayIterators.size() > 0) {
       ExtentArrayIterator top = arrayIterators.poll();
-      extents.add(top.currentBegin(), top.currentEnd());
+      extentCache.add(top.currentBegin(), top.currentEnd());
 
       if (top.next()) {
         arrayIterators.offer(top);

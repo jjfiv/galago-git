@@ -35,7 +35,8 @@ public class RankedPassageModel extends ProcessingModel {
   @Override
   public ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception {
     PassageScoringContext context = new PassageScoringContext();
-
+    context.cachable = false;
+    
     // Following operations are all just setup
     int requested = (int) queryParams.get("requested", 1000);
     int passageSize = (int) queryParams.getLong("passageSize");

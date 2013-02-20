@@ -23,16 +23,16 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
    * an extent whenever <tt>a</tt> is found inside <tt>b</tt>.</p>
    *
    * <p>For example, in the expression <tt>#inside(#1(white house)
-   * #extents:title())</tt>, <tt>#1(white house)</tt> is the inner iterator and
-   * <tt>#extents:title()</tt> is the outer iterator. Whenever <tt>#1(white
+   * #extentCache:title())</tt>, <tt>#1(white house)</tt> is the inner iterator and
+   * <tt>#extentCache:title()</tt> is the outer iterator. Whenever <tt>#1(white
    * house)</tt> is found in the title of a identifier, this is a match. The
    * extent for <tt>#1(white house)</tt> is returned (not the extent for
-   * <tt>#extents:title()</tt> that surrounds it).</tt>
+   * <tt>#extentCache:title()</tt> that surrounds it).</tt>
    *
    * @param parameters extra parameters, not used for anything.
-   * @param innerIterator The source of extents that must be inside.
-   * @param outerIterator The source of extents that must contain the inner
-   * extents.
+   * @param innerIterator The source of extentCache that must be inside.
+   * @param outerIterator The source of extentCache that must contain the inner
+   * extentCache.
    * @throws java.io.IOException
    */
   public ExtentInsideIterator(NodeParameters parameters,
@@ -48,7 +48,7 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
   /**
    * This method is called whenever the ExtentConjunctionIterator has verified
    * that both the inner and outer iterators match this identifier. This
-   * method's job is to find all matching extents within the identifier, if they
+   * method's job is to find all matching extentCache within the identifier, if they
    * exist.
    */
   @Override
@@ -57,23 +57,23 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
     int document = context.document;
 
     // check if we're already there
-    if (this.extents.getDocument() == document) {
+    if (context.cachable && this.extentCache.getDocument() == document) {
       return;
     }
 
-    // reset the extents
-    extents.reset();
-    extents.setDocument(document);
+    // reset the extentCache
+    extentCache.reset();
+    extentCache.setDocument(document);
 
     // if we're done - quit now 
-    //  -- (leaving extents object empty just in cast someone asks for them.)
+    //  -- (leaving extentCache object empty just in cast someone asks for them.)
     if (isDone()) {
       return;
     }
 
     if (innerIterator.isDone() || !innerIterator.hasMatch(document)
             || outerIterator.isDone() || !outerIterator.hasMatch(document)) {
-      // then we can't have any extents for this document
+      // then we can't have any extentCache for this document
       return;
     }
 
@@ -82,7 +82,7 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
 
     while (!inner.isDone() && !outer.isDone()) {
       if (outer.currentlyContains(inner)) {
-        extents.add(inner.currentBegin(), inner.currentEnd());
+        extentCache.add(inner.currentBegin(), inner.currentEnd());
         inner.next();
       } else if (outer.currentEnd() <= inner.currentBegin()) {
         outer.next();

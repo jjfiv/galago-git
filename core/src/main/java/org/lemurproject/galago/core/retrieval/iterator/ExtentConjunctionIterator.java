@@ -17,26 +17,24 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public abstract class ExtentConjunctionIterator extends ConjunctionIterator implements MovableDataIterator<ExtentArray>, MovableExtentIterator, MovableCountIterator {
 
-  protected ExtentArray extents;
+  protected ExtentArray extentCache;
   protected byte[] key;
 
   public ExtentConjunctionIterator(NodeParameters parameters, MovableExtentIterator[] iterators) throws IOException {
     super(parameters, iterators);
-    this.extents = new ExtentArray();
+    this.extentCache = new ExtentArray();
     buildKey(iterators);
   }
 
   @Override
   public boolean hasMatch(int identifier) {
-    this.loadExtents();
-    return super.hasMatch(identifier) && this.extents.size() > 0;
+    return super.hasMatch(identifier) && extents().size() > 0;
   }
 
   @Override
   public String getEntry() throws IOException {
-    this.loadExtents();
     ArrayList<String> strs = new ArrayList<String>();
-    ExtentArrayIterator eai = new ExtentArrayIterator(extents);
+    ExtentArrayIterator eai = new ExtentArrayIterator(extents());
     while (!eai.isDone()) {
       strs.add(String.format("[%d, %d]", eai.currentBegin(), eai.currentEnd()));
       eai.next();
@@ -45,21 +43,19 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
   }
 
   @Override
-  public ExtentArray getData() {
+  public ExtentArray extents() {
     this.loadExtents();
-    return extents;
+    return extentCache;
   }
 
   @Override
-  public ExtentArray extents() {
-    this.loadExtents();
-    return extents;
+  public ExtentArray getData() {
+    return extents();
   }
 
   @Override
   public int count() {
-    this.loadExtents();
-    return extents.size();
+    return extents().size();
   }
 
   @Override
@@ -75,7 +71,7 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
 
   @Override
   public AnnotatedNode getAnnotatedNode() throws IOException {
-    // ensure extents are loaded
+    // ensure extentCache are loaded
     this.loadExtents();
 
     String type = "extent";
@@ -83,7 +79,7 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
     String parameters = "";
     int document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
-    String returnValue = extents.toString();
+    String returnValue = extents().toString();
     List<AnnotatedNode> children = new ArrayList();
     for (MovableIterator child : this.iterators) {
       children.add(child.getAnnotatedNode());

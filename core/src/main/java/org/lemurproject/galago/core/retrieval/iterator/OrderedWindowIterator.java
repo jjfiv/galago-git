@@ -26,16 +26,16 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
     int document = context.document;
 
     // check if we're already there
-    if (this.extents.getDocument() == document) {
+    if (context.cachable && this.extentCache.getDocument() == document) {
       return;
     }
 
-    // reset the extents
-    extents.reset();
-    extents.setDocument(document);
+    // reset the extentCache
+    extentCache.reset();
+    extentCache.setDocument(document);
 
     // if we're done - quit now 
-    //  -- (leaving extents object empty just in cast someone asks for them.)
+    //  -- (leaving extentCache object empty just in cast someone asks for them.)
     if (isDone()) {
       return;
     }
@@ -45,13 +45,13 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
     for (int i = 0; i < iterators.length; i++) {
       if (iterators[i].isDone()
               || !iterators[i].hasMatch(document)) {
-        // we can not load any extents if the iterator is done - or is at the wrong document.
+        // we can not load any extentCache if the iterator is done - or is at the wrong document.
         return;
       }
 
       arrayIterators[i] = new ExtentArrayIterator(((MovableExtentIterator) iterators[i]).extents());
       if (arrayIterators[i].isDone()) {
-        // if this document does not have any extents we can not load any extents
+        // if this document does not have any extentCache we can not load any extentCache
         return;
       }
 
@@ -90,7 +90,7 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
 
       // if it's a match, record it
       if (!invalid) {
-        extents.add(begin, end);
+        extentCache.add(begin, end);
       }
 
       // move the first iterator forward - we are double dipping on all other iterators.

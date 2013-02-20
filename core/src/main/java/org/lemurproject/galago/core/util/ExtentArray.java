@@ -29,7 +29,9 @@ public class ExtentArray {
 
   private void makeRoom() {
     _begins = Arrays.copyOf(_begins, _begins.length * 2);
-    if (_ends != null) _ends = Arrays.copyOf(_ends, _ends.length * 2);
+    if (_ends != null) {
+      _ends = Arrays.copyOf(_ends, _ends.length * 2);
+    }
   }
 
   public void setDocument(int d) {
@@ -59,7 +61,9 @@ public class ExtentArray {
     }
 
     _begins[_position] = begin;
-    if (_ends == null && _position == 0) _ends = new int[_begins.length];
+    if (_ends == null && _position == 0) {
+      _ends = new int[_begins.length];
+    }
     _ends[_position] = end;
     _position += 1;
   }
@@ -69,7 +73,9 @@ public class ExtentArray {
   }
 
   public int end(int index) {
-    if (_ends == null) return _begins[index]+1;
+    if (_ends == null) {
+      return _begins[index] + 1;
+    }
     return _ends[index];
   }
 
@@ -80,8 +86,17 @@ public class ExtentArray {
   public void reset() {
     _position = 0;
   }
-  
-  public String toString(){
-    return String.format("ExtentArray:doc=%d:count=%d", document, _position);
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder(String.format("ExtentArray:doc=%d:count=%d:[", document, _position));
+    for (int i = 0; i < _position; i += 1) {
+      if (i > 0) {
+        sb.append(",");
+      }
+      sb.append("(").append(begin(i)).append(",").append(end(i)).append(")");
+    }
+    sb.append("]");
+    return sb.toString();
   }
 }
