@@ -22,16 +22,14 @@ public class GeometricMean extends QuerySetEvaluator {
 
   @Override
   public double evaluate(QuerySetResults querySet, QuerySetJudgments judgmentSet) {
-    double sum = 0;
-    double count = 0;
+    double sum = 0.0;
+    double count = 0.0;
     for (String query : querySet.getQueryIterator()) {
       QueryResults qres = querySet.get(query);
       QueryJudgments qjudge = judgmentSet.get(query);
       if (qres != null && qjudge != null) {
         double eval = evaluator.evaluate(qres, qjudge);
-        if (!Double.isNaN(eval)) {
-          sum *= eval;
-        }
+        sum *= eval;
         count += 1;
       }
     }

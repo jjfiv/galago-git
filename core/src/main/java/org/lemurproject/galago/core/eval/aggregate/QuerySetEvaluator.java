@@ -9,7 +9,6 @@ import org.lemurproject.galago.core.eval.QuerySetEvaluation;
 import org.lemurproject.galago.core.eval.QuerySetJudgments;
 import org.lemurproject.galago.core.eval.QuerySetResults;
 import org.lemurproject.galago.core.eval.metric.QueryEvaluator;
-import org.lemurproject.galago.core.eval.metric.QueryEvaluatorFactory;
 
 /**
  * QuerySetEvaluators aggregate implemented 
@@ -42,11 +41,12 @@ public abstract class QuerySetEvaluator {
 
   // single query evaluator - passes parameters through
   public double evaluate(QueryResults querySet, QueryJudgments judgmentSet) {
-    if(querySet != null && judgmentSet != null ){
+    // if we have no results or no judgments -- eval returns NaN
+    if (querySet != null && judgmentSet != null) {
       return evaluator.evaluate(querySet, judgmentSet);
     } else {
-      return -1;
-    }      
+      return Double.NaN;
+    }
   }
 
   // query set evaluator - passes each parameter through - returns all results
@@ -55,12 +55,12 @@ public abstract class QuerySetEvaluator {
     for (String query : querySet.getQueryIterator()) {
       QueryResults qres = querySet.get(query);
       QueryJudgments qjudge = judgmentSet.get(query);
-      if (qres != null && qjudge != null) {
+
+      if (qres != null && qjudge != null ) {
         double eval = evaluator.evaluate(querySet.get(query), judgmentSet.get(query));
-        if(! Double.isNaN(eval)){
-          evaluation.add(query, eval);
-        }
+        evaluation.add(query, eval);
       }
+
     }
     return evaluation;
   }

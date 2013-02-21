@@ -28,9 +28,7 @@ public class Sum extends QuerySetEvaluator {
       QueryJudgments qjudge = judgmentSet.get(query);
       if (qres != null && qjudge != null) {
         double eval = evaluator.evaluate(qres, qjudge);
-        if (!Double.isNaN(eval)) {
-          sum += eval;
-        }
+        sum += eval;
       }
     }
     return sum;

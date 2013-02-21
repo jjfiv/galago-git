@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import org.lemurproject.galago.core.eval.stat.NaturalOrderComparator;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -28,9 +28,11 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class QuerySetResults {
 
-  private Map<String, QueryResults> querySetResults = new TreeMap<String, QueryResults>();
+  private String name;
+  private Map<String, QueryResults> querySetResults = new TreeMap<String, QueryResults>(new NaturalOrderComparator());
 
   public QuerySetResults(Map<String, ScoredDocument[]> results) {
+    name = "results";
     for (String query : results.keySet()) {
       List<ScoredDocument> rankedList = Arrays.asList(results.get(query));
       Collections.sort(rankedList, new RankComparator());
@@ -39,6 +41,7 @@ public class QuerySetResults {
   }
 
   public QuerySetResults(String filename) throws IOException {
+    name = filename;
     loadRanking(filename);
   }
 
@@ -48,6 +51,10 @@ public class QuerySetResults {
 
   public QueryResults get(String query) {
     return querySetResults.get(query);
+  }
+
+  public String getName() {
+    return name;
   }
 
   /**
@@ -82,7 +89,7 @@ public class QuerySetResults {
       ranking.get(queryNumber).add(document);
     }
 
-    // ensure sorted order 
+    // ensure sorted order by rank
     for (String query : ranking.keySet()) {
       List<ScoredDocument> documents = ranking.get(query);
       Collections.sort(documents, new RankComparator());

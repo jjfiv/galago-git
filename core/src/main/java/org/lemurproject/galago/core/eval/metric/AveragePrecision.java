@@ -25,7 +25,7 @@ public class AveragePrecision extends QueryEvaluator {
 
   @Override
   public double evaluate(QueryResults resultList, QueryJudgments judgments) {
-    double sumPrecision = 0;
+    double sumPrecision = 0.0;
     int relevantCount = 0;
 
     for (ScoredDocument doc : resultList.getIterator()) {
@@ -34,6 +34,13 @@ public class AveragePrecision extends QueryEvaluator {
         sumPrecision += relevantCount / (double) doc.rank;
       }
     }
-    return (double) sumPrecision / judgments.getRelevantJudgmentCount();
+
+    if (judgments.getRelevantJudgmentCount() > 0) {
+      return (double) sumPrecision / judgments.getRelevantJudgmentCount();
+    }
+    // if there are no relevant documents, 
+    // the average is artificially defined as zero, to mimic trec_eval
+    // Really, the output is NaN, or the query should be ignored.
+    return 0.0;
   }
 }

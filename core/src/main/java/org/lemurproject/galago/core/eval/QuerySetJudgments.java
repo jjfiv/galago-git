@@ -4,10 +4,8 @@
 package org.lemurproject.galago.core.eval;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -27,10 +25,9 @@ public class QuerySetJudgments {
   private Map<String, QueryJudgments> querySetJudgments;
   private boolean binary;
   private boolean positive;
-          
 
   public QuerySetJudgments(String filename, boolean binary, boolean positive) throws IOException {
-    querySetJudgments = loadJudgments(filename);
+    this.querySetJudgments = loadJudgments(filename);
     this.binary = binary;
     this.positive = positive;
   }
@@ -42,7 +39,6 @@ public class QuerySetJudgments {
   public QueryJudgments get(String query) {
     return querySetJudgments.get(query);
   }
-
 
   // LOADING FUNCTIONS
   /**
@@ -72,10 +68,10 @@ public class QuerySetJudgments {
 
       // add this judgment to the query
       int j = Integer.parseInt(judgment);
-      if(binary){
-        j = (j > 0)? 1 : 0;
-      } else if(positive){
-        j = (j > 0)? j : 0;
+      if (binary) {
+        j = (j > 0) ? 1 : 0;
+      } else if (positive) {
+        j = (j > 0) ? j : 0;
       }
       judgments.get(queryNumber).add(docno, j);
     }

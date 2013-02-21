@@ -77,7 +77,14 @@ public class NormalizedDiscountedCumulativeGain extends QueryEvaluator {
     ArrayUtils.reverse(idealJudgments);
     double normalizer = computeDCG(idealJudgments);
 
-    return dcg / normalizer;
+    if(normalizer != 0){
+      return dcg / normalizer;
+    }
+    
+    // if there are no relevant documents, 
+    // the average is artificially defined as zero, to mimic trec_eval
+    // Really, the output is NaN, or the query should be ignored.
+    return 0.0;
   }
 
   /**

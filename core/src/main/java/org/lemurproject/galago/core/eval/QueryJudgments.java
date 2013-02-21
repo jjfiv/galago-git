@@ -64,7 +64,7 @@ public class QueryJudgments {
       return false;
     }
   }
-  
+
   public int getRelevantJudgmentCount() {
     return this.relevant_judgment_count;
   }
