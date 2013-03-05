@@ -11,14 +11,14 @@ import java.util.List;
  */
 public class AnnotatedNode {
 
-  protected String type;
-  protected String className;
-  protected String parameters;
-  protected int document;
-  protected boolean atCandidate;
-  protected String returnValue;
-  protected String extraInfo;
-  protected List<AnnotatedNode> children;
+  public String type;
+  public String className;
+  public String parameters;
+  public int document;
+  public boolean atCandidate;
+  public String returnValue;
+  public String extraInfo;
+  public List<AnnotatedNode> children;
 
   public AnnotatedNode(String type,
           String className,
