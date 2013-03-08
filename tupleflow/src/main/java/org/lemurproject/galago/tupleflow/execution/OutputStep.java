@@ -10,10 +10,12 @@ public class OutputStep extends Step {
     String id;
 
     public OutputStep(String id) {
+      super(id);
         this.id = id;
     }
 
     public OutputStep(FileLocation location, String id) {
+      super(id);
         this.id = id;
         this.location = location;
     }

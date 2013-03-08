@@ -2,10 +2,20 @@ package org.lemurproject.galago.core.types;
 
 type ExtractedLink {
     String srcUrl;
+    String srcName;
     String destUrl;
+    String destName;
     String anchorText;
     boolean noFollow;
     
+    String filePath;
+    long fileLocation;
+
     order: +destUrl;
     order: +srcUrl;
+
+    order: +srcName;
+    order: +destName;
+
+    order: +filePath +fileLocation;
 }

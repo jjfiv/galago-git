@@ -139,7 +139,12 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     // A parser is instantiated. Start producing documents for consumption
     // downstream.
     Document document;
+    long fileDocumentCount = 0;
     while ((document = parser.nextDocument()) != null) {
+      document.filePath = split.fileName;
+      document.fileLocation = fileDocumentCount;
+      fileDocumentCount++;
+
       document.fileId = split.fileId;
       document.totalFileCount = split.totalFileCount;
       processor.process(document);
@@ -303,7 +308,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     return stream;
   }
 
-  /* -- this now cases errors...
+  /* -- this now causes errors...
   private static void bzipHeaderCheck(BufferedInputStream stream) throws IOException {
   char[] header = new char[2];
   stream.mark(4);

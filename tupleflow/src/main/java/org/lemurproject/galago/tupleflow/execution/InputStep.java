@@ -7,18 +7,21 @@ package org.lemurproject.galago.tupleflow.execution;
  * @author trevor
  */
 public class InputStep extends Step {
-    String id;
 
-    public InputStep(String id) {
-        this.id = id;
-    }
+  String id;
 
-    public InputStep(FileLocation location, String id) {
-        this.id = id;
-        this.location = location;
-    }
+  public InputStep(String id) {
+    super(id);
+    this.id = id;
+  }
 
-    public String getId() {
-        return id;
-    }
+  public InputStep(FileLocation location, String id) {
+    super(id);
+    this.id = id;
+    this.location = location;
+  }
+
+  public String getId() {
+    return id;
+  }
 }

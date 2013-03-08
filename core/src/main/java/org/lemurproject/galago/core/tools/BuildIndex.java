@@ -13,13 +13,8 @@ import org.lemurproject.galago.core.index.disk.DiskNameReader;
 import org.lemurproject.galago.core.index.disk.PositionFieldIndexWriter;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.index.merge.CorpusMerger;
-import org.lemurproject.galago.core.parse.AdditionalTextCombiner;
-import org.lemurproject.galago.core.parse.AnchorTextCreator;
-import org.lemurproject.galago.core.parse.DocumentNumberer;
 import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.parse.FieldLengthExtractor;
-import org.lemurproject.galago.core.parse.LinkCombiner;
-import org.lemurproject.galago.core.parse.LinkExtractor;
 import org.lemurproject.galago.core.parse.NumberedDocumentDataExtractor;
 import org.lemurproject.galago.core.parse.NumberedExtentExtractor;
 import org.lemurproject.galago.core.parse.NumberedExtentPostingsExtractor;
@@ -28,9 +23,7 @@ import org.lemurproject.galago.core.parse.NumberedPostingsPositionExtractor;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.NullStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
-import org.lemurproject.galago.core.types.AdditionalDocumentText;
 import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.core.types.ExtractedLink;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.types.FieldNumberWordPosition;
 import org.lemurproject.galago.core.types.KeyValuePair;
@@ -65,9 +58,9 @@ public class BuildIndex extends AppFunction {
 	.addOutput("numberedDocumentDataNumbers", new NumberedDocumentData.NumberOrder())
 	.addOutput("numberedDocumentDataNames", new NumberedDocumentData.IdentifierOrder());
 
-    if (buildParameters.getBoolean("links")) {
-      stage.addInput("anchorText", new AdditionalDocumentText.IdentifierOrder());
-    }
+//    if (buildParameters.getBoolean("links")) {
+//      stage.addInput("anchorText", new AdditionalDocumentText.IdentifierOrder());
+//    }
     if (buildParameters.getBoolean("corpus")) {
       stage.addOutput("corpusKeys", new KeyValuePair.KeyOrder());
     }
@@ -102,11 +95,11 @@ public class BuildIndex extends AppFunction {
 	.add(BuildStageTemplates.getParserStep(buildParameters))
 	.add(BuildStageTemplates.getTokenizerStep(buildParameters))
 	.add(BuildStageTemplates.getNumberingStep(buildParameters));
-    if (buildParameters.getBoolean("links")) {
-      Parameters p = new Parameters();
-      p.set("textSource", "anchorText");
-      stage.add(new Step(AdditionalTextCombiner.class, p));
-    }
+//    if (buildParameters.getBoolean("links")) {
+//      Parameters p = new Parameters();
+//      p.set("textSource", "anchorText");
+//      stage.add(new Step(AdditionalTextCombiner.class, p));
+//    }
 
     MultiStep processingFork = new MultiStep();
 
@@ -190,44 +183,44 @@ public class BuildIndex extends AppFunction {
     return stage.add(processingFork);
   }
 
-  public Stage getParseLinksStage(Parameters buildParameters) {
-    Stage stage = new Stage("parseLinks")
-	.addInput("splits", new DocumentSplit.FileIdOrder())
-	.addOutput("links", new ExtractedLink.DestUrlOrder())
-	.addOutput("documentUrls", new NumberedDocumentData.UrlOrder())
-	.add(new InputStep("splits"))
-	.add(BuildStageTemplates.getParserStep(buildParameters))
-	.add(BuildStageTemplates.getTokenizerStep(buildParameters))
-	.add(new Step(DocumentNumberer.class));
-
-    MultiStep multi = new MultiStep();
-    ArrayList<Step> links =
-            BuildStageTemplates.getExtractionSteps("links", LinkExtractor.class, new ExtractedLink.DestUrlOrder());
-    ArrayList<Step> data =
-            BuildStageTemplates.getExtractionSteps("documentUrls", NumberedDocumentDataExtractor.class,
-            new NumberedDocumentData.UrlOrder());
-    return stage.add(multi.addGroup(links).addGroup(data));
-  }
-
-  public Stage getLinkCombineStage() {
-    Stage stage = new Stage("linkCombine");
-
-    // Connections
-    stage.addInput("documentUrls", new NumberedDocumentData.UrlOrder());
-    stage.addInput("links", new ExtractedLink.DestUrlOrder());
-    stage.addOutput("anchorText", new AdditionalDocumentText.IdentifierOrder());
-
-    // Steps
-    Parameters p = new Parameters();
-    p.set("documentDatas", "documentUrls");
-    p.set("extractedLinks", "links");
-    stage.add(new Step(LinkCombiner.class, p));
-    stage.add(new Step(AnchorTextCreator.class));
-    stage.add(Utility.getSorter(new AdditionalDocumentText.IdentifierOrder()));
-    stage.add(new OutputStep("anchorText"));
-
-    return stage;
-  }
+//  public Stage getParseLinksStage(Parameters buildParameters) {
+//    Stage stage = new Stage("parseLinks")
+//	.addInput("splits", new DocumentSplit.FileIdOrder())
+//	.addOutput("links", new ExtractedLink.DestUrlOrder())
+//	.addOutput("documentUrls", new NumberedDocumentData.UrlOrder())
+//	.add(new InputStep("splits"))
+//	.add(BuildStageTemplates.getParserStep(buildParameters))
+//	.add(BuildStageTemplates.getTokenizerStep(buildParameters))
+//	.add(new Step(DocumentNumberer.class));
+//
+//    MultiStep multi = new MultiStep();
+//    ArrayList<Step> links =
+//            BuildStageTemplates.getExtractionSteps("links", LinkExtractorOld.class, new ExtractedLink.DestUrlOrder());
+//    ArrayList<Step> data =
+//            BuildStageTemplates.getExtractionSteps("documentUrls", NumberedDocumentDataExtractor.class,
+//            new NumberedDocumentData.UrlOrder());
+//    return stage.add(multi.addGroup(links).addGroup(data));
+//  }
+//
+//  public Stage getLinkCombineStage() {
+//    Stage stage = new Stage("linkCombine");
+//
+//    // Connections
+//    stage.addInput("documentUrls", new NumberedDocumentData.UrlOrder());
+//    stage.addInput("links", new ExtractedLink.DestUrlOrder());
+//    stage.addOutput("anchorText", new AdditionalDocumentText.IdentifierOrder());
+//
+//    // Steps
+//    Parameters p = new Parameters();
+//    p.set("documentDatas", "documentUrls");
+//    p.set("extractedLinks", "links");
+//    stage.add(new Step(LinkCombinerOld.class, p));
+//    stage.add(new Step(AnchorTextCreator.class));
+//    stage.add(Utility.getSorter(new AdditionalDocumentText.IdentifierOrder()));
+//    stage.add(new OutputStep("anchorText"));
+//
+//    return stage;
+//  }
 
   public Stage getWritePostingsStage(Parameters buildParameters, String stageName,
           String inputName, Order inputOrder, String indexName,
@@ -593,24 +586,24 @@ public class BuildIndex extends AppFunction {
 
     // links must be a boolean [optional parameter]
     // defaults to false
-    if (globalParameters.containsKey("links")) {
-      try {
-        globalParameters.getBoolean("links");
-      } catch (Exception e) {
-        errorLog.add("Parameter 'links' must be a boolean value. Defaults to false.\n");
-      }
-    } else {
-      globalParameters.set("links", false);
-    }
-
-    // if links is true - check that the tag 'a' is extracted
-    if (globalParameters.getBoolean("links")) {
-      if (!fieldNames.contains("a")) {
-        // ensure the tag 'a' is extracted
-        globalParameters.getMap("tokenizer").getList("fields").add("a");
-      }
-    }
-
+//    if (globalParameters.containsKey("links")) {
+//      try {
+//        globalParameters.getBoolean("links");
+//      } catch (Exception e) {
+//        errorLog.add("Parameter 'links' must be a boolean value. Defaults to false.\n");
+//      }
+//    } else {
+//      globalParameters.set("links", false);
+//    }
+//
+//    // if links is true - check that the tag 'a' is extracted
+//    if (globalParameters.getBoolean("links")) {
+//      if (!fieldNames.contains("a")) {
+//        // ensure the tag 'a' is extracted
+//        globalParameters.getMap("tokenizer").getList("fields").add("a");
+//      }
+//    }
+//
 
     if (!globalParameters.getBoolean("nonStemmedPostings")
             && !globalParameters.getBoolean("stemmedPostings")) {
@@ -667,15 +660,15 @@ public class BuildIndex extends AppFunction {
     job.connect("parsePostings", "writeNames", ConnectionAssignmentType.Combined);
     job.connect("parsePostings", "writeNamesRev", ConnectionAssignmentType.Combined);
 
-    // if extracting links
-    if (buildParameters.getBoolean("links")) {
-      job.add(getParseLinksStage(buildParameters));
-      job.add(getLinkCombineStage());
-
-      job.connect("inputSplit", "parseLinks", ConnectionAssignmentType.Each);
-      job.connect("parseLinks", "linkCombine", ConnectionAssignmentType.Combined);
-      job.connect("linkCombine", "parsePostings", ConnectionAssignmentType.Combined);
-    }
+//    // if extracting links
+//    if (buildParameters.getBoolean("links")) {
+//      job.add(getParseLinksStage(buildParameters));
+//      job.add(getLinkCombineStage());
+//
+//      job.connect("inputSplit", "parseLinks", ConnectionAssignmentType.Each);
+//      job.connect("parseLinks", "linkCombine", ConnectionAssignmentType.Combined);
+//      job.connect("linkCombine", "parsePostings", ConnectionAssignmentType.Combined);
+//    }
 
     // corpus key data
     if (buildParameters.getBoolean("corpus")) {

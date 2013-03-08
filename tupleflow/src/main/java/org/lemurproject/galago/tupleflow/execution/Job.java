@@ -259,13 +259,15 @@ public class Job implements Serializable {
    * this particularly useful for making connections between sub-jobs.
    */
   public Job connect(String sourceName, String destinationName, ConnectionAssignmentType assignment) {
-    connect(sourceName, destinationName, assignment, null, -1);
-    return this;
+    return connect(sourceName, destinationName, assignment, null, -1);
+  }
+
+  public Job connect(String sourceName, String destinationName, ConnectionAssignmentType assignment, int hashCount) {
+    return connect(sourceName, destinationName, assignment, null, hashCount);
   }
 
   public Job connect(String sourceName, String destinationName, ConnectionAssignmentType assignment, String[] hashType) {
-    connect(sourceName, destinationName, assignment, hashType, -1);
-    return this;
+    return connect(sourceName, destinationName, assignment, hashType, -1);
   }
 
   public Job connect(String sourceName, String destinationName, ConnectionAssignmentType assignment, String[] hashType, int hashCount) {
@@ -309,11 +311,11 @@ public class Job implements Serializable {
         } else {
           connectionHashType = sourcePoint.point.getOrder();
         }
-        
-        if(assignment == ConnectionAssignmentType.Combined){
+
+        if (assignment == ConnectionAssignmentType.Combined) {
           connectionHashType = null;
         }
-        
+
         connect(sourcePoint, destinationPoint, assignment, connectionHashType, hashCount);
       }
     }
@@ -502,8 +504,8 @@ public class Job implements Serializable {
       } else if (step instanceof MultiStep) {
         MultiStep multi = (MultiStep) step;
         builder.append("                <multi>\n");
-	for (String name : multi) {
-	  printSteps(builder, multi.getGroup(name), "group");
+        for (String name : multi) {
+          printSteps(builder, multi.getGroup(name), "group");
         }
         builder.append("                </multi>\n");
       } else if (step.getParameters() == null || step.getParameters().isEmpty()) {

@@ -28,6 +28,8 @@ public class Document implements Serializable {
   // other data - used to generate an identifier; these values can not be serialized!
   public int fileId = -1;
   public int totalFileCount = -1;
+  public String filePath = "";
+  public long fileLocation = -1;
 
   public Document() {
     metadata = new HashMap();

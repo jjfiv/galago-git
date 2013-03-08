@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package org.lemurproject.galago.tupleflow.execution;
 
 import java.util.ArrayList;
@@ -15,18 +14,21 @@ import java.util.ArrayList;
  * @author irmarc
  */
 public class MultiInputStep extends Step {
-    String[] ids;
 
-    public MultiInputStep(String... inputs) {
-        this.ids = inputs;
-    }
+  String[] ids;
 
-    public MultiInputStep(FileLocation location, String... inputs) {
-      this.ids = inputs;
-      this.location = location;
-    }
+  public MultiInputStep(String... inputs) {
+    super("MultiInput");
+    this.ids = inputs;
+  }
 
-    public String[] getIds() {
-        return ids;
-    }
+  public MultiInputStep(FileLocation location, String... inputs) {
+    super("MultiInput");
+    this.ids = inputs;
+    this.location = location;
+  }
+
+  public String[] getIds() {
+    return ids;
+  }
 }
