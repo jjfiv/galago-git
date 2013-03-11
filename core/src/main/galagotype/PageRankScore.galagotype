@@ -1,8 +1,8 @@
 package org.lemurproject.galago.core.types;
 
-type PREntry {
-	long docNum;
+type PageRankScore {
+	String docName;
 	double score;
 
-	order: +docNum;
+	order: +docName;
 }

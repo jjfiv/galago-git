@@ -76,14 +76,14 @@ public abstract class AppFunction {
             + "                           [default = true]\n";
   }
 
-  public static void runTupleFlowJob(Job job, Parameters p, PrintStream output) throws Exception {
+  public static boolean runTupleFlowJob(Job job, Parameters p, PrintStream output) throws Exception {
     String printJob = p.get("printJob", "none");
     if (printJob.equals("plan")) {
       output.println(job.toString());
-      return;
+      return true;
     } else if (printJob.equals("dot")) {
       output.println(job.toDotString());
-      return;
+      return true;
     }
 
     int hash = (int) p.get("distrib", 0);
@@ -96,6 +96,8 @@ public abstract class AppFunction {
     JobExecutor.runLocally(job, store, p);
     if (store.hasStatements()) {
       output.println(store.toString());
+      return false;
     }
+    return true;
   }
 }
