@@ -46,7 +46,7 @@ public class DFRScoringIterator extends TransformIterator implements MovableScor
 
   private double transform(double ts) {
     double f1 = ts * Math.log(ts / lambda) / Utility.log2;
-    double f2 = (lambda - ts) * Utility.loge;
+    double f2 = (lambda - ts) * Utility.loge_base2;
     double f3 = 0.5 * Math.log(2 * Math.PI * ts) / Utility.log2;
     double risk = 1.0 / (ts + 1.0);
     return qfratio * risk * (f1 + f2 + f3);

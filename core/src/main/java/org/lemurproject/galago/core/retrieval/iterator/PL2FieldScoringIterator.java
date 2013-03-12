@@ -43,8 +43,8 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
     long termFrequency = p.getLong("nf");
     long documentCount = p.getLong("dc");
     double lambda = (termFrequency + 0.0) / (documentCount + 0.0);
-    beta = Math.log(lambda) / Utility.log2 + (lambda * Utility.loge)
-            + ((0.5 * (Math.log(2 * Math.PI) / Utility.log2)) + Utility.loge);
+    beta = Math.log(lambda) / Utility.log2 + (lambda * Utility.loge_base2)
+            + ((0.5 * (Math.log(2 * Math.PI) / Utility.log2)) + Utility.loge_base2);
     max = getMaxTF(p, it);
   }
 

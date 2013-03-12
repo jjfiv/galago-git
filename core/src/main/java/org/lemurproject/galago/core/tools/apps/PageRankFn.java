@@ -41,12 +41,16 @@ import org.lemurproject.galago.tupleflow.execution.OutputStep;
 import org.lemurproject.galago.tupleflow.execution.Stage;
 import org.lemurproject.galago.tupleflow.execution.Step;
 import org.lemurproject.galago.tupleflow.types.FileName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author sjh
  */
 public class PageRankFn extends AppFunction {
+
+  private static final Logger logger = LoggerFactory.getLogger("Pagerank");
 
   @Override
   public String getName() {
@@ -83,11 +87,15 @@ public class PageRankFn extends AppFunction {
 
     File outputFolder = new File(p.getString("outputFolder"));
 
+    logger.info("Initializing...");
     initialize(p);
 
     int maxItrs = (int) p.get("maxItr", 10);
     int convergedAt = 0;
     for (int i = 1; i <= maxItrs; i++) {
+
+      logger.info("Starting iteration " + i);
+
       Job itr = getIterationJob(p, i);
 
       Parameters runParams = new Parameters();
@@ -111,17 +119,21 @@ public class PageRankFn extends AppFunction {
       convergedAt = i;
 
       if (!success) {
-        output.println("PAGE RANK FAILED TO EXECUTE.");
+        logger.warn("PAGERANK FAILED TO EXECUTE.");
         return;
       }
       if (checkConvergence(i, p)) {
-        output.println("PAGE RANK CONVERGED.");
+        logger.info("Converged at " + i);
         break;
       }
     }
-    output.println("PAGE RANK MAX-ITR REACHED.");
+    if (convergedAt > maxItrs) {
+      logger.info("MaxIterations reached at " + maxItrs);
+    }
 
+    logger.info("Finalizing...");
     finalize(p, convergedAt);
+    logger.info("Finished");
   }
 
   private void initialize(Parameters p) throws IOException, IncompatibleProcessorException {
@@ -217,9 +229,11 @@ public class PageRankFn extends AppFunction {
     sorter.setProcessor(writer);
     reader.run();
 
-
+    logger.info("...done writing output.");
+    
     // finally if requested -- delete all intermediate data.
     if (p.get("deleteIntData", false)) {
+      logger.info("Deleting intermediate data.");
       for (File f : outputFolder.listFiles()) {
         if (!f.getName().equals("pagerank.docNameOrder")
                 && !f.getName().equals("pagerank.scoreOrder")) {

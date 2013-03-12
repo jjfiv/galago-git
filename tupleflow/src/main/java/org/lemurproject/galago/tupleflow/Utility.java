@@ -41,7 +41,7 @@ public class Utility {
   private static final List<String> roots = new ArrayList();
   // Some constant values
   public static final double log2 = Math.log(2);
-  public static final double loge = Math.log(Math.E) / log2;
+  public static final double loge_base2 = Math.log(Math.E) / log2;
   public static final double tinyLogProbScore = Math.log(Math.pow(10, -10));
 
   /**
