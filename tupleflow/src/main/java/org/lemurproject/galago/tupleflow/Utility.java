@@ -75,14 +75,14 @@ public class Utility {
       sorterOptions.copyFrom(preferences.getMap("sorter"));
     }
   }
-  
+
   /**
    * All static parameters
    */
-  public static Parameters getAllOptions(){
+  public static Parameters getAllOptions() {
     return preferences;
   }
-  
+
   /**
    * Drmaa parameters
    *
@@ -776,6 +776,19 @@ public class Utility {
     return set;
   }
 
+  public static String readFileToString(File file) throws IOException {
+    BufferedReader reader = new BufferedReader(new FileReader(file));
+    StringBuilder sb = new StringBuilder();
+    String line;
+
+    while ((line = reader.readLine()) != null) {
+      sb.append(line).append("\n");
+    }
+
+    reader.close();
+    return sb.toString();
+  }
+
   public static byte[] readResourceBytes(Class requestingClass, String resourcePath) throws IOException {
     InputStream resourceStream = requestingClass.getResourceAsStream(resourcePath);
     if (resourceStream == null) {
@@ -1088,7 +1101,7 @@ public class Utility {
 
     return result;
   }
-  
+
   /*
    * The following methods are used to display bytes as strings
    */

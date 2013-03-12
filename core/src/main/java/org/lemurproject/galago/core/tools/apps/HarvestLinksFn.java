@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.core.links.DataStreamWriter;
+import org.lemurproject.galago.core.links.ELItoEL;
 import org.lemurproject.galago.core.links.IndriHavestLinksWriter;
 import org.lemurproject.galago.core.links.LinkDestNamer;
 import org.lemurproject.galago.core.links.LinkExtractor;
@@ -19,6 +20,7 @@ import org.lemurproject.galago.core.tools.BuildStageTemplates;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.core.types.ExtractedLink;
+import org.lemurproject.galago.core.types.ExtractedLinkIndri;
 import org.lemurproject.galago.tupleflow.Order;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Parameters.Type;
@@ -52,10 +54,13 @@ public class HarvestLinksFn extends AppFunction {
             + "\tacceptLocalLinks : [True|false]\n"
             + "\tacceptNoFollowLinks : [True|false]\n"
             + "\tindri : [true|False]\n"
-            + "\tfilePrefix : /full/path/prefix/of/input/data/\t[only for 'indri']\n"
-            + "\tprefixReplacement : /replacement/full/path/prefix/for/output/data/\t[only for 'indri']\n"
+            + "\tfilePrefix : /full/path/prefix/of/input/data/\t\t[only for 'indri']\n"
+            + "\tprefixReplacement : /replacement/full/path/prefix/for/indri/output/data/\t[only for 'indri']\n"
             + "\tgalago : [True|false]\n"
-            + "\tgalagoDist : 5  [number of output shards]";
+            + "\tgalagoDist : 5  [number of output shards]\n"
+            + "\toutputFolder : /path/to/galago/output/folder \t\t [only for 'galago']\n"
+            + "\n"
+            + getTupleFlowParameterString();
   }
 
   @Override
@@ -125,7 +130,7 @@ public class HarvestLinksFn extends AppFunction {
       // stage 4.4: links writer 2 (+destURL, destName, srcUrl, srcName)
       job.add(getGenericStreamWriter("destWriter", "destLinks", ExtractedLink.class, ExtractedLink.DestNameOrder.class, p.getString("outputFolder") + File.separator + "destNameOrder", "links"));
 
-      int dist = (int) p.get("galagoDist", 5);
+      int dist = (int) p.get("galagoDist", 10);
 
       job.connect("parser", "namesWriter", ConnectionAssignmentType.Each, dist);
       job.connect("destNamer", "srcWriter", ConnectionAssignmentType.Each, dist);
@@ -141,7 +146,7 @@ public class HarvestLinksFn extends AppFunction {
 
     stage.addInput("splits", new DocumentSplit.FileIdOrder());
     stage.addOutput("docUrls", new DocumentUrl.UrlOrder());
-    stage.addOutput("links", new ExtractedLink.DestUrlOrder());
+    stage.addOutput("links", new ExtractedLinkIndri.DestUrlOrder());
 
     // parse and tokenize documents
     stage.add(new InputStep("splits")).add(BuildStageTemplates.getParserStep(p));
@@ -157,7 +162,7 @@ public class HarvestLinksFn extends AppFunction {
     processingFork.addToGroup("urls", new OutputStep("docUrls"));
 
     processingFork.addToGroup("lns", new Step(LinkExtractor.class, p));
-    processingFork.addToGroup("lns", Utility.getSorter(new ExtractedLink.DestUrlOrder()));
+    processingFork.addToGroup("lns", Utility.getSorter(new ExtractedLinkIndri.DestUrlOrder()));
     processingFork.addToGroup("lns", new OutputStep("links"));
 
     if (p.getBoolean("galago")) {
@@ -175,7 +180,7 @@ public class HarvestLinksFn extends AppFunction {
     Stage stage = new Stage("destNamer");
 
     stage.addInput("docUrls", new DocumentUrl.UrlOrder());
-    stage.addInput("links", new ExtractedLink.DestUrlOrder());
+    stage.addInput("links", new ExtractedLinkIndri.DestUrlOrder());
 
     stage.add(new InputStep("links"));
     Parameters namerParams = new Parameters();
@@ -188,20 +193,22 @@ public class HarvestLinksFn extends AppFunction {
     stage.add(processingFork);
 
     if (p.getBoolean("indri")) {
-      stage.addOutput("indriNamedLinks", new ExtractedLink.FilePathFileLocationOrder());
+      stage.addOutput("indriNamedLinks", new ExtractedLinkIndri.FilePathFileLocationOrder());
       processingFork.addGroup("indri");
-      processingFork.addToGroup("indri", Utility.getSorter(new ExtractedLink.FilePathFileLocationOrder()));
+      processingFork.addToGroup("indri", Utility.getSorter(new ExtractedLinkIndri.FilePathFileLocationOrder()));
       processingFork.addToGroup("indri", new OutputStep("indriNamedLinks"));
     }
 
     if (p.getBoolean("galago")) {
       stage.addOutput("srcLinks", new ExtractedLink.SrcNameOrder());
       processingFork.addGroup("srcLns");
+      processingFork.addToGroup("srcLns", new Step(ELItoEL.class));
       processingFork.addToGroup("srcLns", Utility.getSorter(new ExtractedLink.SrcNameOrder()));
       processingFork.addToGroup("srcLns", new OutputStep("srcLinks"));
 
       stage.addOutput("destLinks", new ExtractedLink.DestNameOrder());
       processingFork.addGroup("destLns");
+      processingFork.addToGroup("destLns", new Step(ELItoEL.class));
       processingFork.addToGroup("destLns", Utility.getSorter(new ExtractedLink.DestNameOrder()));
       processingFork.addToGroup("destLns", new OutputStep("destLinks"));
 
@@ -215,7 +222,7 @@ public class HarvestLinksFn extends AppFunction {
   private Stage getIndriCompatibleWriter(Parameters p) {
     Stage stage = new Stage("indriWriter");
 
-    stage.addInput("indriNamedLinks", new ExtractedLink.FilePathFileLocationOrder());
+    stage.addInput("indriNamedLinks", new ExtractedLinkIndri.FilePathFileLocationOrder());
 
     // I'm doing this manually to ensure the existence of these parameters early.
     Parameters writerParams = new Parameters();

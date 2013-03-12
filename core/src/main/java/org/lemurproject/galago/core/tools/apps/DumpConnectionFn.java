@@ -4,9 +4,13 @@
 package org.lemurproject.galago.core.tools.apps;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.tupleflow.FileOrderedReader;
+import org.lemurproject.galago.tupleflow.OrderedCombiner;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.TypeReader;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -33,7 +37,15 @@ public class DumpConnectionFn extends AppFunction {
       output.println(getHelpString());
       return;
     }
-    FileOrderedReader reader = new FileOrderedReader(args[1]);
+
+    args = Utility.subarray(args, 1);
+
+    TypeReader reader;
+    if (args.length == 1) {
+      reader = new FileOrderedReader(args[0]);
+    } else {
+      reader = OrderedCombiner.combineFromFiles(Arrays.asList(args));
+    }
     Object o;
     while ((o = reader.read()) != null) {
       output.println(o);

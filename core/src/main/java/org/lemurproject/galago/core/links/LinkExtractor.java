@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.URL;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
-import org.lemurproject.galago.core.types.ExtractedLink;
+import org.lemurproject.galago.core.types.ExtractedLinkIndri;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
@@ -20,8 +20,8 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
  */
 @Verified
 @InputClass(className = "org.lemurproject.galago.core.parse.Document")
-@OutputClass(className = "org.lemurproject.galago.core.types.ExtractedLink")
-public class LinkExtractor extends StandardStep<Document, ExtractedLink> {
+@OutputClass(className = "org.lemurproject.galago.core.types.ExtractedLinkIndri")
+public class LinkExtractor extends StandardStep<Document, ExtractedLinkIndri> {
 
   private boolean acceptLocalLinks;
   private boolean acceptNoFollowLinks;
@@ -92,7 +92,8 @@ public class LinkExtractor extends StandardStep<Document, ExtractedLink> {
           continue;
         }
 
-        ExtractedLink link = new ExtractedLink();
+        // need to output indri links initially - 
+        ExtractedLinkIndri link = new ExtractedLinkIndri();
         link.filePath = document.filePath;
         link.fileLocation = document.fileLocation;
 

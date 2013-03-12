@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.links;
 import java.io.IOException;
 import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.core.types.ExtractedLink;
+import org.lemurproject.galago.core.types.ExtractedLinkIndri;
 import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
@@ -18,10 +19,11 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  *
  * @author trevor
  */
-@InputClass(className = "org.lemurproject.galago.core.types.ExtractedLink", order = {"+destUrl"})
-@OutputClass(className = "org.lemurproject.galago.core.types.ExtractedLink", order = {"+destUrl"})
-public class LinkDestNamer extends StandardStep<ExtractedLink, ExtractedLink> {
+@InputClass(className = "org.lemurproject.galago.core.types.ExtractedLinkIndri", order = {"+destUrl"})
+@OutputClass(className = "org.lemurproject.galago.core.types.ExtractedLinkIndri", order = {"+destUrl"})
+public class LinkDestNamer extends StandardStep<ExtractedLinkIndri, ExtractedLinkIndri> {
 
+  public static final String EXTERNAL_PREFIX = "EXT:";
   TypeReader<ExtractedLink> extractedLinks;
   TypeReader<DocumentUrl> documentUrls;
   DocumentUrl current;
@@ -42,7 +44,7 @@ public class LinkDestNamer extends StandardStep<ExtractedLink, ExtractedLink> {
   }
 
   @Override
-  public void process(ExtractedLink link) throws IOException {
+  public void process(ExtractedLinkIndri link) throws IOException {
 
     // while current.url preceeds destUrl -- read on
     while (current != null && Utility.compare(current.url, link.destUrl) < 0) {
@@ -54,10 +56,14 @@ public class LinkDestNamer extends StandardStep<ExtractedLink, ExtractedLink> {
     }
 
     if (acceptExternalUrls && link.destName.isEmpty()) {
-      link.destName = "EXT:" + link.destUrl;
-      if(externalLinks != null) externalLinks.increment();
+      link.destName = EXTERNAL_PREFIX + link.destUrl;
+      if (externalLinks != null) {
+        externalLinks.increment();
+      }
     } else {
-      if(internalLinks != null) internalLinks.increment();
+      if (internalLinks != null) {
+        internalLinks.increment();
+      }
     }
 
     // only named destinations can be emited.

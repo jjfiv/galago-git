@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 public class Splitter<T> implements Processor<T> {
-    private String prefix;
     private Processor<T>[] processors;
     private Order<T> typeOrder;
 
@@ -53,8 +52,7 @@ public class Splitter<T> implements Processor<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public static <S> Splitter splitToFiles(String prefix, Type<S> type, Order<S> order, int count) throws IOException, FileNotFoundException, IncompatibleProcessorException {
-        assert type != null;
+    public static <S> Splitter splitToFiles(String prefix, Order<S> order, int count) throws IOException, FileNotFoundException, IncompatibleProcessorException {
         assert order != null;
 
         Processor[] processors = new Processor[count];

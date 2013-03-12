@@ -520,10 +520,10 @@ public class Verification {
       }
     } catch (InvocationTargetException e) {
       store.addError(step.getLocation(),
-              step.getClassName() + ": Caught an InvocationTargetException while verifying class: " + e.getMessage());
+              step.getClassName() + ": Caught an InvocationTargetException while verifying step class: " + e.getMessage());
     } catch (SecurityException e) {
       store.addError(step.getLocation(),
-              step.getClassName() + ": Caught a SecurityException while verifying class: " + e.getMessage());
+              step.getClassName() + ": Caught a SecurityException while verifying step class: " + e.getMessage());
     } catch (NoSuchMethodException e) {
       store.addWarning(step.getLocation(),
               "Class " + step.getClassName() + " has no suitable verify method.");

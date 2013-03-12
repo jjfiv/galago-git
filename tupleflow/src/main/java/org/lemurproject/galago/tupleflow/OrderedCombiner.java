@@ -1,11 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  *
@@ -36,6 +37,7 @@ public class OrderedCombiner<T> implements ReaderSource<T> {
   private Comparator<SortPair<T>> sortComparator(Comparator<T> compare) {
     final Comparator<T> c = compare;
     return new Comparator<SortPair<T>>() {
+
       public int compare(SortPair<T> one, SortPair<T> two) {
         return c.compare(one.object, two.object);
       }
@@ -70,6 +72,14 @@ public class OrderedCombiner<T> implements ReaderSource<T> {
 
   public static <S> OrderedCombiner combineFromFiles(List<String> filenames, Order<S> order) throws IOException {
     return combineFromFiles(filenames, order, null, true, defaultBufferSize);
+  }
+
+  public static <S> OrderedCombiner combineFromFileObjs(List<File> filenames, Order<S> order) throws IOException {
+    List<String> paths = new ArrayList();
+    for (File f : filenames) {
+      paths.add(f.getAbsolutePath());
+    }
+    return combineFromFiles(paths, order, null, true, defaultBufferSize);
   }
 
   @SuppressWarnings(value = "unchecked")

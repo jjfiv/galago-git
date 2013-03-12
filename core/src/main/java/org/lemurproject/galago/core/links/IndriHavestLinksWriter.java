@@ -10,7 +10,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
-import org.lemurproject.galago.core.types.ExtractedLink;
+import org.lemurproject.galago.core.types.ExtractedLinkIndri;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
@@ -23,15 +23,15 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  *
  * @author sjh
  */
-@InputClass(className = "org.lemurproject.galago.core.types.ExtractedLink", order = {"+filePath", "+fileLocation"})
-public class IndriHavestLinksWriter implements Processor<ExtractedLink> {
+@InputClass(className = "org.lemurproject.galago.core.types.ExtractedLinkIndri", order = {"+filePath", "+fileLocation"})
+public class IndriHavestLinksWriter implements Processor<ExtractedLinkIndri> {
 
   private final String filePrefix;
   private final String prefixReplacement;
   private BufferedWriter writer;
   private String currentFilePath;
   private String currentDocName;
-  private List<ExtractedLink> currentLinks;
+  private List<ExtractedLinkIndri> currentLinks;
 
   public IndriHavestLinksWriter(TupleFlowParameters tp) {
     Parameters p = tp.getJSON();
@@ -45,7 +45,7 @@ public class IndriHavestLinksWriter implements Processor<ExtractedLink> {
   }
 
   @Override
-  public void process(ExtractedLink link) throws IOException {
+  public void process(ExtractedLinkIndri link) throws IOException {
     if (!link.filePath.equals(currentFilePath)) {
       resetWriter(link.filePath);
     }
@@ -55,7 +55,7 @@ public class IndriHavestLinksWriter implements Processor<ExtractedLink> {
 
       writer.write("DOCNO=" + link.srcName + "\n");
       writer.write(link.srcUrl + "\n");
-      
+
       currentDocName = link.srcName;
     }
 
@@ -90,21 +90,28 @@ public class IndriHavestLinksWriter implements Processor<ExtractedLink> {
         throw new IOException("Can not over write input data.");
       }
       Utility.makeParentDirectories(outputPath);
-      writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(outputPath))));
+
+      // all output is uncompressed.
+      writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputPath)));
       currentFilePath = filePath;
     }
   }
 
   private void writeLinks() throws IOException {
     writer.write("LINKS=" + currentLinks.size() + "\n");
-    for (ExtractedLink el : currentLinks) {
+    for (ExtractedLinkIndri el : currentLinks) {
       writer.write("LINKDOCNO=" + el.destName + "\n");
       writer.write("LINKFROM=" + el.destUrl + "\n");
 
       // ensure "text" is ok.
       el.anchorText = el.anchorText.replaceAll("\"", "\'");
 
-      writer.write("TEXT=\"" + el.anchorText + "\"\n");
+      if (el.anchorText.isEmpty()) {
+        // need a space to make believe there's something here...
+        writer.write("TEXT=\" \"\n");
+      } else {
+        writer.write("TEXT=\"" + el.anchorText + "\"\n");
+      }
     }
     currentLinks.clear();
   }

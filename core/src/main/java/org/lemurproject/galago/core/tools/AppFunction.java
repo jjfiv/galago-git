@@ -77,6 +77,11 @@ public abstract class AppFunction {
   }
 
   public static boolean runTupleFlowJob(Job job, Parameters p, PrintStream output) throws Exception {
+    if (p.isBoolean("printJob") && p.getBoolean("printJob")) {
+      p.remove("printJob");
+      p.set("printJob", "dot");
+    }
+
     String printJob = p.get("printJob", "none");
     if (printJob.equals("plan")) {
       output.println(job.toString());

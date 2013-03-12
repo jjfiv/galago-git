@@ -3,16 +3,25 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.lemurproject.galago.core.links.pagerank.ComputeRandomJump;
+import org.lemurproject.galago.core.links.pagerank.ComputeRandomWalk;
+import org.lemurproject.galago.core.links.pagerank.ConvergenceTester;
+import org.lemurproject.galago.core.links.pagerank.PageRankScoreCombiner;
 import org.lemurproject.galago.core.links.pagerank.TypeFileReader;
+import org.lemurproject.galago.core.links.pagerank.TypeFileWriter;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.core.types.ExtractedLink;
+import org.lemurproject.galago.core.types.PageRankJumpScore;
 import org.lemurproject.galago.core.types.PageRankScore;
 import org.lemurproject.galago.tupleflow.FileSource;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
@@ -21,11 +30,13 @@ import org.lemurproject.galago.tupleflow.OrderedCombiner;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.ReaderSource;
+import org.lemurproject.galago.tupleflow.Sorter;
 import org.lemurproject.galago.tupleflow.Splitter;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
 import org.lemurproject.galago.tupleflow.execution.InputStep;
 import org.lemurproject.galago.tupleflow.execution.Job;
+import org.lemurproject.galago.tupleflow.execution.MultiStep;
 import org.lemurproject.galago.tupleflow.execution.OutputStep;
 import org.lemurproject.galago.tupleflow.execution.Stage;
 import org.lemurproject.galago.tupleflow.execution.Step;
@@ -48,6 +59,11 @@ public class PageRankFn extends AppFunction {
             + "Parameters\n"
             + "\tlinkdata=/path/to/harvest/link/data/\n"
             + "\toutputFolder=/path/to/write/data/\n"
+            + "\tlambda=[0.5] \n"
+            + "\tdelta=[0.000001] \n"
+            + "\tmaxItr=10 \n"
+            + "\tdefaultScore=1/||D|| \n"
+            + "\tdeleteIntData=false \n"
             + "\n"
             + getTupleFlowParameterString();
   }
@@ -59,23 +75,53 @@ public class PageRankFn extends AppFunction {
       return;
     }
 
+    if (!p.containsKey("lambda")) {
+      p.set("lambda", 0.5);
+    }
+    // 0 <= lambda <= 1
+    assert (p.getDouble("lambda") <= 1.0 && p.getDouble("lambda") >= 0.0);
+
+    File outputFolder = new File(p.getString("outputFolder"));
+
     initialize(p);
 
     int maxItrs = (int) p.get("maxItr", 10);
+    int convergedAt = 0;
     for (int i = 1; i <= maxItrs; i++) {
       Job itr = getIterationJob(p, i);
 
-      boolean success = runTupleFlowJob(itr, p, output);
+      Parameters runParams = new Parameters();
+      if (p.isLong("distrib")) {
+        runParams.set("distrib", p.getLong("distrib"));
+      }
+      if (p.isLong("port")) {
+        runParams.set("port", p.getLong("port"));
+      }
+      if (p.isBoolean("server")) {
+        runParams.set("server", p.getBoolean("server"));
+      }
+      if (p.isString("mode")) {
+        runParams.set("mode", p.getString("mode"));
+      }
+
+      runParams.set("galagoJobDir", new File(outputFolder, "pagerank-job-tmp." + i).getAbsolutePath());
+      runParams.set("deleteJobDir", p.get("deleteJobDir", true));
+
+      boolean success = runTupleFlowJob(itr, runParams, output);
+      convergedAt = i;
+
       if (!success) {
         output.println("PAGE RANK FAILED TO EXECUTE.");
         return;
       }
       if (checkConvergence(i, p)) {
         output.println("PAGE RANK CONVERGED.");
-        return;
+        break;
       }
     }
     output.println("PAGE RANK MAX-ITR REACHED.");
+
+    finalize(p, convergedAt);
   }
 
   private void initialize(Parameters p) throws IOException, IncompatibleProcessorException {
@@ -87,11 +133,10 @@ public class PageRankFn extends AppFunction {
     File inputData = new File(p.getString("linkdata"));
     File namesFolder = new File(inputData, "names");
 
-    List<String> inputFiles = Arrays.asList(namesFolder.list());
-    List<String> outputFiles = new ArrayList();
-
-    for (int i = 0; i < p.get("distrib", 10); i++) {
-      outputFiles.add(new File(outputFolder, "pageranks." + Integer.toString(i)).getAbsolutePath());
+    List<String> inputFiles = new ArrayList();
+    for (File f : namesFolder.listFiles()) {
+      System.err.println(f.getAbsolutePath());
+      inputFiles.add(f.getAbsolutePath());
     }
 
     double defaultScore = 1.0;
@@ -102,7 +147,7 @@ public class PageRankFn extends AppFunction {
       // determine correct default score
       // two passes -- first count the number of documents
       double docCount = 0;
-      ReaderSource<DocumentUrl> reader = OrderedCombiner.combineFromFiles(inputFiles, new DocumentUrl.IdentifierOrder());
+      ReaderSource<DocumentUrl> reader = OrderedCombiner.combineFromFileObjs(Arrays.asList(namesFolder.listFiles()), new DocumentUrl.IdentifierOrder());
       DocumentUrl url = reader.read();
       while (url != null) {
         docCount += 1;
@@ -116,20 +161,80 @@ public class PageRankFn extends AppFunction {
     ReaderSource<DocumentUrl> reader = OrderedCombiner.combineFromFiles(inputFiles, new DocumentUrl.IdentifierOrder());
 
     Processor<PageRankScore> writer;
-    writer = Splitter.splitToFiles(outputFiles.toArray(new String[0]), new PageRankScore.DocNameOrder(), new PageRankScore.DocNameOrder());
+    writer = Splitter.splitToFiles(itrZero.getAbsolutePath() + "/pagerank.", new PageRankScore.DocNameOrder(), (int) p.get("distrib", 10));
 
     DocumentUrl url = reader.read();
     while (url != null) {
-      url = reader.read();
       PageRankScore score = new PageRankScore(url.identifier, defaultScore);
       writer.process(score);
+      url = reader.read();
     }
 
     writer.close();
   }
 
+  private void finalize(Parameters p, int convergenceItr) throws IOException, IncompatibleProcessorException {
+    // open reader over final pageranks
+    File outputFolder = new File(p.getString("outputFolder"));
+    File finalPageranks = new File(outputFolder, "pageranks." + convergenceItr);
+
+    final File docNameOutput = new File(p.getString("outputFolder"), "pagerank.docNameOrder");
+    final File scoreOutput = new File(p.getString("outputFolder"), "pagerank.scoreOrder");
+
+
+
+    // copy into single file: <doc-name> <score>\n
+    ReaderSource<PageRankScore> reader = OrderedCombiner.combineFromFileObjs(Arrays.asList(finalPageranks.listFiles()), new PageRankScore.DocNameOrder());
+    BufferedWriter docOrderWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(docNameOutput)));
+    PageRankScore docScore;
+    while ((docScore = reader.read()) != null) {
+      docOrderWriter.write(String.format("%s %.10f\n", docScore.docName, docScore.score));
+    }
+    docOrderWriter.close();
+
+
+
+    // copy into single file: "<doc-name> <score>\n"
+    // but this time score by scores (descending)
+    reader = OrderedCombiner.combineFromFileObjs(Arrays.asList(finalPageranks.listFiles()), new PageRankScore.DocNameOrder());
+    Sorter sorter = new Sorter(new PageRankScore.DescScoreOrder());
+    Processor<PageRankScore> writer = new Processor<PageRankScore>() {
+
+      private BufferedWriter scoreOrderWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(scoreOutput)));
+
+      @Override
+      public void process(PageRankScore docScore) throws IOException {
+        scoreOrderWriter.write(String.format("%s %.10f\n", docScore.docName, docScore.score));
+      }
+
+      @Override
+      public void close() throws IOException {
+        scoreOrderWriter.close();
+      }
+    };
+
+    reader.setProcessor(sorter);
+    sorter.setProcessor(writer);
+    reader.run();
+
+
+    // finally if requested -- delete all intermediate data.
+    if (p.get("deleteIntData", false)) {
+      for (File f : outputFolder.listFiles()) {
+        if (!f.getName().equals("pagerank.docNameOrder")
+                && !f.getName().equals("pagerank.scoreOrder")) {
+          if (f.isFile()) {
+            f.delete();
+          } else if (f.isDirectory()) {
+            Utility.deleteDirectory(f);
+          }
+        }
+      }
+    }
+  }
+
   private boolean checkConvergence(int i, Parameters p) {
-    File conv = new File("pagerank.convergence." + i);
+    File conv = new File(p.getString("outputFolder"), "pagerank.converged." + i);
     if (conv.exists()) {
       return true;
     } else {
@@ -146,6 +251,7 @@ public class PageRankFn extends AppFunction {
     File outputFolder = new File(p.getString("outputFolder"));
     File itrInput = new File(outputFolder, "pageranks." + (i - 1));
     File itrOutput = new File(outputFolder, "pageranks." + i);
+    File convgFile = new File(outputFolder, "pagerank.converged." + i);
     itrOutput.mkdir();
 
     // stage 1: list folders:  pageranks, and linkdata
@@ -153,8 +259,8 @@ public class PageRankFn extends AppFunction {
     job.add(getSplitStage("splitLinks", "linkFiles", srcLinksFolder));
 
     // stage 2: read files : emit pageranks and links to nodes
-    job.add(getReaderStage("scoreReader","scoreFiles", "inputScores", PageRankScore.class.getName(), new PageRankScore.DocNameOrder()));
-    job.add(getReaderStage("linkReader","linkFiles", "inputLinks", ExtractedLink.class.getName(), new ExtractedLink.SrcNameOrder()));
+    job.add(getReaderStage("scoreReader", "scoreFiles", "inputScores", PageRankScore.class.getCanonicalName(), new PageRankScore.DocNameOrder()));
+    job.add(getReaderStage("linkReader", "linkFiles", "inputLinks", ExtractedLink.class.getCanonicalName(), new ExtractedLink.SrcNameOrder()));
 
     // stage 3: process links (emit 1-lambda * score / linkcount) as partial scores
     //          alternatively emit 1-lambda as a random jump
@@ -164,10 +270,10 @@ public class PageRankFn extends AppFunction {
     job.add(getRandomJumpStage(p));
 
     // stage 5: reduce scores by document count, emit to files.
-    job.add(getProcessPartialStage(p));
+    job.add(getProcessPartialStage(p, new File(itrOutput, "pagerank.")));
 
     // stage 6: compute differences (for convergence check)
-    job.add(getConvergenceStage(p));
+    job.add(getConvergenceStage(p, convgFile));
 
     job.connect("splitScores", "scoreReader", ConnectionAssignmentType.Each);
     job.connect("splitLinks", "linkReader", ConnectionAssignmentType.Each);
@@ -177,11 +283,12 @@ public class PageRankFn extends AppFunction {
 
     job.connect("scoreReader", "rndJump", ConnectionAssignmentType.Each);
 
+    job.connect("scoreReader", "reducer", ConnectionAssignmentType.Each);
     job.connect("rndWalk", "reducer", ConnectionAssignmentType.Each);
     job.connect("rndJump", "reducer", ConnectionAssignmentType.Each);
 
     // would prefer 'each', but this isn't very expensive.
-    job.connect("reader", "convergence", ConnectionAssignmentType.Combined);
+    job.connect("scoreReader", "convergence", ConnectionAssignmentType.Combined);
     job.connect("reducer", "convergence", ConnectionAssignmentType.Combined);
 
     return job;
@@ -210,11 +317,12 @@ public class PageRankFn extends AppFunction {
     stage.addOutput(output, order);
 
     stage.add(new InputStep(input));
-    
+
     Parameters p = new Parameters();
-    p.set("outputOrder", order.getClass().toString());
+    p.set("order", Utility.join(order.getOrderSpec()));
     p.set("outputClass", outputClass);
     stage.add(new Step(TypeFileReader.class, p));
+    // this reader ensures correct order.
     stage.add(new OutputStep(output));
 
     return stage;
@@ -222,10 +330,96 @@ public class PageRankFn extends AppFunction {
 
   private Stage getRandomWalkStage(Parameters p) {
     Stage stage = new Stage("rndWalk");
-    
-    stage.addInput("inputScores", null)
-    stage.addInput("inputLinks", null)
-    
-    reutrn stage;
+
+    stage.addInput("inputScores", new PageRankScore.DocNameOrder());
+    stage.addInput("inputLinks", new ExtractedLink.SrcNameOrder());
+    stage.addOutput("outputPartialScores", new PageRankScore.DocNameOrder());
+    stage.addOutput("outputExtraJumps", new PageRankJumpScore.ScoreOrder());
+
+
+    stage.add(new InputStep("inputScores"));
+    Parameters rndWalk = new Parameters();
+    rndWalk.set("linkStream", "inputLinks");
+    rndWalk.set("jumpStream", "outputExtraJumps");
+    rndWalk.set("lambda", p.getDouble("lambda"));
+    stage.add(new Step(ComputeRandomWalk.class, rndWalk));
+    stage.add(Utility.getSorter(new PageRankScore.DocNameOrder()));
+    stage.add(new OutputStep("outputPartialScores"));
+
+    return stage;
+  }
+
+  private Stage getRandomJumpStage(Parameters p) {
+    Stage stage = new Stage("rndJump");
+
+    stage.addInput("inputScores", new PageRankScore.DocNameOrder());
+    stage.addOutput("outputCumulativeJump", new PageRankJumpScore.ScoreOrder());
+
+    stage.add(new InputStep("inputScores"));
+    // sum the scores, divide by count of pages, 
+    // then emit single value that is the value of all random jumps to any given page.
+    Parameters rndJumpParams = new Parameters();
+    rndJumpParams.set("lambda", p.getDouble("lambda"));
+    stage.add(new Step(ComputeRandomJump.class, rndJumpParams));
+
+    // should only emit one item, but still...
+    stage.add(Utility.getSorter(new PageRankJumpScore.ScoreOrder()));
+    stage.add(new OutputStep("outputCumulativeJump"));
+
+    return stage;
+  }
+
+  private Stage getProcessPartialStage(Parameters p, File outputFilePrefix) {
+    Stage stage = new Stage("reducer");
+
+    stage.addInput("inputScores", new PageRankScore.DocNameOrder());
+    stage.addInput("outputPartialScores", new PageRankScore.DocNameOrder());
+    stage.addInput("outputExtraJumps", new PageRankJumpScore.ScoreOrder());
+    stage.addInput("outputCumulativeJump", new PageRankJumpScore.ScoreOrder());
+    stage.addOutput("outputScores", new PageRankScore.DocNameOrder());
+
+    stage.add(new InputStep("inputScores"));
+
+    Parameters combinerParams = new Parameters();
+    combinerParams.set("jumpStream1", "outputCumulativeJump");
+    combinerParams.set("jumpStream2", "outputExtraJumps");
+    combinerParams.set("scoreStream", "outputPartialScores");
+    stage.add(new Step(PageRankScoreCombiner.class, combinerParams));
+    stage.add(Utility.getSorter(new PageRankScore.DocNameOrder()));
+
+    MultiStep processingFork = new MultiStep();
+    processingFork.addGroup("writer");
+    processingFork.addGroup("stream");
+
+    Parameters writerParams = new Parameters();
+    writerParams.set("outputFile", outputFilePrefix.getAbsolutePath()); // + i
+    writerParams.set("class", PageRankScore.class.getCanonicalName());
+    writerParams.set("order", Utility.join(new PageRankScore.DocNameOrder().getOrderSpec()));
+
+    processingFork.addToGroup("writer", new Step(TypeFileWriter.class, writerParams));
+
+    processingFork.addToGroup("stream", new OutputStep("outputScores"));
+
+    stage.add(processingFork);
+
+    return stage;
+
+  }
+
+  private Stage getConvergenceStage(Parameters p, File conv) {
+    Stage stage = new Stage("convergence");
+
+    stage.addInput("inputScores", new PageRankScore.DocNameOrder());
+    stage.addInput("outputScores", new PageRankScore.DocNameOrder());
+
+    Parameters convgParams = new Parameters();
+    convgParams.set("convFile", conv.getAbsolutePath());
+    convgParams.set("prevScoreStream", "inputScores");
+    convgParams.set("currScoreStream", "outputScores");
+    convgParams.set("delta", p.get("delta", 0.000001));
+    stage.add(new Step(ConvergenceTester.class, convgParams));
+    // if converged, a file is created in the output directory.
+
+    return stage;
   }
 }
