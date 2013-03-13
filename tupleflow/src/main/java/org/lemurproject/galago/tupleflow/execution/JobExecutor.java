@@ -156,7 +156,7 @@ public class JobExecutor {
         Stage destination = stages.get(connectionOutput.getStageName());
         // getting ready: remove the first step, add on to the multi
         int length = destination.steps.size();
-	multi.addGroup(new ArrayList<Step>(destination.steps.subList(1, length)));
+        multi.addGroup(new ArrayList<Step>(destination.steps.subList(1, length)));
 
         renameConnections(job, source, destination);
 
@@ -173,7 +173,7 @@ public class JobExecutor {
 
       // only add a multi step if there were multiple outputs
       if (multi.isSingleton()) {
-	source.steps.addAll(multi.singleton());
+        source.steps.addAll(multi.singleton());
       } else {
         source.steps.add(multi);
       }
@@ -552,7 +552,7 @@ public class JobExecutor {
 
     public int getOutputCount() {
       int result = 1;
-      
+
       if (isHashed()) {
         String globalHashCount = job.properties.get("hashCount");
 
@@ -1073,8 +1073,8 @@ public class JobExecutor {
           }
         }
 
-        // check at least once a second, but poll faster at first
-        delay = Math.min(delay * 2, 1000);
+        // check at least once per 10 seconds, but poll faster at first
+        delay = Math.min(delay * 2, 10000);
         poll();
         Thread.sleep(delay);
       }

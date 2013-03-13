@@ -50,7 +50,7 @@ public class DRMAAStageExecutor extends RemoteStageExecutor {
   // Arbitrary starting and max heap sizes.
   public static final String MEMORY_X = "-Xmx1700m";
   public static final String MEMORY_S = "-Xms1700m";
-  public static final String DEFAULT_ENCODING = System.getProperty("file.encoding","UTF-8");
+  public static final String DEFAULT_ENCODING = System.getProperty("file.encoding", "UTF-8");
   // This holds the location that should be used to write temporary files
   // on the nodes.
   public static final String NODE_TEMP_DIR =
@@ -64,17 +64,19 @@ public class DRMAAStageExecutor extends RemoteStageExecutor {
   public class DRMAAResult implements StageExecutionStatus {
 
     ArrayList<String> jobs;
+    HashMap<String, File> jobCheckpoints = null;
     HashMap<String, Long> startTimes = null;
     HashMap<String, Long> stopTimes = null;
     ArrayList<Exception> exceptions;
     String stageName;
 
-    public DRMAAResult(String n, ArrayList<String> jobs, HashMap<String, Long> starts) {
-      this(n, jobs, starts, null);
+    public DRMAAResult(String n, ArrayList<String> jobs, HashMap<String, File> jobCheckpoints, HashMap<String, Long> starts) {
+      this(n, jobs, jobCheckpoints, starts, null);
     }
 
-    public DRMAAResult(String n, ArrayList<String> jobs, HashMap<String, Long> starts, Exception e) {
+    public DRMAAResult(String n, ArrayList<String> jobs, HashMap<String, File> jobCheckpoints, HashMap<String, Long> starts, Exception e) {
       this.jobs = jobs;
+      this.jobCheckpoints = jobCheckpoints;
       this.startTimes = starts;
       this.stopTimes = new HashMap<String, Long>();
       this.stageName = n;
@@ -89,14 +91,24 @@ public class DRMAAStageExecutor extends RemoteStageExecutor {
       for (String job : jobs) {
         try {
           int status = session.getJobProgramStatus(job);
-          if (status == session.FAILED) {
-            exceptions.add(new Exception("[" + job + "] failed."));
-            System.err.println("[" + job + "] failed.");
+
+          if (status == Session.FAILED) {
+            exceptions.add(new Exception("[" + job + "] failed -- see stderr folder."));
+            System.err.println("[" + job + "] failed -- see stderr folder.");
+
+          } else if (status == Session.DONE) {
+            // check for X.complete
+            if (!jobCheckpoints.get(job).exists()) {
+              // add an exception.
+              exceptions.add(new Exception("[" + job + "] failed -- checkpoint does not exist."));
+              System.err.println("[" + job + "] failed -- checkpoint does not exist.");
+            }
           }
         } catch (DrmaaException e) {
           System.err.println("Could not error check the drmaa session!");
         }
       }
+
       return exceptions;
     }
 
@@ -242,7 +254,7 @@ public class DRMAAStageExecutor extends RemoteStageExecutor {
     Parameters defaults = Utility.getDrmaaOptions();
     if (defaults.containsKey("mem")) {
       String mem = defaults.getString("mem");
-      assert (! mem.startsWith("-X")): "Error: mem parameter in .galago.conf file should not start with '-Xmx' or '-Xms'.";
+      assert (!mem.startsWith("-X")) : "Error: mem parameter in .galago.conf file should not start with '-Xmx' or '-Xms'.";
       setMemoryUsage("-Xmx" + defaults.getString("mem"), "-Xms" + defaults.getString("mem"));
     }
     if (defaults.containsKey("nativeSpec")) {
@@ -345,6 +357,7 @@ public class DRMAAStageExecutor extends RemoteStageExecutor {
   public StageExecutionStatus submit(String stageName, ArrayList<String> jobPaths,
           String temporary) {
     ArrayList<String> jobs = new ArrayList<String>();
+    HashMap<String, File> jobCheckpoints = new HashMap<String, File>();
     HashMap<String, Long> startTimes = new HashMap<String, Long>();
     try {
       // Cycle through each of the jobs for the given stage.
@@ -355,7 +368,7 @@ public class DRMAAStageExecutor extends RemoteStageExecutor {
         String[] arguments = new String[]{"-ea", memory_x, memory_s,
           "-Djava.io.tmpdir=" + nodeTempDir,
           "-Dfile.encoding=" + DEFAULT_ENCODING,
-	   "-cp", classPath, className, jobPaths.get(i)};
+          "-cp", classPath, className, jobPaths.get(i)};
 
 
         // Create the fill a DRMAA job template.
@@ -403,6 +416,8 @@ public class DRMAAStageExecutor extends RemoteStageExecutor {
 
         // Keep track of the job id.
         jobs.add(id);
+        jobCheckpoints.put(id, new File(jobPaths.get(i) + ".complete"));
+
         startTimes.put(id, System.currentTimeMillis()); // for tracking
 
         // Clean up.
@@ -410,13 +425,13 @@ public class DRMAAStageExecutor extends RemoteStageExecutor {
       }
     } catch (Exception e) {
       System.err.println("Problems submitting jobs: " + e.getMessage());
-      return new DRMAAResult(stageName, jobs, null, e);
+      return new DRMAAResult(stageName, jobs, jobCheckpoints, null, e);
     }
 
     System.err.println("job-launched: " + stageName);
     for (String id : jobs) {
       System.err.println("jobid: " + id);
     }
-    return new DRMAAResult(stageName, jobs, startTimes);
+    return new DRMAAResult(stageName, jobs, jobCheckpoints, startTimes);
   }
 }
