@@ -69,7 +69,7 @@ type_def returns [ TypeSpecification spec ] :
     '}'
     ;
 
-ID  :   ('a'..'z'|'A'..'Z')+ ;
+ID  :   ('a'..'z'|'A'..'Z'|'_'|'0'..'9')+ ;
 NEWLINE:'\r'? '\n' {skip();} ;
 WS  :   (' '|'\t')+ {skip();} ;
 COMMENT : '/' '/' (~('\n'|'\r'))* {skip();} ;
