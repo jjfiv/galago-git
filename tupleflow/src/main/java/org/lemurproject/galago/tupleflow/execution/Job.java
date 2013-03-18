@@ -60,10 +60,7 @@ public class Job implements Serializable {
 
     for (Connection c : group.connections) {
       Connection copy = c.clone();
-
-      for (ConnectionEndPoint input : copy.inputs) {
-        input.setStageName(jobName + "." + input.getStageName());
-      }
+      copy.input.setStageName(jobName + "." + copy.input.getStageName());
 
       for (ConnectionEndPoint output : copy.outputs) {
         output.setStageName(jobName + "." + output.getStageName());
@@ -139,21 +136,19 @@ public class Job implements Serializable {
 
     // run through the connections list, find all inputs for the previous data
     for (Connection connection : this.connections) {
-      for (ConnectionEndPoint input : connection.inputs) {
-        if (input.getStageName().equals(stageName)
-                && input.getPointName().equals(pointName)) {
-          if (hash != null && connection.hash != null
-                  && !Arrays.equals(hash, connection.hash)) {
-            continue;
-          }
-          if (connection.hash != null) {
-            hash = connection.hash;
-            connection.hash = null;
-          }
-
-          input.setStageName(mergedStageName);
-          input.setPointName(mergedPointName);
+      if (connection.input.getStageName().equals(stageName)
+              && connection.input.getPointName().equals(pointName)) {
+        if (hash != null && connection.hash != null
+                && !Arrays.equals(hash, connection.hash)) {
+          continue;
         }
+        if (connection.hash != null) {
+          hash = connection.hash;
+          connection.hash = null;
+        }
+
+        connection.input.setStageName(mergedStageName);
+        connection.input.setPointName(mergedPointName);
       }
     }
 
@@ -329,15 +324,11 @@ public class Job implements Serializable {
     if (source.getPoint() == null) {
       Stage sourceStage = stages.get(source.stageName);
       StageConnectionPoint sourcePoint = sourceStage.getConnection(source.pointName);
-      source.point = sourcePoint;
+      source.setPoint(sourcePoint);
     }
 
     for (Connection c : connections) {
-      if (c.inputs.size() < 1) {
-        continue;
-      }
-      ConnectionEndPoint connectionInput = c.inputs.get(0);
-
+      ConnectionEndPoint connectionInput = c.input;
       if (connectionInput.getPointName().equals(source.pointName)
               && connectionInput.getStageName().equals(source.stageName)) {
         connection = c;
@@ -347,15 +338,12 @@ public class Job implements Serializable {
 
     // couldn't find a connection that has this input, so we'll make one
     if (connection == null) {
-      connection = new Connection(null, source.getPoint().getClassName(), source.getPoint().
-              getOrder(),
-              hashType,
-              hashCount);
+      connection = new Connection(null, source.getPoint(), hashType, hashCount);
       ConnectionEndPoint input = new ConnectionEndPoint(null,
               source.stageName,
               source.pointName,
               ConnectionPointType.Input);
-      connection.inputs.add(input);
+      connection.input = input;
       connections.add(connection);
     }
 
@@ -377,12 +365,10 @@ public class Job implements Serializable {
     builder.append("digraph {\n");
 
     for (Connection connection : connections) {
-      for (ConnectionEndPoint input : connection.inputs) {
-        for (ConnectionEndPoint output : connection.outputs) {
-          String edge = String.format("  %s -> %s [label=\"%s\"];\n",
-                  input.getStageName(), output.getStageName(), connection.getName());
-          builder.append(edge);
-        }
+      for (ConnectionEndPoint output : connection.outputs) {
+        String edge = String.format("  %s -> %s [label=\"%s\"];\n",
+                connection.input.getStageName(), output.getStageName(), connection.getName());
+        builder.append(edge);
       }
     }
 
@@ -433,14 +419,12 @@ public class Job implements Serializable {
         builder.append(connectionHeader);
       }
 
-      for (ConnectionEndPoint point : connection.inputs) {
-        String endPointString = String.format(
+        String inputEndPointString = String.format(
                 "            <input stage=\"%s\"         \n"
                 + "                   endpoint=\"%s\" />   \n",
-                point.getStageName(),
-                point.getPointName());
-        builder.append(endPointString);
-      }
+                connection.input.getStageName(),
+                connection.input.getPointName());
+        builder.append(inputEndPointString);
 
       for (ConnectionEndPoint point : connection.outputs) {
         String endPointString = String.format(

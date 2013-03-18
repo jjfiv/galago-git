@@ -2,8 +2,8 @@
 package org.lemurproject.galago.tupleflow;
 
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
+import java.util.zip.GZIPOutputStream;
 
 /**
  *
@@ -16,39 +16,48 @@ public class FileOrderedWriter<T> implements Processor<T> {
     ArrayOutput stream;
     Processor<T> orderedWriter;
 
-    public FileOrderedWriter(String filename, Order<T> order, boolean compressed) throws IOException {
+    public FileOrderedWriter(String filename, Order<T> order, CompressionType c) throws IOException {
         this.filename = filename;
         this.order = order;
 
         dataStream = StreamCreator.realOutputStream(filename);
-        if (compressed) {
+        // write the compression type (un compressed)
+        dataStream.writeByte(CompressionType.toByte(c));
+        
+        switch(c){
+          case VBYTE:
             stream = new ArrayOutput(new VByteOutput(dataStream));
-        } else {
+            break;
+          case GZIP:
+            // need to be able to call close on GZIP stream.
+            dataStream = new DataOutputStream(new GZIPOutputStream(dataStream));
             stream = new ArrayOutput(dataStream);
+            break;
+
+            // UNSPECIFIED, DEAFULT, NONE are all the same -- no compression
+          case UNSPECIFIED:
+          case NONE:
+          default:
+            stream = new ArrayOutput(dataStream);
+            break;
         }
         stream.writeString(order.getOrderedClass().getName());
         stream.writeStrings(order.getOrderSpec());
         this.orderedWriter = order.orderedWriter(stream);
     }
 
-    public FileOrderedWriter(String filename, Order<T> order) throws IOException {
-        this(filename, order, true);
-    }
-
-    public FileOrderedWriter(File file, Order<T> order) throws IOException {
-        this(file.getPath(), order, true);
-    }
-
     public Class<T> getInputClass() {
         return order.getOrderedClass();
     }
 
+  @Override
     public void process(T object) throws IOException {
         orderedWriter.process(object);
     }
 
+  @Override
     public void close() throws IOException {
-        orderedWriter.close();
-        dataStream.close();
+        orderedWriter.close(); // this function flushes an internal buffers
+        dataStream.close(); // this function flushes the file buffers
     }
 }

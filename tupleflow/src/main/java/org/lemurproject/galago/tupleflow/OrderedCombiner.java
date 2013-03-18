@@ -88,7 +88,7 @@ public class OrderedCombiner<T> implements ReaderSource<T> {
     FileOrderedReader[] readers = new FileOrderedReader[filenames.size()];
 
     for (int i = 0; i < filenames.size(); i++) {
-      readers[i] = new FileOrderedReader<S>(filenames.get(i), order, bufferSize / filenames.size());
+      readers[i] = new FileOrderedReader<S>(filenames.get(i), bufferSize / filenames.size());
       inputs[i] = readers[i].getOrderedReader();
     }
 
@@ -156,4 +156,10 @@ public class OrderedCombiner<T> implements ReaderSource<T> {
 
     close();
   }
+
+
+  public CompressionType getCompression(){
+    return files[0].getCompression();
+  }
+
 }

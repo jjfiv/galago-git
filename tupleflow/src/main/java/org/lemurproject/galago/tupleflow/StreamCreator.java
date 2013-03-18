@@ -1,12 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -28,6 +30,10 @@ public class StreamCreator {
     return filename;
   }
 
+  public static InputStream bufferedInputStream(String filename) throws IOException {
+    return new BufferedInputStream(new FileInputStream(filename));
+  }
+  
   public static FileInputStream realInputStream(String filename) throws IOException {
     FileInputStream stream = new FileInputStream(filename);
     return stream;

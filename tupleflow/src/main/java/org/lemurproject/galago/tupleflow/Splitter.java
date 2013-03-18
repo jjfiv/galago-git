@@ -14,12 +14,12 @@ public class Splitter<T> implements Processor<T> {
         this.typeOrder = order;
     }
 
-    public static <S> Splitter<S> splitToFiles(String[] filenames, Order<S> sortOrder, Order<S> hashOrder) throws IOException, IncompatibleProcessorException {
-        return splitToFiles(filenames, sortOrder, hashOrder, null);
+    public static <S> Splitter<S> splitToFiles(String[] filenames, Order<S> sortOrder, Order<S> hashOrder, CompressionType c) throws IOException, IncompatibleProcessorException {
+        return splitToFiles(filenames, sortOrder, hashOrder, null, c);
     }
 
     @SuppressWarnings("unchecked")
-    public static <S> Splitter<S> splitToFiles(String[] filenames, Order<S> sortOrder, Order<S> hashOrder, Class reducerClass) throws IOException, IncompatibleProcessorException {
+    public static <S> Splitter<S> splitToFiles(String[] filenames, Order<S> sortOrder, Order<S> hashOrder, Class reducerClass, CompressionType c) throws IOException, IncompatibleProcessorException {
         assert sortOrder != null;
         assert hashOrder != null;
 
@@ -27,7 +27,7 @@ public class Splitter<T> implements Processor<T> {
 
         try {
             for (int i = 0; i < filenames.length; i++) {
-                FileOrderedWriter<S> writer = new FileOrderedWriter<S>(filenames[i], sortOrder);
+                FileOrderedWriter<S> writer = new FileOrderedWriter<S>(filenames[i], sortOrder, c);
                 Sorter sorter;
                 if (reducerClass != null) {
                     sorter = new Sorter<S>(sortOrder, (Reducer<S>) reducerClass.getConstructor().
@@ -52,14 +52,14 @@ public class Splitter<T> implements Processor<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public static <S> Splitter splitToFiles(String prefix, Order<S> order, int count) throws IOException, FileNotFoundException, IncompatibleProcessorException {
+    public static <S> Splitter splitToFiles(String prefix, Order<S> order, int count, CompressionType c) throws IOException, FileNotFoundException, IncompatibleProcessorException {
         assert order != null;
 
         Processor[] processors = new Processor[count];
 
         for (int i = 0; i < count; i++) {
             String filename = prefix + i;
-            FileOrderedWriter<S> writer = new FileOrderedWriter<S>(filename, order);
+            FileOrderedWriter<S> writer = new FileOrderedWriter<S>(filename, order, c);
             Sorter<S> sorter = new Sorter<S>(order);
             sorter.setProcessor(writer);
             processors[i] = sorter;

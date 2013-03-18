@@ -464,14 +464,15 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
 
   private synchronized FileOrderedWriter<T> getTemporaryWriter(long fileSize) throws IOException, FileNotFoundException {
     File temporary = Utility.createTemporary(fileSize * 4);
-    FileOrderedWriter<T> writer = new FileOrderedWriter<T>(temporary, order);
+    // default to VBYTE compression (but make this configurable later...
+    FileOrderedWriter<T> writer = new FileOrderedWriter<T>(temporary.getAbsolutePath(), order, CompressionType.VBYTE);
     temporaryFiles.add(temporary);
     return writer;
   }
 
   private synchronized FileOrderedWriter<T> getTemporaryWriter() throws IOException, FileNotFoundException {
     File temporary = Utility.createTemporary();
-    FileOrderedWriter<T> writer = new FileOrderedWriter<T>(temporary, order);
+    FileOrderedWriter<T> writer = new FileOrderedWriter<T>(temporary.getAbsolutePath(), order, CompressionType.VBYTE);
     temporaryFiles.add(temporary);
     return writer;
   }

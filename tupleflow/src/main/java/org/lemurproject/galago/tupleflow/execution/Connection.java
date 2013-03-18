@@ -2,9 +2,13 @@
 package org.lemurproject.galago.tupleflow.execution;
 
 import java.util.ArrayList;
+import org.lemurproject.galago.tupleflow.CompressionType;
+import org.lemurproject.galago.tupleflow.execution.Job.StagePoint;
 
 /**
  * Represents a data connection between two stages in a TupleFlow job.
+ *  - each connection can have only one input, 
+ *    but multiple possible outputs.
  *
  * @see org.lemurproject.galago.tupleflow.execution.Job
  * @author trevor
@@ -16,26 +20,27 @@ public class Connection extends Locatable implements Cloneable {
   String[] order;
   String[] hash;
   int hashCount;
-  public ArrayList<ConnectionEndPoint> inputs = new ArrayList<ConnectionEndPoint>();
+  CompressionType compression;
+  ConnectionEndPoint input;
   public ArrayList<ConnectionEndPoint> outputs = new ArrayList<ConnectionEndPoint>();
-
+  
   public Connection(FileLocation location, String connectionName, String className, String[] order, String[] hash, int hashCount) {
     super(location);
-    this.connectionName = connectionName;
-    this.className = className;
-    this.order = order;
+  }
+
+  public Connection(FileLocation location, StageConnectionPoint point, String[] hash, int hashCount) {
+    this(location, null, point.getClassName(), point.getOrder(), hash, hashCount);
+    this.connectionName = null;
+    this.className = point.getClassName();
+    this.order = point.getOrder();
+    this.compression = point.getCompression();
     this.hash = hash;
     this.hashCount = hashCount;
   }
 
-  public Connection(FileLocation location, String className, String[] order, String[] hash, int hashCount) {
-    this(location, null, className, order, hash, hashCount);
-  }
-
   public String getName() {
     if (connectionName == null) {
-      assert inputs.size() > 0;
-      return inputs.get(0).getStageName() + "-" + inputs.get(0).getPointName();
+      return input.getStageName() + "-" + input.getPointName();
     } else {
       return connectionName;
     }
@@ -57,15 +62,14 @@ public class Connection extends Locatable implements Cloneable {
     return hashCount;
   }
 
+  CompressionType getCompression(){
+    return compression;
+  }
+  
   @Override
   public Connection clone() {
     try {
       Connection copy = (Connection) super.clone();
-      ArrayList<ConnectionEndPoint> inputCopy = new ArrayList<ConnectionEndPoint>();
-
-      for (ConnectionEndPoint point : inputs) {
-        inputCopy.add(point.clone());
-      }
 
       ArrayList<ConnectionEndPoint> outputCopy = new ArrayList<ConnectionEndPoint>();
 
@@ -73,7 +77,13 @@ public class Connection extends Locatable implements Cloneable {
         outputCopy.add(point.clone());
       }
 
-      copy.inputs = inputCopy;
+      copy.className = this.className;
+      copy.connectionName = this.connectionName;
+      copy.order = this.order;
+      copy.hash = this.hash;
+      copy.hashCount = this.hashCount;
+      copy.compression = this.compression;
+      copy.input = input.clone();
       copy.outputs = outputCopy;
       return copy;
     } catch (CloneNotSupportedException ex) {

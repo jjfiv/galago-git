@@ -21,6 +21,7 @@ import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.core.types.ExtractedLink;
 import org.lemurproject.galago.core.types.ExtractedLinkIndri;
+import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.tupleflow.Order;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Parameters.Type;
@@ -49,16 +50,16 @@ public class HarvestLinksFn extends AppFunction {
     return "galago harvest-links <parameters>\n"
             + "\n"
             + "\tParameters:\n"
-            + "\tinputPath : [list of file paths | corpus]\n"
-            + "\tacceptExternalUrls : [true|False]\n"
-            + "\tacceptLocalLinks : [True|false]\n"
-            + "\tacceptNoFollowLinks : [True|false]\n"
-            + "\tindri : [true|False]\n"
-            + "\tfilePrefix : /full/path/prefix/of/input/data/\t\t[only for 'indri']\n"
-            + "\tprefixReplacement : /replacement/full/path/prefix/for/indri/output/data/\t[only for 'indri']\n"
-            + "\tgalago : [True|false]\n"
-            + "\tgalagoDist : 5  [number of output shards]\n"
-            + "\toutputFolder : /path/to/galago/output/folder \t\t [only for 'galago']\n"
+            + "\t--inputPath : [list of file paths | corpus]\n"
+            + "\t--acceptExternalUrls : [true|False]\n"
+            + "\t--acceptLocalLinks : [True|false]\n"
+            + "\t--acceptNoFollowLinks : [True|false]\n"
+            + "\t--indri : [true|False]\n"
+            + "\t--filePrefix : /full/path/prefix/of/input/data/\t\t[only for 'indri']\n"
+            + "\t--prefixReplacement : /replacement/full/path/prefix/for/indri/output/data/\t[only for 'indri']\n"
+            + "\t--galago : [True|false]\n"
+            + "\t--galagoDist : 5  [number of output shards]\n"
+            + "\t--outputFolder : /path/to/galago/output/folder \t\t [only for 'galago']\n"
             + "\n"
             + getTupleFlowParameterString();
   }
@@ -146,7 +147,7 @@ public class HarvestLinksFn extends AppFunction {
 
     stage.addInput("splits", new DocumentSplit.FileIdOrder());
     stage.addOutput("docUrls", new DocumentUrl.UrlOrder());
-    stage.addOutput("links", new ExtractedLinkIndri.DestUrlOrder());
+    stage.addOutput("links", new ExtractedLinkIndri.DestUrlOrder(), CompressionType.GZIP);
 
     // parse and tokenize documents
     stage.add(new InputStep("splits")).add(BuildStageTemplates.getParserStep(p));

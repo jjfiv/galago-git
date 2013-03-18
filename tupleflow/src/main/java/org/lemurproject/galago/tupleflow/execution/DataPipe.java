@@ -3,6 +3,7 @@ package org.lemurproject.galago.tupleflow.execution;
 
 import java.io.File;
 import java.io.Serializable;
+import org.lemurproject.galago.tupleflow.CompressionType;
 
 /**
  * A data pipe carries tuples from m sources/outputs to n sinks/outputs.
@@ -13,7 +14,16 @@ import java.io.Serializable;
 
 public class DataPipe implements Serializable {
 
-  public DataPipe(String root, String pipeName, String className, String[] order, String[] hash, int inputCount, int outputCount) {
+  public String root;
+  public String pipeName;
+  private int inputCount;
+  private int outputCount;
+  public String className;
+  public String[] order;
+  public String[] hash;
+  CompressionType compression;
+
+  public DataPipe(String root, String pipeName, String className, String[] order, String[] hash, int inputCount, int outputCount, CompressionType compression) {
     this.root = root;
     this.pipeName = pipeName;
     this.className = className;
@@ -21,6 +31,7 @@ public class DataPipe implements Serializable {
     this.hash = hash;
     this.setInputCount(inputCount);
     this.setOutputCount(outputCount);
+    this.compression = compression;
   }
 
   public String getPipeName() {
@@ -118,11 +129,8 @@ public class DataPipe implements Serializable {
   public String[] getOrder() {
     return order;
   }
-  public String root;
-  public String pipeName;
-  private int inputCount;
-  private int outputCount;
-  public String className;
-  public String[] order;
-  public String[] hash;
+
+  public CompressionType getCompression() {
+    return compression;
+  }
 }

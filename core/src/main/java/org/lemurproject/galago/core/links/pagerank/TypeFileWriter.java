@@ -5,6 +5,7 @@ package org.lemurproject.galago.core.links.pagerank;
 
 import java.io.File;
 import java.io.IOException;
+import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.FileOrderedWriter;
 import org.lemurproject.galago.tupleflow.Order;
@@ -37,7 +38,7 @@ public class TypeFileWriter<T> implements Processor<T> {
 
     outFile = new File(p.getJSON().getString("outputFile") + p.getInstanceId());
 
-    writer = new FileOrderedWriter(outFile.getAbsolutePath(), order);
+    writer = new FileOrderedWriter(outFile.getAbsolutePath(), order, CompressionType.VBYTE);
     counter = p.getCounter("Objects Written");
     count = 0;
   }

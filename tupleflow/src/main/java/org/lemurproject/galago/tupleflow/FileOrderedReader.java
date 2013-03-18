@@ -1,8 +1,10 @@
 // BSD License (http://lemurproject.org)
 package org.lemurproject.galago.tupleflow;
 
+import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
 
 /**
  *
@@ -10,24 +12,34 @@ import java.io.RandomAccessFile;
  */
 public class FileOrderedReader<T> implements ReaderSource<T> {
 
-  RandomAccessFile dataStream;
+  InputStream dataStream;
   ArrayInput stream;
   TypeReader<T> orderedReader;
   String filename;
   Processor<T> processor;
   Order<T> order;
+  private final CompressionType c;
 
-  public FileOrderedReader(String filename, int bufferSize, boolean compressed) throws IOException {
+  public FileOrderedReader(String filename) throws IOException {
+    this(filename, 1024);
+  }
+
+  public FileOrderedReader(String filename, int bufferSize) throws IOException {
     // set up the input stream and get its length in bytes
-    dataStream = StreamCreator.inputStream(filename);
-    long fileLength = dataStream.length();
+    dataStream = StreamCreator.bufferedInputStream(filename);
+    c = CompressionType.fromByte((byte) dataStream.read());
 
     // now, set up the stream, including a stopper that keeps us from
     // reading into the XML region (which no longer exists, but BufferedFileDataStream also buffers for us)
-    if (compressed) {
-      stream = new ArrayInput(new VByteInput(new BufferedFileDataStream(dataStream, dataStream.getFilePointer(), fileLength)));
-    } else {
-      stream = new ArrayInput(new BufferedFileDataStream(dataStream, dataStream.getFilePointer(), fileLength));
+    switch (c) {
+      case VBYTE:
+        stream = new ArrayInput(new VByteInput(new DataInputStream(dataStream)));
+      case GZIP:
+        stream = new ArrayInput(new DataInputStream(new GZIPInputStream(dataStream)));
+      case UNSPECIFIED:
+      case NONE:
+      default:
+        stream = new ArrayInput(new DataInputStream(dataStream));
     }
 
     String className = stream.readString();
@@ -45,29 +57,6 @@ public class FileOrderedReader<T> implements ReaderSource<T> {
     this.filename = filename;
     this.processor = null;
     this.orderedReader = order.orderedReader(stream, bufferSize);
-  }
-
-  public FileOrderedReader(String filename) throws IOException {
-    this(filename, 1024, true);
-  }
-
-  /** Creates a new instance of FileOrderedReader */
-  public FileOrderedReader(String filename, Order<T> order, int bufferSize, boolean compressed) throws IOException {
-    this(filename, bufferSize, compressed);
-
-    if (order.getOrderedClass() != this.order.getOrderedClass()) {
-      throw (IOException) new IOException("This file, '" + filename + "', contains objects of type "
-              + this.order.getOrderedClass() + "' even though objects of type "
-              + order.getOrderedClass() + "' were expected.");
-    }
-  }
-
-  public FileOrderedReader(String filename, Order<T> order, int bufferSize) throws IOException {
-    this(filename, order, bufferSize, true);
-  }
-
-  public FileOrderedReader(String filename, Order<T> order) throws IOException {
-    this(filename, order, 1024, true);
   }
 
   @Override
@@ -104,5 +93,9 @@ public class FileOrderedReader<T> implements ReaderSource<T> {
 
   public void close() throws IOException {
     dataStream.close();
+  }
+
+  public CompressionType getCompression() {
+    return c;
   }
 }

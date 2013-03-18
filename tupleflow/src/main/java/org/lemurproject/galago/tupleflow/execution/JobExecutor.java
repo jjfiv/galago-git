@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
+import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -120,16 +121,13 @@ public class JobExecutor {
       connection = iterator.next();
 
       // For simplicity, find just connections with single inputs and outputs and no hashing
-      if (connection.inputs.size() != 1) {
-        continue;
-      }
       if (connection.outputs.size() < 1) {
         continue;
       }
       if (connection.getHash() != null) {
         continue;
       }
-      ConnectionEndPoint connectionInput = connection.inputs.get(0);
+      ConnectionEndPoint connectionInput = connection.input;
       String stageOutputPointId = outputs.get(connectionInput.getStageName());
 
       // if the input to this connection is not the main output of a stage, skip
@@ -191,10 +189,8 @@ public class JobExecutor {
   public static void renameConnections(Job job, Stage source, Stage destination) {
     // for each connection, rename dest -> source.
     for (Connection connection : job.connections) {
-      for (ConnectionEndPoint input : connection.inputs) {
-        if (input.getStageName().equals(destination.name)) {
-          input.setStageName(source.name);
-        }
+      if (connection.input.getStageName().equals(destination.name)) {
+        connection.input.setStageName(source.name);
       }
 
       for (ConnectionEndPoint output : connection.outputs) {
@@ -294,10 +290,7 @@ public class JobExecutor {
         // the inputs come from a single stage, and that stage has a large
         // instanceCount (it generates a lot of files), and make a merge stage.
         for (Connection connection : relevantConnections) {
-          if (connection.inputs.size() != 1) {
-            continue;
-          }
-          ConnectionEndPoint endPoint = connection.inputs.get(0);
+          ConnectionEndPoint endPoint = connection.input;
           String inputStageName = endPoint.getStageName();
           String inputPointName = endPoint.getPointName();
           StageGroupDescription inputStageDesc = stages.get(inputStageName);
@@ -369,7 +362,7 @@ public class JobExecutor {
     // First, make a list of all endpoints referenced in all stages.
     for (Stage stage : job.stages.values()) {
       // find the corresponding description object
-      StageGroupDescription description = stages.get(stage.name);
+      // StageGroupDescription description = stages.get(stage.name);
 
       // add all connection points to the set
       for (StageConnectionPoint point : stage.connections.values()) {
@@ -381,12 +374,11 @@ public class JobExecutor {
     // Now we have a list of referenced names.  We now remove every endpoint that
     // is referenced in the connections section.
     for (ConnectionDescription connection : connections.values()) {
-      for (EndPointDescription input : connection.inputs) {
-        EndPointName ep = new EndPointName(input.stage.getName(),
-                input.stagePoint.getExternalName(),
-                input.stagePoint.getType());
-        endPointNames.remove(ep);
-      }
+      EndPointName inputEP = new EndPointName(connection.input.stage.getName(),
+              connection.input.stagePoint.getExternalName(),
+              connection.input.stagePoint.getType());
+      endPointNames.remove(inputEP);
+
       for (EndPointDescription output : connection.outputs) {
         EndPointName ep = new EndPointName(output.stage.getName(),
                 output.stagePoint.getExternalName(),
@@ -458,11 +450,9 @@ public class JobExecutor {
     }
 
     for (ConnectionDescription connection : connections.values()) {
-      for (EndPointDescription input : connection.inputs) {
-        for (EndPointDescription output : connection.outputs) {
-          stageChildren.get(input.getStageName()).add(output.getStageName());
-          stageParents.get(output.getStageName()).add(input.getStageName());
-        }
+      for (EndPointDescription output : connection.outputs) {
+        stageChildren.get(connection.input.getStageName()).add(output.getStageName());
+        stageParents.get(output.getStageName()).add(connection.input.getStageName());
       }
     }
   }
@@ -539,10 +529,13 @@ public class JobExecutor {
   }
 
   private class ConnectionDescription {
+    public Connection connection;
+    public EndPointDescription input;
+    public ArrayList<EndPointDescription> outputs;
+    public DataPipe pipe;
 
     public ConnectionDescription(Connection connection) {
       this.connection = connection;
-      this.inputs = new ArrayList();
       this.outputs = new ArrayList();
     }
 
@@ -576,13 +569,7 @@ public class JobExecutor {
     }
 
     public int getInputCount() {
-      int total = 0;
-
-      for (EndPointDescription input : inputs) {
-        total += input.stage.instanceCount;
-      }
-
-      return total;
+      return input.stage.instanceCount;
     }
 
     public String getName() {
@@ -601,6 +588,10 @@ public class JobExecutor {
       return connection.getClassName();
     }
 
+    public CompressionType getCompression() {
+      return connection.getCompression();
+    }
+    
     public DataPipe getPipe() {
       return pipe;
     }
@@ -613,10 +604,6 @@ public class JobExecutor {
     public String toString() {
       return String.format("%s %s", getClassName(), getName());
     }
-    public Connection connection;
-    public ArrayList<EndPointDescription> inputs;
-    public ArrayList<EndPointDescription> outputs;
-    public DataPipe pipe;
   }
 
   private EndPointDescription createEndPoint(ConnectionDescription connection,
@@ -687,7 +674,7 @@ public class JobExecutor {
                 connection.getHash(),
                 handler);
       }
-      description.inputs = createEndPoints(description, connection.inputs);
+      description.input = createEndPoint(description, connection.input);
       description.outputs = createEndPoints(description, connection.outputs);
       connections.put(connection.getName(), description);
     }
@@ -709,9 +696,7 @@ public class JobExecutor {
     }
 
     for (ConnectionDescription connection : connections.values()) {
-      for (EndPointDescription endPoint : connection.inputs) {
-        stageOutputs.get(endPoint.stage.getName()).add(endPoint);
-      }
+      stageOutputs.get(connection.input.stage.getName()).add(connection.input);
       for (EndPointDescription endPoint : connection.outputs) {
         stageInputs.get(endPoint.stage.getName()).add(endPoint);
       }
@@ -783,21 +768,20 @@ public class JobExecutor {
               connection.getOrder(),
               connection.getHash(),
               connection.getInputCount(),
-              connection.getOutputCount());
+              connection.getOutputCount(),
+              connection.getCompression());
 
       int startIndex = 0;
       connection.setPipe(pipe);
 
-      for (EndPointDescription input : connection.inputs) {
-        StageGroupDescription description = stages.get(input.getStageName());
-        description.outputs.put(input.getStagePoint().getInternalName(),
-                new DataPipeRegion(pipe,
-                startIndex,
-                startIndex + description.getInstanceCount(),
-                ConnectionPointType.Input,
-                input.connectionPoint.getAssignment()));
-        startIndex += description.getInstanceCount();
-      }
+      StageGroupDescription inputDescription = stages.get(connection.input.getStageName());
+      inputDescription.outputs.put(connection.input.getStagePoint().getInternalName(),
+              new DataPipeRegion(pipe,
+              startIndex,
+              startIndex + inputDescription.getInstanceCount(),
+              ConnectionPointType.Input,
+              connection.input.connectionPoint.getAssignment()));
+      startIndex += inputDescription.getInstanceCount();
 
       for (EndPointDescription output : connection.outputs) {
         StageGroupDescription description = stages.get(output.getStageName());
