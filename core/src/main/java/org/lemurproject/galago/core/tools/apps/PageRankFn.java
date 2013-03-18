@@ -23,6 +23,7 @@ import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.core.types.ExtractedLink;
 import org.lemurproject.galago.core.types.PageRankJumpScore;
 import org.lemurproject.galago.core.types.PageRankScore;
+import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.tupleflow.FileSource;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.Order;
@@ -173,7 +174,7 @@ public class PageRankFn extends AppFunction {
     ReaderSource<DocumentUrl> reader = OrderedCombiner.combineFromFiles(inputFiles, new DocumentUrl.IdentifierOrder());
 
     Processor<PageRankScore> writer;
-    writer = Splitter.splitToFiles(itrZero.getAbsolutePath() + "/pagerank.", new PageRankScore.DocNameOrder(), (int) p.get("distrib", 10));
+    writer = Splitter.splitToFiles(itrZero.getAbsolutePath() + "/pagerank.", new PageRankScore.DocNameOrder(), (int) p.get("distrib", 10), CompressionType.GZIP);
 
     DocumentUrl url = reader.read();
     while (url != null) {
@@ -230,7 +231,7 @@ public class PageRankFn extends AppFunction {
     reader.run();
 
     logger.info("...done writing output.");
-    
+
     // finally if requested -- delete all intermediate data.
     if (p.get("deleteIntData", false)) {
       logger.info("Deleting intermediate data.");
@@ -259,6 +260,7 @@ public class PageRankFn extends AppFunction {
   private Job getIterationJob(Parameters p, int i) {
     Job job = new Job();
 
+
     File linkData = new File(p.getString("linkdata"));
     File srcLinksFolder = new File(linkData, "srcNameOrder");
 
@@ -273,8 +275,8 @@ public class PageRankFn extends AppFunction {
     job.add(getSplitStage("splitLinks", "linkFiles", srcLinksFolder));
 
     // stage 2: read files : emit pageranks and links to nodes
-    job.add(getReaderStage("scoreReader", "scoreFiles", "inputScores", PageRankScore.class.getCanonicalName(), new PageRankScore.DocNameOrder()));
-    job.add(getReaderStage("linkReader", "linkFiles", "inputLinks", ExtractedLink.class.getCanonicalName(), new ExtractedLink.SrcNameOrder()));
+    job.add(getReaderStage("scoreReader", "scoreFiles", "inputScores", PageRankScore.class.getCanonicalName(), new PageRankScore.DocNameOrder(), CompressionType.GZIP));
+    job.add(getReaderStage("linkReader", "linkFiles", "inputLinks", ExtractedLink.class.getCanonicalName(), new ExtractedLink.SrcNameOrder(), CompressionType.GZIP));
 
     // stage 3: process links (emit 1-lambda * score / linkcount) as partial scores
     //          alternatively emit 1-lambda as a random jump
@@ -324,11 +326,11 @@ public class PageRankFn extends AppFunction {
     return stage;
   }
 
-  private Stage getReaderStage(String name, String input, String output, String outputClass, Order order) {
+  private Stage getReaderStage(String name, String input, String output, String outputClass, Order order, CompressionType c) {
     Stage stage = new Stage(name);
 
     stage.addInput(input, new FileName.FilenameOrder());
-    stage.addOutput(output, order);
+    stage.addOutput(output, order, c);
 
     stage.add(new InputStep(input));
 
@@ -347,8 +349,8 @@ public class PageRankFn extends AppFunction {
 
     stage.addInput("inputScores", new PageRankScore.DocNameOrder());
     stage.addInput("inputLinks", new ExtractedLink.SrcNameOrder());
-    stage.addOutput("outputPartialScores", new PageRankScore.DocNameOrder());
-    stage.addOutput("outputExtraJumps", new PageRankJumpScore.ScoreOrder());
+    stage.addOutput("outputPartialScores", new PageRankScore.DocNameOrder(), CompressionType.GZIP);
+    stage.addOutput("outputExtraJumps", new PageRankJumpScore.ScoreOrder(), CompressionType.GZIP);
 
 
     stage.add(new InputStep("inputScores"));
@@ -367,7 +369,7 @@ public class PageRankFn extends AppFunction {
     Stage stage = new Stage("rndJump");
 
     stage.addInput("inputScores", new PageRankScore.DocNameOrder());
-    stage.addOutput("outputCumulativeJump", new PageRankJumpScore.ScoreOrder());
+    stage.addOutput("outputCumulativeJump", new PageRankJumpScore.ScoreOrder(), CompressionType.GZIP);
 
     stage.add(new InputStep("inputScores"));
     // sum the scores, divide by count of pages, 
@@ -390,7 +392,7 @@ public class PageRankFn extends AppFunction {
     stage.addInput("outputPartialScores", new PageRankScore.DocNameOrder());
     stage.addInput("outputExtraJumps", new PageRankJumpScore.ScoreOrder());
     stage.addInput("outputCumulativeJump", new PageRankJumpScore.ScoreOrder());
-    stage.addOutput("outputScores", new PageRankScore.DocNameOrder());
+    stage.addOutput("outputScores", new PageRankScore.DocNameOrder(), CompressionType.GZIP);
 
     stage.add(new InputStep("inputScores"));
 
@@ -409,6 +411,7 @@ public class PageRankFn extends AppFunction {
     writerParams.set("outputFile", outputFilePrefix.getAbsolutePath()); // + i
     writerParams.set("class", PageRankScore.class.getCanonicalName());
     writerParams.set("order", Utility.join(new PageRankScore.DocNameOrder().getOrderSpec()));
+    writerParams.set("compression", "GZIP");
 
     processingFork.addToGroup("writer", new Step(TypeFileWriter.class, writerParams));
 

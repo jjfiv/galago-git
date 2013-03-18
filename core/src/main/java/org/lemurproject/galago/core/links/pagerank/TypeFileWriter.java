@@ -32,13 +32,14 @@ public class TypeFileWriter<T> implements Processor<T> {
   public TypeFileWriter(TupleFlowParameters p) throws Exception {
     String outputClass = p.getJSON().get("class", "");
     String[] orderSpec = p.getJSON().get("order", "").split(" ");
+    CompressionType c = CompressionType.fromString(p.getJSON().get("compression", "GZIP"));
 
     Type output = (Type) Class.forName(outputClass).getConstructor().newInstance();
     Order order = output.getOrder(orderSpec);
 
     outFile = new File(p.getJSON().getString("outputFile") + p.getInstanceId());
 
-    writer = new FileOrderedWriter(outFile.getAbsolutePath(), order, CompressionType.VBYTE);
+    writer = new FileOrderedWriter(outFile.getAbsolutePath(), order, c);
     counter = p.getCounter("Objects Written");
     count = 0;
   }

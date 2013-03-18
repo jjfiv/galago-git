@@ -5,6 +5,7 @@ package org.lemurproject.galago.core.links;
 
 import java.io.File;
 import java.io.IOException;
+import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.FileOrderedWriter;
 import org.lemurproject.galago.tupleflow.Order;
@@ -28,6 +29,8 @@ public class DataStreamWriter implements Processor<Type> {
   public DataStreamWriter(TupleFlowParameters p) throws Exception {
     String folder = p.getJSON().getString("outputFolder");
     String filename = p.getJSON().getString("outputFile");
+    CompressionType c = CompressionType.fromString(p.getJSON().get("compression", "GZIP"));
+
     File outFile = new File(folder, filename + "." + p.getInstanceId());
 
     Utility.makeParentDirectories(outFile);
@@ -36,7 +39,7 @@ public class DataStreamWriter implements Processor<Type> {
     inputClass = orderClass.getEnclosingClass();
     Order order = (Order) orderClass.getConstructor().newInstance();
 
-    writer = new FileOrderedWriter(outFile.getAbsolutePath(), order, true);
+    writer = new FileOrderedWriter(outFile.getAbsolutePath(), order, c);
 
     written = p.getCounter(filename);
   }

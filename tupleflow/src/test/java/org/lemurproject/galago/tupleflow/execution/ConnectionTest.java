@@ -6,6 +6,7 @@ package org.lemurproject.galago.tupleflow.execution;
 import java.io.IOException;
 import java.util.List;
 import junit.framework.TestCase;
+import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.tupleflow.ExNihiloSource;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.Linkage;
@@ -71,6 +72,14 @@ import org.lemurproject.galago.tupleflow.types.TupleflowString;
  *   3 --> 5 [Combined]
  *   4 --> 5 [Combined]
  *
+ *  [GZIP CONNECTIONS single data streams]
+ *  3.1: single-single-combined
+ *   1 --> 2 [Combined] -- in GZIP
+ *
+ *  3.2: single-multi-single (each, combined)
+ *   1 --> 2 [Each]  no data
+ *   2 --> 3 [Combined]  -- in GZIP
+ * 
  * @author sjh
  */
 public class ConnectionTest extends TestCase {
@@ -501,6 +510,64 @@ public class ConnectionTest extends TestCase {
     ErrorStore err = new ErrorStore();
     Verification.verify(job, err);
 
+    JobExecutor.runLocally(job, err, Parameters.parse("{\"server\":false}"));
+    if (err.hasStatements()) {
+      throw new RuntimeException(err.toString());
+    }
+  }
+
+  public void testSingleSingleCombGZIP() throws Exception {
+    Job job = new Job();
+
+    Stage one = new Stage("one");
+    one.addOutput("conn-1-2", new TupleflowString.ValueOrder(), CompressionType.GZIP);
+    one.add(new Step(Generator.class, Parameters.parse("{\"name\":\"one\", \"conn\":[\"conn-1-2\"]}")));
+    job.add(one);
+
+    Stage two = new Stage("two");
+    two.addInput("conn-1-2", new TupleflowString.ValueOrder());
+    // should recieve 10 items from one
+    two.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":10, \"connIn\" : [\"conn-1-2\"]}")));
+    job.add(two);
+
+    job.connect("one", "two", ConnectionAssignmentType.Combined);
+
+    job.properties.put("hashCount", "2");
+    ErrorStore err = new ErrorStore();
+    Verification.verify(job, err);
+    JobExecutor.runLocally(job, err, Parameters.parse("{\"server\":false}"));
+    if (err.hasStatements()) {
+      throw new RuntimeException(err.toString());
+    }
+  }
+
+  public void testSingleMultiEachGZIP() throws Exception {
+    Job job = new Job();
+
+    Stage one = new Stage("one");
+
+    one.addOutput("conn-1-2", new TupleflowString.ValueOrder(), CompressionType.GZIP);
+    one.add(new Step(NullSource.class));
+    job.add(one);
+
+    Stage two = new Stage("two");
+    two.addInput("conn-1-2", new TupleflowString.ValueOrder());
+    two.addOutput("conn-2-3", new TupleflowString.ValueOrder(), CompressionType.GZIP);
+    two.add(new Step(Generator.class, Parameters.parse("{\"name\":\"two\", \"conn\":[\"conn-2-3\"]}")));
+    job.add(two);
+
+    Stage three = new Stage("three");
+    three.addInput("conn-2-3", new TupleflowString.ValueOrder());
+    // should recieve 10 items from each instance of two (20 total)
+    three.add(new Step(Receiver.class, Parameters.parse("{\"expectedCount\":20, \"connIn\" : [\"conn-2-3\"]}")));
+    job.add(three);
+
+    job.connect("one", "two", ConnectionAssignmentType.Each);
+    job.connect("two", "three", ConnectionAssignmentType.Combined);
+
+    job.properties.put("hashCount", "2");
+    ErrorStore err = new ErrorStore();
+    Verification.verify(job, err);
     JobExecutor.runLocally(job, err, Parameters.parse("{\"server\":false}"));
     if (err.hasStatements()) {
       throw new RuntimeException(err.toString());

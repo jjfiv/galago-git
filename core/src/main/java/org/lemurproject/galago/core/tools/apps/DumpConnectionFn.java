@@ -42,10 +42,15 @@ public class DumpConnectionFn extends AppFunction {
 
     TypeReader reader;
     if (args.length == 1) {
-      reader = new FileOrderedReader(args[0]);
+      FileOrderedReader r = new FileOrderedReader(args[0]);
+//      System.err.println("COMPRESSION: " + r.getCompression());
+      reader = r;
     } else {
-      reader = OrderedCombiner.combineFromFiles(Arrays.asList(args));
+      OrderedCombiner r = OrderedCombiner.combineFromFiles(Arrays.asList(args));
+//      System.err.println("COMPRESSION: " + r.getCompression());
+      reader = r;
     }
+    
     Object o;
     while ((o = reader.read()) != null) {
       output.println(o);

@@ -27,15 +27,18 @@ public class FileOrderedReader<T> implements ReaderSource<T> {
   public FileOrderedReader(String filename, int bufferSize) throws IOException {
     // set up the input stream and get its length in bytes
     dataStream = StreamCreator.bufferedInputStream(filename);
-    c = CompressionType.fromByte((byte) dataStream.read());
+    byte comp = (byte) dataStream.read();
+    c = CompressionType.fromByte( comp );
 
     // now, set up the stream, including a stopper that keeps us from
     // reading into the XML region (which no longer exists, but BufferedFileDataStream also buffers for us)
     switch (c) {
       case VBYTE:
         stream = new ArrayInput(new VByteInput(new DataInputStream(dataStream)));
+        break;
       case GZIP:
         stream = new ArrayInput(new DataInputStream(new GZIPInputStream(dataStream)));
+        break;
       case UNSPECIFIED:
       case NONE:
       default:

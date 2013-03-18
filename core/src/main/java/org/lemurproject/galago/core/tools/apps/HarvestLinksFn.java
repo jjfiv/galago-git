@@ -146,7 +146,7 @@ public class HarvestLinksFn extends AppFunction {
     Stage stage = new Stage("parser");
 
     stage.addInput("splits", new DocumentSplit.FileIdOrder());
-    stage.addOutput("docUrls", new DocumentUrl.UrlOrder());
+    stage.addOutput("docUrls", new DocumentUrl.UrlOrder(), CompressionType.GZIP);
     stage.addOutput("links", new ExtractedLinkIndri.DestUrlOrder(), CompressionType.GZIP);
 
     // parse and tokenize documents
@@ -194,20 +194,20 @@ public class HarvestLinksFn extends AppFunction {
     stage.add(processingFork);
 
     if (p.getBoolean("indri")) {
-      stage.addOutput("indriNamedLinks", new ExtractedLinkIndri.FilePathFileLocationOrder());
+      stage.addOutput("indriNamedLinks", new ExtractedLinkIndri.FilePathFileLocationOrder(), CompressionType.GZIP);
       processingFork.addGroup("indri");
       processingFork.addToGroup("indri", Utility.getSorter(new ExtractedLinkIndri.FilePathFileLocationOrder()));
       processingFork.addToGroup("indri", new OutputStep("indriNamedLinks"));
     }
 
     if (p.getBoolean("galago")) {
-      stage.addOutput("srcLinks", new ExtractedLink.SrcNameOrder());
+      stage.addOutput("srcLinks", new ExtractedLink.SrcNameOrder(), CompressionType.GZIP);
       processingFork.addGroup("srcLns");
       processingFork.addToGroup("srcLns", new Step(ELItoEL.class));
       processingFork.addToGroup("srcLns", Utility.getSorter(new ExtractedLink.SrcNameOrder()));
       processingFork.addToGroup("srcLns", new OutputStep("srcLinks"));
 
-      stage.addOutput("destLinks", new ExtractedLink.DestNameOrder());
+      stage.addOutput("destLinks", new ExtractedLink.DestNameOrder(), CompressionType.GZIP);
       processingFork.addGroup("destLns");
       processingFork.addToGroup("destLns", new Step(ELItoEL.class));
       processingFork.addToGroup("destLns", Utility.getSorter(new ExtractedLink.DestNameOrder()));
@@ -252,6 +252,7 @@ public class HarvestLinksFn extends AppFunction {
     writerParams.set("outputFile", outputPrefix);
     writerParams.set("order", order.getName());
     writerParams.set("inputClass", type.getName());
+    writerParams.set("compression", "GZIP");
 
     stage.add(new InputStep(streamName));
     stage.add(new Step(DataStreamWriter.class, writerParams));

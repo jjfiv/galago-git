@@ -42,4 +42,8 @@ public enum CompressionType {
         return UNSPECIFIED;
     }
   }
+
+  public static CompressionType fromString(String c) {
+    return CompressionType.valueOf(c);
+  }
 }
