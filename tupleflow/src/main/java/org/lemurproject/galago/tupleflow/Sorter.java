@@ -105,7 +105,8 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     this.runs = new ArrayList<List<T>>();
     this.temporaryFiles = new ArrayList<File>();
     this.lessThanCompare = order.lessThan();
-
+    this.compression = CompressionType.VBYTE;
+    
     setLimits(new Parameters());
 
     requestMemoryWarnings();
@@ -118,6 +119,10 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     String className = parameters.getJSON().getString("class");
     String[] orderSpec = parameters.getJSON().getString("order").split(" ");
     compression = CompressionType.fromString(parameters.getJSON().get("compression", "VBYTE"));
+    if(compression == null){
+      logger.info("WARNING: compression is set to NULL. Defaulting to VBYTE");
+      compression = CompressionType.VBYTE;
+    }
 
     Class clazz = Class.forName(className);
     Type<T> typeInstance = (Type<T>) clazz.newInstance();
