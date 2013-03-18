@@ -196,7 +196,7 @@ public class HarvestLinksFn extends AppFunction {
     if (p.getBoolean("indri")) {
       stage.addOutput("indriNamedLinks", new ExtractedLinkIndri.FilePathFileLocationOrder(), CompressionType.GZIP);
       processingFork.addGroup("indri");
-      processingFork.addToGroup("indri", Utility.getSorter(new ExtractedLinkIndri.FilePathFileLocationOrder()));
+      processingFork.addToGroup("indri", Utility.getSorter(new ExtractedLinkIndri.FilePathFileLocationOrder(), CompressionType.GZIP));
       processingFork.addToGroup("indri", new OutputStep("indriNamedLinks"));
     }
 
