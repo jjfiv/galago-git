@@ -43,11 +43,11 @@ public class DumpConnectionFn extends AppFunction {
     TypeReader reader;
     if (args.length == 1) {
       FileOrderedReader r = new FileOrderedReader(args[0]);
-//      System.err.println("COMPRESSION: " + r.getCompression());
+      System.err.println("COMPRESSION: " + r.getCompression());
       reader = r;
     } else {
       OrderedCombiner r = OrderedCombiner.combineFromFiles(Arrays.asList(args));
-//      System.err.println("COMPRESSION: " + r.getCompression());
+      System.err.println("COMPRESSION: " + r.getCompression());
       reader = r;
     }
     

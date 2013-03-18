@@ -359,7 +359,7 @@ public class PageRankFn extends AppFunction {
     rndWalk.set("jumpStream", "outputExtraJumps");
     rndWalk.set("lambda", p.getDouble("lambda"));
     stage.add(new Step(ComputeRandomWalk.class, rndWalk));
-    stage.add(Utility.getSorter(new PageRankScore.DocNameOrder()));
+    stage.add(Utility.getSorter(new PageRankScore.DocNameOrder(), CompressionType.GZIP));
     stage.add(new OutputStep("outputPartialScores"));
 
     return stage;
@@ -379,7 +379,7 @@ public class PageRankFn extends AppFunction {
     stage.add(new Step(ComputeRandomJump.class, rndJumpParams));
 
     // should only emit one item, but still...
-    stage.add(Utility.getSorter(new PageRankJumpScore.ScoreOrder()));
+    stage.add(Utility.getSorter(new PageRankJumpScore.ScoreOrder(), CompressionType.GZIP));
     stage.add(new OutputStep("outputCumulativeJump"));
 
     return stage;
@@ -401,7 +401,7 @@ public class PageRankFn extends AppFunction {
     combinerParams.set("jumpStream2", "outputExtraJumps");
     combinerParams.set("scoreStream", "outputPartialScores");
     stage.add(new Step(PageRankScoreCombiner.class, combinerParams));
-    stage.add(Utility.getSorter(new PageRankScore.DocNameOrder()));
+    stage.add(Utility.getSorter(new PageRankScore.DocNameOrder(), CompressionType.GZIP));
 
     MultiStep processingFork = new MultiStep();
     processingFork.addGroup("writer");

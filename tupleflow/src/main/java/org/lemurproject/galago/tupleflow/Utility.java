@@ -125,7 +125,11 @@ public class Utility {
    * @return a Step object that can be added to a TupleFlow Stage.
    */
   public static Step getSorter(Order sortOrder) {
-    return getSorter(sortOrder, null);
+    return getSorter(sortOrder, null, null);
+  }
+  
+  public static Step getSorter(Order sortOrder, CompressionType c) {
+    return getSorter(sortOrder, null, c);
   }
 
   /**
@@ -136,9 +140,17 @@ public class Utility {
    * @return a Step object that can be added to a TupleFlow Stage.
    */
   public static Step getSorter(Order sortOrder, Class reducerClass) {
+    return getSorter(sortOrder, null, null);
+  }
+  
+  public static Step getSorter(Order sortOrder, Class reducerClass, CompressionType c) {
     Parameters p = new Parameters();
     p.set("class", sortOrder.getOrderedClass().getName());
     p.set("order", Utility.join(sortOrder.getOrderSpec()));
+    if(c != null){
+      p.set("compression", c.toString());
+    }
+    
     if (reducerClass != null) {
       try {
         reducerClass.asSubclass(Reducer.class);

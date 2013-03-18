@@ -159,18 +159,18 @@ public class HarvestLinksFn extends AppFunction {
     stage.add(processingFork);
 
     processingFork.addToGroup("urls", new Step(UrlExtractor.class));
-    processingFork.addToGroup("urls", Utility.getSorter(new DocumentUrl.UrlOrder()));
+    processingFork.addToGroup("urls", Utility.getSorter(new DocumentUrl.UrlOrder(), CompressionType.GZIP));
     processingFork.addToGroup("urls", new OutputStep("docUrls"));
 
     processingFork.addToGroup("lns", new Step(LinkExtractor.class, p));
-    processingFork.addToGroup("lns", Utility.getSorter(new ExtractedLinkIndri.DestUrlOrder()));
+    processingFork.addToGroup("lns", Utility.getSorter(new ExtractedLinkIndri.DestUrlOrder(), CompressionType.GZIP));
     processingFork.addToGroup("lns", new OutputStep("links"));
 
     if (p.getBoolean("galago")) {
       stage.addOutput("docNames", new DocumentUrl.IdentifierOrder());
       processingFork.addGroup("names");
       processingFork.addToGroup("names", new Step(UrlExtractor.class));
-      processingFork.addToGroup("names", Utility.getSorter(new DocumentUrl.IdentifierOrder()));
+      processingFork.addToGroup("names", Utility.getSorter(new DocumentUrl.IdentifierOrder(), CompressionType.GZIP));
       processingFork.addToGroup("names", new OutputStep("docNames"));
     }
 
@@ -204,13 +204,13 @@ public class HarvestLinksFn extends AppFunction {
       stage.addOutput("srcLinks", new ExtractedLink.SrcNameOrder(), CompressionType.GZIP);
       processingFork.addGroup("srcLns");
       processingFork.addToGroup("srcLns", new Step(ELItoEL.class));
-      processingFork.addToGroup("srcLns", Utility.getSorter(new ExtractedLink.SrcNameOrder()));
+      processingFork.addToGroup("srcLns", Utility.getSorter(new ExtractedLink.SrcNameOrder(), CompressionType.GZIP));
       processingFork.addToGroup("srcLns", new OutputStep("srcLinks"));
 
       stage.addOutput("destLinks", new ExtractedLink.DestNameOrder(), CompressionType.GZIP);
       processingFork.addGroup("destLns");
       processingFork.addToGroup("destLns", new Step(ELItoEL.class));
-      processingFork.addToGroup("destLns", Utility.getSorter(new ExtractedLink.DestNameOrder()));
+      processingFork.addToGroup("destLns", Utility.getSorter(new ExtractedLink.DestNameOrder(), CompressionType.GZIP));
       processingFork.addToGroup("destLns", new OutputStep("destLinks"));
 
       //.addGroup("srcName");
