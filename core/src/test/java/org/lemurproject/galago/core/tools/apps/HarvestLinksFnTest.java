@@ -57,8 +57,8 @@ public class HarvestLinksFnTest extends TestCase {
       assert (outputFile.exists()) : "input.trecweb should exist in the indri directory.";
 
       String data = Utility.readFileToString(outputFile);
-      String expectedPrefix = "LINKS=0\n"
-              + "DOCNO=test-0\n"
+      String expectedPrefix = 
+              "DOCNO=test-0\n"
               + "http://small-test.0\n"
               + "LINKS=6\n"
               + "LINKDOCNO=test-0\n"
@@ -75,7 +75,7 @@ public class HarvestLinksFnTest extends TestCase {
               + "TEXT=\"t.5\"\n"
               + "LINKDOCNO=test-7\n"
               + "LINKFROM=http://small-test.7\n"
-              + "TEXT=\"t.7\"\n"
+              + "TEXT=\" \"\n"
               + "LINKDOCNO=test-9\n"
               + "LINKFROM=http://small-test.9\n"
               + "TEXT=\" \"\n"
@@ -129,7 +129,7 @@ public class HarvestLinksFnTest extends TestCase {
             + "<a href=http://small-test.1>t.1</a>\n"
             + "<a href=http://small-test.3>t.3</a>\n"
             + "<a href=http://small-test.5>t.5</a>\n"
-            + "<a href=http://small-test.7>t.7</a>\n"
+            + "<a href=http://small-test.7><img path=t.7></a>\n"
             + "<a href=http://small-test.9 />\n"
             + "</html>\n"
             + "</DOC>\n"

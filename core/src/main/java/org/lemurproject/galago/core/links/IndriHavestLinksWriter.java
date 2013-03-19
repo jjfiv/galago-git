@@ -49,9 +49,13 @@ public class IndriHavestLinksWriter implements Processor<ExtractedLinkIndri> {
     if (!link.filePath.equals(currentFilePath)) {
       resetWriter(link.filePath);
     }
-
+    
     if (!link.srcName.equals(currentDocName)) {
-      writeLinks();
+
+      // check that there was a document to be linked to (first output to file check)
+      if(!currentDocName.isEmpty()){
+        writeLinks();
+      }
 
       writer.write("DOCNO=" + link.srcName + "\n");
       writer.write(link.srcUrl + "\n");
@@ -94,6 +98,7 @@ public class IndriHavestLinksWriter implements Processor<ExtractedLinkIndri> {
       // all output is uncompressed.
       writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputPath)));
       currentFilePath = filePath;
+      currentDocName = "";
     }
   }
 
@@ -103,7 +108,7 @@ public class IndriHavestLinksWriter implements Processor<ExtractedLinkIndri> {
       writer.write("LINKDOCNO=" + el.destName + "\n");
       writer.write("LINKFROM=" + el.destUrl + "\n");
 
-      // ensure "text" is ok.
+      // ensure quoted "text" is ok.
       el.anchorText = el.anchorText.replaceAll("\"", "\'");
 
       if (el.anchorText.isEmpty()) {
