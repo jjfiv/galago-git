@@ -110,7 +110,7 @@ public class LinkExtractor extends StandardStep<Document, ExtractedLinkIndri> {
         link.anchorText = link.anchorText.replaceAll("\\s+", " ").trim();
 
         // REMOVE lone tags <img ...> from anchor text
-        link.anchorText = link.anchorText.replaceAll("^<[^>]>*$", "");
+        link.anchorText = link.anchorText.replaceAll("^<[^>]*>$", "");
 
         // System.out.println("Discovered link: " + link.toString());
         if (t.attributes.containsKey("rel") && t.attributes.get("rel").equals("nofollow")) {
