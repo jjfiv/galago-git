@@ -30,22 +30,26 @@ public class PageRankScoreCombiner extends StandardStep<PageRankScore, PageRankS
   double rndJump;
   TypeReader<PageRankScore> partialScores;
   PageRankScore curr;
-
+  double totalScore = 0.0;
+//  String instance;
+  double totalWalk = 0.0;
+  double pageCount = 0.0;
+  
   public PageRankScoreCombiner(TupleFlowParameters p) throws IOException {
+//    instance = "combiner-" + p.getInstanceId();
+
     String stream1 = p.getJSON().getString("jumpStream1");
-    String stream2 = p.getJSON().getString("jumpStream2");
 
     TypeReader<PageRankJumpScore> reader1 = p.getTypeReader(stream1);
-    TypeReader<PageRankJumpScore> reader2 = p.getTypeReader(stream2);
 
     rndJump = 0.0;
     PageRankJumpScore js;
     while ((js = reader1.read()) != null) {
       rndJump += js.score;
+//      System.err.println(instance + " part-instance rnd-jump :" + js.score + " sum :" + rndJump);
     }
-    while ((js = reader2.read()) != null) {
-      rndJump += js.score;
-    }
+
+//    System.err.println(instance + " instance rnd-jump :" + rndJump);
 
     String scoreStream = p.getJSON().getString("scoreStream");
     partialScores = p.getTypeReader(scoreStream);
@@ -64,16 +68,26 @@ public class PageRankScoreCombiner extends StandardStep<PageRankScore, PageRankS
     }
 
     while (curr != null && Utility.compare(docScore.docName, curr.docName) == 0) {
+      
+      totalWalk += curr.score;
+      
       newDocScore.score += curr.score;
       curr = partialScores.read();
     }
     // now curr points to the next document.
+    pageCount += 1.0;
+    totalScore += newDocScore.score;
 
     processor.process(newDocScore);
   }
 
   @Override
   public void close() throws IOException {
+
+//    System.err.println(instance + " Total WALK Mass = " + totalWalk);
+//    System.err.println(instance + " pages = " + pageCount);
+//    System.err.println(instance + " COMBINED TOTAL MASS = " + totalScore);
+
     while (curr != null) {
       logger.info("On-Close : IGNORED PARTIAL SCORE!!: {1}-{2}", new Object[]{curr.docName, curr.score});
       curr = partialScores.read();

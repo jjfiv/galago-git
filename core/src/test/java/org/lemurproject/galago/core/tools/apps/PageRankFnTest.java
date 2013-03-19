@@ -51,7 +51,7 @@ public class PageRankFnTest extends TestCase {
       p2.set("lambda", 0.5);
       p2.set("maxItr", 10);
       p2.set("server", false);
-      p2.set("distrib", 3);
+      p2.set("distrib", 2);
       p2.set("galagoJobDir", jobTmp2.getAbsolutePath());
       p2.set("server", false);
 
@@ -63,36 +63,38 @@ public class PageRankFnTest extends TestCase {
       String data = Utility.readFileToString(out1);
 
       // expected output (actual comparison is trucated to 6 decimal points)
-      String exp = "test-0 0.12294280112598908\n"
-              + "test-1 0.1180018344140897\n"
-              + "test-10 0.06151406291755301\n"
-              + "test-11 0.05633415708660931\n"
-              + "test-2 0.1006919050495244\n"
-              + "test-3 0.07177212629157871\n"
-              + "test-4 0.09741688722656808\n"
-              + "test-5 0.09641894694537836\n"
-              + "test-6 0.06439791377362236\n"
-              + "test-7 0.0774668462267146\n"
-              + "test-8 0.07367786713543674\n"
-              + "test-9 0.05936465180693555\n";
+      String exp = "test-0 0.14044514319221924\n"
+              + "test-1 0.10091959505482992\n"
+              + "test-10 0.05115981927289599\n"
+              + "test-11 0.05115981927289599\n"
+              + "test-2 0.08488240356450753\n"
+              + "test-3 0.08673666439408949\n"
+              + "test-4 0.07918772966163073\n"
+              + "test-5 0.0954103007236506\n"
+              + "test-6 0.07937310923332822\n"
+              + "test-7 0.07387799299215828\n"
+              + "test-8 0.07558165579260986\n"
+              + "test-9 0.08126576684518416\n";
+
       checkOutput(data, exp);
 
       File out2 = new File(pagerank, "pagerank.scoreOrder");
       data = Utility.readFileToString(out2);
 
       // expected output (actual comparison is trucated to 6 decimal points)
-      exp = "test-0 0.12294280112598908\n"
-              + "test-1 0.1180018344140897\n"
-              + "test-2 0.1006919050495244\n"
-              + "test-4 0.09741688722656808\n"
-              + "test-5 0.09641894694537836\n"
-              + "test-7 0.0774668462267146\n"
-              + "test-8 0.07367786713543674\n"
-              + "test-3 0.07177212629157871\n"
-              + "test-6 0.06439791377362236\n"
-              + "test-10 0.06151406291755301\n"
-              + "test-9 0.05936465180693555\n"
-              + "test-11 0.05633415708660931\n";
+      exp = "test-0 0.14044514319221924\n"
+              + "test-1 0.10091959505482992\n"
+              + "test-5 0.0954103007236506\n"
+              + "test-3 0.08673666439408949\n"
+              + "test-2 0.08488240356450753\n"
+              + "test-9 0.08126576684518416\n"
+              + "test-6 0.07937310923332822\n"
+              + "test-4 0.07918772966163073\n"
+              + "test-8 0.07558165579260986\n"
+              + "test-7 0.07387799299215828\n"
+              + "test-10 0.05115981927289599\n"
+              + "test-11 0.05115981927289599\n";
+
       checkOutput(data, exp);
 
     } finally {

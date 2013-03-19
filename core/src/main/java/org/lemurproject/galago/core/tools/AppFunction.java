@@ -94,7 +94,7 @@ public abstract class AppFunction {
     int hash = (int) p.get("distrib", 0);
     if (hash > 0) {
       job.properties.put("hashCount", Integer.toString(hash));
-      System.out.println(job.properties.get("hashCount"));
+      // System.out.println(job.properties.get("hashCount"));
     }
 
     ErrorStore store = new ErrorStore();

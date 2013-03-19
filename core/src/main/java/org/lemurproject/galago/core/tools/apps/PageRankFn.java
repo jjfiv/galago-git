@@ -89,7 +89,10 @@ public class PageRankFn extends AppFunction {
     File outputFolder = new File(p.getString("outputFolder"));
 
     logger.info("Initializing...");
-    initialize(p);
+    long docCount = initialize(p);
+
+    // ensure a correct document count
+    p.set("docCount", docCount);
 
     int maxItrs = (int) p.get("maxItr", 10);
     int convergedAt = 0;
@@ -137,7 +140,7 @@ public class PageRankFn extends AppFunction {
     logger.info("Finished");
   }
 
-  private void initialize(Parameters p) throws IOException, IncompatibleProcessorException {
+  private long initialize(Parameters p) throws IOException, IncompatibleProcessorException {
 
     File outputFolder = new File(p.getString("outputFolder"));
     File itrZero = new File(outputFolder, "pageranks.0");
@@ -148,7 +151,7 @@ public class PageRankFn extends AppFunction {
 
     List<String> inputFiles = new ArrayList();
     for (File f : namesFolder.listFiles()) {
-      System.err.println(f.getAbsolutePath());
+      // System.err.println(f.getAbsolutePath());
       inputFiles.add(f.getAbsolutePath());
     }
 
@@ -176,14 +179,19 @@ public class PageRankFn extends AppFunction {
     Processor<PageRankScore> writer;
     writer = Splitter.splitToFiles(itrZero.getAbsolutePath() + "/pagerank.", new PageRankScore.DocNameOrder(), (int) p.get("distrib", 10), CompressionType.GZIP);
 
+    // if a default is specified - we don't have a docCount, so recompute it.
+    long docCount = 0;
     DocumentUrl url = reader.read();
     while (url != null) {
       PageRankScore score = new PageRankScore(url.identifier, defaultScore);
+      docCount += 1;
       writer.process(score);
       url = reader.read();
     }
 
     writer.close();
+
+    return docCount;
   }
 
   private void finalize(Parameters p, int convergenceItr) throws IOException, IncompatibleProcessorException {
@@ -281,6 +289,7 @@ public class PageRankFn extends AppFunction {
     // stage 3: process links (emit 1-lambda * score / linkcount) as partial scores
     //          alternatively emit 1-lambda as a random jump
     job.add(getRandomWalkStage(p));
+    // job.add(getWalkToJumpStage(p));
 
     // stage 4: process random jumps (sum total pagerank, emit as random jump)
     job.add(getRandomJumpStage(p));
@@ -298,10 +307,11 @@ public class PageRankFn extends AppFunction {
     job.connect("linkReader", "rndWalk", ConnectionAssignmentType.Each);
 
     job.connect("scoreReader", "rndJump", ConnectionAssignmentType.Each);
+    job.connect("rndWalk", "rndJump", ConnectionAssignmentType.Each); // do not want this replicated
 
     job.connect("scoreReader", "reducer", ConnectionAssignmentType.Each);
     job.connect("rndWalk", "reducer", ConnectionAssignmentType.Each);
-    job.connect("rndJump", "reducer", ConnectionAssignmentType.Each);
+    job.connect("rndJump", "reducer", ConnectionAssignmentType.Combined); // replicate this now.
 
     // would prefer 'each', but this isn't very expensive.
     job.connect("scoreReader", "convergence", ConnectionAssignmentType.Combined);
@@ -352,12 +362,12 @@ public class PageRankFn extends AppFunction {
     stage.addOutput("outputPartialScores", new PageRankScore.DocNameOrder(), CompressionType.GZIP);
     stage.addOutput("outputExtraJumps", new PageRankJumpScore.ScoreOrder(), CompressionType.GZIP);
 
-
     stage.add(new InputStep("inputScores"));
     Parameters rndWalk = new Parameters();
     rndWalk.set("linkStream", "inputLinks");
     rndWalk.set("jumpStream", "outputExtraJumps");
     rndWalk.set("lambda", p.getDouble("lambda"));
+    rndWalk.set("docCount", p.getLong("docCount")); // extraJump needs to be divided evenly across all documents
     stage.add(new Step(ComputeRandomWalk.class, rndWalk));
     stage.add(Utility.getSorter(new PageRankScore.DocNameOrder(), CompressionType.GZIP));
     stage.add(new OutputStep("outputPartialScores"));
@@ -369,6 +379,7 @@ public class PageRankFn extends AppFunction {
     Stage stage = new Stage("rndJump");
 
     stage.addInput("inputScores", new PageRankScore.DocNameOrder());
+    stage.addInput("outputExtraJumps", new PageRankJumpScore.ScoreOrder());
     stage.addOutput("outputCumulativeJump", new PageRankJumpScore.ScoreOrder(), CompressionType.GZIP);
 
     stage.add(new InputStep("inputScores"));
@@ -376,6 +387,8 @@ public class PageRankFn extends AppFunction {
     // then emit single value that is the value of all random jumps to any given page.
     Parameters rndJumpParams = new Parameters();
     rndJumpParams.set("lambda", p.getDouble("lambda"));
+    rndJumpParams.set("docCount", p.getLong("docCount"));
+    rndJumpParams.set("extraJumpStream", "outputExtraJumps");
     stage.add(new Step(ComputeRandomJump.class, rndJumpParams));
 
     // should only emit one item, but still...
@@ -390,7 +403,6 @@ public class PageRankFn extends AppFunction {
 
     stage.addInput("inputScores", new PageRankScore.DocNameOrder());
     stage.addInput("outputPartialScores", new PageRankScore.DocNameOrder());
-    stage.addInput("outputExtraJumps", new PageRankJumpScore.ScoreOrder());
     stage.addInput("outputCumulativeJump", new PageRankJumpScore.ScoreOrder());
     stage.addOutput("outputScores", new PageRankScore.DocNameOrder(), CompressionType.GZIP);
 
@@ -398,7 +410,6 @@ public class PageRankFn extends AppFunction {
 
     Parameters combinerParams = new Parameters();
     combinerParams.set("jumpStream1", "outputCumulativeJump");
-    combinerParams.set("jumpStream2", "outputExtraJumps");
     combinerParams.set("scoreStream", "outputPartialScores");
     stage.add(new Step(PageRankScoreCombiner.class, combinerParams));
     stage.add(Utility.getSorter(new PageRankScore.DocNameOrder(), CompressionType.GZIP));

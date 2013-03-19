@@ -36,13 +36,15 @@ public class ComputeRandomWalk extends StandardStep<PageRankScore, PageRankScore
   private final TypeReader<ExtractedLink> linkReader;
   private final Processor<PageRankJumpScore> jumpWriter;
   private final double lambda;
+  private final long docCount;
   private ExtractedLink currentLink;
   double rndJumpScore = 0.0;
-  long pageCount = 0;
   double totalWalk = 0.0;
   Counter documents;
+//  String instance;
 
   public ComputeRandomWalk(TupleFlowParameters p) throws IOException {
+//    instance = "walker-" + p.getInstanceId();
 
     // open streams:
     String linkStream = p.getJSON().getString("linkStream");
@@ -54,6 +56,7 @@ public class ComputeRandomWalk extends StandardStep<PageRankScore, PageRankScore
     currentLink = linkReader.read();
 
     lambda = p.getJSON().getDouble("lambda");
+    docCount = p.getJSON().getLong("docCount");
 
     documents = p.getCounter("Documents");
   }
@@ -63,8 +66,6 @@ public class ComputeRandomWalk extends StandardStep<PageRankScore, PageRankScore
     if (documents != null) {
       documents.increment();
     }
-
-    pageCount += 1;
 
     List<String> linkedDocuments = new ArrayList();
 
@@ -106,11 +107,13 @@ public class ComputeRandomWalk extends StandardStep<PageRankScore, PageRankScore
   @Override
   public void close() throws IOException {
 
-//    System.err.println("TOTAL PAGERANK JUMP-2: " + (rndJumpScore));
-//    System.err.println("TOTAL PAGERANK WALK: " + totalWalk);
+//    System.err.println(instance + " TOTAL PAGERANK JUMP-2: " + (rndJumpScore) + " docs " + docCount);
+//    System.err.println(instance + " instance PAGERANK JUMP-2: " + (rndJumpScore / docCount));
+//    System.err.println(instance + " TOTAL PAGERANK WALK: " + totalWalk);
 
-    jumpWriter.process(new PageRankJumpScore(rndJumpScore / pageCount));
+    jumpWriter.process(new PageRankJumpScore(rndJumpScore / docCount));
     jumpWriter.close();
+
     processor.close();
   }
 }
