@@ -62,40 +62,58 @@ public class PageRankFnTest extends TestCase {
       File out1 = new File(pagerank, "pagerank.docNameOrder");
       String data = Utility.readFileToString(out1);
 
-      String exp = "test-0 0.1229428011\n"
-              + "test-1 0.1180018344\n"
-              + "test-10 0.0615140629\n"
-              + "test-11 0.0563341571\n"
-              + "test-2 0.1006919050\n"
-              + "test-3 0.0717721263\n"
-              + "test-4 0.0974168872\n"
-              + "test-5 0.0964189469\n"
-              + "test-6 0.0643979138\n"
-              + "test-7 0.0774668462\n"
-              + "test-8 0.0736778671\n"
-              + "test-9 0.0593646518\n";
-      assertEquals(data, exp);
-
+      // expected output (actual comparison is trucated to 6 decimal points)
+      String exp = "test-0 0.12294280112598908\n"
+              + "test-1 0.1180018344140897\n"
+              + "test-10 0.06151406291755301\n"
+              + "test-11 0.05633415708660931\n"
+              + "test-2 0.1006919050495244\n"
+              + "test-3 0.07177212629157871\n"
+              + "test-4 0.09741688722656808\n"
+              + "test-5 0.09641894694537836\n"
+              + "test-6 0.06439791377362236\n"
+              + "test-7 0.0774668462267146\n"
+              + "test-8 0.07367786713543674\n"
+              + "test-9 0.05936465180693555\n";
+      checkOutput(data, exp);
 
       File out2 = new File(pagerank, "pagerank.scoreOrder");
       data = Utility.readFileToString(out2);
-      exp = "test-0 0.1229428011\n"
-              + "test-1 0.1180018344\n"
-              + "test-2 0.1006919050\n"
-              + "test-4 0.0974168872\n"
-              + "test-5 0.0964189469\n"
-              + "test-7 0.0774668462\n"
-              + "test-8 0.0736778671\n"
-              + "test-3 0.0717721263\n"
-              + "test-6 0.0643979138\n"
-              + "test-10 0.0615140629\n"
-              + "test-9 0.0593646518\n"
-              + "test-11 0.0563341571\n";
-      assertEquals(data, exp);
+
+      // expected output (actual comparison is trucated to 6 decimal points)
+      exp = "test-0 0.12294280112598908\n"
+              + "test-1 0.1180018344140897\n"
+              + "test-2 0.1006919050495244\n"
+              + "test-4 0.09741688722656808\n"
+              + "test-5 0.09641894694537836\n"
+              + "test-7 0.0774668462267146\n"
+              + "test-8 0.07367786713543674\n"
+              + "test-3 0.07177212629157871\n"
+              + "test-6 0.06439791377362236\n"
+              + "test-10 0.06151406291755301\n"
+              + "test-9 0.05936465180693555\n"
+              + "test-11 0.05633415708660931\n";
+      checkOutput(data, exp);
 
     } finally {
-
       Utility.deleteDirectory(tempDir);
+
+    }
+  }
+
+  private void checkOutput(String data, String expected) {
+    String[] dataLines = data.split("\n");
+    String[] expLines = expected.split("\n");
+    assertEquals(expLines.length, dataLines.length);
+
+    for (int i = 0; i < dataLines.length; i++) {
+      if (expLines[i].contains(" ")) {
+        String[] exp = expLines[i].split(" ");
+        String[] dat = dataLines[i].split(" ");
+
+        assertEquals(exp[0], dat[0]);
+        assertEquals(Double.parseDouble(exp[1]), Double.parseDouble(dat[1]), 0.000001);
+      }
     }
   }
 }

@@ -201,7 +201,7 @@ public class PageRankFn extends AppFunction {
     BufferedWriter docOrderWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(docNameOutput)));
     PageRankScore docScore;
     while ((docScore = reader.read()) != null) {
-      docOrderWriter.write(String.format("%s %.10f\n", docScore.docName, docScore.score));
+      docOrderWriter.write(docScore.docName + " " + docScore.score + "\n");
     }
     docOrderWriter.close();
 
@@ -217,7 +217,7 @@ public class PageRankFn extends AppFunction {
 
       @Override
       public void process(PageRankScore docScore) throws IOException {
-        scoreOrderWriter.write(String.format("%s %.10f\n", docScore.docName, docScore.score));
+        scoreOrderWriter.write(docScore.docName + " " + docScore.score + "\n");
       }
 
       @Override
