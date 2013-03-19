@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -13,8 +12,8 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.scoring.TermSelectionValueModel;
+import org.lemurproject.galago.core.util.WordLists;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * We run the query as a combine on the way back up, and add in the expansion
@@ -65,9 +64,10 @@ public class BM25RelevanceFeedbackTraversal extends Traversal {
     tsvParameters.set("parts", availableParts);
     TermSelectionValueModel tsvModel = new TermSelectionValueModel(tsvParameters, retrieval, retrieval.getCollectionStatistics("#lengths:part=lengths()"));
     tsvModel.initialize();
-    HashSet<String> stopwords = Utility.readStreamToStringSet(getClass().getResourceAsStream("/stopwords/inquery"));
+
+    
+    Set<String> stopwords = WordLists.getWordList("rmstop");
     Set<String> queryTerms = StructuredQuery.findQueryTerms(combineNode, Collections.singleton("extents"));
-    stopwords.addAll(queryTerms);
 
     // Start constructing the final query
     ArrayList<Node> newChildren = new ArrayList<Node>();

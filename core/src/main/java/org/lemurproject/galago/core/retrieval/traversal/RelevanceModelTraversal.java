@@ -19,6 +19,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 import gnu.trove.list.array.TDoubleArrayList;
 import java.util.Arrays;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.util.WordLists;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.tartarus.snowball.ext.englishStemmer;
 
@@ -35,7 +36,6 @@ import org.tartarus.snowball.ext.englishStemmer;
  */
 public class RelevanceModelTraversal extends Traversal {
 
-  englishStemmer stemmer = null;
   Parameters globalParameters;
   Parameters queryParams;
   Parameters availableParts;
@@ -47,9 +47,6 @@ public class RelevanceModelTraversal extends Traversal {
 
     this.globalParameters = retrieval.getGlobalParameters();
     this.availableParts = retrieval.getAvailableParts();
-    if (globalParameters.get("stemming", true)) {
-      stemmer = new englishStemmer();
-    }
   }
 
   public Node afterNode(Node originalNode) throws Exception {
@@ -71,14 +68,15 @@ public class RelevanceModelTraversal extends Traversal {
     Node transformedCombineNode = retrieval.transformQuery(combineNode, localParameters);
     initialResults.addAll(Arrays.asList(retrieval.runQuery(transformedCombineNode, localParameters)));
     localParameters.set("parts", this.availableParts);
+
     RelevanceModel rModel = new RelevanceModel(localParameters, retrieval);
     rModel.initialize();
     
     double fbOrigWt = parameters.get("fbOrigWt", 0.5);
     int fbTerms = (int) parameters.get("fbTerms", 10);
-    HashSet<String> stopwords = Utility.readStreamToStringSet(getClass().getResourceAsStream("/stopwords/rmstop"));
+
+    Set<String> stopwords = WordLists.getWordList("rmstop");
     Set<String> queryTerms = StructuredQuery.findQueryTerms(combineNode);
-    stopwords.addAll(queryTerms);
 
     Node newRoot = null;
     Node expansionNode;
