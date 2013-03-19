@@ -73,16 +73,17 @@ public class RelevanceModelTraversal extends Traversal {
     localParameters.set("parts", this.availableParts);
     RelevanceModel rModel = new RelevanceModel(localParameters, retrieval);
     rModel.initialize();
+    
     double fbOrigWt = parameters.get("fbOrigWt", 0.5);
     int fbTerms = (int) parameters.get("fbTerms", 10);
-    HashSet<String> stopwords = Utility.readStreamToStringSet(getClass().getResourceAsStream("/stopwords/inquery"));
+    HashSet<String> stopwords = Utility.readStreamToStringSet(getClass().getResourceAsStream("/stopwords/rmstop"));
     Set<String> queryTerms = StructuredQuery.findQueryTerms(combineNode);
     stopwords.addAll(queryTerms);
 
     Node newRoot = null;
     Node expansionNode;
 
-    expansionNode = rModel.generateExpansionQuery(initialResults, fbTerms, stopwords);
+    expansionNode = rModel.generateExpansionQuery(initialResults, fbTerms, queryTerms, stopwords);
     NodeParameters expParams = new NodeParameters();
     expParams.set("0", fbOrigWt);
     expParams.set("1", 1 - fbOrigWt);

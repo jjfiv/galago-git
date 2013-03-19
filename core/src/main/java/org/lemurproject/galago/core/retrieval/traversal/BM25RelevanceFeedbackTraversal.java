@@ -75,7 +75,7 @@ public class BM25RelevanceFeedbackTraversal extends Traversal {
 
     // Now we wait for the query to finish
     Node newRoot = null;
-    Node expansionNode = tsvModel.generateExpansionQuery(initialResults, fbTerms, stopwords);
+    Node expansionNode = tsvModel.generateExpansionQuery(initialResults, fbTerms, queryTerms, stopwords);
     tsvModel.cleanup();
 
     // The easiest thing to do really is extract the children and combine them w/ the existing

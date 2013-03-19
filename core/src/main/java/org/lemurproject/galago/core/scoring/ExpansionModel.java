@@ -24,5 +24,5 @@ public interface ExpansionModel {
           throws IOException;
 
   public Node generateExpansionQuery(List<ScoredDocument> initialResults, int fbTerms,
-          Set<String> exclusionTerms) throws IOException;
+          Set<String> queryTerms, Set<String> exclusionTerms) throws IOException;
 }

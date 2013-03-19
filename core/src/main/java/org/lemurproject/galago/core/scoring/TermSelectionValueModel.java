@@ -18,6 +18,8 @@ import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
+import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
+import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -26,9 +28,9 @@ import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- *  * Implements the query expansion of BM25 as described in
- * "Technique for Efficient Query Expansion" by Billerbeck and Zobel.
- * The weighting model itself is called "Term Selection Value".
+ *  * Implements the query expansion of BM25 as described in "Technique for
+ * Efficient Query Expansion" by Billerbeck and Zobel. The weighting model
+ * itself is called "Term Selection Value".
  *
  *
  * @author irmarc
@@ -67,6 +69,7 @@ public class TermSelectionValueModel implements ExpansionModel {
   Parameters parameters;
   DocumentReader cReader = null;
   TagTokenizer tokenizer = null;
+  Stemmer stemmer = null;
   IndexPartReader reader = null;
   long N = 0;
   int fbDocs;
@@ -77,7 +80,7 @@ public class TermSelectionValueModel implements ExpansionModel {
     this.stats = stats;
   }
 
-  public void initialize() throws IOException {
+  public void initialize() throws Exception {
     this.N = stats.documentCount;
     this.fbDocs = (int) parameters.get("fbDocs", 10);
 
@@ -94,6 +97,15 @@ public class TermSelectionValueModel implements ExpansionModel {
       tokenizer = new TagTokenizer();
     }
 
+    if (stemmer == null) {
+      if (parameters.isString("rmStemmer")) {
+        String rmstemmer = parameters.getString("rmStemmer");
+        stemmer = (Stemmer) Class.forName(rmstemmer).getConstructor().newInstance();
+      } else {
+        stemmer = new Porter2Stemmer();
+      }
+    }
+    
     // Finally, we need an iterator from the index for the doc. frequencies
     // For now we only take AggregateReader objects, which can report that number. Meaning we need
     // a dummy text node to get the part assignment
@@ -110,6 +122,7 @@ public class TermSelectionValueModel implements ExpansionModel {
     reader = null;
   }
 
+  @Override
   public List<WeightedTerm> generateGrams(List<ScoredDocument> initialResults) throws IOException {
     // Count the dfs of the terms relative to the fb docs
     TObjectIntHashMap counts = countRFDF(initialResults);
@@ -120,18 +133,30 @@ public class TermSelectionValueModel implements ExpansionModel {
     return scored;
   }
 
+  @Override
   public Node generateExpansionQuery(List<ScoredDocument> initialResults, int fbTerms,
-          Set<String> exclusionTerms) throws IOException {
+          Set<String> queryTerms, Set<String> exclusionTerms) throws IOException {
+    
     List<WeightedTerm> scored = (List<WeightedTerm>) generateGrams(initialResults);
 
     ArrayList<Node> children = new ArrayList<Node>();
+    
     NodeParameters expParams = new NodeParameters();
+    
     int expanded = 0;
+
+    // stem query terms
+    Set<String> queryTermStemmed = stemTerms(queryTerms);
+    
+    
     for (int i = 0; i < scored.size() && expanded < fbTerms; i++) {
       Gram g = (Gram) scored.get(i);
-      if (exclusionTerms.contains(g.term)) {
+
+      // if the expansion gram is a stopword or an existing query term -- do not use it.
+      if (queryTermStemmed.contains(stemmer.stem(g.term)) || (exclusionTerms.contains(g.term))) {
         continue;
       }
+
       Node inner = TextPartAssigner.assignPart(new Node("extents", g.term),
               retrieval.getGlobalParameters(), retrieval.getAvailableParts());
       ArrayList<Node> innerChild = new ArrayList<Node>();
@@ -202,5 +227,15 @@ public class TermSelectionValueModel implements ExpansionModel {
         throw new RuntimeException("Unable to retrieval doc count for term: " + g.term, ioe);
       }
     }
+  }
+
+  private Set<String> stemTerms(Set<String> terms) {
+    HashSet<String> stems = new HashSet(terms.size());
+    for (String t : terms) {
+      String s = stemmer.stem(t);
+      // stemmers should ensure that terms do not stem to nothing.
+      stems.add(s);
+    }
+    return stems;
   }
 }

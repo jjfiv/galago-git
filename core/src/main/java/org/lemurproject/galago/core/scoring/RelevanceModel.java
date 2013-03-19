@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
+import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -63,6 +65,7 @@ public class RelevanceModel implements ExpansionModel {
   Parameters parameters;
   Retrieval retrieval;
   TagTokenizer tokenizer = null;
+  Stemmer stemmer;
 
   public RelevanceModel(Parameters parameters, Retrieval r) {
     this.parameters = parameters;
@@ -78,6 +81,14 @@ public class RelevanceModel implements ExpansionModel {
     if (tokenizer == null) {
       tokenizer = new TagTokenizer();
     }
+    if (stemmer == null) {
+      if (parameters.isString("rmStemmer")) {
+        String rmstemmer = parameters.getString("rmStemmer");
+        stemmer = (Stemmer) Class.forName(rmstemmer).getConstructor().newInstance();
+      } else {
+        stemmer = new Porter2Stemmer();
+      }
+    }
   }
 
   /*
@@ -86,31 +97,48 @@ public class RelevanceModel implements ExpansionModel {
   @Override
   public void cleanup() throws Exception {
     tokenizer = null;
+    stemmer = null;
   }
 
   @Override
   public ArrayList<WeightedTerm> generateGrams(List<ScoredDocument> initialResults) throws IOException {
+    // convert documentScores to posterior probs
     HashMap<Integer, Double> scores = logstoposteriors(initialResults);
+
+    // get term frequencies in documents
     HashMap<String, HashMap<Integer, Integer>> counts = countGrams(initialResults);
+
+    // compute term weights
     ArrayList<WeightedTerm> scored = scoreGrams(counts, scores);
+
+    // sort by weight
     Collections.sort(scored);
+
     return scored;
   }
 
   @Override
   public Node generateExpansionQuery(List<ScoredDocument> initialResults, int fbTerms,
-          Set<String> exclusionTerms) throws IOException {
+          Set<String> queryTerms, Set<String> stopwords) throws IOException {
+
     List<WeightedTerm> scored = generateGrams(initialResults);
+
     ArrayList<Node> newChildren = new ArrayList<Node>();
     NodeParameters expParams = new NodeParameters();
     int expanded = 0;
 
+    // stem query terms
+    Set<String> queryTermStemmed = stemTerms(queryTerms);
+
     // Time to construct the modified query - start with the expansion since we always have it
     for (int i = 0; i < scored.size() && expanded < fbTerms; i++) {
       Gram g = (Gram) scored.get(i);
-      if (exclusionTerms.contains(g.term)) {
+
+      // if the expansion gram is a stopword or an existing query term -- do not use it.
+      if (queryTermStemmed.contains(stemmer.stem(g.term)) || (stopwords.contains(g.term))) {
         continue;
       }
+
       Node inner = TextPartAssigner.assignPart(new Node("extents", g.term),
               this.retrieval.getGlobalParameters(),
               this.retrieval.getAvailableParts());
@@ -195,5 +223,15 @@ public class RelevanceModel implements ExpansionModel {
     }
 
     return grams;
+  }
+
+  private Set<String> stemTerms(Set<String> terms) {
+    HashSet<String> stems = new HashSet(terms.size());
+    for (String t : terms) {
+      String s = stemmer.stem(t);
+      // stemmers should ensure that terms do not stem to nothing.
+      stems.add(s);
+    }
+    return stems;
   }
 }
