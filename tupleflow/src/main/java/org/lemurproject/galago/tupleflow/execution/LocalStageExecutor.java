@@ -172,6 +172,7 @@ public class LocalStageExecutor implements StageExecutor {
         writer.write(e.toString());
         writer.close();
       } else {
+
         // ensure the .complete file exists before terminating -- to avoid spurious errors from slow file systems.
         completeFile.createNewFile();
         int count = 0;
@@ -183,7 +184,8 @@ public class LocalStageExecutor implements StageExecutor {
             Thread.sleep(1000); // wait 1 second
           } catch (Exception e) {
           } // Don't care about interruption errors
-        } while (count++ < 60000); // 1 min timeout
+        } while (count++ < 60); // 1 min timeout
+        
       }
     } catch (Exception e) {
       logger.warning("Trouble writing completion/error files: " + errorFile.toString());

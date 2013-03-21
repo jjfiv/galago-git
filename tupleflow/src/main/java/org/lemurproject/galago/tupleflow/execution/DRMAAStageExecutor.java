@@ -97,12 +97,30 @@ public class DRMAAStageExecutor extends RemoteStageExecutor {
             System.err.println("[" + job + "] failed -- see stderr folder.");
 
           } else if (status == Session.DONE) {
+
             // check for X.complete
-            if (!jobCheckpoints.get(job).exists()) {
+            File checkpoint = jobCheckpoints.get(job);
+            boolean exists = false;
+            int count = 0;
+            do {
+              if (checkpoint.exists()) {
+                exists = true;
+                break;
+              }
+              try {
+                Thread.sleep(1000); // wait 1 second
+              } catch (Exception e) {
+              } // Don't care about interruption errors
+            } while (count++ < 60); // 1 min timeout
+
+            // if the job finished over a minute ago, and the checkpoint still doesn't exist - it probably errored.
+            if (!exists) {
               // add an exception.
               exceptions.add(new Exception("[" + job + "] failed -- checkpoint does not exist."));
               System.err.println("[" + job + "] failed -- checkpoint does not exist.");
             }
+            
+            
           }
         } catch (DrmaaException e) {
           System.err.println("Could not error check the drmaa session!");
