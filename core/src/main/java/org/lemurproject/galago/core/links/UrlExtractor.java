@@ -20,8 +20,26 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 @OutputClass(className = "org.lemurproject.galago.core.types.DocumentUrl")
 public class UrlExtractor extends StandardStep<Document, DocumentUrl> {
 
+  public String scrubUrl(String url) {
+    // remove a leading pound sign
+    if (url.charAt(url.length() - 1) == '#') {
+      url = url.substring(0, url.length() - 1);        // make it lowercase
+    }
+    url = url.toLowerCase();
+
+    // remove a port number, if it's the default number
+    url = url.replace(":80/", "/");
+    if (url.endsWith(":80")) {
+      url = url.replace(":80", "");
+    }
+    // remove trailing slashes
+    while (url.charAt(url.length() - 1) == '/') {
+      url = url.substring(0, url.length() - 1);
+    }
+    return url.toLowerCase();
+  }
   @Override
   public void process(Document doc) throws IOException {
-    processor.process(new DocumentUrl(doc.name, doc.metadata.get("url")));
+    processor.process(new DocumentUrl(doc.name, scrubUrl(doc.metadata.get("url"))));
   }
 }
