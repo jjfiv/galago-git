@@ -10,6 +10,8 @@ import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -19,6 +21,8 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 @InputClass(className = "org.lemurproject.galago.core.parse.Document")
 @OutputClass(className = "org.lemurproject.galago.core.types.DocumentUrl")
 public class UrlExtractor extends StandardStep<Document, DocumentUrl> {
+
+  Logger logger = LoggerFactory.getLogger("UrlExtractor");
 
   public String scrubUrl(String url) {
     // remove a leading pound sign
@@ -38,8 +42,14 @@ public class UrlExtractor extends StandardStep<Document, DocumentUrl> {
     }
     return url.toLowerCase();
   }
+
   @Override
   public void process(Document doc) throws IOException {
-    processor.process(new DocumentUrl(doc.name, scrubUrl(doc.metadata.get("url"))));
+    if (doc.metadata.get("url") == null) {
+      logger.info("null url in document " + doc.identifier);
+      processor.process(new DocumentUrl(doc.name, ""));
+    } else {
+      processor.process(new DocumentUrl(doc.name, scrubUrl(doc.metadata.get("url"))));
+    }
   }
 }
