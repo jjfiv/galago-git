@@ -1120,54 +1120,6 @@ public class JobExecutor {
     status.run();
   }
 
-  public static boolean runLocallyWithServer(Job job, Server server, ErrorStore store, Parameters p) throws IOException,
-          InterruptedException, ExecutionException, Exception {
-    // Extraction from parameters can go here now
-    String tempPath = p.get("galagoJobDir", "");
-    File tempFolder = Utility.createTemporaryDirectory(tempPath);
-
-    File stdout = new File(tempFolder + File.separator + "stdout");
-    File stderr = new File(tempFolder + File.separator + "stderr");
-    if (stdout.isDirectory()) {
-      Utility.deleteDirectory(stdout);
-    }
-    if (stderr.isDirectory()) {
-      Utility.deleteDirectory(stderr);
-    }
-
-    String mode = p.get("mode", "local");
-
-    String[] params = new String[]{};
-
-    String command;
-    if (p.containsKey("command")) {
-      command = p.getString("command");
-    } else {
-      command = null;
-    }
-
-    StageExecutor executor = StageExecutorFactory.newInstance(mode, params);
-    System.err.printf("Created executor: %s\n", executor.toString());
-    JobExecutor jobExecutor = new JobExecutor(job, tempFolder.getAbsolutePath(), store);
-    jobExecutor.prepare();
-
-    if (store.hasStatements()) {
-      return false;
-    }
-
-    try {
-      jobExecutor.runWithServer(executor, server, command);
-    } finally {
-      executor.shutdown();
-    }
-
-    if (p.get("deleteJobDir", true) && !store.hasStatements()) {
-      Utility.deleteDirectory(tempFolder);
-    }
-
-    return !store.hasStatements();
-  }
-
   public static boolean runLocally(Job job, ErrorStore store, Parameters p) throws IOException,
           InterruptedException, ExecutionException, Exception {
     // Extraction from parameters can go here now

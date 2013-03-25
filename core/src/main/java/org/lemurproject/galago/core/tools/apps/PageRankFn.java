@@ -80,15 +80,13 @@ public class PageRankFn extends AppFunction {
       p.set("lambda", 0.5);
     }
 
-    Server server = newTupleFlowServer(p);
-
     // 0 <= lambda <= 1
     assert (p.getDouble("lambda") <= 1.0 && p.getDouble("lambda") >= 0.0);
 
     File outputFolder = new File(p.getString("outputFolder"));
 
     logger.info("Initializing...");
-    long docCount = initialize(p, output, server);
+    long docCount = initialize(p, output);
 
     if (docCount == 0) {
       output.println("failed to initialize. Aborting.");
@@ -106,7 +104,7 @@ public class PageRankFn extends AppFunction {
 
       Job itr = getIterationJob(p, i);
 
-      boolean success = runTupleFlowInstance(itr, new File(outputFolder, "pagerank-job-tmp." + i), p, output, server);
+      boolean success = runTupleFlowInstance(itr, new File(outputFolder, "pagerank-job-tmp." + i), p, output);
 
       convergedAt = i;
 
@@ -124,8 +122,7 @@ public class PageRankFn extends AppFunction {
     }
 
     logger.info("Finalizing...");
-    finalize(p, convergedAt, output, server);
-    server.stop();
+    finalize(p, convergedAt, output);
     logger.info("Finished");
   }
 
@@ -136,7 +133,7 @@ public class PageRankFn extends AppFunction {
    * 
    *  returns docCount
    */
-  private long initialize(Parameters p, PrintStream outputStream, Server server) throws IOException, IncompatibleProcessorException, Exception {
+  private long initialize(Parameters p, PrintStream outputStream) throws IOException, IncompatibleProcessorException, Exception {
 
     Job job = new Job();
 
@@ -214,7 +211,7 @@ public class PageRankFn extends AppFunction {
     }
 
     // run job
-    boolean success = runTupleFlowInstance(job, new File(outputFolder, "pagerank.init.tmp"), p, outputStream, server);
+    boolean success = runTupleFlowInstance(job, new File(outputFolder, "pagerank.init.tmp"), p, outputStream);
 
     if (success) {
       // read docCount
@@ -230,7 +227,7 @@ public class PageRankFn extends AppFunction {
     return 0;
   }
 
-  private void finalize(Parameters p, int convergenceItr, PrintStream output, Server server) throws IOException, IncompatibleProcessorException, Exception {
+  private void finalize(Parameters p, int convergenceItr, PrintStream output) throws IOException, IncompatibleProcessorException, Exception {
 
     // open reader over final pageranks
     File outputFolder = new File(p.getString("outputFolder"));
@@ -276,7 +273,7 @@ public class PageRankFn extends AppFunction {
     job.add(stage);
 
     // run job
-    boolean success = runTupleFlowInstance(job, new File(outputFolder, "pagerank.final.tmp"), p, output, server);
+    boolean success = runTupleFlowInstance(job, new File(outputFolder, "pagerank.final.tmp"), p, output);
 
     if (success) {
       logger.info("...done writing output. Deleting intermediate data...");
@@ -495,24 +492,7 @@ public class PageRankFn extends AppFunction {
     return stage;
   }
 
-  private Server newTupleFlowServer(Parameters p) throws Exception {
-
-    int port = (int) p.get("port", 0);
-    if (port == 0) {
-      port = Utility.getFreePort();
-    } else {
-      if (!Utility.isFreePort(port)) {
-        throw new IOException("Tried to bind to port " + port + " which is in use.");
-      }
-    }
-    Server server = new Server(port);
-    server.start();
-    System.out.println("Status: http://localhost:" + port);
-
-    return server;
-  }
-
-  private boolean runTupleFlowInstance(Job job, File jobFolder, Parameters p, PrintStream output, Server server) throws Exception {
+  private boolean runTupleFlowInstance(Job job, File jobFolder, Parameters p, PrintStream output) throws Exception {
 
     if (!jobFolder.exists()) {
       jobFolder.mkdirs();
@@ -538,11 +518,10 @@ public class PageRankFn extends AppFunction {
     int hash = (int) runParams.get("distrib", 0);
     if (hash > 0) {
       job.properties.put("hashCount", Integer.toString(hash));
-      // System.out.println(job.properties.get("hashCount"));
     }
 
     ErrorStore store = new ErrorStore();
-    JobExecutor.runLocallyWithServer(job, server, store, p);
+    JobExecutor.runLocally(job, store, p);
     if (store.hasStatements()) {
       output.println(store.toString());
       return false;
