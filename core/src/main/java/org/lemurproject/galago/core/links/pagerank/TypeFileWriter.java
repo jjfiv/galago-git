@@ -64,7 +64,7 @@ public class TypeFileWriter<T> implements Processor<T> {
   }
 
   public static String getInputClass(TupleFlowParameters parameters) {
-    return parameters.getJSON().get("inputClass", "");
+    return parameters.getJSON().get("class", "");
   }
 
   public static void verify(TupleFlowParameters fullParameters, ErrorHandler handler) {

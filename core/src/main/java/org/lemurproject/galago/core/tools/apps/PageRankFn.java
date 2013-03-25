@@ -9,15 +9,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import org.lemurproject.galago.core.links.pagerank.ComputeRandomJump;
 import org.lemurproject.galago.core.links.pagerank.ComputeRandomWalk;
 import org.lemurproject.galago.core.links.pagerank.ConvergenceTester;
+import org.lemurproject.galago.core.links.pagerank.FinalPageRankScoreWriter;
+import org.lemurproject.galago.core.links.pagerank.ObjectCounter;
 import org.lemurproject.galago.core.links.pagerank.PageRankScoreCombiner;
 import org.lemurproject.galago.core.links.pagerank.TypeFileReader;
 import org.lemurproject.galago.core.links.pagerank.TypeFileWriter;
+import org.lemurproject.galago.core.links.pagerank.UrlToInitialPagerankScore;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.core.types.ExtractedLink;
@@ -32,7 +33,6 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.ReaderSource;
 import org.lemurproject.galago.tupleflow.Sorter;
-import org.lemurproject.galago.tupleflow.Splitter;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
 import org.lemurproject.galago.tupleflow.execution.InputStep;
@@ -42,6 +42,7 @@ import org.lemurproject.galago.tupleflow.execution.OutputStep;
 import org.lemurproject.galago.tupleflow.execution.Stage;
 import org.lemurproject.galago.tupleflow.execution.Step;
 import org.lemurproject.galago.tupleflow.types.FileName;
+import org.lemurproject.galago.tupleflow.types.TupleflowLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +90,12 @@ public class PageRankFn extends AppFunction {
     File outputFolder = new File(p.getString("outputFolder"));
 
     logger.info("Initializing...");
-    long docCount = initialize(p);
+    long docCount = initialize(p, output);
+
+    if (docCount == 0) {
+      output.println("failed to initialize. Aborting.");
+      return;
+    }
 
     // ensure a correct document count
     p.set("docCount", docCount);
@@ -102,24 +108,8 @@ public class PageRankFn extends AppFunction {
 
       Job itr = getIterationJob(p, i);
 
-      Parameters runParams = new Parameters();
-      if (p.isLong("distrib")) {
-        runParams.set("distrib", p.getLong("distrib"));
-      }
-      if (p.isLong("port")) {
-        runParams.set("port", p.getLong("port"));
-      }
-      if (p.isBoolean("server")) {
-        runParams.set("server", p.getBoolean("server"));
-      }
-      if (p.isString("mode")) {
-        runParams.set("mode", p.getString("mode"));
-      }
+      boolean success = runTupleFlowInstance(itr, new File(outputFolder, "pagerank-job-tmp." + i), p, output);
 
-      runParams.set("galagoJobDir", new File(outputFolder, "pagerank-job-tmp." + i).getAbsolutePath());
-      runParams.set("deleteJobDir", p.get("deleteJobDir", true));
-
-      boolean success = runTupleFlowJob(itr, runParams, output);
       convergedAt = i;
 
       if (!success) {
@@ -136,123 +126,177 @@ public class PageRankFn extends AppFunction {
     }
 
     logger.info("Finalizing...");
-    finalize(p, convergedAt);
+    finalize(p, convergedAt, output);
     logger.info("Finished");
   }
 
-  private long initialize(Parameters p) throws IOException, IncompatibleProcessorException {
+  /**
+   * Creates initial pagerank scores for documents;
+   *   1 / ||D||
+   *  Stores data in intermediate folder: <tmp-folder>/pagerank.0
+   * 
+   *  returns docCount
+   */
+  private long initialize(Parameters p, PrintStream outputStream) throws IOException, IncompatibleProcessorException, Exception {
 
-    File outputFolder = new File(p.getString("outputFolder"));
-    File itrZero = new File(outputFolder, "pageranks.0");
-    itrZero.mkdirs();
+    Job job = new Job();
 
     File inputData = new File(p.getString("linkdata"));
     File namesFolder = new File(inputData, "names");
 
-    List<String> inputFiles = new ArrayList();
-    for (File f : namesFolder.listFiles()) {
-      // System.err.println(f.getAbsolutePath());
-      inputFiles.add(f.getAbsolutePath());
-    }
+    File outputFolder = new File(p.getString("outputFolder"));
+    File itrZeroFoldr = new File(outputFolder, "pageranks.0");
+    itrZeroFoldr.mkdirs();
+    File itrZeroprefix = new File(itrZeroFoldr, "pagerank.");
+    File docCountFolder = new File(outputFolder, "docCount");
+    docCountFolder.mkdirs();
 
-    double defaultScore = 1.0;
+    // stage 1: list folders:  pageranks, and linkdata
+    job.add(getSplitStage("splitUrls", "urls", namesFolder));
+
+    // stage 2 or 3: write inital scores to a folder
+    Stage writer = new Stage("writer");
+    writer.addInput("urls", new FileName.FilenameOrder());
+
+    writer.add(new InputStep("urls"));
+    Parameters readerParams = new Parameters();
+    readerParams.set("order", Utility.join(new DocumentUrl.IdentifierOrder().getOrderSpec()));
+    readerParams.set("outputClass", DocumentUrl.class.getCanonicalName());
+    writer.add(new Step(TypeFileReader.class, readerParams));
+
+    Parameters writerParams = new Parameters();
+    writerParams.set("outputFile", itrZeroprefix.getAbsolutePath()); // + i
+    writerParams.set("class", PageRankScore.class.getCanonicalName());
+    writerParams.set("order", Utility.join(new PageRankScore.DocNameOrder().getOrderSpec()));
+    writerParams.set("compression", "GZIP");
+
     if (p.containsKey("defaultScore")) {
-      defaultScore = p.getDouble("defaultScore");
-
+      writerParams.set("defaultScore", p.getDouble("defaultScore"));
     } else {
-      // determine correct default score
-      // two passes -- first count the number of documents
-      double docCount = 0;
-      ReaderSource<DocumentUrl> reader = OrderedCombiner.combineFromFileObjs(Arrays.asList(namesFolder.listFiles()), new DocumentUrl.IdentifierOrder());
-      DocumentUrl url = reader.read();
-      while (url != null) {
-        docCount += 1;
-        url = reader.read();
+      writerParams.set("docCountStream", "docCount");
+    }
+
+    writerParams.set("docCountFolder", docCountFolder.getAbsolutePath());
+
+    writer.add(new Step(UrlToInitialPagerankScore.class, writerParams));
+    writer.add(new Step(TypeFileWriter.class, writerParams));
+
+    job.add(writer);
+    job.connect("splitUrls", "writer", ConnectionAssignmentType.Each);
+
+
+    // special stage to count the number of documents
+    if (!p.containsKey("defaultScore")) {
+      // this is used to initialize scores
+
+      Stage counterStage = new Stage("counter");
+      counterStage.addInput("urls", new FileName.FilenameOrder());
+      counterStage.addOutput("docCount", new TupleflowLong.ValueOrder());
+
+      counterStage.add(new InputStep("urls"));
+      Parameters counterParams1 = new Parameters();
+      counterParams1.set("order", Utility.join(new DocumentUrl.IdentifierOrder().getOrderSpec()));
+      counterParams1.set("outputClass", DocumentUrl.class.getCanonicalName());
+      counterStage.add(new Step(TypeFileReader.class, counterParams1));
+
+      Parameters counterParams2 = new Parameters();
+      counterParams2.set("inputClass", DocumentUrl.class.getName());
+      counterStage.add(new Step(ObjectCounter.class, counterParams2));
+
+      counterStage.add(new OutputStep("docCount"));
+
+      job.add(counterStage);
+      job.connect("splitUrls", "counter", ConnectionAssignmentType.Each);
+
+      // ensure we have a connection to the writer
+      writer.addInput("docCount", new TupleflowLong.ValueOrder());
+      job.connect("counter", "writer", ConnectionAssignmentType.Combined);
+    }
+
+    // run job
+    boolean success = runTupleFlowInstance(job, new File(outputFolder, "pagerank.init.tmp"), p, outputStream);
+
+    if (success) {
+      // read docCount
+      long docCount = 0;
+      for (File f : docCountFolder.listFiles()) {
+        String str = Utility.readFileToString(f).trim();
+        docCount += Long.parseLong(str);
       }
-      defaultScore = 1.0 / docCount;
+
+      return docCount;
     }
 
-
-    // now initialize pagerank scores to 1/|C|
-    ReaderSource<DocumentUrl> reader = OrderedCombiner.combineFromFiles(inputFiles, new DocumentUrl.IdentifierOrder());
-
-    Processor<PageRankScore> writer;
-    writer = Splitter.splitToFiles(itrZero.getAbsolutePath() + "/pagerank.", new PageRankScore.DocNameOrder(), (int) p.get("distrib", 10), CompressionType.GZIP);
-
-    // if a default is specified - we don't have a docCount, so recompute it.
-    long docCount = 0;
-    DocumentUrl url = reader.read();
-    while (url != null) {
-      PageRankScore score = new PageRankScore(url.identifier, defaultScore);
-      docCount += 1;
-      writer.process(score);
-      url = reader.read();
-    }
-
-    writer.close();
-
-    return docCount;
+    return 0;
   }
 
-  private void finalize(Parameters p, int convergenceItr) throws IOException, IncompatibleProcessorException {
+  private void finalize(Parameters p, int convergenceItr, PrintStream output) throws IOException, IncompatibleProcessorException, Exception {
+
     // open reader over final pageranks
     File outputFolder = new File(p.getString("outputFolder"));
     File finalPageranks = new File(outputFolder, "pageranks." + convergenceItr);
 
-    final File docNameOutput = new File(p.getString("outputFolder"), "pagerank.docNameOrder");
-    final File scoreOutput = new File(p.getString("outputFolder"), "pagerank.scoreOrder");
+    File docNameOutput = new File(p.getString("outputFolder"), "pagerank.docNameOrder");
+    File scoreOutput = new File(p.getString("outputFolder"), "pagerank.scoreOrder");
+
+    // final job copies the final pagerank scores to a single output file
+    Job job = new Job();
+
+    Stage stage = new Stage("final");
+
+    // collect files
+    Parameters inParams = new Parameters();
+    inParams.set("input", finalPageranks.getAbsolutePath());
+    stage.add(new Step(FileSource.class, inParams));
+
+    // open reader
+    Parameters readerParams = new Parameters();
+    readerParams.set("order", Utility.join(new PageRankScore.DocNameOrder().getOrderSpec()));
+    readerParams.set("outputClass", PageRankScore.class.getCanonicalName());
+    stage.add(new Step(TypeFileReader.class, readerParams));
 
 
+    // split into two streams
+    MultiStep fork = new MultiStep();
+    stage.add(fork);
 
-    // copy into single file: <doc-name> <score>\n
-    ReaderSource<PageRankScore> reader = OrderedCombiner.combineFromFileObjs(Arrays.asList(finalPageranks.listFiles()), new PageRankScore.DocNameOrder());
-    BufferedWriter docOrderWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(docNameOutput)));
-    PageRankScore docScore;
-    while ((docScore = reader.read()) != null) {
-      docOrderWriter.write(docScore.docName + " " + docScore.score + "\n");
-    }
-    docOrderWriter.close();
+    // fork 1 - write document-name ordered output
+    fork.addGroup("docName");
+    Parameters writerParams1 = new Parameters();
+    writerParams1.set("output", docNameOutput.getAbsolutePath());
+    fork.addToGroup("docName", new Step(FinalPageRankScoreWriter.class, writerParams1));
 
+    // fork 2 - write score ordered output
+    fork.addGroup("scores");
+    fork.addToGroup("scores", Utility.getSorter(new PageRankScore.DescScoreOrder()));
+    Parameters writerParams2 = new Parameters();
+    writerParams2.set("output", scoreOutput.getAbsolutePath());
+    fork.addToGroup("scores", new Step(FinalPageRankScoreWriter.class, writerParams2));
 
+    job.add(stage);
 
-    // copy into single file: "<doc-name> <score>\n"
-    // but this time score by scores (descending)
-    reader = OrderedCombiner.combineFromFileObjs(Arrays.asList(finalPageranks.listFiles()), new PageRankScore.DocNameOrder());
-    Sorter sorter = new Sorter(new PageRankScore.DescScoreOrder());
-    Processor<PageRankScore> writer = new Processor<PageRankScore>() {
+    // run job
+    boolean success = runTupleFlowInstance(job, new File(outputFolder, "pagerank.final.tmp"), p, output);
 
-      private BufferedWriter scoreOrderWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(scoreOutput)));
+    if (success) {
+      logger.info("...done writing output. Deleting intermediate data...");
 
-      @Override
-      public void process(PageRankScore docScore) throws IOException {
-        scoreOrderWriter.write(docScore.docName + " " + docScore.score + "\n");
-      }
-
-      @Override
-      public void close() throws IOException {
-        scoreOrderWriter.close();
-      }
-    };
-
-    reader.setProcessor(sorter);
-    sorter.setProcessor(writer);
-    reader.run();
-
-    logger.info("...done writing output.");
-
-    // finally if requested -- delete all intermediate data.
-    if (p.get("deleteIntData", false)) {
-      logger.info("Deleting intermediate data.");
-      for (File f : outputFolder.listFiles()) {
-        if (!f.getName().equals("pagerank.docNameOrder")
-                && !f.getName().equals("pagerank.scoreOrder")) {
-          if (f.isFile()) {
-            f.delete();
-          } else if (f.isDirectory()) {
-            Utility.deleteDirectory(f);
+      // finally if requested -- delete all intermediate data.
+      if (p.get("deleteIntData", false)) {
+        logger.info("Deleting intermediate data.");
+        for (File f : outputFolder.listFiles()) {
+          if (!f.getName().equals("pagerank.docNameOrder")
+                  && !f.getName().equals("pagerank.scoreOrder")) {
+            if (f.isFile()) {
+              f.delete();
+            } else if (f.isDirectory()) {
+              Utility.deleteDirectory(f);
+            }
           }
         }
       }
+    } else {
+      logger.info("...final write stage failed, intermediate data NOT deleted.");
     }
   }
 
@@ -449,5 +493,27 @@ public class PageRankFn extends AppFunction {
     // if converged, a file is created in the output directory.
 
     return stage;
+  }
+
+  private boolean runTupleFlowInstance(Job itr, File jobFolder, Parameters p, PrintStream output) throws Exception {
+    Parameters runParams = new Parameters();
+    if (p.isLong("distrib")) {
+      runParams.set("distrib", p.getLong("distrib"));
+    }
+    if (p.isLong("port")) {
+      runParams.set("port", p.getLong("port"));
+    }
+    if (p.isBoolean("server")) {
+      runParams.set("server", p.getBoolean("server"));
+    }
+    if (p.isString("mode")) {
+      runParams.set("mode", p.getString("mode"));
+    }
+
+    runParams.set("galagoJobDir", jobFolder.getAbsolutePath());
+    runParams.set("deleteJobDir", p.get("deleteJobDir", true));
+
+    return runTupleFlowJob(itr, runParams, output);
+
   }
 }
