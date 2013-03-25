@@ -3,13 +3,9 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.util.Arrays;
 import org.lemurproject.galago.core.links.pagerank.ComputeRandomJump;
 import org.lemurproject.galago.core.links.pagerank.ComputeRandomWalk;
 import org.lemurproject.galago.core.links.pagerank.ConvergenceTester;
@@ -28,21 +24,20 @@ import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.tupleflow.FileSource;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.Order;
-import org.lemurproject.galago.tupleflow.OrderedCombiner;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.ReaderSource;
-import org.lemurproject.galago.tupleflow.Sorter;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.InputStep;
 import org.lemurproject.galago.tupleflow.execution.Job;
+import org.lemurproject.galago.tupleflow.execution.JobExecutor;
 import org.lemurproject.galago.tupleflow.execution.MultiStep;
 import org.lemurproject.galago.tupleflow.execution.OutputStep;
 import org.lemurproject.galago.tupleflow.execution.Stage;
 import org.lemurproject.galago.tupleflow.execution.Step;
 import org.lemurproject.galago.tupleflow.types.FileName;
 import org.lemurproject.galago.tupleflow.types.TupleflowLong;
+import org.mortbay.jetty.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,13 +79,16 @@ public class PageRankFn extends AppFunction {
     if (!p.containsKey("lambda")) {
       p.set("lambda", 0.5);
     }
+
+    Server server = newTupleFlowServer(p);
+
     // 0 <= lambda <= 1
     assert (p.getDouble("lambda") <= 1.0 && p.getDouble("lambda") >= 0.0);
 
     File outputFolder = new File(p.getString("outputFolder"));
 
     logger.info("Initializing...");
-    long docCount = initialize(p, output);
+    long docCount = initialize(p, output, server);
 
     if (docCount == 0) {
       output.println("failed to initialize. Aborting.");
@@ -108,7 +106,7 @@ public class PageRankFn extends AppFunction {
 
       Job itr = getIterationJob(p, i);
 
-      boolean success = runTupleFlowInstance(itr, new File(outputFolder, "pagerank-job-tmp." + i), p, output);
+      boolean success = runTupleFlowInstance(itr, new File(outputFolder, "pagerank-job-tmp." + i), p, output, server);
 
       convergedAt = i;
 
@@ -126,7 +124,8 @@ public class PageRankFn extends AppFunction {
     }
 
     logger.info("Finalizing...");
-    finalize(p, convergedAt, output);
+    finalize(p, convergedAt, output, server);
+    server.stop();
     logger.info("Finished");
   }
 
@@ -137,7 +136,7 @@ public class PageRankFn extends AppFunction {
    * 
    *  returns docCount
    */
-  private long initialize(Parameters p, PrintStream outputStream) throws IOException, IncompatibleProcessorException, Exception {
+  private long initialize(Parameters p, PrintStream outputStream, Server server) throws IOException, IncompatibleProcessorException, Exception {
 
     Job job = new Job();
 
@@ -147,6 +146,7 @@ public class PageRankFn extends AppFunction {
     File outputFolder = new File(p.getString("outputFolder"));
     File itrZeroFoldr = new File(outputFolder, "pageranks.0");
     itrZeroFoldr.mkdirs();
+
     File itrZeroprefix = new File(itrZeroFoldr, "pagerank.");
     File docCountFolder = new File(outputFolder, "docCount");
     docCountFolder.mkdirs();
@@ -214,7 +214,7 @@ public class PageRankFn extends AppFunction {
     }
 
     // run job
-    boolean success = runTupleFlowInstance(job, new File(outputFolder, "pagerank.init.tmp"), p, outputStream);
+    boolean success = runTupleFlowInstance(job, new File(outputFolder, "pagerank.init.tmp"), p, outputStream, server);
 
     if (success) {
       // read docCount
@@ -230,7 +230,7 @@ public class PageRankFn extends AppFunction {
     return 0;
   }
 
-  private void finalize(Parameters p, int convergenceItr, PrintStream output) throws IOException, IncompatibleProcessorException, Exception {
+  private void finalize(Parameters p, int convergenceItr, PrintStream output, Server server) throws IOException, IncompatibleProcessorException, Exception {
 
     // open reader over final pageranks
     File outputFolder = new File(p.getString("outputFolder"));
@@ -276,7 +276,7 @@ public class PageRankFn extends AppFunction {
     job.add(stage);
 
     // run job
-    boolean success = runTupleFlowInstance(job, new File(outputFolder, "pagerank.final.tmp"), p, output);
+    boolean success = runTupleFlowInstance(job, new File(outputFolder, "pagerank.final.tmp"), p, output, server);
 
     if (success) {
       logger.info("...done writing output. Deleting intermediate data...");
@@ -495,7 +495,29 @@ public class PageRankFn extends AppFunction {
     return stage;
   }
 
-  private boolean runTupleFlowInstance(Job itr, File jobFolder, Parameters p, PrintStream output) throws Exception {
+  private Server newTupleFlowServer(Parameters p) throws Exception {
+
+    int port = (int) p.get("port", 0);
+    if (port == 0) {
+      port = Utility.getFreePort();
+    } else {
+      if (!Utility.isFreePort(port)) {
+        throw new IOException("Tried to bind to port " + port + " which is in use.");
+      }
+    }
+    Server server = new Server(port);
+    server.start();
+    System.out.println("Status: http://localhost:" + port);
+
+    return server;
+  }
+
+  private boolean runTupleFlowInstance(Job job, File jobFolder, Parameters p, PrintStream output, Server server) throws Exception {
+
+    if (!jobFolder.exists()) {
+      jobFolder.mkdirs();
+    }
+
     Parameters runParams = new Parameters();
     if (p.isLong("distrib")) {
       runParams.set("distrib", p.getLong("distrib"));
@@ -513,7 +535,19 @@ public class PageRankFn extends AppFunction {
     runParams.set("galagoJobDir", jobFolder.getAbsolutePath());
     runParams.set("deleteJobDir", p.get("deleteJobDir", true));
 
-    return runTupleFlowJob(itr, runParams, output);
+    int hash = (int) runParams.get("distrib", 0);
+    if (hash > 0) {
+      job.properties.put("hashCount", Integer.toString(hash));
+      // System.out.println(job.properties.get("hashCount"));
+    }
+
+    ErrorStore store = new ErrorStore();
+    JobExecutor.runLocallyWithServer(job, server, store, p);
+    if (store.hasStatements()) {
+      output.println(store.toString());
+      return false;
+    }
+    return true;
 
   }
 }
