@@ -62,8 +62,8 @@ public class WorkingSetTest extends TestCase {
     queryParams.set("requested", 100);
     queryParams.set("extentQuery", true);
     queryParams.set("extent", "sent");
-    queryParams.set("passageSize", 1);
-    queryParams.set("passageShift", 1);
+    queryParams.set("extentCount", 1);
+    queryParams.set("extentShift", 1);
     
     Node query = StructuredQuery.parse("#combine( test text 0 1 s0 )");
     query = ret.transformQuery(query, queryParams);
@@ -82,33 +82,54 @@ public class WorkingSetTest extends TestCase {
       assertEquals(results[i].score, -4.74, 0.01);
     }
 
-
+    // QUERY 2 ; 3:1
     query = StructuredQuery.parse("#combine( s0 80 )");
     query = ret.transformQuery(query, queryParams);
-
+    
     queryParams.set("working",
             Arrays.asList(new Integer[]{0, 1, 2, 3, 4, 89, 90, 91, 92, 93}));
-    queryParams.set("passageSize", 3);
-    queryParams.set("passageShift", 1);
+    queryParams.set("extentCount", 3);
+    queryParams.set("extentShift", 1);
     results = (ScoredPassage[]) model.execute(query, queryParams);
 
     // first 5 documents do not contain term '80', other 5 contain 3 sentences each
-    assertEquals(results.length, 10); 
-
-    for(int i=0; i<5; i++){
+    assertEquals(results.length, 10);    
+    
+    for (int i = 0; i < 5; i++) {
 //      System.out.println(results[i].toString());
       assertEquals(results[i].document, i + 89);
       assertEquals(results[i].begin, 2);
-      assertEquals(results[i].end, 302 + 3*i);
+      assertEquals(results[i].end, 302 + 3 * i);
       assertEquals(results[i].score, -5.23, 0.01);
     }
     
-    for(int i=0; i<5; i++){
-      System.out.println(results[i+5].toString());
-      assertEquals(results[i+5].document, i);
-      assertEquals(results[i+5].begin, 2);
-      assertEquals(results[i+5].end, 35 + 3*i);
-      assertEquals(results[i+5].score, -5.25, 0.01);
+    for (int i = 0; i < 5; i++) {
+      //System.out.println(results[i + 5].toString());
+      assertEquals(results[i + 5].document, i);
+      assertEquals(results[i + 5].begin, 2);
+      assertEquals(results[i + 5].end, 35 + 3 * i);
+      assertEquals(results[i + 5].score, -5.25, 0.01);
+    }
+
+    // QUERY 3; 2:2 (overhang)
+    query = StructuredQuery.parse("#combine( s0 s1 s2 2 3 )");
+    query = ret.transformQuery(query, queryParams);
+    
+    queryParams.set("working", Arrays.asList(new Integer[]{2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
+    queryParams.set("extentCount", 2);
+    queryParams.set("extentShift", 2);
+    results = (ScoredPassage[]) model.execute(query, queryParams);
+    
+    assertEquals(results.length, 20);
+    
+    for (int i = 0; i < 10; i++) {
+      assertEquals(results[i].document, i + 2);
+      assertEquals(results[i].begin, 2);
+      assertEquals(results[i].end, 28 + 2 * i);
+      
+      assertEquals(results[i + 10].document, i + 2);
+      assertEquals(results[i + 10].begin, results[i].end);
+      assertEquals(results[i + 10].end, 41 + 3 * i);
     }
   }
   

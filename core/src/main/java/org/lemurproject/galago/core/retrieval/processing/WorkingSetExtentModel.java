@@ -76,8 +76,8 @@ public class WorkingSetExtentModel extends ProcessingModel {
     // Following operations are all just setup
     int requested = (int) queryParams.get("requested", 1000);
     // passageSize and shift can be used to cover a set of extents, instead of just one
-    int passageSize = (int) queryParams.get("passageSize", 1);
-    int passageShift = (int) queryParams.get("passageShift", 1);
+    int extentSetSize = (int) queryParams.get("extentCount", 1);
+    int extentShift = (int) queryParams.get("extentShift", 1);
 
     // scoring iterator
     MovableScoreIterator iterator =
@@ -100,15 +100,30 @@ public class WorkingSetExtentModel extends ProcessingModel {
       int document = whitelist.get(i);
       context.document = document;
 
-      iterator.syncTo(document);
       extentIterator.syncTo(document);
 
       ExtentArray extents = extentIterator.extents();
+      if (extents.size() == 0) {
+        // nothing to score, skip to next document
+        continue;
+      }
+
+      // otherwise we have something to score, shift the scorer
+      iterator.syncTo(document);
 
       // passageSize, passageShift defaults to 1: all extents are scored individually.
-      for (int e = 0; e < extents.size() - (passageSize - 1); e += passageShift) {
+
+      for (int e = 0; e < extents.size(); e += extentShift) {
         context.begin = extents.begin(e);
-        context.end = extents.end(e + passageSize - 1);
+        
+        // if the window extends past the end of the array:
+        if ((e + extentSetSize - 1) >= extents.size()) {
+          context.end = extents.end(extents.size() - 1);
+        } else {
+          context.end = extents.end(e + extentSetSize - 1);
+        }
+
+        // we know that extents is non-empty.
 
         if (iterator.hasMatch(document)) {
           double score = iterator.score();
@@ -119,6 +134,11 @@ public class WorkingSetExtentModel extends ProcessingModel {
               queue.poll();
             }
           }
+        }
+
+        // if we're done - break
+        if (context.end == extents.end(extents.size() -1)) {
+          break;
         }
       }
     }
