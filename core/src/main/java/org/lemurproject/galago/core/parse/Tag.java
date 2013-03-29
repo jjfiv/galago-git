@@ -72,6 +72,7 @@ public class Tag implements Comparable<Tag>, Serializable {
 
     builder.append("<");
     builder.append(name);
+    builder.append(" [").append(begin).append("-").append(end).append("]");
 
     for (Entry<String, String> entry : attributes.entrySet()) {
       builder.append(' ');

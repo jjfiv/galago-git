@@ -69,7 +69,7 @@ public class Document implements Serializable {
     if (tags != null) {
       sb.append("\nTags: \n");
       for (Tag t : tags) {
-        sb.append(t).append(" ");
+        sb.append(t.toString()).append(" ");
       }
     }
 

@@ -88,7 +88,9 @@ public abstract class ProcessingModel {
     }
 
     if (p.containsKey("working")) {
-      if (p.get("passageQuery", false)) {
+      if (p.get("extentQuery", false)) {
+        return new WorkingSetExtentModel(r);
+      } else if (p.get("passageQuery", false)) {
         return new WorkingSetPassageModel(r);
       } else {
         return new WorkingSetDocumentModel(r);

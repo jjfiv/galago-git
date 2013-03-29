@@ -1,9 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
@@ -30,7 +30,9 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * (12/5/2011, irmarc): Added a check for wrapping extent operators with extent filters for passage
  *                        retrieval.
  *
- * @author trevor, irmarc
+ * (3/2013, sjh) Added check for expected node type to restrict the conversion of extent nodes to count nodes
+ * 
+ * @author trevor, irmarc, sjh
  */
 public class ImplicitFeatureCastTraversal extends Traversal {
 
@@ -46,27 +48,40 @@ public class ImplicitFeatureCastTraversal extends Traversal {
 
   private Node createSmoothingNode(Node child) throws Exception {
 
+    ArrayList<Node> data = new ArrayList<Node>();
+    data.add(child);
+    String scorerType = globals.get("scorer", "dirichlet");
+
+    // this should happen in it's own traversal.
+    if (child.getOperator().equals("mincount")) { //experimental
+      scorerType = scorerType + "-est";
+      for (Node grandchild : child.getInternalNodes()) {
+        if (grandchild.getOperator().equals("extents")) {
+          grandchild.setOperator("counts");
+        }
+      }
+    }
+
+    Node smoothed = new Node("feature", scorerType, data, child.getPosition());
+
     /** Check if the child is an 'extents' node
      *    If so - we can replace extents with counts.
      *    This can lead to performance improvements within positions indexes
      *    as the positional data does NOT need to be read for the feature scorer to operate.
      */
     if (child.getOperator().equals("extents")) {
-      child.setOperator("counts");
-    }
+      NodeType nt = retrieval.getNodeType(smoothed);
+      Constructor cons = nt.getConstructor();
+      Class[] params = cons.getParameterTypes();
 
-    ArrayList<Node> data = new ArrayList<Node>();
-    data.add(child);
-    String scorerType = globals.get("scorer", "dirichlet");
-    if (child.getOperator().equals("mincount")) { //experimental
-      scorerType = scorerType + "-est";
-      for (Node grandchild : child.getInternalNodes()) {
-        if (child.getOperator().equals("extents")) {
-          child.setOperator("counts");
-        }
+      boolean requiresExtents = false;
+      for (int idx = 0; idx < params.length; idx++) {
+        requiresExtents |= MovableExtentIterator.class.isAssignableFrom(params[idx]);
+      }
+      if (!requiresExtents) {
+        child.setOperator("counts");
       }
     }
-    Node smoothed = new Node("feature", scorerType, data, child.getPosition());
 
     if (!globals.get("topdocs", false)) {
       return smoothed;
@@ -195,8 +210,8 @@ public class ImplicitFeatureCastTraversal extends Traversal {
   }
 
   private Node addExtentFilters(Node in) throws Exception {
-    boolean passageQuery = this.globals.get("passageQuery", false);
-    passageQuery = this.queryParams.get("passageQuery", passageQuery);
+    boolean passageQuery = this.globals.get("passageQuery", false) || this.globals.get("extentQuery", false);
+    passageQuery = this.queryParams.get("passageQuery", passageQuery) || this.queryParams.get("extentQuery", passageQuery);
     if (passageQuery) {
       // replace here
       if (in.numChildren() == 0) {

@@ -17,25 +17,25 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class InsideToFieldPartTraversal extends Traversal {
 
-    Parameters availableParts;
-    private Parameters globalParameters;
+  Parameters availableParts;
+  private Parameters globalParameters;
 
-    public InsideToFieldPartTraversal(Retrieval retrieval) throws IOException {
-        this.availableParts = retrieval.getAvailableParts();
-        globalParameters = retrieval.getGlobalParameters();
-    }
+  public InsideToFieldPartTraversal(Retrieval retrieval) throws IOException {
+    this.availableParts = retrieval.getAvailableParts();
+    globalParameters = retrieval.getGlobalParameters();
+  }
 
-    @Override
-    public void beforeNode(Node original) throws Exception {
-    }
+  @Override
+  public void beforeNode(Node original) throws Exception {
+  }
 
-    @Override
-    public Node afterNode(Node original) throws Exception {
-        if (original.getOperator().equals("inside")) {
-            // a way out - in case you really want it.
-            if (original.getNodeParameters().get("noOpt", false)) {
-                return original;
-            }
+  @Override
+  public Node afterNode(Node original) throws Exception {
+    if (original.getOperator().equals("inside")) {
+      // a way out - in case you really want it.
+      if (original.getNodeParameters().get("noOpt", false)) {
+        return original;
+      }
 
       List<Node> children = original.getInternalNodes();
       if (children.size() != 2) {
@@ -49,17 +49,17 @@ public class InsideToFieldPartTraversal extends Traversal {
       assert (field.getOperator().equals("extents")
               && field.getNodeParameters().isString("part"));
 
-            String fieldPart = text.getNodeParameters().getString("part").replaceFirst("postings", "field") + "." + field.getDefaultParameter();
+      String fieldPart = text.getNodeParameters().getString("part").replaceFirst("postings", "field") + "." + field.getDefaultParameter();
 
-            if (!availableParts.containsKey(fieldPart)) {
-                return original;
-            }
+      if (!availableParts.containsKey(fieldPart)) {
+        return original;
+      }
 
-            Node n = TextPartAssigner.transformedNode(text.clone(), fieldPart);
-            n.setOperator("extents");
-            return n;
-        } else {
-            return original;
-        }
+      Node n = TextPartAssigner.transformedNode(text.clone(), fieldPart);
+      n.setOperator("extents");
+      return n;
+    } else {
+      return original;
     }
+  }
 }
