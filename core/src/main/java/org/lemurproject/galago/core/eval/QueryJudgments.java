@@ -65,6 +65,14 @@ public class QueryJudgments {
     }
   }
 
+  public boolean isJudged(String documentName) {
+    if (this.judgments.containsKey(documentName)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
   public int getRelevantJudgmentCount() {
     return this.relevant_judgment_count;
   }
