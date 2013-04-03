@@ -8,10 +8,9 @@ import java.util.TreeMap;
 
 /**
  * This class store a relevance judgment of documents for a specific query.
- * Relevance is represented by an integer
- *  - positive indicates that the document is relevant
- *  - zero indicates that the document is not relevant
- *  - negative indicates that the document is detrimental to results (irrelevant)
+ * Relevance is represented by an integer - positive indicates that the document
+ * is relevant - zero indicates that the document is not relevant - negative
+ * indicates that the document is detrimental to results (irrelevant)
  *
  * @author sjh, trevor
  */
@@ -19,10 +18,10 @@ public class QueryJudgments {
 
   // each instance of QueryJudgments correspond to some query
   private String queryName;
-  /** mapping from documentNumber to judgment value
-   * where positive values mean relevant, 
-   * where negative values mean irrelevant, 
-   * and zero means not relevant. 
+  /**
+   * mapping from documentNumber to judgment value where positive values mean
+   * relevant, where negative values mean irrelevant, and zero means not
+   * relevant.
    */
   private TreeMap<String, Integer> judgments;
   // global stats
@@ -66,13 +65,9 @@ public class QueryJudgments {
   }
 
   public boolean isJudged(String documentName) {
-    if (this.judgments.containsKey(documentName)) {
-      return true;
-    } else {
-      return false;
-    }
+    return this.judgments.containsKey(documentName);
   }
-  
+
   public int getRelevantJudgmentCount() {
     return this.relevant_judgment_count;
   }
@@ -92,7 +87,7 @@ public class QueryJudgments {
   public Iterable<Integer> getIterator() {
     return judgments.values();
   }
-  
+
   public Set<String> getDocumentSet() {
     return judgments.keySet();
   }
