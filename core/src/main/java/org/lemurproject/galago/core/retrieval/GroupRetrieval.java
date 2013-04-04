@@ -197,19 +197,19 @@ public class GroupRetrieval implements Retrieval {
     return groups.get(group).getIndexPartStatistics(partName);
   }
 
-  public CollectionStatistics collectionStatistics(String nodeString, String group) throws Exception {
+  public CollectionStatistics getCollectionStatistics(String nodeString, String group) throws Exception {
     return groups.get(group).getCollectionStatistics(nodeString);
   }
 
-  public CollectionStatistics collectionStatistics(Node node, String group) throws Exception {
+  public CollectionStatistics getCollectionStatistics(Node node, String group) throws Exception {
     return groups.get(group).getCollectionStatistics(node);
   }
 
-  public NodeStatistics nodeStatistics(String nodeString, String group) throws Exception {
+  public NodeStatistics getNodeStatistics(String nodeString, String group) throws Exception {
     return groups.get(group).getNodeStatistics(nodeString);
   }
 
-  public NodeStatistics nodeStatistics(Node node, String group) throws Exception {
+  public NodeStatistics getNodeStatistics(Node node, String group) throws Exception {
     return groups.get(group).getNodeStatistics(node);
   }
 

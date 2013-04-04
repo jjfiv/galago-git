@@ -132,7 +132,7 @@ public class AnnotateCollectionStatistics extends Traversal {
   private CollectionStatistics getCollectionStatistics(String field) throws Exception {
     if (globalParameters.isString("backgroundIndex")) {
       assert (GroupRetrieval.class.isAssignableFrom(retrieval.getClass())) : "Retrieval object must be a GroupRetrieval to use the backgroundIndex parameter.";
-      return ((GroupRetrieval) retrieval).collectionStatistics("#lengths:"+field+":part=lengths()", globalParameters.getString("backgroundIndex"));
+      return ((GroupRetrieval) retrieval).getCollectionStatistics("#lengths:"+field+":part=lengths()", globalParameters.getString("backgroundIndex"));
 
     } else {
       return retrieval.getCollectionStatistics("#lengths:"+field+":part=lengths()");
@@ -159,7 +159,7 @@ public class AnnotateCollectionStatistics extends Traversal {
 
     if (globalParameters.isString("backgroundIndex")) {
       assert (GroupRetrieval.class.isAssignableFrom(retrieval.getClass())) : "Retrieval object must be a GroupRetrieval to use the backgroundIndex parameter.";
-      return ((GroupRetrieval) retrieval).nodeStatistics(n, globalParameters.getString("backgroundIndex"));
+      return ((GroupRetrieval) retrieval).getNodeStatistics(n, globalParameters.getString("backgroundIndex"));
 
     } else {
       return retrieval.getNodeStatistics(n);
