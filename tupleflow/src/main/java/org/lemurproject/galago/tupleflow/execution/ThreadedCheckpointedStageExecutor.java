@@ -11,9 +11,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.lemurproject.galago.tupleflow.ExNihiloSource;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * This executor has no practical use at all. It's only here to make it easy to
@@ -37,13 +36,27 @@ public class ThreadedCheckpointedStageExecutor extends CheckpointedStageExecutor
     boolean isQueued;
     NetworkedCounterManager counterManager;
     CountDownLatch latch;
+    String instanceFile;
+    File errorFile;
+    File completeFile;
 
-    public InstanceRunnable(StageInstanceDescription description,
+    public InstanceRunnable(String instanceFile,
             NetworkedCounterManager manager,
             CountDownLatch latch) {
       this.isRunning = false;
       this.isQueued = true;
-      this.description = description;
+      this.instanceFile = instanceFile;
+      this.errorFile = new File(instanceFile + ".error");
+      this.completeFile = new File(instanceFile + ".complete");
+      this.description = null;
+      
+      try {
+        ObjectInputStream stream = new ObjectInputStream(new FileInputStream(new File(instanceFile)));
+        this.description = (StageInstanceDescription) stream.readObject();
+      } catch (Exception e) {
+        exception = e; // fails from the start.
+      }
+
       this.exception = null;
       this.counterManager = manager;
       this.latch = latch;
@@ -80,14 +93,28 @@ public class ThreadedCheckpointedStageExecutor extends CheckpointedStageExecutor
     @Override
     public void run() {
       try {
-        setIsQueued(false);
-        setIsRunning(true);
-        StageInstanceFactory factory = new StageInstanceFactory(counterManager);
-        ExNihiloSource source = factory.instantiate(description);
-        source.run();
-      } catch (Exception e) {
-        setException(e);
+        if(description != null){
+          setIsQueued(false);
+          setIsRunning(true);
+          StageInstanceFactory factory = new StageInstanceFactory(counterManager);
+          ExNihiloSource source = factory.instantiate(description);
+          source.run();
+        } 
+      } catch (Throwable e) {
+        setException(new Exception(e));
+
       } finally {
+        try{
+          if(this.exception == null){
+            completeFile.createNewFile();
+          } else {
+            Utility.copyStringToFile(this.exception.toString(), errorFile);
+          }
+        } catch(IOException e){
+          System.err.println(e.toString() + "\nFailed to write complete/error file");
+          // don't care about this exception -- could not write complete/error
+        }
+        
         latch.countDown();
         setIsRunning(false);
       }
@@ -113,9 +140,7 @@ public class ThreadedCheckpointedStageExecutor extends CheckpointedStageExecutor
 
       try {
         for (String instanceFile : instanceFiles) {
-          ObjectInputStream stream = new ObjectInputStream(new FileInputStream(new File(instanceFile)));
-          StageInstanceDescription instance = (StageInstanceDescription) stream.readObject();
-          instances.add(new InstanceRunnable(instance, manager, latch));
+          instances.add(new InstanceRunnable(instanceFile, manager, latch));
         }
       } catch (Exception ex) {
         throw new RuntimeException("Failed to read job file: " + ex.toString());

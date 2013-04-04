@@ -1,12 +1,18 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow.execution;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lemurproject.galago.tupleflow.ExNihiloSource;
 
 /**
@@ -17,7 +23,7 @@ import org.lemurproject.galago.tupleflow.ExNihiloSource;
  * runs everything in a single thread, but it serializes the job information and
  * then reads it again.
  *
- * @author trevor
+ * @author sjh
  */
 public class LocalCheckpointedStageExecutor extends CheckpointedStageExecutor {
 
@@ -30,6 +36,7 @@ public class LocalCheckpointedStageExecutor extends CheckpointedStageExecutor {
     int runningInstances = 0;
     int completedInstances = 0;
     boolean done = false;
+    private Logger logger = Logger.getLogger("LocalCheckpointedStageExecutor");
 
     public LocalExecutionStatus(String stageName, List<String> instanceFiles) {
       this.stageName = stageName;
@@ -42,13 +49,13 @@ public class LocalCheckpointedStageExecutor extends CheckpointedStageExecutor {
 
     @Override
     public void run() {
-      List<StageInstanceDescription> instances = new ArrayList();
+      Map<String, StageInstanceDescription> instances = new HashMap();
 
       for (String instanceFile : instanceFiles) {
         try {
           ObjectInputStream stream = new ObjectInputStream(new FileInputStream(new File(instanceFile)));
           StageInstanceDescription instance = (StageInstanceDescription) stream.readObject();
-          instances.add(instance);
+          instances.put(instanceFile, instance);
         } catch (Exception e) {
           exceptions.add(e);
         }
@@ -64,18 +71,33 @@ public class LocalCheckpointedStageExecutor extends CheckpointedStageExecutor {
       StageInstanceFactory factory = new StageInstanceFactory(manager);
       manager.start();
 
-      for (StageInstanceDescription instance : instances) {
+      for (String instanceFile : instanceFiles) {
         synchronized (this) {
           runningInstances += 1;
           queuedInstances -= 1;
         }
 
-        try {
-          ExNihiloSource source = factory.instantiate(instance);
-          source.run();
-        } catch (Throwable err) {
-          err.printStackTrace();
-          addException(new Exception(err));
+        File errorFile = new File(instanceFile + ".error");
+        File completeFile = new File(instanceFile + ".complete");
+
+        if (completeFile.exists()) {
+          // already done -- skip this one.
+          logger.info("Skipping instance early because a complete checkpoint was found.");
+        } else {
+
+          // otherwise remove .error
+          if (errorFile.exists()) {
+            errorFile.delete();
+          }
+
+          // run job
+          try {
+            ExNihiloSource source = factory.instantiate(instances.get(instanceFile));
+            source.run();
+          } catch (Throwable err) {
+            err.printStackTrace();
+            addException(new Exception(err.toString()));
+          }
         }
 
         synchronized (this) {
@@ -83,8 +105,29 @@ public class LocalCheckpointedStageExecutor extends CheckpointedStageExecutor {
           completedInstances += 1;
         }
 
-        if (exceptions.size() > 0) {
-          // we have an exception - break and quit cleanly.
+        // cleanup -- write the complete/error file
+        if (exceptions.isEmpty()) {
+          // no exceptions -- write the complete file, wait for it to exist.
+          try {
+            completeFile.createNewFile();
+          } catch (IOException ex) {
+            // if we failed to write the complete file -- log and quit
+            logger.log(Level.SEVERE, null, ex);
+            break;
+          }
+
+        } else {
+          // some exceptions..., write .error and quit
+          try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(errorFile));
+            for (Exception e : exceptions) {
+              writer.write(e.toString());
+              writer.write("\n");
+            }
+            writer.close();
+          } catch (IOException ex) {
+            logger.log(Level.SEVERE, null, ex);
+          }
           break;
         }
       }
