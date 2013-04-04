@@ -99,10 +99,6 @@ public class WorkingSetExtentModel extends ProcessingModel {
     // now there should be an iterator at the root of this tree
     for (int i = 0; i < whitelist.size(); i++) {
 
-      if (queryParams.get("verbose", false)) {
-        System.err.println("scoring " + whitelist.get(i));
-      }
-
       int document = whitelist.get(i);
       context.document = document;
 
@@ -129,16 +125,7 @@ public class WorkingSetExtentModel extends ProcessingModel {
           context.end = extents.end(e + extentSetSize - 1);
         }
 
-        if (queryParams.get("verbose", false)) {
-          System.err.println("  @ extent " + context.begin + " " + context.end);
-        }
-
         if (iterator.hasMatch(document)) {
-
-          if (queryParams.get("verbose", false)) {
-            System.err.println("  iterator: \n" + iterator.getAnnotatedNode().toString());
-          }
-
 
           double score = iterator.score();
           if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
