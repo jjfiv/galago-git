@@ -17,18 +17,15 @@ import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- * Performs extent-level retrieval scoring. Scores each named 
- *  extent in the document. Useful for scoring sentences or paragraphs.
- * 
- * Can also score seqential sets of extents.
- *  (but it assumes no break in extents) -- any gaps will be scored.
- * 
- * 
- * to use:
- *  --extentQuery=true
- *  --extent=name
- *  --working=[names/numbers]
- * 
+ * Performs extent-level retrieval scoring. Scores each named extent in the
+ * document. Useful for scoring sentences or paragraphs.
+ *
+ * Can also score seqential sets of extents. (but it assumes no break in
+ * extents) -- any gaps will be scored.
+ *
+ *
+ * to use: --extentQuery=true --extent=name --working=[names/numbers]
+ *
  * @author sjh
  */
 public class WorkingSetExtentModel extends ProcessingModel {
@@ -92,11 +89,20 @@ public class WorkingSetExtentModel extends ProcessingModel {
             StructuredQuery.parse("#extents:" + extent + ":part=extents()"),
             context);
 
+    if (extentIterator.isDone()) {
+      System.err.println("Failed to find iterator for extent " + extent);
+      return null;
+    }
 
     PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
 
     // now there should be an iterator at the root of this tree
     for (int i = 0; i < whitelist.size(); i++) {
+
+      if (queryParams.get("verbose", false)) {
+        System.err.println("scoring " + whitelist.get(i));
+      }
+
       int document = whitelist.get(i);
       context.document = document;
 
@@ -115,7 +121,7 @@ public class WorkingSetExtentModel extends ProcessingModel {
 
       for (int e = 0; e < extents.size(); e += extentShift) {
         context.begin = extents.begin(e);
-        
+
         // if the window extends past the end of the array:
         if ((e + extentSetSize - 1) >= extents.size()) {
           context.end = extents.end(extents.size() - 1);
@@ -123,9 +129,17 @@ public class WorkingSetExtentModel extends ProcessingModel {
           context.end = extents.end(e + extentSetSize - 1);
         }
 
-        // we know that extents is non-empty.
+        if (queryParams.get("verbose", false)) {
+          System.err.println("  @ extent " + context.begin + " " + context.end);
+        }
 
         if (iterator.hasMatch(document)) {
+
+          if (queryParams.get("verbose", false)) {
+            System.err.println("  iterator: \n" + iterator.getAnnotatedNode().toString());
+          }
+
+
           double score = iterator.score();
           if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
             ScoredPassage scored = new ScoredPassage(document, score, context.begin, context.end);
@@ -137,7 +151,7 @@ public class WorkingSetExtentModel extends ProcessingModel {
         }
 
         // if we're done - break
-        if (context.end == extents.end(extents.size() -1)) {
+        if (context.end == extents.end(extents.size() - 1)) {
           break;
         }
       }
