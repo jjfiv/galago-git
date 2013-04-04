@@ -46,7 +46,7 @@ public class BuildSpecialPartTest extends TestCase {
       // now build an index from that
       indexFile = Utility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + indexFile.getAbsolutePath(),
-                "--inputPath=" + trecCorpusFile.getAbsolutePath()});
+                "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--server=false"});
 
       String indicators =
               "d1\n"
@@ -60,7 +60,7 @@ public class BuildSpecialPartTest extends TestCase {
 
       App.main(new String[]{"build-special", "--indexPath=" + indexFile.getAbsolutePath(),
                 "--inputPath=" + indicatorFile.getAbsolutePath(), "--type=indicator",
-                "--partName=testingIndicators"});
+                "--partName=testingIndicators", "--server=false"});
 
       DocumentIndicatorReader reader = new DocumentIndicatorReader(indexFile.getAbsolutePath() + File.separator + "testingIndicators");
 
@@ -166,11 +166,11 @@ public class BuildSpecialPartTest extends TestCase {
       indexFile = Utility.createTemporary();
       indexFile.delete();
       App.main(new String[]{"build", "--indexPath=" + indexFile.getAbsolutePath(),
-                "--inputPath=" + trecCorpusFile.getAbsolutePath()});
+                "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--server=false"});
 
       App.main(new String[]{"build-special", "--indexPath=" + indexFile.getAbsolutePath(),
                 "--inputPath=" + priorFile.getAbsolutePath(), "--type=prior",
-                "--partName=testingPriors"});
+                "--partName=testingPriors", "--server=false"});
 
       DocumentPriorReader reader = new DocumentPriorReader(indexFile.getAbsolutePath() + File.separator + "testingPriors");
 

@@ -49,6 +49,7 @@ public class BuildWindowIndexTest extends TestCase {
       indexParams.set("inputPath", Collections.singletonList(trecFolder.getAbsolutePath()));
       indexParams.set("indexPath", index.getAbsolutePath());
       indexParams.set("stemmedPostings", false);
+      indexParams.set("server", false);
       indexParams.set("tokenizer", new Parameters());
       indexParams.set("fieldIndex", false);
       indexParams.getMap("tokenizer").set("fields", Collections.singletonList("f"));
@@ -58,6 +59,7 @@ public class BuildWindowIndexTest extends TestCase {
       windowParams_count_NSE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_count_NSE.set("indexPath", index.getAbsolutePath());
       windowParams_count_NSE.set("stemming", false);
+      windowParams_count_NSE.set("server", false);
       windowParams_count_NSE.set("n", 3);
       windowParams_count_NSE.set("threshold", 2);
       windowParams_count_NSE.set("spaceEfficient", false);
@@ -70,6 +72,7 @@ public class BuildWindowIndexTest extends TestCase {
       windowParams_count_SE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_count_SE.set("indexPath", index.getAbsolutePath());
       windowParams_count_SE.set("stemming", false);
+      windowParams_count_SE.set("server", false);
       windowParams_count_SE.set("n", 3);
       windowParams_count_SE.set("threshold", 2);
       windowParams_count_SE.set("spaceEfficient", true);
@@ -82,6 +85,7 @@ public class BuildWindowIndexTest extends TestCase {
       windowParams_posit_NSE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_posit_NSE.set("indexPath", index.getAbsolutePath());
       windowParams_posit_NSE.set("stemming", false);
+      windowParams_posit_NSE.set("server", false);
       windowParams_posit_NSE.set("n", 3);
       windowParams_posit_NSE.set("threshold", 2);
       windowParams_posit_NSE.set("spaceEfficient", false);
@@ -94,6 +98,7 @@ public class BuildWindowIndexTest extends TestCase {
       windowParams_posit_SE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_posit_SE.set("indexPath", index.getAbsolutePath());
       windowParams_posit_SE.set("stemming", false);
+      windowParams_posit_SE.set("server", false);
       windowParams_posit_SE.set("n", 3);
       windowParams_posit_SE.set("threshold", 2);
       windowParams_posit_SE.set("spaceEfficient", true);
@@ -228,6 +233,7 @@ public class BuildWindowIndexTest extends TestCase {
       indexParams.set("inputPath", Collections.singletonList(trecFolder.getAbsolutePath()));
       indexParams.set("indexPath", index.getAbsolutePath());
       indexParams.set("stemmedPostings", false);
+      indexParams.set("server", false);
       indexParams.set("tokenizer", new Parameters());
       indexParams.set("fieldIndex", false);
       indexParams.getMap("tokenizer").set("fields", Collections.singletonList("f"));
@@ -237,6 +243,7 @@ public class BuildWindowIndexTest extends TestCase {
       windowParams_count_NSE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_count_NSE.set("indexPath", index.getAbsolutePath());
       windowParams_count_NSE.set("stemming", false);
+      windowParams_count_NSE.set("server", false);
       windowParams_count_NSE.set("n", 3);
       windowParams_count_NSE.set("ordered", false);
       windowParams_count_NSE.set("width", 12);
@@ -251,6 +258,7 @@ public class BuildWindowIndexTest extends TestCase {
       windowParams_count_SE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_count_SE.set("indexPath", index.getAbsolutePath());
       windowParams_count_SE.set("stemming", false);
+      windowParams_count_SE.set("server", false);
       windowParams_count_SE.set("n", 3);
       windowParams_count_SE.set("ordered", false);
       windowParams_count_SE.set("width", 12);
@@ -265,6 +273,7 @@ public class BuildWindowIndexTest extends TestCase {
       windowParams_posit_NSE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_posit_NSE.set("indexPath", index.getAbsolutePath());
       windowParams_posit_NSE.set("stemming", false);
+      windowParams_count_SE.set("server", false);
       windowParams_posit_NSE.set("n", 3);
       windowParams_posit_NSE.set("ordered", false);
       windowParams_posit_NSE.set("width", 12);
@@ -279,6 +288,7 @@ public class BuildWindowIndexTest extends TestCase {
       windowParams_posit_SE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_posit_SE.set("indexPath", index.getAbsolutePath());
       windowParams_posit_SE.set("stemming", false);
+      windowParams_count_SE.set("server", false);
       windowParams_posit_SE.set("n", 3);
       windowParams_posit_SE.set("ordered", false);
       windowParams_posit_SE.set("width", 12);

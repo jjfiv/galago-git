@@ -30,15 +30,15 @@ public class StageExecutorFactory {
                 return null;
             }
         } else if (name.startsWith("thread")) {
-            return new ThreadedStageExecutor();
+            return new ThreadedCheckpointedStageExecutor();
         } else if (name.startsWith("ssh")) {
             return new SSHStageExecutor(args[0], Arrays.asList(Utility.subarray(args, 1)));
         } else if (name.equals("remotedebug")) {
-            return new LocalRemoteStageExecutor();
+            return new LocalCheckpointedStageExecutor();
         } else if (name.startsWith("drmaa")) {
             return new DRMAAStageExecutor(args);
         } else {
-            return new LocalStageExecutor();
+            return new LocalCheckpointedStageExecutor();
         }
     }
 }

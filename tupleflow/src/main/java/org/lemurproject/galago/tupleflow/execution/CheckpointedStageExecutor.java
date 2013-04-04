@@ -6,15 +6,12 @@ import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
  * @author trevor
  */
-public abstract class RemoteStageExecutor implements StageExecutor {
+public abstract class CheckpointedStageExecutor implements StageExecutor {
 
   public abstract StageExecutionStatus submit(String stageName, ArrayList<String> jobPaths, String temporary);
 
@@ -25,13 +22,12 @@ public abstract class RemoteStageExecutor implements StageExecutor {
 
     try {
       String output = temporary + File.separator + "stdout";
-      new File(output).mkdir();
+      new File(output).mkdirs();
       String stderr = temporary + File.separator + "stderr";
-      new File(stderr).mkdir();
+      new File(stderr).mkdirs();
       String jobsDirectory = temporary + File.separator + "jobs";
-      new File(jobsDirectory).mkdir();
       String stageJobsDirectory = jobsDirectory + File.separator + stage.getName();
-      new File(stageJobsDirectory).mkdir();
+      new File(stageJobsDirectory).mkdirs();
 
       List<StageInstanceDescription> instances = stage.getInstances();
 

@@ -30,7 +30,7 @@ import org.ggf.drmaa.SessionFactory;
  *
  * @author trevor, sjh, schiu, irmarc
  */
-public class DRMAAStageExecutor extends RemoteStageExecutor {
+public class DRMAAStageExecutor extends CheckpointedStageExecutor {
 
   Session session;
   // Flag to set the verbose mode (either on or off)

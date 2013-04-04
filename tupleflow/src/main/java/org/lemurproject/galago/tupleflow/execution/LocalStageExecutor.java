@@ -32,80 +32,85 @@ public class LocalStageExecutor implements StageExecutor {
     int completedInstances = 0;
     boolean done = false;
 
-    SequentialExecutionContext(String name, List<StageInstanceDescription> instances) {
+    public SequentialExecutionContext(String name, List<StageInstanceDescription> instances) {
       this.name = name;
       this.instances = instances;
       this.queuedInstances = instances.size();
     }
 
-    public synchronized void markDone() {
-      completedInstances = instances.size();
-      runningInstances = 0;
-      completedInstances = 0;
-      done = true;
-    }
-
+    @Override
     public void run() {
-      Logger logger = Logger.getLogger(JobExecutor.class.toString());
-      try {
-        for (StageInstanceDescription instance : instances) {
-          synchronized (this) {
-            runningInstances++;
-            queuedInstances--;
-          }
-          NetworkedCounterManager manager = new NetworkedCounterManager();
-          StageInstanceFactory factory = new StageInstanceFactory(manager);
-          manager.start();
+      NetworkedCounterManager manager = new NetworkedCounterManager();
+      StageInstanceFactory factory = new StageInstanceFactory(manager);
+      manager.start();
+
+      for (StageInstanceDescription instance : instances) {
+        synchronized (this) {
+          runningInstances += 1;
+          queuedInstances -= 1;
+        }
+
+        try {
           ExNihiloSource source = factory.instantiate(instance);
           source.run();
-          manager.stop();
-          synchronized (this) {
-            runningInstances--;
-            completedInstances++;
-          }
+
+        } catch (Throwable err) {
+          err.printStackTrace();
+          addException(new Exception(err));
         }
 
-      } catch (Throwable err) {
-        // this will try to catch even memory exceptions //
         synchronized (this) {
-          err.printStackTrace();
-          exceptions.add(new Exception(err.getMessage()));
+          runningInstances -= 1;
+          completedInstances += 1;
         }
-      } finally {
-        synchronized (this) {
-          done = true;
+
+        if (exceptions.size() > 0) {
+          // we have an exception - break and quit cleanly.
+          break;
         }
+      }
+      synchronized (this) {
+        manager.stop();
+        done = true;
       }
     }
 
+    @Override
     public String getName() {
       return name;
     }
 
+    @Override
     public int getBlockedInstances() {
       return 0;
     }
 
+    @Override
     public synchronized int getQueuedInstances() {
       return queuedInstances;
     }
 
+    @Override
     public synchronized int getRunningInstances() {
       return runningInstances;
     }
 
+    @Override
     public int getCompletedInstances() {
       return completedInstances;
     }
 
+    @Override
     public synchronized boolean isDone() {
       return done;
     }
 
+    @Override
     public synchronized List<Exception> getExceptions() {
       return exceptions;
     }
 
+    @Override
     public synchronized List<Double> getRunTimes() {
       ArrayList<Double> times = new ArrayList();
       // do something
@@ -117,6 +122,7 @@ public class LocalStageExecutor implements StageExecutor {
     }
   }
 
+  @Override
   public SequentialExecutionContext execute(StageGroupDescription stage, String temporary) {
     SequentialExecutionContext context =
             new SequentialExecutionContext(stage.getName(), stage.getInstances());
@@ -124,22 +130,18 @@ public class LocalStageExecutor implements StageExecutor {
     return context;
   }
 
-  public SequentialExecutionContext execute(StageInstanceDescription stage) {
-    SequentialExecutionContext context =
-            new SequentialExecutionContext(stage.getName(), Collections.singletonList(stage));
-    context.run();
-    return context;
-  }
-
   public StageExecutionStatus execute(String descriptionFile) {
     File errorFile = new File(descriptionFile + ".error");
     File completeFile = new File(descriptionFile + ".complete");
+
     SequentialExecutionContext result = null;
 
-    Logger logger = Logger.getLogger(JobExecutor.class.toString());
+    Logger logger = Logger.getLogger(JobExecutor.class
+            .toString());
     StageInstanceDescription stage = null;
 
     // try to parse the stage description from disk
+
     try {
       ObjectInputStream stream =
               new ObjectInputStream(new FileInputStream(new File(descriptionFile)));
@@ -153,7 +155,6 @@ public class LocalStageExecutor implements StageExecutor {
       logger.info("Exiting early because a complete checkpoint was found.");
       result = new SequentialExecutionContext(stage.getName(),
               Collections.singletonList(stage));
-      result.markDone();
       return result;
     }
 
@@ -163,7 +164,12 @@ public class LocalStageExecutor implements StageExecutor {
     }
 
     logger.info("Stage instance " + descriptionFile + " initialized. Executing.");
-    result = execute(stage);
+
+    // now. run this job.
+    result = new SequentialExecutionContext(stage.getName(),
+            Collections.singletonList(stage));
+
+    result.run();
 
     try {
       if (result.getExceptions().size() > 0) {
@@ -185,12 +191,12 @@ public class LocalStageExecutor implements StageExecutor {
           } catch (Exception e) {
           } // Don't care about interruption errors
         } while (count++ < 60); // 1 min timeout
-        
-      }
-    } catch (Exception e) {
-      logger.warning("Trouble writing completion/error files: " + errorFile.toString());
-    }
 
+      }
+    } catch (IOException e) {
+      logger.warning("Trouble writing completion/error files: " + errorFile.toString());
+      // not much else we can do.
+    }
     return result;
   }
 
@@ -199,13 +205,18 @@ public class LocalStageExecutor implements StageExecutor {
   }
 
   public static void main(String[] args) throws UnsupportedEncodingException, ParserConfigurationException, SAXException, IOException, ClassNotFoundException {
-    Logger logger = Logger.getLogger(JobExecutor.class.toString());
+    Logger logger = Logger.getLogger(JobExecutor.class
+            .toString());
 
     String stageDescriptionFile = args[0];
-    logger.info("Initializing: " + stageDescriptionFile);
+
+    logger.info(
+            "Initializing: " + stageDescriptionFile);
 
     // Need this to deal with slow lustre filesystem on swarm...
     int count = 0;
+
+
     do {
       File descFile = new File(stageDescriptionFile);
       if (descFile.canRead()) {
@@ -219,7 +230,8 @@ public class LocalStageExecutor implements StageExecutor {
 
     StageExecutionStatus context = new LocalStageExecutor().execute(stageDescriptionFile);
 
-    if (context.getExceptions().size() > 0) {
+    if (context.getExceptions()
+            .size() > 0) {
       logger.severe("Exception thrown: " + context.getExceptions().get(0).toString());
       System.exit(1); // force quit on any remaining threads (particularly: NetworkCounter)
     } else {

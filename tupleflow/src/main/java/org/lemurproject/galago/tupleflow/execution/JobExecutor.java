@@ -1093,15 +1093,6 @@ public class JobExecutor {
     }
   }
 
-  public void run(StageExecutor executor) throws InterruptedException, ExecutionException, UnknownHostException, IOException {
-    Server server = new Server(Utility.getFreePort());
-    runWithServer(executor, server);
-  }
-
-  public void runWithServer(StageExecutor executor, Server server) throws ExecutionException, InterruptedException, UnknownHostException {
-    runWithServer(executor, server, null);
-  }
-
   public void runWithServer(StageExecutor executor, Server server, String command) throws ExecutionException, InterruptedException, UnknownHostException {
     // FIXME: all of this needs to be refactored.
     InetAddress address = java.net.InetAddress.getLocalHost();
@@ -1175,7 +1166,7 @@ public class JobExecutor {
         executor.shutdown();
       }
     } else {
-      System.err.println("running without server!");
+      System.out.println("running without server!");
       try {
         jobExecutor.runWithoutServer(executor);
       } finally {
@@ -1189,38 +1180,4 @@ public class JobExecutor {
 
     return !store.hasStatements();
   }
-  /**
-   * *** DEPRECATED *********** public static void main(String[] args) throws
-   * ParserConfigurationException, SAXException, IOException,
-   * InterruptedException, ExecutionException { if (args.length < 3) {
-   * System.out.println("usage: executionModel parameterFile temporaryStorage");
-   * System.out.println( " where executionModel is one of: local, drmaa, ssh,
-   * debug, remotedebug"); System.exit(-1); }
-   *
-   * String executionModel = args[0]; String parameterFile = args[1]; String
-   * temporaryStorage = args[2]; String[] remaining = Utility.subarray(args, 3);
-   * StageExecutor executor = null;
-   *
-   * Logger logger = Logger.getLogger(JobExecutor.class.toString());
-   * logger.setLevel(Level.INFO);
-   *
-   * executor = StageExecutorFactory.newInstance(executionModel, remaining);
-   * ErrorStore store = new ErrorStore();
-   *
-   * // First, parse the job -- need to rethink that one Job job; if (true)
-   * throw new UnsupportedOperationException("Currently cannot parse a job file.
-   * New format required.\n");
-   *
-   * if (store.hasStatements()) { System.out.println(store.toString());
-   * System.exit(-1); }
-   *
-   * JobExecutor jobExecutor = new JobExecutor(job, temporaryStorage, store);
-   * jobExecutor.prepare();
-   *
-   * if (store.hasStatements()) { System.out.println(store.toString());
-   * System.exit(-1); }
-   *
-   * jobExecutor.run(executor); logger.info("Job complete");
-   * executor.shutdown(); }
-   */
 }

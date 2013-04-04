@@ -51,7 +51,7 @@ public class AppTest extends TestCase {
       // now, attempt to make a corpus folder from that.
       corpusFile1 = Utility.createTemporary();
       App.main(new String[]{"make-corpus", "--corpusPath=" + corpusFile1.getAbsolutePath(),
-                "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--corpusFormat=file"});
+                "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--corpusFormat=file", "--server=false"});
       // make sure the corpus file exists
       assertTrue(corpusFile1.exists());
 
@@ -59,7 +59,7 @@ public class AppTest extends TestCase {
       corpusFile2 = Utility.createTemporaryDirectory();
       App.main(new String[]{"make-corpus", "--corpusPath=" + corpusFile2.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--distrib=2",
-                "--corpusParameters/corpusTags=false", "--corpusParameters/corpusTerms=false"});
+                "--corpusParameters/corpusTags=false", "--corpusParameters/corpusTerms=false", "--server=false"});
 
       // make sure the corpus folder exists
       assertTrue(corpusFile2.exists());
@@ -72,12 +72,12 @@ public class AppTest extends TestCase {
       // now, try to build an index from that
       indexFile1 = Utility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + indexFile1.getAbsolutePath(),
-                "--inputPath=" + corpusFile1.getAbsolutePath()});
+                "--inputPath=" + corpusFile1.getAbsolutePath(), "--server=false"});
 
       // now, try to build an index from that
       indexFile2 = Utility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + indexFile2.getAbsolutePath(),
-                "--inputPath=" + corpusFile2.getAbsolutePath()});
+                "--inputPath=" + corpusFile2.getAbsolutePath(), "--server=false"});
 
       // make sure the indexes exists
       assertTrue(indexFile1.exists());
@@ -121,7 +121,7 @@ public class AppTest extends TestCase {
       // now, attempt to make a corpus file from that.
       corpusFile = Utility.createTemporaryDirectory();
       App.main(new String[]{"make-corpus", "--corpusPath=" + corpusFile.getAbsolutePath(),
-                "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--distrib=2"});
+                "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--distrib=2", "--server=false"});
 
       // make sure the corpus file exists
       assertTrue(corpusFile.exists());
@@ -130,7 +130,7 @@ public class AppTest extends TestCase {
       indexFile = Utility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + indexFile.getAbsolutePath(),
                 "--inputPath=" + corpusFile.getAbsolutePath(),
-                "--corpus=true"});
+                "--corpus=true", "--server=false"});
 
       // Checks path and components
       verifyIndexStructures(indexFile);
@@ -292,7 +292,7 @@ public class AppTest extends TestCase {
       indexFile = Utility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + indexFile.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile.getAbsolutePath(),
-                "--corpus=true"});
+                "--corpus=true", "--server=false"});
 
       // Checks path and components
       verifyIndexStructures(indexFile);

@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * 
  * @author trevor
  */
-public class SSHStageExecutor extends RemoteStageExecutor {
+public class SSHStageExecutor extends CheckpointedStageExecutor {
 
   private static String machineEndMarker = "STOP#MACHINE#SHUTDOWN";
   private LinkedBlockingQueue<String> machines = new LinkedBlockingQueue();
