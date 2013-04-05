@@ -56,7 +56,30 @@ public class RelevanceModelTraversal extends Traversal {
 
     // Kick off the inner query
     NodeParameters parameters = originalNode.getNodeParameters();
-    int fbDocs = (int) parameters.get("fbDocs", 10);
+    double fbOrigWt = parameters.get("fbOrigWt", 0.5);
+    int fbDocs;
+    // doubles allow learning module to operate over these parameters. -- default behaviour is to round to nearest integer.
+    if(parameters.isDouble("fbDocs")){
+      fbDocs = (int) Math.round(parameters.getDouble("fbDocs"));
+    } else {
+      fbDocs = (int) parameters.get("fbDocs", 10);
+    }
+    int fbTerms;
+    if(parameters.isDouble("fbTerms")){
+      fbTerms = (int) Math.round(parameters.getDouble("fbTerms"));
+    } else {
+      fbTerms = (int) parameters.get("fbTerms", 10);
+    }
+    
+    // check parameters
+    if(fbDocs <= 0){
+      return originalNode;
+    }
+    
+    if(fbTerms <= 0){
+      return originalNode;
+    }
+    
     String operator = "combine";
     Node combineNode = new Node(operator, new NodeParameters(), Node.cloneNodeList(originalNode.getInternalNodes()), originalNode.getPosition());
     ArrayList<ScoredDocument> initialResults = new ArrayList<ScoredDocument>();
@@ -72,9 +95,6 @@ public class RelevanceModelTraversal extends Traversal {
     RelevanceModel rModel = new RelevanceModel(localParameters, retrieval);
     rModel.initialize();
     
-    double fbOrigWt = parameters.get("fbOrigWt", 0.5);
-    int fbTerms = (int) parameters.get("fbTerms", 10);
-
     Set<String> stopwords = WordLists.getWordList("rmstop");
     Set<String> queryTerms = StructuredQuery.findQueryTerms(combineNode);
 
