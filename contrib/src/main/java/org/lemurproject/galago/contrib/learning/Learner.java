@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.eval.QuerySetJudgments;
 import org.lemurproject.galago.core.eval.QuerySetResults;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluator;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluatorFactory;
+import org.lemurproject.galago.core.retrieval.GroupRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -189,16 +190,17 @@ public abstract class Learner {
 
     // ensure the global parameters contain the current settings.
     Parameters settings = instance.toParameters();
-    this.retrieval.getGlobalParameters().copyFrom(settings);
+    // this.retrieval.getGlobalParameters().copyFrom(settings);
 
     for (String number : this.queries.getQueryNumbers()) {
       Node root = this.queries.getNode(number).clone();
       root = this.ensureSettings(root, settings);
-      root = this.retrieval.transformQuery(root, settings);
+
+      root = transform(root, settings);
 
       //  need to add queryProcessing params some extra stuff to 'settings'
       start = System.currentTimeMillis();
-      ScoredDocument[] scoredDocs = this.retrieval.runQuery(root, settings);
+      ScoredDocument[] scoredDocs = runQuery(root, settings);
       end = System.currentTimeMillis();
 
       if (scoredDocs != null) {
@@ -273,5 +275,25 @@ public abstract class Learner {
       collectCachableNodes(child, nodeCache);
     }
     nodeCache.add(root.toString());
+  }
+
+  private Node transform(Node n, Parameters settings) throws Exception {
+    Node root;
+    if (this.retrieval instanceof GroupRetrieval && settings.isString("group")) {
+      root = ((GroupRetrieval) retrieval).transformQuery(n, settings, settings.getString("group"));
+    } else {
+      root = this.retrieval.transformQuery(n, settings);
+    }
+    return root;
+  }
+
+  private ScoredDocument[] runQuery(Node n, Parameters settings) throws Exception {
+    ScoredDocument[] res;
+    if (this.retrieval instanceof GroupRetrieval && settings.isString("group")) {
+      res = ((GroupRetrieval) retrieval).runQuery(n, settings, settings.getString("group"));
+    } else {
+      res = this.retrieval.runQuery(n, settings);
+    }
+    return res;
   }
 }

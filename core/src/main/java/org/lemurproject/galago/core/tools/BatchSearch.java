@@ -29,10 +29,10 @@ public class BatchSearch extends AppFunction {
     (new BatchSearch()).run(new Parameters(args), System.out);
   }
 
-  public String getName(){
+  public String getName() {
     return "batch-search";
   }
-  
+
   @Override
   public String getHelpString() {
     return "galago batch-search <args>\n\n"
@@ -119,9 +119,9 @@ public class BatchSearch extends AppFunction {
     for (int idx = queryrange[0]; idx < queryrange[1]; idx++) {
       Parameters query = queries.get(idx);
       String queryText = query.getString("text");
-      
+
       if (parameters.get("casefold", false)) {
-	  queryText = queryText.toLowerCase();
+        queryText = queryText.toLowerCase();
       }
 
       Parameters p = new Parameters();
