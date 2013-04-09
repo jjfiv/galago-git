@@ -136,18 +136,15 @@ public class CachedRetrieval {
           }
 
         } else if (iterator instanceof MovableLengthsIterator) {
+          cachedNodes.put(nodeString, "lengths");
           cacheParts.get("lengths").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
 
         } else if (iterator instanceof MovableExtentIterator) {
-//        NodeStatistics ns = super.getNodeStatistics(node);
-//        cachedStats.put(nodeString, ns);
           cachedNodes.put(nodeString, "extent");
           cacheParts.get("extent").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
           // logger.info("Cached extent node : " + nodeString);
 
         } else if (iterator instanceof MovableCountIterator) {
-//        NodeStatistics ns = super.getNodeStatistics(node);
-//        cachedStats.put(nodeString, ns);
           cachedNodes.put(nodeString, "count");
           cacheParts.get("count").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
           // logger.info("Cached count node : " + nodeString);

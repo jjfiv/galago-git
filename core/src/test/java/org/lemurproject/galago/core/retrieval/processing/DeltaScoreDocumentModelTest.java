@@ -38,7 +38,7 @@ public class DeltaScoreDocumentModelTest extends TestCase {
 
       Node query = StructuredQuery.parse("#combine( test text 0 1 2 3 4 )");
       query = ret.transformQuery(query, queryParams);
-
+      
       MaxScoreDocumentModel deltaModel = new MaxScoreDocumentModel(ret);
       ScoredDocument[] deltaResults = deltaModel.execute(query, queryParams);
 
@@ -49,12 +49,28 @@ public class DeltaScoreDocumentModelTest extends TestCase {
         assertEquals(safeResults[i].document, deltaResults[i].document);
         assertEquals(safeResults[i].score, deltaResults[i].score, 0.00001);
       }
+
+      // check that weights are correctly propagated
+      queryParams.set("flattenCombine", false);
+      Node complexQuery = StructuredQuery.parse("#combine:0=0.9:1=0.1(#combine( test text ) #combine( 1 2 ))");
+      complexQuery = ret.transformQuery(complexQuery, queryParams);
+
+      ScoredDocument[] deltaResults2 = deltaModel.execute(complexQuery, queryParams);
+      ScoredDocument[] safeResults2 = safeModel.execute(complexQuery, queryParams);
+
+      for (int i = 0; i < safeResults2.length; ++i) {
+        assertEquals(safeResults2[i].document, deltaResults2[i].document);
+        assertEquals(safeResults2[i].score, deltaResults2[i].score, 0.00001);
+      }
+    
     } finally {
       corpus.delete();
       Utility.deleteDirectory(index);
     }
   }
 
+  
+  
   public void testWAND() throws Exception {
     File corpus = Utility.createTemporary();
     File index = Utility.createTemporaryDirectory();
