@@ -32,6 +32,8 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * Efficient Query Expansion" by Billerbeck and Zobel. The weighting model
  * itself is called "Term Selection Value".
  *
+ * 
+ * sjh : could have issues, index structure has changed to include a corpus, should be modified to match.
  *
  * @author irmarc
  */

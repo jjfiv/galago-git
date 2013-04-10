@@ -26,13 +26,13 @@ public class ReplaceEstimatedIteratorTraversal extends Traversal {
   LocalRetrieval lr;
   AnnotateCollectionStatistics annotator;
   Parameters queryParams;
-  
+
   public ReplaceEstimatedIteratorTraversal(Retrieval r, Parameters queryParameters) {
     passedWindow = false;
     if (r != null && LocalRetrieval.class.isAssignableFrom(r.getClass())) {
       lr = (LocalRetrieval) r;
       try {
-        annotator = new AnnotateCollectionStatistics(lr);
+        annotator = new AnnotateCollectionStatistics(lr, queryParameters);
       } catch (IOException ioe) {
         throw new RuntimeException(ioe);
       }
