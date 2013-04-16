@@ -19,7 +19,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * This ensures that the current query tree can be run using the delta scoring
  * model. If not, it shuts it off in the parameters.
  *
- * @author irmarc
+ * @author irmarc, sjh
  */
 public class DeltaCheckTraversal extends Traversal {
 
@@ -39,26 +39,61 @@ public class DeltaCheckTraversal extends Traversal {
   public Node afterNode(Node original) throws Exception {
     level--;
     if (qp.containsKey("deltaReady") && qp.getBoolean("deltaReady") == false) {
-      // This means something already shut down the delta
+      // This means something already turned off the delta
       // scoring possibility - e.g. a filtering node.
       return original;
     }
-      
+
     if (isDeltaCapable(original)) {
       deltas.add(original);
     }
 
     // Final judgment
     if (level == 0) {
-	qp.set("deltaReady", deltas.contains(original));
+      qp.set("deltaReady", deltas.contains(original));
     }
 
     return original;
   }
 
   @Override
-  public void beforeNode(Node object) throws Exception {
+  public void beforeNode(Node n) throws Exception {
     level++;
+
+    if (retrieval == null || n == null) {
+      return;
+    }
+    NodeType nt = retrieval.getNodeType(n);
+    Class iteratorClass = nt.getIteratorClass();
+
+    // annotate weights on to children (if combine node)
+    boolean isScoreCombiner = DisjunctionIterator.class.isAssignableFrom(iteratorClass) && ScoreIterator.class.isAssignableFrom(iteratorClass);
+
+    if (isScoreCombiner) {
+      NodeParameters np = n.getNodeParameters();
+      double weightSum = 1.0;
+      if (isScoreCombiner && np.get("norm", true)) {
+        weightSum = 0.0;
+        for (int i = 0; i < n.numChildren(); i++) {
+          String key = Integer.toString(i);
+          weightSum += np.containsKey(key) ? np.getDouble(key) : 1.0;
+        }
+      }
+
+      double thisNodeWeight = 1.0;
+      if (!n.getNodeParameters().containsKey("w")) {
+        n.getNodeParameters().set("w", 1.0);
+      }
+      thisNodeWeight = n.getNodeParameters().getDouble("w");
+
+      for (int i = 0; i < n.numChildren(); i++) {
+        Node child = n.getChild(i);
+        if (isScoreCombiner && qp.get("deltaWeightsSet", false) == false) {
+          String key = Integer.toString(i);
+          child.getNodeParameters().set("w", thisNodeWeight * (n.getNodeParameters().get(key, 1.0) / weightSum));
+        }
+      }
+    }
   }
 
   private boolean isDeltaCapable(Node n) throws Exception {
@@ -71,7 +106,7 @@ public class DeltaCheckTraversal extends Traversal {
     if (DeltaScoringIterator.class.isAssignableFrom(iteratorClass)) {
       return true;
     }
-    
+
     // Filters, currently, will not work (candidate checking skips them)
     if (FilteredIterator.class.isAssignableFrom(iteratorClass)) {
       qp.set("deltaReady", false);   // shut down all checking.
@@ -83,41 +118,12 @@ public class DeltaCheckTraversal extends Traversal {
       return false;
     }
 
-    // Need to check the children,
-    // also propagate weights downward in the hopes they can be used
-    boolean isScoreCombiner = DisjunctionIterator.class.isAssignableFrom(iteratorClass) &&
-	ScoreIterator.class.isAssignableFrom(iteratorClass);
+    // Need to check the children
     boolean isOk = true;
-    NodeParameters np = n.getNodeParameters();
-    double total = 0;
-    if (isScoreCombiner && np.get("norm", true)) {
-      for (int i = 0; i < n.numChildren(); i++) {
-        String key = Integer.toString(i);
-        total += np.containsKey(key) ? np.getDouble(key) : 1.0;
-      }
-    }
 
     for (int i = 0; i < n.numChildren(); i++) {
       Node child = n.getChild(i);
       isOk &= deltas.contains(child);
-      if (isScoreCombiner && qp.get("deltaWeightsSet", false) == false) {
-        String key = Integer.toString(i);
-        if (np.get("norm", true)) {
-          if (np.containsKey(key)) {
-            child.getNodeParameters().set("w",
-                    n.getNodeParameters().getDouble(key) / total);
-          } else {
-            child.getNodeParameters().set("w", 1.0 / total);
-          }
-        } else {
-          if (np.containsKey(key)) {
-            child.getNodeParameters().set("w",
-                    n.getNodeParameters().getDouble(key));
-          } else {
-            child.getNodeParameters().set("w", 1.0);
-          }
-        }
-      }
     }
     return isOk;
   }

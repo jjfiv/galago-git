@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
+import org.lemurproject.galago.core.retrieval.GroupRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -66,10 +67,12 @@ public class RelevanceModel implements ExpansionModel {
   Retrieval retrieval;
   TagTokenizer tokenizer = null;
   Stemmer stemmer;
+  String group;
 
   public RelevanceModel(Parameters parameters, Retrieval r) {
     this.parameters = parameters;
     this.retrieval = r;
+    this.group = parameters.get("group", this.retrieval.getGlobalParameters().get("group", (String) null));
   }
 
   /*
@@ -184,7 +187,14 @@ public class RelevanceModel implements ExpansionModel {
     HashMap<Integer, Integer> termCounts;
     Document doc;
     for (ScoredDocument sd : results) {
-      doc = retrieval.getDocument(retrieval.getDocumentName(sd.document), new Parameters());
+
+      if (group != null && retrieval instanceof GroupRetrieval) {
+        String name = ((GroupRetrieval) retrieval).getDocumentName(sd.document, group);
+        doc = ((GroupRetrieval) retrieval).getDocument(name, Parameters.parse("{\"text\":true}"), group);
+      } else {
+        doc = retrieval.getDocument(retrieval.getDocumentName(sd.document), Parameters.parse("{\"text\":true}"));
+      }
+
       tokenizer.tokenize(doc);
       for (String term : doc.terms) {
         if (!counts.containsKey(term)) {
@@ -212,7 +222,14 @@ public class RelevanceModel implements ExpansionModel {
       termCounts = counts.get(term);
       for (Integer docID : termCounts.keySet()) {
         if (!lengthCache.containsKey(docID)) {
-          lengthCache.put(docID, retrieval.getDocumentLength(docID));
+          int docLen;
+          if (group != null && retrieval instanceof GroupRetrieval) {
+            docLen = ((GroupRetrieval) retrieval).getDocumentLength(docID, group);
+          } else {
+            docLen = retrieval.getDocumentLength(docID);
+          }
+
+          lengthCache.put(docID, docLen);
         }
         int length = lengthCache.get(docID);
         g.score += scores.get(docID) * termCounts.get(docID) / length;

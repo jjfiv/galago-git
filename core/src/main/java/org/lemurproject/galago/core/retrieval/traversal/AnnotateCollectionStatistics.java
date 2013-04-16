@@ -30,10 +30,12 @@ public class AnnotateCollectionStatistics extends Traversal {
   HashSet<String> availableStatistics;
   Parameters globalParameters;
   Retrieval retrieval;
+  Parameters queryParameters;
 
   // featurefactory is necessary to get the correct class
-  public AnnotateCollectionStatistics(Retrieval retrieval) throws IOException {
+  public AnnotateCollectionStatistics(Retrieval retrieval, Parameters queryParams) throws IOException {
     this.globalParameters = retrieval.getGlobalParameters();
+    this.queryParameters = queryParams;
     this.retrieval = retrieval;
 
     this.availableStatistics = new HashSet();
@@ -49,9 +51,11 @@ public class AnnotateCollectionStatistics extends Traversal {
     this.availableStatistics.add("nodeDocumentCount");
   }
 
+  @Override
   public void beforeNode(Node node) {
   }
 
+  @Override
   public Node afterNode(Node node) throws Exception {
     // need to get list of required statistics
     RequiredStatistics required = null;
@@ -130,13 +134,15 @@ public class AnnotateCollectionStatistics extends Traversal {
   }
 
   private CollectionStatistics getCollectionStatistics(String field) throws Exception {
-    if (globalParameters.isString("backgroundIndex")) {
-      assert (GroupRetrieval.class.isAssignableFrom(retrieval.getClass())) : "Retrieval object must be a GroupRetrieval to use the backgroundIndex parameter.";
-      return ((GroupRetrieval) retrieval).getCollectionStatistics("#lengths:"+field+":part=lengths()", globalParameters.getString("backgroundIndex"));
+    if (this.retrieval instanceof GroupRetrieval) {
+      String group = queryParameters.get("group", globalParameters.get("group", ""));
+      group = queryParameters.get("backgroundIndex", globalParameters.get("backgroundIndex", ""));
 
-    } else {
-      return retrieval.getCollectionStatistics("#lengths:"+field+":part=lengths()");
+      if (!group.isEmpty()) {
+        return ((GroupRetrieval) retrieval).getCollectionStatistics("#lengths:" + field + ":part=lengths()", group);
+      }
     }
+    return retrieval.getCollectionStatistics("#lengths:" + field + ":part=lengths()");
   }
 
   private NodeStatistics getNodeStatistics(Node node) throws Exception {
@@ -157,13 +163,15 @@ public class AnnotateCollectionStatistics extends Traversal {
     // recursively check if any child nodes use a specific background part
     Node n = assignParts(countNode.clone());
 
-    if (globalParameters.isString("backgroundIndex")) {
-      assert (GroupRetrieval.class.isAssignableFrom(retrieval.getClass())) : "Retrieval object must be a GroupRetrieval to use the backgroundIndex parameter.";
-      return ((GroupRetrieval) retrieval).getNodeStatistics(n, globalParameters.getString("backgroundIndex"));
+    if (this.retrieval instanceof GroupRetrieval) {
+      String group = queryParameters.get("group", globalParameters.get("group", ""));
+      group = queryParameters.get("backgroundIndex", globalParameters.get("backgroundIndex", ""));
 
-    } else {
-      return retrieval.getNodeStatistics(n);
+      if (!group.isEmpty()) {
+        return ((GroupRetrieval) retrieval).getNodeStatistics(n, group);
+      }
     }
+    return retrieval.getNodeStatistics(n);
   }
 
   private boolean isCountNode(Node node) throws Exception {

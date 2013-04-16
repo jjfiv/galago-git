@@ -69,7 +69,7 @@ public class GroupRetrievalTest extends TestCase {
       Parameters q1 = params.clone();
       Node queryTree1 = gr.transformQuery(parsedQuery, q1, "group1");
 
-      String expected = "#combine( #feature:dirichlet:"
+      String expected = "#combine:w=1.0( #feature:dirichlet:"
               + "collectionLength=8:"
               + "documentCount=2:"
               + "nodeFrequency=2:"
@@ -96,7 +96,7 @@ public class GroupRetrievalTest extends TestCase {
       Parameters q2 = params.clone();
       Node queryTree2 = gr.transformQuery(parsedQuery, q2, "group2");
 
-      expected = "#combine("
+      expected = "#combine:w=1.0("
               + " #feature:dirichlet:"
               + "collectionLength=19:"
               + "documentCount=4:"

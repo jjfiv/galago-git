@@ -67,8 +67,9 @@ public class WorkingSetPassageModel extends ProcessingModel {
     int requested = (int) queryParams.get("requested", 1000);
     int passageSize = (int) queryParams.getLong("passageSize");
     int passageShift = (int) queryParams.getLong("passageShift");
-    
-    MovableScoreIterator iterator =
+    boolean annotate = queryParams.get("annotate", false);
+
+      MovableScoreIterator iterator =
             (MovableScoreIterator) retrieval.createIterator(queryParams,
             queryTree,
             context);
@@ -108,6 +109,9 @@ public class WorkingSetPassageModel extends ProcessingModel {
           double score = iterator.score();
           if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
             ScoredPassage scored = new ScoredPassage(document, score, context.begin, context.end);
+            if (annotate) {
+              scored.annotation = iterator.getAnnotatedNode();
+            }
             queue.add(scored);
             if (requested > 0 && queue.size() > requested) {
               queue.poll();

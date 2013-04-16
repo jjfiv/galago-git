@@ -39,7 +39,7 @@ public class LearnerTest extends TestCase {
       index = files[2]; // index is required
       qrels = Utility.createTemporary();
 
-      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.parse("{\"cache\" : true, \"flattenCombine\" : false, \"cacheScores\": true}"));
+      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.parse("{\"cache\" : true, \"flattenCombine\" : true, \"cacheScores\": true}"));
 
       String qrelData =
               "q1 x 2 1\n"
@@ -90,8 +90,9 @@ public class LearnerTest extends TestCase {
         root = r.transformQuery(root, settings);
 
         // check which nodes have been cached
+        // System.out.println(root.toPrettyString());
         
-        // node is an SDM - root and direct children are not cached - all others are cached
+        // node is an SDM - root, children, and sub-children are not cached, nodes below that level are cached
         MovableIterator i = (MovableIterator) r.createIterator(new Parameters(), root, new ScoringContext());
         assertFalse(i instanceof MemorySparseDoubleIndex.ScoresIterator);
         for (Node child : root.getInternalNodes()) {
@@ -99,7 +100,7 @@ public class LearnerTest extends TestCase {
           assertFalse(i instanceof MemorySparseDoubleIndex.ScoresIterator);
           for (Node subchild : child.getInternalNodes()) {
             i = (MovableIterator) r.createIterator(new Parameters(), subchild, new ScoringContext());
-            assertTrue(i instanceof MemorySparseDoubleIndex.ScoresIterator);
+            assertTrue(i.getClass().getName().contains(".mem.")); // is a memory iterator.
           }
         }
       }

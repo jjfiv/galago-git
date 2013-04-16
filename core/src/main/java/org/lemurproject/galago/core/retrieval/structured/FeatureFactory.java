@@ -61,9 +61,9 @@ public class FeatureFactory {
     {LogProbNotIterator.class.getName(), "logprobnot"}
   };
   static String[][] sFeatureLookup = {
-    {DirichletProbabilityScoringIterator.class.getName(), "dirichlet-raw"}, // this should go away
-    {JelinekMercerProbabilityScoringIterator.class.getName(), "linear-raw"}, // this should go away
-    {JelinekMercerProbabilityScoringIterator.class.getName(), "jm-raw"}, // this should go away
+    {DirichletProbabilityScoringIterator.class.getName(), "dirichlet-raw"}, // deprecated
+    {JelinekMercerProbabilityScoringIterator.class.getName(), "linear-raw"}, // deprecated
+    {JelinekMercerProbabilityScoringIterator.class.getName(), "jm-raw"}, // deprecated
     {DirichletScoringIterator.class.getName(), "dirichlet"},
     {EstimatedDirichletScoringIterator.class.getName(), "dirichlet-est"},
     {JelinekMercerScoringIterator.class.getName(), "linear"},
@@ -72,7 +72,6 @@ public class FeatureFactory {
     {BM25RFScoringIterator.class.getName(), "bm25rf"},
     {BoostingIterator.class.getName(), "boost"},
     {BM25FieldScoringIterator.class.getName(), "bm25f"},
-    {InverseDocFrequencyIterator.class.getName(), "idf"},
     {LogarithmIterator.class.getName(), "log"},
     {DFRScoringIterator.class.getName(), "dfr"},
     {PL2FieldScoringIterator.class.getName(), "pl2f"},
@@ -82,6 +81,8 @@ public class FeatureFactory {
   };
   static String[] sTraversalList = {
     ReplaceOperatorTraversal.class.getName(),
+    StopStructureTraversal.class.getName(),
+    StopWordTraversal.class.getName(),
     WeightedSequentialDependenceTraversal.class.getName(),
     SequentialDependenceTraversal.class.getName(),
     FullDependenceTraversal.class.getName(),
@@ -96,12 +97,11 @@ public class FeatureFactory {
     InsideToFieldPartTraversal.class.getName(),
     ImplicitFeatureCastTraversal.class.getName(),
     InsertLengthsTraversal.class.getName(),
-    RemoveStopwordsTraversal.class.getName(),
+    RelevanceModelTraversal.class.getName(),
+    BM25RelevanceFeedbackTraversal.class.getName(),
     FlattenWindowTraversal.class.getName(),
     FlattenCombineTraversal.class.getName(),
     MergeCombineChildrenTraversal.class.getName(),
-    RelevanceModelTraversal.class.getName(),
-    BM25RelevanceFeedbackTraversal.class.getName(),
     AnnotateParameters.class.getName(),
     AnnotateCollectionStatistics.class.getName(),
     DeltaCheckTraversal.class.getName()

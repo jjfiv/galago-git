@@ -64,7 +64,7 @@ public class MultiRetrievalTest extends TestCase {
       Parameters qp = new Parameters();
       Node queryTree = mr.transformQuery(parsedQuery, qp);
 
-      String expected = "#combine("
+      String expected = "#combine:w=1.0("
               + " #feature:dirichlet:"
               + "collectionLength=19:"
               + "documentCount=4:"
