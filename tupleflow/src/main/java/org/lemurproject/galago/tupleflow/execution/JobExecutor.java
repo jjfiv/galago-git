@@ -1048,7 +1048,13 @@ public class JobExecutor {
             if (status.isDone()) {
               // force the exception to throw
               List<Exception> exceptions = status.getExceptions();
+
+              System.err.format("Stage %s completed with %d errors.\n", name, exceptions.size());
+              
               if (exceptions.size() > 0) {
+                for(Exception e : exceptions){
+                  System.err.println(e.toString());
+                }
                 throw new ExecutionException("Stage threw an exception: ", exceptions.get(0));
               }
               completedStages.put(name, status);
@@ -1155,10 +1161,10 @@ public class JobExecutor {
       return false;
     }
 
-    if (p.get("server", true)) {
+    if (p.get("server", false)) {
       Server server = new Server(port);
       server.start();
-      System.out.println("Status: http://localhost:" + port);
+      System.err.println("Status: http://localhost:" + port);
       try {
         jobExecutor.runWithServer(executor, server, command);
       } finally {
@@ -1166,7 +1172,7 @@ public class JobExecutor {
         executor.shutdown();
       }
     } else {
-      System.out.println("running without server!");
+      System.out.println("Running without server!\nUse --server=true to enable web-based status page.");
       try {
         jobExecutor.runWithoutServer(executor);
       } finally {
