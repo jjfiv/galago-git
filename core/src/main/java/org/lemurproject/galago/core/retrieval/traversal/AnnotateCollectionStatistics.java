@@ -136,8 +136,10 @@ public class AnnotateCollectionStatistics extends Traversal {
   private CollectionStatistics getCollectionStatistics(String field) throws Exception {
     if (this.retrieval instanceof GroupRetrieval) {
       String group = queryParameters.get("group", globalParameters.get("group", ""));
-      group = queryParameters.get("backgroundIndex", globalParameters.get("backgroundIndex", ""));
+      group = queryParameters.get("backgroundIndex", globalParameters.get("backgroundIndex", group));
 
+      System.err.println("isGroup, and group=" + group);
+      
       if (!group.isEmpty()) {
         return ((GroupRetrieval) retrieval).getCollectionStatistics("#lengths:" + field + ":part=lengths()", group);
       }
@@ -165,7 +167,7 @@ public class AnnotateCollectionStatistics extends Traversal {
 
     if (this.retrieval instanceof GroupRetrieval) {
       String group = queryParameters.get("group", globalParameters.get("group", ""));
-      group = queryParameters.get("backgroundIndex", globalParameters.get("backgroundIndex", ""));
+      group = queryParameters.get("backgroundIndex", globalParameters.get("backgroundIndex", group));
 
       if (!group.isEmpty()) {
         return ((GroupRetrieval) retrieval).getNodeStatistics(n, group);

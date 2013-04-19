@@ -125,6 +125,7 @@ public class BatchSearch extends AppFunction {
       }
 
       Parameters p = new Parameters();
+      p.copyFrom(query);
       p.set("requested", requested);
 
       // This is slow - need to improve it, but later

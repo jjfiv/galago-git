@@ -103,6 +103,9 @@ public class GroupRetrieval implements Retrieval {
 
   @Override
   public ScoredDocument[] runQuery(Node root, Parameters parameters) throws Exception {
+    if(parameters.isString("group")){
+      return groups.get(parameters.getString("group")).runQuery(root, parameters);
+    }
     return groups.get(defGroup).runQuery(root, parameters);
   }
 
