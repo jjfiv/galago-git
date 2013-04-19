@@ -5,6 +5,10 @@ package org.lemurproject.galago.core.tools.apps;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.zip.GZIPInputStream;
 import java.util.Arrays;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.types.DocumentUrl;
@@ -56,7 +60,18 @@ public class HarvestLinksFnTest extends TestCase {
       File outputFile = new File(indri, "input.trecweb");
       assert (outputFile.exists()) : "input.trecweb should exist in the indri directory.";
 
-      String data = Utility.readFileToString(outputFile);
+      //      String data = Utility.readFileToString(outputFile); //compressed
+      // perhaps there ought to be a test for gzip in the Utility method
+      GZIPInputStream gzis = new GZIPInputStream(new FileInputStream(outputFile));
+      BufferedReader in = new BufferedReader(new InputStreamReader(gzis));
+      String line;
+      StringBuilder sb = new StringBuilder();
+      while ((line = in.readLine()) != null) {
+          sb.append(line).append("\n");          
+      }
+      in.close();
+      String data = sb.toString();
+
       String expectedPrefix = 
               "DOCNO=test-0\n"
               + "http://small-test.0\n"

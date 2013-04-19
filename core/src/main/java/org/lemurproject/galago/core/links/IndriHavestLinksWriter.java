@@ -95,8 +95,8 @@ public class IndriHavestLinksWriter implements Processor<ExtractedLinkIndri> {
       }
       Utility.makeParentDirectories(outputPath);
 
-      // all output is uncompressed.
-      writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputPath)));
+      // all output is compressed.
+      writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(outputPath))));
       currentFilePath = filePath;
       currentDocName = "";
     }
