@@ -138,8 +138,6 @@ public class AnnotateCollectionStatistics extends Traversal {
       String group = queryParameters.get("group", globalParameters.get("group", ""));
       group = queryParameters.get("backgroundIndex", globalParameters.get("backgroundIndex", group));
 
-      System.err.println("isGroup, and group=" + group);
-      
       if (!group.isEmpty()) {
         return ((GroupRetrieval) retrieval).getCollectionStatistics("#lengths:" + field + ":part=lengths()", group);
       }
