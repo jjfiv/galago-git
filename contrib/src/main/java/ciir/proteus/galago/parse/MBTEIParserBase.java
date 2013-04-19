@@ -19,31 +19,29 @@ import org.lemurproject.galago.core.util.WordLists;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- * Generic superclass for dealing with events.
- * You can instantiate this and run it, but it will do nothing.
- * Subclass and use the provided methods to set actions to 
- * process start/end and character events in the XML stream.
- * Attributes should be handled while handling the start event
- * that the attributes are inside.
+ * Generic superclass for dealing with events. You can instantiate this and run
+ * it, but it will do nothing. Subclass and use the provided methods to set
+ * actions to process start/end and character events in the XML stream.
+ * Attributes should be handled while handling the start event that the
+ * attributes are inside.
  *
- * Actions are checked/removed by their regular expression patterns.
- * It is suggested that you simply pass in the Pattern if you have
- * it, as this will result in faster checking. However passing in
- * just the String may be more convenient.
+ * Actions are checked/removed by their regular expression patterns. It is
+ * suggested that you simply pass in the Pattern if you have it, as this will
+ * result in faster checking. However passing in just the String may be more
+ * convenient.
  *
- * Methods that can serve as actions must fit one of the following
- * signatures:
- * 
- * - public void methodName(int eventType);
- * - public void methodName(int eventType, Pattern matchingPattern);
+ * Methods that can serve as actions must fit one of the following signatures:
  *
- * For character actions only the first form is valid, since the match
- * is only on the event. Yes, they have to be public. DO NOT FORGET THIS.
- * Anything else creates uninformative null pointer bugs.
+ * - public void methodName(int eventType); - public void methodName(int
+ * eventType, Pattern matchingPattern);
+ *
+ * For character actions only the first form is valid, since the match is only
+ * on the event. Yes, they have to be public. DO NOT FORGET THIS. Anything else
+ * creates uninformative null pointer bugs.
  *
  * @author irmarc
  */
-abstract class MBTEIParserBase extends DocumentStreamParser {
+public abstract class MBTEIParserBase extends DocumentStreamParser {
   // For XML stream processing
 
   protected StreamReaderDelegate reader;
@@ -57,7 +55,7 @@ abstract class MBTEIParserBase extends DocumentStreamParser {
   // Using these directly is either tedious or stupid to
   // do. Use the functions provided.
 
-  class Action {
+  public class Action {
 
     public Action(Pattern p, Method m) {
       labelRE = p;

@@ -103,6 +103,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     }
   }
 
+  @Override
   public void process(DocumentSplit split) throws IOException {
     DocumentStreamParser parser = null;
     long count = 0;
