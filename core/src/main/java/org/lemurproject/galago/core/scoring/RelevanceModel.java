@@ -195,10 +195,9 @@ public class RelevanceModel implements ExpansionModel {
     for (ScoredDocument sd : results) {
 
       if (group != null && retrieval instanceof GroupRetrieval) {
-        String name = ((GroupRetrieval) retrieval).getDocumentName(sd.document, group);
-        doc = ((GroupRetrieval) retrieval).getDocument(name, Parameters.parse("{\"text\":true}"), group);
+        doc = ((GroupRetrieval) retrieval).getDocument(sd.documentName, Parameters.parse("{\"text\":true}"), group);
       } else {
-        doc = retrieval.getDocument(retrieval.getDocumentName(sd.document), Parameters.parse("{\"text\":true}"));
+        doc = retrieval.getDocument(sd.documentName, Parameters.parse("{\"text\":true}"));
       }
 
       tokenizer.tokenize(doc);
@@ -241,7 +240,7 @@ public class RelevanceModel implements ExpansionModel {
             ScoredPassage sp = (ScoredPassage) sd;
             docLen = sp.end - sp.begin;
           } else if (group != null && retrieval instanceof GroupRetrieval) {
-            docLen = ((GroupRetrieval) retrieval).getDocumentLength(sd.document, group);
+            docLen = ((GroupRetrieval) retrieval).getDocumentLength(sd.documentName, group);
           } else {
             docLen = retrieval.getDocumentLength(sd.document);
           }
