@@ -40,7 +40,7 @@ public class TwoPassDocumentModel extends ProcessingModel {
     if (firstPassParams.containsKey("deltaReady")) {
       firstPassParams.remove("deltaReady");
     }
-    
+
     // it would be nice to automatically generate these firstPassQueries,
     //   but there could be some difficultly in constructing a fast approximation
     //   of the query.

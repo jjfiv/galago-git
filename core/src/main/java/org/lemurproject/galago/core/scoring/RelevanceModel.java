@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
@@ -15,6 +16,7 @@ import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
+import org.lemurproject.galago.core.retrieval.ScoredPassage;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -26,7 +28,9 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * Implements the basic unigram Relevance Model, as described in "Relevance
  * Based Language Models" by Lavrenko and Croft in SIGIR 2001.
  *
- * @author irmarc
+ * Refactored version also supports passage-based RM.
+ *
+ * @author irmarc, dietz
  */
 public class RelevanceModel implements ExpansionModel {
 
@@ -63,11 +67,11 @@ public class RelevanceModel implements ExpansionModel {
       return "<" + term + "," + score + ">";
     }
   }
-  Parameters parameters;
-  Retrieval retrieval;
-  TagTokenizer tokenizer = null;
-  Stemmer stemmer;
-  String group;
+  protected Parameters parameters;
+  protected Retrieval retrieval;
+  protected TagTokenizer tokenizer = null;
+  protected Stemmer stemmer;
+  protected String group;
 
   public RelevanceModel(Parameters parameters, Retrieval r) {
     this.parameters = parameters;
@@ -78,8 +82,8 @@ public class RelevanceModel implements ExpansionModel {
   /*
    * This should be run while we're waiting for the results. It either creates the
    * required data structures for the model, or resets them to be used for another query.
-   *
    */
+  @Override
   public void initialize() throws Exception {
     if (tokenizer == null) {
       tokenizer = new TagTokenizer();
@@ -104,15 +108,15 @@ public class RelevanceModel implements ExpansionModel {
   }
 
   @Override
-  public ArrayList<WeightedTerm> generateGrams(List<ScoredDocument> initialResults) throws IOException {
+  public List<WeightedTerm> generateGrams(List<ScoredDocument> initialResults) throws IOException {
     // convert documentScores to posterior probs
-    HashMap<Integer, Double> scores = logstoposteriors(initialResults);
+    Map<ScoredDocument, Double> scores = logstoposteriors(initialResults);
 
     // get term frequencies in documents
-    HashMap<String, HashMap<Integer, Integer>> counts = countGrams(initialResults);
+    Map<String, Map<ScoredDocument, Integer>> counts = countGrams(initialResults);
 
     // compute term weights
-    ArrayList<WeightedTerm> scored = scoreGrams(counts, scores);
+    List<WeightedTerm> scored = scoreGrams(counts, scores);
 
     // sort by weight
     Collections.sort(scored);
@@ -154,14 +158,16 @@ public class RelevanceModel implements ExpansionModel {
       expParams.set(Integer.toString(expanded), g.score);
       expanded++;
     }
+    
     Node expansionNode = new Node("combine", expParams, newChildren, 0);
+    
     return expansionNode;
   }
 
   // Implementation here is identical to the Relevance Model unigram normaliztion in Indri.
   // See RelevanceModel.cpp for details
-  protected HashMap<Integer, Double> logstoposteriors(List<ScoredDocument> results) {
-    HashMap<Integer, Double> scores = new HashMap<Integer, Double>();
+  protected HashMap<ScoredDocument, Double> logstoposteriors(List<ScoredDocument> results) {
+    HashMap<ScoredDocument, Double> scores = new HashMap<ScoredDocument, Double>();
     if (results.isEmpty()) {
       return scores;
     }
@@ -176,15 +182,15 @@ public class RelevanceModel implements ExpansionModel {
 
     for (ScoredDocument sd : results) {
       double logPosterior = sd.score - logSumExp;
-      scores.put(sd.document, Math.exp(logPosterior));
+      scores.put(sd, Math.exp(logPosterior));
     }
 
     return scores;
   }
 
-  protected HashMap<String, HashMap<Integer, Integer>> countGrams(List<ScoredDocument> results) throws IOException {
-    HashMap<String, HashMap<Integer, Integer>> counts = new HashMap<String, HashMap<Integer, Integer>>();
-    HashMap<Integer, Integer> termCounts;
+  protected Map<String, Map<ScoredDocument, Integer>> countGrams(List<ScoredDocument> results) throws IOException {
+    Map<String, Map<ScoredDocument, Integer>> counts = new HashMap<String, Map<ScoredDocument, Integer>>();
+    Map<ScoredDocument, Integer> termCounts;
     Document doc;
     for (ScoredDocument sd : results) {
 
@@ -196,43 +202,54 @@ public class RelevanceModel implements ExpansionModel {
       }
 
       tokenizer.tokenize(doc);
-      for (String term : doc.terms) {
+      List<String> docterms;
+      if (sd instanceof ScoredPassage) {
+        ScoredPassage sp = (ScoredPassage) sd;
+        docterms = doc.terms.subList(sp.begin, sp.end);
+      } else {
+        docterms = doc.terms;
+      }
+
+      for (String term : docterms) {
         if (!counts.containsKey(term)) {
-          counts.put(term, new HashMap<Integer, Integer>());
+          counts.put(term, new HashMap<ScoredDocument, Integer>());
         }
         termCounts = counts.get(term);
-        if (termCounts.containsKey(sd.document)) {
-          termCounts.put(sd.document, termCounts.get(sd.document) + 1);
+        if (termCounts.containsKey(sd)) {
+          termCounts.put(sd, termCounts.get(sd) + 1);
         } else {
-          termCounts.put(sd.document, 1);
+          termCounts.put(sd, 1);
         }
       }
     }
     return counts;
   }
 
-  protected ArrayList<WeightedTerm> scoreGrams(HashMap<String, HashMap<Integer, Integer>> counts,
-          HashMap<Integer, Double> scores) throws IOException {
-    ArrayList<WeightedTerm> grams = new ArrayList<WeightedTerm>();
-    HashMap<Integer, Integer> termCounts;
-    HashMap<Integer, Integer> lengthCache = new HashMap<Integer, Integer>();
+  protected List<WeightedTerm> scoreGrams(Map<String, Map<ScoredDocument, Integer>> counts,
+          Map<ScoredDocument, Double> scores) throws IOException {
+    List<WeightedTerm> grams = new ArrayList<WeightedTerm>();
+    Map<ScoredDocument, Integer> termCounts;
+    Map<ScoredDocument, Integer> lengthCache = new HashMap<ScoredDocument, Integer>();
 
     for (String term : counts.keySet()) {
       Gram g = new Gram(term);
       termCounts = counts.get(term);
-      for (Integer docID : termCounts.keySet()) {
-        if (!lengthCache.containsKey(docID)) {
+      for (ScoredDocument sd : termCounts.keySet()) {
+        if (!lengthCache.containsKey(sd)) {
           int docLen;
-          if (group != null && retrieval instanceof GroupRetrieval) {
-            docLen = ((GroupRetrieval) retrieval).getDocumentLength(docID, group);
+          if (sd instanceof ScoredPassage) {
+            ScoredPassage sp = (ScoredPassage) sd;
+            docLen = sp.end - sp.begin;
+          } else if (group != null && retrieval instanceof GroupRetrieval) {
+            docLen = ((GroupRetrieval) retrieval).getDocumentLength(sd.document, group);
           } else {
-            docLen = retrieval.getDocumentLength(docID);
+            docLen = retrieval.getDocumentLength(sd.document);
           }
 
-          lengthCache.put(docID, docLen);
+          lengthCache.put(sd, docLen);
         }
-        int length = lengthCache.get(docID);
-        g.score += scores.get(docID) * termCounts.get(docID) / length;
+        int length = lengthCache.get(sd);
+        g.score += scores.get(sd) * termCounts.get(sd) / length;
       }
       // 1 / fbDocs from the RelevanceModel source code
       g.score *= (1.0 / scores.size());
@@ -243,7 +260,7 @@ public class RelevanceModel implements ExpansionModel {
   }
 
   private Set<String> stemTerms(Set<String> terms) {
-    HashSet<String> stems = new HashSet(terms.size());
+    HashSet<String> stems = new HashSet<String>(terms.size());
     for (String t : terms) {
       String s = stemmer.stem(t);
       // stemmers should ensure that terms do not stem to nothing.

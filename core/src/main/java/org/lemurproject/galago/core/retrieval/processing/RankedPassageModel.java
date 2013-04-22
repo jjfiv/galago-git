@@ -18,7 +18,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 /**
  * Performs passage-level retrieval scoring. Passage windows are currently
  * generated the same as Indri: if we hit the end of the document prematurely,
- * we generate a shortened last passage (i.e. window slides are constant). 
+ * we generate a shortened last passage (i.e. window slides are constant).
  *
  * @author irmarc
  */
@@ -36,25 +36,30 @@ public class RankedPassageModel extends ProcessingModel {
   public ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception {
     PassageScoringContext context = new PassageScoringContext();
     context.cachable = false;
-    
+
     // Following operations are all just setup
     int requested = (int) queryParams.get("requested", 1000);
     int passageSize = (int) queryParams.getLong("passageSize");
     int passageShift = (int) queryParams.getLong("passageShift");
-    MovableScoreIterator iterator = 
-            (MovableScoreIterator) retrieval.createIterator(queryParams, 
-                      queryTree, 
-                      context);
-    MovableLengthsIterator documentLengths = 
-            (MovableLengthsIterator) retrieval.createIterator(new Parameters(), 
+
+    if (passageSize <= 0 || passageShift <= 0) {
+      throw new IllegalArgumentException("passageSize/passageShift must be specified as positive integers.");
+    }
+
+    MovableScoreIterator iterator =
+            (MovableScoreIterator) retrieval.createIterator(queryParams,
+            queryTree,
+            context);
+    MovableLengthsIterator documentLengths =
+            (MovableLengthsIterator) retrieval.createIterator(new Parameters(),
             StructuredQuery.parse("#lengths:part=lengths()"), context);
-    
+
     PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
 
     // now there should be an iterator at the root of this tree
     while (!iterator.isDone()) {
       int document = iterator.currentCandidate();
-      
+
       // This context is shared among all scorers
       context.document = document;
       documentLengths.syncTo(document);
@@ -63,7 +68,7 @@ public class RankedPassageModel extends ProcessingModel {
       // set the parameters for the first passage
       context.begin = 0;
       context.end = Math.min(passageSize, length);
-      
+
       // ensure we are at the document we wish to score
       // -- this function will move ALL iterators, 
       //     not just the ones that do not have all candidates
@@ -73,7 +78,9 @@ public class RankedPassageModel extends ProcessingModel {
       // context until the next one
       boolean lastIteration = false;
       while (context.begin < length && !lastIteration) {
-        if (context.end >= length) lastIteration = true;
+        if (context.end >= length) {
+          lastIteration = true;
+        }
 
         if (iterator.hasMatch(document)) {
           double score = iterator.score();
@@ -89,7 +96,7 @@ public class RankedPassageModel extends ProcessingModel {
         // Move the window forward
         context.begin += passageShift;
         // end must be bigger or equal to the begin, and less than the length of the document
-        context.end = Math.max(context.begin, Math.min(passageSize+context.begin, length));
+        context.end = Math.max(context.begin, Math.min(passageSize + context.begin, length));
       }
       iterator.movePast(document);
     }

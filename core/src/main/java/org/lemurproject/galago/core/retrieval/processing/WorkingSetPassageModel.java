@@ -18,7 +18,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 /**
  * Performs passage-level retrieval scoring. Passage windows are currently
  * generated the same as Indri: if we hit the end of the document prematurely,
- * we generate a shortened last passage (i.e. window slides are constant). 
+ * we generate a shortened last passage (i.e. window slides are constant).
  *
  * @author irmarc
  */
@@ -36,7 +36,7 @@ public class WorkingSetPassageModel extends ProcessingModel {
   public ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception {
     PassageScoringContext context = new PassageScoringContext();
     context.cachable = false;
-    
+
     // There should be a whitelist to deal with
     List l = queryParams.getList("working");
     if (l == null) {
@@ -69,11 +69,15 @@ public class WorkingSetPassageModel extends ProcessingModel {
     int passageShift = (int) queryParams.getLong("passageShift");
     boolean annotate = queryParams.get("annotate", false);
 
-      MovableScoreIterator iterator =
+    if (passageSize <= 0 || passageShift <= 0) {
+      throw new IllegalArgumentException("passageSize/passageShift must be specified as positive integers.");
+    }
+
+    MovableScoreIterator iterator =
             (MovableScoreIterator) retrieval.createIterator(queryParams,
             queryTree,
             context);
-    MovableLengthsIterator documentLengths = 
+    MovableLengthsIterator documentLengths =
             (MovableLengthsIterator) retrieval.createIterator(new Parameters(),
             StructuredQuery.parse("#lengths:part=lengths()"),
             context);
@@ -87,7 +91,7 @@ public class WorkingSetPassageModel extends ProcessingModel {
       context.document = document;
       documentLengths.syncTo(document);
       int length = documentLengths.getCurrentLength();
-      
+
       // set the parameters for the first passage
       context.begin = 0;
       context.end = Math.min(passageSize, length);

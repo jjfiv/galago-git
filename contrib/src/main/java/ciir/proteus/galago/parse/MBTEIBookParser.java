@@ -23,7 +23,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * S1 is a terminal state.
  *
  */
-class MBTEIBookParser extends MBTEIParserBase {
+public class MBTEIBookParser extends MBTEIParserBase {
 
   Pattern wantedMetadata = Pattern.compile(".+");
   String header;

@@ -21,7 +21,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * S1 is a terminal state.
  *
  */
-class MBTEIPageParser extends MBTEIBookParser {
+public class MBTEIPageParser extends MBTEIBookParser {
     Pattern pageBreakTag = Pattern.compile("pb");
     String pageNumber;
     

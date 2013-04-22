@@ -6,7 +6,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 
-class MBTEIPictureParser extends MBTEIParserBase {
+public class MBTEIPictureParser extends MBTEIParserBase {
     Pattern blockTag = Pattern.compile("block");
     Pattern pageTag = Pattern.compile("page");
     int page = 0;

@@ -7,7 +7,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 
-class MBTEIWordDateParser extends MBTEIParserBase {
+public class MBTEIWordDateParser extends MBTEIParserBase {
     Pattern dateTag = Pattern.compile("date");
     
     Document wholeDocument;

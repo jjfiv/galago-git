@@ -43,7 +43,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author irmarc
  */
-abstract class MBTEIParserBase extends DocumentStreamParser {
+public abstract class MBTEIParserBase extends DocumentStreamParser {
   // For XML stream processing
 
   protected StreamReaderDelegate reader;
