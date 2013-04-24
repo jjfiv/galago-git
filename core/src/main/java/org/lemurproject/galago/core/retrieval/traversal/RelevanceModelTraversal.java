@@ -53,6 +53,7 @@ public class RelevanceModelTraversal extends Traversal {
 
     defFbOrigWt = queryParams.get("fbOrigWt", globalParameters.get("fbOrigWt", 0.85));
     defFbDocs = queryParams.get("fbDocs", globalParameters.get("fbDocs", 10.0));
+    defFbTerms = queryParams.get("fbTerms", globalParameters.get("fbTerms", 5.0));
 
     // allows two passes to collect feedback documents
     defFb2Pass = queryParams.get("fb2Pass", globalParameters.get("fb2Pass", false));
@@ -153,6 +154,12 @@ public class RelevanceModelTraversal extends Traversal {
     Node expansionNode;
 
     expansionNode = rModel.generateExpansionQuery(initialResults, fbTerms, queryTerms, stopwords);
+    
+    // if we got nothing back -- return a combine node.
+    if(expansionNode == null){
+      return combineNode;
+    }
+    
     NodeParameters expParams = new NodeParameters();
     expParams.set("0", fbOrigWt);
     expParams.set("1", 1.0 - fbOrigWt);

@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
@@ -33,6 +35,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author irmarc, dietz
  */
 public class RelevanceModel implements ExpansionModel {
+  private static final Logger logger = Logger.getLogger("RM");
 
   public static class Gram implements WeightedTerm {
 
@@ -128,6 +131,11 @@ public class RelevanceModel implements ExpansionModel {
   public Node generateExpansionQuery(List<ScoredDocument> initialResults, int fbTerms,
           Set<String> queryTerms, Set<String> stopwords) throws IOException {
 
+    if(!retrieval.getAvailableParts().containsKey("corpus")){
+      logger.info("Corpus not present in index -- #rm is not possible.");
+      return null;
+    }
+    
     List<WeightedTerm> scored = generateGrams(initialResults);
 
     ArrayList<Node> newChildren = new ArrayList<Node>();
@@ -192,6 +200,7 @@ public class RelevanceModel implements ExpansionModel {
     Map<String, Map<ScoredDocument, Integer>> counts = new HashMap<String, Map<ScoredDocument, Integer>>();
     Map<ScoredDocument, Integer> termCounts;
     Document doc;
+    
     for (ScoredDocument sd : results) {
 
       if (group != null && retrieval instanceof GroupRetrieval) {
@@ -199,7 +208,12 @@ public class RelevanceModel implements ExpansionModel {
       } else {
         doc = retrieval.getDocument(sd.documentName, Parameters.parse("{\"text\":true}"));
       }
-
+      
+      if(doc == null){
+        logger.log(Level.INFO, "Failed to retrieve document: {0} -- RM skipping document.", sd.documentName);
+        continue;
+      }
+      
       tokenizer.tokenize(doc);
       List<String> docterms;
       if (sd instanceof ScoredPassage) {
