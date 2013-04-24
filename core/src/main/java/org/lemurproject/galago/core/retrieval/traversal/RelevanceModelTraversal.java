@@ -113,7 +113,7 @@ public class RelevanceModelTraversal extends Traversal {
     List<ScoredDocument> initialResults = new ArrayList<ScoredDocument>();
 
     Parameters localRmParameters = new Parameters();
-    localRmParameters.copyFrom(queryParams);
+//    localRmParameters.copyFrom(queryParams);
     localRmParameters.set("requested", fbDocs);
     localRmParameters.copyFrom(fbParams); // can override requested to ensure larger pool for second pass.
     
@@ -123,7 +123,7 @@ public class RelevanceModelTraversal extends Traversal {
     // if we are doing two passes (e.g. for passage retrieval
     if (defFb2Pass) {
       Parameters localRm2Parameters = new Parameters();
-      localRm2Parameters.copyFrom(queryParams);
+//      localRm2Parameters.copyFrom(queryParams);
       localRm2Parameters.copyFrom(fb2PassParams);
       // can't override requested
       localRm2Parameters.set("requested", fbDocs);

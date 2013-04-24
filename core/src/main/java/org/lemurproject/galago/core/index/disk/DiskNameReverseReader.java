@@ -41,7 +41,7 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
   public int getDocumentIdentifier(String documentName) throws IOException {
     byte[] data = reader.getValueBytes(Utility.fromString(documentName));
     if (data == null) {
-      throw new IOException("Unknown Document Name : " + documentName);
+      return -1;
     }
     return Utility.toInt(data);
   }
