@@ -21,7 +21,7 @@ public class UnigramDeDuplicator {
     this.dedupeScoreThresh = dedupeScoreThresh;
   }
 
-  protected boolean docFilter(List<String> docterms) {
+  public boolean docFilter(List<String> docterms) {
     // convert to term -> count map
     HashMap<String, Integer> testTermCounts = new HashMap<String, Integer>();
     for(String term:docterms){
@@ -65,7 +65,7 @@ public class UnigramDeDuplicator {
     return reject;
   }
 
-  protected void reset() {
+  public void reset() {
     acceptedTermCountSet.clear();
   }
 }
