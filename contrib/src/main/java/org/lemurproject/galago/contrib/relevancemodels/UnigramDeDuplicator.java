@@ -1,8 +1,9 @@
-package org.lemurproject.galago.contrib.relevancemodels;
+package edu.umass.ciir.sentopic.rm;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 
 /**
  * Deduplication strategy based on x% unigram overlap.
@@ -14,58 +15,58 @@ import java.util.List;
  * @author dietz
  */
 public class UnigramDeDuplicator {
-  protected ArrayList<HashMap<String, Integer>> acceptedTermCountSet = new ArrayList<HashMap<String, Integer>>();
-  protected double dedupeScoreThresh;
+    protected ArrayList<HashMap<String, Integer>> acceptedTermCountSet = new ArrayList<HashMap<String, Integer>>();
+    protected double dedupeScoreThresh;
 
-  public UnigramDeDuplicator(double dedupeScoreThresh) {
-    this.dedupeScoreThresh = dedupeScoreThresh;
-  }
-
-  public boolean docFilter(List<String> docterms) {
-    // convert to term -> count map
-    HashMap<String, Integer> testTermCounts = new HashMap<String, Integer>();
-    for(String term:docterms){
-      if(testTermCounts.containsKey(term)) {
-        testTermCounts.put(term, testTermCounts.get(term)+1);
-      } else {
-        testTermCounts.put(term, 1);
-      }
+    public UnigramDeDuplicator(double dedupeScoreThresh) {
+        this.dedupeScoreThresh = dedupeScoreThresh;
     }
 
-    int doctermLength = docterms.size();
-    boolean reject = false;
-    double dupeScore = 0.0;
-    for(HashMap<String, Integer> acceptedTermCounts: acceptedTermCountSet){
-      int hits = 0;
-      int acceptedTermSetLength = 0;
-
-      for(int c :acceptedTermCounts.values())  acceptedTermSetLength+=c;
-
-
-      for(String term:testTermCounts.keySet()){
-        if(acceptedTermCounts.containsKey(term)){
-          int minCount = Math.min(acceptedTermCounts.get(term), testTermCounts.get(term));
-          hits += minCount;
+    public boolean docFilter(List<String> docterms) {
+        // convert to term -> count map
+        HashMap<String, Integer> testTermCounts = new HashMap<String, Integer>();
+        for(String term:docterms){
+            if(testTermCounts.containsKey(term)) {
+                testTermCounts.put(term, testTermCounts.get(term)+1);
+            } else {
+                testTermCounts.put(term, 1);
+            }
         }
-      }
 
-      double score = 1. * hits / Math.min(acceptedTermSetLength, doctermLength);
-      dupeScore = Math.max(dupeScore, score);
+        int doctermLength = docterms.size();
+        boolean reject = false;
+        double dupeScore = 0.0;
+        for(HashMap<String, Integer> acceptedTermCounts: acceptedTermCountSet){
+            int hits = 0;
+            int acceptedTermSetLength = 0;
 
-      if(score > dedupeScoreThresh) {
-        reject = true;
-        break;
-      }
+            for(int c :acceptedTermCounts.values())  acceptedTermSetLength+=c;
+
+
+            for(String term:testTermCounts.keySet()){
+                if(acceptedTermCounts.containsKey(term)){
+                    int minCount = Math.min(acceptedTermCounts.get(term), testTermCounts.get(term));
+                    hits += minCount;
+                }
+            }
+
+            double score = 1. * hits / Math.min(acceptedTermSetLength, doctermLength);
+            dupeScore = Math.max(dupeScore, score);
+
+            if(score > dedupeScoreThresh) {
+                reject = true;
+                break;
+            }
+        }
+
+        if(!reject){
+            acceptedTermCountSet.add(testTermCounts);
+        }
+
+        return reject;
     }
 
-    if(!reject){
-      acceptedTermCountSet.add(testTermCounts);
+    public void reset() {
+        acceptedTermCountSet.clear();
     }
-
-    return reject;
-  }
-
-  public void reset() {
-    acceptedTermCountSet.clear();
-  }
 }

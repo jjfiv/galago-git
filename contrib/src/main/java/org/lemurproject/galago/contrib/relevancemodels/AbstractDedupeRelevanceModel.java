@@ -1,8 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.contrib.relevancemodels;
+package edu.umass.ciir.sentopic.rm;
 
-import info.bliki.wiki.tags.SourceTag;
-import org.lemurproject.galago.core.eval.stat.NaturalOrderComparator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
@@ -98,13 +96,11 @@ abstract public class AbstractDedupeRelevanceModel implements ExpansionModel {
   /*
    * Run this when the Relevance Model is no longer needed.
    */
-  @Override
   public void cleanup() throws Exception {
     tokenizer = null;
     stemmer = null;
   }
 
-  @Override
   public ArrayList<WeightedTerm> generateGrams(List<ScoredDocument> initialResults) throws IOException {
     // convert documentScores to posterior probs
     HashMap<ScoredDocument, Double> scores = logstoposteriors(initialResults);
@@ -121,7 +117,6 @@ abstract public class AbstractDedupeRelevanceModel implements ExpansionModel {
     return scored;
   }
 
-  @Override
   public Node generateExpansionQuery(List<ScoredDocument> initialResults, int fbTerms,
           Set<String> queryTerms, Set<String> stopwords) throws IOException {
 
@@ -262,11 +257,6 @@ abstract public class AbstractDedupeRelevanceModel implements ExpansionModel {
       // 1 / fbDocs from the RelevanceModel source code
       g.score *= (1.0 / scores.size());
       grams.add(g);
-    }
-
-    Collections.sort(grams);
-    for (WeightedTerm g : grams) {
-      System.out.println("grams = " + g);
     }
     return grams;
   }

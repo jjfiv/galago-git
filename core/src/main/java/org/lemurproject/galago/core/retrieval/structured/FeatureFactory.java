@@ -16,6 +16,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.traversal.*;
+import org.lemurproject.galago.core.retrieval.traversal.optimize.ExtentsToCountLeafTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.optimize.FlattenCombineTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.optimize.FlattenWindowTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.optimize.MergeCombineChildrenTraversal;
@@ -93,12 +94,14 @@ public class FeatureFactory {
     BM25FTraversal.class.getName(),
     PL2FTraversal.class.getName(),
     WindowRewriteTraversal.class.getName(),
+    RelevanceModelTraversal.class.getName(),
+    BM25RelevanceFeedbackTraversal.class.getName(),
     TextFieldRewriteTraversal.class.getName(),
     InsideToFieldPartTraversal.class.getName(),
     ImplicitFeatureCastTraversal.class.getName(),
     InsertLengthsTraversal.class.getName(),
-    RelevanceModelTraversal.class.getName(),
-    BM25RelevanceFeedbackTraversal.class.getName(),
+    PassageRestrictionTraversal.class.getName(),
+    ExtentsToCountLeafTraversal.class.getName(),
     FlattenWindowTraversal.class.getName(),
     FlattenCombineTraversal.class.getName(),
     MergeCombineChildrenTraversal.class.getName(),

@@ -50,7 +50,7 @@ public class PassageRetrievalTest extends TestCase {
     String query = "#combine( cat document )";
     Node root = StructuredQuery.parse(query);
     root = retrieval.transformQuery(root, p);
-
+    
     p.set("requested", 10);
     ScoredPassage[] result = (ScoredPassage[]) retrieval.runQuery(root, p);
     

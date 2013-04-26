@@ -54,11 +54,6 @@ public class InsertLengthsTraversal extends Traversal {
         Node child = (childIdx < children.size()) ? children.get(childIdx) : null;
         NodeType cnt = (child != null) ? retrieval.getNodeType(child) : null;
 
-        boolean t1 = cnt.getIteratorClass().isAssignableFrom(MovableLengthsIterator.class);
-        boolean t2 = MovableLengthsIterator.class.isAssignableFrom(cnt.getIteratorClass());
-        boolean t3 = cnt.getIteratorClass().isInstance(MovableLengthsIterator.class);
-
-
         if (cnt == null || !MovableLengthsIterator.class.isAssignableFrom(cnt.getIteratorClass())) {
           // then we need a lengths iterator here.
           // default lengths node:
@@ -68,7 +63,7 @@ public class InsertLengthsTraversal extends Traversal {
           lenNodeClone.getNodeParameters().set("default", field);
 
           // add passage length wrapper
-          lenNodeClone = addExtentFilters(lenNodeClone);
+//          lenNodeClone = addExtentFilters(lenNodeClone);
 
           // add this node at position 0.
           node.addChild(lenNodeClone, childIdx);

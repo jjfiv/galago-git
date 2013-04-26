@@ -41,9 +41,7 @@ public class RelevanceModelTraversal extends Traversal {
   private double defFbOrigWt;
   private double defFbDocs;
   private double defFbTerms;
-  private boolean defFb2Pass;
   private Parameters fbParams;
-  private Parameters fb2PassParams;
 
   public RelevanceModelTraversal(Retrieval retrieval, Parameters queryParams) throws IOException {
     this.queryParams = queryParams;
@@ -55,23 +53,12 @@ public class RelevanceModelTraversal extends Traversal {
     defFbDocs = queryParams.get("fbDocs", globalParameters.get("fbDocs", 10.0));
     defFbTerms = queryParams.get("fbTerms", globalParameters.get("fbTerms", 5.0));
 
-    // allows two passes to collect feedback documents
-    defFb2Pass = queryParams.get("fb2Pass", globalParameters.get("fb2Pass", false));
-
     fbParams = new Parameters();
     if (globalParameters.containsKey("fbParams")) {
       fbParams.copyFrom(globalParameters.getMap("fbParams"));
     }
     if (queryParams.containsKey("fbParams")) {
       fbParams.copyFrom(queryParams.getMap("fbParams"));
-    }
-
-    fb2PassParams = new Parameters();
-    if (globalParameters.containsKey("fbParams2Pass")) {
-      fb2PassParams.copyFrom(globalParameters.getMap("fbParams2Pass"));
-    }
-    if (queryParams.containsKey("fbParams2Pass")) {
-      fb2PassParams.copyFrom(queryParams.getMap("fbParams2Pass"));
     }
   }
 
@@ -107,9 +94,7 @@ public class RelevanceModelTraversal extends Traversal {
       return originalNode;
     }
 
-    String operator = "combine";
-    Node combineNode = new Node(operator, new NodeParameters(), Node.cloneNodeList(originalNode.getInternalNodes()), originalNode.getPosition());
-    Node combineTmpNode = new Node(operator, new NodeParameters(), Node.cloneNodeList(originalNode.getInternalNodes()), originalNode.getPosition());
+    Node combineNode = new Node("combine", new NodeParameters(), Node.cloneNodeList(originalNode.getInternalNodes()), originalNode.getPosition());
     List<ScoredDocument> initialResults = new ArrayList<ScoredDocument>();
 
     Parameters localRmParameters = new Parameters();
@@ -119,30 +104,6 @@ public class RelevanceModelTraversal extends Traversal {
     
     Node transformedCombineNode = retrieval.transformQuery(combineNode, localRmParameters);
     initialResults.addAll(Arrays.asList(retrieval.runQuery(transformedCombineNode, localRmParameters)));
-
-    // if we are doing two passes (e.g. for passage retrieval
-    if (defFb2Pass) {
-      Parameters localRm2Parameters = new Parameters();
-//      localRm2Parameters.copyFrom(queryParams);
-      localRm2Parameters.copyFrom(fb2PassParams);
-      // can't override requested
-      localRm2Parameters.set("requested", fbDocs);
-      
-      ArrayList<String> workingSet = new ArrayList<String>();
-      for (ScoredDocument doc : initialResults) {
-        workingSet.add(doc.documentName);
-      }
-
-      localRm2Parameters.set("working", workingSet);
-
-      transformedCombineNode = retrieval.transformQuery(combineTmpNode, localRm2Parameters);
-
-      // we've now got a new set of results -- overwrite old ones.
-      initialResults = Arrays.asList(retrieval.runQuery(transformedCombineNode, localRm2Parameters));
-      
-      // pass these parameters to the RM scorer -- just in case.
-      localRmParameters = localRm2Parameters;
-    }
 
     ExpansionModel rModel = createRelevanceModel(localRmParameters, retrieval);
     rModel.initialize();
@@ -186,8 +147,6 @@ public class RelevanceModelTraversal extends Traversal {
       throw new RuntimeException(e);
     }
 
-//    return new GeneralRelevanceModel(parameters, r);
-    // now obsolete rm model
     return new RelevanceModel(parameters, retrieval);
   }
 

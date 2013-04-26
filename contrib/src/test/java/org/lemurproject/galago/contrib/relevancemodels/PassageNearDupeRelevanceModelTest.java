@@ -17,8 +17,10 @@ import static junit.framework.Assert.assertEquals;
 /**
  * Tests for {@link PassageNearDupeRelevanceModel}.
  *
+ * Removed tests - new plan is to remove RM from traversals. 
+ *  RMExpander is similar to a traversal, but must be operated manually.
  * 
- * @author dietz
+ * @author dietz, sjh
  */
 public class PassageNearDupeRelevanceModelTest extends TestCase {
   private String whitelistfileName = "";
@@ -33,275 +35,281 @@ public class PassageNearDupeRelevanceModelTest extends TestCase {
   public PassageNearDupeRelevanceModelTest(String testName) {
     super(testName);
   }
-
-
-  public void testNoDeduplication() throws Exception {
-    // Create a retrieval object for use by the traversal
-    Parameters p = new Parameters();
-    p.set("index", indexFile.getAbsolutePath());
-    p.set("corpus", corpusFile.getAbsolutePath());
-    p.set("stemmedPostings", false);
-    p.set("fbOrigWt", 0.5);
-    p.set("fb2Pass", true);
-    p.set("docdedupe", false);
-    p.set("termWhitelistFile", "");
-
-    Parameters rmParams = new Parameters();
-    rmParams.set("passageQuery", false);
-    rmParams.set("passageSize", 3);
-    rmParams.set("passageShift", 1);
-
-    p.set("fbParams2Pass",rmParams);
-    p.set("relevanceModel","org.lemurproject.galago.contrib.relevancemodels.PassageNearDupeRelevanceModel");
-    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
-    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval, new Parameters());
-
-    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=5:fbDocs=10( #feature:dirichlet( #extents:crisis:part=postings() ) )");
-    Node transformed = StructuredQuery.copy(traversal, parsedTree);
-
-    StringBuilder correct = new StringBuilder();
-    correct.append("#combine:0=0.5:1=0.5( #combine:w=1.0( #feature:dirichlet( #extents:crisis:part=postings() ) ) " +
-            "#combine:0=0.0054355411781812964:1=0.004822391365383995:2=0.0027204366475475786:3=0.0020180077026308195:4=0.0013607882628793812( " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:real:part=postings() ) " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:estate:part=postings() ) " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:bubble:part=postings() ) " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:result:part=postings() ) " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:created:part=postings() ) ) )");
-
-    Node correctNode = StructuredQuery.parse(correct.toString());
-
-    // check that generated terms are the same:
-    List<Node> correctExpTerms = correctNode.getChild(1).getInternalNodes();
-    List<Node> observedExpTerms = transformed.getChild(1).getInternalNodes();
-
-    assertEquals(correctExpTerms.size(), observedExpTerms.size());
-    for(int i=0;i<correctExpTerms.size();i++){
-      assertEquals(correctExpTerms.get(i).toString(), observedExpTerms.get(i).toString());
+  
+  public void testNothing() throws Exception{
+    if(false){
+      System.out.println("Add some tests for RelevanceModelExpander.");
     }
-    
-    // check that weights are approximately the same 7 decimals..
-    Node correctExp = correctNode.getChild(1);
-    Node observedExp = transformed.getChild(1);
-    for(int i=0;i<correctExpTerms.size();i++){
-      assertEquals(correctExp.getNodeParameters().getDouble(Integer.toString(i)),  observedExp.getNodeParameters().getDouble(Integer.toString(i)),  0.000001);
-    }
-    
-    retrieval.close();
-    System.out.println(transformed.toPrettyString());
   }
 
-
-
-  public void testDedupePassageRM() throws Exception {
-    // Create a retrieval object for use by the traversal
-    Parameters p = new Parameters();
-    p.set("index", indexFile.getAbsolutePath());
-    p.set("corpus", corpusFile.getAbsolutePath());
-    p.set("stemmedPostings", false);
-    p.set("fbOrigWt", 0.5);
-    p.set("fb2Pass", true);
-    p.set("docdedupe", true);
-
-    Parameters rmParams = new Parameters();
-    rmParams.set("passageQuery", true);
-    rmParams.set("passageSize", 3);
-    rmParams.set("passageShift", 1);
-
-    p.set("fbParams2Pass",rmParams);
-    p.set("relevanceModel","org.lemurproject.galago.contrib.relevancemodels.PassageNearDupeRelevanceModel");
-    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
-    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval, new Parameters());
-
-    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=5:fbDocs=10( #feature:dirichlet( #extents:crisis:part=postings() ) )");
-    Node transformed = StructuredQuery.copy(traversal, parsedTree);
-
-    StringBuilder correct = new StringBuilder();
-    correct.append("#combine:0=0.5:1=0.5( #combine:w=1.0( #feature:dirichlet( #extents:crisis:part=postings() ) ) " +
-            "#combine:0=0.006666666666666665:1=0.006666666666666665:2=0.0033333333333333327:3=0.0033333333333333327:4=0.0033333333333333327( " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:estate:part=postings() ) " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:financial:part=postings() ) " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:normally:part=postings() ) " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:real:part=postings() ) " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:se:part=postings() ) ) )");
-
-    Node correctNode = StructuredQuery.parse(correct.toString());
-
-    // check that generated terms are the same:
-    List<Node> correctExpTerms = correctNode.getChild(1).getInternalNodes();
-    List<Node> observedExpTerms = transformed.getChild(1).getInternalNodes();
-
-    assertEquals(correctExpTerms.size(), observedExpTerms.size());
-    for(int i=0;i<correctExpTerms.size();i++){
-      assertEquals(correctExpTerms.get(i).toString(), observedExpTerms.get(i).toString());
-    }
-    
-    // check that weights are approximately the same 7 decimals..
-    Node correctExp = correctNode.getChild(1);
-    Node observedExp = transformed.getChild(1);
-    for(int i=0;i<correctExpTerms.size();i++){
-      assertEquals(correctExp.getNodeParameters().getDouble(Integer.toString(i)),  observedExp.getNodeParameters().getDouble(Integer.toString(i)),  0.000001);
-    }
-
-    retrieval.close();
-    System.out.println(transformed.toPrettyString());
-  }
-
-
-  public void testDedupePassageWhitelistRM() throws Exception {
-    // Create a retrieval object for use by the traversal
-    Parameters p = new Parameters();
-    p.set("index", indexFile.getAbsolutePath());
-    p.set("corpus", corpusFile.getAbsolutePath());
-    p.set("stemmedPostings", false);
-    p.set("fbOrigWt", 0.5);
-    p.set("fb2Pass", true);
-    p.set("docdedupe", true);
-
-    Parameters rmParams = new Parameters();
-    rmParams.set("passageQuery", true);
-    rmParams.set("passageSize", 3);
-    rmParams.set("passageShift", 1);
-    rmParams.set("termWhitelistFile", whitelistfileName);
-
-    p.set("fbParams2Pass",rmParams);
-    p.set("relevanceModel","org.lemurproject.galago.contrib.relevancemodels.PassageNearDupeRelevanceModel");
-    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
-    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval, new Parameters());
-
-    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=5:fbDocs=10( #feature:dirichlet( #extents:crisis:part=postings() ) )");
-    Node transformed = StructuredQuery.copy(traversal, parsedTree);
-
-    StringBuilder correct = new StringBuilder();
-    correct.append("#combine:0=0.5:1=0.5( #combine:w=1.0( #feature:dirichlet( #extents:crisis:part=postings() ) ) " +
-            "#combine:0=0.006666666666666665:1=0.0033333333333333327( " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:financial:part=postings() ) " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:normally:part=postings() ) ) )");
-
-    Node correctNode = StructuredQuery.parse(correct.toString());
-
-    // check that generated terms are the same:
-    List<Node> correctExpTerms = correctNode.getChild(1).getInternalNodes();
-    List<Node> observedExpTerms = transformed.getChild(1).getInternalNodes();
-
-    assertEquals(correctExpTerms.size(), observedExpTerms.size());
-    for(int i=0;i<correctExpTerms.size();i++){
-      assertEquals(correctExpTerms.get(i).toString(), observedExpTerms.get(i).toString());
-    }
-    
-    // check that weights are approximately the same 7 decimals..
-    Node correctExp = correctNode.getChild(1);
-    Node observedExp = transformed.getChild(1);
-    for(int i=0;i<correctExpTerms.size();i++){
-      assertEquals(correctExp.getNodeParameters().getDouble(Integer.toString(i)),  observedExp.getNodeParameters().getDouble(Integer.toString(i)),  0.000001);
-    }
-
-    retrieval.close();
-    System.out.println(transformed.toPrettyString());
-  }
-
-
-  public void testDedupeDocumentRM() throws Exception {
-    // Create a retrieval object for use by the traversal
-    Parameters p = new Parameters();
-    p.set("index", indexFile.getAbsolutePath());
-    p.set("corpus", corpusFile.getAbsolutePath());
-    p.set("stemmedPostings", false);
-    p.set("fbOrigWt", 0.5);
-    p.set("defPassageRM", false);
-
-//    Parameters p2 = new Parameters();
-//    p2.set("dedupeScoreThresh", 0.95);
-//    p2.set("docdedupe", true);
-//    p.set("fbParams",p2);
-
-    p.set("dedupeScoreThresh", 0.95);
-    p.set("docdedupe", true);
-
-
-
-    p.set("relevanceModel","org.lemurproject.galago.contrib.relevancemodels.PassageNearDupeRelevanceModel");
-    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
-    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval, new Parameters());
-
-    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=5:fbDocs=10( #feature:dirichlet( #extents:crisis:part=postings() ) )");
-    Node transformed = StructuredQuery.copy(traversal, parsedTree);
-
-    // truth data
-    StringBuilder correct = new StringBuilder();
-    correct.append("#combine:0=0.5:1=0.5( #combine:w=1.0( #feature:dirichlet( #extents:crisis:part=postings() ) ) " +
-            "#combine:0=0.003902666646188044:1=0.003596091739789393:2=0.001800711928351627:3=0.0014048578898335185:4=0.0010542133564807308( " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:real:part=postings() ) " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:estate:part=postings() ) " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:bubble:part=postings() ) " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:result:part=postings() ) " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:created:part=postings() ) ) )");
-
-    Node correctNode = StructuredQuery.parse(correct.toString());
-
-    // check that generated terms are the same:
-    List<Node> correctExpTerms = correctNode.getChild(1).getInternalNodes();
-    List<Node> observedExpTerms = transformed.getChild(1).getInternalNodes();
-
-    assertEquals(correctExpTerms.size(), observedExpTerms.size());
-    for(int i=0;i<correctExpTerms.size();i++){
-      assertEquals(correctExpTerms.get(i).toString(), observedExpTerms.get(i).toString());
-    }
-    
-    // check that weights are approximately the same 7 decimals..
-    Node correctExp = correctNode.getChild(1);
-    Node observedExp = transformed.getChild(1);
-    for(int i=0;i<correctExpTerms.size();i++){
-      assertEquals(correctExp.getNodeParameters().getDouble(Integer.toString(i)),  observedExp.getNodeParameters().getDouble(Integer.toString(i)),  0.000001);
-    }
-
-    retrieval.close();
-  }
-
-  public void testDedupeDocumentRMWhitelist() throws Exception {
-    // Create a retrieval object for use by the traversal
-    Parameters p = new Parameters();
-    p.set("index", indexFile.getAbsolutePath());
-    p.set("corpus", corpusFile.getAbsolutePath());
-    p.set("stemmedPostings", false);
-    p.set("fbOrigWt", 0.5);
-    p.set("defPassageRM", false);
-    p.set("dedupeScoreThresh", 0.95);
-    p.set("docdedupe", true);
-    p.set("termWhitelistFile", whitelistfileName);
-
-    p.set("relevanceModel","org.lemurproject.galago.contrib.relevancemodels.PassageNearDupeRelevanceModel");
-    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
-    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval, new Parameters());
-
-    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=5:fbDocs=10( #feature:dirichlet( #extents:crisis:part=postings() ) )");
-    Node transformed = StructuredQuery.copy(traversal, parsedTree);
-
-    // truth data
-    StringBuilder correct = new StringBuilder();
-    correct.append("#combine:0=0.5:1=0.5( #combine:w=1.0( #feature:dirichlet( #extents:crisis:part=postings() ) ) " +
-            "#combine:0=9.197247191959517E-4:1=3.065749063986506E-4( " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:financial:part=postings() ) " +
-            "#feature:dirichlet( #lengths:document:part=lengths() #extents:normally:part=postings() ) ) )");
-
-    Node correctNode = StructuredQuery.parse(correct.toString());
-
-    // check that generated terms are the same:
-    List<Node> correctExpTerms = correctNode.getChild(1).getInternalNodes();
-    List<Node> observedExpTerms = transformed.getChild(1).getInternalNodes();
-
-    assertEquals(correctExpTerms.size(), observedExpTerms.size());
-    for(int i=0;i<correctExpTerms.size();i++){
-      assertEquals(correctExpTerms.get(i).toString(), observedExpTerms.get(i).toString());
-    }
-    
-    // check that weights are approximately the same 7 decimals..
-    Node correctExp = correctNode.getChild(1);
-    Node observedExp = transformed.getChild(1);
-    for(int i=0;i<correctExpTerms.size();i++){
-      assertEquals(correctExp.getNodeParameters().getDouble(Integer.toString(i)),  observedExp.getNodeParameters().getDouble(Integer.toString(i)),  0.000001);
-    }
-    retrieval.close();
-  }
+//
+//  public void testNoDeduplication() throws Exception {
+//    // Create a retrieval object for use by the traversal
+//    Parameters p = new Parameters();
+//    p.set("index", indexFile.getAbsolutePath());
+//    p.set("corpus", corpusFile.getAbsolutePath());
+//    p.set("stemmedPostings", false);
+//    p.set("fbOrigWt", 0.5);
+//    p.set("fb2Pass", true);
+//    p.set("docdedupe", false);
+//    p.set("termWhitelistFile", "");
+//
+//    Parameters rmParams = new Parameters();
+//    rmParams.set("passageQuery", false);
+//    rmParams.set("passageSize", 3);
+//    rmParams.set("passageShift", 1);
+//
+//    p.set("fbParams2Pass",rmParams);
+//    p.set("relevanceModel","org.lemurproject.galago.contrib.relevancemodels.PassageNearDupeRelevanceModel");
+//    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
+//    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval, new Parameters());
+//
+//    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=5:fbDocs=10( #feature:dirichlet( #extents:crisis:part=postings() ) )");
+//    Node transformed = StructuredQuery.copy(traversal, parsedTree);
+//
+//    StringBuilder correct = new StringBuilder();
+//    correct.append("#combine:0=0.5:1=0.5( #combine:w=1.0( #feature:dirichlet( #extents:crisis:part=postings() ) ) " +
+//            "#combine:0=0.0054355411781812964:1=0.004822391365383995:2=0.0027204366475475786:3=0.0020180077026308195:4=0.0013607882628793812( " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:real:part=postings() ) " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:estate:part=postings() ) " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:bubble:part=postings() ) " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:result:part=postings() ) " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:created:part=postings() ) ) )");
+//
+//    Node correctNode = StructuredQuery.parse(correct.toString());
+//
+//    // check that generated terms are the same:
+//    List<Node> correctExpTerms = correctNode.getChild(1).getInternalNodes();
+//    List<Node> observedExpTerms = transformed.getChild(1).getInternalNodes();
+//
+//    assertEquals(correctExpTerms.size(), observedExpTerms.size());
+//    for(int i=0;i<correctExpTerms.size();i++){
+//      assertEquals(correctExpTerms.get(i).toString(), observedExpTerms.get(i).toString());
+//    }
+//    
+//    // check that weights are approximately the same 7 decimals..
+//    Node correctExp = correctNode.getChild(1);
+//    Node observedExp = transformed.getChild(1);
+//    for(int i=0;i<correctExpTerms.size();i++){
+//      assertEquals(correctExp.getNodeParameters().getDouble(Integer.toString(i)),  observedExp.getNodeParameters().getDouble(Integer.toString(i)),  0.000001);
+//    }
+//    
+//    retrieval.close();
+//    // System.out.println(transformed.toPrettyString());
+//  }
+//
+//
+//
+//  public void testDedupePassageRM() throws Exception {
+//    // Create a retrieval object for use by the traversal
+//    Parameters p = new Parameters();
+//    p.set("index", indexFile.getAbsolutePath());
+//    p.set("corpus", corpusFile.getAbsolutePath());
+//    p.set("stemmedPostings", false);
+//    p.set("fbOrigWt", 0.5);
+//    p.set("fb2Pass", true);
+//    p.set("docdedupe", true);
+//
+//    Parameters rmParams = new Parameters();
+//    rmParams.set("passageQuery", true);
+//    rmParams.set("passageSize", 3);
+//    rmParams.set("passageShift", 1);
+//
+//    p.set("fbParams2Pass",rmParams);
+//    p.set("relevanceModel","org.lemurproject.galago.contrib.relevancemodels.PassageNearDupeRelevanceModel");
+//    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
+//    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval, new Parameters());
+//
+//    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=5:fbDocs=10( #feature:dirichlet( #extents:crisis:part=postings() ) )");
+//    Node transformed = StructuredQuery.copy(traversal, parsedTree);
+//
+//    StringBuilder correct = new StringBuilder();
+//    correct.append("#combine:0=0.5:1=0.5( #combine:w=1.0( #feature:dirichlet( #extents:crisis:part=postings() ) ) " +
+//            "#combine:0=0.006666666666666665:1=0.006666666666666665:2=0.0033333333333333327:3=0.0033333333333333327:4=0.0033333333333333327( " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:estate:part=postings() ) " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:financial:part=postings() ) " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:normally:part=postings() ) " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:real:part=postings() ) " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:se:part=postings() ) ) )");
+//
+//    Node correctNode = StructuredQuery.parse(correct.toString());
+//
+//    // check that generated terms are the same:
+//    List<Node> correctExpTerms = correctNode.getChild(1).getInternalNodes();
+//    List<Node> observedExpTerms = transformed.getChild(1).getInternalNodes();
+//
+//    assertEquals(correctExpTerms.size(), observedExpTerms.size());
+//    for(int i=0;i<correctExpTerms.size();i++){
+//      assertEquals(correctExpTerms.get(i).toString(), observedExpTerms.get(i).toString());
+//    }
+//    
+//    // check that weights are approximately the same 7 decimals..
+//    Node correctExp = correctNode.getChild(1);
+//    Node observedExp = transformed.getChild(1);
+//    for(int i=0;i<correctExpTerms.size();i++){
+//      assertEquals(correctExp.getNodeParameters().getDouble(Integer.toString(i)),  observedExp.getNodeParameters().getDouble(Integer.toString(i)),  0.000001);
+//    }
+//
+//    retrieval.close();
+//    // System.out.println(transformed.toPrettyString());
+//  }
+//
+//
+//  public void testDedupePassageWhitelistRM() throws Exception {
+//    // Create a retrieval object for use by the traversal
+//    Parameters p = new Parameters();
+//    p.set("index", indexFile.getAbsolutePath());
+//    p.set("corpus", corpusFile.getAbsolutePath());
+//    p.set("stemmedPostings", false);
+//    p.set("fbOrigWt", 0.5);
+//    p.set("fb2Pass", true);
+//    p.set("docdedupe", true);
+//
+//    Parameters rmParams = new Parameters();
+//    rmParams.set("passageQuery", true);
+//    rmParams.set("passageSize", 3);
+//    rmParams.set("passageShift", 1);
+//    rmParams.set("termWhitelistFile", whitelistfileName);
+//
+//    p.set("fbParams2Pass",rmParams);
+//    p.set("relevanceModel","org.lemurproject.galago.contrib.relevancemodels.PassageNearDupeRelevanceModel");
+//    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
+//    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval, new Parameters());
+//
+//    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=5:fbDocs=10( #feature:dirichlet( #extents:crisis:part=postings() ) )");
+//    Node transformed = StructuredQuery.copy(traversal, parsedTree);
+//
+//    StringBuilder correct = new StringBuilder();
+//    correct.append("#combine:0=0.5:1=0.5( #combine:w=1.0( #feature:dirichlet( #extents:crisis:part=postings() ) ) " +
+//            "#combine:0=0.006666666666666665:1=0.0033333333333333327( " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:financial:part=postings() ) " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:normally:part=postings() ) ) )");
+//
+//    Node correctNode = StructuredQuery.parse(correct.toString());
+//
+//    // check that generated terms are the same:
+//    List<Node> correctExpTerms = correctNode.getChild(1).getInternalNodes();
+//    List<Node> observedExpTerms = transformed.getChild(1).getInternalNodes();
+//
+//    assertEquals(correctExpTerms.size(), observedExpTerms.size());
+//    for(int i=0;i<correctExpTerms.size();i++){
+//      assertEquals(correctExpTerms.get(i).toString(), observedExpTerms.get(i).toString());
+//    }
+//    
+//    // check that weights are approximately the same 7 decimals..
+//    Node correctExp = correctNode.getChild(1);
+//    Node observedExp = transformed.getChild(1);
+//    for(int i=0;i<correctExpTerms.size();i++){
+//      assertEquals(correctExp.getNodeParameters().getDouble(Integer.toString(i)),  observedExp.getNodeParameters().getDouble(Integer.toString(i)),  0.000001);
+//    }
+//
+//    retrieval.close();
+//    // System.out.println(transformed.toPrettyString());
+//  }
+//
+//
+//  public void testDedupeDocumentRM() throws Exception {
+//    // Create a retrieval object for use by the traversal
+//    Parameters p = new Parameters();
+//    p.set("index", indexFile.getAbsolutePath());
+//    p.set("corpus", corpusFile.getAbsolutePath());
+//    p.set("stemmedPostings", false);
+//    p.set("fbOrigWt", 0.5);
+//    p.set("defPassageRM", false);
+//
+////    Parameters p2 = new Parameters();
+////    p2.set("dedupeScoreThresh", 0.95);
+////    p2.set("docdedupe", true);
+////    p.set("fbParams",p2);
+//
+//    p.set("dedupeScoreThresh", 0.95);
+//    p.set("docdedupe", true);
+//
+//
+//
+//    p.set("relevanceModel","org.lemurproject.galago.contrib.relevancemodels.PassageNearDupeRelevanceModel");
+//    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
+//    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval, new Parameters());
+//
+//    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=5:fbDocs=10( #feature:dirichlet( #extents:crisis:part=postings() ) )");
+//    Node transformed = StructuredQuery.copy(traversal, parsedTree);
+//
+//    // truth data
+//    StringBuilder correct = new StringBuilder();
+//    correct.append("#combine:0=0.5:1=0.5( #combine:w=1.0( #feature:dirichlet( #extents:crisis:part=postings() ) ) " +
+//            "#combine:0=0.003902666646188044:1=0.003596091739789393:2=0.001800711928351627:3=0.0014048578898335185:4=0.0010542133564807308( " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:real:part=postings() ) " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:estate:part=postings() ) " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:bubble:part=postings() ) " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:result:part=postings() ) " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:created:part=postings() ) ) )");
+//
+//    Node correctNode = StructuredQuery.parse(correct.toString());
+//
+//    // check that generated terms are the same:
+//    List<Node> correctExpTerms = correctNode.getChild(1).getInternalNodes();
+//    List<Node> observedExpTerms = transformed.getChild(1).getInternalNodes();
+//
+//    assertEquals(correctExpTerms.size(), observedExpTerms.size());
+//    for(int i=0;i<correctExpTerms.size();i++){
+//      assertEquals(correctExpTerms.get(i).toString(), observedExpTerms.get(i).toString());
+//    }
+//    
+//    // check that weights are approximately the same 7 decimals..
+//    Node correctExp = correctNode.getChild(1);
+//    Node observedExp = transformed.getChild(1);
+//    for(int i=0;i<correctExpTerms.size();i++){
+//      assertEquals(correctExp.getNodeParameters().getDouble(Integer.toString(i)),  observedExp.getNodeParameters().getDouble(Integer.toString(i)),  0.000001);
+//    }
+//
+//    retrieval.close();
+//  }
+//
+//  public void testDedupeDocumentRMWhitelist() throws Exception {
+//    // Create a retrieval object for use by the traversal
+//    Parameters p = new Parameters();
+//    p.set("index", indexFile.getAbsolutePath());
+//    p.set("corpus", corpusFile.getAbsolutePath());
+//    p.set("stemmedPostings", false);
+//    p.set("fbOrigWt", 0.5);
+//    p.set("defPassageRM", false);
+//    p.set("dedupeScoreThresh", 0.95);
+//    p.set("docdedupe", true);
+//    p.set("termWhitelistFile", whitelistfileName);
+//
+//    p.set("relevanceModel","org.lemurproject.galago.contrib.relevancemodels.PassageNearDupeRelevanceModel");
+//    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
+//    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval, new Parameters());
+//
+//    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=5:fbDocs=10( #feature:dirichlet( #extents:crisis:part=postings() ) )");
+//    Node transformed = StructuredQuery.copy(traversal, parsedTree);
+//
+//    // truth data
+//    StringBuilder correct = new StringBuilder();
+//    correct.append("#combine:0=0.5:1=0.5( #combine:w=1.0( #feature:dirichlet( #extents:crisis:part=postings() ) ) " +
+//            "#combine:0=9.197247191959517E-4:1=3.065749063986506E-4( " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:financial:part=postings() ) " +
+//            "#feature:dirichlet( #lengths:document:part=lengths() #extents:normally:part=postings() ) ) )");
+//
+//    Node correctNode = StructuredQuery.parse(correct.toString());
+//
+//    // check that generated terms are the same:
+//    List<Node> correctExpTerms = correctNode.getChild(1).getInternalNodes();
+//    List<Node> observedExpTerms = transformed.getChild(1).getInternalNodes();
+//
+//    assertEquals(correctExpTerms.size(), observedExpTerms.size());
+//    for(int i=0;i<correctExpTerms.size();i++){
+//      assertEquals(correctExpTerms.get(i).toString(), observedExpTerms.get(i).toString());
+//    }
+//    
+//    // check that weights are approximately the same 7 decimals..
+//    Node correctExp = correctNode.getChild(1);
+//    Node observedExp = transformed.getChild(1);
+//    for(int i=0;i<correctExpTerms.size();i++){
+//      assertEquals(correctExp.getNodeParameters().getDouble(Integer.toString(i)),  observedExp.getNodeParameters().getDouble(Integer.toString(i)),  0.000001);
+//    }
+//    retrieval.close();
+//  }
 
 
 

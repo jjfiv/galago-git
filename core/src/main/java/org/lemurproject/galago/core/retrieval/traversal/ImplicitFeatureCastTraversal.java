@@ -52,36 +52,7 @@ public class ImplicitFeatureCastTraversal extends Traversal {
     data.add(child);
     String scorerType = globals.get("scorer", "dirichlet");
 
-    // this should happen in it's own traversal.
-    if (child.getOperator().equals("mincount")) { //experimental
-      scorerType = scorerType + "-est";
-      for (Node grandchild : child.getInternalNodes()) {
-        if (grandchild.getOperator().equals("extents")) {
-          grandchild.setOperator("counts");
-        }
-      }
-    }
-
     Node smoothed = new Node("feature", scorerType, data, child.getPosition());
-
-    /** Check if the child is an 'extents' node
-     *    If so - we can replace extents with counts.
-     *    This can lead to performance improvements within positions indexes
-     *    as the positional data does NOT need to be read for the feature scorer to operate.
-     */
-    if (child.getOperator().equals("extents")) {
-      NodeType nt = retrieval.getNodeType(smoothed);
-      Constructor cons = nt.getConstructor();
-      Class[] params = cons.getParameterTypes();
-
-      boolean requiresExtents = false;
-      for (int idx = 0; idx < params.length; idx++) {
-        requiresExtents |= MovableExtentIterator.class.isAssignableFrom(params[idx]);
-      }
-      if (!requiresExtents) {
-        child.setOperator("counts");
-      }
-    }
 
     if (!globals.get("topdocs", false)) {
       return smoothed;
@@ -198,30 +169,9 @@ public class ImplicitFeatureCastTraversal extends Traversal {
       return node;
     }
 
-    // Wraps an extent/count node in the default extent filter node
-    // for passages
-    if (isExtentNode(node)) {
-      node = addExtentFilters(node);
-    }
-
     // Determine if we need to add a scoring node
     Node scored = addScorers(node);
     return scored;
-  }
-
-  private Node addExtentFilters(Node in) throws Exception {
-    boolean passageQuery = this.globals.get("passageQuery", false) || this.globals.get("extentQuery", false);
-    passageQuery = this.queryParams.get("passageQuery", passageQuery) || this.queryParams.get("extentQuery", passageQuery);
-    if (passageQuery) {
-      // replace here
-      if (in.numChildren() == 0) {
-        ArrayList<Node> children = new ArrayList<Node>();
-        children.add(in);
-        Node replacement = new Node("passagefilter", children);
-        return replacement;
-      }
-    }
-    return in;
   }
 
   public Node addScorers(Node node) throws Exception {

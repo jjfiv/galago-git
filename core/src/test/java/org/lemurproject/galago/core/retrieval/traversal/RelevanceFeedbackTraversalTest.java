@@ -103,86 +103,19 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     retrieval.close();
   }
 
-  public void testPassageRelevanceModelTraversal() throws Exception {
-    // Create a retrieval object for use by the traversal
-    Parameters p = new Parameters();
-    p.set("index", indexFile.getAbsolutePath());
-    p.set("stemmedPostings", false);
-    p.set("fb2Pass", true);
-    p.set("fbOrigWt", 0.5);
-
-    // these parameters should not be used
-    Parameters rmParams2Pass = new Parameters();
-    rmParams2Pass.set("passageQuery", true);
-    rmParams2Pass.set("passageSize", 3);
-    rmParams2Pass.set("passageShift", 1);
-    p.set("fbParams2Pass", rmParams2Pass);
-
-    System.err.println("Here1");
-    
-    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
-    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval, new Parameters());
-
-    System.err.println("Here2");
-
-    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=5:fbDocs=10( #feature:dirichlet( #extents:jumped:part=postings() ) )");
-    Node transformed = StructuredQuery.copy(traversal, parsedTree);
-
-    System.err.println("Here3");
-    
-    // truth data
-    StringBuilder correct = new StringBuilder();
-    correct.append("#combine:0=0.5:1=0.5( #combine:w=1.0( #feature:dirichlet( #extents:jumped:part=postings() ) ) ");
-    correct.append("#combine:0=0.018518518518518517:1=0.018518518518518517:2=0.009259259259259259( ");
-    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:cat:part=postings() ) ");
-    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:sample:part=postings() ) ");
-    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:ugly:part=postings() ) ) )");
-
-    System.err.println(transformed.toString());
-    System.err.println(correct.toString());
-    
-    assertEquals(correct.toString(), transformed.toString());
-    retrieval.close();
-  }
-
-  public void testIllSpecifiedPassageRelevanceModelTraversalShouldNotHang() throws Exception {
-    // Create a retrieval object for use by the traversal
-    Parameters p = new Parameters();
-    p.set("index", indexFile.getAbsolutePath());
-    p.set("corpus", corpusFile.getAbsolutePath());
-    p.set("stemmedPostings", false);
-    p.set("fb2Pass", true);
-    p.set("fbOrigWt", 0.5);
-
-    Parameters fbParams = new Parameters();
-    fbParams.set("passageQuery", true);
-    fbParams.set("passageSize", 3);
-    fbParams.set("passageShift", 1);
-//    p.set("fbParams2Pass",rmParams);
-    
-    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
-    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval, new Parameters());
-
-    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=5:fbDocs=10( #feature:dirichlet( #extents:jumped:part=postings() ) )");
-    Node transformed = StructuredQuery.copy(traversal, parsedTree);
-    
-    retrieval.close();
-  }
-
   public void testClassloaderRelevanceModelTraversal() throws Exception {
     // Create a retrieval object for use by the traversal
     Parameters p = new Parameters();
     p.set("index", indexFile.getAbsolutePath());
     p.set("corpus", corpusFile.getAbsolutePath());
     p.set("stemmedPostings", false);
-    p.set("fb2Pass", true);
     p.set("fbOrigWt", 0.5);
 
     Parameters rmParams = new Parameters();
     rmParams.set("passageQuery", true);
     rmParams.set("passageSize", 3);
     rmParams.set("passageShift", 1);
-    p.set("fbParams2Pass", rmParams);
+    p.set("fbParams", rmParams);
     p.set("relevanceModel", "org.lemurproject.galago.core.scoring.RelevanceModel");
     
     LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);

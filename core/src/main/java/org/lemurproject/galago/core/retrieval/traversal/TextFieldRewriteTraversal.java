@@ -8,9 +8,10 @@ import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
- * <p>StructuredQuery.parse parses queries using pseudo-operators, like #text and #field, so
- * that <tt>a.b.</tt> becomes <tt>#inside( #text:a() #field:b() )</p>.  These pseudo-operators
- * are not supported by common index types.  This traversal renames <tt>#text</tt> and
+ * <p>StructuredQuery.parse parses queries using pseudo-operators, like #text
+ * and #field, so that <tt>a.b.</tt> becomes <tt>#inside( #text:a() #field:b()
+ * )</p>. These pseudo-operators are not supported by common index types. This
+ * traversal renames <tt>#text</tt> and
  * <tt>#field</tt> to something sensible.</p>
  *
  * @author trevor
