@@ -58,8 +58,6 @@ public class AnnotateCollectionStatistics extends Traversal {
   @Override
   public Node afterNode(Node node) throws Exception {
     
-    System.err.println(node.toString());
-    
     // need to get list of required statistics
     RequiredStatistics required = null;
     Class<? extends MovableIterator> c = retrieval.getNodeType(node).getIteratorClass();

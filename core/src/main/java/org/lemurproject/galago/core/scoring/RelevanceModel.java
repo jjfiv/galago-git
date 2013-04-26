@@ -47,15 +47,18 @@ public class RelevanceModel implements ExpansionModel {
       score = 0.0;
     }
 
+    @Override
     public String getTerm() {
       return term;
     }
 
+    @Override
     public double getWeight() {
       return score;
     }
 
     // The secondary sort is to have defined behavior for statistically tied samples.
+    @Override
     public int compareTo(WeightedTerm other) {
       Gram that = (Gram) other;
       int result = this.score > that.score ? -1 : (this.score < that.score ? 1 : 0);
@@ -66,6 +69,7 @@ public class RelevanceModel implements ExpansionModel {
       return result;
     }
 
+    @Override
     public String toString() {
       return "<" + term + "," + score + ">";
     }
@@ -256,7 +260,7 @@ public class RelevanceModel implements ExpansionModel {
           } else if (group != null && retrieval instanceof GroupRetrieval) {
             docLen = ((GroupRetrieval) retrieval).getDocumentLength(sd.documentName, group);
           } else {
-            docLen = retrieval.getDocumentLength(sd.document);
+            docLen = retrieval.getDocumentLength(sd.documentName);
           }
 
           lengthCache.put(sd, docLen);
