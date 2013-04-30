@@ -18,7 +18,9 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +34,7 @@ import java.util.regex.Pattern;
  */
 public class Parameters implements Serializable {
 
-  private static final long serialVersionUID = 4553653651892088433L;
+  private static final long serialVersionUID = 4553653651892088434L;
   // Data structures available in the class
   // Tracks keys and their types
   private HashMap<String, Type> _keys;
@@ -45,6 +47,9 @@ public class Parameters implements Serializable {
   // holds Strings, maps, and lists - no interpretation is attempted.
   private HashMap _objects;
   // faster to use static types for parsing and lookup
+  // backoff parameters allow combination of several different parameter objects without copying
+  // Highlander Principle applies: There can only be one backoff -- however, chaining is possible.
+  private Parameters _backoff;
 
   public enum Type {
 
@@ -410,6 +415,8 @@ public class Parameters implements Serializable {
     _bools = null;
     _doubles = null;
     _objects = null;
+
+    _backoff = null;
   }
 
   public Parameters(Map<String, String> map) {
@@ -433,6 +440,8 @@ public class Parameters implements Serializable {
           set(key, value);
       }
     }
+
+    _backoff = null;
   }
 
   // in this case, we assume everything is a key-value pair of strings
@@ -450,85 +459,8 @@ public class Parameters implements Serializable {
         this.copyFrom(other);
       }
     }
-  }
 
-  private void tokenizeComplexValue(Parameters map, String pattern) throws IOException {
-    int eqPos = pattern.indexOf('=') == -1 ? Integer.MAX_VALUE : pattern.indexOf('=');
-    int arPos = pattern.indexOf('/') == -1 ? Integer.MAX_VALUE : pattern.indexOf('/');
-    int plPos = pattern.indexOf('+') == -1 ? Integer.MAX_VALUE : pattern.indexOf('+');
-
-    int smallest = (eqPos < arPos) ? (eqPos < plPos ? eqPos : plPos) : (arPos < plPos ? arPos : plPos);
-    if (smallest == Integer.MAX_VALUE) {
-      // Assume they meant 'true' for the key
-      map.set(pattern, true);
-    } else {
-      if (eqPos == smallest) {
-        tokenizeSimpleValue(map, pattern.substring(0, smallest), pattern.substring(smallest + 1, pattern.length()), false);
-      } else if (plPos == smallest) {
-        tokenizeSimpleValue(map, pattern.substring(0, smallest), pattern.substring(smallest + 1, pattern.length()), true);
-      } else {
-        String mapKey = pattern.substring(0, smallest);
-        if (!map.isMap(mapKey)) {
-          map.set(mapKey, new Parameters());
-        }
-        tokenizeComplexValue(map.getMap(mapKey), pattern.substring(smallest + 1, pattern.length()));
-      }
-    }
-  }
-
-  private void tokenizeSimpleValue(Parameters map, String key, String value, boolean isArray) throws IOException {
-    Type t = determineType(value);
-    switch (t) {
-      case BOOLEAN: {
-        boolean v = Boolean.parseBoolean(value);
-        if (isArray) {
-          if (!map.isList(key)) {
-            map.set(key, new ArrayList<Boolean>());
-          }
-          map.getList(key).add(v);
-        } else {
-          map.set(key, v);
-        }
-      }
-      break;
-      case LONG: {
-        long v = Long.parseLong(value);
-        if (isArray) {
-          if (!map.isList(key)) {
-            map.set(key, new ArrayList<Long>());
-          }
-          map.getList(key).add(v);
-        } else {
-          map.set(key, v);
-        }
-      }
-      break;
-      case DOUBLE: {
-        double v = Double.parseDouble(value);
-        if (isArray) {
-          if (!map.isList(key)) {
-            map.set(key, new ArrayList<Double>());
-          }
-          map.getList(key).add(v);
-        } else {
-          map.set(key, v);
-        }
-      }
-      break;
-      default:
-        if (isArray) {
-          if (!map.isList(key)) {
-            map.set(key, new ArrayList<String>());
-          }
-          map.getList(key).add(value);
-        } else {
-          // attempt to clean a string: 'string'
-          if (value.startsWith("'") && value.endsWith("'") && value.length() > 1) {
-            value = value.substring(1, value.length() - 1);
-          }
-          map.set(key, value);
-        }
-    }
+    _backoff = null;
   }
 
   public static Parameters parse(String data) throws IOException {
@@ -557,7 +489,9 @@ public class Parameters implements Serializable {
   }
 
   /**
-   * To ensure items are not shared across parameter objects
+   * Ensures items are not shared across parameter objects
+   *  -- identical keys can be overwritten
+   *  -- Backoff parameters are copied. 
    */
   public void copyFrom(Parameters other) {
     try {
@@ -571,6 +505,8 @@ public class Parameters implements Serializable {
 
   /**
    * To ensure items are not shared across parameter objects
+   *  -- identical keys will be overwritten
+   *  -- Backoff parameters are copied. 
    */
   public void copyTo(Parameters other) {
     try {
@@ -582,25 +518,9 @@ public class Parameters implements Serializable {
     }
   }
 
-  public static Type determineType(String s) {
-    if (Pattern.matches("true|false", s)) {
-      return Type.BOOLEAN;
-    }
-
-    if (Pattern.matches("\\-?\\d+", s)) {
-      return Type.LONG;
-    }
-
-    try {
-      double d = Double.parseDouble(s);
-      return Type.DOUBLE;
-    } catch (Exception e) {
-      // Do nothing - just didn't work
-    }
-
-    return Type.STRING;
-  }
-
+  /**
+   * Does NOT consider backoff parameters.
+   */
   @Override
   public boolean equals(Object o) {
     if (!(o instanceof Parameters)) {
@@ -656,7 +576,9 @@ public class Parameters implements Serializable {
   public Parameters clone() {
     try {
       JSONParser jp = new JSONParser(new StringReader(toString()));
-      return jp.parse();
+      Parameters p = jp.parse();
+      p.setBackoff(_backoff);
+      return p;
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
@@ -664,18 +586,39 @@ public class Parameters implements Serializable {
 
   // Getters
   public Set<String> getKeys() {
+    if (_backoff != null) {
+      Set<String> keys = this._backoff.getKeys();
+      keys.addAll(_keys.keySet());
+      return keys;
+    }
     return _keys.keySet();
   }
 
+  public Type getKeyType(String key) {
+    if (_keys.containsKey(key)) {
+      return _keys.get(key);
+    } else if (_backoff != null) {
+      return _backoff.getKeyType(key);
+    } else {
+      throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
+    }
+  }
+
   public List getList(String key) {
-    return (List) _objects.get(key);
+    if (_keys.containsKey(key)) {
+      if (_keys.get(key).equals(Type.LIST)) {
+        return (List) _objects.get(key);
+      } else {
+        throw new IllegalArgumentException("Key " + key + " does not exist as List in parameters object, found " + _keys.get(key));
+      }
+    } else if (_backoff != null) {
+      return _backoff.getList(key);
+    } else {
+      throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
+    }
   }
 
   public List getAsList(String key) {
-    if (isList(key)) {
-      return getList(key);
-    }
-
     if (_keys.containsKey(key)) {
       List tmp;
       switch (_keys.get(key)) {
@@ -699,7 +642,11 @@ public class Parameters implements Serializable {
           tmp = new ArrayList<Parameters>();
           tmp.add(_objects.get(key));
           return tmp;
+        case LIST:
+          return (List) _objects.get(key);
       }
+    } else if (_backoff != null) {
+      return _backoff.getAsList(key);
     } else {
       return new ArrayList();
     }
@@ -707,63 +654,144 @@ public class Parameters implements Serializable {
   }
 
   public Parameters getMap(String key) {
-    return (Parameters) _objects.get(key);
-  }
-
-  public Parameters get(String key, Parameters def) {
     if (_keys.containsKey(key)) {
-      return (Parameters) _objects.get(key);
+      if (_keys.get(key).equals(Type.MAP)) {
+        return (Parameters) _objects.get(key);
+      } else {
+        throw new IllegalArgumentException("Key " + key + " does not exist as JSONParameters in parameters object, instead found " + _keys.get(key));
+      }
+    } else if (_backoff != null) {
+      return _backoff.getMap(key);
     } else {
-      return def;
+      throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
     }
   }
 
   public String getString(String key) {
-    return (String) _objects.get(key);
+    if (_keys.containsKey(key)) {
+      if (_keys.get(key).equals(Type.STRING)) {
+        return (String) _objects.get(key);
+      } else {
+        throw new IllegalArgumentException("Key " + key + " does not exist as String in parameters object, instead found " + _keys.get(key));
+      }
+    } else if (_backoff != null) {
+      return _backoff.getString(key);
+    } else {
+      throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
+    }
   }
 
   public String get(String key, String def) {
     if (_keys.containsKey(key)) {
-      return (String) _objects.get(key);
+      if (_keys.get(key).equals(Type.STRING)) {
+        return (String) _objects.get(key);
+      } else {
+        throw new IllegalArgumentException("Key " + key + " does not exist as String in parameters object, instead found " + _keys.get(key));
+      }
+    } else if (_backoff != null) {
+      return _backoff.get(key, def);
     } else {
       return def;
     }
   }
 
   public long getLong(String key) {
-    return _longs.get(key);
+    if (_keys.containsKey(key)) {
+      if (_keys.get(key).equals(Type.LONG)) {
+        return _longs.get(key);
+      } else {
+        throw new IllegalArgumentException("Key " + key + " does not exist as Long in parameters object, instead found " + _keys.get(key));
+      }
+    } else if (_backoff != null) {
+      return _backoff.getLong(key);
+    } else {
+      throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
+    }
   }
 
   public long get(String key, long def) {
     if (_keys.containsKey(key)) {
-      return _longs.get(key);
+      if (_keys.get(key).equals(Type.LONG)) {
+        return _longs.get(key);
+      } else {
+        throw new IllegalArgumentException("Key " + key + " does not exist as Long in parameters object, instead found " + _keys.get(key));
+      }
+    } else if (_backoff != null) {
+      return _backoff.get(key, def);
     } else {
       return def;
     }
   }
 
   public double getDouble(String key) {
-    return _doubles.get(key);
+    if (_keys.containsKey(key)) {
+      if (_keys.get(key).equals(Type.DOUBLE)) {
+        return _doubles.get(key);
+
+        // it is possible to cast a long to a double
+      } else if (_keys.get(key).equals(Type.LONG)) {
+        return _longs.get(key);
+
+      } else {
+        throw new IllegalArgumentException("Key " + key + " does not exist as Double/Long in parameters object, instead found " + _keys.get(key));
+      }
+    } else if (_backoff != null) {
+      return _backoff.getDouble(key);
+    } else {
+      throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
+    }
   }
 
   public double get(String key, double def) {
-    if (_keys.containsKey(key) && _doubles != null && _doubles.containsKey(key)) {
-      return _doubles.get(key);
+    if (_keys.containsKey(key)) {
+      if (_keys.get(key).equals(Type.DOUBLE)) {
+        return _doubles.get(key);
+
+        // it is possible to cast a long to a double
+      } else if (_keys.get(key).equals(Type.LONG)) {
+        return _longs.get(key);
+
+      } else {
+        throw new IllegalArgumentException("Key " + key + " does not exist as Double/Long in parameters object, instead found " + _keys.get(key));
+      }
+
+    } else if (_backoff != null) {
+      return _backoff.get(key, def);
     } else {
       return def;
     }
   }
 
   public boolean getBoolean(String key) {
-    return (_bools.get(key) == 1 ? true : false);
+    if (_keys.containsKey(key)) {
+      if (_keys.get(key).equals(Type.BOOLEAN)) {
+        return _bools.get(key) == 1 ? true : false;
+      } else {
+        throw new IllegalArgumentException("Key " + key + " does not exist as Boolean in parameters object, instead found " + _keys.get(key));
+      }
+    } else if (_backoff != null) {
+      return _backoff.getBoolean(key);
+    } else {
+      throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
+    }
   }
 
   public boolean get(String key, boolean def) {
     if (_keys.containsKey(key)) {
-      return getBoolean(key);
+      if (_keys.get(key).equals(Type.BOOLEAN)) {
+        return _bools.get(key) == 1 ? true : false;
+      } else {
+        throw new IllegalArgumentException("Key " + key + " does not exist as Boolean in parameters object, instead found " + _keys.get(key));
+      }
+    } else if (_backoff != null) {
+      return _backoff.get(key, def);
     } else {
       return def;
     }
+  }
+
+  public Parameters getBackoff() {
+    return _backoff;
   }
 
   // Setters
@@ -788,7 +816,8 @@ public class Parameters implements Serializable {
   }
 
   public void set(String key, Object[] value) {
-    set(key, Arrays.asList(value));
+    // using ArrayList to ensure mutability
+    set(key, new ArrayList(Arrays.asList(value)));
   }
 
   public void set(String key, List value) {
@@ -829,8 +858,13 @@ public class Parameters implements Serializable {
 
   public void set(String key, double value) {
     if (_keys.containsKey(key) && _keys.get(key) != Type.DOUBLE) {
-      throw new IllegalArgumentException(String.format("Tried to put key '%s' as Double, is %s\n",
-              key, _keys.get(key)));
+      if (_keys.get(key) == Type.LONG) {
+        // auto cast from long to double -- remove existing value.        
+        remove(key);
+      } else {
+        throw new IllegalArgumentException(String.format("Tried to put key '%s' as Double, is %s\n",
+                key, _keys.get(key)));
+      }
     }
     if (_doubles == null) {
       _doubles = new TObjectDoubleHashMap();
@@ -853,7 +887,27 @@ public class Parameters implements Serializable {
     _keys.put(key, Type.BOOLEAN);
   }
 
-  // Deleter
+  /**
+   * Overrides current backoff with this object.
+   * 
+   * @param backoff 
+   */
+  public void setBackoff(Parameters backoff) {
+    this._backoff = backoff;
+  }
+
+  public void setFinalBackoff(Parameters backoff) {
+    if(_backoff != null){
+      this._backoff = backoff;
+    } else {
+      this._backoff.setFinalBackoff(backoff);
+    }
+  }
+
+  /**
+   * WARNING: does not delete keys from backoff
+   *  -- manually getBackoff, and delete from there if necessary (?)
+   */
   public boolean remove(String key) {
     if (!_keys.containsKey(key)) {
       return false;
@@ -881,17 +935,29 @@ public class Parameters implements Serializable {
 
   // Verifiers
   public boolean isString(String key) {
-    return (_keys.containsKey(key) && _keys.get(key) == Type.STRING);
+    if (_keys.containsKey(key) && _keys.get(key) == Type.STRING) {
+      return true;
+    } else if (_backoff != null && _backoff.isString(key)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public boolean isList(String key) {
-    return (_keys.containsKey(key) && _keys.get(key) == Type.LIST);
+    if (_keys.containsKey(key) && _keys.get(key) == Type.LIST) {
+      return true;
+    } else if (_backoff != null && _backoff.isList(key)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public boolean isList(String key, Type type) {
     if (isList(key)) {
       List<Object> list = getList(key);
-      // empty lists can store anything                                                                                                                             
+      // empty lists can store anything
       if (list.isEmpty()) {
         return true;
       }
@@ -933,27 +999,51 @@ public class Parameters implements Serializable {
   }
 
   public boolean isMap(String key) {
-    return (_keys.containsKey(key) && _keys.get(key) == Type.MAP);
+    if (_keys.containsKey(key) && _keys.get(key) == Type.MAP) {
+      return true;
+    } else if (_backoff != null && _backoff.isMap(key)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public boolean isDouble(String key) {
-    return (_keys.containsKey(key) && _keys.get(key) == Type.DOUBLE);
+    if (_keys.containsKey(key) && _keys.get(key) == Type.DOUBLE) {
+      return true;
+    } else if (_backoff != null && _backoff.isDouble(key)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public boolean isLong(String key) {
-    return (_keys.containsKey(key) && _keys.get(key) == Type.LONG);
+    if (_keys.containsKey(key) && _keys.get(key) == Type.LONG) {
+      return true;
+    } else if (_backoff != null && _backoff.isLong(key)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public boolean isBoolean(String key) {
-    return (_keys.containsKey(key) && _keys.get(key) == Type.BOOLEAN);
+    if (_keys.containsKey(key) && _keys.get(key) == Type.BOOLEAN) {
+      return true;
+    } else if (_backoff != null && _backoff.isBoolean(key)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public boolean containsKey(String key) {
-    return _keys.containsKey(key);
+    return ((_keys.containsKey(key)) || (_backoff != null && _backoff.containsKey(key)));
   }
 
   public boolean isEmpty() {
-    return (_keys.size() == 0);
+    return ((_keys.size() == 0) || (_backoff != null && _backoff.isEmpty()));
   }
 
   public void write(String filename) throws IOException {
@@ -962,35 +1052,45 @@ public class Parameters implements Serializable {
     writer.close();
   }
 
+  @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("{ ");
     try {
-      String[] keys = _keys.keySet().toArray(new String[0]);
-      Arrays.sort(keys);
-      for (int i = 0; i < keys.length; i++) {
-        String key = keys[i];
-        Type vt = _keys.get(key);
+      List<String> keys = new ArrayList(getKeys());
+      Collections.sort(keys);
+      for (int i = 0; i < keys.size(); i++) {
+        String key = keys.get(i);
+        Type vt = getKeyType(key);
+
         builder.append("\"").append(key).append("\" : ");
+        Object val;
         switch (vt) {
           case BOOLEAN:
-            boolean b = _bools.get(key) == 0x1 ? true : false;
+            boolean b = getBoolean(key);
             builder.append(b);
             break;
           case LONG:
-            builder.append(_longs.get(key));
+            builder.append(getLong(key));
             break;
           case DOUBLE:
-            builder.append(_doubles.get(key));
+            builder.append(getDouble(key));
             break;
           case STRING:
+            val = getString(key);
+            builder.append(emitComplex(val));
+            break;
           case MAP:
+            val = getMap(key);
+            builder.append(emitComplex(val));
+            break;
           case LIST:
-            builder.append(emitUnknownValue(_objects.get(key)));
+            val = getList(key);
+            builder.append(emitComplex(val));
             break;
         }
 
-        if (i < (keys.length - 1)) {
+        if (i < (keys.size() - 1)) {
           builder.append(" , ");
         }
       }
@@ -1002,34 +1102,6 @@ public class Parameters implements Serializable {
     return builder.toString();
   }
 
-  private String emitUnknownValue(Object val) throws IOException {
-    if (val == null) {
-      return "null";
-    } else if (List.class.isAssignableFrom(val.getClass())) {
-      StringBuilder builder = new StringBuilder();
-      builder.append("[ ");
-      boolean first = true;
-      for (Object v : ((List) val)) {
-        if (first) {
-          first = false;
-        } else {
-          builder.append(" , ");
-        }
-
-        builder.append(emitUnknownValue(v));
-      }
-
-      builder.append(" ]");
-      return builder.toString();
-    } else if (Parameters.class.isAssignableFrom(val.getClass())) {
-      return val.toString();
-    } else if (String.class.isAssignableFrom(val.getClass())) {
-      return "\"" + val + "\"";
-    } else {
-      return val.toString();
-    }
-  }
-
   public String toPrettyString() {
     return toPrettyString(this, "");
   }
@@ -1037,10 +1109,13 @@ public class Parameters implements Serializable {
   public String toPrettyString(String prefix) {
     return toPrettyString(this, prefix);
   }
+  
+  // PRIVATE FUNCTIONS
 
-  private String toPrettyString(Object val, String prefix) {
+  private static String toPrettyString(Object val, String prefix) {
     if (val == null) {
       return "null";
+      
     } else if (List.class.isAssignableFrom(val.getClass())) {
       StringBuilder builder = new StringBuilder();
       builder.append("[ ");
@@ -1065,44 +1140,182 @@ public class Parameters implements Serializable {
 
       String internalPrefix = prefix + "  ";
 
-      String[] keys = p._keys.keySet().toArray(new String[0]);
-      Arrays.sort(keys);
-      for (int i = 0; i < keys.length; i++) {
-        String key = keys[i];
-        Type vt = p._keys.get(key);
+      List<String> keys = new ArrayList(p.getKeys());
+      Collections.sort(keys);
+      for (int i = 0; i < keys.size(); i++) {
+        String key = keys.get(i);
+        Type vt = p.getKeyType(key);
+
         builder.append(internalPrefix).append("\"").append(key).append("\" : ");
         switch (vt) {
           case BOOLEAN:
-            boolean b = p._bools.get(key) == 0x1 ? true : false;
-            builder.append(b);
+            builder.append(p.getBoolean(key));
             break;
           case LONG:
-            builder.append(p._longs.get(key));
+            builder.append(p.getLong(key));
             break;
           case DOUBLE:
-            builder.append(p._doubles.get(key));
+            builder.append(p.getDouble(key));
             break;
           case STRING:
+            builder.append(toPrettyString(p.getString(key), internalPrefix));
+            break;
           case MAP:
+            builder.append(toPrettyString(p.getMap(key), internalPrefix));
+            break;
           case LIST:
-            // builder.append(emitUnknownValue(p._objects.get(key)));
-            builder.append(toPrettyString(p._objects.get(key), internalPrefix));
+            builder.append(toPrettyString(p.getList(key), internalPrefix));
             break;
         }
 
-        if (i < (keys.length - 1)) {
+        if (i < (keys.size() - 1)) {
           builder.append(",\n");
         }
       }
 
       builder.append("\n").append(prefix).append("}");
       return builder.toString();
+      
     } else if (String.class.isAssignableFrom(val.getClass())) {
       return "\"" + val + "\"";
 
     } else {
       // Long, Double, Boolean
       return val.toString();
+    }
+  }
+
+  private static String emitComplex(Object val) throws IOException {
+    if (val == null) {
+      return "null";
+
+    } else if (List.class.isAssignableFrom(val.getClass())) {
+      StringBuilder builder = new StringBuilder();
+      builder.append("[ ");
+      boolean first = true;
+      for (Object v : ((List) val)) {
+        if (first) {
+          first = false;
+        } else {
+          builder.append(" , ");
+        }
+
+        builder.append(emitComplex(v));
+      }
+
+      builder.append(" ]");
+      return builder.toString();
+    
+    } else if (Parameters.class.isAssignableFrom(val.getClass())) {
+      return val.toString();
+    
+    } else if (String.class.isAssignableFrom(val.getClass())) {
+      return "\"" + val + "\"";
+
+    } else {
+      // long, double, boolean
+      return val.toString();
+    }
+  }
+
+  /**
+   * Parsing functions : 
+   */
+  private static Type determineType(String s) {
+    if (Pattern.matches("true|false", s)) {
+      return Type.BOOLEAN;
+    }
+
+    if (Pattern.matches("\\-?\\d+", s)) {
+      return Type.LONG;
+    }
+
+    try {
+      double d = Double.parseDouble(s);
+      return Type.DOUBLE;
+    } catch (Exception e) {
+      // Do nothing - just didn't work
+    }
+
+    return Type.STRING;
+  }
+
+  private static void tokenizeComplexValue(Parameters map, String pattern) throws IOException {
+    int eqPos = pattern.indexOf('=') == -1 ? Integer.MAX_VALUE : pattern.indexOf('=');
+    int arPos = pattern.indexOf('/') == -1 ? Integer.MAX_VALUE : pattern.indexOf('/');
+    int plPos = pattern.indexOf('+') == -1 ? Integer.MAX_VALUE : pattern.indexOf('+');
+
+    int smallest = (eqPos < arPos) ? (eqPos < plPos ? eqPos : plPos) : (arPos < plPos ? arPos : plPos);
+    if (smallest == Integer.MAX_VALUE) {
+      // Assume they meant 'true' for the key
+      map.set(pattern, true);
+    } else {
+      if (eqPos == smallest) {
+        tokenizeSimpleValue(map, pattern.substring(0, smallest), pattern.substring(smallest + 1, pattern.length()), false);
+      } else if (plPos == smallest) {
+        tokenizeSimpleValue(map, pattern.substring(0, smallest), pattern.substring(smallest + 1, pattern.length()), true);
+      } else {
+        String mapKey = pattern.substring(0, smallest);
+        if (!map.isMap(mapKey)) {
+          map.set(mapKey, new Parameters());
+        }
+        tokenizeComplexValue(map.getMap(mapKey), pattern.substring(smallest + 1, pattern.length()));
+      }
+    }
+  }
+
+  private static void tokenizeSimpleValue(Parameters map, String key, String value, boolean isArray) throws IOException {
+    Type t = determineType(value);
+    switch (t) {
+      case BOOLEAN: {
+        boolean v = Boolean.parseBoolean(value);
+        if (isArray) {
+          if (!map.isList(key)) {
+            map.set(key, new ArrayList<Boolean>());
+          }
+          map.getList(key).add(v);
+        } else {
+          map.set(key, v);
+        }
+      }
+      break;
+      case LONG: {
+        long v = Long.parseLong(value);
+        if (isArray) {
+          if (!map.isList(key)) {
+            map.set(key, new ArrayList<Long>());
+          }
+          map.getList(key).add(v);
+        } else {
+          map.set(key, v);
+        }
+      }
+      break;
+      case DOUBLE: {
+        double v = Double.parseDouble(value);
+        if (isArray) {
+          if (!map.isList(key)) {
+            map.set(key, new ArrayList<Double>());
+          }
+          map.getList(key).add(v);
+        } else {
+          map.set(key, v);
+        }
+      }
+      break;
+      default:
+        if (isArray) {
+          if (!map.isList(key)) {
+            map.set(key, new ArrayList<String>());
+          }
+          map.getList(key).add(value);
+        } else {
+          // attempt to clean a string: 'string'
+          if (value.startsWith("'") && value.endsWith("'") && value.length() > 1) {
+            value = value.substring(1, value.length() - 1);
+          }
+          map.set(key, value);
+        }
     }
   }
 }

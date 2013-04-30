@@ -3,7 +3,6 @@ package org.lemurproject.galago.contrib.tools;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.contrib.index.PictureStoreWriter;
 import org.lemurproject.galago.contrib.index.PictureDocumentWriter;
@@ -81,7 +80,7 @@ public class BuildPictureStore extends AppFunction {
     Utility.copyStringToFile(jobParameters.toPrettyString(), manifest);
 
     List<String> inputPaths = jobParameters.getAsList("inputPath");
-    Parameters splitParameters = jobParameters.get("parser", new Parameters()).clone();
+    Parameters splitParameters = (jobParameters.isMap("parser")) ? jobParameters.getMap("parser") : new Parameters();
     job.add(BuildStageTemplates.getSplitStage(inputPaths,
 					      DocumentSource.class,
 					      new DocumentSplit.FileIdOrder(),

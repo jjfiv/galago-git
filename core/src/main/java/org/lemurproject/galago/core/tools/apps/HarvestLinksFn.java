@@ -98,7 +98,7 @@ public class HarvestLinksFn extends AppFunction {
 
     // stage 1: split files
 
-    Parameters splitParameters = p.get("parser", new Parameters());
+    Parameters splitParameters = p.isMap("parser")? p.getMap("parser") : new Parameters();
     splitParameters.set("corpusPieces", p.get("distrib", 10));
 
     if (p.isString("filetype")) {

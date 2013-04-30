@@ -59,7 +59,7 @@ public class IndexLinker extends AppFunction {
     Utility.copyStringToFile(jobParameters.toPrettyString(), manifest);
 
     List<String> inputPaths = jobParameters.getAsList("inputPath");
-    Parameters splitParameters = jobParameters.get("parser", new Parameters()).clone();
+    Parameters splitParameters = (jobParameters.isMap("parser")) ? jobParameters.getMap("parser") : new Parameters();
     job.add(BuildStageTemplates.getSplitStage(inputPaths,
             DocumentSource.class,
             new DocumentSplit.FileIdOrder(),

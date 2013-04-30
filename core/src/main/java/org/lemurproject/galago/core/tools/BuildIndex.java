@@ -52,11 +52,7 @@ import org.lemurproject.galago.tupleflow.execution.Step;
 public class BuildIndex extends AppFunction {
 
   public Stage getParsePostingsStage(Parameters buildParameters) throws ClassNotFoundException {
-    Stage stage = new Stage("parsePostings")
-	.addInput("splits", new DocumentSplit.FileIdOrder())
-	.addOutput("fieldLengthData", new FieldLengthData.FieldDocumentOrder())
-	.addOutput("numberedDocumentDataNumbers", new NumberedDocumentData.NumberOrder())
-	.addOutput("numberedDocumentDataNames", new NumberedDocumentData.IdentifierOrder());
+    Stage stage = new Stage("parsePostings").addInput("splits", new DocumentSplit.FileIdOrder()).addOutput("fieldLengthData", new FieldLengthData.FieldDocumentOrder()).addOutput("numberedDocumentDataNumbers", new NumberedDocumentData.NumberOrder()).addOutput("numberedDocumentDataNames", new NumberedDocumentData.IdentifierOrder());
 
 //    if (buildParameters.getBoolean("links")) {
 //      stage.addInput("anchorText", new AdditionalDocumentText.IdentifierOrder());
@@ -91,10 +87,7 @@ public class BuildIndex extends AppFunction {
     }
 
     // Steps
-    stage.add(new InputStep("splits"))
-	.add(BuildStageTemplates.getParserStep(buildParameters))
-	.add(BuildStageTemplates.getTokenizerStep(buildParameters))
-	.add(BuildStageTemplates.getNumberingStep(buildParameters));
+    stage.add(new InputStep("splits")).add(BuildStageTemplates.getParserStep(buildParameters)).add(BuildStageTemplates.getTokenizerStep(buildParameters)).add(BuildStageTemplates.getNumberingStep(buildParameters));
 //    if (buildParameters.getBoolean("links")) {
 //      Parameters p = new Parameters();
 //      p.set("textSource", "anchorText");
@@ -104,82 +97,68 @@ public class BuildIndex extends AppFunction {
     MultiStep processingFork = new MultiStep();
 
     // these forks are always executed
-    processingFork
-	.addGroup("fieldLengths",
-		  BuildStageTemplates.getExtractionSteps("fieldLengthData", 
-							 FieldLengthExtractor.class,
-							 new FieldLengthData.FieldDocumentOrder()))
-	.addGroup("numberedDocumentData",
-		  BuildStageTemplates.getExtractionSteps("numberedDocumentDataNumbers", 
-							 NumberedDocumentDataExtractor.class,
-							 new NumberedDocumentData.NumberOrder()))
-	.addGroup("numberedDocumentDataNames",
-		  BuildStageTemplates.getExtractionSteps("numberedDocumentDataNames", 
-							 NumberedDocumentDataExtractor.class,
-							 new NumberedDocumentData.IdentifierOrder()));
-		  
+    processingFork.addGroup("fieldLengths",
+            BuildStageTemplates.getExtractionSteps("fieldLengthData",
+            FieldLengthExtractor.class,
+            new FieldLengthData.FieldDocumentOrder())).addGroup("numberedDocumentData",
+            BuildStageTemplates.getExtractionSteps("numberedDocumentDataNumbers",
+            NumberedDocumentDataExtractor.class,
+            new NumberedDocumentData.NumberOrder())).addGroup("numberedDocumentDataNames",
+            BuildStageTemplates.getExtractionSteps("numberedDocumentDataNames",
+            NumberedDocumentDataExtractor.class,
+            new NumberedDocumentData.IdentifierOrder()));
+
     // now optional forks
     if (buildParameters.getBoolean("corpus")) {
       Parameters corpusParameters = buildParameters.getMap("corpusParameters").clone();
-      processingFork.addGroup("corpus")
-	  .addToGroup("corpus", new Step(CorpusFolderWriter.class, corpusParameters.clone()))
-	  .addToGroup("corpus", Utility.getSorter(new KeyValuePair.KeyOrder()))
-	  .addToGroup("corpus", new OutputStep("corpusKeys"));
+      processingFork.addGroup("corpus").addToGroup("corpus", new Step(CorpusFolderWriter.class, corpusParameters.clone())).addToGroup("corpus", Utility.getSorter(new KeyValuePair.KeyOrder())).addToGroup("corpus", new OutputStep("corpusKeys"));
     }
     if (buildParameters.getBoolean("nonStemmedPostings")) {
-	processingFork.addGroup("postings", 
-				BuildStageTemplates.getExtractionSteps("numberedPostings", 
-								       NumberedPostingsPositionExtractor.class,
-								       new NumberWordPosition.WordDocumentPositionOrder()));
+      processingFork.addGroup("postings",
+              BuildStageTemplates.getExtractionSteps("numberedPostings",
+              NumberedPostingsPositionExtractor.class,
+              new NumberWordPosition.WordDocumentPositionOrder()));
     }
     if (!buildParameters.getMap("tokenizer").getList("fields").isEmpty()) {
-	processingFork.addGroup("extents",
-				BuildStageTemplates.getExtractionSteps("numberedExtents", 
-								       NumberedExtentExtractor.class,
-								       new NumberedExtent.ExtentNameNumberBeginOrder()));
+      processingFork.addGroup("extents",
+              BuildStageTemplates.getExtractionSteps("numberedExtents",
+              NumberedExtentExtractor.class,
+              new NumberedExtent.ExtentNameNumberBeginOrder()));
     }
     if (!buildParameters.getMap("tokenizer").getMap("formats").isEmpty()) {
-	processingFork.addGroup("comparable Fields",
-				BuildStageTemplates.getExtractionSteps("numberedFields", 
-								       NumberedFieldExtractor.class,
-								       buildParameters, 
-								       new NumberedField.FieldNameNumberOrder()));
+      processingFork.addGroup("comparable Fields",
+              BuildStageTemplates.getExtractionSteps("numberedFields",
+              NumberedFieldExtractor.class,
+              buildParameters,
+              new NumberedField.FieldNameNumberOrder()));
     }
 
     if (buildParameters.getBoolean("stemmedPostings")) {
       for (String stemmer : (List<String>) buildParameters.getList("stemmer")) {
-	  String name = "postings-" + stemmer;
-	  processingFork.addGroup(name)
-	      .addToGroup(name, 
-			  BuildStageTemplates.getStemmerStep(new Parameters(),
-							     Class.forName(buildParameters.getMap("stemmerClass").getString(stemmer))))
-	      .addToGroup(name, new Step(NumberedPostingsPositionExtractor.class))
-	      .addToGroup(name, Utility.getSorter(new NumberWordPosition.WordDocumentPositionOrder()))
-	      .addToGroup(name, new OutputStep("numberedStemmedPostings-" + stemmer));
+        String name = "postings-" + stemmer;
+        processingFork.addGroup(name).addToGroup(name,
+                BuildStageTemplates.getStemmerStep(new Parameters(),
+                Class.forName(buildParameters.getMap("stemmerClass").getString(stemmer)))).addToGroup(name, new Step(NumberedPostingsPositionExtractor.class)).addToGroup(name, Utility.getSorter(new NumberWordPosition.WordDocumentPositionOrder())).addToGroup(name, new OutputStep("numberedStemmedPostings-" + stemmer));
       }
     }
 
     if (buildParameters.getBoolean("fieldIndex")) {
       if (buildParameters.getMap("fieldIndexParameters").getBoolean("nonStemmedPostings")) {
-	  processingFork.addGroup("fieldIndex", 
-				  BuildStageTemplates.getExtractionSteps("numberedExtentPostings", 
-									 NumberedExtentPostingsExtractor.class,
-									 new FieldNumberWordPosition.FieldWordDocumentPositionOrder()));
+        processingFork.addGroup("fieldIndex",
+                BuildStageTemplates.getExtractionSteps("numberedExtentPostings",
+                NumberedExtentPostingsExtractor.class,
+                new FieldNumberWordPosition.FieldWordDocumentPositionOrder()));
       }
 
       if (buildParameters.getMap("fieldIndexParameters").getBoolean("stemmedPostings")) {
-	  for (String stemmer : (List<String>) buildParameters.getMap("fieldIndexParameters").getList("stemmer")) {
-	      String name = "fieldIndex-" + stemmer;
-	      processingFork.addGroup(name)
-		  .addToGroup(name, 
-			      BuildStageTemplates.getStemmerStep(new Parameters(),
-								 Class.forName(buildParameters.getMap("stemmerClass").getString(stemmer))))
-		  .addToGroup(name, new Step(NumberedExtentPostingsExtractor.class))
-		  .addToGroup(name, Utility.getSorter(new FieldNumberWordPosition.FieldWordDocumentPositionOrder()))
-		  .addToGroup(name, new OutputStep("numberedExtentPostings-" + stemmer));
-	  }
+        for (String stemmer : (List<String>) buildParameters.getMap("fieldIndexParameters").getList("stemmer")) {
+          String name = "fieldIndex-" + stemmer;
+          processingFork.addGroup(name).addToGroup(name,
+                  BuildStageTemplates.getStemmerStep(new Parameters(),
+                  Class.forName(buildParameters.getMap("stemmerClass").getString(stemmer)))).addToGroup(name, new Step(NumberedExtentPostingsExtractor.class)).addToGroup(name, Utility.getSorter(new FieldNumberWordPosition.FieldWordDocumentPositionOrder())).addToGroup(name, new OutputStep("numberedExtentPostings-" + stemmer));
+        }
       }
-    }    
+    }
     return stage.add(processingFork);
   }
 
@@ -221,7 +200,6 @@ public class BuildIndex extends AppFunction {
 //
 //    return stage;
 //  }
-
   public Stage getWritePostingsStage(Parameters buildParameters, String stageName,
           String inputName, Order inputOrder, String indexName,
           Class indexWriter, String stemmerName) {
@@ -565,17 +543,22 @@ public class BuildIndex extends AppFunction {
       }
 
       // if we are stemming - check the stemmers match the global stemmers
-      if (fieldIndexParameters.containsKey("stemmer")) {
-        HashSet<String> stemmerList = new HashSet(globalParameters.getList("stemmer"));
-        for (String stemmer : (List<String>) fieldIndexParameters.getList("stemmer")) {
-          if (!stemmerList.contains(stemmer)) {
-            errorLog.add("FieldIndexParameters: stemmers must be in the global 'stemmer' list.");
+      if (fieldIndexParameters.getBoolean("stemmedPostings")) {
+        if (fieldIndexParameters.containsKey("stemmer")) {
+          HashSet<String> stemmerList = new HashSet(globalParameters.getList("stemmer"));
+          for (String stemmer : (List<String>) fieldIndexParameters.getList("stemmer")) {
+            if (!stemmerList.contains(stemmer)) {
+              errorLog.add("FieldIndexParameters: stemmers must be in the global 'stemmer' list.");
+            }
           }
+        } else {
+          // by default use the global stemmer list (empty if not used)
+          fieldIndexParameters.set("stemmer", globalParameters.getList("stemmer"));
         }
-      } else {
-        // by default use the global stemmer list (empty if not used)
-        fieldIndexParameters.set("stemmer", globalParameters.getList("stemmer"));
       }
+
+      System.err.println("FOUND 6");
+
     } catch (Exception e) {
       errorLog.add("Parameter 'fieldIndexParameters' should be a map.\n"
               + "Should include boolean values for 'nonStemmedPostings', and 'stemmedPostings'\n"
@@ -639,7 +622,7 @@ public class BuildIndex extends AppFunction {
 
     // common steps + connections
 
-    Parameters splitParameters = buildParameters.get("parser", new Parameters()).clone();
+    Parameters splitParameters = buildParameters.isMap("parser") ? buildParameters.getMap("parser") : new Parameters();
     splitParameters.set("corpusPieces", buildParameters.get("distrib", 10));
     if (buildParameters.isMap("parser")) {
       splitParameters.set("parser", buildParameters.getMap("parser"));
@@ -735,7 +718,7 @@ public class BuildIndex extends AppFunction {
   }
 
   @Override
-  public String getName(){
+  public String getName() {
     return "build";
   }
 
