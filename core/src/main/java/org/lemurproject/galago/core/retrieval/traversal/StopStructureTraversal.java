@@ -12,64 +12,78 @@ import org.lemurproject.galago.tupleflow.Parameters;
 
 /*
  * Removes stop structures, as defined by the stopStructure file 
- *  (may need to be appended with new structures)
+ *   (NOTE that for artibtary queries, user will need to be append list with new stop structures
  * 
  * @author sjh, jbing
  */
 public class StopStructureTraversal extends Traversal {
 
-  public static Set<String> stopstructures = null;
+  private static Set<String> defaultStopStructures = null;
   private static Logger logger = Logger.getLogger("StopStructureTraversal");
 
-  public StopStructureTraversal(Retrieval retrieval, Parameters queryParameters) throws IOException {
+  public StopStructureTraversal(Retrieval retrieval) throws IOException {
 
-    if (stopstructures == null) {
+    if (defaultStopStructures == null) {
       // default to 'stopStructure' list
-      String stopstructurelist = queryParameters.get("stopstructurelist", retrieval.getGlobalParameters().get("stopstructurelist", "stopStructure"));
+      String stopstructurelist = retrieval.getGlobalParameters().get("stopstructurelist", "stopStructure");
       Set<String> ss_set = WordLists.getWordList(stopstructurelist);
-      stopstructures = new TreeSet();
+      defaultStopStructures = new TreeSet();
       for (String ss : ss_set) {
         // need to ensure that each ss ends with a space (ensures terms are not cutoff)
-        stopstructures.add(ss.trim() + " ");
+        defaultStopStructures.add(ss.trim() + " ");
       }
     }
   }
 
   @Override
-  public void beforeNode(Node node) throws Exception {
+  public void beforeNode(Node node, Parameters queryParameters) throws Exception {
   }
 
   @Override
-  public Node afterNode(Node original) throws Exception {
+  public Node afterNode(Node original, Parameters queryParameters) throws Exception {
     if (original.getOperator().equals("stopstructure")) {
       Node newHead = new Node("combine", original.getInternalNodes());
-      // recursively find node with an array of text nodes 
+
+      // find first child node with an array of text nodes 
       Node parent = newHead;
       while (parent.numChildren() == 1 && !parent.getChild(0).getOperator().equals("text")) {
         parent = parent.getChild(0);
       }
 
       if (parent.numChildren() >= 1 && parent.getChild(0).getOperator().equals("text")) {
-        removeStopStructure(parent);
+        Set<String> stopstructures = defaultStopStructures;
+
+        if (queryParameters.isString("stopstructurelist")) {
+          Set<String> ss_set = WordLists.getWordList(queryParameters.getString("stopstructurelist"));
+          stopstructures = new TreeSet();
+          for (String ss : ss_set) {
+            // need to ensure that each ss ends with a space (ensures terms are not cutoff)
+            stopstructures.add(ss.trim() + " ");
+          }
+        }
+
+        removeStopStructure(parent, stopstructures);
+
       } else {
-        logger.info("Unable to remove stop structure, could not find array of text-only nodes in :\n" + original.toPrettyString() );
+        logger.info("Unable to remove stop structure, could not find array of text-only nodes in :\n" + original.toPrettyString());
       }
       return newHead;
     }
     return original;
   }
 
-  private void removeStopStructure(Node parent) {
+  private void removeStopStructure(Node parent, Set<String> stopstructures) {
     String queryString = "";
     for (Node child : parent.getInternalNodes()) {
       if (child.getOperator().equals("text")) {
         queryString += child.getDefaultParameter() + " ";
       } else {
         // found something that is not a text node -- can not construct a query string, returning.
-        logger.info("Unable to remove stop structure, could not find array of text-only nodes in :\n" + parent.toPrettyString() );
+        logger.info("Unable to remove stop structure, could not find array of text-only nodes in :\n" + parent.toPrettyString());
         return;
       }
     }
+    
     queryString = queryString.trim() + " ";
     String longestStopStruct = "";
     for (String ss : stopstructures) {

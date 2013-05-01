@@ -15,24 +15,21 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class AnnotateParameters extends Traversal {
 
-  Parameters queryParameters;
   Parameters globalParameters;
   Retrieval retrieval;
 
   // featurefactory is necessary to get the correct class
   public AnnotateParameters(Retrieval retrieval, Parameters queryParams) throws IOException {
     this.globalParameters = retrieval.getGlobalParameters();
-    this.queryParameters = queryParams;
     this.retrieval = retrieval;
-
   }
 
   @Override
-  public void beforeNode(Node node) {
+  public void beforeNode(Node node, Parameters qp) {
   }
 
   @Override
-  public Node afterNode(Node node) throws Exception {
+  public Node afterNode(Node node, Parameters queryParameters) throws Exception {
     // need to get list of required statistics
     RequiredParameters required = null;
     Class c = retrieval.getNodeType(node).getIteratorClass();
@@ -85,7 +82,7 @@ public class AnnotateParameters extends Traversal {
         }
       }
 
-      // recurse up to the next superclass
+      // default up to the next superclass
       c = c.getSuperclass();
     }
     return node;

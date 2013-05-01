@@ -19,16 +19,11 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class InsertLengthsTraversal extends Traversal {
 
-  private Parameters queryParams;
-  private Parameters globalParams;
   private Node lenNode;
   private Retrieval retrieval;
 
-  public InsertLengthsTraversal(Retrieval retrieval, Parameters queryParameters) {
-    // TODO: devise mechanisms to use specific lengths smoothing methods
+  public InsertLengthsTraversal(Retrieval retrieval) {
     this.retrieval = retrieval;
-    this.globalParams = retrieval.getGlobalParameters();
-    this.queryParams = queryParameters;
 
     // default lengths node.
     lenNode = new Node("lengths", new NodeParameters());
@@ -36,7 +31,7 @@ public class InsertLengthsTraversal extends Traversal {
   }
 
   @Override
-  public Node afterNode(Node node) throws Exception {
+  public Node afterNode(Node node, Parameters qp) throws Exception {
     List<Node> children = node.getInternalNodes();
     int childIdx = 0;
 
@@ -80,23 +75,7 @@ public class InsertLengthsTraversal extends Traversal {
   }
 
   @Override
-  public void beforeNode(Node object) throws Exception {
+  public void beforeNode(Node object, Parameters qp) throws Exception {
     // Do nothing
-  }
-
-  /**
-   * this function inserts a passage restriction to length nodes.
-   */
-  private Node addExtentFilters(Node in) throws Exception {
-    boolean passageQuery = this.globalParams.get("passageQuery", false) || this.globalParams.get("extentQuery", false);
-    passageQuery = this.queryParams.get("passageQuery", passageQuery) || this.queryParams.get("extentQuery", passageQuery);
-    if (passageQuery) {
-      ArrayList<Node> children = new ArrayList<Node>();
-      children.add(in);
-      Node replacement = new Node("passagelengths", children);
-      return replacement;
-    } else {
-      return in;
-    }
   }
 }

@@ -53,7 +53,9 @@ public class GroupRetrieval implements Retrieval {
   @Override
   public Node transformQuery(Node queryTree, Parameters queryParams) throws Exception {
     for (Traversal traversal : this.features.getTraversals(this, queryTree, queryParams)) {
-      queryTree = StructuredQuery.walk(traversal, queryTree);
+      traversal.beforeTreeRoot(queryTree, queryParams);
+      queryTree = StructuredQuery.walk(traversal, queryTree, queryParams);
+      queryTree = traversal.afterTreeRoot(queryTree, queryParams);
     }
     return queryTree;
   }

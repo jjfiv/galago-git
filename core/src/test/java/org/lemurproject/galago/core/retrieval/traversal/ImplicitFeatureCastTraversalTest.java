@@ -41,16 +41,16 @@ public class ImplicitFeatureCastTraversalTest extends TestCase {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
     LocalRetrieval retrieval = new LocalRetrieval(index, new Parameters());
 
-    ImplicitFeatureCastTraversal traversal = new ImplicitFeatureCastTraversal(retrieval, new Parameters());
+    ImplicitFeatureCastTraversal traversal = new ImplicitFeatureCastTraversal(retrieval);
     TextFieldRewriteTraversal precedes = new TextFieldRewriteTraversal(retrieval);
     Node tree = StructuredQuery.parse("#combine( cat dog.title)");
-    tree = StructuredQuery.copy(precedes, tree); // converts #text to #extents...
+    tree = StructuredQuery.copy(precedes, tree, new Parameters()); // converts #text to #extents...
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine( ");
     transformed.append("#feature:dirichlet( #extents:cat:part=postings() ) ");
     transformed.append("#feature:dirichlet( #inside( #extents:dog:part=postings() ");
     transformed.append("#extents:title:part=extents() ) ) )");
-    Node result = StructuredQuery.copy(traversal, tree);
+    Node result = StructuredQuery.copy(traversal, tree, new Parameters());
     assertEquals(transformed.toString(), result.toString());
   }
 
@@ -59,11 +59,11 @@ public class ImplicitFeatureCastTraversalTest extends TestCase {
     Parameters p = new Parameters();
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
 
-    ImplicitFeatureCastTraversal traversal = new ImplicitFeatureCastTraversal(retrieval, new Parameters());
+    ImplicitFeatureCastTraversal traversal = new ImplicitFeatureCastTraversal(retrieval);
     Node tree = StructuredQuery.parse("#combine( #between( title abba zztop )");
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine( #between:0=abba:1=zztop( #field:title() ) )");
-    Node result = StructuredQuery.copy(traversal, tree);
+    Node result = StructuredQuery.copy(traversal, tree, new Parameters());
     assertEquals(transformed.toString(), result.toString());
   }
 }

@@ -2,7 +2,7 @@
  * BSD License (http://www.galagosearch.org/license)
 
  */
-package org.lemurproject.galago.core.retrieval.traversal;
+package org.lemurproject.galago.contrib.retrieval.traversal;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
 import java.util.ArrayList;
@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -68,10 +69,6 @@ public class PL2FTraversal extends Traversal {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-  }
-
-  public static boolean isNeeded(Node root) {
-    return (root.getOperator().equals("pl2f"));
   }
 
   @Override

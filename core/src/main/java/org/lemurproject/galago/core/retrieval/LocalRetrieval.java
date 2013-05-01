@@ -283,13 +283,14 @@ public class LocalRetrieval implements Retrieval {
 
   @Override
   public Node transformQuery(Node queryTree, Parameters queryParams) throws Exception {
-    return transformQuery(features.getTraversals(this, queryTree, queryParams), queryTree);
+    return transformQuery(features.getTraversals(this, queryTree, queryParams), queryTree, queryParams);
   }
 
-  protected Node transformQuery(List<Traversal> traversals, Node queryTree) throws Exception {
+  private Node transformQuery(List<Traversal> traversals, Node queryTree, Parameters queryParams) throws Exception {
     for (Traversal traversal : traversals) {
-      queryTree = StructuredQuery.walk(traversal, queryTree);
-      // System.out.println(traversal.getClass().getSimpleName() + "\t" + queryTree.toPrettyString());
+      traversal.beforeTreeRoot(queryTree, queryParams);
+      queryTree = StructuredQuery.walk(traversal, queryTree, queryParams);
+      queryTree = traversal.afterTreeRoot(queryTree, queryParams);
     }
     return queryTree;
   }

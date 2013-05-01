@@ -299,7 +299,8 @@ public class PageRankFn extends AppFunction {
 
   private boolean checkConvergence(int i, Parameters p) {
     File conv = new File(p.getString("outputFolder"), "pagerank.converged." + i);
-    if (conv.exists()) {
+    // repeat check for 
+    if (!conv.exists()) {
       return true;
     } else {
       return false;
@@ -355,8 +356,8 @@ public class PageRankFn extends AppFunction {
     job.connect("rndJump", "reducer", ConnectionAssignmentType.Combined); // replicate this now.
 
     // would prefer 'each', but this isn't very expensive.
-    job.connect("scoreReader", "convergence", ConnectionAssignmentType.Combined);
-    job.connect("reducer", "convergence", ConnectionAssignmentType.Combined);
+    job.connect("scoreReader", "convergence", ConnectionAssignmentType.Each);
+    job.connect("reducer", "convergence", ConnectionAssignmentType.Each);
 
     return job;
   }

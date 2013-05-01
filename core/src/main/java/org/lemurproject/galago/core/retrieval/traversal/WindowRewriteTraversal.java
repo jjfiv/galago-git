@@ -41,7 +41,7 @@ public class WindowRewriteTraversal extends Traversal {
    * 
    */
   @Override
-  public void beforeNode(Node node) throws Exception {
+  public void beforeNode(Node node, Parameters qp) throws Exception {
     if (node.getOperator().equals("window")) {
       for (Node child : node.getInternalNodes()) {
         if (!child.getOperator().equals("text")) {
@@ -62,7 +62,7 @@ public class WindowRewriteTraversal extends Traversal {
    * 
    */
   @Override
-  public Node afterNode(Node original) throws Exception {
+  public Node afterNode(Node original, Parameters qp) throws Exception {
 
     if (original.getOperator().equals("window")) {
 

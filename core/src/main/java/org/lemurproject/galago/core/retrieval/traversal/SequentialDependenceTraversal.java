@@ -25,46 +25,41 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class SequentialDependenceTraversal extends Traversal {
 
-  private int defaultWindowLimit;
+  private int windowLimitDefault;
   private double unigramDefault;
   private double orderedDefault;
   private double unorderedDefault;
-  private boolean goSoft;
-  private Parameters qp;
   private Retrieval r;
-  private boolean cacheSynthCounts;
 
-  public SequentialDependenceTraversal(Retrieval retrieval, Parameters queryParameters) {
+  public SequentialDependenceTraversal(Retrieval retrieval) {
     r = retrieval;
-    qp = queryParameters;
     Parameters parameters = retrieval.getGlobalParameters();
     unigramDefault = parameters.get("uniw", 0.8);
     orderedDefault = parameters.get("odw", 0.15);
     unorderedDefault = parameters.get("uww", 0.05);
-    goSoft = parameters.get("delayed", false);
-    cacheSynthCounts = parameters.containsKey("syntheticCounts");
-    defaultWindowLimit = (int) parameters.get("windowLimit", 2);
-
-    unigramDefault = queryParameters.get("uniw", unigramDefault);
-    orderedDefault = queryParameters.get("odw", orderedDefault);
-    unorderedDefault = queryParameters.get("uww", unorderedDefault);
-
-    // sjh : don't yet know how to ensure queryparameters override the global parameters
-    // 
-    // goSoft = queryParameters.get("delayed", goSoft);
-    // cacheSynthCounts = cacheSynthCounts || queryParameters.containsKey("syntheticCounts");
-    defaultWindowLimit = (int) queryParameters.get("windowLimit", defaultWindowLimit);
+    windowLimitDefault = (int) parameters.get("windowLimit", 2);
   }
 
   @Override
-  public void beforeNode(Node original) throws Exception {
+  public void beforeNode(Node original, Parameters qp) throws Exception {
   }
 
   @Override
-  public Node afterNode(Node original) throws Exception {
+  public Node afterNode(Node original, Parameters qp) throws Exception {
     if (original.getOperator().equals("sdm")
             || original.getOperator().equals("seqdep")) {
       // get to work
+
+      double unigramW = qp.get("uniw", unigramDefault);
+      double orderedW = qp.get("odw", orderedDefault);
+      double unorderedW = qp.get("uww", unorderedDefault);
+      int windowLimit = (int) qp.get("windowLimit", windowLimitDefault);
+
+      NodeParameters np = original.getNodeParameters();
+      unigramW = np.get("uniw", unigramW);
+      orderedW = np.get("odw", orderedW);
+      unorderedW = np.get("uww", unorderedW);
+      windowLimit = (int) np.get("windowLimit", windowLimit);
 
       List<Node> children = original.getInternalNodes();
 
@@ -83,8 +78,6 @@ public class SequentialDependenceTraversal extends Traversal {
       ArrayList<Node> ordered = new ArrayList<Node>();
       ArrayList<Node> unordered = new ArrayList<Node>();
 
-      NodeParameters parameters = original.getNodeParameters();
-      int windowLimit = (int) parameters.get("windowLimit", defaultWindowLimit);
 
       for (int n = 2; n <= windowLimit; n++) {
         for (int i = 0; i < (children.size() - n + 1); i++) {
@@ -94,53 +87,22 @@ public class SequentialDependenceTraversal extends Traversal {
         }
       }
 
-// Deprecated - StagedLocalRetrieval has been moved to contrib      
-//      if (goSoft && StagedLocalRetrieval.class.isAssignableFrom(r.getClass())) {
-//        for (Node n : ordered) {
-//          String key = AbstractPartialProcessor.makeNodeKey(n);
-//          n.getNodeParameters().set("key", key);
-//          n.setOperator("mincount");
-//          if (cacheSynthCounts) {
-//            StagedLocalRetrieval slr = (StagedLocalRetrieval) r;
-//            n.getNodeParameters().set("maximumCount", slr.syntheticCounts.get(key).maximumCount);
-//          }
-//        }
-//        for (Node n : unordered) {
-//          String key = AbstractPartialProcessor.makeNodeKey(n);
-//          n.getNodeParameters().set("key", key);
-//          n.setOperator("mincount");
-//          if (cacheSynthCounts) {
-//            StagedLocalRetrieval slr = (StagedLocalRetrieval) r;
-//            n.getNodeParameters().set("maximumCount", slr.syntheticCounts.get(key).maximumCount);
-//          }
-//        }
-//      }
-
       Node orderedWindowNode = new Node("combine", ordered);
       Node unorderedWindowNode = new Node("combine", unordered);
 
-      // now get the weights for each component, and add to immediate children
-      double uni = parameters.get("uniw", unigramDefault);
-      double odw = parameters.get("odw", orderedDefault);
-      double uww = parameters.get("uww", unorderedDefault);
-
       NodeParameters weights = new NodeParameters();
-      if (parameters.containsKey("norm")) {
-        weights.set("norm", parameters.getBoolean("norm"));
-      }
-
       ArrayList<Node> immediateChildren = new ArrayList<Node>();
 
       // unigrams - 0.80
-      weights.set("0", uni);
+      weights.set("0", unigramW);
       immediateChildren.add(unigramNode);
 
       // ordered
-      weights.set("1", odw);
+      weights.set("1", orderedW);
       immediateChildren.add(orderedWindowNode);
 
       // unordered
-      weights.set("2", uww);
+      weights.set("2", unorderedW);
       immediateChildren.add(unorderedWindowNode);
 
       // Finally put them all inside a combine node w/ the weights

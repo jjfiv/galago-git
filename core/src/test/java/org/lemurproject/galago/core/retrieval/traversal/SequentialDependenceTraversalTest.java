@@ -40,14 +40,14 @@ public class SequentialDependenceTraversalTest extends TestCase {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
     Parameters p = new Parameters();
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
-    SequentialDependenceTraversal traversal = new SequentialDependenceTraversal(retrieval, p);
+    SequentialDependenceTraversal traversal = new SequentialDependenceTraversal(retrieval);
     Node tree = StructuredQuery.parse("#seqdep( cat dog rat )");
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine:0=0.8:1=0.15:2=0.05( ");
     transformed.append("#combine( #text:cat() #text:dog() #text:rat() ) ");
     transformed.append("#combine( #ordered:1( #text:cat() #text:dog() ) #ordered:1( #text:dog() #text:rat() ) ) ");
     transformed.append("#combine( #unordered:8( #text:cat() #text:dog() ) #unordered:8( #text:dog() #text:rat() ) ) )");
-    Node result = StructuredQuery.copy(traversal, tree);
+    Node result = StructuredQuery.copy(traversal, tree, p);
 
     assertEquals(transformed.toString(), result.toString());
 
@@ -57,14 +57,14 @@ public class SequentialDependenceTraversalTest extends TestCase {
     p.set("odw", 0.10);
     p.set("uww", 0.15);
     retrieval = new LocalRetrieval(index, p);
-    traversal = new SequentialDependenceTraversal(retrieval, p);
+    traversal = new SequentialDependenceTraversal(retrieval);
     tree = StructuredQuery.parse("#seqdep( cat dog rat )");
     transformed = new StringBuilder();
     transformed.append("#combine:0=0.75:1=0.1:2=0.15( ");
     transformed.append("#combine( #text:cat() #text:dog() #text:rat() ) ");
     transformed.append("#combine( #ordered:1( #text:cat() #text:dog() ) #ordered:1( #text:dog() #text:rat() ) ) ");
     transformed.append("#combine( #unordered:8( #text:cat() #text:dog() ) #unordered:8( #text:dog() #text:rat() ) ) )");
-    result = StructuredQuery.copy(traversal, tree);
+    result = StructuredQuery.copy(traversal, tree, p);
 
     assertEquals(transformed.toString(), result.toString());
 
@@ -75,7 +75,7 @@ public class SequentialDependenceTraversalTest extends TestCase {
     transformed.append("#combine( #text:cat() #text:dog() #text:rat() ) ");
     transformed.append("#combine( #ordered:1( #text:cat() #text:dog() ) #ordered:1( #text:dog() #text:rat() ) ) ");
     transformed.append("#combine( #unordered:8( #text:cat() #text:dog() ) #unordered:8( #text:dog() #text:rat() ) ) )");
-    result = StructuredQuery.copy(traversal, tree);
+    result = StructuredQuery.copy(traversal, tree, p);
 
     assertEquals(transformed.toString(), result.toString());
 
@@ -86,14 +86,14 @@ public class SequentialDependenceTraversalTest extends TestCase {
     p.set("uww", 0.15);
     p.set("windowLimit", 3);
     retrieval = new LocalRetrieval(index, p);
-    traversal = new SequentialDependenceTraversal(retrieval, p);
+    traversal = new SequentialDependenceTraversal(retrieval);
     tree = StructuredQuery.parse("#seqdep( cat dog rat )");
     transformed = new StringBuilder();
     transformed.append("#combine:0=0.75:1=0.1:2=0.15( ");
     transformed.append("#combine( #text:cat() #text:dog() #text:rat() ) ");
     transformed.append("#combine( #ordered:1( #text:cat() #text:dog() ) #ordered:1( #text:dog() #text:rat() ) #ordered:1( #text:cat() #text:dog() #text:rat() ) ) ");
     transformed.append("#combine( #unordered:8( #text:cat() #text:dog() ) #unordered:8( #text:dog() #text:rat() ) #unordered:12( #text:cat() #text:dog() #text:rat() ) ) )");
-    result = StructuredQuery.copy(traversal, tree);
+    result = StructuredQuery.copy(traversal, tree, p);
 
     assertEquals(transformed.toString(), result.toString());
 

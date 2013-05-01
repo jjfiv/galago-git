@@ -158,11 +158,11 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
   }
 
   @Override
-  public void beforeNode(Node original) throws Exception {
+  public void beforeNode(Node original, Parameters queryParameters) throws Exception {
   }
 
   @Override
-  public Node afterNode(Node original) throws Exception {
+  public Node afterNode(Node original, Parameters queryParameters) throws Exception {
     if (original.getOperator().equals("wsdm")) {
 
       for (String p : this.unigramWeights.keySet()) {

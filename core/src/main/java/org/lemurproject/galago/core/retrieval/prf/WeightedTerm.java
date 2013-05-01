@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.scoring;
+package org.lemurproject.galago.core.retrieval.prf;
 
 /**
  * A generic interface for weighted 'terms', although it may also apply to

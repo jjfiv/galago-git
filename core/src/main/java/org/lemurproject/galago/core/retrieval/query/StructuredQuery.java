@@ -18,7 +18,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * [sjh] : added a parameterTerm parse function to allow decimal numbers to be passed
  *
- * @author trevor
+ * @author trevor, sjh
  */
 public class StructuredQuery {
 
@@ -35,18 +35,18 @@ public class StructuredQuery {
    * node, with the children replaced by new copies.  afterNode can either
    * return its parameter or a modified node.
    */
-  public static Node copy(Traversal traversal, Node tree) throws Exception {
+  public static Node copy(Traversal traversal, Node tree, Parameters queryParams) throws Exception {
     ArrayList<Node> children = new ArrayList<Node>();
-    traversal.beforeNode(tree);
+    traversal.beforeNode(tree, queryParams);
 
     for (Node n : tree.getInternalNodes()) {
-      Node child = copy(traversal, n);
+      Node child = copy(traversal, n, queryParams);
       children.add(child);
     }
 
     Node newNode = new Node(tree.getOperator(), tree.getNodeParameters(),
             children, tree.getPosition());
-    return traversal.afterNode(newNode);
+    return traversal.afterNode(newNode, queryParams);
   }
 
   /**
@@ -58,12 +58,12 @@ public class StructuredQuery {
    * before any of its children (pre-order), while traversal.afterNode method
    * will be called on the parent after all of its children (post-order).
    */
-  public static Node walk(Traversal traversal, Node tree) throws Exception {
-    traversal.beforeNode(tree);
+  public static Node walk(Traversal traversal, Node tree, Parameters queryParams) throws Exception {
+    traversal.beforeNode(tree, queryParams);
     for (int i = 0; i < tree.numChildren(); i++) {
-      tree.replaceChildAt(walk(traversal, tree.getChild(i)), i);
+      tree.replaceChildAt(walk(traversal, tree.getChild(i), queryParams), i);
     }
-    return traversal.afterNode(tree);
+    return traversal.afterNode(tree, queryParams);
   }
 
   public static Token parseParameterTerm(TokenStream tokens) {

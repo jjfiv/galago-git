@@ -1,5 +1,5 @@
 // BSD License (http://www.galagosearch.org/license)
-package org.lemurproject.galago.core.retrieval.traversal;
+package org.lemurproject.galago.contrib.retrieval.traversal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +8,7 @@ import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -54,10 +55,6 @@ public class BM25FTraversal extends Traversal {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-  }
-
-  public static boolean isNeeded(Node root) {
-    return (root.getOperator().equals("bm25f"));
   }
 
   public void beforeNode(Node original) throws Exception {

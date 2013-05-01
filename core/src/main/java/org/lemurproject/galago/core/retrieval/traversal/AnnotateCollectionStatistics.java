@@ -30,12 +30,10 @@ public class AnnotateCollectionStatistics extends Traversal {
   HashSet<String> availableStatistics;
   Parameters globalParameters;
   Retrieval retrieval;
-  Parameters queryParameters;
 
   // featurefactory is necessary to get the correct class
-  public AnnotateCollectionStatistics(Retrieval retrieval, Parameters queryParams) throws IOException {
+  public AnnotateCollectionStatistics(Retrieval retrieval) throws IOException {
     this.globalParameters = retrieval.getGlobalParameters();
-    this.queryParameters = queryParams;
     this.retrieval = retrieval;
 
     this.availableStatistics = new HashSet();
@@ -52,11 +50,11 @@ public class AnnotateCollectionStatistics extends Traversal {
   }
 
   @Override
-  public void beforeNode(Node node) {
+  public void beforeNode(Node node, Parameters qp) {
   }
 
   @Override
-  public Node afterNode(Node node) throws Exception {
+  public Node afterNode(Node node, Parameters qp) throws Exception {
     
     // need to get list of required statistics
     RequiredStatistics required = null;
@@ -73,13 +71,13 @@ public class AnnotateCollectionStatistics extends Traversal {
         }
       }
       if (!reqStats.isEmpty()) {
-        annotate(node, reqStats);
+        annotate(node, reqStats, qp);
       }
     }
     return node;
   }
 
-  private void annotate(Node node, HashSet<String> reqStats) throws Exception {
+  private void annotate(Node node, HashSet<String> reqStats, Parameters qp) throws Exception {
     NodeParameters nodeParams = node.getNodeParameters();
 
     if (reqStats.contains("collectionLength")
@@ -91,7 +89,7 @@ public class AnnotateCollectionStatistics extends Traversal {
       // extract field if possible:
       // use 'document' as the default context
       String field = node.getNodeParameters().get("lengths", "document");
-      CollectionStatistics stats = getCollectionStatistics(field);
+      CollectionStatistics stats = getCollectionStatistics(field, qp);
 
       if (reqStats.contains("collectionLength")
               && !nodeParams.containsKey("collectionLength")) {
@@ -118,7 +116,7 @@ public class AnnotateCollectionStatistics extends Traversal {
     if (reqStats.contains("nodeFrequency")
             || reqStats.contains("nodeDocumentCount")) {
 
-      NodeStatistics stats = getNodeStatistics(node);
+      NodeStatistics stats = getNodeStatistics(node, qp);
       if (stats == null) {
         return;
       }
@@ -134,10 +132,10 @@ public class AnnotateCollectionStatistics extends Traversal {
     }
   }
 
-  private CollectionStatistics getCollectionStatistics(String field) throws Exception {
+  private CollectionStatistics getCollectionStatistics(String field, Parameters qp) throws Exception {
     if (this.retrieval instanceof GroupRetrieval) {
-      String group = queryParameters.get("group", globalParameters.get("group", ""));
-      group = queryParameters.get("backgroundIndex", globalParameters.get("backgroundIndex", group));
+      String group = qp.get("group", globalParameters.get("group", ""));
+      group = qp.get("backgroundIndex", globalParameters.get("backgroundIndex", group));
 
       if (!group.isEmpty()) {
         return ((GroupRetrieval) retrieval).getCollectionStatistics("#lengths:" + field + ":part=lengths()", group);
@@ -146,27 +144,27 @@ public class AnnotateCollectionStatistics extends Traversal {
     return retrieval.getCollectionStatistics("#lengths:" + field + ":part=lengths()");
   }
 
-  private NodeStatistics getNodeStatistics(Node node) throws Exception {
+  private NodeStatistics getNodeStatistics(Node node, Parameters qp) throws Exception {
     // recurses down a stick (single children nodes only)
     if (isCountNode(node)) {
-      return collectStatistics(node);
+      return collectStatistics(node, qp);
 
     } else if (node.numChildren() == 1) {
-      return getNodeStatistics(node.getInternalNodes().get(0));
+      return getNodeStatistics(node.getInternalNodes().get(0), qp);
 
     } else if (node.numChildren() == 2) {
-      return getNodeStatistics(node.getInternalNodes().get(1));
+      return getNodeStatistics(node.getInternalNodes().get(1), qp);
     }
     return null;
   }
 
-  private NodeStatistics collectStatistics(Node countNode) throws Exception {
+  private NodeStatistics collectStatistics(Node countNode, Parameters qp) throws Exception {
     // recursively check if any child nodes use a specific background part
     Node n = assignParts(countNode.clone());
 
     if (this.retrieval instanceof GroupRetrieval) {
-      String group = queryParameters.get("group", globalParameters.get("group", ""));
-      group = queryParameters.get("backgroundIndex", globalParameters.get("backgroundIndex", group));
+      String group = qp.get("group", globalParameters.get("group", ""));
+      group = qp.get("backgroundIndex", globalParameters.get("backgroundIndex", group));
 
       if (!group.isEmpty()) {
         return ((GroupRetrieval) retrieval).getNodeStatistics(n, group);

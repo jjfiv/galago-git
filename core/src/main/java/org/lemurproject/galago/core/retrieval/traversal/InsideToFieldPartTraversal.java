@@ -17,20 +17,18 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class InsideToFieldPartTraversal extends Traversal {
 
-  Parameters availableParts;
-  private Parameters globalParameters;
+  protected Parameters availableParts;
 
   public InsideToFieldPartTraversal(Retrieval retrieval) throws IOException {
     this.availableParts = retrieval.getAvailableParts();
-    globalParameters = retrieval.getGlobalParameters();
   }
 
   @Override
-  public void beforeNode(Node original) throws Exception {
+  public void beforeNode(Node original, Parameters qp) throws Exception {
   }
 
   @Override
-  public Node afterNode(Node original) throws Exception {
+  public Node afterNode(Node original, Parameters qp) throws Exception {
     if (original.getOperator().equals("inside")) {
       // a way out - in case you really want it.
       if (original.getNodeParameters().get("noOpt", false)) {

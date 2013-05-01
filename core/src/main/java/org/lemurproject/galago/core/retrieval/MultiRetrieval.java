@@ -198,14 +198,15 @@ public class MultiRetrieval implements Retrieval {
 
   @Override
   public Node transformQuery(Node root, Parameters qp) throws Exception {
-    return transformQuery(features.getTraversals(this, root, qp), root);
+    return transformQuery(features.getTraversals(this, root, qp), root, qp);
   }
 
   // private functions
-  private Node transformQuery(List<Traversal> traversals, Node queryTree) throws Exception {
+  private Node transformQuery(List<Traversal> traversals, Node queryTree, Parameters queryParams) throws Exception {
     for (Traversal traversal : traversals) {
-      queryTree = StructuredQuery.walk(traversal, queryTree);
-      //System.out.println(traversal.getClass().getSimpleName() + "\t" + queryTree.toPrettyString());
+      traversal.beforeTreeRoot(queryTree, queryParams);
+      queryTree = StructuredQuery.walk(traversal, queryTree, queryParams);
+      queryTree = traversal.afterTreeRoot(queryTree, queryParams);
     }
     return queryTree;
   }

@@ -26,25 +26,28 @@ public class ReplaceOperatorTraversal extends Traversal {
 
   Parameters operators;
 
-  public ReplaceOperatorTraversal(Retrieval ret, Parameters queryParams) {
+  public ReplaceOperatorTraversal(Retrieval ret) {
     Parameters p = ret.getGlobalParameters();
 
     operators = p.isMap("opRepls") ? p.getMap("opRepls") : new Parameters();
-    operators.copyFrom(queryParams.isMap("opRepls") ? queryParams.getMap("opRepls") : new Parameters());
   }
 
   @Override
-  public Node afterNode(Node original) throws Exception {
+  public Node afterNode(Node original, Parameters p) throws Exception {
+    
+    // overrides globals -- could cause problems.
+    Parameters instOperators = p.isMap("opRepls") ? p.getMap("opRepls") : operators;
+    
     String key = original.getOperator();
-    if (operators.containsKey(key)) {
-      switch (operators.getKeyType(key)) {
+    if (instOperators.containsKey(key)) {
+      switch (instOperators.getKeyType(key)) {
         case STRING:
-          original.setOperator(operators.getString(key));
+          original.setOperator(instOperators.getString(key));
           return original;
 
         case LIST:
-          if (operators.isList(key, Parameters.Type.STRING)) {
-            List<String> repls = (List<String>) operators.getList(key);
+          if (instOperators.isList(key, Parameters.Type.STRING)) {
+            List<String> repls = (List<String>) instOperators.getList(key);
             Node root = null;
             Node curr = null;
             for (String r : repls) {
@@ -69,6 +72,6 @@ public class ReplaceOperatorTraversal extends Traversal {
   }
 
   @Override
-  public void beforeNode(Node object) throws Exception {
+  public void beforeNode(Node object, Parameters queryParams) throws Exception {
   }
 }

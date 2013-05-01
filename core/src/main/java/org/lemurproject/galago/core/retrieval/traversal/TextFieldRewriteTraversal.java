@@ -28,16 +28,19 @@ public class TextFieldRewriteTraversal extends Traversal {
     this.globalParams = retrieval.getGlobalParameters();
   }
 
-  public void beforeNode(Node object) throws Exception {
+  @Override
+  public void beforeNode(Node object, Parameters qp) throws Exception {
     // do nothing
   }
 
-  public Node afterNode(Node original) throws Exception {
+  @Override
+  public Node afterNode(Node original, Parameters qp) throws Exception {
     String operator = original.getOperator();
 
+    // TODO: use qp to override globals
     if (operator.equals("text")) {
-      return TextPartAssigner.assignPart(new Node("extents", original.getNodeParameters()),
-              retrieval.getGlobalParameters(), retrieval.getAvailableParts());
+      return TextPartAssigner.assignPart(new Node("extents", original.getNodeParameters()), globalParams, retrieval.getAvailableParts());
+
     } else if (operator.equals("field")) {
       if (availableParts.getKeys().contains("extents")) {
         Node n = TextPartAssigner.transformedNode(original, "extents");

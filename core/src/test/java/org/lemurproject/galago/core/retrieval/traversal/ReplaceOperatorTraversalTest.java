@@ -24,10 +24,10 @@ public class ReplaceOperatorTraversalTest extends TestCase {
       "--opRepls/dummy2+test2", 
       "--opRepls/dummy2+test3"});
     
-    ReplaceOperatorTraversal traversal = new ReplaceOperatorTraversal(ret, repls);
+    ReplaceOperatorTraversal traversal = new ReplaceOperatorTraversal(ret);
     
-    Node t1 = traversal.afterNode(new Node("dummy1"));
-    Node t2 = traversal.afterNode(new Node("dummy2"));
+    Node t1 = traversal.afterNode(new Node("dummy1"), repls);
+    Node t2 = traversal.afterNode(new Node("dummy2"), repls);
     
     System.err.println(t1.toString());
     System.err.println(t2.toString());

@@ -36,103 +36,33 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class ImplicitFeatureCastTraversal extends Traversal {
 
-  Parameters queryParams;
   Parameters globals;
   Retrieval retrieval;
 
-  public ImplicitFeatureCastTraversal(Retrieval retrieval, Parameters queryParams) {
-    this.queryParams = queryParams;
+  public ImplicitFeatureCastTraversal(Retrieval retrieval) {
     this.retrieval = retrieval;
     this.globals = retrieval.getGlobalParameters();
   }
 
-  private Node createSmoothingNode(Node child) throws Exception {
-
-    ArrayList<Node> data = new ArrayList<Node>();
-    data.add(child);
-    String scorerType = globals.get("scorer", "dirichlet");
-
-    Node smoothed = new Node("feature", scorerType, data, child.getPosition());
-
-    if (!globals.get("topdocs", false)) {
-      return smoothed;
-    }
-
-    // If we're here, we should be adding a topdocs node
-    return createTopdocsNode(smoothed);
-  }
-
-  private Node createTopdocsNode(Node child) throws Exception {
-    // First (and only) child should be a scoring function fieldIterator node
-    if (!isScoringFunctionNode(child)) {
-      return child;
-    }
-
-    // The replacement
-    ArrayList<Node> children = new ArrayList<Node>();
-    children.add(child);
-    Node workingNode = new Node("feature", "topdocs", children, child.getPosition());
-
-    // count node, with the information we need
-    Node grandchild = child.getInternalNodes().get(0);
-    NodeParameters descendantParameters = grandchild.getNodeParameters();
-    NodeParameters workingParameters = workingNode.getNodeParameters();
-    workingParameters.set("term", descendantParameters.getString("default"));
-    workingParameters.set("loc", descendantParameters.getString("part"));
-    workingParameters.set("index", globals.getString("index"));
-    return workingNode;
-  }
-
-  public boolean isCountNode(Node node) throws Exception {
-    NodeType nodeType = retrieval.getNodeType(node);
-    if (nodeType == null) {
-      return false;
-    }
-    Class outputClass = nodeType.getIteratorClass();
-
-    if (FilteredIterator.class.isAssignableFrom(outputClass)) {
-      return isCountNode(node.getChild(1));
-    }
-
-    return CountIterator.class.isAssignableFrom(outputClass);
-  }
-
-  public boolean isExtentNode(Node node) throws Exception {
-    NodeType nodeType = retrieval.getNodeType(node);
-    if (nodeType == null) {
-      return false;
-    }
-    Class outputClass = nodeType.getIteratorClass();
-
-    return MovableExtentIterator.class.isAssignableFrom(outputClass);
-  }
-
-  public boolean isScoringFunctionNode(Node node) throws Exception {
-    NodeType nodeType = retrieval.getNodeType(node);
-    if (nodeType == null) {
-      return false;
-    }
-    Class outputClass = nodeType.getIteratorClass();
-
-    if (FilteredIterator.class.isAssignableFrom(outputClass)) {
-      return isScoringFunctionNode(node.getChild(1));
-    }
-
-    return ScoringFunctionIterator.class.isAssignableFrom(outputClass);
-  }
-
   // Put node modification in "before", since we're not replacing the node
   @Override
-  public void beforeNode(Node node) throws Exception {
+  public void beforeNode(Node node, Parameters queryParameters) throws Exception {
     // Indicates we want "whole doc" matching
     if (node.getOperator().equals("intersect")) {
-      node.getNodeParameters().set("width", -1);
+      node.getNodeParameters().set("default", -1);
       return;
     }
   }
 
   @Override
-  public Node afterNode(Node node) throws Exception {
+  public Node afterNode(Node node, Parameters queryParameters) throws Exception {
+    NodeType nt = retrieval.getNodeType(node);
+
+    // can't do anything reliably. Return.
+    if (nt == null) {
+      return node;
+    }
+
     // This moves the interior nodes of a field comparison operator into its
     // globals, which is the appropriate syntax.
     // Example:
@@ -140,11 +70,6 @@ public class ImplicitFeatureCastTraversal extends Traversal {
     // #lessThan( date #counts:6/16/1980:part=postings() ) -->
     //
     // #lessThan:0=6/16/1980( date )
-    if (node.getOperator().equals("text")) {
-      return node;
-    }
-
-    NodeType nt = retrieval.getNodeType(node);
     if (FieldComparisonIterator.class.isAssignableFrom(nt.getIteratorClass())) {
       ArrayList<Node> children = new ArrayList(node.getInternalNodes());
       if (!children.get(0).getOperator().equals("field")) {
@@ -170,11 +95,11 @@ public class ImplicitFeatureCastTraversal extends Traversal {
     }
 
     // Determine if we need to add a scoring node
-    Node scored = addScorers(node);
+    Node scored = addScorers(node, queryParameters);
     return scored;
   }
 
-  public Node addScorers(Node node) throws Exception {
+  private Node addScorers(Node node, Parameters queryParameters) throws Exception {
 
     NodeType nodeType = retrieval.getNodeType(node);
     if (nodeType == null) {
@@ -196,7 +121,7 @@ public class ImplicitFeatureCastTraversal extends Traversal {
       // we've got a CountIterator here, we'll perform a conversion step.
       if (ScoreIterator.class.isAssignableFrom(types[i])
               && isCountNode(children.get(i))) {
-        Node feature = createSmoothingNode(child);
+        Node feature = createSmoothingNode(child, queryParameters);
         newChildren.add(feature);
       } else {
         newChildren.add(child);
@@ -205,5 +130,57 @@ public class ImplicitFeatureCastTraversal extends Traversal {
 
     return new Node(node.getOperator(), node.getNodeParameters(),
             newChildren, node.getPosition());
+  }
+
+  private Node createSmoothingNode(Node child, Parameters queryParameters) throws Exception {
+
+    ArrayList<Node> data = new ArrayList<Node>();
+    data.add(child);
+    String scorerType = queryParameters.get("scorer", globals.get("scorer", "dirichlet"));
+
+    Node smoothed = new Node("feature", scorerType, data, child.getPosition());
+
+    return smoothed;
+
+//    // TopDocs is disabled for now.
+//    if (!globals.get("topdocs", false)) {
+//       return smoothed;
+//    }
+//    If we're here, we should be adding a topdocs node
+//    return createTopdocsNode(smoothed);
+  }
+
+//  private Node createTopdocsNode(Node child) throws Exception {
+//    // First (and only) child should be a scoring function fieldIterator node
+//    if (!isScoringFunctionNode(child)) {
+//      return child;
+//    }
+//
+//    // The replacement
+//    ArrayList<Node> children = new ArrayList<Node>();
+//    children.add(child);
+//    Node workingNode = new Node("feature", "topdocs", children, child.getPosition());
+//
+//    // count node, with the information we need
+//    Node grandchild = child.getInternalNodes().get(0);
+//    NodeParameters descendantParameters = grandchild.getNodeParameters();
+//    NodeParameters workingParameters = workingNode.getNodeParameters();
+//    workingParameters.set("term", descendantParameters.getString("default"));
+//    workingParameters.set("loc", descendantParameters.getString("part"));
+//    workingParameters.set("index", globals.getString("index"));
+//    return workingNode;
+//  }
+  private boolean isCountNode(Node node) throws Exception {
+    NodeType nodeType = retrieval.getNodeType(node);
+    if (nodeType == null) {
+      return false;
+    }
+    Class outputClass = nodeType.getIteratorClass();
+
+    if (FilteredIterator.class.isAssignableFrom(outputClass)) {
+      return isCountNode(node.getChild(1));
+    }
+
+    return CountIterator.class.isAssignableFrom(outputClass);
   }
 }

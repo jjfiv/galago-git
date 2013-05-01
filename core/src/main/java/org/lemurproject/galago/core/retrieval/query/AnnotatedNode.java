@@ -20,6 +20,10 @@ public class AnnotatedNode {
   public String extraInfo;
   public List<AnnotatedNode> children;
 
+  // useful sometimes
+  public AnnotatedNode() {
+  }
+
   public AnnotatedNode(String type,
           String className,
           String parameters,
@@ -67,8 +71,8 @@ public class AnnotatedNode {
     sb.append(document).append("\t").append(atCandidate).append("\t");
     sb.append(returnValue).append("\t").append(parameters).append("\t");
     sb.append(extraInfo).append("\n");
-    
-    for(AnnotatedNode child : children){
+
+    for (AnnotatedNode child : children) {
       sb.append(child.toPrettyString(prefix + "  "));
     }
 

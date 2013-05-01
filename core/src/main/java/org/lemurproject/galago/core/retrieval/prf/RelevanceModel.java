@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.scoring;
+package org.lemurproject.galago.core.retrieval.prf;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,11 +34,12 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author irmarc, dietz
  */
-public class RelevanceModel implements ExpansionModel {
+public class RelevanceModel {}
+
+/*implements ExpansionModel {
   private static final Logger logger = Logger.getLogger("RM");
 
   public static class Gram implements WeightedTerm {
-
     public String term;
     public double score;
 
@@ -86,10 +87,8 @@ public class RelevanceModel implements ExpansionModel {
     this.group = parameters.get("group", this.retrieval.getGlobalParameters().get("group", (String) null));
   }
 
-  /*
    * This should be run while we're waiting for the results. It either creates the
    * required data structures for the model, or resets them to be used for another query.
-   */
   @Override
   public void initialize() throws Exception {
     if (tokenizer == null) {
@@ -105,9 +104,6 @@ public class RelevanceModel implements ExpansionModel {
     }
   }
 
-  /*
-   * Run this when the Relevance Model is no longer needed.
-   */
   @Override
   public void cleanup() throws Exception {
     tokenizer = null;
@@ -286,3 +282,4 @@ public class RelevanceModel implements ExpansionModel {
     return stems;
   }
 }
+*/

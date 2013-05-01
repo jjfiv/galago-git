@@ -1,5 +1,5 @@
 // BSD License (http://www.galagosearch.org/license)
-package org.lemurproject.galago.core.retrieval.traversal;
+package org.lemurproject.galago.contrib.retrieval.traversal;
 
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import java.io.File;
@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.core.scoring.FieldLanguageModel;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -41,11 +42,6 @@ public class FieldRelevanceModelTraversal extends Traversal {
     } catch (Exception e) {
       throw new RuntimeException("Unable to get available parts");
     }
-  }
-
-  // ASSUMES fieldrm is at the top level
-  public static boolean isNeeded(Node root) {
-    return (root.getOperator().equals("fieldrm"));
   }
 
   @Override

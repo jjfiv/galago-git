@@ -22,27 +22,23 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class FlattenCombineTraversal extends Traversal {
 
-  boolean flatten;
+  boolean flattenDefault;
 
   public FlattenCombineTraversal(Retrieval ret, Parameters queryParameters) {
     Parameters globalParams = ret.getGlobalParameters();
 
-    flatten = true;
-    if (globalParams.isBoolean("flattenCombine")) {
-      flatten = globalParams.getBoolean("flattenCombine");
-    }
-    if (queryParameters.isBoolean("flattenCombine")) {
-      flatten = queryParameters.getBoolean("flattenCombine");
-    }
+    flattenDefault = globalParams.get("flattenCombine", true);
   }
 
   @Override
-  public void beforeNode(Node object) throws Exception {
+  public void beforeNode(Node object, Parameters qp) throws Exception {
   }
 
   @Override
-  public Node afterNode(Node original) throws Exception {
+  public Node afterNode(Node original, Parameters qp) throws Exception {
 
+    boolean flatten = qp.get("flattenCombine", flattenDefault);
+    
     if (flatten) {
       // flatten combine nodes
       if (original.getOperator().equals("combine")) {

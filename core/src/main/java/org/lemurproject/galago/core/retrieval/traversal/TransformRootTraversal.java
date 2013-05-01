@@ -16,6 +16,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class TransformRootTraversal extends Traversal {
 
+  // levels has to go away
   int levels = 0;
   QueryType qType;
   Retrieval retrieval;
@@ -24,11 +25,11 @@ public class TransformRootTraversal extends Traversal {
     this.retrieval = r;
   }
 
-  public void beforeNode(Node object) throws Exception {
+  public void beforeNode(Node object, Parameters qp) throws Exception {
     levels++;
   }
 
-  public Node afterNode(Node original) throws Exception {
+  public Node afterNode(Node original, Parameters qp) throws Exception {
     levels--;
     if (levels > 0) {
       return original;

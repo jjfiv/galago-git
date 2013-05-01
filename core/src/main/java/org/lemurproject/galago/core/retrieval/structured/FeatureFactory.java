@@ -62,9 +62,6 @@ public class FeatureFactory {
     {LogProbNotIterator.class.getName(), "logprobnot"}
   };
   static String[][] sFeatureLookup = {
-    {DirichletProbabilityScoringIterator.class.getName(), "dirichlet-raw"}, // deprecated
-    {JelinekMercerProbabilityScoringIterator.class.getName(), "linear-raw"}, // deprecated
-    {JelinekMercerProbabilityScoringIterator.class.getName(), "jm-raw"}, // deprecated
     {DirichletScoringIterator.class.getName(), "dirichlet"},
     {EstimatedDirichletScoringIterator.class.getName(), "dirichlet-est"},
     {JelinekMercerScoringIterator.class.getName(), "linear"},
@@ -78,7 +75,7 @@ public class FeatureFactory {
     {PL2FieldScoringIterator.class.getName(), "pl2f"},
     {PL2ScoringIterator.class.getName(), "pl2"},
     {InL2ScoringIterator.class.getName(), "inl2"},
-    {BiL2ScoringIterator.class.getName(), "bil2"}    
+    {BiL2ScoringIterator.class.getName(), "bil2"}
   };
   static String[] sTraversalList = {
     ReplaceOperatorTraversal.class.getName(),
@@ -88,15 +85,11 @@ public class FeatureFactory {
     SequentialDependenceTraversal.class.getName(),
     FullDependenceTraversal.class.getName(),
     ProximityDFRTraversal.class.getName(),
-    TransformRootTraversal.class.getName(),
-    PRMSTraversal.class.getName(),
     PRMS2Traversal.class.getName(),
-    BM25FTraversal.class.getName(),
-    PL2FTraversal.class.getName(),
+    TransformRootTraversal.class.getName(),
     WindowRewriteTraversal.class.getName(),
-    RelevanceModelTraversal.class.getName(),
-    BM25RelevanceFeedbackTraversal.class.getName(),
-    TextFieldRewriteTraversal.class.getName(),
+    RelevanceModelTraversal.class.getName(), // should be removed and made external
+    TextFieldRewriteTraversal.class.getName(), 
     InsideToFieldPartTraversal.class.getName(),
     ImplicitFeatureCastTraversal.class.getName(),
     InsertLengthsTraversal.class.getName(),
@@ -376,24 +369,22 @@ public class FeatureFactory {
     for (TraversalSpec spec : traversals) {
       Class<? extends Traversal> traversalClass =
               (Class<? extends Traversal>) Class.forName(spec.className);
-      if (((Boolean) traversalClass.getMethod("isNeeded", Node.class).invoke(null, queryTree)).booleanValue()) {
-        Constructor<? extends Traversal> constructor = (Constructor<? extends Traversal>) traversalClass.getConstructors()[0];
-        Traversal traversal;
-        switch (constructor.getParameterTypes().length) {
-          case 0:
-            traversal = constructor.newInstance();
-            break;
-          case 1:
-            traversal = constructor.newInstance(retrieval);
-            break;
-          case 2:
-            traversal = constructor.newInstance(retrieval, queryParams);
-            break;
-          default:
-            throw new IllegalArgumentException("Traversals should not have more than 2 args.");
-        }
-        result.add(traversal);
+      Constructor<? extends Traversal> constructor = (Constructor<? extends Traversal>) traversalClass.getConstructors()[0];
+      Traversal traversal;
+      switch (constructor.getParameterTypes().length) {
+        case 0:
+          traversal = constructor.newInstance();
+          break;
+        case 1:
+          traversal = constructor.newInstance(retrieval);
+          break;
+        case 2:
+          traversal = constructor.newInstance(retrieval, queryParams);
+          break;
+        default:
+          throw new IllegalArgumentException("Traversals should not have more than 2 args.");
       }
+      result.add(traversal);
     }
 
     return result;

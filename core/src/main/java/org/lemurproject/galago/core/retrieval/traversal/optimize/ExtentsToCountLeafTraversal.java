@@ -19,23 +19,22 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class ExtentsToCountLeafTraversal extends Traversal {
   private final Retrieval retrieval;
-  private final Parameters queryParameters;
-  private final boolean flag;
+  private final boolean defaultFlag;
 
-  public ExtentsToCountLeafTraversal(Retrieval retrieval, Parameters queryParameters){
+  public ExtentsToCountLeafTraversal(Retrieval retrieval){
     this.retrieval = retrieval;
-    this.queryParameters = queryParameters;
-    
-    this.flag = queryParameters.get("countreplace", this.retrieval.getGlobalParameters().get("countreplace", true));
+    this.defaultFlag = this.retrieval.getGlobalParameters().get("countreplace", true);
   }  
   
   @Override
-  public Node afterNode(Node node) throws Exception {
+  public Node afterNode(Node node, Parameters qp) throws Exception {
     /** Check if the child is an leaf 'extents' node && the parent requires only count data
      *    If so - we can replace extents with counts.
      *    This can lead to performance improvements within positions indexes
      *    as the positional data does NOT need to be read for the feature scorer to operate.
      */
+    boolean flag = qp.get("countreplace", defaultFlag);
+    
     if (flag && node.getOperator().equals("extents") && node.numChildren() == 0) {
       Node parent = node.getParent();
       NodeType nt = (parent != null)? retrieval.getNodeType(parent): null;
@@ -62,6 +61,6 @@ public class ExtentsToCountLeafTraversal extends Traversal {
   }
 
   @Override
-  public void beforeNode(Node object) throws Exception {
+  public void beforeNode(Node object, Parameters qp) throws Exception {
   }
 }
