@@ -37,7 +37,6 @@ import org.lemurproject.galago.tupleflow.execution.Stage;
 import org.lemurproject.galago.tupleflow.execution.Step;
 import org.lemurproject.galago.tupleflow.types.FileName;
 import org.lemurproject.galago.tupleflow.types.TupleflowLong;
-import org.mortbay.jetty.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,35 +94,36 @@ public class PageRankFn extends AppFunction {
 
     // ensure a correct document count
     p.set("docCount", docCount);
-    
+
     int maxItrs = (int) p.get("maxItr", 10);
     int convergedAt = 0;
     for (int i = 1; i <= maxItrs; i++) {
-        
+
       logger.info("Starting iteration " + i);
 
-      File itrOut = new File(outputFolder, "pagerank."+i);
-
+      File itrIn = new File(outputFolder, "pageranks." + (i-1));
+      File itrOut = new File(outputFolder, "pageranks." + i);
+      
       // if we haven't produced this output yet:
-      if(!itrOut.isDirectory()){
-          File itrOutTmp = new File(outputFolder, "pagerank."+i+".tmp");
+      if (!itrOut.isDirectory()) {
+        File itrOutTmp = new File(outputFolder, "pageranks." + i + ".tmp");
 
-          Job itr = getIterationJob(p, itrOutTmp, i);
+        Job itr = getIterationJob(p, itrIn, itrOutTmp, i);
 
-          boolean success = runTupleFlowInstance(itr, new File(outputFolder, "pagerank-job-tmp." + i), p, output);
+        boolean success = runTupleFlowInstance(itr, new File(outputFolder, "pagerank-job-tmp." + i), p, output);
 
-          if (!success) {
-              logger.warn("PAGERANK FAILED TO EXECUTE.");
-              return;
-          }
-      
-          itrOutTmp.renameTo(itrOut);
+        if (!success) {
+          logger.warn("PAGERANK FAILED TO EXECUTE.");
+          return;
+        }
+
+        itrOutTmp.renameTo(itrOut);
       }
-      
+
       convergedAt = i;
       if (checkConvergence(i, p)) {
-          logger.info("Converged at " + i);
-          break;
+        logger.info("Converged at " + i);
+        break;
       }
     }
     if (convergedAt > maxItrs) {
@@ -157,81 +157,81 @@ public class PageRankFn extends AppFunction {
     File docCountFolder = new File(outputFolder, "docCount");
 
     // check if init has already run.
-    boolean success = itrZeroFoldr.isDirectory();    
-    if(! success ){
+    boolean success = itrZeroFoldr.isDirectory();
+    if (!success) {
 
-        itrZeroFoldrTmp.mkdirs();
+      itrZeroFoldrTmp.mkdirs();
 
-        docCountFolder.mkdirs();
-        
-        // stage 1: list folders:  pageranks, and linkdata
-        job.add(getSplitStage("splitUrls", "urls", namesFolder));
-        
-        // stage 2 or 3: write inital scores to a folder
-        Stage writer = new Stage("writer");
-        writer.addInput("urls", new FileName.FilenameOrder());
-        
-        writer.add(new InputStep("urls"));
-        Parameters readerParams = new Parameters();
-        readerParams.set("order", Utility.join(new DocumentUrl.IdentifierOrder().getOrderSpec()));
-        readerParams.set("outputClass", DocumentUrl.class.getCanonicalName());
-        writer.add(new Step(TypeFileReader.class, readerParams));
-        
-        Parameters writerParams = new Parameters();
-        writerParams.set("outputFile", itrZeroprefix.getAbsolutePath()); // + i
-        writerParams.set("class", PageRankScore.class.getCanonicalName());
-        writerParams.set("order", Utility.join(new PageRankScore.DocNameOrder().getOrderSpec()));
-        writerParams.set("compression", "GZIP");
-        
-        if (p.containsKey("defaultScore")) {
-            writerParams.set("defaultScore", p.getDouble("defaultScore"));
-        } else {
-            writerParams.set("docCountStream", "docCount");
-        }
-        
-        writerParams.set("docCountFolder", docCountFolder.getAbsolutePath());
-        
-        writer.add(new Step(UrlToInitialPagerankScore.class, writerParams));
-        writer.add(new Step(TypeFileWriter.class, writerParams));
-        
-        job.add(writer);
-        job.connect("splitUrls", "writer", ConnectionAssignmentType.Each);
-        
-        
-        // special stage to count the number of documents
-        if (!p.containsKey("defaultScore")) {
-            // this is used to initialize scores
-            
-            Stage counterStage = new Stage("counter");
-            counterStage.addInput("urls", new FileName.FilenameOrder());
-            counterStage.addOutput("docCount", new TupleflowLong.ValueOrder());
-            
-            counterStage.add(new InputStep("urls"));
-            Parameters counterParams1 = new Parameters();
-            counterParams1.set("order", Utility.join(new DocumentUrl.IdentifierOrder().getOrderSpec()));
-            counterParams1.set("outputClass", DocumentUrl.class.getCanonicalName());
-            counterStage.add(new Step(TypeFileReader.class, counterParams1));
-            
-            Parameters counterParams2 = new Parameters();
-            counterParams2.set("inputClass", DocumentUrl.class.getName());
-            counterStage.add(new Step(ObjectCounter.class, counterParams2));
-            
-            counterStage.add(new OutputStep("docCount"));
-            
-            job.add(counterStage);
-            job.connect("splitUrls", "counter", ConnectionAssignmentType.Each);
-            
-            // ensure we have a connection to the writer
-            writer.addInput("docCount", new TupleflowLong.ValueOrder());
-            job.connect("counter", "writer", ConnectionAssignmentType.Combined);
-        }
-                
-        // run job
-        success = runTupleFlowInstance(job, new File(outputFolder, "pagerank.init.tmp"), p, outputStream);
+      docCountFolder.mkdirs();
 
-        if(success){
-            itrZeroFoldrTmp.renameTo(itrZeroFoldr);
-        }
+      // stage 1: list folders:  pageranks, and linkdata
+      job.add(getSplitStage("splitUrls", "urls", namesFolder));
+
+      // stage 2 or 3: write inital scores to a folder
+      Stage writer = new Stage("writer");
+      writer.addInput("urls", new FileName.FilenameOrder());
+
+      writer.add(new InputStep("urls"));
+      Parameters readerParams = new Parameters();
+      readerParams.set("order", Utility.join(new DocumentUrl.IdentifierOrder().getOrderSpec()));
+      readerParams.set("outputClass", DocumentUrl.class.getCanonicalName());
+      writer.add(new Step(TypeFileReader.class, readerParams));
+
+      Parameters writerParams = new Parameters();
+      writerParams.set("outputFile", itrZeroprefix.getAbsolutePath()); // + i
+      writerParams.set("class", PageRankScore.class.getCanonicalName());
+      writerParams.set("order", Utility.join(new PageRankScore.DocNameOrder().getOrderSpec()));
+      writerParams.set("compression", "GZIP");
+
+      if (p.containsKey("defaultScore")) {
+        writerParams.set("defaultScore", p.getDouble("defaultScore"));
+      } else {
+        writerParams.set("docCountStream", "docCount");
+      }
+
+      writerParams.set("docCountFolder", docCountFolder.getAbsolutePath());
+
+      writer.add(new Step(UrlToInitialPagerankScore.class, writerParams));
+      writer.add(new Step(TypeFileWriter.class, writerParams));
+
+      job.add(writer);
+      job.connect("splitUrls", "writer", ConnectionAssignmentType.Each);
+
+
+      // special stage to count the number of documents
+      if (!p.containsKey("defaultScore")) {
+        // this is used to initialize scores
+
+        Stage counterStage = new Stage("counter");
+        counterStage.addInput("urls", new FileName.FilenameOrder());
+        counterStage.addOutput("docCount", new TupleflowLong.ValueOrder());
+
+        counterStage.add(new InputStep("urls"));
+        Parameters counterParams1 = new Parameters();
+        counterParams1.set("order", Utility.join(new DocumentUrl.IdentifierOrder().getOrderSpec()));
+        counterParams1.set("outputClass", DocumentUrl.class.getCanonicalName());
+        counterStage.add(new Step(TypeFileReader.class, counterParams1));
+
+        Parameters counterParams2 = new Parameters();
+        counterParams2.set("inputClass", DocumentUrl.class.getName());
+        counterStage.add(new Step(ObjectCounter.class, counterParams2));
+
+        counterStage.add(new OutputStep("docCount"));
+
+        job.add(counterStage);
+        job.connect("splitUrls", "counter", ConnectionAssignmentType.Each);
+
+        // ensure we have a connection to the writer
+        writer.addInput("docCount", new TupleflowLong.ValueOrder());
+        job.connect("counter", "writer", ConnectionAssignmentType.Combined);
+      }
+
+      // run job
+      success = runTupleFlowInstance(job, new File(outputFolder, "pagerank.init.tmp"), p, outputStream);
+
+      if (success) {
+        itrZeroFoldrTmp.renameTo(itrZeroFoldr);
+      }
     }
 
     // now init has been run
@@ -322,13 +322,13 @@ public class PageRankFn extends AppFunction {
   private boolean checkConvergence(int i, Parameters p) {
     File conv = new File(p.getString("outputFolder"), "pagerank.not.converged." + i);
     if (conv.exists()) {
-        return false;
+      return false;
     } else {
-        return true;
+      return true;
     }
   }
 
-    private Job getIterationJob(Parameters p, File itrOutput, int i) {
+  private Job getIterationJob(Parameters p, File itrInput, File itrOutput, int i) {
     Job job = new Job();
 
 
@@ -336,9 +336,13 @@ public class PageRankFn extends AppFunction {
     File srcLinksFolder = new File(linkData, "srcNameOrder");
 
     File outputFolder = new File(p.getString("outputFolder"));
-    File itrInput = new File(outputFolder, "pageranks." + (i - 1));
-    //    File itrOutput = new File(outputFolder, "pageranks." + i);
+    // File itrInput = new File(outputFolder, "pageranks." + (i - 1));
+    // File itrOutput = new File(outputFolder, "pageranks." + i);
     File convgFile = new File(outputFolder, "pagerank.not.converged." + i);
+    if(convgFile.exists()){
+      convgFile.delete();
+    }
+    
     itrOutput.mkdir();
 
     // stage 1: list folders:  pageranks, and linkdata
