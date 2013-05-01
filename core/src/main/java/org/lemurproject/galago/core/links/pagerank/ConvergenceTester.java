@@ -67,7 +67,7 @@ public class ConvergenceTester implements ExNihiloSource<PageRankScore> {
       }
     }
 
-    if (converged) {
+    if (!converged) {
       convFile.createNewFile();
     }
   }
