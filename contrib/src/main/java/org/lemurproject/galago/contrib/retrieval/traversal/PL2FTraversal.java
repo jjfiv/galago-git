@@ -48,15 +48,14 @@ public class PL2FTraversal extends Traversal {
   List<String> fieldList;
   Parameters weights;
   Parameters smoothing;
-  Parameters params, queryParams;
+  Parameters params;
   Parameters availableFields;
   TObjectIntHashMap<String> qTermCounts;
   int qfmax;
   Retrieval retrieval;
 
-  public PL2FTraversal(Retrieval retrieval, Parameters qp) {
+  public PL2FTraversal(Retrieval retrieval) {
     this.retrieval = retrieval;
-    queryParams = qp;
     levels = 0;
     Parameters globals = retrieval.getGlobalParameters();
     params = globals.containsKey("pl2f") ? globals.getMap("pl2f") : new Parameters();
@@ -72,7 +71,7 @@ public class PL2FTraversal extends Traversal {
   }
 
   @Override
-  public void beforeNode(Node object) throws Exception {
+  public void beforeNode(Node object, Parameters qp) throws Exception {
     levels++;
 
     // If this is a text node, count it
@@ -82,12 +81,12 @@ public class PL2FTraversal extends Traversal {
   }
 
   @Override
-  public Node afterNode(Node original) throws Exception {
+  public Node afterNode(Node original, Parameters qp) throws Exception {
     levels--;
     if (levels == 0 && original.getOperator().equals("pl2f")) {
-      queryParams.set("numberOfTerms", qTermCounts.keys().length);
-      queryParams.set("numPotentials", qTermCounts.keys().length);
-      queryParams.set("deltaWeightsSet", true);
+      qp.set("numberOfTerms", qTermCounts.keys().length);
+      qp.set("numPotentials", qTermCounts.keys().length);
+      qp.set("deltaWeightsSet", true);
       // Let's get qfmax
       int[] counts = qTermCounts.values();
       for (int i = 0; i < counts.length; i++) {

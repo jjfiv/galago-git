@@ -78,6 +78,7 @@ public class FeatureFactory {
     {BiL2ScoringIterator.class.getName(), "bil2"}
   };
   static String[] sTraversalList = {
+    RelevanceModelTraversal.class.getName(),
     ReplaceOperatorTraversal.class.getName(),
     StopStructureTraversal.class.getName(),
     StopWordTraversal.class.getName(),
@@ -88,8 +89,7 @@ public class FeatureFactory {
     PRMS2Traversal.class.getName(),
     TransformRootTraversal.class.getName(),
     WindowRewriteTraversal.class.getName(),
-    RelevanceModelTraversal.class.getName(), // should be removed and made external
-    TextFieldRewriteTraversal.class.getName(), 
+    TextFieldRewriteTraversal.class.getName(),
     InsideToFieldPartTraversal.class.getName(),
     ImplicitFeatureCastTraversal.class.getName(),
     InsertLengthsTraversal.class.getName(),
@@ -216,7 +216,7 @@ public class FeatureFactory {
     OperatorSpec operatorType = operatorLookup.get(operator);
 
     if (operatorType == null) {
-      throw new BadOperatorException("Unknown operator name: #" + operator);
+      return null;
     }
 
     // This is to compensate for the transparent behavior of the fitering nodes
@@ -247,17 +247,25 @@ public class FeatureFactory {
   @SuppressWarnings("unchecked")
   public Class<MovableIterator> getClass(Node node) throws Exception {
     String className = getClassName(node);
+    if (className == null) {
+      return null;
+    }
     Class c = Class.forName(className);
 
     if (MovableIterator.class.isAssignableFrom(c)) {
       return (Class<MovableIterator>) c;
     } else {
-      throw new Exception("Found a class, but it's not a MovableIterator: " + className);
+      return null;
     }
   }
 
   public NodeType getNodeType(Node node) throws Exception {
-    return new NodeType(getClass(node));
+    Class<MovableIterator> cls = getClass(node);
+    if (cls != null) {
+      return new NodeType(getClass(node));
+    } else {
+      return null;
+    }
   }
 
   /**

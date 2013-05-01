@@ -49,7 +49,7 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     Parameters p = new Parameters();
     p.set("index", indexFile.getAbsolutePath());
     p.set("stemmedPostings", false);
-    p.set("fbOrigWt", 0.5);
+    p.set("fbOrigWeight", 0.5);
 
     LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
     RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval);
@@ -59,11 +59,8 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     // truth data
     StringBuilder correct = new StringBuilder();
     correct.append("#combine:0=0.5:1=0.5( ");
-    correct.append("#combine:w=1.0( #feature:dirichlet( #extents:fits:part=postings() ) ) ");
-    correct.append("#combine:0=0.12516622340425526:1=0.04161125886524822:2=0.04161125886524822( ");
-    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:program:part=postings() ) ");
-    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:shoe:part=postings() ) ");
-    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:ugly:part=postings() ) ) )");
+    correct.append("#combine:fbDocs=2:fbTerms=3( #feature:dirichlet( #extents:fits:part=postings() ) ) ");
+    correct.append("#combine:0=0.12516622340425526:1=0.04161125886524822:2=0.04161125886524822( #text:program() #text:shoe() #text:ugly() ) )");
 
     assertEquals(correct.toString(), transformed.toString());
     retrieval.close();
@@ -74,29 +71,21 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     Parameters p = new Parameters();
     p.set("index", indexFile.getAbsolutePath());
     p.set("stemmedPostings", false);
-    p.set("fb2Pass", false); // passage retrieval switched to off!
-    p.set("fbOrigWt", 0.5);
+    p.set("fbOrigWeight", 0.5);
     
-    // these parameters should not be used
-    Parameters rmParams2Pass = new Parameters();
-    rmParams2Pass.set("passageQuery", true);
-    rmParams2Pass.set("passageSize", 3);
-    rmParams2Pass.set("passageShift", 1);
-    p.set("fbParams2Pass", rmParams2Pass);
-
     LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
     RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval);
 
-    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=5:fbDocs=10( #feature:dirichlet( #extents:jumped:part=postings() ) )");
+    Node parsedTree = StructuredQuery.parse("#rm:fbDocs=10:fbTerms=4( #feature:dirichlet( #extents:jumped:part=postings() ) )");
     Node transformed = StructuredQuery.copy(traversal, parsedTree, new Parameters());
     // truth data
     StringBuilder correct = new StringBuilder();
-    correct.append("#combine:0=0.5:1=0.5( #combine:w=1.0( #feature:dirichlet( #extents:jumped:part=postings() ) ) ");
+    correct.append("#combine:0=0.5:1=0.5( #combine:fbDocs=10:fbTerms=4( #feature:dirichlet( #extents:jumped:part=postings() ) ) ");
     correct.append("#combine:0=0.05001660577881102:1=0.05001660577881102:2=0.04165282851765748:3=0.04165282851765748( ");
-    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:sample:part=postings() ) ");
-    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:ugly:part=postings() ) ");
-    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:cat:part=postings() ) ");
-    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:moon:part=postings() ) ) )");
+    correct.append("#text:sample() ");
+    correct.append("#text:ugly() ");
+    correct.append("#text:cat() ");
+    correct.append("#text:moon() ) )");
     
     assertEquals(correct.toString(), transformed.toString());
     
@@ -109,29 +98,19 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     p.set("index", indexFile.getAbsolutePath());
     p.set("corpus", corpusFile.getAbsolutePath());
     p.set("stemmedPostings", false);
-    p.set("fbOrigWt", 0.5);
-
-    Parameters rmParams = new Parameters();
-    rmParams.set("passageQuery", true);
-    rmParams.set("passageSize", 3);
-    rmParams.set("passageShift", 1);
-    p.set("fbParams", rmParams);
-    p.set("relevanceModel", "org.lemurproject.galago.core.scoring.RelevanceModel");
+    p.set("fbOrigWeight", 0.5);
+    p.set("relevanceModel", "org.lemurproject.galago.core.retrieval.prf.RelevanceModel3");
     
     LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
     RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval);
 
-    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=5:fbDocs=10( #feature:dirichlet( #extents:jumped:part=postings() ) )");
+    Node parsedTree = StructuredQuery.parse("#rm:fbTerms=3:fbDocs=10( #feature:dirichlet( #extents:jumped:part=postings() ) )");
     Node transformed = StructuredQuery.copy(traversal, parsedTree, new Parameters());
 
     // truth data
     StringBuilder correct = new StringBuilder();
-    correct.append("#combine:0=0.5:1=0.5( #combine:w=1.0( #feature:dirichlet( #extents:jumped:part=postings() ) ) ");
-    correct.append("#combine:0=0.018518518518518517:1=0.018518518518518517:2=0.009259259259259259( ");
-    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:cat:part=postings() ) ");
-    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:sample:part=postings() ) ");
-    correct.append("#feature:dirichlet( #lengths:document:part=lengths() #extents:ugly:part=postings() ) ) )");
-
+    correct.append("#combine:0=0.5:1=0.5( #combine:fbDocs=10:fbTerms=3( #feature:dirichlet( #extents:jumped:part=postings() ) ) ");
+    correct.append("#combine:0=0.05001660577881102:1=0.05001660577881102:2=0.04165282851765748:3=0.04165282851765748( #text:sample() #text:ugly() #text:cat() #text:moon() ) )");
 
     assertEquals(correct.toString(), transformed.toString());
     retrieval.close();

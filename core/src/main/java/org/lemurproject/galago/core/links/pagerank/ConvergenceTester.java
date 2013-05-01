@@ -29,7 +29,7 @@ public class ConvergenceTester implements ExNihiloSource<PageRankScore> {
   private final double delta;
 
   public ConvergenceTester(TupleFlowParameters p) {
-    convFile = new File(p.getJSON().getString("convFile") + "/inst." + p.getInstanceId());
+    convFile = new File(p.getJSON().getString("convFile"));
     prevScoreStream = p.getJSON().getString("prevScoreStream");
     currScoreStream = p.getJSON().getString("currScoreStream");
     delta = p.getJSON().getDouble("delta");
@@ -68,7 +68,12 @@ public class ConvergenceTester implements ExNihiloSource<PageRankScore> {
     }
 
     if (!converged) {
-      convFile.createNewFile();
+      try {
+        convFile.createNewFile();
+      } catch(IOException e){
+        // may throw an error if multiple threads try simultaneously
+        // in this case - not a problem.
+      }
     }
   }
 

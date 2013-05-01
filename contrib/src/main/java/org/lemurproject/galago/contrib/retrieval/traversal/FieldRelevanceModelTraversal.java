@@ -45,14 +45,14 @@ public class FieldRelevanceModelTraversal extends Traversal {
   }
 
   @Override
-  public void beforeNode(Node object) throws Exception {
+  public void beforeNode(Node object, Parameters qp) throws Exception {
     if (object.getOperator().equals("text") && object.getDefaultParameter() != null) {
       queryTerms.add(object.getDefaultParameter());
     }
   }
 
   @Override
-  public Node afterNode(Node original) throws Exception {
+  public Node afterNode(Node original, Parameters qp) throws Exception {
     if (original.getOperator().equals("fieldrm")) {
       if (!p.containsKey("fields")) {
         throw new IllegalArgumentException("Field Relevance Model expects fields to be specified.");

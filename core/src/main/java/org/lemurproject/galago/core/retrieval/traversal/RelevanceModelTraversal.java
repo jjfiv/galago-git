@@ -47,7 +47,9 @@ public class RelevanceModelTraversal extends Traversal {
       em = ExpansionModelFactory.instance(queryParams, retrieval);
     }
     
-    Node expanded = em.expand(originalNode, queryParams);
+    // strip the #rm operator
+    Node newRoot = new Node("combine", originalNode.getNodeParameters(), originalNode.getInternalNodes(), originalNode.getPosition());
+    Node expanded = em.expand(newRoot, queryParams);
     
     return expanded;
   }

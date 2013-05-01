@@ -60,7 +60,7 @@ public class ImplicitFeatureCastTraversalTest extends TestCase {
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
 
     ImplicitFeatureCastTraversal traversal = new ImplicitFeatureCastTraversal(retrieval);
-    Node tree = StructuredQuery.parse("#combine( #between( title abba zztop )");
+    Node tree = StructuredQuery.parse("#combine( #between( #field:title() abba zztop )");
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine( #between:0=abba:1=zztop( #field:title() ) )");
     Node result = StructuredQuery.copy(traversal, tree, new Parameters());

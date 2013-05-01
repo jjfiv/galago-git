@@ -54,7 +54,8 @@ public class PageRankFnTest extends TestCase {
       p2.set("distrib", 2);
       p2.set("galagoJobDir", jobTmp2.getAbsolutePath());
       p2.set("server", false);
-
+      p2.set("delta", 0.000000001);
+      
       PageRankFn pg = new PageRankFn();
       pg.run(p2, System.out);
 

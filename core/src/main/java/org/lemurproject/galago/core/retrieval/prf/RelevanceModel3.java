@@ -67,6 +67,10 @@ public class RelevanceModel3 implements ExpansionModel {
     int fbDocs = (int) Math.round(queryParameters.get("fbDocs", (double) defaultFbDocs));
     int fbTerms = (int) Math.round(queryParameters.get("fbTerm", (double) defaultFbTerms));
 
+    fbOrigWeight = root.getNodeParameters().get("fbOrigWeight", fbOrigWeight);
+    fbDocs = (int) Math.round(root.getNodeParameters().get("fbDocs", (double) fbDocs));
+    fbTerms = (int) Math.round(root.getNodeParameters().get("fbTerm", (double) fbTerms));
+
     if (fbOrigWeight == 1.0 || fbDocs <= 0 || fbTerms <= 0) {
       logger.info("fbOrigWeight, fbDocs, or fbTerms is invalid (<= 0)");
       return root;

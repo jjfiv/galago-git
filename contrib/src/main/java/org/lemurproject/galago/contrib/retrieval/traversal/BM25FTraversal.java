@@ -40,13 +40,12 @@ public class BM25FTraversal extends Traversal {
 
   private int levels;
   List<String> fieldList;
-  Parameters availableFields, weights, queryParams;
+  Parameters availableFields, weights;
   Retrieval retrieval;
 
-  public BM25FTraversal(Retrieval retrieval, Parameters queryParams) {
+  public BM25FTraversal(Retrieval retrieval) {
     levels = 0;
     this.retrieval = retrieval;
-    this.queryParams = queryParams;
     Parameters globals = retrieval.getGlobalParameters();
     weights = globals.containsKey("bm25f") ? globals.getMap("bm25f") : new Parameters();
     fieldList = globals.getAsList("fields");
@@ -57,11 +56,11 @@ public class BM25FTraversal extends Traversal {
     }
   }
 
-  public void beforeNode(Node original) throws Exception {
+  public void beforeNode(Node original, Parameters queryParams) throws Exception {
     levels++;
   }
 
-  public Node afterNode(Node original) throws Exception {
+  public Node afterNode(Node original, Parameters queryParams) throws Exception {
     levels--;
     if (levels == 0 && original.getOperator().equals("bm25f")) {
       // Create the replacing root
