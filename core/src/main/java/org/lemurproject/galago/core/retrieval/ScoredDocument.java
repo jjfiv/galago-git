@@ -12,6 +12,13 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
  */
 public class ScoredDocument implements Comparable<ScoredDocument>, Serializable {
 
+  public String documentName;
+  public String source; // lets us know where this scored doc came from
+  public int document;
+  public int rank;
+  public double score;
+  public AnnotatedNode annotation = null;
+
   public ScoredDocument() {
     this(0, 0);
   }
@@ -27,14 +34,14 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
     this.score = score;
     this.document = -1;
   }
-  
+
   @Override
   public int compareTo(ScoredDocument other) {
     if (score != other.score) {
       return Double.compare(score, other.score);
     }
-    if( (source != null) && (other.source != null) &&
-        (! source.equals(other.source))) {
+    if ((source != null) && (other.source != null)
+            && (!source.equals(other.source))) {
       return source.compareTo(other.source);
     }
     return other.document - document;
@@ -42,14 +49,23 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
 
   @Override
   public String toString() {
-    return String.format("%d,%f", document, score);
+    return String.format("%s %d %s galago", documentName, rank, formatScore(score));
   }
 
-  public String documentName;
-  public String source; // lets us know where this scored doc came from
-  public int document;
-  public int rank;
-  public double score;
-  
-  public AnnotatedNode annotation = null;
+  public String toString(String qid) {
+    return String.format("%s Q0 %s %d %s galago", qid, documentName, rank,  formatScore(score));
+  }
+
+  public String toTRECformat(String qid) {
+    return String.format("%s Q0 %s %d %s galago", qid, documentName, rank, formatScore(score));
+  }
+
+  protected static String formatScore(double score) {
+    double difference = Math.abs(score - (int) score);
+
+    if (difference < 0.00001) {
+      return Integer.toString((int) score);
+    }
+    return String.format("%10.8f", score);
+  }
 }

@@ -24,7 +24,7 @@ public class FlattenCombineTraversal extends Traversal {
 
   boolean flattenDefault;
 
-  public FlattenCombineTraversal(Retrieval ret, Parameters queryParameters) {
+  public FlattenCombineTraversal(Retrieval ret) {
     Parameters globalParams = ret.getGlobalParameters();
 
     flattenDefault = globalParams.get("flattenCombine", true);
@@ -38,7 +38,7 @@ public class FlattenCombineTraversal extends Traversal {
   public Node afterNode(Node original, Parameters qp) throws Exception {
 
     boolean flatten = qp.get("flattenCombine", flattenDefault);
-    
+
     if (flatten) {
       // flatten combine nodes
       if (original.getOperator().equals("combine")) {
@@ -49,7 +49,7 @@ public class FlattenCombineTraversal extends Traversal {
         ArrayList<Node> newChildren = new ArrayList();
         NodeParameters newParameters = new NodeParameters();
 
-        assert(children.size() > 0): "#combine operators must have more than one child.";
+        assert (children.size() > 0) : "#combine operators must have more than one child.";
 
         for (int i = 0; i < children.size(); i++) {
           Node child = children.get(i);

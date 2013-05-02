@@ -57,7 +57,8 @@ public class LocalRetrieval implements Retrieval {
   protected FeatureFactory features;
   protected Parameters globalParameters;
   protected CachedRetrieval cache;
-
+  protected List<Traversal> defaultTraversals;
+  
   /**
    * One retrieval interacts with one index. Parameters dictate the behavior
    * during retrieval time, and selection of the appropriate feature factory.
@@ -80,6 +81,7 @@ public class LocalRetrieval implements Retrieval {
   protected void setIndex(Index indx) throws Exception {
     this.index = indx;
     features = new FeatureFactory(globalParameters);
+    defaultTraversals = features.getTraversals(this);
     cache = null;
     if (this.globalParameters.get("cache", false)) {
       cache = new CachedRetrieval(this.globalParameters);
@@ -283,7 +285,7 @@ public class LocalRetrieval implements Retrieval {
 
   @Override
   public Node transformQuery(Node queryTree, Parameters queryParams) throws Exception {
-    return transformQuery(features.getTraversals(this, queryTree, queryParams), queryTree, queryParams);
+    return transformQuery(defaultTraversals, queryTree, queryParams);
   }
 
   private Node transformQuery(List<Traversal> traversals, Node queryTree, Parameters queryParams) throws Exception {

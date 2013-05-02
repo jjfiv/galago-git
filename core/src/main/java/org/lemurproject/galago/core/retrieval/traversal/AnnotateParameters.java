@@ -19,7 +19,7 @@ public class AnnotateParameters extends Traversal {
   Retrieval retrieval;
 
   // featurefactory is necessary to get the correct class
-  public AnnotateParameters(Retrieval retrieval, Parameters queryParams) throws IOException {
+  public AnnotateParameters(Retrieval retrieval) throws IOException {
     this.globalParameters = retrieval.getGlobalParameters();
     this.retrieval = retrieval;
   }

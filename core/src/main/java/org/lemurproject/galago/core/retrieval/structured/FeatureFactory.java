@@ -370,7 +370,7 @@ public class FeatureFactory {
     return result;
   }
 
-  public List<Traversal> getTraversals(Retrieval retrieval, Node queryTree, Parameters queryParams)
+  public List<Traversal> getTraversals(Retrieval retrieval)
           throws ClassNotFoundException, NoSuchMethodException, InstantiationException,
           IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     ArrayList<Traversal> result = new ArrayList<Traversal>();
@@ -386,11 +386,8 @@ public class FeatureFactory {
         case 1:
           traversal = constructor.newInstance(retrieval);
           break;
-        case 2:
-          traversal = constructor.newInstance(retrieval, queryParams);
-          break;
         default:
-          throw new IllegalArgumentException("Traversals should not have more than 2 args.");
+          throw new IllegalArgumentException("Traversals should not have more than 1 args : failed on " + traversalClass);
       }
       result.add(traversal);
     }

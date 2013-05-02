@@ -40,6 +40,13 @@ public class ScoredPassage extends ScoredDocument {
 
   @Override
   public String toString() {
-    return String.format("%d (%s) : %d - %d : %.8f", document, documentName, begin, end, score);
+    return String.format("%s %d %s %d %d", documentName, rank, formatScore(score), begin, end);
+  }
+  public String toString(String qid) {
+    return String.format("%s Q0 %s %d %s galago %d %d", qid, documentName, rank,  formatScore(score), begin, end);
+  }
+  @Override
+  public String toTRECformat(String qid) {
+    return String.format("%s Q0 %s %d %s galago", qid, documentName, rank,  formatScore(score));
   }
 }

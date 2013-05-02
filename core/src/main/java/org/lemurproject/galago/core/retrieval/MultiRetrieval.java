@@ -40,6 +40,7 @@ public class MultiRetrieval implements Retrieval {
 
   protected ArrayList<Retrieval> retrievals;
   protected FeatureFactory features;
+  protected List<Traversal> defaultTraversals;
   protected Parameters globalParameters;
   protected Parameters retrievalParts;
   protected HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
@@ -50,6 +51,7 @@ public class MultiRetrieval implements Retrieval {
     this.globalParameters = p;
     initRetrieval();
     this.features = new FeatureFactory(this.globalParameters);
+    defaultTraversals = features.getTraversals(this);
   }
 
   @Override
@@ -198,7 +200,7 @@ public class MultiRetrieval implements Retrieval {
 
   @Override
   public Node transformQuery(Node root, Parameters qp) throws Exception {
-    return transformQuery(features.getTraversals(this, root, qp), root, qp);
+    return transformQuery(defaultTraversals, root, qp);
   }
 
   // private functions
