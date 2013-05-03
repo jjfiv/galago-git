@@ -18,6 +18,7 @@ import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.NamesReader.NamesIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
@@ -135,12 +136,12 @@ public class LocalRetrieval implements Retrieval {
   }
 
   @Override
-  public Document getDocument(String identifier, Parameters p) throws IOException {
+  public Document getDocument(String identifier, DocumentComponents p) throws IOException {
     return this.index.getDocument(identifier, p);
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> identifier, Parameters p) throws IOException {
+  public Map<String, Document> getDocuments(List<String> identifier, DocumentComponents p) throws IOException {
     return this.index.getDocuments(identifier, p);
   }
 

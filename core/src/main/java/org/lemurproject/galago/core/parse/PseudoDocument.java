@@ -1,17 +1,17 @@
-
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.List;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.xerial.snappy.SnappyInputStream;
 import org.xerial.snappy.SnappyOutputStream;
 
 public class PseudoDocument extends Document {
+
   public class Sample implements Serializable {
+
     public Sample(String s, int l, String c, String e) {
       source = s;
       location = l;
@@ -20,14 +20,14 @@ public class PseudoDocument extends Document {
     }
 
     public Sample(Document d) {
-      source = String.format("%s_%s", 
-			     d.metadata.get("sourceIdentifier"),
-			     d.metadata.get("startPage"));
+      source = String.format("%s_%s",
+              d.metadata.get("sourceIdentifier"),
+              d.metadata.get("startPage"));
       location = Integer.parseInt(d.metadata.get("startPos"));
       if (d.metadata.containsKey("externalLink")) {
-	  externalLink = d.metadata.get("externalLink");
+        externalLink = d.metadata.get("externalLink");
       } else {
-	  externalLink = null;
+        externalLink = null;
       }
       content = Utility.join(d.terms.toArray(new String[0]), " ");
     }
@@ -64,7 +64,7 @@ public class PseudoDocument extends Document {
   }
 
   private void addSample(String src, int loc, String content, String extLink) {
-	samples.add(new Sample(src, loc, content, extLink));
+    samples.add(new Sample(src, loc, content, extLink));
   }
 
   @Override
@@ -76,7 +76,7 @@ public class PseudoDocument extends Document {
       builder.append(String.format("SOURCE: %s\n LOCATION: %s\n CONTENTS: %s\n",
               s.source, s.location, s.content));
       if (s.externalLink != null) {
-	  builder.append(String.format("EXTERNAL LINK: %s\n", s.externalLink));
+        builder.append(String.format("EXTERNAL LINK: %s\n", s.externalLink));
       }
     }
     builder.append("\n");
@@ -85,7 +85,7 @@ public class PseudoDocument extends Document {
 
   public static byte[] serialize(Parameters p, PseudoDocument doc) throws IOException {
     doc.text = null; // Even if there was text...too bad
-    byte[] start = Document.serialize(p, doc);
+    byte[] start = Document.serialize(doc);
     ByteArrayOutputStream sampleArray = new ByteArrayOutputStream();
     DataOutputStream dataOStream = new DataOutputStream(new SnappyOutputStream(sampleArray));
     dataOStream.writeInt(doc.samples.size());
@@ -99,11 +99,11 @@ public class PseudoDocument extends Document {
       dataOStream.writeInt(buffer.length);
       dataOStream.write(buffer);
       if (s.externalLink != null) {
-	buffer = Utility.fromString(s.externalLink);
-	dataOStream.writeInt(buffer.length);
-	dataOStream.write(buffer);
+        buffer = Utility.fromString(s.externalLink);
+        dataOStream.writeInt(buffer.length);
+        dataOStream.write(buffer);
       } else {
-	dataOStream.writeInt(0);
+        dataOStream.writeInt(0);
       }
     }
     dataOStream.close();
@@ -117,21 +117,20 @@ public class PseudoDocument extends Document {
     return combinedBytes.toByteArray();
   }
 
-  public static PseudoDocument deserialize(byte[] data, Parameters p) throws IOException {
+  public static PseudoDocument deserialize(byte[] data, PsuedoDocumentComponents s) throws IOException {
     ByteArrayInputStream stream = new ByteArrayInputStream(data);
     DataInputStream dataIStream = new DataInputStream(stream);
-    return deserialize(dataIStream, p);
+    return deserialize(dataIStream, s);
   }
 
-  public static PseudoDocument deserialize(DataInputStream dataIStream, Parameters p) throws IOException {
-    Parameters noText = p.clone();
-    noText.set("text", false);
+  public static PseudoDocument deserialize(DataInputStream dataIStream, PsuedoDocumentComponents s) throws IOException {
+    s.text = false;
 
     // Read in the super data
     int superSize = dataIStream.readInt();
     byte[] superData = new byte[superSize];
     dataIStream.readFully(superData);
-    Document d = Document.deserialize(superData, noText);
+    Document d = Document.deserialize(superData, s);
     PseudoDocument pd = new PseudoDocument();
     pd.identifier = d.identifier;
     pd.name = d.name;
@@ -140,7 +139,7 @@ public class PseudoDocument extends Document {
     pd.terms = d.terms;
     pd.tags = d.tags;
     int samplesSize = 0;
-    if (p.get("samples", true)) {
+    if (s.samples) {
       samplesSize = dataIStream.readInt();
       System.err.printf("Size of sample data: %d\n", samplesSize);
       byte[] sampleData = new byte[samplesSize];
@@ -148,7 +147,7 @@ public class PseudoDocument extends Document {
       ByteArrayInputStream sampleBytes = new ByteArrayInputStream(sampleData);
       DataInputStream sampleIStream = new DataInputStream(new SnappyInputStream(sampleBytes));
       int count = sampleIStream.readInt();
-      int sampleLimit = (int) p.get("sampleLimit", Integer.MAX_VALUE);
+      int sampleLimit = (int) s.sampleLimit;
       System.err.printf("Number of samples: %d, limit: %d\n", count, sampleLimit);
       int stop = Math.min(count, sampleLimit);
       byte[] buffer;
@@ -162,16 +161,26 @@ public class PseudoDocument extends Document {
         buffer = new byte[len];
         sampleIStream.readFully(buffer);
         String content = Utility.toString(buffer);
-	len = sampleIStream.readInt();
-	String externalLink = null;
-	if (len > 0) {
-	    buffer = new byte[len];
-	    sampleIStream.readFully(buffer);
-	    externalLink = Utility.toString(buffer);
-	}
+        len = sampleIStream.readInt();
+        String externalLink = null;
+        if (len > 0) {
+          buffer = new byte[len];
+          sampleIStream.readFully(buffer);
+          externalLink = Utility.toString(buffer);
+        }
         pd.addSample(source, location, content, externalLink);
       }
     }
     return pd;
+  }
+
+  public static class PsuedoDocumentComponents extends DocumentComponents {
+    public boolean samples = true;
+    public int sampleLimit = Integer.MAX_VALUE;
+    
+    public PsuedoDocumentComponents(boolean text, boolean terms, boolean tags, boolean metadata, boolean samples) {
+      super(text, terms, tags, metadata);
+      this.samples = samples;
+    }
   }
 }

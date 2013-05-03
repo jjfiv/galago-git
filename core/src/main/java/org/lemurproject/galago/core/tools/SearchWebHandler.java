@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.Search.SearchResult;
@@ -75,9 +76,7 @@ public class SearchWebHandler extends ContextHandler {
     request.getParameterMap();
     String identifier = request.getParameter("identifier");
     identifier = URLDecoder.decode(identifier);
-    Parameters p = new Parameters();
-    p.set("terms", false);
-    p.set("tags", false);
+    DocumentComponents p = new DocumentComponents(true, false, false, true);
     Document document = search.getDocument(identifier, p);
     response.setContentType("text/html; charset=UTF-8");
 
@@ -106,9 +105,7 @@ public class SearchWebHandler extends ContextHandler {
     String[] terms = request.getParameterValues("term");
     Set<String> queryTerms = new HashSet<String>(Arrays.asList(terms));
 
-    Parameters p = new Parameters();
-    p.set("terms", false);
-    p.set("tags", false);
+    DocumentComponents p = new DocumentComponents(true, false, false, true);
     Document document = search.getDocument(identifier, p);
 
     if (document == null) {

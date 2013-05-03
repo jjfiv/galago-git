@@ -31,6 +31,7 @@ import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -361,7 +362,7 @@ public class DiskIndex implements Index {
   }
 
   @Override
-  public Document getDocument(String document, Parameters p) throws IOException {
+  public Document getDocument(String document, DocumentComponents p) throws IOException {
     if (parts.containsKey("corpus")) {
       try {
         CorpusReader corpus = (CorpusReader) parts.get("corpus");
@@ -378,7 +379,7 @@ public class DiskIndex implements Index {
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> documents, Parameters p) throws IOException {
+  public Map<String, Document> getDocuments(List<String> documents, DocumentComponents p) throws IOException {
     HashMap<String, Document> results = new HashMap();
 
     // should get a names iterator + sort requested documents

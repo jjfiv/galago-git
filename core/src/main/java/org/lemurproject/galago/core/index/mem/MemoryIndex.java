@@ -13,11 +13,11 @@ import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.DynamicIndex;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.IndexPartReader;
-import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -255,7 +255,7 @@ public class MemoryIndex implements DynamicIndex, Index {
   }
 
   @Override
-  public Document getDocument(String document, Parameters p) throws IOException {
+  public Document getDocument(String document, DocumentComponents p) throws IOException {
     if (parts.containsKey("corpus")) {
       try {
         CorpusReader corpus = (CorpusReader) parts.get("corpus");
@@ -269,7 +269,7 @@ public class MemoryIndex implements DynamicIndex, Index {
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> documents, Parameters p) throws IOException {
+  public Map<String, Document> getDocuments(List<String> documents, DocumentComponents p) throws IOException {
     HashMap<String, Document> results = new HashMap();
 
     // should get a names iterator + sort requested documents

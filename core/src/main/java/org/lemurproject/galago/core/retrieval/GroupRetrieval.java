@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
@@ -81,12 +82,12 @@ public class GroupRetrieval implements Retrieval {
   }
 
   @Override
-  public Document getDocument(String identifier, Parameters p) throws IOException {
+  public Document getDocument(String identifier, DocumentComponents p) throws IOException {
     return groups.get(defGroup).getDocument(identifier, p);
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> identifier, Parameters p) throws IOException {
+  public Map<String, Document> getDocuments(List<String> identifier, DocumentComponents p) throws IOException {
     return groups.get(defGroup).getDocuments(identifier, p);
   }
 
@@ -172,11 +173,11 @@ public class GroupRetrieval implements Retrieval {
     return groups.get(group).getAvailableParts();
   }
 
-  public Document getDocument(String identifier, Parameters p, String group) throws IOException {
+  public Document getDocument(String identifier, DocumentComponents p, String group) throws IOException {
     return groups.get(group).getDocument(identifier, p);
   }
 
-  public Map<String, Document> getDocuments(List<String> identifier, Parameters p, String group) throws IOException {
+  public Map<String, Document> getDocuments(List<String> identifier, DocumentComponents p, String group) throws IOException {
     return groups.get(group).getDocuments(identifier, p);
   }
 

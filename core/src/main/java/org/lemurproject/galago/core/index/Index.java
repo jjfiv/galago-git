@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -55,9 +56,9 @@ public interface Index {
 
   public int getIdentifier(String document) throws IOException;
 
-  public Document getDocument(String document, Parameters p) throws IOException;
+  public Document getDocument(String document, DocumentComponents p) throws IOException;
 
-  public Map<String,Document> getDocuments(List<String> document, Parameters p) throws IOException;
+  public Map<String,Document> getDocuments(List<String> document, DocumentComponents p) throws IOException;
   
   public MovableLengthsIterator getLengthsIterator() throws IOException;
 

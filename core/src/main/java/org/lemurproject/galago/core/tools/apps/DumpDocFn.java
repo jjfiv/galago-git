@@ -5,6 +5,7 @@ package org.lemurproject.galago.core.tools.apps;
 
 import java.io.PrintStream;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.AppFunction;
@@ -37,9 +38,12 @@ public class DumpDocFn extends AppFunction {
     }
     String indexPath = p.getString("index");
     String identifier = p.getString("id");
+    
+    DocumentComponents dc = new DocumentComponents(p);
+    
     Retrieval r = RetrievalFactory.instance(indexPath, new Parameters());
     assert r.getAvailableParts().containsKey("corpus") : "Index does not contain a corpus part.";
-    Document document = r.getDocument(identifier, p);
+    Document document = r.getDocument(identifier, dc);
     if (document != null) {
       output.println(document.toString());
     } else {

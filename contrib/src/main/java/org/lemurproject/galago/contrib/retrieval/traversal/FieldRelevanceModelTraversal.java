@@ -11,6 +11,7 @@ import java.util.Map;
 import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -83,7 +84,7 @@ public class FieldRelevanceModelTraversal extends Traversal {
   private List<Document> getDocuments(List<String> names) throws Exception {
     String path = p.containsKey("corpus") ? p.getString("corpus")
             : p.getString("index") + File.separator + "corpus";
-    Map<String, Document> docmap = retrieval.getDocuments(names, new Parameters());
+    Map<String, Document> docmap = retrieval.getDocuments(names, new DocumentComponents());
     List<Document> docs = new ArrayList<Document>(docmap.values());
     if (p.containsKey("parser")) {
       Class c = Class.forName(p.getString("parser"));

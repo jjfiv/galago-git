@@ -36,6 +36,7 @@ public class DocumentAggregator implements KeyValuePair.KeyOrder.ShreddedProcess
     corpusParams.set("writerClass", getClass().getName());
     corpusParams.set("readerClass", CorpusReader.class.getName());
     corpusParams.set("mergerClass", CorpusMerger.class.getName());
+    corpusParams.set("pseudo", true);
     writer = new DiskBTreeWriter(parameters);
     bufferedDocuments = new HashMap<String, PseudoDocument>();
   }

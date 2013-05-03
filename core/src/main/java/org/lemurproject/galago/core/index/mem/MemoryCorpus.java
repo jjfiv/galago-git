@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.index.corpus.CorpusFileWriter;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableDataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
@@ -76,12 +77,12 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   }
 
   @Override
-  public Document getDocument(byte[] key, Parameters p) throws IOException {
+  public Document getDocument(byte[] key, DocumentComponents p) throws IOException {
     return corpusData.get(key);
   }
 
   @Override
-  public Document getDocument(int key, Parameters p) throws IOException {
+  public Document getDocument(int key, DocumentComponents p) throws IOException {
     return corpusData.get(Utility.fromInt(key));
   }
 
@@ -112,7 +113,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
     CorpusFileWriter writer = new CorpusFileWriter(new FakeParameters(p));
     DocumentIterator iterator = (DocumentIterator) getIterator();
     while (!iterator.isDone()) {
-      writer.process(iterator.getDocument(new Parameters()));
+      writer.process(iterator.getDocument(new DocumentComponents()));
       iterator.nextKey();
     }
     writer.close();
@@ -187,7 +188,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
     }
 
     @Override
-    public Document getDocument(Parameters p) throws IOException {
+    public Document getDocument(DocumentComponents p) throws IOException {
       return corpusData.get(currKey);
     }
 
@@ -204,7 +205,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
     @Override
     public String getValueString() throws IOException {
-      return getDocument(new Parameters()).toString();
+      return getDocument(new DocumentComponents()).toString();
     }
 
     @Override
@@ -236,11 +237,11 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
   public class MemCorpusIterator extends KeyToListIterator implements MovableDataIterator<Document> {
 
-    Parameters docParams;
+    DocumentComponents docParams;
 
     public MemCorpusIterator(KeyIterator ki) {
       super(ki);
-      docParams = new Parameters();
+      docParams = new DocumentComponents();
     }
 
     @Override

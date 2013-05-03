@@ -12,12 +12,13 @@ import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.parse.PseudoDocument;
+import org.lemurproject.galago.core.parse.PseudoDocument.PsuedoDocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.MovableDataIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -30,12 +31,16 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class CorpusReader extends KeyValueReader implements DocumentReader {
 
+  boolean psuedoDocs;
+  
   public CorpusReader(String fileName) throws FileNotFoundException, IOException {
     super(fileName);
+    psuedoDocs = super.getManifest().get("psuedo", false);
   }
 
   public CorpusReader(BTreeReader r) {
     super(r);
+    psuedoDocs = super.getManifest().get("psuedo", false);
   }
 
   @Override
@@ -44,7 +49,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
   }
 
   @Override
-  public Document getDocument(byte[] key, Parameters p) throws IOException {
+  public Document getDocument(byte[] key, DocumentComponents p) throws IOException {
     KeyIterator i = new KeyIterator(reader);
     if (i.findKey(key)) {
       return i.getDocument(p);
@@ -55,7 +60,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
 
   @Override
-  public Document getDocument(int key, Parameters p) throws IOException {
+  public Document getDocument(int key, DocumentComponents p) throws IOException {
     KeyIterator i = new KeyIterator(reader);
     byte[] k = Utility.fromInt(key);
     if (i.findKey(k)) {
@@ -94,8 +99,8 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     }
 
     @Override
-    public Document getDocument(Parameters p) throws IOException {
-      if (p.get("pseudo", false)) {
+    public Document getDocument(DocumentComponents p) throws IOException {
+      if (psuedoDocs) {
         return PseudoDocument.deserialize(iterator.getValueBytes(), p);
       } else {
         return Document.deserialize(iterator.getValueBytes(), p);
@@ -105,10 +110,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     @Override
     public String getValueString() throws IOException {
       try {
-        Parameters p = new Parameters();
-        p.set("terms", false);
-        p.set("tags", false);
-        return getDocument(p).toString();
+        return getDocument(new Document.DocumentComponents()).toString();
       } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
@@ -122,11 +124,11 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
   public class CorpusIterator extends KeyToListIterator implements MovableDataIterator<Document> {
 
-    Parameters docParams;
+    DocumentComponents docParams;
 
     public CorpusIterator(KeyIterator ki) {
       super(ki);
-      docParams = new Parameters();
+      docParams = new DocumentComponents();
     }
 
     @Override

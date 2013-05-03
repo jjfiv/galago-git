@@ -88,7 +88,7 @@ public class Document implements Serializable {
     return sb.toString();
   }
 
-  public static byte[] serialize(Parameters p, Document doc) throws IOException {
+  public static byte[] serialize(Document doc) throws IOException {
     ByteArrayOutputStream headerArray = new ByteArrayOutputStream();
     DataOutputStream output = new DataOutputStream(headerArray);
     // identifier
@@ -196,12 +196,12 @@ public class Document implements Serializable {
     return docArray.toByteArray();
   }
 
-  public static Document deserialize(byte[] data, Parameters p) throws IOException {
+  public static Document deserialize(byte[] data, DocumentComponents selection) throws IOException {
     ByteArrayInputStream stream = new ByteArrayInputStream(data);
-    return deserialize(new DataInputStream(stream), p);
+    return deserialize(new DataInputStream(stream), selection);
   }
 
-  public static Document deserialize(DataInputStream stream, Parameters p) throws IOException {
+  public static Document deserialize(DataInputStream stream, DocumentComponents selection) throws IOException {
     byte[] buffer = new byte[BUFFER_SIZE];
     int blen;
     DataInputStream input = new DataInputStream(new SnappyInputStream(stream));
@@ -221,7 +221,7 @@ public class Document implements Serializable {
     input.readFully(buffer, 0, blen);
     d.name = Utility.toString(buffer, 0, blen);
 
-    if (p.get("metadata", true)) {
+    if (selection.metadata) {
       // metadata
       int metadataCount = input.readInt();
       d.metadata = new HashMap(metadataCount);
@@ -240,23 +240,35 @@ public class Document implements Serializable {
         d.metadata.put(key, value);
       }
       // only both skipping if we need to
-    } else if (p.get("terms", true) || p.get("text", true) || p.get("tags", true)) {
+    } else if (selection.terms || selection.text || selection.tags) {
       input.skip(metadataSize);
     }
 
-    if (p.get("text", true)) {
+    if (selection.text) {
       // text
       blen = input.readInt();
-      buffer = sizeCheck(buffer, blen);
-      input.readFully(buffer, 0, blen);
-      d.text = Utility.toString(buffer, 0, blen);
+
+      int start = (selection.subTextStart < 0) ? 0 : selection.subTextStart;
+      int maxLen = blen - start;
+      if (start > 0) {
+        input.skip(start);
+      }
+      int readLen = (selection.subTextLen > 0 && selection.subTextLen < maxLen) ? selection.subTextLen : maxLen;
+
+      buffer = sizeCheck(buffer, readLen);
+      input.readFully(buffer, 0, readLen);
+      d.text = Utility.toString(buffer, 0, readLen);
+
+      if (readLen < maxLen) {
+        input.skip(maxLen - readLen);
+      }
 
       // only both skipping if we need to
-    } else if (p.get("terms", true) || p.get("tags", true)) {
+    } else if (selection.terms || selection.tags) {
       input.skip(textSize);
     }
 
-    if (p.get("tags", true)) {
+    if (selection.tags) {
       // tags
       int tagCount = input.readInt();
       d.tags = new ArrayList(tagCount);
@@ -287,11 +299,11 @@ public class Document implements Serializable {
       }
 
       // only both skipping if we need to
-    } else if (p.get("terms", true)) {
+    } else if (selection.terms) {
       input.skip(tagsSize);
     }
 
-    if (p.get("terms", true)) {
+    if (selection.terms) {
       // terms
       int termCount = input.readInt();
       d.terms = new ArrayList(termCount);
@@ -305,7 +317,7 @@ public class Document implements Serializable {
         d.terms.add(Utility.toString(buffer, 0, blen));
       }
     }
-    
+
     input.close();
     return d;
   }
@@ -315,6 +327,42 @@ public class Document implements Serializable {
       return new byte[sz];
     } else {
       return currentBuffer;
+    }
+  }
+
+  /**
+   * This class allows the selection
+   *
+   */
+  public static class DocumentComponents implements Serializable {
+
+    public boolean text = true;
+    public boolean metadata = true;
+    public boolean terms = false;
+    public boolean tags = false;
+    // these variables can be used to restrict the text to just a short section at the start of the document
+    // useful for massive files
+    // start and end are byte offsets
+    // -1 indicates no restriction
+    public int subTextStart = -1;
+    public int subTextLen = -1;
+
+    // defaults
+    public DocumentComponents() {
+    }
+
+    public DocumentComponents(boolean text, boolean terms, boolean tags, boolean metadata) {
+      this.text = text;
+      this.terms = terms;
+      this.tags = tags;
+      this.metadata = metadata;
+    }
+
+    public DocumentComponents(Parameters p) {
+      this.text = p.get("text", text);
+      this.terms = p.get("terms", terms);
+      this.tags = p.get("tags", tags);
+      this.metadata = p.get("metadata", metadata);
     }
   }
 }

@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
@@ -167,11 +168,7 @@ public class RelevanceModel3 implements ExpansionModel {
     Map<ScoredDocument, Integer> termCounts;
     Document doc;
 
-    Parameters corpusParams = new Parameters();
-    corpusParams.set("text", true);
-    corpusParams.set("tags", false);
-    corpusParams.set("terms", false);
-    corpusParams.set("metadata", false);
+    DocumentComponents corpusParams = new DocumentComponents(true, false, false, false);
 
     String group = fbParams.get("group", (String) null);
 

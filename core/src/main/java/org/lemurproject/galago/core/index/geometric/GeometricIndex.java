@@ -17,7 +17,6 @@ import org.lemurproject.galago.core.index.DynamicIndex;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.LengthsReader;
-import org.lemurproject.galago.core.index.LengthsReader.LengthsIterator;
 import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
@@ -28,6 +27,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.index.mem.FlushToDisk;
 import org.lemurproject.galago.core.index.mem.MemoryIndex;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.InputClass;
@@ -272,12 +272,12 @@ public class GeometricIndex implements DynamicIndex, Index {
   }
 
   @Override
-  public Document getDocument(String document, Parameters p) throws IOException {
+  public Document getDocument(String document, DocumentComponents p) throws IOException {
     throw new RuntimeException("UNIMPLEMENTED function: getdocument");
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> documents, Parameters p) throws IOException {
+  public Map<String, Document> getDocuments(List<String> documents, DocumentComponents p) throws IOException {
     throw new RuntimeException("UNIMPLEMENTED function: getdocuments");
   }
 

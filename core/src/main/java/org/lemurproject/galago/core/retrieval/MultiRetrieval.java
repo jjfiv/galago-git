@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.structured.FeatureFactory;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -86,7 +87,7 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public Document getDocument(String identifier, Parameters p) throws IOException {
+  public Document getDocument(String identifier, DocumentComponents p) throws IOException {
     for (Retrieval r : this.retrievals) {
       Document d = r.getDocument(identifier, p);
       if (d != null) {
@@ -97,7 +98,7 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> identifiers, Parameters p) throws IOException {
+  public Map<String, Document> getDocuments(List<String> identifiers, DocumentComponents p) throws IOException {
     HashMap<String, Document> results = new HashMap();
     for (Retrieval r : this.retrievals) {
       results.putAll(r.getDocuments(identifiers, p));
