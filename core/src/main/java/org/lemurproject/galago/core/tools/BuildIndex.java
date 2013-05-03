@@ -52,7 +52,11 @@ import org.lemurproject.galago.tupleflow.execution.Step;
 public class BuildIndex extends AppFunction {
 
   public Stage getParsePostingsStage(Parameters buildParameters) throws ClassNotFoundException {
-    Stage stage = new Stage("parsePostings").addInput("splits", new DocumentSplit.FileIdOrder()).addOutput("fieldLengthData", new FieldLengthData.FieldDocumentOrder()).addOutput("numberedDocumentDataNumbers", new NumberedDocumentData.NumberOrder()).addOutput("numberedDocumentDataNames", new NumberedDocumentData.IdentifierOrder());
+    Stage stage = new Stage("parsePostings")
+            .addInput("splits", new DocumentSplit.FileIdOrder())
+            .addOutput("fieldLengthData", new FieldLengthData.FieldDocumentOrder())
+            .addOutput("numberedDocumentDataNumbers", new NumberedDocumentData.NumberOrder())
+            .addOutput("numberedDocumentDataNames", new NumberedDocumentData.IdentifierOrder());
 
 //    if (buildParameters.getBoolean("links")) {
 //      stage.addInput("anchorText", new AdditionalDocumentText.IdentifierOrder());
@@ -87,7 +91,10 @@ public class BuildIndex extends AppFunction {
     }
 
     // Steps
-    stage.add(new InputStep("splits")).add(BuildStageTemplates.getParserStep(buildParameters)).add(BuildStageTemplates.getTokenizerStep(buildParameters)).add(BuildStageTemplates.getNumberingStep(buildParameters));
+    stage.add(new InputStep("splits"))
+            .add(BuildStageTemplates.getParserStep(buildParameters)).
+            add(BuildStageTemplates.getTokenizerStep(buildParameters))
+            .add(BuildStageTemplates.getNumberingStep(buildParameters));
 //    if (buildParameters.getBoolean("links")) {
 //      Parameters p = new Parameters();
 //      p.set("textSource", "anchorText");

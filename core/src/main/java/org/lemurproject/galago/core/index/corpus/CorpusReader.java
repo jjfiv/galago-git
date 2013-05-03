@@ -35,12 +35,12 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
   
   public CorpusReader(String fileName) throws FileNotFoundException, IOException {
     super(fileName);
-    psuedoDocs = super.getManifest().get("psuedo", false);
+    psuedoDocs = getManifest().get("psuedo", false);
   }
 
   public CorpusReader(BTreeReader r) {
     super(r);
-    psuedoDocs = super.getManifest().get("psuedo", false);
+    psuedoDocs = getManifest().get("psuedo", false);
   }
 
   @Override
