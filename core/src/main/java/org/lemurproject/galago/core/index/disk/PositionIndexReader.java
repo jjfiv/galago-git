@@ -37,7 +37,7 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  * iterating. This is an interesting enough change that there are now two
  * versions of the iterator
  *
- * @author trevor, irmarc
+ * @author trevor, sjh, irmarc
  */
 public class PositionIndexReader extends KeyListReader implements AggregateIndexPart {
   Stemmer stemmer = null;
