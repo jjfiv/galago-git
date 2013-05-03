@@ -762,7 +762,10 @@ public class WindowIndexReader extends KeyListReader implements AggregateReader.
 
     @Override
     public int count() {
-      return currentCount;
+      if (!done && context.document == this.currentDocument) {
+        return currentCount;
+      }
+      return 0;
     }
 
     @Override
