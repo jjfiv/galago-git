@@ -5,14 +5,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
-import org.lemurproject.galago.core.index.BTreeFactory;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
-import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.core.parse.PseudoDocument.PsuedoDocumentComponents;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -30,29 +26,21 @@ public class CorpusSelectiveSplitParser extends DocumentStreamParser {
   int idx;
   int[] docIds;
   DocumentReader reader;
-  DocumentComponents extractionParameters;
 
   public CorpusSelectiveSplitParser(DocumentSplit split, Parameters p) throws FileNotFoundException, IOException {
     super(split, p);
     // check that the corpus is an actual corpus
-    if (BTreeFactory.isBTree(split.fileName)) {
-      reader = new CorpusReader(split.fileName);
-    }
-
-    if (p.get("psuedo", false)) {
-      extractionParameters = new PsuedoDocumentComponents(false, false, false, true, true);
-    } else {
-      extractionParameters = new DocumentComponents(true, false, false, true);
-    }
+    reader = new CorpusReader(p.getString("corpus"));
 
     // Must be a simple list of strings, one per line;
-    File ids = new File(p.getString("docIds"));
+    File ids = new File(split.fileName);
     Set<String> documentIds = Utility.readFileToStringSet(ids);
     docIds = new int[documentIds.size()];
     int i = 0;
     for (String sid : documentIds) {
       int id = Integer.parseInt(sid);
       docIds[i] = id;
+      i+=1;
     }
 
     // ensure increasing order...
@@ -69,7 +57,7 @@ public class CorpusSelectiveSplitParser extends DocumentStreamParser {
     if (idx < docIds.length) {
       Document d;
       do {
-        d = reader.getDocument(docIds[idx], extractionParameters);
+        d = reader.getDocument(docIds[idx], new DocumentComponents());
         if (d == null) {
           System.err.println("Failed to extract document id:" + docIds[idx]);
         }

@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintStream;
+import java.util.HashSet;
+import java.util.Set;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseReader.KeyIterator;
 import org.lemurproject.galago.core.tools.AppFunction;
@@ -57,50 +59,77 @@ public class BuildPartialIndex extends AppFunction {
     File outputIndex = new File(p.getString("partialIndex"));
 
     if (!corpus.exists()) {
-      System.err.println("corpus is required!");
+      System.err.println("Corpus is required!");
     }
 
     File documentNames = new File(p.getString("documentNameList"));
     File documentIds = new File(p.getString("documentNameList") + ".ids");
-    collectIds(documentNames, index, documentIds);
+    collectIds(documentNames, index, documentIds, (int) p.get("distrib", 10));
 
 
-    p.set("inputPath", corpus.getAbsolutePath());
+    // force input format
+    p.set("filetype", "selectivecorpus");
+    p.set("inputPath", documentIds.getAbsolutePath());
     p.set("indexPath", outputIndex.getAbsolutePath());
 
     if (!p.isMap("parser")) {
       p.set("parser", new Parameters());
     }
-    p.getMap("parser").set("docIds", documentIds.getAbsolutePath());
-    // force input format
-    p.set("filetype", "selectivecorpus");
-    // force distrib factor == 1 -- otherwise duplicate documents
-    p.set("distrib", 1);
+    p.getMap("parser").set("corpus", corpus.getAbsolutePath());
 
     Job job = new BuildIndex().getIndexJob(p);
 
     AppFunction.runTupleFlowJob(job, p, output);
   }
 
-  private static void collectIds(File documentNames, File index, File documentIds) throws Exception {
+  private static void collectIds(File documentNames, File index, File documentIds, int distrib) throws Exception {
+
+    // read document names 
     DiskNameReverseReader namesReader = new DiskNameReverseReader(new File(index, "names.reverse").getAbsolutePath());
     KeyIterator namesIterator = namesReader.getIterator();
 
     BufferedReader input = new BufferedReader(new FileReader(documentNames));
-    BufferedWriter output = new BufferedWriter(new FileWriter(documentIds));
     String line;
+    Set<Integer> ids = new HashSet();
+    int count = 0;
     while ((line = input.readLine()) != null) {
       line = line.trim();
       byte[] name = Utility.fromString(line);
       namesIterator.findKey(name);
       if (namesIterator.getCurrentName().equals(line)) {
         int id = namesIterator.getCurrentIdentifier();
-        output.write(id + "\n");
+        // round-robin distribution
+        ids.add(id);
       } else {
-        System.err.println("Unable to determine document : " + line + " ignoring.");
+        System.err.println("Unable to determine document : " + name + " ignoring.");
       }
+      count += 1;
     }
     input.close();
-    output.close();
+    
+    // make a folder for these files
+    if(documentIds.isDirectory()){
+      Utility.deleteDirectory(documentIds);
+    }
+    if(documentIds.isFile()){
+      documentIds.delete();
+    }
+
+    documentIds.mkdirs();
+    BufferedWriter[] writers = new BufferedWriter[distrib];
+    for (int i = 0; i < distrib; i++) {
+      writers[i] = new BufferedWriter(new FileWriter(new File(documentIds, "" + i)));
+    }
+    
+    int j=0;
+    for(Integer id : ids){
+      writers[j % distrib].write(id + "\n");
+      j+=1;
+    }
+    
+    // close up
+    for (int i = 0; i < distrib; i++) {
+      writers[i].close();
+    }
   }
 }
