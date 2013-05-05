@@ -3,6 +3,7 @@ package org.lemurproject.galago.core.retrieval;
 
 import java.io.Serializable;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Basic retrieval unit. The results returned by the Retrieval.runQuery typically return
@@ -38,7 +39,7 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
   @Override
   public int compareTo(ScoredDocument other) {
     if (score != other.score) {
-      return Double.compare(score, other.score);
+      return Utility.compare(score, other.score);
     }
     if ((source != null) && (other.source != null)
             && (!source.equals(other.source))) {
