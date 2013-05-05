@@ -34,7 +34,7 @@ public class CorpusMerger extends GenericIndexMerger<Document> {
   @Override
   public void performValueMerge(byte[] key, List<KeyIteratorWrapper> keyIterators) throws IOException {
     assert (keyIterators.size() == 1) : "Found two identical keys when merging names. Documents can never be combined.";
-    Document d = ((DocumentReader.DocumentIterator) keyIterators.get(0).iterator).getDocument(new DocumentComponents(true, true, true, true)) ;
+    Document d = ((DocumentReader.DocumentIterator) keyIterators.get(0).iterator).getDocument(new DocumentComponents(true, true, false)) ;
     this.writer.process(d);
   }
 }

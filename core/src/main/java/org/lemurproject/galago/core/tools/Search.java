@@ -136,7 +136,7 @@ public class Search {
     	results = new  ScoredDocument[0];
     }
     
-    DocumentComponents p1 = new DocumentComponents(true, false, false, true);
+    DocumentComponents p1 = new DocumentComponents();
 
     for (int i = startAt; i < Math.min(startAt + count, results.length); i++) {
       String identifier = results[i].documentName;

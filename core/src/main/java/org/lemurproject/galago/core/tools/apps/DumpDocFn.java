@@ -26,8 +26,13 @@ public class DumpDocFn extends AppFunction {
   public String getHelpString() {
     return "galago doc [--help] --index=<index> --id=<identifier> [format parameters]\n\n"
             + "  Prints the full text of the document named by <identifier>.\n"
-            + "  The document is retrieved from a Corpus file named corpus."
-            + "  <index> must contain a corpus structure.";
+            + "  The document is retrieved from a Corpus file named corpus.\n"
+            + "  <index> must contain a corpus structure.\n"
+            + "  [format parameters] :\n"
+            + "\t --text=[true|false]\n"
+            + "\t --metadata=[true|false]\n"
+            + "\t --tokenise=[true|false]\n"
+            ;
   }
 
   @Override

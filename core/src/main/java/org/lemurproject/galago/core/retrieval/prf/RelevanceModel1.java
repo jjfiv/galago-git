@@ -32,21 +32,19 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public class RelevanceModel3 implements ExpansionModel {
+public class RelevanceModel1 implements ExpansionModel {
 
   private static final Logger logger = Logger.getLogger("RM3");
   private final Retrieval retrieval;
-  private double defaultFbOrigWeight;
   private int defaultFbDocs;
   private int defaultFbTerms;
   private Set<String> exclusionTerms;
   private Stemmer stemmer;
   private TagTokenizer tokenizer;
 
-  public RelevanceModel3(Retrieval r) throws Exception {
+  public RelevanceModel1(Retrieval r) throws Exception {
     this.retrieval = r;
 
-    defaultFbOrigWeight = r.getGlobalParameters().get("fbOrigWeight", 0.85);
     defaultFbDocs = (int) Math.round(r.getGlobalParameters().get("fbDocs", 10.0));
     defaultFbTerms = (int) Math.round(r.getGlobalParameters().get("fbTerm", 5.0));
 
@@ -64,16 +62,11 @@ public class RelevanceModel3 implements ExpansionModel {
   @Override
   public Node expand(Node root, Parameters queryParameters) throws Exception {
 
-    double fbOrigWeight = queryParameters.get("fbOrigWeight", defaultFbOrigWeight);
-    int fbDocs = (int) Math.round(queryParameters.get("fbDocs", (double) defaultFbDocs));
-    int fbTerms = (int) Math.round(queryParameters.get("fbTerm", (double) defaultFbTerms));
+    int fbDocs = (int) Math.round(root.getNodeParameters().get("fbDocs", queryParameters.get("fbDocs", (double) defaultFbDocs)));
+    int fbTerms = (int) Math.round(root.getNodeParameters().get("fbTerm", queryParameters.get("fbTerm", (double) defaultFbTerms)));
 
-    fbOrigWeight = root.getNodeParameters().get("fbOrigWeight", fbOrigWeight);
-    fbDocs = (int) Math.round(root.getNodeParameters().get("fbDocs", (double) fbDocs));
-    fbTerms = (int) Math.round(root.getNodeParameters().get("fbTerm", (double) fbTerms));
-
-    if (fbOrigWeight == 1.0 || fbDocs <= 0 || fbTerms <= 0) {
-      logger.info("fbOrigWeight, fbDocs, or fbTerms is invalid (<= 0)");
+    if (fbDocs <= 0 || fbTerms <= 0) {
+      logger.info("fbDocs, or fbTerms is invalid, no expansion possible. (<= 0)");
       return root;
     }
 
@@ -98,14 +91,7 @@ public class RelevanceModel3 implements ExpansionModel {
     // select some terms to form exp query node
     Node expNode = generateExpansionQuery(weightedTerms, fbTerms);
 
-    Node rm3 = new Node("combine");
-    rm3.addChild(root);
-    rm3.addChild(expNode);
-
-    rm3.getNodeParameters().set("0", fbOrigWeight);
-    rm3.getNodeParameters().set("1", 1.0 - fbOrigWeight);
-
-    return rm3;
+    return expNode;
   }
 
   public List<ScoredDocument> collectInitialResults(Node transformed, Parameters fbParams) throws Exception {
@@ -184,7 +170,7 @@ public class RelevanceModel3 implements ExpansionModel {
         continue;
       }
 
-      // no fields required, so just tokenize here
+      // only need terms, so just tokenize here.
       tokenizer.tokenize(doc);
       List<String> docterms;
       docterms = doc.terms;

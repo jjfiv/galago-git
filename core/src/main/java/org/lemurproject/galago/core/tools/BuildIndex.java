@@ -495,6 +495,11 @@ public class BuildIndex extends AppFunction {
       tokenizerParams.set("formats", new Parameters());
     }
 
+    // ensure the corpusParameters has access to the tokenizer Parameters
+    if(globalParameters.isMap("corpusParameters")){
+      globalParameters.getMap("corpusParameters").set("tokenizer", tokenizerParams);
+    }
+    
     // fieldIndex must be a boolean [optional]
     // defaults to true
     if (globalParameters.containsKey("fieldIndex")) {

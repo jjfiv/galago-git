@@ -76,7 +76,7 @@ public class SearchWebHandler extends ContextHandler {
     request.getParameterMap();
     String identifier = request.getParameter("identifier");
     identifier = URLDecoder.decode(identifier);
-    DocumentComponents p = new DocumentComponents(true, false, false, true);
+    DocumentComponents p = new DocumentComponents(true, true, false);
     Document document = search.getDocument(identifier, p);
     response.setContentType("text/html; charset=UTF-8");
 
@@ -105,7 +105,7 @@ public class SearchWebHandler extends ContextHandler {
     String[] terms = request.getParameterValues("term");
     Set<String> queryTerms = new HashSet<String>(Arrays.asList(terms));
 
-    DocumentComponents p = new DocumentComponents(true, false, false, true);
+    DocumentComponents p = new DocumentComponents(true, true, false);
     Document document = search.getDocument(identifier, p);
 
     if (document == null) {

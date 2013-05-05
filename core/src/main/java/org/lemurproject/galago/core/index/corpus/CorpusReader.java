@@ -14,11 +14,13 @@ import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.parse.PseudoDocument;
-import org.lemurproject.galago.core.parse.PseudoDocument.PsuedoDocumentComponents;
+import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.retrieval.iterator.MovableDataIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
+import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -31,18 +33,29 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class CorpusReader extends KeyValueReader implements DocumentReader {
 
+  TagTokenizer tokenizer;
   boolean psuedoDocs;
   
   public CorpusReader(String fileName) throws FileNotFoundException, IOException {
     super(fileName);
-    psuedoDocs = getManifest().get("psuedo", false);
+    init();
   }
 
   public CorpusReader(BTreeReader r) {
     super(r);
-    psuedoDocs = getManifest().get("psuedo", false);
+    init();
   }
 
+  public void init(){
+    Parameters manifest = getManifest();
+    psuedoDocs = manifest.get("psuedo", false);
+    if(manifest.containsKey("tokenizer")){
+      tokenizer = new TagTokenizer(new FakeParameters(getManifest().getMap("tokenizer")));
+    } else {
+      tokenizer = new TagTokenizer(new FakeParameters(new Parameters()));
+    }
+  }
+  
   @Override
   public KeyIterator getIterator() throws IOException {
     return new KeyIterator(reader);
@@ -103,7 +116,11 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
       if (psuedoDocs) {
         return PseudoDocument.deserialize(iterator.getValueBytes(), p);
       } else {
-        return Document.deserialize(iterator.getValueBytes(), p);
+        Document d =  Document.deserialize(iterator.getValueBytes(), p);
+        if(p.tokenize){
+          tokenizer.tokenize(d);
+        }
+        return d;
       }
     }
 

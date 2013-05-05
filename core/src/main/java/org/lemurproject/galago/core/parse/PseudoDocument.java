@@ -178,8 +178,8 @@ public class PseudoDocument extends Document {
     public boolean samples = true;
     public int sampleLimit = Integer.MAX_VALUE;
     
-    public PsuedoDocumentComponents(boolean text, boolean terms, boolean tags, boolean metadata, boolean samples) {
-      super(text, terms, tags, metadata);
+    public PsuedoDocumentComponents(boolean text, boolean metadata, boolean tokenise, boolean samples) {
+      super(text, metadata, tokenise);
       this.samples = samples;
     }
   }

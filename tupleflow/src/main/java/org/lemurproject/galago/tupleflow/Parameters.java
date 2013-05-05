@@ -147,6 +147,8 @@ public class Parameters implements Serializable {
     private List parseList() throws IOException {
       // Have to move past the opening '['
       delimiter = (char) reader.read();
+      // skip any whitespace
+      skipWhitespace();
       ArrayList container = new ArrayList();
       while (delimiter != ']') {
         skipWhitespace();

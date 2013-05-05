@@ -37,9 +37,9 @@ public class CorpusSplitParser extends DocumentStreamParser {
     this.split = split;
 
     if(p.get("psuedo", false)){
-      extractionParameters = new PsuedoDocumentComponents(false, false, false, true, true);    
+      extractionParameters = new PsuedoDocumentComponents(false, true, false, true);    
     } else {
-      extractionParameters = new DocumentComponents(true, false, false, true);    
+      extractionParameters = new DocumentComponents(true, true, false);
     }
   }
 

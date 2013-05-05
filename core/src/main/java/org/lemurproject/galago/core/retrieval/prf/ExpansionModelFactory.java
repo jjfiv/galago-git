@@ -16,7 +16,6 @@ public class ExpansionModelFactory {
   public static ExpansionModel instance(Parameters parameters, Retrieval retrieval) throws Exception {
     if (parameters.isString("relevanceModel")) {
       Class clazz = Class.forName(parameters.getString("relevanceModel"));
-      // TODO: allow other parameters to be fed into RM
       Constructor cons = clazz.getConstructor(Retrieval.class);
       ExpansionModel em = (ExpansionModel) cons.newInstance(retrieval);
       return em;

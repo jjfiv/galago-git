@@ -33,13 +33,13 @@ public class CorpusTest extends TestCase {
         Document d = new Document();
         d.identifier = i;
         d.name = "name-" + i;
-        d.text = "text-" + i;
+        d.text = "<tag attr=value-"+i+">text"+i+"</tag>";
         d.metadata = new HashMap();
         d.metadata.put("meta", "data-" + i);
         d.terms = new ArrayList();
-        d.terms.add("term-" + i);
+        d.terms.add("text" + i);
         d.tags = new ArrayList();
-        d.tags.add(new Tag("tag", new HashMap(), i, i));
+        d.tags.add(new Tag("tag", new HashMap(), 0, 1));
         d.tags.get(0).attributes.put("attr", "value-" + i);
         docs.add(d);
       }
@@ -49,6 +49,9 @@ public class CorpusTest extends TestCase {
       // test defaulty behaviour:
       Parameters p = new Parameters();
       p.set("filename", corpus.getAbsolutePath());
+      p.set("tokenizer", new Parameters());
+      p.getMap("tokenizer").set("fields", new ArrayList());
+      p.getMap("tokenizer").getList("fields").add("tag");
       CorpusFileWriter writer = new CorpusFileWriter(new FakeParameters(p));
       for (Document d : docs) {
         writer.process(d);
@@ -56,7 +59,7 @@ public class CorpusTest extends TestCase {
       writer.close();
 
       CorpusReader reader = new CorpusReader(corpus.getAbsolutePath());
-      Document testDoc = reader.getDocument(11, new DocumentComponents(true, true, true, true));
+      Document testDoc = reader.getDocument(11, new DocumentComponents(true, true, true));
       Document trueDoc = docs.get(11);
       assert (testDoc.identifier == trueDoc.identifier);
       assert (testDoc.name.equals(trueDoc.name));
@@ -77,7 +80,7 @@ public class CorpusTest extends TestCase {
       writer.close();
 
       reader = new CorpusReader(corpus.getAbsolutePath());
-      testDoc = reader.getDocument(11, new DocumentComponents(true, false, false, false));
+      testDoc = reader.getDocument(11, new DocumentComponents(true, false, false));
       trueDoc = docs.get(11);
       assert (testDoc.identifier == trueDoc.identifier);
       assert (testDoc.name.equals(trueDoc.name));

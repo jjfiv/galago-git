@@ -8,9 +8,10 @@ import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.VByteInput;
+import org.lemurproject.galago.tupleflow.VByteOutput;
 import org.xerial.snappy.SnappyInputStream;
 import org.xerial.snappy.SnappyOutputStream;
-import org.lemurproject.galago.core.parse.TagTokenizer.Pair;
 
 public class Document implements Serializable {
 
@@ -67,16 +68,22 @@ public class Document implements Serializable {
     }
 
     if (tags != null) {
+      int count = 0;
       sb.append("\nTags: \n");
       for (Tag t : tags) {
-        sb.append(t.toString()).append(" ");
+        sb.append(count).append(" : ");
+        sb.append(t.toString()).append("\n");
+        count += 1;
       }
     }
 
     if (terms != null) {
+      int count = 0;
       sb.append("\nTerm vector: \n");
       for (String s : terms) {
-        sb.append(s).append(" ");
+        sb.append(count).append(" : ");
+        sb.append(s.toString()).append("\n");
+        count += 1;
       }
     }
 
@@ -133,63 +140,73 @@ public class Document implements Serializable {
     }
     output.close();
 
+//  [sjh] : Deprecated because it requires TOO much space for large documents,
+//          Use TagTokenizer to regenerate
+//          -- you can get the list of indexed fields from the corpus parameters.
 
-    ByteArrayOutputStream tagsArray = new ByteArrayOutputStream();
-    output = new DataOutputStream(tagsArray);
-    // tags
-    if (doc.tags == null) {
-      output.writeInt(0);
-    } else {
-      output.writeInt(doc.tags.size());
-      for (Tag tag : doc.tags) {
-        bytes = Utility.fromString(tag.name);
-        output.writeInt(bytes.length);
-        output.write(bytes);
-        output.writeInt(tag.begin);
-        output.writeInt(tag.end);
-        output.writeInt(tag.attributes.size());
-        for (String key : tag.attributes.keySet()) {
-          bytes = Utility.fromString(key);
-          output.writeInt(bytes.length);
-          output.write(bytes);
-          bytes = Utility.fromString(tag.attributes.get(key));
-          output.writeInt(bytes.length);
-          output.write(bytes);
-        }
-      }
-    }
-    output.close();
-
-
-    ByteArrayOutputStream termsArray = new ByteArrayOutputStream();
-    output = new DataOutputStream(termsArray);
-
-    // terms
-    if (doc.terms == null) {
-      output.writeInt(0);
-    } else {
-      output.writeInt(doc.terms.size());
-      for (String term : doc.terms) {
-        bytes = Utility.fromString(term);
-        output.writeInt(bytes.length);
-        output.write(bytes);
-      }
-    }
-    output.close();
+//    ByteArrayOutputStream tagsArray = new ByteArrayOutputStream();
+//    output = new DataOutputStream(tagsArray);
+//    // tags
+//    if (doc.tags == null) {
+//      output.writeInt(0);
+//    } else {
+//      output.writeInt(doc.tags.size());
+//      for (Tag tag : doc.tags) {
+//        bytes = Utility.fromString(tag.name);
+//        output.writeInt(bytes.length);
+//        output.write(bytes);
+//        output.writeInt(tag.begin);
+//        output.writeInt(tag.end);
+//        output.writeInt(tag.attributes.size());
+//        for (String key : tag.attributes.keySet()) {
+//          bytes = Utility.fromString(key);
+//          output.writeInt(bytes.length);
+//          output.write(bytes);
+//          bytes = Utility.fromString(tag.attributes.get(key));
+//          output.writeInt(bytes.length);
+//          output.write(bytes);
+//        }
+//      }
+//    }
+//    output.close();
+//
+//
+//    ByteArrayOutputStream termsArray = new ByteArrayOutputStream();
+//    output = new DataOutputStream(termsArray);
+//    DataOutput vOutput = new VByteOutput(output);
+//
+//    // terms
+//    if (doc.terms == null) {
+//      vOutput.writeInt(0);
+//    } else {
+//      vOutput.writeInt(doc.terms.size());
+//      int begin = 0;
+//      int end = 0;
+//      for(int i=0; i<doc.termCharBegin.size();i++){
+//        // begin - prevEnd // -- d-gapping
+//        begin = doc.termCharBegin.get(i) - end;
+//        end = doc.termCharEnd.get(i) - begin;
+//        assert(begin >= 0);
+//        assert(end >= 0);
+//        vOutput.writeInt(begin);
+//        vOutput.writeInt(end);
+//      }
+//    }
+//    output.close();
 
     ByteArrayOutputStream docArray = new ByteArrayOutputStream();
     output = new DataOutputStream(new SnappyOutputStream(docArray));
 
     output.writeInt(metadataArray.size());
     output.writeInt(textArray.size());
-    output.writeInt(tagsArray.size());
-    output.writeInt(termsArray.size());
+//    output.writeInt(tagsArray.size());
+//    output.writeInt(termsArray.size());
 
     output.write(headerArray.toByteArray());
     output.write(metadataArray.toByteArray());
     output.write(textArray.toByteArray());
-    output.write(tagsArray.toByteArray());
-    output.write(termsArray.toByteArray());
+//    output.write(tagsArray.toByteArray());
+//    output.write(termsArray.toByteArray());
 
     output.close();
 
@@ -209,8 +226,6 @@ public class Document implements Serializable {
 
     int metadataSize = input.readInt();
     int textSize = input.readInt();
-    int tagsSize = input.readInt();
-    int termsSize = input.readInt();
 
     // identifier
     d.identifier = input.readInt();
@@ -240,7 +255,7 @@ public class Document implements Serializable {
         d.metadata.put(key, value);
       }
       // only both skipping if we need to
-    } else if (selection.terms || selection.text || selection.tags) {
+    } else if (selection.text) {
       input.skip(metadataSize);
     }
 
@@ -263,61 +278,7 @@ public class Document implements Serializable {
         input.skip(maxLen - readLen);
       }
 
-      // only both skipping if we need to
-    } else if (selection.terms || selection.tags) {
-      input.skip(textSize);
     }
-
-    if (selection.tags) {
-      // tags
-      int tagCount = input.readInt();
-      d.tags = new ArrayList(tagCount);
-      for (int i = 0; i < tagCount; i++) {
-        blen = input.readInt();
-        buffer = sizeCheck(buffer, blen);
-        input.readFully(buffer, 0, blen);
-        String tagName = Utility.toString(buffer, 0, blen);
-        int tagBegin = input.readInt();
-        int tagEnd = input.readInt();
-        HashMap<String, String> attributes = new HashMap();
-        int attrCount = input.readInt();
-        for (int j = 0; j < attrCount; j++) {
-          blen = input.readInt();
-          buffer = sizeCheck(buffer, blen);
-          input.readFully(buffer, 0, blen);
-          String key = Utility.toString(buffer, 0, blen);
-
-          blen = input.readInt();
-          buffer = sizeCheck(buffer, blen);
-          input.readFully(buffer, 0, blen);
-          String value = Utility.toString(buffer, 0, blen);
-
-          attributes.put(key, value);
-        }
-        Tag t = new Tag(tagName, attributes, tagBegin, tagEnd);
-        d.tags.add(t);
-      }
-
-      // only both skipping if we need to
-    } else if (selection.terms) {
-      input.skip(tagsSize);
-    }
-
-    if (selection.terms) {
-      // terms
-      int termCount = input.readInt();
-      d.terms = new ArrayList(termCount);
-      if (termCount > 10000) {
-        System.err.printf("Reading in %d terms of document %d, %s.\n", termCount, d.identifier, d.name);
-      }
-      for (int i = 0; i < termCount; i++) {
-        blen = input.readInt();
-        buffer = sizeCheck(buffer, blen);
-        input.readFully(buffer, 0, blen);
-        d.terms.add(Utility.toString(buffer, 0, blen));
-      }
-    }
-
     input.close();
     return d;
   }
@@ -338,8 +299,7 @@ public class Document implements Serializable {
 
     public boolean text = true;
     public boolean metadata = true;
-    public boolean terms = false;
-    public boolean tags = false;
+    public boolean tokenize = false;
     // these variables can be used to restrict the text to just a short section at the start of the document
     // useful for massive files
     // start and end are byte offsets
@@ -351,18 +311,16 @@ public class Document implements Serializable {
     public DocumentComponents() {
     }
 
-    public DocumentComponents(boolean text, boolean terms, boolean tags, boolean metadata) {
+    public DocumentComponents(boolean text, boolean metadata, boolean tokenize) {
       this.text = text;
-      this.terms = terms;
-      this.tags = tags;
       this.metadata = metadata;
+      this.tokenize = tokenize;
     }
 
     public DocumentComponents(Parameters p) {
       this.text = p.get("text", text);
-      this.terms = p.get("terms", terms);
-      this.tags = p.get("tags", tags);
       this.metadata = p.get("metadata", metadata);
+      this.tokenize = p.get("tokenize", tokenize);
     }
   }
 }

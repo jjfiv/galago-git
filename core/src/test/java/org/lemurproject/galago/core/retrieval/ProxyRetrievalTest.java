@@ -102,7 +102,7 @@ public class ProxyRetrievalTest extends TestCase {
         instance.getCollectionStatistics(StructuredQuery.parse("#lengths:document:part=lengths()"));
         instance.getCollectionStatistics("#lengths:document:part=lengths()");
         
-        Document d = instance.getDocument("doc-" + 2, new DocumentComponents(true, false, false, false));
+        Document d = instance.getDocument("doc-" + 2, new DocumentComponents(true, false, false));
         assert(d.text != null);
         assert(d.terms == null);
         assert(d.tags == null);
