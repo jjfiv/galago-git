@@ -9,14 +9,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionAggregateIterator;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.NamesReader.NamesIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
+import org.lemurproject.galago.core.index.stats.AggregateStatistic;
+import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
+import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
+import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
@@ -59,7 +60,7 @@ public class LocalRetrieval implements Retrieval {
   protected Parameters globalParameters;
   protected CachedRetrieval cache;
   protected List<Traversal> defaultTraversals;
-  
+
   /**
    * One retrieval interacts with one index. Parameters dictate the behavior
    * during retrieval time, and selection of the appropriate feature factory.
@@ -98,9 +99,8 @@ public class LocalRetrieval implements Retrieval {
   }
 
   /**
-   * Returns the collectionLength and documentCount of a given index, contained
-   * in a Parameters object. Additional statistics may be provided, but are not
-   * expected.
+   * Returns some statistics about a particular index part
+   *  -- vocab size, number of entries, maximumDocCount of any indexed term, etc
    */
   @Override
   public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException {
@@ -308,37 +308,53 @@ public class LocalRetrieval implements Retrieval {
   @Override
   public CollectionStatistics getCollectionStatistics(Node root) throws Exception {
 
+    String rootString = root.toString();
+    if (cache!= null && cache.cacheStats) {
+      AggregateStatistic stat = cache.getCachedStatistic(rootString);
+      if (stat != null && stat instanceof CollectionStatistics) {
+        return (CollectionStatistics) stat;
+      }
+    }
+
+    CollectionStatistics s;
     ScoringContext sc = ContextFactory.createContext(globalParameters);
     MovableIterator structIterator = createIterator(new Parameters(), root, sc);
 
     // first check if this iterator is an aggregate iterator (has direct access to stats)
     if (CollectionAggregateIterator.class.isInstance(structIterator)) {
-      return ((CollectionAggregateIterator) structIterator).getStatistics();
+      s = ((CollectionAggregateIterator) structIterator).getStatistics();
 
     } else if (structIterator instanceof MovableLengthsIterator) {
       MovableLengthsIterator iterator = (MovableLengthsIterator) structIterator;
-      CollectionStatistics stats = new CollectionStatistics();
-      stats.fieldName = root.toString();
-      stats.minLength = Integer.MAX_VALUE;
+      s = new CollectionStatistics();
+      s.fieldName = root.toString();
+      s.minLength = Integer.MAX_VALUE;
 
       while (!iterator.isDone()) {
         sc.document = iterator.currentCandidate();
         if (iterator.hasMatch(iterator.currentCandidate())) {
           int len = iterator.getCurrentLength();
-          stats.collectionLength += len;
-          stats.documentCount += 1;
-          stats.nonZeroLenDocCount += (len > 0) ? 1 : 0;
-          stats.maxLength = Math.max(stats.maxLength, len);
-          stats.minLength = Math.min(stats.minLength, len);
+          s.collectionLength += len;
+          s.documentCount += 1;
+          s.nonZeroLenDocCount += (len > 0) ? 1 : 0;
+          s.maxLength = Math.max(s.maxLength, len);
+          s.minLength = Math.min(s.minLength, len);
         }
         iterator.movePast(sc.document);
       }
 
-      stats.avgLength = (stats.documentCount > 0) ? (double) stats.collectionLength / (double) stats.documentCount : 0;
-      stats.minLength = (stats.documentCount > 0) ? stats.minLength : 0;
-      return stats;
+      s.avgLength = (s.documentCount > 0) ? (double) s.collectionLength / (double) s.documentCount : 0;
+      s.minLength = (s.documentCount > 0) ? s.minLength : 0;
+      return s;
+    } else {
+      throw new IllegalArgumentException("Node " + root.toString() + " is not a lengths iterator.");
     }
-    throw new IllegalArgumentException("Node " + root.toString() + " is not a lengths iterator.");
+
+    if (cache!= null && cache.cacheStats) {
+      cache.addToCache(rootString, s);
+    }
+
+    return s;
   }
 
   @Override
@@ -351,36 +367,54 @@ public class LocalRetrieval implements Retrieval {
 
   @Override
   public NodeStatistics getNodeStatistics(Node root) throws Exception {
+
+    String rootString = root.toString();
+    if (cache!= null && cache.cacheStats) {
+      AggregateStatistic stat = cache.getCachedStatistic(rootString);
+      if (stat != null && stat instanceof NodeStatistics) {
+        return (NodeStatistics) stat;
+      }
+    }
+
+
+    NodeStatistics s;
     ScoringContext sc = ContextFactory.createContext(globalParameters);
     MovableIterator structIterator = createIterator(new Parameters(), root, sc);
     if (NodeAggregateIterator.class.isInstance(structIterator)) {
-      return ((NodeAggregateIterator) structIterator).getStatistics();
+      s = ((NodeAggregateIterator) structIterator).getStatistics();
 
     } else if (structIterator instanceof MovableCountIterator) {
 
-      NodeStatistics stats = new NodeStatistics();
+      s = new NodeStatistics();
       // set up initial values
-      stats.node = root.toString();
-      stats.nodeDocumentCount = 0;
-      stats.nodeFrequency = 0;
-      stats.maximumCount = 0;
+      s.node = root.toString();
+      s.nodeDocumentCount = 0;
+      s.nodeFrequency = 0;
+      s.maximumCount = 0;
 
       MovableCountIterator iterator = (MovableCountIterator) structIterator;
 
       while (!iterator.isDone()) {
         sc.document = iterator.currentCandidate();
         if (iterator.hasMatch(iterator.currentCandidate())) {
-          stats.nodeFrequency += iterator.count();
-          stats.maximumCount = Math.max(iterator.count(), stats.maximumCount);
-          stats.nodeDocumentCount++;
+          s.nodeFrequency += iterator.count();
+          s.maximumCount = Math.max(iterator.count(), s.maximumCount);
+          s.nodeDocumentCount++;
         }
         iterator.movePast(iterator.currentCandidate());
       }
 
-      return stats;
+      return s;
+    } else {
+      // otherwise :
+      throw new IllegalArgumentException("Node " + root.toString() + " is not a count iterator.");
     }
-    // otherwise :
-    throw new IllegalArgumentException("Node " + root.toString() + " is not a count iterator.");
+
+    if (cache!= null && cache.cacheStats) {
+      cache.addToCache(rootString, s);
+    }
+
+    return s;
   }
 
   @Override

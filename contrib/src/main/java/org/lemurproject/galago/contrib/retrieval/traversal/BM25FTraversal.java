@@ -3,8 +3,8 @@ package org.lemurproject.galago.contrib.retrieval.traversal;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
+import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;

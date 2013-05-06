@@ -1,39 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.prf;
 
-import gnu.trove.map.hash.TObjectIntHashMap;
-import gnu.trove.procedure.TObjectIntProcedure;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
-import org.lemurproject.galago.core.index.disk.DiskIndex;
-import org.lemurproject.galago.core.index.IndexPartReader;
-import org.lemurproject.galago.core.index.corpus.CorpusReader;
-import org.lemurproject.galago.core.index.corpus.DocumentReader;
-import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.core.parse.TagTokenizer;
-import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
-import org.lemurproject.galago.core.parse.stem.Stemmer;
-import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.util.TextPartAssigner;
-import org.lemurproject.galago.tupleflow.Parameters;
-
 /**
  *  * Implements the query expansion of BM25 as described in "Technique for
  * Efficient Query Expansion" by Billerbeck and Zobel. The weighting model
  * itself is called "Term Selection Value".
  *
  * 
- * sjh : could have issues, index structure has changed to include a corpus, should be modified to match.
+ * sjh : NEEDS A REWRITE: index structure has changed to include a corpus, should be modified to match.
  *
  * @author irmarc
  */
@@ -112,7 +86,7 @@ public class TermSelectionValueModel {}
 //    }
 //    
 //    // Finally, we need an iterator from the index for the doc. frequencies
-//    // For now we only take AggregateReader objects, which can report that number. Meaning we need
+//    // For now we only take AggregateStatistics objects, which can report that number. Meaning we need
 //    // a dummy text node to get the part assignment
 //    Node dummy = TextPartAssigner.assignPart(new Node("extents", "dummy"),
 //            retrieval.getGlobalParameters(), retrieval.getAvailableParts());

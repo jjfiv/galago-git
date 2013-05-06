@@ -25,7 +25,8 @@ import org.lemurproject.galago.tupleflow.Utility;
 public class XFoldLearner extends Learner {
 
   private int xfoldCount;
-  private Map<Integer, Parameters> foldParameters;
+  private Map<Integer, Parameters> foldTrainParameters;
+  private Map<Integer, Parameters> foldTestParameters;
   private Map<Integer, Learner> foldLearners;
   private Map<Integer, List<String>> trainQueryFolds;
   private Map<Integer, List<String>> testQueryFolds;
@@ -41,12 +42,13 @@ public class XFoldLearner extends Learner {
             || p.isString("xfoldLearner")) : this.getClass().getName() + " requires `xfoldLeaner' parameter, of type String";
 
     execute = p.get("execute", true);
-    
+
     // create one set of parameters (and learner) for each xfold.
     xfoldCount = (int) p.getLong("xfolds");
     trainQueryFolds = new HashMap(xfoldCount);
     testQueryFolds = new HashMap(xfoldCount);
-    foldParameters = new HashMap(xfoldCount);
+    foldTrainParameters = new HashMap(xfoldCount);
+    foldTestParameters = new HashMap(xfoldCount);
     foldLearners = new HashMap(xfoldCount);
 
     // randomize order of queries
@@ -60,23 +62,33 @@ public class XFoldLearner extends Learner {
       List<String> xfoldQueryNumbersInverse = new ArrayList(queryNumbers);
       xfoldQueryNumbersInverse.removeAll(xfoldQueryNumbers);
 
-      outputTraceStream.println(String.format("Fold: %d contains %d + %d = %d queries", foldId, xfoldQueryNumbers.size(), xfoldQueryNumbersInverse.size(), this.queries.queryIdentifiers.size()));
+      outputTraceStream.println(String.format("%s - Fold: %d contains %d + %d = %d queries", name, foldId, xfoldQueryNumbers.size(), xfoldQueryNumbersInverse.size(), this.queries.queryIdentifiers.size()));
 
       testQueryFolds.put(foldId, xfoldQueryNumbers);
       trainQueryFolds.put(foldId, xfoldQueryNumbersInverse);
 
       // create new learner for each fold
-      // use the train queries for the fold
       Parameters copy = p.clone();
-      copy.set("name", name + "-foldId-" + foldId);
-      copy.set("learner", p.get("xfoldLearner", "default")); // overwrite //
-      copy.remove("query");
-      copy.remove("queries");
-      copy.set("queries", queries.getParametersSubset(xfoldQueryNumbersInverse)); // overwrite //
-      foldParameters.put(foldId, copy);
 
       if (outputFolder != null) {
-        Utility.copyStringToFile(copy.toPrettyString(), new File(outputFolder, name + "-fold-" + foldId + ".json"));
+        // write the test queries for the fold to a file (allows random-testing of test-fold)
+        copy.set("name", name + "-foldId-" + foldId);
+        copy.set("learner", p.get("xfoldLearner", "default")); // overwrite //
+        copy.remove("query");
+        copy.remove("queries");
+        copy.set("queries", queries.getParametersSubset(xfoldQueryNumbers)); // overwrite //
+        Utility.copyStringToFile(copy.toPrettyString(), new File(outputFolder, name + "-test-fold-" + foldId + ".json"));
+      }
+
+      // write the train queries for the fold
+      copy.set("name", name + "-foldId-" + foldId);
+      copy.set("learner", p.get("xfoldLearner", "default")); // overwrite //
+      copy.remove("queries");
+      copy.set("queries", queries.getParametersSubset(xfoldQueryNumbersInverse)); // overwrite //
+      foldTrainParameters.put(foldId, copy);
+
+      if (outputFolder != null) {
+        Utility.copyStringToFile(copy.toPrettyString(), new File(outputFolder, name + "-train-fold-" + foldId + ".json"));
       }
 
       foldLearners.put(foldId, LearnerFactory.instance(copy, retrieval));
@@ -108,7 +120,7 @@ public class XFoldLearner extends Learner {
         double allScore = evaluateSpecificQueries(result, queryNumbers);
         result.setAnnotation("allScore", Double.toString(allScore));
 
-        this.outputPrintStream.println(result.toString());
+        this.outputPrintStream.println(result.toPrettyString());
 
         learntParams.add(result);
       }
@@ -128,7 +140,7 @@ public class XFoldLearner extends Learner {
       averageParams.setAnnotation("score", Double.toString(score));
       averageParams.setAnnotation("name", name + "-xfold-avg");
 
-      outputPrintStream.println(averageParams.toString());
+      outputPrintStream.println(averageParams.toPrettyString());
 
       return averageParams;
     } else {

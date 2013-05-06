@@ -6,8 +6,8 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.core.index.AggregateReader;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
+import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -131,8 +131,8 @@ public class MinimumCountConjunctionIterator extends ConjunctionIterator impleme
   public int getBestCollectionFrequency() {
     int cf = Integer.MAX_VALUE;
     for (int i = 0; i < iterators.length; i++) {
-      if (AggregateReader.NodeAggregateIterator.class.isAssignableFrom(iterators[i].getClass())) {
-        NodeStatistics ns = ((AggregateReader.NodeAggregateIterator) iterators[i]).getStatistics();
+      if (NodeAggregateIterator.class.isAssignableFrom(iterators[i].getClass())) {
+        NodeStatistics ns = ((NodeAggregateIterator) iterators[i]).getStatistics();
         int nf = (int) ns.nodeFrequency;
         if (nf < cf) {
           cf = nf;
@@ -146,8 +146,8 @@ public class MinimumCountConjunctionIterator extends ConjunctionIterator impleme
   public int getBestDocumentFrequency() {
     int df = Integer.MAX_VALUE;
     for (int i = 0; i < iterators.length; i++) {
-      if (AggregateReader.NodeAggregateIterator.class.isAssignableFrom(iterators[i].getClass())) {
-        NodeStatistics ns = ((AggregateReader.NodeAggregateIterator) iterators[i]).getStatistics();
+      if (NodeAggregateIterator.class.isAssignableFrom(iterators[i].getClass())) {
+        NodeStatistics ns = ((NodeAggregateIterator) iterators[i]).getStatistics();
         int nf = (int) ns.nodeDocumentCount;
         if (nf < df) {
           df = nf;

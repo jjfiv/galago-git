@@ -5,7 +5,9 @@ package org.lemurproject.galago.contrib.learning;
 
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Logger;
@@ -22,6 +24,7 @@ public class RetrievalModelParameters {
   private Logger logger;
   private TreeSet<String> names;
   private ParameterNormalizationRules normalizationRules;
+  private Map<String, Parameters> parameterSpecifics;
   private TObjectDoubleHashMap<String> maxValues;
   private TObjectDoubleHashMap<String> minValues;
   private TObjectDoubleHashMap<String> ranges;
@@ -29,12 +32,15 @@ public class RetrievalModelParameters {
   public RetrievalModelParameters(List<Parameters> learnableParameters, List<Parameters> rules) {
     this.logger = Logger.getLogger(this.getClass().getName());
     this.names = new TreeSet();
+    this.parameterSpecifics = new HashMap();
     this.maxValues = new TObjectDoubleHashMap();
     this.minValues = new TObjectDoubleHashMap();
     this.ranges = new TObjectDoubleHashMap();
 
     for (Parameters param : learnableParameters) {
       String name = param.getString("name");
+      this.parameterSpecifics.put(name, param);
+      
       double max, min, range;
       if (param.isDouble("max")) {
         max = param.getDouble("max");
@@ -105,5 +111,9 @@ public class RetrievalModelParameters {
 
   public int getCount() {
     return this.names.size();
+  }
+
+  public Parameters getParameterSpecifics(String name) {
+    return this.parameterSpecifics.get(name);
   }
 }

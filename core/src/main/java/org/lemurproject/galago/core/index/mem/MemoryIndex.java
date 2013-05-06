@@ -8,14 +8,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.lemurproject.galago.core.index.AggregateReader;
-import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.DynamicIndex;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
+import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
+import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
@@ -218,8 +218,8 @@ public class MemoryIndex implements DynamicIndex, Index {
   public IndexPartStatistics getIndexPartStatistics(String part) {
     if (parts.containsKey(part)) {
       IndexPartReader p = parts.get(part);
-      if (AggregateReader.AggregateIndexPart.class.isInstance(p)) {
-        return ((AggregateReader.AggregateIndexPart) p).getStatistics();
+      if (AggregateIndexPart.class.isInstance(p)) {
+        return ((AggregateIndexPart) p).getStatistics();
       }
       throw new IllegalArgumentException("Index part, " + part + ", does not store aggregated statistics.");
     }

@@ -31,7 +31,7 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  *
  * @author sjh
  */
-@InputClass(className = "org.lemurproject.galago.core.types.KeyValuePair")
+@InputClass(className = "org.lemurproject.galago.core.types.KeyValuePair", order = {"+key"})
 public class SplitBTreeKeyWriter implements Processor<KeyValuePair> {
 
   DiskBTreeWriter writer;

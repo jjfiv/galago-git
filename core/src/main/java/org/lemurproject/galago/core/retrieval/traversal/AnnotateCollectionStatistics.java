@@ -3,8 +3,8 @@ package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.io.IOException;
 import java.util.HashSet;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
+import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;

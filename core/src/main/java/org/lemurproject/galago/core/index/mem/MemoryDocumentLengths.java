@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.AggregateReader;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
+import org.lemurproject.galago.core.index.stats.CollectionStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
@@ -329,7 +329,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   private static class FieldLengthsIterator extends ValueIterator implements MovableCountIterator,
-          MovableLengthsIterator, AggregateReader.CollectionAggregateIterator {
+          MovableLengthsIterator, CollectionAggregateIterator {
 
     FieldLengthPostingList fieldLengths;
     int currDoc;

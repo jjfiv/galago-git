@@ -15,6 +15,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 public class ParameterNormalizationRules {
 
   public class Rule {
+
     public String mode; // sum, max, min
     public List<String> params;
     public double value;
@@ -27,13 +28,13 @@ public class ParameterNormalizationRules {
   }
   private List<Rule> rules;
 
-  public ParameterNormalizationRules(List<Parameters> rules){
+  public ParameterNormalizationRules(List<Parameters> rules) {
     this.rules = new ArrayList();
     for (Parameters rule : rules) {
       this.rules.add(new Rule(rule.getString("mode"), (List<String>) rule.getList("params"), rule.getDouble("value")));
     }
   }
-  
+
   /**
    * Applies a series rules to normalize parameter values - this function should
    * be applied before running queries - it will prevent values violating
@@ -49,6 +50,19 @@ public class ParameterNormalizationRules {
         double normalizer = rule.value / total;
         for (String p : rule.params) {
           settings.unsafeSet(p, settings.get(p) * normalizer);
+        }
+
+      } else if (rule.mode.startsWith("sum2")) { // rule: sums to value, unless the total is a negative number //
+        double total = 0.0;
+        for (String p : rule.params) {
+          total += settings.get(p);
+        }
+        
+        if (total > 0.0) {
+          double normalizer = rule.value / total;
+          for (String p : rule.params) {
+            settings.unsafeSet(p, settings.get(p) * normalizer);
+          }
         }
 
       } else if (rule.mode.startsWith("max")) {

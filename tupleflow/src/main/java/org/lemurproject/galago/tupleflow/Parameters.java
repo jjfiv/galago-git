@@ -589,7 +589,8 @@ public class Parameters implements Serializable {
   // Getters
   public Set<String> getKeys() {
     if (_backoff != null) {
-      Set<String> keys = this._backoff.getKeys();
+      // have to duplicate this list to get an AddAll function (immutable set)
+      Set<String> keys = new HashSet(this._backoff.getKeys());
       keys.addAll(_keys.keySet());
       return keys;
     }

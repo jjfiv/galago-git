@@ -14,7 +14,6 @@ import org.lemurproject.galago.core.eval.QuerySetJudgments;
 import org.lemurproject.galago.core.eval.QuerySetResults;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluator;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluatorFactory;
-import org.lemurproject.galago.core.retrieval.GroupRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -178,9 +177,6 @@ public abstract class Learner {
   protected double evaluate(RetrievalModelInstance instance) throws Exception {
     // check cache for previous evaluation
 
-    long start = 0;
-    long end = 0;
-
     String settingString = instance.toString();
     if (testedParameters.containsKey(settingString)) {
       return testedParameters.get(settingString);
@@ -188,31 +184,37 @@ public abstract class Learner {
 
     HashMap<String, ScoredDocument[]> resMap = new HashMap();
 
-    // ensure the global parameters contain the current settings.
+    // get the parameter settigns
     Parameters settings = instance.toParameters();
-    // this.retrieval.getGlobalParameters().copyFrom(settings);
 
+    long start = System.currentTimeMillis();
+    double count = 0;
     for (String number : this.queries.getQueryNumbers()) {
+      count += 1;
       Node root = this.queries.getNode(number).clone();
-      root = this.ensureSettings(root, settings);
 
-      root = transform(root, settings);
+      // ensure any specifics for this query
+      settings.setBackoff(this.queries.getParameters(number));
+
+      root = this.ensureSettings(root, settings);
+      root = this.retrieval.transformQuery(root, settings);
 
       //  need to add queryProcessing params some extra stuff to 'settings'
-      start = System.currentTimeMillis();
-      ScoredDocument[] scoredDocs = runQuery(root, settings);
-      end = System.currentTimeMillis();
+      ScoredDocument[] scoredDocs = this.retrieval.runQuery(root, settings);
 
       if (scoredDocs != null) {
         resMap.put(number, scoredDocs);
       }
     }
+    long end = System.currentTimeMillis();
+
+    double avgTime = (end - start) / (count);
 
     QuerySetResults results = new QuerySetResults(resMap);
     results.ensureQuerySet(queries.getQueryParameters());
     double r = evalFunction.evaluate(results, qrels);
 
-    outputTraceStream.println("Query run time: " + (end - start) + ", settings : " + settings.toString() + ", score : " + r);
+    outputTraceStream.println(String.format("QuerySet run time: %d (%.3f per query), settings : %s, score : %.5f", (end - start), avgTime, settings.toString(), r));
 
 
     // store score in cache for future reference
@@ -249,19 +251,26 @@ public abstract class Learner {
 
     for (String number : this.queries.getQueryNumbers()) {
       Node root1 = this.queries.getNode(number).clone();
-      this.retrieval.getGlobalParameters().copyFrom(settings1);
+
+      // ensure any query specific parameters are set
+      settings1.setBackoff(this.queries.getParameters(number));
+
       root1 = this.ensureSettings(root1, settings1);
       root1 = this.retrieval.transformQuery(root1, settings1);
       Set<String> cachableNodes1 = new HashSet();
       collectCachableNodes(root1, cachableNodes1);
 
       Node root2 = this.queries.getNode(number).clone();
-      this.retrieval.getGlobalParameters().copyFrom(settings2);
+
+      // ensure any query specific parameters are set
+      settings2.setBackoff(this.queries.getParameters(number));
+
       root2 = this.ensureSettings(root2, settings2);
       root2 = this.retrieval.transformQuery(root2, settings2);
       Set<String> cachableNodes2 = new HashSet();
       collectCachableNodes(root2, cachableNodes2);
 
+      // intersect these sets
       for (String nodeString : cachableNodes1) {
         if (cachableNodes2.contains(nodeString)) {
           cache.addNodeToCache(StructuredQuery.parse(nodeString));
@@ -275,25 +284,5 @@ public abstract class Learner {
       collectCachableNodes(child, nodeCache);
     }
     nodeCache.add(root.toString());
-  }
-
-  private Node transform(Node n, Parameters settings) throws Exception {
-    Node root;
-    if (this.retrieval instanceof GroupRetrieval && settings.isString("group")) {
-      root = ((GroupRetrieval) retrieval).transformQuery(n, settings, settings.getString("group"));
-    } else {
-      root = this.retrieval.transformQuery(n, settings);
-    }
-    return root;
-  }
-
-  private ScoredDocument[] runQuery(Node n, Parameters settings) throws Exception {
-    ScoredDocument[] res;
-    if (this.retrieval instanceof GroupRetrieval && settings.isString("group")) {
-      res = ((GroupRetrieval) retrieval).runQuery(n, settings, settings.getString("group"));
-    } else {
-      res = this.retrieval.runQuery(n, settings);
-    }
-    return res;
   }
 }

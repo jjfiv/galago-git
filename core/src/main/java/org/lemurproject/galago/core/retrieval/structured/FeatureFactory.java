@@ -83,6 +83,7 @@ public class FeatureFactory {
     StopStructureTraversal.class.getName(),
     StopWordTraversal.class.getName(),
     WeightedSequentialDependenceTraversal.class.getName(),
+    WeightedSequentialDependence2Traversal.class.getName(),
     SequentialDependenceTraversal.class.getName(),
     FullDependenceTraversal.class.getName(),
     ProximityDFRTraversal.class.getName(),
