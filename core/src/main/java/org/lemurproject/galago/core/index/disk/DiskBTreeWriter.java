@@ -102,7 +102,7 @@ public class DiskBTreeWriter extends BTreeWriter {
    */
   @Override
   public void add(IndexElement list) throws IOException {
-    if (prevKey.length > 0 && Utility.compare(prevKey, list.key()) < 0) {
+    if (prevKey.length > 0 && Utility.compare(prevKey, list.key()) > 0) {
       throw new IOException(String.format("Key %s, %s are out of order.", Utility.toString(prevKey), Utility.toString(list.key())));
     }
     if (list.key().length >= this.maxKeySize || list.key().length >= blockSize) {

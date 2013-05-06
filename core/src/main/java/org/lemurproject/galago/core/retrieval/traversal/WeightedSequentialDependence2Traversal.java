@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.index.stats.CollectionStatistics;
-import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
+import java.util.logging.Logger;
+import org.lemurproject.galago.core.index.stats.AggregateStatistic;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -15,96 +15,86 @@ import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Parameters.Type;
 
 /**
  * Weighted Sequential Dependency Model model is structurally similar to the
  * Sequential Dependency Model, however node weights are the linear combination
  * of some node features.
- * 
- *  (based on bendersky 2012)
  *
- * In particular the weight for a node "term" is determined to be:
- * weight("term") = unigram_constant + cf(term) * unigram_cf_lambda + df(term)
- * *unigram_df_lambda + wiki_title_cf(term) * unigram_wiki_lambda
+ * (based on bendersky 2012, uses fewer parameters)
  *
- * bigram weights are determined using a similar method.
+ * In particular the weight for a node "term" is determined as a linear
+ * combination of features:
  *
- * The constant and lambda values are tunable parameters of the model.
+ * Feature def for WSDM: <br>
+ * { <br>
+ * name : "1-gram" <br>
+ * tfFeature : [true | false] :: asserts [ tf or df ], (tf default) <br>
+ * group : "retrievalGroupName" :: missing or empty = default <br>
+ * part : "retrievalPartName" :: missing or empty = default <br>
+ * unigram : true|false :: can be used on unigrams <br>
+ * bigram : true|false :: can be used on bigrams <br>
+ * } <br>
  *
  * @author sjh
  */
 public class WeightedSequentialDependence2Traversal extends Traversal {
 
+  private static final Logger logger = Logger.getLogger("WSDM2");
   private Retrieval retrieval;
   private GroupRetrieval gRetrieval;
   private Parameters globalParams;
   private boolean defCombNorm;
   private boolean verbose;
-  private Map<String, Double> defUnigramWeights;
-  private Map<String, Double> defBigramWeights;
-  private String wikiGroup;
-  private String msnGroup;
-  private String goog1Part;
-  private String goog2Part;
-
+  private List<WSDMFeature> uniFeatures;
+  private List<WSDMFeature> biFeatures;
+  
   public WeightedSequentialDependence2Traversal(Retrieval retrieval) throws Exception {
     if (retrieval instanceof GroupRetrieval) {
       gRetrieval = (GroupRetrieval) retrieval;
     }
     this.retrieval = retrieval;
-
+    
     this.globalParams = retrieval.getGlobalParameters();
-
+    
     verbose = globalParams.get("verboseWSDM", false);
     defCombNorm = globalParams.get("norm", false);
-
-    if (gRetrieval != null) {
-      wikiGroup = globalParams.get("wikiTitleIndexGroup", (String) null);
-      msnGroup = globalParams.get("msnIndexGroup", (String) null);
-    }
-
-    // constructed by build-special-coll-background
-    goog1Part = globalParams.get("googleUnigramPart", (String) null);
-    goog2Part = globalParams.get("googleBigramPart", (String) null);
-
-    // parameters from local index
-    defUnigramWeights = new HashMap();
-    defUnigramWeights.put("uni-const", globalParams.get("uni-const", 0.8));
-    defUnigramWeights.put("uni-tf", globalParams.get("uni-tf", 0.0));
-    defUnigramWeights.put("uni-df", globalParams.get("uni-df", 0.0));
-
-    defBigramWeights = new HashMap();
-    defBigramWeights.put("bi-const", globalParams.get("bi-const", 0.1));
-    defBigramWeights.put("bi-tf", globalParams.get("bi-tf", 0.0));
-    defBigramWeights.put("bi-df", globalParams.get("bi-df", 0.0));
-
-    // parameters from various special information sources
-    if (goog1Part != null) {
-      defUnigramWeights.put("uni-google-tf", globalParams.get("uni-google-tf", 0.0));
-    }
-    if (goog2Part != null) {
-      defBigramWeights.put("bi-google-tf", globalParams.get("bi-google-tf", 0.0));
-    }
-
-    if (msnGroup != null) {
-      defUnigramWeights.put("uni-msn-tf", globalParams.get("uni-msn-tf", 0.0));
-      defBigramWeights.put("bi-msn-tf", globalParams.get("bi-msn-tf", 0.0));
-    }
-
-    if (wikiGroup != null) {
-      defUnigramWeights.put("uni-wt-tf", globalParams.get("uni-wt-tf", 0.0));
-      defBigramWeights.put("bi-wt-tf", globalParams.get("bi-wt-tf", 0.0));
+    
+    uniFeatures = new ArrayList();
+    biFeatures = new ArrayList();
+    
+    if (globalParams.isList("wsdmFeatures", Type.MAP)) {
+      for (Parameters f : (List<Parameters>) globalParams.getList("wsdmFeatures")) {
+        WSDMFeature wf = new WSDMFeature(f);
+        if (wf.unigram) {
+          uniFeatures.add(wf);
+        }
+        if (wf.bigram) {
+          biFeatures.add(wf);
+        }
+      }
+      
+    } else {
+      // default list of features: (using target collection only)
+      uniFeatures.add(new WSDMFeature("1-const", WSDMFeatureType.CONST));
+      uniFeatures.add(new WSDMFeature("1-tf", WSDMFeatureType.TF));
+      uniFeatures.add(new WSDMFeature("1-df", WSDMFeatureType.DF));
+      
+      biFeatures.add(new WSDMFeature("2-const", WSDMFeatureType.CONST));
+      biFeatures.add(new WSDMFeature("2-tf", WSDMFeatureType.TF));
+      biFeatures.add(new WSDMFeature("2-df", WSDMFeatureType.DF));
     }
   }
-
+  
   @Override
   public void beforeNode(Node original, Parameters queryParameters) throws Exception {
   }
-
+  
   @Override
   public Node afterNode(Node original, Parameters queryParams) throws Exception {
-    if (original.getOperator().equals("wsdm")) {
-
+    if (original.getOperator().equals("wsdm2")) {
+      
       NodeParameters np = original.getNodeParameters();
 
       // First check format - should only contain text node children
@@ -120,232 +110,257 @@ public class WeightedSequentialDependence2Traversal extends Traversal {
       NodeParameters newWeights = new NodeParameters();
       // i don't want normalization -- even though michael used some.
       newWeights.set("norm", defCombNorm);
-
-
+      
+      
       for (Node child : children) {
         String term = child.getDefaultParameter();
-
+        
         double weight = computeWeight(term, np, queryParams);
         newWeights.set(Integer.toString(newChildren.size()), weight);
         newChildren.add(child.clone());
       }
-
+      
       for (int i = 0; i < (children.size() - 1); i++) {
         ArrayList<Node> pair = new ArrayList();
         pair.add(new Node("extents", children.get(i).getDefaultParameter()));
         pair.add(new Node("extents", children.get(i + 1).getDefaultParameter()));
-
+        
         double weight = computeWeight(pair.get(0).getDefaultParameter(), pair.get(1).getDefaultParameter(), np, queryParams);
-
+        
         newWeights.set(Integer.toString(newChildren.size()), weight);
         newChildren.add(new Node("od", new NodeParameters(1), Node.cloneNodeList(pair)));
-
+        
         newWeights.set(Integer.toString(newChildren.size()), weight);
         newChildren.add(new Node("uw", new NodeParameters(8), Node.cloneNodeList(pair)));
       }
-
+      
       Node wsdm = new Node("combine", newWeights, newChildren, original.getPosition());
-
+      
       if (verbose) {
         System.err.println(wsdm.toPrettyString());
       }
-
+      
       return wsdm;
     } else {
       return original;
     }
   }
-
+  
   private double computeWeight(String term, NodeParameters np, Parameters queryParams) throws Exception {
 
-    // override default weights
-    Map<String, Double> featureWeights = new HashMap(defUnigramWeights.size());
-    for (String key : defUnigramWeights.keySet()) {
-      featureWeights.put(key, np.get(key, queryParams.get(key, this.defUnigramWeights.get(key))));
-    }
-
-    // start collecting feature values (should replace this spagetti code with feature-getters)
-    Map<String, Double> featureValues = new HashMap(defUnigramWeights.size());
-    featureValues.put("uni-const", 1.0);
-
-    // prepare node (will be used several times)
+    // we will probably need this for several features : 
     Node t = new Node("counts", term);
     t = TextPartAssigner.assignPart(t, queryParams, retrieval.getAvailableParts());
 
-    if ((featureWeights.get("uni-tf") != 0.0) || (featureWeights.get("uni-df") != 0.0)) {
-      NodeStatistics stats = retrieval.getNodeStatistics(t);
+    // feature value store
+    Map<WSDMFeature, Double> featureValues = new HashMap();
 
-      if (stats.nodeFrequency > 0) {
-        featureValues.put("uni-tf", Math.log(stats.nodeFrequency));
-        featureValues.put("uni-df", Math.log(stats.nodeDocumentCount));
-      } else {
-        featureValues.put("uni-tf", 0.0);
-        featureValues.put("uni-df", 0.0);
+    // tf/df comes from the same object - can be used  twice
+    Map<String, AggregateStatistic> localCache = new HashMap();
+
+    // NOW : collect some feature values
+    Node node;
+    NodeStatistics featureStats;
+    String cacheString;
+    
+    for (WSDMFeature f : uniFeatures) {
+      switch (f.type) {
+        case CONST:
+          assert (!featureValues.containsKey(f));
+          featureValues.put(f, 1.0);
+          break;
+        
+        case TF:
+          assert (!featureValues.containsKey(f));
+          node = t;
+          if (!f.part.isEmpty()) {
+            node = t.clone();
+            node.getNodeParameters().set("part", f.part);
+          }
+          cacheString = node.toString() + "-" + f.group;
+          
+          if (localCache.containsKey(cacheString)) {
+            featureStats = (NodeStatistics) localCache.get(cacheString);
+          } else if (!f.group.isEmpty()) {
+            featureStats = gRetrieval.getNodeStatistics(node, f.group);
+            localCache.put(cacheString, featureStats);
+          } else {
+            featureStats = this.retrieval.getNodeStatistics(node);
+            localCache.put(cacheString, featureStats);
+          }
+          
+          featureValues.put(f, Math.log(featureStats.nodeFrequency));
+          
+          break;
+        
+        case DF:
+          assert (!featureValues.containsKey(f));
+          node = t;
+          if (!f.part.isEmpty()) {
+            node = t.clone();
+            node.getNodeParameters().set("part", f.part);
+          }
+          cacheString = node.toString() + "-" + f.group;
+          
+          if (localCache.containsKey(cacheString)) {
+            featureStats = (NodeStatistics) localCache.get(cacheString);
+          } else if (!f.group.isEmpty()) {
+            featureStats = gRetrieval.getNodeStatistics(node, f.group);
+            localCache.put(cacheString, featureStats);
+          } else {
+            featureStats = this.retrieval.getNodeStatistics(node);
+            localCache.put(cacheString, featureStats);
+          }
+          
+          featureValues.put(f, Math.log(featureStats.nodeDocumentCount));
+          
+          break;
       }
     }
-
-    // google-uni-grams
-    if (goog1Part != null && featureWeights.get("uni-google-tf") != 0.0) {
-      t.getNodeParameters().set("part", goog1Part);
-      NodeStatistics stats = retrieval.getNodeStatistics(t);
-
-      if (stats.nodeFrequency > 0) {
-        featureValues.put("uni-google-tf", Math.log(stats.nodeFrequency));
-      } else {
-        featureValues.put("uni-google-tf", 0.0);
-      }
-    }
-
-    // wiki group
-    if (wikiGroup != null && featureWeights.get("uni-wt-tf") != 0.0) {
-      Node wt = new Node("counts", term);
-      wt = TextPartAssigner.assignPart(wt, queryParams, gRetrieval.getAvailableParts(wikiGroup));
-      NodeStatistics stats = gRetrieval.getNodeStatistics(wt, wikiGroup);
-
-      if (stats.nodeFrequency > 0) {
-        featureValues.put("uni-wt-tf", Math.log(stats.nodeFrequency));
-      } else {
-        featureValues.put("uni-wt-tf", 0.0);
-      }
-    }
-
-    // msn group
-    if (msnGroup != null && featureWeights.get("uni-msn-tf") != 0.0) {
-      Node mt = new Node("counts", term);
-      mt = TextPartAssigner.assignPart(mt, queryParams, gRetrieval.getAvailableParts(msnGroup));
-      NodeStatistics stats = gRetrieval.getNodeStatistics(mt, msnGroup);
-
-      if (stats.nodeFrequency > 0) {
-        featureValues.put("uni-msn-tf", Math.log(stats.nodeFrequency));
-      } else {
-        featureValues.put("uni-msn-tf", 0.0);
-      }
-    }
-
+    
     double weight = 0.0;
-
-    for (String feature : featureValues.keySet()) {
-      weight += featureValues.get(feature) * featureWeights.get(feature);
+    for (WSDMFeature f : uniFeatures) {
+      double lambda = np.get(f.name, queryParams.get(f.name, f.defLambda));
+      weight += lambda * featureValues.get(f);
     }
-
-    if (verbose) {
-      System.err.println(term);
-      for (String feature : featureValues.keySet()) {
-        System.err.println("\t" + feature + "\t" + featureValues.get(feature) + "\t" + featureWeights.get(feature));
-      }
-      System.err.println("\n");
-    }
+    
     return weight;
   }
-
+  
   private double computeWeight(String term1, String term2, NodeParameters np, Parameters queryParams) throws Exception {
-
-    // override default weights
-    Map<String, Double> featureWeights = new HashMap(defBigramWeights.size());
-    for (String key : defBigramWeights.keySet()) {
-      featureWeights.put(key, np.get(key, queryParams.get(key, this.defBigramWeights.get(key))));
-    }
-
-    // start collecting feature values (should replace this spagetti code with feature-getters)
-    Map<String, Double> featureValues = new HashMap(defUnigramWeights.size());
-    featureValues.put("bi-const", 1.0);
 
     // prepare nodes (will be used several times)
     Node t1 = new Node("extents", term1);
     t1 = TextPartAssigner.assignPart(t1, queryParams, retrieval.getAvailableParts());
     Node t2 = new Node("extents", term2);
     t2 = TextPartAssigner.assignPart(t2, queryParams, retrieval.getAvailableParts());
+    
+    Node od1 = new Node("ordered");
+    od1.getNodeParameters().set("default", 1);
+    od1.addChild(t1);
+    od1.addChild(t2);
 
-    Node od = new Node("ordered");
-    od.getNodeParameters().set("default", 1);
-    od.addChild(t1);
-    od.addChild(t2);
-    od = retrieval.transformQuery(od, new Parameters());
+    // feature value store
+    Map<WSDMFeature, Double> featureValues = new HashMap();
 
-    if ((featureWeights.get("bi-tf") != 0.0)
-            || (featureWeights.get("bi-df") != 0.0)) {
-      NodeStatistics stats = retrieval.getNodeStatistics(od);
+    // tf/df comes from the same object - can be used  twice
+    Map<String, AggregateStatistic> localCache = new HashMap();
 
-      if (stats.nodeFrequency > 0) {
-        featureValues.put("bi-tf", Math.log(stats.nodeFrequency));
-        featureValues.put("bi-df", Math.log(stats.nodeDocumentCount));
-      } else {
-        featureValues.put("bi-tf", 0.0);
-        featureValues.put("bi-df", 0.0);
+    // NOW : collect some feature values
+    Node node;
+    NodeStatistics featureStats;
+    String cacheString;
+    
+    for (WSDMFeature f : uniFeatures) {
+      switch (f.type) {
+        case CONST:
+          assert (!featureValues.containsKey(f));
+          featureValues.put(f, 1.0);
+          break;
+        
+        case TF:
+          assert (!featureValues.containsKey(f));
+          node = od1;
+          if (!f.part.isEmpty()) {
+            node = od1.clone();
+            node.getChild(0).getNodeParameters().set("part", f.part);
+            node.getChild(1).getNodeParameters().set("part", f.part);
+          }
+          // f.group is "" or some particular group
+          cacheString = node.toString() + "-" + f.group;
+
+          // first check if we have already done this node.
+          if (localCache.containsKey(cacheString)) {
+            featureStats = (NodeStatistics) localCache.get(cacheString);
+          } else if (!f.group.isEmpty()) {
+            featureStats = gRetrieval.getNodeStatistics(node, f.group);
+            localCache.put(cacheString, featureStats);
+          } else {
+            featureStats = this.retrieval.getNodeStatistics(node);
+            localCache.put(cacheString, featureStats);
+          }
+          
+          featureValues.put(f, Math.log(featureStats.nodeFrequency));
+          
+          break;
+        
+        case DF:
+          assert (!featureValues.containsKey(f));
+          node = od1;
+          if (!f.part.isEmpty()) {
+            node = od1.clone();
+            node.getChild(0).getNodeParameters().set("part", f.part);
+            node.getChild(1).getNodeParameters().set("part", f.part);
+          }
+          cacheString = node.toString() + "-" + f.group;
+          
+          if (localCache.containsKey(cacheString)) {
+            featureStats = (NodeStatistics) localCache.get(cacheString);
+          } else if (!f.group.isEmpty()) {
+            featureStats = gRetrieval.getNodeStatistics(node, f.group);
+            localCache.put(cacheString, featureStats);
+          } else {
+            featureStats = this.retrieval.getNodeStatistics(node);
+            localCache.put(cacheString, featureStats);
+          }
+          
+          featureValues.put(f, Math.log(featureStats.nodeDocumentCount));
+          
+          break;
       }
     }
-
-    // google-bi-grams
-    if (goog2Part != null
-            && (featureWeights.get("bi-google-tf") != 0.0)) {
-
-      Node t = new Node("counts", term1 + "~" + term2);
-      t.getNodeParameters().set("part", goog2Part);
-      NodeStatistics stats = retrieval.getNodeStatistics(t);
-
-      if (stats.nodeFrequency > 0) {
-        featureValues.put("bi-google-tf", Math.log(stats.nodeFrequency));
-      } else {
-        featureValues.put("bi-google-tf", 0.0);
-      }
-    }
-
-    // wiki group
-    if (wikiGroup != null
-            && (featureWeights.get("bi-wt-tf") != 0.0)) {
-
-      t1 = new Node("extents", term1);
-      t1 = TextPartAssigner.assignPart(t1, queryParams, gRetrieval.getAvailableParts(wikiGroup));
-      t2 = new Node("extents", term2);
-      t2 = TextPartAssigner.assignPart(t2, queryParams, gRetrieval.getAvailableParts(wikiGroup));
-      Node wt = new Node("ordered");
-      wt.getNodeParameters().set("default", 1);
-      wt.addChild(t1);
-      wt.addChild(t2);
-
-      NodeStatistics stats = gRetrieval.getNodeStatistics(wt, wikiGroup);
-
-      if (stats.nodeFrequency > 0) {
-        featureValues.put("bi-wt-tf", Math.log(stats.nodeFrequency));
-      } else {
-        featureValues.put("bi-wt-tf", 0.0);
-      }
-    }
-
-    // msn group
-    if (msnGroup != null && featureWeights.get("bi-msn-tf") != 0.0) {
-      t1 = new Node("extents", term1);
-      t1 = TextPartAssigner.assignPart(t1, queryParams, gRetrieval.getAvailableParts(msnGroup));
-      t2 = new Node("extents", term2);
-      t2 = TextPartAssigner.assignPart(t2, queryParams, gRetrieval.getAvailableParts(msnGroup));
-      Node mt = new Node("ordered");
-      mt.getNodeParameters().set("default", 1);
-      mt.addChild(t1);
-      mt.addChild(t2);
-      mt = gRetrieval.transformQuery(od, new Parameters(), msnGroup);
-
-      NodeStatistics stats = gRetrieval.getNodeStatistics(mt, msnGroup);
-
-      if (stats.nodeFrequency > 0) {
-        featureValues.put("bi-msn-tf", Math.log(stats.nodeFrequency));
-      } else {
-        featureValues.put("bi-msn-tf", 0.0);
-      }
-    }
-
+    
     double weight = 0.0;
-
-    for (String feature : featureValues.keySet()) {
-      weight += featureValues.get(feature) * featureWeights.get(feature);
+    for (WSDMFeature f : uniFeatures) {
+      double lambda = np.get(f.name, queryParams.get(f.name, f.defLambda));
+      weight += lambda * featureValues.get(f);
     }
-
-    if (verbose) {
-      System.err.println(term1 + " ~ " + term2);
-      for (String feature : featureValues.keySet()) {
-        System.err.println("\t" + feature + "\t" + featureValues.get(feature) + "\t" + featureWeights.get(feature));
-      }
-      System.err.println("\n");
-    }
+    
     return weight;
+  }
+  
+  public static enum WSDMFeatureType {
+    
+    TF, DF, CONST;
+  }
+
+  /*
+   * Features for WSDM: 
+   *  name : "1-gram" 
+   *  tfFeature : [true | false] :: asserts [ tf or df ], (tf default)
+   *  group : "retrievalGroupName" :: missing or empty = default 
+   *  part : "retrievalPartName" :: missing or empty = default
+   *  unigram : true|false :: can be used on unigrams
+   *  bigram : true|false :: can be used on bigrams
+   */
+  public static class WSDMFeature {
+    
+    public String name;
+    public WSDMFeatureType type; // [tf | df | const] -- others may be supported later
+    public String group;
+    public String part;
+    public double defLambda;
+    // mutually exclusive unigram/bigram
+    public boolean unigram;
+    public boolean bigram;
+    
+    public WSDMFeature(Parameters p) {
+      this.name = p.getString("name");
+      this.type = WSDMFeatureType.valueOf(p.get("type", "tf").toUpperCase());
+      this.defLambda = p.get("lambda", 0.0);
+      this.group = p.get("group", "");
+      this.part = p.get("part", "");
+      this.unigram = p.get("unigram", true);
+      this.bigram = p.get("bigram", false);
+      assert (this.unigram ^ this.bigram) : "either unigram or bigram, but not both.";
+    }
+
+    /*
+     * Constructor to allow default list of features
+     */
+    public WSDMFeature(String name, WSDMFeatureType type) {
+      this.name = name;
+      this.type = type;
+    }
   }
 }
