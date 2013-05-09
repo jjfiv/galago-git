@@ -262,5 +262,6 @@ public class ThreadedCheckpointedStageExecutor extends CheckpointedStageExecutor
 
   @Override
   public void shutdown() {
+    threadPool.shutdown();
   }
 }
