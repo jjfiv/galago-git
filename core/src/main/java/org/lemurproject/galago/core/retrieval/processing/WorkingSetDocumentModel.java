@@ -4,12 +4,12 @@ package org.lemurproject.galago.core.retrieval.processing;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -66,7 +66,7 @@ public class WorkingSetDocumentModel extends ProcessingModel {
     boolean annotate = queryParams.get("annotate", false);
 
     // now there should be an iterator at the root of this tree
-    PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>();
+    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
     for (int i = 0; i < whitelist.size(); i++) {
       int document = whitelist.get(i);
@@ -80,10 +80,7 @@ public class WorkingSetDocumentModel extends ProcessingModel {
         if (annotate) {
           scoredDocument.annotation = iterator.getAnnotatedNode();
         }
-        queue.add(scoredDocument);
-        if (requested > 0 && queue.size() > requested) {
-          queue.poll();
-        }
+        queue.offer(scoredDocument);
       }
     }
     return toReversedArray(queue);

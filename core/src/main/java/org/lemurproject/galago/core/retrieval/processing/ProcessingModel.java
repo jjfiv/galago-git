@@ -9,6 +9,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.disk.FieldLengthsReader;
@@ -17,6 +18,7 @@ import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
+import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 
 /**
  * An interface that defines the contract for processing a query. There's one
@@ -42,6 +44,21 @@ public abstract class ProcessingModel {
       // set rank attributes here
       items[i].rank = i + 1;
     }
+    return items;
+  }
+
+  public static <T extends ScoredDocument> T[] toReversedArray(FixedSizeMinHeap<T> queue) {
+    if (queue.size() == 0) {
+      return null;
+    }
+
+    T[] items = queue.getSortedArray();
+    int r = 1;
+    for (T i : items) {
+      i.rank = r;
+      r++;
+    }
+
     return items;
   }
 

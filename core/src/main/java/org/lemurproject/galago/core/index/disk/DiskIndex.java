@@ -50,6 +50,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class DiskIndex implements Index {
 
+  private final Logger logger = Logger.getLogger("DiskIndex");
   protected File location;
   protected Parameters manifest = new Parameters();
   protected LengthsReader lengthsReader = null;
@@ -71,12 +72,21 @@ public class DiskIndex implements Index {
     // Initialize these now b/c they're so common
     if (parts.containsKey("lengths")) {
       lengthsReader = (DiskLengthsReader) parts.get("lengths");
+    } else {
+      logger.warning("Index does not contain a lengths part.");
     }
     if (parts.containsKey("names")) {
       namesReader = (DiskNameReader) parts.get("names");
+    } else {
+      logger.warning("Index does not contain a names part.");
+    }
+
+    if (parts.size() < 3) {
+      logger.warning("Index contains fewer than 3 parts:- this index might not be compatible with this version.");
     }
 
     initializeIndexOperators();
+
   }
 
   public DiskIndex(String indexPath) throws IOException {
@@ -92,9 +102,17 @@ public class DiskIndex implements Index {
     // Initialize these now b/c they're so common
     if (parts.containsKey("lengths")) {
       lengthsReader = (DiskLengthsReader) parts.get("lengths");
+    } else {
+      logger.warning("Index does not contain a lengths part.");
     }
     if (parts.containsKey("names")) {
       namesReader = (DiskNameReader) parts.get("names");
+    } else {
+      logger.warning("Index does not contain a names part.");
+    }
+
+    if (parts.size() < 3) {
+      logger.warning("Index contains fewer than 3 parts:- this index might not be compatible with this version.");
     }
 
     initializeIndexOperators();
@@ -333,7 +351,7 @@ public class DiskIndex implements Index {
       }
       throw new IllegalArgumentException("Index part, " + part + ", does not store aggregated statistics.");
     }
-    throw new IllegalArgumentException("Index part, " + part + ", could not be found in index, " + this.location.getAbsolutePath() );
+    throw new IllegalArgumentException("Index part, " + part + ", could not be found in index, " + this.location.getAbsolutePath());
   }
 
   @Override
@@ -370,9 +388,9 @@ public class DiskIndex implements Index {
         return corpus.getDocument(docId, p);
       } catch (Exception e) {
         // ignore the exception
-        Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, 
-							"Failed to get document: {0}\n{1}", 
-							new Object[]{document, e.toString()});
+        Logger.getLogger(this.getClass().getName()).log(Level.SEVERE,
+                "Failed to get document: {0}\n{1}",
+                new Object[]{document, e.toString()});
       }
     }
     return null;

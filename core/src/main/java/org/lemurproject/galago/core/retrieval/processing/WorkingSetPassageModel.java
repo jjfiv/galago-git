@@ -4,7 +4,6 @@ package org.lemurproject.galago.core.retrieval.processing;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -13,6 +12,7 @@ import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -82,7 +82,7 @@ public class WorkingSetPassageModel extends ProcessingModel {
             StructuredQuery.parse("#lengths:part=lengths()"),
             context);
 
-    PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
+    FixedSizeMinHeap<ScoredPassage> queue = new FixedSizeMinHeap(ScoredPassage.class, requested, new ScoredPassage.ScoredPassageComparator());
 
     // now there should be an iterator at the root of this tree
     for (int i = 0; i < whitelist.size(); i++) {
@@ -116,10 +116,7 @@ public class WorkingSetPassageModel extends ProcessingModel {
             if (annotate) {
               scored.annotation = iterator.getAnnotatedNode();
             }
-            queue.add(scored);
-            if (requested > 0 && queue.size() > requested) {
-              queue.poll();
-            }
+            queue.offer(scored);
           }
         }
 

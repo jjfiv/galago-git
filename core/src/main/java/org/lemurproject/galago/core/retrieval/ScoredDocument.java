@@ -2,6 +2,7 @@
 package org.lemurproject.galago.core.retrieval;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -54,7 +55,7 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
   }
 
   public String toString(String qid) {
-    return String.format("%s Q0 %s %d %s galago", qid, documentName, rank,  formatScore(score));
+    return String.format("%s Q0 %s %d %s galago", qid, documentName, rank, formatScore(score));
   }
 
   public String toTRECformat(String qid) {
@@ -68,5 +69,20 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
       return Integer.toString((int) score);
     }
     return String.format("%10.8f", score);
+  }
+
+  public static class ScoredDocumentComparator implements Comparator<ScoredDocument> {
+
+    @Override
+    public int compare(ScoredDocument o1, ScoredDocument o2) {
+      if (o1.score != o2.score) {
+        return Utility.compare(o1.score, o2.score);
+      }
+      if ((o1.source != null) && (o2.source != null)
+              && (!o1.source.equals(o2.source))) {
+        return o1.source.compareTo(o2.source);
+      }
+      return o2.document - o1.document;
+    }
   }
 }

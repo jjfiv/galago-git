@@ -1,10 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -13,6 +9,7 @@ import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -54,7 +51,7 @@ public class RankedPassageModel extends ProcessingModel {
             (MovableLengthsIterator) retrieval.createIterator(new Parameters(),
             StructuredQuery.parse("#lengths:part=lengths()"), context);
 
-    PriorityQueue<ScoredPassage> queue = new PriorityQueue<ScoredPassage>(requested);
+    FixedSizeMinHeap<ScoredPassage> queue = new FixedSizeMinHeap(ScoredPassage.class, requested, new ScoredPassage.ScoredPassageComparator());
 
     // now there should be an iterator at the root of this tree
     while (!iterator.isDone()) {
@@ -86,10 +83,7 @@ public class RankedPassageModel extends ProcessingModel {
           double score = iterator.score();
           if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
             ScoredPassage scored = new ScoredPassage(document, score, context.begin, context.end);
-            queue.add(scored);
-            if (requested > 0 && queue.size() > requested) {
-              queue.poll();
-            }
+            queue.offer(scored);
           }
         }
 
