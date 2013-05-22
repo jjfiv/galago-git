@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.BadOperatorException;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -35,7 +34,7 @@ public class FeatureFactory {
     {SynonymIterator.class.getName(), "syn"},
     {SynonymIterator.class.getName(), "synonym"},
     {ExtentInsideIterator.class.getName(), "inside"},
-    {MinimumCountConjunctionIterator.class.getName(), "mincount"},
+    {MinCountIterator.class.getName(), "mincount"},
     {OrderedWindowIterator.class.getName(), "ordered"},
     {OrderedWindowIterator.class.getName(), "od"},
     {OrderedWindowIterator.class.getName(), "quote"}, // don't rely on this - ImplicitFeatureCast does: quote -> od:1 for now. (irmarc)
@@ -63,7 +62,6 @@ public class FeatureFactory {
   };
   static String[][] sFeatureLookup = {
     {DirichletScoringIterator.class.getName(), "dirichlet"},
-    {EstimatedDirichletScoringIterator.class.getName(), "dirichlet-est"},
     {JelinekMercerScoringIterator.class.getName(), "linear"},
     {JelinekMercerScoringIterator.class.getName(), "jm"},
     {BM25ScoringIterator.class.getName(), "bm25"},

@@ -78,7 +78,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
    * Returns an iterator pointing at the specified term, or null if the term
    * doesn't exist in the inverted file.
    */
-  private MinCountIterator getTermCounts(byte[] key) throws IOException {
+  public MinCountIterator getTermCounts(byte[] key) throws IOException {
     ByteArrayOutputStream array;
     VByteOutput stream;
     TermCountIterator[] rowIterators = new TermCountIterator[depth];
@@ -102,7 +102,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     return new MinCountIterator(np, rowIterators);
   }
 
-  private MinCountIterator getTermCounts(String term) throws IOException {
+  public MinCountIterator getTermCounts(String term) throws IOException {
     return getTermCounts(Utility.fromString(stemAsRequired(term)));
   }
 

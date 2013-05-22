@@ -69,6 +69,7 @@ public class UniversalStringHashFunction {
   private final BigInteger a2;
   private final BigInteger b2;
   private final BigInteger w;
+  private final int bits;
 
   public UniversalStringHashFunction(double errorCount, BigInteger p1, BigInteger p2, BigInteger a1, BigInteger a2, BigInteger b2, BigInteger w) {
     this.errorCount = errorCount;
@@ -78,6 +79,7 @@ public class UniversalStringHashFunction {
     this.a2 = a2;
     this.b2 = b2;
     this.w = w;
+    this.bits = (int) Math.ceil(Math.log(w.longValue()) / Math.log(2));
   }
 
   public UniversalStringHashFunction(Parameters p) {
@@ -88,6 +90,7 @@ public class UniversalStringHashFunction {
     this.a2 = new BigInteger(p.getString("a2"));
     this.b2 = new BigInteger(p.getString("b2"));
     this.w = new BigInteger(p.getString("w"));
+    this.bits = (int) Math.ceil(Math.log(w.longValue()) / Math.log(2));
   }
 
   public Parameters toParameters() {
@@ -99,13 +102,14 @@ public class UniversalStringHashFunction {
     p.set("a2", a2.toString());
     p.set("b2", b2.toString());
     p.set("w", w.toString());
+    p.set("bits", bits);
     return p;
   }
 
-  public long hash(String data){
+  public long hash(String data) {
     return hash(Utility.fromString(data));
   }
-  
+
   public long hash(byte[] data) {
     BigInteger out = BigInteger.ZERO;
     BigInteger xi;
@@ -146,7 +150,7 @@ public class UniversalStringHashFunction {
       UniversalStringHashFunction hf = UniversalStringHashFunction.generate(collectionLength, universe, errorCount, new Random());
       depth = (int) hf.getWidth();
       hfs[r] = hf;
-      
+
       System.err.println(hf.toParameters().toPrettyString());
     }
 
@@ -154,16 +158,16 @@ public class UniversalStringHashFunction {
 
     for (int item = 0; item < collectionLength; item++) {
       for (int r = 0; r < rows; r++) {
-        int hash_value = (int) hfs[r].hash( Utility.fromString(Integer.toString(item)) );
+        int hash_value = (int) hfs[r].hash(Utility.fromString(Integer.toString(item)));
         data[r][hash_value] += 1;
       }
     }
-    
+
     for (int item = 0; item < collectionLength; item++) {
       long est = collectionLength * 2;
       StringBuilder vals = new StringBuilder();
       for (int r = 0; r < rows; r++) {
-        int hash_value = (int) hfs[r].hash( Utility.fromString(Integer.toString(item)) );
+        int hash_value = (int) hfs[r].hash(Utility.fromString(Integer.toString(item)));
         est = Math.min(est, data[r][hash_value]);
         vals.append(" ").append(data[r][hash_value]);
       }
