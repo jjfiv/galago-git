@@ -40,7 +40,12 @@ public class InsertLengthsTraversal extends Traversal {
     }
 
     NodeType nt = retrieval.getNodeType(node);
-
+    
+    // if we're doing something special -- don't insert a length.
+    if(nt == null){
+      return node;
+    }
+    
     Constructor cons = nt.getConstructor();
     Class[] params = cons.getParameterTypes();
 
