@@ -102,8 +102,7 @@ public class Eval extends AppFunction {
             + "       Significant differences are computed relative to the first run.\n"
             + "       '*' indicates runs that are significantly different.\n"
             + "       Only the first comparison method is shown in the table.\n"
-            + "\n"
-            ;
+            + "\n";
   }
 
   @Override
@@ -250,17 +249,19 @@ public class Eval extends AppFunction {
         }
         output.format("%s\n", ln);
       }
-      output.format("\nSig-Test: %s, threshold set to %f\n", comparisons.get(0), thresh);
-      if (comparisons.size() > 1) {
-        output.format("Other tests, computed, but not reported here: ");
-        for (int testId = 1; testId < comparisons.size(); testId++) {
-          if (testId > 1) {
-            output.format(", %s", comparisons.get(testId));
-          } else {
-            output.format("%s", comparisons.get(testId));
+      if (comparisons.size() > 0) {
+        output.format("\nSig-Test: %s, threshold set to %f\n", comparisons.get(0), thresh);
+        if (comparisons.size() > 1) {
+          output.format("Other tests, computed, but not reported here: ");
+          for (int testId = 1; testId < comparisons.size(); testId++) {
+            if (testId > 1) {
+              output.format(", %s", comparisons.get(testId));
+            } else {
+              output.format("%s", comparisons.get(testId));
+            }
           }
+          output.format("\n");
         }
-        output.format("\n");
       }
     }
   }
@@ -392,8 +393,11 @@ public class Eval extends AppFunction {
     String[] tests = new String[]{"ttest"};
 
     // override default list if specified:
-    if (p.containsKey("comparisons")) {
+    if (p.isList("comparisons", Type.STRING)) {
       tests = (String[]) p.getAsList("comparisons").toArray(new String[0]);
+    } else if (p.isBoolean("comparisons") && !p.getBoolean("comparisons")) {
+      // allow the comparisons to be turned off.
+      tests = new String[0];
     }
     // get the test used
 
