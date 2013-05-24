@@ -116,7 +116,7 @@ public class Eval extends AppFunction {
     assert (!p.containsKey("details") || p.isBoolean("details")) : "eval parameter 'details' must be a boolean.";
     assert (!p.containsKey("metrics") || p.isList("metrics", Type.STRING)) : "eval parameter 'metrics' must be a list of strings.";
     assert (p.get("summary", true) || p.get("details", false)) : "eval requires either 'summary' or 'details' to be set true.";
-    assert (!p.containsKey("comparisons") || p.isList("comparisons", Type.STRING)) : "eval parameter 'comparisons' must be a list of strings.";
+    assert (!p.containsKey("comparisons") || p.isList("comparisons", Type.STRING) || p.isBoolean("comparisons")) : "eval parameter 'comparisons' must be a list of strings, or a boolean to turn it off (set only)";
 
     boolean binaryJudgments = p.get("binary", false);
     boolean positiveJudgments = p.get("postive", true);
