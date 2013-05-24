@@ -390,7 +390,7 @@ public class Eval extends AppFunction {
       metrics = (String[]) p.getAsList("metrics").toArray(new String[0]);
     }
 
-    String[] tests = new String[]{"ttest"};
+    String[] tests = new String[]{"randomized"};
 
     // override default list if specified:
     if (p.isList("comparisons", Type.STRING)) {
