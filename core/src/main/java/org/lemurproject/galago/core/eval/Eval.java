@@ -241,7 +241,7 @@ public class Eval extends AppFunction {
         output.format("%1$-30s", runId);
         Parameters r = eval.getMap("all").getMap(runId);
         for (String metric : metrics) {
-          if (r.getDouble(metric + "-" + comparisons.get(0)) < thresh) {
+          if (comparisons.size() > 0 && r.getDouble(metric + "-" + comparisons.get(0)) < thresh) {
             output.format("%1s%2$10.4f%3$1s", sep, r.getDouble(metric), sig);
           } else {
             output.format("%1s%2$10.4f%3$1s", sep, r.getDouble(metric), "");
