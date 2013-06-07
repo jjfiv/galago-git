@@ -97,7 +97,7 @@ public abstract class Learner {
     assert (p.isList("learnableParameters", Type.MAP)) : this.getClass().getName() + " requires `learnableParameters' parameter, of type List<Map>.";
     assert (!p.containsKey("normalization") || (p.isMap("normalization") || p.isList("normalization", Type.MAP))) : this.getClass().getName() + " requires `normalization' parameter to be of type List<Map>.";
 
-    queries = new QuerySet(BatchSearch.collectQueries(p));
+    queries = new QuerySet(BatchSearch.collectQueries(p), p);
     assert !queries.isEmpty() : this.getClass().getName() + " requires `queries' parameter, of type List(Parameters): see Batch-Search for an example.";
 
     boolean binaryJudgments = p.get("binary", false);

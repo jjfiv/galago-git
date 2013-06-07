@@ -26,7 +26,7 @@ public class QuerySet {
   protected TreeMap<String, Node> queryNodes;
   protected TreeMap<String, Parameters> queryParams;
 
-  public QuerySet(List<Parameters> queries) {
+  public QuerySet(List<Parameters> queries, Parameters globalBackoff) {
     queryIdentifiers = new TreeSet<String>();
     queryTexts = new TreeMap<String, String>();
     queryNodes = new TreeMap<String, Node>();
@@ -35,6 +35,7 @@ public class QuerySet {
     logger = Logger.getLogger(this.getClass().getName());
 
     for (Parameters q : queries) {
+      q.setFinalBackoff(globalBackoff);
       String qnum = q.getString("number");
       if (queryIdentifiers.contains(qnum)) {
         logger.info("Ingoring duplicated query: number: " + qnum + "\t" + q.toString());
