@@ -18,7 +18,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * Coordinate ascent learning algorithm.
  *
  * This class implements the linear ranking model known as Coordinate Ascent. It
- * was proposed in this paper: D. Metzler and W.B. Croft. Linear feature-based
+ * was originally proposed in this paper: D. Metzler and W.B. Croft. Linear feature-based
  * models for information retrieval. Information Retrieval, 10(3): 257-274,
  * 2000.
  *
@@ -32,7 +32,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 public class CoordinateAscentLearner extends Learner {
   // this is the max step size
 
-  private static final double MAX_STEP = Math.pow(10, 6);
+  private double MAX_STEPS = 20.0; // in either direction.
   // coord ascent specific parameters
   protected int maxIterations;
   protected HashMap<String, Double> minStepSizes;
@@ -44,12 +44,14 @@ public class CoordinateAscentLearner extends Learner {
   public CoordinateAscentLearner(Parameters p, Retrieval r) throws Exception {
     super(p, r);
 
-    this.maxStepRatio = p.get("maxStepRatio", 0.5);
+    this.maxStepRatio = p.get("maxStepRatio", 0.3);  // if a particular step is bigger than the value, reduce step to a third of the value.
     this.stepScale = p.get("stepScale", 2.0);
     this.maxIterations = (int) p.get("maxIterations", 5);
     this.minStepSizes = new HashMap();
     this.minStepSize = p.get("minStepSize", 0.02);
     this.limitRange = p.get("limitRange", false);
+
+    this.MAX_STEPS = p.get("maxSteps", this.MAX_STEPS);
 
     Parameters specialMinStepSizes = new Parameters();
     if (p.isMap("specialMinStepSize")) {
@@ -201,12 +203,13 @@ public class CoordinateAscentLearner extends Learner {
         // Take a step to the right 
         double step = this.minStepSizes.get(coord);
         if (parameterSettings.get(coord) != 0
-                && step > (this.maxStepRatio * Math.abs(parameterSettings.get(coord)))) {
+                && step > (Math.abs(parameterSettings.get(coord)))) {
           // Reduce the step size for very small weights
           step = (this.maxStepRatio * Math.abs(parameterSettings.get(coord)));
         }
         double rightBest = best;
         double rightStep = 0;
+        int stepCount = 0;
         boolean improving = true;
         boolean atLimit = false;
 
@@ -225,9 +228,10 @@ public class CoordinateAscentLearner extends Learner {
             step *= stepScale;
 
             // avoid REALLY BIG steps
-            if (step > this.MAX_STEP) {
+            if (stepCount > this.MAX_STEPS) {
               improving = false;
             }
+            stepCount += 1;
 
             // avoid exceeding upper bound
             if (limitRange && (currParamValue + step > upperLimit)) {
@@ -250,12 +254,14 @@ public class CoordinateAscentLearner extends Learner {
         // Take a step to the right 
         step = this.minStepSizes.get(coord);
         if (parameterSettings.get(coord) != 0
-                && step > (this.maxStepRatio * Math.abs(parameterSettings.get(coord)))) {
+                && step > (Math.abs(parameterSettings.get(coord)))) {
           // Reduce the step size for very small weights
           step = (this.maxStepRatio * Math.abs(parameterSettings.get(coord)));
         }
         double leftBest = best;
         double leftStep = 0;
+        // reset
+        stepCount = 0;
         improving = true;
         atLimit = false;
 
@@ -269,9 +275,10 @@ public class CoordinateAscentLearner extends Learner {
             step *= stepScale;
 
             // avoid REALLY BIG steps
-            if (step > this.MAX_STEP) {
+            if (stepCount > this.MAX_STEPS) {
               improving = false;
             }
+            stepCount += 1;
 
             // avoid exceeding lower bound
             if (limitRange && (currParamValue - step < lowerLimit)) {
