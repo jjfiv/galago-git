@@ -900,7 +900,7 @@ public class Parameters implements Serializable {
   }
 
   public void setFinalBackoff(Parameters backoff) {
-    if(_backoff != null){
+    if(_backoff == null){
       this._backoff = backoff;
     } else {
       this._backoff.setFinalBackoff(backoff);
