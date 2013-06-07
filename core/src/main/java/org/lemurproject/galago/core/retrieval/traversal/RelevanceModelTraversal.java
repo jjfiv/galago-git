@@ -2,19 +2,10 @@
 package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Set;
 import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.scoring.ExpansionModel;
-import org.lemurproject.galago.core.scoring.RelevanceModel;
-import java.util.Arrays;
-import java.util.List;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.util.WordLists;
+import org.lemurproject.galago.core.retrieval.prf.ExpansionModel;
+import org.lemurproject.galago.core.retrieval.prf.ExpansionModelFactory;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -35,122 +26,35 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class RelevanceModelTraversal extends Traversal {
 
-  private Parameters globalParameters;
-  private Parameters queryParams;
-  private Retrieval retrieval;
-  private double defFbOrigWt;
-  private double defFbDocs;
-  private double defFbTerms;
-  private Parameters fbParams;
+  private final Retrieval retrieval;
+  private final ExpansionModel defaultExpander;
 
-  public RelevanceModelTraversal(Retrieval retrieval, Parameters queryParams) throws IOException {
-    this.queryParams = queryParams;
+  public RelevanceModelTraversal(Retrieval retrieval) throws Exception {
     this.retrieval = retrieval;
-
-    this.globalParameters = retrieval.getGlobalParameters();
-
-    defFbOrigWt = queryParams.get("fbOrigWt", globalParameters.get("fbOrigWt", 0.85));
-    defFbDocs = queryParams.get("fbDocs", globalParameters.get("fbDocs", 10.0));
-    defFbTerms = queryParams.get("fbTerms", globalParameters.get("fbTerms", 5.0));
-
-    fbParams = new Parameters();
-    if (globalParameters.containsKey("fbParams")) {
-      fbParams.copyFrom(globalParameters.getMap("fbParams"));
-    }
-    if (queryParams.containsKey("fbParams")) {
-      fbParams.copyFrom(queryParams.getMap("fbParams"));
-    }
+    
+    defaultExpander = ExpansionModelFactory.instance(retrieval.getGlobalParameters(), retrieval);
   }
 
   @Override
-  public Node afterNode(Node originalNode) throws Exception {
+  public Node afterNode(Node originalNode, Parameters queryParams) throws Exception {
+    
     if (originalNode.getOperator().equals("rm") == false) {
       return originalNode;
     }
-
-    // Kick off the inner query
-    NodeParameters parameters = originalNode.getNodeParameters();
-    double fbOrigWt = parameters.get("fbOrigWt", defFbOrigWt);
-    int fbDocs;
-    // doubles allow learning module to operate over these parameters. -- default behaviour is to round to nearest integer.
-    if (parameters.isLong("fbDocs")) {
-      fbDocs = (int) parameters.getLong("fbDocs");
-    } else {
-      fbDocs = (int) Math.round(parameters.get("fbDocs", defFbDocs));
-    }
-    int fbTerms;
-    if (parameters.isLong("fbTerms")) {
-      fbTerms = (int) parameters.getLong("fbTerms");
-    } else {
-      fbTerms = (int) Math.round(parameters.get("fbTerms", defFbTerms));
-    }
-
-    // check parameters
-    if (fbDocs <= 0) {
-      return originalNode;
-    }
-
-    if (fbTerms <= 0) {
-      return originalNode;
-    }
-
-    Node combineNode = new Node("combine", new NodeParameters(), Node.cloneNodeList(originalNode.getInternalNodes()), originalNode.getPosition());
-    List<ScoredDocument> initialResults = new ArrayList<ScoredDocument>();
-
-    Parameters localRmParameters = new Parameters();
-//    localRmParameters.copyFrom(queryParams);
-    localRmParameters.set("requested", fbDocs);
-    localRmParameters.copyFrom(fbParams); // can override requested to ensure larger pool for second pass.
     
-    Node transformedCombineNode = retrieval.transformQuery(combineNode, localRmParameters);
-    initialResults.addAll(Arrays.asList(retrieval.runQuery(transformedCombineNode, localRmParameters)));
-
-    ExpansionModel rModel = createRelevanceModel(localRmParameters, retrieval);
-    rModel.initialize();
-
-    Set<String> stopwords = WordLists.getWordList("rmstop");
-    Set<String> queryTerms = StructuredQuery.findQueryTerms(combineNode);
-
-    Node newRoot = null;
-    Node expansionNode;
-
-    expansionNode = rModel.generateExpansionQuery(initialResults, fbTerms, queryTerms, stopwords);
-    
-    // if we got nothing back -- return a combine node.
-    if(expansionNode == null){
-      return combineNode;
+    ExpansionModel em = defaultExpander;
+    if(queryParams.containsKey("relevanceModel")){
+      em = ExpansionModelFactory.instance(queryParams, retrieval);
     }
     
-    NodeParameters expParams = new NodeParameters();
-    expParams.set("0", fbOrigWt);
-    expParams.set("1", 1.0 - fbOrigWt);
-    ArrayList<Node> newChildren = new ArrayList<Node>();
-    newChildren.add(combineNode);
-    newChildren.add(expansionNode);
-    newRoot = new Node("combine", expParams, newChildren, originalNode.getPosition());
-
-    rModel.cleanup();
-    return newRoot;
-  }
-
-  protected ExpansionModel createRelevanceModel(Parameters parameters, Retrieval r) {
-    try {
-      if (globalParameters.containsKey("relevanceModel")) {
-        String modelName = globalParameters.getString("relevanceModel");
-        System.out.println("Instantiating Relevance model " + modelName);
-        Class clazz = Class.forName(modelName);
-        Constructor cons = clazz.getConstructor(Parameters.class, Retrieval.class);
-        ExpansionModel relevanceModel = (ExpansionModel) cons.newInstance(parameters, r);
-        return relevanceModel;
-      }
-    } catch (Throwable e) {
-      throw new RuntimeException(e);
-    }
-
-    return new RelevanceModel(parameters, retrieval);
+    // strip the #rm operator
+    Node newRoot = new Node("combine", originalNode.getNodeParameters(), originalNode.getInternalNodes(), originalNode.getPosition());
+    Node expanded = em.expand(newRoot, queryParams);
+    
+    return expanded;
   }
 
   @Override
-  public void beforeNode(Node object) throws Exception {
+  public void beforeNode(Node object, Parameters queryParams) throws Exception {
   }
 }

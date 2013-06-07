@@ -4,6 +4,7 @@
 package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.util.HashMap;
+import java.util.List;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -16,34 +17,61 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * opRepls : { "dummy" : "sdm" } -->
  * #dummy( t t t ) --> #sdm(t t t)
  * 
- * opRepls : { "dummy" : "combine" } -->
- * #dummy( t t t ) --> #combine(t t t)
+ * opRepls : { "dummy" : ["stopword", "combine"] } -->
+ * #dummy( t t t ) --> #stopword( #combine( t t t ) )
  *
  * @author sjh
  */
 public class ReplaceOperatorTraversal extends Traversal {
 
-  HashMap<String,String> operators;
-  
-  public ReplaceOperatorTraversal(Retrieval ret, Parameters queryParams){
-    operators = new HashMap();
-    Parameters repls = ret.getGlobalParameters().get("opRepls", new Parameters());
-    repls.copyFrom( queryParams.get("opRepls", new Parameters()) );
-    for(String key : repls.getKeys()){
-      operators.put(key, repls.getString(key));
-    }
+  Parameters operators;
+
+  public ReplaceOperatorTraversal(Retrieval ret) {
+    Parameters p = ret.getGlobalParameters();
     
+    operators = p.isMap("opRepls") ? p.getMap("opRepls") : new Parameters();
   }
-  
+
   @Override
-  public Node afterNode(Node original) throws Exception {
-    if(operators.containsKey(original.getOperator())){
-      original.setOperator(operators.get(original.getOperator()));
+  public Node afterNode(Node original, Parameters p) throws Exception {
+    
+    // overrides globals -- could cause problems.
+    Parameters instOperators = p.isMap("opRepls") ? p.getMap("opRepls") : operators;
+    
+    String key = original.getOperator();
+    if (instOperators.containsKey(key)) {
+      switch (instOperators.getKeyType(key)) {
+        case STRING:
+          original.setOperator(instOperators.getString(key));
+          return original;
+
+        case LIST:
+          if (instOperators.isList(key, Parameters.Type.STRING)) {
+            List<String> repls = (List<String>) instOperators.getList(key);
+            Node root = null;
+            Node curr = null;
+            for (String r : repls) {
+              if (root == null) {
+                curr = new Node(r);
+                root = curr;
+              } else {
+                curr.addChild(new Node(r));
+                curr = curr.getChild(0);
+              }
+            }
+            for (Node c : original.getInternalNodes()) {
+              curr.addChild(c);
+            }
+            return root;
+          }
+        default:
+          throw new IllegalArgumentException("--opReps mapping must contain only Strings or lists of Strings.");
+      }
     }
     return original;
   }
 
   @Override
-  public void beforeNode(Node object) throws Exception {
-  }  
+  public void beforeNode(Node object, Parameters queryParams) throws Exception {
+  }
 }

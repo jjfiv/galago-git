@@ -19,20 +19,21 @@ import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 
 /**
- * Writes documents to a file
- *  - new output file is created in the folder specified by "filename"
- *  - document.identifier -> output-file, byte-offset is passed on
- * 
+ * Writes documents to a file - new output file is created in the folder
+ * specified by "filename" - document.identifier -> output-file, byte-offset is
+ * passed on
+ *
  * @author sjh
  */
 @Verified
 @InputClass(className = "org.lemurproject.galago.core.parse.Document")
 @OutputClass(className = "org.lemurproject.galago.core.types.KeyValuePair")
 public class CorpusFolderWriter implements Processor<Document>, Source<KeyValuePair> {
+
   Parameters corpusParams;
   SplitBTreeValueWriter writer;
   boolean useExternalKey;
-    
+
   public CorpusFolderWriter(TupleFlowParameters parameters) throws IOException, IncompatibleProcessorException {
     corpusParams = parameters.getJSON();
     // create a writer;
@@ -40,20 +41,20 @@ public class CorpusFolderWriter implements Processor<Document>, Source<KeyValueP
     corpusParams.set("readerClass", CorpusReader.class.getName());
     corpusParams.set("mergerClass", CorpusMerger.class.getName());
     writer = new SplitBTreeValueWriter(parameters);
-    
+
     // figure out what the key actually is
     useExternalKey = corpusParams.get("useExternalKey", false);
   }
 
   @Override
   public void process(Document document) throws IOException {
-      if (useExternalKey) {
-	  writer.add(new GenericElement(Utility.fromString(document.name), 
-					Document.serialize(corpusParams, document)));
-      } else {
-	  writer.add(new GenericElement(Utility.fromInt(document.identifier), 
-					Document.serialize(corpusParams, document)));
-      }
+    if (useExternalKey) {
+      writer.add(new GenericElement(Utility.fromString(document.name),
+              Document.serialize(document)));
+    } else {
+      writer.add(new GenericElement(Utility.fromInt(document.identifier),
+              Document.serialize(document)));
+    }
   }
 
   @Override

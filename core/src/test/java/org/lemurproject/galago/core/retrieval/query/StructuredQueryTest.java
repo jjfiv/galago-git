@@ -1,11 +1,10 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.query;
 
-import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import junit.framework.TestCase;
 import java.util.ArrayList;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -19,21 +18,25 @@ public class StructuredQueryTest extends TestCase {
 
   public static class SimpleCopyTraversal extends Traversal {
     
-    public void beforeNode(Node node) {
+    @Override
+    public void beforeNode(Node node, Parameters p) {
       // do nothing
     }
 
-    public Node afterNode(Node node) {
-      return new Node(node.getOperator(), node.getNodeParameters(), Node.cloneNodeList(node.getInternalNodes()), node.getPosition());
+    @Override
+    public Node afterNode(Node node, Parameters p) {
+      return node.clone();
     }
   }
 
   public static class NullTraversal extends Traversal {
 
-    public void beforeNode(Node n) {
+    @Override
+    public void beforeNode(Node n, Parameters p) {
     }
 
-    public Node afterNode(Node n) {
+    @Override
+    public Node afterNode(Node n, Parameters p) {
       return null;
     }
   }
@@ -55,7 +58,7 @@ public class StructuredQueryTest extends TestCase {
   public void testCopy() throws Exception {
     Traversal traversal = new SimpleCopyTraversal();
     Node tree = createQuery();
-    Node result = StructuredQuery.copy(traversal, tree);
+    Node result = StructuredQuery.copy(traversal, tree, new Parameters());
 
     assertEquals(tree.toString(), result.toString());
   }
@@ -63,7 +66,7 @@ public class StructuredQueryTest extends TestCase {
   public void testWalk() throws Exception {
     Traversal traversal = new SimpleCopyTraversal();
     Node tree = createQuery();
-    StructuredQuery.walk(traversal, tree);
+    StructuredQuery.walk(traversal, tree, new Parameters());
   }
 
   public void testText() {

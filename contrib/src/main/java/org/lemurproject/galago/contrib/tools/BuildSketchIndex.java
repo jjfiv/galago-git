@@ -10,8 +10,8 @@ import java.util.Random;
 import org.lemurproject.galago.contrib.hash.UniversalStringHashFunction;
 import org.lemurproject.galago.contrib.hash.WindowHasher;
 import org.lemurproject.galago.contrib.index.InvertedSketchIndexWriter;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.ExtractIndexDocumentNumbers;
+import org.lemurproject.galago.core.index.stats.CollectionStatistics;
 import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
@@ -79,7 +79,7 @@ public class BuildSketchIndex extends AppFunction {
     buildParameters.set("indexPath", indexPath);
 
     List<String> inputPaths = buildParameters.getAsList("inputPath");
-    Parameters splitParameters = buildParameters.get("parser", new Parameters()).clone();
+    Parameters splitParameters = (buildParameters.isMap("parser"))?buildParameters.getMap("parser"): new Parameters();
     splitParameters.set("corpusPieces", buildParameters.get("distrib", 10));
     if (buildParameters.isMap("parser")) {
       splitParameters.set("parser", buildParameters.getMap("parser"));

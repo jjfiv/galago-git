@@ -15,11 +15,14 @@ import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.contrib.hash.UniversalStringHashFunction;
 import org.lemurproject.galago.contrib.retrieval.iterator.MinCountIterator;
-import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
+import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
+import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
@@ -36,7 +39,7 @@ import org.lemurproject.galago.tupleflow.VByteOutput;
  *
  * @author sjh
  */
-public class InvertedSketchIndexReader extends KeyListReader implements AggregateReader.AggregateIndexPart {
+public class InvertedSketchIndexReader extends KeyListReader implements AggregateIndexPart {
 
   private int depth;
   private UniversalStringHashFunction[] hashFns;
@@ -75,7 +78,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
    * Returns an iterator pointing at the specified term, or null if the term
    * doesn't exist in the inverted file.
    */
-  private MinCountIterator getTermCounts(byte[] key) throws IOException {
+  public MinCountIterator getTermCounts(byte[] key) throws IOException {
     ByteArrayOutputStream array;
     VByteOutput stream;
     TermCountIterator[] rowIterators = new TermCountIterator[depth];
@@ -99,7 +102,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     return new MinCountIterator(np, rowIterators);
   }
 
-  private MinCountIterator getTermCounts(String term) throws IOException {
+  public MinCountIterator getTermCounts(String term) throws IOException {
     return getTermCounts(Utility.fromString(stemAsRequired(term)));
   }
 
@@ -119,9 +122,9 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
   }
 
   @Override
-  public AggregateReader.IndexPartStatistics getStatistics() {
+  public IndexPartStatistics getStatistics() {
     Parameters manifest = this.getManifest();
-    AggregateReader.IndexPartStatistics is = new AggregateReader.IndexPartStatistics();
+    IndexPartStatistics is = new IndexPartStatistics();
     is.collectionLength = manifest.get("statistics/collectionLength", 0);
     is.vocabCount = manifest.get("statistics/vocabCount", 0);
     is.highestDocumentCount = manifest.get("statistics/highestDocumentCount", 0);
@@ -180,7 +183,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
   }
 
   public class TermCountIterator extends KeyListReader.ListIterator
-          implements AggregateReader.NodeAggregateIterator, MovableCountIterator {
+          implements NodeAggregateIterator, MovableCountIterator {
 
     BTreeReader.BTreeIterator iterator;
     int documentCount;
@@ -436,8 +439,8 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     }
 
     @Override
-    public AggregateReader.NodeStatistics getStatistics() {
-      AggregateReader.NodeStatistics stats = new AggregateReader.NodeStatistics();
+    public NodeStatistics getStatistics() {
+      NodeStatistics stats = new NodeStatistics();
       stats.node = Utility.toString(this.key);
       stats.nodeFrequency = this.collectionCount;
       stats.nodeDocumentCount = this.documentCount;

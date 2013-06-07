@@ -31,29 +31,33 @@ public class FullDependenceTraversal extends Traversal {
   private double orderedDefault;
   private double unorderedDefault;
 
-  public FullDependenceTraversal(Retrieval retrieval, Parameters queryParameters) {
+  public FullDependenceTraversal(Retrieval retrieval) {
     Parameters parameters = retrieval.getGlobalParameters();
     unigramDefault = parameters.get("uniw", 0.8);
     orderedDefault = parameters.get("odw", 0.15);
     unorderedDefault = parameters.get("uww", 0.05);
     defaultWindowLimit = (int) parameters.get("windowLimit", 3);
-
-    unigramDefault = queryParameters.get("uniw", unigramDefault);
-    orderedDefault = queryParameters.get("odw", orderedDefault);
-    unorderedDefault = queryParameters.get("uww", unorderedDefault);
-    defaultWindowLimit = (int) queryParameters.get("windowLimit", defaultWindowLimit);
   }
 
   @Override
-  public void beforeNode(Node original) throws Exception {
+  public void beforeNode(Node original, Parameters qp) throws Exception {
   }
 
   @Override
-  public Node afterNode(Node original) throws Exception {
+  public Node afterNode(Node original, Parameters qp) throws Exception {
     if (original.getOperator().equals("fdm")
             || original.getOperator().equals("fulldep")) {
 
-      int windowLimit = (int) original.getNodeParameters().get("windowLimit", defaultWindowLimit);
+      double unigramW = qp.get("uniw", unigramDefault);
+      double orderedW = qp.get("odw", orderedDefault);
+      double unorderedW = qp.get("uww", unorderedDefault);
+      int windowLimit = (int) qp.get("windowLimit", defaultWindowLimit);
+
+      NodeParameters np = original.getNodeParameters();
+      unigramW = np.get("uniw", unigramW);
+      orderedW = np.get("odw", orderedW);
+      unorderedW = np.get("uww", unorderedW);
+      windowLimit = (int) np.get("windowLimit", windowLimit);
 
       List<Node> children = original.getInternalNodes();
 
@@ -87,9 +91,9 @@ public class FullDependenceTraversal extends Traversal {
 
       // now get the weights for each component, and add to immediate children
       NodeParameters parameters = original.getNodeParameters();
-      double uni = parameters.get("uniw", unigramDefault);
-      double odw = parameters.get("odw", orderedDefault);
-      double uww = parameters.get("uww", unorderedDefault);
+      double uni = parameters.get("uniw", unigramW);
+      double odw = parameters.get("odw", orderedW);
+      double uww = parameters.get("uww", unorderedW);
 
       NodeParameters weights = new NodeParameters();
       ArrayList<Node> immediateChildren = new ArrayList<Node>();

@@ -6,6 +6,8 @@ import java.io.IOException;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
+import org.lemurproject.galago.core.parse.PseudoDocument.PsuedoDocumentComponents;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -21,7 +23,7 @@ public class CorpusSplitParser extends DocumentStreamParser {
   DocumentReader reader;
   DocumentIterator iterator;
   DocumentSplit split;
-  Parameters extractionParameters;
+  DocumentComponents extractionParameters;
 
   public CorpusSplitParser(DocumentSplit split) throws FileNotFoundException, IOException {
     this(split, new Parameters());
@@ -33,11 +35,12 @@ public class CorpusSplitParser extends DocumentStreamParser {
     iterator = (DocumentIterator) reader.getIterator();
     iterator.skipToKey(split.startKey);
     this.split = split;
-    if (p.isEmpty()) {
-      p.set("terms", false);
-      p.set("tags", false);
+
+    if(p.get("psuedo", false)){
+      extractionParameters = new PsuedoDocumentComponents(false, true, false, true);    
+    } else {
+      extractionParameters = new DocumentComponents(true, true, false);
     }
-    extractionParameters = p;
   }
 
   @Override

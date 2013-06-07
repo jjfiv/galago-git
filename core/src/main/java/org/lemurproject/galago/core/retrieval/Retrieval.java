@@ -4,10 +4,11 @@ package org.lemurproject.galago.core.retrieval;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
+import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
@@ -56,7 +57,7 @@ public interface Retrieval {
    * @return If found, the Document object. Null otherwise.
    * @throws IOException
    */
-  public Document getDocument(String identifier, Parameters p) throws IOException;
+  public Document getDocument(String identifier, DocumentComponents p) throws IOException;
 
   /**
    * Returns a Map of Document objects that have been found, given the list of
@@ -66,7 +67,7 @@ public interface Retrieval {
    * @return
    * @throws IOException
    */
-  public Map<String, Document> getDocuments(List<String> identifier, Parameters p) throws IOException;
+  public Map<String, Document> getDocuments(List<String> identifier, DocumentComponents p) throws IOException;
 
   /**
    * Attempts to return a NodeType object for the supplied Node.

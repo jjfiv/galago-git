@@ -6,9 +6,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.corpus.SnippetGenerator;
+import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -96,10 +97,10 @@ public class Search {
     return StructuredQuery.parse(query);
   }
 
-  public Document getDocument(String identifier, Parameters p) throws IOException {
+  public Document getDocument(String identifier, DocumentComponents p) throws IOException {
     return retrieval.getDocument(identifier, p);
   }
-  public Map<String,Document> getDocuments(List<String> identifier, Parameters p) throws IOException {
+  public Map<String,Document> getDocuments(List<String> identifier, DocumentComponents p) throws IOException {
     return retrieval.getDocuments(identifier, p);
   }
 
@@ -135,9 +136,7 @@ public class Search {
     	results = new  ScoredDocument[0];
     }
     
-    Parameters p1 = new Parameters();
-    p1.set("terms", false);
-    p1.set("tags", false);
+    DocumentComponents p1 = new DocumentComponents();
 
     for (int i = startAt; i < Math.min(startAt + count, results.length); i++) {
       String identifier = results[i].documentName;

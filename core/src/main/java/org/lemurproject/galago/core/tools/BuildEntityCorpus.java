@@ -51,7 +51,7 @@ public class BuildEntityCorpus extends AppFunction {
   public Job getJob(Parameters jobParameters) throws Exception {
     Job job = new Job();
     List<String> inputPaths = jobParameters.getAsList("inputPath");
-    Parameters splitParameters = jobParameters.get("parser", new Parameters()).clone();
+    Parameters splitParameters = jobParameters.isMap("parser")? jobParameters.getMap("parser") : new Parameters();
     job.add(BuildStageTemplates.getSplitStage(inputPaths,
             DocumentSource.class,
             new DocumentSplit.FileIdOrder(),

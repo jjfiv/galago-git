@@ -4,16 +4,14 @@ package org.lemurproject.galago.core.retrieval.processing;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
-import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -52,7 +50,8 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     Arrays.fill(context.startingPotentials, 0);
     MovableIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
 
-    PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
+    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
+
     ProcessingModel.initializeLengths(retrieval, context);
     context.minCandidateScore = Double.NEGATIVE_INFINITY;
     context.sentinelIndex = context.scorers.size();
@@ -98,10 +97,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
 
           if (requested < 0 || queue.size() <= requested || context.runningScore > queue.peek().score) {
             ScoredDocument scoredDocument = new ScoredDocument(context.document, context.runningScore);
-            queue.add(scoredDocument);
-          }
-          if (requested > 0 && queue.size() > requested) {
-            queue.poll();
+            queue.offer(scoredDocument);
             context.minCandidateScore = factor * queue.peek().score;
           }
         } else {

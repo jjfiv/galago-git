@@ -68,7 +68,12 @@ public class ConvergenceTester implements ExNihiloSource<PageRankScore> {
     }
 
     if (!converged) {
-      convFile.createNewFile();
+      try {
+        convFile.createNewFile();
+      } catch(IOException e){
+        // may throw an error if multiple threads try simultaneously
+        // in this case - not a problem.
+      }
     }
   }
 

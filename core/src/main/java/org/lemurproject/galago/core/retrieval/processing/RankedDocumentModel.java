@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.Index;
@@ -9,6 +8,7 @@ import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -38,7 +38,9 @@ public class RankedDocumentModel extends ProcessingModel {
     boolean annotate = queryParams.get("annotate", false);
 
     // Maintain a queue of candidates
-    PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
+    //PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
+    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
+
 
     // construct the iterators -- we use tree processing
     MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
@@ -57,10 +59,10 @@ public class RankedDocumentModel extends ProcessingModel {
           if (annotate) {
             scoredDocument.annotation = iterator.getAnnotatedNode();
           }
-          queue.add(scoredDocument);
-          if (requested > 0 && queue.size() > requested) {
-            queue.poll();
-          }
+          queue.offer(scoredDocument);
+          // if (requested > 0 && queue.size() > requested) {
+            //queue.poll();
+          // }
         }
       }
       iterator.movePast(document);

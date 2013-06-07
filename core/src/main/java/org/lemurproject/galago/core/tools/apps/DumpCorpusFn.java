@@ -8,6 +8,7 @@ import java.util.Map;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -39,9 +40,12 @@ public class DumpCorpusFn extends AppFunction {
     }
 
     DocumentReader.DocumentIterator iterator = (DocumentReader.DocumentIterator) reader.getIterator();
+
+    DocumentComponents dc = new DocumentComponents(p);
+    
     while (!iterator.isDone()) {
       output.println("#IDENTIFIER: " + iterator.getKeyString());
-      Document document = iterator.getDocument(p);
+      Document document = iterator.getDocument(dc);
       output.println("#METADATA");
       for (Map.Entry<String, String> entry : document.metadata.entrySet()) {
         output.println(entry.getKey() + "," + entry.getValue());

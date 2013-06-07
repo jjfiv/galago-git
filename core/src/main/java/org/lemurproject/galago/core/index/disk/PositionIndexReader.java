@@ -7,13 +7,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.index.AggregateReader.AggregateIndexPart;
-import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
+import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
+import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -37,7 +37,7 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  * iterating. This is an interesting enough change that there are now two
  * versions of the iterator
  *
- * @author trevor, irmarc
+ * @author trevor, sjh, irmarc
  */
 public class PositionIndexReader extends KeyListReader implements AggregateIndexPart {
   Stemmer stemmer = null;
@@ -182,6 +182,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     private int documentIndex;
     private int currentDocument;
     private int currentCount;
+    private boolean done;
     private ExtentArray extentArray;
     private final ExtentArray emptyExtentArray;
     // to support resets
@@ -300,6 +301,15 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     }
 
     private void loadNextPosting() throws IOException {
+      if(documentIndex >= documentCount){
+        done = true;
+        extentArray.reset();
+        extentsLoaded = true;
+        currentCount = 0;
+        currentDocument = Integer.MAX_VALUE;
+        return;
+      }
+      
       if (!extentsLoaded) {
         if (currentCount > inlineMinimum) {
           positions.skipBytes(extentsByteSize);
@@ -365,6 +375,8 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
       currentDocument = 0;
       currentCount = 0;
       extentArray.reset();
+      extentsLoaded = true;
+      done = false;
       initialize();
     }
 
@@ -455,25 +467,17 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
 
     @Override
     public boolean isDone() {
-      return documentIndex >= documentCount;
+      return done;
     }
 
     @Override
     public ExtentArray getData() {
-      if (context.document == this.currentCandidate()) {
-        try {
-          loadExtents();
-          return extentArray;
-        } catch (IOException ioe) {
-          throw new RuntimeException(ioe);
-        }
-      }
-      return this.emptyExtentArray;
+      return extents();
     }
 
     @Override
     public ExtentArray extents() {
-      if (context.document == this.currentCandidate()) {
+      if (!done && context.document == this.currentCandidate()) {
         try {
           loadExtents();
           return extentArray;
@@ -496,7 +500,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
 
     @Override
     public int count() {
-      if (context.document == this.currentCandidate()) {
+      if (!done && context.document == this.currentCandidate()) {
         return currentCount;
       }
       return 0;
@@ -553,6 +557,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     int documentIndex;
     int currentDocument;
     int currentCount;
+    boolean done;
     // Support for resets
     long startPosition, endPosition;
     // to support skipping
@@ -664,6 +669,12 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
 
     // Only loading the docid and the count
     private void load() throws IOException {
+      if(documentIndex >= documentCount){
+        done = true;
+        currentDocument = Integer.MAX_VALUE;
+        currentCount = 0;
+        return;
+      }
       currentDocument += documents.readInt();
       currentCount = counts.readInt();
     }
@@ -694,6 +705,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     public void reset() throws IOException {
       currentDocument = 0;
       currentCount = 0;
+      done = false;
       initialize();
     }
 
@@ -705,6 +717,10 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     // If we have skips - it's go time
     @Override
     public void syncTo(int document) throws IOException {
+      if(done){
+        return;
+      }
+      
       if (skips != null) {
         synchronizeSkipPositions();
         if (document > nextSkipDocument) {
@@ -718,11 +734,9 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
       }
 
       // linear from here
-      while (!isDone() && document > currentDocument) {
+      while (!done && document > currentDocument) {
         documentIndex = Math.min(documentIndex + 1, documentCount);
-        if (!isDone()) {
-          load();
-        }
+        load();
       }
     }
 
@@ -755,7 +769,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
 
     // This makes sure the skip list pointers are still ahead of the current document.
     // If we called "next" a lot, these may be out of sync.
-    //
     private void synchronizeSkipPositions() throws IOException {
       while (nextSkipDocument <= currentDocument) {
         int cd = currentDocument;
@@ -780,7 +793,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
 
     @Override
     public boolean isDone() {
-      return documentIndex >= documentCount;
+      return done;
     }
 
     @Override
@@ -795,7 +808,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
 
     @Override
     public int count() {
-      if (currentCandidate() == context.document) {
+      if (!done && currentCandidate() == context.document) {
         return currentCount;
       }
       return 0;

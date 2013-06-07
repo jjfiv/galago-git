@@ -11,13 +11,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import org.lemurproject.galago.core.index.AggregateReader;
 import org.lemurproject.galago.core.index.KeyIterator;
-import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
+import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
+import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -43,7 +44,7 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  * In-memory posting index
  *
  */
-public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader.AggregateIndexPart {
+public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPart {
 
   // this could be a bit big -- but we need random access here
   // perhaps we should use a trie (but java doesn't have one?)
@@ -237,8 +238,8 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateReader.A
   }
 
   @Override
-  public AggregateReader.IndexPartStatistics getStatistics() {
-    AggregateReader.IndexPartStatistics is = new AggregateReader.IndexPartStatistics();
+  public IndexPartStatistics getStatistics() {
+    IndexPartStatistics is = new IndexPartStatistics();
     is.partName = "MemoryPositionIndex";
     is.collectionLength = this.collectionPostingsCount;
     is.vocabCount = this.vocabCount;

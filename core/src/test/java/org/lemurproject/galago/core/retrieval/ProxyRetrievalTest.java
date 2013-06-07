@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import junit.framework.TestCase;
+import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
@@ -100,7 +102,12 @@ public class ProxyRetrievalTest extends TestCase {
         instance.getCollectionStatistics(StructuredQuery.parse("#lengths:document:part=lengths()"));
         instance.getCollectionStatistics("#lengths:document:part=lengths()");
         
-        instance.getDocument("doc-" + 2, new Parameters());
+        Document d = instance.getDocument("doc-" + 2, new DocumentComponents(true, false, false));
+        assert(d.text != null);
+        assert(d.terms == null);
+        assert(d.tags == null);
+        assert(d.metadata.isEmpty());
+        
         instance.getDocumentLength("doc-" + 2);
         instance.getDocumentLength(1);
         instance.getDocumentName(1);

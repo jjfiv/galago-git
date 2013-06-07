@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.BadOperatorException;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -35,7 +34,7 @@ public class FeatureFactory {
     {SynonymIterator.class.getName(), "syn"},
     {SynonymIterator.class.getName(), "synonym"},
     {ExtentInsideIterator.class.getName(), "inside"},
-    {MinimumCountConjunctionIterator.class.getName(), "mincount"},
+    {MinCountIterator.class.getName(), "mincount"},
     {OrderedWindowIterator.class.getName(), "ordered"},
     {OrderedWindowIterator.class.getName(), "od"},
     {OrderedWindowIterator.class.getName(), "quote"}, // don't rely on this - ImplicitFeatureCast does: quote -> od:1 for now. (irmarc)
@@ -62,11 +61,7 @@ public class FeatureFactory {
     {LogProbNotIterator.class.getName(), "logprobnot"}
   };
   static String[][] sFeatureLookup = {
-    {DirichletProbabilityScoringIterator.class.getName(), "dirichlet-raw"}, // deprecated
-    {JelinekMercerProbabilityScoringIterator.class.getName(), "linear-raw"}, // deprecated
-    {JelinekMercerProbabilityScoringIterator.class.getName(), "jm-raw"}, // deprecated
     {DirichletScoringIterator.class.getName(), "dirichlet"},
-    {EstimatedDirichletScoringIterator.class.getName(), "dirichlet-est"},
     {JelinekMercerScoringIterator.class.getName(), "linear"},
     {JelinekMercerScoringIterator.class.getName(), "jm"},
     {BM25ScoringIterator.class.getName(), "bm25"},
@@ -78,24 +73,21 @@ public class FeatureFactory {
     {PL2FieldScoringIterator.class.getName(), "pl2f"},
     {PL2ScoringIterator.class.getName(), "pl2"},
     {InL2ScoringIterator.class.getName(), "inl2"},
-    {BiL2ScoringIterator.class.getName(), "bil2"}    
+    {BiL2ScoringIterator.class.getName(), "bil2"}
   };
   static String[] sTraversalList = {
+    RelevanceModelTraversal.class.getName(),
     ReplaceOperatorTraversal.class.getName(),
     StopStructureTraversal.class.getName(),
     StopWordTraversal.class.getName(),
     WeightedSequentialDependenceTraversal.class.getName(),
+    WeightedSequentialDependence2Traversal.class.getName(),
     SequentialDependenceTraversal.class.getName(),
     FullDependenceTraversal.class.getName(),
     ProximityDFRTraversal.class.getName(),
-    TransformRootTraversal.class.getName(),
-    PRMSTraversal.class.getName(),
     PRMS2Traversal.class.getName(),
-    BM25FTraversal.class.getName(),
-    PL2FTraversal.class.getName(),
+    TransformRootTraversal.class.getName(),
     WindowRewriteTraversal.class.getName(),
-    RelevanceModelTraversal.class.getName(),
-    BM25RelevanceFeedbackTraversal.class.getName(),
     TextFieldRewriteTraversal.class.getName(),
     InsideToFieldPartTraversal.class.getName(),
     ImplicitFeatureCastTraversal.class.getName(),
@@ -223,7 +215,7 @@ public class FeatureFactory {
     OperatorSpec operatorType = operatorLookup.get(operator);
 
     if (operatorType == null) {
-      throw new BadOperatorException("Unknown operator name: #" + operator);
+      return null;
     }
 
     // This is to compensate for the transparent behavior of the fitering nodes
@@ -254,17 +246,25 @@ public class FeatureFactory {
   @SuppressWarnings("unchecked")
   public Class<MovableIterator> getClass(Node node) throws Exception {
     String className = getClassName(node);
+    if (className == null) {
+      return null;
+    }
     Class c = Class.forName(className);
 
     if (MovableIterator.class.isAssignableFrom(c)) {
       return (Class<MovableIterator>) c;
     } else {
-      throw new Exception("Found a class, but it's not a MovableIterator: " + className);
+      return null;
     }
   }
 
   public NodeType getNodeType(Node node) throws Exception {
-    return new NodeType(getClass(node));
+    Class<MovableIterator> cls = getClass(node);
+    if (cls != null) {
+      return new NodeType(getClass(node));
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -369,31 +369,26 @@ public class FeatureFactory {
     return result;
   }
 
-  public List<Traversal> getTraversals(Retrieval retrieval, Node queryTree, Parameters queryParams)
+  public List<Traversal> getTraversals(Retrieval retrieval)
           throws ClassNotFoundException, NoSuchMethodException, InstantiationException,
           IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     ArrayList<Traversal> result = new ArrayList<Traversal>();
     for (TraversalSpec spec : traversals) {
       Class<? extends Traversal> traversalClass =
               (Class<? extends Traversal>) Class.forName(spec.className);
-      if (((Boolean) traversalClass.getMethod("isNeeded", Node.class).invoke(null, queryTree)).booleanValue()) {
-        Constructor<? extends Traversal> constructor = (Constructor<? extends Traversal>) traversalClass.getConstructors()[0];
-        Traversal traversal;
-        switch (constructor.getParameterTypes().length) {
-          case 0:
-            traversal = constructor.newInstance();
-            break;
-          case 1:
-            traversal = constructor.newInstance(retrieval);
-            break;
-          case 2:
-            traversal = constructor.newInstance(retrieval, queryParams);
-            break;
-          default:
-            throw new IllegalArgumentException("Traversals should not have more than 2 args.");
-        }
-        result.add(traversal);
+      Constructor<? extends Traversal> constructor = (Constructor<? extends Traversal>) traversalClass.getConstructors()[0];
+      Traversal traversal;
+      switch (constructor.getParameterTypes().length) {
+        case 0:
+          traversal = constructor.newInstance();
+          break;
+        case 1:
+          traversal = constructor.newInstance(retrieval);
+          break;
+        default:
+          throw new IllegalArgumentException("Traversals should not have more than 1 args : failed on " + traversalClass);
       }
+      result.add(traversal);
     }
 
     return result;

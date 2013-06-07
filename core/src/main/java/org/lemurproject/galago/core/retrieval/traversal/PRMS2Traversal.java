@@ -7,14 +7,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
+import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Parameters.Type;
 
 /**
  * Transforms a #prms operator into a full expansion of the PRM-S model. That
@@ -30,49 +31,46 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * #wsum:0=0.927:1=0.070:2=0.002 ( #feature:dirichlet(war.cast)
  * #feature:dirichlet(war.team) #feature:dirichlet(war.title) ) )
  *
- * @author jykim, irmarc
+ * @author jykim, irmarc, sjh
  */
 public class PRMS2Traversal extends Traversal {
 
   private Retrieval retrieval;
   private Parameters globals;
-  private Parameters queryParameters;
-  private List<String> fields;
-  private Parameters weights;
+  private List<String> defaultFields;
+  private Parameters defaultWeights;
 
-  public PRMS2Traversal(Retrieval retrieval, Parameters queryParameters) {
-    this.queryParameters = queryParameters;
+  public PRMS2Traversal(Retrieval retrieval) {
     this.retrieval = retrieval;
     this.globals = retrieval.getGlobalParameters();
 
     // get field list
-    if (queryParameters.containsKey("fields")) {
-      this.fields = (List<String>) queryParameters.getAsList("fields");
-    } else if (globals.containsKey("fields")) {
-      this.fields = (List<String>) globals.getAsList("fields");
+    if (globals.isList("fields", Type.STRING)) {
+      this.defaultFields = (List<String>) globals.getAsList("fields");
     } else {
-      this.fields = null;
+      this.defaultFields = null;
     }
 
     // get field weights
-    if (queryParameters.isMap("weights")) {
-      this.weights = queryParameters.getMap("weights");
-    } else if (globals.isMap("weights")) {
-      this.weights = globals.getMap("weights");
+    if (globals.isMap("weights")) {
+      this.defaultWeights = globals.getMap("weights");
     } else {
-      this.weights = null;
+      this.defaultWeights = null;
     }
   }
 
   @Override
-  public void beforeNode(Node original) throws Exception {
+  public void beforeNode(Node original, Parameters queryParameters) throws Exception {
   }
 
   @Override
-  public Node afterNode(Node original) throws Exception {
-    if (original.getOperator().equals("prms2")) {
+  public Node afterNode(Node original, Parameters queryParameters) throws Exception {
+    if (original.getOperator().equals("prms2") || original.getOperator().equals("prms")) {
 
-      String scorerType = globals.get("scorer", "dirichlet");
+      String scorerType = queryParameters.get("scorer", globals.get("scorer", "dirichlet"));
+      
+      List<String> fields = queryParameters.isList("fields", Type.STRING) ? queryParameters.getList("fields") : defaultFields;
+      Parameters weights = queryParameters.isMap("weights") ? queryParameters.getMap("weights") : defaultWeights;
 
       List<String> terms = getTextTerms(original.getInternalNodes());
 
@@ -135,7 +133,7 @@ public class PRMS2Traversal extends Traversal {
             NodeStatistics ns = retrieval.getNodeStatistics(termFieldCounts);
             double fieldprob = (double) ns.nodeFrequency / (double) fieldStats.get(field).collectionLength; // P(t|F_j)
             nodeweights.set(Integer.toString(i), fieldprob);
-            
+
             normalizer += fieldprob;
           }
 
@@ -152,12 +150,6 @@ public class PRMS2Traversal extends Traversal {
           for (i = 0; i < fields.size(); i++) {
             String key = Integer.toString(i);
             nodeweights.set(key, nodeweights.getDouble(key) / normalizer);
-//            if (retrieval.getGlobalParameters().get("printWeights", false)) {
-//              double w = nodeweights.getDouble(key);
-//              if (w > 0.0) {
-//                System.err.printf("%s\t%s\t%f\n", term.getDefaultParameter(), fieldList[i], w);
-//              }
-//            }
           }
         }
 

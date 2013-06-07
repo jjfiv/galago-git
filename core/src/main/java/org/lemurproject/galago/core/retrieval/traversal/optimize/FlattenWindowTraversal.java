@@ -23,17 +23,18 @@ public class FlattenWindowTraversal extends Traversal {
   }
 
   @Override
-  public void beforeNode(Node object) throws Exception {
+  public void beforeNode(Node object, Parameters qp) throws Exception {
   }
 
   @Override
-  public Node afterNode(Node original) throws Exception {
+  public Node afterNode(Node original, Parameters qp) throws Exception {
 
     // if we have a window operator with a single child
     if (original.getOperator().equals("ordered")
             || original.getOperator().equals("syn")
             || original.getOperator().equals("synonym")
             || original.getOperator().equals("od")
+            || original.getOperator().equals("intersect")
             || original.getOperator().equals("unordered")
             || original.getOperator().equals("uw")) {
       List<Node> children = original.getInternalNodes();

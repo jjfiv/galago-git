@@ -10,10 +10,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
+import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.structured.FeatureFactory;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -40,6 +41,7 @@ public class MultiRetrieval implements Retrieval {
 
   protected ArrayList<Retrieval> retrievals;
   protected FeatureFactory features;
+  protected List<Traversal> defaultTraversals;
   protected Parameters globalParameters;
   protected Parameters retrievalParts;
   protected HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
@@ -50,6 +52,7 @@ public class MultiRetrieval implements Retrieval {
     this.globalParameters = p;
     initRetrieval();
     this.features = new FeatureFactory(this.globalParameters);
+    defaultTraversals = features.getTraversals(this);
   }
 
   @Override
@@ -84,7 +87,7 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public Document getDocument(String identifier, Parameters p) throws IOException {
+  public Document getDocument(String identifier, DocumentComponents p) throws IOException {
     for (Retrieval r : this.retrievals) {
       Document d = r.getDocument(identifier, p);
       if (d != null) {
@@ -95,7 +98,7 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> identifiers, Parameters p) throws IOException {
+  public Map<String, Document> getDocuments(List<String> identifiers, DocumentComponents p) throws IOException {
     HashMap<String, Document> results = new HashMap();
     for (Retrieval r : this.retrievals) {
       results.putAll(r.getDocuments(identifiers, p));
@@ -198,14 +201,15 @@ public class MultiRetrieval implements Retrieval {
 
   @Override
   public Node transformQuery(Node root, Parameters qp) throws Exception {
-    return transformQuery(features.getTraversals(this, root, qp), root);
+    return transformQuery(defaultTraversals, root, qp);
   }
 
   // private functions
-  private Node transformQuery(List<Traversal> traversals, Node queryTree) throws Exception {
+  private Node transformQuery(List<Traversal> traversals, Node queryTree, Parameters queryParams) throws Exception {
     for (Traversal traversal : traversals) {
-      queryTree = StructuredQuery.walk(traversal, queryTree);
-      //System.out.println(traversal.getClass().getSimpleName() + "\t" + queryTree.toPrettyString());
+      traversal.beforeTreeRoot(queryTree, queryParams);
+      queryTree = StructuredQuery.walk(traversal, queryTree, queryParams);
+      queryTree = traversal.afterTreeRoot(queryTree, queryParams);
     }
     return queryTree;
   }

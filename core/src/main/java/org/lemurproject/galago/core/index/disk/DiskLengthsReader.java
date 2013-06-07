@@ -8,8 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.*;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
+import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
+import org.lemurproject.galago.core.index.stats.CollectionStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -138,7 +139,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
 //  public class MemoryMapLengthsIterator extends ValueIterator
 //          implements MovableCountIterator, MovableLengthsIterator,
-//          AggregateReader.CollectionAggregateIterator {
+//          AggregateStatistics.CollectionAggregateIterator {
 //
 //    byte[] key;
 //    private MappedByteBuffer memBuffer;
@@ -337,7 +338,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 //  }
   public class StreamLengthsIterator extends KeyListReader.ListIterator
           implements MovableCountIterator, MovableLengthsIterator,
-          AggregateReader.CollectionAggregateIterator {
+          CollectionAggregateIterator {
 
     private final BTreeIterator iterator;
     private DataStream streamBuffer;

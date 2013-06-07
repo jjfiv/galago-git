@@ -12,7 +12,8 @@ import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluatorFactory;
 import org.lemurproject.galago.core.eval.compare.QuerySetComparator;
 import org.lemurproject.galago.core.eval.compare.QuerySetComparatorFactory;
 import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.core.tools.BatchSearch;
+import org.lemurproject.galago.core.tools.apps.BatchSearch;
+import org.lemurproject.galago.core.tools.apps.BatchSearch;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Parameters.Type;
 
@@ -101,8 +102,7 @@ public class Eval extends AppFunction {
             + "       Significant differences are computed relative to the first run.\n"
             + "       '*' indicates runs that are significantly different.\n"
             + "       Only the first comparison method is shown in the table.\n"
-            + "\n"
-            ;
+            + "\n";
   }
 
   @Override
@@ -116,7 +116,7 @@ public class Eval extends AppFunction {
     assert (!p.containsKey("details") || p.isBoolean("details")) : "eval parameter 'details' must be a boolean.";
     assert (!p.containsKey("metrics") || p.isList("metrics", Type.STRING)) : "eval parameter 'metrics' must be a list of strings.";
     assert (p.get("summary", true) || p.get("details", false)) : "eval requires either 'summary' or 'details' to be set true.";
-    assert (!p.containsKey("comparisons") || p.isList("comparisons", Type.STRING)) : "eval parameter 'comparisons' must be a list of strings.";
+    assert (!p.containsKey("comparisons") || p.isList("comparisons", Type.STRING) || p.isBoolean("comparisons")) : "eval parameter 'comparisons' must be a list of strings, or a boolean to turn it off (set only)";
 
     boolean binaryJudgments = p.get("binary", false);
     boolean positiveJudgments = p.get("postive", true);
@@ -241,7 +241,7 @@ public class Eval extends AppFunction {
         output.format("%1$-30s", runId);
         Parameters r = eval.getMap("all").getMap(runId);
         for (String metric : metrics) {
-          if (r.getDouble(metric + "-" + comparisons.get(0)) < thresh) {
+          if (comparisons.size() > 0 && r.getDouble(metric + "-" + comparisons.get(0)) < thresh) {
             output.format("%1s%2$10.4f%3$1s", sep, r.getDouble(metric), sig);
           } else {
             output.format("%1s%2$10.4f%3$1s", sep, r.getDouble(metric), "");
@@ -249,17 +249,19 @@ public class Eval extends AppFunction {
         }
         output.format("%s\n", ln);
       }
-      output.format("\nSig-Test: %s, threshold set to %f\n", comparisons.get(0), thresh);
-      if (comparisons.size() > 1) {
-        output.format("Other tests, computed, but not reported here: ");
-        for (int testId = 1; testId < comparisons.size(); testId++) {
-          if (testId > 1) {
-            output.format(", %s", comparisons.get(testId));
-          } else {
-            output.format("%s", comparisons.get(testId));
+      if (comparisons.size() > 0) {
+        output.format("\nSig-Test: %s, threshold set to %f\n", comparisons.get(0), thresh);
+        if (comparisons.size() > 1) {
+          output.format("Other tests, computed, but not reported here: ");
+          for (int testId = 1; testId < comparisons.size(); testId++) {
+            if (testId > 1) {
+              output.format(", %s", comparisons.get(testId));
+            } else {
+              output.format("%s", comparisons.get(testId));
+            }
           }
+          output.format("\n");
         }
-        output.format("\n");
       }
     }
   }
@@ -388,11 +390,14 @@ public class Eval extends AppFunction {
       metrics = (String[]) p.getAsList("metrics").toArray(new String[0]);
     }
 
-    String[] tests = new String[]{"ttest"};
+    String[] tests = new String[]{"randomized"};
 
     // override default list if specified:
-    if (p.containsKey("comparisons")) {
+    if (p.isList("comparisons", Type.STRING)) {
       tests = (String[]) p.getAsList("comparisons").toArray(new String[0]);
+    } else if (p.isBoolean("comparisons") && !p.getBoolean("comparisons")) {
+      // allow the comparisons to be turned off.
+      tests = new String[0];
     }
     // get the test used
 

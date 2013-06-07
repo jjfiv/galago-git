@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
+import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.MalformedQueryException;
@@ -19,7 +19,9 @@ import org.lemurproject.galago.tupleflow.Parameters;
 /**
  * Weighted Sequential Dependency Model model is structurally similar to the
  * Sequential Dependency Model, however node weights are the linear combination
- * of some node features
+ * of some node features.
+ * 
+ *  (based on bendersky 2010)
  *
  * In particular the weight for a node "term" is determined to be:
  * weight("term") = unigram_constant + cf(term) * unigram_cf_lambda + df(term)
@@ -43,13 +45,12 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
   private Retrieval retrieval;
   private GroupRetrieval gRetrieval;
   private Parameters globalParams;
-  private Parameters queryParams;
-  private boolean logFrequencies;
-  private boolean probFrequencies;
-  private boolean combNorm;
+  private boolean defLogFrequencies;
+  private boolean defProbFrequencies;
+  private boolean defCombNorm;
   private boolean verbose;
-  private HashMap<String, Double> unigramWeights;
-  private HashMap<String, Double> bigramWeights;
+  private Map<String, Double> defUnigramWeights;
+  private Map<String, Double> defBigramWeights;
   private String wikiGroup;
   private String msnGroup;
   private String wikiTitlePart;
@@ -57,83 +58,82 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
   private String goog2Part;
   private String msnPart;
 
-  public WeightedSequentialDependenceTraversal(Retrieval retrieval, Parameters queryParameters) throws Exception {
+  public WeightedSequentialDependenceTraversal(Retrieval retrieval) throws Exception {
     if (retrieval instanceof GroupRetrieval) {
       gRetrieval = (GroupRetrieval) retrieval;
     }
     this.retrieval = retrieval;
 
     this.globalParams = retrieval.getGlobalParameters();
-    this.queryParams = queryParameters;
 
-    verbose = queryParams.get("verboseWSDM", globalParams.get("verboseWSDM", false));
+    verbose = globalParams.get("verboseWSDM", false);
 
-    logFrequencies = queryParams.get("logFreq", globalParams.get("logFreq", true));
-    probFrequencies = queryParams.get("probFreq", globalParams.get("probFreq", false));
-    combNorm = queryParams.get("norm", globalParams.get("norm", false));
+    defLogFrequencies = globalParams.get("logFreq", true);
+    defProbFrequencies = globalParams.get("probFreq", false);
+    defCombNorm = globalParams.get("norm", false);
 
-    assert (!(logFrequencies && probFrequencies)) : "WeightedSequentialDependenceTraversal can use either 'log' or 'prob' frequencies, not both.";
+    assert (!(defLogFrequencies && defProbFrequencies)) : "WeightedSequentialDependenceTraversal can use either 'log' or 'prob' frequencies, not both.";
 
     if (gRetrieval != null) {
-      wikiGroup = queryParams.get("wikiTitleIndexGroup", globalParams.get("wikiTitleIndexGroup", (String) null));
-      msnGroup = queryParams.get("msnIndexGroup", globalParams.get("msnIndexGroup", (String) null));
+      wikiGroup = globalParams.get("wikiTitleIndexGroup", (String) null);
+      msnGroup = globalParams.get("msnIndexGroup", (String) null);
     }
 
     // constructed by build-special-coll-background
-    goog1Part = queryParams.get("googleUnigramPart", globalParams.get("googleUnigramPart", (String) null));
-    goog2Part = queryParams.get("googleBigramPart", globalParams.get("googleBigramPart", (String) null));
+    goog1Part = globalParams.get("googleUnigramPart", (String) null);
+    goog2Part = globalParams.get("googleBigramPart", (String) null);
 
     // constructed by build-special-coll-background
-    wikiTitlePart = queryParams.get("wikiTitlePart", globalParams.get("wikiTitlePart", (String) null));
+    wikiTitlePart = globalParams.get("wikiTitlePart", (String) null);
 
     // constructed by build-special-coll-background
-    msnPart = queryParams.get("msnPart", globalParams.get("msnPart", (String) null));
+    msnPart = globalParams.get("msnPart", (String) null);
 
     // parameters from local index
-    unigramWeights = new HashMap();
-    unigramWeights.put("uni-const", queryParams.get("uni-const", globalParams.get("uni-const", 0.8)));
-    unigramWeights.put("uni-tf", queryParams.get("uni-tf", globalParams.get("uni-tf", 0.0)));
-    unigramWeights.put("uni-df", queryParams.get("uni-df", globalParams.get("uni-df", 0.0)));
+    defUnigramWeights = new HashMap();
+    defUnigramWeights.put("uni-const", globalParams.get("uni-const", 0.8));
+    defUnigramWeights.put("uni-tf", globalParams.get("uni-tf", 0.0));
+    defUnigramWeights.put("uni-df", globalParams.get("uni-df", 0.0));
 
-    bigramWeights = new HashMap();
-    bigramWeights.put("bi-const", queryParams.get("bi-const", globalParams.get("bi-const", 0.1)));
-    bigramWeights.put("bi-tf", queryParams.get("bi-tf", globalParams.get("bi-tf", 0.0)));
-    bigramWeights.put("bi-df", queryParams.get("bi-df", globalParams.get("bi-df", 0.0)));
-    bigramWeights.put("bi-pmi", queryParams.get("bi-pmi", globalParams.get("bi-pmi", 0.0)));
+    defBigramWeights = new HashMap();
+    defBigramWeights.put("bi-const", globalParams.get("bi-const", 0.1));
+    defBigramWeights.put("bi-tf", globalParams.get("bi-tf", 0.0));
+    defBigramWeights.put("bi-df", globalParams.get("bi-df", 0.0));
+    defBigramWeights.put("bi-pmi", globalParams.get("bi-pmi", 0.0));
 
     // parameters from various special information sources
     if (goog1Part != null) {
-      unigramWeights.put("uni-google-tf", queryParams.get("uni-google-tf", globalParams.get("uni-google-tf", 0.0)));
+      defUnigramWeights.put("uni-google-tf", globalParams.get("uni-google-tf", 0.0));
     }
     if (goog2Part != null) {
-      bigramWeights.put("bi-google-tf", queryParams.get("bi-google-tf", globalParams.get("bi-google-tf", 0.0)));
-      bigramWeights.put("bi-google-pmi", queryParams.get("bi-google-pmi", globalParams.get("bi-google-pmi", 0.0)));
+      defBigramWeights.put("bi-google-tf", globalParams.get("bi-google-tf", 0.0));
+      defBigramWeights.put("bi-google-pmi", globalParams.get("bi-google-pmi", 0.0));
     }
     if (msnPart != null) {
-      unigramWeights.put("uni-msn-e", queryParams.get("uni-msn-e", globalParams.get("uni-msn-e", 0.0)));
-      bigramWeights.put("bi-msn-e", queryParams.get("bi-msn-e", globalParams.get("bi-msn-e", 0.0)));
+      defUnigramWeights.put("uni-msn-e", globalParams.get("uni-msn-e", 0.0));
+      defBigramWeights.put("bi-msn-e", globalParams.get("bi-msn-e", 0.0));
     }
 
     if (msnGroup != null) {
-      unigramWeights.put("uni-msn-tf", queryParams.get("uni-msn-tf", globalParams.get("uni-msn-tf", 0.0)));
-      bigramWeights.put("bi-msn-tf", queryParams.get("bi-msn-tf", globalParams.get("bi-msn-tf", 0.0)));
-      bigramWeights.put("bi-msn-pmi", queryParams.get("bi-msn-pmi", globalParams.get("bi-msn-pmi", 0.0)));
+      defUnigramWeights.put("uni-msn-tf", globalParams.get("uni-msn-tf", 0.0));
+      defBigramWeights.put("bi-msn-tf", globalParams.get("bi-msn-tf", 0.0));
+      defBigramWeights.put("bi-msn-pmi", globalParams.get("bi-msn-pmi", 0.0));
     }
 
     if (wikiTitlePart != null) {
-      unigramWeights.put("uni-wt-e", queryParams.get("uni-wt-e", globalParams.get("uni-wt-e", 0.0)));
-      bigramWeights.put("bi-wt-e", queryParams.get("bi-wt-e", globalParams.get("bi-wt-e", 0.0)));
+      defUnigramWeights.put("uni-wt-e", globalParams.get("uni-wt-e", 0.0));
+      defBigramWeights.put("bi-wt-e", globalParams.get("bi-wt-e", 0.0));
     }
 
     if (wikiGroup != null) {
-      unigramWeights.put("uni-wt-tf", queryParams.get("uni-wt-tf", globalParams.get("uni-wt-tf", 0.0)));
-      bigramWeights.put("bi-wt-tf", queryParams.get("bi-wt-tf", globalParams.get("bi-wt-tf", 0.0)));
-      bigramWeights.put("bi-wt-pmi", queryParams.get("bi-wt-pmi", globalParams.get("bi-wt-pmi", 0.0)));
+      defUnigramWeights.put("uni-wt-tf", globalParams.get("uni-wt-tf", 0.0));
+      defBigramWeights.put("bi-wt-tf", globalParams.get("bi-wt-tf", 0.0));
+      defBigramWeights.put("bi-wt-pmi", globalParams.get("bi-wt-pmi", 0.0));
     }
 
 
     // collect some stats for normalization
-    if (probFrequencies) {
+    if (defProbFrequencies) {
       collStats = retrieval.getCollectionStatistics("#lengths:document:part=lengths()");
 
       if (wikiGroup != null) {
@@ -158,23 +158,14 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
   }
 
   @Override
-  public void beforeNode(Node original) throws Exception {
+  public void beforeNode(Node original, Parameters queryParameters) throws Exception {
   }
 
   @Override
-  public Node afterNode(Node original) throws Exception {
+  public Node afterNode(Node original, Parameters queryParams) throws Exception {
     if (original.getOperator().equals("wsdm")) {
 
-      for (String p : this.unigramWeights.keySet()) {
-        if (original.getNodeParameters().containsKey(p)) {
-          this.unigramWeights.put(p, original.getNodeParameters().getDouble(p));
-        }
-      }
-      for (String p : this.bigramWeights.keySet()) {
-        if (original.getNodeParameters().containsKey(p)) {
-          this.bigramWeights.put(p, original.getNodeParameters().getDouble(p));
-        }
-      }
+      NodeParameters np = original.getNodeParameters();
 
       // First check format - should only contain text node children
       List<Node> children = original.getInternalNodes();
@@ -188,13 +179,13 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
       ArrayList<Node> newChildren = new ArrayList();
       NodeParameters newWeights = new NodeParameters();
       // i don't want normalization -- even though michael used some.
-      newWeights.set("norm", combNorm);
+      newWeights.set("norm", defCombNorm);
 
 
       for (Node child : children) {
         String term = child.getDefaultParameter();
 
-        double weight = computeWeight(term);
+        double weight = computeWeight(term, np, queryParams);
         newWeights.set(Integer.toString(newChildren.size()), weight);
         newChildren.add(child.clone());
       }
@@ -204,7 +195,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
         pair.add(new Node("extents", children.get(i).getDefaultParameter()));
         pair.add(new Node("extents", children.get(i + 1).getDefaultParameter()));
 
-        double weight = computeWeight(pair.get(0).getDefaultParameter(), pair.get(1).getDefaultParameter());
+        double weight = computeWeight(pair.get(0).getDefaultParameter(), pair.get(1).getDefaultParameter(), np, queryParams);
 
         newWeights.set(Integer.toString(newChildren.size()), weight);
         newChildren.add(new Node("od", new NodeParameters(1), Node.cloneNodeList(pair)));
@@ -225,21 +216,30 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     }
   }
 
-  private double computeWeight(String term) throws Exception {
-    Map<String, Double> featureValues = new HashMap(unigramWeights.size());
+  private double computeWeight(String term, NodeParameters np, Parameters queryParams) throws Exception {
+    
+    // override default weights
+    Map<String, Double> featureWeights = new HashMap(defUnigramWeights.size());
+    for(String key : defUnigramWeights.keySet()){
+      featureWeights.put(key, np.get(key, queryParams.get(key, this.defUnigramWeights.get(key))));
+    }
+    
+    // start collecting feature values (should replace this spagetti code with feature-getters)
+    Map<String, Double> featureValues = new HashMap(defUnigramWeights.size());
     featureValues.put("uni-const", 1.0);
 
+    // prepare node (will be used several times)
     Node t = new Node("counts", term);
     t = TextPartAssigner.assignPart(t, queryParams, retrieval.getAvailableParts());
 
-    if ((unigramWeights.get("uni-tf") != 0.0) || (unigramWeights.get("uni-df") != 0.0)) {
+    if ((featureWeights.get("uni-tf") != 0.0) || (featureWeights.get("uni-df") != 0.0)) {
       NodeStatistics stats = retrieval.getNodeStatistics(t);
 
       if (stats.nodeFrequency > 0) {
-        if (probFrequencies) {
+        if (defProbFrequencies) {
           featureValues.put("uni-tf", (stats.nodeFrequency / (double) this.collStats.collectionLength));
           featureValues.put("uni-df", (stats.nodeDocumentCount / (double) this.collStats.documentCount));
-        } else if (logFrequencies) {
+        } else if (defLogFrequencies) {
           featureValues.put("uni-tf", Math.log(stats.nodeFrequency));
           featureValues.put("uni-df", Math.log(stats.nodeDocumentCount));
         } else {
@@ -253,14 +253,14 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     }
 
     // google-uni-grams
-    if (goog1Part != null && unigramWeights.get("uni-google-tf") != 0.0) {
+    if (goog1Part != null && featureWeights.get("uni-google-tf") != 0.0) {
       t.getNodeParameters().set("part", goog1Part);
       NodeStatistics stats = retrieval.getNodeStatistics(t);
 
       if (stats.nodeFrequency > 0) {
-        if (probFrequencies) {
+        if (defProbFrequencies) {
           featureValues.put("uni-google-tf", (stats.nodeFrequency / (double) this.google1PartStats.collectionLength));
-        } else if (logFrequencies) {
+        } else if (defLogFrequencies) {
           featureValues.put("uni-google-tf", Math.log(stats.nodeFrequency));
         } else {
           featureValues.put("uni-google-tf", (double) stats.nodeFrequency);
@@ -271,7 +271,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     }
 
     // wiki-title-existences
-    if (wikiTitlePart != null && unigramWeights.get("uni-wt-e") != 0.0) {
+    if (wikiTitlePart != null && featureWeights.get("uni-wt-e") != 0.0) {
       t.getNodeParameters().set("part", wikiTitlePart);
       NodeStatistics stats = retrieval.getNodeStatistics(t);
 
@@ -283,7 +283,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     }
 
     // wiki-title-existences
-    if (msnPart != null && unigramWeights.get("uni-msn-e") != 0.0) {
+    if (msnPart != null && featureWeights.get("uni-msn-e") != 0.0) {
       t.getNodeParameters().set("part", msnPart);
       NodeStatistics stats = retrieval.getNodeStatistics(t);
 
@@ -296,15 +296,15 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
 
     // wiki group
-    if (wikiGroup != null && unigramWeights.get("uni-wt-tf") != 0.0) {
+    if (wikiGroup != null && featureWeights.get("uni-wt-tf") != 0.0) {
       Node wt = new Node("counts", term);
       wt = TextPartAssigner.assignPart(wt, queryParams, gRetrieval.getAvailableParts(wikiGroup));
       NodeStatistics stats = gRetrieval.getNodeStatistics(wt, wikiGroup);
 
       if (stats.nodeFrequency > 0) {
-        if (probFrequencies) {
+        if (defProbFrequencies) {
           featureValues.put("uni-wt-tf", (stats.nodeFrequency / (double) this.wikiStats.collectionLength));
-        } else if (logFrequencies) {
+        } else if (defLogFrequencies) {
           featureValues.put("uni-wt-tf", Math.log(stats.nodeFrequency));
         } else {
           featureValues.put("uni-wt-tf", (double) stats.nodeFrequency);
@@ -315,15 +315,15 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     }
 
     // msn group
-    if (msnGroup != null && unigramWeights.get("uni-msn-tf") != 0.0) {
+    if (msnGroup != null && featureWeights.get("uni-msn-tf") != 0.0) {
       Node mt = new Node("counts", term);
       mt = TextPartAssigner.assignPart(mt, queryParams, gRetrieval.getAvailableParts(wikiGroup));
       NodeStatistics stats = gRetrieval.getNodeStatistics(mt, msnGroup);
 
       if (stats.nodeFrequency > 0) {
-        if (probFrequencies) {
+        if (defProbFrequencies) {
           featureValues.put("uni-msn-tf", (stats.nodeFrequency / (double) this.msnStats.collectionLength));
-        } else if (logFrequencies) {
+        } else if (defLogFrequencies) {
           featureValues.put("uni-msn-tf", Math.log(stats.nodeFrequency));
         } else {
           featureValues.put("uni-msn-tf", (double) stats.nodeFrequency);
@@ -336,24 +336,32 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     double weight = 0.0;
 
     for (String feature : featureValues.keySet()) {
-      weight += featureValues.get(feature) * unigramWeights.get(feature);
+      weight += featureValues.get(feature) * featureWeights.get(feature);
     }
 
     if (verbose) {
       System.err.println(term);
       for (String feature : featureValues.keySet()) {
-        System.err.println("\t" + feature + "\t" + featureValues.get(feature) + "\t" + unigramWeights.get(feature));
+        System.err.println("\t" + feature + "\t" + featureValues.get(feature) + "\t" + featureWeights.get(feature));
       }
       System.err.println("\n");
     }
     return weight;
   }
 
-  private double computeWeight(String term1, String term2) throws Exception {
+  private double computeWeight(String term1, String term2, NodeParameters np, Parameters queryParams) throws Exception {
+    
+    // override default weights
+    Map<String, Double> featureWeights = new HashMap(defBigramWeights.size());
+    for(String key : defBigramWeights.keySet()){
+      featureWeights.put(key, np.get(key, queryParams.get(key, this.defBigramWeights.get(key))));
+    }
 
-    Map<String, Double> featureValues = new HashMap(unigramWeights.size());
+    // start collecting feature values (should replace this spagetti code with feature-getters)
+    Map<String, Double> featureValues = new HashMap(defUnigramWeights.size());
     featureValues.put("bi-const", 1.0);
 
+    // prepare nodes (will be used several times)
     Node t1 = new Node("extents", term1);
     t1 = TextPartAssigner.assignPart(t1, queryParams, retrieval.getAvailableParts());
     Node t2 = new Node("extents", term2);
@@ -365,16 +373,16 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     od.addChild(t2);
     od = retrieval.transformQuery(od, new Parameters());
 
-    if ((bigramWeights.get("bi-tf") != 0.0)
-            || (bigramWeights.get("bi-df") != 0.0)
-            || bigramWeights.get("bi-pmi") != 0.0) {
+    if ((featureWeights.get("bi-tf") != 0.0)
+            || (featureWeights.get("bi-df") != 0.0)
+            || featureWeights.get("bi-pmi") != 0.0) {
       NodeStatistics stats = retrieval.getNodeStatistics(od);
 
       if (stats.nodeFrequency > 0) {
-        if (probFrequencies) {
+        if (defProbFrequencies) {
           featureValues.put("bi-tf", (stats.nodeFrequency / (double) this.collStats.collectionLength));
           featureValues.put("bi-df", (stats.nodeDocumentCount / (double) this.collStats.documentCount));
-        } else if (logFrequencies) {
+        } else if (defLogFrequencies) {
           featureValues.put("bi-tf", Math.log(stats.nodeFrequency));
           featureValues.put("bi-df", Math.log(stats.nodeDocumentCount));
         } else {
@@ -400,17 +408,17 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
     // google-bi-grams
     if (goog2Part != null
-            && (bigramWeights.get("bi-google-tf") != 0.0
-            || bigramWeights.get("bi-google-pmi") != 0.0)) {
+            && (featureWeights.get("bi-google-tf") != 0.0
+            || featureWeights.get("bi-google-pmi") != 0.0)) {
 
       Node t = new Node("counts", term1 + "~" + term2);
       t.getNodeParameters().set("part", goog2Part);
       NodeStatistics stats = retrieval.getNodeStatistics(t);
 
       if (stats.nodeFrequency > 0) {
-        if (probFrequencies) {
+        if (defProbFrequencies) {
           featureValues.put("bi-google-tf", (stats.nodeFrequency / (double) this.google2PartStats.collectionLength));
-        } else if (logFrequencies) {
+        } else if (defLogFrequencies) {
           featureValues.put("bi-google-tf", Math.log(stats.nodeFrequency));
         } else {
           featureValues.put("bi-google-tf", (double) stats.nodeFrequency);
@@ -419,7 +427,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
         featureValues.put("bi-google-tf", 0.0);
       }
 
-      if (goog1Part != null && bigramWeights.get("bi-google-pmi") != 0.0) {
+      if (goog1Part != null && featureWeights.get("bi-google-pmi") != 0.0) {
         if (stats.nodeFrequency > 0.0) {
           Node t1g = new Node("counts", term1);
           t1g.getNodeParameters().set("part", goog1Part);
@@ -437,7 +445,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     }
 
     // wiki-title-existences
-    if (wikiTitlePart != null && bigramWeights.get("bi-wt-e") != 0.0) {
+    if (wikiTitlePart != null && featureWeights.get("bi-wt-e") != 0.0) {
       Node t = new Node("counts", term1 + "~" + term2);
       t.getNodeParameters().set("part", wikiTitlePart);
       NodeStatistics stats = retrieval.getNodeStatistics(t);
@@ -450,7 +458,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     }
 
     // wiki-title-existences
-    if (msnPart != null && bigramWeights.get("bi-msn-e") != 0.0) {
+    if (msnPart != null && featureWeights.get("bi-msn-e") != 0.0) {
       Node t = new Node("counts", term1 + "~" + term2);
       t.getNodeParameters().set("part", msnPart);
       NodeStatistics stats = retrieval.getNodeStatistics(t);
@@ -465,8 +473,8 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
     // wiki group
     if (wikiGroup != null
-            && ((bigramWeights.get("bi-wt-tf") != 0.0)
-            || (bigramWeights.get("bi-wt-pmi") != 0.0))) {
+            && ((featureWeights.get("bi-wt-tf") != 0.0)
+            || (featureWeights.get("bi-wt-pmi") != 0.0))) {
 
       t1 = new Node("extents", term1);
       t1 = TextPartAssigner.assignPart(t1, queryParams, gRetrieval.getAvailableParts(wikiGroup));
@@ -480,9 +488,9 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
       NodeStatistics stats = gRetrieval.getNodeStatistics(wt, wikiGroup);
 
       if (stats.nodeFrequency > 0) {
-        if (probFrequencies) {
+        if (defProbFrequencies) {
           featureValues.put("bi-wt-tf", (stats.nodeFrequency / (double) this.wikiStats.collectionLength));
-        } else if (logFrequencies) {
+        } else if (defLogFrequencies) {
           featureValues.put("bi-wt-tf", Math.log(stats.nodeFrequency));
         } else {
           featureValues.put("bi-wt-tf", (double) stats.nodeFrequency);
@@ -491,7 +499,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
         featureValues.put("bi-wt-tf", 0.0);
       }
 
-      if (bigramWeights.get("bi-wt-pmi") != 0.0) {
+      if (featureWeights.get("bi-wt-pmi") != 0.0) {
         if (stats.nodeFrequency > 0.0) {
           NodeStatistics t1stats = gRetrieval.getNodeStatistics(t1, wikiGroup);
           NodeStatistics t2stats = gRetrieval.getNodeStatistics(t2, wikiGroup);
@@ -505,7 +513,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     }
 
     // msn group
-    if (msnGroup != null && bigramWeights.get("bi-msn-tf") != 0.0) {
+    if (msnGroup != null && featureWeights.get("bi-msn-tf") != 0.0) {
       t1 = new Node("extents", term1);
       t1 = TextPartAssigner.assignPart(t1, queryParams, gRetrieval.getAvailableParts(msnGroup));
       t2 = new Node("extents", term2);
@@ -519,9 +527,9 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
       NodeStatistics stats = gRetrieval.getNodeStatistics(mt, msnGroup);
 
       if (stats.nodeFrequency > 0) {
-        if (probFrequencies) {
+        if (defProbFrequencies) {
           featureValues.put("bi-msn-tf", (stats.nodeFrequency / (double) this.wikiStats.collectionLength));
-        } else if (logFrequencies) {
+        } else if (defLogFrequencies) {
           featureValues.put("bi-msn-tf", Math.log(stats.nodeFrequency));
         } else {
           featureValues.put("bi-msn-tf", (double) stats.nodeFrequency);
@@ -530,7 +538,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
         featureValues.put("bi-msn-tf", 0.0);
       }
 
-      if (bigramWeights.get("bi-msn-pmi") != 0.0) {
+      if (featureWeights.get("bi-msn-pmi") != 0.0) {
         if (stats.nodeFrequency > 0) {
           NodeStatistics t1stats = gRetrieval.getNodeStatistics(t1, msnGroup);
           NodeStatistics t2stats = gRetrieval.getNodeStatistics(t2, msnGroup);
@@ -546,13 +554,13 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     double weight = 0.0;
 
     for (String feature : featureValues.keySet()) {
-      weight += featureValues.get(feature) * bigramWeights.get(feature);
+      weight += featureValues.get(feature) * featureWeights.get(feature);
     }
 
     if (verbose) {
       System.err.println(term1 + " ~ " + term2);
       for (String feature : featureValues.keySet()) {
-        System.err.println("\t" + feature + "\t" + featureValues.get(feature) + "\t" + bigramWeights.get(feature));
+        System.err.println("\t" + feature + "\t" + featureValues.get(feature) + "\t" + featureWeights.get(feature));
       }
       System.err.println("\n");
     }

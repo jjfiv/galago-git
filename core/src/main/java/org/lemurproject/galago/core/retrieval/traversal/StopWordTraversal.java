@@ -30,35 +30,40 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class StopWordTraversal extends Traversal {
 
-  public static Set<String> stopwords = null;
+  public static Set<String> defaultStopwords = null;
 
-  public StopWordTraversal(Retrieval retrieval, Parameters queryParameters) throws IOException {
-    if (stopwords == null) {
+  public StopWordTraversal(Retrieval retrieval) throws IOException {
+    if (defaultStopwords == null) {
       // default to 'inquery' list
-      String stopwordlist = queryParameters.get("stopwordlist", retrieval.getGlobalParameters().get("stopwordlist", "inquery"));
-      stopwords = WordLists.getWordList(stopwordlist);
+      String stopwordlist = retrieval.getGlobalParameters().get("stopwordlist", "inquery");
+      defaultStopwords = WordLists.getWordList(stopwordlist);
     }
   }
 
   @Override
-  public void beforeNode(Node node) throws Exception {
+  public void beforeNode(Node node, Parameters queryParameters) throws Exception {
   }
 
   @Override
-  public Node afterNode(Node original) throws Exception {
+  public Node afterNode(Node original, Parameters queryParameters) throws Exception {
+    Set<String> stopwords = defaultStopwords;
+    if (queryParameters.isString("stopwordlist")) {
+      String stopwordlist = queryParameters.getString("stopwordlist");
+      stopwords = WordLists.getWordList(stopwordlist);
+    }
     if (original.getOperator().equals("stopword")) {
       // remove #stopword from node
       Node newHead = new Node("combine", original.getInternalNodes());
 
       // recusively find and remove stopwords from #text nodes
-      recFindStopWords(newHead);
+      recFindStopWords(newHead, stopwords);
 
       return newHead;
     }
     return original;
   }
 
-  private void recFindStopWords(Node node) {
+  private void recFindStopWords(Node node, Set<String> stopwords) {
     if (node.getOperator().equals("text")) {
       // check for stopword, delete node if nec.
       String term = node.getDefaultParameter();
@@ -70,7 +75,7 @@ public class StopWordTraversal extends Traversal {
     } else {
       List<Node> childrenCopy = new ArrayList(node.getInternalNodes());
       for (Node child : childrenCopy) {
-        recFindStopWords(child);
+        recFindStopWords(child, stopwords);
       }
     }
   }

@@ -2,7 +2,9 @@
 package org.lemurproject.galago.core.retrieval;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Basic retrieval unit. The results returned by the Retrieval.runQuery typically return
@@ -11,6 +13,13 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
  * @author trevor, irmarc, sjh
  */
 public class ScoredDocument implements Comparable<ScoredDocument>, Serializable {
+
+  public String documentName;
+  public String source; // lets us know where this scored doc came from
+  public int document;
+  public int rank;
+  public double score;
+  public AnnotatedNode annotation = null;
 
   public ScoredDocument() {
     this(0, 0);
@@ -27,14 +36,14 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
     this.score = score;
     this.document = -1;
   }
-  
+
   @Override
   public int compareTo(ScoredDocument other) {
     if (score != other.score) {
-      return Double.compare(score, other.score);
+      return Utility.compare(score, other.score);
     }
-    if( (source != null) && (other.source != null) &&
-        (! source.equals(other.source))) {
+    if ((source != null) && (other.source != null)
+            && (!source.equals(other.source))) {
       return source.compareTo(other.source);
     }
     return other.document - document;
@@ -42,14 +51,38 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
 
   @Override
   public String toString() {
-    return String.format("%d,%f", document, score);
+    return String.format("%s %d %s galago", documentName, rank, formatScore(score));
   }
 
-  public String documentName;
-  public String source; // lets us know where this scored doc came from
-  public int document;
-  public int rank;
-  public double score;
-  
-  public AnnotatedNode annotation = null;
+  public String toString(String qid) {
+    return String.format("%s Q0 %s %d %s galago", qid, documentName, rank, formatScore(score));
+  }
+
+  public String toTRECformat(String qid) {
+    return String.format("%s Q0 %s %d %s galago", qid, documentName, rank, formatScore(score));
+  }
+
+  protected static String formatScore(double score) {
+    double difference = Math.abs(score - (int) score);
+
+    if (difference < 0.00001) {
+      return Integer.toString((int) score);
+    }
+    return String.format("%10.8f", score);
+  }
+
+  public static class ScoredDocumentComparator implements Comparator<ScoredDocument> {
+
+    @Override
+    public int compare(ScoredDocument o1, ScoredDocument o2) {
+      if (o1.score != o2.score) {
+        return Utility.compare(o1.score, o2.score);
+      }
+      if ((o1.source != null) && (o2.source != null)
+              && (!o1.source.equals(o2.source))) {
+        return o1.source.compareTo(o2.source);
+      }
+      return o2.document - o1.document;
+    }
+  }
 }

@@ -3,10 +3,10 @@
  */
 package org.lemurproject.galago.core.retrieval.traversal.optimize;
 
-import org.lemurproject.galago.core.retrieval.traversal.optimize.FlattenWindowTraversal;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -21,7 +21,7 @@ public class FlattenWindowTraversalTest extends TestCase {
   public void testNestedWindowRewrite() throws Exception {
     String query = "#uw:5( #od:1(#text:a() #text:b()) )";
     Node result = StructuredQuery.parse(query);
-    Node transformed = StructuredQuery.copy(new FlattenWindowTraversal(), result);
+    Node transformed = StructuredQuery.copy(new FlattenWindowTraversal(), result, new Parameters());
     assertEquals("#od:1( #text:a() #text:b() )", transformed.toString());
   }
 }

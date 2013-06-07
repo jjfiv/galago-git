@@ -72,9 +72,10 @@ public abstract class DisjunctionIterator implements MovableIterator {
   public int currentCandidate() {
     // the current candidate is the smallest of the set
     int candidate = Integer.MAX_VALUE;
-    for (MovableIterator iterator : drivingIterators) {
-      if (!iterator.isDone()) {
-        candidate = Math.min(candidate, iterator.currentCandidate());
+    for(int i=0; i<drivingIterators.length;i++){
+      if (!drivingIterators[i].isDone()) {
+        int otherCandidate = drivingIterators[i].currentCandidate();
+        candidate = (candidate <= otherCandidate)? candidate : otherCandidate;
       }
     }
     return candidate;

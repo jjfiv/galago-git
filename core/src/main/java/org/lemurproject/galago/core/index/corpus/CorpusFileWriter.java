@@ -17,11 +17,11 @@ import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
- * Writes document text and metadata to an index file.  The output files
- * are in '.corpus' format, which can be fed to UniversalParser as an input
- * to indexing.  The '.corpus' format is also convenient for quickly
- * finding individual documents.
- * 
+ * Writes document text and metadata to an index file. The output files are in
+ * '.corpus' format, which can be fed to UniversalParser as an input to
+ * indexing. The '.corpus' format is also convenient for quickly finding
+ * individual documents.
+ *
  * @author trevor
  */
 @InputClass(className = "org.lemurproject.galago.core.parse.Document")
@@ -48,7 +48,7 @@ public class CorpusFileWriter implements Processor<Document> {
 
   @Override
   public void process(Document document) throws IOException {
-    writer.add(new GenericElement(Utility.fromInt(document.identifier), Document.serialize(corpusParams, document)));
+    writer.add(new GenericElement(Utility.fromInt(document.identifier), Document.serialize(document)));
     if (documentsWritten != null) {
       documentsWritten.increment();
     }

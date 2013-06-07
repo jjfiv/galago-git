@@ -5,10 +5,10 @@ package org.lemurproject.galago.core.retrieval;
 
 import java.io.File;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.mem.MemoryCountIndex;
 import org.lemurproject.galago.core.index.mem.MemorySparseDoubleIndex;
 import org.lemurproject.galago.core.index.mem.MemoryWindowIndex;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
@@ -45,6 +45,7 @@ public class CachedRetrievalTest extends TestCase {
       Parameters p = new Parameters();
       p.set("cache", true);
       p.set("cacheScores", true);
+      p.set("cacheStats", true);
       LocalRetrieval cacheRet = (LocalRetrieval) RetrievalFactory.instance(indexFile.getAbsolutePath(), p);
 
       // SCORE node
@@ -73,11 +74,14 @@ public class CachedRetrievalTest extends TestCase {
       Node count = StructuredQuery.parse("#counts:is:part=postings()");
       cacheRet.addNodeToCache(count);
 
-      NodeStatistics diskNS = nonCacheRet.getNodeStatistics(count);
-      NodeStatistics cachedNS = cacheRet.getNodeStatistics(count);
+      NodeStatistics diskNS = nonCacheRet.getNodeStatistics(count); // from disk
+      NodeStatistics cachedNS = cacheRet.getNodeStatistics(count);  // from memory-cached-node
+      NodeStatistics cachedNS2 = cacheRet.getNodeStatistics(count); // stored in statistic cache
 
       assertEquals(diskNS.nodeDocumentCount, cachedNS.nodeDocumentCount);
       assertEquals(diskNS.nodeFrequency, cachedNS.nodeFrequency);
+      assertEquals(diskNS.nodeDocumentCount, cachedNS2.nodeDocumentCount);
+      assertEquals(diskNS.nodeFrequency, cachedNS2.nodeFrequency);
 
       MovableCountIterator diskCountIterator = (MovableCountIterator) nonCacheRet.createIterator(new Parameters(), count, sc);
       MovableCountIterator cachedCountIterator = (MovableCountIterator) cacheRet.createIterator(new Parameters(), count, sc);

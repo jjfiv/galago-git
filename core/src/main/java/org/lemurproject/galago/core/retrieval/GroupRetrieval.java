@@ -8,10 +8,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
+import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
@@ -36,13 +37,15 @@ public class GroupRetrieval implements Retrieval {
   protected Parameters globalParameters;
   protected String defGroup;
   protected HashMap<String, Retrieval> groups;
+  protected List<Traversal> defaultTraversals;
 
   public GroupRetrieval(HashMap<String, Retrieval> groups, Parameters parameters,
-          String defGroup) {
+          String defGroup) throws Exception {
     this.groups = groups;
     this.globalParameters = parameters;
     this.defGroup = defGroup;
     this.features = new FeatureFactory(globalParameters);
+    defaultTraversals = features.getTraversals(this);
   }
 
   // IMPLEMENTED FUNCTIONS - Traversals use group-retrievals to collect aggregate stats
@@ -52,8 +55,10 @@ public class GroupRetrieval implements Retrieval {
 
   @Override
   public Node transformQuery(Node queryTree, Parameters queryParams) throws Exception {
-    for (Traversal traversal : this.features.getTraversals(this, queryTree, queryParams)) {
-      queryTree = StructuredQuery.walk(traversal, queryTree);
+    for (Traversal traversal : defaultTraversals) {
+      traversal.beforeTreeRoot(queryTree, queryParams);
+      queryTree = StructuredQuery.walk(traversal, queryTree, queryParams);
+      queryTree = traversal.afterTreeRoot(queryTree, queryParams);
     }
     return queryTree;
   }
@@ -77,12 +82,12 @@ public class GroupRetrieval implements Retrieval {
   }
 
   @Override
-  public Document getDocument(String identifier, Parameters p) throws IOException {
+  public Document getDocument(String identifier, DocumentComponents p) throws IOException {
     return groups.get(defGroup).getDocument(identifier, p);
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> identifier, Parameters p) throws IOException {
+  public Map<String, Document> getDocuments(List<String> identifier, DocumentComponents p) throws IOException {
     return groups.get(defGroup).getDocuments(identifier, p);
   }
 
@@ -103,7 +108,7 @@ public class GroupRetrieval implements Retrieval {
 
   @Override
   public ScoredDocument[] runQuery(Node root, Parameters parameters) throws Exception {
-    if(parameters.isString("group")){
+    if (parameters.isString("group")) {
       return groups.get(parameters.getString("group")).runQuery(root, parameters);
     }
     return groups.get(defGroup).runQuery(root, parameters);
@@ -168,11 +173,11 @@ public class GroupRetrieval implements Retrieval {
     return groups.get(group).getAvailableParts();
   }
 
-  public Document getDocument(String identifier, Parameters p, String group) throws IOException {
+  public Document getDocument(String identifier, DocumentComponents p, String group) throws IOException {
     return groups.get(group).getDocument(identifier, p);
   }
 
-  public Map<String, Document> getDocuments(List<String> identifier, Parameters p, String group) throws IOException {
+  public Map<String, Document> getDocuments(List<String> identifier, DocumentComponents p, String group) throws IOException {
     return groups.get(group).getDocuments(identifier, p);
   }
 

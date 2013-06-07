@@ -22,42 +22,53 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * 
  * @author sjh
  */
-public class PassageRestrictionTraversal extends Traversal {  
-  private Retrieval retrieval;
-  private Parameters queryParams;
-  private Parameters globalParams;
-  private boolean passageQuery;
-  private boolean wrapLengths;
-  private boolean wrapExtents;
+public class PassageRestrictionTraversal extends Traversal {
 
-  public PassageRestrictionTraversal(Retrieval retrieval, Parameters queryParameters){
+  private Retrieval retrieval;
+  private Parameters globalParams;
+  private boolean defaultPassageQuery;
+  private boolean defaultWrapLengths;
+  private boolean defaultWrapExtents;
+
+  public PassageRestrictionTraversal(Retrieval retrieval) {
     this.retrieval = retrieval;
     this.globalParams = retrieval.getGlobalParameters();
-    this.queryParams = queryParameters;
-    this.passageQuery = this.globalParams.get("passageQuery", false) || this.globalParams.get("extentQuery", false);
-    this.passageQuery = this.queryParams.get("passageQuery", passageQuery) || this.queryParams.get("extentQuery", passageQuery);
-    
+    this.defaultPassageQuery = this.globalParams.get("passageQuery", false) || this.globalParams.get("extentQuery", false);
+
     // if a field index is being used, it might be important to ignore this wrapper.
-    this.wrapLengths = this.queryParams.get("wrapPassageLengths", this.globalParams.get("wrapPassageLengths", true));
+    this.defaultWrapLengths = this.globalParams.get("wrapPassageLengths", true);
+
     // if some special index is being used, it might be important to ignore this wrapper.
-    this.wrapExtents = this.queryParams.get("wrapPassageLengths", this.globalParams.get("wrapPassageLengths", true));
+    this.defaultWrapExtents = this.globalParams.get("wrapPassageLengths", true);
   }
-  
+
   @Override
-  public Node afterNode(Node original) throws Exception {
-    if(!passageQuery){
+  public void beforeNode(Node object, Parameters queryParameters) throws Exception {
+    // do nothing
+  }
+
+  @Override
+  public Node afterNode(Node original, Parameters queryParameters) throws Exception {
+ 
+    boolean passageQuery = queryParameters.get("passageQuery", false) || queryParameters.get("extentQuery", false);
+    // if a field index is being used, it might be important to ignore this wrapper.
+    boolean wrapLengths = queryParameters.get("wrapPassageLengths", true);
+    // if some special index is being used, it might be important to ignore this wrapper.
+    boolean wrapExtents = queryParameters.get("wrapPassageLengths", true);
+    
+    if (!passageQuery) {
       return original;
     }
     // check if the node returns extents or lengths
     NodeType nodeType = retrieval.getNodeType(original);
 
     // check for a lengths node, that is not already a passagelengths node
-    if(wrapLengths && nodeType != null && MovableLengthsIterator.class.isAssignableFrom(nodeType.getIteratorClass())
-            && ! PassageLengthIterator.class.isAssignableFrom(nodeType.getIteratorClass())){
+    if (wrapLengths && nodeType != null && MovableLengthsIterator.class.isAssignableFrom(nodeType.getIteratorClass())
+            && !PassageLengthIterator.class.isAssignableFrom(nodeType.getIteratorClass())) {
       Node parent = original.getParent();
       // check if parent node is a neither extents nor lengths node (e.g. scoring or other), even null (original == root), do nothing (?)
-      NodeType parType = (parent!=null)? retrieval.getNodeType(parent): null;
-      if(parType != null && !MovableLengthsIterator.class.isAssignableFrom(parType.getIteratorClass())){
+      NodeType parType = (parent != null) ? retrieval.getNodeType(parent) : null;
+      if (parType != null && !MovableLengthsIterator.class.isAssignableFrom(parType.getIteratorClass())) {
         // if so : wrap in passage restriction 
         Node replacement = new Node("passagelengths");
         replacement.addChild(original);
@@ -66,27 +77,22 @@ public class PassageRestrictionTraversal extends Traversal {
     }
 
     // check for an extents node that is not already a restriction node
-    if(wrapExtents && nodeType != null 
+    if (wrapExtents && nodeType != null
             && MovableExtentIterator.class.isAssignableFrom(nodeType.getIteratorClass())
-            && ! PassageFilterIterator.class.isAssignableFrom(nodeType.getIteratorClass())){
+            && !PassageFilterIterator.class.isAssignableFrom(nodeType.getIteratorClass())) {
 
       Node parent = original.getParent();
 
       // check if parent node is a neither extents nor lengths node (e.g. scoring or other), if null (original == root), do nothing (?)
-      NodeType parType = (parent!=null)? retrieval.getNodeType(parent): null;
-      if(parType != null && !MovableExtentIterator.class.isAssignableFrom(parType.getIteratorClass())){
+      NodeType parType = (parent != null) ? retrieval.getNodeType(parent) : null;
+      if (parType != null && !MovableExtentIterator.class.isAssignableFrom(parType.getIteratorClass())) {
         // if so : wrap in passage restriction 
         Node replacement = new Node("passagefilter");
         replacement.addChild(original);
         return replacement;
       }
     }
-    
-    return original;
-  }
 
-  @Override
-  public void beforeNode(Node object) throws Exception {
-    // do nothing
+    return original;
   }
 }

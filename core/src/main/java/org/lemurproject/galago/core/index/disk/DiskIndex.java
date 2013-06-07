@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.AggregateReader.AggregateIndexPart;
-import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
 import org.lemurproject.galago.core.index.BTreeFactory;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.Index;
@@ -30,7 +28,10 @@ import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
+import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
+import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -49,6 +50,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class DiskIndex implements Index {
 
+  private final Logger logger = Logger.getLogger("DiskIndex");
   protected File location;
   protected Parameters manifest = new Parameters();
   protected LengthsReader lengthsReader = null;
@@ -70,12 +72,21 @@ public class DiskIndex implements Index {
     // Initialize these now b/c they're so common
     if (parts.containsKey("lengths")) {
       lengthsReader = (DiskLengthsReader) parts.get("lengths");
+    } else {
+      logger.warning("Index does not contain a lengths part.");
     }
     if (parts.containsKey("names")) {
       namesReader = (DiskNameReader) parts.get("names");
+    } else {
+      logger.warning("Index does not contain a names part.");
+    }
+
+    if (parts.size() < 3) {
+      logger.warning("Index contains fewer than 3 parts:- this index might not be compatible with this version.");
     }
 
     initializeIndexOperators();
+
   }
 
   public DiskIndex(String indexPath) throws IOException {
@@ -91,9 +102,17 @@ public class DiskIndex implements Index {
     // Initialize these now b/c they're so common
     if (parts.containsKey("lengths")) {
       lengthsReader = (DiskLengthsReader) parts.get("lengths");
+    } else {
+      logger.warning("Index does not contain a lengths part.");
     }
     if (parts.containsKey("names")) {
       namesReader = (DiskNameReader) parts.get("names");
+    } else {
+      logger.warning("Index does not contain a names part.");
+    }
+
+    if (parts.size() < 3) {
+      logger.warning("Index contains fewer than 3 parts:- this index might not be compatible with this version.");
     }
 
     initializeIndexOperators();
@@ -332,7 +351,7 @@ public class DiskIndex implements Index {
       }
       throw new IllegalArgumentException("Index part, " + part + ", does not store aggregated statistics.");
     }
-    throw new IllegalArgumentException("Index part, " + part + ", could not be found in index, " + this.location.getAbsolutePath() );
+    throw new IllegalArgumentException("Index part, " + part + ", could not be found in index, " + this.location.getAbsolutePath());
   }
 
   @Override
@@ -361,7 +380,7 @@ public class DiskIndex implements Index {
   }
 
   @Override
-  public Document getDocument(String document, Parameters p) throws IOException {
+  public Document getDocument(String document, DocumentComponents p) throws IOException {
     if (parts.containsKey("corpus")) {
       try {
         CorpusReader corpus = (CorpusReader) parts.get("corpus");
@@ -369,16 +388,16 @@ public class DiskIndex implements Index {
         return corpus.getDocument(docId, p);
       } catch (Exception e) {
         // ignore the exception
-        Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, 
-							"Failed to get document: {0}\n{1}", 
-							new Object[]{document, e.toString()});
+        Logger.getLogger(this.getClass().getName()).log(Level.SEVERE,
+                "Failed to get document: {0}\n{1}",
+                new Object[]{document, e.toString()});
       }
     }
     return null;
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> documents, Parameters p) throws IOException {
+  public Map<String, Document> getDocuments(List<String> documents, DocumentComponents p) throws IOException {
     HashMap<String, Document> results = new HashMap();
 
     // should get a names iterator + sort requested documents

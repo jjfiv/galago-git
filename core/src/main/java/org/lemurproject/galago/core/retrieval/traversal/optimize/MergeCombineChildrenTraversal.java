@@ -26,11 +26,11 @@ public class MergeCombineChildrenTraversal extends Traversal {
   }
 
   @Override
-  public void beforeNode(Node object) throws Exception {
+  public void beforeNode(Node object, Parameters qp) throws Exception {
   }
 
   @Override
-  public Node afterNode(Node original) throws Exception {
+  public Node afterNode(Node original, Parameters qp) throws Exception {
 
     // merge combine children nodes and add weights together
     if (original.getOperator().equals("combine")) {

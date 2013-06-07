@@ -90,6 +90,10 @@ public class RetrievalModelInstance {
     return toParameters().toString();
   }
 
+  public String toPrettyString() {
+    return toParameters().toPrettyString();
+  }
+
   public Parameters toParameters() {
     Parameters ps = outParams.clone();
     for (String p : params.getParams()) {

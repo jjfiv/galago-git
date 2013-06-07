@@ -5,8 +5,8 @@ package org.lemurproject.galago.core.retrieval;
 
 import java.io.IOException;
 import java.util.HashMap;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
 import org.lemurproject.galago.core.index.mem.*;
+import org.lemurproject.galago.core.index.stats.AggregateStatistic;
 import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -16,7 +16,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 /**
  * The CacbedRetrieval object exists in a retrieval - it allows in-memory
  * caching of node iterators - particularly useful for caching complex nodes for
- * repeated querying
+ * repeated querying, as in parameter tuning
  *
  * @author sjh
  */
@@ -26,9 +26,10 @@ public class CachedRetrieval {
   // scores are risky to cache -> dirichlet smoothed scores depend on the length of the document.
   protected boolean cacheScores;
   protected boolean cacheLeafNodes;
+  protected boolean cacheStats;
   protected HashMap<String, MemoryIndexPart> cacheParts;
   protected HashMap<String, String> cachedNodes;
-  protected HashMap<String, NodeStatistics> cachedStats;
+  protected HashMap<String, AggregateStatistic> cachedStats;
 
   /**
    * One retrieval interacts with one index. Parameters dictate the behavior
@@ -46,6 +47,7 @@ public class CachedRetrieval {
     // default behaviour is not to cache scores - as mentioned above dirichlet scores carry some risk
     this.cacheScores = this.parameters.get("cacheScores", false);
     this.cacheLeafNodes = this.parameters.get("cacheLeafNodes", true);
+    this.cacheStats = this.parameters.get("cacheStats", false); // useful when we just need lots of stats, no real iterators
 
     this.cachedNodes = new HashMap();
     this.cachedStats = new HashMap();
@@ -57,25 +59,6 @@ public class CachedRetrieval {
     // this.cacheParts.put("names", new MemoryDocumentNames(new Parameters()));
     this.cacheParts.put("lengths", new MemoryDocumentLengths(new Parameters()));
 
-//    if (parameters.containsKey("cacheQueries")) {
-//      if (parameters.isList("cacheQueries", Type.STRING)) {
-//        List<String> queries = globalParameters.getAsList("cacheQueries");
-//        for (String q : queries) {
-//          Node queryTree = StructuredQuery.parse(q);
-//          queryTree = transformQuery(queryTree, new Parameters());
-//          addAllToCache(queryTree);
-//        }
-//      } else if (globalParameters.isList("cacheQueries", Type.MAP)) {
-//        List<Parameters> queries = globalParameters.getAsList("cacheQueries");
-//        for (Parameters q : queries) {
-//          Node queryTree = StructuredQuery.parse(q.getString("text"));
-//          queryTree = transformQuery(queryTree, new Parameters());
-//          addAllToCache(queryTree);
-//        }
-//      } else {
-//        logger.info("Could not process cachedQueries as a list<String> or list<Parameters>. No data cached.");
-//      }
-//    }
   }
 
   public MovableIterator getCachedIterator(Node node) throws IOException {
@@ -89,16 +72,6 @@ public class CachedRetrieval {
     }
   }
 
-  public NodeStatistics checkStatisticsCache(Node node) throws Exception {
-    // check the node cache first - this will avoid zeros.
-    String nodeString = node.toString();
-    if (cachedNodes.containsKey(nodeString)) {
-      //logger.info("Getting stats from cache for node : " + nodeString);
-      return this.cachedStats.get(nodeString);
-    }
-    return null;
-  }
-
   // caching functions
   /*
    * Checks if a particular node is cached or not.
@@ -108,15 +81,6 @@ public class CachedRetrieval {
     return cachedNodes.containsKey(nodeString);
   }
 
-  /*
-   * Recurses through a query tree to cache all nodes present
-   */
-//  public void addAllToCache(Node queryTree) throws Exception {
-//    for (Node child : queryTree.getInternalNodes()) {
-//      addAllToCache(child);
-//    }
-//    addToCache(queryTree);
-//  }
   /**
    * caches an arbitrary query node currently can store only count, extent, and
    * score iterators.
@@ -159,8 +123,6 @@ public class CachedRetrieval {
   }
 
   public void removeFromCache(Node node) throws Exception {
-    ScoringContext sc = new ScoringContext();
-
     String nodeString = node.toString();
     if (cachedNodes.containsKey(nodeString)) {
       if (cachedNodes.get(nodeString).equals("score")) {
@@ -188,4 +150,28 @@ public class CachedRetrieval {
       // logger.info("Ignoring non-cached node : " + nodeString);
     }
   }
+
+  /**
+   * Stores several types of statistics:
+   *  partName -> IndexPartStatistics
+   *  lengthNode -> CollectionStatistics
+   *  countNode -> NodeStatistics
+   */
+  public void addToCache(String key, AggregateStatistic stat) {
+    if (!cachedNodes.containsKey(key)) {
+      cachedStats.put(key, stat);
+    } else {
+      // logger.info(Ignoring non-cached node : " + key);
+    }
+  }
+
+  public AggregateStatistic getCachedStatistic(String key) throws Exception {
+    // check the node cache first - this will avoid zeros.
+    if (cachedStats.containsKey(key)) {
+      //logger.info("Getting stats from cache for node : " + nodeString);
+      return this.cachedStats.get(key);
+    }
+    return null;
+  }
+
 }

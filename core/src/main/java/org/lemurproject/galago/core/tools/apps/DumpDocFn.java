@@ -5,6 +5,7 @@ package org.lemurproject.galago.core.tools.apps;
 
 import java.io.PrintStream;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.AppFunction;
@@ -25,8 +26,13 @@ public class DumpDocFn extends AppFunction {
   public String getHelpString() {
     return "galago doc [--help] --index=<index> --id=<identifier> [format parameters]\n\n"
             + "  Prints the full text of the document named by <identifier>.\n"
-            + "  The document is retrieved from a Corpus file named corpus."
-            + "  <index> must contain a corpus structure.";
+            + "  The document is retrieved from a Corpus file named corpus.\n"
+            + "  <index> must contain a corpus structure.\n"
+            + "  [format parameters] :\n"
+            + "\t --text=[true|false]\n"
+            + "\t --metadata=[true|false]\n"
+            + "\t --tokenise=[true|false]\n"
+            ;
   }
 
   @Override
@@ -37,9 +43,12 @@ public class DumpDocFn extends AppFunction {
     }
     String indexPath = p.getString("index");
     String identifier = p.getString("id");
+    
+    DocumentComponents dc = new DocumentComponents(p);
+    
     Retrieval r = RetrievalFactory.instance(indexPath, new Parameters());
     assert r.getAvailableParts().containsKey("corpus") : "Index does not contain a corpus part.";
-    Document document = r.getDocument(identifier, p);
+    Document document = r.getDocument(identifier, dc);
     if (document != null) {
       output.println(document.toString());
     } else {

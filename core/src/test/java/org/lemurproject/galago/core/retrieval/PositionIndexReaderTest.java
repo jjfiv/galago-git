@@ -16,9 +16,8 @@ import org.lemurproject.galago.core.util.ExtentArray;
 import java.io.File;
 import java.io.IOException;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.AggregateReader;
-import org.lemurproject.galago.core.index.AggregateReader.NodeAggregateIterator;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
+import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 
@@ -117,7 +116,7 @@ public class PositionIndexReaderTest extends TestCase {
       termExtents.movePast(termExtents.currentCandidate());
     }
 
-    assertEquals(((AggregateReader.NodeAggregateIterator) termExtents).getStatistics().nodeFrequency, totalPositions);
+    assertEquals(((NodeAggregateIterator) termExtents).getStatistics().nodeFrequency, totalPositions);
     assertTrue(termExtents.isDone());
   }
 

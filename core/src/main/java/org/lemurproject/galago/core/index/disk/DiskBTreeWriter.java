@@ -36,18 +36,19 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class DiskBTreeWriter extends BTreeWriter {
 
-  public static final long MAGIC_NUMBER = 0x1a2b3c4d5e6f7a8cL;
+  public static final long MAGIC_NUMBER = 0x1a2b3c4d5e6f7a8dL;
   private DataOutputStream output;
   private VocabularyWriter vocabulary;
   private Parameters manifest;
   private ArrayList<IndexElement> lists;
   private int blockSize;
-  private int keySize;
+  private int maxKeySize;
   private int keyOverlap;
   private long filePosition = 0;
   private long listBytes = 0;
   private long keyCount = 0;
   private int blockCount = 0;
+  private byte[] prevKey = new byte[0];
   private byte[] lastKey = new byte[0];
   Counter recordsWritten = null;
   Counter blocksWritten = null;
@@ -59,20 +60,20 @@ public class DiskBTreeWriter extends BTreeWriter {
           throws FileNotFoundException, IOException {
     Utility.makeParentDirectories(outputFilename);
 
-    // max sizes - each uses a max of 2 bytes
+    // max sizes - each defaults to a max length of 2 bytes (short)
     blockSize = (int) parameters.get("blockSize", 16383);
-    keySize = (int) parameters.get("keySize", Math.min(blockSize, 16383));
-    keyOverlap = keySize;
-    
+    maxKeySize = (int) parameters.get("keySize", Math.min(blockSize, 16383));
+    keyOverlap = maxKeySize;
+
     output = new DataOutputStream(new BufferedOutputStream(
             new FileOutputStream(outputFilename)));
     vocabulary = new VocabularyWriter();
     manifest = new Parameters();
     manifest.copyFrom(parameters);
     lists = new ArrayList<IndexElement>();
-    
+
     manifest.set("blockSize", blockSize);
-    manifest.set("maxKeySize", keySize);
+    manifest.set("maxKeySize", maxKeySize);
     //manifest.set("maxKeyOverlap", keyOverlap);
   }
 
@@ -96,11 +97,18 @@ public class DiskBTreeWriter extends BTreeWriter {
     return manifest;
   }
 
+  /**
+   * Keys must be in ascending order
+   */
   @Override
   public void add(IndexElement list) throws IOException {
-    if (list.key().length >= this.keySize || list.key().length >= blockSize) {
+    if (prevKey.length > 0 && Utility.compare(prevKey, list.key()) > 0) {
+      throw new IOException(String.format("Key %s, %s are out of order.", Utility.toString(prevKey), Utility.toString(list.key())));
+    }
+    if (list.key().length >= this.maxKeySize || list.key().length >= blockSize) {
       throw new IOException(String.format("Key %s is too long.", Utility.toString(list.key())));
     }
+
     if (needsFlush(list)) {
       flush();
     }
@@ -111,6 +119,7 @@ public class DiskBTreeWriter extends BTreeWriter {
     }
 
     keyCount++;
+    prevKey = list.key();
   }
 
   @Override
@@ -328,7 +337,7 @@ public class DiskBTreeWriter extends BTreeWriter {
 
     byte[] word = listData.blockLists.get(0).key();
     byte[] lastWord = word;
-    assert word.length < this.keySize;
+    assert word.length < this.maxKeySize;
 
     // this is the first word in the block
     Utility.compressInt(vocabOutput, word.length);
@@ -340,7 +349,7 @@ public class DiskBTreeWriter extends BTreeWriter {
     Utility.compressInt(vocabOutput, (int) (totalListData - invertedListBytes));
 
     for (int j = 1; j < keys.size(); j++) {
-      assert word.length < this.keySize;
+      assert word.length < this.maxKeySize;
       word = listData.blockLists.get(j).key();
       int common = this.prefixOverlap(lastWord, word);
       Utility.compressInt(vocabOutput, common);

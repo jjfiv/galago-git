@@ -72,14 +72,14 @@ public abstract class ConjunctionIterator implements MovableIterator {
 
   @Override
   public int currentCandidate() {
-    int candidateMax = Integer.MIN_VALUE;
     int candidateMin = Integer.MAX_VALUE;
-    for (MovableIterator iterator : drivingIterators) {
-      if (iterator.isDone()) {
-        return Integer.MAX_VALUE;
+    int candidateMax = -1; // impossibly small candidate //
+    for(int i=0; i<drivingIterators.length;i++){
+      if (!drivingIterators[i].isDone()) {
+        int otherCandidate = drivingIterators[i].currentCandidate();
+        candidateMin = (candidateMin <= otherCandidate)? candidateMin : otherCandidate;
+        candidateMax = (candidateMax >= otherCandidate)? candidateMax : otherCandidate;
       }
-      candidateMax = Math.max(candidateMax, iterator.currentCandidate());
-      candidateMin = Math.min(candidateMin, iterator.currentCandidate());
     }
     if (candidateMax == candidateMin) {
       return candidateMax;
@@ -124,7 +124,8 @@ public abstract class ConjunctionIterator implements MovableIterator {
   public long totalEntries() {
     long min = Integer.MAX_VALUE;
     for (MovableIterator iterator : iterators) {
-      min = Math.min(min, iterator.totalEntries());
+      long otherMin = iterator.totalEntries();
+      min = (min <= otherMin)? min : otherMin;
     }
     return min;
   }

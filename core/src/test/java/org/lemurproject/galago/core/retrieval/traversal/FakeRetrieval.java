@@ -6,10 +6,11 @@ package org.lemurproject.galago.core.retrieval.traversal;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.index.AggregateReader.CollectionStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.IndexPartStatistics;
-import org.lemurproject.galago.core.index.AggregateReader.NodeStatistics;
+import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -39,12 +40,12 @@ public class FakeRetrieval implements Retrieval {
   }
 
   @Override
-  public Document getDocument(String identifier, Parameters p) throws IOException {
+  public Document getDocument(String identifier, DocumentComponents p) throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
   @Override
-  public Map<String, Document> getDocuments(List<String> identifier, Parameters p) throws IOException {
+  public Map<String, Document> getDocuments(List<String> identifier, DocumentComponents p) throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
