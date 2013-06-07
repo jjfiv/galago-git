@@ -201,6 +201,9 @@ public abstract class Learner {
 
       //  need to add queryProcessing params some extra stuff to 'settings'
       ScoredDocument[] scoredDocs = this.retrieval.runQuery(root, settings);
+      
+      // now unset the backoff (next query will have different backoffs)
+      settings.setBackoff(null);
 
       if (scoredDocs != null) {
         resMap.put(number, scoredDocs);
