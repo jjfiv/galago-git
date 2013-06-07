@@ -35,7 +35,6 @@ public class QuerySet {
     logger = Logger.getLogger(this.getClass().getName());
 
     for (Parameters q : queries) {
-      q.setFinalBackoff(globalBackoff);
       String qnum = q.getString("number");
       if (queryIdentifiers.contains(qnum)) {
         logger.info("Ingoring duplicated query: number: " + qnum + "\t" + q.toString());
@@ -45,6 +44,7 @@ public class QuerySet {
 
       // clone the defaultQParams + overwrite any settings
       Parameters qparams = q.clone();
+      qparams.setBackoff(globalBackoff);
       queryParams.put(qnum, qparams);
 
       String qtext = q.getString("text");

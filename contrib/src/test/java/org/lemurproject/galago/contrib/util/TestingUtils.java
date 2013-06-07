@@ -48,7 +48,7 @@ public class TestingUtils {
     // now, try to build an index from that
     indexFile = Utility.createTemporaryDirectory();
     App.main(new String[]{"build", "--stemmedPostings=false", "--indexPath=" + indexFile.getAbsolutePath(),
-              "--inputPath=" + corpusFile.getAbsolutePath()});
+              "--inputPath=" + corpusFile.getAbsolutePath(), "--stemmer+porter"});
 
     verifyIndexStructures(indexFile);
     File[] files = new File[3];
