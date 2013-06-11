@@ -36,7 +36,8 @@ public class TrecKBAParser extends DocumentStreamParser {
   public TrecKBAParser(DocumentSplit split, Parameters p)
           throws FileNotFoundException, IOException {
     super(split, p);
-    reader = new DataInputStream(getBufferedInputStream(split));
+    stream = getBufferedInputStream(split);
+    reader = new DataInputStream(stream);
     tp = new TBinaryProtocol.Factory().getProtocol(new TIOStreamTransport(stream));
     sourceFile = split.fileName;
     String fileName = sourceFile.substring(sourceFile.lastIndexOf('/') + 1);
@@ -49,7 +50,6 @@ public class TrecKBAParser extends DocumentStreamParser {
     } catch (ParseException e) {
       throw new IllegalArgumentException("Error parsing date for directory: " + dateString);
     }
-    this.stream = stream;
   }
 
   private String getIdentifier(DocumentSplit split) {
@@ -154,6 +154,7 @@ public class TrecKBAParser extends DocumentStreamParser {
         return res;
       } catch (TTransportException tt) {
         // bad! the compressed input stream finishes by throwing...
+        // System.err.println(" bad! the compressed input stream finishes by throwing... "+tt);
         return null;
       } catch (Exception e) {
         e.printStackTrace();
@@ -166,8 +167,9 @@ public class TrecKBAParser extends DocumentStreamParser {
 
   public static void main(String[] args) throws Exception {
 
-    File testFile = new File("/usr/aubury/scratch2/jdalton/treckba/data/test/2012-05-01-23/news.0cd0144d9af6bdb4b70939dbcb879c85.xz");
-    DocumentSplit split = new DocumentSplit(testFile.getAbsolutePath(), "", false, new byte[0], new byte[0], 0, 0);
+//    File testFile = new File("/usr/aubury/scratch2/jdalton/treckba/data/test/2012-05-01-23/news.0cd0144d9af6bdb4b70939dbcb879c85.xz");
+    File testFile = new File("/home/dietz/collections/2011-10-09-00/social.4e4a7672e8a02a7993322aaf296f13f7.xz");
+      DocumentSplit split = new DocumentSplit(testFile.getAbsolutePath(), "", false, new byte[0], new byte[0], 0, 0);
 
     TrecKBAParser parser = new TrecKBAParser(split, new Parameters());
     Document doc = null;
