@@ -1,6 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools.apps;
 
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +77,13 @@ public class ThreadedBatchSearch extends AppFunction {
       return;
     }
 
+    // ensure we can print to a file instead of the commandline
+    if (parameters.isString("outputFile")) {
+      boolean append = parameters.get("appendFile", false);
+      out = new PrintStream(new BufferedOutputStream(
+              new FileOutputStream(parameters.getString("outputFile"), append)));
+    }
+
     // get queries
     List<Parameters> queries = BatchSearch.collectQueries(parameters);
 
@@ -114,8 +123,12 @@ public class ThreadedBatchSearch extends AppFunction {
         logger.info("Still running... " + latch.getCount() + " to go.");
       }
     }
-    
+
     threadPool.shutdown();
+
+    if (parameters.isString("outputFile")) {
+      out.close();
+    }
   }
 
   public class QueryRunner extends Thread {

@@ -1,25 +1,21 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools.apps;
 
-import gnu.trove.map.hash.TObjectLongHashMap;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.retrieval.EstimatedDocument;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.core.util.CallTable;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Parameters.Type;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -44,11 +40,11 @@ public class BatchSearch extends AppFunction {
             + "  output.  The output can be used with retrieval evaluation tools like\n"
             + "  galago eval (org.lemurproject.galago.core.eval).\n\n"
             + "  Sample invocation:\n"
-            + "     galago batch-search --index=/tmp/myindex --requested=200 /tmp/queries\n\n"
+            + "     galago batch-search --index=/tmp/myindex --requested=200 /tmp/queries.json \n\n"
             + "  Args:\n"
             + "     --index=path_to_your_index\n"
             + "     --requested : Number of results to return for each query, default=1000\n"
-            + "     /path/to/parameter/file : Input file in xml parameters format (see below).\n\n"
+            + "     /path/to/query/file.json : Input file in xml parameters format (see below).\n\n"
             + "  Query file format:\n"
             + "    The query file is an JSON file containing a set of queries.  Each query\n"
             + "    has text field, which contains the text of the query, and a number field, \n"
@@ -76,6 +72,13 @@ public class BatchSearch extends AppFunction {
             || parameters.containsKey("queries"))) {
       out.println(this.getHelpString());
       return;
+    }
+
+    // ensure we can print to a file instead of the commandline
+    if (parameters.isString("outputFile")) {
+      boolean append = parameters.get("appendFile", false);
+      out = new PrintStream(new BufferedOutputStream(
+              new FileOutputStream(parameters.getString("outputFile"), append)));
     }
 
     // get queries
@@ -124,8 +127,12 @@ public class BatchSearch extends AppFunction {
         }
       }
     }
+
+    if (parameters.isString("outputFile")) {
+      out.close();
+    }
   }
-  
+
   /**
    * this function extracts a list of queries from a parameter object.
    *  - there are several methods of inputting queries:
