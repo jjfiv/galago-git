@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
 import org.lemurproject.galago.core.index.stats.CollectionStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -66,7 +66,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
   @Override
   public int getLength(int document) throws IOException {
-    MovableLengthsIterator i = getLengthsIterator();
+    LengthsIterator i = getLengthsIterator();
     ScoringContext sc = new ScoringContext();
     sc.document = document;
     i.setContext(sc);
@@ -82,7 +82,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
 
   @Override
-  public MovableLengthsIterator getLengthsIterator() throws IOException {
+  public LengthsIterator getLengthsIterator() throws IOException {
     BTreeIterator i = reader.getIterator(doc);
     return new StreamLengthsIterator(doc, i);
 //    return new MemoryMapLengthsIterator(doc, documentLengths);
@@ -138,7 +138,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
 
 //  public class MemoryMapLengthsIterator extends ValueIterator
-//          implements CountIterator, MovableLengthsIterator,
+//          implements CountIterator, LengthsIterator,
 //          AggregateStatistics.CollectionAggregateIterator {
 //
 //    byte[] key;
@@ -337,7 +337,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 //    }
 //  }
   public class StreamLengthsIterator extends KeyListReader.ListIterator
-          implements CountIterator, MovableLengthsIterator,
+          implements CountIterator, LengthsIterator,
           CollectionAggregateIterator {
 
     private final BTreeIterator iterator;

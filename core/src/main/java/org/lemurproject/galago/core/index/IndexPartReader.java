@@ -10,10 +10,6 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 
 /**
- * A StructuredIndexPart is an object that can create StructuredIterators that
- * can be used in query processing.  StructuredIndex creates many StructuredIndexPartReaders
- * and uses them to supply iterators to StructuredRetrieval.
- * 
  * Usually a IndexPartReader uses an IndexReader to retrieve data from disk,
  * then adds its own special logic to decode that data.
  * 

@@ -33,7 +33,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
   double weight;
   double beta;
 
-  public PL2FieldScoringIterator(NodeParameters p, MovableLengthsIterator ls, CountIterator it)
+  public PL2FieldScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
           throws IOException {
     super(p, ls, it);
     this.setScoringFunction(new PL2FieldScorer(p, it));

@@ -25,7 +25,7 @@ import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.processing.ActiveContext;
@@ -324,8 +324,8 @@ public class LocalRetrieval implements Retrieval {
     if (CollectionAggregateIterator.class.isInstance(structIterator)) {
       s = ((CollectionAggregateIterator) structIterator).getStatistics();
 
-    } else if (structIterator instanceof MovableLengthsIterator) {
-      MovableLengthsIterator iterator = (MovableLengthsIterator) structIterator;
+    } else if (structIterator instanceof LengthsIterator) {
+      LengthsIterator iterator = (LengthsIterator) structIterator;
       s = new CollectionStatistics();
       s.fieldName = root.toString();
       s.minLength = Integer.MAX_VALUE;

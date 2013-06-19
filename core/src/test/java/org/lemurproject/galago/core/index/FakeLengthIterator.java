@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
@@ -16,7 +16,7 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
  *
  * @author marc
  */
-public class FakeLengthIterator implements MovableLengthsIterator {
+public class FakeLengthIterator implements LengthsIterator {
 
   private int[] ids;
   private int[] lengths;

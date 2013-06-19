@@ -15,7 +15,7 @@ import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.disk.FieldLengthsReader;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
-import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
@@ -77,7 +77,7 @@ public abstract class ProcessingModel {
     docLengths.getNodeParameters().set("mode", global.get("lenMode", "memory"));
 
     Index index = r.getIndex();
-    MovableLengthsIterator documentLengths = (MovableLengthsIterator) index.getIterator(docLengths);
+    LengthsIterator documentLengths = (LengthsIterator) index.getIterator(docLengths);
     documentLengths.setContext(ctx);
     ctx.addLength("", documentLengths);
     if (index.containsPart("extents") && !fields.isEmpty()) {
@@ -89,7 +89,7 @@ public abstract class ProcessingModel {
         if (!parts.containsKey(partName)) {
           continue;
         }
-        MovableLengthsIterator it = flr.getLengthsIterator(field, ctx);
+        LengthsIterator it = flr.getLengthsIterator(field, ctx);
         ctx.addLength(field, it);
       }
     }

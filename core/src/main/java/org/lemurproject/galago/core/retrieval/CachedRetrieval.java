@@ -99,7 +99,7 @@ public class CachedRetrieval {
             // logger.info("Scoring node are not cachable : " + nodeString);
           }
 
-        } else if (iterator instanceof MovableLengthsIterator) {
+        } else if (iterator instanceof LengthsIterator) {
           cachedNodes.put(nodeString, "lengths");
           cacheParts.get("lengths").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
 

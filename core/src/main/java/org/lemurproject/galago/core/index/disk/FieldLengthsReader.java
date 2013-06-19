@@ -9,7 +9,7 @@ import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader.WindowExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -49,7 +49,7 @@ public class FieldLengthsReader implements LengthsReader {
     this.field = f;
   }
 
-  public MovableLengthsIterator getLengthsIterator(String f, ScoringContext ctx) throws IOException {
+  public LengthsIterator getLengthsIterator(String f, ScoringContext ctx) throws IOException {
     WindowExtentIterator exts = reader.getTermExtents(f);
     LengthIterator lns = new LengthIterator(exts);
     exts.setContext(ctx);
@@ -58,7 +58,7 @@ public class FieldLengthsReader implements LengthsReader {
   }
 
   @Override
-  public MovableLengthsIterator getLengthsIterator() throws IOException {
+  public LengthsIterator getLengthsIterator() throws IOException {
     return new LengthIterator(reader.getTermExtents(field));
   }
 
@@ -101,7 +101,7 @@ public class FieldLengthsReader implements LengthsReader {
     return reader.getManifest();
   }
 
-  public class LengthIterator extends ValueIterator implements MovableLengthsIterator {
+  public class LengthIterator extends ValueIterator implements LengthsIterator {
 
     private WindowIndexReader.WindowExtentIterator extentsIterator;
     int length = -1;

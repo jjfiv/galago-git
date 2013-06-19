@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.DynamicIndex;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.IndexPartReader;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.index.ValueIterator;
@@ -28,7 +29,7 @@ import org.lemurproject.galago.core.index.mem.MemoryIndex;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -247,7 +248,7 @@ public class GeometricIndex implements DynamicIndex, Index {
 
   @Override
   public int getLength(int document) throws IOException {
-    MovableLengthsIterator i = (MovableLengthsIterator) this.getLengthsIterator();
+    LengthsIterator i = (LengthsIterator) this.getLengthsIterator();
     i.syncTo(document);
     if (i.hasMatch(document)) {
       return i.getCurrentLength();
@@ -282,8 +283,8 @@ public class GeometricIndex implements DynamicIndex, Index {
   }
 
   @Override
-  public MovableLengthsIterator getLengthsIterator() throws IOException {
-    List<LengthsReader.LengthsIterator> itrs = new ArrayList();
+  public LengthsIterator getLengthsIterator() throws IOException {
+    List<LengthsIterator> itrs = new ArrayList();
     itrs.add(currentMemoryIndex.getLengthsIterator());
     for (DiskIndex di : this.geometricParts.getIndexes()) {
       itrs.add(di.getLengthsIterator());

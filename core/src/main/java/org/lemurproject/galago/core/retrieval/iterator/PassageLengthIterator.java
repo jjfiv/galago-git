@@ -17,14 +17,14 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public class PassageLengthIterator extends TransformIterator implements MovableLengthsIterator {
+public class PassageLengthIterator extends TransformIterator implements LengthsIterator {
 
   boolean lenCheck;
   NodeParameters np;
   PassageScoringContext passContext;
-  MovableLengthsIterator lengths;
+  LengthsIterator lengths;
 
-  public PassageLengthIterator(NodeParameters params, MovableLengthsIterator iterator) {
+  public PassageLengthIterator(NodeParameters params, LengthsIterator iterator) {
     super(iterator);
     np = params;
     lenCheck = np.get("lenCheck", true);

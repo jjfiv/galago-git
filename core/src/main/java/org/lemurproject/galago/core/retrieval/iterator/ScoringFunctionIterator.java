@@ -19,12 +19,12 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
 
   protected NodeParameters np;
   protected ScoringFunction function;
-  protected MovableLengthsIterator lengthsIterator;
+  protected LengthsIterator lengthsIterator;
   protected CountIterator countIterator;
   protected double max = Double.MAX_VALUE;
 
   public ScoringFunctionIterator(NodeParameters np, 
-          MovableLengthsIterator lengths,
+          LengthsIterator lengths,
           CountIterator iterator) throws IOException {
     super(iterator);
     this.np = np;

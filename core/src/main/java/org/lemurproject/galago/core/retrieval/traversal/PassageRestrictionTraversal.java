@@ -5,7 +5,7 @@ package org.lemurproject.galago.core.retrieval.traversal;
 
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.PassageFilterIterator;
 import org.lemurproject.galago.core.retrieval.iterator.PassageLengthIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -63,12 +63,12 @@ public class PassageRestrictionTraversal extends Traversal {
     NodeType nodeType = retrieval.getNodeType(original);
 
     // check for a lengths node, that is not already a passagelengths node
-    if (wrapLengths && nodeType != null && MovableLengthsIterator.class.isAssignableFrom(nodeType.getIteratorClass())
+    if (wrapLengths && nodeType != null && LengthsIterator.class.isAssignableFrom(nodeType.getIteratorClass())
             && !PassageLengthIterator.class.isAssignableFrom(nodeType.getIteratorClass())) {
       Node parent = original.getParent();
       // check if parent node is a neither extents nor lengths node (e.g. scoring or other), even null (original == root), do nothing (?)
       NodeType parType = (parent != null) ? retrieval.getNodeType(parent) : null;
-      if (parType != null && !MovableLengthsIterator.class.isAssignableFrom(parType.getIteratorClass())) {
+      if (parType != null && !LengthsIterator.class.isAssignableFrom(parType.getIteratorClass())) {
         // if so : wrap in passage restriction 
         Node replacement = new Node("passagelengths");
         replacement.addChild(original);

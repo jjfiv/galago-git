@@ -22,7 +22,7 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
   int parentIdx;
   double min;
 
-  public BM25ScoringIterator(NodeParameters p, MovableLengthsIterator ls, CountIterator it)
+  public BM25ScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
           throws IOException {
     super(p, ls, it);
     this.setScoringFunction(new BM25Scorer(p, it));

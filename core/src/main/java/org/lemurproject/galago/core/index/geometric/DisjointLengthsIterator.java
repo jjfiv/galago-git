@@ -7,25 +7,26 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
  *
  * @author sjh
  */
-public class DisjointLengthsIterator extends DisjointIndexesIterator implements MovableLengthsIterator {
+public class DisjointLengthsIterator extends DisjointIndexesIterator implements LengthsIterator {
 
-  public DisjointLengthsIterator(Collection<LengthsReader.LengthsIterator> iterators) {
+  public DisjointLengthsIterator(Collection<LengthsIterator> iterators) {
     super((Collection) iterators);
   }
 
   @Override
   public int getCurrentLength() {
     if (head != null) {
-      return ((LengthsReader.LengthsIterator) this.head).getCurrentLength();
+      return ((LengthsIterator) this.head).getCurrentLength();
     } else {
       throw new RuntimeException("Lengths Iterator is done.");
     }
@@ -34,7 +35,7 @@ public class DisjointLengthsIterator extends DisjointIndexesIterator implements 
   @Override
   public int getCurrentIdentifier() {
     if (head != null) {
-      return ((LengthsReader.LengthsIterator) this.head).getCurrentIdentifier();
+      return ((LengthsIterator) this.head).getCurrentIdentifier();
     } else {
       throw new RuntimeException("Lengths Iterator is done.");
     }
@@ -59,7 +60,7 @@ public class DisjointLengthsIterator extends DisjointIndexesIterator implements 
   @Override
   public byte[] getRegionBytes() {
     if (head != null) {
-      return ((LengthsReader.LengthsIterator) this.head).getRegionBytes();
+      return ((LengthsIterator) this.head).getRegionBytes();
     } else {
       throw new RuntimeException("Lengths Iterator is done.");
     }

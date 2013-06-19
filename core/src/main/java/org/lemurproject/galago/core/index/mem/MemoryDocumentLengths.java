@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.KeyIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
@@ -20,7 +21,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -132,8 +133,8 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     while (!iterator.isDone()) {
-      int identifier = ((LengthsReader.LengthsIterator) iterator).getCurrentIdentifier();
-      int length = ((LengthsReader.LengthsIterator) iterator).getCurrentLength();
+      int identifier = ((LengthsIterator) iterator).getCurrentIdentifier();
+      int length = ((LengthsIterator) iterator).getCurrentLength();
       fieldLengths.add(identifier, length);
 
       iterator.movePast(identifier);
@@ -173,7 +174,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   @Override
-  public MovableLengthsIterator getLengthsIterator() throws IOException {
+  public LengthsIterator getLengthsIterator() throws IOException {
     return new FieldLengthsIterator(lengths.get(document));
   }
 
@@ -329,7 +330,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   private static class FieldLengthsIterator extends ValueIterator implements CountIterator,
-          MovableLengthsIterator, CollectionAggregateIterator {
+          LengthsIterator, CollectionAggregateIterator {
 
     FieldLengthPostingList fieldLengths;
     int currDoc;

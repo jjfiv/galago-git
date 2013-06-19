@@ -26,7 +26,7 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
   int parentIdx;
   double min;
 
-  public DirichletScoringIterator(NodeParameters p, MovableLengthsIterator ls, CountIterator it)
+  public DirichletScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
           throws IOException {
     super(p, ls, it);
     this.setScoringFunction(new DirichletScorer(p, it));

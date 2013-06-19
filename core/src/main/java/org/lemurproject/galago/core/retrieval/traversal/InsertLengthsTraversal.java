@@ -7,7 +7,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -50,11 +50,11 @@ public class InsertLengthsTraversal extends Traversal {
     Class[] params = cons.getParameterTypes();
 
     for (int idx = 0; idx < params.length; idx++) {
-      if (MovableLengthsIterator.class.isAssignableFrom(params[idx])) {
+      if (LengthsIterator.class.isAssignableFrom(params[idx])) {
         Node child = (childIdx < children.size()) ? children.get(childIdx) : null;
         NodeType cnt = (child != null) ? retrieval.getNodeType(child) : null;
 
-        if (cnt == null || !MovableLengthsIterator.class.isAssignableFrom(cnt.getIteratorClass())) {
+        if (cnt == null || !LengthsIterator.class.isAssignableFrom(cnt.getIteratorClass())) {
           // then we need a lengths iterator here.
           // default lengths node:
           Node lenNodeClone = lenNode.clone();

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 
 /**
@@ -20,7 +20,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 public class ScoringContext {
 
   public int document;
-  protected HashMap<String, MovableLengthsIterator> lengths;
+  protected HashMap<String, LengthsIterator> lengths;
   protected TObjectIntHashMap<String> current;
   // indicates when nodes can/can't cache data
   // -- useful for passage or extent retrieval.
@@ -30,11 +30,11 @@ public class ScoringContext {
   public HashMap<MovableIterator, Node> toNodes = new HashMap<MovableIterator, Node>();
   
   public ScoringContext() {
-    lengths = new HashMap<String, MovableLengthsIterator>();
+    lengths = new HashMap<String, LengthsIterator>();
     current = new TObjectIntHashMap<String>();
   }
 
-  public void addLength(String key, MovableLengthsIterator iterator) {
+  public void addLength(String key, LengthsIterator iterator) {
     lengths.put(key, iterator);
   }
 
@@ -56,7 +56,7 @@ public class ScoringContext {
 
   public void moveLengths(int position) {
     try {
-      for (Map.Entry<String, MovableLengthsIterator> pair : lengths.entrySet()) {
+      for (Map.Entry<String, LengthsIterator> pair : lengths.entrySet()) {
         if (pair == null) {
           System.err.printf("Missing pair.\n");
         } else if (pair.getValue() == null) {

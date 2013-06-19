@@ -25,7 +25,7 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
   int parentIdx;
   double min;
 
-  public JelinekMercerScoringIterator(NodeParameters p, MovableLengthsIterator ls, CountIterator it)
+  public JelinekMercerScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
           throws IOException {
     super(p, ls, it);
     this.setScoringFunction(new JelinekMercerScorer(p, it));

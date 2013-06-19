@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.index.disk.DiskLengthsReader;
 import org.lemurproject.galago.core.index.disk.PositionIndexReader;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.core.types.TopDocsEntry;
 import org.lemurproject.galago.tupleflow.Counter;
@@ -51,7 +51,7 @@ public class TopDocsScanner extends StandardStep<KeyValuePair, TopDocsEntry> {
   Counter counter;
   PriorityQueue<TopDocsEntry> topdocs;
   PositionIndexReader partReader;
-  MovableLengthsIterator docLengths;
+  LengthsIterator docLengths;
   DiskLengthsReader docReader;
   CountIterator extentIterator;
   TopDocsEntry tde;

@@ -19,7 +19,7 @@ import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
-import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
@@ -280,7 +280,7 @@ public class MemoryIndex implements DynamicIndex, Index {
   }
 
   @Override
-  public MovableLengthsIterator getLengthsIterator() throws IOException {
+  public LengthsIterator getLengthsIterator() throws IOException {
     return ((MemoryDocumentLengths) parts.get("lengths")).getLengthsIterator();
   }
 

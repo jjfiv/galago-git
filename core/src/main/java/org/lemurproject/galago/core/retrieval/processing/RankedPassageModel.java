@@ -5,7 +5,7 @@ import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.ScoredPassage;
-import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -47,8 +47,8 @@ public class RankedPassageModel extends ProcessingModel {
             (MovableScoreIterator) retrieval.createIterator(queryParams,
             queryTree,
             context);
-    MovableLengthsIterator documentLengths =
-            (MovableLengthsIterator) retrieval.createIterator(new Parameters(),
+    LengthsIterator documentLengths =
+            (LengthsIterator) retrieval.createIterator(new Parameters(),
             StructuredQuery.parse("#lengths:part=lengths()"), context);
 
     FixedSizeMinHeap<ScoredPassage> queue = new FixedSizeMinHeap(ScoredPassage.class, requested, new ScoredPassage.ScoredPassageComparator());

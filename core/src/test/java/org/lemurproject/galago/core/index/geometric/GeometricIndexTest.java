@@ -17,7 +17,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -92,7 +92,7 @@ public class GeometricIndexTest extends TestCase {
       sc.document = names.getCurrentIdentifier();
       assertEquals(names.getCurrentName(), "DOC-" + 100);
 
-      MovableLengthsIterator lengths = index.getLengthsIterator();
+      LengthsIterator lengths = index.getLengthsIterator();
       lengths.setContext(sc);
       lengths.syncTo(99);
       sc.document = 99;
