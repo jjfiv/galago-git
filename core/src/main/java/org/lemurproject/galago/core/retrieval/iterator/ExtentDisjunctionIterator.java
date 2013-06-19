@@ -14,12 +14,12 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public abstract class ExtentDisjunctionIterator extends DisjunctionIterator implements MovableDataIterator<ExtentArray>, MovableExtentIterator, CountIterator {
+public abstract class ExtentDisjunctionIterator extends DisjunctionIterator implements MovableDataIterator<ExtentArray>, ExtentIterator, CountIterator {
 
   protected ExtentArray extentCache;
   protected byte[] key;
 
-  public ExtentDisjunctionIterator(MovableExtentIterator[] iterators) throws IOException {
+  public ExtentDisjunctionIterator(ExtentIterator[] iterators) throws IOException {
     super(iterators);
     this.extentCache = new ExtentArray();
     buildKey(iterators);
@@ -72,7 +72,7 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
     return key;
   }
 
-  protected void buildKey(MovableExtentIterator[] iterators) {
+  protected void buildKey(ExtentIterator[] iterators) {
     int keysize = 2;
     for (int i = 0; i < iterators.length; i++) {
       keysize += iterators[i].key().length;
@@ -82,7 +82,7 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
     key[0] = 'D' >> 8; // conjunction marker;                                                                                               
     key[1] = 'D' & 0xFF;
     for (int i = 0; i < iterators.length; i++) {
-      MovableExtentIterator it = iterators[i];
+      ExtentIterator it = iterators[i];
       byte[] inner = it.key();
       System.arraycopy(inner, 0, key, keysize, inner.length);
       keysize += inner.length;

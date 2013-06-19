@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.index.mem.MemorySparseDoubleIndex;
 import org.lemurproject.galago.core.index.mem.MemoryWindowIndex;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -105,9 +105,9 @@ public class CachedRetrievalTest extends TestCase {
       assertEquals(diskNS.nodeDocumentCount, cachedNS.nodeDocumentCount);
       assertEquals(diskNS.nodeFrequency, cachedNS.nodeFrequency);
 
-      MovableExtentIterator diskExtentIterator = (MovableExtentIterator) nonCacheRet.createIterator(new Parameters(), extent, sc);
-      MovableExtentIterator cachedExtentIterator = (MovableExtentIterator) cacheRet.createIterator(new Parameters(), extent, sc);
-      assert (cachedExtentIterator instanceof MemoryWindowIndex.ExtentIterator);
+      ExtentIterator diskExtentIterator = (ExtentIterator) nonCacheRet.createIterator(new Parameters(), extent, sc);
+      ExtentIterator cachedExtentIterator = (ExtentIterator) cacheRet.createIterator(new Parameters(), extent, sc);
+      assert (cachedExtentIterator instanceof MemoryWindowIndex.MemExtentIterator);
 
       while (!diskExtentIterator.isDone() && !cachedExtentIterator.isDone()) {
         assertEquals(diskExtentIterator.currentCandidate(), cachedExtentIterator.currentCandidate());
@@ -135,11 +135,11 @@ public class CachedRetrievalTest extends TestCase {
       Node extent2 = StructuredQuery.parse("#unordered:8( #extents:sample:part=postings() #extents:document:part=postings() )");
       cacheRet2.addNodeToCache(extent2);
       
-      cachedExtentIterator = (MovableExtentIterator) cacheRet2.createIterator(new Parameters(), extent, sc);
-      assertFalse(cachedExtentIterator instanceof MemoryWindowIndex.ExtentIterator);
+      cachedExtentIterator = (ExtentIterator) cacheRet2.createIterator(new Parameters(), extent, sc);
+      assertFalse(cachedExtentIterator instanceof MemoryWindowIndex.MemExtentIterator);
 
-      cachedExtentIterator = (MovableExtentIterator) cacheRet2.createIterator(new Parameters(), extent2, sc);
-      assertTrue(cachedExtentIterator instanceof MemoryWindowIndex.ExtentIterator);
+      cachedExtentIterator = (ExtentIterator) cacheRet2.createIterator(new Parameters(), extent2, sc);
+      assertTrue(cachedExtentIterator instanceof MemoryWindowIndex.MemExtentIterator);
 
     } finally {
       if (trecCorpusFile != null) {

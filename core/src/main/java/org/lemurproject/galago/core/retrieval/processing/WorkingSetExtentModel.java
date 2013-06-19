@@ -8,7 +8,7 @@ import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.ScoredPassage;
-import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -88,8 +88,8 @@ public class WorkingSetExtentModel extends ProcessingModel {
 
     // get the extent iterator
     String extent = queryParams.getString("extent");
-    MovableExtentIterator extentIterator =
-            (MovableExtentIterator) retrieval.createIterator(new Parameters(),
+    ExtentIterator extentIterator =
+            (ExtentIterator) retrieval.createIterator(new Parameters(),
             StructuredQuery.parse("#extents:" + extent + ":part=extents()"),
             context);
 

@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.util.ExtentArray;
  * @author trevor
  * @author irmarc
  */
-public class NullExtentIterator extends ValueIterator implements MovableExtentIterator, CountIterator {
+public class NullExtentIterator extends ValueIterator implements ExtentIterator, CountIterator {
 
   ExtentArray array = new ExtentArray();
 

@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.index.merge;
 import java.io.IOException;
 import java.util.List;
 import java.util.PriorityQueue;
-import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
@@ -23,12 +23,12 @@ public abstract class GenericExtentValueIndexMerger<S> extends GenericIndexMerge
 
     ScoringContext sc;
     int indexId;
-    MovableExtentIterator iterator;
+    ExtentIterator iterator;
     int currentDocument;
     ExtentArray currentExtentArray;
     DocumentMappingReader mapping;
 
-    private ExtentValueIteratorWrapper(int indexId, MovableExtentIterator extentIterator, DocumentMappingReader mapping) {
+    private ExtentValueIteratorWrapper(int indexId, ExtentIterator extentIterator, DocumentMappingReader mapping) {
       this.indexId = indexId;
       this.iterator = extentIterator;
       this.mapping = mapping;
@@ -71,7 +71,7 @@ public abstract class GenericExtentValueIndexMerger<S> extends GenericIndexMerge
     PriorityQueue<ExtentValueIteratorWrapper> extentQueue = new PriorityQueue();
     ScoringContext sc = new ScoringContext();
     for (KeyIteratorWrapper w : keyIterators) {
-      MovableExtentIterator extentIterator = (MovableExtentIterator) w.iterator.getValueIterator();
+      ExtentIterator extentIterator = (ExtentIterator) w.iterator.getValueIterator();
       extentIterator.setContext(sc);
       extentQueue.add(new ExtentValueIteratorWrapper(this.partIds.get(w), extentIterator, this.mappingReader));
     }

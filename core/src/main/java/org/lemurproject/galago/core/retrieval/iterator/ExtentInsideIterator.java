@@ -15,8 +15,8 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  */
 public class ExtentInsideIterator extends ExtentConjunctionIterator {
 
-  MovableExtentIterator innerIterator;
-  MovableExtentIterator outerIterator;
+  ExtentIterator innerIterator;
+  ExtentIterator outerIterator;
 
   /**
    * <p>Constructs an #inside instance. For <tt>#inside(a b)</tt>, this produces
@@ -36,9 +36,9 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
    * @throws java.io.IOException
    */
   public ExtentInsideIterator(NodeParameters parameters,
-          MovableExtentIterator innerIterator,
-          MovableExtentIterator outerIterator) throws IOException {
-    super(parameters, new MovableExtentIterator[]{innerIterator, outerIterator});
+          ExtentIterator innerIterator,
+          ExtentIterator outerIterator) throws IOException {
+    super(parameters, new ExtentIterator[]{innerIterator, outerIterator});
     this.innerIterator = innerIterator;
     this.outerIterator = outerIterator;
     // load the first document

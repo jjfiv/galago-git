@@ -16,7 +16,7 @@ public class UnorderedWindowIterator extends ExtentConjunctionIterator {
   /**
    * Creates a new instance of UnorderedWindowIterator
    */
-  public UnorderedWindowIterator(NodeParameters parameters, MovableExtentIterator[] evIterators) throws IOException {
+  public UnorderedWindowIterator(NodeParameters parameters, ExtentIterator[] evIterators) throws IOException {
     super(parameters, evIterators);
     this.width = (int) parameters.get("default", -1);
     this.overlap = parameters.get("overlap", false);
@@ -57,7 +57,7 @@ public class UnorderedWindowIterator extends ExtentConjunctionIterator {
         return;
       }
 
-      arrayIterators[i] = new ExtentArrayIterator(((MovableExtentIterator) iterators[i]).extents());
+      arrayIterators[i] = new ExtentArrayIterator(((ExtentIterator) iterators[i]).extents());
 
       if (arrayIterators[i].isDone()) {
         // if this document does not have any extentCache we can not load any extentCache

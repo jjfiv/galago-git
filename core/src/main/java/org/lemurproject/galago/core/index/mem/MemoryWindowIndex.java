@@ -24,7 +24,7 @@ import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -91,7 +91,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     }
 
     WindowPostingList postingList = new WindowPostingList(key);
-    MovableExtentIterator mi = (MovableExtentIterator) iterator;
+    ExtentIterator mi = (ExtentIterator) iterator;
     ScoringContext sc = mi.getContext();
     while (!mi.isDone()) {
       int document = mi.currentCandidate();
@@ -148,10 +148,10 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     return getTermExtents(key);
   }
 
-  private ExtentIterator getTermExtents(byte[] term) throws IOException {
+  private MemExtentIterator getTermExtents(byte[] term) throws IOException {
     WindowPostingList postingList = postings.get(term);
     if (postingList != null) {
-      return new ExtentIterator(postingList);
+      return new MemExtentIterator(postingList);
     }
     return null;
   }
@@ -165,7 +165,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("extents", new NodeType(ExtentIterator.class));
+    types.put("extents", new NodeType(MemExtentIterator.class));
     return types;
   }
 
@@ -204,11 +204,11 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     WindowIndexWriter writer = new WindowIndexWriter(new FakeParameters(p));
 
     KIterator kiterator = new KIterator();
-    ExtentIterator viterator;
+    MemExtentIterator viterator;
     ExtentArray extents;
     ScoringContext sc = new ScoringContext();
     while (!kiterator.isDone()) {
-      viterator = (ExtentIterator) kiterator.getValueIterator();
+      viterator = (MemExtentIterator) kiterator.getValueIterator();
       viterator.setContext(sc);
       writer.processExtentName(kiterator.getKey());
 
@@ -348,7 +348,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     @Override
     public String getValueString() throws IOException {
       long count = -1;
-      ExtentIterator it = new ExtentIterator(postings.get(currKey));
+      MemExtentIterator it = new MemExtentIterator(postings.get(currKey));
       count = it.count();
       StringBuilder sb = new StringBuilder();
       sb.append(Utility.toString(getKey())).append(",");
@@ -383,14 +383,14 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     @Override
     public ValueIterator getValueIterator() throws IOException {
       if (currKey != null) {
-        return new ExtentIterator(postings.get(currKey));
+        return new MemExtentIterator(postings.get(currKey));
       } else {
         return null;
       }
     }
   }
 
-  public class ExtentIterator extends ValueIterator implements NodeAggregateIterator, CountIterator, MovableExtentIterator {
+  public class MemExtentIterator extends ValueIterator implements NodeAggregateIterator, CountIterator, ExtentIterator {
 
     WindowPostingList postings;
     VByteInput documents_reader;
@@ -405,7 +405,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     boolean done;
     Map<String, Object> modifiers;
 
-    private ExtentIterator(WindowPostingList postings) throws IOException {
+    private MemExtentIterator(WindowPostingList postings) throws IOException {
       this.postings = postings;
       reset();
     }

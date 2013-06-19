@@ -5,7 +5,7 @@ package org.lemurproject.galago.core.retrieval.traversal.optimize;
 
 import java.lang.reflect.Constructor;
 import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
@@ -48,8 +48,8 @@ public class ExtentsToCountLeafTraversal extends Traversal {
 
       boolean requiresExtents = false;
       for (int idx = 0; idx < params.length; idx++) {
-        requiresExtents |= MovableExtentIterator.class.isAssignableFrom(params[idx]);
-        requiresExtents |= MovableExtentIterator[].class.isAssignableFrom(params[idx]);
+        requiresExtents |= ExtentIterator.class.isAssignableFrom(params[idx]);
+        requiresExtents |= ExtentIterator[].class.isAssignableFrom(params[idx]);
       }
 
       if (!requiresExtents) {

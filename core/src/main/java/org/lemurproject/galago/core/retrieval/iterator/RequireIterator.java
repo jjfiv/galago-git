@@ -26,7 +26,7 @@ public class RequireIterator extends FilteredIterator {
   }
 
   public RequireIterator(NodeParameters p, MovableIndicatorIterator indicator,
-          MovableExtentIterator extents) throws IOException {
+          ExtentIterator extents) throws IOException {
     super(p, indicator, extents);
     syncTo(0);
   }

@@ -18,7 +18,7 @@ import java.io.IOException;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
-import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 
 /**
@@ -90,7 +90,7 @@ public class PositionIndexReaderTest extends TestCase {
   }
 
   public void internalTestIterator(
-          MovableExtentIterator termExtents,
+          ExtentIterator termExtents,
           int[][] data) throws IOException {
     assertNotNull(termExtents);
     assertFalse(termExtents.isDone());
@@ -122,7 +122,7 @@ public class PositionIndexReaderTest extends TestCase {
 
   public void testA() throws Exception {
     PositionIndexReader reader = new PositionIndexReader(tempPath.toString());
-    MovableExtentIterator termExtents = reader.getTermExtents("a");
+    ExtentIterator termExtents = reader.getTermExtents("a");
     termExtents.setContext(new ScoringContext());
 
     internalTestIterator(termExtents, dataA);
@@ -134,7 +134,7 @@ public class PositionIndexReaderTest extends TestCase {
 
   public void testB() throws Exception {
     PositionIndexReader reader = new PositionIndexReader(tempPath.toString());
-    MovableExtentIterator termExtents = reader.getTermExtents("b");
+    ExtentIterator termExtents = reader.getTermExtents("b");
     termExtents.setContext(new ScoringContext());
 
     internalTestIterator(termExtents, dataB);

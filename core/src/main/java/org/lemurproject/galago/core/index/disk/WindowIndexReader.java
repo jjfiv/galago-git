@@ -16,7 +16,7 @@ import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -157,7 +157,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
   }
 
   public class WindowExtentIterator extends KeyListReader.ListIterator
-          implements NodeAggregateIterator, CountIterator, MovableExtentIterator {
+          implements NodeAggregateIterator, CountIterator, ExtentIterator {
 
     private BTreeReader.BTreeIterator iterator;
     private int documentCount;

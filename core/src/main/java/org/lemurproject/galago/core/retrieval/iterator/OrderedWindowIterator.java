@@ -14,7 +14,7 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
 
   private int width;
 
-  public OrderedWindowIterator(NodeParameters parameters, MovableExtentIterator[] iterators) throws IOException {
+  public OrderedWindowIterator(NodeParameters parameters, ExtentIterator[] iterators) throws IOException {
     super(parameters, iterators);
     this.width = (int) parameters.get("default", -1);
     syncTo(0);
@@ -49,7 +49,7 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
         return;
       }
 
-      arrayIterators[i] = new ExtentArrayIterator(((MovableExtentIterator) iterators[i]).extents());
+      arrayIterators[i] = new ExtentArrayIterator(((ExtentIterator) iterators[i]).extents());
       if (arrayIterators[i].isDone()) {
         // if this document does not have any extentCache we can not load any extentCache
         return;

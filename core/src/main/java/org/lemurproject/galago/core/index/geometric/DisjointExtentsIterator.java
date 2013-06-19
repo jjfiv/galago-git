@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
@@ -18,9 +18,9 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public class DisjointExtentsIterator extends DisjointIndexesIterator implements MovableExtentIterator, CountIterator {
+public class DisjointExtentsIterator extends DisjointIndexesIterator implements ExtentIterator, CountIterator {
 
-  public DisjointExtentsIterator(Collection<MovableExtentIterator> iterators) {
+  public DisjointExtentsIterator(Collection<ExtentIterator> iterators) {
     super((Collection) iterators);
   }
 
@@ -36,12 +36,12 @@ public class DisjointExtentsIterator extends DisjointIndexesIterator implements 
 
   @Override
   public ExtentArray extents() {
-    return ((MovableExtentIterator) head).extents();
+    return ((ExtentIterator) head).extents();
   }
 
   @Override
   public ExtentArray getData() {
-    return ((MovableExtentIterator) head).getData();
+    return ((ExtentIterator) head).getData();
   }
 
   @Override

@@ -12,9 +12,9 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  */
 public class SynonymIterator extends ExtentDisjunctionIterator {
 
-  MovableExtentIterator[] extentIterators;
+  ExtentIterator[] extentIterators;
 
-  public SynonymIterator(NodeParameters parameters, MovableExtentIterator[] iterators) throws IOException {
+  public SynonymIterator(NodeParameters parameters, ExtentIterator[] iterators) throws IOException {
     super(iterators);
     extentIterators = iterators;
     syncTo(0);
@@ -41,7 +41,7 @@ public class SynonymIterator extends ExtentDisjunctionIterator {
 
     // make a priority queue of extent array iterators
     PriorityQueue<ExtentArrayIterator> arrayIterators = new PriorityQueue<ExtentArrayIterator>();
-    for (MovableExtentIterator iterator : this.extentIterators) {
+    for (ExtentIterator iterator : this.extentIterators) {
       if (!iterator.isDone() && iterator.hasMatch(document)) {
         arrayIterators.offer(new ExtentArrayIterator(iterator.extents()));
       }

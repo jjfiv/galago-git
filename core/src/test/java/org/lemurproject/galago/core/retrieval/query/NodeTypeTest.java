@@ -6,7 +6,7 @@ import java.lang.reflect.Constructor;
 import java.util.Date;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -23,17 +23,17 @@ public class NodeTypeTest extends TestCase {
   }
 
   public void testGetIteratorClass() {
-    NodeType n = new NodeType(MovableExtentIterator.class);
-    assertEquals(MovableExtentIterator.class, n.getIteratorClass());
+    NodeType n = new NodeType(ExtentIterator.class);
+    assertEquals(ExtentIterator.class, n.getIteratorClass());
   }
 
   public void testIsMovableIteratorOrArray() {
-    NodeType n = new NodeType(MovableExtentIterator.class);
-    assertTrue(n.isMovableIteratorOrArray(MovableExtentIterator.class));
+    NodeType n = new NodeType(ExtentIterator.class);
+    assertTrue(n.isMovableIteratorOrArray(ExtentIterator.class));
     assertTrue(n.isMovableIteratorOrArray(MovableIterator.class));
     assertFalse(n.isMovableIteratorOrArray(Integer.class));
     assertFalse(n.isMovableIteratorOrArray(Date.class));
-    assertTrue(n.isMovableIteratorOrArray(new MovableExtentIterator[0].getClass()));
+    assertTrue(n.isMovableIteratorOrArray(new ExtentIterator[0].getClass()));
   }
 
   public void testGetInputs() throws Exception {
@@ -41,7 +41,7 @@ public class NodeTypeTest extends TestCase {
     Class[] input = n.getInputs();
     assertEquals(3, input.length);
     assertEquals(NodeParameters.class, input[0]);
-    assertEquals(MovableExtentIterator.class, input[1]);
+    assertEquals(ExtentIterator.class, input[1]);
     assertEquals(new MovableScoreIterator[0].getClass(), input[2]);
   }
 
@@ -49,7 +49,7 @@ public class NodeTypeTest extends TestCase {
     NodeType n = new NodeType(FakeIterator.class);
     Class[] input = n.getParameterTypes(4);
     assertEquals(4, input.length);
-    assertEquals(MovableExtentIterator.class, input[0]);
+    assertEquals(ExtentIterator.class, input[0]);
     assertEquals(MovableScoreIterator.class, input[1]);
     assertEquals(MovableScoreIterator.class, input[2]);
     assertEquals(MovableScoreIterator.class, input[3]);
@@ -59,14 +59,14 @@ public class NodeTypeTest extends TestCase {
     NodeType n = new NodeType(FakeIterator.class);
     Constructor c = n.getConstructor();
     Constructor actual =
-            FakeIterator.class.getConstructor(NodeParameters.class, MovableExtentIterator.class,
+            FakeIterator.class.getConstructor(NodeParameters.class, ExtentIterator.class,
             new MovableScoreIterator[0].getClass());
     assertEquals(actual, c);
   }
 
   public static class FakeIterator implements MovableIterator {
 
-    public FakeIterator(NodeParameters parameters, MovableExtentIterator one, MovableScoreIterator[] two) {
+    public FakeIterator(NodeParameters parameters, ExtentIterator one, MovableScoreIterator[] two) {
     }
 
     public void reset() throws IOException {

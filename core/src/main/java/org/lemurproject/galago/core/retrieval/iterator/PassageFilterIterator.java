@@ -15,15 +15,15 @@ import org.lemurproject.galago.core.util.ExtentArray;
  *
  * @author irmarc
  */
-public class PassageFilterIterator extends TransformIterator implements MovableExtentIterator, CountIterator {
+public class PassageFilterIterator extends TransformIterator implements ExtentIterator, CountIterator {
 
-  MovableExtentIterator extentIterator;
+  ExtentIterator extentIterator;
   PassageScoringContext passageContext;
   int begin, end, docid;
   ExtentArray cached;
   protected byte[] key;
 
-  public PassageFilterIterator(NodeParameters parameters, MovableExtentIterator extentIterator) {
+  public PassageFilterIterator(NodeParameters parameters, ExtentIterator extentIterator) {
     super(extentIterator);
     this.extentIterator = extentIterator;
     this.cached = new ExtentArray();
