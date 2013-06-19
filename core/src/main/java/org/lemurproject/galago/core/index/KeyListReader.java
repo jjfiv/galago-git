@@ -27,7 +27,7 @@ public abstract class KeyListReader extends KeyValueReader {
     super(r);
   }
 
-  public abstract class ListIterator extends ValueIterator implements ModifiableIterator {
+  public abstract class ListIterator extends ValueIterator {
 
     // OPTIONS
     public static final int HAS_SKIPS = 0x01;
@@ -73,32 +73,6 @@ public abstract class KeyListReader extends KeyValueReader {
         return 0;
       }
       return currentCandidate() - other.currentCandidate();
-    }
-
-    @Override
-    public void addModifier(String k, Object m) {
-      if (modifiers == null) {
-        modifiers = new HashMap<String, Object>();
-      }
-      modifiers.put(k, m);
-    }
-
-    @Override
-    public Set<String> getAvailableModifiers() {
-      return modifiers.keySet();
-    }
-
-    @Override
-    public boolean hasModifier(String key) {
-      return ((modifiers != null) && modifiers.containsKey(key));
-    }
-
-    @Override
-    public Object getModifier(String modKey) {
-      if (modifiers == null) {
-        return null;
-      }
-      return modifiers.get(modKey);
     }
   }
 }

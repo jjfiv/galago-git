@@ -291,38 +291,12 @@ public class DiskIndex implements Index {
     return partName;
   }
 
-  /**
-   * Modifies the constructed iterator to contain any modifications requested,
-   * if they are found.
-   *
-   * @param iter
-   * @param node
-   * @throws IOException
-   */
-  @Override
-  public void modify(ValueIterator iter, Node node) throws IOException {
-    if (ModifiableIterator.class.isInstance(iter)) {
-      NodeParameters p = node.getNodeParameters();
-      if (modifiers.containsKey(p.get("part", "none"))) {
-        HashMap<String, IndexPartModifier> partModifiers = modifiers.get(p.getString("part"));
-        if (partModifiers.containsKey(p.get("mod", "none"))) {
-          IndexPartModifier modder = partModifiers.get(p.getString("mod"));
-          Object modification = modder.getModification(node);
-          if (modification != null) {
-            ((KeyListReader.ListIterator) iter).addModifier(p.getString("mod"), modification);
-          }
-        }
-      }
-    }
-  }
-
   @Override
   public ValueIterator getIterator(Node node) throws IOException {
     ValueIterator result = null;
     IndexPartReader part = parts.get(getIndexPartName(node));
     if (part != null) {
       result = part.getIterator(node);
-      modify(result, node);
       if (result == null) {
         result = new NullExtentIterator();
       }
