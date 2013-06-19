@@ -16,7 +16,7 @@ import org.lemurproject.galago.core.scoring.BM25RFScorer;
  */
 public class BM25RFScoringIterator extends ScoringFunctionIterator {
 
-  public BM25RFScoringIterator(NodeParameters p, MovableLengthsIterator ls, MovableCountIterator it)
+  public BM25RFScoringIterator(NodeParameters p, MovableLengthsIterator ls, CountIterator it)
           throws IOException {
     super(p, ls, it);
     this.setScoringFunction(new BM25RFScorer(p, it));

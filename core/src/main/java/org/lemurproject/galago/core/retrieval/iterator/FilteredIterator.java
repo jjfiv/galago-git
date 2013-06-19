@@ -19,15 +19,15 @@ import org.lemurproject.galago.core.util.ExtentArray;
  *
  * @author irmarc, sjh
  */
-public abstract class FilteredIterator extends ConjunctionIterator implements MovableCountIterator, MovableScoreIterator, MovableExtentIterator {
+public abstract class FilteredIterator extends ConjunctionIterator implements CountIterator, MovableScoreIterator, MovableExtentIterator {
 
   protected MovableIndicatorIterator indicator;
-  protected MovableCountIterator counter;
+  protected CountIterator counter;
   protected MovableScoreIterator scorer;
   protected MovableExtentIterator extents;
   protected MovableIterator mover;
 
-  public FilteredIterator(NodeParameters parameters, MovableIndicatorIterator indicator, MovableCountIterator counter) {
+  public FilteredIterator(NodeParameters parameters, MovableIndicatorIterator indicator, CountIterator counter) {
     super(parameters, new MovableIterator[]{ indicator, counter });
     this.indicator = indicator;
     this.scorer = null;
@@ -56,8 +56,8 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Mo
     this.extents = extents;
     this.mover = extents;
     // Try to treat it as a counter if possible
-    if (MovableCountIterator.class.isAssignableFrom(extents.getClass())) {
-      this.counter = (MovableCountIterator) extents;
+    if (CountIterator.class.isAssignableFrom(extents.getClass())) {
+      this.counter = (CountIterator) extents;
     } else {
       this.counter = null;
     }

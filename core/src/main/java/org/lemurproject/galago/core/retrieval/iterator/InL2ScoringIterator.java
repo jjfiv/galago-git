@@ -23,7 +23,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 public class InL2ScoringIterator extends TransformIterator implements MovableScoreIterator {
 
   private final MovableLengthsIterator lengths;
-  private final MovableCountIterator counts;
+  private final CountIterator counts;
   private final NodeParameters np;
   // parameter :
   private final double c;
@@ -32,7 +32,7 @@ public class InL2ScoringIterator extends TransformIterator implements MovableSco
   private final double nodeDocumentCount;
   private final double documentCount;
 
-  public InL2ScoringIterator(NodeParameters np, MovableLengthsIterator lengths, MovableCountIterator counts) {
+  public InL2ScoringIterator(NodeParameters np, MovableLengthsIterator lengths, CountIterator counts) {
     super(counts);
     this.np = np;
     this.counts = counts;

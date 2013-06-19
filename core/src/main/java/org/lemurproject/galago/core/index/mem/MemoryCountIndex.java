@@ -22,7 +22,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
@@ -90,7 +90,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     // if  we have not already cached this data
     if (!postings.containsKey(key)) {
       PostingList postingList = new PostingList(key);
-      MovableCountIterator mi = (MovableCountIterator) iterator;
+      CountIterator mi = (CountIterator) iterator;
       ScoringContext sc = mi.getContext();
       while (!mi.isDone()) {
         int document = mi.currentCandidate();
@@ -381,7 +381,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     }
   }
 
-  public class CountsIterator extends ValueIterator implements NodeAggregateIterator, MovableCountIterator {
+  public class CountsIterator extends ValueIterator implements NodeAggregateIterator, CountIterator {
 
     PostingList postings;
     VByteInput documents_reader;

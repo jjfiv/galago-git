@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.index.disk.SparseFloatListReader;
 import org.lemurproject.galago.core.index.disk.SparseFloatListWriter;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.extents.FakeScoreIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -85,9 +85,9 @@ public class MemIndexPartTest extends TestCase {
 
       // disjunction to ensure we will throw an error if they are different
       while (!mem1_ki.isDone() || !mem2_ki.isDone() || !dsk_ki.isDone()) {
-        MovableCountIterator mem1_vi = (MovableCountIterator) mem1_ki.getValueIterator();
-        MovableCountIterator mem2_vi = (MovableCountIterator) mem2_ki.getValueIterator();
-        MovableCountIterator dsk_vi = (MovableCountIterator) dsk_ki.getValueIterator();
+        CountIterator mem1_vi = (CountIterator) mem1_ki.getValueIterator();
+        CountIterator mem2_vi = (CountIterator) mem2_ki.getValueIterator();
+        CountIterator dsk_vi = (CountIterator) dsk_ki.getValueIterator();
 
         ScoringContext sc = new ScoringContext();
         mem1_vi.setContext(sc);

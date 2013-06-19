@@ -183,7 +183,7 @@ public interface Retrieval {
    * Returns collection statistics for a count node. This data is commonly used
    * as a feature in a retrieval model. 
    * 
-   * The root-node must implement a 'MovableCountIterator'.
+   * The root-node must implement a 'CountIterator'.
    * 
    * Data returned includes the frequency of the node in the collection, 
    * the number of documents that return a non-zero count for the node, and

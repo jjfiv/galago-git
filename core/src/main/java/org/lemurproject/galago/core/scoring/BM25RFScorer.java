@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.scoring;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
@@ -24,7 +24,7 @@ public class BM25RFScorer implements ScoringFunction {
 
   double value;
 
-  public BM25RFScorer(NodeParameters parameters, MovableCountIterator iterator) throws IOException {
+  public BM25RFScorer(NodeParameters parameters, CountIterator iterator) throws IOException {
     int rt = (int) parameters.get("rt", 0);
     int R = (int) parameters.get("R", 0);
     long N = parameters.getLong("documentCount");

@@ -23,7 +23,7 @@ import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
@@ -383,7 +383,7 @@ public class LocalRetrieval implements Retrieval {
     if (NodeAggregateIterator.class.isInstance(structIterator)) {
       s = ((NodeAggregateIterator) structIterator).getStatistics();
 
-    } else if (structIterator instanceof MovableCountIterator) {
+    } else if (structIterator instanceof CountIterator) {
 
       s = new NodeStatistics();
       // set up initial values
@@ -392,7 +392,7 @@ public class LocalRetrieval implements Retrieval {
       s.nodeFrequency = 0;
       s.maximumCount = 0;
 
-      MovableCountIterator iterator = (MovableCountIterator) structIterator;
+      CountIterator iterator = (CountIterator) structIterator;
 
       while (!iterator.isDone()) {
         sc.document = iterator.currentCandidate();

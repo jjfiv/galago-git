@@ -26,7 +26,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ModifiableIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
@@ -404,7 +404,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
   }
 
   public class ExtentsIterator extends ValueIterator implements ModifiableIterator,
-          NodeAggregateIterator, MovableCountIterator, MovableExtentIterator {
+          NodeAggregateIterator, CountIterator, MovableExtentIterator {
 
     PositionalPostingList postings;
     VByteInput documents_reader;
@@ -633,7 +633,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
   }
 
   public class CountsIterator extends ValueIterator implements ModifiableIterator,
-          NodeAggregateIterator, MovableCountIterator {
+          NodeAggregateIterator, CountIterator {
 
     PositionalPostingList postings;
     VByteInput documents_reader;

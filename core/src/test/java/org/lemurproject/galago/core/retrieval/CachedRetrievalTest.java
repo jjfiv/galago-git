@@ -9,7 +9,7 @@ import org.lemurproject.galago.core.index.mem.MemoryCountIndex;
 import org.lemurproject.galago.core.index.mem.MemorySparseDoubleIndex;
 import org.lemurproject.galago.core.index.mem.MemoryWindowIndex;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
@@ -83,8 +83,8 @@ public class CachedRetrievalTest extends TestCase {
       assertEquals(diskNS.nodeDocumentCount, cachedNS2.nodeDocumentCount);
       assertEquals(diskNS.nodeFrequency, cachedNS2.nodeFrequency);
 
-      MovableCountIterator diskCountIterator = (MovableCountIterator) nonCacheRet.createIterator(new Parameters(), count, sc);
-      MovableCountIterator cachedCountIterator = (MovableCountIterator) cacheRet.createIterator(new Parameters(), count, sc);
+      CountIterator diskCountIterator = (CountIterator) nonCacheRet.createIterator(new Parameters(), count, sc);
+      CountIterator cachedCountIterator = (CountIterator) cacheRet.createIterator(new Parameters(), count, sc);
       assert (cachedCountIterator instanceof MemoryCountIndex.CountsIterator);
 
       while (!diskCountIterator.isDone() && !cachedCountIterator.isDone()) {

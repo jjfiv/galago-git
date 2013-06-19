@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -68,7 +68,7 @@ public class MemoryIndexTest extends TestCase {
     assertEquals(is2.highestDocumentCount, 200);
 
     Node n = StructuredQuery.parse("#counts:sample:part=postings()");
-    MovableCountIterator ci = (MovableCountIterator) index.getIterator(n);
+    CountIterator ci = (CountIterator) index.getIterator(n);
     ci.setContext(new ScoringContext());
     ScoringContext sc = ci.getContext();
     assertEquals(ci.currentCandidate(), 0);
@@ -105,7 +105,7 @@ public class MemoryIndexTest extends TestCase {
       NodeParameters np = new NodeParameters();
       np.set("part", "postings");
       np.set("default", "sample");
-      MovableCountIterator iterator = (MovableCountIterator) index.getIterator(new Node("counts", np));
+      CountIterator iterator = (CountIterator) index.getIterator(new Node("counts", np));
       assertEquals(iterator.currentCandidate(), 101);
 
       output = Utility.createTemporaryDirectory();

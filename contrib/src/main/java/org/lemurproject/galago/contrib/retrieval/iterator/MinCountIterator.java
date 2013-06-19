@@ -5,7 +5,7 @@ package org.lemurproject.galago.contrib.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.index.ValueIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
@@ -16,15 +16,15 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public class MinCountIterator extends ValueIterator implements MovableCountIterator {
+public class MinCountIterator extends ValueIterator implements CountIterator {
 
   private final NodeParameters nodeParams;
-  private final MovableCountIterator[] iterators;
+  private final CountIterator[] iterators;
   protected MovableIterator[] drivingIterators;
   protected boolean hasAllCandidates;
   protected ScoringContext context;
 
-  public MinCountIterator(NodeParameters np, MovableCountIterator[] countIterators) {
+  public MinCountIterator(NodeParameters np, CountIterator[] countIterators) {
     this.nodeParams = np;
     this.iterators = countIterators;
     // count the number of iterators that dont have
@@ -176,7 +176,7 @@ public class MinCountIterator extends ValueIterator implements MovableCountItera
   @Override
   public int count() {
     int count = Integer.MAX_VALUE;
-    for (MovableCountIterator countItr : iterators) {
+    for (CountIterator countItr : iterators) {
       count = Math.min(count, countItr.count());
     }
     count = (count == Integer.MAX_VALUE)? 0 : count;
@@ -186,7 +186,7 @@ public class MinCountIterator extends ValueIterator implements MovableCountItera
   @Override
   public int maximumCount() {
     int maxCount = Integer.MAX_VALUE;
-    for (MovableCountIterator countItr : iterators) {
+    for (CountIterator countItr : iterators) {
       maxCount = Math.min(maxCount, countItr.maximumCount());
     }
     maxCount = (maxCount == Integer.MAX_VALUE)? 0 : maxCount;

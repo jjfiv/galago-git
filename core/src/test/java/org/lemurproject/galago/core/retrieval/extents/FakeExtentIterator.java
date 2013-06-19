@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -17,7 +17,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  * @author trevor
  * @author irmarc
  */
-public class FakeExtentIterator implements MovableExtentIterator, MovableCountIterator {
+public class FakeExtentIterator implements MovableExtentIterator, CountIterator {
 
   private int[][] data;
   private int index;

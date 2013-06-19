@@ -108,7 +108,7 @@ public class CachedRetrieval {
           cacheParts.get("extent").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
           // logger.info("Cached extent node : " + nodeString);
 
-        } else if (iterator instanceof MovableCountIterator) {
+        } else if (iterator instanceof CountIterator) {
           cachedNodes.put(nodeString, "count");
           cacheParts.get("count").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
           // logger.info("Cached count node : " + nodeString);

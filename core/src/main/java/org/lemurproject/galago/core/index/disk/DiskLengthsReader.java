@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
 import org.lemurproject.galago.core.index.stats.CollectionStatistics;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
@@ -138,7 +138,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
 
 //  public class MemoryMapLengthsIterator extends ValueIterator
-//          implements MovableCountIterator, MovableLengthsIterator,
+//          implements CountIterator, MovableLengthsIterator,
 //          AggregateStatistics.CollectionAggregateIterator {
 //
 //    byte[] key;
@@ -337,7 +337,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 //    }
 //  }
   public class StreamLengthsIterator extends KeyListReader.ListIterator
-          implements MovableCountIterator, MovableLengthsIterator,
+          implements CountIterator, MovableLengthsIterator,
           CollectionAggregateIterator {
 
     private final BTreeIterator iterator;

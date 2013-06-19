@@ -24,7 +24,7 @@ import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -183,7 +183,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
   }
 
   public class TermCountIterator extends KeyListReader.ListIterator
-          implements NodeAggregateIterator, MovableCountIterator {
+          implements NodeAggregateIterator, CountIterator {
 
     BTreeReader.BTreeIterator iterator;
     int documentCount;

@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.scoring;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
@@ -27,7 +27,7 @@ public class BM25FieldScorer implements ScoringFunction {
   double b;
   double avgDocLength;
 
-  public BM25FieldScorer(NodeParameters parameters, MovableCountIterator iterator) throws IOException {
+  public BM25FieldScorer(NodeParameters parameters, CountIterator iterator) throws IOException {
     b = parameters.get("b", 0.5);
 
     if (b < 0 || b > 1.0) {

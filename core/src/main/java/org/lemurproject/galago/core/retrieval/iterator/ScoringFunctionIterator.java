@@ -20,12 +20,12 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
   protected NodeParameters np;
   protected ScoringFunction function;
   protected MovableLengthsIterator lengthsIterator;
-  protected MovableCountIterator countIterator;
+  protected CountIterator countIterator;
   protected double max = Double.MAX_VALUE;
 
   public ScoringFunctionIterator(NodeParameters np, 
           MovableLengthsIterator lengths,
-          MovableCountIterator iterator) throws IOException {
+          CountIterator iterator) throws IOException {
     super(iterator);
     this.np = np;
     this.lengthsIterator = lengths;
@@ -91,7 +91,7 @@ public class ScoringFunctionIterator extends TransformIterator implements Movabl
     return ((CountIterator) iterator).key();
   }
   
-  public double getMaxTF(NodeParameters p, MovableCountIterator it) {
+  public double getMaxTF(NodeParameters p, CountIterator it) {
     int count = 0;
     if (p.containsKey("maximumCount")) {
       count = (int) p.getLong("maximumCount");

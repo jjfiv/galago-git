@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 import org.lemurproject.galago.contrib.index.InvertedSketchIndexReader;
 import org.lemurproject.galago.contrib.index.InvertedSketchIndexReader.KeyIterator;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -62,7 +62,7 @@ public class BuildSketchIndexTest extends TestCase {
       assert (count <= 198);
 
       Node indexed = StructuredQuery.parse("#counts:2~3:part=sketch-od1-e1-d2()");
-      MovableCountIterator iter = (MovableCountIterator) sketchIdx.getIterator(indexed);
+      CountIterator iter = (CountIterator) sketchIdx.getIterator(indexed);
       assert (iter != null);
 
       ScoringContext sc = new ScoringContext();
@@ -103,7 +103,7 @@ public class BuildSketchIndexTest extends TestCase {
       assert (count < 198);
 
       indexed = StructuredQuery.parse("#counts:2~3:part=sketch-od1-e1-d2()");
-      iter = (MovableCountIterator) sketchIdx.getIterator(indexed);
+      iter = (CountIterator) sketchIdx.getIterator(indexed);
       assert (iter != null);
 
       sc = new ScoringContext();

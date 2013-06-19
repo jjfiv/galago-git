@@ -16,7 +16,7 @@ import org.lemurproject.galago.core.parse.Document;
 
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -104,7 +104,7 @@ public class GeometricIndexTest extends TestCase {
       assertEquals(lengths.getCurrentLength(), 5);
 
       Node q1 = StructuredQuery.parse("#counts:sample:part=postings()");
-      MovableCountIterator ci1 = (MovableCountIterator) index.getIterator(q1);
+      CountIterator ci1 = (CountIterator) index.getIterator(q1);
       ci1.setContext(sc);
       assert ci1 != null;
       ci1.syncTo(99);
@@ -117,7 +117,7 @@ public class GeometricIndexTest extends TestCase {
       assertEquals(ci1.count(), 1);
 
       Node q2 = StructuredQuery.parse("#counts:@/101/:part=postings()");
-      MovableCountIterator ci2 = (MovableCountIterator) index.getIterator(q2);
+      CountIterator ci2 = (CountIterator) index.getIterator(q2);
       ci2.setContext(sc);
       assertEquals(ci2.currentCandidate(), 101);
       sc.document = ci2.currentCandidate();

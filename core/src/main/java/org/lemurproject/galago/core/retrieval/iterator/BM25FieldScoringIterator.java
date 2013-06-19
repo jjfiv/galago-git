@@ -29,7 +29,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
   public double idf;
   public static double K;
 
-  public BM25FieldScoringIterator(NodeParameters p, MovableLengthsIterator ls, MovableCountIterator it)
+  public BM25FieldScoringIterator(NodeParameters p, MovableLengthsIterator ls, CountIterator it)
           throws IOException {
     super(p, ls, it);
     this.setScoringFunction(new BM25FieldScorer(p, it));

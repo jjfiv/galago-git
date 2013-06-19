@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.util.ExtentArray;
  *
  * @author irmarc
  */
-public class PassageFilterIterator extends TransformIterator implements MovableExtentIterator, MovableCountIterator {
+public class PassageFilterIterator extends TransformIterator implements MovableExtentIterator, CountIterator {
 
   MovableExtentIterator extentIterator;
   PassageScoringContext passageContext;

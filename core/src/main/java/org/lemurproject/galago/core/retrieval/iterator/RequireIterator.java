@@ -14,7 +14,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 public class RequireIterator extends FilteredIterator {
 
   public RequireIterator(NodeParameters p, MovableIndicatorIterator indicator,
-          MovableCountIterator counter) throws IOException {
+          CountIterator counter) throws IOException {
     super(p, indicator, counter);
     syncTo(0);
   }

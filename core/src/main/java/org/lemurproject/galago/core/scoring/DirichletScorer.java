@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.scoring;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
@@ -20,7 +20,7 @@ public class DirichletScorer implements ScoringFunction {
   double background;
   double mu;
 
-  public DirichletScorer(NodeParameters parameters, MovableCountIterator iterator) throws IOException {
+  public DirichletScorer(NodeParameters parameters, CountIterator iterator) throws IOException {
 
     mu = parameters.get("mu", 1500D);
     long collectionLength = parameters.getLong("collectionLength");

@@ -19,7 +19,7 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.MovableExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -170,7 +170,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
   }
 
   public class TermExtentIterator extends KeyListReader.ListIterator
-          implements NodeAggregateIterator, MovableCountIterator, MovableExtentIterator {
+          implements NodeAggregateIterator, CountIterator, MovableExtentIterator {
 
     private BTreeReader.BTreeIterator iterator;
     private int documentCount;
@@ -546,7 +546,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
    *
    */
   public class TermCountIterator extends KeyListReader.ListIterator
-          implements NodeAggregateIterator, MovableCountIterator {
+          implements NodeAggregateIterator, CountIterator {
 
     BTreeReader.BTreeIterator iterator;
     int documentCount;

@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.scoring;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
@@ -19,7 +19,7 @@ public class JelinekMercerScorer implements ScoringFunction {
   double background;
   double lambda;
 
-  public JelinekMercerScorer(NodeParameters parameters, MovableCountIterator iterator) throws IOException {
+  public JelinekMercerScorer(NodeParameters parameters, CountIterator iterator) throws IOException {
 
     lambda = parameters.get("lambda", 0.5D);
     long collectionLength = parameters.getLong("collectionLength");

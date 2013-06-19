@@ -18,7 +18,7 @@ import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
 import org.lemurproject.galago.core.index.stats.CollectionStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableLengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
@@ -328,7 +328,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
   }
 
-  private static class FieldLengthsIterator extends ValueIterator implements MovableCountIterator,
+  private static class FieldLengthsIterator extends ValueIterator implements CountIterator,
           MovableLengthsIterator, CollectionAggregateIterator {
 
     FieldLengthPostingList fieldLengths;

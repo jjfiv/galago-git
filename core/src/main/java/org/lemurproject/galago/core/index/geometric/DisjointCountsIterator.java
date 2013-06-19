@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.iterator.MovableCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -16,20 +16,20 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public class DisjointCountsIterator extends DisjointIndexesIterator implements MovableCountIterator {
+public class DisjointCountsIterator extends DisjointIndexesIterator implements CountIterator {
 
-  public DisjointCountsIterator(Collection<MovableCountIterator> iterators) {
+  public DisjointCountsIterator(Collection<CountIterator> iterators) {
     super((Collection) iterators);
   }
 
   @Override
   public int count() {
-    return ((MovableCountIterator) head).count();
+    return ((CountIterator) head).count();
   }
 
   @Override
   public int maximumCount() {
-    return ((MovableCountIterator) head).maximumCount();
+    return ((CountIterator) head).maximumCount();
   }
 
   @Override

@@ -12,7 +12,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author marc
  */
-public class BinaryCountIterator extends TransformIterator implements MovableCountIterator {
+public class BinaryCountIterator extends TransformIterator implements CountIterator {
 
   NodeParameters np;
   IndicatorIterator indicator;

@@ -14,7 +14,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public abstract class ExtentDisjunctionIterator extends DisjunctionIterator implements MovableDataIterator<ExtentArray>, MovableExtentIterator, MovableCountIterator {
+public abstract class ExtentDisjunctionIterator extends DisjunctionIterator implements MovableDataIterator<ExtentArray>, MovableExtentIterator, CountIterator {
 
   protected ExtentArray extentCache;
   protected byte[] key;
@@ -61,7 +61,7 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
   public int maximumCount() {
     int sum = 0;
     for (int i = 0; i < iterators.length; i++) {
-      sum += ((MovableCountIterator) iterators[i]).maximumCount();
+      sum += ((CountIterator) iterators[i]).maximumCount();
     }
     return sum;
 
