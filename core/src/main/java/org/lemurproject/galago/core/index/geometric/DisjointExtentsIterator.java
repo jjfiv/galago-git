@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -58,7 +58,7 @@ public class DisjointExtentsIterator extends DisjointIndexesIterator implements 
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = extents().toString();
     List<AnnotatedNode> children = new ArrayList();
-    for (MovableIterator child : this.allIterators) {
+    for (BaseIterator child : this.allIterators) {
       children.add(child.getAnnotatedNode());
     }
 

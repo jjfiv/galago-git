@@ -19,16 +19,16 @@ import org.lemurproject.galago.core.util.ExtentArray;
  *
  * @author irmarc, sjh
  */
-public abstract class FilteredIterator extends ConjunctionIterator implements CountIterator, MovableScoreIterator, ExtentIterator {
+public abstract class FilteredIterator extends ConjunctionIterator implements CountIterator, ScoreIterator, ExtentIterator {
 
-  protected MovableIndicatorIterator indicator;
+  protected IndicatorIterator indicator;
   protected CountIterator counter;
-  protected MovableScoreIterator scorer;
+  protected ScoreIterator scorer;
   protected ExtentIterator extents;
-  protected MovableIterator mover;
+  protected BaseIterator mover;
 
-  public FilteredIterator(NodeParameters parameters, MovableIndicatorIterator indicator, CountIterator counter) {
-    super(parameters, new MovableIterator[]{ indicator, counter });
+  public FilteredIterator(NodeParameters parameters, IndicatorIterator indicator, CountIterator counter) {
+    super(parameters, new BaseIterator[]{ indicator, counter });
     this.indicator = indicator;
     this.scorer = null;
     this.counter = counter;
@@ -40,8 +40,8 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
     }
   }
 
-  public FilteredIterator(NodeParameters parameters, MovableIndicatorIterator indicator, MovableScoreIterator scorer) {
-    super(parameters, new MovableIterator[]{ indicator, scorer });
+  public FilteredIterator(NodeParameters parameters, IndicatorIterator indicator, ScoreIterator scorer) {
+    super(parameters, new BaseIterator[]{ indicator, scorer });
     this.indicator = indicator;
     this.counter = null;
     this.extents = null;
@@ -49,8 +49,8 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
     this.mover = scorer;
   }
 
-  public FilteredIterator(NodeParameters parameters, MovableIndicatorIterator indicator, ExtentIterator extents) {
-    super(parameters, new MovableIterator[]{ indicator, extents });
+  public FilteredIterator(NodeParameters parameters, IndicatorIterator indicator, ExtentIterator extents) {
+    super(parameters, new BaseIterator[]{ indicator, extents });
     this.indicator = indicator;
     this.scorer = null;
     this.extents = extents;

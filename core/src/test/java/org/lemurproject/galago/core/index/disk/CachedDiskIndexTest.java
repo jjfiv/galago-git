@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -66,8 +66,8 @@ public class CachedDiskIndexTest extends TestCase {
   Node query = StructuredQuery.parse("#extents:document:part=postings()");
   cachedIndex.cacheQueryData(query);
 
-  MovableIterator di = diskIndex.getIterator(query);
-  MovableIterator mi = cachedIndex.getIterator(query);
+  Iterator di = diskIndex.getIterator(query);
+  Iterator mi = cachedIndex.getIterator(query);
 
   do {
   assertEquals(di.getEntry(), mi.getEntry());

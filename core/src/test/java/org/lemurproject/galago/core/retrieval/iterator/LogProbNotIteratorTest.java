@@ -48,7 +48,7 @@ public class LogProbNotIteratorTest extends TestCase {
 
   }
 
-  public class FakeScorer implements MovableScoreIterator {
+  public class FakeScorer implements ScoreIterator {
 
     private final int[] docs;
     private final double[] scores;
@@ -147,7 +147,7 @@ public class LogProbNotIteratorTest extends TestCase {
     }
 
     @Override
-    public int compareTo(MovableIterator t) {
+    public int compareTo(BaseIterator t) {
       throw new UnsupportedOperationException("Not supported yet.");
     }
   }

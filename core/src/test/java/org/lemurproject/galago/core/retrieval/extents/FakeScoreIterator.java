@@ -4,16 +4,16 @@ package org.lemurproject.galago.core.retrieval.extents;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
  *
  * @author trevor
  */
-public class FakeScoreIterator implements MovableScoreIterator {
+public class FakeScoreIterator implements ScoreIterator {
 
   int[] docs;
   double[] scores;
@@ -109,7 +109,7 @@ public class FakeScoreIterator implements MovableScoreIterator {
   }
 
   @Override
-  public int compareTo(MovableIterator other) {
+  public int compareTo(BaseIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }

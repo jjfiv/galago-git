@@ -20,14 +20,14 @@ import org.lemurproject.galago.tupleflow.Utility;
  * @author irmarc
  */
 @RequiredStatistics(statistics = {"nodeFrequency", "documentCount"})
-public class DFRScoringIterator extends TransformIterator implements MovableScoreIterator {
+public class DFRScoringIterator extends TransformIterator implements ScoreIterator {
 
   double lambda;
   double qfratio;
-  MovableScoreIterator scorer;
+  ScoreIterator scorer;
   NodeParameters p;
 
-  public DFRScoringIterator(NodeParameters parameters, MovableScoreIterator iterator) 
+  public DFRScoringIterator(NodeParameters parameters, ScoreIterator iterator) 
           throws IOException {
     super(iterator);
     scorer = iterator;

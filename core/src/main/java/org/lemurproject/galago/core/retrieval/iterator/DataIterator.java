@@ -7,6 +7,6 @@ import java.io.IOException;
  *
  * @author irmarc
  */
-public interface DataIterator<T> extends StructuredIterator {
+public interface DataIterator<T> extends BaseIterator {
     public T getData();
 }

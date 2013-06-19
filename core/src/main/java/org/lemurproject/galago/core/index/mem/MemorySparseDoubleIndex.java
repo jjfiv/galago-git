@@ -63,12 +63,12 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
   }
 
   @Override
-  public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
+  public void addIteratorData(byte[] key, BaseIterator iterator) throws IOException {
     // if  we have not already cached this data
     if (!postings.containsKey(key)) {
 
 
-      MovableScoreIterator mi = (MovableScoreIterator) iterator;
+      ScoreIterator mi = (ScoreIterator) iterator;
       ScoringContext c = mi.getContext();
       c.document = -1; // impossible document score - to extract defaulty score.
 
@@ -329,7 +329,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
   }
 
   public class ScoresIterator extends ValueIterator implements
-          MovableScoreIterator, ContextualIterator {
+          ScoreIterator, ContextualIterator {
 
     PostingList postings;
     VByteInput documents_reader;
@@ -448,7 +448,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     }
 
     @Override
-    public int compareTo(MovableIterator other) {
+    public int compareTo(BaseIterator other) {
       if (isDone() && !other.isDone()) {
         return 1;
       }

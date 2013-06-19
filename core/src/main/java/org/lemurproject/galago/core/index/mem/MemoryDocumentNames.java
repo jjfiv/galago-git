@@ -18,7 +18,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.core.util.ObjectArray;
@@ -52,7 +52,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
   }
 
   @Override
-  public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
+  public void addIteratorData(byte[] key, BaseIterator iterator) throws IOException {
     while (!iterator.isDone()) {
       int identifier = ((NamesReader.NamesIterator) iterator).getCurrentIdentifier();
       String name = ((NamesReader.NamesIterator) iterator).getCurrentName();

@@ -7,8 +7,8 @@ import java.util.Date;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -27,13 +27,13 @@ public class NodeTypeTest extends TestCase {
     assertEquals(ExtentIterator.class, n.getIteratorClass());
   }
 
-  public void testIsMovableIteratorOrArray() {
+  public void testIsIteratorOrArray() {
     NodeType n = new NodeType(ExtentIterator.class);
-    assertTrue(n.isMovableIteratorOrArray(ExtentIterator.class));
-    assertTrue(n.isMovableIteratorOrArray(MovableIterator.class));
-    assertFalse(n.isMovableIteratorOrArray(Integer.class));
-    assertFalse(n.isMovableIteratorOrArray(Date.class));
-    assertTrue(n.isMovableIteratorOrArray(new ExtentIterator[0].getClass()));
+    assertTrue(n.isIteratorOrArray(ExtentIterator.class));
+    assertTrue(n.isIteratorOrArray(BaseIterator.class));
+    assertFalse(n.isIteratorOrArray(Integer.class));
+    assertFalse(n.isIteratorOrArray(Date.class));
+    assertTrue(n.isIteratorOrArray(new ExtentIterator[0].getClass()));
   }
 
   public void testGetInputs() throws Exception {
@@ -42,7 +42,7 @@ public class NodeTypeTest extends TestCase {
     assertEquals(3, input.length);
     assertEquals(NodeParameters.class, input[0]);
     assertEquals(ExtentIterator.class, input[1]);
-    assertEquals(new MovableScoreIterator[0].getClass(), input[2]);
+    assertEquals(new ScoreIterator[0].getClass(), input[2]);
   }
 
   public void testGetParameterTypes() throws Exception {
@@ -50,9 +50,9 @@ public class NodeTypeTest extends TestCase {
     Class[] input = n.getParameterTypes(4);
     assertEquals(4, input.length);
     assertEquals(ExtentIterator.class, input[0]);
-    assertEquals(MovableScoreIterator.class, input[1]);
-    assertEquals(MovableScoreIterator.class, input[2]);
-    assertEquals(MovableScoreIterator.class, input[3]);
+    assertEquals(ScoreIterator.class, input[1]);
+    assertEquals(ScoreIterator.class, input[2]);
+    assertEquals(ScoreIterator.class, input[3]);
   }
 
   public void testGetConstructor() throws Exception {
@@ -60,13 +60,13 @@ public class NodeTypeTest extends TestCase {
     Constructor c = n.getConstructor();
     Constructor actual =
             FakeIterator.class.getConstructor(NodeParameters.class, ExtentIterator.class,
-            new MovableScoreIterator[0].getClass());
+            new ScoreIterator[0].getClass());
     assertEquals(actual, c);
   }
 
-  public static class FakeIterator implements MovableIterator {
+  public static class FakeIterator implements BaseIterator {
 
-    public FakeIterator(NodeParameters parameters, ExtentIterator one, MovableScoreIterator[] two) {
+    public FakeIterator(NodeParameters parameters, ExtentIterator one, ScoreIterator[] two) {
     }
 
     public void reset() throws IOException {
@@ -127,7 +127,7 @@ public class NodeTypeTest extends TestCase {
     }
 
     @Override
-    public int compareTo(MovableIterator t) {
+    public int compareTo(BaseIterator t) {
       throw new UnsupportedOperationException("Not supported yet.");
     }
   }

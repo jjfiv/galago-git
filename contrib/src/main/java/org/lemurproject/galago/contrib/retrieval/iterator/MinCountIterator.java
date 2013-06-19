@@ -6,7 +6,7 @@ package org.lemurproject.galago.contrib.retrieval.iterator;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -20,7 +20,7 @@ public class MinCountIterator extends ValueIterator implements CountIterator {
 
   private final NodeParameters nodeParams;
   private final CountIterator[] iterators;
-  protected MovableIterator[] drivingIterators;
+  protected BaseIterator[] drivingIterators;
   protected boolean hasAllCandidates;
   protected ScoringContext context;
 
@@ -30,7 +30,7 @@ public class MinCountIterator extends ValueIterator implements CountIterator {
     // count the number of iterators that dont have
     // a non-default data for all candidates
     int drivingIteratorCount = 0;
-    for (MovableIterator iterator : this.iterators) {
+    for (BaseIterator iterator : this.iterators) {
       if (!iterator.hasAllCandidates()) {
         drivingIteratorCount++;
       }
@@ -49,9 +49,9 @@ public class MinCountIterator extends ValueIterator implements CountIterator {
       // the driving iterators will ensure this iterator
       //   does not stop at ALL documents
       hasAllCandidates = false;
-      drivingIterators = new MovableIterator[drivingIteratorCount];
+      drivingIterators = new BaseIterator[drivingIteratorCount];
       int i = 0;
-      for (MovableIterator iterator : this.iterators) {
+      for (BaseIterator iterator : this.iterators) {
         if (!iterator.hasAllCandidates()) {
           drivingIterators[i] = iterator;
           i++;
@@ -62,7 +62,7 @@ public class MinCountIterator extends ValueIterator implements CountIterator {
 
   @Override
   public void syncTo(int candidate) throws IOException {
-    for (MovableIterator iterator : iterators) {
+    for (BaseIterator iterator : iterators) {
       int prev = iterator.currentCandidate();
       iterator.syncTo(candidate);
     }
@@ -70,7 +70,7 @@ public class MinCountIterator extends ValueIterator implements CountIterator {
 
   @Override
   public void movePast(int candidate) throws IOException {
-    for (MovableIterator iterator : this.drivingIterators) {
+    for (BaseIterator iterator : this.drivingIterators) {
       iterator.movePast(candidate);
     }
   }
@@ -79,7 +79,7 @@ public class MinCountIterator extends ValueIterator implements CountIterator {
   public int currentCandidate() {
     int candidateMax = Integer.MIN_VALUE;
     int candidateMin = Integer.MAX_VALUE;
-    for (MovableIterator iterator : drivingIterators) {
+    for (BaseIterator iterator : drivingIterators) {
       if (iterator.isDone()) {
         return Integer.MAX_VALUE;
       }
@@ -95,7 +95,7 @@ public class MinCountIterator extends ValueIterator implements CountIterator {
 
   @Override
   public boolean hasMatch(int candidate) {
-    for (MovableIterator iterator : drivingIterators) {
+    for (BaseIterator iterator : drivingIterators) {
       if (iterator.isDone() || !iterator.hasMatch(candidate)) {
         return false;
       }
@@ -105,7 +105,7 @@ public class MinCountIterator extends ValueIterator implements CountIterator {
 
   @Override
   public boolean isDone() {
-    for (MovableIterator iterator : drivingIterators) {
+    for (BaseIterator iterator : drivingIterators) {
       if (iterator.isDone()) {
         return true;
       }
@@ -115,7 +115,7 @@ public class MinCountIterator extends ValueIterator implements CountIterator {
 
   @Override
   public void reset() throws IOException {
-    for (MovableIterator iterator : iterators) {
+    for (BaseIterator iterator : iterators) {
       iterator.reset();
     }
   }
@@ -128,14 +128,14 @@ public class MinCountIterator extends ValueIterator implements CountIterator {
   @Override
   public long totalEntries() {
     long min = Integer.MAX_VALUE;
-    for (MovableIterator iterator : iterators) {
+    for (BaseIterator iterator : iterators) {
       min = Math.min(min, iterator.totalEntries());
     }
     return min;
   }
 
   @Override
-  public int compareTo(MovableIterator other) {
+  public int compareTo(BaseIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }
@@ -197,7 +197,7 @@ public class MinCountIterator extends ValueIterator implements CountIterator {
   public void setContext(ScoringContext sc){
     this.context = sc;
 
-    for(MovableIterator itr : this.iterators){
+    for(BaseIterator itr : this.iterators){
       itr.setContext(context);
     }
   }

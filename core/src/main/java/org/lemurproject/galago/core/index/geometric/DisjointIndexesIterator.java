@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.ValueIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -17,11 +17,11 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public abstract class DisjointIndexesIterator extends ValueIterator {
 
-  Collection<MovableIterator> allIterators;
-  MovableIterator head;
-  PriorityQueue<MovableIterator> queue;
+  Collection<BaseIterator> allIterators;
+  BaseIterator head;
+  PriorityQueue<BaseIterator> queue;
 
-  public DisjointIndexesIterator(Collection<MovableIterator> iterators) {
+  public DisjointIndexesIterator(Collection<BaseIterator> iterators) {
     allIterators = iterators;
     queue = new PriorityQueue(iterators);
     head = queue.poll();
@@ -31,7 +31,7 @@ public abstract class DisjointIndexesIterator extends ValueIterator {
   public void setContext(ScoringContext context) {
     this.context = context;
 
-    for(MovableIterator i : this.allIterators){
+    for(BaseIterator i : this.allIterators){
       i.setContext(context);
     }
   }
@@ -92,7 +92,7 @@ public abstract class DisjointIndexesIterator extends ValueIterator {
   @Override
   public long totalEntries() {
     long count = 0;
-    for (MovableIterator i : allIterators) {
+    for (BaseIterator i : allIterators) {
       count += i.totalEntries();
     }
     return count;
@@ -101,7 +101,7 @@ public abstract class DisjointIndexesIterator extends ValueIterator {
   @Override
   public void reset() throws IOException {
     queue = new PriorityQueue();
-    for (MovableIterator i : allIterators) {
+    for (BaseIterator i : allIterators) {
       i.reset();
       queue.offer(i);
     }
@@ -116,14 +116,14 @@ public abstract class DisjointIndexesIterator extends ValueIterator {
   @Override
   public boolean hasAllCandidates() {
     boolean flag = true;
-    for (MovableIterator i : allIterators) {
+    for (BaseIterator i : allIterators) {
       flag &= i.hasAllCandidates();
     }
     return flag;
   }
 
   @Override
-  public int compareTo(MovableIterator o) {
+  public int compareTo(BaseIterator o) {
     return Utility.compare(this.currentCandidate(), o.currentCandidate());
   }
 

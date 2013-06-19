@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.lemurproject.galago.core.retrieval.iterator.ModifiableIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -62,7 +62,7 @@ public abstract class KeyListReader extends KeyValueReader {
     }
 
     @Override
-    public int compareTo(MovableIterator other) {
+    public int compareTo(BaseIterator other) {
       if (isDone() && !other.isDone()) {
         return 1;
       }

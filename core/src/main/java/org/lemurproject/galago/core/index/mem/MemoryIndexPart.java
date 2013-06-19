@@ -7,7 +7,7 @@ import java.io.IOException;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 
 /**
  *
@@ -28,7 +28,7 @@ public interface MemoryIndexPart extends IndexPartReader {
    * extract all data from iterator and add to index
    *  - should not expose partial information (oh-to-be-thread-safe)
    */
-  public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException;
+  public void addIteratorData(byte[] key, BaseIterator iterator) throws IOException;
 
   /*
    * discard all data for a key

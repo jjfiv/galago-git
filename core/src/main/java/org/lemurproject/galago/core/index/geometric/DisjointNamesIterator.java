@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.lemurproject.galago.core.index.NamesReader;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
@@ -48,7 +48,7 @@ public class DisjointNamesIterator extends DisjointIndexesIterator implements Na
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = getCurrentName();
     List<AnnotatedNode> children = new ArrayList();
-    for (MovableIterator child : this.allIterators) {
+    for (BaseIterator child : this.allIterators) {
       children.add(child.getAnnotatedNode());
     }
 

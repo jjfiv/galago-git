@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.index;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 
 /**
  *
@@ -16,7 +16,7 @@ public interface NamesReader extends IndexPartReader {
 
   public NamesIterator getNamesIterator() throws IOException;
 
-  public interface NamesIterator extends MovableIterator {
+  public interface NamesIterator extends BaseIterator {
 
     public String getCurrentName() throws IOException;
 

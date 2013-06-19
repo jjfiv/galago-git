@@ -8,7 +8,7 @@ import java.util.Set;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -42,7 +42,7 @@ public interface Index {
   // This isn't necessary at the moment
   //public boolean hasChanged() throws IOException;
 
-  public MovableIterator getIterator(Node node) throws IOException;
+  public BaseIterator getIterator(Node node) throws IOException;
 
   public NodeType getNodeType(Node node) throws Exception;
 

@@ -17,11 +17,11 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public class LogProbNotIterator extends TransformIterator implements MovableScoreIterator {
-  private final MovableScoreIterator scorer;
+public class LogProbNotIterator extends TransformIterator implements ScoreIterator {
+  private final ScoreIterator scorer;
   private final NodeParameters np;
 
-  public LogProbNotIterator(NodeParameters params, MovableScoreIterator scorer){
+  public LogProbNotIterator(NodeParameters params, ScoreIterator scorer){
     super(scorer);
     this.scorer = scorer;
     this.np = params;

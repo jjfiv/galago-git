@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.parse.PseudoDocument;
 import org.lemurproject.galago.core.parse.TagTokenizer;
-import org.lemurproject.galago.core.retrieval.iterator.MovableDataIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -139,7 +139,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     }
   }
 
-  public class CorpusIterator extends KeyToListIterator implements MovableDataIterator<Document> {
+  public class CorpusIterator extends KeyToListIterator implements DataIterator<Document> {
 
     DocumentComponents docParams;
 

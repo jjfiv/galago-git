@@ -9,7 +9,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
  * @see PositionIndexIterator
  * @author trevor, irmarc
  */
-public interface CountIterator extends MovableIterator {
+public interface CountIterator extends BaseIterator {
 
   /**
    * Shorthand set of bytes used to quickly identify this

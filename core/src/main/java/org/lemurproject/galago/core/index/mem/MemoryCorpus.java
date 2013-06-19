@@ -17,8 +17,8 @@ import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableDataIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -51,7 +51,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
   // this is likely to waste all of your memory...
   @Override
-  public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
+  public void addIteratorData(byte[] key, BaseIterator iterator) throws IOException {
     while (!iterator.isDone()) {
       Document doc = ((DataIterator<Document>) iterator).getData();
       // if the document already exists - no harm done.
@@ -235,7 +235,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
     }
   }
 
-  public class MemCorpusIterator extends KeyToListIterator implements MovableDataIterator<Document> {
+  public class MemCorpusIterator extends KeyToListIterator implements DataIterator<Document> {
 
     DocumentComponents docParams;
 

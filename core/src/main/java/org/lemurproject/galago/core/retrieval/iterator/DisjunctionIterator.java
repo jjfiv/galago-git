@@ -10,21 +10,21 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
  *
  * @author sjh
  */
-public abstract class DisjunctionIterator implements MovableIterator {
+public abstract class DisjunctionIterator implements BaseIterator {
 
-  protected MovableIterator[] iterators;
-  protected MovableIterator[] drivingIterators;
+  protected BaseIterator[] iterators;
+  protected BaseIterator[] drivingIterators;
   protected ScoringContext context;
   protected boolean hasAllCandidates;
 
-  public DisjunctionIterator(MovableIterator[] queryIterators) {
-    // first check that the iterators are all MovableIterators:
+  public DisjunctionIterator(BaseIterator[] queryIterators) {
+    // first check that the iterators are all BaseIterators:
     this.iterators = queryIterators;
 
     // count the number of iterators that dont have
     // a non-default data for all candidates
     int drivingIteratorCount = 0;
-    for (MovableIterator iterator : this.iterators) {
+    for (BaseIterator iterator : this.iterators) {
       if (!iterator.hasAllCandidates()) {
         drivingIteratorCount++;
       }
@@ -43,9 +43,9 @@ public abstract class DisjunctionIterator implements MovableIterator {
       // the driving iterators will ensure this iterator
       //   does not stop at all documents
       hasAllCandidates = false;
-      drivingIterators = new MovableIterator[drivingIteratorCount];
+      drivingIterators = new BaseIterator[drivingIteratorCount];
       int i = 0;
-      for (MovableIterator iterator : this.iterators) {
+      for (BaseIterator iterator : this.iterators) {
         if (!iterator.hasAllCandidates()) {
           drivingIterators[i] = iterator;
           i++;
@@ -56,14 +56,14 @@ public abstract class DisjunctionIterator implements MovableIterator {
 
   @Override
   public void syncTo(int candidate) throws IOException {
-    for (MovableIterator iterator : iterators) {
+    for (BaseIterator iterator : iterators) {
       iterator.syncTo(candidate);
     }
   }
 
   @Override
   public void movePast(int candidate) throws IOException {
-    for (MovableIterator iterator : this.drivingIterators) {
+    for (BaseIterator iterator : this.drivingIterators) {
       iterator.movePast(candidate);
     }
   }
@@ -83,7 +83,7 @@ public abstract class DisjunctionIterator implements MovableIterator {
 
   @Override
   public boolean hasMatch(int candidate) {
-    for (MovableIterator iterator : drivingIterators) {
+    for (BaseIterator iterator : drivingIterators) {
       if (iterator.hasMatch(candidate)) {
         return true;
       }
@@ -93,7 +93,7 @@ public abstract class DisjunctionIterator implements MovableIterator {
 
   @Override
   public boolean isDone() {
-    for (MovableIterator iterator : drivingIterators) {
+    for (BaseIterator iterator : drivingIterators) {
       if (!iterator.isDone()) {
         return false;
       }
@@ -103,7 +103,7 @@ public abstract class DisjunctionIterator implements MovableIterator {
 
   @Override
   public void reset() throws IOException {
-    for (MovableIterator iterator : iterators) {
+    for (BaseIterator iterator : iterators) {
       iterator.reset();
     }
   }
@@ -116,7 +116,7 @@ public abstract class DisjunctionIterator implements MovableIterator {
   @Override
   public long totalEntries() {
     long total = 0;
-    for (MovableIterator i : this.iterators) {
+    for (BaseIterator i : this.iterators) {
       if (i.hasAllCandidates()) {
         return i.totalEntries();
       } else {
@@ -127,7 +127,7 @@ public abstract class DisjunctionIterator implements MovableIterator {
   }
 
   @Override
-  public int compareTo(MovableIterator other) {
+  public int compareTo(BaseIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }
@@ -144,7 +144,7 @@ public abstract class DisjunctionIterator implements MovableIterator {
   public void setContext(ScoringContext context) {
     this.context = context;
 
-    for(MovableIterator i : this.iterators){
+    for(BaseIterator i : this.iterators){
       i.setContext(context);
     }
   }

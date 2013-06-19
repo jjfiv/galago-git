@@ -16,20 +16,20 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  * 
  * @author sjh
  */
-public abstract class NonSharedConjunctionIterator implements MovableIterator {
+public abstract class NonSharedConjunctionIterator implements BaseIterator {
 
-  protected MovableIterator[] iterators;
-  protected MovableIterator[] drivingIterators;
+  protected BaseIterator[] iterators;
+  protected BaseIterator[] drivingIterators;
   protected boolean hasAllCandidates;
   protected ScoringContext context;
 
-  public NonSharedConjunctionIterator(NodeParameters parameters, MovableIterator[] queryIterators) {
+  public NonSharedConjunctionIterator(NodeParameters parameters, BaseIterator[] queryIterators) {
     this.iterators = queryIterators;
 
     // count the number of iterators that dont have
     // a non-default data for all candidates
     int drivingIteratorCount = 0;
-    for (MovableIterator iterator : this.iterators) {
+    for (BaseIterator iterator : this.iterators) {
       if (!iterator.hasAllCandidates()) {
         drivingIteratorCount++;
       }
@@ -48,9 +48,9 @@ public abstract class NonSharedConjunctionIterator implements MovableIterator {
       // the driving iterators will ensure this iterator
       //   does not stop at ALL documents
       hasAllCandidates = false;
-      drivingIterators = new MovableIterator[drivingIteratorCount];
+      drivingIterators = new BaseIterator[drivingIteratorCount];
       int i = 0;
-      for (MovableIterator iterator : this.iterators) {
+      for (BaseIterator iterator : this.iterators) {
         if (!iterator.hasAllCandidates()) {
           drivingIterators[i] = iterator;
           i++;
@@ -61,13 +61,13 @@ public abstract class NonSharedConjunctionIterator implements MovableIterator {
 
   @Override
   public void syncTo(int candidate) throws IOException {
-    for (MovableIterator iterator : iterators) {
+    for (BaseIterator iterator : iterators) {
       iterator.syncTo(candidate);
     }
 
     int currCandidate = currentCandidate();
     while (!isDone()) {
-      for (MovableIterator iterator : iterators) {
+      for (BaseIterator iterator : iterators) {
         iterator.syncTo(currCandidate);
 
         // if we skip too far:
@@ -94,7 +94,7 @@ public abstract class NonSharedConjunctionIterator implements MovableIterator {
   public int currentCandidate() {
     int candidateMax = Integer.MIN_VALUE;
     int candidateMin = Integer.MAX_VALUE;
-    for (MovableIterator iterator : drivingIterators) {
+    for (BaseIterator iterator : drivingIterators) {
       if (iterator.isDone()) {
         return Integer.MAX_VALUE;
       }
@@ -110,7 +110,7 @@ public abstract class NonSharedConjunctionIterator implements MovableIterator {
 
   @Override
   public boolean hasMatch(int candidate) {
-    for (MovableIterator iterator : drivingIterators) {
+    for (BaseIterator iterator : drivingIterators) {
       if (iterator.isDone() || !iterator.hasMatch(candidate)) {
         return false;
       }
@@ -120,7 +120,7 @@ public abstract class NonSharedConjunctionIterator implements MovableIterator {
 
   @Override
   public boolean isDone() {
-    for (MovableIterator iterator : drivingIterators) {
+    for (BaseIterator iterator : drivingIterators) {
       if (iterator.isDone()) {
         return true;
       }
@@ -130,7 +130,7 @@ public abstract class NonSharedConjunctionIterator implements MovableIterator {
 
   @Override
   public void reset() throws IOException {
-    for (MovableIterator iterator : iterators) {
+    for (BaseIterator iterator : iterators) {
       iterator.reset();
     }
   }
@@ -143,14 +143,14 @@ public abstract class NonSharedConjunctionIterator implements MovableIterator {
   @Override
   public long totalEntries() {
     long min = Integer.MAX_VALUE;
-    for (MovableIterator iterator : iterators) {
+    for (BaseIterator iterator : iterators) {
       min = Math.min(min, iterator.totalEntries());
     }
     return min;
   }
 
   @Override
-  public int compareTo(MovableIterator other) {
+  public int compareTo(BaseIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }
@@ -167,7 +167,7 @@ public abstract class NonSharedConjunctionIterator implements MovableIterator {
   public void setContext(ScoringContext context) {
     this.context = context;
 
-    for(MovableIterator i : this.iterators){
+    for(BaseIterator i : this.iterators){
       i.setContext(context);
     }
   }

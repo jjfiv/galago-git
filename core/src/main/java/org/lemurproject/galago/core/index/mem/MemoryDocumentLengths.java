@@ -20,7 +20,7 @@ import org.lemurproject.galago.core.index.stats.CollectionStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -122,7 +122,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   @Override
-  public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
+  public void addIteratorData(byte[] key, BaseIterator iterator) throws IOException {
     byte[] fieldString = key;
     Bytes field = new Bytes(fieldString);
     FieldLengthPostingList fieldLengths;
@@ -419,7 +419,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     @Override
-    public int compareTo(MovableIterator other) {
+    public int compareTo(BaseIterator other) {
       if (isDone() && !other.isDone()) {
         return 1;
       }

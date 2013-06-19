@@ -6,7 +6,7 @@ import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.ScoredPassage;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
@@ -43,8 +43,8 @@ public class RankedPassageModel extends ProcessingModel {
       throw new IllegalArgumentException("passageSize/passageShift must be specified as positive integers.");
     }
 
-    MovableScoreIterator iterator =
-            (MovableScoreIterator) retrieval.createIterator(queryParams,
+    ScoreIterator iterator =
+            (ScoreIterator) retrieval.createIterator(queryParams,
             queryTree,
             context);
     LengthsIterator documentLengths =

@@ -6,7 +6,7 @@ import java.util.Arrays;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -35,8 +35,8 @@ public class MaxScoreDocumentModel extends ProcessingModel {
     context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
     Arrays.fill(context.startingPotentials, 0);
-    MovableScoreIterator rootIterator =
-            (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
+    ScoreIterator rootIterator =
+            (ScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
 
     FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 

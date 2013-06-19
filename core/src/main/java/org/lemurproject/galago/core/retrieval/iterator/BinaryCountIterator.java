@@ -17,7 +17,7 @@ public class BinaryCountIterator extends TransformIterator implements CountItera
   NodeParameters np;
   IndicatorIterator indicator;
 
-  public BinaryCountIterator(NodeParameters p, MovableIndicatorIterator i) {
+  public BinaryCountIterator(NodeParameters p, IndicatorIterator i) {
     super(i);
     np = p;
     indicator = i;

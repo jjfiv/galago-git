@@ -7,7 +7,7 @@ package org.lemurproject.galago.core.index;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
@@ -91,7 +91,7 @@ public class FakeLengthIterator implements LengthsIterator {
   }
 
   @Override
-  public int compareTo(MovableIterator t) {
+  public int compareTo(BaseIterator t) {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 

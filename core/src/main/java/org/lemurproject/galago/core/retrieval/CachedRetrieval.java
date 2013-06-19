@@ -61,7 +61,7 @@ public class CachedRetrieval {
 
   }
 
-  public MovableIterator getCachedIterator(Node node) throws IOException {
+  public BaseIterator getCachedIterator(Node node) throws IOException {
     String nodeString = node.toString();
     if (cachedNodes.containsKey(nodeString)) {
       // new behaviour - check cache for this node.
@@ -85,15 +85,15 @@ public class CachedRetrieval {
    * caches an arbitrary query node currently can store only count, extent, and
    * score iterators.
    */
-  public void addToCache(Node node, MovableIterator iterator) throws Exception {
+  public void addToCache(Node node, BaseIterator iterator) throws Exception {
 
     String nodeString = node.toString();
     if (!cachedNodes.containsKey(nodeString)) {
       if (this.cacheLeafNodes || node.numChildren() > 0) {
-        if (iterator instanceof MovableScoreIterator) {
+        if (iterator instanceof ScoreIterator) {
           if (this.cacheScores) {
             cachedNodes.put(nodeString, "score");
-            cacheParts.get("score").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
+            cacheParts.get("score").addIteratorData(Utility.fromString(nodeString), (BaseIterator) iterator);
             // logger.info("Cached scoring node : " + nodeString);
           } else {
             // logger.info("Scoring node are not cachable : " + nodeString);
@@ -101,16 +101,16 @@ public class CachedRetrieval {
 
         } else if (iterator instanceof LengthsIterator) {
           cachedNodes.put(nodeString, "lengths");
-          cacheParts.get("lengths").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
+          cacheParts.get("lengths").addIteratorData(Utility.fromString(nodeString), (BaseIterator) iterator);
 
         } else if (iterator instanceof ExtentIterator) {
           cachedNodes.put(nodeString, "extent");
-          cacheParts.get("extent").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
+          cacheParts.get("extent").addIteratorData(Utility.fromString(nodeString), (BaseIterator) iterator);
           // logger.info("Cached extent node : " + nodeString);
 
         } else if (iterator instanceof CountIterator) {
           cachedNodes.put(nodeString, "count");
-          cacheParts.get("count").addIteratorData(Utility.fromString(nodeString), (MovableIterator) iterator);
+          cacheParts.get("count").addIteratorData(Utility.fromString(nodeString), (BaseIterator) iterator);
           // logger.info("Cached count node : " + nodeString);
 
         } else {

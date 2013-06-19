@@ -244,22 +244,22 @@ public class FeatureFactory {
   }
 
   @SuppressWarnings("unchecked")
-  public Class<MovableIterator> getClass(Node node) throws Exception {
+  public Class<BaseIterator> getClass(Node node) throws Exception {
     String className = getClassName(node);
     if (className == null) {
       return null;
     }
     Class c = Class.forName(className);
 
-    if (MovableIterator.class.isAssignableFrom(c)) {
-      return (Class<MovableIterator>) c;
+    if (BaseIterator.class.isAssignableFrom(c)) {
+      return (Class<BaseIterator>) c;
     } else {
       return null;
     }
   }
 
   public NodeType getNodeType(Node node) throws Exception {
-    Class<MovableIterator> cls = getClass(node);
+    Class<BaseIterator> cls = getClass(node);
     if (cls != null) {
       return new NodeType(getClass(node));
     } else {
@@ -274,17 +274,17 @@ public class FeatureFactory {
    *
    * If the class returned by getClass() is a ScoringFunction, it must contain a
    * constructor that takes a single Parameters object. If the class returned by
-   * getFeatureClass() is some kind of MovableIterator, it must take a
+   * getFeatureClass() is some kind of Iterator, it must take a
    * Parameters object and an ArrayList of DocumentDataIterators as parameters.
    */
-  public MovableIterator getIterator(Node node, ArrayList<MovableIterator> childIterators) throws Exception {
+  public BaseIterator getIterator(Node node, ArrayList<BaseIterator> childIterators) throws Exception {
     NodeType type = getNodeType(node);
 
     // One type of constructor allowed: Parameters?, NodeParameters?, child+
     // Anything not conforming to that gets an exception
 
     // Get the matching class for the node
-    Class<? extends MovableIterator> c = getClass(node);
+    Class<? extends BaseIterator> c = getClass(node);
     if (c == null) {
       return null;
     }
@@ -315,8 +315,8 @@ public class FeatureFactory {
             fail = true;
             break;
           }
-        } else if (MovableIterator.class.isAssignableFrom(formals.get(0))) {
-          // Some number of MovableIterator, can be different - just do the one at the front now
+        } else if (BaseIterator.class.isAssignableFrom(formals.get(0))) {
+          // Some number of Iterator, can be different - just do the one at the front now
           if (formals.get(0).isAssignableFrom(childIterators.get(childIdx).getClass())) {
             arguments.add(childIterators.get(childIdx));
             childIdx++;
@@ -353,12 +353,12 @@ public class FeatureFactory {
     if (fail) {
       StringBuilder msg = new StringBuilder();
       msg.append(String.format("No valid constructor for node %s.\n", node.toString()));
-      msg.append("Allowable StructuredIterator constructors allow for leading optional Parameters,");
+      msg.append("Allowable Iterator constructors allow for leading optional Parameters,");
       msg.append(" followed by optional NodeParameters, and finally the list of child iterators.");
       throw new IllegalArgumentException(msg.toString());
     }
 
-    return (MovableIterator) cons[ic].newInstance(arguments.toArray(new Object[0]));
+    return (BaseIterator) cons[ic].newInstance(arguments.toArray(new Object[0]));
   }
 
   public List<String> getTraversalNames() {

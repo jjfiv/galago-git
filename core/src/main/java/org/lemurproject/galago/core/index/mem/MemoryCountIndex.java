@@ -23,7 +23,7 @@ import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.FakeParameters;
@@ -85,7 +85,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
   }
 
   @Override
-  public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
+  public void addIteratorData(byte[] key, BaseIterator iterator) throws IOException {
 
     // if  we have not already cached this data
     if (!postings.containsKey(key)) {
@@ -511,7 +511,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     }
 
     @Override
-    public int compareTo(MovableIterator other) {
+    public int compareTo(BaseIterator other) {
       if (isDone() && !other.isDone()) {
         return 1;
       }

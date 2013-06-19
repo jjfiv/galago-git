@@ -8,7 +8,7 @@ import java.util.Map;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.ValueIterator;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader.WindowExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
@@ -172,7 +172,7 @@ public class FieldLengthsReader implements LengthsReader {
     }
 
     @Override
-    public int compareTo(MovableIterator t) {
+    public int compareTo(BaseIterator t) {
       return extentsIterator.compareTo(t);
     }
 

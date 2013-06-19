@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -104,7 +104,7 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
   }
 
   @Override
-  public int compareTo(MovableIterator other) {
+  public int compareTo(BaseIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }

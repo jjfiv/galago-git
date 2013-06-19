@@ -34,7 +34,7 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
  * 
  * @author sjh
  */
-public interface MovableIterator extends ContextualIterator, StructuredIterator, Comparable<MovableIterator> {
+public interface BaseIterator extends ContextualIterator, Comparable<BaseIterator> {
 
   /**
    * returns the iterator to the first candidate

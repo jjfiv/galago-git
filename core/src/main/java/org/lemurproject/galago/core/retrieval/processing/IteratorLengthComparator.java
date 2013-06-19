@@ -5,16 +5,16 @@
 package org.lemurproject.galago.core.retrieval.processing;
 
 import java.util.Comparator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 
 /**
  *
  * @author irmarc
  */
-public class IteratorLengthComparator implements Comparator<MovableIterator> {
+public class IteratorLengthComparator implements Comparator<BaseIterator> {
 
   @Override
-  public int compare(MovableIterator t, MovableIterator t1) {
+  public int compare(BaseIterator t, BaseIterator t1) {
     return (int) (t.totalEntries() - t1.totalEntries());
   }
 }

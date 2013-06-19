@@ -21,7 +21,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  *
  * @author irmarc
  */
-public abstract class FieldComparisonIterator extends TransformIterator implements MovableIndicatorIterator {
+public abstract class FieldComparisonIterator extends TransformIterator implements IndicatorIterator {
   NodeParameters p;
   FieldIndexReader.ListIterator fieldIterator;
   String format;

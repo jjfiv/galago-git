@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
@@ -50,7 +50,7 @@ public class DisjointLengthsIterator extends DisjointIndexesIterator implements 
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Integer.toString(getCurrentLength());
     List<AnnotatedNode> children = new ArrayList();
-    for (MovableIterator child : this.allIterators) {
+    for (BaseIterator child : this.allIterators) {
       children.add(child.getAnnotatedNode());
     }
 

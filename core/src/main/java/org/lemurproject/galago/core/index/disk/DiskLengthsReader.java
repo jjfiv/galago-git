@@ -306,7 +306,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 //    }
 //
 //    @Override
-//    public int compareTo(MovableIterator other) {
+//    public int compareTo(BaseIterator other) {
 //      if (isDone() && !other.isDone()) {
 //        return 1;
 //      }

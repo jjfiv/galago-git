@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.retrieval.CachedRetrieval;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -93,13 +93,13 @@ public class LearnerTest extends TestCase {
         // System.out.println(root.toPrettyString());
         
         // node is an SDM - root, children, and sub-children are not cached, nodes below that level are cached
-        MovableIterator i = (MovableIterator) r.createIterator(new Parameters(), root, new ScoringContext());
+        BaseIterator i = (BaseIterator) r.createIterator(new Parameters(), root, new ScoringContext());
         assertFalse(i instanceof MemorySparseDoubleIndex.ScoresIterator);
         for (Node child : root.getInternalNodes()) {
-          i = (MovableIterator) r.createIterator(new Parameters(), child, new ScoringContext());
+          i = (BaseIterator) r.createIterator(new Parameters(), child, new ScoringContext());
           assertFalse(i instanceof MemorySparseDoubleIndex.ScoresIterator);
           for (Node subchild : child.getInternalNodes()) {
-            i = (MovableIterator) r.createIterator(new Parameters(), subchild, new ScoringContext());
+            i = (BaseIterator) r.createIterator(new Parameters(), subchild, new ScoringContext());
             assertTrue(i.getClass().getName().contains(".mem.")); // is a memory iterator.
           }
         }

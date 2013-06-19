@@ -7,7 +7,7 @@ import java.util.List;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -60,8 +60,8 @@ public class WorkingSetDocumentModel extends ProcessingModel {
     Collections.sort(whitelist);
 
     // construct the query iterators
-    MovableScoreIterator iterator =
-            (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
+    ScoreIterator iterator =
+            (ScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
     int requested = (int) queryParams.get("requested", 1000);
     boolean annotate = queryParams.get("annotate", false);
 

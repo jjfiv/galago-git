@@ -6,7 +6,7 @@ import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -43,7 +43,7 @@ public class RankedDocumentModel extends ProcessingModel {
 
 
     // construct the iterators -- we use tree processing
-    MovableScoreIterator iterator = (MovableScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
+    ScoreIterator iterator = (ScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
 
     // now there should be an iterator at the root of this tree
     while (!iterator.isDone()) {

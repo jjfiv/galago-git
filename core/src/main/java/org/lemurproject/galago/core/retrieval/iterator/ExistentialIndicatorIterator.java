@@ -11,15 +11,15 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  * Implements the #any indicator operator.
  * @author irmarc
  */
-public class ExistentialIndicatorIterator extends DisjunctionIterator implements MovableIndicatorIterator {
+public class ExistentialIndicatorIterator extends DisjunctionIterator implements IndicatorIterator {
 
-  public ExistentialIndicatorIterator(NodeParameters p, MovableIterator[] children) {
+  public ExistentialIndicatorIterator(NodeParameters p, BaseIterator[] children) {
     super(children);
   }
 
   @Override
   public boolean indicator(int identifier) {
-    for (MovableIterator i : this.iterators) {
+    for (BaseIterator i : this.iterators) {
       if (!i.isDone() && i.hasMatch(identifier)) {
         return true;
       }
@@ -41,7 +41,7 @@ public class ExistentialIndicatorIterator extends DisjunctionIterator implements
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Boolean.toString(this.indicator(this.context.document));
     List<AnnotatedNode> children = new ArrayList();
-    for (MovableIterator child : this.iterators) {
+    for (BaseIterator child : this.iterators) {
       children.add(child.getAnnotatedNode());
     }
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

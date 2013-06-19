@@ -12,7 +12,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
  *
  * @author trevor, irmarc
  */
-public interface ScoreIterator {
+public interface ScoreIterator extends BaseIterator {
 
   /**
    * Produce a score for the iterator's current candidate given the implicit

@@ -16,7 +16,7 @@ import org.lemurproject.galago.core.index.disk.SparseFloatListWriter;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.extents.FakeScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.types.NumberWordCount;
@@ -148,9 +148,9 @@ public class MemIndexPartTest extends TestCase {
 
       SparseFloatListReader reader = new SparseFloatListReader(f.getAbsolutePath());
 
-      MovableScoreIterator trueScoreItr = new FakeScoreIterator(docs, scores);
-      MovableScoreIterator memScoreItr = memScores.getNodeScores(Utility.fromString("key"));
-      MovableScoreIterator diskScoreItr = (MovableScoreIterator) reader.getIterator(new Node("scores", "key"));
+      ScoreIterator trueScoreItr = new FakeScoreIterator(docs, scores);
+      ScoreIterator memScoreItr = memScores.getNodeScores(Utility.fromString("key"));
+      ScoreIterator diskScoreItr = (ScoreIterator) reader.getIterator(new Node("scores", "key"));
 
       context = new ScoringContext();
       trueScoreItr.setContext(context);

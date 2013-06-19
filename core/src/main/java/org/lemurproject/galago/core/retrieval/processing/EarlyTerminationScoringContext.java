@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
-import org.lemurproject.galago.core.retrieval.iterator.StructuredIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 
 /**
@@ -19,11 +18,11 @@ public class EarlyTerminationScoringContext extends ScoringContext {
 
   public EarlyTerminationScoringContext() {
     scorers = new ArrayList<DeltaScoringIterator>();
-    members = new HashSet<StructuredIterator>();
+    members = new HashSet<BaseIterator>();
     sentinelIndex = 0;
   }
   public ArrayList<DeltaScoringIterator> scorers;
-  public HashSet<StructuredIterator> members;
+  public HashSet<BaseIterator> members;
   public double[] startingPotentials;
   public double[] potentials;
   public double runningScore;

@@ -4,14 +4,14 @@
 package org.lemurproject.galago.core.index;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 
 /**
  *
  * @author sjh
  */
-public abstract class ValueIterator implements MovableIterator {
+public abstract class ValueIterator implements BaseIterator {
 
   protected ScoringContext context;
 

@@ -5,7 +5,7 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 
@@ -27,7 +27,7 @@ public class ScoringContext {
   public boolean cachable = true;
 
   // Diagnostic
-  public HashMap<MovableIterator, Node> toNodes = new HashMap<MovableIterator, Node>();
+  public HashMap<BaseIterator, Node> toNodes = new HashMap<BaseIterator, Node>();
   
   public ScoringContext() {
     lengths = new HashMap<String, LengthsIterator>();

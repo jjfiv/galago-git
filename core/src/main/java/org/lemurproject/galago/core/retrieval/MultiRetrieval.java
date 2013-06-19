@@ -22,7 +22,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
@@ -425,7 +425,7 @@ public class MultiRetrieval implements Retrieval {
       String iteratorClass = partParams.getString(operator);
       //System.out.println("Got part for node.");
       // may need to do some checking here...
-      return new NodeType((Class<? extends MovableIterator>) Class.forName(iteratorClass));
+      return new NodeType((Class<? extends BaseIterator>) Class.forName(iteratorClass));
     } else {
       // System.out.println("No part in node parameters. for node: " + node.toPrettyString() + " Not returning index part.");
     }

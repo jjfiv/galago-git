@@ -11,7 +11,7 @@ import java.util.List;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.ValueIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -109,7 +109,7 @@ public class FieldIndexReader extends KeyListReader {
   }
 
   public class ListIterator extends KeyListReader.ListIterator
-          implements MovableIterator {
+          implements BaseIterator {
 
     BTreeReader.BTreeIterator iterator;
     //VByteInput data;

@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.scoring.ScoringFunction;
  *
  * @author irmarc
  */
-public class ScoringFunctionIterator extends TransformIterator implements MovableScoreIterator {
+public class ScoringFunctionIterator extends TransformIterator implements ScoreIterator {
 
   protected NodeParameters np;
   protected ScoringFunction function;

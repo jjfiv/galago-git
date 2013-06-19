@@ -96,7 +96,7 @@ public class NullExtentIterator extends ValueIterator implements ExtentIterator,
   }
 
   @Override
-  public int compareTo(MovableIterator t) {
+  public int compareTo(BaseIterator t) {
     return 1;
   }
 

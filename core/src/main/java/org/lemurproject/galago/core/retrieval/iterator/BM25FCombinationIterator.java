@@ -13,7 +13,7 @@ public class BM25FCombinationIterator extends ScoreCombinationIterator {
   double[] idfs;
 
   public BM25FCombinationIterator(NodeParameters parameters,
-          MovableScoreIterator[] childIterators) {
+          ScoreIterator[] childIterators) {
     super(parameters, childIterators);
     K = parameters.getDouble("K");
     idfs = new double[iterators.length];

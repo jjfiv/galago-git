@@ -16,16 +16,16 @@ import org.lemurproject.galago.core.util.MathUtils;
  * @author sjh
  */
 @RequiredParameters(parameters = {"norm"})
-public class WeightedSumIterator extends DisjunctionIterator implements MovableScoreIterator {
+public class WeightedSumIterator extends DisjunctionIterator implements ScoreIterator {
 
   NodeParameters np;
   protected double[] weights;
-  protected MovableScoreIterator[] scoreIterators;
+  protected ScoreIterator[] scoreIterators;
   protected boolean done;
   protected boolean printing;
 
   public WeightedSumIterator(NodeParameters parameters,
-          MovableScoreIterator[] childIterators) {
+          ScoreIterator[] childIterators) {
     super(childIterators);
     this.np = parameters;
     this.scoreIterators = childIterators;
@@ -91,7 +91,7 @@ public class WeightedSumIterator extends DisjunctionIterator implements MovableS
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = new ArrayList();
-    for (MovableIterator child : this.iterators) {
+    for (BaseIterator child : this.iterators) {
       children.add(child.getAnnotatedNode());
     }
 

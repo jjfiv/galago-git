@@ -5,7 +5,7 @@ package org.lemurproject.galago.core.index;
 import java.io.IOException;
 import java.util.Map;
 import org.lemurproject.galago.core.index.Index.IndexComponentReader;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 

@@ -13,19 +13,19 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class RejectIterator extends FilteredIterator {
 
-  public RejectIterator(NodeParameters p, MovableIndicatorIterator indicator,
+  public RejectIterator(NodeParameters p, IndicatorIterator indicator,
           CountIterator counter) throws IOException {
     super(p, indicator, counter);
     syncTo(0);
   }
 
-  public RejectIterator(NodeParameters p, MovableIndicatorIterator indicator,
-          MovableScoreIterator scorer) throws IOException {
+  public RejectIterator(NodeParameters p, IndicatorIterator indicator,
+          ScoreIterator scorer) throws IOException {
     super(p, indicator, scorer);
     syncTo(0);
   }
 
-  public RejectIterator(NodeParameters p, MovableIndicatorIterator indicator,
+  public RejectIterator(NodeParameters p, IndicatorIterator indicator,
           ExtentIterator extents) throws IOException {
     super(p, indicator, extents);
     syncTo(0);

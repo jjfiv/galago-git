@@ -11,15 +11,15 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  * Implements the #all indicator operator.
  * @author irmarc
  */
-public class UniversalIndicatorIterator extends ConjunctionIterator implements MovableIndicatorIterator {
+public class UniversalIndicatorIterator extends ConjunctionIterator implements IndicatorIterator {
 
-  public UniversalIndicatorIterator(NodeParameters p, MovableIterator[] children) {
+  public UniversalIndicatorIterator(NodeParameters p, BaseIterator[] children) {
     super(p, children);
   }
 
   @Override
   public boolean indicator(int identifier) {
-    for(MovableIterator i : this.iterators){
+    for(BaseIterator i : this.iterators){
       if(!i.hasMatch(identifier)){
         return false;
       }
@@ -41,7 +41,7 @@ public class UniversalIndicatorIterator extends ConjunctionIterator implements M
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Boolean.toString(this.indicator(this.context.document));
     List<AnnotatedNode> children = new ArrayList();
-    for (MovableIterator child : this.iterators) {
+    for (BaseIterator child : this.iterators) {
       children.add(child.getAnnotatedNode());
     }
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

@@ -24,7 +24,7 @@ import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
@@ -225,7 +225,7 @@ public class LocalRetrieval implements Retrieval {
     return results;
   }
 
-  public MovableIterator createIterator(Parameters queryParameters, Node node, ScoringContext context) throws Exception {
+  public BaseIterator createIterator(Parameters queryParameters, Node node, ScoringContext context) throws Exception {
     if (globalParameters.get("shareNodes", true)) {
       if (queryParameters.get("shareNodes", true)) {
         return createNodeMergedIterator(node, context, new HashMap());
@@ -234,11 +234,11 @@ public class LocalRetrieval implements Retrieval {
     return createNodeMergedIterator(node, context, null);
   }
 
-  protected MovableIterator createNodeMergedIterator(Node node, ScoringContext context,
-          HashMap<String, MovableIterator> queryIteratorCache)
+  protected BaseIterator createNodeMergedIterator(Node node, ScoringContext context,
+          HashMap<String, BaseIterator> queryIteratorCache)
           throws Exception {
-    ArrayList<MovableIterator> internalIterators = new ArrayList<MovableIterator>();
-    MovableIterator iterator;
+    ArrayList<BaseIterator> internalIterators = new ArrayList<BaseIterator>();
+    BaseIterator iterator;
 
     // first check if this is a repeated node in this tree:
     if (queryIteratorCache != null && queryIteratorCache.containsKey(node.toString())) {
@@ -255,7 +255,7 @@ public class LocalRetrieval implements Retrieval {
       // otherwise we need to create a new iterator
       // start by recursively creating children
       for (Node internalNode : node.getInternalNodes()) {
-        MovableIterator internalIterator = createNodeMergedIterator(internalNode, context, queryIteratorCache);
+        BaseIterator internalIterator = createNodeMergedIterator(internalNode, context, queryIteratorCache);
         internalIterators.add(internalIterator);
       }
 
@@ -318,7 +318,7 @@ public class LocalRetrieval implements Retrieval {
 
     CollectionStatistics s;
     ScoringContext sc = ContextFactory.createContext(globalParameters);
-    MovableIterator structIterator = createIterator(new Parameters(), root, sc);
+    BaseIterator structIterator = createIterator(new Parameters(), root, sc);
 
     // first check if this iterator is an aggregate iterator (has direct access to stats)
     if (CollectionAggregateIterator.class.isInstance(structIterator)) {
@@ -379,7 +379,7 @@ public class LocalRetrieval implements Retrieval {
 
     NodeStatistics s;
     ScoringContext sc = ContextFactory.createContext(globalParameters);
-    MovableIterator structIterator = createIterator(new Parameters(), root, sc);
+    BaseIterator structIterator = createIterator(new Parameters(), root, sc);
     if (NodeAggregateIterator.class.isInstance(structIterator)) {
       s = ((NodeAggregateIterator) structIterator).getStatistics();
 

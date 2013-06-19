@@ -20,7 +20,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 @RequiredStatistics(statistics = {"collectionLength", "documentCount", "nodeDocumentCount", "maximumCount"})
 @RequiredParameters(parameters = {"c"})
-public class InL2ScoringIterator extends TransformIterator implements MovableScoreIterator {
+public class InL2ScoringIterator extends TransformIterator implements ScoreIterator {
 
   private final LengthsIterator lengths;
   private final CountIterator counts;

@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIndicatorIterator;
+import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -119,7 +119,7 @@ public class DocumentIndicatorReader extends KeyValueReader {
   }
 
   // needs to be an AbstractIndicator
-  public class ValueIterator extends KeyToListIterator implements MovableIndicatorIterator {
+  public class ValueIterator extends KeyToListIterator implements IndicatorIterator {
 
     boolean defInst;
 

@@ -26,7 +26,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.util.ExtentArray;
@@ -84,7 +84,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
   }
 
   @Override
-  public void addIteratorData(byte[] key, MovableIterator iterator) throws IOException {
+  public void addIteratorData(byte[] key, BaseIterator iterator) throws IOException {
     if (postings.containsKey(key)) {
       // do nothing - we have already cached this data
       return;
@@ -556,7 +556,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     }
 
     @Override
-    public int compareTo(MovableIterator other) {
+    public int compareTo(BaseIterator other) {
       if (isDone() && !other.isDone()) {
         return 1;
       }

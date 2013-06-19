@@ -8,12 +8,12 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
  *
  * @author irmarc
  */
-public abstract class TransformIterator implements MovableIterator {
+public abstract class TransformIterator implements BaseIterator {
 
   public ScoringContext context;
-  public MovableIterator iterator;
+  public BaseIterator iterator;
 
-  public TransformIterator(MovableIterator iterator) {
+  public TransformIterator(BaseIterator iterator) {
     this.iterator = iterator;
   }
 
@@ -74,7 +74,7 @@ public abstract class TransformIterator implements MovableIterator {
   }
 
   @Override
-  public int compareTo(MovableIterator other) {
+  public int compareTo(BaseIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }

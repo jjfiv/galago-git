@@ -15,7 +15,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public abstract class ExtentConjunctionIterator extends ConjunctionIterator implements MovableDataIterator<ExtentArray>, ExtentIterator, CountIterator {
+public abstract class ExtentConjunctionIterator extends ConjunctionIterator implements DataIterator<ExtentArray>, ExtentIterator, CountIterator {
 
   protected ExtentArray extentCache;
   protected byte[] key;
@@ -81,7 +81,7 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = extents().toString();
     List<AnnotatedNode> children = new ArrayList();
-    for (MovableIterator child : this.iterators) {
+    for (BaseIterator child : this.iterators) {
       children.add(child.getAnnotatedNode());
     }
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

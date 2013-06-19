@@ -18,11 +18,11 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  *
  * @author irmarc
  */
-public class LogarithmIterator extends TransformIterator implements MovableScoreIterator {
+public class LogarithmIterator extends TransformIterator implements ScoreIterator {
   NodeParameters np;
-  MovableScoreIterator scorer;
+  ScoreIterator scorer;
 
-  public LogarithmIterator(NodeParameters params, MovableScoreIterator svi) {
+  public LogarithmIterator(NodeParameters params, ScoreIterator svi) {
     super(svi);
     this.np = params;
     scorer = svi;

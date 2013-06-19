@@ -15,16 +15,16 @@ import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
  * @author trevor, sjh, irmarc
  */
 @RequiredParameters(parameters = {"norm"})
-public class ScoreCombinationIterator extends DisjunctionIterator implements MovableScoreIterator {
+public class ScoreCombinationIterator extends DisjunctionIterator implements ScoreIterator {
 
   NodeParameters np;
   protected double[] weights;
-  protected MovableScoreIterator[] scoreIterators;
+  protected ScoreIterator[] scoreIterators;
   protected boolean done;
   protected boolean printing;
 
   public ScoreCombinationIterator(NodeParameters parameters,
-          MovableScoreIterator[] childIterators) {
+          ScoreIterator[] childIterators) {
     super(childIterators);
 
     assert (childIterators.length > 0) : "#combine nodes must have more than 1 child.";
@@ -98,7 +98,7 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Mov
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = new ArrayList();
-    for (MovableIterator child : this.iterators) {
+    for (BaseIterator child : this.iterators) {
       children.add(child.getAnnotatedNode());
     }
 

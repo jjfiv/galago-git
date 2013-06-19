@@ -12,20 +12,20 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public abstract class ConjunctionIterator implements MovableIterator {
+public abstract class ConjunctionIterator implements BaseIterator {
 
-  protected MovableIterator[] iterators;
-  protected MovableIterator[] drivingIterators;
+  protected BaseIterator[] iterators;
+  protected BaseIterator[] drivingIterators;
   protected boolean hasAllCandidates;
   protected ScoringContext context;
 
-  public ConjunctionIterator(NodeParameters parameters, MovableIterator[] queryIterators) {
+  public ConjunctionIterator(NodeParameters parameters, BaseIterator[] queryIterators) {
     this.iterators = queryIterators;
 
     // count the number of iterators that dont have
     // a non-default data for all candidates
     int drivingIteratorCount = 0;
-    for (MovableIterator iterator : this.iterators) {
+    for (BaseIterator iterator : this.iterators) {
       if (!iterator.hasAllCandidates()) {
         drivingIteratorCount++;
       }
@@ -44,9 +44,9 @@ public abstract class ConjunctionIterator implements MovableIterator {
       // the driving iterators will ensure this iterator
       //   does not stop at ALL documents
       hasAllCandidates = false;
-      drivingIterators = new MovableIterator[drivingIteratorCount];
+      drivingIterators = new BaseIterator[drivingIteratorCount];
       int i = 0;
-      for (MovableIterator iterator : this.iterators) {
+      for (BaseIterator iterator : this.iterators) {
         if (!iterator.hasAllCandidates()) {
           drivingIterators[i] = iterator;
           i++;
@@ -57,7 +57,7 @@ public abstract class ConjunctionIterator implements MovableIterator {
 
   @Override
   public void syncTo(int candidate) throws IOException {
-    for (MovableIterator iterator : iterators) {
+    for (BaseIterator iterator : iterators) {
       int prev = iterator.currentCandidate();
       iterator.syncTo(candidate);
     }
@@ -65,7 +65,7 @@ public abstract class ConjunctionIterator implements MovableIterator {
 
   @Override
   public void movePast(int candidate) throws IOException {
-    for (MovableIterator iterator : this.drivingIterators) {
+    for (BaseIterator iterator : this.drivingIterators) {
       iterator.movePast(candidate);
     }
   }
@@ -90,7 +90,7 @@ public abstract class ConjunctionIterator implements MovableIterator {
 
   @Override
   public boolean hasMatch(int candidate) {
-    for (MovableIterator iterator : drivingIterators) {
+    for (BaseIterator iterator : drivingIterators) {
       if (iterator.isDone() || !iterator.hasMatch(candidate)) {
         return false;
       }
@@ -100,7 +100,7 @@ public abstract class ConjunctionIterator implements MovableIterator {
 
   @Override
   public boolean isDone() {
-    for (MovableIterator iterator : drivingIterators) {
+    for (BaseIterator iterator : drivingIterators) {
       if (iterator.isDone()) {
         return true;
       }
@@ -110,7 +110,7 @@ public abstract class ConjunctionIterator implements MovableIterator {
 
   @Override
   public void reset() throws IOException {
-    for (MovableIterator iterator : iterators) {
+    for (BaseIterator iterator : iterators) {
       iterator.reset();
     }
   }
@@ -123,7 +123,7 @@ public abstract class ConjunctionIterator implements MovableIterator {
   @Override
   public long totalEntries() {
     long min = Integer.MAX_VALUE;
-    for (MovableIterator iterator : iterators) {
+    for (BaseIterator iterator : iterators) {
       long otherMin = iterator.totalEntries();
       min = (min <= otherMin)? min : otherMin;
     }
@@ -131,7 +131,7 @@ public abstract class ConjunctionIterator implements MovableIterator {
   }
 
   @Override
-  public int compareTo(MovableIterator other) {
+  public int compareTo(BaseIterator other) {
     if (isDone() && !other.isDone()) {
       return 1;
     }
@@ -148,7 +148,7 @@ public abstract class ConjunctionIterator implements MovableIterator {
   public void setContext(ScoringContext context) {
     this.context = context;
 
-    for(MovableIterator i : this.iterators){
+    for(BaseIterator i : this.iterators){
       i.setContext(context);
     }
   }

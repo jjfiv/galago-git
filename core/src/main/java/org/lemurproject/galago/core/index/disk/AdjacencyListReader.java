@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.ValueIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -104,7 +104,7 @@ public class AdjacencyListReader extends KeyListReader {
   }
 
   public class IntegerListIterator extends KeyListReader.ListIterator
-          implements MovableScoreIterator {
+          implements ScoreIterator {
 
     VByteInput stream;
     int neighborhood;

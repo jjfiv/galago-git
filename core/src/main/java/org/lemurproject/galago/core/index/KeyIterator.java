@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.index;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 
 /**
  * Each iterator from an index has an extra two methods,

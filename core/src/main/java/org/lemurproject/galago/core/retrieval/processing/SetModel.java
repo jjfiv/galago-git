@@ -11,7 +11,7 @@ import java.util.List;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIndicatorIterator;
+import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -37,8 +37,8 @@ public class SetModel extends ProcessingModel {
     ScoringContext context = new ScoringContext();
 
     // construct the query iterators
-    MovableIndicatorIterator iterator = 
-            (MovableIndicatorIterator) retrieval.createIterator(queryParams, 
+    IndicatorIterator iterator = 
+            (IndicatorIterator) retrieval.createIterator(queryParams, 
                         queryTree, 
                         context);
     ArrayList<ScoredDocument> list = new ArrayList<ScoredDocument>();

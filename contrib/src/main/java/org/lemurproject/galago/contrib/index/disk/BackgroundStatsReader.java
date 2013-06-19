@@ -13,7 +13,7 @@ import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -198,7 +198,7 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
     }
 
     @Override
-    public int compareTo(MovableIterator o) {
+    public int compareTo(BaseIterator o) {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

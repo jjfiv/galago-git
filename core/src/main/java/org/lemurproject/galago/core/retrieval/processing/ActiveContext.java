@@ -4,7 +4,7 @@
  */
 package org.lemurproject.galago.core.retrieval.processing;
 
-import org.lemurproject.galago.core.retrieval.iterator.MovableIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 
 /**
@@ -13,5 +13,5 @@ import org.lemurproject.galago.core.retrieval.query.Node;
  */
 public interface ActiveContext {
 
-    public void checkIterator(Node node, MovableIterator iterator);
+    public void checkIterator(Node node, BaseIterator iterator);
 }

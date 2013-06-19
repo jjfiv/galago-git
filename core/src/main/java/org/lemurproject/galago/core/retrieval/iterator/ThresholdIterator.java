@@ -14,12 +14,12 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  *
  * @author sjh
  */
-public class ThresholdIterator extends TransformIterator implements MovableIndicatorIterator {
+public class ThresholdIterator extends TransformIterator implements IndicatorIterator {
 
   double threshold;
-  MovableScoreIterator scoreIterator;
+  ScoreIterator scoreIterator;
 
-  public ThresholdIterator(NodeParameters parameters, MovableScoreIterator scorer) {
+  public ThresholdIterator(NodeParameters parameters, ScoreIterator scorer) {
     super(scorer);
     this.scoreIterator = scorer;
 

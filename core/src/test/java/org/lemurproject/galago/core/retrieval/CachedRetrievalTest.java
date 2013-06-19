@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.index.mem.MemoryWindowIndex;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.MovableScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -56,8 +56,8 @@ public class CachedRetrievalTest extends TestCase {
       ScoringContext sc = new ScoringContext();
       ProcessingModel.initializeLengths(nonCacheRet, sc);
 
-      MovableScoreIterator diskScoreIterator = (MovableScoreIterator) nonCacheRet.createIterator(new Parameters(), score, sc);
-      MovableScoreIterator cachedScoreIterator = (MovableScoreIterator) cacheRet.createIterator(new Parameters(), score, sc);
+      ScoreIterator diskScoreIterator = (ScoreIterator) nonCacheRet.createIterator(new Parameters(), score, sc);
+      ScoreIterator cachedScoreIterator = (ScoreIterator) cacheRet.createIterator(new Parameters(), score, sc);
       assert (cachedScoreIterator instanceof MemorySparseDoubleIndex.ScoresIterator);
 
       while (!diskScoreIterator.isDone() && !cachedScoreIterator.isDone()) {

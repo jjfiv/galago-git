@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.retrieval.processing.EarlyTerminationScoring
  *
  * @author irmarc
  */
-public interface DeltaScoringIterator extends MovableScoreIterator {
+public interface DeltaScoringIterator extends ScoreIterator {
   
   /**
    * The scoring method to use if scoring via delta functions. This score will

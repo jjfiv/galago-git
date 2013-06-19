@@ -13,12 +13,12 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  * by emitting a boost score (beta) iff the indicator is on.
  * @author irmarc
  */
-public class BoostingIterator extends TransformIterator implements MovableScoreIterator {
+public class BoostingIterator extends TransformIterator implements ScoreIterator {
   
   NodeParameters p;
   double beta;
 
-  public BoostingIterator(NodeParameters p, MovableIndicatorIterator inner) {
+  public BoostingIterator(NodeParameters p, IndicatorIterator inner) {
     super(inner);
     this.p = p;
     beta = p.get("beta", 0.5);
