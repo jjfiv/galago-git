@@ -19,26 +19,11 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-    <scm>
-        <connection>scm:hg:http://lemur.hg.sourceforge.net:8000/hgroot/lemur/galago</connection>
-        <developerConnection>scm:hg:ssh://USERNAME@lemur.hg.sourceforge.net/hgroot/lemur/galago</developerConnection>
-        <url>http://lemur.hg.sourceforge.net/hgweb/lemur/galago/</url>
-    </scm>
-    <distributionManagement>
-      <downloadUrl>http://lemur.sourceforge.net/repo</downloadUrl>
-      <repository>
-	<uniqueVersion>false</uniqueVersion>
-	<id>lemur.sf.net</id>
-	<name>Lemur Repository</name>
-	<url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo</url>
-	<layout>default</layout>
-      </repository>
-      <site>
-	<id>lemur.sf.net</id>
-	<name>Lemur Repository</name>
-	<url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo/${project.name}</url>	
-      </site>
-    </distributionManagement>
+  <scm>
+    <connection>scm:hg:http://lemur.hg.sourceforge.net:8000/hgroot/lemur/galago</connection>
+    <developerConnection>scm:hg:ssh://USERNAME@lemur.hg.sourceforge.net/hgroot/lemur/galago</developerConnection>
+    <url>http://lemur.hg.sourceforge.net/hgweb/lemur/galago/</url>
+  </scm>
   <dependencies>
     <dependency>
       <groupId>org.apache.maven</groupId>
