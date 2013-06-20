@@ -47,13 +47,14 @@ public class StreamExtentSource extends BTreeValueSource implements ExtentSource
     public long read;
     public long nextDocument;
     public long nextPosition;
+    public long documentsByteFloor;
+    public long countsByteFloor;
+    public long positionsByteFloor;
   }
   // to support skipping
   private SkipState skip;
   
-  private long documentsByteFloor;
-  private long countsByteFloor;
-  private long positionsByteFloor;
+  
   // Supports lazy-loading of extents
   private boolean extentsLoaded;
   private int inlineMinimum;
@@ -84,38 +85,33 @@ public class StreamExtentSource extends BTreeValueSource implements ExtentSource
    * its easier to do the parts when appropriate
    */
   private void initialize() throws IOException {
-    DataStream valueStream = btreeIter.getSubValueStream(0, btreeIter.getValueLength());
-    DataInput stream = new VByteInput(valueStream);
-    // metadata
-    int options = stream.readInt();
-    if ((options & HAS_INLINING) == HAS_INLINING) {
-      inlineMinimum = stream.readInt();
-    } else {
-      inlineMinimum = Integer.MAX_VALUE;
-    }
+    final DataStream valueStream = btreeIter.getSubValueStream(0, btreeIter.getValueLength());
+    final DataInput stream = new VByteInput(valueStream);
+    
+    // metadata contained in options bitmap:
+    final int options = stream.readInt();
+    final boolean hasInlining = (options & HAS_INLINING) > 0;
+    final boolean hasSkips = (options & HAS_SKIPS) > 0;
+    final boolean hasMaxTF = (options & HAS_MAXTF) > 0;
+
+    inlineMinimum = (hasInlining) ? stream.readInt() : Integer.MAX_VALUE;
     documentCount = stream.readInt();
     totalPositionCount = stream.readInt();
-    if ((options & HAS_MAXTF) == HAS_MAXTF) {
-      maximumPositionCount = stream.readInt();
-    } else {
-      maximumPositionCount = Integer.MAX_VALUE;
-    }
-    if ((options & HAS_SKIPS) == HAS_SKIPS) {
+    maximumPositionCount = (hasMaxTF) ? stream.readInt() : Integer.MAX_VALUE;
+   
+    if (hasSkips) {
       skip = new SkipState();
       skip.distance = stream.readInt();
       skip.resetDistance = stream.readInt();
       skip.total = stream.readLong();
     }
     // segment lengths
-    long documentByteLength = stream.readLong();
-    long countsByteLength = stream.readLong();
-    long positionsByteLength = stream.readLong();
-    long skipsByteLength = 0;
-    long skipPositionsByteLength = 0;
-    if ((options & HAS_SKIPS) == HAS_SKIPS) {
-      skipsByteLength = stream.readLong();
-      skipPositionsByteLength = stream.readLong();
-    }
+    final long documentByteLength = stream.readLong();
+    final long countsByteLength = stream.readLong();
+    final long positionsByteLength = stream.readLong();
+    final long skipsByteLength = hasSkips ? stream.readLong() : 0;
+    final long skipPositionsByteLength = hasSkips ? stream.readLong() : 0;
+
     long documentStart = valueStream.getPosition();
     long countsStart = documentStart + documentByteLength;
     long positionsStart = countsStart + countsByteLength;
@@ -126,19 +122,19 @@ public class StreamExtentSource extends BTreeValueSource implements ExtentSource
     documents = new VByteInput(documentsStream);
     counts = new VByteInput(countsStream);
     positions = new VByteInput(positionsStream);
-    if ((options & HAS_SKIPS) == HAS_SKIPS) {
+    if (hasSkips) {
       long skipsStart = positionsStart + positionsByteLength;
       long skipPositionsStart = skipsStart + skipsByteLength;
       long skipPositionsEnd = skipPositionsStart + skipPositionsByteLength;
       assert skipPositionsEnd == endPosition - startPosition;
       skip.data = new VByteInput(btreeIter.getSubValueStream(skipsStart, skipsByteLength));
       skip.positionsStream = btreeIter.getSubValueStream(skipPositionsStart, skipPositionsByteLength);
-      skip.positions = new VByteInput(skipPositionsStream);
+      skip.positions = new VByteInput(skip.positionsStream);
       // load up
       skip.nextDocument = skip.data.readInt();
-      documentsByteFloor = 0;
-      countsByteFloor = 0;
-      positionsByteFloor = 0;
+      skip.documentsByteFloor = 0;
+      skip.countsByteFloor = 0;
+      skip.positionsByteFloor = 0;
     } else {
       assert positionsEnd == endPosition - startPosition;
       skip = null;
@@ -265,9 +261,9 @@ public class StreamExtentSource extends BTreeValueSource implements ExtentSource
       // Position the skip positions stream
       skip.positionsStream.seek(currentSkipPosition);
       // now set the floor values
-      documentsByteFloor = skip.positions.readInt();
-      countsByteFloor = skip.positions.readInt();
-      positionsByteFloor = skip.positions.readLong();
+      skip.documentsByteFloor = skip.positions.readInt();
+      skip.countsByteFloor = skip.positions.readInt();
+      skip.positionsByteFloor = skip.positions.readLong();
     }
     currentDocument = (int) skip.nextDocument;
     // May be at the end of the buffer
@@ -284,14 +280,14 @@ public class StreamExtentSource extends BTreeValueSource implements ExtentSource
   private void repositionMainStreams() throws IOException {
     // If we just reset the floors, don't read the 2nd tier again
     if ((skip.read - 1) % skip.resetDistance == 0) {
-      documentsStream.seek(documentsByteFloor);
-      countsStream.seek(countsByteFloor);
-      positionsStream.seek(positionsByteFloor);
+      documentsStream.seek(skip.documentsByteFloor);
+      countsStream.seek(skip.countsByteFloor);
+      positionsStream.seek(skip.positionsByteFloor);
     } else {
       skip.positionsStream.seek(skip.nextPosition);
-      documentsStream.seek(documentsByteFloor + skip.positions.readInt());
-      countsStream.seek(countsByteFloor + skip.positions.readInt());
-      positionsStream.seek(positionsByteFloor + skip.positions.readLong());
+      documentsStream.seek(skip.documentsByteFloor + skip.positions.readInt());
+      countsStream.seek(skip.countsByteFloor + skip.positions.readInt());
+      positionsStream.seek(skip.positionsByteFloor + skip.positions.readLong());
     }
     documentIndex = (int) (skip.distance * skip.read) - 1;
   }
