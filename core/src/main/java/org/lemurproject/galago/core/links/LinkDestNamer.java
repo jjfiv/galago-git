@@ -12,7 +12,7 @@ import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.TypeReader;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
@@ -72,8 +72,8 @@ public class LinkDestNamer extends StandardStep<ExtractedLinkIndri, ExtractedLin
     }
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
-    if (!Verification.requireParameters(new String[]{"destNameStream"}, parameters.getJSON(), handler)) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
+    if (!Verification.requireParameters(new String[]{"destNameStream"}, parameters.getJSON(), store)) {
       return;
     }
   }

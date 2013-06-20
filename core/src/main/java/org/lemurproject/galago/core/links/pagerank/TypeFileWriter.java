@@ -13,7 +13,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Type;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 
@@ -67,19 +67,19 @@ public class TypeFileWriter<T> implements Processor<T> {
     return parameters.getJSON().get("class", "");
   }
 
-  public static void verify(TupleFlowParameters fullParameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters fullParameters, ErrorStore store) {
     Parameters parameters = fullParameters.getJSON();
 
     String[] requiredParameters = {"class", "order", "outputFile"};
 
-    if (!Verification.requireParameters(requiredParameters, parameters, handler)) {
+    if (!Verification.requireParameters(requiredParameters, parameters, store)) {
       return;
     }
 
     String className = parameters.getString("class");
     String[] orderSpec = parameters.getString("order").split(" ");
 
-    Verification.requireClass(className, handler);
-    Verification.requireOrder(className, orderSpec, handler);
+    Verification.requireClass(className, store);
+    Verification.requireOrder(className, orderSpec, store);
   }
 }

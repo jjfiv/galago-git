@@ -4,8 +4,6 @@
  */
 package org.lemurproject.galago.tupleflow.execution;
 
-import java.util.ArrayList;
-
 /**
  * This class represents the situation where you are merging multiple
  * pipes. The restriction is that all listed input pipes have the same
@@ -20,12 +18,6 @@ public class MultiInputStep extends Step {
   public MultiInputStep(String... inputs) {
     super("MultiInput");
     this.ids = inputs;
-  }
-
-  public MultiInputStep(FileLocation location, String... inputs) {
-    super("MultiInput");
-    this.ids = inputs;
-    this.location = location;
   }
 
   public String[] getIds() {

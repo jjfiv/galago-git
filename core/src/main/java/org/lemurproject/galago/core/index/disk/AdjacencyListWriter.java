@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,7 +13,7 @@ import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
@@ -139,13 +138,13 @@ public class AdjacencyListWriter implements Adjacency.SourceDestinationOrder.Shr
     writer.close();
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
     if (!parameters.getJSON().isString("filename")) {
-      handler.addError("PositionIndexWriter requires a 'filename' parameter.");
+      store.addError("PositionIndexWriter requires a 'filename' parameter.");
       return;
     }
 
     String index = parameters.getJSON().getString("filename");
-    Verification.requireWriteableFile(index, handler);
+    Verification.requireWriteableFile(index, store);
   }
 }

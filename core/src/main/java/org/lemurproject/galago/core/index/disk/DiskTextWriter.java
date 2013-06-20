@@ -5,11 +5,11 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 
 /**
  * Writes a stream of objects to a text file.  Useful for debugging or as
@@ -40,13 +40,13 @@ public class DiskTextWriter<T> implements Processor<T> {
         return parameters.getJSON().getString("class");
     }
 
-    public static boolean verify(TupleFlowParameters parameters, ErrorHandler handler) {
+    public static boolean verify(TupleFlowParameters parameters, ErrorStore store) {
         Parameters p = parameters.getJSON();
-        if (!Verification.requireParameters(new String[] { "filename", "class" }, p, handler))
+        if (!Verification.requireParameters(new String[] { "filename", "class" }, p, store))
             return false;
-        if (!Verification.requireClass(p.getString("class"), handler))
+        if (!Verification.requireClass(p.getString("class"), store))
             return false;
-        if (!Verification.requireWriteableFile(p.getString("filename"), handler))
+        if (!Verification.requireWriteableFile(p.getString("filename"), store))
             return false;
         return true;
     }

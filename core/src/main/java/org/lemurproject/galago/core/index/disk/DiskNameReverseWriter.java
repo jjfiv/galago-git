@@ -12,7 +12,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 
 /**
  * 
@@ -56,6 +56,7 @@ public class DiskNameReverseWriter implements Processor<NumberedDocumentData> {
     }
   }
 
+  @Override
   public void process(NumberedDocumentData ndd) throws IOException {
     if (last == null) {
       last = ndd;
@@ -77,13 +78,14 @@ public class DiskNameReverseWriter implements Processor<NumberedDocumentData> {
     }
   }
 
+  @Override
   public void close() throws IOException {
     writer.close();
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
     if (!parameters.getJSON().isString("filename")) {
-      handler.addError("DocumentNameWriter requires a 'filename' parameter.");
+      store.addError("DocumentNameWriter requires a 'filename' parameter.");
       return;
     }
   }

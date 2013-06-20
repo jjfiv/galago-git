@@ -119,13 +119,11 @@ public class Job implements Serializable {
     s.add(new StageConnectionPoint(ConnectionPointType.Input,
             pointName,
             className,
-            typeOrder,
-            null));
+            typeOrder));
     s.add(new StageConnectionPoint(ConnectionPointType.Output,
             pointName + "-merged",
             className,
-            typeOrder,
-            null));
+            typeOrder));
 
     s.add(new InputStep(pointName));
     s.add(new OutputStep(mergedPointName));
@@ -338,8 +336,8 @@ public class Job implements Serializable {
 
     // couldn't find a connection that has this input, so we'll make one
     if (connection == null) {
-      connection = new Connection(null, source.getPoint(), hashType, hashCount);
-      ConnectionEndPoint input = new ConnectionEndPoint(null,
+      connection = new Connection(source.getPoint(), hashType, hashCount);
+      ConnectionEndPoint input = new ConnectionEndPoint(
               source.stageName,
               source.pointName,
               ConnectionPointType.Input);
@@ -347,7 +345,7 @@ public class Job implements Serializable {
       connections.add(connection);
     }
 
-    ConnectionEndPoint output = new ConnectionEndPoint(null,
+    ConnectionEndPoint output = new ConnectionEndPoint(
             destination.stageName,
             destination.pointName,
             assignment,

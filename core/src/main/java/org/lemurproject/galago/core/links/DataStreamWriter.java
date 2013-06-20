@@ -13,7 +13,7 @@ import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Type;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
@@ -61,8 +61,8 @@ public class DataStreamWriter implements Processor<Type> {
     return p.getJSON().getString("inputClass");
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
-    if (!Verification.requireParameters(new String[]{"outputFolder", "outputFile", "order", "inputClass"}, parameters.getJSON(), handler)) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
+    if (!Verification.requireParameters(new String[]{"outputFolder", "outputFile", "order", "inputClass"}, parameters.getJSON(), store)) {
       return;
     }
   }

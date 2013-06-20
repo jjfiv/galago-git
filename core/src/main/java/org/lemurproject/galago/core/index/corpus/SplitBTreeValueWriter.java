@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.types.KeyValuePair;
@@ -20,7 +19,7 @@ import org.lemurproject.galago.tupleflow.Step;
 import org.lemurproject.galago.tupleflow.StreamCreator;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
@@ -149,13 +148,13 @@ public class SplitBTreeValueWriter extends BTreeWriter
     Linkage.link(this, next);
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
     if (!parameters.getJSON().isString("filename")) {
-      handler.addError("DocumentIndexWriter requires an 'filename' parameter.");
+      store.addError("DocumentIndexWriter requires an 'filename' parameter.");
       return;
     }
 
     String index = parameters.getJSON().getString("filename");
-    Verification.requireWriteableDirectory(index, handler);
+    Verification.requireWriteableDirectory(index, store);
   }
 }

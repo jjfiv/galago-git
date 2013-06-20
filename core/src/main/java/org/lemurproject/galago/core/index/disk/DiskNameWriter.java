@@ -1,20 +1,17 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.core.index.merge.DocumentNameMerger;
-import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.Sorter;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 
 /**
  * 
@@ -58,6 +55,7 @@ public class DiskNameWriter implements Processor<NumberedDocumentData> {
     }
   }
 
+  @Override
   public void process(NumberedDocumentData ndd) throws IOException {
     if (last == null) {
       last = ndd;
@@ -75,13 +73,14 @@ public class DiskNameWriter implements Processor<NumberedDocumentData> {
     }
   }
 
+  @Override
   public void close() throws IOException {
     writer.close();
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
     if (!parameters.getJSON().isString("filename")) {
-      handler.addError("DocumentNameWriter requires a 'filename' parameter.");
+      store.addError("DocumentNameWriter requires a 'filename' parameter.");
       return;
     }
   }

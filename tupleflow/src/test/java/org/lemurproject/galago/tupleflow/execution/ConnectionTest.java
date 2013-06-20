@@ -586,7 +586,7 @@ public class ConnectionTest extends TestCase {
       Linkage.link(this, processor);
     }
 
-    public static void verify(TupleFlowParameters parameters, ErrorHandler handler) throws IOException {
+    public static void verify(TupleFlowParameters parameters, ErrorStore store) throws IOException {
     }
   }
 
@@ -622,16 +622,16 @@ public class ConnectionTest extends TestCase {
       Linkage.link(this, processor);
     }
 
-    public static void verify(TupleFlowParameters parameters, ErrorHandler handler) throws IOException {
+    public static void verify(TupleFlowParameters parameters, ErrorStore store) throws IOException {
       if (!parameters.getJSON().isString("name")) {
-        handler.addError("Generator - Could not find the name of the stage in parameters");
+        store.addError("Generator - Could not find the name of the stage in parameters");
       }
       if (!parameters.getJSON().isList("conn", Type.STRING)) {
-        handler.addError("Generator - Could not find any connections specified in parameters");
+        store.addError("Generator - Could not find any connections specified in parameters");
       }
       for (String conn : (List<String>) parameters.getJSON().getList("conn")) {
         if (!parameters.writerExists(conn, TupleflowString.class.getName(), TupleflowString.ValueOrder.getSpec())) {
-          handler.addError("Generator - Could not verify connection: " + conn);
+          store.addError("Generator - Could not verify connection: " + conn);
         }
       }
     }
@@ -671,15 +671,15 @@ public class ConnectionTest extends TestCase {
       Linkage.link(this, processor);
     }
 
-    public static void verify(TupleFlowParameters parameters, ErrorHandler handler) throws IOException {
+    public static void verify(TupleFlowParameters parameters, ErrorStore store) throws IOException {
       if (!parameters.getJSON().isString("name")) {
-        handler.addError("PassThrough - Could not find the name of the stage in parameters");
+        store.addError("PassThrough - Could not find the name of the stage in parameters");
       }
       if (!parameters.getJSON().isList("connIn", Type.STRING)) {
-        handler.addError("PassThrough - Could not find any Input connections specified in parameters");
+        store.addError("PassThrough - Could not find any Input connections specified in parameters");
       }
       if (!parameters.getJSON().isList("connOut", Type.STRING)) {
-        handler.addError("PassThrough - Could not find any Output connections specified in parameters");
+        store.addError("PassThrough - Could not find any Output connections specified in parameters");
       }
     }
   }
@@ -719,15 +719,15 @@ public class ConnectionTest extends TestCase {
       Linkage.link(this, processor);
     }
 
-    public static void verify(TupleFlowParameters parameters, ErrorHandler handler) throws IOException {
+    public static void verify(TupleFlowParameters parameters, ErrorStore store) throws IOException {
       if (!parameters.getJSON().isString("name")) {
-        handler.addError("PassThrough - Could not find the name of the stage in parameters");
+        store.addError("PassThrough - Could not find the name of the stage in parameters");
       }
       if (!parameters.getJSON().isList("connIn", Type.STRING)) {
-        handler.addError("PassThrough - Could not find any Input connections specified in parameters");
+        store.addError("PassThrough - Could not find any Input connections specified in parameters");
       }
       if (!parameters.getJSON().isString("connOut")) {
-        handler.addError("PassThrough - Could not find an Output connection specified in parameters");
+        store.addError("PassThrough - Could not find an Output connection specified in parameters");
       }
     }
   }
@@ -764,9 +764,9 @@ public class ConnectionTest extends TestCase {
       Linkage.link(this, processor);
     }
 
-    public static void verify(TupleFlowParameters parameters, ErrorHandler handler) throws IOException {
+    public static void verify(TupleFlowParameters parameters, ErrorStore store) throws IOException {
       if (!parameters.getJSON().isList("connIn", Type.STRING)) {
-        handler.addError("PassThrough - Could not find any Input connections specified in parameters");
+        store.addError("PassThrough - Could not find any Input connections specified in parameters");
       }
     }
   }

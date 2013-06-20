@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -9,7 +8,6 @@ import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
 import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
-import org.lemurproject.galago.core.index.corpus.SplitBTreeValueWriter;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.core.types.NumberedField;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -20,7 +18,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.Source;
 import org.lemurproject.galago.tupleflow.Step;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
@@ -151,16 +149,17 @@ public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.Shre
     }
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
     if (!parameters.getJSON().isString("filename")) {
-      handler.addError("ExtentIndexWriter requires a 'filename' parameter.");
+      store.addError("ExtentIndexWriter requires a 'filename' parameter.");
       return;
     }
 
     String index = parameters.getJSON().getString("filename");
-    Verification.requireWriteableFile(index, handler);
+    Verification.requireWriteableFile(index, store);
   }
 
+  @Override
   public void setProcessor(Step processor) throws IncompatibleProcessorException {
     writer.setProcessor(processor);
   }

@@ -58,21 +58,6 @@
       </plugin>
     </plugins>
   </reporting>
-  <distributionManagement>
-    <downloadUrl>http://lemur.sourceforge.net/repo</downloadUrl>
-    <repository>
-      <uniqueVersion>false</uniqueVersion>
-      <id>lemur.sf.net</id>
-      <name>Lemur Repository</name>
-      <url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo</url>
-      <layout>default</layout>
-    </repository>
-    <site>
-      <id>lemur.sf.net</id>
-      <name>Lemur Repository</name>
-      <url>scp://shell.sourceforge.net/home/project-web/lemur/htdocs/repo/${project.name}</url>
-    </site>
-  </distributionManagement>
   <repositories>
     <repository>
       <id>AdunaSoftware</id>

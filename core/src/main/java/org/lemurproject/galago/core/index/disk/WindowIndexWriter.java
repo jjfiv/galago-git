@@ -20,7 +20,7 @@ import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
@@ -143,14 +143,14 @@ public class WindowIndexWriter implements
     writer.close();
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
     if (!parameters.getJSON().isString("filename")) {
-      handler.addError("WindowIndexWriter requires a 'filename' parameter.");
+      store.addError("WindowIndexWriter requires a 'filename' parameter.");
       return;
     }
 
     String index = parameters.getJSON().getString("filename");
-    Verification.requireWriteableFile(index, handler);
+    Verification.requireWriteableFile(index, store);
   }
 
   public class PositionsList implements IndexElement {

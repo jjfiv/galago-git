@@ -12,23 +12,18 @@ import org.lemurproject.galago.tupleflow.Order;
  *
  * @author trevor
  */
-public class Stage extends Locatable implements Serializable, Cloneable {
+public class Stage implements Serializable, Cloneable {
 
   public HashMap<String, StageConnectionPoint> connections = new HashMap<String, StageConnectionPoint>();
   public ArrayList<Step> steps = new ArrayList<Step>();
   public String name;
 
+  // Why is this here?
   public Stage() {
-    super(null);
   }
 
   public Stage(String name) {
-    super(null);
     this.name = name;
-  }
-
-  public Stage(FileLocation location) {
-    super(location);
   }
 
   public ArrayList<Step> getSteps() {

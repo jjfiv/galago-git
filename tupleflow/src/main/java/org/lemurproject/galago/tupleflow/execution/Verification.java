@@ -24,25 +24,6 @@ import org.lemurproject.galago.tupleflow.TypeReader;
  */
 public class Verification {
 
-  private static class VerificationErrorHandler implements ErrorHandler {
-
-    FileLocation location;
-    ErrorStore store;
-
-    public VerificationErrorHandler(ErrorStore store, FileLocation location) {
-      this.location = location;
-      this.store = store;
-    }
-
-    public void addWarning(String message) {
-      store.addWarning(location, message);
-    }
-
-    public void addError(String message) {
-      store.addError(location, message);
-    }
-  }
-
   private static class VerificationParameters implements TupleFlowParameters {
 
     Step step;
@@ -53,14 +34,17 @@ public class Verification {
       this.step = step;
     }
 
+    @Override
     public Counter getCounter(String name) {
       return null;
     }
 
+    @Override
     public Processor getTypeWriter(String specification) throws IOException {
       return null;
     }
 
+    @Override
     public TypeReader getTypeReader(String specification) throws IOException {
       return null;
     }
@@ -101,10 +85,12 @@ public class Verification {
       return true;
     }
 
+    @Override
     public Parameters getJSON() {
       return step.getParameters();
     }
 
+    @Override
     public int getInstanceId() {
       return 0;
     }
@@ -144,11 +130,11 @@ public class Verification {
     return true;
   }
 
-  public static boolean requireParameters(String[] required, Parameters parameters, ErrorHandler handler) {
+  public static boolean requireParameters(String[] required, Parameters parameters, ErrorStore store) {
     boolean result = true;
     for (String key : required) {
       if (!parameters.containsKey(key)) {
-        handler.addError("The parameter '" + key + "' is required.");
+        store.addError("The parameter '" + key + "' is required.");
         result = false;
       }
     }
@@ -175,7 +161,7 @@ public class Verification {
     return true;
   }
 
-  public static boolean requireOrder(String typeName, String[] orderSpec, ErrorHandler handler) {
+  public static boolean requireOrder(String typeName, String[] orderSpec, ErrorStore store) {
     if (!isOrderAvailable(typeName, orderSpec)) {
       StringBuilder builder = new StringBuilder();
 
@@ -183,47 +169,47 @@ public class Verification {
         builder.append(orderKey);
       }
 
-      handler.addError(
+      store.addError(
               "The order '" + builder.toString() + "' was not found in " + typeName + ".");
       return false;
     }
     return true;
   }
 
-  public static boolean requireClass(String typeName, ErrorHandler handler) {
+  public static boolean requireClass(String typeName, ErrorStore store) {
     if (!isClassAvailable(typeName)) {
-      handler.addError("The class '" + typeName + "' could not be found.");
+      store.addError("The class '" + typeName + "' could not be found.");
       return false;
     }
     return true;
   }
 
-  public static boolean requireWriteableFile(String pathname, ErrorHandler handler) {
+  public static boolean requireWriteableFile(String pathname, ErrorStore store) {
     File path = new File(pathname);
 
     if (path.exists() && !path.isFile()) {
-      handler.addError("Pathname " + pathname + " exists already and isn't a file.");
+      store.addError("Pathname " + pathname + " exists already and isn't a file.");
       return false;
     }
 
-    return requireWriteableDirectoryParent(pathname, handler);
+    return requireWriteableDirectoryParent(pathname, store);
 
   }
 
-  public static boolean requireWriteableDirectory(String pathname, ErrorHandler handler) {
+  public static boolean requireWriteableDirectory(String pathname, ErrorStore store) {
     File path = new File(pathname);
 
     if (path.isFile()) {
-      handler.addError("Pathname " + pathname + " is a file, but a directory is required.");
+      store.addError("Pathname " + pathname + " is a file, but a directory is required.");
       return false;
     }
 
     if (path.isDirectory() && !path.canWrite()) {
-      handler.addError("Pathname " + pathname + " is a directory, but it isn't writable.");
+      store.addError("Pathname " + pathname + " is a directory, but it isn't writable.");
       return false;
     }
 
-    return requireWriteableDirectoryParent(pathname, handler);
+    return requireWriteableDirectoryParent(pathname, store);
   }
 
   /**
@@ -242,7 +228,7 @@ public class Verification {
    * </ul>
    * </p>
    */
-  public static boolean requireWriteableDirectoryParent(final String pathname, final ErrorHandler handler) {
+  public static boolean requireWriteableDirectoryParent(final String pathname, final ErrorStore store) {
     File path = new File(pathname);
 
     if (!path.exists()) {
@@ -257,7 +243,7 @@ public class Verification {
       }
 
       if (!new File(parent).canWrite()) {
-        handler.addError(
+        store.addError(
                 "Pathname " + pathname + " doesn't exist, and the parent directory isn't writable.");
         return false;
       }
@@ -506,7 +492,7 @@ public class Verification {
         return;
       }
       Method verify = clazz.getMethod("verify", TupleFlowParameters.class,
-              ErrorHandler.class);
+              ErrorStore.class);
 
       if (verify == null) {
         store.addWarning(step.getLocation(), "Class " + step.getClassName()
@@ -515,8 +501,7 @@ public class Verification {
         store.addWarning(step.getLocation(), "Class " + step.getClassName()
                 + " has a verify method, but it isn't static.");
       } else {
-        verify.invoke(null, vp,
-                new VerificationErrorHandler(store, step.getLocation()));
+        verify.invoke(null, vp, store);
       }
     } catch (InvocationTargetException e) {
       store.addError(step.getLocation(),
@@ -656,22 +641,22 @@ public class Verification {
     }
   }
 
-  public static boolean verifyTypeReader(String readerName, Class typeClass, TupleFlowParameters parameters, ErrorHandler handler) {
-    return verifyTypeReader(readerName, typeClass, new String[0], parameters, handler);
+  public static boolean verifyTypeReader(String readerName, Class typeClass, TupleFlowParameters parameters, ErrorStore store) {
+    return verifyTypeReader(readerName, typeClass, new String[0], parameters, store);
   }
 
-  public static boolean verifyTypeReader(String readerName, Class typeClass, String[] order, TupleFlowParameters parameters, ErrorHandler handler) {
+  public static boolean verifyTypeReader(String readerName, Class typeClass, String[] order, TupleFlowParameters parameters, ErrorStore store) {
     if (!parameters.readerExists(readerName, typeClass.getName(), order)) {
-      handler.addError("No reader named '" + readerName + "' was found in this stage.");
+      store.addError("No reader named '" + readerName + "' was found in this stage.");
       return false;
     }
 
     return true;
   }
 
-  public static boolean verifyTypeWriter(String readerName, Class typeClass, String order[], TupleFlowParameters parameters, ErrorHandler handler) {
+  public static boolean verifyTypeWriter(String readerName, Class typeClass, String order[], TupleFlowParameters parameters, ErrorStore store) {
     if (!parameters.writerExists(readerName, typeClass.getName(), order)) {
-      handler.addError("No writer named '" + readerName + "' was found in this stage.");
+      store.addError("No writer named '" + readerName + "' was found in this stage.");
       return false;
     }
 

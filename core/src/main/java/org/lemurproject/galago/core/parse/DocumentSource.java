@@ -12,17 +12,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.util.zip.GZIPInputStream;
 import org.lemurproject.galago.core.index.BTreeFactory;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 
 /**
  * From a set of inputs, splits the input into many DocumentSplit records. This
@@ -477,7 +476,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     Linkage.link(this, processor);
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
-    FileSource.verify(parameters, handler);
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
+    FileSource.verify(parameters, store);
   }
 }

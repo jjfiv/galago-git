@@ -7,7 +7,7 @@ import java.io.IOException;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.*;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 
 /**
  *
@@ -36,16 +36,16 @@ public class ConflationExtractor extends StandardStep<Document, KeyValuePair> {
     }
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
     if (!parameters.getJSON().isString("stemmerClass")) {
-      handler.addError(ConflationExtractor.class.getName() + " requires a stemmerClass parameter.");
+      store.addError(ConflationExtractor.class.getName() + " requires a stemmerClass parameter.");
     } else {
       try {
         String stemmerClass = parameters.getJSON().getString("stemmerClass");
         Object newInstance = Class.forName(stemmerClass).getConstructor().newInstance();
         Stemmer s = (Stemmer) newInstance;
       } catch (Exception e) {
-        handler.addError(ConflationExtractor.class.getName() + " failed to get stemmer instance.\n" + e.toString());
+        store.addError(ConflationExtractor.class.getName() + " failed to get stemmer instance.\n" + e.toString());
       }
     }
   }

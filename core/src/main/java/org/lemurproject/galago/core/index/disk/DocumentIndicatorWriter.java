@@ -11,7 +11,7 @@ import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
@@ -50,13 +50,13 @@ public class DocumentIndicatorWriter extends KeyValueWriter<DocumentIndicator> {
     return element;
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
     if (!parameters.getJSON().isString("filename")) {
-      handler.addError("KeyValueWriters require a 'filename' parameter.");
+      store.addError("KeyValueWriters require a 'filename' parameter.");
       return;
     }
 
     String index = parameters.getJSON().getString("filename");
-    Verification.requireWriteableFile(index, handler);
+    Verification.requireWriteableFile(index, store);
   }
 }

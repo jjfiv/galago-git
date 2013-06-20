@@ -14,16 +14,11 @@ public class OutputStep extends Step {
         this.id = id;
     }
 
-    public OutputStep(FileLocation location, String id) {
-      super(id);
-        this.id = id;
-        this.location = location;
-    }
-
     public String getId() {
         return id;
     }
 
+    @Override
     public String toString() {
 	return id;
     }

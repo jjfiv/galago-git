@@ -7,7 +7,7 @@ import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.merge.DocumentLengthsMerger;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.*;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
@@ -102,14 +102,14 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     writer.close();
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
     if (!parameters.getJSON().isString("filename")) {
-      handler.addError("KeyValueWriters require a 'filename' parameter.");
+      store.addError("KeyValueWriters require a 'filename' parameter.");
       return;
     }
 
     String index = parameters.getJSON().getString("filename");
-    Verification.requireWriteableFile(index, handler);
+    Verification.requireWriteableFile(index, store);
   }
 
   public class LengthsList implements IndexElement {

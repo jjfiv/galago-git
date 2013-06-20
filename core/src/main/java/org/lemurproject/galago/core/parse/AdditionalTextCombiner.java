@@ -8,7 +8,7 @@ import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.TypeReader;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
@@ -54,12 +54,12 @@ public class AdditionalTextCombiner extends StandardStep<Document, Document> {
     processor.process(document);
   }
   
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
-    if (!Verification.requireParameters(new String[]{"textSource"}, parameters.getJSON(), handler)) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
+    if (!Verification.requireParameters(new String[]{"textSource"}, parameters.getJSON(), store)) {
       return;
     }
 
     String readerName = parameters.getJSON().getString("textSource");
-    Verification.verifyTypeReader(readerName, AdditionalDocumentText.class, parameters, handler);
+    Verification.verifyTypeReader(readerName, AdditionalDocumentText.class, parameters, store);
   }
 }

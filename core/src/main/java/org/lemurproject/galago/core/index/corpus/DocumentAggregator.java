@@ -15,7 +15,7 @@ import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 import org.xerial.snappy.SnappyInputStream;
 
@@ -98,14 +98,14 @@ public class DocumentAggregator implements KeyValuePair.KeyOrder.ShreddedProcess
     bufferedDocuments.clear();
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
     if (!parameters.getJSON().isString("filename")) {
-      handler.addError("DocumentAggregator requires a 'filename' parameter.");
+      store.addError("DocumentAggregator requires a 'filename' parameter.");
       return;
     }
 
     String index = parameters.getJSON().getString("filename");
-    Verification.requireWriteableFile(index, handler);
+    Verification.requireWriteableFile(index, store);
   }
 
   public void close() throws IOException {

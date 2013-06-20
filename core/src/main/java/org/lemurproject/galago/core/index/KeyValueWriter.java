@@ -1,14 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
-import java.io.File;
 import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
@@ -34,14 +33,14 @@ public abstract class KeyValueWriter<T> implements Processor<T> {
     elementsWritten = parameters.getCounter(text);
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
     if (!parameters.getJSON().isString("filename")) {
-      handler.addError("KeyValueWriter requires a 'filename' parameter.");
+      store.addError("KeyValueWriter requires a 'filename' parameter.");
       return;
     }
 
     String index = parameters.getJSON().getString("filename");
-    Verification.requireWriteableFile(index, handler);
+    Verification.requireWriteableFile(index, store);
   }
 
   protected abstract GenericElement prepare(T item) throws IOException;

@@ -2,7 +2,7 @@
 
 package org.lemurproject.galago.tupleflow;
 
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
@@ -35,7 +35,7 @@ public class NullProcessor<T> implements Processor<T> {
         return orderSpec;
     }
     
-    public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
-        Verification.requireParameters(new String[] { "class" }, parameters.getJSON(), handler);
+    public static void verify(TupleFlowParameters parameters, ErrorStore store) {
+        Verification.requireParameters(new String[] { "class" }, parameters.getJSON(), store);
     }
 }

@@ -84,7 +84,7 @@ public class MultiConnectionTest extends TestCase {
       Linkage.link(this, processor);
     }
 
-    public static void verify(TupleFlowParameters parameters, ErrorHandler handler) throws IOException {
+    public static void verify(TupleFlowParameters parameters, ErrorStore store) throws IOException {
       if (!parameters.writerExists("conn-a", TupleflowString.class.getName(), TupleflowString.ValueOrder.getSpec())) {
         throw new IOException("Could not find the conn-a connection writer.");
       }
@@ -119,7 +119,7 @@ public class MultiConnectionTest extends TestCase {
       Linkage.link(this, processor);
     }
 
-    public static void verify(TupleFlowParameters parameters, ErrorHandler handler) throws IOException {
+    public static void verify(TupleFlowParameters parameters, ErrorStore store) throws IOException {
       if (!parameters.readerExists("conn-a", TupleflowString.class.getName(), TupleflowString.ValueOrder.getSpec())) {
         throw new IOException("Could not find the conn-a connection reader.");
       }
