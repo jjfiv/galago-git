@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
@@ -75,7 +76,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
     BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
 
     if (iterator != null) {
-      return new WindowCountIterator(iterator);
+      return new WindowCountIterator(iterator, this);
     }
     return null;
   }
@@ -131,7 +132,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
       WindowCountIterator it;
       long count = -1;
       try {
-        it = new WindowCountIterator(iterator);
+        it = new WindowCountIterator(iterator, org.lemurproject.galago.core.index.disk.WindowIndexReader.this);
         count = it.count();
       } catch (IOException ioe) {
       }
@@ -156,23 +157,23 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
     }
   }
 
-  public class WindowExtentIterator extends KeyListReader.ListIterator
+  public class WindowExtentIterator extends BTreeValueIterator
           implements NodeAggregateIterator, CountIterator, ExtentIterator {
 
     private BTreeReader.BTreeIterator iterator;
-    private int documentCount;
-    private int totalWindowCount;
-    private int maximumPositionCount;
+    int documentCount;
+    int totalWindowCount;
+    int maximumPositionCount;
     private VByteInput documents;
     private VByteInput counts;
     private VByteInput begins;
     private VByteInput ends;
     private int documentIndex;
-    private int currentDocument;
+    int currentDocument;
     private int currentCount;
     private boolean done;
     private ExtentArray extentArray;
-    private final ExtentArray emptyExtentArray;
+    final ExtentArray emptyExtentArray;
     // to support resets
     private long startPosition, endPosition;
     // to support skipping
@@ -508,7 +509,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
    * positions buffer. Overall smaller footprint and faster execution.
    *
    */
-  public class WindowCountIterator extends KeyListReader.ListIterator
+  public class WindowCountIterator extends BTreeValueIterator
           implements NodeAggregateIterator, CountIterator {
 
     BTreeReader.BTreeIterator iterator;
@@ -538,7 +539,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
     long documentsByteFloor;
     long countsByteFloor;
 
-    public WindowCountIterator(BTreeReader.BTreeIterator iterator) throws IOException {
+    public WindowCountIterator(BTreeReader.BTreeIterator iterator, KeyListReader outer) throws IOException {
       super(iterator.getKey());
       reset(iterator);
     }

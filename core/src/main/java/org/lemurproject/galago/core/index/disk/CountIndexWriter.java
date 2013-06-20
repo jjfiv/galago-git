@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
 import org.lemurproject.galago.core.index.BTreeWriter;
@@ -63,8 +64,8 @@ public class CountIndexWriter implements
     boolean skip = parameters.getJSON().get("skipping", true);
     this.skipDistance = (int) parameters.getJSON().get("skipDistance", 500);
     this.skipResetDistance = (int) parameters.getJSON().get("skipResetDistance", 20);
-    this.options |= (skip ? KeyListReader.ListIterator.HAS_SKIPS : 0x0);
-    this.options |= KeyListReader.ListIterator.HAS_MAXTF;
+    this.options |= (skip ? BTreeValueIterator.HAS_SKIPS : 0x0);
+    this.options |= BTreeValueIterator.HAS_MAXTF;
     // more options here?
   }
 
@@ -139,7 +140,7 @@ public class CountIndexWriter implements
       counts = new CompressedRawByteBuffer();
       header = new CompressedByteBuffer();
 
-      if ((options & KeyListReader.ListIterator.HAS_SKIPS) == KeyListReader.ListIterator.HAS_SKIPS) {
+      if ((options & BTreeValueIterator.HAS_SKIPS) == BTreeValueIterator.HAS_SKIPS) {
         skips = new CompressedRawByteBuffer();
         skipPositions = new CompressedRawByteBuffer();
       } else {
@@ -156,7 +157,7 @@ public class CountIndexWriter implements
 
       if (skips != null && skips.length() == 0) {
         // not adding skip information b/c its empty
-        options &= (0xffff - KeyListReader.ListIterator.HAS_SKIPS);
+        options &= (0xffff - BTreeValueIterator.HAS_SKIPS);
         header.add(options);
       } else {
         header.add(options);

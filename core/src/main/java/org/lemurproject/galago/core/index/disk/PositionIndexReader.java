@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
@@ -84,7 +85,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
   public TermCountIterator getTermCounts(byte[] term) throws IOException {
     BTreeReader.BTreeIterator iterator = reader.getIterator(term);
     if (iterator != null) {
-      return new TermCountIterator(iterator);
+      return new TermCountIterator(iterator, this);
     }
     return null;
   }
@@ -143,7 +144,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
       TermCountIterator it;
       long count = -1;
       try {
-        it = new TermCountIterator(iterator);
+        it = new TermCountIterator(iterator, org.lemurproject.galago.core.index.disk.PositionIndexReader.this);
         count = it.count();
       } catch (IOException ioe) {
       }
@@ -169,13 +170,13 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     }
   }
 
-  public class TermExtentIterator extends KeyListReader.ListIterator
+  public class TermExtentIterator extends BTreeValueIterator
           implements NodeAggregateIterator, CountIterator, ExtentIterator {
 
     private BTreeReader.BTreeIterator iterator;
-    private int documentCount;
-    private int totalPositionCount;
-    private int maximumPositionCount;
+    int documentCount;
+    int totalPositionCount;
+    int maximumPositionCount;
     private VByteInput documents;
     private VByteInput counts;
     private VByteInput positions;
@@ -184,7 +185,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     private int currentCount;
     private boolean done;
     private ExtentArray extentArray;
-    private final ExtentArray emptyExtentArray;
+    final ExtentArray emptyExtentArray;
     // to support resets
     protected long startPosition, endPosition;
     // to support skipping
@@ -545,7 +546,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
    * positions buffer. Overall smaller footprint and faster execution.
    *
    */
-  public class TermCountIterator extends KeyListReader.ListIterator
+  public class TermCountIterator extends BTreeValueIterator
           implements NodeAggregateIterator, CountIterator {
 
     BTreeReader.BTreeIterator iterator;
@@ -575,7 +576,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     long documentsByteFloor;
     long countsByteFloor;
 
-    public TermCountIterator(BTreeReader.BTreeIterator iterator) throws IOException {
+    public TermCountIterator(BTreeReader.BTreeIterator iterator, KeyListReader outer) throws IOException {
       super(iterator.getKey());
       reset(iterator);
     }

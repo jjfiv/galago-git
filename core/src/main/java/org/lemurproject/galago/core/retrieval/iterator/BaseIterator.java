@@ -80,6 +80,11 @@ public interface BaseIterator extends ContextualIterator, Comparable<BaseIterato
   /**
    * returns true if the iterator is at this candidate,
    * and can return a non-background value.
+   * 
+   * Often implemented:
+   *  return !isDone() && currentCandidate() == identifier;
+   * 
+   * @see DiskIterator
    */
   public boolean hasMatch(int identifier);
 
