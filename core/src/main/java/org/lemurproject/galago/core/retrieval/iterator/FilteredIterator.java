@@ -104,7 +104,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
   }
 
   @Override
-  public String getEntry() throws IOException {
+  public String getValueString() throws IOException {
     throw new UnsupportedOperationException("Filter nodes don't have singular values");
   }
 

@@ -262,7 +262,7 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
     }
 
     @Override
-    public String getEntry() throws IOException {
+    public String getValueString() throws IOException {
       StringBuilder builder = new StringBuilder();
 
       builder.append(getKeyString());

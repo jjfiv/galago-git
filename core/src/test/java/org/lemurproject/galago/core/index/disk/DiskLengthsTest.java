@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DiskLengthsReader.KeyIterator;
-import org.lemurproject.galago.core.index.disk.DiskLengthsReader.StreamLengthsIterator;
+import org.lemurproject.galago.core.index.disk.StreamLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.FakeParameters;

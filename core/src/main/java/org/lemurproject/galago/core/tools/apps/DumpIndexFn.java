@@ -56,7 +56,7 @@ public class DumpIndexFn extends AppFunction {
         vIter.setContext(new ScoringContext());
         while (!vIter.isDone()) {
           vIter.getContext().document = vIter.currentCandidate();
-          output.println(vIter.getEntry());
+          output.println(vIter.getValueString());
           vIter.movePast(vIter.currentCandidate());
         }
         iterator.nextKey();

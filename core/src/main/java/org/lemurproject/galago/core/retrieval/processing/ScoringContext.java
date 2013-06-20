@@ -39,11 +39,11 @@ public class ScoringContext {
   }
 
   public int getPosition(String key) {
-    return lengths.get(key).getCurrentIdentifier();
+    return lengths.get(key).currentCandidate();
   }
 
   public int getPosition() {
-    return lengths.get("").getCurrentIdentifier();
+    return lengths.get("").currentCandidate();
   }
 
   public int getLength(String key) {

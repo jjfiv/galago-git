@@ -69,7 +69,8 @@ public class DiskBTreeReader extends BTreeReader {
     private DataStream blockStream;
     private int cacheKeyCount;
 
-    public Iterator(IndexBlockInfo blockInfo) throws IOException {
+    public Iterator(BTreeReader reader, IndexBlockInfo blockInfo) throws IOException {
+      super(reader);
       this.loadBlockHeader(blockInfo);
     }
 
@@ -372,7 +373,7 @@ public class DiskBTreeReader extends BTreeReader {
     }
 
     // otherwise there is some data.
-    Iterator result = new Iterator(vocabulary.getSlot(0));
+    Iterator result = new Iterator(this, vocabulary.getSlot(0));
     return result;
   }
 
@@ -388,7 +389,7 @@ public class DiskBTreeReader extends BTreeReader {
     if (slot == null) {
       return null;
     }
-    Iterator i = new Iterator(slot);
+    Iterator i = new Iterator(this, slot);
     i.find(key);
     if (Utility.compare(key, i.getKey()) == 0) {
       return i;

@@ -39,11 +39,6 @@ public class FakeLengthIterator implements LengthsIterator {
   }
 
   @Override
-  public int getCurrentIdentifier() {
-    return ids[position];
-  }
-
-  @Override
   public int currentCandidate() {
     return ids[position];
   }
@@ -81,7 +76,7 @@ public class FakeLengthIterator implements LengthsIterator {
   }
 
   @Override
-  public String getEntry() throws IOException {
+  public String getValueString() throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 

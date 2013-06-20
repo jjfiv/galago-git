@@ -92,8 +92,8 @@ public class DocumentLengthsMergerTest extends TestCase {
       ScoringContext sc = new ScoringContext();
       iterator.setContext(sc);
       while (!iterator.isDone()) {
-        sc.document = iterator.getCurrentIdentifier();
-        assert (iterator.getCurrentIdentifier() + 1 == iterator.getCurrentLength());
+        sc.document = iterator.currentCandidate();
+        assert (iterator.currentCandidate() + 1 == iterator.getCurrentLength());
         iterator.movePast(iterator.currentCandidate());
       }
 
@@ -143,9 +143,9 @@ public class DocumentLengthsMergerTest extends TestCase {
       ScoringContext sc = new ScoringContext();
       iterator.setContext(sc);
       while (!iterator.isDone()) {
-        sc.document = iterator.getCurrentIdentifier();
-        assert (iterator.getCurrentIdentifier() + 1 == iterator.getCurrentLength());
-        iterator.movePast(iterator.currentCandidate());
+        sc.document = iterator.currentCandidate();
+        assert (sc.document + 1 == iterator.getCurrentLength());
+        iterator.movePast(sc.document);
       }
 
 

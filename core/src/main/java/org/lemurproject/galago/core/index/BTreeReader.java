@@ -38,6 +38,10 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public abstract class BTreeReader {
   public abstract class BTreeIterator implements Comparable<BTreeIterator> {
+    public BTreeReader reader;
+    public BTreeIterator(BTreeReader parent) {
+      reader = parent;
+    }
 
     /**
      * Returns the current key.

@@ -76,7 +76,7 @@ public class NullExtentIterator extends DiskIterator implements ExtentIterator, 
   }
 
   @Override
-  public String getEntry() throws IOException {
+  public String getValueString() throws IOException {
     return "NULL";
   }
 

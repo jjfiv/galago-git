@@ -96,11 +96,11 @@ public class GeometricIndexTest extends TestCase {
       lengths.setContext(sc);
       lengths.syncTo(99);
       sc.document = 99;
-      assertEquals(lengths.getCurrentIdentifier(), 99);
+      assertEquals(lengths.currentCandidate(), 99);
       assertEquals(lengths.getCurrentLength(), 5);
       lengths.movePast(99);
-      sc.document = lengths.getCurrentIdentifier();
-      assertEquals(lengths.getCurrentIdentifier(), 100);
+      sc.document = lengths.currentCandidate();
+      assertEquals(lengths.currentCandidate(), 100);
       assertEquals(lengths.getCurrentLength(), 5);
 
       Node q1 = StructuredQuery.parse("#counts:sample:part=postings()");

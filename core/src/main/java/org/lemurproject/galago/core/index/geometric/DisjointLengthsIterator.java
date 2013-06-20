@@ -33,15 +33,6 @@ public class DisjointLengthsIterator extends DisjointIndexesIterator implements 
   }
 
   @Override
-  public int getCurrentIdentifier() {
-    if (head != null) {
-      return ((LengthsIterator) this.head).getCurrentIdentifier();
-    } else {
-      throw new RuntimeException("Lengths Iterator is done.");
-    }
-  }
-
-  @Override
   public AnnotatedNode getAnnotatedNode() throws IOException {
     String type = "lengths";
     String className = this.getClass().getSimpleName();

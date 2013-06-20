@@ -347,7 +347,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     }
 
     @Override
-    public String getEntry() throws IOException {
+    public String getValueString() throws IOException {
       StringBuilder builder = new StringBuilder();
 
       builder.append(getKeyString());
@@ -681,7 +681,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     }
 
     @Override
-    public String getEntry() throws IOException {
+    public String getValueString() throws IOException {
       StringBuilder builder = new StringBuilder();
 
       builder.append(getKeyString());

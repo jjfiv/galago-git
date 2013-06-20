@@ -64,8 +64,8 @@ public abstract class TransformIterator implements BaseIterator {
   }
 
   @Override
-  public String getEntry() throws IOException {
-    return iterator.getEntry();
+  public String getValueString() throws IOException {
+    return iterator.getValueString();
   }
 
   @Override

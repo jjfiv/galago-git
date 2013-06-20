@@ -8,6 +8,12 @@ import java.io.IOException;
  * @author jfoley
  */
 public interface DataSource {
+  /**
+   * reset the iterator to the beginning.
+   * Often doubles as an initialization step.
+   * @see BTreeValueSource for an implementation
+   * @throws IOException 
+   */
   public void reset() throws IOException;
   public boolean isDone();
   
@@ -17,6 +23,8 @@ public interface DataSource {
   public void movePast(int id);
   public void moveTo(int id);
   public void syncTo(int id);
+  
+  public String key();
   
   /**
    * This method determines whether a Source contains a value for all identifiers or not.

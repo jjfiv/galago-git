@@ -161,7 +161,7 @@ public class AdjacencyListReader extends KeyListReader {
     }
 
     @Override
-    public String getEntry() throws IOException {
+    public String getValueString() throws IOException {
       StringBuilder builder = new StringBuilder();
 
       builder.append(getKeyString());

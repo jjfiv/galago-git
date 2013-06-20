@@ -278,7 +278,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
       super(ki);
     }
 
-    public String getEntry() throws IOException {
+    public String getValueString() throws IOException {
       KIterator ki = (KIterator) iterator;
       StringBuilder sb = new StringBuilder();
       sb.append(ki.getCurrentIdentifier());

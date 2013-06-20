@@ -123,7 +123,7 @@ public class FakeScoreIterator implements ScoreIterator {
   }
 
   @Override
-  public String getEntry() throws IOException {
+  public String getValueString() throws IOException {
     return currentCandidate() + "," + score();
   }
 

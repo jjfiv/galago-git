@@ -85,8 +85,8 @@ public abstract class DisjointIndexesIterator extends DiskIterator {
   }
 
   @Override
-  public String getEntry() throws IOException {
-    return head.getEntry();
+  public String getValueString() throws IOException {
+    return head.getValueString();
   }
 
   @Override

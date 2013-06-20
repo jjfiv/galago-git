@@ -245,7 +245,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
     }
 
     @Override
-    public String getEntry() throws IOException {
+    public String getValueString() throws IOException {
       return ((KeyIterator) iterator).getValueString();
     }
 

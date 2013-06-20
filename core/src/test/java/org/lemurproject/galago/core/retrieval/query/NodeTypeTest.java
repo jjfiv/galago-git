@@ -107,7 +107,7 @@ public class NodeTypeTest extends TestCase {
     }
 
     @Override
-    public String getEntry() throws IOException {
+    public String getValueString() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

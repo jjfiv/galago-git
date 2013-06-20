@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.index.DataSource;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
@@ -15,11 +15,16 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
  * 
  * @author jfoley
  */
-public abstract class SourceIterator<T extends DataSource> implements BaseIterator {
+public abstract class SourceIterator<T extends DataSource> extends DiskIterator {
   T source = null;
   
   public SourceIterator(T src) {
-    src = source;
+    source = src;
+  }
+  
+  @Override
+  public String getKeyString() {
+    return source.key();
   }
   
   @Override
@@ -78,7 +83,7 @@ public abstract class SourceIterator<T extends DataSource> implements BaseIterat
 
   // This is not implemented here, because it needs to be customized for each SourceIterator
   @Override
-  public abstract String getEntry() throws IOException;
+  public abstract String getValueString() throws IOException;
 
   // This is not implemented here, because it needs to be customized for each SourceIterator
   @Override

@@ -68,11 +68,6 @@ public class PassageLengthIterator extends TransformIterator implements LengthsI
   }
 
   @Override
-  public int getCurrentIdentifier() {
-    return lengths.getCurrentIdentifier();
-  }
-
-  @Override
   public AnnotatedNode getAnnotatedNode() throws IOException {
     String type = "lengths";
     String className = this.getClass().getSimpleName();

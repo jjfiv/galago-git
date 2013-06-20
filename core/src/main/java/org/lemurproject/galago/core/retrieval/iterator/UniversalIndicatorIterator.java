@@ -28,7 +28,7 @@ public class UniversalIndicatorIterator extends ConjunctionIterator implements I
   }
 
   @Override
-  public String getEntry() throws IOException {
+  public String getValueString() throws IOException {
     return this.currentCandidate() + " " + this.indicator(this.currentCandidate());
   }
 

@@ -57,7 +57,7 @@ public class DumpKeyValueFn extends AppFunction {
 	ScoringContext context = new ScoringContext();
         while (!vIter.isDone()) {
 	  context.document = vIter.currentCandidate();
-          output.printf("%s\n", vIter.getEntry());
+          output.printf("%s\n", vIter.getValueString());
           vIter.movePast(vIter.currentCandidate());
         }
       } else {

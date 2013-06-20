@@ -124,11 +124,6 @@ public class FieldLengthsReader implements LengthsReader {
     }
 
     @Override
-    public int getCurrentIdentifier() {
-      return extentsIterator.currentCandidate();
-    }
-
-    @Override
     public int currentCandidate() {
       return extentsIterator.currentCandidate();
     }
@@ -151,8 +146,8 @@ public class FieldLengthsReader implements LengthsReader {
     }
 
     @Override
-    public String getEntry() throws IOException {
-      return extentsIterator.getEntry();
+    public String getValueString() throws IOException {
+      return extentsIterator.getValueString();
     }
 
     @Override

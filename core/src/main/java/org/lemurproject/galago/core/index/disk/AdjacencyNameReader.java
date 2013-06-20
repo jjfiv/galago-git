@@ -79,7 +79,7 @@ public class AdjacencyNameReader extends DiskNameReader {
     }
 
     @Override
-    public String getEntry() throws IOException {
+    public String getValueString() throws IOException {
       KeyIterator ki = (KeyIterator) iterator;
       return Utility.toInt(ki.getKey())+","+ ki.getValueString();
     }
@@ -97,7 +97,7 @@ public class AdjacencyNameReader extends DiskNameReader {
     @Override
     public String getData() {
       try {
-        return getEntry();
+        return getValueString();
       } catch (IOException ioe) {
         throw new RuntimeException(ioe);
       }

@@ -13,12 +13,10 @@ public abstract class BTreeValueSource implements DataSource {
   public static final int HAS_INLINING = 0x04;
   
   protected BTreeReader.BTreeIterator btreeIter;
+  protected byte[] key;
   
   public BTreeValueSource(BTreeReader.BTreeIterator it) throws IOException {
-    reset(it);
-  }
-  
-  final public void reset(BTreeReader.BTreeIterator it) throws IOException {
+    this.key = it.getKey();
     btreeIter = it;
     reset();
   }

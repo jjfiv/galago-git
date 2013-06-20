@@ -118,7 +118,7 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
   }
 
   @Override
-  public String getEntry() throws IOException {
+  public String getValueString() throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 

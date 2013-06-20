@@ -31,7 +31,7 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
   }
 
   @Override
-  public String getEntry() throws IOException {
+  public String getValueString() throws IOException {
     ArrayList<String> strs = new ArrayList<String>();
     ExtentArrayIterator eai = new ExtentArrayIterator(extents());
     while (!eai.isDone()) {
