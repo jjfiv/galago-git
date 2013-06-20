@@ -35,6 +35,6 @@ public interface DataSource {
   public int currentCandidate();
   public boolean hasMatch(int id);
   
-  public void movePast(int id);
-  public void syncTo(int id);
+  public void movePast(int id) throws IOException;
+  public void syncTo(int id) throws IOException;
 }

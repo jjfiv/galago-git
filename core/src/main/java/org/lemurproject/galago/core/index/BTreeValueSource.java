@@ -13,8 +13,8 @@ public abstract class BTreeValueSource implements DataSource {
   public static final int HAS_MAXTF = 0x02;
   public static final int HAS_INLINING = 0x04;
   
-  protected BTreeReader.BTreeIterator btreeIter;
-  protected byte[] key;
+  final protected BTreeReader.BTreeIterator btreeIter;
+  final protected byte[] key;
   
   public BTreeValueSource(BTreeReader.BTreeIterator it) throws IOException {
     this.key = it.getKey();

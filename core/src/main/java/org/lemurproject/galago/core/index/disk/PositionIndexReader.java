@@ -54,14 +54,14 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
    * Returns an iterator pointing at the specified term, or null if the term
    * doesn't exist in the inverted file.
    */
-  public TermExtentIterator getTermExtents(String term) throws IOException {
+  public StreamExtentIterator getTermExtents(String term) throws IOException {
     return getTermExtents(Utility.fromString(stemAsRequired(term)));
   }
 
-  public TermExtentIterator getTermExtents(byte[] term) throws IOException {
+  public StreamExtentIterator getTermExtents(byte[] term) throws IOException {
     BTreeReader.BTreeIterator iterator = reader.getIterator(term);
     if (iterator != null) {
-      return new TermExtentIterator(iterator);
+      return new StreamExtentIterator(iterator);
     }
     return null;
   }
@@ -82,7 +82,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
     types.put("counts", new NodeType(TermCountIterator.class));
-    types.put("extents", new NodeType(TermExtentIterator.class));
+    types.put("extents", new NodeType(StreamExtentIterator.class));
     return types;
   }
 
@@ -118,7 +118,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     return is;
   }
 
-  
   // subclasses 
   
   public class KeyIterator extends KeyListReader.KeyValueIterator {
@@ -149,7 +148,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
 
     @Override
     public DiskIterator getValueIterator() throws IOException {
-      return new TermExtentIterator(iterator);
+      return new StreamExtentIterator(iterator);
     }
 
     @Override
@@ -158,3 +157,4 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     }
   }
 }
+

@@ -3,26 +3,19 @@ package org.lemurproject.galago.core.index.disk;
 
 import java.io.DataInput;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import org.lemurproject.galago.core.index.BTreeReader;
-import org.lemurproject.galago.core.index.BTreeValueIterator;
-import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
-import org.lemurproject.galago.core.index.stats.NodeStatistics;
-import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
-import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+import org.lemurproject.galago.core.index.BTreeValueSource;
+import org.lemurproject.galago.core.index.ExtentSource;
+
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.DataStream;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
 /**
  *
  * @author jfoley
  */
-public class TermExtentIterator extends BTreeValueIterator implements NodeAggregateIterator, CountIterator, ExtentIterator {
-  private BTreeReader.BTreeIterator iterator;
+public class StreamExtentSource extends BTreeValueSource implements ExtentSource {
   int documentCount;
   int totalPositionCount;
   int maximumPositionCount;
@@ -34,7 +27,6 @@ public class TermExtentIterator extends BTreeValueIterator implements NodeAggreg
   private int currentCount;
   private boolean done;
   private ExtentArray extentArray;
-  final ExtentArray emptyExtentArray;
   // to support resets
   protected long startPosition;
   protected long endPosition;
@@ -58,20 +50,33 @@ public class TermExtentIterator extends BTreeValueIterator implements NodeAggreg
   private boolean extentsLoaded;
   private int inlineMinimum;
   private int extentsByteSize;
-
-  public TermExtentIterator(BTreeReader.BTreeIterator iterator) throws IOException {
-    super(iterator.getKey());
-    extentArray = new ExtentArray();
-    emptyExtentArray = new ExtentArray();
-    reset(iterator);
+  
+  
+  public StreamExtentSource(BTreeReader.BTreeIterator iter) throws IOException {
+    super(iter);
   }
-
-  // Initialization method.
-  //
-  // Even though we check for skips multiple times, in terms of how the data is loaded
-  // its easier to do the parts when appropriate
-  protected void initialize() throws IOException {
-    DataStream valueStream = iterator.getSubValueStream(0, iterator.getValueLength());
+  
+  @Override
+  public void reset() throws IOException {
+    extentArray = new ExtentArray();
+    startPosition = btreeIter.getValueStart();
+    endPosition = btreeIter.getValueEnd();
+    currentDocument = 0;
+    currentCount = 0;
+    extentArray.reset();
+    extentsLoaded = true;
+    done = false;
+    initialize();
+  }
+  
+  /**
+   * Initialization method.
+   *
+   * Even though we check for skips multiple times, in terms of how the data is loaded
+   * its easier to do the parts when appropriate
+   */
+  private void initialize() throws IOException {
+    DataStream valueStream = btreeIter.getSubValueStream(0, btreeIter.getValueLength());
     DataInput stream = new VByteInput(valueStream);
     // metadata
     int options = stream.readInt();
@@ -106,9 +111,9 @@ public class TermExtentIterator extends BTreeValueIterator implements NodeAggreg
     long countsStart = documentStart + documentByteLength;
     long positionsStart = countsStart + countsByteLength;
     long positionsEnd = positionsStart + positionsByteLength;
-    documentsStream = iterator.getSubValueStream(documentStart, documentByteLength);
-    countsStream = iterator.getSubValueStream(countsStart, countsByteLength);
-    positionsStream = iterator.getSubValueStream(positionsStart, positionsByteLength);
+    documentsStream = btreeIter.getSubValueStream(documentStart, documentByteLength);
+    countsStream = btreeIter.getSubValueStream(countsStart, countsByteLength);
+    positionsStream = btreeIter.getSubValueStream(positionsStart, positionsByteLength);
     documents = new VByteInput(documentsStream);
     counts = new VByteInput(countsStream);
     positions = new VByteInput(positionsStream);
@@ -117,8 +122,8 @@ public class TermExtentIterator extends BTreeValueIterator implements NodeAggreg
       long skipPositionsStart = skipsStart + skipsByteLength;
       long skipPositionsEnd = skipPositionsStart + skipPositionsByteLength;
       assert skipPositionsEnd == endPosition - startPosition;
-      skips = new VByteInput(iterator.getSubValueStream(skipsStart, skipsByteLength));
-      skipPositionsStream = iterator.getSubValueStream(skipPositionsStart, skipPositionsByteLength);
+      skips = new VByteInput(btreeIter.getSubValueStream(skipsStart, skipsByteLength));
+      skipPositionsStream = btreeIter.getSubValueStream(skipPositionsStart, skipPositionsByteLength);
       skipPositions = new VByteInput(skipPositionsStream);
       // load up
       nextSkipDocument = skips.readInt();
@@ -134,7 +139,7 @@ public class TermExtentIterator extends BTreeValueIterator implements NodeAggreg
     extentsLoaded = true; // Not really, but this keeps it from reading ahead too soon.
     loadNextPosting();
   }
-
+  
   private void loadNextPosting() throws IOException {
     if (documentIndex >= documentCount) {
       done = true;
@@ -163,9 +168,11 @@ public class TermExtentIterator extends BTreeValueIterator implements NodeAggreg
       loadExtents();
     }
   }
-
-  // Loads up a single set of positions for an intID. Basically it's the
-  // load that needs to be done when moving forward one in the posting list.
+  
+  /**
+   * Loads up a single set of positions for an intID. Basically it's the
+   * load that needs to be done when moving forward one in the posting list.
+   */
   private void loadExtents() throws IOException {
     if (!extentsLoaded) {
       extentArray.setDocument(currentDocument);
@@ -178,48 +185,35 @@ public class TermExtentIterator extends BTreeValueIterator implements NodeAggreg
     }
   }
 
+
   @Override
-  public String getValueString() throws IOException {
-    StringBuilder builder = new StringBuilder();
-    builder.append(getKeyString());
-    builder.append(",");
-    builder.append(currentDocument);
-    ExtentArray e = extents();
-    for (int i = 0; i < e.size(); ++i) {
-      builder.append(",");
-      builder.append(e.begin(i));
-    }
-    return builder.toString();
+  public boolean isDone() {
+    return this.done;
   }
 
   @Override
-  public void reset(BTreeReader.BTreeIterator i) throws IOException {
-    iterator = i;
-    key = iterator.getKey();
-    startPosition = iterator.getValueStart();
-    endPosition = iterator.getValueEnd();
-    reset();
+  public boolean hasAllCandidates() {
+    return false;
   }
 
   @Override
-  public void reset() throws IOException {
-    currentDocument = 0;
-    currentCount = 0;
-    extentArray.reset();
-    extentsLoaded = true;
-    done = false;
-    initialize();
+  public long totalEntries() {
+    return (long) documentCount;
   }
 
   @Override
-  public void movePast(int document) throws IOException {
-    syncTo(document + 1);
+  public int currentCandidate() {
+    return currentDocument;
   }
 
-  // If we have skips - it's go time
+  @Override
+  public void movePast(int id) throws IOException {
+    syncTo(id + 1);
+  }
+
   @Override
   public void syncTo(int document) throws IOException {
-    if (skips != null) {
+     if (skips != null) {
       synchronizeSkipPositions();
     }
     if (skips != null && document > nextSkipDocument) {
@@ -239,10 +233,23 @@ public class TermExtentIterator extends BTreeValueIterator implements NodeAggreg
       }
     }
   }
-
-  // This only moves forward in tier 1, reads from tier 2 only when
-  // needed to update floors
-  //
+  
+  /**
+   * This makes sure the skip list pointers are still ahead of the current document.
+   * If we called "next" a lot, these may be out of sync.
+   */
+  private void synchronizeSkipPositions() throws IOException {
+    while (nextSkipDocument <= currentDocument) {
+      int cd = currentDocument;
+      skipOnce();
+      currentDocument = cd;
+    }
+  }
+  
+  /** 
+   * This only moves forward in tier 1, reads from tier 2 only when
+   * needed to update floors
+   */
   private void skipOnce() throws IOException {
     assert skipsRead < numSkips;
     long currentSkipPosition = lastSkipPosition + skips.readInt();
@@ -264,18 +271,8 @@ public class TermExtentIterator extends BTreeValueIterator implements NodeAggreg
     skipsRead++;
     lastSkipPosition = currentSkipPosition;
   }
-
-  // This makes sure the skip list pointers are still ahead of the current document.
-  // If we called "next" a lot, these may be out of sync.
-  //
-  private void synchronizeSkipPositions() throws IOException {
-    while (nextSkipDocument <= currentDocument) {
-      int cd = currentDocument;
-      skipOnce();
-      currentDocument = cd;
-    }
-  }
-
+  
+  
   private void repositionMainStreams() throws IOException {
     // If we just reset the floors, don't read the 2nd tier again
     if ((skipsRead - 1) % skipResetDistance == 0) {
@@ -291,19 +288,10 @@ public class TermExtentIterator extends BTreeValueIterator implements NodeAggreg
     documentIndex = (int) (skipDistance * skipsRead) - 1;
   }
 
-  @Override
-  public boolean isDone() {
-    return done;
-  }
 
   @Override
-  public ExtentArray getData() {
-    return extents();
-  }
-
-  @Override
-  public ExtentArray extents() {
-    if (!done && context.document == this.currentCandidate()) {
+  public ExtentArray extents(int id) {
+    if (!done && id == this.currentCandidate()) {
       try {
         loadExtents();
         return extentArray;
@@ -311,56 +299,15 @@ public class TermExtentIterator extends BTreeValueIterator implements NodeAggreg
         throw new RuntimeException(ioe);
       }
     }
-    return this.emptyExtentArray;
+    return ExtentArray.EMPTY;
   }
-
+  
   @Override
-  public int currentCandidate() {
-    return currentDocument;
-  }
-
-  @Override
-  public boolean hasAllCandidates() {
-    return false;
-  }
-
-  @Override
-  public int count() {
-    if (!done && context.document == this.currentCandidate()) {
+  public long count(int id) {
+    if (!done && id == this.currentCandidate()) {
       return currentCount;
     }
     return 0;
   }
-
-  @Override
-  public int maximumCount() {
-    return maximumPositionCount;
-  }
-
-  @Override
-  public long totalEntries() {
-    return (long) documentCount;
-  }
-
-  public NodeStatistics getStatistics() {
-    NodeStatistics stats = new NodeStatistics();
-    stats.node = Utility.toString(this.key);
-    stats.nodeFrequency = this.totalPositionCount;
-    stats.nodeDocumentCount = this.documentCount;
-    stats.maximumCount = this.maximumPositionCount;
-    return stats;
-  }
-
-  @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
-    String type = "extents";
-    String className = this.getClass().getSimpleName();
-    String parameters = this.getKeyString();
-    int document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
-    String returnValue = extents().toString();
-    List<AnnotatedNode> children = Collections.EMPTY_LIST;
-    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
-  }
-  
 }
+

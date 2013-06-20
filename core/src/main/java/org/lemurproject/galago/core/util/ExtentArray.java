@@ -10,6 +10,7 @@ import java.util.Arrays;
  * @author irmarc
  */
 public class ExtentArray {
+  public static final ExtentArray EMPTY = new ExtentArray();
 
   int[] _begins;
   int[] _ends;
