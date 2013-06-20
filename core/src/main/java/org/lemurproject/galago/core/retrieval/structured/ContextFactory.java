@@ -4,7 +4,6 @@
 package org.lemurproject.galago.core.retrieval.structured;
 
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.processing.TopDocsContext;
 import org.lemurproject.galago.core.retrieval.processing.PassageScoringContext;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -23,9 +22,7 @@ public class ContextFactory {
   }
 
   public static ScoringContext createContext(Parameters p) {
-    if (p.get("mod", "none").equals("topdocs")) {
-      return new TopDocsContext();
-    } else if (p.containsKey("passageSize") || p.containsKey("passageShift")) {
+    if (p.containsKey("passageSize") || p.containsKey("passageShift")) {
       return new PassageScoringContext();
     } else {
       return new ScoringContext();
