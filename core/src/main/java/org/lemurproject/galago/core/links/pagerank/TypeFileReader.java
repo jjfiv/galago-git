@@ -6,10 +6,7 @@ package org.lemurproject.galago.core.links.pagerank;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.lemurproject.galago.tupleflow.Counter;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Order;
 import org.lemurproject.galago.tupleflow.OrderedCombiner;
@@ -18,7 +15,7 @@ import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Type;
 import org.lemurproject.galago.tupleflow.TypeReader;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 import org.lemurproject.galago.tupleflow.types.FileName;
 
@@ -71,19 +68,19 @@ public class TypeFileReader<T> extends StandardStep<FileName, T> {
     return orderSpec;
   }
 
-  public static void verify(TupleFlowParameters fullParameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters fullParameters, ErrorStore store) {
     Parameters parameters = fullParameters.getJSON();
 
     String[] requiredParameters = {"order", "outputClass"};
 
-    if (!Verification.requireParameters(requiredParameters, parameters, handler)) {
+    if (!Verification.requireParameters(requiredParameters, parameters, store)) {
       return;
     }
 
     String className = parameters.getString("outputClass");
     String[] orderSpec = parameters.getString("order").split(" ");
 
-    Verification.requireClass(className, handler);
-    Verification.requireOrder(className, orderSpec, handler);
+    Verification.requireClass(className, store);
+    Verification.requireOrder(className, orderSpec, store);
   }
 }

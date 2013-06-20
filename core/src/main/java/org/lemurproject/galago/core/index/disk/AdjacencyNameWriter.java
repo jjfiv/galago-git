@@ -8,7 +8,7 @@ import org.lemurproject.galago.core.index.KeyValueWriter;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 
 /**
  *
@@ -28,7 +28,7 @@ public class AdjacencyNameWriter extends KeyValueWriter<KeyValuePair> {
     return ge;
   }
 
-  public static void verify(TupleFlowParameters p, ErrorHandler h) {
+  public static void verify(TupleFlowParameters p, ErrorStore h) {
     KeyValueWriter.verify(p, h);
   }
 }

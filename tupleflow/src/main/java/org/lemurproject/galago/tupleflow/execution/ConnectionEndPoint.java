@@ -12,23 +12,22 @@ import java.io.Serializable;
 /**
  * @author trevor
  */
-public class ConnectionEndPoint extends Locatable implements Cloneable, Serializable {
+public class ConnectionEndPoint implements Cloneable, Serializable {
 
   private String stageName;
   private String pointName;
   private ConnectionPointType type;
   private ConnectionAssignmentType assignment;
 
-  public ConnectionEndPoint(FileLocation location, String stageName, String pointName, ConnectionAssignmentType assignment, ConnectionPointType type) {
-    super(location);
+  public ConnectionEndPoint(String stageName, String pointName, ConnectionAssignmentType assignment, ConnectionPointType type) {
     this.stageName = stageName;
     this.pointName = pointName;
     this.type = type;
     this.assignment = assignment;
   }
 
-  public ConnectionEndPoint(FileLocation location, String stageName, String pointName, ConnectionPointType type) {
-    this(location, stageName, pointName, ConnectionAssignmentType.Combined, type);
+  public ConnectionEndPoint(String stageName, String pointName, ConnectionPointType type) {
+    this(stageName, pointName, ConnectionAssignmentType.Combined, type);
   }
 
   public String getStageName() {

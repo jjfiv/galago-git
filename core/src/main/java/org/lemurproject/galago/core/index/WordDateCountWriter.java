@@ -1,23 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import org.lemurproject.galago.core.index.GenericElement;
-import org.lemurproject.galago.core.index.KeyValueWriter;
 import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import org.lemurproject.galago.core.types.WordDateCount;
-import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.Sorter;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /** 
@@ -108,12 +101,12 @@ public class WordDateCountWriter implements WordDateCount.WordDateOrder.Shredded
 	writer.close();
     }
 
-    public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
+    public static void verify(TupleFlowParameters parameters, ErrorStore store) {
 	if (!parameters.getJSON().isString("filename")) {
-	    handler.addError("PictureStoreWriter requires a 'filename' parameter.");
+	    store.addError("PictureStoreWriter requires a 'filename' parameter.");
 	    return;
 	}	
 	String index = parameters.getJSON().getString("filename");
-	Verification.requireWriteableFile(index, handler);
+	Verification.requireWriteableFile(index, store);
     }
 }

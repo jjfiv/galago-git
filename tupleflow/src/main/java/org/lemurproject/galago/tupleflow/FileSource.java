@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.types.FileName;
 
 /**
@@ -61,10 +61,10 @@ public class FileSource implements ExNihiloSource<FileName> {
     Linkage.link(this, nextStage);
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
     if (!(parameters.getJSON().containsKey("directory") || parameters.getJSON().containsKey("filename")
             || parameters.getJSON().containsKey("input"))) {
-      handler.addError("FileSource requires either at least one directory or filename parameter.");
+      store.addError("FileSource requires either at least one directory or filename parameter.");
       return;
     }
 
@@ -75,7 +75,7 @@ public class FileSource implements ExNihiloSource<FileName> {
         File directoryFile = new File(directory);
 
         if (directoryFile.exists() == false) {
-          handler.addError("Directory " + directoryFile.toString() + " doesn't exist.");
+          store.addError("Directory " + directoryFile.toString() + " doesn't exist.");
         }
       }
     }
@@ -86,7 +86,7 @@ public class FileSource implements ExNihiloSource<FileName> {
         File f = new File(file);
 
         if (f.exists() == false) {
-          handler.addError("File " + file + " doesn't exist.");
+          store.addError("File " + file + " doesn't exist.");
         }
       }
     }

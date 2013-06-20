@@ -2,14 +2,12 @@
 package org.lemurproject.galago.core.index.disk;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.parse.NumericParameterAccumulator;
 import org.lemurproject.galago.core.types.FieldNumberWordPosition;
 import org.lemurproject.galago.core.types.NumberWordPosition;
 import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
@@ -54,13 +52,13 @@ public class PositionFieldIndexWriter implements Processor<FieldNumberWordPositi
     }
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
     if (!parameters.getJSON().isString("filename")) {
-      handler.addError("PositionFieldIndexWriter requires a 'filename' parameter.");
+      store.addError("PositionFieldIndexWriter requires a 'filename' parameter.");
       return;
     }
 
     String index = parameters.getJSON().getString("filename");
-    Verification.requireWriteableFile(index, handler);
+    Verification.requireWriteableFile(index, store);
   }
 }

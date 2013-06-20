@@ -3,7 +3,6 @@ package org.lemurproject.galago.tupleflow.execution;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import org.xml.sax.SAXParseException;
 
 /**
  *
@@ -13,8 +12,13 @@ public class ErrorStore {
 
   public static class Statement implements Comparable<Statement> {
 
-    public Statement(FileLocation location, String message) {
-      this.location = location;
+    public Statement(String message) {
+      this.location = "unknown";
+      this.message = message;
+    }
+    
+    public Statement(String fileName, String message) {
+      this.location = fileName;
       this.message = message;
     }
 
@@ -25,9 +29,7 @@ public class ErrorStore {
         result = String.format("[unknown location] %s: %s\n", messageType,
                 message);
       } else {
-        result = String.format("%s [Line %d Column %d] %s: %s\n", location.fileName,
-                location.lineNumber, location.columnNumber, messageType,
-                message);
+        result = String.format("%s [%s]: %s\n", location, messageType, message);
       }
       return result;
     }
@@ -51,40 +53,27 @@ public class ErrorStore {
         }
       }
     }
-    FileLocation location;
+    String location;
     String message;
   }
 
-  public class LocatedHandler implements ErrorHandler {
-
-    public LocatedHandler(FileLocation location) {
-      this.location = location;
-    }
-
-    @Override
-    public void addError(String message) {
-      ErrorStore.this.addError(location, message);
-    }
-
-    @Override
-    public void addWarning(String message) {
-      ErrorStore.this.addWarning(location, message);
-    }
-    FileLocation location;
-  }
   ArrayList<Statement> errors = new ArrayList();
   ArrayList<Statement> warnings = new ArrayList();
 
-  public void addError(FileLocation location, String message) {
+  public void addError(String message) {
+    errors.add(new Statement(message));
+  }
+  
+  public void addError(String location, String message) {
     errors.add(new Statement(location, message));
   }
 
-  public void addWarning(FileLocation location, String message) {
+  public void addWarning(String location, String message) {
     warnings.add(new Statement(location, message));
   }
-
-  public LocatedHandler getErrorHandler(FileLocation location) {
-    return new LocatedHandler(location);
+  
+  public void addWarning(String message) {
+    warnings.add(new Statement(message));
   }
 
   public ArrayList<Statement> getErrors() {
@@ -114,9 +103,5 @@ public class ErrorStore {
     }
 
     return builder.toString();
-  }
-
-  void addError(String filename, SAXParseException e) {
-    addError(new FileLocation(filename, e.getLineNumber(), e.getColumnNumber()), e.getMessage());
   }
 }

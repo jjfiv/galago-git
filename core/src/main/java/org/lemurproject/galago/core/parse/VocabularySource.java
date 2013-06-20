@@ -20,7 +20,7 @@ import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.Step;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 
 /**
  *
@@ -119,17 +119,17 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
     Linkage.link(this, processor);
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
-    FileSource.verify(parameters, handler);
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
+    FileSource.verify(parameters, store);
     String partPath = parameters.getJSON().getString("filename");
     try {
       if (!BTreeFactory.isBTree(partPath)) {
-        handler.addError(partPath + " is not an index file.");
+        store.addError(partPath + " is not an index file.");
       }
     } catch (FileNotFoundException fnfe) {
-      handler.addError(partPath + " could not be found.");
+      store.addError(partPath + " could not be found.");
     } catch (IOException ioe) {
-      handler.addError("Generic IO error: " + ioe.getMessage());
+      store.addError("Generic IO error: " + ioe.getMessage());
     }
   }
 }

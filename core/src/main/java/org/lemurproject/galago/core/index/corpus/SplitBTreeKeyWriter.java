@@ -11,7 +11,7 @@ import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
@@ -57,13 +57,13 @@ public class SplitBTreeKeyWriter implements Processor<KeyValuePair> {
     writer.close();
   }
 
-  public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
     if (!parameters.getJSON().isString("filename")) {
-      handler.addError("DocumentIndexWriter requires an 'filename' parameter.");
+      store.addError("DocumentIndexWriter requires an 'filename' parameter.");
       return;
     }
 
     String index = parameters.getJSON().getString("filename");
-    Verification.requireWriteableDirectory(index, handler);
+    Verification.requireWriteableDirectory(index, store);
   }
 }

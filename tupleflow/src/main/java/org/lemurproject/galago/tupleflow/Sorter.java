@@ -22,7 +22,7 @@ import javax.management.ListenerNotFoundException;
 import javax.management.Notification;
 import javax.management.NotificationEmitter;
 import javax.management.NotificationListener;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
@@ -228,22 +228,22 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     }
   }
 
-  public static void verify(TupleFlowParameters fullParameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters fullParameters, ErrorStore store) {
     Parameters parameters = fullParameters.getJSON();
     String[] requiredParameters = {"order", "class"};
 
-    if (!Verification.requireParameters(requiredParameters, parameters, handler)) {
+    if (!Verification.requireParameters(requiredParameters, parameters, store)) {
       return;
     }
     String className = parameters.getString("class");
     String[] orderSpec = parameters.getString("order").split(" ");
 
-    Verification.requireClass(className, handler);
-    Verification.requireOrder(className, orderSpec, handler);
+    Verification.requireClass(className, store);
+    Verification.requireOrder(className, orderSpec, store);
 
     if (parameters.containsKey("reducer")) {
       String reducerType = parameters.getString("reducer");
-      Verification.requireClass(reducerType, handler);
+      Verification.requireClass(reducerType, store);
     }
   }
 

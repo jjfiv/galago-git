@@ -13,7 +13,7 @@ import org.lemurproject.galago.tupleflow.Step;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.TypeReader;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
@@ -82,17 +82,17 @@ public class ConvergenceTester implements ExNihiloSource<PageRankScore> {
     // Do nothing - we never call process.
   }
 
-  public static void verify(TupleFlowParameters fullParameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters fullParameters, ErrorStore store) {
     Parameters parameters = fullParameters.getJSON();
 
     String[] requiredParameters = {"convFile", "prevScoreStream", "currScoreStream", "delta"};
 
-    if (!Verification.requireParameters(requiredParameters, parameters, handler)) {
+    if (!Verification.requireParameters(requiredParameters, parameters, store)) {
       return;
     }
 
-    Verification.verifyTypeReader(parameters.getString("prevScoreStream"), PageRankScore.class, new String[]{"+docName"}, fullParameters, handler);
-    Verification.verifyTypeReader(parameters.getString("currScoreStream"), PageRankScore.class, new String[]{"+docName"}, fullParameters, handler);
+    Verification.verifyTypeReader(parameters.getString("prevScoreStream"), PageRankScore.class, new String[]{"+docName"}, fullParameters, store);
+    Verification.verifyTypeReader(parameters.getString("currScoreStream"), PageRankScore.class, new String[]{"+docName"}, fullParameters, store);
 
   }
 }

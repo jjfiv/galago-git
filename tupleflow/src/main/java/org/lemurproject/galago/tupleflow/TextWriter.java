@@ -5,7 +5,7 @@ package org.lemurproject.galago.tupleflow;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
@@ -35,13 +35,13 @@ public class TextWriter<T extends Type> implements Processor<T> {
         return parameters.getJSON().getString("class");
     }
 
-    public static boolean verify(TupleFlowParameters parameters, ErrorHandler handler) {
+    public static boolean verify(TupleFlowParameters parameters, ErrorStore store) {
         Parameters p = parameters.getJSON();
-        if (!Verification.requireParameters(new String[] { "filename", "class" }, p, handler))
+        if (!Verification.requireParameters(new String[] { "filename", "class" }, p, store))
             return false;
-        if (!Verification.requireClass(p.getString("class"), handler))
+        if (!Verification.requireClass(p.getString("class"), store))
             return false;
-        if (!Verification.requireWriteableFile(p.getString("filename"), handler))
+        if (!Verification.requireWriteableFile(p.getString("filename"), store))
             return false;
         return true;
     }

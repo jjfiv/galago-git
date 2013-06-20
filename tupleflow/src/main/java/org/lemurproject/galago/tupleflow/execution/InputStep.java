@@ -15,12 +15,6 @@ public class InputStep extends Step {
     this.id = id;
   }
 
-  public InputStep(FileLocation location, String id) {
-    super(id);
-    this.id = id;
-    this.location = location;
-  }
-
   public String getId() {
     return id;
   }

@@ -16,7 +16,7 @@ import org.lemurproject.galago.tupleflow.Source;
 import org.lemurproject.galago.tupleflow.Step;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 
 /**
  * WordFilter filters out unnecessary words from documents.  Typically this object
@@ -69,15 +69,16 @@ public class WordFilter implements Processor<Document>, Source<Document> {
         processor.close();
     }
 
-    public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
+    public static void verify(TupleFlowParameters parameters, ErrorStore store) {
         if (parameters.getJSON().containsKey("filename")) {
             return;
         }
-        if (parameters.getJSON().getList("word").size() == 0) {
-            handler.addWarning("Couldn't find any words in the stopword list.");
+        if (parameters.getJSON().getList("word").isEmpty()) {
+            store.addWarning("Couldn't find any words in the stopword list.");
         }
     }
 
+    @Override
     public void setProcessor(Step processor) throws IncompatibleProcessorException {
         Linkage.link(this, processor);
     }

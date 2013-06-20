@@ -13,7 +13,7 @@ import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.Source;
 import org.lemurproject.galago.tupleflow.Step;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 
 /**
  * 
@@ -44,7 +44,7 @@ public abstract class Stemmer implements Source<Document>, Processor<Document> {
     Linkage.link(this, processor);
   }
 
-  public static void verify(TupleFlowParameters fullParameters, ErrorHandler handler) {
+  public static void verify(TupleFlowParameters fullParameters, ErrorStore store) {
     return;
   }
 

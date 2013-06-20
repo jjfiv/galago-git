@@ -2,9 +2,9 @@
 
 package org.lemurproject.galago.tupleflow;
 
-import org.lemurproject.galago.tupleflow.execution.ErrorHandler;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 import java.io.IOException;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 
 /**
  *
@@ -23,11 +23,12 @@ public class NullSource<T> implements ExNihiloSource<T> {
         this.outputClass = outputClass;
     }
 
-    public static void verify(TupleFlowParameters parameters, ErrorHandler handler) {
-        Verification.requireParameters(new String[]{"class"}, parameters.getJSON(), handler);
-        Verification.requireClass(parameters.getJSON().getString("class"), handler);
+    public static void verify(TupleFlowParameters parameters, ErrorStore store) {
+        Verification.requireParameters(new String[]{"class"}, parameters.getJSON(), store);
+        Verification.requireClass(parameters.getJSON().getString("class"), store);
     }
 
+    @Override
     public void setProcessor(Step processor) throws IncompatibleProcessorException {
         Linkage.link(this, processor);
     }
