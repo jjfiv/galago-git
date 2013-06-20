@@ -11,6 +11,8 @@ import java.io.IOException;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.disk.PositionIndexReader;
+import org.lemurproject.galago.core.index.disk.TermCountIterator;
+import org.lemurproject.galago.core.index.disk.TermExtentIterator;
 import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -46,13 +48,13 @@ public class InsideToFieldPartTraversalTest extends TestCase {
     LocalRetrieval retrieval = new LocalRetrieval(index);
     TextFieldRewriteTraversal rewriter = new TextFieldRewriteTraversal(retrieval);
     Parameters inner1 = new Parameters();
-    inner1.set("extents", PositionIndexReader.TermExtentIterator.class.getName());
-    inner1.set("counts", PositionIndexReader.TermCountIterator.class.getName());
+    inner1.set("extents", TermExtentIterator.class.getName());
+    inner1.set("counts", TermCountIterator.class.getName());
     
     InsideToFieldPartTraversal traversal = new InsideToFieldPartTraversal(retrieval);
     Parameters inner2 = new Parameters();
-    inner2.set("extents", PositionIndexReader.TermExtentIterator.class.getName());
-    inner2.set("counts", PositionIndexReader.TermCountIterator.class.getName());
+    inner2.set("extents", TermExtentIterator.class.getName());
+    inner2.set("counts", TermCountIterator.class.getName());
     traversal.availableParts.set("field.subject", inner2);
     
     Node q1 = StructuredQuery.parse("#combine( cat dog.title donkey.subject absolute.subject)");
