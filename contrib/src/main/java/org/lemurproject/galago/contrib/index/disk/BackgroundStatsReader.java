@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyValueReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
@@ -58,7 +58,7 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public DiskIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("counts")) {
       String stem = stemAsRequired(node.getDefaultParameter());
       KeyIterator ki = new KeyIterator(reader);
@@ -119,7 +119,7 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
     }
 
     @Override
-    public ValueIterator getValueIterator() throws IOException {
+    public DiskIterator getValueIterator() throws IOException {
       return new BackgroundStatsIterator(this);
     }
 
@@ -134,7 +134,7 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
     }
   }
 
-  public class BackgroundStatsIterator extends ValueIterator implements NodeAggregateIterator {
+  public class BackgroundStatsIterator extends DiskIterator implements NodeAggregateIterator {
 
     protected KeyIterator iterator;
 

@@ -28,5 +28,5 @@ public interface IndexPartReader extends IndexComponentReader {
     /// Returns an iterator corresponding to a query node from a StructuredQuery.
     /// The type of iterator returned is assumed to be a value iterator (i.e. over one
     /// list in the index)
-    public ValueIterator getIterator(Node node) throws IOException;
+    public DiskIterator getIterator(Node node) throws IOException;
 }

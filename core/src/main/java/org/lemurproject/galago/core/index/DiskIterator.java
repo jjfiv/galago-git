@@ -11,11 +11,11 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
  *
  * @author sjh
  */
-public abstract class ValueIterator implements BaseIterator {
+public abstract class DiskIterator implements BaseIterator {
 
   protected ScoringContext context;
 
-  // each ValueIterator should have some key
+  // each DiskIterator should have some key
   abstract public String getKeyString() throws IOException;
 
   abstract public byte[] getKeyBytes() throws IOException;

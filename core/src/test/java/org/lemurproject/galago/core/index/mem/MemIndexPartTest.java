@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.KeyIterator;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.index.disk.CountIndexReader;
 import org.lemurproject.galago.core.index.disk.CountIndexWriter;
 import org.lemurproject.galago.core.index.disk.SparseFloatListReader;
@@ -73,7 +73,7 @@ public class MemIndexPartTest extends TestCase {
       MemoryCountIndex memcounts2 = new MemoryCountIndex(diskreader.getManifest());
       KeyIterator dsk_ki = diskreader.getIterator();
       while (!dsk_ki.isDone()) {
-        ValueIterator vi = dsk_ki.getValueIterator();
+        DiskIterator vi = dsk_ki.getValueIterator();
         vi.setContext(new ScoringContext());
         memcounts2.addIteratorData(dsk_ki.getKey(), vi);
         dsk_ki.nextKey();

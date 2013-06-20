@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
@@ -137,14 +137,14 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public DiskIterator getIterator(Node node) throws IOException {
     String term = stemAsRequired(node.getDefaultParameter());
     byte[] byteWord = Utility.fromString(term);
     return getTermExtents(byteWord);
   }
 
   @Override
-  public ValueIterator getIterator(byte[] key) throws IOException {
+  public DiskIterator getIterator(byte[] key) throws IOException {
     return getTermExtents(key);
   }
 
@@ -381,7 +381,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     }
 
     @Override
-    public ValueIterator getValueIterator() throws IOException {
+    public DiskIterator getValueIterator() throws IOException {
       if (currKey != null) {
         return new MemExtentIterator(postings.get(currKey));
       } else {
@@ -390,7 +390,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     }
   }
 
-  public class MemExtentIterator extends ValueIterator implements NodeAggregateIterator, CountIterator, ExtentIterator {
+  public class MemExtentIterator extends DiskIterator implements NodeAggregateIterator, CountIterator, ExtentIterator {
 
     WindowPostingList postings;
     VByteInput documents_reader;

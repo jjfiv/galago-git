@@ -18,7 +18,7 @@ import org.lemurproject.galago.contrib.retrieval.iterator.MinCountIterator;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
@@ -114,7 +114,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public DiskIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("counts")) {
       return getTermCounts(node.getDefaultParameter());
     }
@@ -167,7 +167,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     }
 
     @Override
-    public ValueIterator getValueIterator() throws IOException {
+    public DiskIterator getValueIterator() throws IOException {
       return new TermCountIterator(iterator);
     }
 

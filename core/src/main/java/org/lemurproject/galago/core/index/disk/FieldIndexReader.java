@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -58,7 +58,7 @@ public class FieldIndexReader extends KeyListReader {
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public DiskIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("field")) {
       ListIterator it = getField(node.getDefaultParameter());
       if (node.getNodeParameters().containsKey("format")) {
@@ -98,7 +98,7 @@ public class FieldIndexReader extends KeyListReader {
     }
 
     @Override
-    public ValueIterator getValueIterator() throws IOException {
+    public DiskIterator getValueIterator() throws IOException {
       return new ListIterator(iterator);
     }
 

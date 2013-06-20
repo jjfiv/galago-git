@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.util.ExtentArray;
  * @author trevor
  * @author irmarc
  */
-public class NullExtentIterator extends ValueIterator implements ExtentIterator, CountIterator {
+public class NullExtentIterator extends DiskIterator implements ExtentIterator, CountIterator {
 
   ExtentArray array = new ExtentArray();
 

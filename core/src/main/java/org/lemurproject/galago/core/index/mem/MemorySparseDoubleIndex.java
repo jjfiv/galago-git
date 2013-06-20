@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.index.disk.SparseFloatListWriter;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
@@ -108,7 +108,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public DiskIterator getIterator(Node node) throws IOException {
     String stringKey = stemAsRequired(node.getDefaultParameter());
     byte[] key = Utility.fromString(stringKey);
     if (node.getOperator().equals("scores")) {
@@ -118,7 +118,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
   }
 
   @Override
-  public ValueIterator getIterator(byte[] key) throws IOException {
+  public DiskIterator getIterator(byte[] key) throws IOException {
     return getNodeScores(key);
   }
 
@@ -319,7 +319,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     }
 
     @Override
-    public ValueIterator getValueIterator() throws IOException {
+    public DiskIterator getValueIterator() throws IOException {
       if (currKey != null) {
         return new ScoresIterator(postings.get(currKey));
       } else {
@@ -328,7 +328,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     }
   }
 
-  public class ScoresIterator extends ValueIterator implements
+  public class ScoresIterator extends DiskIterator implements
           ScoreIterator, ContextualIterator {
 
     PostingList postings;

@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.index.disk.CountIndexWriter;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
@@ -137,7 +137,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public DiskIterator getIterator(Node node) throws IOException {
     String term = stemAsRequired(node.getDefaultParameter());
     byte[] byteWord = Utility.fromString(term);
     if (node.getOperator().equals("counts")) {
@@ -147,7 +147,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
   }
 
   @Override
-  public ValueIterator getIterator(byte[] key) throws IOException {
+  public DiskIterator getIterator(byte[] key) throws IOException {
     return getTermCounts(key);
   }
 
@@ -372,7 +372,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     }
 
     @Override
-    public ValueIterator getValueIterator() throws IOException {
+    public DiskIterator getValueIterator() throws IOException {
       if (currKey != null) {
         return new CountsIterator(postings.get(currKey));
       } else {
@@ -381,7 +381,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     }
   }
 
-  public class CountsIterator extends ValueIterator implements NodeAggregateIterator, CountIterator {
+  public class CountsIterator extends DiskIterator implements NodeAggregateIterator, CountIterator {
 
     PostingList postings;
     VByteInput documents_reader;

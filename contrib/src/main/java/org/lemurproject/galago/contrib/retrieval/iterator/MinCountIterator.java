@@ -4,7 +4,7 @@
 package org.lemurproject.galago.contrib.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -16,7 +16,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public class MinCountIterator extends ValueIterator implements CountIterator {
+public class MinCountIterator extends DiskIterator implements CountIterator {
 
   private final NodeParameters nodeParams;
   private final CountIterator[] iterators;

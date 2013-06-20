@@ -27,14 +27,13 @@ public abstract class KeyListReader extends KeyValueReader {
     super(r);
   }
 
-  public abstract class ListIterator extends ValueIterator {
+  public abstract class ListIterator extends DiskIterator {
 
     // OPTIONS
     public static final int HAS_SKIPS = 0x01;
     public static final int HAS_MAXTF = 0x02;
     public static final int HAS_INLINING = 0x04;
     protected byte[] key;
-    protected Map<String, Object> modifiers = null;
 
     public ListIterator(byte[] key) {
       this.key = key;

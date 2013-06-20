@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.index.geometric;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.PriorityQueue;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -15,7 +15,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public abstract class DisjointIndexesIterator extends ValueIterator {
+public abstract class DisjointIndexesIterator extends DiskIterator {
 
   Collection<BaseIterator> allIterators;
   BaseIterator head;
@@ -129,11 +129,11 @@ public abstract class DisjointIndexesIterator extends ValueIterator {
 
   @Override
   public String getKeyString() throws IOException {
-    return ((ValueIterator) head).getKeyString();
+    return ((DiskIterator) head).getKeyString();
   }
 
   @Override
   public byte[] getKeyBytes() throws IOException {
-    return ((ValueIterator) head).getKeyBytes();
+    return ((DiskIterator) head).getKeyBytes();
   }
 }

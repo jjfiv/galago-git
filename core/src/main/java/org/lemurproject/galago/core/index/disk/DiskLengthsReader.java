@@ -96,7 +96,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public DiskIterator getIterator(Node node) throws IOException {
     // operator -> lengths
     if (node.getOperator().equals("lengths")) {
       String key = node.getNodeParameters().get("default", "document");
@@ -120,7 +120,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
 
     @Override
-    public org.lemurproject.galago.core.index.ValueIterator getValueIterator() throws IOException {
+    public org.lemurproject.galago.core.index.DiskIterator getValueIterator() throws IOException {
       return getStreamValueIterator();
     }
 
@@ -137,7 +137,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
   }
 
-//  public class MemoryMapLengthsIterator extends ValueIterator
+//  public class MemoryMapLengthsIterator extends DiskIterator
 //          implements CountIterator, LengthsIterator,
 //          AggregateStatistics.CollectionAggregateIterator {
 //

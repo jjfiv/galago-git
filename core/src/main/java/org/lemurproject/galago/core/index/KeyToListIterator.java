@@ -11,7 +11,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author irmarc
  */
-public abstract class KeyToListIterator extends ValueIterator {
+public abstract class KeyToListIterator extends DiskIterator {
 
   protected KeyIterator iterator;
 

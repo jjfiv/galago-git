@@ -14,7 +14,7 @@ import java.util.TreeMap;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
@@ -137,7 +137,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public DiskIterator getIterator(Node node) throws IOException {
     String term = stemAsRequired(node.getDefaultParameter());
     byte[] byteWord = Utility.fromString(term);
     if (node.getOperator().equals("counts")) {
@@ -148,7 +148,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
   }
 
   @Override
-  public ValueIterator getIterator(byte[] key) throws IOException {
+  public DiskIterator getIterator(byte[] key) throws IOException {
     return getTermExtents(key);
   }
 
@@ -394,7 +394,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     }
 
     @Override
-    public ValueIterator getValueIterator() throws IOException {
+    public DiskIterator getValueIterator() throws IOException {
       if (currKey != null) {
         return new ExtentsIterator(postings.get(currKey));
       } else {
@@ -403,7 +403,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     }
   }
 
-  public class ExtentsIterator extends ValueIterator implements ModifiableIterator,
+  public class ExtentsIterator extends DiskIterator implements ModifiableIterator,
           NodeAggregateIterator, CountIterator, ExtentIterator {
 
     PositionalPostingList postings;
@@ -632,7 +632,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     }
   }
 
-  public class CountsIterator extends ValueIterator implements ModifiableIterator,
+  public class CountsIterator extends DiskIterator implements ModifiableIterator,
           NodeAggregateIterator, CountIterator {
 
     PositionalPostingList postings;

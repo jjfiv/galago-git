@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.index.disk.DiskNameWriter;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.NamesReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -120,7 +120,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public DiskIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("names")) {
       return new VIterator(getIterator());
     } else {
@@ -130,7 +130,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
   }
 
   @Override
-  public ValueIterator getIterator(byte[] _key) throws IOException {
+  public DiskIterator getIterator(byte[] _key) throws IOException {
     return new VIterator(getIterator());
   }
 
@@ -267,7 +267,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
       }
     }
 
-    public ValueIterator getValueIterator() throws IOException {
+    public DiskIterator getValueIterator() throws IOException {
       return new VIterator(this);
     }
   }

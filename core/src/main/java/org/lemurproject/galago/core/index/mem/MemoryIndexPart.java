@@ -5,7 +5,7 @@ package org.lemurproject.galago.core.index.mem;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.index.IndexPartReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 
@@ -54,5 +54,5 @@ public interface MemoryIndexPart extends IndexPartReader {
   /*
    * return a cached iterator - specifically used byte CachedRetrieval
    */
-  public ValueIterator getIterator(byte[] key) throws IOException;
+  public DiskIterator getIterator(byte[] key) throws IOException;
 }

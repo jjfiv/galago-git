@@ -7,7 +7,7 @@ import java.io.PrintStream;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.tools.AppFunction;
@@ -53,7 +53,7 @@ public class DumpKeyValueFn extends AppFunction {
     if (iterator.skipToKey(Utility.fromString(key)) &&
 	key.equals(iterator.getKeyString())) {
       if (KeyListReader.class.isAssignableFrom(reader.getClass())) {	
-        ValueIterator vIter = iterator.getValueIterator();
+        DiskIterator vIter = iterator.getValueIterator();
 	ScoringContext context = new ScoringContext();
         while (!vIter.isDone()) {
 	  context.document = vIter.currentCandidate();

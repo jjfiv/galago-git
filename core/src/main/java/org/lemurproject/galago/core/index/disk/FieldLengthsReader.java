@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.LengthsReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader.WindowExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
@@ -85,7 +85,7 @@ public class FieldLengthsReader implements LengthsReader {
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public DiskIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("fieldlengths")
             && node.getNodeParameters().containsKey("part")) {
       String part = node.getNodeParameters().getString("part");
@@ -101,7 +101,7 @@ public class FieldLengthsReader implements LengthsReader {
     return reader.getManifest();
   }
 
-  public class LengthIterator extends ValueIterator implements LengthsIterator {
+  public class LengthIterator extends DiskIterator implements LengthsIterator {
 
     private WindowIndexReader.WindowExtentIterator extentsIterator;
     int length = -1;

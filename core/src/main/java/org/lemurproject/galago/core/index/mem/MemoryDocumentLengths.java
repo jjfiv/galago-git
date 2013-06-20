@@ -14,7 +14,7 @@ import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
 import org.lemurproject.galago.core.index.stats.CollectionStatistics;
 import org.lemurproject.galago.core.parse.Document;
@@ -179,7 +179,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   @Override
-  public ValueIterator getIterator(byte[] key) throws IOException {
+  public DiskIterator getIterator(byte[] key) throws IOException {
     Bytes field = new Bytes(key);
     if (lengths.containsKey(field)) {
       return new FieldLengthsIterator(lengths.get(field));
@@ -189,7 +189,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public DiskIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("lengths")) {
       String fieldName = node.getNodeParameters().get("default", "document");
       return this.getIterator(Utility.fromString(fieldName));
@@ -324,12 +324,12 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     @Override
-    public ValueIterator getValueIterator() throws IOException {
+    public DiskIterator getValueIterator() throws IOException {
       return new FieldLengthsIterator(lengths.get(new Bytes(this.currField)));
     }
   }
 
-  private static class FieldLengthsIterator extends ValueIterator implements CountIterator,
+  private static class FieldLengthsIterator extends DiskIterator implements CountIterator,
           LengthsIterator, CollectionAggregateIterator {
 
     FieldLengthPostingList fieldLengths;

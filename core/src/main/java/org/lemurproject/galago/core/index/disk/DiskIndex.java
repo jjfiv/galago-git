@@ -25,7 +25,7 @@ import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.index.IndexPartModifier;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.LengthsReader;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
@@ -292,8 +292,8 @@ public class DiskIndex implements Index {
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
-    ValueIterator result = null;
+  public DiskIterator getIterator(Node node) throws IOException {
+    DiskIterator result = null;
     IndexPartReader part = parts.get(getIndexPartName(node));
     if (part != null) {
       result = part.getIterator(node);

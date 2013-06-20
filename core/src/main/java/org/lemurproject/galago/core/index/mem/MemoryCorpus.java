@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.KeyToListIterator;
-import org.lemurproject.galago.core.index.ValueIterator;
+import org.lemurproject.galago.core.index.DiskIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusFileWriter;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator;
@@ -127,12 +127,12 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("corpus", new NodeType(ValueIterator.class));
+    types.put("corpus", new NodeType(DiskIterator.class));
     return types;
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public DiskIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("corpus")) {
       return new MemCorpusIterator(getIterator());
     } else {
@@ -143,7 +143,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
   // unsupported functions - perhaps eventually they will be supported.
   @Override
-  public ValueIterator getIterator(byte[] nodeString) throws IOException {
+  public DiskIterator getIterator(byte[] nodeString) throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
@@ -225,7 +225,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
     // unsupported functions:
     @Override
-    public ValueIterator getValueIterator() throws IOException {
+    public DiskIterator getValueIterator() throws IOException {
       return new MemCorpusIterator(this);
     }
 

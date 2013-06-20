@@ -42,7 +42,7 @@ public class ConflationIndexReader extends KeyValueReader {
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public DiskIterator getIterator(Node node) throws IOException {
     throw new UnsupportedOperationException(
             "Index doesn't support operator: " + node.getOperator());
   }
