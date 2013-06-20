@@ -437,11 +437,6 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     }
 
     @Override
-    public byte[] key() {
-      return Utility.fromString("MemCI");
-    }
-
-    @Override
     public boolean hasMatch(int identifier) {
       return (!isDone() && identifier == currDocument);
     }
@@ -528,12 +523,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     public String getKeyString() throws IOException {
       return Utility.toString(postings.key);
     }
-
-    @Override
-    public byte[] getKeyBytes() throws IOException {
-      return postings.key;
-    }
-
+    
     @Override
     public AnnotatedNode getAnnotatedNode() throws IOException {
       String type = "counts";

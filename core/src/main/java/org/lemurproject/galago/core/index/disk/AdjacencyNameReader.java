@@ -109,10 +109,6 @@ public class AdjacencyNameReader extends DiskNameReader {
     }
 
     @Override
-    public byte[] getKeyBytes() {
-      return Utility.fromString("adjacent");
-    }
-    @Override
     public AnnotatedNode getAnnotatedNode() {
       String type = "names";
       String className = this.getClass().getSimpleName();

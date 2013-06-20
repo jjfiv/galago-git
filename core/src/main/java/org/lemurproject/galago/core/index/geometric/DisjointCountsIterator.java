@@ -33,11 +33,6 @@ public class DisjointCountsIterator extends DisjointIndexesIterator implements C
   }
 
   @Override
-  public byte[] key() {
-    return Utility.fromString("DisCI");
-  }
-
-  @Override
   public AnnotatedNode getAnnotatedNode() throws IOException {
     String type = "counts";
     String className = this.getClass().getSimpleName();

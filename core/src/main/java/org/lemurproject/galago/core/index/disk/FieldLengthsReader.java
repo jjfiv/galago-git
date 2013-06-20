@@ -187,11 +187,6 @@ public class FieldLengthsReader implements LengthsReader {
     }
 
     @Override
-    public byte[] getKeyBytes() throws IOException {
-      return Utility.fromString("lengths");
-    }
-
-    @Override
     public AnnotatedNode getAnnotatedNode() throws IOException {
       String type = "lengths";
       String className = this.getClass().getSimpleName();
@@ -202,11 +197,6 @@ public class FieldLengthsReader implements LengthsReader {
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
-    }
-
-    @Override
-    public byte[] getRegionBytes() {
-      return Utility.fromString("lengths");
     }
   }
 }

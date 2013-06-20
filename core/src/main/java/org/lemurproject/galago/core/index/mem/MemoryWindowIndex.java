@@ -575,16 +575,6 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     }
 
     @Override
-    public byte[] key() {
-      return postings.key;
-    }
-
-    @Override
-    public byte[] getKeyBytes() throws IOException {
-      return postings.key;
-    }
-
-    @Override
     public AnnotatedNode getAnnotatedNode() throws IOException {
       String type = "extents";
       String className = this.getClass().getSimpleName();

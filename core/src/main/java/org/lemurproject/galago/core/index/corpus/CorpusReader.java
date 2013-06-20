@@ -182,11 +182,6 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     }
 
     @Override
-    public byte[] getKeyBytes() {
-      return Utility.fromString("corpus");
-    }
-
-    @Override
     public AnnotatedNode getAnnotatedNode() {
       String type = "corpus";
       String className = this.getClass().getSimpleName();

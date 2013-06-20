@@ -2,6 +2,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
@@ -33,9 +34,26 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
  * *******************************
  * 
  * @author sjh
+ * @author jfoley
  */
-public interface BaseIterator extends ContextualIterator, Comparable<BaseIterator> {
+public interface BaseIterator extends Comparable<BaseIterator> {
+  /**
+   * Set the ScoringContext; recursively.
+   *  - this allows a single setContext 
+   *    to be called at the root of the tree.
+   * 
+   * TODO: move to either constructor or all tree calls.
+   * @param context 
+   */
+  public void setContext(ScoringContext context);
+  
+  /**
+   * Get the ScoringContext
+   * @param context 
+   */
+  public ScoringContext getContext();
 
+  
   /**
    * returns the iterator to the first candidate
    */

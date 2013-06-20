@@ -329,11 +329,6 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     }
 
     @Override
-    public byte[] getKeyBytes() throws IOException {
-      return Utility.fromString("names");
-    }
-
-    @Override
     public AnnotatedNode getAnnotatedNode() throws IOException {
       String type = "names";
       String className = this.getClass().getSimpleName();

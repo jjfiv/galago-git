@@ -35,9 +35,4 @@ public class RequireIterator extends FilteredIterator {
     return this.mover.hasMatch(identifier)
             && this.indicator.indicator(identifier);
   }
-
-  @Override
-  public byte[] key() {
-    return Utility.fromString("REQ");
-  }
 }

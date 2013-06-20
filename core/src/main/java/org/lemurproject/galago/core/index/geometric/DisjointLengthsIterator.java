@@ -56,13 +56,4 @@ public class DisjointLengthsIterator extends DisjointIndexesIterator implements 
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
-
-  @Override
-  public byte[] getRegionBytes() {
-    if (head != null) {
-      return ((LengthsIterator) this.head).getRegionBytes();
-    } else {
-      throw new RuntimeException("Lengths Iterator is done.");
-    }
-  }
 }

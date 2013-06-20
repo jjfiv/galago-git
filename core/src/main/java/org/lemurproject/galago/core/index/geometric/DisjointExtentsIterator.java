@@ -45,11 +45,6 @@ public class DisjointExtentsIterator extends DisjointIndexesIterator implements 
   }
 
   @Override
-  public byte[] key() {
-    return Utility.fromString("DisEI");
-  }
-
-  @Override
   public AnnotatedNode getAnnotatedNode() throws IOException {
     String type = "extents";
     String className = this.getClass().getSimpleName();

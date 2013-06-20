@@ -117,9 +117,4 @@ public class FakeLengthIterator implements LengthsIterator {
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
-
-  @Override
-  public byte[] getRegionBytes() {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
 }

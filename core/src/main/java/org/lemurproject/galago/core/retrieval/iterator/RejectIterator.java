@@ -35,9 +35,4 @@ public class RejectIterator extends FilteredIterator {
     return (!this.indicator.indicator(identifier))
             && this.mover.hasMatch(identifier);
   }
-
-  @Override
-  public byte[] key() {
-    return Utility.fromString("REJ");
-  }
 }

@@ -28,12 +28,6 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
     this.extentIterator = extentIterator;
     this.cached = new ExtentArray();
     docid = -1;
-    key = extentIterator.key();
-  }
-
-  @Override
-  public byte[] key() {
-    return key;
   }
 
   @Override

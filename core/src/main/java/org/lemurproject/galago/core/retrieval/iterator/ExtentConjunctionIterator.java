@@ -23,7 +23,6 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
   public ExtentConjunctionIterator(NodeParameters parameters, ExtentIterator[] iterators) throws IOException {
     super(parameters, iterators);
     this.extentCache = new ExtentArray();
-    buildKey(iterators);
   }
 
   @Override
@@ -85,28 +84,5 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
       children.add(child.getAnnotatedNode());
     }
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
-  }
-
-  @Override
-  public byte[] key() {
-    return key;
-  }
-
-  protected void buildKey(ExtentIterator[] iterators) {
-    int keysize = 2;
-    for (int i = 0; i < iterators.length; i++) {
-      keysize += iterators[i].key().length;
-    }
-    key = new byte[keysize];
-    keysize = 2;
-    // conjunction marker                                                                                                                   
-    key[0] = 'C' >> 8; // conjunction marker;                                                                                               
-    key[1] = 'C' & 0xFF;
-    for (int i = 0; i < iterators.length; i++) {
-      ExtentIterator it = iterators[i];
-      byte[] inner = it.key();
-      System.arraycopy(inner, 0, key, keysize, inner.length);
-      keysize += inner.length;
-    }
   }
 }

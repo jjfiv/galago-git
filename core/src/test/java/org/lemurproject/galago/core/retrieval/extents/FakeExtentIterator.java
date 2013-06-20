@@ -154,9 +154,4 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
-
-  @Override
-  public byte[] key() {
-    return Utility.fromString("FAKE");
-  }
 }

@@ -17,12 +17,10 @@ import org.lemurproject.galago.tupleflow.Utility;
 public abstract class ExtentDisjunctionIterator extends DisjunctionIterator implements DataIterator<ExtentArray>, ExtentIterator, CountIterator {
 
   protected ExtentArray extentCache;
-  protected byte[] key;
 
   public ExtentDisjunctionIterator(ExtentIterator[] iterators) throws IOException {
     super(iterators);
     this.extentCache = new ExtentArray();
-    buildKey(iterators);
   }
 
   @Override
@@ -65,28 +63,6 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
     }
     return sum;
 
-  }
-
-  @Override
-  public byte[] key() {
-    return key;
-  }
-
-  protected void buildKey(ExtentIterator[] iterators) {
-    int keysize = 2;
-    for (int i = 0; i < iterators.length; i++) {
-      keysize += iterators[i].key().length;
-    }
-    key = new byte[keysize];
-    keysize = 2;
-    key[0] = 'D' >> 8; // conjunction marker;                                                                                               
-    key[1] = 'D' & 0xFF;
-    for (int i = 0; i < iterators.length; i++) {
-      ExtentIterator it = iterators[i];
-      byte[] inner = it.key();
-      System.arraycopy(inner, 0, key, keysize, inner.length);
-      keysize += inner.length;
-    }
   }
 
   public abstract void loadExtents();

@@ -329,7 +329,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
   }
 
   public class ScoresIterator extends DiskIterator implements
-          ScoreIterator, ContextualIterator {
+          ScoreIterator {
 
     PostingList postings;
     VByteInput documents_reader;
@@ -464,11 +464,6 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     @Override
     public String getKeyString() throws IOException {
       return Utility.toString(postings.key);
-    }
-
-    @Override
-    public byte[] getKeyBytes() throws IOException {
-      return postings.key;
     }
 
     @Override

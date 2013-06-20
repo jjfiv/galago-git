@@ -26,13 +26,6 @@ public class NullExtentIterator extends DiskIterator implements ExtentIterator, 
     // nothing
   }
 
-  @Override
-  public byte[] key() {
-    byte[] k = new byte[1];
-    k[0] = 0x00;
-    return k;
-  }
-
   public boolean nextEntry() {
     return false;
   }
@@ -108,11 +101,6 @@ public class NullExtentIterator extends DiskIterator implements ExtentIterator, 
   @Override
   public String getKeyString() throws IOException {
     return "";
-  }
-
-  @Override
-  public byte[] getKeyBytes() throws IOException {
-    return new byte[0];
   }
 
   @Override

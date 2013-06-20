@@ -20,8 +20,6 @@ import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.core.retrieval.iterator.ContextualIterator;
-import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
@@ -267,8 +265,8 @@ public class LocalRetrieval implements Retrieval {
 
     // we have now constructed the iterator from the cache or from the index:
     //  --> deal with the context
-    if (context != null && ContextualIterator.class.isAssignableFrom(iterator.getClass())) {
-      ((ContextualIterator) iterator).setContext(context);
+    if (context != null && BaseIterator.class.isAssignableFrom(iterator.getClass())) {
+      ((BaseIterator) iterator).setContext(context);
     }
 
     if (context != null && ActiveContext.class.isAssignableFrom(context.getClass())) {

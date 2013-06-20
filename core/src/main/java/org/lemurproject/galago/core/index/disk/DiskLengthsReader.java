@@ -539,12 +539,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     public ScoringContext getContext() {
       throw new UnsupportedOperationException("Not supported yet.");
     }
-
-    @Override
-    public byte[] key() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
+    
     @Override
     public int count() {
       throw new UnsupportedOperationException("Not supported yet.");
@@ -552,11 +547,6 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
     @Override
     public int maximumCount() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public byte[] getRegionBytes() {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -768,11 +758,6 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     @Override
     public int getCurrentIdentifier() {
       return this.currDocument;
-    }
-
-    @Override
-    public byte[] getRegionBytes() {
-      return this.key;
     }
 
     @Override

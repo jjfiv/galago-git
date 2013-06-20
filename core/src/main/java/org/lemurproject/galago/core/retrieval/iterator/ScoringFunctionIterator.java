@@ -81,15 +81,6 @@ public class ScoringFunctionIterator extends TransformIterator implements ScoreI
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
-
-  /**
-   * Non-essential method to forward the count iterator key.
-   *
-   * @return
-   */
-  public byte[] key() {
-    return ((CountIterator) iterator).key();
-  }
   
   public double getMaxTF(NodeParameters p, CountIterator it) {
     int count = 0;

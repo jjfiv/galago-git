@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -44,10 +43,5 @@ public class BinaryCountIterator extends TransformIterator implements CountItera
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
-  }
-
-  @Override
-  public byte[] key() {
-    return Utility.fromString("BC");
   }
 }

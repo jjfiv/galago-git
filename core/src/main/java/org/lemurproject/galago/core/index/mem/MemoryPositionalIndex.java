@@ -609,16 +609,6 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     }
 
     @Override
-    public byte[] key() {
-      return postings.key;
-    }
-
-    @Override
-    public byte[] getKeyBytes() throws IOException {
-      return postings.key;
-    }
-
-    @Override
     public AnnotatedNode getAnnotatedNode() throws IOException {
       String type = "extents";
       String className = this.getClass().getSimpleName();
@@ -804,16 +794,6 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     @Override
     public String getKeyString() throws IOException {
       return Utility.toString(postings.key);
-    }
-
-    @Override
-    public byte[] key() {
-      return postings.key;
-    }
-
-    @Override
-    public byte[] getKeyBytes() throws IOException {
-      return postings.key;
     }
 
     @Override

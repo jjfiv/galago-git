@@ -152,5 +152,5 @@ public abstract class DisjunctionIterator implements BaseIterator {
   @Override
   public ScoringContext getContext() {
     return context;
-  }  
+  }
 }

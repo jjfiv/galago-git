@@ -21,9 +21,7 @@ public interface DeltaScoringIterator extends ScoreIterator {
   public void deltaScore(int length);
   
   public void deltaScore(int count, int length);
-  
-  public byte[] key();
- 
+   
   /**
    * Returns the weight the iterator uses in delta scoring.
    *

@@ -151,11 +151,6 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
       return this.iterator.getKeyString();
     }
 
-    @Override
-    public byte[] getKeyBytes() throws IOException {
-      return this.iterator.getKey();
-    }
-
     // Nothing else works - this is not a normal iterator.
     @Override
     public int currentCandidate() {

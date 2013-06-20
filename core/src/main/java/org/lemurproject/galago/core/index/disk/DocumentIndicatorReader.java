@@ -172,11 +172,6 @@ public class DocumentIndicatorReader extends KeyValueReader {
     }
 
     @Override
-    public byte[] getKeyBytes() throws IOException {
-      return Utility.fromString("indicators");
-    }
-
-    @Override
     public AnnotatedNode getAnnotatedNode() throws IOException {
       String type = "indicator";
       String className = this.getClass().getSimpleName();

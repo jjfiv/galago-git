@@ -189,11 +189,6 @@ public class DocumentPriorReader extends KeyValueReader {
     }
 
     @Override
-    public byte[] getKeyBytes() throws IOException {
-      return Utility.fromString("priors");
-    }
-
-    @Override
     public AnnotatedNode getAnnotatedNode() throws IOException {
       String type = "score";
       String className = DocumentPriorReader.class.getSimpleName();
