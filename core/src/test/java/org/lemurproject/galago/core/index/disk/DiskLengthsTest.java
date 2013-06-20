@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DiskLengthsReader.KeyIterator;
-import org.lemurproject.galago.core.index.disk.StreamLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
@@ -53,7 +52,7 @@ public class DiskLengthsTest extends TestCase {
 
       KeyIterator ki = reader.getIterator();
 //      MemoryMapLengthsIterator memItr = ki.getMemoryValueIterator();
-      StreamLengthsIterator streamItr = ki.getStreamValueIterator();
+      DiskLengthsReader.StreamLengthsIterator streamItr = ki.getStreamValueIterator();
       
       ScoringContext sc = new ScoringContext();
 //      memItr.setContext(sc);

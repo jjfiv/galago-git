@@ -1,6 +1,7 @@
 package org.lemurproject.galago.core.index;
 
 import java.io.IOException;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -24,5 +25,10 @@ public abstract class BTreeValueSource implements DataSource {
   @Override
   public boolean hasMatch(int id) {
     return !isDone() && currentCandidate() == id;
+  }
+  
+  @Override
+  public String key() {
+    return Utility.toString(key);
   }
 }

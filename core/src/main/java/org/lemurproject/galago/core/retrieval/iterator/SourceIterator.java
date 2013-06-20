@@ -16,7 +16,7 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
  * @author jfoley
  */
 public abstract class SourceIterator<T extends DataSource> extends DiskIterator {
-  T source = null;
+  protected T source = null;
   
   public SourceIterator(T src) {
     source = src;

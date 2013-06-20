@@ -46,7 +46,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class DiskIndex implements Index {
 
-  private final Logger logger = Logger.getLogger("DiskIndex");
+  private static final Logger logger = Logger.getLogger("DiskIndex");
   protected File location;
   protected Parameters manifest = new Parameters();
   protected LengthsReader lengthsReader = null;

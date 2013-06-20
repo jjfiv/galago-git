@@ -85,7 +85,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   @Override
   public LengthsIterator getLengthsIterator() throws IOException {
     BTreeIterator i = reader.getIterator(doc);
-    return new StreamLengthsIterator(doc, i);
+    return new StreamLengthsIterator(i);
 //    return new MemoryMapLengthsIterator(doc, documentLengths);
   }
 
@@ -103,7 +103,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
       String key = node.getNodeParameters().get("default", "document");
       byte[] keyBytes = Utility.fromString(key);
       BTreeIterator i = reader.getIterator(keyBytes);
-      return new StreamLengthsIterator(keyBytes, i);
+      return new StreamLengthsIterator(i);
     } else {
       throw new UnsupportedOperationException("Index doesn't support operator: " + node.getOperator());
     }
@@ -121,12 +121,16 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
 
     @Override
-    public org.lemurproject.galago.core.index.DiskIterator getValueIterator() throws IOException {
+    public DiskIterator getValueIterator() throws IOException {
       return getStreamValueIterator();
     }
 
+    //public StreamLengthsIterator getStreamValueIterator() throws IOException {
+      //return new StreamLengthsIterator(iterator.getKey(), iterator);
+    //}
+    
     public StreamLengthsIterator getStreamValueIterator() throws IOException {
-      return new StreamLengthsIterator(iterator.getKey(), iterator);
+      return new StreamLengthsIterator(iterator);
     }
 
 //    public MemoryMapLengthsIterator getMemoryValueIterator() throws IOException {
@@ -405,7 +409,6 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
       return getCurrentLength(id);
     }
 
-
     @Override
     public boolean isDone() {
       return this.done;
@@ -461,11 +464,6 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
 
     @Override
-    public void moveTo(int id) {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public void syncTo(int identifier) {
       // it's possible that the first document has zero length, and we may wish to sync to it.
       if (identifier < firstDocument) {
@@ -497,18 +495,12 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     public long totalEntries() {
       return this.totalDocumentCount;
     }
-
-    @Override
-    public String key() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    
   }
   
-  public class SLSIterator extends SourceIterator<StreamLengthsSource>
+  public class StreamLengthsIterator extends SourceIterator<StreamLengthsSource>
     implements CountIterator, LengthsIterator, CollectionAggregateIterator {
     
-    SLSIterator(BTreeIterator it) throws IOException {
+    StreamLengthsIterator(BTreeIterator it) throws IOException {
       super(new StreamLengthsSource(it));
     }
 
@@ -532,22 +524,30 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     
     @Override
     public int count() {
-      throw new UnsupportedOperationException("Not supported yet.");
+      return (int) source.count(context.document);
+    }
+    
+    @Override
+    public int getCurrentLength() {
+      return count();
     }
 
     @Override
     public int maximumCount() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public int getCurrentLength() {
-      throw new UnsupportedOperationException("Not supported yet.");
+      return Integer.MAX_VALUE;
     }
 
     @Override
     public CollectionStatistics getStatistics() {
-      throw new UnsupportedOperationException("Not supported yet.");
+      CollectionStatistics cs = new CollectionStatistics();
+      cs.fieldName = source.key();
+      cs.collectionLength = source.collectionLength;
+      cs.documentCount = source.totalDocumentCount;
+      cs.nonZeroLenDocCount = source.nonZeroDocumentCount;
+      cs.maxLength = source.maxLength;
+      cs.minLength = source.minLength;
+      cs.avgLength = source.avgLength;
+      return cs;
     }
   }
 }
