@@ -3,7 +3,6 @@ package org.lemurproject.galago.core.index.disk;
 
 import java.util.logging.Level;
 import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.ModifiableIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import java.io.File;
@@ -20,9 +19,7 @@ import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.BTreeFactory;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.Index;
-import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.NamesReader;
-import org.lemurproject.galago.core.index.IndexPartModifier;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.DiskIterator;
@@ -33,7 +30,6 @@ import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -56,7 +52,6 @@ public class DiskIndex implements Index {
   protected LengthsReader lengthsReader = null;
   protected NamesReader namesReader = null;
   protected Map<String, IndexPartReader> parts = new HashMap<String, IndexPartReader>();
-  protected Map<String, HashMap<String, IndexPartModifier>> modifiers = new HashMap<String, HashMap<String, IndexPartModifier>>();
   protected HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
   protected HashSet<String> knownIndexOperators = new HashSet<String>();
 
@@ -151,17 +146,6 @@ public class DiskIndex implements Index {
   protected void initializeComponent(String name, IndexComponentReader component) {
     if (IndexPartReader.class.isAssignableFrom(component.getClass())) {
       parts.put(name, (IndexPartReader) component);
-
-    } else if (IndexPartModifier.class.isAssignableFrom(component.getClass())) {
-      // need to pop off the dirname : (e.g. mod/)
-      String[] nameParts = name.split("\\.");
-
-      if (nameParts.length >= 2) {
-        if (!modifiers.containsKey(nameParts[0])) {
-          modifiers.put(nameParts[0], new HashMap<String, IndexPartModifier>());
-        }
-        modifiers.get(nameParts[0]).put(nameParts[1], (IndexPartModifier) component);
-      }
     }
   }
 
@@ -216,12 +200,6 @@ public class DiskIndex implements Index {
   @Override
   public boolean containsPart(String partName) {
     return parts.containsKey(partName);
-  }
-
-  @Override
-  public boolean containsModifier(String partName, String modifierName) {
-    return (modifiers.containsKey(partName)
-            && modifiers.get(partName).containsKey(modifierName));
   }
 
   @Override
@@ -468,13 +446,5 @@ public class DiskIndex implements Index {
       throw new IOException(componentReader.getClass().getName() + " is not a IndexPartReader subclass.");
     }
     return (IndexPartReader) componentReader;
-  }
-
-  public static IndexPartModifier openIndexModifier(String path) throws IOException {
-    IndexComponentReader componentReader = openIndexComponent(path);
-    if (!IndexPartModifier.class.isAssignableFrom(componentReader.getClass())) {
-      throw new IOException(componentReader.getClass().getName() + " is not a IndexPartModifier subclass.");
-    }
-    return (IndexPartModifier) componentReader;
   }
 }

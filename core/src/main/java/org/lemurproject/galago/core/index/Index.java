@@ -35,8 +35,6 @@ public interface Index {
 
   public boolean containsPart(String partName);
 
-  public boolean containsModifier(String partName, String modifierName);
-
   // This isn't necessary at the moment
   //public boolean hasChanged() throws IOException;
 
