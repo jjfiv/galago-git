@@ -26,23 +26,31 @@ public class StreamExtentSource extends BTreeValueSource implements ExtentSource
   private int currentDocument;
   private int currentCount;
   private boolean done;
-  private ExtentArray extentArray;
+  // final here to prevent reallocation of this during scoring
+  final private ExtentArray extentArray;
   // to support resets
-  protected long startPosition;
-  protected long endPosition;
-  // to support skipping
-  private VByteInput skips;
-  private VByteInput skipPositions;
-  private DataStream skipPositionsStream;
+  final protected long startPosition;
+  final protected long endPosition;
+  
   private DataStream documentsStream;
   private DataStream countsStream;
   private DataStream positionsStream;
-  private int skipDistance;
-  private int skipResetDistance;
-  private long numSkips;
-  private long skipsRead;
-  private long nextSkipDocument;
-  private long lastSkipPosition;
+  
+  private class SkipState {
+    public VByteInput data;
+    public VByteInput positions;
+    public DataStream positionsStream;
+
+    public int distance;
+    public int resetDistance;
+    public long total;
+    public long read;
+    public long nextDocument;
+    public long nextPosition;
+  }
+  // to support skipping
+  private SkipState skip;
+  
   private long documentsByteFloor;
   private long countsByteFloor;
   private long positionsByteFloor;
@@ -54,19 +62,19 @@ public class StreamExtentSource extends BTreeValueSource implements ExtentSource
   
   public StreamExtentSource(BTreeReader.BTreeIterator iter) throws IOException {
     super(iter);
+    startPosition = btreeIter.getValueStart();
+    endPosition = btreeIter.getValueEnd();
+    extentArray = new ExtentArray();
+    initialize();
   }
   
   @Override
   public void reset() throws IOException {
-    extentArray = new ExtentArray();
-    startPosition = btreeIter.getValueStart();
-    endPosition = btreeIter.getValueEnd();
     currentDocument = 0;
     currentCount = 0;
     extentArray.reset();
     extentsLoaded = true;
     done = false;
-    initialize();
   }
   
   /**
@@ -93,9 +101,10 @@ public class StreamExtentSource extends BTreeValueSource implements ExtentSource
       maximumPositionCount = Integer.MAX_VALUE;
     }
     if ((options & HAS_SKIPS) == HAS_SKIPS) {
-      skipDistance = stream.readInt();
-      skipResetDistance = stream.readInt();
-      numSkips = stream.readLong();
+      skip = new SkipState();
+      skip.distance = stream.readInt();
+      skip.resetDistance = stream.readInt();
+      skip.total = stream.readLong();
     }
     // segment lengths
     long documentByteLength = stream.readLong();
@@ -122,18 +131,17 @@ public class StreamExtentSource extends BTreeValueSource implements ExtentSource
       long skipPositionsStart = skipsStart + skipsByteLength;
       long skipPositionsEnd = skipPositionsStart + skipPositionsByteLength;
       assert skipPositionsEnd == endPosition - startPosition;
-      skips = new VByteInput(btreeIter.getSubValueStream(skipsStart, skipsByteLength));
-      skipPositionsStream = btreeIter.getSubValueStream(skipPositionsStart, skipPositionsByteLength);
-      skipPositions = new VByteInput(skipPositionsStream);
+      skip.data = new VByteInput(btreeIter.getSubValueStream(skipsStart, skipsByteLength));
+      skip.positionsStream = btreeIter.getSubValueStream(skipPositionsStart, skipPositionsByteLength);
+      skip.positions = new VByteInput(skipPositionsStream);
       // load up
-      nextSkipDocument = skips.readInt();
+      skip.nextDocument = skip.data.readInt();
       documentsByteFloor = 0;
       countsByteFloor = 0;
       positionsByteFloor = 0;
     } else {
       assert positionsEnd == endPosition - startPosition;
-      skips = null;
-      skipPositions = null;
+      skip = null;
     }
     documentIndex = 0;
     extentsLoaded = true; // Not really, but this keeps it from reading ahead too soon.
@@ -213,14 +221,14 @@ public class StreamExtentSource extends BTreeValueSource implements ExtentSource
 
   @Override
   public void syncTo(int document) throws IOException {
-     if (skips != null) {
+     if (skip != null) {
       synchronizeSkipPositions();
     }
-    if (skips != null && document > nextSkipDocument) {
+    if (skip != null && document > skip.nextDocument) {
       extentsLoaded = true;
-      extentsByteSize = 0;
+      extentsByteSize = 0; 
       // if we're here, we're skipping
-      while (skipsRead < numSkips && document > nextSkipDocument) {
+      while (skip.read < skip.total && document > skip.nextDocument) {
         skipOnce();
       }
       repositionMainStreams();
@@ -239,7 +247,7 @@ public class StreamExtentSource extends BTreeValueSource implements ExtentSource
    * If we called "next" a lot, these may be out of sync.
    */
   private void synchronizeSkipPositions() throws IOException {
-    while (nextSkipDocument <= currentDocument) {
+    while (skip.nextDocument <= currentDocument) {
       int cd = currentDocument;
       skipOnce();
       currentDocument = cd;
@@ -251,41 +259,41 @@ public class StreamExtentSource extends BTreeValueSource implements ExtentSource
    * needed to update floors
    */
   private void skipOnce() throws IOException {
-    assert skipsRead < numSkips;
-    long currentSkipPosition = lastSkipPosition + skips.readInt();
-    if (skipsRead % skipResetDistance == 0) {
+    assert skip.read < skip.total;
+    long currentSkipPosition = skip.nextPosition + skip.data.readInt();
+    if (skip.read % skip.resetDistance == 0) {
       // Position the skip positions stream
-      skipPositionsStream.seek(currentSkipPosition);
+      skip.positionsStream.seek(currentSkipPosition);
       // now set the floor values
-      documentsByteFloor = skipPositions.readInt();
-      countsByteFloor = skipPositions.readInt();
-      positionsByteFloor = skipPositions.readLong();
+      documentsByteFloor = skip.positions.readInt();
+      countsByteFloor = skip.positions.readInt();
+      positionsByteFloor = skip.positions.readLong();
     }
-    currentDocument = (int) nextSkipDocument;
+    currentDocument = (int) skip.nextDocument;
     // May be at the end of the buffer
-    if (skipsRead + 1 == numSkips) {
-      nextSkipDocument = Integer.MAX_VALUE;
+    if (skip.read + 1 == skip.total) {
+      skip.nextDocument = Integer.MAX_VALUE;
     } else {
-      nextSkipDocument += skips.readInt();
+      skip.nextDocument += skip.data.readInt();
     }
-    skipsRead++;
-    lastSkipPosition = currentSkipPosition;
+    skip.read++;
+    skip.nextPosition = currentSkipPosition;
   }
   
   
   private void repositionMainStreams() throws IOException {
     // If we just reset the floors, don't read the 2nd tier again
-    if ((skipsRead - 1) % skipResetDistance == 0) {
+    if ((skip.read - 1) % skip.resetDistance == 0) {
       documentsStream.seek(documentsByteFloor);
       countsStream.seek(countsByteFloor);
       positionsStream.seek(positionsByteFloor);
     } else {
-      skipPositionsStream.seek(lastSkipPosition);
-      documentsStream.seek(documentsByteFloor + skipPositions.readInt());
-      countsStream.seek(countsByteFloor + skipPositions.readInt());
-      positionsStream.seek(positionsByteFloor + skipPositions.readLong());
+      skip.positionsStream.seek(skip.nextPosition);
+      documentsStream.seek(documentsByteFloor + skip.positions.readInt());
+      countsStream.seek(countsByteFloor + skip.positions.readInt());
+      positionsStream.seek(positionsByteFloor + skip.positions.readLong());
     }
-    documentIndex = (int) (skipDistance * skipsRead) - 1;
+    documentIndex = (int) (skip.distance * skip.read) - 1;
   }
 
 
