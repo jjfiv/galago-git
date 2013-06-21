@@ -19,7 +19,7 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-package kba;
+package org.lemurproject.galago.contrib.parse.kba;
 
 import java.nio.ByteBuffer;
 import java.util.BitSet;

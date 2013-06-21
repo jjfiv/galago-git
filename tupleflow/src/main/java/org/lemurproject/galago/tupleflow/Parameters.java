@@ -491,9 +491,8 @@ public class Parameters implements Serializable {
   }
 
   /**
-   * Ensures items are not shared across parameter objects
-   *  -- identical keys can be overwritten
-   *  -- Backoff parameters are copied. 
+   * Ensures items are not shared across parameter objects -- identical keys can
+   * be overwritten -- Backoff parameters are copied.
    */
   public void copyFrom(Parameters other) {
     try {
@@ -506,9 +505,8 @@ public class Parameters implements Serializable {
   }
 
   /**
-   * To ensure items are not shared across parameter objects
-   *  -- identical keys will be overwritten
-   *  -- Backoff parameters are copied. 
+   * To ensure items are not shared across parameter objects -- identical keys
+   * will be overwritten -- Backoff parameters are copied.
    */
   public void copyTo(Parameters other) {
     try {
@@ -681,6 +679,18 @@ public class Parameters implements Serializable {
       return _backoff.getString(key);
     } else {
       throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
+    }
+  }
+
+  public Parameters get(String key, Parameters def) {
+    if (_keys.containsKey(key)) {
+      if (_keys.get(key).equals(Type.MAP)) {
+        return (Parameters) _objects.get(key);
+      } else {
+        throw new IllegalArgumentException("Key " + key + " does not exist as Map in parameters object, instead found " + _keys.get(key));
+      }
+    } else {
+      return def;
     }
   }
 
@@ -862,7 +872,7 @@ public class Parameters implements Serializable {
   public void set(String key, double value) {
     if (_keys.containsKey(key) && _keys.get(key) != Type.DOUBLE) {
       if (_keys.get(key) == Type.LONG) {
-        // auto cast from long to double -- remove existing value.        
+        // auto cast from long to double -- remove existing value.
         remove(key);
       } else {
         throw new IllegalArgumentException(String.format("Tried to put key '%s' as Double, is %s\n",
@@ -892,15 +902,15 @@ public class Parameters implements Serializable {
 
   /**
    * Overrides current backoff with this object.
-   * 
-   * @param backoff 
+   *
+   * @param backoff
    */
   public void setBackoff(Parameters backoff) {
     this._backoff = backoff;
   }
 
   public void setFinalBackoff(Parameters backoff) {
-    if(_backoff == null){
+    if (_backoff == null) {
       this._backoff = backoff;
     } else {
       this._backoff.setFinalBackoff(backoff);
@@ -908,8 +918,8 @@ public class Parameters implements Serializable {
   }
 
   /**
-   * WARNING: does not delete keys from backoff
-   *  -- manually getBackoff, and delete from there if necessary (?)
+   * WARNING: does not delete keys from backoff -- manually getBackoff, and
+   * delete from there if necessary (?)
    */
   public boolean remove(String key) {
     if (!_keys.containsKey(key)) {
@@ -1112,13 +1122,12 @@ public class Parameters implements Serializable {
   public String toPrettyString(String prefix) {
     return toPrettyString(this, prefix);
   }
-  
-  // PRIVATE FUNCTIONS
 
+  // PRIVATE FUNCTIONS
   private static String toPrettyString(Object val, String prefix) {
     if (val == null) {
       return "null";
-      
+
     } else if (List.class.isAssignableFrom(val.getClass())) {
       StringBuilder builder = new StringBuilder();
       builder.append("[ ");
@@ -1178,7 +1187,7 @@ public class Parameters implements Serializable {
 
       builder.append("\n").append(prefix).append("}");
       return builder.toString();
-      
+
     } else if (String.class.isAssignableFrom(val.getClass())) {
       return "\"" + val + "\"";
 
@@ -1208,10 +1217,10 @@ public class Parameters implements Serializable {
 
       builder.append(" ]");
       return builder.toString();
-    
+
     } else if (Parameters.class.isAssignableFrom(val.getClass())) {
       return val.toString();
-    
+
     } else if (String.class.isAssignableFrom(val.getClass())) {
       return "\"" + val + "\"";
 
@@ -1222,7 +1231,7 @@ public class Parameters implements Serializable {
   }
 
   /**
-   * Parsing functions : 
+   * Parsing functions :
    */
   private static Type determineType(String s) {
     if (Pattern.matches("true|false", s)) {

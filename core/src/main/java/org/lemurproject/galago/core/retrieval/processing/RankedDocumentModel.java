@@ -60,9 +60,6 @@ public class RankedDocumentModel extends ProcessingModel {
             scoredDocument.annotation = iterator.getAnnotatedNode();
           }
           queue.offer(scoredDocument);
-          // if (requested > 0 && queue.size() > requested) {
-            //queue.poll();
-          // }
         }
       }
       iterator.movePast(document);

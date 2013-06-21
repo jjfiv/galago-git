@@ -417,12 +417,12 @@ public class Job implements Serializable {
         builder.append(connectionHeader);
       }
 
-        String inputEndPointString = String.format(
-                "            <input stage=\"%s\"         \n"
-                + "                   endpoint=\"%s\" />   \n",
-                connection.input.getStageName(),
-                connection.input.getPointName());
-        builder.append(inputEndPointString);
+      String inputEndPointString = String.format(
+              "            <input stage=\"%s\"         \n"
+              + "                   endpoint=\"%s\" />   \n",
+              connection.input.getStageName(),
+              connection.input.getPointName());
+      builder.append(inputEndPointString);
 
       for (ConnectionEndPoint point : connection.outputs) {
         String endPointString = String.format(

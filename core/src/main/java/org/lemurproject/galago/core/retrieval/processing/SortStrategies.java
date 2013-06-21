@@ -29,9 +29,14 @@ public class SortStrategies {
 
   public static void currentCandidateSort(ArrayList<Sentinel> s) {
     Collections.sort(s, new Comparator<Sentinel>() {
+
       public int compare(Sentinel s1, Sentinel s2) {
-        if (s2.iterator.isDone()) return -1;
-        if (s1.iterator.isDone()) return 1;
+        if (s2.iterator.isDone()) {
+          return -1;
+        }
+        if (s1.iterator.isDone()) {
+          return 1;
+        }
         return (s1.iterator.currentCandidate() - s2.iterator.currentCandidate());
       }
     });
@@ -75,21 +80,21 @@ public class SortStrategies {
     ArrayList<Sentinel> s = new ArrayList<Sentinel>(ctx.scorers.size());
     double max = ctx.startingPotential;
     for (DeltaScoringIterator dsi : ctx.scorers) {
-	if (useMaximums) {
-	    ctx.runningScore = ctx.startingPotential;
-	    System.arraycopy(ctx.startingPotentials, 0, ctx.potentials, 0,
-			     ctx.startingPotentials.length);
-	    dsi.maximumDifference();
-	    s.add(new Sentinel(dsi, max - ctx.runningScore));
-	} else {
-	    s.add(new Sentinel(dsi, dsi.minimumScore()));
-	}
+      if (useMaximums) {
+        ctx.runningScore = ctx.startingPotential;
+        System.arraycopy(ctx.startingPotentials, 0, ctx.potentials, 0,
+                ctx.startingPotentials.length);
+        dsi.maximumDifference();
+        s.add(new Sentinel(dsi, max - ctx.runningScore));
+      } else {
+        s.add(new Sentinel(dsi, dsi.minimumScore()));
+      }
     }
     return s;
   }
 
   public static ArrayList<Sentinel> populateIndependentSentinels(EarlyTerminationScoringContext ctx) {
-      return populateIndependentSentinels(ctx, true);
+    return populateIndependentSentinels(ctx, true);
   }
 
   public static ArrayList<Sentinel> populateDependentSentinels(EarlyTerminationScoringContext ctx) {
@@ -169,5 +174,4 @@ public class SortStrategies {
     s.addAll(remaining);
     return s;
   }
-
 }
