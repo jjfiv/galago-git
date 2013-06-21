@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.BTreeValueIterator;
-import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
