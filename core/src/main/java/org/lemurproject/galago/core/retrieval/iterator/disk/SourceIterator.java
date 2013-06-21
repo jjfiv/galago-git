@@ -2,23 +2,24 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.lemurproject.galago.core.retrieval.iterator;
+package org.lemurproject.galago.core.retrieval.iterator.disk;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.DataSource;
-import org.lemurproject.galago.core.index.DiskIterator;
+import org.lemurproject.galago.core.index.source.DiskSource;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
  * This is the base abstract implementation of an Iterator that
- * wraps a DataSource.
+ *  wraps a DiskSource.
  * 
- * @author jfoley
+ * @author jfoley, sjh
  */
-public abstract class SourceIterator<T extends DataSource> extends DiskIterator {
-  protected T source = null;
+public abstract class SourceIterator extends DiskIterator {
+  protected DiskSource source = null;
   
-  public SourceIterator(T src) {
+  public SourceIterator(DiskSource src) {
     source = src;
   }
   

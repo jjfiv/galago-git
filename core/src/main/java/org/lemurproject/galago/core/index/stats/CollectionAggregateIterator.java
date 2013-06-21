@@ -9,5 +9,5 @@ package org.lemurproject.galago.core.index.stats;
  */
 public interface CollectionAggregateIterator {
 
-  public CollectionStatistics getStatistics();
+  public FieldStatistics getStatistics();
 }

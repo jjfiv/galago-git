@@ -18,7 +18,7 @@ import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.NamesReader;
-import org.lemurproject.galago.core.index.DiskIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
@@ -251,7 +251,7 @@ public class GeometricIndex implements DynamicIndex, Index {
     LengthsIterator i = (LengthsIterator) this.getLengthsIterator();
     i.syncTo(document);
     if (i.hasMatch(document)) {
-      return i.getCurrentLength();
+      return i.length();
     } else {
       throw new IOException("Could not find document identifier " + document);
     }

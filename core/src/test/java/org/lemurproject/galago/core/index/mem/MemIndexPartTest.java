@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.KeyIterator;
-import org.lemurproject.galago.core.index.DiskIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.disk.CountIndexReader;
 import org.lemurproject.galago.core.index.disk.CountIndexWriter;
 import org.lemurproject.galago.core.index.disk.SparseFloatListReader;

@@ -7,7 +7,7 @@ package org.lemurproject.galago.contrib.retrieval.traversal;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -167,7 +167,7 @@ public class PL2FTraversal extends Traversal {
     dfr.getNodeParameters().set("nodeFrequency", ns.nodeFrequency);
 
     // get global document count:
-    CollectionStatistics cs = retrieval.getCollectionStatistics("#lengths:part=lengths()");
+    FieldStatistics cs = retrieval.getCollectionStatistics("#lengths:part=lengths()");
     dfr.getNodeParameters().set("documentCount", cs.documentCount);
 
     // Now echo these values down to the leaves

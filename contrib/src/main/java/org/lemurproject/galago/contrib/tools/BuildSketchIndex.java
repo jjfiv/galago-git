@@ -11,12 +11,12 @@ import org.lemurproject.galago.contrib.hash.UniversalStringHashFunction;
 import org.lemurproject.galago.contrib.hash.WindowHasher;
 import org.lemurproject.galago.contrib.index.InvertedSketchIndexWriter;
 import org.lemurproject.galago.core.index.ExtractIndexDocumentNumbers;
-import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.core.tools.BuildStageTemplates;
+import org.lemurproject.galago.core.tools.apps.BuildStageTemplates;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.core.window.ReduceNumberWordCount;
@@ -98,7 +98,7 @@ public class BuildSketchIndex extends AppFunction {
 
     // determine the sketch index parameters here, and create HashFunctions
     LocalRetrieval r = new LocalRetrieval(indexPath, new Parameters());
-    CollectionStatistics collectionStatistics = r.getCollectionStatistics("#lengths:document:part=lengths()");
+    FieldStatistics collectionStatistics = r.getCollectionStatistics("#lengths:document:part=lengths()");
     long collectionLength = collectionStatistics.collectionLength;
     long universe = 256; // each array unit is a byte //    
 

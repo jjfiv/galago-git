@@ -3,6 +3,7 @@
  */
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskLengthsIterator;
 import java.io.File;
 import java.io.IOException;
 import junit.framework.TestCase;
@@ -52,7 +53,7 @@ public class DiskLengthsTest extends TestCase {
 
       KeyIterator ki = reader.getIterator();
 //      MemoryMapLengthsIterator memItr = ki.getMemoryValueIterator();
-      DiskLengthsReader.StreamLengthsIterator streamItr = ki.getStreamValueIterator();
+      DiskLengthsIterator streamItr = ki.getStreamValueIterator();
       
       ScoringContext sc = new ScoringContext();
 //      memItr.setContext(sc);
@@ -62,7 +63,7 @@ public class DiskLengthsTest extends TestCase {
 //        assertEquals(memItr.getCurrentIdentifier(), streamItr.getCurrentIdentifier());
 //        sc.document = memItr.getCurrentIdentifier();
 //        
-//        assertEquals(memItr.getCurrentLength(), streamItr.getCurrentLength());
+//        assertEquals(memItr.length(), streamItr.length());
 //
 //        memItr.movePast(memItr.currentCandidate());
 //        streamItr.movePast(streamItr.currentCandidate());
@@ -76,40 +77,40 @@ public class DiskLengthsTest extends TestCase {
       sc.document = 50;
 //      assertEquals(memItr.currentCandidate(), 50);
       assertEquals(streamItr.currentCandidate(), 50);
-//      assertEquals(memItr.getCurrentLength(), 51);
-      assertEquals(streamItr.getCurrentLength(), 51);
+//      assertEquals(memItr.length(), 51);
+      assertEquals(streamItr.length(), 51);
 
 //      memItr.syncTo(90);
       streamItr.syncTo(90);
       sc.document = 90;
 //      assertEquals(memItr.currentCandidate(), 90);
       assertEquals(streamItr.currentCandidate(), 90);
-//      assertEquals(memItr.getCurrentLength(), 91);
-      assertEquals(streamItr.getCurrentLength(), 91);
+//      assertEquals(memItr.length(), 91);
+      assertEquals(streamItr.length(), 91);
 
 //      memItr.syncTo(90);
       streamItr.syncTo(90);
       sc.document = 90;
 //      assertEquals(memItr.currentCandidate(), 90);
       assertEquals(streamItr.currentCandidate(), 90);
-//      assertEquals(memItr.getCurrentLength(), 91);
-      assertEquals(streamItr.getCurrentLength(), 91);
+//      assertEquals(memItr.length(), 91);
+      assertEquals(streamItr.length(), 91);
 
 //      memItr.syncTo(110);
       streamItr.syncTo(110);
       sc.document = 110;
 //      assertEquals(memItr.currentCandidate(), 110);
       assertEquals(streamItr.currentCandidate(), 110);
-//      assertEquals(memItr.getCurrentLength(), 111);
-      assertEquals(streamItr.getCurrentLength(), 111);
+//      assertEquals(memItr.length(), 111);
+      assertEquals(streamItr.length(), 111);
 
 //      memItr.syncTo(200);
       streamItr.syncTo(200);
       sc.document = 200;
 //      assertEquals(memItr.currentCandidate(), 110);
       assertEquals(streamItr.currentCandidate(), 110);
-//      assertEquals(memItr.getCurrentLength(), 0);
-      assertEquals(streamItr.getCurrentLength(), 0);
+//      assertEquals(memItr.length(), 0);
+      assertEquals(streamItr.length(), 0);
 
       reader.close();
 

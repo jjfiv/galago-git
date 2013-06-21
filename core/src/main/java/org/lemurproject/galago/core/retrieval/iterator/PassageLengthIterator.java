@@ -42,7 +42,7 @@ public class PassageLengthIterator extends TransformIterator implements LengthsI
   }
 
   @Override
-  public int getCurrentLength() {
+  public int length() {
     int begin, end;
 
     if (passContext != null && !lenCheck) {
@@ -51,11 +51,11 @@ public class PassageLengthIterator extends TransformIterator implements LengthsI
 
     } else if (passContext != null && lenCheck) {
       begin = passContext.begin;
-      end = Math.min(passContext.end, lengths.getCurrentLength());
+      end = Math.min(passContext.end, lengths.length());
 
     } else {
       begin = 0;
-      end = lengths.getCurrentLength();
+      end = lengths.length();
     }
 
     // sjh: this is possible - where the lengths are based on fields, and we are 'lenCheck'.
@@ -74,7 +74,7 @@ public class PassageLengthIterator extends TransformIterator implements LengthsI
     String parameters = this.np.toString();
     int document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
-    String returnValue = Integer.toString(this.getCurrentLength());
+    String returnValue = Integer.toString(this.length());
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

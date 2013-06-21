@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
@@ -158,7 +158,7 @@ public class FieldRelevanceModelTraversal extends Traversal {
 
       // First get all the term/field unnormalized statistics (creating a normalizer as we go)
       for (String field : fields) {
-        CollectionStatistics field_cs = retrieval.getCollectionStatistics("#lengths:"+field+":part=lengths()");
+        FieldStatistics field_cs = retrieval.getCollectionStatistics("#lengths:"+field+":part=lengths()");
         
         String partName = "field." + field;
         NodeParameters par1 = new NodeParameters();
@@ -192,7 +192,7 @@ public class FieldRelevanceModelTraversal extends Traversal {
 
       // First get all the term/field unnormalized statistics (creating a normalizer as we go)
       for (String field : fields) {
-        CollectionStatistics field_cs = retrieval.getCollectionStatistics("#lengths:"+field+":part=lengths()");
+        FieldStatistics field_cs = retrieval.getCollectionStatistics("#lengths:"+field+":part=lengths()");
 
         String partName = "field." + field;
 

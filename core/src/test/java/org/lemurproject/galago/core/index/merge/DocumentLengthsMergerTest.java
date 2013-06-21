@@ -93,7 +93,7 @@ public class DocumentLengthsMergerTest extends TestCase {
       iterator.setContext(sc);
       while (!iterator.isDone()) {
         sc.document = iterator.currentCandidate();
-        assert (iterator.currentCandidate() + 1 == iterator.getCurrentLength());
+        assert (iterator.currentCandidate() + 1 == iterator.length());
         iterator.movePast(iterator.currentCandidate());
       }
 
@@ -144,7 +144,7 @@ public class DocumentLengthsMergerTest extends TestCase {
       iterator.setContext(sc);
       while (!iterator.isDone()) {
         sc.document = iterator.currentCandidate();
-        assert (sc.document + 1 == iterator.getCurrentLength());
+        assert (sc.document + 1 == iterator.length());
         iterator.movePast(sc.document);
       }
 

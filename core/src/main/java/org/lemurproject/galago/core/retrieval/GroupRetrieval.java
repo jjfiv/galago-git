@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
@@ -120,12 +120,12 @@ public class GroupRetrieval implements Retrieval {
   }
 
   @Override
-  public CollectionStatistics getCollectionStatistics(String nodeString) throws Exception {
+  public FieldStatistics getCollectionStatistics(String nodeString) throws Exception {
     return groups.get(defGroup).getCollectionStatistics(nodeString);
   }
 
   @Override
-  public CollectionStatistics getCollectionStatistics(Node node) throws Exception {
+  public FieldStatistics getCollectionStatistics(Node node) throws Exception {
     return groups.get(defGroup).getCollectionStatistics(node);
   }
 
@@ -205,11 +205,11 @@ public class GroupRetrieval implements Retrieval {
     return groups.get(group).getIndexPartStatistics(partName);
   }
 
-  public CollectionStatistics getCollectionStatistics(String nodeString, String group) throws Exception {
+  public FieldStatistics getCollectionStatistics(String nodeString, String group) throws Exception {
     return groups.get(group).getCollectionStatistics(nodeString);
   }
 
-  public CollectionStatistics getCollectionStatistics(Node node, String group) throws Exception {
+  public FieldStatistics getCollectionStatistics(Node node, String group) throws Exception {
     return groups.get(group).getCollectionStatistics(node);
   }
 

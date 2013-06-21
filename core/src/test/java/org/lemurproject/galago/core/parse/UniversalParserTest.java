@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
-import org.lemurproject.galago.core.tools.BuildIndex;
+import org.lemurproject.galago.core.tools.apps.BuildIndex;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -121,7 +121,7 @@ public class UniversalParserTest extends TestCase {
 
       Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), new Parameters());
 
-      CollectionStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
+      FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
       assertEquals(cs.collectionLength, 553);
       assertEquals(cs.documentCount, 32);
       assertEquals(cs.maxLength, 22);
@@ -164,7 +164,7 @@ public class UniversalParserTest extends TestCase {
 
       Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), new Parameters());
 
-      CollectionStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
+      FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
       assertEquals(cs.collectionLength, 129);
       assertEquals(cs.documentCount, 6);
       assertEquals(cs.maxLength, 22);
@@ -210,7 +210,7 @@ public class UniversalParserTest extends TestCase {
 
       Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), new Parameters());
 
-      CollectionStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
+      FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
       assertEquals(cs.collectionLength, 822);
       assertEquals(cs.documentCount, 41); 
       assertEquals(cs.maxLength, 22);

@@ -6,5 +6,5 @@ package org.lemurproject.galago.core.retrieval.iterator;
  * @author jfoley
  */
 public interface LengthsIterator extends BaseIterator {
-    public int getCurrentLength();
+    public int length();
 }

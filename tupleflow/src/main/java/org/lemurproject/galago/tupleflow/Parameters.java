@@ -491,9 +491,8 @@ public class Parameters implements Serializable {
   }
 
   /**
-   * Ensures items are not shared across parameter objects
-   *  -- identical keys can be overwritten
-   *  -- Backoff parameters are copied.
+   * Ensures items are not shared across parameter objects -- identical keys can
+   * be overwritten -- Backoff parameters are copied.
    */
   public void copyFrom(Parameters other) {
     try {
@@ -506,9 +505,8 @@ public class Parameters implements Serializable {
   }
 
   /**
-   * To ensure items are not shared across parameter objects
-   *  -- identical keys will be overwritten
-   *  -- Backoff parameters are copied.
+   * To ensure items are not shared across parameter objects -- identical keys
+   * will be overwritten -- Backoff parameters are copied.
    */
   public void copyTo(Parameters other) {
     try {
@@ -685,15 +683,15 @@ public class Parameters implements Serializable {
   }
 
   public Parameters get(String key, Parameters def) {
-      if (_keys.containsKey(key)) {
-	  if (_keys.get(key).equals(Type.MAP)) {
-	      return (Parameters) _objects.get(key);
-	  } else {
-	      throw new IllegalArgumentException("Key " + key + " does not exist as Map in parameters object, instead found " + _keys.get(key));
-	  }
+    if (_keys.containsKey(key)) {
+      if (_keys.get(key).equals(Type.MAP)) {
+        return (Parameters) _objects.get(key);
       } else {
-	  return def;
+        throw new IllegalArgumentException("Key " + key + " does not exist as Map in parameters object, instead found " + _keys.get(key));
       }
+    } else {
+      return def;
+    }
   }
 
   public String get(String key, String def) {
@@ -912,7 +910,7 @@ public class Parameters implements Serializable {
   }
 
   public void setFinalBackoff(Parameters backoff) {
-    if(_backoff == null){
+    if (_backoff == null) {
       this._backoff = backoff;
     } else {
       this._backoff.setFinalBackoff(backoff);
@@ -920,8 +918,8 @@ public class Parameters implements Serializable {
   }
 
   /**
-   * WARNING: does not delete keys from backoff
-   *  -- manually getBackoff, and delete from there if necessary (?)
+   * WARNING: does not delete keys from backoff -- manually getBackoff, and
+   * delete from there if necessary (?)
    */
   public boolean remove(String key) {
     if (!_keys.containsKey(key)) {
@@ -1126,7 +1124,6 @@ public class Parameters implements Serializable {
   }
 
   // PRIVATE FUNCTIONS
-
   private static String toPrettyString(Object val, String prefix) {
     if (val == null) {
       return "null";

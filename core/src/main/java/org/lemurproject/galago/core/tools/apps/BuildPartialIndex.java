@@ -14,7 +14,6 @@ import java.util.Set;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseReader.KeyIterator;
 import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.core.tools.BuildIndex;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Job;

@@ -9,7 +9,6 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Random;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.tools.BuildIndex;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 

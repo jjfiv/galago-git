@@ -9,7 +9,7 @@ import org.lemurproject.galago.core.util.ExtentArray;
  * arrays of extents, each of which is a position range (start - end), docid, and
  * weight.
  * 
- * @author trevor, irmarc
+ * @author trevor, irmarc, sjh
  */
 public interface ExtentIterator extends DataIterator<ExtentArray>, CountIterator {
     public ExtentArray extents();

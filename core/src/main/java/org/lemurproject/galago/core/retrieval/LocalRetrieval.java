@@ -14,7 +14,7 @@ import org.lemurproject.galago.core.index.NamesReader.NamesIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.stats.AggregateStatistic;
 import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
-import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
@@ -292,24 +292,24 @@ public class LocalRetrieval implements Retrieval {
   }
 
   @Override
-  public CollectionStatistics getCollectionStatistics(String nodeString) throws Exception {
+  public FieldStatistics getCollectionStatistics(String nodeString) throws Exception {
     // first parse the node
     Node root = StructuredQuery.parse(nodeString);
     return getCollectionStatistics(root);
   }
 
   @Override
-  public CollectionStatistics getCollectionStatistics(Node root) throws Exception {
+  public FieldStatistics getCollectionStatistics(Node root) throws Exception {
 
     String rootString = root.toString();
     if (cache!= null && cache.cacheStats) {
       AggregateStatistic stat = cache.getCachedStatistic(rootString);
-      if (stat != null && stat instanceof CollectionStatistics) {
-        return (CollectionStatistics) stat;
+      if (stat != null && stat instanceof FieldStatistics) {
+        return (FieldStatistics) stat;
       }
     }
 
-    CollectionStatistics s;
+    FieldStatistics s;
     ScoringContext sc = ContextFactory.createContext(globalParameters);
     BaseIterator structIterator = createIterator(new Parameters(), root, sc);
 
@@ -319,14 +319,14 @@ public class LocalRetrieval implements Retrieval {
 
     } else if (structIterator instanceof LengthsIterator) {
       LengthsIterator iterator = (LengthsIterator) structIterator;
-      s = new CollectionStatistics();
+      s = new FieldStatistics();
       s.fieldName = root.toString();
       s.minLength = Integer.MAX_VALUE;
 
       while (!iterator.isDone()) {
         sc.document = iterator.currentCandidate();
         if (iterator.hasMatch(iterator.currentCandidate())) {
-          int len = iterator.getCurrentLength();
+          int len = iterator.length();
           s.collectionLength += len;
           s.documentCount += 1;
           s.nonZeroLenDocCount += (len > 0) ? 1 : 0;

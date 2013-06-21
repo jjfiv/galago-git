@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -75,12 +75,12 @@ public class PRMS2Traversal extends Traversal {
       List<String> terms = getTextTerms(original.getInternalNodes());
 
       // collect some information about fields
-      Map<String, CollectionStatistics> fieldStats = new HashMap();
+      Map<String, FieldStatistics> fieldStats = new HashMap();
       Map<String, Node> fieldLenNodes = new HashMap();
 
       for (String field : fields) {
         Node fieldLen = StructuredQuery.parse("#lengths:" + field + ":part=lengths()");
-        CollectionStatistics fieldStat = retrieval.getCollectionStatistics(fieldLen);
+        FieldStatistics fieldStat = retrieval.getCollectionStatistics(fieldLen);
         fieldStats.put(field, fieldStat);
         fieldLenNodes.put(field, fieldLen);
       }

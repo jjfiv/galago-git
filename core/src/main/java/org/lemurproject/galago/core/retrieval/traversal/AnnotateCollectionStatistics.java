@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.io.IOException;
 import java.util.HashSet;
-import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -89,7 +89,7 @@ public class AnnotateCollectionStatistics extends Traversal {
       // extract field if possible:
       // use 'document' as the default context
       String field = node.getNodeParameters().get("lengths", "document");
-      CollectionStatistics stats = getCollectionStatistics(field, qp);
+      FieldStatistics stats = getCollectionStatistics(field, qp);
 
       if (reqStats.contains("collectionLength")
               && !nodeParams.containsKey("collectionLength")) {
@@ -132,7 +132,7 @@ public class AnnotateCollectionStatistics extends Traversal {
     }
   }
 
-  private CollectionStatistics getCollectionStatistics(String field, Parameters qp) throws Exception {
+  private FieldStatistics getCollectionStatistics(String field, Parameters qp) throws Exception {
     if (this.retrieval instanceof GroupRetrieval) {
       String group = qp.get("group", globalParameters.get("group", ""));
       group = qp.get("backgroundIndex", globalParameters.get("backgroundIndex", group));

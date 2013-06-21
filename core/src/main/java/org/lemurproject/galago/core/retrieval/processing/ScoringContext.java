@@ -63,7 +63,7 @@ public class ScoringContext {
           System.err.printf("Missing value for key %s.\n", pair.getKey());
         } else {
           pair.getValue().syncTo(position);
-          current.put(pair.getKey(), pair.getValue().getCurrentLength());
+          current.put(pair.getKey(), pair.getValue().length());
         }
       }
     } catch (IOException ioe) {

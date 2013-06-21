@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.retrieval;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
@@ -142,10 +142,10 @@ public interface Retrieval {
    * shortest document, average document. 
    *
    * @param nodeString
-   * @return CollectionStatistics
+   * @return FieldStatistics
    * @throws Exception
    */
-  public CollectionStatistics getCollectionStatistics(String nodeString) throws Exception;
+  public FieldStatistics getCollectionStatistics(String nodeString) throws Exception;
 
   /**
    * Returns statistics for a lengths node. This data is commonly used
@@ -159,10 +159,10 @@ public interface Retrieval {
    * 
    *
    * @param node
-   * @return CollectionStatistics
+   * @return FieldStatistics
    * @throws Exception
    */
-  public CollectionStatistics getCollectionStatistics(Node node) throws Exception;
+  public FieldStatistics getCollectionStatistics(Node node) throws Exception;
 
   /**
    * Returns collection statistics for a count node. This data is commonly used

@@ -9,7 +9,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author sjh
  */
-public class CollectionStatistics implements AggregateStatistic {
+public class FieldStatistics implements AggregateStatistic {
 
     private static final long serialVersionUID = 6553653651892088433L;
     // 'document', 'field', or passage label
@@ -28,10 +28,10 @@ public class CollectionStatistics implements AggregateStatistic {
     public double avgLength = 0;
     public long nonZeroLenDocCount = 0;
 
-    public CollectionStatistics() {
+    public FieldStatistics() {
     }
 
-    public void add(CollectionStatistics other) {
+    public void add(FieldStatistics other) {
       this.collectionLength += other.collectionLength;
       this.documentCount += other.documentCount;
       this.nonZeroLenDocCount += other.nonZeroLenDocCount;

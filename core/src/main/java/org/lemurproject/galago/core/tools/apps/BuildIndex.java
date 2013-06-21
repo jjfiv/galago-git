@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.tools;
+package org.lemurproject.galago.core.tools.apps;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -23,6 +23,7 @@ import org.lemurproject.galago.core.parse.NumberedPostingsPositionExtractor;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.NullStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
+import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.types.FieldNumberWordPosition;

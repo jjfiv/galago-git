@@ -82,11 +82,11 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
       int currentIdentifier = iterator.currentCandidate();
       sc.document = currentIdentifier;
       this.currentDocument = mapping.map(indexId, currentIdentifier);
-      this.currentLength = iterator.getCurrentLength();
+      this.currentLength = iterator.length();
     }
 
     public int getLength() {
-      return iterator.getCurrentLength();
+      return iterator.length();
     }
 
     public boolean isDone() {

@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.retrieval.traversal;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
@@ -80,12 +80,12 @@ public class FakeRetrieval implements Retrieval {
   }
 
   @Override
-  public CollectionStatistics getCollectionStatistics(String nodeString) throws Exception {
+  public FieldStatistics getCollectionStatistics(String nodeString) throws Exception {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
   @Override
-  public CollectionStatistics getCollectionStatistics(Node node) throws Exception {
+  public FieldStatistics getCollectionStatistics(Node node) throws Exception {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 

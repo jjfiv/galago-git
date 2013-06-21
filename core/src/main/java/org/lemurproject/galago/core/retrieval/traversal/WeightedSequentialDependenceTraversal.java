@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;
@@ -35,9 +35,9 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class WeightedSequentialDependenceTraversal extends Traversal {
 
-  CollectionStatistics collStats;
-  CollectionStatistics wikiStats;
-  CollectionStatistics msnStats;
+  FieldStatistics collStats;
+  FieldStatistics wikiStats;
+  FieldStatistics msnStats;
   IndexPartStatistics wikiPartStats;
   IndexPartStatistics msnPartStats;
   IndexPartStatistics google1PartStats;

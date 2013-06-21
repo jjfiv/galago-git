@@ -14,9 +14,9 @@ import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
-import org.lemurproject.galago.core.index.DiskIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
-import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
@@ -134,7 +134,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     while (!iterator.isDone()) {
       int identifier = ((LengthsIterator) iterator).currentCandidate();
-      int length = ((LengthsIterator) iterator).getCurrentLength();
+      int length = ((LengthsIterator) iterator).length();
       fieldLengths.add(identifier, length);
 
       iterator.movePast(identifier);
@@ -237,7 +237,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     while (!fields.isDone()) {
       fieldLengths = (FieldLengthsIterator) fields.getValueIterator();
       while (!fieldLengths.isDone()) {
-        ld = new FieldLengthData(Utility.fromString(fieldLengths.getKeyString()), fieldLengths.currentCandidate(), fieldLengths.getCurrentLength());
+        ld = new FieldLengthData(Utility.fromString(fieldLengths.getKeyString()), fieldLengths.currentCandidate(), fieldLengths.length());
         writer.process(ld);
         fieldLengths.movePast(fieldLengths.currentCandidate());
       }
@@ -397,7 +397,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     @Override
     public String getValueString() throws IOException {
-      return this.getKeyString() + "," + this.currentCandidate() + "," + this.getCurrentLength();
+      return this.getKeyString() + "," + this.currentCandidate() + "," + this.length();
     }
 
     @Override
@@ -407,7 +407,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       String parameters = this.getKeyString();
       int document = currentCandidate();
       boolean atCandidate = hasMatch(this.context.document);
-      String returnValue = Integer.toString(getCurrentLength());
+      String returnValue = Integer.toString(length());
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
@@ -429,11 +429,11 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     @Override
     public int count() {
-      return this.getCurrentLength();
+      return this.length();
     }
 
     @Override
-    public int getCurrentLength() {
+    public int length() {
       try {
         return this.fieldLengths.getLength(currDoc);
       } catch (IOException ex) {
@@ -443,8 +443,8 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     @Override
-    public CollectionStatistics getStatistics() {
-      CollectionStatistics cs = new CollectionStatistics();
+    public FieldStatistics getStatistics() {
+      FieldStatistics cs = new FieldStatistics();
       cs.fieldName = Utility.toString(this.fieldLengths.fieldName.getBytes());
       cs.collectionLength = this.fieldLengths.collectionLength;
       cs.documentCount = this.fieldLengths.totalDocumentCount;

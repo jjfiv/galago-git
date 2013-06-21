@@ -69,7 +69,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
     if (iterator.currentCandidate() == context.document) {
       count = ((CountIterator) iterator).count();
     }
-    double score = function.score(count, this.lengthsIterator.getCurrentLength());
+    double score = function.score(count, this.lengthsIterator.length());
     score = (score > 0.0) ? score : min; // MY smoothing.
     return score;
   }
@@ -130,7 +130,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
       count = ((CountIterator) iterator).count();
     }
 
-    double score = function.score(count, lengthsIterator.getCurrentLength());
+    double score = function.score(count, lengthsIterator.length());
     score = (score > 0.0) ? score : min; // MY smoothing again
     double phi = ctx.potentials[parentIdx];
     double psi = phi + (weight * (score - max));

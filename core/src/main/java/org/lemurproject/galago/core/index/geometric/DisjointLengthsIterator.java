@@ -24,9 +24,9 @@ public class DisjointLengthsIterator extends DisjointIndexesIterator implements 
   }
 
   @Override
-  public int getCurrentLength() {
+  public int length() {
     if (head != null) {
-      return ((LengthsIterator) this.head).getCurrentLength();
+      return ((LengthsIterator) this.head).length();
     } else {
       throw new RuntimeException("Lengths Iterator is done.");
     }
@@ -39,7 +39,7 @@ public class DisjointLengthsIterator extends DisjointIndexesIterator implements 
     String parameters = "";
     int document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
-    String returnValue = Integer.toString(getCurrentLength());
+    String returnValue = Integer.toString(length());
     List<AnnotatedNode> children = new ArrayList();
     for (BaseIterator child : this.allIterators) {
       children.add(child.getAnnotatedNode());

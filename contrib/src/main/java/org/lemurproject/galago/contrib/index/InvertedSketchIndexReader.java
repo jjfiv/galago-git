@@ -19,7 +19,7 @@ import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.DiskIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
@@ -116,9 +116,6 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
 
   @Override
   public DiskIterator getIterator(Node node) throws IOException {
-    if (node.getOperator().equals("counts")) {
-      return getTermCounts(node.getDefaultParameter());
-    }
     return null;
   }
 

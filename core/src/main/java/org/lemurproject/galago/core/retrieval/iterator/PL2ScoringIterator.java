@@ -59,7 +59,7 @@ public class PL2ScoringIterator extends TransformIterator implements ScoreIterat
       return 0;
     }
 
-    double docLength = lengths.getCurrentLength();
+    double docLength = lengths.length();
     double TF = tf * log2(1.0 + (c * averageDocumentLength) / docLength);
     double NORM = 1.0 / (TF + 1.0);
     double f = nodeFrequency / documentCount;

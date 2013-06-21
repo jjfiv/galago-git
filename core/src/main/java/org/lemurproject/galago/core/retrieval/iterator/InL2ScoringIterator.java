@@ -57,7 +57,7 @@ public class InL2ScoringIterator extends TransformIterator implements ScoreItera
       return 0;
     }
 
-    double docLength = lengths.getCurrentLength();
+    double docLength = lengths.length();
     double TFN = tf * log2(1.0 + (c * averageDocumentLength) / docLength);
     double NORM = 1.0 / (TFN + 1.0);
     

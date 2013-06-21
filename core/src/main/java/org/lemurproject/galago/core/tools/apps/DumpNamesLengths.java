@@ -52,7 +52,7 @@ public class DumpNamesLengths extends AppFunction {
       lengthsItr.syncTo(docId);
       int docLen = 0;
       if (lengthsItr.currentCandidate() == docId) {
-        docLen = lengthsItr.getCurrentLength();
+        docLen = lengthsItr.length();
       }
 
       if ((docLen == 0) && p.get("zeros", true)) {

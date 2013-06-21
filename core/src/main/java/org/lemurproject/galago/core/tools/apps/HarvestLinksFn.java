@@ -16,7 +16,6 @@ import org.lemurproject.galago.core.links.LinkExtractor;
 import org.lemurproject.galago.core.links.UrlExtractor;
 import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.core.tools.BuildStageTemplates;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.core.types.ExtractedLink;

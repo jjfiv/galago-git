@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.LengthsReader;
-import org.lemurproject.galago.core.index.DiskIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader.WindowExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
@@ -39,7 +39,7 @@ public class FieldLengthsReader implements LengthsReader {
     LengthIterator li = (LengthIterator) getLengthsIterator();
     li.syncTo(document);
     if (li.hasMatch(document)) {
-      return li.getCurrentLength();
+      return li.length();
     } else {
       return 0;
     }
@@ -111,7 +111,7 @@ public class FieldLengthsReader implements LengthsReader {
     }
 
     @Override
-    public int getCurrentLength() {
+    public int length() {
       if (length < 0) {
         length = 0;
         // extentsIterator should check context for the document id.
@@ -188,7 +188,7 @@ public class FieldLengthsReader implements LengthsReader {
       String parameters = "";
       int document = currentCandidate();
       boolean atCandidate = hasMatch(this.context.document);
-      String returnValue = Integer.toString(getCurrentLength());
+      String returnValue = Integer.toString(length());
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

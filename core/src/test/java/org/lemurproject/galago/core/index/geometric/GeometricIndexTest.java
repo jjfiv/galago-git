@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Random;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.NamesReader;
-import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 
@@ -61,7 +61,7 @@ public class GeometricIndexTest extends TestCase {
 
       assertEquals(index.globalDocumentCount, 255);
 
-      CollectionStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
+      FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
       assertEquals(cs.collectionLength, 1275);
       assertEquals(cs.documentCount, 255);
       assertEquals(cs.maxLength, 5);
@@ -97,11 +97,11 @@ public class GeometricIndexTest extends TestCase {
       lengths.syncTo(99);
       sc.document = 99;
       assertEquals(lengths.currentCandidate(), 99);
-      assertEquals(lengths.getCurrentLength(), 5);
+      assertEquals(lengths.length(), 5);
       lengths.movePast(99);
       sc.document = lengths.currentCandidate();
       assertEquals(lengths.currentCandidate(), 100);
-      assertEquals(lengths.getCurrentLength(), 5);
+      assertEquals(lengths.length(), 5);
 
       Node q1 = StructuredQuery.parse("#counts:sample:part=postings()");
       CountIterator ci1 = (CountIterator) index.getIterator(q1);

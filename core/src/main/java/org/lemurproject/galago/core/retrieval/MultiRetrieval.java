@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
@@ -290,17 +290,17 @@ public class MultiRetrieval implements Retrieval {
   }
 
   @Override
-  public CollectionStatistics getCollectionStatistics(String nodeString) throws Exception {
+  public FieldStatistics getCollectionStatistics(String nodeString) throws Exception {
     Node root = StructuredQuery.parse(nodeString);
     return getCollectionStatistics(root);
   }
 
   @Override
-  public CollectionStatistics getCollectionStatistics(Node node) throws Exception {
+  public FieldStatistics getCollectionStatistics(Node node) throws Exception {
 
     ArrayList<Thread> threads = new ArrayList();
     final Node root = node;
-    final List<CollectionStatistics> stats = Collections.synchronizedList(new ArrayList());
+    final List<FieldStatistics> stats = Collections.synchronizedList(new ArrayList());
     final List<String> errors = Collections.synchronizedList(new ArrayList());
 
     for (int i = 0; i < this.retrievals.size(); i++) {
@@ -309,7 +309,7 @@ public class MultiRetrieval implements Retrieval {
         @Override
         public void run() {
           try {
-            CollectionStatistics ns = r.getCollectionStatistics(root);
+            FieldStatistics ns = r.getCollectionStatistics(root);
             stats.add(ns);
           } catch (Exception ex) {
             errors.add(ex.getMessage());
@@ -332,8 +332,8 @@ public class MultiRetrieval implements Retrieval {
       throw new IOException("Unable to count " + node.toString());
     }
 
-    CollectionStatistics output = stats.remove(0);
-    for (CollectionStatistics s : stats) {
+    FieldStatistics output = stats.remove(0);
+    for (FieldStatistics s : stats) {
       output.add(s);
     }
     return output;

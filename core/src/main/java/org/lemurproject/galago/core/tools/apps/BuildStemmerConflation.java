@@ -1,7 +1,7 @@
 /*
  *  BSD License (http://www.galagosearch.org/license)
  */
-package org.lemurproject.galago.core.tools;
+package org.lemurproject.galago.core.tools.apps;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.parse.stem.ConflationExtractor;
 import org.lemurproject.galago.core.parse.stem.ConflationReducer;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
+import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.Parameters;

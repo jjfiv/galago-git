@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
-import org.lemurproject.galago.core.index.stats.CollectionStatistics;
+import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.Retrieval;
@@ -48,7 +48,7 @@ public class MemoryIndexTest extends TestCase {
     }
 
     CollectionAggregateIterator lengthsIterator = (CollectionAggregateIterator) index.getLengthsIterator();
-    CollectionStatistics collStats = lengthsIterator.getStatistics();
+    FieldStatistics collStats = lengthsIterator.getStatistics();
     assertEquals(collStats.collectionLength, 1000);
     assertEquals(collStats.documentCount, 200);
     assertEquals(collStats.fieldName, "document");
@@ -112,7 +112,7 @@ public class MemoryIndexTest extends TestCase {
       (new FlushToDisk()).flushMemoryIndex(index, output.getAbsolutePath(), false);
 
       Retrieval r = RetrievalFactory.instance(output.getAbsolutePath(), new Parameters());
-      CollectionStatistics collStats = r.getCollectionStatistics("#lengths:part=lengths()");
+      FieldStatistics collStats = r.getCollectionStatistics("#lengths:part=lengths()");
       assertEquals(collStats.collectionLength, 1000);
       assertEquals(collStats.documentCount, 200);
       assertEquals(collStats.fieldName, "document");

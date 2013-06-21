@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.index.geometric;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.PriorityQueue;
-import org.lemurproject.galago.core.index.DiskIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.Utility;
