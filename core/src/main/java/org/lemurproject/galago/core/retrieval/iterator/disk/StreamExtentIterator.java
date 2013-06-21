@@ -1,10 +1,10 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.index.disk;
+package org.lemurproject.galago.core.retrieval.iterator.disk;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
+import org.lemurproject.galago.core.index.disk.StreamExtentSource;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
@@ -12,7 +12,6 @@ import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.SourceIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.util.ExtentArray;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -20,8 +19,8 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class StreamExtentIterator extends SourceIterator<StreamExtentSource> implements NodeAggregateIterator, CountIterator, ExtentIterator {
 
-  StreamExtentIterator(BTreeIterator it) throws IOException {
-    super(new StreamExtentSource(it));
+  public StreamExtentIterator(StreamExtentSource src) throws IOException {
+    super(src);
   }
   
   @Override
@@ -46,8 +45,7 @@ public class StreamExtentIterator extends SourceIterator<StreamExtentSource> imp
     int document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = extents().toString();
-    List<AnnotatedNode> children = Collections.EMPTY_LIST;
-    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, Collections.EMPTY_LIST);
   }
 
   @Override
@@ -62,10 +60,7 @@ public class StreamExtentIterator extends SourceIterator<StreamExtentSource> imp
 
   @Override
   public int count() {   
-    if(!source.isDone() && context.document == currentCandidate()) {
-      return (int) source.count(context.document);
-    }
-    return 0;
+    return (int) source.count(context.document);
   }
 
   @Override

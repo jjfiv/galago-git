@@ -3,6 +3,7 @@
  */
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Collections;

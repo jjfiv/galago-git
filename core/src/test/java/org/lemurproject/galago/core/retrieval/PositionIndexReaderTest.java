@@ -17,7 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.TermCountIterator;
-import org.lemurproject.galago.core.index.disk.StreamExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.StreamExtentIterator;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;

@@ -9,7 +9,7 @@ import java.io.IOException;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.disk.TermCountIterator;
-import org.lemurproject.galago.core.index.disk.StreamExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.StreamExtentIterator;
 import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;

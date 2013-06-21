@@ -1,12 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.core.retrieval.iterator.disk.StreamExtentIterator;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.index.DiskIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
@@ -61,7 +62,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
   public StreamExtentIterator getTermExtents(byte[] term) throws IOException {
     BTreeReader.BTreeIterator iterator = reader.getIterator(term);
     if (iterator != null) {
-      return new StreamExtentIterator(iterator);
+      return new StreamExtentIterator(new StreamExtentSource(iterator));
     }
     return null;
   }
@@ -145,10 +146,14 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
       }
       return sb.toString();
     }
+    
+    public StreamExtentSource getValueSource() throws IOException {
+      return new StreamExtentSource(iterator);
+    }
 
     @Override
     public DiskIterator getValueIterator() throws IOException {
-      return new StreamExtentIterator(iterator);
+      return new StreamExtentIterator(getValueSource());
     }
 
     @Override

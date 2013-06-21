@@ -15,10 +15,10 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  *
  * @author jfoley
  */
-public class StreamExtentSource extends BTreeValueSource implements ExtentSource {
-  int documentCount;
-  int totalPositionCount;
-  int maximumPositionCount;
+final public class StreamExtentSource extends BTreeValueSource implements ExtentSource {
+  public int documentCount;
+  public int totalPositionCount;
+  public int maximumPositionCount;  
   private VByteInput documents;
   private VByteInput counts;
   private VByteInput positions;
@@ -54,7 +54,6 @@ public class StreamExtentSource extends BTreeValueSource implements ExtentSource
   // to support skipping
   private SkipState skip;
   
-  
   // Supports lazy-loading of extents
   private boolean extentsLoaded;
   private int inlineMinimum;
@@ -66,7 +65,7 @@ public class StreamExtentSource extends BTreeValueSource implements ExtentSource
     startPosition = btreeIter.getValueStart();
     endPosition = btreeIter.getValueEnd();
     extentArray = new ExtentArray();
-    initialize();
+    reset();
   }
   
   @Override
@@ -76,6 +75,7 @@ public class StreamExtentSource extends BTreeValueSource implements ExtentSource
     extentArray.reset();
     extentsLoaded = true;
     done = false;
+    initialize();
   }
   
   /**

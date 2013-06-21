@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.File;
 import java.util.Random;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.DiskIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;

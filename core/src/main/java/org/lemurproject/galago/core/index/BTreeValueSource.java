@@ -19,7 +19,6 @@ public abstract class BTreeValueSource implements DataSource {
   public BTreeValueSource(BTreeReader.BTreeIterator it) throws IOException {
     this.key = it.getKey();
     btreeIter = it;
-    reset();
   }
   
   @Override

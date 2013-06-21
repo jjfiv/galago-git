@@ -5,7 +5,7 @@ package org.lemurproject.galago.core.index.mem;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.index.IndexPartReader;
-import org.lemurproject.galago.core.index.DiskIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 
