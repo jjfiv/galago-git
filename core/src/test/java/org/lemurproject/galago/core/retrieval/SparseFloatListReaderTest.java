@@ -73,7 +73,7 @@ public class SparseFloatListReaderTest extends TestCase {
 
   public void testA() throws Exception {
     SparseFloatListReader instance = new SparseFloatListReader(tempPath.toString());
-    SparseFloatListReader.ListIterator iter = (SparseFloatListReader.ListIterator) instance.getIterator(new Node("scores", "a"));
+    ScoreIterator iter = (ScoreIterator) instance.getIterator(new Node("scores", "a"));
     assertFalse(iter.isDone());
     int i;
     ScoringContext context = new ScoringContext();
@@ -97,7 +97,7 @@ public class SparseFloatListReaderTest extends TestCase {
 
   public void testB() throws Exception {
     SparseFloatListReader instance = new SparseFloatListReader(tempPath.toString());
-    SparseFloatListReader.ListIterator iter = (SparseFloatListReader.ListIterator) instance.getIterator(new Node("scores", "b"));
+    ScoreIterator iter = (ScoreIterator) instance.getIterator(new Node("scores", "b"));
     int i;
 
     assertFalse(iter.isDone());

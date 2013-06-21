@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -38,19 +39,19 @@ public class SparseFloatListReader extends KeyListReader {
     return new KeyIterator(reader);
   }
 
-  public ListIterator getListIterator() throws IOException {
-    return new ListIterator(reader.getIterator(), defaultScore);
+  public DiskScoreIterator getListIterator() throws IOException {
+    return new DiskScoreIterator(new SparseFloatListSource(reader.getIterator(), defaultScore));
   }
 
-  private ListIterator getScores(String term, double defaultScore) throws IOException {
+  private DiskScoreIterator getScores(String term, double defaultScore) throws IOException {
     BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
-    return new ListIterator(iterator, defaultScore);
+    return new DiskScoreIterator(new SparseFloatListSource(iterator, defaultScore));
   }
 
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> nodeTypes = new HashMap<String, NodeType>();
-    nodeTypes.put("scores", new NodeType(ListIterator.class));
+    nodeTypes.put("scores", new NodeType(DiskScoreIterator.class));
     return nodeTypes;
   }
 
@@ -72,10 +73,10 @@ public class SparseFloatListReader extends KeyListReader {
 
     @Override
     public String getValueString() {
-      ListIterator it;
+      ScoreIterator it;
       long count = -1;
       try {
-        it = new ListIterator(iterator, defaultScore);
+        it = new DiskScoreIterator(new SparseFloatListSource(iterator, defaultScore));
         count = it.totalEntries();
       } catch (IOException ioe) {
       }
@@ -91,8 +92,8 @@ public class SparseFloatListReader extends KeyListReader {
     }
 
     @Override
-    public ListIterator getValueIterator() throws IOException {
-      return new ListIterator(iterator, defaultScore);
+    public DiskScoreIterator getValueIterator() throws IOException {
+      return new DiskScoreIterator(new SparseFloatListSource(iterator, defaultScore));
     }
 
     @Override
@@ -101,6 +102,7 @@ public class SparseFloatListReader extends KeyListReader {
     }
   }
 
+  @Deprecated
   public class ListIterator extends BTreeValueIterator
           implements ScoreIterator {
 

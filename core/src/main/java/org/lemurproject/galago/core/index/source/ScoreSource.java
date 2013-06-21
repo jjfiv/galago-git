@@ -7,4 +7,6 @@ package org.lemurproject.galago.core.index.source;
  */
 public interface ScoreSource extends DiskSource {
   public double score(long id);
+  public double maxScore();
+  public double minScore();
 }
