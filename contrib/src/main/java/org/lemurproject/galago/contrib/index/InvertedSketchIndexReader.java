@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.contrib.hash.UniversalStringHashFunction;
-import org.lemurproject.galago.contrib.retrieval.iterator.MinCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MinCountIterator;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.index.BTreeValueIterator;

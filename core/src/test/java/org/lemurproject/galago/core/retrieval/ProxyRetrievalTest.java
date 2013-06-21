@@ -74,14 +74,14 @@ public class ProxyRetrievalTest extends TestCase {
       boolean success = false;
       int i = 0;
       while (i < 10) {
-        Thread.sleep(10);
         stream.flush();
-
         String s = byteStream.toString();
         if (s.contains(url)) {
           success = true;
           break;
         }
+
+        Thread.sleep(100); // 100 milliseconds * 10 ~= 1 second
         i += 1;
       }
 
@@ -101,13 +101,13 @@ public class ProxyRetrievalTest extends TestCase {
         instance.getAvailableParts();
         instance.getCollectionStatistics(StructuredQuery.parse("#lengths:document:part=lengths()"));
         instance.getCollectionStatistics("#lengths:document:part=lengths()");
-        
+
         Document d = instance.getDocument("doc-" + 2, new DocumentComponents(true, false, false));
-        assert(d.text != null);
-        assert(d.terms == null);
-        assert(d.tags == null);
-        assert(d.metadata.isEmpty());
-        
+        assert (d.text != null);
+        assert (d.terms == null);
+        assert (d.tags == null);
+        assert (d.metadata.isEmpty());
+
         instance.getDocumentLength("doc-" + 2);
         instance.getDocumentLength(1);
         instance.getDocumentName(1);
@@ -124,9 +124,9 @@ public class ProxyRetrievalTest extends TestCase {
         Node trans = instance.transformQuery(StructuredQuery.parse("#combine(1 2 3)"), new Parameters());
         instance.runQuery(trans);
         instance.runQuery(trans, new Parameters());
-        
 
-        
+
+
         instance.close();
       } catch (Exception e) {
         exceptions.add(e);
@@ -142,7 +142,7 @@ public class ProxyRetrievalTest extends TestCase {
       }
 
       if (!exceptions.isEmpty()) {
-        System.err.println( byteStream.toString() );
+        System.err.println(byteStream.toString());
         throw new RuntimeException("FAILED THREADING TEST.");
       }
 

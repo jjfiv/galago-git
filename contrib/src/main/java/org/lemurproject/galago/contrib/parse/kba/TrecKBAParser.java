@@ -1,4 +1,4 @@
-package org.lemurproject.galago.contrib.parse;
+package org.lemurproject.galago.contrib.parse.kba;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -10,7 +10,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import kba.StreamItem;
 
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -162,21 +161,6 @@ public class TrecKBAParser extends DocumentStreamParser {
       }
     }
 
-
-  }
-
-  public static void main(String[] args) throws Exception {
-
-//    File testFile = new File("/usr/aubury/scratch2/jdalton/treckba/data/test/2012-05-01-23/news.0cd0144d9af6bdb4b70939dbcb879c85.xz");
-    File testFile = new File("/home/dietz/collections/2011-10-09-00/social.4e4a7672e8a02a7993322aaf296f13f7.xz");
-      DocumentSplit split = new DocumentSplit(testFile.getAbsolutePath(), "", false, new byte[0], new byte[0], 0, 0);
-
-    TrecKBAParser parser = new TrecKBAParser(split, new Parameters());
-    Document doc = null;
-    while ((doc = parser.nextDocument()) != null) {
-      System.out.println(doc.name);
-      //System.out.println(doc.text);
-    }
 
   }
 }
