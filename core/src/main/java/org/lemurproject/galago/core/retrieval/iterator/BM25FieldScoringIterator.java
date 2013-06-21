@@ -28,6 +28,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
   public double weight;
   public double idf;
   public static double K;
+  double max;
 
   public BM25FieldScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
           throws IOException {
@@ -38,7 +39,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
     parentIdx = (int) p.getLong("pIdx");
     idf = p.getDouble("idf");
     K = p.getDouble("K"); // not the most efficient since it's a static, but meh
-    max = getMaxTF(p, it);
+    max = p.getLong("maximumCount");
   }
 
   public double getWeight() {

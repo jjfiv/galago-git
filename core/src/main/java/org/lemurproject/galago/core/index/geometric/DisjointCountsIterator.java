@@ -28,11 +28,6 @@ public class DisjointCountsIterator extends DisjointIndexesIterator implements C
   }
 
   @Override
-  public int maximumCount() {
-    return ((CountIterator) head).maximumCount();
-  }
-
-  @Override
   public AnnotatedNode getAnnotatedNode() throws IOException {
     String type = "counts";
     String className = this.getClass().getSimpleName();

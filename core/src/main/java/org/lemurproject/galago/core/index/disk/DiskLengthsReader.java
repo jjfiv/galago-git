@@ -126,9 +126,8 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
 
     //public StreamLengthsIterator getStreamValueIterator() throws IOException {
-      //return new StreamLengthsIterator(iterator.getKey(), iterator);
+    //return new StreamLengthsIterator(iterator.getKey(), iterator);
     //}
-    
     public StreamLengthsIterator getStreamValueIterator() throws IOException {
       return new StreamLengthsIterator(iterator);
     }
@@ -341,8 +340,8 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 //      return cs;
 //    }
 //  }
-  
   public class StreamLengthsSource extends BTreeValueSource implements CountSource {
+
     DataStream streamBuffer;
     // stats
     long totalDocumentCount;
@@ -363,11 +362,11 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     public StreamLengthsSource(BTreeReader.BTreeIterator iter) throws IOException {
       super(iter);
     }
-    
+
     @Override
     public void reset() throws IOException {
       this.streamBuffer = btreeIter.getValueStream();
-      
+
       // collect stats
       //** temporary fix - this allows current indexes to continue to work **/
       if (btreeIter.reader.getManifest().get("version", 1) == 3) {
@@ -403,7 +402,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
       this.currLength = -1;
       this.done = (currDocument > lastDocument);
     }
-    
+
     @Override
     public long count(int id) {
       return getCurrentLength(id);
@@ -439,7 +438,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
         currLength = -1;
       }
     }
-    
+
     public int getCurrentLength(int document) {
       if (document == this.currDocument) {
         // check if we need to read the length value from the stream
@@ -496,10 +495,10 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
       return this.totalDocumentCount;
     }
   }
-  
+
   public class StreamLengthsIterator extends SourceIterator<StreamLengthsSource>
-    implements CountIterator, LengthsIterator, CollectionAggregateIterator {
-    
+          implements CountIterator, LengthsIterator, CollectionAggregateIterator {
+
     StreamLengthsIterator(BTreeIterator it) throws IOException {
       super(new StreamLengthsSource(it));
     }
@@ -521,20 +520,15 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
-    
+
     @Override
     public int count() {
       return (int) source.count(context.document);
     }
-    
+
     @Override
     public int getCurrentLength() {
       return count();
-    }
-
-    @Override
-    public int maximumCount() {
-      return Integer.MAX_VALUE;
     }
 
     @Override

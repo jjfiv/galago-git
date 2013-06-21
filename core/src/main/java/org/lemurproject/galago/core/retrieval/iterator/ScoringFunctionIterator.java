@@ -21,7 +21,6 @@ public class ScoringFunctionIterator extends TransformIterator implements ScoreI
   protected ScoringFunction function;
   protected LengthsIterator lengthsIterator;
   protected CountIterator countIterator;
-  protected double max = Double.MAX_VALUE;
 
   public ScoringFunctionIterator(NodeParameters np, 
           LengthsIterator lengths,
@@ -59,7 +58,7 @@ public class ScoringFunctionIterator extends TransformIterator implements ScoreI
 
   @Override
   public double maximumScore() {
-    return max;
+    return Double.POSITIVE_INFINITY;
   }
 
   @Override
@@ -80,19 +79,5 @@ public class ScoringFunctionIterator extends TransformIterator implements ScoreI
     children.add(this.countIterator.getAnnotatedNode());
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
-  }
-  
-  public double getMaxTF(NodeParameters p, CountIterator it) {
-    int count = 0;
-    if (p.containsKey("maximumCount")) {
-      count = (int) p.getLong("maximumCount");
-    } else if (it != null) {
-      count = it.maximumCount();
-    } else {
-      return Double.POSITIVE_INFINITY;
-    }
-
-    // We have a non-zero number
-    return function.score(count, count);
   }
 }

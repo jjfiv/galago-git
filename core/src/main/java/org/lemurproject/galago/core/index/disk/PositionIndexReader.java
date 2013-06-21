@@ -41,6 +41,7 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  * @author trevor, sjh, irmarc
  */
 public class PositionIndexReader extends KeyListReader implements AggregateIndexPart {
+
   Stemmer stemmer = null;
 
   public PositionIndexReader(BTreeReader reader) throws Exception {
@@ -130,9 +131,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     return is;
   }
 
-  
   // subclasses 
-  
   public class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
@@ -302,7 +301,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     }
 
     private void loadNextPosting() throws IOException {
-      if(documentIndex >= documentCount){
+      if (documentIndex >= documentCount) {
         done = true;
         extentArray.reset();
         extentsLoaded = true;
@@ -310,7 +309,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
         currentDocument = Integer.MAX_VALUE;
         return;
       }
-      
+
       if (!extentsLoaded) {
         if (currentCount > inlineMinimum) {
           positions.skipBytes(extentsByteSize);
@@ -508,11 +507,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     }
 
     @Override
-    public int maximumCount() {
-      return maximumPositionCount;
-    }
-
-    @Override
     public long totalEntries() {
       return ((long) documentCount);
     }
@@ -670,7 +664,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
 
     // Only loading the docid and the count
     private void load() throws IOException {
-      if(documentIndex >= documentCount){
+      if (documentIndex >= documentCount) {
         done = true;
         currentDocument = Integer.MAX_VALUE;
         currentCount = 0;
@@ -718,10 +712,10 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     // If we have skips - it's go time
     @Override
     public void syncTo(int document) throws IOException {
-      if(done){
+      if (done) {
         return;
       }
-      
+
       if (skips != null) {
         synchronizeSkipPositions();
         if (document > nextSkipDocument) {
@@ -813,11 +807,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
         return currentCount;
       }
       return 0;
-    }
-
-    @Override
-    public int maximumCount() {
-      return maximumPositionCount;
     }
 
     @Override

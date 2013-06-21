@@ -148,7 +148,7 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
       return Utility.toString(iterator.getKey());
     }
   }
-  
+
   public class TermCountIterator extends BTreeValueIterator
           implements NodeAggregateIterator, CountIterator {
 
@@ -393,11 +393,6 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
         return currentCount;
       }
       return 0;
-    }
-
-    @Override
-    public int maximumCount() {
-      return maximumPositionCount;
     }
 
     @Override

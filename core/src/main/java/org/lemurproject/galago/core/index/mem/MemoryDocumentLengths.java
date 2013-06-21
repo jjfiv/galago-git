@@ -433,11 +433,6 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     @Override
-    public int maximumCount() {
-      return (int) this.fieldLengths.maxLength;
-    }
-
-    @Override
     public int getCurrentLength() {
       try {
         return this.fieldLengths.getLength(currDoc);

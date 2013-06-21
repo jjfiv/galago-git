@@ -21,6 +21,7 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
   double weight;
   int parentIdx;
   double min;
+  double max;
 
   public BM25ScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
           throws IOException {
@@ -28,8 +29,8 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
     this.setScoringFunction(new BM25Scorer(p, it));
     weight = p.get("w", 1.0);
     parentIdx = (int) p.get("pIdx", 0);
-    max = getMaxTF(p, it);
-    min = function.score(0, it.maximumCount());
+    max = p.getLong("maximumCount");
+    min = function.score(0, (int) p.getLong("maximumCount"));
   }
 
   /**
@@ -94,7 +95,9 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
     super.setContext(ctx);
     if (EarlyTerminationScoringContext.class.isAssignableFrom(ctx.getClass())) {
       EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
-      if (dctx.members.contains(this)) return;     
+      if (dctx.members.contains(this)) {
+        return;
+      }
       dctx.scorers.add(this);
       dctx.members.add(this);
       dctx.startingPotential += (max * weight);

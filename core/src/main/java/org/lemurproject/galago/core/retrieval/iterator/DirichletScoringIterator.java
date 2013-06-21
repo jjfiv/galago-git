@@ -24,6 +24,7 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
   double weight;
   int parentIdx;
   double min;
+  double max;
 
   public DirichletScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
           throws IOException {
@@ -31,7 +32,7 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
     this.setScoringFunction(new DirichletScorer(p, it));
     weight = p.get("w", 1.0);
     parentIdx = (int) p.get("pIdx", 0);
-    max = getMaxTF(p, it);
+    max = p.getLong("maximumCount");
     //long collectionLength = p.getLong("collectionLength");    
     //long documentCount = p.getLong("documentCount");
     //int avgDocLength = (int) Math.round((collectionLength + 0.0) / (documentCount + 0.0));

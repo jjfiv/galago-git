@@ -55,16 +55,6 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
     return extents().size();
   }
 
-  @Override
-  public int maximumCount() {
-    int sum = 0;
-    for (int i = 0; i < iterators.length; i++) {
-      sum += ((CountIterator) iterators[i]).maximumCount();
-    }
-    return sum;
-
-  }
-
   public abstract void loadExtents();
 
   @Override

@@ -430,11 +430,6 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     }
 
     @Override
-    public int maximumCount() {
-      return maximumPositionCount;
-    }
-
-    @Override
     public long totalEntries() {
       return documentCount;
     }

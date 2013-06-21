@@ -123,11 +123,6 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
   }
 
   @Override
-  public int maximumCount() {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  @Override
   public boolean hasAllCandidates() {
     return false;
   }

@@ -95,11 +95,6 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
   }
 
   @Override
-  public int maximumCount() {
-    return this.extentIterator.maximumCount();
-  }
-
-  @Override
   public AnnotatedNode getAnnotatedNode() throws IOException {
     String type = "extent";
     String className = this.getClass().getSimpleName();

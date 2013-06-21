@@ -109,7 +109,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
     is.partName = manifest.get("filename", "CountIndexPart");
     return is;
   }
-    
+
   private String stemAsRequired(String window) {
     if (stemmer != null) {
       if (window.contains("~")) {
@@ -288,14 +288,14 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
     // Loads up a single set of positions for an intID. Basically it's the
     // load that needs to be done when moving forward one in the posting list.
     private void loadExtents() throws IOException {
-      if(documentIndex >= documentCount){
+      if (documentIndex >= documentCount) {
         done = true;
         currentDocument = Integer.MAX_VALUE;
         extentArray.reset();
         currentCount = 0;
         return;
       }
-      
+
       currentDocument += documents.readInt();
       currentCount = counts.readInt();
       extentArray.reset();
@@ -352,10 +352,10 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
     // If we have skips - it's go time
     @Override
     public void syncTo(int document) throws IOException {
-      if(done){
+      if (done) {
         return;
       }
-      
+
       if (skips != null) {
         synchronizeSkipPositions();
       }
@@ -467,11 +467,6 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
     @Override
     public boolean hasAllCandidates() {
       return false;
-    }
-
-    @Override
-    public int maximumCount() {
-      return maximumPositionCount;
     }
 
     @Override
@@ -623,7 +618,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
 
     // Only loading the docid and the count
     private void load() throws IOException {
-      if(documentIndex >= documentCount){
+      if (documentIndex >= documentCount) {
         done = true;
         currentDocument = Integer.MAX_VALUE;
         currentCount = 0;
@@ -672,10 +667,10 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
     @Override
     public void syncTo(int document) throws IOException {
       // can shortcut the skip code.
-      if(done){
+      if (done) {
         return;
       }
-      
+
       if (skips != null) {
         synchronizeSkipPositions();
         if (document > nextSkipDocument) {
@@ -768,11 +763,6 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
         return currentCount;
       }
       return 0;
-    }
-
-    @Override
-    public int maximumCount() {
-      return maximumPositionCount;
     }
 
     @Override

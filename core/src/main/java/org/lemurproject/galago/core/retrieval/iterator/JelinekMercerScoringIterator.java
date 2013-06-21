@@ -13,7 +13,7 @@ import org.lemurproject.galago.core.scoring.JelinekMercerScorer;
  *
  * @author irmarc
  */
-@RequiredStatistics(statistics = {"maximumCount","collectionLength","nodeFrequency"})
+@RequiredStatistics(statistics = {"maximumCount", "collectionLength", "nodeFrequency"})
 @RequiredParameters(parameters = {"lambda"})
 public class JelinekMercerScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {
@@ -21,6 +21,7 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
   double weight;
   int parentIdx;
   double min;
+  double max;
 
   public JelinekMercerScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
           throws IOException {
@@ -28,8 +29,8 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
     this.setScoringFunction(new JelinekMercerScorer(p, it));
     weight = p.get("w", 1.0);
     parentIdx = (int) p.get("pIdx", 0);
-    max = getMaxTF(p, it);
-    min = function.score(0, it.maximumCount());
+    max = p.getLong("maximumCount");
+    min = function.score(0, (int) p.getLong("maximumCount"));
   }
 
   @Override
@@ -92,7 +93,9 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
     super.setContext(ctx);
     if (EarlyTerminationScoringContext.class.isAssignableFrom(ctx.getClass())) {
       EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
-      if (dctx.members.contains(this)) return;
+      if (dctx.members.contains(this)) {
+        return;
+      }
       dctx.scorers.add(this);
       dctx.members.add(this);
       dctx.startingPotential += (max * weight);

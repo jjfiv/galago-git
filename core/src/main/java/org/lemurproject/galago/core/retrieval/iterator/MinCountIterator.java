@@ -172,16 +172,6 @@ public class MinCountIterator extends DiskIterator implements CountIterator {
   }
 
   @Override
-  public int maximumCount() {
-    int maxCount = Integer.MAX_VALUE;
-    for (CountIterator countItr : iterators) {
-      maxCount = Math.min(maxCount, countItr.maximumCount());
-    }
-    maxCount = (maxCount == Integer.MAX_VALUE)? 0 : maxCount;
-    return maxCount;
-  }
-
-  @Override
   public void setContext(ScoringContext sc){
     this.context = sc;
 

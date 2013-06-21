@@ -51,7 +51,7 @@ public class BuildEntityCorpus extends AppFunction {
   public Job getJob(Parameters jobParameters) throws Exception {
     Job job = new Job();
     List<String> inputPaths = jobParameters.getAsList("inputPath");
-    Parameters splitParameters = jobParameters.isMap("parser")? jobParameters.getMap("parser") : new Parameters();
+    Parameters splitParameters = jobParameters.isMap("parser") ? jobParameters.getMap("parser") : new Parameters();
     job.add(BuildStageTemplates.getSplitStage(inputPaths,
             DocumentSource.class,
             new DocumentSplit.FileIdOrder(),
@@ -92,8 +92,7 @@ public class BuildEntityCorpus extends AppFunction {
 
   @Override
   public String getHelpString() {
-    return "galago build-word-dates [flags] --indexPath=<dir> (--inputPath+<input>)+\n\n"
-            + " Creates an corpus of pseudo-docs based on diffuse entity occurrences.\n\n"
+    return "galago build-entity-corpus [parameters]\n\n"
             + getTupleFlowParameterString();
   }
 }

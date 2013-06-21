@@ -28,11 +28,6 @@ public class BinaryCountIterator extends TransformIterator implements CountItera
   }
 
   @Override
-  public int maximumCount() {
-    return 1;
-  }
-
-  @Override
   public AnnotatedNode getAnnotatedNode() throws IOException {
     String type = "count";
     String className = this.getClass().getSimpleName();

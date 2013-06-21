@@ -466,11 +466,6 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     }
 
     @Override
-    public int maximumCount() {
-      return Integer.MAX_VALUE;
-    }
-
-    @Override
     public boolean isDone() {
       return done;
     }
@@ -661,11 +656,6 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
         return currCount;
       }
       return 0;
-    }
-
-    @Override
-    public int maximumCount() {
-      return Integer.MAX_VALUE;
     }
 
     @Override

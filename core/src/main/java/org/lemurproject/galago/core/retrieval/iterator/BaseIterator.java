@@ -90,7 +90,7 @@ public interface BaseIterator extends Comparable<BaseIterator> {
   /**
    * Moves the iterator to the specified candidate
    * 
-   * Unlike the 'next' function this should move all iterators.
+   * Unlike the 'movePast' function this should move all iterators.
    * Even where 'hasAllCandidates' is true.
    */
   public void syncTo(int identifier) throws IOException;

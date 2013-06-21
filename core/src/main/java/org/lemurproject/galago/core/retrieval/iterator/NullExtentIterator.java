@@ -46,11 +46,6 @@ public class NullExtentIterator extends DiskIterator implements ExtentIterator, 
   }
 
   @Override
-  public int maximumCount() {
-    return 0;
-  }
-
-  @Override
   public void reset() {
     // do nothing
   }

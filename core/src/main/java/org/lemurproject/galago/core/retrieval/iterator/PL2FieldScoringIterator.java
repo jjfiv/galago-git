@@ -2,14 +2,12 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.disk.PositionIndexReader;
 import org.lemurproject.galago.core.retrieval.processing.EarlyTerminationScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.scoring.PL2FieldScorer;
-import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -32,6 +30,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
   int parentIdx = -1;
   double weight;
   double beta;
+  double max;
 
   public PL2FieldScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
           throws IOException {
@@ -45,7 +44,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
     double lambda = (termFrequency + 0.0) / (documentCount + 0.0);
     beta = Math.log(lambda) / Utility.log2 + (lambda * Utility.loge_base2)
             + ((0.5 * (Math.log(2 * Math.PI) / Utility.log2)) + Utility.loge_base2);
-    max = getMaxTF(p, it);
+    max = p.getLong("maximumCount");
   }
 
   @Override

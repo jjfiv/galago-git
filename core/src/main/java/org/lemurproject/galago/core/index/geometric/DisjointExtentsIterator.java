@@ -30,11 +30,6 @@ public class DisjointExtentsIterator extends DisjointIndexesIterator implements 
   }
 
   @Override
-  public int maximumCount() {
-    return ((CountIterator) head).maximumCount();
-  }
-
-  @Override
   public ExtentArray extents() {
     return ((ExtentIterator) head).extents();
   }

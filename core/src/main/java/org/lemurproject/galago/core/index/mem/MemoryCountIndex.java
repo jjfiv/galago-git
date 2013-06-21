@@ -422,11 +422,6 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     }
 
     @Override
-    public int maximumCount() {
-      return Integer.MAX_VALUE;
-    }
-
-    @Override
     public boolean isDone() {
       return done;
     }

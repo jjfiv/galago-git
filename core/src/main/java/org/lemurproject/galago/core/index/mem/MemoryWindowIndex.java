@@ -443,11 +443,6 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     }
 
     @Override
-    public int maximumCount() {
-      return Integer.MAX_VALUE;
-    }
-
-    @Override
     public ExtentArray extents() {
       if (context.document == this.currDocument) {
         return extents;

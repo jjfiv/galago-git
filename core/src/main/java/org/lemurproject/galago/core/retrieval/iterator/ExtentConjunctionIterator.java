@@ -57,15 +57,6 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
     return extents().size();
   }
 
-  @Override
-  public int maximumCount() {
-    int min = 0;
-    for (int i = 0; i < iterators.length; i++) {
-      min = Math.min(min, ((CountIterator) iterators[i]).maximumCount());
-    }
-    return min;
-  }
-
   public abstract void loadExtents();
 
   @Override

@@ -79,11 +79,6 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
   }
 
   @Override
-  public int maximumCount() {
-    return counter.maximumCount();
-  }
-
-  @Override
   public double score() {
     return scorer.score();
   }
