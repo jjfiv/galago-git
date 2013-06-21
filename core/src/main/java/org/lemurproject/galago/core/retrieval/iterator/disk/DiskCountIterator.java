@@ -4,7 +4,6 @@ package org.lemurproject.galago.core.retrieval.iterator.disk;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import org.lemurproject.galago.core.index.disk.PositionIndexCountSource;
 import org.lemurproject.galago.core.index.source.CountSource;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
@@ -20,7 +19,7 @@ public class DiskCountIterator extends SourceIterator
   
   CountSource countSrc;
   
-  public DiskCountIterator(PositionIndexCountSource src) {
+  public DiskCountIterator(CountSource src) {
     super(src);
     countSrc = src;
   }

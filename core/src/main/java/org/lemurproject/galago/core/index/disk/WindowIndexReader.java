@@ -10,6 +10,7 @@ import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
+import org.lemurproject.galago.core.index.source.WindowIndexCountSource;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
@@ -18,6 +19,7 @@ import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -71,12 +73,12 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
     return null;
   }
 
-  public WindowCountIterator getTermCounts(String term) throws IOException {
+  public DiskCountIterator getTermCounts(String term) throws IOException {
     term = stemAsRequired(term);
     BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
 
     if (iterator != null) {
-      return new WindowCountIterator(iterator, this);
+      return new DiskCountIterator(new WindowIndexCountSource(iterator));
     }
     return null;
   }
@@ -84,7 +86,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("counts", new NodeType(WindowCountIterator.class));
+    types.put("counts", new NodeType(DiskCountIterator.class));
     types.put("extents", new NodeType(WindowExtentIterator.class));
     return types;
   }
@@ -129,10 +131,10 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
 
     @Override
     public String getValueString() {
-      WindowCountIterator it;
+      DiskCountIterator it;
       long count = -1;
       try {
-        it = new WindowCountIterator(iterator, org.lemurproject.galago.core.index.disk.WindowIndexReader.this);
+        it = new DiskCountIterator(new WindowIndexCountSource(iterator));
         count = it.count();
       } catch (IOException ioe) {
       }
@@ -147,6 +149,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
       return sb.toString();
     }
 
+    @Override
     public DiskIterator getValueIterator() throws IOException {
       return new WindowExtentIterator(iterator);
     }
@@ -504,6 +507,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
    * positions buffer. Overall smaller footprint and faster execution.
    *
    */
+  @Deprecated
   public class WindowCountIterator extends BTreeValueIterator
           implements NodeAggregateIterator, CountIterator {
 
