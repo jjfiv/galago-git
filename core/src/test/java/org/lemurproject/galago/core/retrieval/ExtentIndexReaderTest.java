@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.util.ExtentArray;
 import java.io.File;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -70,7 +71,7 @@ public class ExtentIndexReaderTest extends TestCase {
 
   public void testReadTitle() throws Exception {
     WindowIndexReader reader = new WindowIndexReader(new DiskBTreeReader(tempPath.toString()));
-    WindowIndexReader.WindowExtentIterator extents = reader.getTermExtents("title");
+    ExtentIterator extents = reader.getTermExtents("title");
     extents.setContext(new ScoringContext());
     ScoringContext sc = extents.getContext();
     
@@ -114,7 +115,7 @@ public class ExtentIndexReaderTest extends TestCase {
 
   public void testReadZ() throws Exception {
     WindowIndexReader reader = new WindowIndexReader(new DiskBTreeReader(tempPath.toString()));
-    WindowIndexReader.WindowExtentIterator extents = reader.getTermExtents("z");
+    ExtentIterator extents = reader.getTermExtents("z");
     extents.setContext(new ScoringContext());
     ScoringContext sc = extents.getContext();
 
@@ -136,7 +137,7 @@ public class ExtentIndexReaderTest extends TestCase {
 
   public void testSimpleSkipTitle() throws Exception {
     WindowIndexReader reader = new WindowIndexReader(new DiskBTreeReader(tempPath.toString()));
-    WindowIndexReader.WindowExtentIterator extents = reader.getTermExtents("title");
+    ExtentIterator extents = reader.getTermExtents("title");
     extents.setContext(new ScoringContext());
     ScoringContext sc = extents.getContext();
 
@@ -166,7 +167,7 @@ public class ExtentIndexReaderTest extends TestCase {
     writer.close();
 
     WindowIndexReader reader = new WindowIndexReader(new DiskBTreeReader(tempPath.toString()));
-    WindowIndexReader.WindowExtentIterator extents = reader.getTermExtents("skippy");
+    ExtentIterator extents = reader.getTermExtents("skippy");
     extents.setContext(new ScoringContext());
     ScoringContext sc = extents.getContext();
 

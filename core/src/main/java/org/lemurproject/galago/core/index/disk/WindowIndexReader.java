@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.source.WindowIndexCountSource;
+import org.lemurproject.galago.core.index.source.WindowIndexExtentSource;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
@@ -20,6 +21,7 @@ import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -64,11 +66,11 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
    * Returns an iterator pointing at the specified term, or null if the term
    * doesn't exist in the inverted file.
    */
-  public WindowExtentIterator getTermExtents(String term) throws IOException {
+  public DiskExtentIterator getTermExtents(String term) throws IOException {
     term = stemAsRequired(term);
     BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
     if (iterator != null) {
-      return new WindowExtentIterator(iterator);
+      return new DiskExtentIterator(new WindowIndexExtentSource(iterator));
     }
     return null;
   }
@@ -87,7 +89,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
     types.put("counts", new NodeType(DiskCountIterator.class));
-    types.put("extents", new NodeType(WindowExtentIterator.class));
+    types.put("extents", new NodeType(DiskExtentIterator.class));
     return types;
   }
 
@@ -160,6 +162,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
     }
   }
 
+  @Deprecated
   public class WindowExtentIterator extends BTreeValueIterator
           implements NodeAggregateIterator, CountIterator, ExtentIterator {
 
@@ -176,7 +179,6 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
     private int currentCount;
     private boolean done;
     private ExtentArray extentArray;
-    final ExtentArray emptyExtentArray;
     // to support resets
     private long startPosition, endPosition;
     // to support skipping
@@ -201,7 +203,6 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
     public WindowExtentIterator(BTreeReader.BTreeIterator iterator) throws IOException {
       super(iterator.getKey());
       extentArray = new ExtentArray();
-      emptyExtentArray = new ExtentArray();
       reset(iterator);
     }
 
@@ -451,7 +452,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
       if (!done && context.document == this.currentDocument) {
         return extentArray;
       }
-      return this.emptyExtentArray;
+      return ExtentArray.EMPTY;
     }
 
     @Override
