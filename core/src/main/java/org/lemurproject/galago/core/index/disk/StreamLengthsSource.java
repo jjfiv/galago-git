@@ -39,28 +39,12 @@ final public class StreamLengthsSource extends BTreeValueSource implements Count
     this.streamBuffer = btreeIter.getValueStream();
     // collect stats
     //** temporary fix - this allows current indexes to continue to work **/
-    if (btreeIter.reader.getManifest().get("version", 1) == 3) {
-      this.totalDocumentCount = streamBuffer.readLong();
-      this.nonZeroDocumentCount = streamBuffer.readLong();
-      this.collectionLength = streamBuffer.readLong();
-      this.avgLength = streamBuffer.readDouble();
-      this.maxLength = streamBuffer.readLong();
-      this.minLength = streamBuffer.readLong();
-    } else if (btreeIter.reader.getManifest().get("longs", false)) {
-      this.nonZeroDocumentCount = streamBuffer.readLong();
-      this.collectionLength = streamBuffer.readLong();
-      this.avgLength = streamBuffer.readDouble();
-      this.maxLength = streamBuffer.readLong();
-      this.minLength = streamBuffer.readLong();
-      this.totalDocumentCount = this.nonZeroDocumentCount;
-    } else {
-      this.nonZeroDocumentCount = streamBuffer.readInt();
-      this.collectionLength = streamBuffer.readInt();
-      this.avgLength = streamBuffer.readDouble();
-      this.maxLength = streamBuffer.readInt();
-      this.minLength = streamBuffer.readInt();
-      this.totalDocumentCount = this.nonZeroDocumentCount;
-    }
+    this.totalDocumentCount = streamBuffer.readLong();
+    this.nonZeroDocumentCount = streamBuffer.readLong();
+    this.collectionLength = streamBuffer.readLong();
+    this.avgLength = streamBuffer.readDouble();
+    this.maxLength = streamBuffer.readLong();
+    this.minLength = streamBuffer.readLong();
     this.firstDocument = streamBuffer.readInt();
     this.lastDocument = streamBuffer.readInt();
     this.lengthsDataOffset = this.streamBuffer.getPosition(); // should be == (4 * 6) + (8)
