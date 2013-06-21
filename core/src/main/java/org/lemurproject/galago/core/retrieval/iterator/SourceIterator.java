@@ -5,17 +5,17 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.index.DataSource;
+import org.lemurproject.galago.core.index.source.DiskSource;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
  * This is the base abstract implementation of an Iterator that
- * wraps a DataSource.
+ * wraps a DiskSource.
  * 
  * @author jfoley
  */
-public abstract class SourceIterator<T extends DataSource> extends DiskIterator {
+public abstract class SourceIterator<T extends DiskSource> extends DiskIterator {
   protected T source = null;
   
   public SourceIterator(T src) {

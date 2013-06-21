@@ -1,9 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.lemurproject.galago.core.index;
+// BSD License (http://lemurproject.org/galago-license)
+package org.lemurproject.galago.core.index.source;
 
+import org.lemurproject.galago.core.index.source.CountSource;
 import org.lemurproject.galago.core.util.ExtentArray;
 
 /**

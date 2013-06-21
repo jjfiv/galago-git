@@ -4,8 +4,8 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.DataInput;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.BTreeReader;
-import org.lemurproject.galago.core.index.BTreeValueSource;
-import org.lemurproject.galago.core.index.ExtentSource;
+import org.lemurproject.galago.core.index.source.BTreeValueSource;
+import org.lemurproject.galago.core.index.source.ExtentSource;
 
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.DataStream;

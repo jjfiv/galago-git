@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.index;
+package org.lemurproject.galago.core.index.source;
 
 import java.io.IOException;
 
@@ -7,7 +7,7 @@ import java.io.IOException;
  * This is the shared interface for moving data sources.
  * @author jfoley
  */
-public interface DataSource {
+public interface DiskSource {
   /**
    * reset the iterator to the beginning.
    * Often doubles as an initialization step.

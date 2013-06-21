@@ -1,10 +1,10 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.index;
+package org.lemurproject.galago.core.index.source;
 
 /**
  *
  * @author jfoley
  */
-public interface ScoreSource {
+public interface ScoreSource extends DiskSource {
   public double score(int id);
 }

@@ -1,13 +1,14 @@
-package org.lemurproject.galago.core.index;
+package org.lemurproject.galago.core.index.source;
 
 import java.io.IOException;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
  * @author jfoley
  */
-public abstract class BTreeValueSource implements DataSource {
+public abstract class BTreeValueSource implements DiskSource {
   // OPTIONS
   public static final int HAS_SKIPS = 0x01;
   public static final int HAS_MAXTF = 0x02;

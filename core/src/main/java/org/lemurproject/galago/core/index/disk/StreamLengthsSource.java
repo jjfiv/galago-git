@@ -3,8 +3,8 @@ package org.lemurproject.galago.core.index.disk;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.index.BTreeReader;
-import org.lemurproject.galago.core.index.BTreeValueSource;
-import org.lemurproject.galago.core.index.CountSource;
+import org.lemurproject.galago.core.index.source.BTreeValueSource;
+import org.lemurproject.galago.core.index.source.CountSource;
 import org.lemurproject.galago.tupleflow.DataStream;
 
 /**
