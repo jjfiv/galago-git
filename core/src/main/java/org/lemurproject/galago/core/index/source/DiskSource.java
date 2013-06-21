@@ -32,9 +32,9 @@ public interface DiskSource {
   public long totalEntries();
     
   public String key();
-  public int currentCandidate();
-  public boolean hasMatch(int id);
+  public long currentCandidate();
+  public boolean hasMatch(long id);
   
-  public void movePast(int id) throws IOException;
-  public void syncTo(int id) throws IOException;
+  public void movePast(long id) throws IOException;
+  public void syncTo(long id) throws IOException;
 }

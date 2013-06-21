@@ -7,7 +7,6 @@ package org.lemurproject.galago.core.retrieval.iterator.disk;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.source.DiskSource;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
@@ -40,7 +39,7 @@ public abstract class SourceIterator extends DiskIterator {
 
   @Override
   public int currentCandidate() {
-    return source.currentCandidate();
+    return (int) source.currentCandidate();
   }
 
   @Override

@@ -23,7 +23,7 @@ public abstract class BTreeValueSource implements DiskSource {
   }
   
   @Override
-  public boolean hasMatch(int id) {
+  public boolean hasMatch(long id) {
     return !isDone() && currentCandidate() == id;
   }
   

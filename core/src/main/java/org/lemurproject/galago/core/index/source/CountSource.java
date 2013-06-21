@@ -8,6 +8,6 @@ import org.lemurproject.galago.core.index.stats.NodeStatistics;
  * @author jfoley
  */
 public interface CountSource extends DiskSource {
-  public long count(int id);
+  public int count(long id);
   public NodeStatistics getStatistics();
 }

@@ -207,17 +207,17 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
   }
 
   @Override
-  public int currentCandidate() {
+  public long currentCandidate() {
     return currentDocument;
   }
 
   @Override
-  public void movePast(int id) throws IOException {
+  public void movePast(long id) throws IOException {
     syncTo(id + 1);
   }
 
   @Override
-  public void syncTo(int document) throws IOException {
+  public void syncTo(long document) throws IOException {
      if (skip != null) {
       synchronizeSkipPositions();
     }
@@ -295,7 +295,7 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
 
 
   @Override
-  public ExtentArray extents(int id) {
+  public ExtentArray extents(long id) {
     if (!done && id == this.currentCandidate()) {
       try {
         loadExtents();
@@ -308,7 +308,7 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
   }
   
   @Override
-  public long count(int id) {
+  public int count(long id) {
     if (!done && id == this.currentCandidate()) {
       return currentCount;
     }

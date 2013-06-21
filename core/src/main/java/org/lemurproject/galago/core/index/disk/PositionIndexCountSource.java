@@ -167,17 +167,17 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
   }
 
   @Override
-  public int currentCandidate() {
+  public long currentCandidate() {
     return currentDocument;
   }
 
   @Override
-  public void movePast(int document) throws IOException {
+  public void movePast(long document) throws IOException {
     syncTo(document+1);
   }
 
   @Override
-  public void syncTo(int document) throws IOException {
+  public void syncTo(long document) throws IOException {
     if (done) return;
     
     if (skips != null) {
@@ -250,7 +250,7 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
 
 
   @Override
-  public long count(int id) {
+  public int count(long id) {
     if (!done && currentCandidate() == id) {
       return currentCount;
     }

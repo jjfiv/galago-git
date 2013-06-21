@@ -26,7 +26,7 @@ final public class DiskLengthSource extends BTreeValueSource implements LengthSo
   int firstDocument;
   int lastDocument;
   // iteration vars
-  int currDocument;
+  long currDocument;
   int currLength;
   long lengthsDataOffset;
   boolean done;
@@ -62,12 +62,12 @@ final public class DiskLengthSource extends BTreeValueSource implements LengthSo
   }
 
   @Override
-  public int currentCandidate() {
+  public long currentCandidate() {
     return this.currDocument;
   }
 
   @Override
-  public void movePast(int identifier) {
+  public void movePast(long identifier) {
     // select the next document:
     identifier += 1;
     assert (identifier >= currDocument);
@@ -85,7 +85,7 @@ final public class DiskLengthSource extends BTreeValueSource implements LengthSo
   }
 
   @Override
-  public long length(int document) {
+  public int length(long document) {
     if (document == this.currDocument) {
       // check if we need to read the length value from the stream
       if (this.currLength < 0) {
@@ -109,7 +109,7 @@ final public class DiskLengthSource extends BTreeValueSource implements LengthSo
   }
 
   @Override
-  public void syncTo(int identifier) {
+  public void syncTo(long identifier) {
     // it's possible that the first document has zero length, and we may wish to sync to it.
     if (identifier < firstDocument) {
       return;
@@ -150,4 +150,5 @@ final public class DiskLengthSource extends BTreeValueSource implements LengthSo
     fs.avgLength = this.avgLength;
     return fs;
   }
+
 }
