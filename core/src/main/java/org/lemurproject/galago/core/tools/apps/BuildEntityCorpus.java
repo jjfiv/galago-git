@@ -1,5 +1,5 @@
  // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.tools;
+package org.lemurproject.galago.core.tools.apps;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +8,7 @@ import java.util.List;
 import org.lemurproject.galago.core.index.corpus.DocumentAggregator;
 import org.lemurproject.galago.core.index.corpus.DocumentToKeyValuePair;
 import org.lemurproject.galago.core.parse.DocumentSource;
+import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.Parameters;

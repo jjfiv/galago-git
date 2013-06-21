@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.tools;
+package org.lemurproject.galago.core.tools.apps;
 
 import java.io.File;
 import java.io.IOException;

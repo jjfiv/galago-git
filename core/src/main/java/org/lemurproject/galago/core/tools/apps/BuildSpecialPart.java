@@ -1,7 +1,7 @@
 /*
  * BSD License (http://lemurproject.org/galago-license)
  */
-package org.lemurproject.galago.core.tools;
+package org.lemurproject.galago.core.tools.apps;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.parse.IndicatorExtractor;
 import org.lemurproject.galago.core.parse.NumberKeyValuePairs;
 import org.lemurproject.galago.core.parse.LineSplitter;
 import org.lemurproject.galago.core.parse.PriorExtractor;
+import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentFeature;
 import org.lemurproject.galago.core.types.DocumentIndicator;
 import org.lemurproject.galago.core.types.KeyValuePair;

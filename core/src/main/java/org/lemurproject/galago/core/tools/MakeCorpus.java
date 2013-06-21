@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
+import org.lemurproject.galago.core.tools.apps.BuildStageTemplates;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;

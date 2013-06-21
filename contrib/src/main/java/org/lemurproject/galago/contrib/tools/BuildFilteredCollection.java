@@ -12,7 +12,7 @@ import org.lemurproject.galago.contrib.document.TrecWebDocumentWriter;
 import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.parse.UniversalParser;
 import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.core.tools.BuildStageTemplates;
+import org.lemurproject.galago.core.tools.apps.BuildStageTemplates;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
