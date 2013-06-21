@@ -8,6 +8,7 @@ import java.util.HashMap;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DocumentIndicatorReader;
 import org.lemurproject.galago.core.index.disk.DocumentPriorReader;
+import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -78,14 +79,15 @@ public class BuildSpecialPartTest extends TestCase {
       assert output.equals(correct.toString());
 
       // Test it as a value iterator
-      DocumentIndicatorReader.ValueIterator vIt = reader.getIterator(StructuredQuery.parse("#indicator:part=testingIndicators()"));
+      IndicatorIterator vIt = reader.getIterator(StructuredQuery.parse("#indicator:part=testingIndicators()"));
       assertFalse(vIt.isDone());
       assertTrue(vIt.hasMatch(0));
       vIt.movePast(0);
       assertTrue(vIt.hasMatch(2));
       vIt.movePast(2);
       assertFalse(vIt.isDone());
-      assertFalse(vIt.hasMatch(3));
+      assertFalse(vIt.hasMatch(3));  // jfoley - has a match, but the value is false
+      assertFalse(vIt.indicator(3)); // this *makes sense* for an indicator function
       assertEquals(3, vIt.currentCandidate());
       vIt.movePast(3);
       assertTrue(vIt.isDone());

@@ -13,6 +13,8 @@ import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskBooleanIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -56,14 +58,16 @@ public class DocumentIndicatorReader extends KeyValueReader {
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("indicator", new NodeType(ValueIterator.class));
+    types.put("indicator", new NodeType(DiskBooleanIterator.class));
     return types;
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public DiskBooleanIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("indicator")) {
-      return new ValueIterator(new KeyIterator(reader), node);
+      boolean dflt = node.getNodeParameters().get("default", def);
+      return new DiskBooleanIterator(new DocumentIndicatorSource(reader, dflt));
+      //return new ValueIterator(new KeyIterator(reader), node);
     } else {
       throw new UnsupportedOperationException(
               "Index doesn't support operator: " + node.getOperator());
@@ -119,6 +123,7 @@ public class DocumentIndicatorReader extends KeyValueReader {
   }
 
   // needs to be an AbstractIndicator
+  @Deprecated
   public class ValueIterator extends KeyToListIterator implements IndicatorIterator {
 
     boolean defInst;
