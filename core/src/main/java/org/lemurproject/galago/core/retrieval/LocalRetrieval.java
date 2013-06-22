@@ -212,6 +212,7 @@ public class LocalRetrieval implements Retrieval {
 
       if (doc.document == namesIterator.getCurrentIdentifier()) {
         doc.documentName = namesIterator.getCurrentName();
+
       } else {
         System.err.println("NAMES ITERATOR FAILED TO FIND DOCUMENT " + doc.document);
         // now throw an error.

@@ -43,7 +43,8 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
     if (data == null) {
       return -1;
     }
-    return Utility.toInt(data);
+    // TODO stop casting document to long
+    return (int) Utility.toLong(data);
   }
 
   @Override
@@ -85,13 +86,14 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
     }
 
     public int getCurrentIdentifier() throws IOException {
-      return Utility.toInt(getValueBytes());
+      // TODO stop casting document to int
+      return (int) Utility.toLong(getValueBytes());
     }
 
     @Override
     public String getValueString() {
       try {
-        return Integer.toString(Utility.toInt(getValueBytes()));
+        return Long.toString(Utility.toLong(getValueBytes()));
       } catch (IOException e) {
         return "Unknown";
       }

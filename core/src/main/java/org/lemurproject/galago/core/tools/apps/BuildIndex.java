@@ -578,8 +578,6 @@ public class BuildIndex extends AppFunction {
         }
       }
 
-      System.err.println("FOUND 6");
-
     } catch (Exception e) {
       errorLog.add("Parameter 'fieldIndexParameters' should be a map.\n"
               + "Should include boolean values for 'nonStemmedPostings', and 'stemmedPostings'\n"

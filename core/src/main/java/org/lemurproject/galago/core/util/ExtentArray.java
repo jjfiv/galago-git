@@ -15,7 +15,7 @@ public class ExtentArray {
   int[] _begins;
   int[] _ends;
   int _position;
-  int document;
+  long document;
 
   public ExtentArray(int capacity) {
     _begins = new int[capacity];
@@ -35,11 +35,11 @@ public class ExtentArray {
     }
   }
 
-  public void setDocument(int d) {
+  public void setDocument(long d) {
     document = d;
   }
 
-  public int getDocument() {
+  public long getDocument() {
     return document;
   }
 

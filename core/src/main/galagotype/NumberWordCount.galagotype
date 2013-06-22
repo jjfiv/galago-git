@@ -2,7 +2,7 @@ package org.lemurproject.galago.core.types;
 
 type NumberWordCount {
     bytes word;
-    int document;
+    long document;
     int count;
     
     order: +document;

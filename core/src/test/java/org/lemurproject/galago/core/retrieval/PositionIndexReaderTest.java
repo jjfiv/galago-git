@@ -21,6 +21,7 @@ import org.lemurproject.galago.core.retrieval.iterator.disk.DiskExtentIterator;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 
 /**
@@ -214,7 +215,7 @@ public class PositionIndexReaderTest extends TestCase {
 
   public void testCountIterator() throws Exception {
     PositionIndexReader reader = new PositionIndexReader(tempPath.toString());
-    TermCountIterator termCounts = reader.getTermCounts("b");
+    DiskCountIterator termCounts = reader.getTermCounts("b");
 
     termCounts.setContext(new ScoringContext());
     ScoringContext sc = termCounts.getContext();

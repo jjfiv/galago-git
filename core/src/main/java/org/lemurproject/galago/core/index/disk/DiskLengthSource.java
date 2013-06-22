@@ -23,8 +23,8 @@ final public class DiskLengthSource extends BTreeValueSource implements LengthSo
   public long maxLength;
   public long minLength;
   // utility
-  int firstDocument;
-  int lastDocument;
+  long firstDocument;
+  long lastDocument;
   // iteration vars
   long currDocument;
   int currLength;
@@ -47,8 +47,8 @@ final public class DiskLengthSource extends BTreeValueSource implements LengthSo
     this.avgLength = streamBuffer.readDouble();
     this.maxLength = streamBuffer.readLong();
     this.minLength = streamBuffer.readLong();
-    this.firstDocument = streamBuffer.readInt();
-    this.lastDocument = streamBuffer.readInt();
+    this.firstDocument = streamBuffer.readLong();
+    this.lastDocument = streamBuffer.readLong();
     this.lengthsDataOffset = this.streamBuffer.getPosition(); // should be == (4 * 6) + (8)
     // offset is the first document
     this.currDocument = firstDocument;

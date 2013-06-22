@@ -122,8 +122,8 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     private long collectionLength;
     private long maxLength;
     private long minLength;
-    private int firstDocument;
-    private int prevDocument;
+    private long firstDocument;
+    private long prevDocument;
 
     public LengthsList(byte[] key) throws IOException {
       //this.lengthsData = new CompressedRawByteBuffer();
@@ -141,7 +141,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
       this.firstDocument = -1;
     }
 
-    public void add(int currentDocument, int length) throws IOException {
+    public void add(long currentDocument, int length) throws IOException {
       totalDocumentCount++;
       // we ignore zero length documents, as this is the default returned value
       if (length == 0) {
@@ -180,10 +180,9 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     @Override
     public long dataLength() {
       // data to be written is :
-      //  4 bytes for each of 2 integer statistics
-      //  8 bytes for each of 6 long/double stats
+      //  8 bytes for each of 8 long/double stats
       //  and the stream data
-      return (4 * 2) + (8 * 6) + stream.size();
+      return (8 * 8) + stream.size();
     }
 
     public boolean isEmpty() {
@@ -211,8 +210,8 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
       fileStream.write(Utility.fromLong(maxLength));
       fileStream.write(Utility.fromLong(minLength));
 
-      fileStream.write(Utility.fromInt(firstDocument));
-      fileStream.write(Utility.fromInt(prevDocument));
+      fileStream.write(Utility.fromLong(firstDocument));
+      fileStream.write(Utility.fromLong(prevDocument));
 
       // copy length data to index file
       Utility.copyFileToStream(tempFile, fileStream);

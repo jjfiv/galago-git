@@ -24,7 +24,7 @@ public abstract class GenericExtentValueIndexMerger<S> extends GenericIndexMerge
     ScoringContext sc;
     int indexId;
     ExtentIterator iterator;
-    int currentDocument;
+    long currentDocument;
     ExtentArray currentExtentArray;
     DocumentMappingReader mapping;
 

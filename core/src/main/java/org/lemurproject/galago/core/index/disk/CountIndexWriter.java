@@ -64,9 +64,9 @@ public class CountIndexWriter implements
     boolean skip = parameters.getJSON().get("skipping", true);
     this.skipDistance = (int) parameters.getJSON().get("skipDistance", 500);
     this.skipResetDistance = (int) parameters.getJSON().get("skipResetDistance", 20);
+
     this.options |= (skip ? BTreeValueIterator.HAS_SKIPS : 0x0);
     this.options |= BTreeValueIterator.HAS_MAXTF;
-    // more options here?
   }
 
   @Override
@@ -90,7 +90,7 @@ public class CountIndexWriter implements
   }
 
   @Override
-  public void processDocument(int document) throws IOException {
+  public void processDocument(long document) throws IOException {
     invertedList.addDocument(document);
   }
 

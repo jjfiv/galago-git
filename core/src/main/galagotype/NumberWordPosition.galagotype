@@ -1,7 +1,7 @@
 package org.lemurproject.galago.core.types;
 
 type NumberWordPosition {
-    int document;
+    long document;
     bytes word;
     int position;
     

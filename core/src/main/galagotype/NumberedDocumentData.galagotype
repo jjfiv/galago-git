@@ -4,7 +4,7 @@ type NumberedDocumentData {
     String identifier;
     String fieldList;
     String url;
-    int number;
+    long number;
     int textLength;
 
     order: +number;

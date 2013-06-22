@@ -21,9 +21,9 @@ public final class SparseFloatListSource extends BTreeValueSource implements Sco
   final double defaultScore;
   
   VByteInput stream;
-  int indexCount;
-  int index;
-  int currentDocument;
+  long indexCount;
+  long index;
+  long currentDocument;
   double currentScore;
   
   public SparseFloatListSource(BTreeIterator iter, double defaultScore) throws IOException {
@@ -36,7 +36,7 @@ public final class SparseFloatListSource extends BTreeValueSource implements Sco
   public void reset() throws IOException {
     DataStream buffered = btreeIter.getValueStream();
     stream = new VByteInput(buffered);
-    indexCount = stream.readInt();
+    indexCount = stream.readLong();
     index = -1;
     currentDocument = 0;
     if (indexCount > 0) {
@@ -48,7 +48,7 @@ public final class SparseFloatListSource extends BTreeValueSource implements Sco
       index += 1;
 
       if (index < indexCount) {
-        currentDocument += stream.readInt();
+        currentDocument += stream.readLong();
         currentScore = stream.readFloat();
       } else {
         // ensure we never overflow
