@@ -3,7 +3,6 @@ package org.lemurproject.galago.core.retrieval.iterator.disk;
 
 import java.io.IOException;
 import java.util.Collections;
-import org.lemurproject.galago.core.index.disk.PositionIndexExtentSource;
 import org.lemurproject.galago.core.index.source.ExtentSource;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;

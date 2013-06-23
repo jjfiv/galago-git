@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import org.lemurproject.galago.core.index.*;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.DataStream;
@@ -43,7 +44,7 @@ public class ConflationIndexReader extends KeyValueReader {
   }
 
   @Override
-  public DiskIterator getIterator(Node node) throws IOException {
+  public BaseIterator getIterator(Node node) throws IOException {
     throw new UnsupportedOperationException(
             "Index doesn't support operator: " + node.getOperator());
   }

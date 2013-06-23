@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.VByteInput;
-import org.lemurproject.galago.tupleflow.VByteOutput;
 import org.xerial.snappy.SnappyInputStream;
 import org.xerial.snappy.SnappyOutputStream;
 
@@ -290,7 +288,7 @@ public class Document implements Serializable {
       return currentBuffer;
     }
   }
-
+  
   /**
    * This class allows the selection
    *

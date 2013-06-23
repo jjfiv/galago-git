@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.parse.PseudoDocument;
 import org.lemurproject.galago.core.parse.TagTokenizer;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -86,12 +87,12 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("corpus", new NodeType(DiskIterator.class));
+    types.put("corpus", new NodeType(CorpusIterator.class));
     return types;
   }
 
   @Override
-  public DiskIterator getIterator(Node node) throws IOException {
+  public BaseIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("corpus")) {
       return new CorpusIterator(new KeyIterator(reader));
     } else {
@@ -134,7 +135,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     }
 
     @Override
-    public DiskIterator getValueIterator() throws IOException {
+    public BaseIterator getValueIterator() throws IOException {
       return new CorpusIterator(this);
     }
   }

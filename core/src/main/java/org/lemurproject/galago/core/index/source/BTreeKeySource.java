@@ -9,11 +9,12 @@ import org.lemurproject.galago.tupleflow.Utility;
  * This class treats an empty BTree or at least the keys of a BTree as a data
  * source.
  *
- * Therefore, it is likely to be a Boolean source, but I won't constrain that
- * here for now. The implementation sits mostly on top of the BTreeIterator,
- * leaving very few methods for subclasses.
+ * The implementation sits mostly on top of the BTreeIterator, leaving very few
+ * methods for subclasses.
  *
  * @author jfoley
+ * @see DocumentIndicatorSource
+ * @see DocumentPriorSource
  */
 public abstract class BTreeKeySource implements DiskSource {
 
