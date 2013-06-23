@@ -113,7 +113,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
 
     @Override
     public String getKeyString() {
-      return Integer.toString(Utility.toInt(getKey()));
+      return Long.toString(Utility.toLong(getKey()));
     }
 
     @Override
