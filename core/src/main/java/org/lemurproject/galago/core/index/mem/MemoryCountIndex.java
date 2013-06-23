@@ -340,7 +340,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     public String getValueString() throws IOException {
       long count = -1;
       CountsIterator it = new CountsIterator(postings.get(currKey));
-      count = it.count();
+      count = it.totalEntries();
       StringBuilder sb = new StringBuilder();
       sb.append(Utility.toString(getKey())).append(",");
       sb.append("list of size: ");
@@ -449,7 +449,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
         currDocument = postings.lastDocument;
         currCount = postings.lastCount;
       } else {
-        currDocument += documents_reader.readInt();
+        currDocument += documents_reader.readLong();
         currCount = counts_reader.readInt();
       }
 

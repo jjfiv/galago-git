@@ -498,7 +498,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
         currDocument = postings.lastDocument;
         currCount = postings.lastCount;
       } else {
-        currDocument += documents_reader.readInt();
+        currDocument += documents_reader.readLong();
         currCount = counts_reader.readInt();
       }
       loadExtents();
@@ -686,7 +686,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
         currDocument = postings.lastDocument;
         currCount = postings.lastCount;
       } else {
-        currDocument += documents_reader.readInt();
+        currDocument += documents_reader.readLong();
         currCount = counts_reader.readInt();
       }
 

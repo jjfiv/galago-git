@@ -6,7 +6,6 @@ import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * Interface that allows different corpus formats See CorpusReader /

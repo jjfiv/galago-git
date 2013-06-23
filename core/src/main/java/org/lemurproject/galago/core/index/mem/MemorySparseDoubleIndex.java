@@ -404,7 +404,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
         done = true;
         return;
       } else {
-        currDocument += documents_reader.readInt();
+        currDocument += documents_reader.readLong();
         currScore = scores_reader.readDouble();
       }
 

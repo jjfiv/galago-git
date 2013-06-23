@@ -15,8 +15,6 @@ import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.DynamicIndex;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.IndexPartReader;
-import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
-import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
@@ -151,10 +149,10 @@ public class GeometricIndex implements DynamicIndex, Index {
   }
 
   /**
-   * Tries to perform a merge op (for use with force flush)
-   * NOTE: flush will only occur when geometric merge requirements are true
-   *  - more than <radix> shards of a given size
-   * 
+   * Tries to perform a merge op (for use with force flush) NOTE: flush will
+   * only occur when geometric merge requirements are true - more than <radix>
+   * shards of a given size
+   *
    */
   public void forceMerge() throws IOException {
     maintainMergeLocal();

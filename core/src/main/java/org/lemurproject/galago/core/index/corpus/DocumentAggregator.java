@@ -27,6 +27,7 @@ public class DocumentAggregator implements KeyValuePair.KeyOrder.ShreddedProcess
   int documentNumber = 0;
   byte[] lastIdentifier = null;
   Map<String, PseudoDocument> bufferedDocuments;
+  private Parameters emptyParameters = new Parameters();
 
   public DocumentAggregator(TupleFlowParameters parameters) throws IOException, FileNotFoundException {
     docsIn = parameters.getCounter("Documents in");
@@ -41,6 +42,7 @@ public class DocumentAggregator implements KeyValuePair.KeyOrder.ShreddedProcess
     bufferedDocuments = new HashMap<String, PseudoDocument>();
   }
 
+  @Override
   public void processKey(byte[] key) throws IOException {
     if (lastIdentifier == null
             || Utility.compare(key, lastIdentifier) != 0) {
@@ -51,6 +53,7 @@ public class DocumentAggregator implements KeyValuePair.KeyOrder.ShreddedProcess
     }
   }
 
+  @Override
   public void processTuple(byte[] value) throws IOException {
     ByteArrayInputStream stream = new ByteArrayInputStream(value);
     Document document;
@@ -74,7 +77,6 @@ public class DocumentAggregator implements KeyValuePair.KeyOrder.ShreddedProcess
     }
   }
 
-  private Parameters emptyParameters = new Parameters();
   private void write() throws IOException {
     for (String nameKey : bufferedDocuments.keySet()) {
       ByteArrayOutputStream array = new ByteArrayOutputStream();
@@ -82,11 +84,11 @@ public class DocumentAggregator implements KeyValuePair.KeyOrder.ShreddedProcess
       pd.identifier = documentNumber;
       // This is a hack to make the document smaller
       if (pd.terms.size() > 1000000) {
-	  pd.terms = pd.terms.subList(0, 1000000);
+        pd.terms = pd.terms.subList(0, 1000000);
       }
       array.write(PseudoDocument.serialize(emptyParameters, pd));
       array.close();
-      byte[] newKey = Utility.fromInt(pd.identifier);
+      byte[] newKey = Utility.fromLong(pd.identifier);
       byte[] value = array.toByteArray();
       System.err.printf("Total stored document (%d) size: %d\n", pd.identifier, value.length);
       writer.add(new GenericElement(newKey, value));
@@ -108,6 +110,7 @@ public class DocumentAggregator implements KeyValuePair.KeyOrder.ShreddedProcess
     Verification.requireWriteableFile(index, store);
   }
 
+  @Override
   public void close() throws IOException {
     write();
     writer.close();

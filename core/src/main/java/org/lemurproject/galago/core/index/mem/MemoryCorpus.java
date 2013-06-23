@@ -17,7 +17,6 @@ import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
-import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -39,6 +38,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
     this.corpusData = new TreeMap(new ByteArrComparator());
   }
 
+  @Override
   public void addDocument(Document doc) {
 
     docCount += 1;
@@ -46,7 +46,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
     // save a subset of the document 
     // - to match the output of themake-corpus function.
-    corpusData.put(Utility.fromInt(doc.identifier), doc);
+    corpusData.put(Utility.fromLong(doc.identifier), doc);
   }
 
   // this is likely to waste all of your memory...
@@ -83,7 +83,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
   @Override
   public Document getDocument(int key, DocumentComponents p) throws IOException {
-    return corpusData.get(Utility.fromInt(key));
+    return corpusData.get(Utility.fromLong(key));
   }
 
   @Override
@@ -174,7 +174,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
     @Override
     public String getKeyString() {
-      return Integer.toString(Utility.toInt(currKey));
+      return Long.toString(Utility.toLong(currKey));
     }
 
     @Override

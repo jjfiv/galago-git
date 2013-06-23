@@ -89,12 +89,14 @@ public class MemoryIndex implements DynamicIndex, Index {
 
   /**
    * Special function to return the number of documents stored in memory
+   *
    * @return documentCount
    */
   public int documentsInIndex() {
     return (documentCount - documentNumberOffset);
   }
 
+  @Override
   public void process(Document doc) throws IOException {
     doc.identifier = documentCount;
     for (MemoryIndexPart part : parts.values()) {
@@ -108,6 +110,7 @@ public class MemoryIndex implements DynamicIndex, Index {
    *  return dirty;
    *}
    */
+  @Override
   public String getDefaultPart() {
     if (manifest.isString("defaultPart")) {
       String part = manifest.getString("defaultPart");
@@ -138,6 +141,7 @@ public class MemoryIndex implements DynamicIndex, Index {
     return parts.containsKey(partName);
   }
 
+  @Override
   public MemoryIndexPart getIndexPart(String partName) {
     return parts.get(partName);
   }
@@ -165,6 +169,7 @@ public class MemoryIndex implements DynamicIndex, Index {
     }
   }
 
+  @Override
   public String getIndexPartName(Node node) throws IOException {
     String operator = node.getOperator();
     String partName = null;
@@ -185,6 +190,7 @@ public class MemoryIndex implements DynamicIndex, Index {
     return partName;
   }
 
+  @Override
   public BaseIterator getIterator(Node node) throws IOException {
     BaseIterator result = null;
     IndexPartReader part = parts.get(getIndexPartName(node));
@@ -198,6 +204,7 @@ public class MemoryIndex implements DynamicIndex, Index {
     return result;
   }
 
+  @Override
   public NodeType getNodeType(Node node) throws IOException {
     NodeType result = null;
     IndexPartReader part = parts.get(getIndexPartName(node));
@@ -216,6 +223,7 @@ public class MemoryIndex implements DynamicIndex, Index {
    * @param part
    * @return
    */
+  @Override
   public IndexPartStatistics getIndexPartStatistics(String part) {
     if (parts.containsKey(part)) {
       IndexPartReader p = parts.get(part);
@@ -227,6 +235,7 @@ public class MemoryIndex implements DynamicIndex, Index {
     throw new IllegalArgumentException("Index part, " + part + ", could not be found in memory index.");
   }
 
+  @Override
   public void close() throws IOException {
     // TESTING: try flushing:
     //(new FlushToDisk()).flushMemoryIndex(this, "./flush/", false);
@@ -237,20 +246,24 @@ public class MemoryIndex implements DynamicIndex, Index {
     parts = null;
   }
 
+  @Override
   public boolean containsDocumentIdentifier(int document) throws IOException {
     NamesReader.NamesIterator ni = this.getNamesIterator();
     ni.syncTo(document);
     return ni.getCurrentIdentifier() == document;
   }
 
+  @Override
   public int getLength(int document) throws IOException {
     return ((MemoryDocumentLengths) parts.get("lengths")).getLength(document);
   }
 
+  @Override
   public String getName(int document) throws IOException {
     return ((MemoryDocumentNames) parts.get("names")).getDocumentName(document);
   }
 
+  @Override
   public int getIdentifier(String document) throws IOException {
     return ((MemoryDocumentNames) parts.get("names")).getDocumentIdentifier(document);
   }

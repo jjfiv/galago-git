@@ -22,12 +22,12 @@ public abstract class KeyToListIterator extends DiskIterator {
 
   @Override
   public void syncTo(int identifier) throws IOException {
-    iterator.skipToKey(Utility.fromInt(identifier));
+    iterator.skipToKey(Utility.fromLong(identifier));
   }
 
   @Override
   public void movePast(int identifier) throws IOException {
-    iterator.skipToKey(Utility.fromInt(identifier + 1));
+    iterator.skipToKey(Utility.fromLong(identifier + 1));
   }
 
   @Override
@@ -43,7 +43,7 @@ public abstract class KeyToListIterator extends DiskIterator {
   @Override
   public int currentCandidate() {
     try {
-      return Utility.toInt(iterator.getKey());
+      return (int) Utility.toLong(iterator.getKey());
     } catch (IOException ioe) {
       return Integer.MAX_VALUE;
     }

@@ -193,34 +193,5 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, extraInfo, children);
     }
-
-    @Override
-    public void syncTo(int identifier) throws IOException {
-      iterator.skipToKey(Utility.fromLong(identifier));
-    }
-
-    @Override
-    public void movePast(int identifier) throws IOException {
-      iterator.skipToKey(Utility.fromLong(identifier + 1));
-    }
-
-    @Override
-    public void reset() throws IOException {
-      iterator.reset();
-    }
-
-    @Override
-    public boolean isDone() {
-      return iterator.isDone();
-    }
-
-    @Override
-    public int currentCandidate() {
-      try {
-        return (int) Utility.toLong(iterator.getKey());
-      } catch (IOException ioe) {
-        return Integer.MAX_VALUE;
-      }
-    }
   }
 }

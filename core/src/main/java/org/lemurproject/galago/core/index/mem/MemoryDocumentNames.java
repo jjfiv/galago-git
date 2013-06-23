@@ -29,7 +29,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 
 public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
 
-  private ObjectArray<String> names = new ObjectArray(String.class, 256);
+  private List<String> names = new ArrayList<String>(256);
   private int offset;
   private Parameters params;
   private long docCount;
@@ -40,11 +40,16 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     this.params.set("writerClass", "org.lemurproject.galago.core.index.DocumentNameWriter");
   }
 
+  @Override
   public void addDocument(Document doc) {
-    if (names.getPosition() == 0) {
+    if (names.isEmpty()) {
       offset = doc.identifier;
     }
-    assert (names.getPosition() + offset == doc.identifier);
+
+    assert (names.size() + offset <= doc.identifier);
+    while (names.size() + offset < doc.identifier) {
+      names.add(null); // add nulls to ensure the size of the array is correct
+    }
 
     docCount += 1;
     termCount += doc.terms.size();
@@ -57,16 +62,16 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
       int identifier = ((NamesReader.NamesIterator) iterator).getCurrentIdentifier();
       String name = ((NamesReader.NamesIterator) iterator).getCurrentName();
 
-      if (names.getPosition() == 0) {
+      if (names.isEmpty()) {
         offset = identifier;
       }
 
-      if (offset + names.getPosition() > identifier) {
+      if (offset + names.size() > identifier) {
         throw new IOException("Unable to add names data out of order.");
       }
 
       // if we are adding id + lengths directly - we need
-      while (offset + names.getPosition() < identifier) {
+      while (offset + names.size() < identifier) {
         names.add(null);
       }
 
@@ -82,16 +87,19 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     throw new IOException("Can not remove Document Names iterator data");
   }
 
+  @Override
   public String getDocumentName(int docNum) {
     int index = docNum - offset;
-    assert ((index >= 0) && (index < names.getPosition())) : "Document identifier not found in this index.";
-    return names.getBuffer()[index];
+    assert ((index >= 0) && (index < names.size())) : "Document identifier not found in this index.";
+    return names.get(index);
   }
 
+  @Override
   public int getDocumentIdentifier(String document) {
     throw new UnsupportedOperationException("Not yet implemented");
   }
 
+  @Override
   public void close() throws IOException {
     names = null;
     offset = 0;
@@ -99,7 +107,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
 
   @Override
   public NamesReader.NamesIterator getNamesIterator() throws IOException {
-    return new VIterator(new KIterator());
+    return new MemNamesIterator(new KIterator());
   }
 
   @Override
@@ -115,14 +123,14 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("names", new NodeType(VIterator.class));
+    types.put("names", new NodeType(MemNamesIterator.class));
     return types;
   }
 
   @Override
   public DiskIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("names")) {
-      return new VIterator(getIterator());
+      return new MemNamesIterator(getIterator());
     } else {
       throw new UnsupportedOperationException(
               "Index doesn't support operator: " + node.getOperator());
@@ -131,7 +139,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
 
   @Override
   public DiskIterator getIterator(byte[] _key) throws IOException {
-    return new VIterator(getIterator());
+    return new MemNamesIterator(getIterator());
   }
 
   @Override
@@ -151,7 +159,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
 
   @Override
   public long getKeyCount() {
-    return this.names.getPosition();
+    return docCount;
   }
 
   @Override
@@ -190,6 +198,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     int current = 0;
     boolean done = false;
 
+    @Override
     public void reset() throws IOException {
       current = 0;
       done = false;
@@ -200,24 +209,27 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     }
 
     public String getCurrentName() throws IOException {
-      if (current < names.getPosition()) {
-        return names.getBuffer()[current];
+      if (current < names.size()) {
+        return names.get(current);
       } else {
         return "";
       }
     }
 
+    @Override
     public String getKeyString() {
       return Integer.toString(current + offset);
     }
 
+    @Override
     public byte[] getKey() {
-      return Utility.fromInt(offset + current);
+      return Utility.fromLong(offset + current);
     }
 
+    @Override
     public boolean nextKey() throws IOException {
       current++;
-      if (current >= 0 && current < names.getPosition()) {
+      if (current >= 0 && current < names.size()) {
         return true;
       }
       current = 0;
@@ -225,9 +237,10 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
       return false;
     }
 
+    @Override
     public boolean skipToKey(byte[] key) throws IOException {
-      current = Utility.toInt(key) - offset;
-      if (current >= 0 && current < names.getPosition()) {
+      current = (int) (Utility.toLong(key) - offset);
+      if (current >= 0 && current < names.size()) {
         return true;
       }
       current = 0;
@@ -236,17 +249,20 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     }
 
     public boolean skipToKey(int key) throws IOException {
-      return skipToKey(Utility.fromInt(key));
+      return skipToKey(Utility.fromLong((long)key));
     }
 
+    @Override
     public boolean findKey(byte[] key) throws IOException {
       return skipToKey(key);
     }
 
+    @Override
     public String getValueString() throws IOException {
       return getCurrentName();
     }
 
+    @Override
     public byte[] getValueBytes() throws IOException {
       return Utility.fromString(this.getCurrentName());
     }
@@ -255,10 +271,12 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public boolean isDone() {
       return done;
     }
 
+    @Override
     public int compareTo(KeyIterator t) {
       try {
         return Utility.compare(this.getKey(), t.getKey());
@@ -267,17 +285,19 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
       }
     }
 
+    @Override
     public DiskIterator getValueIterator() throws IOException {
-      return new VIterator(this);
+      return new MemNamesIterator(this);
     }
   }
 
-  public class VIterator extends KeyToListIterator implements DataIterator<String>, NamesReader.NamesIterator {
+  public class MemNamesIterator extends KeyToListIterator implements DataIterator<String>, NamesReader.NamesIterator {
 
-    public VIterator(KeyIterator ki) {
+    public MemNamesIterator(KeyIterator ki) {
       super(ki);
     }
 
+    @Override
     public String getValueString() throws IOException {
       KIterator ki = (KIterator) iterator;
       StringBuilder sb = new StringBuilder();
@@ -287,10 +307,12 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
       return sb.toString();
     }
 
+    @Override
     public long totalEntries() {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public String getData() {
       try {
         return getCurrentName();
@@ -309,6 +331,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
       return ki.skipToKey(candidate);
     }
 
+    @Override
     public String getCurrentName() throws IOException {
       if (context.document == this.getCurrentIdentifier()) {
         KIterator ki = (KIterator) iterator;
@@ -318,6 +341,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
       return null;
     }
 
+    @Override
     public int getCurrentIdentifier() throws IOException {
       KIterator ki = (KIterator) iterator;
       return ki.getCurrentIdentifier();

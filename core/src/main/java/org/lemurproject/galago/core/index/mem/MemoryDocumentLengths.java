@@ -289,10 +289,6 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       return findKey(key);
     }
 
-    public boolean skipToKey(int key) throws IOException {
-      return findKey(Utility.fromInt(key));
-    }
-
     @Override
     public boolean findKey(byte[] key) throws IOException {
       fields = lengths.tailMap(new Bytes(key)).keySet().iterator();

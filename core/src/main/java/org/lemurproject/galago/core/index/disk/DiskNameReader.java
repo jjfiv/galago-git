@@ -129,26 +129,6 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     }
 
     @Override
-    public int currentCandidate() {
-      try {
-        // TODO stop casting document to int
-        return (int) Utility.toLong(iterator.getKey());
-      } catch (IOException ioe) {
-        return Integer.MAX_VALUE;
-      }
-    }
-
-    @Override
-    public void syncTo(int identifier) throws IOException {
-      iterator.skipToKey(Utility.fromLong(identifier));
-    }
-
-    @Override
-    public void movePast(int identifier) throws IOException {
-      iterator.skipToKey(Utility.fromLong(identifier + 1));
-    }
-
-    @Override
     public String getValueString() throws IOException {
       KeyIterator ki = (KeyIterator) iterator;
       StringBuilder sb = new StringBuilder();

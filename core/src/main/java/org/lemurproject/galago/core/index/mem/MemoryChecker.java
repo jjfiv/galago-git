@@ -22,7 +22,7 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 @OutputClass( className = "org.lemurproject.galago.core.parse.Document")
 public class MemoryChecker extends StandardStep<Document, Document> {
   
-  private Logger logger = Logger.getLogger(MemoryChecker.class.toString());
+  private static final Logger logger = Logger.getLogger(MemoryChecker.class.toString());
   MemoryPoolMXBean heap = null;
   long docCount = 0;
   long checkFreq = 1000;

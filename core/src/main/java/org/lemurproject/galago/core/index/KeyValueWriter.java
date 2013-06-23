@@ -11,9 +11,10 @@ import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
- * Almost complete class. Makes assumptions that you ultimately want to write every incoming item
- * to an output file, so it handles as much boilerplate as possible. A canonical use case is the
- * DocumentContentWriter, which is used to write the corpus in Galago 2.0.
+ * Almost complete class. Makes assumptions that you ultimately want to write
+ * every incoming item to an output file, so it handles as much boilerplate as
+ * possible. A canonical use case is the DocumentContentWriter, which is used to
+ * write the corpus in Galago 2.0.
  *
  * Only thing to really implement is the prepare method.
  *
@@ -49,7 +50,7 @@ public abstract class KeyValueWriter<T> implements Processor<T> {
     writer.close();
   }
 
-  public void process(T i) throws IOException {
+  public void process(T i) throws IOException { 
     GenericElement e = prepare(i);
     if (e != null) {
       writer.add(e);
