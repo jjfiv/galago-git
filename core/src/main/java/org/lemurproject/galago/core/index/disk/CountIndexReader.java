@@ -140,6 +140,10 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
       return sb.toString();
     }
 
+    public CountIndexCountSource getStreamValueSource() throws IOException {
+      return new CountIndexCountSource(iterator);
+    }
+    
     @Override
     public DiskIterator getValueIterator() throws IOException {
       return new DiskCountIterator(new CountIndexCountSource(iterator));
