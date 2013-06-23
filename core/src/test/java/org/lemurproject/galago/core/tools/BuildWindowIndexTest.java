@@ -158,8 +158,8 @@ public class BuildWindowIndexTest extends TestCase {
         assert Utility.compare(key, posits_NSE_ki.getKey()) == 0;
         assert Utility.compare(key, posits__SE_ki.getKey()) == 0;
 
-        CountIndexReader.TermCountIterator counts_NSE_ci = (CountIndexReader.TermCountIterator) counts_NSE_ki.getValueIterator();
-        CountIndexReader.TermCountIterator counts__SE_ci = (CountIndexReader.TermCountIterator) counts__SE_ki.getValueIterator();
+        CountIterator counts_NSE_ci = (CountIterator) counts_NSE_ki.getValueIterator();
+        CountIterator counts__SE_ci = (CountIterator) counts__SE_ki.getValueIterator();
         ExtentIterator posits_NSE_ei = (ExtentIterator) posits_NSE_ki.getValueIterator();
         ExtentIterator posits__SE_ei = (ExtentIterator) posits__SE_ki.getValueIterator();
 

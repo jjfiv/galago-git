@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -67,14 +68,14 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     return null;
   }
 
-  public TermCountIterator getTermCounts(String term) throws IOException {
+  public DiskCountIterator getTermCounts(String term) throws IOException {
     return getTermCounts(Utility.fromString(stemAsRequired(term)));
   }
 
-  public TermCountIterator getTermCounts(byte[] term) throws IOException {
+  public DiskCountIterator getTermCounts(byte[] term) throws IOException {
     BTreeReader.BTreeIterator iterator = reader.getIterator(term);
     if (iterator != null) {
-      return new TermCountIterator(iterator);
+      return new DiskCountIterator(new PositionIndexCountSource(iterator));
     }
     return null;
   }
@@ -82,7 +83,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("counts", new NodeType(TermCountIterator.class));
+    types.put("counts", new NodeType(DiskCountIterator.class));
     types.put("extents", new NodeType(DiskExtentIterator.class));
     return types;
   }
@@ -129,10 +130,10 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
 
     @Override
     public String getValueString() {
-      TermCountIterator it;
+      DiskCountIterator it;
       long count = -1;
       try {
-        it = new TermCountIterator(iterator);
+        it = new DiskCountIterator(new PositionIndexCountSource(iterator));
         count = it.count();
       } catch (IOException ioe) {
       }

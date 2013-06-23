@@ -40,7 +40,7 @@ public class VocabularyReader {
     return slots;
   }
 
-  public void read(BufferedFileDataStream input, long valueDataEnd) throws IOException {
+  private void read(BufferedFileDataStream input, long valueDataEnd) throws IOException {
     long last = 0;
 
     int finalKeyLength = input.readInt();
