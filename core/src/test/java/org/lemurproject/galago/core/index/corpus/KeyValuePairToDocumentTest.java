@@ -39,12 +39,13 @@ public class KeyValuePairToDocumentTest extends TestCase {
         ByteArrayOutputStream array = new ByteArrayOutputStream();
         ObjectOutputStream output = new ObjectOutputStream(array);
         Document document = new Document();
+        document.identifier = 10;
         document.text = "This is text";
         document.metadata.put("hi", "there");
         document.name = "DOC1";
         output.writeObject(document);
 
-        byte[] key = Utility.fromString(document.name);
+        byte[] key = Utility.fromLong(document.identifier);
         byte[] value = array.toByteArray();
         KeyValuePair pair = new KeyValuePair(key, value);
 

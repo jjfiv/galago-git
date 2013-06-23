@@ -49,7 +49,7 @@ public class DocumentToKeyValuePair extends StandardStep<Document, KeyValuePair>
     output.writeObject(document);
     output.close();
 
-    byte[] key = Utility.fromInt(document.identifier);
+    byte[] key = Utility.fromLong(document.identifier);
     byte[] value = array.toByteArray();
     KeyValuePair pair = new KeyValuePair(key, value);
     processor.process(pair);

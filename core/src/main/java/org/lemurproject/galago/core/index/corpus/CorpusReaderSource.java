@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.parse.PseudoDocument;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -64,5 +65,15 @@ public class CorpusReaderSource extends BTreeKeySource implements DataSource<Doc
       }
     }
     return null;
+  }
+
+  @Override
+  public long currentCandidate() {
+    return Utility.toLong(btreeIter.getKey());
+  }
+
+  @Override
+  public void syncTo(long id) throws IOException {
+    btreeIter.skipTo(Utility.fromLong(id));
   }
 }

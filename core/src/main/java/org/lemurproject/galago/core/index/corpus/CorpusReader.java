@@ -10,7 +10,6 @@ import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.parse.PseudoDocument;
@@ -36,7 +35,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
   TagTokenizer tokenizer;
   boolean psuedoDocs;
-  
+
   public CorpusReader(String fileName) throws FileNotFoundException, IOException {
     super(fileName);
     init();
@@ -47,16 +46,16 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     init();
   }
 
-  public void init(){
+  public void init() {
     Parameters manifest = getManifest();
     psuedoDocs = manifest.get("psuedo", false);
-    if(manifest.containsKey("tokenizer")){
+    if (manifest.containsKey("tokenizer")) {
       tokenizer = new TagTokenizer(new FakeParameters(getManifest().getMap("tokenizer")));
     } else {
       tokenizer = new TagTokenizer(new FakeParameters(new Parameters()));
     }
   }
-  
+
   @Override
   public KeyIterator getIterator() throws IOException {
     return new KeyIterator(reader);
@@ -72,11 +71,10 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     }
   }
 
-
   @Override
   public Document getDocument(int key, DocumentComponents p) throws IOException {
     KeyIterator i = new KeyIterator(reader);
-    byte[] k = Utility.fromInt(key);
+    byte[] k = Utility.fromLong(key);
     if (i.findKey(k)) {
       return i.getDocument(p);
     } else {
@@ -109,7 +107,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
     @Override
     public String getKeyString() {
-      return Integer.toString(Utility.toInt(getKey()));
+      return Long.toString(Utility.toLong(getKey()));
     }
 
     @Override
@@ -117,8 +115,8 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
       if (psuedoDocs) {
         return PseudoDocument.deserialize(iterator.getValueBytes(), p);
       } else {
-        Document d =  Document.deserialize(iterator.getValueBytes(), p);
-        if(p.tokenize){
+        Document d = Document.deserialize(iterator.getValueBytes(), p);
+        if (p.tokenize) {
           tokenizer.tokenize(d);
         }
         return d;
@@ -194,6 +192,35 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, extraInfo, children);
+    }
+
+    @Override
+    public void syncTo(int identifier) throws IOException {
+      iterator.skipToKey(Utility.fromLong(identifier));
+    }
+
+    @Override
+    public void movePast(int identifier) throws IOException {
+      iterator.skipToKey(Utility.fromLong(identifier + 1));
+    }
+
+    @Override
+    public void reset() throws IOException {
+      iterator.reset();
+    }
+
+    @Override
+    public boolean isDone() {
+      return iterator.isDone();
+    }
+
+    @Override
+    public int currentCandidate() {
+      try {
+        return (int) Utility.toLong(iterator.getKey());
+      } catch (IOException ioe) {
+        return Integer.MAX_VALUE;
+      }
     }
   }
 }

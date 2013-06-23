@@ -32,7 +32,6 @@ public class CorpusFolderWriter implements Processor<Document>, Source<KeyValueP
 
   Parameters corpusParams;
   SplitBTreeValueWriter writer;
-  boolean useExternalKey;
 
   public CorpusFolderWriter(TupleFlowParameters parameters) throws IOException, IncompatibleProcessorException {
     corpusParams = parameters.getJSON();
@@ -41,20 +40,12 @@ public class CorpusFolderWriter implements Processor<Document>, Source<KeyValueP
     corpusParams.set("readerClass", CorpusReader.class.getName());
     corpusParams.set("mergerClass", CorpusMerger.class.getName());
     writer = new SplitBTreeValueWriter(parameters);
-
-    // figure out what the key actually is
-    useExternalKey = corpusParams.get("useExternalKey", false);
   }
 
   @Override
   public void process(Document document) throws IOException {
-    if (useExternalKey) {
-      writer.add(new GenericElement(Utility.fromString(document.name),
-              Document.serialize(document)));
-    } else {
-      writer.add(new GenericElement(Utility.fromInt(document.identifier),
-              Document.serialize(document)));
-    }
+    writer.add(new GenericElement(Utility.fromLong(document.identifier),
+            Document.serialize(document)));
   }
 
   @Override

@@ -105,7 +105,7 @@ public class IndexReaderSplitParserTest extends TestCase {
     DocumentSplit split = new DocumentSplit();
     split.fileName = temporaryName;
     split.fileType = "corpus";
-    split.startKey = Utility.fromInt(11);
+    split.startKey = Utility.fromLong(11);
     split.endKey = new byte[0];
 
     // Open up the file:
@@ -120,7 +120,7 @@ public class IndexReaderSplitParserTest extends TestCase {
     split.fileName = temporaryName;
     split.fileType = "corpus";
     split.startKey = new byte[0];
-    split.endKey = Utility.fromInt(9);
+    split.endKey = Utility.fromLong(9);
 
     // Open up the file:
     CorpusSplitParser parser = new CorpusSplitParser(split, new Parameters());

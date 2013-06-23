@@ -44,6 +44,8 @@ public class CorpusTest extends TestCase {
         docs.add(d);
       }
 
+      // TODO: add some massive document ids here.
+      
       corpus = Utility.createTemporary();
 
       // test defaulty behaviour:

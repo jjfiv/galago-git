@@ -31,9 +31,9 @@ public class CorpusSplitParser extends DocumentStreamParser {
 
   public CorpusSplitParser(DocumentSplit split, Parameters p) throws FileNotFoundException, IOException {
     super(split, p);
-    reader = new CorpusReader(split.fileName);
-    iterator = (DocumentIterator) reader.getIterator();
-    iterator.skipToKey(split.startKey);
+    this.reader = new CorpusReader(split.fileName);
+    this.iterator = (DocumentIterator) reader.getIterator();
+    this.iterator.skipToKey(split.startKey);
     this.split = split;
 
     if(p.get("psuedo", false)){
