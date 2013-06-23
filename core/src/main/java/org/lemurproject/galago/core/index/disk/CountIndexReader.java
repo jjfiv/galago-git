@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.BTreeValueIterator;
-import org.lemurproject.galago.core.index.source.CountSource;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
@@ -18,6 +17,7 @@ import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -61,16 +61,16 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
    * Returns an iterator pointing at the specified term, or null if the term
    * doesn't exist in the inverted file.
    */
-  public TermCountIterator getTermCounts(byte[] key) throws IOException {
+  public DiskCountIterator getTermCounts(byte[] key) throws IOException {
     BTreeReader.BTreeIterator iterator = reader.getIterator(key);
 
     if (iterator != null) {
-      return new TermCountIterator(iterator);
+      return new DiskCountIterator(new CountIndexCountSource(iterator));
     }
     return null;
   }
 
-  public TermCountIterator getTermCounts(String term) throws IOException {
+  public DiskCountIterator getTermCounts(String term) throws IOException {
     return getTermCounts(Utility.fromString(stemAsRequired(term)));
   }
 
@@ -120,18 +120,20 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
 
     @Override
     public String getValueString() {
-      TermCountIterator it;
-      long count = -1;
+      CountIndexCountSource it;
+      NodeStatistics ns = null;
       try {
-        it = new TermCountIterator(iterator);
-        count = it.count();
+        it = new CountIndexCountSource(iterator);
+        ns = it.getStatistics();
       } catch (IOException ioe) {
+        ioe.printStackTrace();
+        System.err.println(ioe.toString());
       }
+
       StringBuilder sb = new StringBuilder();
       sb.append(Utility.toString(getKey())).append(",");
-      sb.append("list of size: ");
-      if (count > 0) {
-        sb.append(count);
+      if (ns != null) {
+        sb.append(ns.toString());
       } else {
         sb.append("Unknown");
       }
@@ -140,7 +142,7 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
 
     @Override
     public DiskIterator getValueIterator() throws IOException {
-      return new TermCountIterator(iterator);
+      return new DiskCountIterator(new CountIndexCountSource(iterator));
     }
 
     @Override
@@ -149,6 +151,7 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
     }
   }
 
+  @Deprecated
   public class TermCountIterator extends BTreeValueIterator
           implements NodeAggregateIterator, CountIterator {
 

@@ -53,8 +53,8 @@ public abstract class KeyValueReader implements IndexPartReader {
 
   public abstract class KeyValueIterator implements KeyIterator {
 
-    protected BTreeReader.BTreeIterator iterator;
-    protected BTreeReader reader;
+    public BTreeReader.BTreeIterator iterator;
+    public BTreeReader reader;
 
     public KeyValueIterator(BTreeReader reader) throws IOException {
       this.reader = reader;

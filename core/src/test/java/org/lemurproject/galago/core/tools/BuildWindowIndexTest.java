@@ -10,6 +10,8 @@ import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.disk.CountIndexReader;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -156,10 +158,10 @@ public class BuildWindowIndexTest extends TestCase {
         assert Utility.compare(key, posits_NSE_ki.getKey()) == 0;
         assert Utility.compare(key, posits__SE_ki.getKey()) == 0;
 
-        CountIndexReader.TermCountIterator counts_NSE_ci = (CountIndexReader.TermCountIterator) counts_NSE_ki.getValueIterator();
-        CountIndexReader.TermCountIterator counts__SE_ci = (CountIndexReader.TermCountIterator) counts__SE_ki.getValueIterator();
-        WindowIndexReader.WindowExtentIterator posits_NSE_ei = (WindowIndexReader.WindowExtentIterator) posits_NSE_ki.getValueIterator();
-        WindowIndexReader.WindowExtentIterator posits__SE_ei = (WindowIndexReader.WindowExtentIterator) posits__SE_ki.getValueIterator();
+        DiskCountIterator counts_NSE_ci = (DiskCountIterator) counts_NSE_ki.getValueIterator();
+        DiskCountIterator counts__SE_ci = (DiskCountIterator) counts__SE_ki.getValueIterator();
+        DiskExtentIterator posits_NSE_ei = (DiskExtentIterator) posits_NSE_ki.getValueIterator();
+        DiskExtentIterator posits__SE_ei = (DiskExtentIterator) posits__SE_ki.getValueIterator();
 
         ScoringContext sc = new ScoringContext();
         counts_NSE_ci.setContext(sc);
@@ -347,10 +349,10 @@ public class BuildWindowIndexTest extends TestCase {
         assert Utility.compare(key, posits_NSE_ki.getKey()) == 0;
         assert Utility.compare(key, posits__SE_ki.getKey()) == 0;
 
-        CountIndexReader.TermCountIterator counts_NSE_ci = (CountIndexReader.TermCountIterator) counts_NSE_ki.getValueIterator();
-        CountIndexReader.TermCountIterator counts__SE_ci = (CountIndexReader.TermCountIterator) counts__SE_ki.getValueIterator();
-        WindowIndexReader.WindowExtentIterator posits_NSE_ei = (WindowIndexReader.WindowExtentIterator) posits_NSE_ki.getValueIterator();
-        WindowIndexReader.WindowExtentIterator posits__SE_ei = (WindowIndexReader.WindowExtentIterator) posits__SE_ki.getValueIterator();
+        DiskCountIterator counts_NSE_ci = (DiskCountIterator) counts_NSE_ki.getValueIterator();
+        DiskCountIterator counts__SE_ci = (DiskCountIterator) counts__SE_ki.getValueIterator();
+        DiskExtentIterator posits_NSE_ei = (DiskExtentIterator) posits_NSE_ki.getValueIterator();
+        DiskExtentIterator posits__SE_ei = (DiskExtentIterator) posits__SE_ki.getValueIterator();
 
         ScoringContext sc = new ScoringContext();
         counts_NSE_ci.setContext(sc);

@@ -151,7 +151,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
 
     @Override
     public DiskIterator getValueIterator() throws IOException {
-      return new WindowExtentIterator(iterator);
+      return new DiskExtentIterator(new WindowIndexExtentSource(iterator));
     }
 
     @Override

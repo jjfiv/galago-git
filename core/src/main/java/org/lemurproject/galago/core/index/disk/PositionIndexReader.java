@@ -23,11 +23,6 @@ import org.lemurproject.galago.tupleflow.Utility;
  * counts data is stored separately from term position information for faster
  * query processing when no positions are needed.
  *
- * (12/16/2010, irmarc): In order to facilitate faster count-only processing,
- * the default iterator created will not even open the positions list when
- * iterating. This is an interesting enough change that there are now two
- * versions of the iterator
- *
  * @author trevor, sjh, irmarc
  */
 public class PositionIndexReader extends KeyListReader implements AggregateIndexPart {
@@ -83,7 +78,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("counts", new NodeType(TermCountIterator.class));
+    types.put("counts", new NodeType(DiskCountIterator.class));
     types.put("extents", new NodeType(DiskExtentIterator.class));
     return types;
   }
