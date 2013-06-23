@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.HashMap;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
@@ -22,8 +21,8 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class SparseFloatListReader extends KeyListReader {
 
-  private static double defaultScore = Math.log( Math.pow(10, -10) );
-  
+  private static double defaultScore = Math.log(Math.pow(10, -10));
+
   public SparseFloatListReader(String pathname) throws FileNotFoundException, IOException {
     super(pathname);
   }
@@ -31,10 +30,6 @@ public class SparseFloatListReader extends KeyListReader {
   @Override
   public KeyIterator getIterator() throws IOException {
     return new KeyIterator(reader);
-  }
-
-  public DiskScoreIterator getListIterator() throws IOException {
-    return new DiskScoreIterator(new SparseFloatListSource(reader.getIterator(), defaultScore));
   }
 
   private DiskScoreIterator getScores(String term, double defaultScore) throws IOException {
@@ -50,7 +45,7 @@ public class SparseFloatListReader extends KeyListReader {
   }
 
   @Override
-  public DiskIterator getIterator(Node node) throws IOException {
+  public DiskScoreIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("scores")) {
       return getScores(node.getDefaultParameter(), node.getNodeParameters().get("defaultScore", defaultScore));
     } else {
@@ -93,6 +88,10 @@ public class SparseFloatListReader extends KeyListReader {
     @Override
     public String getKeyString() throws IOException {
       return Utility.toString(iterator.getKey());
+    }
+
+    public SparseFloatListSource getValueSource() throws IOException {
+      return new SparseFloatListSource(iterator, defaultScore);
     }
   }
 }

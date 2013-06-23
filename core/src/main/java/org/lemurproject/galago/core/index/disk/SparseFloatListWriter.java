@@ -20,6 +20,45 @@ public class SparseFloatListWriter implements
   DiskBTreeWriter writer;
   DoubleInvertedList list;
 
+  /**
+   * Creates a new instance of DoubleListWriter
+   */
+  public SparseFloatListWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
+    writer = new DiskBTreeWriter(parameters);
+    writer.getManifest().set("readerClass", SparseFloatListReader.class.getName());
+    writer.getManifest().set("writerClass", getClass().getName());
+  }
+
+  @Override
+  public void processWord(byte[] word) throws IOException {
+    if (list != null) {
+      list.close();
+      writer.add(list);
+    }
+
+    list = new DoubleInvertedList(word);
+  }
+
+  @Override
+  public void processNumber(long number) throws IOException {
+    list.addDocument(number);
+  }
+
+  @Override
+  public void processTuple(double probability) throws IOException {
+    list.addProbability(probability);
+  }
+
+  @Override
+  public void close() throws IOException {
+    if (list != null) {
+      list.close();
+      writer.add(list);
+    }
+
+    writer.close();
+  }
+
   public class DoubleInvertedList implements IndexElement {
 
     CompressedRawByteBuffer data = new CompressedRawByteBuffer();
@@ -65,44 +104,5 @@ public class SparseFloatListWriter implements
     public void close() {
       header.add(documentCount);
     }
-  }
-
-  /**
-   * Creates a new instance of DoubleListWriter
-   */
-  public SparseFloatListWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
-    writer = new DiskBTreeWriter(parameters);
-    writer.getManifest().set("readerClass", SparseFloatListReader.class.getName());
-    writer.getManifest().set("writerClass", getClass().getName());
-  }
-
-  @Override
-  public void processWord(byte[] word) throws IOException {
-    if (list != null) {
-      list.close();
-      writer.add(list);
-    }
-
-    list = new DoubleInvertedList(word);
-  }
-
-  @Override
-  public void processNumber(long number) throws IOException {
-    list.addDocument(number);
-  }
-
-  @Override
-  public void processTuple(double probability) throws IOException {
-    list.addProbability(probability);
-  }
-
-  @Override
-  public void close() throws IOException {
-    if (list != null) {
-      list.close();
-      writer.add(list);
-    }
-
-    writer.close();
   }
 }
