@@ -13,7 +13,8 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author jfoley
  */
-public class DocumentIndicatorSource extends BTreeKeySource implements BooleanSource  {
+public class DocumentIndicatorSource extends BTreeKeySource implements BooleanSource {
+
   public final boolean defaultValue;
 
   public DocumentIndicatorSource(BTreeReader rdr, boolean defaultValue) throws IOException {
@@ -30,11 +31,14 @@ public class DocumentIndicatorSource extends BTreeKeySource implements BooleanSo
   public String key() {
     return "indicators";
   }
-  
-  @Override
+
   /**
    * If the data stored is false, it's not really a match.
+   *
+   * Because even though we're in source world, we don't consider a stored false
+   * to be worth "scoring".
    */
+  @Override
   public boolean hasMatch(long id) {
     return (!isDone() && (currentCandidate() == id) && indicator(id));
   }
@@ -44,13 +48,10 @@ public class DocumentIndicatorSource extends BTreeKeySource implements BooleanSo
     if (id == currentCandidate()) {
       try {
         byte[] data = btreeIter.getValueBytes();
-        if (data == null || data.length == 0) {
-          System.err.println("Returning defaultValue="+defaultValue);
-          return defaultValue;
-        } else {
-          System.err.println("Returning data="+Utility.toBoolean(data));
+        if (Utility.isBoolean(data)) {
           return Utility.toBoolean(data);
         }
+        return defaultValue;
       } catch (IOException ioe) {
         Logger.getLogger(DocumentIndicatorReader.class.getName()).log(Level.SEVERE, null, ioe);
         throw new RuntimeException("Failed to read indicator file.");

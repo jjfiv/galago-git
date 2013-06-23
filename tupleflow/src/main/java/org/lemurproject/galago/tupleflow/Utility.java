@@ -34,7 +34,7 @@ import org.lemurproject.galago.tupleflow.execution.Step;
  */
 public class Utility {
 
-  private static Logger LOG = Logger.getLogger(Utility.class.getName());
+  private static final Logger LOG = Logger.getLogger(Utility.class.getName());
   private static final Parameters preferences = new Parameters();
   private static final Parameters drmaaOptions = new Parameters();
   private static final Parameters sorterOptions = new Parameters();
@@ -91,7 +91,7 @@ public class Utility {
     return drmaaOptions;
   }
 
-  /** 
+  /**
    * Sorter parameters
    */
   public static Parameters getSorterOptions() {
@@ -99,11 +99,12 @@ public class Utility {
   }
 
   /**
-   * <p>If the parent directories for this file don't exist, this function creates them.</p>
+   * <p>If the parent directories for this file don't exist, this function
+   * creates them.</p>
    *
-   * <p>Often we want to create a file, but we don't yet know if the parent path has been
-   * created yet.  Call this function immediately before opening a file for writing to
-   * make sure those directories have been created.</p>
+   * <p>Often we want to create a file, but we don't yet know if the parent path
+   * has been created yet. Call this function immediately before opening a file
+   * for writing to make sure those directories have been created.</p>
    *
    * @param filename A filename that will soon be opened for writing.
    */
@@ -127,7 +128,7 @@ public class Utility {
   public static Step getSorter(Order sortOrder) {
     return getSorter(sortOrder, null, CompressionType.VBYTE);
   }
-  
+
   public static Step getSorter(Order sortOrder, CompressionType c) {
     return getSorter(sortOrder, null, c);
   }
@@ -136,24 +137,25 @@ public class Utility {
    * Builds a Sorter step with a reducer that can be added to a TupleFlow stage.
    *
    * @param sortOrder An order object representing how and what to sort.
-   * @param reducerClass The class of a reducer object that can reduce this data.
+   * @param reducerClass The class of a reducer object that can reduce this
+   * data.
    * @return a Step object that can be added to a TupleFlow Stage.
    */
   public static Step getSorter(Order sortOrder, Class reducerClass) {
     return getSorter(sortOrder, null, CompressionType.VBYTE);
   }
-  
+
   public static Step getSorter(Order sortOrder, Class reducerClass, CompressionType c) {
     Parameters p = new Parameters();
     p.set("class", sortOrder.getOrderedClass().getName());
     p.set("order", Utility.join(sortOrder.getOrderSpec()));
-    if(c != null){
+    if (c != null) {
       p.set("compression", c.toString());
 //      System.err.println("Setting sorter to :" + c.toString() + " -- " + join(sortOrder.getOrderSpec()));
 //    } else {
 //      System.err.println("NOT setting sorter to : null -- " + join(sortOrder.getOrderSpec()));
     }
-    
+
     if (reducerClass != null) {
       try {
         reducerClass.asSubclass(Reducer.class);
@@ -168,8 +170,8 @@ public class Utility {
   }
 
   /**
-   * Finds a free port to listen on.  Useful for starting up internal web servers.
-   * (copied from chaoticjava.com)
+   * Finds a free port to listen on. Useful for starting up internal web
+   * servers. (copied from chaoticjava.com)
    */
   public static int getFreePort() throws IOException {
     ServerSocket server = new ServerSocket(0);
@@ -259,13 +261,14 @@ public class Utility {
   /**
    * <p>Splits args into an array of flags and an array of parameters.</p>
    *
-   * <p>This method assumes that args is an array of strings, where some of those
-   * strings are flags (they start with '-') and the others are non-flag arguments.
-   * This splits those into two arrays so they can be processed separately.</p>
+   * <p>This method assumes that args is an array of strings, where some of
+   * those strings are flags (they start with '-') and the others are non-flag
+   * arguments. This splits those into two arrays so they can be processed
+   * separately.</p>
    *
    * @param args
    * @return An array of length 2, where the first element is an array of flags
-   *         and the second is an array of arguments.
+   * and the second is an array of arguments.
    */
   public static String[][] filterFlags(String[] args) {
     ArrayList<String> flags = new ArrayList<String>();
@@ -287,8 +290,8 @@ public class Utility {
   }
 
   /**
-   * For an array master, returns
-   * an array containing the last master.length-index elements.
+   * For an array master, returns an array containing the last
+   * master.length-index elements.
    */
   public static String[] subarray(String[] master, int index) {
     if (master.length <= index) {
@@ -643,8 +646,9 @@ public class Utility {
   }
 
   /**
-   * remove all data from all temp directories - be very careful when using this function!
-   * 
+   * remove all data from all temp directories - be very careful when using this
+   * function!
+   *
    * @throws IOException
    */
   public static void cleanTemporaryDirectories() throws IOException {
@@ -657,6 +661,7 @@ public class Utility {
 
   /**
    * Copies data from the input stream to the output stream.
+   *
    * @param input The input stream.
    * @param output The output stream.
    * @throws java.io.IOException
@@ -673,7 +678,8 @@ public class Utility {
   }
 
   /**
-   * Copies data from the input stream and returns a String (UTF-8 if not specified)
+   * Copies data from the input stream and returns a String (UTF-8 if not
+   * specified)
    */
   public static String copyStreamToString(InputStream input, String encoding) throws IOException {
     encoding = (encoding == null) ? "UTF-8" : encoding;
@@ -687,8 +693,8 @@ public class Utility {
   }
 
   /**
-   * Copies the data from file into the stream.  Note that this method
-   * does not close the stream (in case you want to put more in it).
+   * Copies the data from file into the stream. Note that this method does not
+   * close the stream (in case you want to put more in it).
    *
    * @param file
    * @param stream
@@ -895,6 +901,10 @@ public class Utility {
       throw new RuntimeException("UTF-8 is not supported by your Java Virtual Machine.");
     }
   }
+  
+  public static boolean isShort(byte[] key) {
+    return key != null && key.length == 2;
+  }
 
   public static short toShort(byte[] key) {
     assert (key.length == 2);
@@ -909,8 +919,12 @@ public class Utility {
     return writeBuffer;
   }
 
+  public static boolean isInt(byte[] key) {
+    return key != null && key.length == 4;
+  }
+
   public static int toInt(byte[] key) {
-    assert (key.length == 4);
+    assert isInt(key);
     return (((key[0] & 255) << 24)
             + ((key[1] & 255) << 16)
             + ((key[2] & 255) << 8)
@@ -926,8 +940,12 @@ public class Utility {
     return converted;
   }
 
+  public static boolean isLong(byte[] value) {
+    return (value != null && value.length == 8);
+  }
+
   public static long toLong(byte[] key) {
-    assert (key.length == 8);
+    assert isLong(key);
     return (((long) key[0] << 56)
             + ((long) (key[1] & 255) << 48)
             + ((long) (key[2] & 255) << 40)
@@ -951,9 +969,18 @@ public class Utility {
     writeBuffer[7] = (byte) (key >>> 0);
     return writeBuffer;
   }
+  
+  /**
+   * Check that we are given a byte array of length 1 to parse as a boolean.
+   * @param key
+   * @return 
+   */
+  public static boolean isBoolean(byte[] key) {
+    return key != null && key.length == 1;
+  }
 
   public static boolean toBoolean(byte[] key) {
-    assert key.length == 1;
+    assert isBoolean(key);
     return (key[0] != 0);
   }
 
@@ -967,15 +994,28 @@ public class Utility {
     return out;
   }
 
+  /**
+   * This method checks whether the byte array is of the correct size to be a
+   * double.
+   *
+   * @param value - a byte array
+   * @return true if non-null and 8 bytes long
+   */
+  public static boolean isDouble(byte[] value) {
+    return (value != null && isLong(value));
+  }
+
   /*
    * NOTE: doubles should NOT be used as index keys
    *  - rounding errors are likely to cause otherwise identical values not to match
    */
   public static double toDouble(byte[] value) {
+    assert isDouble(value);
     long l = Utility.toLong(value);
     return Double.longBitsToDouble(l);
   }
 
+  
   public static byte[] fromDouble(double value) {
     long l = Double.doubleToRawLongBits(value);
     return Utility.fromLong(l);

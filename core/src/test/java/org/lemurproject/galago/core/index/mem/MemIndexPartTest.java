@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.index.disk.SparseFloatListReader;
 import org.lemurproject.galago.core.index.disk.SparseFloatListWriter;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.extents.FakeScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -73,7 +74,7 @@ public class MemIndexPartTest extends TestCase {
       MemoryCountIndex memcounts2 = new MemoryCountIndex(diskreader.getManifest());
       KeyIterator dsk_ki = diskreader.getIterator();
       while (!dsk_ki.isDone()) {
-        DiskIterator vi = dsk_ki.getValueIterator();
+        BaseIterator vi = dsk_ki.getValueIterator();
         vi.setContext(new ScoringContext());
         memcounts2.addIteratorData(dsk_ki.getKey(), vi);
         dsk_ki.nextKey();

@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
  *
  * @author sjh
  */
+@Deprecated
 public abstract class DiskIterator implements BaseIterator {
   protected ScoringContext context;
   

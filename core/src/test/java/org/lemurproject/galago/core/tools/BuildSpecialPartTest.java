@@ -8,7 +8,9 @@ import java.util.HashMap;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DocumentIndicatorReader;
 import org.lemurproject.galago.core.index.disk.DocumentPriorReader;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -189,8 +191,8 @@ public class BuildSpecialPartTest extends TestCase {
         assert (priorData.get(doc) == score);
       } while (iterator.nextKey());
 
-      // test it as a value iterator 
-      DocumentPriorReader.ValueIterator vIt = reader.getIterator(StructuredQuery.parse("#prior:part=testingPriors()"));
+      // test it as a basic iterator 
+      ScoreIterator vIt = (ScoreIterator) reader.getIterator(StructuredQuery.parse("#prior:part=testingPriors()"));
       ScoringContext context = new ScoringContext();
       vIt.setContext(context);
       context.document = 0;
@@ -221,7 +223,7 @@ public class BuildSpecialPartTest extends TestCase {
       ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
       PrintStream printStream = new PrintStream(byteArrayStream);
 
-      new App().run(new String[]{"batch-search",
+      App.run(new String[]{"batch-search",
                 "--index=" + indexFile.getAbsolutePath(),
                 queryFile.getAbsolutePath()}, printStream);
 

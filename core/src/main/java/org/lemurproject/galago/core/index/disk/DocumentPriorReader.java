@@ -12,9 +12,12 @@ import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -62,7 +65,7 @@ public class DocumentPriorReader extends KeyValueReader {
   }
 
   @Override
-  public ValueIterator getIterator(Node node) throws IOException {
+  public BaseIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("prior")) {
       return new ValueIterator(new KeyIterator(reader), node);
     } else {
@@ -109,12 +112,14 @@ public class DocumentPriorReader extends KeyValueReader {
     }
 
     @Override
-    public ValueIterator getValueIterator() throws IOException {
+    public BaseIterator getValueIterator() throws IOException {
+      //return new DiskScoreIterator(new DocumentPriorSource(reader));
       return new ValueIterator(new KeyIterator(reader));
     }
   }
 
   // needs to be an AbstractIndicator
+  @Deprecated
   public class ValueIterator extends KeyToListIterator implements ScoreIterator {
 
     double minScore;

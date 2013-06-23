@@ -29,6 +29,7 @@ import org.lemurproject.galago.core.index.mem.MemoryIndex;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.InputClass;
@@ -209,11 +210,11 @@ public class GeometricIndex implements DynamicIndex, Index {
     return false;
   }
 
-  public DiskIterator getIterator(Node node) throws IOException {
-    List<DiskIterator> itrs = new ArrayList();
+  public BaseIterator getIterator(Node node) throws IOException {
+    List<BaseIterator> itrs = new ArrayList();
     itrs.add(this.currentMemoryIndex.getIterator(node));
     for (DiskIndex di : this.geometricParts.getIndexes()) {
-      DiskIterator vi = di.getIterator(node);
+      BaseIterator vi = di.getIterator(node);
       if (vi != null) {
         itrs.add(di.getIterator(node));
       }
