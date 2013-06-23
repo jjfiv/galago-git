@@ -17,15 +17,15 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  */
 public final class WindowIndexExtentSource extends BTreeValueSource implements ExtentSource {
 
-  public int documentCount;
-  public int totalWindowCount;
-  public int maximumPositionCount;
+  public long documentCount;
+  public long totalWindowCount;
+  public long maximumPositionCount;
   private VByteInput documents;
   private VByteInput counts;
   private VByteInput begins;
   private VByteInput ends;
-  private int documentIndex;
-  int currentDocument;
+  private long documentIndex;
+  private long currentDocument;
   private int currentCount;
   private boolean done;
   private ExtentArray extentArray;
@@ -39,8 +39,8 @@ public final class WindowIndexExtentSource extends BTreeValueSource implements E
   private DataStream countsStream;
   private DataStream beginsStream;
   private DataStream endsStream;
-  private int skipDistance;
-  private int skipResetDistance;
+  private long skipDistance;
+  private long skipResetDistance;
   private long numSkips;
   private long skipsRead;
   private long nextSkipDocument;
@@ -49,13 +49,13 @@ public final class WindowIndexExtentSource extends BTreeValueSource implements E
   private long countsByteFloor;
   private long beginsByteFloor;
   private long endsByteFloor;
-  
+
   public WindowIndexExtentSource(BTreeIterator iter) throws IOException {
     super(iter);
     extentArray = new ExtentArray();
     reset();
   }
-  
+
   @Override
   public void reset() throws IOException {
     startPosition = btreeIter.getValueStart();
@@ -68,113 +68,110 @@ public final class WindowIndexExtentSource extends BTreeValueSource implements E
   }
 
   // Initialization method.
-    //
-    // Even though we check for skips multiple times, in terms of how the data is loaded
-    // its easier to do the parts when appropriate
-    protected void initialize() throws IOException {
-      DataStream valueStream = btreeIter.getSubValueStream(0, btreeIter.getValueLength());
-      DataInput stream = new VByteInput(valueStream);
+  //
+  // Even though we check for skips multiple times, in terms of how the data is loaded
+  // its easier to do the parts when appropriate
+  protected void initialize() throws IOException {
 
-      // metadata
-      int options = stream.readInt();
-      documentCount = stream.readInt();
-      totalWindowCount = stream.readInt();
+    // need to read at most (15 + 90) bytes //
+    DataStream valueStream = btreeIter.getSubValueStream(0, 150);
+    DataInput stream = new VByteInput(valueStream);
 
-      if ((options & HAS_MAXTF) == HAS_MAXTF) {
-        maximumPositionCount = stream.readInt();
-      } else {
-        maximumPositionCount = Integer.MAX_VALUE;
-      }
+    // metadata
+    int options = stream.readInt(); // 5 bytes
 
-      if ((options & HAS_SKIPS) == HAS_SKIPS) {
-        skipDistance = stream.readInt();
-        skipResetDistance = stream.readInt();
-        numSkips = stream.readLong();
-      }
+    documentCount = stream.readLong(); // 9 bytes
+    totalWindowCount = stream.readLong(); // 9 bytes
+    maximumPositionCount = stream.readLong(); // 9 bytes
 
-      // segment lengths
-      long documentByteLength = stream.readLong();
-      long countsByteLength = stream.readLong();
-      long beginsByteLength = stream.readLong();
-      long endsByteLength = stream.readLong();
-      long skipsByteLength = 0;
-      long skipPositionsByteLength = 0;
-
-      if ((options & HAS_SKIPS) == HAS_SKIPS) {
-        skipsByteLength = stream.readLong();
-        skipPositionsByteLength = stream.readLong();
-      }
-
-      long documentStart = valueStream.getPosition();
-      long countsStart = documentStart + documentByteLength;
-      long beginsStart = countsStart + countsByteLength;
-      long endsStart = beginsStart + beginsByteLength;
-      long endsEnd = endsStart + endsByteLength;
-
-      documentsStream = btreeIter.getSubValueStream(documentStart, documentByteLength);
-      countsStream = btreeIter.getSubValueStream(countsStart, countsByteLength);
-      beginsStream = btreeIter.getSubValueStream(beginsStart, beginsByteLength);
-      endsStream = btreeIter.getSubValueStream(endsStart, endsByteLength);
-
-
-      documents = new VByteInput(documentsStream);
-      counts = new VByteInput(countsStream);
-      begins = new VByteInput(beginsStream);
-      ends = new VByteInput(endsStream);
-
-      if ((options & HAS_SKIPS) == HAS_SKIPS) {
-
-        long skipsStart = endsStart + endsByteLength;
-        long skipPositionsStart = skipsStart + skipsByteLength;
-        long skipPositionsEnd = skipPositionsStart + skipPositionsByteLength;
-
-        assert skipPositionsEnd == endPosition - startPosition;
-
-        skips = new VByteInput(btreeIter.getSubValueStream(skipsStart, skipsByteLength));
-        skipPositionsStream = btreeIter.getSubValueStream(skipPositionsStart, skipPositionsByteLength);
-        skipPositions = new VByteInput(skipPositionsStream);
-
-        // load up
-        nextSkipDocument = skips.readInt();
-        documentsByteFloor = 0;
-        countsByteFloor = 0;
-        beginsByteFloor = 0;
-        endsByteFloor = 0;
-      } else {
-        assert endsEnd == endPosition - startPosition;
-        skips = null;
-        skipPositions = null;
-      }
-
-      documentIndex = 0;
-      loadExtents();
+    if ((options & HAS_SKIPS) == HAS_SKIPS) {
+      skipDistance = stream.readLong(); // 9 bytes
+      skipResetDistance = stream.readLong(); // 9 bytes
+      numSkips = stream.readLong(); // 9 bytes
     }
 
-    // Loads up a single set of positions for an intID. Basically it's the
-    // load that needs to be done when moving forward one in the posting list.
-    private void loadExtents() throws IOException {
-      if (documentIndex >= documentCount) {
-        done = true;
-        currentDocument = Integer.MAX_VALUE;
-        extentArray.reset();
-        currentCount = 0;
-        return;
-      }
+    // segment lengths
+    long documentByteLength = stream.readLong(); // 9 bytes
+    long countsByteLength = stream.readLong();// 9 bytes
+    long beginsByteLength = stream.readLong();// 9 bytes
+    long endsByteLength = stream.readLong();// 9 bytes
+    long skipsByteLength = 0;
+    long skipPositionsByteLength = 0;
 
-      currentDocument += documents.readInt();
-      currentCount = counts.readInt();
+    if ((options & HAS_SKIPS) == HAS_SKIPS) {
+      skipsByteLength = stream.readLong();// 9 bytes
+      skipPositionsByteLength = stream.readLong();// 9 bytes
+    }
+
+    long documentStart = valueStream.getPosition();
+    long countsStart = documentStart + documentByteLength;
+    long beginsStart = countsStart + countsByteLength;
+    long endsStart = beginsStart + beginsByteLength;
+    long endsEnd = endsStart + endsByteLength;
+
+    documentsStream = btreeIter.getSubValueStream(documentStart, documentByteLength);
+    countsStream = btreeIter.getSubValueStream(countsStart, countsByteLength);
+    beginsStream = btreeIter.getSubValueStream(beginsStart, beginsByteLength);
+    endsStream = btreeIter.getSubValueStream(endsStart, endsByteLength);
+
+
+    documents = new VByteInput(documentsStream);
+    counts = new VByteInput(countsStream);
+    begins = new VByteInput(beginsStream);
+    ends = new VByteInput(endsStream);
+
+    if ((options & HAS_SKIPS) == HAS_SKIPS) {
+
+      long skipsStart = endsEnd;
+      long skipPositionsStart = skipsStart + skipsByteLength;
+      long skipPositionsEnd = skipPositionsStart + skipPositionsByteLength;
+
+      assert skipPositionsEnd == endPosition - startPosition;
+
+      skips = new VByteInput(btreeIter.getSubValueStream(skipsStart, skipsByteLength));
+      skipPositionsStream = btreeIter.getSubValueStream(skipPositionsStart, skipPositionsByteLength);
+      skipPositions = new VByteInput(skipPositionsStream);
+
+      // load up
+      nextSkipDocument = skips.readLong();
+      documentsByteFloor = 0;
+      countsByteFloor = 0;
+      beginsByteFloor = 0;
+      endsByteFloor = 0;
+    } else {
+      assert endsEnd == endPosition - startPosition;
+      skips = null;
+      skipPositions = null;
+    }
+
+    documentIndex = 0;
+    loadExtents();
+  }
+
+  // Loads up a single set of positions for an intID. Basically it's the
+  // load that needs to be done when moving forward one in the posting list.
+  private void loadExtents() throws IOException {
+    if (documentIndex >= documentCount) {
+      done = true;
+      currentDocument = Long.MAX_VALUE;
       extentArray.reset();
-
-      extentArray.setDocument(currentDocument);
-      int begin = 0;
-      for (int i = 0; i < currentCount; i++) {
-        begin += begins.readInt();
-        int end = begin + ends.readInt();
-        extentArray.add(begin, end);
-      }
+      currentCount = 0;
+      return;
     }
 
-  
+    currentDocument += documents.readLong();
+    currentCount = counts.readInt();
+    extentArray.reset();
+
+    extentArray.setDocument(currentDocument);
+    int begin = 0;
+    for (int i = 0; i < currentCount; i++) {
+      begin += begins.readInt();
+      int end = begin + ends.readInt();
+      extentArray.add(begin, end);
+    }
+  }
+
   @Override
   public boolean isDone() {
     return done;
@@ -197,7 +194,7 @@ public final class WindowIndexExtentSource extends BTreeValueSource implements E
 
   @Override
   public void movePast(long id) throws IOException {
-    syncTo(id+1);
+    syncTo(id + 1);
   }
 
   @Override
@@ -230,25 +227,25 @@ public final class WindowIndexExtentSource extends BTreeValueSource implements E
   //
   private void skipOnce() throws IOException {
     assert skipsRead < numSkips;
-    long currentSkipPosition = lastSkipPosition + skips.readInt();
+    long currentSkipPosition = lastSkipPosition + skips.readLong();
 
     if (skipsRead % skipResetDistance == 0) {
       // Position the skip positions stream
       skipPositionsStream.seek(currentSkipPosition);
 
       // now set the floor values
-      documentsByteFloor = skipPositions.readInt();
-      countsByteFloor = skipPositions.readInt();
+      documentsByteFloor = skipPositions.readLong();
+      countsByteFloor = skipPositions.readLong();
       beginsByteFloor = skipPositions.readLong();
       endsByteFloor = skipPositions.readLong();
     }
-    currentDocument = (int) nextSkipDocument;
+    currentDocument = nextSkipDocument;
 
     // May be at the end of the buffer
     if (skipsRead + 1 == numSkips) {
-      nextSkipDocument = Integer.MAX_VALUE;
+      nextSkipDocument = Long.MAX_VALUE;
     } else {
-      nextSkipDocument += skips.readInt();
+      nextSkipDocument += skips.readLong();
     }
     skipsRead++;
     lastSkipPosition = currentSkipPosition;
@@ -259,7 +256,7 @@ public final class WindowIndexExtentSource extends BTreeValueSource implements E
   //
   private void synchronizeSkipPositions() throws IOException {
     while (!done && nextSkipDocument <= currentDocument) {
-      int cd = currentDocument;
+      long cd = currentDocument;
       skipOnce();
       currentDocument = cd;
     }
@@ -274,15 +271,14 @@ public final class WindowIndexExtentSource extends BTreeValueSource implements E
       endsStream.seek(endsByteFloor);
     } else {
       skipPositionsStream.seek(lastSkipPosition);
-      documentsStream.seek(documentsByteFloor + skipPositions.readInt());
-      countsStream.seek(countsByteFloor + skipPositions.readInt());
+      documentsStream.seek(documentsByteFloor + skipPositions.readLong());
+      countsStream.seek(countsByteFloor + skipPositions.readLong());
       beginsStream.seek(beginsByteFloor + skipPositions.readLong());
       endsStream.seek(endsByteFloor + skipPositions.readLong());
     }
     documentIndex = (int) (skipDistance * skipsRead) - 1;
   }
 
-  
   @Override
   public ExtentArray extents(long id) {
     if (!done && id == currentCandidate()) {
@@ -308,5 +304,4 @@ public final class WindowIndexExtentSource extends BTreeValueSource implements E
     }
     return 0;
   }
-  
 }

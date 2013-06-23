@@ -19,15 +19,16 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  * @author sjh, irmarc, jfoley
  */
 public final class WindowIndexCountSource extends BTreeValueSource implements CountSource {
-  int documentCount;
-  int collectionCount;
+
+  long documentCount;
+  long collectionCount;
   VByteInput documents;
   VByteInput counts;
-  int documentIndex;
-  int currentDocument;
+  long documentIndex;
+  long currentDocument;
   int currentCount;
   boolean done;
-  int maximumPositionCount;
+  long maximumPositionCount;
   // Support for resets
   long startPosition, endPosition;
   // to support skipping
@@ -44,12 +45,12 @@ public final class WindowIndexCountSource extends BTreeValueSource implements Co
   long lastSkipPosition;
   long documentsByteFloor;
   long countsByteFloor;
-  
+
   public WindowIndexCountSource(BTreeIterator iter) throws IOException {
     super(iter);
     reset();
   }
-  
+
   /**
    * Initialization/reset method.
    *
@@ -58,39 +59,42 @@ public final class WindowIndexCountSource extends BTreeValueSource implements Co
    */
   @Override
   public void reset() throws IOException {
+
     startPosition = btreeIter.getValueStart();
     endPosition = btreeIter.getValueEnd();
-    DataStream valueStream = btreeIter.getSubValueStream(0, btreeIter.getValueLength());
+
+    // need to read at most (15 + 90) bytes //
+    DataStream valueStream = btreeIter.getSubValueStream(0, 120);
     DataInput stream = new VByteInput(valueStream);
 
     // metadata
-    int options = stream.readInt();
-    documentCount = stream.readInt();
-    collectionCount = stream.readInt();
+    int options = stream.readInt(); // 5 bytes
+    documentCount = stream.readLong(); // 9 bytes
+    collectionCount = stream.readLong(); // 9 bytes
 
     if ((options & HAS_MAXTF) == HAS_MAXTF) {
-      maximumPositionCount = stream.readInt();
+      maximumPositionCount = stream.readLong(); // 9 bytes
     } else {
       maximumPositionCount = Integer.MAX_VALUE;
     }
 
     if ((options & HAS_SKIPS) == HAS_SKIPS) {
-      skipDistance = stream.readInt();
-      skipResetDistance = stream.readInt();
-      numSkips = stream.readLong();
+      skipDistance = stream.readInt(); // 5 bytes
+      skipResetDistance = stream.readInt(); // 5 bytes
+      numSkips = stream.readLong(); // 9 bytes
     }
 
     // segment lengths
-    long documentByteLength = stream.readLong();
-    long countsByteLength = stream.readLong();
-    long beginsByteLength = stream.readLong();
-    long endsByteLength = stream.readLong();
+    long documentByteLength = stream.readLong(); // 9 bytes
+    long countsByteLength = stream.readLong(); // 9 bytes
+    long beginsByteLength = stream.readLong(); // 9 bytes
+    long endsByteLength = stream.readLong(); // 9 bytes
     long skipsByteLength = 0;
     long skipPositionsByteLength = 0;
 
     if ((options & HAS_SKIPS) == HAS_SKIPS) {
-      skipsByteLength = stream.readLong();
-      skipPositionsByteLength = stream.readLong();
+      skipsByteLength = stream.readLong(); // 9 bytes
+      skipPositionsByteLength = stream.readLong(); // 9 bytes
     }
 
     long documentStart = valueStream.getPosition();
@@ -119,7 +123,7 @@ public final class WindowIndexCountSource extends BTreeValueSource implements Co
       skipPositions = new VByteInput(skipPositionsStream);
 
       // load up
-      nextSkipDocument = skips.readInt();
+      nextSkipDocument = skips.readLong();
       documentsByteFloor = 0;
       countsByteFloor = 0;
     } else {
@@ -131,19 +135,19 @@ public final class WindowIndexCountSource extends BTreeValueSource implements Co
     documentIndex = 0;
     load();
   }
-  
+
   // Only loading the docid and the count
   private void load() throws IOException {
     if (documentIndex >= documentCount) {
       done = true;
-      currentDocument = Integer.MAX_VALUE;
+      currentDocument = Long.MAX_VALUE;
       currentCount = 0;
       return;
     }
-    currentDocument += documents.readInt();
+    currentDocument += documents.readLong();
     currentCount = counts.readInt();
   }
-  
+
   @Override
   public boolean isDone() {
     return done;
@@ -166,7 +170,7 @@ public final class WindowIndexCountSource extends BTreeValueSource implements Co
 
   @Override
   public void movePast(long id) throws IOException {
-    syncTo(id+1);
+    syncTo(id + 1);
   }
 
   @Override
@@ -194,31 +198,30 @@ public final class WindowIndexCountSource extends BTreeValueSource implements Co
       load();
     }
   }
-  
-  
+
   /**
    * This only moves forward in tier 1, reads from tier 2 only when needed to
    * update floors.
    */
   private void skipOnce() throws IOException {
     assert skipsRead < numSkips;
-    long currentSkipPosition = lastSkipPosition + skips.readInt();
+    long currentSkipPosition = lastSkipPosition + skips.readLong();
 
     if (skipsRead % skipResetDistance == 0) {
       // Position the skip positions stream
       skipPositionsStream.seek(currentSkipPosition);
 
       // now set the floor values
-      documentsByteFloor = skipPositions.readInt();
-      countsByteFloor = skipPositions.readInt();
+      documentsByteFloor = skipPositions.readLong();
+      countsByteFloor = skipPositions.readLong();
     }
-    currentDocument = (int) nextSkipDocument;
+    currentDocument = nextSkipDocument;
 
     // May be at the end of the buffer
     if (skipsRead + 1 == numSkips) {
-      nextSkipDocument = Integer.MAX_VALUE;
+      nextSkipDocument = Long.MAX_VALUE;
     } else {
-      nextSkipDocument += skips.readInt();
+      nextSkipDocument += skips.readLong();
     }
     skipsRead++;
     lastSkipPosition = currentSkipPosition;
@@ -230,7 +233,7 @@ public final class WindowIndexCountSource extends BTreeValueSource implements Co
    */
   private void synchronizeSkipPositions() throws IOException {
     while (!done && nextSkipDocument <= currentDocument) {
-      int cd = currentDocument;
+      long cd = currentDocument;
       skipOnce();
       currentDocument = cd;
     }
@@ -243,14 +246,13 @@ public final class WindowIndexCountSource extends BTreeValueSource implements Co
       countsStream.seek(countsByteFloor);
     } else {
       skipPositionsStream.seek(lastSkipPosition);
-      documentsStream.seek(documentsByteFloor + skipPositions.readInt());
-      countsStream.seek(countsByteFloor + skipPositions.readInt());
+      documentsStream.seek(documentsByteFloor + skipPositions.readLong());
+      countsStream.seek(countsByteFloor + skipPositions.readLong());
       // we seek here, so no reading needed
     }
-    documentIndex = (int) (skipDistance * skipsRead) - 1;
+    documentIndex = (skipDistance * skipsRead) - 1;
   }
-  
-  
+
   @Override
   public int count(long id) {
     if (!done && id == currentCandidate()) {
@@ -268,5 +270,4 @@ public final class WindowIndexCountSource extends BTreeValueSource implements Co
     stats.maximumCount = this.maximumPositionCount;
     return stats;
   }
-  
 }

@@ -1,20 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import gnu.trove.set.hash.TIntHashSet;
-import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
 import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
-import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.merge.WindowIndexMerger;
-import org.lemurproject.galago.core.parse.NumericParameterAccumulator;
 import org.lemurproject.galago.core.types.NumberedExtent;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -53,7 +48,7 @@ public class WindowIndexWriter implements
   // writer variables //
   Parameters actualParams;
   BTreeWriter writer;
-  PositionsList invertedList;
+  WindowList invertedList;
   // statistics //
   byte[] lastWord;
   long vocabCount = 0;
@@ -100,7 +95,7 @@ public class WindowIndexWriter implements
       invertedList = null;
     }
 
-    invertedList = new PositionsList();
+    invertedList = new WindowList();
     invertedList.setWord(wordBytes);
     assert lastWord == null || 0 != Utility.compare(lastWord, wordBytes) : "Duplicate word";
     lastWord = wordBytes;
@@ -153,14 +148,38 @@ public class WindowIndexWriter implements
     Verification.requireWriteableFile(index, store);
   }
 
-  public class PositionsList implements IndexElement {
+  public class WindowList implements IndexElement {
 
-    public PositionsList() {
+    public byte[] word;
+    private long lastDocument;
+    private long lastBegin;
+    private long positionCount;
+    private long documentCount;
+    private long maximumPositionCount;
+    private long totalWindowCount;
+    public CompressedByteBuffer header;
+    public CompressedRawByteBuffer documents;
+    public CompressedRawByteBuffer counts;
+    public CompressedRawByteBuffer begins;
+    public CompressedRawByteBuffer ends;
+    // to support skipping
+    private long lastDocumentSkipped;
+    private long lastSkipPosition;
+    private long lastDocumentSkip;
+    private long lastCountSkip;
+    private long lastBeginSkip;
+    private long lastEndSkip;
+    private long numSkips;
+    private long docsSinceLastSkip;
+    private CompressedRawByteBuffer skips;
+    private CompressedRawByteBuffer skipPositions;
+
+    public WindowList() {
+      header = new CompressedByteBuffer();
       documents = new CompressedRawByteBuffer();
       counts = new CompressedRawByteBuffer();
       begins = new CompressedRawByteBuffer();
       ends = new CompressedRawByteBuffer();
-      header = new CompressedByteBuffer();
 
       if ((options & BTreeValueIterator.HAS_SKIPS) == BTreeValueIterator.HAS_SKIPS) {
         skips = new CompressedRawByteBuffer();
@@ -185,9 +204,11 @@ public class WindowIndexWriter implements
         header.add(options);
       }
 
+      // aggregate stats
       header.add(documentCount);
       header.add(totalWindowCount);
       header.add(maximumPositionCount);
+      
       if (skips != null && skips.length() > 0) {
         header.add(skipDistance);
         header.add(skipResetDistance);
@@ -198,6 +219,7 @@ public class WindowIndexWriter implements
       header.add(counts.length());
       header.add(begins.length());
       header.add(ends.length());
+      
       if (skips != null && skips.length() > 0) {
         header.add(skips.length());
         header.add(skipPositions.length());
@@ -323,35 +345,11 @@ public class WindowIndexWriter implements
           // d-gap skip
           skipPositions.add(documents.length() - lastDocumentSkip);
           skipPositions.add(counts.length() - lastCountSkip);
-          skipPositions.add((long) (begins.length() - lastBeginSkip));
-          skipPositions.add((long) (ends.length() - lastEndSkip));
+          skipPositions.add(begins.length() - lastBeginSkip);
+          skipPositions.add(ends.length() - lastEndSkip);
         }
         numSkips++;
       }
     }
-    private long lastDocument;
-    private int lastBegin;
-    private int positionCount;
-    private int documentCount;
-    private int maximumPositionCount;
-    private int totalWindowCount;
-    public byte[] word;
-    public CompressedByteBuffer header;
-    public CompressedRawByteBuffer documents;
-    public CompressedRawByteBuffer counts;
-    public CompressedRawByteBuffer begins;
-    public CompressedRawByteBuffer ends;
-    // to support skipping
-    private long lastDocumentSkipped;
-    private long lastSkipPosition;
-    private long lastDocumentSkip;
-    private long lastCountSkip;
-    private long lastBeginSkip;
-    private long lastEndSkip;
-    private long numSkips;
-    private long lastCount;
-    private int docsSinceLastSkip;
-    private CompressedRawByteBuffer skips;
-    private CompressedRawByteBuffer skipPositions;
   }
 }

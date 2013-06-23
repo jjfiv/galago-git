@@ -6,12 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.SourceIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -23,7 +23,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  * counts data is stored separately from term position information for faster
  * query processing when no positions are needed.
  *
- * @author sjh, irmarc, 
+ * @author sjh, irmarc,
  */
 public class WindowIndexReader extends KeyListReader implements AggregateIndexPart {
 
@@ -80,7 +80,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
   }
 
   @Override
-  public DiskIterator getIterator(Node node) throws IOException {
+  public SourceIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("counts")) {
       return getTermCounts(node.getDefaultParameter());
     } else {
@@ -138,8 +138,20 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
     }
 
     @Override
-    public DiskIterator getValueIterator() throws IOException {
+    public DiskExtentIterator getValueIterator() throws IOException {
       return new DiskExtentIterator(new WindowIndexExtentSource(iterator));
+    }
+
+    public DiskCountIterator getCountValueIterator() throws IOException {
+      return new DiskCountIterator(new WindowIndexCountSource(iterator));
+    }
+
+    public WindowIndexExtentSource getValueSource() throws IOException {
+      return new WindowIndexExtentSource(iterator);
+    }
+
+    public WindowIndexCountSource getCountValueSource() throws IOException {
+      return new WindowIndexCountSource(iterator);
     }
 
     @Override
