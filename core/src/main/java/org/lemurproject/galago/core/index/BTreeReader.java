@@ -126,6 +126,7 @@ public abstract class BTreeReader {
     /**
      * Comparator - allows iterators to be read in parallel efficiently
      */
+    @Override
     public int compareTo(BTreeReader.BTreeIterator i) {
       return Utility.compare(this.getKey(), i.getKey());
     }

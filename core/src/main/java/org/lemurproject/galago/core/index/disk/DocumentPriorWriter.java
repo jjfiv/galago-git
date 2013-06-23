@@ -44,7 +44,7 @@ public class DocumentPriorWriter extends KeyValueWriter<DocumentFeature> {
 
     maxObservedScore = Math.max(maxObservedScore, docfeat.value);
     minObservedScore = Math.min(minObservedScore, docfeat.value);
-    GenericElement element = new GenericElement(Utility.fromInt((int)docfeat.document), Utility.fromDouble(docfeat.value));
+    GenericElement element = new GenericElement(Utility.fromLong(docfeat.document), Utility.fromDouble(docfeat.value));
 
     if (written != null) {
       written.increment();

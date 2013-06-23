@@ -15,17 +15,19 @@ import org.lemurproject.galago.tupleflow.Utility;
  * @author jfoley
  */
 public class DocumentPriorSource extends BTreeKeySource implements ScoreSource {
-  
+
   final double maxScore;
   final double minScore;
+  final double def;
   
-  public DocumentPriorSource(BTreeReader rdr) throws IOException {
+  public DocumentPriorSource(BTreeReader rdr, double def) throws IOException {
     super(rdr);
     final Parameters manifest = btreeReader.getManifest();
-    maxScore = manifest.get("maxScore", Double.POSITIVE_INFINITY);
-    minScore = manifest.get("minScore", Double.NEGATIVE_INFINITY);
+    this.maxScore = manifest.get("maxScore", Double.POSITIVE_INFINITY);
+    this.minScore = manifest.get("minScore", Double.NEGATIVE_INFINITY);
+    this.def = def;
   }
-  
+
   @Override
   public boolean hasAllCandidates() {
     return true;
@@ -33,7 +35,7 @@ public class DocumentPriorSource extends BTreeKeySource implements ScoreSource {
 
   @Override
   public String key() {
-return "priors";
+    return "priors";
   }
 
   @Override
@@ -50,7 +52,7 @@ return "priors";
           return Utility.toDouble(valueBytes);
         }
       }
-      return minScore;
+      return def;
     } catch (IOException ioe) {
       Logger.getLogger(DocumentPriorSource.class.getName()).log(Level.SEVERE, null, ioe);
       throw new RuntimeException(ioe);
@@ -66,5 +68,14 @@ return "priors";
   public double minScore() {
     return minScore;
   }
-  
+
+  @Override
+  public long currentCandidate() {
+    return Utility.toLong(btreeIter.getKey());
+  }
+
+  @Override
+  public void syncTo(long id) throws IOException {
+    btreeIter.skipTo(Utility.fromLong(id));
+  }
 }

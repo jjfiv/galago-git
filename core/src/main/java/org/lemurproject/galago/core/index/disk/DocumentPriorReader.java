@@ -3,22 +3,13 @@ package org.lemurproject.galago.core.index.disk;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.BTreeReader;
-import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
-import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskScoreIterator;
-import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -44,7 +35,7 @@ public class DocumentPriorReader extends KeyValueReader {
   }
 
   public double getPrior(int document) throws IOException {
-    byte[] valueBytes = reader.getValueBytes(Utility.fromInt(document));
+    byte[] valueBytes = reader.getValueBytes(Utility.fromLong(document));
     if ((valueBytes == null) || (valueBytes.length == 0)) {
       return def;
     } else {
@@ -60,14 +51,14 @@ public class DocumentPriorReader extends KeyValueReader {
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("prior", new NodeType(ValueIterator.class));
+    types.put("prior", new NodeType(DiskScoreIterator.class));
     return types;
   }
 
   @Override
-  public BaseIterator getIterator(Node node) throws IOException {
+  public DiskScoreIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("prior")) {
-      return new ValueIterator(new KeyIterator(reader), node);
+      return new DiskScoreIterator(new DocumentPriorSource(reader, def));
     } else {
       throw new UnsupportedOperationException(
               "Index doesn't support operator: " + node.getOperator());
@@ -82,7 +73,7 @@ public class DocumentPriorReader extends KeyValueReader {
 
     @Override
     public String getKeyString() {
-      return Integer.toString(getCurrentDocument());
+      return Long.toString(Utility.toLong(iterator.getKey()));
     }
 
     @Override
@@ -95,11 +86,12 @@ public class DocumentPriorReader extends KeyValueReader {
     }
 
     public boolean skipToKey(int key) throws IOException {
-      return skipToKey(Utility.fromInt(key));
+      return skipToKey(Utility.fromLong(key));
     }
 
     public int getCurrentDocument() {
-      return Utility.toInt(iterator.getKey());
+      // TODO stop casting document to int
+      return (int) Utility.toLong(iterator.getKey());
     }
 
     public double getCurrentScore() throws IOException {
@@ -111,99 +103,13 @@ public class DocumentPriorReader extends KeyValueReader {
       }
     }
 
-    @Override
-    public BaseIterator getValueIterator() throws IOException {
-      //return new DiskScoreIterator(new DocumentPriorSource(reader));
-      return new ValueIterator(new KeyIterator(reader));
-    }
-  }
-
-  // needs to be an AbstractIndicator
-  @Deprecated
-  public class ValueIterator extends KeyToListIterator implements ScoreIterator {
-
-    double minScore;
-
-    public ValueIterator(KeyIterator it, Node node) {
-      super(it);
-      this.minScore = node.getNodeParameters().get("defaultPrior", def); // same as indri
-    }
-
-    public ValueIterator(KeyIterator it) {
-      super(it);
-      this.minScore = def; // same as indri
+    public DocumentPriorSource getValueSource() throws IOException {
+      return new DocumentPriorSource(reader, def);
     }
 
     @Override
-    public String getValueString() throws IOException {
-      return ((KeyIterator) iterator).getValueString();
-    }
-
-    @Override
-    public long totalEntries() {
-      return manifest.get("keyCount", -1);
-    }
-
-    @Override
-    public boolean hasAllCandidates() {
-      return true;
-    }
-
-    @Override
-    public boolean hasMatch(int identifier) {
-      return true;
-    }
-
-    @Override
-    public double score() {
-//      System.out.printf("Getting prior score for %d (current=%d): ",
-//              context.document, currentCandidate());
-      try {
-        if (currentCandidate() == context.document) {
-          byte[] valueBytes = iterator.getValueBytes();
-          if ((valueBytes == null) || (valueBytes.length == 0)) {
-            //System.out.printf("%f (0, minScore)\n", minScore);
-            return minScore;
-          } else {
-            //System.out.printf("%f (1, value)\n", Utility.toDouble(valueBytes));
-            return Utility.toDouble(valueBytes);
-          }
-        } else {
-          //System.out.printf("%f (2, minScore)\n", minScore);
-          return minScore;
-        }
-      } catch (IOException ex) {
-        Logger.getLogger(DocumentPriorReader.class.getName()).log(Level.SEVERE, null, ex);
-        throw new RuntimeException(ex);
-      }
-    }
-
-    @Override
-    public double maximumScore() {
-      return manifest.get("maxScore", Double.POSITIVE_INFINITY);
-    }
-
-    @Override
-    public double minimumScore() {
-      return manifest.get("minScore", Double.NEGATIVE_INFINITY);
-    }
-
-    @Override
-    public String getKeyString() throws IOException {
-      return "priors";
-    }
-
-    @Override
-    public AnnotatedNode getAnnotatedNode() throws IOException {
-      String type = "score";
-      String className = DocumentPriorReader.class.getSimpleName();
-      String parameters = "";
-      int document = currentCandidate();
-      boolean atCandidate = hasMatch(this.context.document);
-      String returnValue = Double.toString(score());
-      List<AnnotatedNode> children = Collections.EMPTY_LIST;
-
-      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+    public DiskScoreIterator getValueIterator() throws IOException {
+      return new DiskScoreIterator(new DocumentPriorSource(reader, def));
     }
   }
 }

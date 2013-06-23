@@ -241,6 +241,9 @@ public class BuildSpecialPartTest extends TestCase {
               + "2 Q0 d10 4 -12.12470467 galago\n"
               + "2 Q0 d55 5 -12.12534503 galago\n";
 
+      System.err.println(expected);
+      System.err.println(out);
+      
       assertEquals(expected, out);
 
     } finally {

@@ -15,17 +15,20 @@ import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
- * Writes the document indicator file 
- * 
+ * Writes the document indicator file
+ *  -- perhaps this should be modified to be more like lengths (a named indicator, with a posting list)
+ *
  * @author sjh
  */
 @InputClass(className = "org.lemurproject.galago.core.types.DocumentIndicator", order = {"+document"})
 public class DocumentIndicatorWriter extends KeyValueWriter<DocumentIndicator> {
 
-  int lastDocument = -1;
+  long lastDocument = -1;
   Counter written;
 
-  /** Creates a new instance of DocumentLengthsWriter */
+  /**
+   * Creates a new instance of DocumentLengthsWriter
+   */
   public DocumentIndicatorWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
     super(parameters, "Document indicators written");
     Parameters p = writer.getManifest();
@@ -41,7 +44,7 @@ public class DocumentIndicatorWriter extends KeyValueWriter<DocumentIndicator> {
   public GenericElement prepare(DocumentIndicator di) throws IOException {
     assert ((lastDocument < 0) || (lastDocument < di.document)) : "DocumentIndicatorWriter keys must be unique and in sorted order.";
     GenericElement element =
-            new GenericElement(Utility.fromInt((int)di.document),
+            new GenericElement(Utility.fromLong(di.document),
             Utility.fromBoolean(di.indicator));
 
     if (written != null) {
