@@ -43,7 +43,7 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  * fast, and we don't need to read them all in order to recover the original
  * values.
  *
- * @author trevor, irmarc
+ * @author trevor, irmarc, sjh
  */
 @InputClass(className = "org.lemurproject.galago.core.types.NumberWordPosition", order = {"+word", "+document", "+position"})
 public class PositionIndexWriter implements
@@ -158,11 +158,11 @@ public class PositionIndexWriter implements
   public class PositionsList implements IndexElement {
 
     private long lastDocument;
-    private int lastPosition;
-    private int positionCount;
-    private int documentCount;
-    private int maximumPositionCount;
-    private int totalPositionCount;
+    private long lastPosition;
+    private long positionCount;
+    private long documentCount;
+    private long maximumPositionCount;
+    private long totalPositionCount;
     public byte[] word;
     public CompressedByteBuffer header;
     public CompressedRawByteBuffer documents;
@@ -176,7 +176,7 @@ public class PositionIndexWriter implements
     private long lastCountSkip;
     private long lastPositionSkip;
     private long numSkips;
-    private int docsSinceLastSkip;
+    private long docsSinceLastSkip;
     private CompressedRawByteBuffer skips;
     private CompressedRawByteBuffer skipPositions;
 
@@ -398,7 +398,7 @@ public class PositionIndexWriter implements
           // d-gap skip
           skipPositions.add(documents.length() - lastDocumentSkip);
           skipPositions.add(counts.length() - lastCountSkip);
-          skipPositions.add((long) (positions.length() - lastPositionSkip));
+          skipPositions.add((positions.length() - lastPositionSkip));
         }
         numSkips++;
       }

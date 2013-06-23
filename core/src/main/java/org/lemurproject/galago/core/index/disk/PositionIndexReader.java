@@ -26,6 +26,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  * @author trevor, sjh, irmarc
  */
 public class PositionIndexReader extends KeyListReader implements AggregateIndexPart {
+
   Stemmer stemmer = null;
 
   public PositionIndexReader(BTreeReader reader) throws Exception {
@@ -116,7 +117,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
   }
 
   // subclasses 
-  
   public class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
@@ -142,10 +142,18 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
       }
       return sb.toString();
     }
-    
+
     @Override
-    public DiskIterator getValueIterator() throws IOException {
+    public DiskExtentIterator getValueIterator() throws IOException {
       return new DiskExtentIterator(new PositionIndexExtentSource(iterator));
+    }
+
+    public PositionIndexExtentSource getValueSource() throws IOException {
+      return new PositionIndexExtentSource(iterator);
+    }
+
+    public PositionIndexCountSource getValueCountSource() throws IOException {
+      return new PositionIndexCountSource(iterator);
     }
 
     @Override
@@ -154,4 +162,3 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     }
   }
 }
-

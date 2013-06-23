@@ -17,14 +17,14 @@ import org.lemurproject.galago.tupleflow.VByteInput;
  * @author jfoley
  */
 final public class PositionIndexExtentSource extends BTreeValueSource implements ExtentSource {
-  public int documentCount;
-  public int totalPositionCount;
-  public int maximumPositionCount;  
+  public long documentCount;
+  public long totalPositionCount;
+  public long maximumPositionCount;  
   private VByteInput documents;
   private VByteInput counts;
   private VByteInput positions;
-  private int documentIndex;
-  private int currentDocument;
+  private long documentIndex;
+  private long currentDocument;
   private int currentCount;
   private boolean done;
   // final here to prevent reallocation of this during scoring
@@ -42,8 +42,8 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
     public VByteInput positions;
     public DataStream positionsStream;
 
-    public int distance;
-    public int resetDistance;
+    public long distance;
+    public long resetDistance;
     public long total;
     public long read;
     public long nextDocument;
@@ -86,32 +86,34 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
    * its easier to do the parts when appropriate
    */
   private void initialize() throws IOException {
-    final DataStream valueStream = btreeIter.getSubValueStream(0, btreeIter.getValueLength());
+
+    // 120 bytes should be enough for the heard items ((11 * 9) + (5 * 2)) //
+    final DataStream valueStream = btreeIter.getSubValueStream(0, 120);
     final DataInput stream = new VByteInput(valueStream);
     
     // metadata contained in options bitmap:
-    final int options = stream.readInt();
+    final int options = stream.readInt(); // 5 bytes
     final boolean hasInlining = (options & HAS_INLINING) > 0;
     final boolean hasSkips = (options & HAS_SKIPS) > 0;
     final boolean hasMaxTF = (options & HAS_MAXTF) > 0;
 
-    inlineMinimum = (hasInlining) ? stream.readInt() : Integer.MAX_VALUE;
-    documentCount = stream.readInt();
-    totalPositionCount = stream.readInt();
-    maximumPositionCount = (hasMaxTF) ? stream.readInt() : Integer.MAX_VALUE;
+    inlineMinimum = (hasInlining) ? stream.readInt() : Integer.MAX_VALUE; // 5 bytes
+    documentCount = stream.readLong();// 9 bytes
+    totalPositionCount = stream.readLong();// 9 bytes
+    maximumPositionCount = (hasMaxTF) ? stream.readLong() : Long.MAX_VALUE;// 9 bytes
    
     if (hasSkips) {
       skip = new SkipState();
-      skip.distance = stream.readInt();
-      skip.resetDistance = stream.readInt();
-      skip.total = stream.readLong();
+      skip.distance = stream.readLong();// 9 bytes
+      skip.resetDistance = stream.readLong();// 9 bytes
+      skip.total = stream.readLong();// 9 bytes
     }
     // segment lengths
-    final long documentByteLength = stream.readLong();
-    final long countsByteLength = stream.readLong();
-    final long positionsByteLength = stream.readLong();
-    final long skipsByteLength = hasSkips ? stream.readLong() : 0;
-    final long skipPositionsByteLength = hasSkips ? stream.readLong() : 0;
+    final long documentByteLength = stream.readLong();// 9 bytes
+    final long countsByteLength = stream.readLong();// 9 bytes
+    final long positionsByteLength = stream.readLong();// 9 bytes
+    final long skipsByteLength = hasSkips ? stream.readLong() : 0; // 9 bytes
+    final long skipPositionsByteLength = hasSkips ? stream.readLong() : 0; // 9 bytes
 
     long documentStart = valueStream.getPosition();
     long countsStart = documentStart + documentByteLength;
@@ -132,7 +134,7 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
       skip.positionsStream = btreeIter.getSubValueStream(skipPositionsStart, skipPositionsByteLength);
       skip.positions = new VByteInput(skip.positionsStream);
       // load up
-      skip.nextDocument = skip.data.readInt();
+      skip.nextDocument = skip.data.readLong();
       skip.documentsByteFloor = 0;
       skip.countsByteFloor = 0;
       skip.positionsByteFloor = 0;
@@ -151,7 +153,7 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
       extentArray.reset();
       extentsLoaded = true;
       currentCount = 0;
-      currentDocument = Integer.MAX_VALUE;
+      currentDocument = Long.MAX_VALUE;
       return;
     }
     if (!extentsLoaded) {
@@ -161,7 +163,7 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
         loadExtents();
       }
     }
-    currentDocument += documents.readInt();
+    currentDocument += documents.readLong();
     currentCount = counts.readInt();
     // Prep the extents
     extentArray.reset();
@@ -245,7 +247,7 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
    */
   private void synchronizeSkipPositions() throws IOException {
     while (skip.nextDocument <= currentDocument) {
-      int cd = currentDocument;
+      long cd = currentDocument;
       skipOnce();
       currentDocument = cd;
     }
@@ -257,21 +259,21 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
    */
   private void skipOnce() throws IOException {
     assert skip.read < skip.total;
-    long currentSkipPosition = skip.nextPosition + skip.data.readInt();
+    long currentSkipPosition = skip.nextPosition + skip.data.readLong();
     if (skip.read % skip.resetDistance == 0) {
       // Position the skip positions stream
       skip.positionsStream.seek(currentSkipPosition);
       // now set the floor values
-      skip.documentsByteFloor = skip.positions.readInt();
-      skip.countsByteFloor = skip.positions.readInt();
+      skip.documentsByteFloor = skip.positions.readLong();
+      skip.countsByteFloor = skip.positions.readLong();
       skip.positionsByteFloor = skip.positions.readLong();
     }
-    currentDocument = (int) skip.nextDocument;
+    currentDocument = skip.nextDocument;
     // May be at the end of the buffer
     if (skip.read + 1 == skip.total) {
-      skip.nextDocument = Integer.MAX_VALUE;
+      skip.nextDocument = Long.MAX_VALUE;
     } else {
-      skip.nextDocument += skip.data.readInt();
+      skip.nextDocument += skip.data.readLong();
     }
     skip.read++;
     skip.nextPosition = currentSkipPosition;
@@ -286,8 +288,8 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
       positionsStream.seek(skip.positionsByteFloor);
     } else {
       skip.positionsStream.seek(skip.nextPosition);
-      documentsStream.seek(skip.documentsByteFloor + skip.positions.readInt());
-      countsStream.seek(skip.countsByteFloor + skip.positions.readInt());
+      documentsStream.seek(skip.documentsByteFloor + skip.positions.readLong());
+      countsStream.seek(skip.countsByteFloor + skip.positions.readLong());
       positionsStream.seek(skip.positionsByteFloor + skip.positions.readLong());
     }
     documentIndex = (int) (skip.distance * skip.read) - 1;
