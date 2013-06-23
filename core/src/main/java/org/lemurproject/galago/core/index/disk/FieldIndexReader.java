@@ -23,7 +23,7 @@ import org.lemurproject.galago.tupleflow.VByteInput;
 
 /**
  *
- * @author irmarc
+ * @author irmarc, sjh
  */
 public class FieldIndexReader extends KeyListReader {
 
@@ -31,6 +31,16 @@ public class FieldIndexReader extends KeyListReader {
 
   public FieldIndexReader(BTreeReader reader) throws FileNotFoundException, IOException {
     super(reader);
+    if (reader.getManifest().isMap("tokenizer")) {
+      Parameters tokenizer = reader.getManifest().getMap("tokenizer");
+      if (tokenizer.containsKey("formats")) {
+        formatMap.copyFrom(tokenizer.getMap("formats"));
+      }
+    }
+  }
+
+  public FieldIndexReader(String path) throws FileNotFoundException, IOException {
+    super(path);
     if (reader.getManifest().isMap("tokenizer")) {
       Parameters tokenizer = reader.getManifest().getMap("tokenizer");
       if (tokenizer.containsKey("formats")) {
@@ -59,7 +69,7 @@ public class FieldIndexReader extends KeyListReader {
   }
 
   @Override
-  public DiskIterator getIterator(Node node) throws IOException {
+  public ListIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("field")) {
       ListIterator it = getField(node.getDefaultParameter());
       if (node.getNodeParameters().containsKey("format")) {
@@ -99,7 +109,7 @@ public class FieldIndexReader extends KeyListReader {
     }
 
     @Override
-    public DiskIterator getValueIterator() throws IOException {
+    public ListIterator getValueIterator() throws IOException {
       return new ListIterator(iterator);
     }
 
@@ -116,9 +126,10 @@ public class FieldIndexReader extends KeyListReader {
     //VByteInput data;
     long startPosition, endPosition;
     DataStream dataStream;
-    int documentCount;
+    long documentCount;
     int options;
-    int currentDocument;
+    long currentDocument;
+    long documentIndex;
     String format = null;
     String strValue;
     int intValue;
@@ -127,7 +138,6 @@ public class FieldIndexReader extends KeyListReader {
     double doubleValue;
     long dateValue;
     byte[] dateBytes = new byte[8];
-    int documentIndex;
 
     public ListIterator(BTreeReader.BTreeIterator iterator) throws IOException {
       super(iterator.getKey());
@@ -170,10 +180,10 @@ public class FieldIndexReader extends KeyListReader {
     }
 
     private void initialize() throws IOException {
-      DataStream valueStream = iterator.getSubValueStream(0, iterator.getValueLength());
+      DataStream valueStream = iterator.getSubValueStream(0, 20);
       DataInput stream = new VByteInput(valueStream);
 
-      documentCount = stream.readInt();
+      documentCount = stream.readLong(); // 9 bytes
       currentDocument = 0;
       documentIndex = 0;
 
@@ -217,7 +227,7 @@ public class FieldIndexReader extends KeyListReader {
     }
 
     private void loadValue() throws IOException {
-      currentDocument += Utility.uncompressInt(dataStream);
+      currentDocument += Utility.uncompressLong(dataStream);
 
       // Need to figure out what to do here
       if (format.equals("string")) {
@@ -340,7 +350,8 @@ public class FieldIndexReader extends KeyListReader {
 
     @Override
     public int currentCandidate() {
-      return currentDocument;
+      // TODO stop casting document to int
+      return (int) currentDocument;
     }
 
     @Override

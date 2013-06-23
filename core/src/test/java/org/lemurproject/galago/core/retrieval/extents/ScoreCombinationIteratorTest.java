@@ -51,7 +51,6 @@ public class ScoreCombinationIteratorTest extends TestCase {
     two.setContext(ctx);
     for (int i = 0; i < 12; i++) {
       ctx.document = docsTogether[i];
-      ctx.moveLengths(docsTogether[i]);
       assertEquals(scoresTogether[i], instance.score(), 0.00001);
       instance.movePast(docsTogether[i]);
     }
@@ -74,7 +73,6 @@ public class ScoreCombinationIteratorTest extends TestCase {
     two.setContext(ctx);
     for (int i = 0; i < 12; i++) {
       ctx.document = docsTogether[i];
-      ctx.moveLengths(docsTogether[i]);
       assert (Math.abs(normalWeightedScoresTogether[i] - instance.score()) < 0.000001);
       instance.movePast(docsTogether[i]);
     }
@@ -98,7 +96,6 @@ public class ScoreCombinationIteratorTest extends TestCase {
     two.setContext(ctx);
     for (int i = 0; i < 12; i++) {
       ctx.document = docsTogether[i];
-      ctx.moveLengths(docsTogether[i]);
       assert (Math.abs(weightedScoresTogether[i] - instance.score()) < 0.000001);
       instance.movePast(docsTogether[i]);
     }

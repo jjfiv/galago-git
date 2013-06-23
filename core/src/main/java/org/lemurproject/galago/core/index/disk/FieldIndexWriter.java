@@ -23,20 +23,91 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
  *
- * @author trevor
+ * @author trevor, sjh
  */
 @InputClass(className = "org.lemurproject.galago.core.types.NumberedField", order = {"+fieldName", "+number"})
 @OutputClass(className = "org.lemurproject.galago.core.types.KeyValuePair", order = {"+key"})
-public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.ShreddedProcessor,
-        Source<KeyValuePair> // parallel index data output
-{
+public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.ShreddedProcessor {
+
+  long minimumSkipListLength = 2048;
+  int skipByteLength = 128;
+  byte[] lastWord;
+  long lastPosition = 0;
+  long lastDocument = 0;
+  BTreeWriter writer;
+  ContentList invertedList;
+  OutputStream output;
+  long filePosition;
+  long documentCount = 0;
+  long collectionLength = 0;
+  Parameters header;
+  TupleFlowParameters stepParameters;
+  boolean parallel;
+  String filename;
+
+  public FieldIndexWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
+    header = parameters.getJSON();
+    stepParameters = parameters;
+    header.set("readerClass", FieldIndexReader.class.getName());
+    header.set("writerClass", getClass().toString());
+    filename = header.getString("filename");
+  }
+
+  @Override
+  public void processFieldName(byte[] wordBytes) throws IOException {
+    if (writer == null) {
+      writer = new DiskBTreeWriter(stepParameters);
+    }
+
+    if (invertedList != null) {
+      invertedList.close();
+      writer.add(invertedList);
+      invertedList = null;
+    }
+
+    invertedList = new ContentList(wordBytes);
+
+    assert lastWord == null || 0 != Utility.compare(lastWord, wordBytes) : "Duplicate word";
+    lastWord = wordBytes;
+  }
+
+  @Override
+  public void processNumber(long document) throws IOException {
+    invertedList.addDocument(document);
+  }
+
+  @Override
+  public void processTuple(byte[] content) throws IOException {
+    invertedList.setContent(content);
+  }
+
+  @Override
+  public void close() throws IOException {
+    if (invertedList != null) {
+      invertedList.close();
+      writer.add(invertedList);
+    }
+    if (writer != null) {
+      writer.close();
+    }
+  }
+
+  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
+    if (!parameters.getJSON().isString("filename")) {
+      store.addError("ExtentIndexWriter requires a 'filename' parameter.");
+      return;
+    }
+
+    String index = parameters.getJSON().getString("filename");
+    Verification.requireWriteableFile(index, store);
+  }
 
   public class ContentList implements IndexElement {
 
     CompressedByteBuffer header;
     CompressedRawByteBuffer data;
     long lastDocument;
-    int documentCount;
+    long documentCount;
     byte[] key;
     byte[] content = null;
 
@@ -48,19 +119,22 @@ public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.Shre
       data = new CompressedRawByteBuffer();
     }
 
+    @Override
     public byte[] key() {
       return key;
     }
 
+    @Override
     public long dataLength() {
       long listLength = 0;
 
-      listLength += data.length();
       listLength += header.length();
+      listLength += data.length();
 
       return listLength;
     }
 
+    @Override
     public void write(OutputStream stream) throws IOException {
       header.write(stream);
       header.clear();
@@ -89,78 +163,5 @@ public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.Shre
       }
       header.add(documentCount);
     }
-  }
-  long minimumSkipListLength = 2048;
-  int skipByteLength = 128;
-  byte[] lastWord;
-  long lastPosition = 0;
-  long lastDocument = 0;
-  BTreeWriter writer;
-  ContentList invertedList;
-  OutputStream output;
-  long filePosition;
-  long documentCount = 0;
-  long collectionLength = 0;
-  Parameters header;
-  TupleFlowParameters stepParameters;
-  boolean parallel;
-  String filename;
-
-  public FieldIndexWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
-    header = parameters.getJSON();
-    stepParameters = parameters;
-    header.set("readerClass", FieldIndexReader.class.getName());
-    header.set("writerClass", getClass().toString());
-    filename = header.getString("filename");
-  }
-
-  public void processFieldName(byte[] wordBytes) throws IOException {
-    if (writer == null) {
-      writer = new DiskBTreeWriter(stepParameters);
-    }
-
-    if (invertedList != null) {
-      invertedList.close();
-      writer.add(invertedList);
-      invertedList = null;
-    }
-
-    invertedList = new ContentList(wordBytes);
-
-    assert lastWord == null || 0 != Utility.compare(lastWord, wordBytes) : "Duplicate word";
-    lastWord = wordBytes;
-  }
-
-  public void processNumber(long document) throws IOException {
-    invertedList.addDocument(document);
-  }
-
-  public void processTuple(byte[] content) throws IOException {
-    invertedList.setContent(content);
-  }
-
-  public void close() throws IOException {
-    if (invertedList != null) {
-      invertedList.close();
-      writer.add(invertedList);
-    }
-    if (writer != null) {
-      writer.close();
-    }
-  }
-
-  public static void verify(TupleFlowParameters parameters, ErrorStore store) {
-    if (!parameters.getJSON().isString("filename")) {
-      store.addError("ExtentIndexWriter requires a 'filename' parameter.");
-      return;
-    }
-
-    String index = parameters.getJSON().getString("filename");
-    Verification.requireWriteableFile(index, store);
-  }
-
-  @Override
-  public void setProcessor(Step processor) throws IncompatibleProcessorException {
-    writer.setProcessor(processor);
   }
 }

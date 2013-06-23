@@ -69,8 +69,6 @@ public class UnfilteredCombinationIteratorTest extends TestCase {
     instance.setContext(context);
     int[] lengths = new int[12];
     Arrays.fill(lengths, 100);
-    FakeLengthIterator fli = new FakeLengthIterator(docsTogether, lengths);
-    context.addLength("", fli);
     for (int i = 0; i < 12; i++) {
       assertFalse(instance.isDone());
       assertTrue(instance.hasMatch(docsTogether[i]));

@@ -40,7 +40,6 @@ public class MaxScoreDocumentModel extends ProcessingModel {
 
     FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
-    ProcessingModel.initializeLengths(retrieval, context);
     context.minCandidateScore = Double.NEGATIVE_INFINITY;
     context.sentinelIndex = context.scorers.size();
     // Compute the starting potential
@@ -75,8 +74,6 @@ public class MaxScoreDocumentModel extends ProcessingModel {
       // "hasMatch", we need to see if the candidate given actually matches
       // properly before scoring.
       if (rootIterator.hasMatch(candidate)) {
-        // Otherwise move lengths
-        context.moveLengths(candidate);
 
         // Setup to score
         context.runningScore = context.startingPotential;

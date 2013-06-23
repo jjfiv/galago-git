@@ -29,7 +29,6 @@ public class ScaleIteratorTest extends TestCase {
     Arrays.fill(lengths, 100);
     FakeLengthIterator fli = new FakeLengthIterator(docsA, lengths);
     fli.setContext(context);
-    context.addLength("", fli);
 
     FakeScoreIterator inner = new FakeScoreIterator(docsA, scoresA);
     inner.setContext(context);
@@ -37,7 +36,6 @@ public class ScaleIteratorTest extends TestCase {
     assertFalse(iterator.isDone());
     assertTrue(iterator.hasMatch(docsA[0]));
     for (int i = 0; i < docsA.length; i++) {
-      context.moveLengths(iterator.currentCandidate());
       context.document = iterator.currentCandidate();
       assertEquals(docsA[i], iterator.currentCandidate());
       assertEquals(scoresA[i], iterator.score());
@@ -52,9 +50,6 @@ public class ScaleIteratorTest extends TestCase {
     ScoringContext context = new ScoringContext();
     int[] lengths = new int[docsB.length];
     Arrays.fill(lengths, 100);
-    FakeLengthIterator fli = new FakeLengthIterator(docsB, lengths);
-    fli.setContext(context);
-    context.addLength("", fli);
 
     FakeScoreIterator inner = new FakeScoreIterator(docsB, scoresB);
     inner.setContext(context);
@@ -67,7 +62,6 @@ public class ScaleIteratorTest extends TestCase {
     for (int i = 0; i < docsB.length; i++) {
       iterator.syncTo(docsB[i]);
       context.document = docsB[i];
-      context.moveLengths(docsB[i]);
       assertEquals(docsB[i], iterator.currentCandidate());
       assertEquals(scoresB[i] * 0.5, iterator.score());
     }

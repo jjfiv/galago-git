@@ -50,7 +50,6 @@ public class WeightedSumIteratorTest extends TestCase {
     two.setContext(ctx);
     for (int i = 0; i < 12; i++) {
       ctx.document = docsTogether[i];
-      ctx.moveLengths(docsTogether[i]);
       assertEquals(scoresTogether[i], instance.score(), 0.00001);
       instance.movePast(docsTogether[i]);
     }
@@ -74,7 +73,6 @@ public class WeightedSumIteratorTest extends TestCase {
     two.setContext(ctx);
     for (int i = 0; i < 12; i++) {
       ctx.document = docsTogether[i];
-      ctx.moveLengths(docsTogether[i]);
       assertEquals(normalWeightedScoresTogether[i], instance.score(), 0.0001);
       instance.movePast(docsTogether[i]);
     }
@@ -98,7 +96,6 @@ public class WeightedSumIteratorTest extends TestCase {
     two.setContext(ctx);
     for (int i = 0; i < 12; i++) {
       ctx.document = docsTogether[i];
-      ctx.moveLengths(docsTogether[i]);
       assertEquals(unnormalweightedScoresTogether[i], instance.score(), 0.0001);
       instance.movePast(docsTogether[i]);
     }

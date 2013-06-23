@@ -52,7 +52,6 @@ public class WANDScoreDocumentModel extends ProcessingModel {
 
     FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
-    ProcessingModel.initializeLengths(retrieval, context);
     context.minCandidateScore = Double.NEGATIVE_INFINITY;
     context.sentinelIndex = context.scorers.size();
     // Compute the starting potential
@@ -138,7 +137,6 @@ public class WANDScoreDocumentModel extends ProcessingModel {
   }
 
   private void score(EarlyTerminationScoringContext context) throws IOException {
-    context.moveLengths(context.document);
 
     // Setup to score
     context.runningScore = context.startingPotential;

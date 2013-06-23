@@ -1,22 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.io.IOException;
-import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.PriorityQueue;
-import org.lemurproject.galago.core.index.disk.FieldLengthsReader;
-import org.lemurproject.galago.core.index.disk.WindowIndexReader;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
-import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 
@@ -60,39 +51,6 @@ public abstract class ProcessingModel {
     }
 
     return items;
-  }
-
-  public static void initializeLengths(LocalRetrieval r, ScoringContext ctx) throws IOException {
-
-    Parameters global = r.getGlobalParameters();
-    List<String> fields;
-    if (global.containsKey("fields")) {
-      fields = global.getAsList("fields");
-    } else {
-      fields = new ArrayList<String>();
-    }
-
-    Node docLengths = new Node("lengths", new NodeParameters());
-    docLengths.getNodeParameters().set("default", "document");
-    docLengths.getNodeParameters().set("mode", global.get("lenMode", "memory"));
-
-    Index index = r.getIndex();
-    LengthsIterator documentLengths = (LengthsIterator) index.getIterator(docLengths);
-    documentLengths.setContext(ctx);
-    ctx.addLength("", documentLengths);
-    if (index.containsPart("extents") && !fields.isEmpty()) {
-      WindowIndexReader wir = (WindowIndexReader) index.getIndexPart("extents");
-      FieldLengthsReader flr = new FieldLengthsReader(wir);
-      Parameters parts = r.getAvailableParts();
-      for (String field : fields) {
-        String partName = "field." + field;
-        if (!parts.containsKey(partName)) {
-          continue;
-        }
-        LengthsIterator it = flr.getLengthsIterator(field, ctx);
-        ctx.addLength(field, it);
-      }
-    }
   }
 
   public static ProcessingModel instance(LocalRetrieval r, Node root, Parameters p)

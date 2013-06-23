@@ -9,11 +9,10 @@ import org.lemurproject.galago.core.index.FakeLengthIterator;
 import org.lemurproject.galago.core.retrieval.extents.FakeExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.scoring.ScoringFunction;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
- * @author marc
+ * @author marc, sjh
  */
 public class ScoringFunctionIteratorTest extends TestCase {
 
@@ -41,7 +40,6 @@ public class ScoringFunctionIteratorTest extends TestCase {
     iterator.setScoringFunction(new FakeScorer());
 
     ScoringContext context = new ScoringContext();
-    context.addLength("", lengthsIterator);
     extentIterator.setContext(context);
     lengthsIterator.setContext(context);
     iterator.setContext(context);
@@ -59,15 +57,15 @@ public class ScoringFunctionIteratorTest extends TestCase {
     assertEquals(0.0, iterator.score());
 
     // score with good context.document
-    context.moveLengths(34);
     context.document = 34;
     assertEquals(102.0, iterator.score());
 
     // score next document
     iterator.movePast(44);
+    context.document = iterator.currentCandidate();
+    iterator.syncTo(context.document);
     assertTrue(iterator.hasMatch(110));
     context.document = iterator.currentCandidate();
-    context.moveLengths(iterator.currentCandidate());
     assertEquals(44.0, iterator.score());
 
     iterator.syncTo(120);
@@ -97,19 +95,16 @@ public class ScoringFunctionIteratorTest extends TestCase {
 
     // score without explicit context
     ScoringContext context = new ScoringContext();
-    context.addLength("", lengthsIterator);
-
+    
     iterator.setContext(context);
     extentIterator.setContext(context);
     lengthsIterator.setContext(context);
     
     context.document = iterator.currentCandidate();
-    context.moveLengths(34);
     assertEquals(1.11315, iterator.score(), 0.0001);
 
     iterator.movePast(44);
     context.document = iterator.currentCandidate();
-    context.moveLengths(iterator.currentCandidate());
     assertTrue(iterator.hasMatch(110));
     assertEquals(1.11315, iterator.score(), 0.0001);
     

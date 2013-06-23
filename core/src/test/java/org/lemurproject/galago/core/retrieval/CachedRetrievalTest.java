@@ -54,7 +54,6 @@ public class CachedRetrievalTest extends TestCase {
       cacheRet.addNodeToCache(score);
 
       ScoringContext sc = new ScoringContext();
-      ProcessingModel.initializeLengths(nonCacheRet, sc);
 
       ScoreIterator diskScoreIterator = (ScoreIterator) nonCacheRet.createIterator(new Parameters(), score, sc);
       ScoreIterator cachedScoreIterator = (ScoreIterator) cacheRet.createIterator(new Parameters(), score, sc);
@@ -63,7 +62,6 @@ public class CachedRetrievalTest extends TestCase {
       while (!diskScoreIterator.isDone() && !cachedScoreIterator.isDone()) {
         assertEquals(diskScoreIterator.currentCandidate(), cachedScoreIterator.currentCandidate());
         sc.document = diskScoreIterator.currentCandidate();
-        sc.moveLengths(diskScoreIterator.currentCandidate());
         assertEquals(diskScoreIterator.score(), cachedScoreIterator.score(), 0.000001);
         diskScoreIterator.movePast(sc.document);
         cachedScoreIterator.movePast(sc.document);

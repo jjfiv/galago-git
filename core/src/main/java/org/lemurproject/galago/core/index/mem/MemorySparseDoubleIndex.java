@@ -80,7 +80,6 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
       while (!mi.isDone()) {
         int document = mi.currentCandidate();
         c.document = document;
-        c.moveLengths(document);
         if (mi.hasMatch(document)) {
           double score = mi.score();
           postingList.add(document, score);
