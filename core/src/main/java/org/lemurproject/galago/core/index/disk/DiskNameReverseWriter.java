@@ -71,7 +71,7 @@ public class DiskNameReverseWriter implements Processor<NumberedDocumentData> {
     
     writer.add(new GenericElement(
             Utility.fromString(ndd.identifier),
-            Utility.fromInt(ndd.number)));
+            Utility.fromLong(ndd.number)));
 
     if (documentNamesWritten != null) {
       documentNamesWritten.increment();

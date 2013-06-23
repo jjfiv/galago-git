@@ -33,7 +33,7 @@ public class DocumentNameReverseMerger extends GenericIndexMerger<NumberedDocume
   public void performValueMerge(byte[] key, List<KeyIteratorWrapper> keyIterators) throws IOException {
     assert (keyIterators.size() == 1) : "Found two identical keys when merging names. Name data should never be combined.";
     DiskNameReverseReader.KeyIterator i = (DiskNameReverseReader.KeyIterator) keyIterators.get(0).iterator;
-    int documentId = this.mappingReader.map(this.partIds.get(keyIterators.get(0)), i.getCurrentIdentifier());
+    long documentId = this.mappingReader.map(this.partIds.get(keyIterators.get(0)), i.getCurrentIdentifier());
     this.writer.process(new NumberedDocumentData(i.getCurrentName(), null, null, documentId, 0));
   }
 }

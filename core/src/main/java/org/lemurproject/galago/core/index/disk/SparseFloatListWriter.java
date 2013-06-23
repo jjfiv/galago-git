@@ -14,16 +14,18 @@ import org.lemurproject.galago.tupleflow.TupleFlowParameters;
  *
  * @author trevor
  */
-public class SparseFloatListWriter implements 
-    NumberWordProbability.NumberWordOrder.ShreddedProcessor {
+public class SparseFloatListWriter implements
+        NumberWordProbability.NumberWordOrder.ShreddedProcessor {
+
   DiskBTreeWriter writer;
   DoubleInvertedList list;
 
   public class DoubleInvertedList implements IndexElement {
+
     CompressedRawByteBuffer data = new CompressedRawByteBuffer();
     CompressedByteBuffer header = new CompressedByteBuffer();
-    int lastDocument;
-    int documentCount;
+    long lastDocument;
+    long documentCount;
     byte[] word;
 
     public DoubleInvertedList(byte[] word) {
@@ -32,6 +34,7 @@ public class SparseFloatListWriter implements
       this.documentCount = 0;
     }
 
+    @Override
     public void write(final OutputStream stream) throws IOException {
       header.write(stream);
       header.clear();
@@ -39,7 +42,7 @@ public class SparseFloatListWriter implements
       data.clear();
     }
 
-    public void addDocument(int document) throws IOException {
+    public void addDocument(long document) throws IOException {
       data.add(document - lastDocument);
       documentCount++;
       lastDocument = document;
@@ -49,10 +52,12 @@ public class SparseFloatListWriter implements
       data.addFloat((float) probability);
     }
 
+    @Override
     public byte[] key() {
       return word;
     }
 
+    @Override
     public long dataLength() {
       return data.length() + header.length();
     }
@@ -62,13 +67,16 @@ public class SparseFloatListWriter implements
     }
   }
 
-  /** Creates a new instance of DoubleListWriter */
+  /**
+   * Creates a new instance of DoubleListWriter
+   */
   public SparseFloatListWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
     writer = new DiskBTreeWriter(parameters);
     writer.getManifest().set("readerClass", SparseFloatListReader.class.getName());
     writer.getManifest().set("writerClass", getClass().getName());
   }
 
+  @Override
   public void processWord(byte[] word) throws IOException {
     if (list != null) {
       list.close();
@@ -78,14 +86,17 @@ public class SparseFloatListWriter implements
     list = new DoubleInvertedList(word);
   }
 
-  public void processNumber(int number) throws IOException {
+  @Override
+  public void processNumber(long number) throws IOException {
     list.addDocument(number);
   }
 
+  @Override
   public void processTuple(double probability) throws IOException {
     list.addProbability(probability);
   }
 
+  @Override
   public void close() throws IOException {
     if (list != null) {
       list.close();

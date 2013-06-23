@@ -2,7 +2,7 @@ package org.lemurproject.galago.core.types;
 
 type FieldNumberWordPosition {
     String field;
-    int document;
+    long document;
     bytes word;
     int position;
     

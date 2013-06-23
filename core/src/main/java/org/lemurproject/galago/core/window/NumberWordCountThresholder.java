@@ -85,7 +85,7 @@ public class NumberWordCountThresholder extends StandardStep<NumberWordCount, Nu
 
     // if we have more than threshold df
     if (threshdf) {
-      HashSet<Integer> docs = new HashSet();
+      HashSet<Long> docs = new HashSet();
       for (NumberWordCount e : currentBuffer) {
         docs.add(e.document);
       }
@@ -114,6 +114,7 @@ public class NumberWordCountThresholder extends StandardStep<NumberWordCount, Nu
     }
   }
 
+  @Override
   public void close() throws IOException {
     emitExtents();
     processor.close();

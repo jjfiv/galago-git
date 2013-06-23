@@ -1,7 +1,7 @@
 package org.lemurproject.galago.core.types;
 
 type AdditionalDocumentText {
-    int identifier;
+    long identifier;
     String text;
 
     order: ;

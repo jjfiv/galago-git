@@ -39,7 +39,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
   // gets the document name of the internal id index.
   @Override
   public String getDocumentName(int index) throws IOException {
-    byte[] data = reader.getValueBytes(Utility.fromInt(index));
+    byte[] data = reader.getValueBytes(Utility.fromLong(index));
     if (data == null) {
       return null;
     }
@@ -89,7 +89,8 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     }
 
     public boolean skipToKey(int identifier) throws IOException {
-      return skipToKey(Utility.fromInt(identifier));
+      // TODO stop casting document to int
+      return skipToKey(Utility.fromLong(identifier));
     }
 
     public String getCurrentName() throws IOException {
@@ -97,7 +98,8 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     }
 
     public int getCurrentIdentifier() throws IOException {
-      return Utility.toInt(getKey());
+      // TODO stop casting document to int
+      return (int) Utility.toLong(getKey());
     }
 
     @Override
@@ -124,6 +126,26 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
 
     public ValueIterator(KeyIterator ki) {
       super(ki);
+    }
+
+    @Override
+    public int currentCandidate() {
+      try {
+        // TODO stop casting document to int
+        return (int) Utility.toLong(iterator.getKey());
+      } catch (IOException ioe) {
+        return Integer.MAX_VALUE;
+      }
+    }
+
+    @Override
+    public void syncTo(int identifier) throws IOException {
+      iterator.skipToKey(Utility.fromLong(identifier));
+    }
+
+    @Override
+    public void movePast(int identifier) throws IOException {
+      iterator.skipToKey(Utility.fromLong(identifier + 1));
     }
 
     @Override

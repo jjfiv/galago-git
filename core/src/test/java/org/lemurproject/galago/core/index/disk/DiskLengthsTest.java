@@ -6,6 +6,7 @@ package org.lemurproject.galago.core.index.disk;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskLengthsIterator;
 import java.io.File;
 import java.io.IOException;
+import static junit.framework.Assert.assertEquals;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DiskLengthsReader.KeyIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -52,74 +53,81 @@ public class DiskLengthsTest extends TestCase {
       assertEquals(reader.getLength(110), 111);
 
       KeyIterator ki = reader.getIterator();
-//      MemoryMapLengthsIterator memItr = ki.getMemoryValueIterator();
       DiskLengthsIterator streamItr = ki.getStreamValueIterator();
-      
+
       ScoringContext sc = new ScoringContext();
-//      memItr.setContext(sc);
       streamItr.setContext(sc);
-      
-//      while (!memItr.isDone() || !streamItr.isDone()) {
-//        assertEquals(memItr.getCurrentIdentifier(), streamItr.getCurrentIdentifier());
-//        sc.document = memItr.getCurrentIdentifier();
-//        
-//        assertEquals(memItr.length(), streamItr.length());
-//
-//        memItr.movePast(memItr.currentCandidate());
-//        streamItr.movePast(streamItr.currentCandidate());
-//      }
 
-//      memItr.reset();
-//      streamItr.reset();
-
-//      memItr.syncTo(50);
       streamItr.syncTo(50);
       sc.document = 50;
-//      assertEquals(memItr.currentCandidate(), 50);
       assertEquals(streamItr.currentCandidate(), 50);
-//      assertEquals(memItr.length(), 51);
       assertEquals(streamItr.length(), 51);
 
-//      memItr.syncTo(90);
       streamItr.syncTo(90);
       sc.document = 90;
-//      assertEquals(memItr.currentCandidate(), 90);
       assertEquals(streamItr.currentCandidate(), 90);
-//      assertEquals(memItr.length(), 91);
       assertEquals(streamItr.length(), 91);
 
-//      memItr.syncTo(90);
       streamItr.syncTo(90);
       sc.document = 90;
-//      assertEquals(memItr.currentCandidate(), 90);
       assertEquals(streamItr.currentCandidate(), 90);
-//      assertEquals(memItr.length(), 91);
       assertEquals(streamItr.length(), 91);
 
-//      memItr.syncTo(110);
       streamItr.syncTo(110);
       sc.document = 110;
-//      assertEquals(memItr.currentCandidate(), 110);
       assertEquals(streamItr.currentCandidate(), 110);
-//      assertEquals(memItr.length(), 111);
       assertEquals(streamItr.length(), 111);
 
-//      memItr.syncTo(200);
       streamItr.syncTo(200);
       sc.document = 200;
-//      assertEquals(memItr.currentCandidate(), 110);
       assertEquals(streamItr.currentCandidate(), 110);
-//      assertEquals(memItr.length(), 0);
       assertEquals(streamItr.length(), 0);
 
       reader.close();
-
 
     } finally {
       if (len != null) {
         len.delete();
       }
 
+    }
+  }
+
+  public void testBigLengths() throws IOException {
+    File len = Utility.createTemporary();
+    try {
+
+      Parameters p = new Parameters();
+      p.set("filename", len.getAbsolutePath());
+      DiskLengthsWriter writer = new DiskLengthsWriter(new FakeParameters(p));
+
+      byte[] key = Utility.fromString("document");
+
+      long min = 8000000000L;
+      long max = 8000100000L;
+      long step = 1000L;
+      int j = 1;
+      for (long i = min; i <= max; i += step) {
+        writer.process(new FieldLengthData(key, i, j));
+        j += 1;
+      }
+
+      writer.close();
+
+      DiskLengthsReader reader = new DiskLengthsReader(len.getAbsolutePath());
+
+      DiskLengthSource ls = reader.getLengthsSource();
+      int l = 1;
+      while(!ls.isDone()){
+        assertEquals(ls.length(ls.currentCandidate()), l);
+        l += 1;
+        ls.syncTo(ls.currentCandidate() + step);
+      }
+      
+      reader.close();
+
+    } finally {
+      len.delete();
     }
   }
 }

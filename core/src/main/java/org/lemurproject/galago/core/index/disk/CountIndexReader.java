@@ -6,10 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -55,7 +56,7 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
     BTreeReader.BTreeIterator iterator = reader.getIterator(key);
 
     if (iterator != null) {
-      return new DiskCountIterator(new CountIndexSource(iterator));
+      return new DiskCountIterator(new CountIndexCountSource(iterator));
     }
     return null;
   }
@@ -72,7 +73,7 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
   }
 
   @Override
-  public DiskIterator getIterator(Node node) throws IOException {
+  public BaseIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("counts")) {
       return getTermCounts(node.getDefaultParameter());
     }
@@ -110,27 +111,33 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
 
     @Override
     public String getValueString() {
-      DiskCountIterator it;
-      long count = -1;
+      CountIndexCountSource it;
+      NodeStatistics ns = null;
       try {
-        it = new DiskCountIterator(new CountIndexSource(iterator));
-        count = it.count();
+        it = new CountIndexCountSource(iterator);
+        ns = it.getStatistics();
       } catch (IOException ioe) {
+        ioe.printStackTrace();
+        System.err.println(ioe.toString());
       }
+
       StringBuilder sb = new StringBuilder();
       sb.append(Utility.toString(getKey())).append(",");
-      sb.append("list of size: ");
-      if (count > 0) {
-        sb.append(count);
+      if (ns != null) {
+        sb.append(ns.toString());
       } else {
         sb.append("Unknown");
       }
       return sb.toString();
     }
 
+    public CountIndexCountSource getStreamValueSource() throws IOException {
+      return new CountIndexCountSource(iterator);
+    }
+    
     @Override
-    public DiskIterator getValueIterator() throws IOException {
-      return new DiskCountIterator(new CountIndexSource(iterator));
+    public BaseIterator getValueIterator() throws IOException {
+      return new DiskCountIterator(new CountIndexCountSource(iterator));
     }
 
     @Override

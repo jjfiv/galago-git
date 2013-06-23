@@ -12,18 +12,19 @@ import org.lemurproject.galago.tupleflow.VByteInput;
 
 /**
  * This iterator simply ignores the positions information - faster b/c when
- * incrementing or loading or skipping, we don't have to bookkeep the
- * positions buffer. Overall smaller footprint and faster execution.
+ * incrementing or loading or skipping, we don't have to bookkeep the positions
+ * buffer. Overall smaller footprint and faster execution.
+ *
  * @author irmarc
  * @author jfoley
  * @see PositionIndexReader
  * @see StreamExtentSource
  */
 final public class PositionIndexCountSource extends BTreeValueSource implements CountSource {
+
   public int documentCount;
   public int collectionCount;
   public int maximumPositionCount;
-  
   VByteInput documents;
   VByteInput counts;
   int documentIndex;
@@ -47,12 +48,12 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
   long lastSkipPosition;
   long documentsByteFloor;
   long countsByteFloor;
-  
+
   public PositionIndexCountSource(BTreeReader.BTreeIterator iter) throws IOException {
     super(iter);
     reset();
   }
-  
+
   @Override
   public void reset() throws IOException {
     startPosition = btreeIter.getValueStart();
@@ -66,52 +67,58 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
   /**
    * Initialization method.
    *
-   * Even though we check for skips multiple times, in terms of how the data is loaded
-   * its easier to do the parts when appropriate
+   * Even though we check for skips multiple times, in terms of how the data is
+   * loaded its easier to do the parts when appropriate
    */
   protected void initialize() throws IOException {
-    DataStream valueStream = btreeIter.getSubValueStream(0, btreeIter.getValueLength());
+    // all header information should be in the first 110 bytes
+    DataStream valueStream = btreeIter.getSubValueStream(0, 110);
     DataInput stream = new VByteInput(valueStream);
     // metadata
-    int options = stream.readInt();
+    int options = stream.readInt(); // 5 bytes
     final boolean hasInlining = (options & HAS_INLINING) > 0;
     final boolean hasSkips = (options & HAS_SKIPS) > 0;
     final boolean hasMaxTF = (options & HAS_MAXTF) > 0;
-    
+
     // Don't need to keep this value as positions are ignored.
     if ((options & HAS_INLINING) == HAS_INLINING) {
-      int inlineMinimum = stream.readInt();
+      int inlineMinimum = stream.readInt(); // 5 bytes
     }
-    documentCount = stream.readInt();
-    collectionCount = stream.readInt();
+    documentCount = stream.readInt(); // 5 bytes
+    collectionCount = stream.readInt(); // 5 bytes
     if ((options & HAS_MAXTF) == HAS_MAXTF) {
-      maximumPositionCount = stream.readInt();
+      maximumPositionCount = stream.readInt(); // 5 bytes
     } else {
       maximumPositionCount = Integer.MAX_VALUE;
     }
     if ((options & HAS_SKIPS) == HAS_SKIPS) {
-      skipDistance = stream.readInt();
-      skipResetDistance = stream.readInt();
-      numSkips = stream.readLong();
+      skipDistance = stream.readInt(); // 5 bytes
+      skipResetDistance = stream.readInt(); // 5 bytes
+      numSkips = stream.readLong(); // 9 bytes
     }
     // segment lengths
-    long documentByteLength = stream.readLong();
-    long countsByteLength = stream.readLong();
-    long positionsByteLength = stream.readLong();
+    long documentByteLength = stream.readLong(); // 9 bytes
+    long countsByteLength = stream.readLong(); // 9 bytes
+    long positionsByteLength = stream.readLong(); // 9 bytes
     long skipsByteLength = 0;
     long skipPositionsByteLength = 0;
     if ((options & HAS_SKIPS) == HAS_SKIPS) {
-      skipsByteLength = stream.readLong();
-      skipPositionsByteLength = stream.readLong();
+      skipsByteLength = stream.readLong(); // 9 bytes
+      skipPositionsByteLength = stream.readLong(); // 9 bytes
     }
+    
+    // done with header (read at most (6 * 9) + (7 * 5) = 107 bytes)
+    
     long documentStart = valueStream.getPosition();
     long countsStart = documentStart + documentByteLength;
     long positionsStart = countsStart + countsByteLength;
     long positionsEnd = positionsStart + positionsByteLength;
+    
     documentsStream = btreeIter.getSubValueStream(documentStart, documentByteLength);
     countsStream = btreeIter.getSubValueStream(countsStart, countsByteLength);
     documents = new VByteInput(documentsStream);
     counts = new VByteInput(countsStream);
+
     if ((options & HAS_SKIPS) == HAS_SKIPS) {
       long skipsStart = positionsStart + positionsByteLength;
       long skipPositionsStart = skipsStart + skipsByteLength;
@@ -136,7 +143,7 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
     documentIndex = 0;
     load();
   }
-  
+
   /**
    * Only loading the docid and the count
    */
@@ -150,7 +157,7 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
     currentDocument += documents.readInt();
     currentCount = counts.readInt();
   }
-  
+
   @Override
   public boolean isDone() {
     return done;
@@ -173,13 +180,15 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
 
   @Override
   public void movePast(long document) throws IOException {
-    syncTo(document+1);
+    syncTo(document + 1);
   }
 
   @Override
   public void syncTo(long document) throws IOException {
-    if (done) return;
-    
+    if (done) {
+      return;
+    }
+
     if (skips != null) {
       synchronizeSkipPositions();
       if (document > nextSkipDocument) {
@@ -196,10 +205,10 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
       load();
     }
   }
-  
+
   /**
-   * This only moves forward in tier 1, reads from tier 2 only when
-   * needed to update floors
+   * This only moves forward in tier 1, reads from tier 2 only when needed to
+   * update floors
    *
    */
   private void skipOnce() throws IOException {
@@ -222,9 +231,10 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
     skipsRead++;
     lastSkipPosition = currentSkipPosition;
   }
+
   /**
-   * This makes sure the skip list pointers are still ahead of the current document.
-   * If we called "next" a lot, these may be out of sync.
+   * This makes sure the skip list pointers are still ahead of the current
+   * document. If we called "next" a lot, these may be out of sync.
    */
   private void synchronizeSkipPositions() throws IOException {
     while (nextSkipDocument <= currentDocument) {
@@ -248,7 +258,6 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
     documentIndex = (int) (skipDistance * skipsRead) - 1;
   }
 
-
   @Override
   public int count(long id) {
     if (!done && currentCandidate() == id) {
@@ -266,5 +275,4 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
     ns.nodeDocumentCount = this.documentCount;
     return ns;
   }
-  
 }

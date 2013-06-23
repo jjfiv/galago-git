@@ -14,17 +14,17 @@ import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 
 /**
- * 
+ *
  * Writes a mapping from document names to document numbers
- * 
- * Does not assume that the data is sorted
- *  - as data would need to be sorted into both key and value order
- *  - instead this class takes care of the re-sorting
- *  - this may be inefficient, but docnames is a relatively small pair of files
+ *
+ * Does not assume that the data is sorted - as data would need to be sorted
+ * into both key and value order - instead this class takes care of the
+ * re-sorting - this may be inefficient, but docnames is a relatively small pair
+ * of files
  *
  * @author sjh
  */
-@InputClass(className = "org.lemurproject.galago.core.types.NumberedDocumentData", order={"+number"})
+@InputClass(className = "org.lemurproject.galago.core.types.NumberedDocumentData", order = {"+number"})
 public class DiskNameWriter implements Processor<NumberedDocumentData> {
 
   DiskBTreeWriter writer;
@@ -49,7 +49,7 @@ public class DiskNameWriter implements Processor<NumberedDocumentData> {
     byte[] docName = Utility.fromString(identifier);
 
     writer.add(new GenericElement(docNum, docName));
-    
+
     if (documentNamesWritten != null) {
       documentNamesWritten.increment();
     }
@@ -63,11 +63,11 @@ public class DiskNameWriter implements Processor<NumberedDocumentData> {
 
     assert last.number <= ndd.number;
     assert ndd.identifier != null;
-    
+
     writer.add(new GenericElement(
-            Utility.fromInt(ndd.number), 
+            Utility.fromLong(ndd.number),
             Utility.fromString(ndd.identifier)));
-    
+
     if (documentNamesWritten != null) {
       documentNamesWritten.increment();
     }

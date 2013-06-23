@@ -54,7 +54,7 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
     int indexId;
     ScoringContext sc;
     LengthsIterator iterator;
-    int currentDocument;
+    long currentDocument;
     int currentLength;
     DocumentMappingReader mapping;
 
@@ -93,6 +93,7 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
       return iterator.isDone();
     }
 
+    @Override
     public int compareTo(LengthIteratorWrapper other) {
       return Utility.compare(currentDocument, other.currentDocument);
     }

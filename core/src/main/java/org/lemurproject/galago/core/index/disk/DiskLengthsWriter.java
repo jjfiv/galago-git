@@ -11,25 +11,20 @@ import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
- * Writes the document lengths file,
- *  - stores the length data for each field, and for the entire document
- *  - note that 'document' is a special field for the entire document.
+ * Writes the document lengths file, - stores the length data for each field,
+ * and for the entire document - note that 'document' is a special field for the
+ * entire document.
  *
  * data stored in each document 'field' lengths list:
  *
- *   stats:
- *  - number of non-zero document lengths (document count)
- *  - sum of document lengths (collection length)
- *  - average document length
- *  - maximum document length
- *  - minimum document length
+ * stats: - number of non-zero document lengths (document count) - sum of
+ * document lengths (collection length) - average document length - maximum
+ * document length - minimum document length
  *
- *   utility values:
- *  - first document id
- *  - last document id (all documents inbetween have a value)
+ * utility values: - first document id - last document id (all documents
+ * inbetween have a value)
  *
- *   finally:
- *  - list of lengths (one per document)
+ * finally: - list of lengths (one per document)
  *
  * @author sjh
  */
@@ -39,7 +34,6 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
   private DiskBTreeWriter writer;
   private LengthsList fieldLengthData;
   private Counter recordsWritten;
-  private Counter recordsRead;
   private Counter newFields;
   private Counter fieldCounter;
   private TupleFlowParameters tupleFlowParameters;
@@ -54,7 +48,6 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     p.set("mergerClass", DocumentLengthsMerger.class.getName());
     p.set("readerClass", DiskLengthsReader.class.getName());
     recordsWritten = parameters.getCounter("records written");
-    recordsRead = parameters.getCounter("records read");
     newFields = parameters.getCounter("new Fields");
     tupleFlowParameters = parameters;
     fieldLengthData = null;
@@ -122,8 +115,9 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     private long collectionLength;
     private long maxLength;
     private long minLength;
-    private int firstDocument;
-    private int prevDocument;
+    private long firstDocument;
+    private long prevDocument;
+    private long writtenIntegers;
 
     public LengthsList(byte[] key) throws IOException {
       //this.lengthsData = new CompressedRawByteBuffer();
@@ -139,9 +133,11 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
 
       this.prevDocument = -1;
       this.firstDocument = -1;
+
+      this.writtenIntegers = 0;
     }
 
-    public void add(int currentDocument, int length) throws IOException {
+    public void add(long currentDocument, int length) throws IOException {
       totalDocumentCount++;
       // we ignore zero length documents, as this is the default returned value
       if (length == 0) {
@@ -163,6 +159,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
         this.prevDocument++;
         while (this.prevDocument < currentDocument) {
           this.stream.writeInt(0);
+          this.writtenIntegers++;
           this.prevDocument++;
         }
       }
@@ -170,6 +167,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
       // now check that we are ready to write the current document
       assert (this.prevDocument == currentDocument);
       this.stream.writeInt(length);
+      this.writtenIntegers++;
     }
 
     @Override
@@ -180,10 +178,9 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     @Override
     public long dataLength() {
       // data to be written is :
-      //  4 bytes for each of 2 integer statistics
-      //  8 bytes for each of 6 long/double stats
-      //  and the stream data
-      return (4 * 2) + (8 * 6) + stream.size();
+      //  8 bytes for each of 8 long/double stats
+      //  and 4 bytes per length value (integer)
+      return (8 * 8) + (writtenIntegers * 4);
     }
 
     public boolean isEmpty() {
@@ -211,8 +208,8 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
       fileStream.write(Utility.fromLong(maxLength));
       fileStream.write(Utility.fromLong(minLength));
 
-      fileStream.write(Utility.fromInt(firstDocument));
-      fileStream.write(Utility.fromInt(prevDocument));
+      fileStream.write(Utility.fromLong(firstDocument));
+      fileStream.write(Utility.fromLong(prevDocument));
 
       // copy length data to index file
       Utility.copyFileToStream(tempFile, fileStream);

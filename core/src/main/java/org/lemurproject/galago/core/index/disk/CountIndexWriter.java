@@ -9,7 +9,6 @@ import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
 import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
-import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;
@@ -48,7 +47,7 @@ public class CountIndexWriter implements
   int options = 0;
   int skipDistance;
   int skipResetDistance;
-  
+
   /**
    * Creates a new instance of CountIndexWriter
    */
@@ -64,9 +63,8 @@ public class CountIndexWriter implements
     boolean skip = parameters.getJSON().get("skipping", true);
     this.skipDistance = (int) parameters.getJSON().get("skipDistance", 500);
     this.skipResetDistance = (int) parameters.getJSON().get("skipResetDistance", 20);
+
     this.options |= (skip ? BTreeValueIterator.HAS_SKIPS : 0x0);
-    this.options |= BTreeValueIterator.HAS_MAXTF;
-    // more options here?
   }
 
   @Override
@@ -90,7 +88,7 @@ public class CountIndexWriter implements
   }
 
   @Override
-  public void processDocument(int document) throws IOException {
+  public void processDocument(long document) throws IOException {
     invertedList.addDocument(document);
   }
 
@@ -135,6 +133,25 @@ public class CountIndexWriter implements
 
   public class CountsList implements IndexElement {
 
+    private long lastDocument;
+    private long positionCount;
+    private long documentCount;
+    private long totalInstanceCount;
+    private long maximumPositionCount;
+    public byte[] word;
+    public CompressedByteBuffer header;
+    public CompressedRawByteBuffer documents;
+    public CompressedRawByteBuffer counts;
+    // to support skipping
+    private long lastDocumentSkipped;
+    private long lastSkipPosition;
+    private long lastDocumentSkip;
+    private long lastCountSkip;
+    private long numSkips;
+    private long docsSinceLastSkip;
+    private CompressedRawByteBuffer skips;
+    private CompressedRawByteBuffer skipPositions;
+
     public CountsList() {
       documents = new CompressedRawByteBuffer();
       counts = new CompressedRawByteBuffer();
@@ -166,6 +183,7 @@ public class CountIndexWriter implements
       header.add(documentCount);
       header.add(totalInstanceCount);
       header.add(maximumPositionCount);
+      
       if (skips != null && skips.length() > 0) {
         header.add(skipDistance);
         header.add(skipResetDistance);
@@ -174,12 +192,14 @@ public class CountIndexWriter implements
 
       header.add(documents.length());
       header.add(counts.length());
+      
       if (skips != null && skips.length() > 0) {
         header.add(skips.length());
         header.add(skipPositions.length());
       }
     }
 
+    @Override
     public long dataLength() {
       long listLength = 0;
 
@@ -194,6 +214,7 @@ public class CountIndexWriter implements
       return listLength;
     }
 
+    @Override
     public void write(final OutputStream output) throws IOException {
       header.write(output);
       header.clear();
@@ -212,6 +233,7 @@ public class CountIndexWriter implements
       }
     }
 
+    @Override
     public byte[] key() {
       return word;
     }
@@ -248,10 +270,8 @@ public class CountIndexWriter implements
       documents.add(documentID - lastDocument);
       lastDocument = documentID;
 
-
       positionCount = 0;
       documentCount++;
-
     }
 
     public void addCount(int count) throws IOException {
@@ -283,23 +303,5 @@ public class CountIndexWriter implements
         numSkips++;
       }
     }
-    private long lastDocument;
-    private int positionCount;
-    private int documentCount;
-    private int totalInstanceCount;
-    private int maximumPositionCount;
-    public byte[] word;
-    public CompressedByteBuffer header;
-    public CompressedRawByteBuffer documents;
-    public CompressedRawByteBuffer counts;
-    // to support skipping
-    private long lastDocumentSkipped;
-    private long lastSkipPosition;
-    private long lastDocumentSkip;
-    private long lastCountSkip;
-    private long numSkips;
-    private int docsSinceLastSkip;
-    private CompressedRawByteBuffer skips;
-    private CompressedRawByteBuffer skipPositions;
   }
 }

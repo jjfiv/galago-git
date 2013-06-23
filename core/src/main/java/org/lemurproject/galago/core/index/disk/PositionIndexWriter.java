@@ -107,7 +107,7 @@ public class PositionIndexWriter implements
   }
 
   @Override
-  public void processDocument(int document) throws IOException {
+  public void processDocument(long document) throws IOException {
     invertedList.addDocument(document);
   }
 

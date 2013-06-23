@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 

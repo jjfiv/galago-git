@@ -16,7 +16,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class DocumentMappingReader {
 
-  private HashMap<Integer, Integer> indexIncrements = null;
+  private HashMap<Integer, Long> indexIncrements = null;
 
   public DocumentMappingReader() {
     // this constructor creates a null mapping reader
@@ -31,7 +31,7 @@ public class DocumentMappingReader {
     }
   }
 
-  public int map(int indexId, int docId) {
+  public long map(int indexId, long docId) {
     if(indexIncrements != null){
       return docId + indexIncrements.get(indexId);
     } else {
@@ -40,6 +40,7 @@ public class DocumentMappingReader {
   }
 
   public byte[] map(int indexId, byte[] keyBytes) {
-    return Utility.fromInt(this.map(indexId, Utility.toInt(keyBytes)));
+    // TODO stop casting document to int
+    return Utility.fromInt((int) (this.map(indexId, Utility.toLong(keyBytes))));
   }
 }
