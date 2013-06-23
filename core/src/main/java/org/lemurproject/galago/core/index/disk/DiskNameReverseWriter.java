@@ -45,17 +45,6 @@ public class DiskNameReverseWriter implements Processor<NumberedDocumentData> {
     writer = new DiskBTreeWriter(filename, p);
   }
 
-  public void process(int number, String identifier) throws IOException {
-    byte[] docNum = Utility.fromInt(number);
-    byte[] docName = Utility.fromString(identifier);
-
-    writer.add(new GenericElement(docNum, docName));
-
-    if (documentNamesWritten != null) {
-      documentNamesWritten.increment();
-    }
-  }
-
   @Override
   public void process(NumberedDocumentData ndd) throws IOException {
     if (last == null) {

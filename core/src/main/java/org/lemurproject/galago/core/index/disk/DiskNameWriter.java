@@ -14,13 +14,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 
 /**
- *
- * Writes a mapping from document names to document numbers
- *
- * Does not assume that the data is sorted - as data would need to be sorted
- * into both key and value order - instead this class takes care of the
- * re-sorting - this may be inefficient, but docnames is a relatively small pair
- * of files
+ * Writes a btree mapping from document names to document numbers
  *
  * @author sjh
  */
@@ -42,17 +36,6 @@ public class DiskNameWriter implements Processor<NumberedDocumentData> {
     p.set("readerClass", DiskNameReader.class.getName());
 
     writer = new DiskBTreeWriter(filename, p);
-  }
-
-  public void process(int number, String identifier) throws IOException {
-    byte[] docNum = Utility.fromInt(number);
-    byte[] docName = Utility.fromString(identifier);
-
-    writer.add(new GenericElement(docNum, docName));
-
-    if (documentNamesWritten != null) {
-      documentNamesWritten.increment();
-    }
   }
 
   @Override
