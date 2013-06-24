@@ -71,7 +71,7 @@ public class WorkingSetDocumentModel extends ProcessingModel {
       if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
         ScoredDocument scoredDocument = new ScoredDocument(document, score);
         if (annotate) {
-          scoredDocument.annotation = iterator.getAnnotatedNode();
+          scoredDocument.annotation = iterator.getAnnotatedNode(context);
         }
         queue.offer(scoredDocument);
       }

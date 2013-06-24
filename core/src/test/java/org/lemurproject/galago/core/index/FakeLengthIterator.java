@@ -31,7 +31,7 @@ public class FakeLengthIterator implements LengthsIterator {
 
   @Override
   public int length() {
-    if(context.document == ids[position]){
+    if (context.document == ids[position]) {
       return lengths[position];
     } else {
       return 0;
@@ -101,12 +101,12 @@ public class FakeLengthIterator implements LengthsIterator {
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) {
     String type = "length";
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = Integer.toString(length());
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

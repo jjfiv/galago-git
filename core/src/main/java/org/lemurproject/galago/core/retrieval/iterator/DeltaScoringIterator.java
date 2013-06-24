@@ -17,10 +17,6 @@ public interface DeltaScoringIterator extends ScoreIterator {
    * minutely shift the running total towards the proper score.
    */
   public void deltaScore();
-
-  public void deltaScore(int length);
-  
-  public void deltaScore(int count, int length);
    
   /**
    * Returns the weight the iterator uses in delta scoring.

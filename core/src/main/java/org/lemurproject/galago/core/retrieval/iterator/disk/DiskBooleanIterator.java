@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import org.lemurproject.galago.core.index.source.BooleanSource;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
@@ -13,25 +14,26 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
  * @author jfoley
  */
 public class DiskBooleanIterator extends SourceIterator implements IndicatorIterator {
+
   BooleanSource boolSrc;
-  
+
   public DiskBooleanIterator(BooleanSource src) {
     super(src);
     this.boolSrc = src;
   }
-  
+
   @Override
   public String getValueString() throws IOException {
     return String.format("%s:%d:%s", getKeyString(), currentCandidate(), indicator(context.document));
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "indicator";
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = Boolean.toString(indicator(this.context.document));
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

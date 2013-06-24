@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
@@ -90,16 +91,16 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Sco
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "score";
     String className = this.getClass().getSimpleName();
     String parameters = np.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = new ArrayList();
     for (BaseIterator child : this.iterators) {
-      children.add(child.getAnnotatedNode());
+      children.add(child.getAnnotatedNode(c));
     }
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

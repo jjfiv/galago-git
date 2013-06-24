@@ -7,6 +7,7 @@ package org.lemurproject.galago.core.retrieval.iterator.disk;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.source.DiskSource;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -89,5 +90,5 @@ public abstract class SourceIterator extends DiskIterator {
 
   // This is not implemented here, because it needs to be customized for each SourceIterator
   @Override
-  public abstract AnnotatedNode getAnnotatedNode() throws IOException;
+  public abstract AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException;
 }

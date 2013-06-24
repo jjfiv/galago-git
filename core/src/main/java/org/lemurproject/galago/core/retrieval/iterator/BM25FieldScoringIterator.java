@@ -56,44 +56,6 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
 
   // Use this to score for potentials, which is more of an "adjustment" than just scoring.
   @Override
-  public void deltaScore(int count, int length) {
-    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
-
-    double s = function.score(count, length);
-    double diff = weight * (s - max);
-    double numerator = idf * K * diff;
-    double fieldSum = ctx.potentials[parentIdx];
-    double denominator = fieldSum * (fieldSum + diff);
-
-    double inc = numerator / denominator;
-
-    ctx.runningScore += inc;
-    ctx.potentials[parentIdx] += diff;
-  }
-
-  @Override
-  public void deltaScore(int length) {
-    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
-    int count = 0;
-
-    if (iterator.currentCandidate() == context.document) {
-      count = ((CountIterator) iterator).count();
-    }
-
-    double s = function.score(count, length);
-    double diff = weight * (s - max);
-    double numerator = idf * K * diff;
-    double fieldSum = ctx.potentials[parentIdx];
-    double denominator = fieldSum * (fieldSum + diff);
-
-    double inc = numerator / denominator;
-
-    ctx.runningScore += inc;
-    ctx.potentials[parentIdx] += diff;
-  }
-
-  // Use this to score for potentials, which is more of an "adjustment" than just scoring.
-  @Override
   public void deltaScore() {
     EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
     int count = 0;
@@ -151,7 +113,9 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
     super.setContext(ctx);
     if (EarlyTerminationScoringContext.class.isAssignableFrom(ctx.getClass())) {
       EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
-      if (dctx.members.contains(this)) return;
+      if (dctx.members.contains(this)) {
+        return;
+      }
       dctx.scorers.add(this);
       dctx.members.add(this);
     }

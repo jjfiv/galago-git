@@ -77,16 +77,16 @@ public class InL2ScoringIterator extends TransformIterator implements ScoreItera
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "score";
     String className = this.getClass().getSimpleName();
     String parameters = np.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = new ArrayList();
-    children.add(this.lengths.getAnnotatedNode());
-    children.add(this.counts.getAnnotatedNode());
+    children.add(this.lengths.getAnnotatedNode(c));
+    children.add(this.counts.getAnnotatedNode(c));
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }

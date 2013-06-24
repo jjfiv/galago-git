@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.scoring.ScoringFunction;
@@ -67,16 +68,16 @@ public class ScoringFunctionIterator extends TransformIterator implements ScoreI
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "score";
     String className = this.getClass().getSimpleName();
     String parameters = np.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = new ArrayList();
-    children.add(this.lengthsIterator.getAnnotatedNode());
-    children.add(this.countIterator.getAnnotatedNode());
+    children.add(this.lengthsIterator.getAnnotatedNode(c));
+    children.add(this.countIterator.getAnnotatedNode(c));
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }

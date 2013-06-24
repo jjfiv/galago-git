@@ -26,7 +26,7 @@ public class DFRScoringIterator extends TransformIterator implements ScoreIterat
   ScoreIterator scorer;
   NodeParameters p;
 
-  public DFRScoringIterator(NodeParameters parameters, ScoreIterator iterator) 
+  public DFRScoringIterator(NodeParameters parameters, ScoreIterator iterator)
           throws IOException {
     super(iterator);
     scorer = iterator;
@@ -51,18 +51,21 @@ public class DFRScoringIterator extends TransformIterator implements ScoreIterat
     return qfratio * risk * (f1 + f2 + f3);
   }
 
+  @Override
   public void setContext(ScoringContext ctx) {
     super.setContext(ctx);
 
     if (ctx instanceof EarlyTerminationScoringContext) {
       EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
-      if (dctx.members.contains(this)) return;
+      if (dctx.members.contains(this)) {
+        return;
+      }
 
       dctx.members.add(this);
       // Need to do this at the aggregate level
       dctx.startingPotentials[dctx.sentinelIndex] = scorer.maximumScore();
       dctx.startingPotential += transform(dctx.startingPotentials[dctx.sentinelIndex]);
-      dctx.sentinelIndex++;     
+      dctx.sentinelIndex++;
     }
   }
 
@@ -84,15 +87,15 @@ public class DFRScoringIterator extends TransformIterator implements ScoreIterat
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "score";
     String className = this.getClass().getSimpleName();
     String parameters = p.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = new ArrayList();
-    children.add(scorer.getAnnotatedNode());
+    children.add(scorer.getAnnotatedNode(c));
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 }

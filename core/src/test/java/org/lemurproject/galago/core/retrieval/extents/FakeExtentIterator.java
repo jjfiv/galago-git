@@ -138,12 +138,12 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) {
     String type = "extent";
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = extents().toString();
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

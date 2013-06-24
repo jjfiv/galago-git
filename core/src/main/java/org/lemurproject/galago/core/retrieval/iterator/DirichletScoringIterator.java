@@ -51,28 +51,6 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
-  public void deltaScore(int count, int length) {
-    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
-    
-    double diff = weight * (function.score(count, length) - max);
-    ctx.runningScore += diff;
-  }
-
-  @Override
-  public void deltaScore(int length) {
-    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
-    int count = 0;
-
-    if (iterator.currentCandidate() == context.document) {
-      count = ((CountIterator) iterator).count();
-    }
-
-    double diff = weight * (function.score(count, length) - max);
-    
-    ctx.runningScore += diff;
-  }
-
-  @Override
   public void deltaScore() {
     EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
     int count = 0;
@@ -98,7 +76,9 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
     super.setContext(ctx);
     if (EarlyTerminationScoringContext.class.isAssignableFrom(ctx.getClass())) {
       EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
-      if (dctx.members.contains(this)) return;
+      if (dctx.members.contains(this)) {
+        return;
+      }
       dctx.scorers.add(this);
       dctx.members.add(this);
       dctx.startingPotential += (max * weight);

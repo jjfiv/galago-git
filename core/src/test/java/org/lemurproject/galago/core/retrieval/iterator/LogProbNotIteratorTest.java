@@ -132,7 +132,7 @@ public class LogProbNotIteratorTest extends TestCase {
     }
 
     @Override
-    public AnnotatedNode getAnnotatedNode() throws IOException {
+    public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

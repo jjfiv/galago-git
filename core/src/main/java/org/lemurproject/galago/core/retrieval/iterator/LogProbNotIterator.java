@@ -6,6 +6,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -18,15 +19,16 @@ import org.lemurproject.galago.tupleflow.Utility;
  * @author sjh
  */
 public class LogProbNotIterator extends TransformIterator implements ScoreIterator {
+
   private final ScoreIterator scorer;
   private final NodeParameters np;
 
-  public LogProbNotIterator(NodeParameters params, ScoreIterator scorer){
+  public LogProbNotIterator(NodeParameters params, ScoreIterator scorer) {
     super(scorer);
     this.scorer = scorer;
     this.np = params;
   }
-  
+
   /**
    * Logically this node would actually identify all documents 
    * that are not a candidate of it's child scorer.
@@ -34,20 +36,20 @@ public class LogProbNotIterator extends TransformIterator implements ScoreIterat
    *    scores all documents with non-background probabilities.
    */
   @Override
-  public boolean hasAllCandidates(){
+  public boolean hasAllCandidates() {
     return true;
   }
-  
+
   @Override
-  public boolean hasMatch(long identifier){
+  public boolean hasMatch(long identifier) {
     return true;
   }
-  
+
   @Override
   public double score() {
     double score = scorer.score();
     // check if the score is a log-space probability:
-    if(score < 0){
+    if (score < 0) {
       return Math.log(1 - Math.exp(score));
     }
     throw new RuntimeException("LogProbNot operator requires a log probability, for document: " + context.document + " iterator received: " + score);
@@ -55,7 +57,7 @@ public class LogProbNotIterator extends TransformIterator implements ScoreIterat
 
   @Override
   public double maximumScore() {
-    if(scorer.maximumScore() < 0){
+    if (scorer.maximumScore() < 0) {
       return Math.log(1 - Math.exp(scorer.maximumScore()));
     }
     return 0;
@@ -63,21 +65,21 @@ public class LogProbNotIterator extends TransformIterator implements ScoreIterat
 
   @Override
   public double minimumScore() {
-    if(scorer.minimumScore() < 0){
+    if (scorer.minimumScore() < 0) {
       return Math.log(1 - Math.exp(scorer.minimumScore()));
     }
     return Utility.tinyLogProbScore;
   }
-  
+
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "score";
     String className = this.getClass().getSimpleName();
     String parameters = np.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = Double.toString(score());
-    List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());
+    List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }

@@ -566,12 +566,12 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     }
 
     @Override
-    public AnnotatedNode getAnnotatedNode() throws IOException {
+    public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
       String type = "extents";
       String className = this.getClass().getSimpleName();
       String parameters = this.getKeyString();
       long document = currentCandidate();
-      boolean atCandidate = hasMatch(this.context.document);
+      boolean atCandidate = hasMatch(c.document);
       String returnValue = extents().toString();
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
@@ -46,14 +47,14 @@ public class ThresholdIterator extends TransformIterator implements IndicatorIte
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "score";
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
-    String returnValue = Boolean.toString(indicator(this.context.document));
-    List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());
+    boolean atCandidate = hasMatch(c.document);
+    String returnValue = Boolean.toString(indicator(c.document));
+    List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }

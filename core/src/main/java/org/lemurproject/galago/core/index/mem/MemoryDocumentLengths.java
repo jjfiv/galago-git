@@ -21,6 +21,7 @@ import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -398,12 +399,12 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     @Override
-    public AnnotatedNode getAnnotatedNode() throws IOException {
+    public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
       String type = "lengths";
       String className = this.getClass().getSimpleName();
       String parameters = this.getKeyString();
       long document = currentCandidate();
-      boolean atCandidate = hasMatch(this.context.document);
+      boolean atCandidate = hasMatch(c.document);
       String returnValue = Integer.toString(length());
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

@@ -11,8 +11,8 @@ import java.util.List;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -371,12 +371,12 @@ public class FieldIndexReader extends KeyListReader {
     }
 
     @Override
-    public AnnotatedNode getAnnotatedNode() throws IOException {
+    public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
       String type = "field";
       String className = this.getClass().getSimpleName();
       String parameters = "";
       long document = currentCandidate();
-      boolean atCandidate = hasMatch(this.context.document);
+      boolean atCandidate = hasMatch(c.document);
       String returnValue = printValue();
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

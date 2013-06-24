@@ -3,6 +3,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
@@ -25,14 +26,14 @@ public class ExtentToLengthIterator extends TransformIterator implements Lengths
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "lengths";
     String className = this.getClass().getSimpleName();
     String parameters = this.np.toString();
     long document = currentCandidate();
-    boolean hasMatch = hasMatch(this.context.document);
+    boolean hasMatch = hasMatch(c.document);
     String returnValue = Integer.toString(this.length());
-    List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());
+    List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
 
     return new AnnotatedNode(type, className, parameters, document, hasMatch, returnValue, children);
   }

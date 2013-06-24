@@ -466,12 +466,12 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     }
 
     @Override
-    public AnnotatedNode getAnnotatedNode() throws IOException {
+    public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
       String type = "scores";
       String className = this.getClass().getSimpleName();
       String parameters = this.getKeyString();
       long document = currentCandidate();
-      boolean atCandidate = hasMatch(this.context.document);
+      boolean atCandidate = hasMatch(c.document);
       String returnValue = Double.toString(score());
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

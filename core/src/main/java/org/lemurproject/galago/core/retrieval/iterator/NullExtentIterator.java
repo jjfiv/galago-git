@@ -2,10 +2,10 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
@@ -99,12 +99,12 @@ public class NullExtentIterator extends DiskIterator implements ExtentIterator, 
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) {
     String type = "extent";
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = array.toString();
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

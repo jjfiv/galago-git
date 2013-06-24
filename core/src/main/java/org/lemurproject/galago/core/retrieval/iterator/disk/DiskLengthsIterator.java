@@ -8,8 +8,8 @@ import org.lemurproject.galago.core.index.disk.DiskLengthSource;
 import org.lemurproject.galago.core.index.source.LengthSource;
 import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
-import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
@@ -21,7 +21,7 @@ public class DiskLengthsIterator extends SourceIterator
         implements LengthsIterator, CollectionAggregateIterator {
 
   LengthSource lengthSrc;
-  
+
   public DiskLengthsIterator(LengthSource src) throws IOException {
     super(src);
     lengthSrc = src;
@@ -33,12 +33,12 @@ public class DiskLengthsIterator extends SourceIterator
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "lengths";
     String className = this.getClass().getSimpleName();
     String parameters = getKeyString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = Integer.toString(length());
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

@@ -107,7 +107,7 @@ public class WorkingSetPassageModel extends ProcessingModel {
           if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
             ScoredPassage scored = new ScoredPassage(document, score, context.begin, context.end);
             if (annotate) {
-              scored.annotation = iterator.getAnnotatedNode();
+              scored.annotation = iterator.getAnnotatedNode(context);
             }
             queue.offer(scored);
           }

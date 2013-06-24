@@ -6,11 +6,9 @@ import java.lang.reflect.Constructor;
 import java.util.Date;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  *
@@ -114,7 +112,7 @@ public class NodeTypeTest extends TestCase {
     }
 
     @Override
-    public AnnotatedNode getAnnotatedNode() throws IOException {
+    public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

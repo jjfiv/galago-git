@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -82,7 +83,6 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
   public class KeyIterator extends KeyValueReader.KeyValueIterator {
 
     protected BTreeReader input;
-    protected BTreeReader.BTreeIterator iterator;
 
     public KeyIterator(BTreeReader input) throws IOException {
       super(input);
@@ -97,9 +97,8 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
       return Utility.toString(getValueBytes());
     }
 
-    public int getCurrentIdentifier() throws IOException {
-      // TODO stop casting document to int
-      return (int) Utility.toLong(getKey());
+    public long getCurrentIdentifier() throws IOException {
+      return Utility.toLong(getKey());
     }
 
     @Override
@@ -179,7 +178,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     }
 
     @Override
-    public AnnotatedNode getAnnotatedNode() throws IOException {
+    public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
       String type = "names";
       String className = this.getClass().getSimpleName();
       String parameters = "";

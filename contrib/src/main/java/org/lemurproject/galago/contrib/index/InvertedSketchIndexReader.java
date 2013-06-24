@@ -26,6 +26,7 @@ import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -442,12 +443,12 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     }
 
     @Override
-    public AnnotatedNode getAnnotatedNode() {
+    public AnnotatedNode getAnnotatedNode(ScoringContext c) {
       String type = "count";
       String className = this.getClass().getSimpleName();
       String parameters = "";
       long document = currentCandidate();
-      boolean atCandidate = hasMatch(this.context.document);
+      boolean atCandidate = hasMatch(c.document);
       String returnValue = Integer.toString(count());
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

@@ -18,6 +18,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -278,12 +279,12 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
     }
 
     @Override
-    public AnnotatedNode getAnnotatedNode() {
+    public AnnotatedNode getAnnotatedNode(ScoringContext c) {
       String type = "corpus";
       String className = this.getClass().getSimpleName();
       String parameters = "";
       long document = currentCandidate();
-      boolean atCandidate = hasMatch(this.context.document);
+      boolean atCandidate = hasMatch(c.document);
       Document d = getData();
       String returnValue = (d != null) ? d.name : "";
       String extraInfo = getData().toString();

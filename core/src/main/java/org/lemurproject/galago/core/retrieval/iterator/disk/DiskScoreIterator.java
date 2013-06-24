@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import org.lemurproject.galago.core.index.source.ScoreSource;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
@@ -27,12 +28,12 @@ public class DiskScoreIterator extends SourceIterator implements ScoreIterator {
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "scores";
     String className = this.getClass().getSimpleName();
     String parameters = this.getKeyString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
     

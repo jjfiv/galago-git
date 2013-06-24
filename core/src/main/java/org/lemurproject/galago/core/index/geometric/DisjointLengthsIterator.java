@@ -7,10 +7,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
-import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
@@ -33,16 +32,16 @@ public class DisjointLengthsIterator extends DisjointIndexesIterator implements 
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "lengths";
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = Integer.toString(length());
     List<AnnotatedNode> children = new ArrayList();
     for (BaseIterator child : this.allIterators) {
-      children.add(child.getAnnotatedNode());
+      children.add(child.getAnnotatedNode(c));
     }
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

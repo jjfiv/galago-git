@@ -34,9 +34,9 @@ public class PassageLengthIterator extends TransformIterator implements LengthsI
   }
 
   @Override
-  public void setContext(ScoringContext context){
+  public void setContext(ScoringContext context) {
     super.setContext(context);
-    if(context instanceof PassageScoringContext){
+    if (context instanceof PassageScoringContext) {
       passContext = (PassageScoringContext) context;
     }
   }
@@ -68,14 +68,14 @@ public class PassageLengthIterator extends TransformIterator implements LengthsI
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "lengths";
     String className = this.getClass().getSimpleName();
     String parameters = this.np.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = Integer.toString(this.length());
-    List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());
+    List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }

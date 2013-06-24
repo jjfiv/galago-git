@@ -4,8 +4,10 @@ package org.lemurproject.galago.core.retrieval.iterator.disk;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.source.DataSource;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
@@ -19,12 +21,12 @@ public class DiskCorpusIterator extends DiskDataIterator<Document> {
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "corpus";
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = getData().name;
     String extraInfo = getData().toString();
     List<AnnotatedNode> children = Collections.EMPTY_LIST;

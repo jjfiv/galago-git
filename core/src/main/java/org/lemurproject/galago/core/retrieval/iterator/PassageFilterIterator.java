@@ -4,7 +4,6 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.processing.PassageScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -32,10 +31,10 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
   }
 
   @Override
-  public boolean hasMatch(long document){
+  public boolean hasMatch(long document) {
     return super.hasMatch(document) && (extents().size() > 0);
   }
-  
+
   /**
    * Filters out extents that are not in the range of the current passage
    * window.
@@ -96,14 +95,14 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "extent";
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = extents().toString();
-    List<AnnotatedNode> children = Collections.singletonList(extentIterator.getAnnotatedNode());
+    List<AnnotatedNode> children = Collections.singletonList(extentIterator.getAnnotatedNode(c));
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }

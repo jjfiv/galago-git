@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
@@ -19,8 +20,8 @@ public class UniversalIndicatorIterator extends ConjunctionIterator implements I
 
   @Override
   public boolean indicator(long identifier) {
-    for(BaseIterator i : this.iterators){
-      if(!i.hasMatch(identifier)){
+    for (BaseIterator i : this.iterators) {
+      if (!i.hasMatch(identifier)) {
         return false;
       }
     }
@@ -33,17 +34,17 @@ public class UniversalIndicatorIterator extends ConjunctionIterator implements I
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "indicator";
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
-    String returnValue = Boolean.toString(this.indicator(this.context.document));
+    boolean atCandidate = hasMatch(c.document);
+    String returnValue = Boolean.toString(this.indicator(c.document));
     List<AnnotatedNode> children = new ArrayList();
     for (BaseIterator child : this.iterators) {
-      children.add(child.getAnnotatedNode());
+      children.add(child.getAnnotatedNode(c));
     }
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
-  }  
+  }
 }

@@ -10,6 +10,7 @@ import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 import org.lemurproject.galago.core.index.disk.FieldIndexReader;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
@@ -22,6 +23,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
  * @author irmarc
  */
 public abstract class FieldComparisonIterator extends TransformIterator implements IndicatorIterator {
+
   NodeParameters p;
   FieldIndexReader.ListIterator fieldIterator;
   String format;
@@ -44,11 +46,11 @@ public abstract class FieldComparisonIterator extends TransformIterator implemen
       if (format.equals("string")) {
         strValue = p.getString("0");
       } else if (format.equals("int")) {
-          intValue = (int) p.getLong("0");
+        intValue = (int) p.getLong("0");
       } else if (format.equals("long")) {
-          longValue = p.getLong("0");
+        longValue = p.getLong("0");
       } else if (format.equals("float")) {
-          floatValue = (float) p.getDouble("0");
+        floatValue = (float) p.getDouble("0");
       } else if (format.equals("double")) {
         doubleValue = p.getDouble("0");
       } else if (format.equals("date")) {
@@ -64,15 +66,15 @@ public abstract class FieldComparisonIterator extends TransformIterator implemen
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "indicator";
     String className = this.getClass().getSimpleName();
     String parameters = p.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
-    String returnValue = Boolean.toString( this.indicator( this.context.document ) );
-    List<AnnotatedNode> children = Collections.singletonList( this.iterator.getAnnotatedNode() );
-    
+    boolean atCandidate = hasMatch(c.document);
+    String returnValue = Boolean.toString(this.indicator(c.document));
+    List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
+
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 }

@@ -19,9 +19,9 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
-import org.lemurproject.galago.core.util.ObjectArray;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -355,12 +355,12 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     }
 
     @Override
-    public AnnotatedNode getAnnotatedNode() throws IOException {
+    public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
       String type = "names";
       String className = this.getClass().getSimpleName();
       String parameters = this.getKeyString();
       long document = currentCandidate();
-      boolean atCandidate = hasMatch(this.context.document);
+      boolean atCandidate = hasMatch(c.document);
       String returnValue = getCurrentName();
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

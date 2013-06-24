@@ -58,6 +58,7 @@ public class InBetweenIterator extends FieldComparisonIterator {
     }
   }
 
+  @Override
   public boolean indicator(long identifier) {
     if (currentCandidate() != identifier) {
       return false;

@@ -3,11 +3,8 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 /**
  * This is base interface for all inverted lists that return count information.
- * 12/11/2010 (irmarc): Refactored
- * 2/18/2011 (irmarc): Refactored again for Galago 2.0
  *
- * @see PositionIndexIterator
- * @author trevor, irmarc
+ * @author trevor, irmarc, sjh
  */
 public interface CountIterator extends BaseIterator {
     /**

@@ -23,15 +23,16 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 @OutputClass(className = "org.lemurproject.galago.core.types.DocumentMappingData", order = {"+indexId"})
 public class DocumentNumberMapper extends StandardStep<DocumentSplit, DocumentMappingData> {
 
-  int nextIndexStartNumber = 0;
+  long nextIndexStartNumber = 0;
 
+  @Override
   public void process(DocumentSplit index) throws IOException {
     
     processor.process(new DocumentMappingData(index.fileId, nextIndexStartNumber));
 
     DiskNameReader namesReader = (DiskNameReader) DiskIndex.openIndexPart(index.fileName + File.separator + "names");
     DiskNameReader.KeyIterator iterator = namesReader.getIterator();
-    int lastDocId = iterator.getCurrentIdentifier();
+    long lastDocId = iterator.getCurrentIdentifier();
     while (iterator.nextKey()) {
       lastDocId = iterator.getCurrentIdentifier();
     }

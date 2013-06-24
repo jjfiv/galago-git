@@ -132,5 +132,5 @@ public interface BaseIterator extends Comparable<BaseIterator> {
    * Returns an AnnotatedNode representation of the current state of this iterator
    *  Useful for debugging a query model
    */
-  public AnnotatedNode getAnnotatedNode() throws IOException;
+  public AnnotatedNode getAnnotatedNode(ScoringContext sc) throws IOException;
 }

@@ -134,12 +134,12 @@ public class FakeScoreIterator implements ScoreIterator {
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) {
     String type = "score";
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

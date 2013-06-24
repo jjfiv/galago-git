@@ -9,8 +9,8 @@ import java.util.Collection;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -28,16 +28,16 @@ public class DisjointCountsIterator extends DisjointIndexesIterator implements C
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "counts";
     String className = this.getClass().getSimpleName();
     String parameters = this.getKeyString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = Integer.toString(count());
     List<AnnotatedNode> children = new ArrayList();
     for (BaseIterator child : this.allIterators) {
-      children.add(child.getAnnotatedNode());
+      children.add(child.getAnnotatedNode(c));
     }
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

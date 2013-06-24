@@ -7,6 +7,7 @@ import org.lemurproject.galago.core.index.source.ExtentSource;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.util.ExtentArray;
 
@@ -17,12 +18,12 @@ import org.lemurproject.galago.core.util.ExtentArray;
 public class DiskExtentIterator extends SourceIterator implements NodeAggregateIterator, ExtentIterator {
 
   ExtentSource extentSrc;
-  
+
   public DiskExtentIterator(ExtentSource src) throws IOException {
     super(src);
     extentSrc = src;
   }
-  
+
   @Override
   public String getValueString() throws IOException {
     StringBuilder builder = new StringBuilder();
@@ -38,12 +39,12 @@ public class DiskExtentIterator extends SourceIterator implements NodeAggregateI
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "extents";
     String className = this.getClass().getSimpleName();
     String parameters = this.getKeyString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     String returnValue = extents().toString();
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, Collections.EMPTY_LIST);
   }
@@ -54,7 +55,7 @@ public class DiskExtentIterator extends SourceIterator implements NodeAggregateI
   }
 
   @Override
-  public int count() {   
+  public int count() {
     return (int) extentSrc.count(context.document);
   }
 

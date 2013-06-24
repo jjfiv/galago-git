@@ -52,12 +52,15 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
     super.setContext(ctx);
     if (EarlyTerminationScoringContext.class.isAssignableFrom(ctx.getClass())) {
       EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
-      if (dctx.members.contains(this)) return;
+      if (dctx.members.contains(this)) {
+        return;
+      }
       dctx.scorers.add(this);
       dctx.members.add(this);
     }
   }
 
+  @Override
   public double getWeight() {
     return weight;
   }
@@ -72,53 +75,6 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
     double score = function.score(count, this.lengthsIterator.length());
     score = (score > 0.0) ? score : min; // MY smoothing.
     return score;
-  }
-
-  @Override
-  public void deltaScore(int count, int length) {
-
-    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
-
-    double score = function.score(count, length);
-    score = (score > 0.0) ? score : min; // MY smoothing again
-    double phi = ctx.potentials[parentIdx];
-    double psi = phi + (weight * (score - max));
-    double logpsi = Math.log(psi) / Utility.log2;
-    double logphi = Math.log(phi) / Utility.log2;
-
-    double t1 = beta * (phi - psi);
-    double t2 = logpsi * ((phi * psi) + (0.5 * phi) + psi + 0.5);
-    double t3 = logphi * ((phi * psi) + (0.5 * psi) + phi + 0.5);
-    double den = (phi + 1) * (psi + 1);
-    double diff = (t1 + t2 - t3) / den;
-    ctx.runningScore += diff;
-
-    ctx.potentials[parentIdx] = psi;
-  }
-
-  @Override
-  public void deltaScore(int length) {
-    int count = 0;
-
-    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
-    if (iterator.currentCandidate() == context.document) {
-      count = ((CountIterator) iterator).count();
-    }
-
-    double score = function.score(count, length);
-    score = (score > 0.0) ? score : min; // MY smoothing again
-    double phi = ctx.potentials[parentIdx];
-    double psi = phi + (weight * (score - max));
-    double logpsi = Math.log(psi) / Utility.log2;
-    double logphi = Math.log(phi) / Utility.log2;
-
-    double t1 = beta * (phi - psi);
-    double t2 = logpsi * ((phi * psi) + (0.5 * phi) + psi + 0.5);
-    double t3 = logphi * ((phi * psi) + (0.5 * psi) + phi + 0.5);
-    double den = (phi + 1) * (psi + 1);
-    double diff = (t1 + t2 - t3) / den;
-    ctx.runningScore += diff;
-    ctx.potentials[parentIdx] = psi;
   }
 
   @Override

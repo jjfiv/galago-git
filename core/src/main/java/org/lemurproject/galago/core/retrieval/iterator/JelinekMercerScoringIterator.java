@@ -43,27 +43,6 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
-  public void deltaScore(int count, int length) {
-    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
-
-    double diff = weight * (function.score(count, length) - max);
-    ctx.runningScore += diff;
-  }
-
-  @Override
-  public void deltaScore(int length) {
-    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
-    int count = 0;
-
-    if (iterator.currentCandidate() == context.document) {
-      count = ((CountIterator) iterator).count();
-    }
-
-    double diff = weight * (function.score(count, length) - max);
-    ctx.runningScore += diff;
-  }
-
-  @Override
   public void deltaScore() {
     EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
     int count = 0;

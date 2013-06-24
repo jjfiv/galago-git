@@ -28,7 +28,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
   protected BaseIterator mover;
 
   public FilteredIterator(NodeParameters parameters, IndicatorIterator indicator, CountIterator counter) {
-    super(parameters, new BaseIterator[]{ indicator, counter });
+    super(parameters, new BaseIterator[]{indicator, counter});
     this.indicator = indicator;
     this.scorer = null;
     this.counter = counter;
@@ -41,7 +41,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
   }
 
   public FilteredIterator(NodeParameters parameters, IndicatorIterator indicator, ScoreIterator scorer) {
-    super(parameters, new BaseIterator[]{ indicator, scorer });
+    super(parameters, new BaseIterator[]{indicator, scorer});
     this.indicator = indicator;
     this.counter = null;
     this.extents = null;
@@ -50,7 +50,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
   }
 
   public FilteredIterator(NodeParameters parameters, IndicatorIterator indicator, ExtentIterator extents) {
-    super(parameters, new BaseIterator[]{ indicator, extents });
+    super(parameters, new BaseIterator[]{indicator, extents});
     this.indicator = indicator;
     this.scorer = null;
     this.extents = extents;
@@ -104,14 +104,14 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
   }
 
   @Override
-  public AnnotatedNode getAnnotatedNode() throws IOException {
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(this.context.document);
+    boolean atCandidate = hasMatch(c.document);
     List<AnnotatedNode> children = new ArrayList();
-    children.add(indicator.getAnnotatedNode());
-    children.add(mover.getAnnotatedNode());
+    children.add(indicator.getAnnotatedNode(c));
+    children.add(mover.getAnnotatedNode(c));
 
     String type = "unknown";
     String returnValue = "unknown";
