@@ -59,7 +59,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
   @Override
   public void addIteratorData(byte[] key, BaseIterator iterator) throws IOException {
     while (!iterator.isDone()) {
-      int identifier = ((NamesReader.NamesIterator) iterator).getCurrentIdentifier();
+      long identifier = ((NamesReader.NamesIterator) iterator).getCurrentIdentifier();
       String name = ((NamesReader.NamesIterator) iterator).getCurrentName();
 
       if (names.isEmpty()) {
@@ -88,7 +88,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
   }
 
   @Override
-  public String getDocumentName(int docNum) {
+  public String getDocumentName(long docNum) {
     long index = docNum - offset;
     assert (index < Integer.MAX_VALUE): "Memory index can not store long document ids.";
     assert ((index >= 0) && (index < names.size())) : "Document identifier not found in this index.";
@@ -96,7 +96,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
   }
 
   @Override
-  public int getDocumentIdentifier(String document) {
+  public long getDocumentIdentifier(String document) {
     throw new UnsupportedOperationException("Not yet implemented");
   }
 
@@ -344,7 +344,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     }
 
     @Override
-    public int getCurrentIdentifier() throws IOException {
+    public long getCurrentIdentifier() throws IOException {
       KIterator ki = (KIterator) iterator;
       return ki.getCurrentIdentifier();
     }
@@ -359,7 +359,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
       String type = "names";
       String className = this.getClass().getSimpleName();
       String parameters = this.getKeyString();
-      int document = currentCandidate();
+      long document = currentCandidate();
       boolean atCandidate = hasMatch(this.context.document);
       String returnValue = getCurrentName();
       List<AnnotatedNode> children = Collections.EMPTY_LIST;

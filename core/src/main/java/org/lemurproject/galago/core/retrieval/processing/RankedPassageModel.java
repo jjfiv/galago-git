@@ -55,7 +55,7 @@ public class RankedPassageModel extends ProcessingModel {
 
     // now there should be an iterator at the root of this tree
     while (!iterator.isDone()) {
-      int document = iterator.currentCandidate();
+      long document = iterator.currentCandidate();
 
       // This context is shared among all scorers
       context.document = document;

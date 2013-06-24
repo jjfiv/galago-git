@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
  */
 public class ScoringContext {
 
-  public int document;
+  public long document;
   // indicates when nodes can/can't cache data
   // -- useful for passage or extent retrieval.
   public boolean cachable = true;

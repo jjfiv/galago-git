@@ -39,7 +39,7 @@ public class FakeLengthIterator implements LengthsIterator {
   }
 
   @Override
-  public int currentCandidate() {
+  public long currentCandidate() {
     return ids[position];
   }
 
@@ -105,7 +105,7 @@ public class FakeLengthIterator implements LengthsIterator {
     String type = "length";
     String className = this.getClass().getSimpleName();
     String parameters = "";
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Integer.toString(length());
     List<AnnotatedNode> children = Collections.EMPTY_LIST;

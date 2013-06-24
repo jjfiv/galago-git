@@ -101,7 +101,7 @@ public class RankedDocumentModelTest extends TestCase {
 
     WorkingSetDocumentModel model = new WorkingSetDocumentModel(ret);
     queryParams.set("working", 
-            Arrays.asList(new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14}));
+            Arrays.asList(new Long[]{0l, 1l, 2l, 3l, 4l, 5l, 6l, 7l, 8l, 11l, 12l, 13l, 14l}));
     ScoredDocument[] results = model.execute(query, queryParams);
 
     assertEquals(results.length, 10);
@@ -123,7 +123,7 @@ public class RankedDocumentModelTest extends TestCase {
     query = ret.transformQuery(query, queryParams);
 
     queryParams.set("working", 
-            Arrays.asList(new Integer[]{0, 1, 2, 3, 4, 5, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99}));
+            Arrays.asList(new Long[]{0l, 1l, 2l, 3l, 4l, 5l, 90l, 91l, 92l, 93l, 94l, 95l, 96l, 97l, 98l, 99l}));
 
     results = model.execute(query, queryParams);
 

@@ -113,6 +113,7 @@ public class GeometricIndex implements DynamicIndex, Index {
     updateIndex();
   }
 
+  @Override
   public void process(Document doc) throws IOException {
     currentMemoryIndex.process(doc);
     globalDocumentCount++; // now one higher than the document just processed
@@ -159,10 +160,12 @@ public class GeometricIndex implements DynamicIndex, Index {
   }
 
   // some public functions can be defered to the MemoryIndex (disk indexes are identical in structure).
+  @Override
   public String getDefaultPart() {
     return this.currentMemoryIndex.getDefaultPart();
   }
 
+  @Override
   public String getIndexPartName(Node node) throws IOException {
     return this.currentMemoryIndex.getIndexPartName(node);
   }
@@ -172,31 +175,33 @@ public class GeometricIndex implements DynamicIndex, Index {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
+  @Override
   public boolean containsPart(String partName) {
     return this.currentMemoryIndex.containsPart(partName);
   }
 
+  @Override
   public NodeType getNodeType(Node node) throws Exception {
     return this.currentMemoryIndex.getNodeType(node);
   }
 
+  @Override
   public Set<String> getPartNames() {
     return this.currentMemoryIndex.getPartNames();
   }
 
+  @Override
   public Map<String, NodeType> getPartNodeTypes(String partName) throws IOException {
     return this.currentMemoryIndex.getPartNodeTypes(partName);
   }
 
-  public boolean containsModifier(String partName, String modifierName) {
-    return this.currentMemoryIndex.containsModifier(partName, modifierName);
-  }
-
+  @Override
   public Parameters getManifest() {
     return this.globalParameters;
   }
 
-  public boolean containsDocumentIdentifier(int document) throws IOException {
+  @Override
+  public boolean containsDocumentIdentifier(long document) throws IOException {
     if (currentMemoryIndex.containsDocumentIdentifier(document)) {
       return true;
     }
@@ -208,6 +213,7 @@ public class GeometricIndex implements DynamicIndex, Index {
     return false;
   }
 
+  @Override
   public BaseIterator getIterator(Node node) throws IOException {
     List<BaseIterator> itrs = new ArrayList();
     itrs.add(this.currentMemoryIndex.getIterator(node));
@@ -246,7 +252,7 @@ public class GeometricIndex implements DynamicIndex, Index {
   }
 
   @Override
-  public int getLength(int document) throws IOException {
+  public int getLength(long document) throws IOException {
     LengthsIterator i = (LengthsIterator) this.getLengthsIterator();
     i.syncTo(document);
     if (i.hasMatch(document)) {
@@ -257,7 +263,7 @@ public class GeometricIndex implements DynamicIndex, Index {
   }
 
   @Override
-  public String getName(int document) throws IOException {
+  public String getName(long document) throws IOException {
     NamesReader.NamesIterator i = this.getNamesIterator();
     i.syncTo(document);
     if (i.hasMatch(document)) {
@@ -267,7 +273,8 @@ public class GeometricIndex implements DynamicIndex, Index {
     }
   }
 
-  public int getIdentifier(String document) throws IOException {
+  @Override
+  public long getIdentifier(String document) throws IOException {
     throw new RuntimeException("UNIMPLEMENTED function: getIdentifier");
   }
 
@@ -291,6 +298,7 @@ public class GeometricIndex implements DynamicIndex, Index {
     return new DisjointLengthsIterator(itrs);
   }
 
+  @Override
   public NamesReader.NamesIterator getNamesIterator() throws IOException {
     List<NamesReader.NamesIterator> itrs = new ArrayList();
     itrs.add(currentMemoryIndex.getNamesIterator());

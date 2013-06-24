@@ -32,7 +32,7 @@ public class BinaryCountIterator extends TransformIterator implements CountItera
     String type = "count";
     String className = this.getClass().getSimpleName();
     String parameters = np.toString();
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Integer.toString(count());
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());

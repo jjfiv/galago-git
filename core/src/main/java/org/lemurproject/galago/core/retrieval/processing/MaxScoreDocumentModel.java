@@ -57,7 +57,7 @@ public class MaxScoreDocumentModel extends ProcessingModel {
     //      move iterator to candidate
     //      score candidate w/ iterator
     while (true) {
-      int candidate = Integer.MAX_VALUE;
+      long candidate = Long.MAX_VALUE;
       for (int i = 0; i < context.sentinelIndex; i++) {
         if (!sortedSentinels.get(i).iterator.isDone()) {
           candidate = Math.min(candidate, sortedSentinels.get(i).iterator.currentCandidate());
@@ -65,7 +65,7 @@ public class MaxScoreDocumentModel extends ProcessingModel {
       }
 
       // Means sentinels are done, we can quit
-      if (candidate == Integer.MAX_VALUE) {
+      if (candidate == Long.MAX_VALUE) {
         break;
       }
 

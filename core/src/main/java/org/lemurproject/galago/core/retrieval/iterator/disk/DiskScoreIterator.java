@@ -31,7 +31,7 @@ public class DiskScoreIterator extends SourceIterator implements ScoreIterator {
     String type = "scores";
     String className = this.getClass().getSimpleName();
     String parameters = this.getKeyString();
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = Collections.EMPTY_LIST;

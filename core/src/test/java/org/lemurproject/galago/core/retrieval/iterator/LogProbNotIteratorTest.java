@@ -87,7 +87,7 @@ public class LogProbNotIteratorTest extends TestCase {
     }
 
     @Override
-    public int currentCandidate() {
+    public long currentCandidate() {
       return docs[index];
     }
 

@@ -247,24 +247,24 @@ public class MemoryIndex implements DynamicIndex, Index {
   }
 
   @Override
-  public boolean containsDocumentIdentifier(int document) throws IOException {
+  public boolean containsDocumentIdentifier(long document) throws IOException {
     NamesReader.NamesIterator ni = this.getNamesIterator();
     ni.syncTo(document);
     return ni.getCurrentIdentifier() == document;
   }
 
   @Override
-  public int getLength(int document) throws IOException {
+  public int getLength(long document) throws IOException {
     return ((MemoryDocumentLengths) parts.get("lengths")).getLength(document);
   }
 
   @Override
-  public String getName(int document) throws IOException {
+  public String getName(long document) throws IOException {
     return ((MemoryDocumentNames) parts.get("names")).getDocumentName(document);
   }
 
   @Override
-  public int getIdentifier(String document) throws IOException {
+  public long getIdentifier(String document) throws IOException {
     return ((MemoryDocumentNames) parts.get("names")).getDocumentIdentifier(document);
   }
 
@@ -273,7 +273,7 @@ public class MemoryIndex implements DynamicIndex, Index {
     if (parts.containsKey("corpus")) {
       try {
         CorpusReader corpus = (CorpusReader) parts.get("corpus");
-        int docId = getIdentifier(document);
+        long docId = getIdentifier(document);
         corpus.getDocument(docId, p);
       } catch (Exception e) {
         // ignore the exception
@@ -319,15 +319,5 @@ public class MemoryIndex implements DynamicIndex, Index {
       throw new IOException("The index has no part named '" + partName + "'");
     }
     return parts.get(partName).getNodeTypes();
-  }
-
-  public void modify(DiskIterator iter, Node node) throws IOException {
-    // Needs implementing.
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  public boolean containsModifier(String partName, String modifierName) {
-    // Needs implementing.
-    throw new UnsupportedOperationException("Not supported yet.");
   }
 }

@@ -204,7 +204,7 @@ public class DiskIndex implements Index {
   }
 
   @Override
-  public boolean containsDocumentIdentifier(int document) throws IOException {
+  public boolean containsDocumentIdentifier(long document) throws IOException {
     NamesReader.NamesIterator ni = this.getNamesIterator();
     ni.syncTo(document);
     return ni.hasMatch(document);
@@ -318,17 +318,17 @@ public class DiskIndex implements Index {
   }
 
   @Override
-  public int getLength(int document) throws IOException {
+  public int getLength(long document) throws IOException {
     return lengthsReader.getLength(document);
   }
 
   @Override
-  public String getName(int document) throws IOException {
+  public String getName(long document) throws IOException {
     return namesReader.getDocumentName(document);
   }
 
   @Override
-  public int getIdentifier(String document) throws IOException {
+  public long getIdentifier(String document) throws IOException {
     return ((NamesReader) parts.get("names.reverse")).getDocumentIdentifier(document);
   }
 
@@ -337,7 +337,7 @@ public class DiskIndex implements Index {
     if (parts.containsKey("corpus")) {
       try {
         CorpusReader corpus = (CorpusReader) parts.get("corpus");
-        int docId = getIdentifier(document);
+        long docId = getIdentifier(document);
         return corpus.getDocument(docId, p);
       } catch (Exception e) {
         // ignore the exception

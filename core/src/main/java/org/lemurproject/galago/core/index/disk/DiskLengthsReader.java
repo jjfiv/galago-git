@@ -68,7 +68,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
 
   @Override
-  public int getLength(int document) throws IOException {
+  public int getLength(long document) throws IOException {
     LengthsIterator i = getLengthsIterator();
     ScoringContext sc = new ScoringContext();
     sc.document = document;

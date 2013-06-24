@@ -20,12 +20,12 @@ public class ScoredPassage extends ScoredDocument {
     this.begin = this.end = 0;
   }
 
-  public ScoredPassage(int document, double score) {
+  public ScoredPassage(long document, double score) {
     super(document, score);
     this.begin = this.end = 0;
   }
 
-  public ScoredPassage(int document, double score, int begin, int end) {
+  public ScoredPassage(long document, double score, int begin, int end) {
     this(document, score);
     this.begin = begin;
     this.end = end;
@@ -66,9 +66,9 @@ public class ScoredPassage extends ScoredDocument {
               && (!o1.source.equals(o2.source))) {
         return o1.source.compareTo(o2.source);
       }
-      int diff = (o2.document - o1.document);
-      if (diff != 0) {
-        return diff;
+      int res = Utility.compare(o2.document, o1.document);
+      if (res != 0) {
+        return res;
       }
 
       return o2.begin - o1.begin;

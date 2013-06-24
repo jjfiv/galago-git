@@ -7,7 +7,6 @@ import org.lemurproject.galago.core.index.source.BTreeKeySource;
 import org.lemurproject.galago.core.index.source.DataSource;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.core.parse.PseudoDocument;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -53,16 +52,12 @@ public class CorpusReaderSource extends BTreeKeySource implements DataSource<Doc
 
   @Override
   public Document getData(long id) throws IOException {
-    if(currentCandidate() == id) {
-      if(psuedoDocs) {
-        return PseudoDocument.deserialize(btreeIter.getValueBytes(), docParams);
-      } else {
-        Document doc = Document.deserialize(btreeIter.getValueBytes(), docParams);
-        if(docParams.tokenize) {
-          tokenizer.tokenize(doc);
-        }
-        return doc;
+    if (currentCandidate() == id) {
+      Document doc = Document.deserialize(btreeIter.getValueBytes(), docParams);
+      if (docParams.tokenize) {
+        tokenizer.tokenize(doc);
       }
+      return doc;
     }
     return null;
   }

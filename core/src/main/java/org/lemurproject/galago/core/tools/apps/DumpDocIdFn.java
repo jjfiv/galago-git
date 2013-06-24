@@ -34,7 +34,7 @@ public class DumpDocIdFn extends AppFunction {
     String indexPath = args[1];
     String identifier = args[2];
     DiskNameReverseReader reader = new DiskNameReverseReader(indexPath);
-    int docNum = reader.getDocumentIdentifier(identifier);
+    long docNum = reader.getDocumentIdentifier(identifier);
     output.println(docNum);
   }
 

@@ -37,6 +37,7 @@ public class DocumentToKeyValuePair extends StandardStep<Document, KeyValuePair>
     compressed = parameters.getJSON().get("compressed", true);
   }
 
+  @Override
   public void process(Document document) throws IOException {
     ByteArrayOutputStream array = new ByteArrayOutputStream();
     ObjectOutputStream output;

@@ -5,6 +5,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -69,12 +70,12 @@ public abstract class DisjunctionIterator implements BaseIterator {
   }
 
   @Override
-  public int currentCandidate() {
+  public long currentCandidate() {
     // the current candidate is the smallest of the set
-    int candidate = Integer.MAX_VALUE;
+    long candidate = Long.MAX_VALUE;
     for(int i=0; i<drivingIterators.length;i++){
       if (!drivingIterators[i].isDone()) {
-        int otherCandidate = drivingIterators[i].currentCandidate();
+        long otherCandidate = drivingIterators[i].currentCandidate();
         candidate = (candidate <= otherCandidate)? candidate : otherCandidate;
       }
     }
@@ -137,7 +138,7 @@ public abstract class DisjunctionIterator implements BaseIterator {
     if (isDone() && other.isDone()) {
       return 0;
     }
-    return this.currentCandidate() - other.currentCandidate();
+    return Utility.compare(currentCandidate(), other.currentCandidate());
   }
   
   @Override

@@ -7,7 +7,6 @@ import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.core.parse.PseudoDocument.PsuedoDocumentComponents;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -36,11 +35,7 @@ public class CorpusSplitParser extends DocumentStreamParser {
     this.iterator.skipToKey(split.startKey);
     this.split = split;
 
-    if(p.get("psuedo", false)){
-      extractionParameters = new PsuedoDocumentComponents(false, true, false, true);    
-    } else {
-      extractionParameters = new DocumentComponents(true, true, false);
-    }
+    extractionParameters = new DocumentComponents(true, true, false);
   }
 
   @Override

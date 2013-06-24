@@ -3,6 +3,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -44,7 +45,7 @@ public abstract class TransformIterator implements BaseIterator {
   }
 
   @Override
-  public int currentCandidate() {
+  public long currentCandidate() {
     return iterator.currentCandidate();
   }
 
@@ -84,6 +85,6 @@ public abstract class TransformIterator implements BaseIterator {
     if (isDone() && other.isDone()) {
       return 0;
     }
-    return currentCandidate() - other.currentCandidate();
+    return Utility.compare(currentCandidate(), other.currentCandidate());
   }
 }

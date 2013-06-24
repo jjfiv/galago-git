@@ -78,7 +78,7 @@ public class DocumentNameTest extends TestCase {
       int key = 15;
       String name = "document_name_key_is_" + key;
 
-      int result2 = reader.getDocumentIdentifier(name);
+      long result2 = reader.getDocumentIdentifier(name);
       assert key == result2;
     } finally {
       if (f != null) {

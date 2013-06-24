@@ -8,6 +8,7 @@ import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -33,11 +34,11 @@ public class FakeScoreIterator implements ScoreIterator {
   }
 
   @Override
-  public int currentCandidate() {
+  public long currentCandidate() {
     if (index < docs.length) {
       return docs[index];
     } else {
-      return Integer.MAX_VALUE;
+      return Long.MAX_VALUE;
     }
 
   }
@@ -119,7 +120,7 @@ public class FakeScoreIterator implements ScoreIterator {
     if (isDone() && other.isDone()) {
       return 0;
     }
-    return currentCandidate() - other.currentCandidate();
+    return Utility.compare(currentCandidate(), other.currentCandidate());
   }
 
   @Override
@@ -137,7 +138,7 @@ public class FakeScoreIterator implements ScoreIterator {
     String type = "score";
     String className = this.getClass().getSimpleName();
     String parameters = "";
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = Collections.EMPTY_LIST;

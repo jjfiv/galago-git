@@ -6,6 +6,7 @@ package org.lemurproject.galago.core.retrieval.processing;
 
 import java.util.*;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -37,7 +38,7 @@ public class SortStrategies {
         if (s1.iterator.isDone()) {
           return 1;
         }
-        return (s1.iterator.currentCandidate() - s2.iterator.currentCandidate());
+        return Utility.compare(s1.iterator.currentCandidate(), s2.iterator.currentCandidate());
       }
     });
   }

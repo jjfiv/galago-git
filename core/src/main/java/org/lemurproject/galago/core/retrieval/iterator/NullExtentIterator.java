@@ -61,8 +61,8 @@ public class NullExtentIterator extends DiskIterator implements ExtentIterator, 
   }
 
   @Override
-  public int currentCandidate() {
-    return Integer.MAX_VALUE;
+  public long currentCandidate() {
+    return Long.MAX_VALUE;
   }
 
   @Override
@@ -103,7 +103,7 @@ public class NullExtentIterator extends DiskIterator implements ExtentIterator, 
     String type = "extent";
     String className = this.getClass().getSimpleName();
     String parameters = "";
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = array.toString();
     List<AnnotatedNode> children = Collections.EMPTY_LIST;

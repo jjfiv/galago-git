@@ -69,15 +69,17 @@ public class NodeTypeTest extends TestCase {
     public FakeIterator(NodeParameters parameters, ExtentIterator one, ScoreIterator[] two) {
     }
 
+    @Override
     public void reset() throws IOException {
     }
 
+    @Override
     public boolean isDone() {
       return true;
     }
 
     @Override
-    public int currentCandidate() {
+    public long currentCandidate() {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

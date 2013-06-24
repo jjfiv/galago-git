@@ -23,7 +23,7 @@ public class DiskCorpusIterator extends DiskDataIterator<Document> {
     String type = "corpus";
     String className = this.getClass().getSimpleName();
     String parameters = "";
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = getData().name;
     String extraInfo = getData().toString();

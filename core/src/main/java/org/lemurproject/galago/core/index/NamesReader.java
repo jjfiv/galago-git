@@ -10,9 +10,9 @@ import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
  */
 public interface NamesReader extends IndexPartReader {
 
-  public String getDocumentName(int document) throws IOException;
+  public String getDocumentName(long document) throws IOException;
 
-  public int getDocumentIdentifier(String document) throws IOException;
+  public long getDocumentIdentifier(String document) throws IOException;
 
   public NamesIterator getNamesIterator() throws IOException;
 
@@ -20,6 +20,6 @@ public interface NamesReader extends IndexPartReader {
 
     public String getCurrentName() throws IOException;
 
-    public int getCurrentIdentifier() throws IOException;
+    public long getCurrentIdentifier() throws IOException;
   }
 }

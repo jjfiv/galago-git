@@ -67,7 +67,7 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
     String type = "extent";
     String className = this.getClass().getSimpleName();
     String parameters = "";
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = extents().toString();
     List<AnnotatedNode> children = new ArrayList();

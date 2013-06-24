@@ -44,7 +44,7 @@ public class DisjointExtentsIterator extends DisjointIndexesIterator implements 
     String type = "extents";
     String className = this.getClass().getSimpleName();
     String parameters = this.getKeyString();
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = extents().toString();
     List<AnnotatedNode> children = new ArrayList();

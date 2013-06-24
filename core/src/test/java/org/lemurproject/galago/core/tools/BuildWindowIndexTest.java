@@ -173,7 +173,7 @@ public class BuildWindowIndexTest extends TestCase {
                 || !counts__SE_ci.isDone()
                 || !posits_NSE_ei.isDone()
                 || !posits__SE_ei.isDone()) {
-          int doc = counts_NSE_ci.currentCandidate();
+          long doc = counts_NSE_ci.currentCandidate();
           assertEquals(doc, counts_NSE_ci.currentCandidate());
           assertEquals(doc, counts__SE_ci.currentCandidate());
           assertEquals(doc, posits_NSE_ei.currentCandidate());
@@ -364,7 +364,7 @@ public class BuildWindowIndexTest extends TestCase {
                 || !counts__SE_ci.isDone()
                 || !posits_NSE_ei.isDone()
                 || !posits__SE_ei.isDone()) {
-          int doc = counts_NSE_ci.currentCandidate();
+          long doc = counts_NSE_ci.currentCandidate();
           assertEquals(doc, counts_NSE_ci.currentCandidate());
           assertEquals(doc, counts__SE_ci.currentCandidate());
           assertEquals(doc, posits_NSE_ei.currentCandidate());

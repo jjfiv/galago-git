@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
  */
 public interface LengthsReader extends IndexPartReader {
 
-  public int getLength(int document) throws IOException;
+  public int getLength(long document) throws IOException;
 
   public LengthsIterator getLengthsIterator() throws IOException;
 }

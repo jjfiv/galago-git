@@ -26,7 +26,7 @@ public class UnorderedWindowIterator extends ExtentConjunctionIterator {
   @Override
   public void loadExtents() {
     // get the document
-    int document = context.document;
+    long document = context.document;
 
     // check if we're already there
     if (context.cachable && this.extentCache.getDocument() == document) {

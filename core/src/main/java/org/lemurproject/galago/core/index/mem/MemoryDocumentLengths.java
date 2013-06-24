@@ -148,7 +148,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   @Override
-  public int getLength(int docNum) throws IOException {
+  public int getLength(long docNum) throws IOException {
     return this.lengths.get(document).getLength(docNum);
   }
 
@@ -355,9 +355,8 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     @Override
-    public int currentCandidate() {
-      // TODO stop casting document to int
-      return (int) this.currDoc;
+    public long currentCandidate() {
+      return this.currDoc;
     }
 
     @Override
@@ -403,7 +402,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       String type = "lengths";
       String className = this.getClass().getSimpleName();
       String parameters = this.getKeyString();
-      int document = currentCandidate();
+      long document = currentCandidate();
       boolean atCandidate = hasMatch(this.context.document);
       String returnValue = Integer.toString(length());
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
@@ -422,7 +421,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       if (isDone() && other.isDone()) {
         return 0;
       }
-      return currentCandidate() - other.currentCandidate();
+      return Utility.compare(currentCandidate(), other.currentCandidate());
     }
 
     @Override

@@ -38,7 +38,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
 
   // gets the document name of the internal id index.
   @Override
-  public String getDocumentName(int index) throws IOException {
+  public String getDocumentName(long index) throws IOException {
     byte[] data = reader.getValueBytes(Utility.fromLong(index));
     if (data == null) {
       return null;
@@ -48,7 +48,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
 
   // gets the document id for some document name
   @Override
-  public int getDocumentIdentifier(String documentName) throws IOException {
+  public long getDocumentIdentifier(String documentName) throws IOException {
     throw new UnsupportedOperationException("This index file does not support doc name -> doc int mappings");
   }
 
@@ -168,7 +168,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     }
 
     @Override
-    public int getCurrentIdentifier() throws IOException {
+    public long getCurrentIdentifier() throws IOException {
       KeyIterator ki = (KeyIterator) iterator;
       return ki.getCurrentIdentifier();
     }
@@ -183,7 +183,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
       String type = "names";
       String className = this.getClass().getSimpleName();
       String parameters = "";
-      int document = currentCandidate();
+      long document = currentCandidate();
       boolean atCandidate = hasMatch(this.context.document);
       String returnValue = getCurrentName();
       List<AnnotatedNode> children = Collections.EMPTY_LIST;

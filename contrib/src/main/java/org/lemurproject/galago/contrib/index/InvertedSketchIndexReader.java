@@ -409,7 +409,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     }
 
     @Override
-    public int currentCandidate() {
+    public long currentCandidate() {
       return currentDocument;
     }
 
@@ -446,7 +446,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
       String type = "count";
       String className = this.getClass().getSimpleName();
       String parameters = "";
-      int document = currentCandidate();
+      long document = currentCandidate();
       boolean atCandidate = hasMatch(this.context.document);
       String returnValue = Integer.toString(count());
       List<AnnotatedNode> children = Collections.EMPTY_LIST;

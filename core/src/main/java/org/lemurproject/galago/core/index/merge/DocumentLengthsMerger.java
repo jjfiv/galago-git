@@ -79,7 +79,7 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
 
     // changes the document numbers in the extent array
     private void load() {
-      int currentIdentifier = iterator.currentCandidate();
+      long currentIdentifier = iterator.currentCandidate();
       sc.document = currentIdentifier;
       this.currentDocument = mapping.map(indexId, currentIdentifier);
       this.currentLength = iterator.length();

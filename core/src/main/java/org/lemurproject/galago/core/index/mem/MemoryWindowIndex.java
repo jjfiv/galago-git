@@ -94,7 +94,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     ExtentIterator mi = (ExtentIterator) iterator;
     ScoringContext sc = mi.getContext();
     while (!mi.isDone()) {
-      int document = mi.currentCandidate();
+      long document = mi.currentCandidate();
       sc.document = document;
       ExtentArrayIterator ei = new ExtentArrayIterator(mi.extents());
       while (!ei.isDone()) {
@@ -460,9 +460,8 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     }
 
     @Override
-    public int currentCandidate() {
-      // TODO stop casting document to int
-      return (int) currDocument;
+    public long currentCandidate() {
+      return currDocument;
     }
 
     @Override
@@ -558,7 +557,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
       if (isDone() && other.isDone()) {
         return 0;
       }
-      return currentCandidate() - other.currentCandidate();
+      return Utility.compare(currentCandidate(), other.currentCandidate());
     }
 
     @Override
@@ -571,7 +570,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
       String type = "extents";
       String className = this.getClass().getSimpleName();
       String parameters = this.getKeyString();
-      int document = currentCandidate();
+      long document = currentCandidate();
       boolean atCandidate = hasMatch(this.context.document);
       String returnValue = extents().toString();
       List<AnnotatedNode> children = Collections.EMPTY_LIST;

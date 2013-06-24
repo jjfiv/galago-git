@@ -34,11 +34,11 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
   }
 
   @Override
-  public int currentCandidate() {
+  public long currentCandidate() {
     if (index < data.length) {
       return data[index][0];
     } else {
-      return Integer.MAX_VALUE;
+      return Long.MAX_VALUE;
     }
   }
 
@@ -114,7 +114,7 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
     if (isDone() && other.isDone()) {
       return 0;
     }
-    return currentCandidate() - other.currentCandidate();
+    return Utility.compare(currentCandidate(), other.currentCandidate());
   }
 
   @Override
@@ -139,10 +139,10 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
 
   @Override
   public AnnotatedNode getAnnotatedNode() {
-    String type = "count";
+    String type = "extent";
     String className = this.getClass().getSimpleName();
     String parameters = "";
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = extents().toString();
     List<AnnotatedNode> children = Collections.EMPTY_LIST;

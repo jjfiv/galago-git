@@ -14,7 +14,7 @@ public class AnnotatedNode {
   public String type;
   public String className;
   public String parameters;
-  public int document;
+  public long document;
   public boolean atCandidate;
   public String returnValue;
   public String extraInfo;
@@ -27,7 +27,7 @@ public class AnnotatedNode {
   public AnnotatedNode(String type,
           String className,
           String parameters,
-          int document,
+          long document,
           boolean atCandidate,
           String returnValue,
           List<AnnotatedNode> children) {
@@ -44,7 +44,7 @@ public class AnnotatedNode {
   public AnnotatedNode(String type,
           String className,
           String parameters,
-          int document,
+          long document,
           boolean atCandidate,
           String returnValue,
           String extraInfo,

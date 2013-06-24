@@ -37,7 +37,7 @@ public class UniversalIndicatorIterator extends ConjunctionIterator implements I
     String type = "indicator";
     String className = this.getClass().getSimpleName();
     String parameters = "";
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Boolean.toString(this.indicator(this.context.document));
     List<AnnotatedNode> children = new ArrayList();

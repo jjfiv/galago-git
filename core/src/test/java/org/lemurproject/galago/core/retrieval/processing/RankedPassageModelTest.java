@@ -130,7 +130,7 @@ public class RankedPassageModelTest extends TestCase {
 
     WorkingSetPassageModel model = new WorkingSetPassageModel(ret);
     queryParams.set("working",
-            Arrays.asList(new Integer[]{2, 3, 4, 5, 6, 7, 8, 9, 10, 11}));
+            Arrays.asList(new Long[]{2l, 3l, 4l, 5l, 6l, 7l, 8l, 9l, 10l, 11l}));
 
     ScoredPassage[] results = (ScoredPassage[]) model.execute(query, queryParams);
 
@@ -150,7 +150,7 @@ public class RankedPassageModelTest extends TestCase {
     query = ret.transformQuery(query, queryParams);
 
     queryParams.set("working",
-            Arrays.asList(new Integer[]{0, 1, 2, 3, 4, 89, 90, 91, 92, 93}));
+            Arrays.asList(new Long[]{0l, 1l, 2l, 3l, 4l, 89l, 90l, 91l, 92l, 93l}));
     results = (ScoredPassage[]) model.execute(query, queryParams);
 
     assertEquals(results.length, 20);

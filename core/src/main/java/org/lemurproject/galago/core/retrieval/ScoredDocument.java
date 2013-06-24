@@ -16,7 +16,7 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
 
   public String documentName;
   public String source; // lets us know where this scored doc came from
-  public int document;
+  public long document;
   public int rank;
   public double score;
   public AnnotatedNode annotation = null;
@@ -25,7 +25,7 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
     this(0, 0);
   }
 
-  public ScoredDocument(int document, double score) {
+  public ScoredDocument(long document, double score) {
     this.document = document;
     this.score = score;
   }
@@ -46,7 +46,7 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
             && (!source.equals(other.source))) {
       return source.compareTo(other.source);
     }
-    return other.document - document;
+    return Utility.compare(other.document, document);
   }
 
   @Override
@@ -82,7 +82,7 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
               && (!o1.source.equals(o2.source))) {
         return o1.source.compareTo(o2.source);
       }
-      return o2.document - o1.document;
+      return Utility.compare(o2.document, o1.document);
     }
   }
 }

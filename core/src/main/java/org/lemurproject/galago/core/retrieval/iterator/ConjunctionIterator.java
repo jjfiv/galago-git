@@ -58,7 +58,7 @@ public abstract class ConjunctionIterator implements BaseIterator {
   @Override
   public void syncTo(long candidate) throws IOException {
     for (BaseIterator iterator : iterators) {
-      int prev = iterator.currentCandidate();
+      long prev = iterator.currentCandidate();
       iterator.syncTo(candidate);
     }
   }
@@ -71,12 +71,12 @@ public abstract class ConjunctionIterator implements BaseIterator {
   }
 
   @Override
-  public int currentCandidate() {
-    int candidateMin = Integer.MAX_VALUE;
-    int candidateMax = -1; // impossibly small candidate //
+  public long currentCandidate() {
+    long candidateMin = Long.MAX_VALUE;
+    long candidateMax = -1; // impossibly small candidate //
     for(int i=0; i<drivingIterators.length;i++){
       if (!drivingIterators[i].isDone()) {
-        int otherCandidate = drivingIterators[i].currentCandidate();
+        long otherCandidate = drivingIterators[i].currentCandidate();
         candidateMin = (candidateMin <= otherCandidate)? candidateMin : otherCandidate;
         candidateMax = (candidateMax >= otherCandidate)? candidateMax : otherCandidate;
       }
@@ -141,7 +141,7 @@ public abstract class ConjunctionIterator implements BaseIterator {
     if (isDone() && other.isDone()) {
       return 0;
     }
-    return this.currentCandidate() - other.currentCandidate();
+    return Utility.compare(currentCandidate(), other.currentCandidate());
   }
 
   @Override

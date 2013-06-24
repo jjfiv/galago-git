@@ -8,10 +8,10 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
 
 /**
- * Wraps the WindowIndexReader to act as a lengths reader for a particular
- * field.
+ * Wraps an extent iterator to act as a lengths iterator
+ *  ** overlapping extents are NOT detected NOR avoided **
  *
- * @author irmarc
+ * @author sjh
  */
 public class ExtentToLengthIterator extends TransformIterator implements LengthsIterator {
 
@@ -29,7 +29,7 @@ public class ExtentToLengthIterator extends TransformIterator implements Lengths
     String type = "lengths";
     String className = this.getClass().getSimpleName();
     String parameters = this.np.toString();
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean hasMatch = hasMatch(this.context.document);
     String returnValue = Integer.toString(this.length());
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());

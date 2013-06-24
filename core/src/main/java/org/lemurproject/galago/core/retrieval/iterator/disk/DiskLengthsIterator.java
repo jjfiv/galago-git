@@ -37,7 +37,7 @@ public class DiskLengthsIterator extends SourceIterator
     String type = "lengths";
     String className = this.getClass().getSimpleName();
     String parameters = getKeyString();
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Integer.toString(length());
     List<AnnotatedNode> children = Collections.EMPTY_LIST;

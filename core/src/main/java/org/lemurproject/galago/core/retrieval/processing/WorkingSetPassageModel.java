@@ -44,16 +44,9 @@ public class WorkingSetPassageModel extends ProcessingModel {
     }
 
     Class containedType = l.get(0).getClass();
-    List<Integer> whitelist;
-    if (Integer.class.isAssignableFrom(containedType)) {
-      whitelist = (List<Integer>) l;
-    } else if (Long.class.isAssignableFrom(containedType)) {
-      // Sadly this will not directly translate for now - maybe when/if we move
-      // Galago to using longs instead of ints...
-      whitelist = new ArrayList<Integer>();
-      for (Long docid : (List<Long>) l) {
-        whitelist.add(docid.intValue());
-      }
+    List<Long> whitelist;
+    if (Long.class.isAssignableFrom(containedType)) {
+      whitelist = (List<Long>) l;
     } else if (String.class.isAssignableFrom(containedType)) {
       whitelist = retrieval.getDocumentIds((List<String>) l);
     } else {
@@ -86,7 +79,7 @@ public class WorkingSetPassageModel extends ProcessingModel {
 
     // now there should be an iterator at the root of this tree
     for (int i = 0; i < whitelist.size(); i++) {
-      int document = whitelist.get(i);
+      long document = whitelist.get(i);
       iterator.syncTo(document);
       context.document = document;
       documentLengths.syncTo(document);

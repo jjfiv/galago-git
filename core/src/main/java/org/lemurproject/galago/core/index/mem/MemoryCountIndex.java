@@ -93,7 +93,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
       CountIterator mi = (CountIterator) iterator;
       ScoringContext sc = mi.getContext();
       while (!mi.isDone()) {
-        int document = mi.currentCandidate();
+        long document = mi.currentCandidate();
         sc.document = document;
         int count = mi.count();
         postingList.add(document, count);
@@ -265,7 +265,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
         lastDocument = document;
         lastCount = count;
         termDocumentCount += 1;
-        documents_cbb.add(document);  
+        documents_cbb.add(document);
       } else if (lastDocument == document) {
         // additional instance of term in document
         lastCount += count;
@@ -279,8 +279,8 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
         termDocumentCount += 1;
       }
       termPostingsCount += count;
-       // keep track of the document with the highest frequency of 'term'
-     maximumPostingsCount = Math.max(lastCount, maximumPostingsCount);
+      // keep track of the document with the highest frequency of 'term'
+      maximumPostingsCount = Math.max(lastCount, maximumPostingsCount);
     }
   }
   // iterator allows for query processing and for streaming posting list data
@@ -427,9 +427,8 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     }
 
     @Override
-    public int currentCandidate() {
-      // TODO stop casting document to int
-      return (int) currDocument;
+    public long currentCandidate() {
+      return currDocument;
     }
 
     @Override
@@ -512,20 +511,20 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
       if (isDone() && other.isDone()) {
         return 0;
       }
-      return currentCandidate() - other.currentCandidate();
+      return Utility.compare(currentCandidate(), other.currentCandidate());
     }
 
     @Override
     public String getKeyString() throws IOException {
       return Utility.toString(postings.key);
     }
-    
+
     @Override
     public AnnotatedNode getAnnotatedNode() throws IOException {
       String type = "counts";
       String className = this.getClass().getSimpleName();
       String parameters = this.getKeyString();
-      int document = currentCandidate();
+      long document = currentCandidate();
       boolean atCandidate = hasMatch(this.context.document);
       String returnValue = Integer.toString(count());
       List<AnnotatedNode> children = Collections.EMPTY_LIST;

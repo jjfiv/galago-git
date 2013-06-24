@@ -34,7 +34,7 @@ public class DiskCountIterator extends SourceIterator
     String type = "counts";
     String className = this.getClass().getSimpleName();
     String parameters = this.getKeyString();
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Integer.toString(count());
     List<AnnotatedNode> children = Collections.EMPTY_LIST;

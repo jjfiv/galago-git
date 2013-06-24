@@ -82,7 +82,7 @@ public class BiL2ScoringIterator extends TransformIterator implements ScoreItera
     String type = "score";
     String className = this.getClass().getSimpleName();
     String parameters = np.toString();
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = new ArrayList();

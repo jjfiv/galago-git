@@ -78,7 +78,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
       PostingList postingList = new PostingList(key, defaultScore);
 
       while (!mi.isDone()) {
-        int document = mi.currentCandidate();
+        long document = mi.currentCandidate();
         c.document = document;
         if (mi.hasMatch(document)) {
           double score = mi.score();
@@ -210,8 +210,8 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     byte[] key;
     CompressedByteBuffer documents_cbb = new CompressedByteBuffer();
     CompressedByteBuffer scores_cbb = new CompressedByteBuffer();
-    int termPostingsCount = 0;
-    int lastDocument = 0;
+    long termPostingsCount = 0;
+    long lastDocument = 0;
     double maxScore = Double.MIN_VALUE;
     double minScore = Double.MAX_VALUE;
     double defaultScore;
@@ -221,7 +221,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
       this.defaultScore = defaultScore;
     }
 
-    public void add(int document, double score) {
+    public void add(long document, double score) {
       assert lastDocument == 0 || document > lastDocument : "Can not add documents in non-increasing order.";
 
       documents_cbb.add(document - lastDocument);
@@ -333,8 +333,8 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     PostingList postings;
     VByteInput documents_reader;
     VByteInput scores_reader;
-    int iteratedDocs;
-    int currDocument;
+    long iteratedDocs;
+    long currDocument;
     double currScore;
     boolean done;
     Map<String, Object> modifiers;
@@ -385,7 +385,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     }
 
     @Override
-    public int currentCandidate() {
+    public long currentCandidate() {
       return currDocument;
     }
 
@@ -457,7 +457,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
       if (isDone() && other.isDone()) {
         return 0;
       }
-      return currentCandidate() - other.currentCandidate();
+      return Utility.compare(currentCandidate(), other.currentCandidate());
     }
 
     @Override
@@ -470,7 +470,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
       String type = "scores";
       String className = this.getClass().getSimpleName();
       String parameters = this.getKeyString();
-      int document = currentCandidate();
+      long document = currentCandidate();
       boolean atCandidate = hasMatch(this.context.document);
       String returnValue = Double.toString(score());
       List<AnnotatedNode> children = Collections.EMPTY_LIST;

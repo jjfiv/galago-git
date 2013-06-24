@@ -47,7 +47,7 @@ public abstract class DisjointIndexesIterator extends DiskIterator {
   }
 
   @Override
-  public int currentCandidate() {
+  public long currentCandidate() {
     return head.currentCandidate();
   }
 

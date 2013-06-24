@@ -85,10 +85,10 @@ public class FilteringIteratorTest extends TestCase {
     assertEquals(3, results.length);
 
     // Check each doc - don't really care about order
-    HashSet<Integer> set = new HashSet<Integer>();
-    set.add(1);
-    set.add(2);
-    set.add(5);
+    HashSet<Long> set = new HashSet<Long>();
+    set.add(1l);
+    set.add(2l);
+    set.add(5l);
     for (ScoredDocument sd : results) {
       assertTrue(set.contains(sd.document));
     }
@@ -107,10 +107,10 @@ public class FilteringIteratorTest extends TestCase {
     assertEquals(3, results.length);
 
     // Check each doc - don't really care about order
-    HashSet<Integer> set = new HashSet<Integer>();
-    set.add(1);
-    set.add(2);
-    set.add(5);
+    HashSet<Long> set = new HashSet<Long>();
+    set.add(1l);
+    set.add(2l);
+    set.add(5l);
     for (ScoredDocument sd : results) {
       assertTrue(set.contains(sd.document));
     }

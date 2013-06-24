@@ -66,7 +66,7 @@ public interface BaseIterator extends Comparable<BaseIterator> {
    *  if isDone() == true 
    *   return Long.MAX_VALUE
    */
-  public int currentCandidate();
+  public long currentCandidate();
 
   /**
    * return true if the iterator has no more candidates

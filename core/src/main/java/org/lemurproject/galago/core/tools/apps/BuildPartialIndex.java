@@ -89,20 +89,18 @@ public class BuildPartialIndex extends AppFunction {
 
     BufferedReader input = new BufferedReader(new FileReader(documentNames));
     String line;
-    Set<Integer> ids = new HashSet();
-    int count = 0;
+    Set<Long> ids = new HashSet();
     while ((line = input.readLine()) != null) {
       line = line.trim();
       byte[] name = Utility.fromString(line);
       namesIterator.findKey(name);
       if (namesIterator.getCurrentName().equals(line)) {
-        int id = namesIterator.getCurrentIdentifier();
+        long id = namesIterator.getCurrentIdentifier();
         // round-robin distribution
         ids.add(id);
       } else {
         System.err.println("Unable to determine document : " + name + " ignoring.");
       }
-      count += 1;
     }
     input.close();
     
@@ -121,7 +119,7 @@ public class BuildPartialIndex extends AppFunction {
     }
     
     int j=0;
-    for(Integer id : ids){
+    for(Long id : ids){
       writers[j % distrib].write(id + "\n");
       j+=1;
     }

@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.retrieval.EstimatedDocument;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -16,7 +15,6 @@ import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.util.CallTable;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -175,15 +173,8 @@ public class TimedBatchSearch extends AppFunction {
           double score = doc.score;
           int rank = i + 1;
 
-          if (EstimatedDocument.class.isAssignableFrom(doc.getClass())) {
-            EstimatedDocument edoc = (EstimatedDocument) doc;
-            out.format("%s Q0 %s %d %s galago %s %s [%s] %d\n", query.getString("number"), doc.documentName, rank,
-                    formatScore(score), formatScore(edoc.min), formatScore(edoc.max),
-                    (edoc.counts != null) ? Utility.join(edoc.counts) : "null", edoc.length);
-          } else {
-            out.format("%s Q0 %s %d %s galago\n", query.getString("number"), doc.documentName, rank,
-                    formatScore(score));
-          }
+          out.format("%s Q0 %s %d %s galago\n", query.getString("number"), doc.documentName, rank,
+                  formatScore(score));
         }
       }
       if (parameters.get("print_calls", false)) {

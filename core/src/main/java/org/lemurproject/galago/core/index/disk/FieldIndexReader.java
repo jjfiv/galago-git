@@ -351,9 +351,8 @@ public class FieldIndexReader extends KeyListReader {
     }
 
     @Override
-    public int currentCandidate() {
-      // TODO stop casting document to int
-      return (int) currentDocument;
+    public long currentCandidate() {
+      return currentDocument;
     }
 
     @Override
@@ -376,7 +375,7 @@ public class FieldIndexReader extends KeyListReader {
       String type = "field";
       String className = this.getClass().getSimpleName();
       String parameters = "";
-      int document = currentCandidate();
+      long document = currentCandidate();
       boolean atCandidate = hasMatch(this.context.document);
       String returnValue = printValue();
       List<AnnotatedNode> children = Collections.EMPTY_LIST;

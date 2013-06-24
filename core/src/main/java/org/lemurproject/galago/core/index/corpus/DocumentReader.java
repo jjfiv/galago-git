@@ -17,7 +17,7 @@ public interface DocumentReader extends IndexPartReader {
 
   public abstract Document getDocument(byte[] key, DocumentComponents p) throws IOException;
 
-  public abstract Document getDocument(int key, DocumentComponents p) throws IOException;
+  public abstract Document getDocument(long key, DocumentComponents p) throws IOException;
 
   public interface DocumentIterator extends KeyIterator {
 

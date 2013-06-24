@@ -37,7 +37,7 @@ public class DisjointLengthsIterator extends DisjointIndexesIterator implements 
     String type = "lengths";
     String className = this.getClass().getSimpleName();
     String parameters = "";
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Integer.toString(length());
     List<AnnotatedNode> children = new ArrayList();

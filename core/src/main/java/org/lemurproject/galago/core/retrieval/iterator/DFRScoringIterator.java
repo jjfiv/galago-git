@@ -88,7 +88,7 @@ public class DFRScoringIterator extends TransformIterator implements ScoreIterat
     String type = "score";
     String className = this.getClass().getSimpleName();
     String parameters = p.toString();
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = new ArrayList();

@@ -31,7 +31,7 @@ public interface Index {
 
   public IndexPartReader getIndexPart(String part) throws IOException;
   
-  public boolean containsDocumentIdentifier(int document) throws IOException;
+  public boolean containsDocumentIdentifier(long document) throws IOException;
 
   public boolean containsPart(String partName);
 
@@ -46,11 +46,11 @@ public interface Index {
 
   public void close() throws IOException;
 
-  public int getLength(int document) throws IOException;
+  public int getLength(long document) throws IOException;
 
-  public String getName(int document) throws IOException;
+  public String getName(long document) throws IOException;
 
-  public int getIdentifier(String document) throws IOException;
+  public long getIdentifier(String document) throws IOException;
 
   public Document getDocument(String document, DocumentComponents p) throws IOException;
 

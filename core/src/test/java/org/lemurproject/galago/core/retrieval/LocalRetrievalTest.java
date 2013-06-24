@@ -245,20 +245,20 @@ public class LocalRetrievalTest extends TestCase {
 
     assertEquals(result.length, 5);
 
-    HashMap<Integer, Double> realScores = new HashMap<Integer, Double>();
+    HashMap<Long, Double> realScores = new HashMap<Long, Double>();
 
-    realScores.put(1, -5.548387728381024);
-    realScores.put(3, -5.819614290181323);
-    realScores.put(5, -5.937808679213438);
-    realScores.put(18, -5.937808679213438);
-    realScores.put(2, -5.937808679213438);
+    realScores.put(1l, -5.548387728381024);
+    realScores.put(3l, -5.819614290181323);
+    realScores.put(5l, -5.937808679213438);
+    realScores.put(18l, -5.937808679213438);
+    realScores.put(2l, -5.937808679213438);
 
-    HashMap<Integer, String> realNames = new HashMap();
-    realNames.put(1, "DOC1");
-    realNames.put(2, "DOC2");
-    realNames.put(3, "DOC3");
-    realNames.put(5, "DOC5");
-    realNames.put(18, "DOC18");
+    HashMap<Long, String> realNames = new HashMap();
+    realNames.put(1l, "DOC1");
+    realNames.put(2l, "DOC2");
+    realNames.put(3l, "DOC3");
+    realNames.put(5l, "DOC5");
+    realNames.put(18l, "DOC18");
 
     // make sure the results are sorted
     double lastScore = Double.MAX_VALUE;
@@ -295,16 +295,16 @@ public class LocalRetrievalTest extends TestCase {
     assert ((result[1].document == 2 && result[2].document == 5)
             || (result[1].document == 5 && result[2].document == 2));
 
-    HashMap<Integer, Double> realScores = new HashMap<Integer, Double>();
+    HashMap<Long, Double> realScores = new HashMap<Long, Double>();
 
-    realScores.put(1, -5.548387728381024);
-    realScores.put(5, -5.937808679213438);
-    realScores.put(2, -5.937808679213438);
+    realScores.put(1l, -5.548387728381024);
+    realScores.put(5l, -5.937808679213438);
+    realScores.put(2l, -5.937808679213438);
 
-    HashMap<Integer, String> realNames = new HashMap();
-    realNames.put(1, "DOC1");
-    realNames.put(2, "DOC2");
-    realNames.put(5, "DOC5");
+    HashMap<Long, String> realNames = new HashMap();
+    realNames.put(1l, "DOC1");
+    realNames.put(2l, "DOC2");
+    realNames.put(5l, "DOC5");
 
     // make sure the results are sorted
     double lastScore = Double.MAX_VALUE;
@@ -332,14 +332,14 @@ public class LocalRetrievalTest extends TestCase {
 
     assertEquals(2, result.length);
 
-    HashMap<Integer, Double> realScores = new HashMap<Integer, Double>();
+    HashMap<Long, Double> realScores = new HashMap<Long, Double>();
 
-    realScores.put(1, -5.585999438999818);
-    realScores.put(3, -5.991464547107982);
+    realScores.put(1l, -5.585999438999818);
+    realScores.put(3l, -5.991464547107982);
 
-    HashMap<Integer, String> realNames = new HashMap();
-    realNames.put(1, "DOC1");
-    realNames.put(3, "DOC3");
+    HashMap<Long, String> realNames = new HashMap();
+    realNames.put(1l, "DOC1");
+    realNames.put(3l, "DOC3");
 
     // make sure the results are sorted
     double lastScore = Double.MAX_VALUE;

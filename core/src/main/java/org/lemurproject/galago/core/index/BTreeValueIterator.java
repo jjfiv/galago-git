@@ -39,7 +39,7 @@ public abstract class BTreeValueIterator extends DiskIterator {
     if (isDone() && other.isDone()) {
       return 0;
     }
-    return currentCandidate() - other.currentCandidate();
+    return Utility.compare(currentCandidate(), other.currentCandidate());
   }
   
 }

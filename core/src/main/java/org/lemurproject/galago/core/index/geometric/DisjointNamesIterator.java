@@ -31,7 +31,7 @@ public class DisjointNamesIterator extends DisjointIndexesIterator implements Na
   }
 
   @Override
-  public int getCurrentIdentifier() throws IOException {
+  public long getCurrentIdentifier() throws IOException {
     if (head != null) {
       return ((NamesReader.NamesIterator) this.head).getCurrentIdentifier();
     } else {
@@ -44,7 +44,7 @@ public class DisjointNamesIterator extends DisjointIndexesIterator implements Na
     String type = "counts";
     String className = this.getClass().getSimpleName();
     String parameters = this.getKeyString();
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = getCurrentName();
     List<AnnotatedNode> children = new ArrayList();

@@ -49,7 +49,7 @@ public class BoostingIterator extends TransformIterator implements ScoreIterator
     String type = "score";
     String className = this.getClass().getSimpleName();
     String parameters = p.toString();
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = Collections.singletonList( this.iterator.getAnnotatedNode() );

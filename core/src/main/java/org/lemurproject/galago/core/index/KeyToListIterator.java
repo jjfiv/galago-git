@@ -41,7 +41,7 @@ public abstract class KeyToListIterator extends DiskIterator {
   }
 
   @Override
-  public int currentCandidate() {
+  public long currentCandidate() {
     try {
       return (int) Utility.toLong(iterator.getKey());
     } catch (IOException ioe) {
@@ -65,6 +65,6 @@ public abstract class KeyToListIterator extends DiskIterator {
     if (isDone() && other.isDone()) {
       return 0;
     }
-    return currentCandidate() - other.currentCandidate();
+    return Utility.compare(currentCandidate(), other.currentCandidate());
   }
 }

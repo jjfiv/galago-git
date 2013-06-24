@@ -32,19 +32,18 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
 
   // gets the document name of the internal id index.
   @Override
-  public String getDocumentName(int index) throws IOException {
+  public String getDocumentName(long index) throws IOException {
     throw new UnsupportedOperationException("This index file does not support doc int -> doc name mappings");
   }
 
   // gets the document id for some document name
   @Override
-  public int getDocumentIdentifier(String documentName) throws IOException {
+  public long getDocumentIdentifier(String documentName) throws IOException {
     byte[] data = reader.getValueBytes(Utility.fromString(documentName));
     if (data == null) {
       return -1;
     }
-    // TODO stop casting document to long
-    return (int) Utility.toLong(data);
+    return Utility.toLong(data);
   }
 
   @Override
@@ -85,9 +84,8 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
       return Utility.toString(getKey());
     }
 
-    public int getCurrentIdentifier() throws IOException {
-      // TODO stop casting document to int
-      return (int) Utility.toLong(getValueBytes());
+    public long getCurrentIdentifier() throws IOException {
+      return Utility.toLong(getValueBytes());
     }
 
     @Override

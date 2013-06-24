@@ -5,6 +5,7 @@
 package org.lemurproject.galago.core.retrieval.processing;
 
 import java.util.Comparator;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -20,6 +21,6 @@ public class SentinelPositionComparator implements Comparator<Sentinel> {
     if (s1.iterator.isDone()) {
       return 1;
     }
-    return (s1.iterator.currentCandidate() - s2.iterator.currentCandidate());
+    return Utility.compare(s1.iterator.currentCandidate(), s2.iterator.currentCandidate());
   }
 }

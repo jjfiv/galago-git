@@ -82,7 +82,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
         break;
       }
 
-      int pivot = sortedSentinels[pivotPosition].iterator.currentCandidate();
+      long pivot = sortedSentinels[pivotPosition].iterator.currentCandidate();
 
       if (pivot <= context.document) {
         advancePosition = pickAdvancingSentinel(pivotPosition, pivot);
@@ -206,7 +206,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
    *
    * @return The iterator that should be advanced next
    */
-  private int pickAdvancingSentinel(int limit, int limitDoc) {
+  private int pickAdvancingSentinel(int limit, long limitDoc) {
     long minDF = Long.MAX_VALUE;
     int minPos = 0;
     for (int i = 0; i < limit; i++) {

@@ -37,10 +37,10 @@ public class SetModel extends ProcessingModel {
     ScoringContext context = new ScoringContext();
 
     // construct the query iterators
-    IndicatorIterator iterator = 
-            (IndicatorIterator) retrieval.createIterator(queryParams, 
-                        queryTree, 
-                        context);
+    IndicatorIterator iterator =
+            (IndicatorIterator) retrieval.createIterator(queryParams,
+            queryTree,
+            context);
     ArrayList<ScoredDocument> list = new ArrayList<ScoredDocument>();
     while (!iterator.isDone()) {
 

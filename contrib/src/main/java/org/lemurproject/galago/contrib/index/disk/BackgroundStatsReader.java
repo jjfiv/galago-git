@@ -153,7 +153,7 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
 
     // Nothing else works - this is not a normal iterator.
     @Override
-    public int currentCandidate() {
+    public long currentCandidate() {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

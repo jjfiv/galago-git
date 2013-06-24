@@ -107,7 +107,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
   public AnnotatedNode getAnnotatedNode() throws IOException {
     String className = this.getClass().getSimpleName();
     String parameters = "";
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     List<AnnotatedNode> children = new ArrayList();
     children.add(indicator.getAnnotatedNode());

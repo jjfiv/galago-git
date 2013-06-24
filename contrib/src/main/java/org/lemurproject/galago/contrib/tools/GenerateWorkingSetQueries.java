@@ -92,7 +92,7 @@ public class GenerateWorkingSetQueries extends AppFunction {
       wsQueries.add(wsQ);
 
       HashSet<String> workingSetNames = new HashSet();
-      HashSet<Integer> workingSetNumbers = new HashSet();
+      HashSet<Long> workingSetNumbers = new HashSet();
 
       // first run the query - collect topK
       queryParams.set("requested", topK);
@@ -103,7 +103,7 @@ public class GenerateWorkingSetQueries extends AppFunction {
       for (ScoredDocument r : results) {
         workingSetNames.add(r.documentName);
         if (numbers) {
-          workingSetNumbers.add((Integer) r.document);
+          workingSetNumbers.add(r.document);
         }
       }
 
@@ -115,7 +115,7 @@ public class GenerateWorkingSetQueries extends AppFunction {
             if (qrel.isRelevant(docName)) {
               try {
                 // check that this docName is in the collection
-                int docId = ((LocalRetrieval) retrieval).getDocumentId(docName);
+                long docId = ((LocalRetrieval) retrieval).getDocumentId(docName);
 
                 workingSetNames.add(docName);
                 if (numbers) {
@@ -146,7 +146,7 @@ public class GenerateWorkingSetQueries extends AppFunction {
       wsQ.set("working", wsNames);
 
       if (numbers) {
-        List<Integer> wsNumbers = new ArrayList(workingSetNumbers);
+        List<Long> wsNumbers = new ArrayList(workingSetNumbers);
         Collections.sort(wsNumbers);
         wsQ.set("workingIds", wsNumbers);
       }

@@ -12,7 +12,6 @@ import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.core.parse.PseudoDocument;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
@@ -72,7 +71,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
   }
 
   @Override
-  public Document getDocument(int key, DocumentComponents p) throws IOException {
+  public Document getDocument(long key, DocumentComponents p) throws IOException {
     KeyIterator i = new KeyIterator(reader);
     byte[] k = Utility.fromLong(key);
     if (i.findKey(k)) {
@@ -112,15 +111,11 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
     @Override
     public Document getDocument(DocumentComponents p) throws IOException {
-      if (psuedoDocs) {
-        return PseudoDocument.deserialize(iterator.getValueBytes(), p);
-      } else {
-        Document d = Document.deserialize(iterator.getValueBytes(), p);
-        if (p.tokenize) {
-          tokenizer.tokenize(d);
-        }
-        return d;
+      Document d = Document.deserialize(iterator.getValueBytes(), p);
+      if (p.tokenize) {
+        tokenizer.tokenize(d);
       }
+      return d;
     }
 
     @Override
@@ -185,7 +180,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
       String type = "corpus";
       String className = this.getClass().getSimpleName();
       String parameters = "";
-      int document = currentCandidate();
+      long document = currentCandidate();
       boolean atCandidate = hasMatch(this.context.document);
       String returnValue = getData().name;
       String extraInfo = getData().toString();

@@ -42,7 +42,7 @@ public class DiskExtentIterator extends SourceIterator implements NodeAggregateI
     String type = "extents";
     String className = this.getClass().getSimpleName();
     String parameters = this.getKeyString();
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = extents().toString();
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, Collections.EMPTY_LIST);

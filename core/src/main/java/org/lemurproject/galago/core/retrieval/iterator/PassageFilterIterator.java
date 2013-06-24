@@ -19,7 +19,8 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
 
   ExtentIterator extentIterator;
   PassageScoringContext passageContext;
-  int begin, end, docid;
+  int begin, end;
+  long docid;
   ExtentArray cached;
   protected byte[] key;
 
@@ -99,7 +100,7 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
     String type = "extent";
     String className = this.getClass().getSimpleName();
     String parameters = "";
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = extents().toString();
     List<AnnotatedNode> children = Collections.singletonList(extentIterator.getAnnotatedNode());

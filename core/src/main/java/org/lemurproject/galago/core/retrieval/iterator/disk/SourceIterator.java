@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.lemurproject.galago.core.index.source.DiskSource;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * This is the base abstract implementation of an Iterator that
@@ -16,30 +17,31 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
  * @author jfoley, sjh
  */
 public abstract class SourceIterator extends DiskIterator {
+
   protected DiskSource source = null;
-  
+
   public SourceIterator(DiskSource src) {
     source = src;
   }
-  
+
   @Override
   public String getKeyString() {
     return source.key();
   }
-  
+
   @Override
   public void reset() throws IOException {
     source.reset();
   }
-  
+
   @Override
   public boolean isDone() {
     return source.isDone();
   }
 
   @Override
-  public int currentCandidate() {
-    return (int) source.currentCandidate();
+  public long currentCandidate() {
+    return source.currentCandidate();
   }
 
   @Override
@@ -78,7 +80,7 @@ public abstract class SourceIterator extends DiskIterator {
     if (isDone() && other.isDone()) {
       return 0;
     }
-    return currentCandidate() - other.currentCandidate();
+    return Utility.compare(currentCandidate(), other.currentCandidate());
   }
 
   // This is not implemented here, because it needs to be customized for each SourceIterator
@@ -88,5 +90,4 @@ public abstract class SourceIterator extends DiskIterator {
   // This is not implemented here, because it needs to be customized for each SourceIterator
   @Override
   public abstract AnnotatedNode getAnnotatedNode() throws IOException;
-  
 }

@@ -303,7 +303,7 @@ public class LocalRetrieval implements Retrieval {
   public FieldStatistics getCollectionStatistics(Node root) throws Exception {
 
     String rootString = root.toString();
-    if (cache!= null && cache.cacheStats) {
+    if (cache != null && cache.cacheStats) {
       AggregateStatistic stat = cache.getCachedStatistic(rootString);
       if (stat != null && stat instanceof FieldStatistics) {
         return (FieldStatistics) stat;
@@ -344,7 +344,7 @@ public class LocalRetrieval implements Retrieval {
       throw new IllegalArgumentException("Node " + root.toString() + " is not a lengths iterator.");
     }
 
-    if (cache!= null && cache.cacheStats) {
+    if (cache != null && cache.cacheStats) {
       cache.addToCache(rootString, s);
     }
 
@@ -363,7 +363,7 @@ public class LocalRetrieval implements Retrieval {
   public NodeStatistics getNodeStatistics(Node root) throws Exception {
 
     String rootString = root.toString();
-    if (cache!= null && cache.cacheStats) {
+    if (cache != null && cache.cacheStats) {
       AggregateStatistic stat = cache.getCachedStatistic(rootString);
       if (stat != null && stat instanceof NodeStatistics) {
         return (NodeStatistics) stat;
@@ -404,7 +404,7 @@ public class LocalRetrieval implements Retrieval {
       throw new IllegalArgumentException("Node " + root.toString() + " is not a count iterator.");
     }
 
-    if (cache!= null && cache.cacheStats) {
+    if (cache != null && cache.cacheStats) {
       cache.addToCache(rootString, s);
     }
 
@@ -456,12 +456,12 @@ public class LocalRetrieval implements Retrieval {
     return index.getName(docid);
   }
 
-  public Integer getDocumentId(String docname) throws IOException {
+  public Long getDocumentId(String docname) throws IOException {
     return index.getIdentifier(docname);
   }
 
-  public List<Integer> getDocumentIds(List<String> docnames) throws IOException {
-    ArrayList<Integer> internalDocBuffer = new ArrayList<Integer>();
+  public List<Long> getDocumentIds(List<String> docnames) throws IOException {
+    List<Long> internalDocBuffer = new ArrayList<Long>();
 
     for (String name : docnames) {
       try {

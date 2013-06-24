@@ -159,7 +159,7 @@ public class MemIndexPartTest extends TestCase {
       diskScoreItr.setContext(context);
 
       while (!trueScoreItr.isDone() || !memScoreItr.isDone() || !diskScoreItr.isDone()) {
-        int doc = trueScoreItr.currentCandidate();
+        long doc = trueScoreItr.currentCandidate();
         context.document = doc;
 
         assertEquals(trueScoreItr.currentCandidate(), memScoreItr.currentCandidate());

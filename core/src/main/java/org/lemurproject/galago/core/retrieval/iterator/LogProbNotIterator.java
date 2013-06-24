@@ -74,7 +74,7 @@ public class LogProbNotIterator extends TransformIterator implements ScoreIterat
     String type = "score";
     String className = this.getClass().getSimpleName();
     String parameters = np.toString();
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Double.toString(score());
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());

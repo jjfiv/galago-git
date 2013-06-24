@@ -72,7 +72,7 @@ public class PassageLengthIterator extends TransformIterator implements LengthsI
     String type = "lengths";
     String className = this.getClass().getSimpleName();
     String parameters = this.np.toString();
-    int document = currentCandidate();
+    long document = currentCandidate();
     boolean atCandidate = hasMatch(this.context.document);
     String returnValue = Integer.toString(this.length());
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode());

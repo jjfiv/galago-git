@@ -82,7 +82,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   }
 
   @Override
-  public Document getDocument(int key, DocumentComponents p) throws IOException {
+  public Document getDocument(long key, DocumentComponents p) throws IOException {
     return corpusData.get(Utility.fromLong(key));
   }
 
@@ -282,7 +282,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
       String type = "corpus";
       String className = this.getClass().getSimpleName();
       String parameters = "";
-      int document = currentCandidate();
+      long document = currentCandidate();
       boolean atCandidate = hasMatch(this.context.document);
       Document d = getData();
       String returnValue = (d != null) ? d.name : "";
