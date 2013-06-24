@@ -15,11 +15,11 @@ public class Window {
 
   // indexing data //
   public byte[] data;
-  public int document;
+  public long document;
   public int begin;
   public int end;
 
-  public Window(int file, long filePosition, int document, int begin, int end, byte[] data){
+  public Window(int file, long filePosition, long document, int begin, int end, byte[] data){
     this.file = file;
     this.filePosition = filePosition;
     this.document = document;

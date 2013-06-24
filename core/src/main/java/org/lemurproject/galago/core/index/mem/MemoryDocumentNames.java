@@ -30,7 +30,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
 
   private List<String> names = new ArrayList<String>(256);
-  private int offset;
+  private long offset;
   private Parameters params;
   private long docCount;
   private long termCount;
@@ -89,9 +89,10 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
 
   @Override
   public String getDocumentName(int docNum) {
-    int index = docNum - offset;
+    long index = docNum - offset;
+    assert (index < Integer.MAX_VALUE): "Memory index can not store long document ids.";
     assert ((index >= 0) && (index < names.size())) : "Document identifier not found in this index.";
-    return names.get(index);
+    return names.get((int) index);
   }
 
   @Override
@@ -205,7 +206,8 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     }
 
     public int getCurrentIdentifier() {
-      return offset + current;
+      // TODO stop casting documents to ints
+      return (int) (offset + current);
     }
 
     public String getCurrentName() throws IOException {
@@ -218,12 +220,12 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
 
     @Override
     public String getKeyString() {
-      return Integer.toString(current + offset);
+      return Long.toString(current + offset);
     }
 
     @Override
     public byte[] getKey() {
-      return Utility.fromLong(offset + current);
+      return Utility.fromLong(current + offset);
     }
 
     @Override

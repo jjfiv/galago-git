@@ -15,7 +15,7 @@ public class Document implements Serializable {
 
   static final int BUFFER_SIZE = 5000;
   // document id - this value is serialized
-  public int identifier = -1;
+  public long identifier = -1;
   // document data - these values are serialized
   public String name;
   public Map<String, String> metadata;
@@ -97,7 +97,7 @@ public class Document implements Serializable {
     ByteArrayOutputStream headerArray = new ByteArrayOutputStream();
     DataOutputStream output = new DataOutputStream(headerArray);
     // identifier
-    output.writeInt(doc.identifier);
+    output.writeLong(doc.identifier);
 
     // name
     byte[] bytes = Utility.fromString(doc.name);
@@ -226,7 +226,7 @@ public class Document implements Serializable {
     int textSize = input.readInt();
 
     // identifier
-    d.identifier = input.readInt();
+    d.identifier = input.readLong();
 
     // name
     blen = input.readInt();

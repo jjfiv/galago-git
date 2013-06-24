@@ -12,7 +12,6 @@ import java.util.TreeMap;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.KeyIterator;
-import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
@@ -51,7 +50,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       this.fieldLengths = new IntArray(256);
     }
 
-    public void add(int documentId, int fieldLength) throws IOException {
+    public void add(long documentId, int fieldLength) throws IOException {
       // initialization step
       if (totalDocumentCount == 0) {
         firstDocument = documentId;
@@ -79,9 +78,10 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       lastDocument = documentId;
     }
 
-    private int getLength(int docNum) throws IOException {
+    private int getLength(long docNum) throws IOException {
       long arrayOffset = docNum - firstDocument;
       if (0 <= arrayOffset && arrayOffset < this.fieldLengths.getPosition()) {
+        // TODO stop casting document to int
         return fieldLengths.getBuffer()[(int) (docNum - firstDocument)];
       }
       throw new IOException("Document identifier not found in this index.");
@@ -133,11 +133,12 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     while (!iterator.isDone()) {
-      int identifier = ((LengthsIterator) iterator).currentCandidate();
+      long identifier = ((LengthsIterator) iterator).currentCandidate();
       int length = ((LengthsIterator) iterator).length();
       fieldLengths.add(identifier, length);
 
-      iterator.movePast(identifier);
+      // TODO stop casting document to int
+      iterator.movePast((int) identifier);
     }
   }
 
@@ -329,7 +330,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
           LengthsIterator, CollectionAggregateIterator {
 
     FieldLengthPostingList fieldLengths;
-    int currDoc;
+    long currDoc;
     boolean done;
 
     private FieldLengthsIterator(FieldLengthPostingList fld) throws IOException {
@@ -355,7 +356,8 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     @Override
     public int currentCandidate() {
-      return this.currDoc;
+      // TODO stop casting document to int
+      return (int) this.currDoc;
     }
 
     @Override
@@ -370,7 +372,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     @Override
     public void syncTo(int identifier) throws IOException {
-      this.currDoc = Math.min(identifier, (int) this.fieldLengths.lastDocument);
+      this.currDoc = identifier;
       if (identifier > this.fieldLengths.lastDocument) {
         done = true;
       }
@@ -378,7 +380,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     @Override
     public boolean hasMatch(int identifier) {
-      return !done && identifier == this.currDoc;
+      return !done && (identifier == this.currDoc);
     }
 
     @Override

@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
@@ -25,7 +24,6 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.ModifiableIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -116,7 +114,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     postings.remove(key);
   }
 
-  protected void addPosting(byte[] byteWord, int document, int position) {
+  protected void addPosting(byte[] byteWord, long document, int position) {
     if (!postings.containsKey(byteWord)) {
       PositionalPostingList postingList = new PositionalPostingList(byteWord);
       postings.put(byteWord, postingList);
@@ -263,30 +261,29 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     CompressedByteBuffer documents_cbb = new CompressedByteBuffer();
     CompressedByteBuffer counts_cbb = new CompressedByteBuffer();
     CompressedByteBuffer positions_cbb = new CompressedByteBuffer();
-    //IntArray documents = new IntArray();
-    //IntArray termFreqCounts = new IntArray();
-    //IntArray termPositions = new IntArray();
-    int termDocumentCount = 0;
-    int termPostingsCount = 0;
-    int lastDocument = 0;
+    long termDocumentCount = 0;
+    long termPostingsCount = 0;
+    long maximumPostingsCount = 0;
+    long lastDocument = 0;
     int lastCount = 0;
     int lastPosition = 0;
-    int maximumPostingsCount = 0;
 
     public PositionalPostingList(byte[] key) {
       this.key = key;
     }
 
-    public void add(int document, int position) {
+    public void add(long document, int position) {
       if (termDocumentCount == 0) {
         // first instance of term
         lastDocument = document;
         lastCount = 1;
         termDocumentCount += 1;
         documents_cbb.add(document);
+
       } else if (lastDocument == document) {
         // additional instance of term in document
         lastCount += 1;
+
       } else {
         // new document
         assert lastDocument == 0 || document > lastDocument;
@@ -297,10 +294,12 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
         termDocumentCount += 1;
         lastPosition = 0;
       }
+
       assert lastPosition == 0 || position > lastPosition;
       positions_cbb.add(position - lastPosition);
       termPostingsCount += 1;
       lastPosition = position;
+
       // keep track of the document with the highest frequency of 'term'
       maximumPostingsCount = Math.max(maximumPostingsCount, lastCount);
     }
@@ -403,20 +402,19 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     }
   }
 
-  public class ExtentsIterator extends DiskIterator implements ModifiableIterator,
+  public class ExtentsIterator extends DiskIterator implements
           NodeAggregateIterator, CountIterator, ExtentIterator {
 
     PositionalPostingList postings;
     VByteInput documents_reader;
     VByteInput counts_reader;
     VByteInput positions_reader;
-    int iteratedDocs;
-    int currDocument;
+    long iteratedDocs;
+    long currDocument;
     int currCount;
     ExtentArray extents;
     ExtentArray emptyExtents;
     boolean done;
-    Map<String, Object> modifiers;
 
     private ExtentsIterator(PositionalPostingList postings) throws IOException {
       this.postings = postings;
@@ -472,7 +470,8 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
 
     @Override
     public int currentCandidate() {
-      return currDocument;
+      // TODO stop casting document to int
+      return (int) currDocument;
     }
 
     @Override
@@ -517,10 +516,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
 
     @Override
     public void movePast(int identifier) throws IOException {
-
-      while (!isDone() && (currDocument <= identifier)) {
-        read();
-      }
+      syncTo(identifier + 1);
     }
 
     @Override
@@ -568,32 +564,6 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     }
 
     @Override
-    public void addModifier(String k, Object m) {
-      if (modifiers == null) {
-        modifiers = new HashMap<String, Object>();
-      }
-      modifiers.put(k, m);
-    }
-
-    @Override
-    public Set<String> getAvailableModifiers() {
-      return modifiers.keySet();
-    }
-
-    @Override
-    public boolean hasModifier(String key) {
-      return ((modifiers != null) && modifiers.containsKey(key));
-    }
-
-    @Override
-    public Object getModifier(String modKey) {
-      if (modifiers == null) {
-        return null;
-      }
-      return modifiers.get(modKey);
-    }
-
-    @Override
     public boolean hasAllCandidates() {
       return false;
     }
@@ -617,17 +587,16 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     }
   }
 
-  public class CountsIterator extends DiskIterator implements ModifiableIterator,
+  public class CountsIterator extends DiskIterator implements
           NodeAggregateIterator, CountIterator {
 
     PositionalPostingList postings;
     VByteInput documents_reader;
     VByteInput counts_reader;
-    int iteratedDocs;
-    int currDocument;
+    long iteratedDocs;
+    long currDocument;
     int currCount;
     boolean done;
-    Map<String, Object> modifiers;
 
     private CountsIterator(PositionalPostingList postings) throws IOException {
       this.postings = postings;
@@ -665,7 +634,8 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
 
     @Override
     public int currentCandidate() {
-      return currDocument;
+      // TODO stop casting document to int
+      return (int) currDocument;
     }
 
     @Override
@@ -704,10 +674,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
 
     @Override
     public void movePast(int identifier) throws IOException {
-
-      while (!isDone() && (currDocument <= identifier)) {
-        read();
-      }
+      syncTo(identifier + 1);
     }
 
     @Override
@@ -730,9 +697,6 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
 
     @Override
     public NodeStatistics getStatistics() {
-      if (modifiers != null && modifiers.containsKey("background")) {
-        return (NodeStatistics) modifiers.get("background");
-      }
       NodeStatistics stats = new NodeStatistics();
       stats.node = Utility.toString(postings.key);
       stats.nodeFrequency = postings.termPostingsCount;
@@ -753,32 +717,6 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
         return 0;
       }
       return currentCandidate() - other.currentCandidate();
-    }
-
-    @Override
-    public void addModifier(String k, Object m) {
-      if (modifiers == null) {
-        modifiers = new HashMap<String, Object>();
-      }
-      modifiers.put(k, m);
-    }
-
-    @Override
-    public Set<String> getAvailableModifiers() {
-      return modifiers.keySet();
-    }
-
-    @Override
-    public boolean hasModifier(String key) {
-      return ((modifiers != null) && modifiers.containsKey(key));
-    }
-
-    @Override
-    public Object getModifier(String modKey) {
-      if (modifiers == null) {
-        return null;
-      }
-      return modifiers.get(modKey);
     }
 
     @Override

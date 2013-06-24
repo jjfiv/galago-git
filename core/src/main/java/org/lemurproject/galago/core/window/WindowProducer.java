@@ -34,7 +34,7 @@ public class WindowProducer extends StandardStep<Document, Window> {
   int width;
   boolean ordered;
   LinkedList<String> window;
-  int currentDocument;
+  long currentDocument;
   int file = -1;
   long filePosition;
   Set<String> fields;

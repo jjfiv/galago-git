@@ -116,7 +116,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     postings.remove(key);
   }
 
-  protected void addPosting(byte[] byteWord, int document, int count) {
+  protected void addPosting(byte[] byteWord, long document, int count) {
     if (!postings.containsKey(byteWord)) {
       PostingList postingList = new PostingList(byteWord);
       postings.put(byteWord, postingList);
@@ -125,7 +125,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     PostingList postingList = postings.get(byteWord);
     postingList.add(document, count);
 
-    // this posting list has changed - check if the aggregate stats also need to change.
+    // this posting list has changed - check if the index aggregate stats also need to change.
     this.highestDocumentCount = Math.max(highestDocumentCount, postingList.termDocumentCount);
     this.highestFrequency = Math.max(highestFrequency, postingList.termPostingsCount);
   }
@@ -249,17 +249,17 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     //IntArray documents = new IntArray();
     //IntArray termFreqCounts = new IntArray();
     //IntArray termPositions = new IntArray();
-    int termDocumentCount = 0;
-    int termPostingsCount = 0;
-    int lastDocument = 0;
+    long termDocumentCount = 0;
+    long termPostingsCount = 0;
+    long maximumPostingsCount = 0;
+    long lastDocument = 0;
     int lastCount = 0;
-    int maximumPostingsCount = 0;
 
     public PostingList(byte[] key) {
       this.key = key;
     }
 
-    public void add(int document, int count) {
+    public void add(long document, int count) {
       if (termDocumentCount == 0) {
         // first instance of term
         lastDocument = document;
@@ -386,8 +386,8 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     PostingList postings;
     VByteInput documents_reader;
     VByteInput counts_reader;
-    int iteratedDocs;
-    int currDocument;
+    long iteratedDocs;
+    long currDocument;
     int currCount;
     boolean done;
     Map<String, Object> modifiers;
@@ -428,7 +428,8 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
 
     @Override
     public int currentCandidate() {
-      return currDocument;
+      // TODO stop casting document to int
+      return (int) currDocument;
     }
 
     @Override

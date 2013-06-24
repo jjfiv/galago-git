@@ -116,7 +116,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     postings.remove(key);
   }
 
-  protected void addExtent(byte[] byteWord, int document, int begin, int end) {
+  protected void addExtent(byte[] byteWord, long document, int begin, int end) {
     if (!postings.containsKey(byteWord)) {
       WindowPostingList postingList = new WindowPostingList(byteWord);
       postings.put(byteWord, postingList);
@@ -254,20 +254,19 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     CompressedByteBuffer counts_cbb = new CompressedByteBuffer();
     CompressedByteBuffer begins_cbb = new CompressedByteBuffer();
     CompressedByteBuffer ends_cbb = new CompressedByteBuffer();
-    //IntArray documents = new IntArray();
-    //IntArray termFreqCounts = new IntArray();
-    //IntArray termPositions = new IntArray();
-    int termDocumentCount = 0;
-    int termWindowCount = 0;
-    int lastDocument = 0;
+    // stats
+    long termDocumentCount = 0;
+    long termWindowCount = 0;
+    long maximumPostingsCount = 0;
+    // current state
+    long lastDocument = 0;
     int lastCount = 0;
-    int maximumPostingsCount = 0;
 
     public WindowPostingList(byte[] key) {
       this.key = key;
     }
 
-    public void add(int document, int begin, int end) {
+    public void add(long document, int begin, int end) {
       if (termDocumentCount == 0) {
         // first instance of term
         lastDocument = document;
@@ -289,6 +288,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
       begins_cbb.add(begin);
       ends_cbb.add(end);
       termWindowCount += 1;
+ 
       maximumPostingsCount = Math.max(maximumPostingsCount, lastCount);
     }
   }
@@ -349,7 +349,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     public String getValueString() throws IOException {
       long count = -1;
       MemExtentIterator it = new MemExtentIterator(postings.get(currKey));
-      count = it.count();
+      count = it.totalEntries();
       StringBuilder sb = new StringBuilder();
       sb.append(Utility.toString(getKey())).append(",");
       sb.append("list of size: ");
@@ -397,13 +397,12 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     VByteInput counts_reader;
     VByteInput begins_reader;
     VByteInput ends_reader;
-    int iteratedDocs;
-    int currDocument;
+    long iteratedDocs;
+    long currDocument;
     int currCount;
     ExtentArray extents;
     ExtentArray emptyExtents;
     boolean done;
-    Map<String, Object> modifiers;
 
     private MemExtentIterator(WindowPostingList postings) throws IOException {
       this.postings = postings;
@@ -462,7 +461,8 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
 
     @Override
     public int currentCandidate() {
-      return currDocument;
+      // TODO stop casting document to int
+      return (int) currDocument;
     }
 
     @Override
