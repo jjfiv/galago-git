@@ -116,7 +116,7 @@ public class FieldIndexReaderTest extends TestCase {
     FieldIndexReader.ListIterator fields = reader.getField("title");
     fields.setContext(new ScoringContext());
     ScoringContext sc = fields.getContext();
-      
+
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 1);
     sc.document = fields.currentCandidate();
@@ -213,26 +213,26 @@ public class FieldIndexReaderTest extends TestCase {
     p.set("0", 5);
     GreaterThanIterator gti = new GreaterThanIterator(p, fields);
     gti.setContext(sc);
-    
+
     assertFalse(gti.isDone());
     assertEquals(gti.currentCandidate(), 1);
     sc.document = gti.currentCandidate();
     assertTrue(gti.hasMatch(gti.currentCandidate()));
-    assertFalse(gti.indicator(gti.currentCandidate()));
+    assertFalse(gti.indicator(sc));
     gti.movePast(gti.currentCandidate());
 
     assertFalse(gti.isDone());
     assertEquals(gti.currentCandidate(), 2);
     sc.document = gti.currentCandidate();
     assertTrue(gti.hasMatch(gti.currentCandidate()));
-    assertTrue(gti.indicator(gti.currentCandidate()));
+    assertTrue(gti.indicator(sc));
     gti.movePast(gti.currentCandidate());
 
     assertFalse(gti.isDone());
     assertEquals(gti.currentCandidate(), 3);
     sc.document = gti.currentCandidate();
     assertTrue(gti.hasMatch(gti.currentCandidate()));
-    assertFalse(gti.indicator(gti.currentCandidate()));
+    assertFalse(gti.indicator(sc));
     gti.movePast(gti.currentCandidate());
 
     assertTrue(gti.isDone());
@@ -254,21 +254,21 @@ public class FieldIndexReaderTest extends TestCase {
     assertEquals(lti.currentCandidate(), 1);
     sc.document = lti.currentCandidate();
     assertTrue(lti.hasMatch(lti.currentCandidate()));
-    assertTrue(lti.indicator(lti.currentCandidate()));
+    assertTrue(lti.indicator(sc));
     lti.movePast(lti.currentCandidate());
 
     assertFalse(lti.isDone());
     assertEquals(lti.currentCandidate(), 2);
     sc.document = lti.currentCandidate();
     assertTrue(lti.hasMatch(lti.currentCandidate()));
-    assertFalse(lti.indicator(lti.currentCandidate()));
+    assertFalse(lti.indicator(sc));
     lti.movePast(lti.currentCandidate());
 
     assertFalse(lti.isDone());
     assertEquals(lti.currentCandidate(), 3);
     sc.document = lti.currentCandidate();
     assertTrue(lti.hasMatch(lti.currentCandidate()));
-    assertTrue(lti.indicator(lti.currentCandidate()));
+    assertTrue(lti.indicator(sc));
     lti.movePast(lti.currentCandidate());
 
     assertTrue(lti.isDone());
@@ -291,21 +291,21 @@ public class FieldIndexReaderTest extends TestCase {
     assertEquals(ibi.currentCandidate(), 15);
     sc.document = ibi.currentCandidate();
     assertTrue(ibi.hasMatch(ibi.currentCandidate()));
-    assertTrue(ibi.indicator(ibi.currentCandidate()));
+    assertTrue(ibi.indicator(sc));
     ibi.movePast(ibi.currentCandidate());
 
     assertFalse(ibi.isDone());
     assertEquals(ibi.currentCandidate(), 25);
     sc.document = ibi.currentCandidate();
     assertTrue(ibi.hasMatch(ibi.currentCandidate()));
-    assertTrue(ibi.indicator(ibi.currentCandidate()));
+    assertTrue(ibi.indicator(sc));
     ibi.movePast(ibi.currentCandidate());
 
     assertFalse(ibi.isDone());
     assertEquals(ibi.currentCandidate(), 47);
     sc.document = ibi.currentCandidate();
     assertTrue(ibi.hasMatch(ibi.currentCandidate()));
-    assertFalse(ibi.indicator(ibi.currentCandidate()));
+    assertFalse(ibi.indicator(sc));
     ibi.movePast(ibi.currentCandidate());
 
     assertTrue(ibi.isDone());
@@ -327,21 +327,21 @@ public class FieldIndexReaderTest extends TestCase {
     assertEquals(ei.currentCandidate(), 1);
     sc.document = ei.currentCandidate();
     assertTrue(ei.hasMatch(ei.currentCandidate()));
-    assertFalse(ei.indicator(ei.currentCandidate()));
+    assertFalse(ei.indicator(sc));
     ei.movePast(ei.currentCandidate());
 
     assertFalse(ei.isDone());
     assertEquals(ei.currentCandidate(), 9);
     sc.document = ei.currentCandidate();
     assertTrue(ei.hasMatch(ei.currentCandidate()));
-    assertFalse(ei.indicator(ei.currentCandidate()));
+    assertFalse(ei.indicator(sc));
     ei.movePast(ei.currentCandidate());
 
     assertFalse(ei.isDone());
     assertEquals(ei.currentCandidate(), 34);
     sc.document = ei.currentCandidate();
     assertTrue(ei.hasMatch(ei.currentCandidate()));
-    assertTrue(ei.indicator(ei.currentCandidate()));
+    assertTrue(ei.indicator(sc));
     ei.movePast(ei.currentCandidate());
 
     assertTrue(ei.isDone());

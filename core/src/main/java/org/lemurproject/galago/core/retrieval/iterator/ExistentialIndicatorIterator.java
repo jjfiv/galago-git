@@ -19,9 +19,9 @@ public class ExistentialIndicatorIterator extends DisjunctionIterator implements
   }
 
   @Override
-  public boolean indicator(long identifier) {
+  public boolean indicator(ScoringContext c) {
     for (BaseIterator i : this.iterators) {
-      if (!i.isDone() && i.hasMatch(identifier)) {
+      if (!i.isDone() && i.hasMatch(c.document)) {
         return true;
       }
     }
@@ -30,7 +30,7 @@ public class ExistentialIndicatorIterator extends DisjunctionIterator implements
 
   @Override
   public String getValueString() throws IOException {
-    return this.currentCandidate() + " " + this.indicator(this.currentCandidate());
+    return this.currentCandidate() + " " + this.indicator(new ScoringContext(this.currentCandidate()));
   }
 
   @Override
@@ -40,7 +40,7 @@ public class ExistentialIndicatorIterator extends DisjunctionIterator implements
     String parameters = "";
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Boolean.toString(this.indicator(c.document));
+    String returnValue = Boolean.toString(indicator(c));
     List<AnnotatedNode> children = new ArrayList();
     for (BaseIterator child : this.iterators) {
       children.add(child.getAnnotatedNode(c));

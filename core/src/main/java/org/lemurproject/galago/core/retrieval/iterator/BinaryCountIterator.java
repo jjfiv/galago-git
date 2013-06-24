@@ -25,7 +25,8 @@ public class BinaryCountIterator extends TransformIterator implements CountItera
 
   @Override
   public int count() {
-    return (indicator.indicator(this.currentCandidate())) ? 1 : 0;
+    // TODO fix this
+    return (indicator.indicator(new ScoringContext(this.currentCandidate()))) ? 1 : 0;
   }
 
   @Override

@@ -5,7 +5,8 @@ import java.io.ByteArrayOutputStream;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import java.io.File;
 import java.io.PrintStream;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -82,15 +83,16 @@ public class FilteringIteratorTest extends TestCase {
     Parameters qp = new Parameters();
     tree = retrieval.transformQuery(tree, qp);
     ScoredDocument[] results = retrieval.runQuery(tree, qp);
-    assertEquals(3, results.length);
+    assertEquals(5, results.length);
 
-    // Check each doc - don't really care about order
-    HashSet<Long> set = new HashSet<Long>();
-    set.add(1l);
-    set.add(2l);
-    set.add(5l);
-    for (ScoredDocument sd : results) {
-      assertTrue(set.contains(sd.document));
+    List<Long> res = new ArrayList<Long>();
+    res.add(1l);
+    res.add(2l);
+    res.add(5l);
+    res.add(3l); // rejected with tinyScore
+    res.add(18l); // rejected with tinyScore
+    for (int i = 0; i < results.length; i++) {
+      assertTrue(res.get(i) == results[i].document);
     }
   }
 
@@ -104,15 +106,17 @@ public class FilteringIteratorTest extends TestCase {
     tree = retrieval.transformQuery(tree, qp);
 
     ScoredDocument[] results = retrieval.runQuery(tree, qp);
-    assertEquals(3, results.length);
+    assertEquals(5, results.length);
 
     // Check each doc - don't really care about order
-    HashSet<Long> set = new HashSet<Long>();
-    set.add(1l);
-    set.add(2l);
-    set.add(5l);
-    for (ScoredDocument sd : results) {
-      assertTrue(set.contains(sd.document));
+    List<Long> res = new ArrayList<Long>();
+    res.add(1l);
+    res.add(2l);
+    res.add(5l);
+    res.add(3l); // rejected with tinyScore
+    res.add(18l); // rejected with tinyScore
+    for (int i = 0; i < results.length; i++) {
+      assertTrue(res.get(i) == results[i].document);
     }
   }
 }

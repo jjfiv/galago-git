@@ -19,9 +19,9 @@ public class UniversalIndicatorIterator extends ConjunctionIterator implements I
   }
 
   @Override
-  public boolean indicator(long identifier) {
+  public boolean indicator(ScoringContext c) {
     for (BaseIterator i : this.iterators) {
-      if (!i.hasMatch(identifier)) {
+      if (!i.hasMatch(c.document)) {
         return false;
       }
     }
@@ -30,7 +30,8 @@ public class UniversalIndicatorIterator extends ConjunctionIterator implements I
 
   @Override
   public String getValueString() throws IOException {
-    return this.currentCandidate() + " " + this.indicator(this.currentCandidate());
+    // TODO fix this
+    return this.currentCandidate() + " " + this.indicator(new ScoringContext(this.currentCandidate()));
   }
 
   @Override
@@ -40,7 +41,7 @@ public class UniversalIndicatorIterator extends ConjunctionIterator implements I
     String parameters = "";
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Boolean.toString(this.indicator(c.document));
+    String returnValue = Boolean.toString(this.indicator(c));
     List<AnnotatedNode> children = new ArrayList();
     for (BaseIterator child : this.iterators) {
       children.add(child.getAnnotatedNode(c));

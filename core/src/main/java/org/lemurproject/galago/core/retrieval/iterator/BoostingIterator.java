@@ -28,7 +28,7 @@ public class BoostingIterator extends TransformIterator implements ScoreIterator
   @Override
   public double score() {
     if (hasMatch(context.document)
-            && ((IndicatorIterator) iterator).indicator(context.document)) {
+            && ((IndicatorIterator) iterator).indicator(context)) {
       return beta;
     } else {
       return 0.0;

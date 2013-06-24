@@ -24,7 +24,7 @@ public class DiskBooleanIterator extends SourceIterator implements IndicatorIter
 
   @Override
   public String getValueString() throws IOException {
-    return String.format("%s:%d:%s", getKeyString(), currentCandidate(), indicator(context.document));
+    return String.format("%s:%d:%s", getKeyString(), currentCandidate(), indicator(context));
   }
 
   @Override
@@ -34,14 +34,14 @@ public class DiskBooleanIterator extends SourceIterator implements IndicatorIter
     String parameters = "";
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Boolean.toString(indicator(this.context.document));
+    String returnValue = Boolean.toString(indicator(c));
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 
   @Override
-  public boolean indicator(long document) {
-    return boolSrc.indicator(document);
+  public boolean indicator(ScoringContext c) {
+    return boolSrc.indicator(c.document);
   }
 }

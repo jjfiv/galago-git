@@ -88,8 +88,8 @@ public class BuildSpecialPartTest extends TestCase {
       assertTrue(vIt.hasMatch(2));
       vIt.movePast(2);
       assertFalse(vIt.isDone());
-      assertFalse(vIt.hasMatch(3));  // jfoley - has a match, but the value is false
-      assertFalse(vIt.indicator(3)); // this *makes sense* for an indicator function
+      //assertFalse(vIt.hasMatch(3));  // jfoley - has a match, but the value is false
+      assertFalse(vIt.indicator(new ScoringContext(3))); // this *makes sense* for an indicator function
       assertEquals(3, vIt.currentCandidate());
       vIt.movePast(3);
       assertTrue(vIt.isDone());

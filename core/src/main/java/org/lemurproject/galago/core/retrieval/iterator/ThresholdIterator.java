@@ -42,7 +42,8 @@ public class ThresholdIterator extends TransformIterator implements IndicatorIte
 
   /** note that this indicator may depend on the scoring context! **/
   @Override
-  public boolean indicator(long identifier) {
+  public boolean indicator(ScoringContext c) {
+    // TODO fix this
     return (scoreIterator.score() >= threshold);
   }
 
@@ -53,7 +54,7 @@ public class ThresholdIterator extends TransformIterator implements IndicatorIte
     String parameters = "";
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Boolean.toString(indicator(c.document));
+    String returnValue = Boolean.toString(indicator(c));
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

@@ -4,9 +4,8 @@
  */
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.text.ParseException;
-import java.text.DateFormat;
 import org.lemurproject.galago.core.index.disk.FieldIndexReader;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
@@ -20,8 +19,9 @@ public class LessThanIterator extends FieldComparisonIterator {
     parseField(p);
   }
 
-  public boolean indicator(long identifier) {
-    if (currentCandidate() != identifier) {
+  @Override
+  public boolean indicator(ScoringContext c) {
+    if (currentCandidate() != c.document) {
       return false;
     } else if (format.equals("string")) {
       return (fieldIterator.stringValue().compareTo(strValue) < 0);

@@ -33,25 +33,25 @@ public class ThresholdIteratorTest extends TestCase {
     assertFalse(iterator.isDone());
     dc.document = iterator.currentCandidate();
     assertTrue(iterator.hasMatch(docsA[0]));
-    assertFalse(iterator.indicator(docsA[0]));
+    assertFalse(iterator.indicator(dc));
     iterator.movePast(docsA[0]);
 
     assertFalse(iterator.isDone());
     dc.document = iterator.currentCandidate();
     assertTrue(iterator.hasMatch(docsA[1]));
-    assertFalse(iterator.indicator(docsA[1]));
+    assertFalse(iterator.indicator(dc));
     iterator.movePast(docsA[1]);
 
     assertFalse(iterator.isDone());
     dc.document = iterator.currentCandidate();
     assertTrue(iterator.hasMatch(docsA[2]));
-    assertTrue(iterator.indicator(docsA[2]));
+    assertTrue(iterator.indicator(dc));
     iterator.movePast(docsA[2]);
 
     assertFalse(iterator.isDone());
     dc.document = iterator.currentCandidate();
     assertTrue(iterator.hasMatch(docsA[3]));
-    assertTrue(iterator.indicator(docsA[3]));
+    assertTrue(iterator.indicator(dc));
     iterator.movePast(docsA[3]);
 
     assertTrue(iterator.isDone());
@@ -59,12 +59,12 @@ public class ThresholdIteratorTest extends TestCase {
 
     dc.document = iterator.currentCandidate();
     assertTrue(iterator.hasMatch(docsA[0]));
-    assertFalse(iterator.indicator(docsA[0]));
+    assertFalse(iterator.indicator(dc));
     iterator.movePast(docsA[2]);
     
     assertFalse(iterator.isDone());
     dc.document = iterator.currentCandidate();
     assertTrue(iterator.hasMatch(docsA[3]));
-    assertTrue(iterator.indicator(docsA[3]));
+    assertTrue(iterator.indicator(dc));
   }
 }

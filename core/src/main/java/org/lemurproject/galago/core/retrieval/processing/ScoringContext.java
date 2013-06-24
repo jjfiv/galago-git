@@ -19,7 +19,13 @@ public class ScoringContext {
   // indicates when nodes can/can't cache data
   // -- useful for passage or extent retrieval.
   public boolean cachable = true;
-
   // Diagnostic
   public HashMap<BaseIterator, Node> toNodes = new HashMap<BaseIterator, Node>();
+
+  public ScoringContext() {
+  }
+
+  public ScoringContext(long doc) {
+    this.document = doc;
+  }
 }

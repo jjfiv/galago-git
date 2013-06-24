@@ -2,11 +2,11 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * We only land on docs that the indicator allows, otherwise we consider it a
+ * We only land on docs that the indicatorItr allows, otherwise we consider it a
  * miss. Otherwise, all methods simply poll the counter.
  *
  * @author irmarc
@@ -32,8 +32,7 @@ public class RequireIterator extends FilteredIterator {
   }
 
   @Override
-  public boolean hasMatch(long identifier) {
-    return this.mover.hasMatch(identifier)
-            && this.indicator.indicator(identifier);
+  protected boolean indication(ScoringContext c) {
+    return indicatorItr.indicator(c);
   }
 }

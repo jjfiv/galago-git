@@ -8,6 +8,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.util.ExtentArray;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * #filter ( AbstractIndicator ScoreIterator ) : Only scores documents that
@@ -21,15 +22,16 @@ import org.lemurproject.galago.core.util.ExtentArray;
  */
 public abstract class FilteredIterator extends ConjunctionIterator implements CountIterator, ScoreIterator, ExtentIterator {
 
-  protected IndicatorIterator indicator;
+  protected IndicatorIterator indicatorItr;
   protected CountIterator counter;
   protected ScoreIterator scorer;
   protected ExtentIterator extents;
   protected BaseIterator mover;
+  protected ExtentArray emptyExtentArray = new ExtentArray();
 
   public FilteredIterator(NodeParameters parameters, IndicatorIterator indicator, CountIterator counter) {
     super(parameters, new BaseIterator[]{indicator, counter});
-    this.indicator = indicator;
+    this.indicatorItr = indicator;
     this.scorer = null;
     this.counter = counter;
     this.mover = counter;
@@ -42,7 +44,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
 
   public FilteredIterator(NodeParameters parameters, IndicatorIterator indicator, ScoreIterator scorer) {
     super(parameters, new BaseIterator[]{indicator, scorer});
-    this.indicator = indicator;
+    this.indicatorItr = indicator;
     this.counter = null;
     this.extents = null;
     this.scorer = scorer;
@@ -51,7 +53,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
 
   public FilteredIterator(NodeParameters parameters, IndicatorIterator indicator, ExtentIterator extents) {
     super(parameters, new BaseIterator[]{indicator, extents});
-    this.indicator = indicator;
+    this.indicatorItr = indicator;
     this.scorer = null;
     this.extents = extents;
     this.mover = extents;
@@ -65,22 +67,34 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
 
   @Override
   public ExtentArray extents() {
-    return extents.extents();
+    if (indication(this.context)) {
+      return extents.extents();
+    } else {
+      return emptyExtentArray;
+    }
   }
 
   @Override
   public ExtentArray getData() {
-    return extents.getData();
+    return extents();
   }
 
   @Override
   public int count() {
-    return counter.count();
+    if (indication(this.context)) {
+      return counter.count();
+    } else {
+      return 0;
+    }
   }
 
   @Override
   public double score() {
-    return scorer.score();
+    if (indication(this.context)) {
+      return scorer.score();
+    } else {
+      return Utility.tinyLogProbScore;
+    }
   }
 
   @Override
@@ -110,7 +124,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
     List<AnnotatedNode> children = new ArrayList();
-    children.add(indicator.getAnnotatedNode(c));
+    children.add(indicatorItr.getAnnotatedNode(c));
     children.add(mover.getAnnotatedNode(c));
 
     String type = "unknown";
@@ -127,4 +141,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
     }
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
+
+  // This function returns true if the filter should accept the value (see require/reject iterator)
+  protected abstract boolean indication(ScoringContext context);
 }

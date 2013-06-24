@@ -72,7 +72,7 @@ public abstract class FieldComparisonIterator extends TransformIterator implemen
     String parameters = p.toString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Boolean.toString(this.indicator(c.document));
+    String returnValue = Boolean.toString(indicator(c));
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
