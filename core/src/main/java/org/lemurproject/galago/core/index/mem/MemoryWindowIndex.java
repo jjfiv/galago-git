@@ -288,7 +288,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
       begins_cbb.add(begin);
       ends_cbb.add(end);
       termWindowCount += 1;
- 
+
       maximumPostingsCount = Math.max(maximumPostingsCount, lastCount);
     }
   }
@@ -504,7 +504,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     }
 
     @Override
-    public void syncTo(int identifier) throws IOException {
+    public void syncTo(long identifier) throws IOException {
       // TODO implement skip lists
 
       while (!isDone() && (currDocument < identifier)) {
@@ -513,11 +513,8 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     }
 
     @Override
-    public void movePast(int identifier) throws IOException {
-
-      while (!isDone() && (currDocument <= identifier)) {
-        read();
-      }
+    public void movePast(long identifier) throws IOException {
+      syncTo(identifier + 1);
     }
 
     @Override

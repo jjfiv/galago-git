@@ -506,7 +506,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     }
 
     @Override
-    public void syncTo(int identifier) throws IOException {
+    public void syncTo(long identifier) throws IOException {
       // TODO implement skip lists
 
       while (!isDone() && (currDocument < identifier)) {
@@ -515,7 +515,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     }
 
     @Override
-    public void movePast(int identifier) throws IOException {
+    public void movePast(long identifier) throws IOException {
       syncTo(identifier + 1);
     }
 
@@ -664,7 +664,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     }
 
     @Override
-    public void syncTo(int identifier) throws IOException {
+    public void syncTo(long identifier) throws IOException {
       // TODO implement skip lists
 
       while (!isDone() && (currDocument < identifier)) {
@@ -673,7 +673,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     }
 
     @Override
-    public void movePast(int identifier) throws IOException {
+    public void movePast(long identifier) throws IOException {
       syncTo(identifier + 1);
     }
 

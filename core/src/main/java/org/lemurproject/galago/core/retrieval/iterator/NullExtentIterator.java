@@ -76,11 +76,11 @@ public class NullExtentIterator extends DiskIterator implements ExtentIterator, 
   }
 
   @Override
-  public void syncTo(int identifier) throws IOException {
+  public void syncTo(long identifier) throws IOException {
   }
 
   @Override
-  public void movePast(int identifier) throws IOException {
+  public void movePast(long identifier) throws IOException {
   }
 
   @Override

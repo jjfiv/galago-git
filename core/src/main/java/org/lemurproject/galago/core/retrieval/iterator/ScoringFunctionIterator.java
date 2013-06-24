@@ -44,7 +44,7 @@ public class ScoringFunctionIterator extends TransformIterator implements ScoreI
    * When 'syncTo' is called, the lengths iterator catches up.
    */
   @Override
-  public void syncTo(int document) throws IOException{
+  public void syncTo(long document) throws IOException{
     super.syncTo(document);
     this.lengthsIterator.syncTo(document);
   }

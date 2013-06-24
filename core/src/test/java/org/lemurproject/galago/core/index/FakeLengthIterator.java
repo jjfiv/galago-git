@@ -54,12 +54,12 @@ public class FakeLengthIterator implements LengthsIterator {
   }
 
   @Override
-  public void movePast(int identifier) throws IOException {
+  public void movePast(long identifier) throws IOException {
     syncTo(identifier + 1);
   }
 
   @Override
-  public void syncTo(int identifier) throws IOException {
+  public void syncTo(long identifier) throws IOException {
     while (!isDone() && ids[position] < identifier) {
       position++;
     }

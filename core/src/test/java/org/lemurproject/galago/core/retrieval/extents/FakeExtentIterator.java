@@ -87,14 +87,14 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
   }
 
   @Override
-  public void syncTo(int identifier) throws IOException {
+  public void syncTo(long identifier) throws IOException {
     while (!isDone() && currentCandidate() < identifier) {
       index++;
     }
   }
 
   @Override
-  public void movePast(int identifier) throws IOException {
+  public void movePast(long identifier) throws IOException {
     syncTo(identifier + 1);
   }
 

@@ -57,12 +57,12 @@ public abstract class DisjointIndexesIterator extends DiskIterator {
   }
 
   @Override
-  public void movePast(int identifier) throws IOException {
+  public void movePast(long identifier) throws IOException {
     syncTo(identifier + 1);
   }
 
   @Override
-  public void syncTo(int identifier) throws IOException {
+  public void syncTo(long identifier) throws IOException {
     queue.offer(head);
     while (!queue.isEmpty()) {
       head = queue.poll();

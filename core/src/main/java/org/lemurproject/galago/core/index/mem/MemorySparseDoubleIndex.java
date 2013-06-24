@@ -412,7 +412,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     }
 
     @Override
-    public void syncTo(int identifier) throws IOException {
+    public void syncTo(long identifier) throws IOException {
       // TODO: need to implement skip lists
 
       while (!isDone() && (currDocument < identifier)) {
@@ -421,7 +421,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     }
 
     @Override
-    public void movePast(int identifier) throws IOException {
+    public void movePast(long identifier) throws IOException {
 
       while (!isDone() && (currDocument <= identifier)) {
         read();

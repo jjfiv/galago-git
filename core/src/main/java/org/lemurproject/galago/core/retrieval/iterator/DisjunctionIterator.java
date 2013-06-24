@@ -55,14 +55,14 @@ public abstract class DisjunctionIterator implements BaseIterator {
   }
 
   @Override
-  public void syncTo(int candidate) throws IOException {
+  public void syncTo(long candidate) throws IOException {
     for (BaseIterator iterator : iterators) {
       iterator.syncTo(candidate);
     }
   }
 
   @Override
-  public void movePast(int candidate) throws IOException {
+  public void movePast(long candidate) throws IOException {
     for (BaseIterator iterator : this.drivingIterators) {
       iterator.movePast(candidate);
     }

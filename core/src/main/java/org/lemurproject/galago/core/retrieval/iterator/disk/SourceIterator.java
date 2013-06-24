@@ -43,12 +43,12 @@ public abstract class SourceIterator extends DiskIterator {
   }
 
   @Override
-  public void movePast(int identifier) throws IOException {
+  public void movePast(long identifier) throws IOException {
     source.movePast(identifier);
   }
 
   @Override
-  public void syncTo(int identifier) throws IOException {
+  public void syncTo(long identifier) throws IOException {
     source.syncTo(identifier);
   }
 

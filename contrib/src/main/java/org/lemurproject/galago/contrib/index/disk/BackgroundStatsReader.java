@@ -163,12 +163,12 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
     }
 
     @Override
-    public void syncTo(int identifier) throws IOException {
+    public void syncTo(long identifier) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void movePast(int identifier) throws IOException {
+    public void movePast(long identifier) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

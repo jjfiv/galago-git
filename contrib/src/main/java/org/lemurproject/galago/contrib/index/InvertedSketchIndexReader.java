@@ -323,7 +323,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
 
     // If we have skips - it's go time
     @Override
-    public void syncTo(int document) throws IOException {
+    public void syncTo(long document) throws IOException {
       if (skips != null) {
         synchronizeSkipPositions();
         if (document > nextSkipDocument) {
@@ -347,7 +347,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     }
 
     @Override
-    public void movePast(int document) throws IOException {
+    public void movePast(long document) throws IOException {
       syncTo(document + 1);
     }
 

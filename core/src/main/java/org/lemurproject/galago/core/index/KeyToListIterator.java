@@ -21,12 +21,12 @@ public abstract class KeyToListIterator extends DiskIterator {
   }
 
   @Override
-  public void syncTo(int identifier) throws IOException {
+  public void syncTo(long identifier) throws IOException {
     iterator.skipToKey(Utility.fromLong(identifier));
   }
 
   @Override
-  public void movePast(int identifier) throws IOException {
+  public void movePast(long identifier) throws IOException {
     iterator.skipToKey(Utility.fromLong(identifier + 1));
   }
 

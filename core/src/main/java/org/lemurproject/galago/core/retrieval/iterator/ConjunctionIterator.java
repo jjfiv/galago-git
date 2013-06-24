@@ -56,7 +56,7 @@ public abstract class ConjunctionIterator implements BaseIterator {
   }
 
   @Override
-  public void syncTo(int candidate) throws IOException {
+  public void syncTo(long candidate) throws IOException {
     for (BaseIterator iterator : iterators) {
       int prev = iterator.currentCandidate();
       iterator.syncTo(candidate);
@@ -64,7 +64,7 @@ public abstract class ConjunctionIterator implements BaseIterator {
   }
 
   @Override
-  public void movePast(int candidate) throws IOException {
+  public void movePast(long candidate) throws IOException {
     for (BaseIterator iterator : this.drivingIterators) {
       iterator.movePast(candidate);
     }

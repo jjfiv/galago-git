@@ -47,7 +47,7 @@ public class PL2ScoringIterator extends TransformIterator implements ScoreIterat
   }
 
   @Override
-  public void syncTo(int identifier) throws IOException {
+  public void syncTo(long identifier) throws IOException {
     super.syncTo(identifier);
     lengths.syncTo(identifier);
   }

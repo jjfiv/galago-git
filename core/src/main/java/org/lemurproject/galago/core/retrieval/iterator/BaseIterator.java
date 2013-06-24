@@ -64,7 +64,7 @@ public interface BaseIterator extends Comparable<BaseIterator> {
    * 
    * Specical case:
    *  if isDone() == true 
-   *   return Integer.MAX_VALUE
+   *   return Long.MAX_VALUE
    */
   public int currentCandidate();
 
@@ -85,7 +85,7 @@ public interface BaseIterator extends Comparable<BaseIterator> {
    * this avoids making small (unnecessary) jumps for iterators that have all candidates
    * 
    */
-  public void movePast(int identifier) throws IOException;
+  public void movePast(long identifier) throws IOException;
 
   /**
    * Moves the iterator to the specified candidate
@@ -93,7 +93,7 @@ public interface BaseIterator extends Comparable<BaseIterator> {
    * Unlike the 'movePast' function this should move all iterators.
    * Even where 'hasAllCandidates' is true.
    */
-  public void syncTo(int identifier) throws IOException;
+  public void syncTo(long identifier) throws IOException;
   
   /**
    * returns true if the iterator is at this candidate,

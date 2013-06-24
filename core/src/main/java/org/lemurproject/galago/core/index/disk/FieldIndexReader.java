@@ -144,6 +144,7 @@ public class FieldIndexReader extends KeyListReader {
       reset(iterator);
     }
 
+    @Override
     public void reset() throws IOException {
       currentDocument = 0;
       documentCount = 0;
@@ -151,6 +152,7 @@ public class FieldIndexReader extends KeyListReader {
       initialize();
     }
 
+    @Override
     public void reset(BTreeReader.BTreeIterator i) throws IOException {
       iterator = i;
       key = iterator.getKey();
@@ -207,7 +209,7 @@ public class FieldIndexReader extends KeyListReader {
     }
 
     @Override
-    public void syncTo(int document) throws IOException {
+    public void syncTo(long document) throws IOException {
       while (!isDone() && document > currentDocument) {
         documentIndex = Math.min(documentIndex + 1, documentCount);
         if (!isDone()) {
@@ -217,7 +219,7 @@ public class FieldIndexReader extends KeyListReader {
     }
 
     @Override
-    public void movePast(int document) throws IOException {
+    public void movePast(long document) throws IOException {
       while (!isDone() && document >= currentDocument) {
         documentIndex = Math.min(documentIndex + 1, documentCount);
         if (!isDone()) {
