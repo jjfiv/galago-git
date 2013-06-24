@@ -48,7 +48,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
 
   @Override
   public double score() {
-    int count = (countIterator).count();
+    int count = (countIterator).count(context);
     //double score = function.score(count, context.getLength(partName));
     double score = function.score(count, lengthsIterator.length());
     return score;
@@ -61,7 +61,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
     int count = 0;
 
     if (iterator.currentCandidate() == context.document) {
-      count = ((CountIterator) iterator).count();
+      count = ((CountIterator) iterator).count(context);
     }
 
     double s = function.score(count, lengthsIterator.length());
@@ -76,6 +76,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
     ctx.potentials[parentIdx] += diff;
   }
 
+  @Override
   public void maximumDifference() {
     EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
     double diff = weight * (0 - max);
@@ -87,6 +88,7 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
     ctx.potentials[parentIdx] += diff;
   }
 
+  @Override
   public void aggregatePotentials(EarlyTerminationScoringContext ctx) {
     TIntDoubleHashMap idfs = new TIntDoubleHashMap();
     for (int i = 0; i < ctx.scorers.size(); i++) {

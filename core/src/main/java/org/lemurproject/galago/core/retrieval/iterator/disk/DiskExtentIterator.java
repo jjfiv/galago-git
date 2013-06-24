@@ -55,8 +55,8 @@ public class DiskExtentIterator extends SourceIterator implements NodeAggregateI
   }
 
   @Override
-  public int count() {
-    return (int) extentSrc.count(context.document);
+  public int count(ScoringContext c) {
+    return extentSrc.count(c.document);
   }
 
   @Override

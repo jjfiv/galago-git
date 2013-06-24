@@ -54,7 +54,7 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
   }
 
   @Override
-  public int count() {
+  public int count(ScoringContext c) {
     return extents().size();
   }
 

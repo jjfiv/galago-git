@@ -27,7 +27,7 @@ public class DiskCountIterator extends SourceIterator
 
   @Override
   public String getValueString() throws IOException {
-    return String.format("%s,%d,%d", getKeyString(), currentCandidate(), count());
+    return String.format("%s,%d,%d", getKeyString(), currentCandidate(), count(new ScoringContext(currentCandidate())));
   }
 
   @Override
@@ -37,7 +37,7 @@ public class DiskCountIterator extends SourceIterator
     String parameters = this.getKeyString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Integer.toString(count());
+    String returnValue = Integer.toString(count(c));
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
@@ -48,7 +48,7 @@ public class DiskCountIterator extends SourceIterator
   }
 
   @Override
-  public int count() {
-    return (int) countSrc.count(context.document);
+  public int count(ScoringContext c) {
+    return countSrc.count(c.document);
   }
 }

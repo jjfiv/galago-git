@@ -90,7 +90,7 @@ public class CachedRetrievalTest extends TestCase {
       while (!diskCountIterator.isDone() && !cachedCountIterator.isDone()) {
         assertEquals(diskCountIterator.currentCandidate(), cachedCountIterator.currentCandidate());
         sc.document = diskCountIterator.currentCandidate();
-        assertEquals(diskCountIterator.count(), cachedCountIterator.count());
+        assertEquals(diskCountIterator.count(sc), cachedCountIterator.count(sc));
         diskCountIterator.movePast(diskCountIterator.currentCandidate());
         cachedCountIterator.movePast(cachedCountIterator.currentCandidate());
       }
@@ -112,7 +112,7 @@ public class CachedRetrievalTest extends TestCase {
       while (!diskExtentIterator.isDone() && !cachedExtentIterator.isDone()) {
         assertEquals(diskExtentIterator.currentCandidate(), cachedExtentIterator.currentCandidate());
         sc.document = cachedExtentIterator.currentCandidate();
-        assertEquals(diskExtentIterator.count(), cachedExtentIterator.count());
+        assertEquals(diskExtentIterator.count(sc), cachedExtentIterator.count(sc));
         ExtentArray de = diskExtentIterator.extents();
         ExtentArray ce = cachedExtentIterator.extents();
         assertEquals(de.begin(0), ce.begin(0));

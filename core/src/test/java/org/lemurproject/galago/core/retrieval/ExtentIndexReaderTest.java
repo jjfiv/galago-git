@@ -178,7 +178,7 @@ public class ExtentIndexReaderTest extends TestCase {
     extents.movePast(extents.currentCandidate());
     assertEquals(457, extents.currentCandidate());
     sc.document = extents.currentCandidate();
-    assertEquals(27, extents.count());
+    assertEquals(27, extents.count(sc));
     ExtentArray ea = extents.extents();
     ExtentArrayIterator eait = new ExtentArrayIterator(ea);
     int begin = 5;

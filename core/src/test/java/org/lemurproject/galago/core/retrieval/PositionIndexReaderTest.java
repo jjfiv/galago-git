@@ -178,7 +178,7 @@ public class PositionIndexReaderTest extends TestCase {
     // Read first identifier
     assertEquals(1, termExtents.currentCandidate());
     sc.document = termExtents.currentCandidate();
-    assertEquals(1, termExtents.count());
+    assertEquals(1, termExtents.count(sc));
 
     termExtents.syncTo(7);
     assertTrue(termExtents.hasMatch(7));
@@ -191,13 +191,13 @@ public class PositionIndexReaderTest extends TestCase {
     termExtents.movePast(93);
     assertEquals(94, termExtents.currentCandidate());
     sc.document = termExtents.currentCandidate();
-    assertEquals(2, termExtents.count());
+    assertEquals(2, termExtents.count(sc));
 
     // One more time, then we read extents
     termExtents.movePast(2543);
     assertEquals(2545, termExtents.currentCandidate());
     sc.document = termExtents.currentCandidate();
-    assertEquals(51, termExtents.count());
+    assertEquals(51, termExtents.count(sc));
     ExtentArray ea = termExtents.extents();
     assertEquals(2545, ea.getDocument());
     assertEquals(51, ea.size());
@@ -221,12 +221,12 @@ public class PositionIndexReaderTest extends TestCase {
 
     assertEquals(dataB[0][0], termCounts.currentCandidate());
     sc.document = termCounts.currentCandidate();
-    assertEquals(dataB[0].length - 1, termCounts.count());
+    assertEquals(dataB[0].length - 1, termCounts.count(sc));
     termCounts.movePast(dataB[0][0]);
 
     assertEquals(dataB[1][0], termCounts.currentCandidate());
     sc.document = termCounts.currentCandidate();
-    assertEquals(dataB[1].length - 1, termCounts.count());
+    assertEquals(dataB[1].length - 1, termCounts.count(sc));
 
     NodeStatistics b_stats = ((NodeAggregateIterator) termCounts).getStatistics();
     assertEquals(2, b_stats.nodeDocumentCount);

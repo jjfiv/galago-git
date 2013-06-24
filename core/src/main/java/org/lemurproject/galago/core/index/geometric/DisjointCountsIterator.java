@@ -23,8 +23,8 @@ public class DisjointCountsIterator extends DisjointIndexesIterator implements C
   }
 
   @Override
-  public int count() {
-    return ((CountIterator) head).count();
+  public int count(ScoringContext c) {
+    return ((CountIterator) head).count(c);
   }
 
   @Override
@@ -34,7 +34,7 @@ public class DisjointCountsIterator extends DisjointIndexesIterator implements C
     String parameters = this.getKeyString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Integer.toString(count());
+    String returnValue = Integer.toString(count(c));
     List<AnnotatedNode> children = new ArrayList();
     for (BaseIterator child : this.allIterators) {
       children.add(child.getAnnotatedNode(c));

@@ -88,7 +88,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
       while (!mi.isDone()) {
         long document = mi.currentCandidate();
         sc.document = document;
-        int count = mi.count();
+        int count = mi.count(sc);
         postingList.add(document, count);
         mi.movePast(document);
       }
@@ -206,7 +206,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
       while (!viterator.isDone()) {
         sc.document = viterator.currentCandidate();
         writer.processDocument(viterator.currentCandidate());
-        writer.processTuple(viterator.count());
+        writer.processTuple(viterator.count(sc));
         viterator.movePast(viterator.currentCandidate());
       }
       kiterator.nextKey();

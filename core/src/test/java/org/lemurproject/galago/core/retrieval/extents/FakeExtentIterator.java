@@ -43,8 +43,8 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
   }
 
   @Override
-  public int count() {
-    if (context.document == currentCandidate()) {
+  public int count(ScoringContext c) {
+    if (c.document == currentCandidate()) {
       return data[index].length - 1;
     } else {
       return 0;

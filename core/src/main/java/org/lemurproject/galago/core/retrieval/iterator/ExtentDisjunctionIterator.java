@@ -52,7 +52,7 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
   }
 
   @Override
-  public int count() {
+  public int count(ScoringContext c) {
     return extents().size();
   }
 

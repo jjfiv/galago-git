@@ -24,9 +24,8 @@ public class BinaryCountIterator extends TransformIterator implements CountItera
   }
 
   @Override
-  public int count() {
-    // TODO fix this
-    return (indicator.indicator(new ScoringContext(this.currentCandidate()))) ? 1 : 0;
+  public int count(ScoringContext c) {
+    return (indicator.indicator(c)) ? 1 : 0;
   }
 
   @Override
@@ -36,7 +35,7 @@ public class BinaryCountIterator extends TransformIterator implements CountItera
     String parameters = np.toString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Integer.toString(count());
+    String returnValue = Integer.toString(count(c));
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

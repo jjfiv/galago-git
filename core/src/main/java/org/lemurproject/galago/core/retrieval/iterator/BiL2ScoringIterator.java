@@ -48,7 +48,7 @@ public class BiL2ScoringIterator extends TransformIterator implements ScoreItera
 
   @Override
   public double score() {
-    double tf = counts.count();
+    double tf = counts.count(context);
     if (tf == 0) {
       return 0;
     }

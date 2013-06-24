@@ -99,7 +99,7 @@ public class MemIndexPartTest extends TestCase {
           assert (dsk_vi.currentCandidate() == mem1_vi.currentCandidate() && mem1_vi.currentCandidate() == mem2_vi.currentCandidate());
           sc.document = dsk_vi.currentCandidate();
 
-          assert (dsk_vi.count() == mem1_vi.count() && mem1_vi.count() == mem2_vi.count());
+          assert (dsk_vi.count(sc) == mem1_vi.count(sc) && mem1_vi.count(sc) == mem2_vi.count(sc));
 
           mem1_vi.movePast(mem1_vi.currentCandidate());
           mem2_vi.movePast(mem2_vi.currentCandidate());

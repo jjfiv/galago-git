@@ -96,8 +96,8 @@ public class LocalRetrieval implements Retrieval {
   }
 
   /**
-   * Returns some statistics about a particular index part
-   *  -- vocab size, number of entries, maximumDocCount of any indexed term, etc
+   * Returns some statistics about a particular index part -- vocab size, number
+   * of entries, maximumDocCount of any indexed term, etc
    */
   @Override
   public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException {
@@ -195,7 +195,6 @@ public class LocalRetrieval implements Retrieval {
     T[] byID = Arrays.copyOf(results, results.length);
 
     Arrays.sort(byID, new Comparator<T>() {
-
       @Override
       public int compare(T o1, T o2) {
         return Utility.compare(o1.document, o2.document);
@@ -391,8 +390,8 @@ public class LocalRetrieval implements Retrieval {
       while (!iterator.isDone()) {
         sc.document = iterator.currentCandidate();
         if (iterator.hasMatch(iterator.currentCandidate())) {
-          s.nodeFrequency += iterator.count();
-          s.maximumCount = Math.max(iterator.count(), s.maximumCount);
+          s.nodeFrequency += iterator.count(sc);
+          s.maximumCount = Math.max(iterator.count(sc), s.maximumCount);
           s.nodeDocumentCount++;
         }
         iterator.movePast(iterator.currentCandidate());

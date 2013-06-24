@@ -157,7 +157,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
       sb.append("list of size: ");
       try {
         it = new TermCountIterator(iterator);
-        long count = it.count();
+        long count = it.totalEntries();
         sb.append(count);
       } catch (IOException ioe) {
         sb.append("Unknown-count");
@@ -420,8 +420,8 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     }
 
     @Override
-    public int count() {
-      if (currentDocument == context.document) {
+    public int count(ScoringContext c) {
+      if (currentDocument == c.document) {
         return currentCount;
       }
       return 0;
@@ -449,7 +449,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
       String parameters = "";
       long document = currentCandidate();
       boolean atCandidate = hasMatch(c.document);
-      String returnValue = Integer.toString(count());
+      String returnValue = Integer.toString(count(c));
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

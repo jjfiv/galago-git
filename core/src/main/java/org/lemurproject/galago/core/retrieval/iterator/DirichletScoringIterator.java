@@ -53,11 +53,7 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
   @Override
   public void deltaScore() {
     EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
-    int count = 0;
-
-    if (iterator.hasMatch(context.document)) {
-      count = ((CountIterator) iterator).count();
-    }
+    int count = ((CountIterator) iterator).count(context);
 
     double diff = weight * (function.score(count, lengthsIterator.length()) - max);
     ctx.runningScore += diff;

@@ -90,7 +90,7 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
   }
 
   @Override
-  public int count() {
+  public int count(ScoringContext c) {
     return extents().size();
   }
 

@@ -44,7 +44,7 @@ public class DumpTermStatisticsFn extends AppFunction {
       while (!mci.isDone()) {
         sc.document = mci.currentCandidate();
         if (mci.hasMatch(mci.currentCandidate())) {
-          frequency += mci.count();
+          frequency += mci.count(sc);
           documentCount++;
         }
         mci.movePast(mci.currentCandidate());

@@ -123,7 +123,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
       long count = -1;
       try {
         it = new DiskCountIterator(new WindowIndexCountSource(iterator));
-        count = it.count();
+        count = it.totalEntries();
       } catch (IOException ioe) {
       }
       StringBuilder sb = new StringBuilder();

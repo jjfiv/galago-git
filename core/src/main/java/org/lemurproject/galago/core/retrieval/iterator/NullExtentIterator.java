@@ -41,7 +41,7 @@ public class NullExtentIterator extends DiskIterator implements ExtentIterator, 
   }
 
   @Override
-  public int count() {
+  public int count(ScoringContext c) {
     return 0;
   }
 

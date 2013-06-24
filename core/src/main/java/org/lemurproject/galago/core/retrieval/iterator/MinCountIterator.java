@@ -32,7 +32,7 @@ public class MinCountIterator extends ConjunctionIterator implements CountIterat
     String parameters = nodeParams.toString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Integer.toString(count());
+    String returnValue = Integer.toString(count(c));
     List<AnnotatedNode> children = new ArrayList();
     for (BaseIterator child : this.iterators) {
       children.add(child.getAnnotatedNode(c));
@@ -42,10 +42,10 @@ public class MinCountIterator extends ConjunctionIterator implements CountIterat
   }
 
   @Override
-  public int count() {
+  public int count(ScoringContext c) {
     int count = Integer.MAX_VALUE;
     for (CountIterator countItr : countIterators) {
-      count = Math.min(count, countItr.count());
+      count = Math.min(count, countItr.count(c));
     }
     count = (count == Integer.MAX_VALUE) ? 0 : count;
     return count;

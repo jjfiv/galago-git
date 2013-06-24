@@ -25,8 +25,8 @@ public class DisjointExtentsIterator extends DisjointIndexesIterator implements 
   }
 
   @Override
-  public int count() {
-    return ((CountIterator) head).count();
+  public int count(ScoringContext c) {
+    return ((CountIterator) head).count(c);
   }
 
   @Override

@@ -80,9 +80,9 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
   }
 
   @Override
-  public int count() {
+  public int count(ScoringContext c) {
     if (indication(this.context)) {
-      return counter.count();
+      return counter.count(c);
     } else {
       return 0;
     }
@@ -131,7 +131,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
     String returnValue = "unknown";
     if (this.counter != null) {
       type = "count";
-      returnValue = Integer.toString(count());
+      returnValue = Integer.toString(count(c));
     } else if (this.scorer != null) {
       type = "score";
       returnValue = Double.toString(score());

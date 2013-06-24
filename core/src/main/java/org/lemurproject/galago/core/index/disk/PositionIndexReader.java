@@ -129,7 +129,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
       long count = -1;
       try {
         it = new DiskCountIterator(new PositionIndexCountSource(iterator));
-        count = it.count();
+        count = it.totalEntries();
       } catch (IOException ioe) {
       }
       StringBuilder sb = new StringBuilder();

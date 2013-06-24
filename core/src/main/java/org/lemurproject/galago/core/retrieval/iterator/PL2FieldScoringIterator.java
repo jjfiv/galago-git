@@ -67,11 +67,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
 
   @Override
   public double score() {
-    int count = 0;
-
-    if (iterator.currentCandidate() == context.document) {
-      count = ((CountIterator) iterator).count();
-    }
+    int count = ((CountIterator) iterator).count(context);
     double score = function.score(count, this.lengthsIterator.length());
     score = (score > 0.0) ? score : min; // MY smoothing.
     return score;
@@ -79,12 +75,9 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
 
   @Override
   public void deltaScore() {
-    int count = 0;
+    int count = ((CountIterator) iterator).count(context);;
 
     EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
-    if (iterator.currentCandidate() == context.document) {
-      count = ((CountIterator) iterator).count();
-    }
 
     double score = function.score(count, lengthsIterator.length());
     score = (score > 0.0) ? score : min; // MY smoothing again

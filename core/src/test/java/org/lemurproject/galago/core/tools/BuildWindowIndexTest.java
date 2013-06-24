@@ -181,11 +181,11 @@ public class BuildWindowIndexTest extends TestCase {
 
           sc.document = doc;
           
-          int count = counts_NSE_ci.count();
-          assertEquals(count, counts_NSE_ci.count());
-          assertEquals(count, counts__SE_ci.count());
-          assertEquals(count, posits_NSE_ei.count());
-          assertEquals(count, posits__SE_ei.count());
+          int count = counts_NSE_ci.count(sc);
+          assertEquals(count, counts_NSE_ci.count(sc));
+          assertEquals(count, counts__SE_ci.count(sc));
+          assertEquals(count, posits_NSE_ei.count(sc));
+          assertEquals(count, posits__SE_ei.count(sc));
 
           ExtentArray extents_NSE = posits_NSE_ei.extents();
           ExtentArray extents__SE = posits__SE_ei.extents();
@@ -372,11 +372,11 @@ public class BuildWindowIndexTest extends TestCase {
 
           sc.document = doc;
           
-          int count = counts_NSE_ci.count();
-          assertEquals(count, counts_NSE_ci.count());
-          assertEquals(count, counts__SE_ci.count());
-          assertEquals(count, posits_NSE_ei.count());
-          assertEquals(count, posits__SE_ei.count());
+          int count = counts_NSE_ci.count(sc);
+          assertEquals(count, counts_NSE_ci.count(sc));
+          assertEquals(count, counts__SE_ci.count(sc));
+          assertEquals(count, posits_NSE_ei.count(sc));
+          assertEquals(count, posits__SE_ei.count(sc));
 
           ExtentArray extents_NSE = posits_NSE_ei.extents();
           ExtentArray extents__SE = posits__SE_ei.extents();
