@@ -18,7 +18,7 @@ public class ExistentialIndicatorIterator extends DisjunctionIterator implements
   }
 
   @Override
-  public boolean indicator(int identifier) {
+  public boolean indicator(long identifier) {
     for (BaseIterator i : this.iterators) {
       if (!i.isDone() && i.hasMatch(identifier)) {
         return true;

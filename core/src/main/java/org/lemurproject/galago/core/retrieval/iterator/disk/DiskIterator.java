@@ -17,7 +17,7 @@ public abstract class DiskIterator implements BaseIterator {
   protected ScoringContext context;
   
   @Override
-  public boolean hasMatch(int identifier) {
+  public boolean hasMatch(long identifier) {
     return !isDone() && currentCandidate() == identifier;
   }
 

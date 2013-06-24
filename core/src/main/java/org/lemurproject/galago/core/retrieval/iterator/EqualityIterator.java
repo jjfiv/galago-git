@@ -19,7 +19,7 @@ public class EqualityIterator extends FieldComparisonIterator {
   }
 
   @Override
-  public boolean indicator(int identifier) {
+  public boolean indicator(long identifier) {
     if (currentCandidate() != identifier) {
       return false;
     } else if (format.equals("string")) {

@@ -104,7 +104,7 @@ public interface BaseIterator extends Comparable<BaseIterator> {
    * 
    * @see DiskIterator
    */
-  public boolean hasMatch(int identifier);
+  public boolean hasMatch(long identifier);
 
   /**
    * returns true if the iterator has data for ALL candidates

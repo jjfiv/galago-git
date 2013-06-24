@@ -92,7 +92,7 @@ public class NodeTypeTest extends TestCase {
     }
 
     @Override
-    public boolean hasMatch(int identifier) {
+    public boolean hasMatch(long identifier) {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

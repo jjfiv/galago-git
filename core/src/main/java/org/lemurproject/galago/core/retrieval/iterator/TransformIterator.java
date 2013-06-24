@@ -49,7 +49,7 @@ public abstract class TransformIterator implements BaseIterator {
   }
 
   @Override
-  public boolean hasMatch(int identifier) {
+  public boolean hasMatch(long identifier) {
     return iterator.hasMatch(identifier);
   }
 

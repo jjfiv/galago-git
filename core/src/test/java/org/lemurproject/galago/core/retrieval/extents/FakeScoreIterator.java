@@ -43,7 +43,7 @@ public class FakeScoreIterator implements ScoreIterator {
   }
 
   @Override
-  public boolean hasMatch(int document) {
+  public boolean hasMatch(long document) {
     if (isDone()) {
       return false;
     } else {

@@ -18,7 +18,7 @@ public class GreaterThanIterator extends FieldComparisonIterator {
     parseField(p);
   }
 
-  public boolean indicator(int identifier) {
+  public boolean indicator(long identifier) {
     if (currentCandidate() != identifier) {
       return false;
     } else if (format.equals("string")) {

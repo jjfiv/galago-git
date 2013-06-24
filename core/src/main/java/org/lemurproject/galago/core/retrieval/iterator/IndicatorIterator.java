@@ -7,6 +7,6 @@ package org.lemurproject.galago.core.retrieval.iterator;
  */
 public interface IndicatorIterator extends BaseIterator {
 
-  public boolean indicator(int identifier);
+  public boolean indicator(long identifier);
 
 }

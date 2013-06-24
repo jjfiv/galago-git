@@ -82,7 +82,7 @@ public abstract class DisjunctionIterator implements BaseIterator {
   }
 
   @Override
-  public boolean hasMatch(int candidate) {
+  public boolean hasMatch(long candidate) {
     for (BaseIterator iterator : drivingIterators) {
       if (iterator.hasMatch(candidate)) {
         return true;

@@ -66,7 +66,7 @@ public class NullExtentIterator extends DiskIterator implements ExtentIterator, 
   }
 
   @Override
-  public boolean hasMatch(int id) {
+  public boolean hasMatch(long id) {
     return false;
   }
 

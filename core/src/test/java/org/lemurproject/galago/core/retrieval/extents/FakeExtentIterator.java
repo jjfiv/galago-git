@@ -78,7 +78,7 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
   }
 
   @Override
-  public boolean hasMatch(int identifier) {
+  public boolean hasMatch(long identifier) {
     if (isDone()) {
       return false;
     } else {

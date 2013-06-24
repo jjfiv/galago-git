@@ -89,7 +89,7 @@ public abstract class ConjunctionIterator implements BaseIterator {
   }
 
   @Override
-  public boolean hasMatch(int candidate) {
+  public boolean hasMatch(long candidate) {
     for (BaseIterator iterator : drivingIterators) {
       if (iterator.isDone() || !iterator.hasMatch(candidate)) {
         return false;

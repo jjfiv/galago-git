@@ -112,7 +112,7 @@ public class LogProbNotIteratorTest extends TestCase {
     }
 
     @Override
-    public boolean hasMatch(int identifier) {
+    public boolean hasMatch(long identifier) {
       return !done && docs[index] == identifier;
     }
 

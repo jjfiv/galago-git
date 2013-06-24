@@ -475,7 +475,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     }
 
     @Override
-    public boolean hasMatch(int identifier) {
+    public boolean hasMatch(long identifier) {
       return (!isDone() && identifier == currDocument);
     }
 
@@ -639,7 +639,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     }
 
     @Override
-    public boolean hasMatch(int identifier) {
+    public boolean hasMatch(long identifier) {
       return (!isDone() && identifier == currDocument);
     }
 

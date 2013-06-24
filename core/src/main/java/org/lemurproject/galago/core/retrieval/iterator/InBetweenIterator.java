@@ -58,7 +58,7 @@ public class InBetweenIterator extends FieldComparisonIterator {
     }
   }
 
-  public boolean indicator(int identifier) {
+  public boolean indicator(long identifier) {
     if (currentCandidate() != identifier) {
       return false;
     } else if (format.equals("string")) {

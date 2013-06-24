@@ -38,11 +38,8 @@ public class DiskBooleanIterator extends SourceIterator implements IndicatorIter
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 
-  //TODO move to long here
   @Override
-  public boolean indicator(int document) {
+  public boolean indicator(long document) {
     return boolSrc.indicator(document);
   }
-
-  
 }

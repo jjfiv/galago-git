@@ -31,7 +31,8 @@ public class RejectIterator extends FilteredIterator {
     syncTo(0);
   }
 
-  public boolean hasMatch(int identifier) {
+  @Override
+  public boolean hasMatch(long identifier) {
     return (!this.indicator.indicator(identifier))
             && this.mover.hasMatch(identifier);
   }

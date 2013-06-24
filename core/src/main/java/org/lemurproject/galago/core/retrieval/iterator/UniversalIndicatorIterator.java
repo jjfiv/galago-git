@@ -18,7 +18,7 @@ public class UniversalIndicatorIterator extends ConjunctionIterator implements I
   }
 
   @Override
-  public boolean indicator(int identifier) {
+  public boolean indicator(long identifier) {
     for(BaseIterator i : this.iterators){
       if(!i.hasMatch(identifier)){
         return false;

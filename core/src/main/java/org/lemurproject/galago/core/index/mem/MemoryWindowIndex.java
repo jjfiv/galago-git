@@ -466,7 +466,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     }
 
     @Override
-    public boolean hasMatch(int identifier) {
+    public boolean hasMatch(long identifier) {
       return (!isDone() && identifier == currDocument);
     }
 

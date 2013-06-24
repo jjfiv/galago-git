@@ -53,7 +53,7 @@ public abstract class SourceIterator extends DiskIterator {
   }
 
   @Override
-  public boolean hasMatch(int identifier) {
+  public boolean hasMatch(long identifier) {
     return source.hasMatch(identifier);
   }
 

@@ -31,8 +31,8 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
   }
 
   @Override
-  public boolean hasMatch(int document){
-    return extents().size() > 0;
+  public boolean hasMatch(long document){
+    return super.hasMatch(document) && (extents().size() > 0);
   }
   
   /**

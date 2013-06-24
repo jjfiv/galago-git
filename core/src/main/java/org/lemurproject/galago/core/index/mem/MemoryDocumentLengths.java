@@ -379,7 +379,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     @Override
-    public boolean hasMatch(int identifier) {
+    public boolean hasMatch(long identifier) {
       return !done && (identifier == this.currDoc);
     }
 

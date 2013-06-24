@@ -31,7 +31,8 @@ public class RequireIterator extends FilteredIterator {
     syncTo(0);
   }
 
-  public boolean hasMatch(int identifier) {
+  @Override
+  public boolean hasMatch(long identifier) {
     return this.mover.hasMatch(identifier)
             && this.indicator.indicator(identifier);
   }

@@ -39,9 +39,9 @@ public class ThresholdIterator extends TransformIterator implements IndicatorIte
     }
   }
 
-  /** note that this indicator may depends on the scoring context! **/
+  /** note that this indicator may depend on the scoring context! **/
   @Override
-  public boolean indicator(int identifier) {
+  public boolean indicator(long identifier) {
     return (scoreIterator.score() >= threshold);
   }
 

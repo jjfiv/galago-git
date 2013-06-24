@@ -39,7 +39,7 @@ public class LogProbNotIterator extends TransformIterator implements ScoreIterat
   }
   
   @Override
-  public boolean hasMatch(int identifier){
+  public boolean hasMatch(long identifier){
     return true;
   }
   

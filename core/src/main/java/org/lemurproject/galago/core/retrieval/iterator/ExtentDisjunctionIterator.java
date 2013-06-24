@@ -24,7 +24,7 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
   }
 
   @Override
-  public boolean hasMatch(int identifier) {
+  public boolean hasMatch(long identifier) {
     return super.hasMatch(identifier) && extents().size() > 0;
   }
 

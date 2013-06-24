@@ -50,7 +50,7 @@ public abstract class KeyToListIterator extends DiskIterator {
   }
 
   @Override
-  public boolean hasMatch(int identifier) {
+  public boolean hasMatch(long identifier) {
     return (!isDone() && currentCandidate() == identifier);
   }
 
