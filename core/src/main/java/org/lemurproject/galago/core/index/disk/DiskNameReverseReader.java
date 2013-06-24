@@ -8,7 +8,8 @@ import org.lemurproject.galago.core.index.BTreeFactory;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
-import org.lemurproject.galago.core.index.NamesReader;
+import org.lemurproject.galago.core.index.NamesReverseReader;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 
@@ -19,21 +20,14 @@ import org.lemurproject.galago.tupleflow.Utility;
  * 
  * @author sjh
  */
-public class DiskNameReverseReader extends KeyValueReader implements NamesReader {
+public class DiskNameReverseReader extends KeyValueReader implements NamesReverseReader {
 
-  /** Creates a new instance of DiskNameReader */
   public DiskNameReverseReader(String fileName) throws IOException {
     super(BTreeFactory.getBTreeReader(fileName));
   }
 
   public DiskNameReverseReader(BTreeReader r) {
     super(r);
-  }
-
-  // gets the document name of the internal id index.
-  @Override
-  public String getDocumentName(long index) throws IOException {
-    throw new UnsupportedOperationException("This index file does not support doc int -> doc name mappings");
   }
 
   // gets the document id for some document name
@@ -44,11 +38,6 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
       return -1;
     }
     return Utility.toLong(data);
-  }
-
-  @Override
-  public NamesReader.NamesIterator getNamesIterator() throws IOException {
-    throw new UnsupportedOperationException("This index file does not support doc int -> doc name mappings");
   }
 
   @Override
@@ -63,9 +52,8 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesReader
   }
 
   @Override
-  public KeyToListIterator getIterator(Node node) throws IOException {
-    throw new UnsupportedOperationException(
-            "Index doesn't support operator: " + node.getOperator());
+  public BaseIterator getIterator(Node node) throws IOException {
+    throw new UnsupportedOperationException("Index doesn't support operator: " + node.getOperator());
   }
 
   public class KeyIterator extends KeyValueReader.KeyValueIterator {

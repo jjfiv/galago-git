@@ -7,12 +7,11 @@ import java.io.File;
 import java.util.*;
 import junit.framework.TestCase;
 import org.lemurproject.galago.contrib.util.TestingUtils;
-import org.lemurproject.galago.core.index.mem.MemorySparseDoubleIndex;
-import org.lemurproject.galago.core.retrieval.CachedRetrieval;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.SourceIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -91,16 +90,17 @@ public class LearnerTest extends TestCase {
 
         // check which nodes have been cached
         // System.out.println(root.toPrettyString());
-        
+
         // node is an SDM - root, children, and sub-children are not cached, nodes below that level are cached
         BaseIterator i = (BaseIterator) r.createIterator(new Parameters(), root, new ScoringContext());
-        assertFalse(i instanceof MemorySparseDoubleIndex.ScoresIterator);
+        assertFalse(i instanceof SourceIterator); // not disk level
         for (Node child : root.getInternalNodes()) {
           i = (BaseIterator) r.createIterator(new Parameters(), child, new ScoringContext());
-          assertFalse(i instanceof MemorySparseDoubleIndex.ScoresIterator);
+          assertFalse(i instanceof SourceIterator); // not disk level
           for (Node subchild : child.getInternalNodes()) {
-            i = (BaseIterator) r.createIterator(new Parameters(), subchild, new ScoringContext());
-            assertTrue(i.getClass().getName().contains(".mem.")); // is a memory iterator.
+            i = r.createIterator(new Parameters(), subchild, new ScoringContext());
+            SourceIterator si = (SourceIterator) i;
+            assertTrue(si.getSource().getClass().getName().contains(".mem.")); // uses a memory source in iterator.
           }
         }
       }

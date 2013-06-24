@@ -27,8 +27,8 @@ public class DiskCorpusIterator extends DiskDataIterator<Document> {
     String parameters = "";
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = getData().name;
-    String extraInfo = getData().toString();
+    String returnValue = data().name;
+    String extraInfo = data().toString();
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, extraInfo, children);

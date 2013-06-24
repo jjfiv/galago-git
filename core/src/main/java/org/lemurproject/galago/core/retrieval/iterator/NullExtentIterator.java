@@ -51,7 +51,7 @@ public class NullExtentIterator extends DiskIterator implements ExtentIterator, 
   }
 
   @Override
-  public ExtentArray getData() {
+  public ExtentArray data() {
     return array;
   }
 

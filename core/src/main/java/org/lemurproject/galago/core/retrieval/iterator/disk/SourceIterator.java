@@ -25,6 +25,11 @@ public abstract class SourceIterator extends DiskIterator {
     source = src;
   }
 
+  // sjh: access to the underlying source is useful occasionally //
+  public DiskSource getSource() {
+    return source;
+  }
+
   @Override
   public String getKeyString() {
     return source.key();

@@ -3,26 +3,21 @@ package org.lemurproject.galago.core.index.mem;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
-import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
-import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.types.FieldLengthData;
@@ -34,7 +29,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 
 public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
-  private class FieldLengthPostingList {
+  public class FieldLengthList {
 
     private Bytes fieldName;
     private IntArray fieldLengths;
@@ -46,7 +41,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     private long firstDocument = 0;
     private long lastDocument = 0;
 
-    public FieldLengthPostingList(Bytes fieldName) {
+    public FieldLengthList(Bytes fieldName) {
       this.fieldName = fieldName;
       this.fieldLengths = new IntArray(256);
     }
@@ -64,7 +59,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
         minLength = Math.min(fieldLength, this.minLength);
       }
       totalDocumentCount += 1;
-      nonZeroDocumentCount += 1;
+      nonZeroDocumentCount += (fieldLength > 0) ? 1 : 0;
       collectionLength += fieldLength;
 
       if (firstDocument + fieldLengths.getPosition() > documentId) {
@@ -79,17 +74,42 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       lastDocument = documentId;
     }
 
-    private int getLength(long docNum) throws IOException {
+    public int getLength(long docNum) throws IOException {
       long arrayOffset = docNum - firstDocument;
+      assert (arrayOffset < Integer.MAX_VALUE) : "Memory index can not store more than Integer.MAX_VALUE document ids.";
       if (0 <= arrayOffset && arrayOffset < this.fieldLengths.getPosition()) {
         // TODO stop casting document to int
         return fieldLengths.getBuffer()[(int) (docNum - firstDocument)];
       }
       throw new IOException("Document identifier not found in this index.");
     }
+
+    public byte[] key() {
+      return fieldName.getBytes();
+    }
+
+    public long firstDocument() {
+      return firstDocument;
+    }
+
+    public long lastDocument() {
+      return lastDocument;
+    }
+
+    public FieldStatistics stats() {
+      FieldStatistics cs = new FieldStatistics();
+      cs.fieldName = Utility.toString(key());
+      cs.collectionLength = collectionLength;
+      cs.documentCount = totalDocumentCount;
+      cs.nonZeroLenDocCount = nonZeroDocumentCount;
+      cs.maxLength = maxLength;
+      cs.minLength = minLength;
+      cs.avgLength = (double) collectionLength / (double) totalDocumentCount;
+      return cs;
+    }
   }
   private Parameters params;
-  protected TreeMap<Bytes, FieldLengthPostingList> lengths = new TreeMap();
+  protected TreeMap<Bytes, FieldLengthList> lengths = new TreeMap();
   private Bytes document;
 
   public MemoryDocumentLengths(Parameters params) {
@@ -98,7 +118,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     this.document = new Bytes(Utility.fromString("document"));
 
     if (!lengths.containsKey(document)) {
-      lengths.put(document, new FieldLengthPostingList(document));
+      lengths.put(document, new FieldLengthList(document));
     }
   }
 
@@ -116,7 +136,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     for (Bytes field : currentFieldLengths.keySet()) {
       if (!lengths.containsKey(field)) {
-        lengths.put(field, new FieldLengthPostingList(field));
+        lengths.put(field, new FieldLengthList(field));
       }
       lengths.get(field).add(doc.identifier, currentFieldLengths.get(field));
     }
@@ -126,11 +146,11 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   public void addIteratorData(byte[] key, BaseIterator iterator) throws IOException {
     byte[] fieldString = key;
     Bytes field = new Bytes(fieldString);
-    FieldLengthPostingList fieldLengths;
+    FieldLengthList fieldLengths;
     if (lengths.containsKey(field)) {
       fieldLengths = lengths.get(field);
     } else {
-      fieldLengths = new FieldLengthPostingList(field);
+      fieldLengths = new FieldLengthList(field);
     }
 
     while (!iterator.isDone()) {
@@ -161,7 +181,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("lengths", new NodeType(FieldLengthsIterator.class));
+    types.put("lengths", new NodeType(DiskLengthsIterator.class));
     return types;
   }
 
@@ -176,18 +196,18 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   @Override
-  public LengthsIterator getLengthsIterator() throws IOException {
-    return new FieldLengthsIterator(lengths.get(document));
+  public DiskLengthsIterator getLengthsIterator() throws IOException {
+    return new DiskLengthsIterator(new MemoryDocumentLengthsSource(lengths.get(document)));
   }
 
   @Override
-  public DiskIterator getIterator(byte[] key) throws IOException {
+  public DiskLengthsIterator getIterator(byte[] key) throws IOException {
     Bytes field = new Bytes(key);
     if (lengths.containsKey(field)) {
-      return new FieldLengthsIterator(lengths.get(field));
+      return new DiskLengthsIterator(new MemoryDocumentLengthsSource(lengths.get(field)));
     }
     // Otherwise make a new (empty) posting list
-    return new FieldLengthsIterator(new FieldLengthPostingList(new Bytes(key)));
+    return new DiskLengthsIterator(new MemoryDocumentLengthsSource(new FieldLengthList(new Bytes(key))));
   }
 
   @Override
@@ -233,12 +253,15 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     p.set("filename", path);
     DiskLengthsWriter writer = new DiskLengthsWriter(new FakeParameters(p));
 
-    FieldIterator fields = new FieldIterator();
-    FieldLengthsIterator fieldLengths;
+    FieldIterator fields = new FieldIterator(); // key iterator
+    DiskLengthsIterator fieldLengths;
+    ScoringContext c = new ScoringContext();
     FieldLengthData ld;
     while (!fields.isDone()) {
-      fieldLengths = (FieldLengthsIterator) fields.getValueIterator();
+      fieldLengths = (DiskLengthsIterator) fields.getValueIterator();
+      fieldLengths.setContext(c);
       while (!fieldLengths.isDone()) {
+        c.document = fieldLengths.currentCandidate();
         ld = new FieldLengthData(Utility.fromString(fieldLengths.getKeyString()), fieldLengths.currentCandidate(), fieldLengths.length());
         writer.process(ld);
         fieldLengths.movePast(fieldLengths.currentCandidate());
@@ -322,135 +345,8 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
 
     @Override
-    public DiskIterator getValueIterator() throws IOException {
-      return new FieldLengthsIterator(lengths.get(new Bytes(this.currField)));
-    }
-  }
-
-  private static class FieldLengthsIterator extends DiskIterator implements CountIterator,
-          LengthsIterator, CollectionAggregateIterator {
-
-    FieldLengthPostingList fieldLengths;
-    long currDoc;
-    boolean done;
-
-    private FieldLengthsIterator(FieldLengthPostingList fld) throws IOException {
-      this.fieldLengths = fld;
-      reset();
-    }
-
-    @Override
-    public String getKeyString() throws IOException {
-      return Utility.toString(fieldLengths.fieldName.getBytes());
-    }
-
-    @Override
-    public void reset() throws IOException {
-      if (this.fieldLengths.totalDocumentCount == 0) {
-        this.currDoc = Integer.MAX_VALUE;
-        this.done = true;
-      } else {
-        this.currDoc = (int) fieldLengths.firstDocument;
-        this.done = false;
-      }
-    }
-
-    @Override
-    public long currentCandidate() {
-      return this.currDoc;
-    }
-
-    @Override
-    public boolean isDone() {
-      return done;
-    }
-
-    @Override
-    public void movePast(long identifier) throws IOException {
-      syncTo(identifier + 1);
-    }
-
-    @Override
-    public void syncTo(long identifier) throws IOException {
-      this.currDoc = identifier;
-      if (identifier > this.fieldLengths.lastDocument) {
-        done = true;
-      }
-    }
-
-    @Override
-    public boolean hasMatch(long identifier) {
-      return !done && (identifier == this.currDoc);
-    }
-
-    @Override
-    public boolean hasAllCandidates() {
-      return true;
-    }
-
-    @Override
-    public long totalEntries() {
-      return this.fieldLengths.totalDocumentCount;
-    }
-
-    @Override
-    public String getValueString() throws IOException {
-      return this.getKeyString() + "," + this.currentCandidate() + "," + this.length();
-    }
-
-    @Override
-    public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
-      String type = "lengths";
-      String className = this.getClass().getSimpleName();
-      String parameters = this.getKeyString();
-      long document = currentCandidate();
-      boolean atCandidate = hasMatch(c.document);
-      String returnValue = Integer.toString(length());
-      List<AnnotatedNode> children = Collections.EMPTY_LIST;
-
-      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
-    }
-
-    @Override
-    public int compareTo(BaseIterator other) {
-      if (isDone() && !other.isDone()) {
-        return 1;
-      }
-      if (other.isDone() && !isDone()) {
-        return -1;
-      }
-      if (isDone() && other.isDone()) {
-        return 0;
-      }
-      return Utility.compare(currentCandidate(), other.currentCandidate());
-    }
-
-    @Override
-    public int count() {
-      return this.length();
-    }
-
-    @Override
-    public int length() {
-      try {
-        return this.fieldLengths.getLength(currDoc);
-      } catch (IOException ex) {
-        Logger.getLogger(this.getClass().getName()).info("Returning 0.\n");
-        return 0;
-      }
-    }
-
-    @Override
-    public FieldStatistics getStatistics() {
-      FieldStatistics cs = new FieldStatistics();
-      cs.fieldName = Utility.toString(this.fieldLengths.fieldName.getBytes());
-      cs.collectionLength = this.fieldLengths.collectionLength;
-      cs.documentCount = this.fieldLengths.totalDocumentCount;
-      cs.nonZeroLenDocCount = this.fieldLengths.nonZeroDocumentCount;
-      cs.maxLength = this.fieldLengths.maxLength;
-      cs.minLength = this.fieldLengths.minLength;
-      cs.avgLength = (double) this.fieldLengths.collectionLength / (double) this.fieldLengths.totalDocumentCount;
-      return cs;
+    public DiskLengthsIterator getValueIterator() throws IOException {
+      return new DiskLengthsIterator(new MemoryDocumentLengthsSource(lengths.get(new Bytes(this.currField))));
     }
   }
 }

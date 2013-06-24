@@ -5,14 +5,16 @@ package org.lemurproject.galago.core.retrieval;
 
 import java.io.File;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.mem.MemoryCountIndex;
-import org.lemurproject.galago.core.index.mem.MemorySparseDoubleIndex;
-import org.lemurproject.galago.core.index.mem.MemoryWindowIndex;
+import org.lemurproject.galago.core.index.mem.MemoryCountIndexCountSource;
+import org.lemurproject.galago.core.index.mem.MemorySparseDoubleIndexScoreSource;
+import org.lemurproject.galago.core.index.mem.MemoryWindowIndexExtentSource;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
-import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -57,7 +59,7 @@ public class CachedRetrievalTest extends TestCase {
 
       ScoreIterator diskScoreIterator = (ScoreIterator) nonCacheRet.createIterator(new Parameters(), score, sc);
       ScoreIterator cachedScoreIterator = (ScoreIterator) cacheRet.createIterator(new Parameters(), score, sc);
-      assert (cachedScoreIterator instanceof MemorySparseDoubleIndex.ScoresIterator);
+      assert (((DiskScoreIterator) cachedScoreIterator).getSource() instanceof MemorySparseDoubleIndexScoreSource);
 
       while (!diskScoreIterator.isDone() && !cachedScoreIterator.isDone()) {
         assertEquals(diskScoreIterator.currentCandidate(), cachedScoreIterator.currentCandidate());
@@ -83,7 +85,7 @@ public class CachedRetrievalTest extends TestCase {
 
       CountIterator diskCountIterator = (CountIterator) nonCacheRet.createIterator(new Parameters(), count, sc);
       CountIterator cachedCountIterator = (CountIterator) cacheRet.createIterator(new Parameters(), count, sc);
-      assert (cachedCountIterator instanceof MemoryCountIndex.CountsIterator);
+      assert (((DiskCountIterator) cachedCountIterator).getSource() instanceof MemoryCountIndexCountSource);
 
       while (!diskCountIterator.isDone() && !cachedCountIterator.isDone()) {
         assertEquals(diskCountIterator.currentCandidate(), cachedCountIterator.currentCandidate());
@@ -105,7 +107,7 @@ public class CachedRetrievalTest extends TestCase {
 
       ExtentIterator diskExtentIterator = (ExtentIterator) nonCacheRet.createIterator(new Parameters(), extent, sc);
       ExtentIterator cachedExtentIterator = (ExtentIterator) cacheRet.createIterator(new Parameters(), extent, sc);
-      assert (cachedExtentIterator instanceof MemoryWindowIndex.MemExtentIterator);
+      assert (((DiskExtentIterator) cachedExtentIterator).getSource() instanceof MemoryWindowIndexExtentSource);
 
       while (!diskExtentIterator.isDone() && !cachedExtentIterator.isDone()) {
         assertEquals(diskExtentIterator.currentCandidate(), cachedExtentIterator.currentCandidate());
@@ -132,12 +134,13 @@ public class CachedRetrievalTest extends TestCase {
 
       Node extent2 = StructuredQuery.parse("#unordered:8( #extents:sample:part=postings() #extents:document:part=postings() )");
       cacheRet2.addNodeToCache(extent2);
-      
+
       cachedExtentIterator = (ExtentIterator) cacheRet2.createIterator(new Parameters(), extent, sc);
-      assertFalse(cachedExtentIterator instanceof MemoryWindowIndex.MemExtentIterator);
+      assertFalse(((DiskExtentIterator) cachedExtentIterator).getSource() instanceof MemoryWindowIndexExtentSource);
 
       cachedExtentIterator = (ExtentIterator) cacheRet2.createIterator(new Parameters(), extent2, sc);
-      assertTrue(cachedExtentIterator instanceof MemoryWindowIndex.MemExtentIterator);
+      System.err.println(((DiskExtentIterator) cachedExtentIterator).getSource().getClass().toString());
+      assertTrue (((DiskExtentIterator) cachedExtentIterator).getSource() instanceof MemoryWindowIndexExtentSource);
 
     } finally {
       if (trecCorpusFile != null) {

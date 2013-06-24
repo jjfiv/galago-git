@@ -4,8 +4,8 @@
 package org.lemurproject.galago.core.tools.apps;
 
 import java.io.PrintStream;
-import org.lemurproject.galago.core.index.NamesReader.NamesIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
+import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.tools.AppFunction;
@@ -35,7 +35,7 @@ public class DumpNamesLengths extends AppFunction {
 
     DiskIndex index = new DiskIndex(p.getString("index"));
 
-    NamesIterator namesItr = index.getNamesIterator();
+    DataIterator<String> namesItr = index.getNamesIterator();
     LengthsIterator lengthsItr = index.getLengthsIterator();
     
     ScoringContext sc = new ScoringContext();
@@ -47,7 +47,7 @@ public class DumpNamesLengths extends AppFunction {
       
       sc.document = docId;
       
-      String docName = namesItr.getCurrentName();
+      String docName = namesItr.data();
 
       lengthsItr.syncTo(docId);
       int docLen = 0;

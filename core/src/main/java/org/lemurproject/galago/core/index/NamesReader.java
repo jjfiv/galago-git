@@ -2,24 +2,15 @@
 package org.lemurproject.galago.core.index;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskDataIterator;
 
 /**
  *
- * @author irmarc
+ * @author irmarc, sjh
  */
 public interface NamesReader extends IndexPartReader {
 
   public String getDocumentName(long document) throws IOException;
 
-  public long getDocumentIdentifier(String document) throws IOException;
-
-  public NamesIterator getNamesIterator() throws IOException;
-
-  public interface NamesIterator extends BaseIterator {
-
-    public String getCurrentName() throws IOException;
-
-    public long getCurrentIdentifier() throws IOException;
-  }
+  public DiskDataIterator<String> getNamesIterator() throws IOException;
 }

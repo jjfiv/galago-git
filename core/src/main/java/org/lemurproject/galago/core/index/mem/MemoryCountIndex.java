@@ -1,22 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.disk.CountIndexWriter;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
-import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
@@ -24,13 +18,12 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.Utility.ByteArrComparator;
-import org.lemurproject.galago.tupleflow.VByteInput;
 
 
 /*
@@ -137,7 +130,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
   }
 
   @Override
-  public DiskIterator getIterator(Node node) throws IOException {
+  public DiskCountIterator getIterator(Node node) throws IOException {
     String term = stemAsRequired(node.getDefaultParameter());
     byte[] byteWord = Utility.fromString(term);
     if (node.getOperator().equals("counts")) {
@@ -147,14 +140,14 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
   }
 
   @Override
-  public DiskIterator getIterator(byte[] key) throws IOException {
+  public DiskCountIterator getIterator(byte[] key) throws IOException {
     return getTermCounts(key);
   }
 
-  private CountsIterator getTermCounts(byte[] term) throws IOException {
+  private DiskCountIterator getTermCounts(byte[] term) throws IOException {
     PostingList postingList = postings.get(term);
     if (postingList != null) {
-      return new CountsIterator(postingList);
+      return new DiskCountIterator(new MemoryCountIndexCountSource(postingList));
     }
     return null;
   }
@@ -168,7 +161,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("counts", new NodeType(CountsIterator.class));
+    types.put("counts", new NodeType(DiskCountIterator.class));
     return types;
   }
 
@@ -204,10 +197,10 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     CountIndexWriter writer = new CountIndexWriter(new FakeParameters(p));
 
     KIterator kiterator = new KIterator();
-    CountsIterator viterator;
+    DiskCountIterator viterator;
     ScoringContext sc = new ScoringContext();
     while (!kiterator.isDone()) {
-      viterator = (CountsIterator) kiterator.getValueIterator();
+      viterator = (DiskCountIterator) kiterator.getValueIterator();
       writer.processWord(kiterator.getKey());
       viterator.setContext(sc);
       while (!viterator.isDone()) {
@@ -246,9 +239,6 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     byte[] key;
     CompressedByteBuffer documents_cbb = new CompressedByteBuffer();
     CompressedByteBuffer counts_cbb = new CompressedByteBuffer();
-    //IntArray documents = new IntArray();
-    //IntArray termFreqCounts = new IntArray();
-    //IntArray termPositions = new IntArray();
     long termDocumentCount = 0;
     long termPostingsCount = 0;
     long maximumPostingsCount = 0;
@@ -282,10 +272,39 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
       // keep track of the document with the highest frequency of 'term'
       maximumPostingsCount = Math.max(lastCount, maximumPostingsCount);
     }
+
+    public byte[] key() {
+      return key;
+    }
+
+    public byte[] getDocumentDataBytes() {
+      return documents_cbb.getBytes();
+    }
+
+    public byte[] getCountDataBytes() {
+      return counts_cbb.getBytes();
+    }
+
+    public long lastDocument() {
+      return lastDocument;
+    }
+
+    public int lastCount() {
+      return lastCount;
+    }
+
+    public NodeStatistics stats() {
+      NodeStatistics stats = new NodeStatistics();
+      stats.node = Utility.toString(key);
+      stats.nodeFrequency = termPostingsCount;
+      stats.nodeDocumentCount = termDocumentCount;
+      stats.maximumCount = maximumPostingsCount;
+      return stats;
+    }
   }
+
   // iterator allows for query processing and for streaming posting list data
   // public class Iterator extends ExtentIterator implements IndexIterator {
-
   public class KIterator implements KeyIterator {
 
     Iterator<byte[]> iterator;
@@ -339,7 +358,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     @Override
     public String getValueString() throws IOException {
       long count = -1;
-      CountsIterator it = new CountsIterator(postings.get(currKey));
+      DiskCountIterator it = getValueIterator();
       count = it.totalEntries();
       StringBuilder sb = new StringBuilder();
       sb.append(Utility.toString(getKey())).append(",");
@@ -372,164 +391,12 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     }
 
     @Override
-    public DiskIterator getValueIterator() throws IOException {
+    public DiskCountIterator getValueIterator() throws IOException {
       if (currKey != null) {
-        return new CountsIterator(postings.get(currKey));
+        return new DiskCountIterator(new MemoryCountIndexCountSource(postings.get(currKey)));
       } else {
         return null;
       }
-    }
-  }
-
-  public class CountsIterator extends DiskIterator implements NodeAggregateIterator, CountIterator {
-
-    PostingList postings;
-    VByteInput documents_reader;
-    VByteInput counts_reader;
-    long iteratedDocs;
-    long currDocument;
-    int currCount;
-    boolean done;
-    Map<String, Object> modifiers;
-
-    private CountsIterator(PostingList postings) throws IOException {
-      this.postings = postings;
-      reset();
-    }
-
-    @Override
-    public void reset() throws IOException {
-      documents_reader = new VByteInput(
-              new DataInputStream(
-              new ByteArrayInputStream(postings.documents_cbb.getBytes())));
-      counts_reader = new VByteInput(
-              new DataInputStream(
-              new ByteArrayInputStream(postings.counts_cbb.getBytes())));
-
-      iteratedDocs = 0;
-      currDocument = 0;
-      currCount = 0;
-
-      read();
-    }
-
-    @Override
-    public int count() {
-      if (context.document == this.currDocument) {
-        return currCount;
-      }
-      return 0;
-    }
-
-    @Override
-    public boolean isDone() {
-      return done;
-    }
-
-    @Override
-    public long currentCandidate() {
-      return currDocument;
-    }
-
-    @Override
-    public boolean hasMatch(long identifier) {
-      return (!isDone() && identifier == currDocument);
-    }
-
-    @Override
-    public boolean hasAllCandidates() {
-      return false;
-    }
-
-    private void read() throws IOException {
-      if (iteratedDocs >= postings.termDocumentCount) {
-        done = true;
-        return;
-      } else if (iteratedDocs == postings.termDocumentCount - 1) {
-        currDocument = postings.lastDocument;
-        currCount = postings.lastCount;
-      } else {
-        currDocument += documents_reader.readLong();
-        currCount = counts_reader.readInt();
-      }
-
-      iteratedDocs++;
-    }
-
-    @Override
-    public void syncTo(long identifier) throws IOException {
-      // TODO: need to implement skip lists
-
-      while (!isDone() && (currDocument < identifier)) {
-        read();
-      }
-    }
-
-    @Override
-    public void movePast(long identifier) throws IOException {
-      while (!isDone() && (currDocument <= identifier)) {
-        read();
-      }
-    }
-
-    @Override
-    public String getValueString() throws IOException {
-      StringBuilder builder = new StringBuilder();
-
-      builder.append(Utility.toString(postings.key));
-      builder.append(",");
-      builder.append(currDocument);
-      builder.append(",");
-      builder.append(currCount);
-
-      return builder.toString();
-    }
-
-    @Override
-    public long totalEntries() {
-      return postings.termDocumentCount;
-    }
-
-    @Override
-    public NodeStatistics getStatistics() {
-      NodeStatistics stats = new NodeStatistics();
-      stats.node = Utility.toString(postings.key);
-      stats.nodeFrequency = postings.termPostingsCount;
-      stats.nodeDocumentCount = postings.termDocumentCount;
-      stats.maximumCount = postings.maximumPostingsCount;
-      return stats;
-    }
-
-    @Override
-    public int compareTo(BaseIterator other) {
-      if (isDone() && !other.isDone()) {
-        return 1;
-      }
-      if (other.isDone() && !isDone()) {
-        return -1;
-      }
-      if (isDone() && other.isDone()) {
-        return 0;
-      }
-      return Utility.compare(currentCandidate(), other.currentCandidate());
-    }
-
-    @Override
-    public String getKeyString() throws IOException {
-      return Utility.toString(postings.key);
-    }
-
-    @Override
-    public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
-      String type = "counts";
-      String className = this.getClass().getSimpleName();
-      String parameters = this.getKeyString();
-      long document = currentCandidate();
-      boolean atCandidate = hasMatch(c.document);
-      String returnValue = Integer.toString(count());
-      List<AnnotatedNode> children = Collections.EMPTY_LIST;
-
-      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
 }

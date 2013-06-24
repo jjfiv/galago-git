@@ -22,7 +22,7 @@ import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.LengthsReader;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
+import org.lemurproject.galago.core.index.NamesReverseReader;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
@@ -30,6 +30,7 @@ import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -52,6 +53,7 @@ public class DiskIndex implements Index {
   protected Parameters manifest = new Parameters();
   protected LengthsReader lengthsReader = null;
   protected NamesReader namesReader = null;
+  protected NamesReverseReader namesReverseReader = null;
   protected Map<String, IndexPartReader> parts = new HashMap<String, IndexPartReader>();
   protected HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
   protected HashSet<String> knownIndexOperators = new HashSet<String>();
@@ -65,24 +67,8 @@ public class DiskIndex implements Index {
       IndexComponentReader component = openIndexComponent(part.getAbsolutePath());
       initializeComponent(part.getName(), component);
     }
-    // Initialize these now b/c they're so common
-    if (parts.containsKey("lengths")) {
-      lengthsReader = (DiskLengthsReader) parts.get("lengths");
-    } else {
-      logger.warning("Index does not contain a lengths part.");
-    }
-    if (parts.containsKey("names")) {
-      namesReader = (DiskNameReader) parts.get("names");
-    } else {
-      logger.warning("Index does not contain a names part.");
-    }
-
-    if (parts.size() < 3) {
-      logger.warning("Index contains fewer than 3 parts:- this index might not be compatible with this version.");
-    }
 
     initializeIndexOperators();
-
   }
 
   public DiskIndex(String indexPath) throws IOException {
@@ -95,21 +81,6 @@ public class DiskIndex implements Index {
     // Load all parts
     openDiskParts("", location);
 
-    // Initialize these now b/c they're so common
-    if (parts.containsKey("lengths")) {
-      lengthsReader = (DiskLengthsReader) parts.get("lengths");
-    } else {
-      logger.warning("Index does not contain a lengths part.");
-    }
-    if (parts.containsKey("names")) {
-      namesReader = (DiskNameReader) parts.get("names");
-    } else {
-      logger.warning("Index does not contain a names part.");
-    }
-
-    if (parts.size() < 3) {
-      logger.warning("Index contains fewer than 3 parts:- this index might not be compatible with this version.");
-    }
 
     initializeIndexOperators();
   }
@@ -205,9 +176,8 @@ public class DiskIndex implements Index {
 
   @Override
   public boolean containsDocumentIdentifier(long document) throws IOException {
-    NamesReader.NamesIterator ni = this.getNamesIterator();
-    ni.syncTo(document);
-    return ni.hasMatch(document);
+    String name = this.namesReader.getDocumentName(document);
+    return (name != null);
   }
 
   protected void initializeIndexOperators() {
@@ -247,6 +217,29 @@ public class DiskIndex implements Index {
         this.defaultIndexOperators.put("extents", "postings");
       }
     }
+
+    // Initialize these now b/c they're so common
+    if (parts.containsKey("lengths")) {
+      lengthsReader = (DiskLengthsReader) parts.get("lengths");
+    } else {
+      logger.warning("Index does not contain a lengths part.");
+    }
+    if (parts.containsKey("names")) {
+      namesReader = (DiskNameReader) parts.get("names");
+    } else {
+      logger.warning("Index does not contain a names part.");
+    }
+
+    if (parts.containsKey("names.reverse")) {
+      namesReverseReader = (DiskNameReverseReader) parts.get("names.reverse");
+    } else {
+      logger.warning("Index does not contain a names.reverse part.");
+    }
+    if (parts.size() < 3) {
+      logger.warning("Index contains fewer than 3 parts:- this index might not be compatible with this version.");
+    }
+
+
   }
 
   @Override
@@ -329,7 +322,7 @@ public class DiskIndex implements Index {
 
   @Override
   public long getIdentifier(String document) throws IOException {
-    return ((NamesReader) parts.get("names.reverse")).getDocumentIdentifier(document);
+    return this.namesReverseReader.getDocumentIdentifier(document);
   }
 
   @Override
@@ -366,7 +359,7 @@ public class DiskIndex implements Index {
   }
 
   @Override
-  public NamesReader.NamesIterator getNamesIterator() throws IOException {
+  public DataIterator<String> getNamesIterator() throws IOException {
     return namesReader.getNamesIterator();
   }
 

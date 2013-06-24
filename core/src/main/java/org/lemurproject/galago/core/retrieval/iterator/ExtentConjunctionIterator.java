@@ -49,7 +49,7 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
   }
 
   @Override
-  public ExtentArray getData() {
+  public ExtentArray data() {
     return extents();
   }
 

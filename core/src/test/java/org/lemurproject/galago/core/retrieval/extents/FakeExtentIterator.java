@@ -57,7 +57,7 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
   }
 
   @Override
-  public ExtentArray getData() {
+  public ExtentArray data() {
     return extents();
   }
 

@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -21,23 +22,24 @@ import org.lemurproject.galago.tupleflow.Parameters;
 public interface Index {
 
   public interface IndexComponentReader {
+
     public Parameters getManifest();
+
     public void close() throws IOException;
   }
-  
+
   public String getDefaultPart();
 
   public String getIndexPartName(Node node) throws IOException;
 
   public IndexPartReader getIndexPart(String part) throws IOException;
-  
+
   public boolean containsDocumentIdentifier(long document) throws IOException;
 
   public boolean containsPart(String partName);
 
   // This isn't necessary at the moment
   //public boolean hasChanged() throws IOException;
-
   public BaseIterator getIterator(Node node) throws IOException;
 
   public NodeType getNodeType(Node node) throws Exception;
@@ -54,11 +56,11 @@ public interface Index {
 
   public Document getDocument(String document, DocumentComponents p) throws IOException;
 
-  public Map<String,Document> getDocuments(List<String> document, DocumentComponents p) throws IOException;
-  
+  public Map<String, Document> getDocuments(List<String> document, DocumentComponents p) throws IOException;
+
   public LengthsIterator getLengthsIterator() throws IOException;
 
-  public NamesReader.NamesIterator getNamesIterator() throws IOException;
+  public DataIterator<String> getNamesIterator() throws IOException;
 
   public Parameters getManifest();
 

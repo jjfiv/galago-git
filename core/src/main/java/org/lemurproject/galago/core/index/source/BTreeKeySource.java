@@ -13,6 +13,8 @@ import org.lemurproject.galago.tupleflow.Utility;
  * methods for subclasses.
  *
  * @author jfoley
+ * @see DocumentNamesSource
+ * @see DocumentCorpusSource
  * @see DocumentIndicatorSource
  * @see DocumentPriorSource
  */
@@ -48,11 +50,8 @@ public abstract class BTreeKeySource implements DiskSource {
 
   @Override
   public long currentCandidate() {
-    //TODO, for now this needs to be toInt
-    // Change syncTo as well
-    return Utility.toInt(btreeIter.getKey());
+    return Utility.toLong(btreeIter.getKey());
   }
-
 
   @Override
   public void movePast(long id) throws IOException {
@@ -61,9 +60,7 @@ public abstract class BTreeKeySource implements DiskSource {
 
   @Override
   public void syncTo(long id) throws IOException {
-    //TODO for now this has to be fromInt
-    // change currentCandidate as well
-    btreeIter.skipTo(Utility.fromInt((int) id));
+    btreeIter.skipTo(Utility.fromLong(id));
   }
 
   @Override

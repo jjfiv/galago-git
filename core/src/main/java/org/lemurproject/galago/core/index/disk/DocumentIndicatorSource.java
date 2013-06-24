@@ -59,14 +59,4 @@ public class DocumentIndicatorSource extends BTreeKeySource implements BooleanSo
     }
     return false;
   }
-
-  @Override
-  public long currentCandidate() {
-    return Utility.toLong(btreeIter.getKey());
-  }
-
-  @Override
-  public void syncTo(long id) throws IOException {
-    btreeIter.skipTo(Utility.fromLong(id));
-  }
 }

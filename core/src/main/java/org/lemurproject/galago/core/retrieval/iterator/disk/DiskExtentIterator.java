@@ -65,7 +65,7 @@ public class DiskExtentIterator extends SourceIterator implements NodeAggregateI
   }
 
   @Override
-  public ExtentArray getData() {
+  public ExtentArray data() {
     return extents();
   }
 }

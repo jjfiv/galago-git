@@ -5,8 +5,9 @@ import java.io.IOException;
 
 /**
  *
- * @author jfoley
+ * @author jfoley, sjh
  */
 public interface DataSource<T> extends DiskSource {
-  T getData(long id) throws IOException;
+
+  T data(long id);
 }

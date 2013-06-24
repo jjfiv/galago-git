@@ -85,7 +85,7 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
   }
 
   @Override
-  public ExtentArray getData() {
+  public ExtentArray data() {
     return extents();
   }
 

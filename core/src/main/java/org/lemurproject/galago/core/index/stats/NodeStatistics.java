@@ -20,6 +20,7 @@ public class NodeStatistics implements AggregateStatistic {
   public void add(NodeStatistics other) {
     nodeFrequency += other.nodeFrequency;
     nodeDocumentCount += other.nodeDocumentCount;
+    maximumCount = (maximumCount < other.maximumCount) ? other.maximumCount : maximumCount;
   }
 
   public Parameters toParameters() {
@@ -33,5 +34,15 @@ public class NodeStatistics implements AggregateStatistic {
 
   public String toString() {
     return toParameters().toString();
+  }
+
+  @Override
+  public NodeStatistics clone() {
+    NodeStatistics ns = new NodeStatistics();
+    ns.node = this.node;
+    ns.nodeFrequency = this.nodeFrequency;
+    ns.nodeDocumentCount = this.nodeDocumentCount;
+    ns.maximumCount = this.maximumCount;
+    return ns;
   }
 }

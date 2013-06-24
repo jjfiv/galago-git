@@ -2,31 +2,51 @@
 package org.lemurproject.galago.core.retrieval.iterator.disk;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import org.lemurproject.galago.core.index.source.DataSource;
+import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
  *
  * @author jfoley
  */
-public abstract class DiskDataIterator<DataType> extends SourceIterator {
+public class DiskDataIterator<DataType> extends SourceIterator implements DataIterator<DataType> {
+
   DataSource<DataType> dataSource;
-  
-  DiskDataIterator(DataSource<DataType> src) {
+
+  public DiskDataIterator(DataSource<DataType> src) {
     super(src);
     this.dataSource = src;
   }
-  
+
   @Override
   public String getValueString() throws IOException {
-    DataType dt = getData();
-    if(dt == null) {
+    DataType dt = data();
+    if (dt == null) {
       return "null-value";
     }
     return dt.toString();
   }
-  
-  public DataType getData() throws IOException {
-    return dataSource.getData(context.document);
+
+  @Override
+  public DataType data() {
+    return dataSource.data(context.document);
   }
 
+  @Override
+  public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
+    String type = "data";
+    String className = this.getClass().getSimpleName();
+    String parameters = "";
+    long document = currentCandidate();
+    boolean atCandidate = hasMatch(c.document);
+    String returnValue = getValueString();
+    String extraInfo = data().toString();
+    List<AnnotatedNode> children = Collections.EMPTY_LIST;
+
+    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, extraInfo, children);
+  }
 }

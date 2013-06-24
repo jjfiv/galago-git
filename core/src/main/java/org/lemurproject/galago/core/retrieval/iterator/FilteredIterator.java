@@ -75,7 +75,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
   }
 
   @Override
-  public ExtentArray getData() {
+  public ExtentArray data() {
     return extents();
   }
 

@@ -18,6 +18,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskDataIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -54,7 +55,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   @Override
   public void addIteratorData(byte[] key, BaseIterator iterator) throws IOException {
     while (!iterator.isDone()) {
-      Document doc = ((DataIterator<Document>) iterator).getData();
+      Document doc = ((DataIterator<Document>) iterator).data();
       // if the document already exists - no harm done.
       addDocument(doc);
       iterator.movePast(iterator.currentCandidate());
@@ -128,14 +129,14 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("corpus", new NodeType(DiskIterator.class));
+    types.put("corpus", new NodeType(DiskDataIterator.class));
     return types;
   }
 
   @Override
-  public DiskIterator getIterator(Node node) throws IOException {
+  public DiskDataIterator<Document> getIterator(Node node) throws IOException {
     if (node.getOperator().equals("corpus")) {
-      return new MemCorpusIterator(getIterator());
+      return new DiskDataIterator(new MemoryCorpusSource(corpusData));
     } else {
       throw new UnsupportedOperationException(
               "Index doesn't support operator: " + node.getOperator());
@@ -226,71 +227,13 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
     // unsupported functions:
     @Override
-    public DiskIterator getValueIterator() throws IOException {
-      return new MemCorpusIterator(this);
+    public DiskDataIterator getValueIterator() throws IOException {
+      return new DiskDataIterator(new MemoryCorpusSource(corpusData));
     }
 
     @Override
     public byte[] getValueBytes() throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
-    }
-  }
-
-  public class MemCorpusIterator extends KeyToListIterator implements DataIterator<Document> {
-
-    DocumentComponents docParams;
-
-    public MemCorpusIterator(KeyIterator ki) {
-      super(ki);
-      docParams = new DocumentComponents();
-    }
-
-    @Override
-    public String getValueString() throws IOException {
-      return ((KeyIterator) iterator).getValueString();
-    }
-
-    @Override
-    public long totalEntries() {
-      return docCount;
-    }
-
-    @Override
-    public Document getData() {
-      if (context.document != this.currentCandidate()) {
-        try {
-          return ((MemDocumentIterator) iterator).getDocument(docParams);
-        } catch (IOException ioe) {
-          throw new RuntimeException(ioe);
-        }
-      } else {
-        return null;
-      }
-    }
-
-    @Override
-    public boolean hasAllCandidates() {
-      return true;
-    }
-
-    @Override
-    public String getKeyString() {
-      return "corpus";
-    }
-
-    @Override
-    public AnnotatedNode getAnnotatedNode(ScoringContext c) {
-      String type = "corpus";
-      String className = this.getClass().getSimpleName();
-      String parameters = "";
-      long document = currentCandidate();
-      boolean atCandidate = hasMatch(c.document);
-      Document d = getData();
-      String returnValue = (d != null) ? d.name : "";
-      String extraInfo = getData().toString();
-      List<AnnotatedNode> children = Collections.EMPTY_LIST;
-
-      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, extraInfo, children);
     }
   }
 }

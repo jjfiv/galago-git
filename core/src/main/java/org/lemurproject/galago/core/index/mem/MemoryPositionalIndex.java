@@ -1,22 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
-import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
@@ -24,16 +18,16 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.SourceIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.Utility.ByteArrComparator;
-import org.lemurproject.galago.tupleflow.VByteInput;
 
 
 /*
@@ -135,7 +129,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
   }
 
   @Override
-  public DiskIterator getIterator(Node node) throws IOException {
+  public SourceIterator getIterator(Node node) throws IOException {
     String term = stemAsRequired(node.getDefaultParameter());
     byte[] byteWord = Utility.fromString(term);
     if (node.getOperator().equals("counts")) {
@@ -146,22 +140,22 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
   }
 
   @Override
-  public DiskIterator getIterator(byte[] key) throws IOException {
+  public DiskExtentIterator getIterator(byte[] key) throws IOException {
     return getTermExtents(key);
   }
 
-  private CountsIterator getTermCounts(byte[] term) throws IOException {
+  private DiskCountIterator getTermCounts(byte[] term) throws IOException {
     PositionalPostingList postingList = postings.get(term);
     if (postingList != null) {
-      return new CountsIterator(postingList);
+      return new DiskCountIterator(new MemoryPositionalIndexCountSource(postingList));
     }
     return null;
   }
 
-  private ExtentsIterator getTermExtents(byte[] term) throws IOException {
+  private DiskExtentIterator getTermExtents(byte[] term) throws IOException {
     PositionalPostingList postingList = postings.get(term);
     if (postingList != null) {
-      return new ExtentsIterator(postingList);
+      return new DiskExtentIterator(new MemoryPositionalIndexExtentSource(postingList));
     }
     return null;
   }
@@ -175,8 +169,8 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("counts", new NodeType(CountsIterator.class));
-    types.put("extents", new NodeType(ExtentsIterator.class));
+    types.put("counts", new NodeType(DiskCountIterator.class));
+    types.put("extents", new NodeType(DiskExtentIterator.class));
     return types;
   }
 
@@ -212,11 +206,11 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     PositionIndexWriter writer = new PositionIndexWriter(new FakeParameters(p));
 
     KIterator kiterator = new KIterator();
-    ExtentsIterator viterator;
+    DiskExtentIterator viterator;
     ExtentArray extents;
     ScoringContext sc = new ScoringContext();
     while (!kiterator.isDone()) {
-      viterator = (ExtentsIterator) kiterator.getValueIterator();
+      viterator = (DiskExtentIterator) kiterator.getValueIterator();
       viterator.setContext(sc);
       writer.processWord(kiterator.getKey());
 
@@ -303,6 +297,39 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
       // keep track of the document with the highest frequency of 'term'
       maximumPostingsCount = Math.max(maximumPostingsCount, lastCount);
     }
+
+    public byte[] key() {
+      return key;
+    }
+
+    public byte[] getDocumentDataBytes() {
+      return documents_cbb.getBytes();
+    }
+
+    public byte[] getCountDataBytes() {
+      return counts_cbb.getBytes();
+    }
+
+    public byte[] getPositionDataBytes() {
+      return positions_cbb.getBytes();
+    }
+
+    public long lastDocument() {
+      return lastDocument;
+    }
+
+    public int lastCount() {
+      return lastCount;
+    }
+
+    public NodeStatistics stats() {
+      NodeStatistics stats = new NodeStatistics();
+      stats.node = Utility.toString(key);
+      stats.nodeFrequency = termPostingsCount;
+      stats.nodeDocumentCount = termDocumentCount;
+      stats.maximumCount = maximumPostingsCount;
+      return stats;
+    }
   }
   // iterator allows for query processing and for streaming posting list data
   // public class Iterator extends ExtentIterator implements IndexIterator {
@@ -360,8 +387,8 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     @Override
     public String getValueString() throws IOException {
       long count = -1;
-      ExtentsIterator it = new ExtentsIterator(postings.get(currKey));
-      count = it.count();
+      DiskExtentIterator it = getValueIterator();
+      count = it.totalEntries();
       StringBuilder sb = new StringBuilder();
       sb.append(Utility.toString(getKey())).append(",");
       sb.append("list of size: ");
@@ -393,346 +420,12 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     }
 
     @Override
-    public DiskIterator getValueIterator() throws IOException {
+    public DiskExtentIterator getValueIterator() throws IOException {
       if (currKey != null) {
-        return new ExtentsIterator(postings.get(currKey));
+        return new DiskExtentIterator(new MemoryPositionalIndexExtentSource(postings.get(currKey)));
       } else {
         return null;
       }
-    }
-  }
-
-  public class ExtentsIterator extends DiskIterator implements
-          NodeAggregateIterator, CountIterator, ExtentIterator {
-
-    PositionalPostingList postings;
-    VByteInput documents_reader;
-    VByteInput counts_reader;
-    VByteInput positions_reader;
-    long iteratedDocs;
-    long currDocument;
-    int currCount;
-    ExtentArray extents;
-    ExtentArray emptyExtents;
-    boolean done;
-
-    private ExtentsIterator(PositionalPostingList postings) throws IOException {
-      this.postings = postings;
-      reset();
-    }
-
-    @Override
-    public void reset() throws IOException {
-      documents_reader = new VByteInput(
-              new DataInputStream(
-              new ByteArrayInputStream(postings.documents_cbb.getBytes())));
-      counts_reader = new VByteInput(
-              new DataInputStream(
-              new ByteArrayInputStream(postings.counts_cbb.getBytes())));
-      positions_reader = new VByteInput(
-              new DataInputStream(
-              new ByteArrayInputStream(postings.positions_cbb.getBytes())));
-
-      iteratedDocs = 0;
-      currDocument = 0;
-      currCount = 0;
-      extents = new ExtentArray();
-      emptyExtents = new ExtentArray();
-
-      read();
-    }
-
-    @Override
-    public int count() {
-      if (this.context.document == this.currDocument) {
-        return currCount;
-      }
-      return 0;
-    }
-
-    @Override
-    public ExtentArray extents() {
-      if (this.context.document == this.currDocument) {
-        return extents;
-      }
-      return this.emptyExtents;
-    }
-
-    @Override
-    public ExtentArray getData() {
-      return extents();
-    }
-
-    @Override
-    public boolean isDone() {
-      return done;
-    }
-
-    @Override
-    public long currentCandidate() {
-      return currDocument;
-    }
-
-    @Override
-    public boolean hasMatch(long identifier) {
-      return (!isDone() && identifier == currDocument);
-    }
-
-    public void loadExtents() throws IOException {
-      extents.reset();
-      extents.setDocument(currDocument);
-      int position = 0;
-      for (int i = 0; i < currCount; i++) {
-        position += positions_reader.readInt();
-        extents.add(position);
-      }
-    }
-
-    public void read() throws IOException {
-      if (iteratedDocs >= postings.termDocumentCount) {
-        done = true;
-        return;
-      } else if (iteratedDocs == postings.termDocumentCount - 1) {
-        currDocument = postings.lastDocument;
-        currCount = postings.lastCount;
-      } else {
-        currDocument += documents_reader.readLong();
-        currCount = counts_reader.readInt();
-      }
-      loadExtents();
-
-      iteratedDocs++;
-    }
-
-    @Override
-    public void syncTo(long identifier) throws IOException {
-      // TODO implement skip lists
-
-      while (!isDone() && (currDocument < identifier)) {
-        read();
-      }
-    }
-
-    @Override
-    public void movePast(long identifier) throws IOException {
-      syncTo(identifier + 1);
-    }
-
-    @Override
-    public String getValueString() throws IOException {
-      StringBuilder builder = new StringBuilder();
-
-      builder.append(Utility.toString(postings.key));
-      builder.append(",");
-      builder.append(currDocument);
-      for (int i = 0; i < extents.size(); ++i) {
-        builder.append(",");
-        builder.append(extents.begin(i));
-      }
-
-      return builder.toString();
-    }
-
-    @Override
-    public long totalEntries() {
-      return postings.termDocumentCount;
-    }
-
-    @Override
-    public NodeStatistics getStatistics() {
-      NodeStatistics stats = new NodeStatistics();
-      stats.node = Utility.toString(postings.key);
-      stats.nodeFrequency = postings.termPostingsCount;
-      stats.nodeDocumentCount = postings.termDocumentCount;
-      stats.maximumCount = postings.maximumPostingsCount;
-      return stats;
-    }
-
-    @Override
-    public int compareTo(BaseIterator other) {
-      if (isDone() && !other.isDone()) {
-        return 1;
-      }
-      if (other.isDone() && !isDone()) {
-        return -1;
-      }
-      if (isDone() && other.isDone()) {
-        return 0;
-      }
-      return Utility.compare(currentCandidate(), other.currentCandidate());
-    }
-
-    @Override
-    public boolean hasAllCandidates() {
-      return false;
-    }
-
-    @Override
-    public String getKeyString() throws IOException {
-      return Utility.toString(postings.key);
-    }
-
-    @Override
-    public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
-      String type = "extents";
-      String className = this.getClass().getSimpleName();
-      String parameters = this.getKeyString();
-      long document = currentCandidate();
-      boolean atCandidate = hasMatch(c.document);
-      String returnValue = extents().toString();
-      List<AnnotatedNode> children = Collections.EMPTY_LIST;
-
-      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
-    }
-  }
-
-  public class CountsIterator extends DiskIterator implements
-          NodeAggregateIterator, CountIterator {
-
-    PositionalPostingList postings;
-    VByteInput documents_reader;
-    VByteInput counts_reader;
-    long iteratedDocs;
-    long currDocument;
-    int currCount;
-    boolean done;
-
-    private CountsIterator(PositionalPostingList postings) throws IOException {
-      this.postings = postings;
-      reset();
-    }
-
-    @Override
-    public void reset() throws IOException {
-      documents_reader = new VByteInput(
-              new DataInputStream(
-              new ByteArrayInputStream(postings.documents_cbb.getBytes())));
-      counts_reader = new VByteInput(
-              new DataInputStream(
-              new ByteArrayInputStream(postings.counts_cbb.getBytes())));
-
-      iteratedDocs = 0;
-      currDocument = 0;
-      currCount = 0;
-
-      read();
-    }
-
-    @Override
-    public int count() {
-      if (this.context.document == this.currDocument) {
-        return currCount;
-      }
-      return 0;
-    }
-
-    @Override
-    public boolean isDone() {
-      return done;
-    }
-
-    @Override
-    public long currentCandidate() {
-      return currDocument;
-    }
-
-    @Override
-    public boolean hasMatch(long identifier) {
-      return (!isDone() && identifier == currDocument);
-    }
-
-    @Override
-    public boolean hasAllCandidates() {
-      return false;
-    }
-
-    public void read() throws IOException {
-      if (iteratedDocs >= postings.termDocumentCount) {
-        done = true;
-        return;
-      } else if (iteratedDocs == postings.termDocumentCount - 1) {
-        currDocument = postings.lastDocument;
-        currCount = postings.lastCount;
-      } else {
-        currDocument += documents_reader.readLong();
-        currCount = counts_reader.readInt();
-      }
-
-      iteratedDocs++;
-    }
-
-    @Override
-    public void syncTo(long identifier) throws IOException {
-      // TODO implement skip lists
-
-      while (!isDone() && (currDocument < identifier)) {
-        read();
-      }
-    }
-
-    @Override
-    public void movePast(long identifier) throws IOException {
-      syncTo(identifier + 1);
-    }
-
-    @Override
-    public String getValueString() throws IOException {
-      StringBuilder builder = new StringBuilder();
-
-      builder.append(Utility.toString(postings.key));
-      builder.append(",");
-      builder.append(currDocument);
-      builder.append(",");
-      builder.append(currCount);
-
-      return builder.toString();
-    }
-
-    @Override
-    public long totalEntries() {
-      return postings.termDocumentCount;
-    }
-
-    @Override
-    public NodeStatistics getStatistics() {
-      NodeStatistics stats = new NodeStatistics();
-      stats.node = Utility.toString(postings.key);
-      stats.nodeFrequency = postings.termPostingsCount;
-      stats.nodeDocumentCount = postings.termDocumentCount;
-      stats.maximumCount = postings.maximumPostingsCount;
-      return stats;
-    }
-
-    @Override
-    public int compareTo(BaseIterator other) {
-      if (isDone() && !other.isDone()) {
-        return 1;
-      }
-      if (other.isDone() && !isDone()) {
-        return -1;
-      }
-      if (isDone() && other.isDone()) {
-        return 0;
-      }
-      return Utility.compare(currentCandidate(), other.currentCandidate());
-    }
-
-    @Override
-    public String getKeyString() throws IOException {
-      return Utility.toString(postings.key);
-    }
-
-    @Override
-    public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
-      String type = "counts";
-      String className = this.getClass().getSimpleName();
-      String parameters = this.getKeyString();
-      long document = currentCandidate();
-      boolean atCandidate = hasMatch(c.document);
-      String returnValue = Integer.toString(count());
-      List<AnnotatedNode> children = Collections.EMPTY_LIST;
-
-      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
 }

@@ -46,7 +46,7 @@ public class DiskLengthsIterator extends SourceIterator
 
   @Override
   public int length() {
-    return (int) lengthSrc.length(context.document);
+    return lengthSrc.length(context.document);
   }
 
   @Override

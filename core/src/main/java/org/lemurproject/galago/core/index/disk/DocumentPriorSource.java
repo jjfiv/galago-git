@@ -19,7 +19,7 @@ public class DocumentPriorSource extends BTreeKeySource implements ScoreSource {
   final double maxScore;
   final double minScore;
   final double def;
-  
+
   public DocumentPriorSource(BTreeReader rdr, double def) throws IOException {
     super(rdr);
     final Parameters manifest = btreeReader.getManifest();
@@ -67,15 +67,5 @@ public class DocumentPriorSource extends BTreeKeySource implements ScoreSource {
   @Override
   public double minScore() {
     return minScore;
-  }
-
-  @Override
-  public long currentCandidate() {
-    return Utility.toLong(btreeIter.getKey());
-  }
-
-  @Override
-  public void syncTo(long id) throws IOException {
-    btreeIter.skipTo(Utility.fromLong(id));
   }
 }

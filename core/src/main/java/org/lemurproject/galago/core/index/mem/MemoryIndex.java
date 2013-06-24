@@ -11,8 +11,8 @@ import java.util.Map.Entry;
 import org.lemurproject.galago.core.index.DynamicIndex;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.IndexPartReader;
+import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.NamesReader;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
@@ -20,6 +20,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -43,6 +44,8 @@ public class MemoryIndex implements DynamicIndex, Index {
   protected int documentNumberOffset, documentCount;
   protected Parameters manifest;
   protected HashMap<String, MemoryIndexPart> parts;
+  protected LengthsReader lengthsReader = null;
+  protected NamesReader namesReader = null;
   // haven't got any of these at the moment
   // Map<String, HashMap<String, StructuredIndexPartModifier>> modifiers;
   HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
@@ -82,6 +85,10 @@ public class MemoryIndex implements DynamicIndex, Index {
       stemParams.set("stemmer", manifest.get("stemmer", Porter2Stemmer.class.getName()));
       parts.put("postings.porter", new MemoryPositionalIndex(stemParams));
     }
+
+    // get a pointer to some special parts:
+    lengthsReader = (LengthsReader) parts.get("lengths");
+    namesReader = (NamesReader) parts.get("names");
 
     initializeIndexOperators();
     dirty = false;
@@ -248,24 +255,23 @@ public class MemoryIndex implements DynamicIndex, Index {
 
   @Override
   public boolean containsDocumentIdentifier(long document) throws IOException {
-    NamesReader.NamesIterator ni = this.getNamesIterator();
-    ni.syncTo(document);
-    return ni.getCurrentIdentifier() == document;
+    String n = this.namesReader.getDocumentName(document);
+    return (n != null);
   }
 
   @Override
   public int getLength(long document) throws IOException {
-    return ((MemoryDocumentLengths) parts.get("lengths")).getLength(document);
+    return lengthsReader.getLength(document);
   }
 
   @Override
   public String getName(long document) throws IOException {
-    return ((MemoryDocumentNames) parts.get("names")).getDocumentName(document);
+    return namesReader.getDocumentName(document);
   }
 
   @Override
   public long getIdentifier(String document) throws IOException {
-    return ((MemoryDocumentNames) parts.get("names")).getDocumentIdentifier(document);
+    throw new UnsupportedOperationException("Memory index does not currently support getIdentifier function.");
   }
 
   @Override
@@ -299,8 +305,8 @@ public class MemoryIndex implements DynamicIndex, Index {
   }
 
   @Override
-  public NamesReader.NamesIterator getNamesIterator() throws IOException {
-    return ((MemoryDocumentNames) parts.get("names")).getNamesIterator();
+  public DataIterator<String> getNamesIterator() throws IOException {
+    return namesReader.getNamesIterator();
   }
 
   @Override

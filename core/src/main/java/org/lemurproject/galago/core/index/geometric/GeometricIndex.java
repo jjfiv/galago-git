@@ -28,6 +28,7 @@ import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.InputClass;
@@ -264,10 +265,10 @@ public class GeometricIndex implements DynamicIndex, Index {
 
   @Override
   public String getName(long document) throws IOException {
-    NamesReader.NamesIterator i = this.getNamesIterator();
+    DataIterator<String> i = this.getNamesIterator();
     i.syncTo(document);
     if (i.hasMatch(document)) {
-      return i.getCurrentName();
+      return i.data();
     } else {
       throw new IOException("Could not find document identifier " + document);
     }
@@ -299,17 +300,13 @@ public class GeometricIndex implements DynamicIndex, Index {
   }
 
   @Override
-  public NamesReader.NamesIterator getNamesIterator() throws IOException {
-    List<NamesReader.NamesIterator> itrs = new ArrayList();
+  public DataIterator<String> getNamesIterator() throws IOException {
+    List<DataIterator<String>> itrs = new ArrayList();
     itrs.add(currentMemoryIndex.getNamesIterator());
     for (DiskIndex di : this.geometricParts.getIndexes()) {
       itrs.add(di.getNamesIterator());
     }
     return new DisjointNamesIterator(itrs);
-  }
-
-  public void modify(DiskIterator iter, Node node) throws IOException {
-    throw new UnsupportedOperationException("Not supported yet.");
   }
 
   // private and internal functions

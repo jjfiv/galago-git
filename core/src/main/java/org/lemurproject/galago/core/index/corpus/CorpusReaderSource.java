@@ -2,6 +2,8 @@
 package org.lemurproject.galago.core.index.corpus;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.source.BTreeKeySource;
 import org.lemurproject.galago.core.index.source.DataSource;
@@ -19,7 +21,6 @@ import org.lemurproject.galago.tupleflow.Utility;
 public class CorpusReaderSource extends BTreeKeySource implements DataSource<Document> {
 
   DocumentComponents docParams;
-  boolean psuedoDocs;
   TagTokenizer tokenizer;
 
   public CorpusReaderSource(BTreeReader rdr) throws IOException {
@@ -27,7 +28,6 @@ public class CorpusReaderSource extends BTreeKeySource implements DataSource<Doc
     docParams = new DocumentComponents();
     final Parameters manifest = btreeReader.getManifest();
 
-    psuedoDocs = manifest.get("psuedo", false);
     if (manifest.containsKey("tokenizer") && manifest.isMap("tokenizer")) {
       tokenizer = new TagTokenizer(new FakeParameters(manifest.getMap("tokenizer")));
     } else {
@@ -51,24 +51,18 @@ public class CorpusReaderSource extends BTreeKeySource implements DataSource<Doc
   }
 
   @Override
-  public Document getData(long id) throws IOException {
+  public Document data(long id) {
     if (currentCandidate() == id) {
-      Document doc = Document.deserialize(btreeIter.getValueBytes(), docParams);
-      if (docParams.tokenize) {
-        tokenizer.tokenize(doc);
+      try {
+        Document doc = Document.deserialize(btreeIter.getValueBytes(), docParams);
+        if (docParams.tokenize) {
+          tokenizer.tokenize(doc);
+        }
+        return doc;
+      } catch (IOException ex) {
+        Logger.getLogger(CorpusReaderSource.class.getName()).log(Level.SEVERE, "Failed to deserialize document " + id, ex);
       }
-      return doc;
     }
     return null;
-  }
-
-  @Override
-  public long currentCandidate() {
-    return Utility.toLong(btreeIter.getKey());
-  }
-
-  @Override
-  public void syncTo(long id) throws IOException {
-    btreeIter.skipTo(Utility.fromLong(id));
   }
 }

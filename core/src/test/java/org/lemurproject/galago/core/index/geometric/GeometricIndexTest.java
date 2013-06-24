@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
@@ -17,6 +16,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -66,31 +66,31 @@ public class GeometricIndexTest extends TestCase {
       assertEquals(cs.documentCount, 255);
       assertEquals(cs.maxLength, 5);
       assertEquals(cs.minLength, 5);
-      
+
       IndexPartStatistics stats = ret.getIndexPartStatistics("postings");
       assertEquals(stats.collectionLength, 1275);
       // these three are estimated as the max the set of shards
-      assertEquals(stats.vocabCount, 154); 
+      assertEquals(stats.vocabCount, 154);
       assertEquals(stats.highestFrequency, 150);
       assertEquals(stats.highestDocumentCount, 150);
 
       stats = ret.getIndexPartStatistics("postings.porter");
       assertEquals(stats.collectionLength, 1275);
       // these three are estimated as the max of the set of shards
-      assertEquals(stats.vocabCount, 154); 
+      assertEquals(stats.vocabCount, 154);
       assertEquals(stats.highestFrequency, 150);
       assertEquals(stats.highestDocumentCount, 150);
-      
+
       ScoringContext sc = new ScoringContext();
-      
-      NamesReader.NamesIterator names = index.getNamesIterator();
+
+      DataIterator<String> names = index.getNamesIterator();
       names.setContext(sc);
       names.syncTo(99);
       sc.document = 99;
-      assertEquals(names.getCurrentName(), "DOC-" + 99);
+      assertEquals(names.data(), "DOC-" + 99);
       names.movePast(99);
-      sc.document = names.getCurrentIdentifier();
-      assertEquals(names.getCurrentName(), "DOC-" + 100);
+      sc.document = names.currentCandidate();
+      assertEquals(names.data(), "DOC-" + 100);
 
       LengthsIterator lengths = index.getLengthsIterator();
       lengths.setContext(sc);

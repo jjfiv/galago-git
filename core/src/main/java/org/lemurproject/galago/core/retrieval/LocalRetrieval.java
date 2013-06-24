@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.Index;
-import org.lemurproject.galago.core.index.NamesReader.NamesIterator;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.stats.AggregateStatistic;
 import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
@@ -23,6 +22,7 @@ import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
@@ -202,7 +202,7 @@ public class LocalRetrieval implements Retrieval {
       }
     });
 
-    NamesIterator namesIterator = index.getNamesIterator();
+    DataIterator<String> namesIterator = index.getNamesIterator();
     ScoringContext sc = new ScoringContext();
     namesIterator.setContext(sc);
 
@@ -210,8 +210,8 @@ public class LocalRetrieval implements Retrieval {
       namesIterator.syncTo(doc.document);
       sc.document = doc.document;
 
-      if (doc.document == namesIterator.getCurrentIdentifier()) {
-        doc.documentName = namesIterator.getCurrentName();
+      if (doc.document == namesIterator.currentCandidate()) {
+        doc.documentName = namesIterator.data();
 
       } else {
         System.err.println("NAMES ITERATOR FAILED TO FIND DOCUMENT " + doc.document);

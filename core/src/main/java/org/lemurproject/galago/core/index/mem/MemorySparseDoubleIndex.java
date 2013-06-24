@@ -1,13 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import org.lemurproject.galago.core.index.KeyIterator;
@@ -17,15 +13,14 @@ import org.lemurproject.galago.core.index.disk.SparseFloatListWriter;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.*;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.Utility.ByteArrComparator;
-import org.lemurproject.galago.tupleflow.VByteInput;
 
 
 /*
@@ -59,7 +54,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
   @Override
   public void addDocument(Document doc) throws IOException {
     // do nothing
-    // - we have no way of extracting scores from documents at the moment
+    // - we have no methods of extracting scores from documents at the moment
   }
 
   @Override
@@ -74,7 +69,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
 
       // note that dirichet should not have a static default score
       //  -> this cache should not be used for dirichlet scores
-      double defaultScore = mi.score();
+      double defaultScore = Utility.tinyLogProbScore;
       PostingList postingList = new PostingList(key, defaultScore);
 
       while (!mi.isDone()) {
@@ -107,7 +102,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
   }
 
   @Override
-  public DiskIterator getIterator(Node node) throws IOException {
+  public DiskScoreIterator getIterator(Node node) throws IOException {
     String stringKey = stemAsRequired(node.getDefaultParameter());
     byte[] key = Utility.fromString(stringKey);
     if (node.getOperator().equals("scores")) {
@@ -117,14 +112,14 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
   }
 
   @Override
-  public DiskIterator getIterator(byte[] key) throws IOException {
+  public DiskScoreIterator getIterator(byte[] key) throws IOException {
     return getNodeScores(key);
   }
 
-  protected ScoresIterator getNodeScores(byte[] key) throws IOException {
+  protected DiskScoreIterator getNodeScores(byte[] key) throws IOException {
     PostingList postingList = postings.get(key);
     if (postingList != null) {
-      return new ScoresIterator(postingList);
+      return new DiskScoreIterator(new MemorySparseDoubleIndexScoreSource(postingList));
     }
     return null;
   }
@@ -138,7 +133,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("scores", new NodeType(ScoresIterator.class));
+    types.put("scores", new NodeType(DiskScoreIterator.class));
     return types;
   }
 
@@ -179,10 +174,10 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     SparseFloatListWriter writer = new SparseFloatListWriter(new FakeParameters(p));
 
     KIterator kiterator = new KIterator();
-    ScoresIterator viterator;
+    ScoreIterator viterator;
     ScoringContext sc = new ScoringContext();
     while (!kiterator.isDone()) {
-      viterator = (ScoresIterator) kiterator.getValueIterator();
+      viterator = (ScoreIterator) kiterator.getValueIterator();
       writer.processWord(kiterator.getKey());
       viterator.setContext(sc);
       while (!viterator.isDone()) {
@@ -233,6 +228,38 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
       scores_cbb.addDouble(score);
 
       termPostingsCount += 1;
+    }
+
+    public byte[] key() {
+      return key;
+    }
+
+    public byte[] getDocumentDataBytes() {
+      return documents_cbb.getBytes();
+    }
+
+    public byte[] getScoreDataBytes() {
+      return scores_cbb.getBytes();
+    }
+
+    public long lastDocument() {
+      return lastDocument;
+    }
+
+    public long postingCount() {
+      return termPostingsCount;
+    }
+
+    public double defaultScore() {
+      return defaultScore;
+    }
+
+    public double minScore() {
+      return minScore;
+    }
+
+    public double maxScore() {
+      return maxScore;
     }
   }
   // iterator allows for query processing and for streaming posting list data
@@ -291,10 +318,10 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     @Override
     public String getValueString() throws IOException {
       long count = -1;
-      ScoresIterator it = new ScoresIterator(postings.get(currKey));
+      DiskScoreIterator it = getValueIterator();
       StringBuilder sb = new StringBuilder();
       sb.append(Utility.toString(getKey())).append(",");
-      sb.append("score:").append(it.score());
+      sb.append("entries:").append(it.totalEntries());
       return sb.toString();
     }
 
@@ -318,164 +345,12 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     }
 
     @Override
-    public DiskIterator getValueIterator() throws IOException {
+    public DiskScoreIterator getValueIterator() throws IOException {
       if (currKey != null) {
-        return new ScoresIterator(postings.get(currKey));
+        return new DiskScoreIterator(new MemorySparseDoubleIndexScoreSource(postings.get(currKey)));
       } else {
         return null;
       }
-    }
-  }
-
-  public class ScoresIterator extends DiskIterator implements
-          ScoreIterator {
-
-    PostingList postings;
-    VByteInput documents_reader;
-    VByteInput scores_reader;
-    long iteratedDocs;
-    long currDocument;
-    double currScore;
-    boolean done;
-    Map<String, Object> modifiers;
-
-    private ScoresIterator(PostingList postings) throws IOException {
-      this.postings = postings;
-      reset();
-    }
-
-    @Override
-    public void reset() throws IOException {
-      documents_reader = new VByteInput(
-              new DataInputStream(
-              new ByteArrayInputStream(postings.documents_cbb.getBytes())));
-      scores_reader = new VByteInput(
-              new DataInputStream(
-              new ByteArrayInputStream(postings.scores_cbb.getBytes())));
-
-      iteratedDocs = 0;
-      currDocument = 0;
-      currScore = 0;
-
-      read();
-    }
-
-    @Override
-    public double score() {
-      if (context.document == currDocument) {
-        return currScore;
-      } else {
-        return postings.defaultScore;
-      }
-    }
-
-    @Override
-    public double maximumScore() {
-      return postings.maxScore;
-    }
-
-    @Override
-    public double minimumScore() {
-      return postings.minScore;
-    }
-
-    @Override
-    public boolean isDone() {
-      return done;
-    }
-
-    @Override
-    public long currentCandidate() {
-      return currDocument;
-    }
-
-    @Override
-    public boolean hasMatch(long identifier) {
-      return (!isDone() && identifier == currDocument);
-    }
-
-    @Override
-    public boolean hasAllCandidates() {
-      return false;
-    }
-
-    private void read() throws IOException {
-      if (iteratedDocs >= postings.termPostingsCount) {
-        done = true;
-        return;
-      } else {
-        currDocument += documents_reader.readLong();
-        currScore = scores_reader.readDouble();
-      }
-
-      iteratedDocs++;
-    }
-
-    @Override
-    public void syncTo(long identifier) throws IOException {
-      // TODO: need to implement skip lists
-
-      while (!isDone() && (currDocument < identifier)) {
-        read();
-      }
-    }
-
-    @Override
-    public void movePast(long identifier) throws IOException {
-
-      while (!isDone() && (currDocument <= identifier)) {
-        read();
-      }
-    }
-
-    @Override
-    public String getValueString() throws IOException {
-      StringBuilder builder = new StringBuilder();
-
-      builder.append(Utility.toString(postings.key));
-      builder.append(",");
-      builder.append(currDocument);
-      builder.append(",");
-      builder.append(currScore);
-
-      return builder.toString();
-    }
-
-    @Override
-    public long totalEntries() {
-      return postings.termPostingsCount;
-    }
-
-    @Override
-    public int compareTo(BaseIterator other) {
-      if (isDone() && !other.isDone()) {
-        return 1;
-      }
-      if (other.isDone() && !isDone()) {
-        return -1;
-      }
-      if (isDone() && other.isDone()) {
-        return 0;
-      }
-      return Utility.compare(currentCandidate(), other.currentCandidate());
-    }
-
-    @Override
-    public String getKeyString() throws IOException {
-      return Utility.toString(postings.key);
-    }
-
-    @Override
-    public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
-      String type = "scores";
-      String className = this.getClass().getSimpleName();
-      String parameters = this.getKeyString();
-      long document = currentCandidate();
-      boolean atCandidate = hasMatch(c.document);
-      String returnValue = Double.toString(score());
-      List<AnnotatedNode> children = Collections.EMPTY_LIST;
-
-      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
   }
 }

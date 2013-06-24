@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
@@ -16,27 +16,18 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
  *
  * @author sjh
  */
-public class DisjointNamesIterator extends DisjointIndexesIterator implements NamesReader.NamesIterator {
+public class DisjointNamesIterator extends DisjointIndexesIterator implements DataIterator<String> {
 
-  public DisjointNamesIterator(Collection<NamesReader.NamesIterator> iterators) {
+  public DisjointNamesIterator(Collection<DataIterator<String>> iterators) {
     super((Collection) iterators);
   }
 
   @Override
-  public String getCurrentName() throws IOException {
+  public String data() {
     if (head != null) {
-      return ((NamesReader.NamesIterator) this.head).getCurrentName();
+      return ((DataIterator<String>) this.head).data();
     } else {
-      throw new IOException("Names Iterator is done.");
-    }
-  }
-
-  @Override
-  public long getCurrentIdentifier() throws IOException {
-    if (head != null) {
-      return ((NamesReader.NamesIterator) this.head).getCurrentIdentifier();
-    } else {
-      throw new IOException("Names Iterator is done.");
+      throw new RuntimeException("Names Iterator is done.");
     }
   }
 
@@ -47,7 +38,7 @@ public class DisjointNamesIterator extends DisjointIndexesIterator implements Na
     String parameters = this.getKeyString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = getCurrentName();
+    String returnValue = data();
     List<AnnotatedNode> children = new ArrayList();
     for (BaseIterator child : this.allIterators) {
       children.add(child.getAnnotatedNode(c));
