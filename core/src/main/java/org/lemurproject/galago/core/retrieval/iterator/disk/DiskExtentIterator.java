@@ -30,7 +30,7 @@ public class DiskExtentIterator extends SourceIterator implements NodeAggregateI
     builder.append(getKeyString());
     builder.append(",");
     builder.append(currentCandidate());
-    ExtentArray e = extents();
+    ExtentArray e = extents(context);
     for (int i = 0; i < e.size(); ++i) {
       builder.append(",");
       builder.append(e.begin(i));
@@ -45,7 +45,7 @@ public class DiskExtentIterator extends SourceIterator implements NodeAggregateI
     String parameters = this.getKeyString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = extents().toString();
+    String returnValue = extents(c).toString();
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, Collections.EMPTY_LIST);
   }
 
@@ -60,12 +60,12 @@ public class DiskExtentIterator extends SourceIterator implements NodeAggregateI
   }
 
   @Override
-  public ExtentArray extents() {
-    return extentSrc.extents(context.document);
+  public ExtentArray extents(ScoringContext c) {
+    return extentSrc.extents(c.document);
   }
 
   @Override
   public ExtentArray data() {
-    return extents();
+    return extents(context);
   }
 }

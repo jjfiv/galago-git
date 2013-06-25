@@ -113,8 +113,8 @@ public class CachedRetrievalTest extends TestCase {
         assertEquals(diskExtentIterator.currentCandidate(), cachedExtentIterator.currentCandidate());
         sc.document = cachedExtentIterator.currentCandidate();
         assertEquals(diskExtentIterator.count(sc), cachedExtentIterator.count(sc));
-        ExtentArray de = diskExtentIterator.extents();
-        ExtentArray ce = cachedExtentIterator.extents();
+        ExtentArray de = diskExtentIterator.extents(sc);
+        ExtentArray ce = cachedExtentIterator.extents(sc);
         assertEquals(de.begin(0), ce.begin(0));
         assertEquals(de.end(0), ce.end(0));
 

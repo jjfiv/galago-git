@@ -187,8 +187,8 @@ public class BuildWindowIndexTest extends TestCase {
           assertEquals(count, posits_NSE_ei.count(sc));
           assertEquals(count, posits__SE_ei.count(sc));
 
-          ExtentArray extents_NSE = posits_NSE_ei.extents();
-          ExtentArray extents__SE = posits__SE_ei.extents();
+          ExtentArray extents_NSE = posits_NSE_ei.extents(sc);
+          ExtentArray extents__SE = posits__SE_ei.extents(sc);
           for (int p = 0; p < Math.max(extents_NSE.size(), extents__SE.size()); p++) {
             assertEquals(extents_NSE.begin(p), extents__SE.begin(p));
             assertEquals(extents_NSE.end(p), extents__SE.end(p));
@@ -378,8 +378,8 @@ public class BuildWindowIndexTest extends TestCase {
           assertEquals(count, posits_NSE_ei.count(sc));
           assertEquals(count, posits__SE_ei.count(sc));
 
-          ExtentArray extents_NSE = posits_NSE_ei.extents();
-          ExtentArray extents__SE = posits__SE_ei.extents();
+          ExtentArray extents_NSE = posits_NSE_ei.extents(sc);
+          ExtentArray extents__SE = posits__SE_ei.extents(sc);
           for (int p = 0; p < Math.max(extents_NSE.size(), extents__SE.size()); p++) {
             assertEquals(extents_NSE.begin(p), extents__SE.begin(p));
             assertEquals(extents_NSE.end(p), extents__SE.end(p));

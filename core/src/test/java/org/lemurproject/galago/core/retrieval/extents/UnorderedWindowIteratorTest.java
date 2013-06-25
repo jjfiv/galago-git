@@ -36,7 +36,7 @@ public class UnorderedWindowIteratorTest extends TestCase {
 
     context.document = instance.currentCandidate();
 
-    ExtentArray array = instance.extents();
+    ExtentArray array = instance.extents(context);
     assertFalse(instance.isDone());
 
     assertEquals(1, array.size());
@@ -68,7 +68,7 @@ public class UnorderedWindowIteratorTest extends TestCase {
 
     context.document = instance.currentCandidate();
 
-    ExtentArray array = instance.extents();
+    ExtentArray array = instance.extents(context);
     assertFalse(instance.isDone());
 
     assertEquals(array.size(), 1);
@@ -101,7 +101,7 @@ public class UnorderedWindowIteratorTest extends TestCase {
 
     context.document = instance.currentCandidate();
 
-    ExtentArray array = instance.extents();
+    ExtentArray array = instance.extents(context);
     assertEquals(0, array.size());
     assertTrue(!instance.isDone());
 
@@ -130,7 +130,7 @@ public class UnorderedWindowIteratorTest extends TestCase {
 
     context.document = instance.currentCandidate();
 
-    ExtentArray array = instance.extents();
+    ExtentArray array = instance.extents(context);
     assertFalse(instance.isDone());
 
     assertEquals(array.size(), 1);
@@ -159,7 +159,7 @@ public class UnorderedWindowIteratorTest extends TestCase {
     assertFalse(instance.isDone());
     assertTrue(instance.hasMatch(5));
 
-    array = instance.extents();
+    array = instance.extents(context);
     assertEquals(array.size(), 1);
     assertEquals(array.getDocument(), 5);
     assertEquals(array.begin(0), 9);

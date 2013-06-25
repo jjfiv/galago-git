@@ -9,8 +9,8 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
 
 /**
- * Wraps an extent iterator to act as a lengths iterator
- *  ** overlapping extents are NOT detected NOR avoided **
+ * Wraps an extent iterator to act as a lengths iterator ** overlapping extents
+ * are NOT detected NOR avoided **
  *
  * @author sjh
  */
@@ -40,7 +40,7 @@ public class ExtentToLengthIterator extends TransformIterator implements Lengths
 
   @Override
   public int length() {
-    ExtentArray ar = extItr.extents();
+    ExtentArray ar = extItr.extents(context);
     int len = 0;
     // IGNORING OVERLAPPING EXTENTS //
     for (int i = 0; i < ar.size(); i++) {

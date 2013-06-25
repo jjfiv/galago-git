@@ -58,12 +58,12 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
 
   @Override
   public ExtentArray data() {
-    return extents();
+    return extents(context);
   }
 
   @Override
-  public ExtentArray extents() {
-    if (context.document == currentCandidate()) {
+  public ExtentArray extents(ScoringContext c) {
+    if (c.document == currentCandidate()) {
       ExtentArray array = new ExtentArray();
       int[] datum = data[index];
       array.setDocument(datum[0]);
@@ -144,7 +144,7 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
     String parameters = "";
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = extents().toString();
+    String returnValue = extents(c).toString();
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

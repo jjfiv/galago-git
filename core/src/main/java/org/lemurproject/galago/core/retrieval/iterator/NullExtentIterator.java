@@ -36,7 +36,7 @@ public class NullExtentIterator extends DiskIterator implements ExtentIterator, 
   }
 
   @Override
-  public ExtentArray extents() {
+  public ExtentArray extents(ScoringContext c) {
     return array;
   }
 

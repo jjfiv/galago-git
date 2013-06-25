@@ -2,6 +2,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
@@ -52,12 +53,14 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
    * exist.
    */
   @Override
-  public void loadExtents() {
+  public void loadExtents(ScoringContext c) {
     // get the document
-    long document = context.document;
+    long document = c.document;
 
     // check if we're already there
-    if (context.cachable && this.extentCache.getDocument() == document) {
+    // TODO: use a ScoringContext.equals(c) function, and store the context used for the cached 
+    //       (need to make sure any changes are noted)
+    if (c.cachable && this.extentCache.getDocument() == document) {
       return;
     }
 
@@ -77,8 +80,8 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
       return;
     }
 
-    ExtentArrayIterator inner = new ExtentArrayIterator(innerIterator.extents());
-    ExtentArrayIterator outer = new ExtentArrayIterator(outerIterator.extents());
+    ExtentArrayIterator inner = new ExtentArrayIterator(innerIterator.extents(c));
+    ExtentArrayIterator outer = new ExtentArrayIterator(outerIterator.extents(c));
 
     while (!inner.isDone() && !outer.isDone()) {
       if (outer.currentlyContains(inner)) {

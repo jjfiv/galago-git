@@ -105,7 +105,7 @@ public class PositionIndexReaderTest extends TestCase {
       assertFalse(termExtents.isDone());
       sc.document = termExtents.currentCandidate();
 
-      ExtentArray e = termExtents.extents();
+      ExtentArray e = termExtents.extents(sc);
       ExtentArrayIterator iter = new ExtentArrayIterator(e);
       totalPositions += (doc.length - 1); // first entry in doc array is docid
       for (int i = 1; i < doc.length; i++) {
@@ -198,7 +198,7 @@ public class PositionIndexReaderTest extends TestCase {
     assertEquals(2545, termExtents.currentCandidate());
     sc.document = termExtents.currentCandidate();
     assertEquals(51, termExtents.count(sc));
-    ExtentArray ea = termExtents.extents();
+    ExtentArray ea = termExtents.extents(sc);
     assertEquals(2545, ea.getDocument());
     assertEquals(51, ea.size());
     for (int i = 0; i < ea.size(); i++) {

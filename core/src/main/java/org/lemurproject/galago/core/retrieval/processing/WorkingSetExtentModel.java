@@ -69,10 +69,10 @@ public class WorkingSetExtentModel extends ProcessingModel {
     int extentSetSize = (int) queryParams.get("extentCount", 1);
     int extentShift = (int) queryParams.get("extentShift", 1);
 
-    if(extentSetSize <= 0 || extentShift <= 0){
+    if (extentSetSize <= 0 || extentShift <= 0) {
       throw new IllegalArgumentException("extentCount/extentShift must be specified as positive integers.");
     }
-    
+
     // scoring iterator
     ScoreIterator iterator =
             (ScoreIterator) retrieval.createIterator(queryParams,
@@ -101,7 +101,7 @@ public class WorkingSetExtentModel extends ProcessingModel {
 
       extentIterator.syncTo(document);
 
-      ExtentArray extents = extentIterator.extents();
+      ExtentArray extents = extentIterator.extents(context);
       if (extents.size() == 0) {
         // nothing to score, skip to next document
         continue;

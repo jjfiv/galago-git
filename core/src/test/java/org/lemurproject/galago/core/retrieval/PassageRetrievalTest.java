@@ -54,10 +54,10 @@ public class PassageRetrievalTest extends TestCase {
     p.set("requested", 10);
     ScoredPassage[] result = (ScoredPassage[]) retrieval.runQuery(root, p);
     
-//    for(ScoredPassage sp : result){
-//      System.err.println(sp.toString());
-//    }
-    assertEquals(5, result.length);
+    for(ScoredPassage sp : result){
+      System.err.println(sp.toString());
+    }
+    assertEquals(7, result.length);
 
     // First entry
     assertEquals("9", result[0].documentName);
@@ -88,5 +88,8 @@ public class PassageRetrievalTest extends TestCase {
     assertEquals(0, result[4].begin);
     assertEquals(4, result[4].end);
     assertEquals(result[4].score, -2.63707542, 0.00001);
+    
+    // final 2 entries are background scores (no extents to score)
+    
   }
 }

@@ -55,7 +55,7 @@ public class SynonymIteratorTest extends TestCase {
 
     context.document = instance.currentCandidate();
 
-    ExtentArray array = instance.extents();
+    ExtentArray array = instance.extents(context);
 
     assertFalse(instance.isDone());
     assertEquals(1, array.size());
@@ -66,7 +66,7 @@ public class SynonymIteratorTest extends TestCase {
     instance.movePast(instance.currentCandidate());
     context.document = instance.currentCandidate();
 
-    array = instance.extents();
+    array = instance.extents(context);
     assertFalse(instance.isDone());
     assertEquals(1, array.size());
     assertEquals(2, array.getDocument());
@@ -76,7 +76,7 @@ public class SynonymIteratorTest extends TestCase {
     instance.movePast(instance.currentCandidate());
     context.document = instance.currentCandidate();
 
-    array = instance.extents();
+    array = instance.extents(context);
     assertTrue(instance.isDone());
   }
 
@@ -96,7 +96,7 @@ public class SynonymIteratorTest extends TestCase {
 
     context.document = instance.currentCandidate();
     
-    ExtentArray array = instance.extents();
+    ExtentArray array = instance.extents(context);
 
     assertFalse(instance.isDone());
     assertEquals(array.size(), 2);

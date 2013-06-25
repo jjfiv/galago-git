@@ -2,8 +2,8 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.PriorityQueue;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
@@ -20,9 +20,9 @@ public class SynonymIterator extends ExtentDisjunctionIterator {
     syncTo(0);
   }
 
-  public void loadExtents() {
+  public void loadExtents(ScoringContext c) {
     // get the document
-    long document = context.document;
+    long document = c.document;
 
     // check if we're already there
     if (context.cachable && this.extentCache.getDocument() == document) {
@@ -43,7 +43,7 @@ public class SynonymIterator extends ExtentDisjunctionIterator {
     PriorityQueue<ExtentArrayIterator> arrayIterators = new PriorityQueue<ExtentArrayIterator>();
     for (ExtentIterator iterator : this.extentIterators) {
       if (!iterator.isDone() && iterator.hasMatch(document)) {
-        arrayIterators.offer(new ExtentArrayIterator(iterator.extents()));
+        arrayIterators.offer(new ExtentArrayIterator(iterator.extents(c)));
       }
     }
 

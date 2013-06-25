@@ -88,7 +88,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     while (!mi.isDone()) {
       long document = mi.currentCandidate();
       sc.document = document;
-      ExtentArrayIterator ei = new ExtentArrayIterator(mi.extents());
+      ExtentArrayIterator ei = new ExtentArrayIterator(mi.extents(sc));
       while (!ei.isDone()) {
         postingList.add(document, ei.currentBegin());
         ei.next();
@@ -217,7 +217,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
       while (!viterator.isDone()) {
         sc.document = viterator.currentCandidate();
         writer.processDocument(viterator.currentCandidate());
-        extents = viterator.extents();
+        extents = viterator.extents(sc);
         for (int i = 0; i < extents.size(); i++) {
           writer.processPosition(extents.begin(i));
           writer.processTuple();

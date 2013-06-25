@@ -88,7 +88,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     while (!mi.isDone()) {
       long document = mi.currentCandidate();
       sc.document = document;
-      ExtentArrayIterator ei = new ExtentArrayIterator(mi.extents());
+      ExtentArrayIterator ei = new ExtentArrayIterator(mi.extents(sc));
       while (!ei.isDone()) {
         postingList.add(document, ei.currentBegin(), ei.currentEnd());
         ei.next();
@@ -207,7 +207,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
       while (!viterator.isDone()) {
         sc.document = viterator.currentCandidate();
         writer.processNumber(viterator.currentCandidate());
-        extents = viterator.extents();
+        extents = viterator.extents(sc);
         for (int i = 0; i < extents.size(); i++) {
           writer.processBegin(extents.begin(i));
           writer.processTuple(extents.end(i));

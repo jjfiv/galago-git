@@ -30,11 +30,6 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
     docid = -1;
   }
 
-  @Override
-  public boolean hasMatch(long document) {
-    return super.hasMatch(document) && (extents().size() > 0);
-  }
-
   /**
    * Filters out extents that are not in the range of the current passage
    * window.
@@ -42,21 +37,23 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
    * @return
    */
   @Override
-  public ExtentArray extents() {
+  public ExtentArray extents(ScoringContext c) {
+    // TODO : fix this to use c
     if (passageContext == null) {
-      return extentIterator.extents();
+      return extentIterator.extents(c);
     }
 
     if (docid != passageContext.document || begin != passageContext.begin
             || end != passageContext.end) {
-      loadExtents();
+      loadExtents(c);
     }
     return cached;
   }
 
-  private void loadExtents() {
+  // TODO: fix this to actually use the context input
+  private void loadExtents(ScoringContext c) {
     cached.reset();
-    ExtentArray internal = extentIterator.extents();
+    ExtentArray internal = extentIterator.extents(c);
 
     if (passageContext != null) {
       for (int i = 0; i < internal.size(); i++) {
@@ -86,12 +83,12 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
 
   @Override
   public ExtentArray data() {
-    return extents();
+    return extents(context);
   }
 
   @Override
   public int count(ScoringContext c) {
-    return extents().size();
+    return extents(c).size();
   }
 
   @Override
@@ -101,7 +98,7 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
     String parameters = "";
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = extents().toString();
+    String returnValue = extents(c).toString();
     List<AnnotatedNode> children = Collections.singletonList(extentIterator.getAnnotatedNode(c));
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

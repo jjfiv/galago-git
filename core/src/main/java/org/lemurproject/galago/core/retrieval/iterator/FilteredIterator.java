@@ -66,9 +66,9 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
   }
 
   @Override
-  public ExtentArray extents() {
-    if (indication(this.context)) {
-      return extents.extents();
+  public ExtentArray extents(ScoringContext c) {
+    if (indication(c)) {
+      return extents.extents(c);
     } else {
       return emptyExtentArray;
     }
@@ -76,7 +76,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
 
   @Override
   public ExtentArray data() {
-    return extents();
+    return extents(context);
   }
 
   @Override
@@ -137,7 +137,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
       returnValue = Double.toString(score());
     } else if (this.counter != null) {
       type = "extents";
-      returnValue = extents().toString();
+      returnValue = extents(c).toString();
     }
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }

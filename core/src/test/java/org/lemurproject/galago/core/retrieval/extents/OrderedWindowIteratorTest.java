@@ -41,7 +41,7 @@ public class OrderedWindowIteratorTest extends TestCase {
     instance.setContext(context);
 
     context.document = instance.currentCandidate();
-    ExtentArray array = instance.extents();
+    ExtentArray array = instance.extents(context);
 
     assertEquals(array.size(), 1);
     assertEquals(array.getDocument(), 1);
@@ -67,7 +67,7 @@ public class OrderedWindowIteratorTest extends TestCase {
     instance.setContext(context);
 
     context.document = instance.currentCandidate();    
-    ExtentArray array = instance.extents();
+    ExtentArray array = instance.extents(context);
     assertEquals(0, array.size());
   }
 }

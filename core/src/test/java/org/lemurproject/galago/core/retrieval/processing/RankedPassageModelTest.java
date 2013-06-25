@@ -137,8 +137,8 @@ public class RankedPassageModelTest extends TestCase {
     // --- all documents contain these terms in the first ten words --
     // -> this query should only ever return the first passage (0-10)
     // -> and all scores should be equal
-    assertEquals(10, results.length);
-    for (int i = 0; i < results.length; i++) {
+     assertEquals(31, results.length);
+    for (int i = 0; i < 10; i++) {
       assertEquals(results[i].document, i + 2);
       assertEquals(results[i].begin, 0);
       assertEquals(results[i].end, 10);
@@ -153,8 +153,8 @@ public class RankedPassageModelTest extends TestCase {
             Arrays.asList(new Long[]{0l, 1l, 2l, 3l, 4l, 89l, 90l, 91l, 92l, 93l}));
     results = (ScoredPassage[]) model.execute(query, queryParams);
 
-    assertEquals(results.length, 20);
-
+    assertEquals(results.length, 100);
+    
     // higher documents, with the term '89', 
     // are ranked highest because 'test' and 'text' exist in every document (~= stopwords)
 
@@ -181,6 +181,8 @@ public class RankedPassageModelTest extends TestCase {
     assertEquals(results[15].end, 10);
     assertEquals(results[15].rank, 16);
     assertEquals(results[15].score, -4.51151864, 0.000001);
+    
+    // 
 
   }
 

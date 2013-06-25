@@ -4,6 +4,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
@@ -21,11 +22,13 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
   }
 
   @Override
-  public void loadExtents() {
+  public void loadExtents(ScoringContext c) {
     // get the document
-    long document = context.document;
+    long document = c.document;
 
     // check if we're already there
+    // TODO: use a ScoringContext.equals(c) function, and store the context used for the cached 
+    //       (need to make sure any changes are noted)
     if (context.cachable && this.extentCache.getDocument() == document) {
       return;
     }
@@ -49,7 +52,7 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
         return;
       }
 
-      arrayIterators[i] = new ExtentArrayIterator(((ExtentIterator) iterators[i]).extents());
+      arrayIterators[i] = new ExtentArrayIterator(((ExtentIterator) iterators[i]).extents(c));
       if (arrayIterators[i].isDone()) {
         // if this document does not have any extentCache we can not load any extentCache
         return;

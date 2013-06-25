@@ -30,8 +30,8 @@ public class DisjointExtentsIterator extends DisjointIndexesIterator implements 
   }
 
   @Override
-  public ExtentArray extents() {
-    return ((ExtentIterator) head).extents();
+  public ExtentArray extents(ScoringContext c) {
+    return ((ExtentIterator) head).extents(c);
   }
 
   @Override
@@ -46,7 +46,7 @@ public class DisjointExtentsIterator extends DisjointIndexesIterator implements 
     String parameters = this.getKeyString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = extents().toString();
+    String returnValue = extents(c).toString();
     List<AnnotatedNode> children = new ArrayList();
     for (BaseIterator child : this.allIterators) {
       children.add(child.getAnnotatedNode(c));

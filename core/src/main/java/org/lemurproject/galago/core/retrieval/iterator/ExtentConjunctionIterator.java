@@ -27,14 +27,9 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
   }
 
   @Override
-  public boolean hasMatch(long identifier) {
-    return super.hasMatch(identifier) && extents().size() > 0;
-  }
-
-  @Override
   public String getValueString() throws IOException {
     ArrayList<String> strs = new ArrayList<String>();
-    ExtentArrayIterator eai = new ExtentArrayIterator(extents());
+    ExtentArrayIterator eai = new ExtentArrayIterator(extents(context));
     while (!eai.isDone()) {
       strs.add(String.format("[%d, %d]", eai.currentBegin(), eai.currentEnd()));
       eai.next();
@@ -43,34 +38,34 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
   }
 
   @Override
-  public ExtentArray extents() {
-    this.loadExtents();
+  public ExtentArray extents(ScoringContext c) {
+    this.loadExtents(c);
     return extentCache;
   }
 
   @Override
   public ExtentArray data() {
-    return extents();
+    return extents(context);
   }
 
   @Override
   public int count(ScoringContext c) {
-    return extents().size();
+    return extents(c).size();
   }
 
-  public abstract void loadExtents();
+  public abstract void loadExtents(ScoringContext c);
 
   @Override
   public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     // ensure extentCache are loaded
-    this.loadExtents();
+    this.loadExtents(c);
 
     String type = "extent";
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = extents().toString();
+    String returnValue = extents(c).toString();
     List<AnnotatedNode> children = new ArrayList();
     for (BaseIterator child : this.iterators) {
       children.add(child.getAnnotatedNode(c));
