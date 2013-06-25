@@ -43,7 +43,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
   @Override
   public ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception {
     ScoringContext context = new ScoringContext();
-    
+
     int requested = (int) queryParams.get("requested", 1000);
     // default threshol is 1.0 (equivalent to a disjunction (OR))
     double factor = retrieval.getGlobalParameters().get("thresholdFactor", 1.0);
@@ -56,7 +56,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     }
 
     // step two: create an iterator for each node
-    List<DeltaScoringIterator> scoringIterators = createScoringIterators(scoringNodes, context, retrieval);
+    List<DeltaScoringIterator> scoringIterators = createScoringIterators(scoringNodes, retrieval);
 
     FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
@@ -254,13 +254,13 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     }
   }
 
-  private List<DeltaScoringIterator> createScoringIterators(List<Node> scoringNodes, ScoringContext c, LocalRetrieval ret) throws Exception {
+  private List<DeltaScoringIterator> createScoringIterators(List<Node> scoringNodes, LocalRetrieval ret) throws Exception {
     List<DeltaScoringIterator> scoringIterators = new ArrayList();
 
     // the cache allows low level iterators to be shared
     Map<String, BaseIterator> queryIteratorCache = new HashMap();
     for (int i = 0; i < scoringNodes.size(); i++) {
-      DeltaScoringIterator scorer = (DeltaScoringIterator) ret.createNodeMergedIterator(scoringNodes.get(i), c, queryIteratorCache);
+      DeltaScoringIterator scorer = (DeltaScoringIterator) ret.createNodeMergedIterator(scoringNodes.get(i), queryIteratorCache);
       scoringIterators.add(scorer);
     }
 

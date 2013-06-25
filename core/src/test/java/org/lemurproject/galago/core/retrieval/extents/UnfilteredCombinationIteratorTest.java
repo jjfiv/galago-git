@@ -64,9 +64,7 @@ public class UnfilteredCombinationIteratorTest extends TestCase {
             iterators);
 
     ScoringContext context = new ScoringContext();
-    one.setContext(context);
-    two.setContext(context);
-    instance.setContext(context);
+
     int[] lengths = new int[12];
     Arrays.fill(lengths, 100);
     for (int i = 0; i < 12; i++) {

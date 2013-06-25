@@ -37,23 +37,7 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
  * @author jfoley
  */
 public interface BaseIterator extends Comparable<BaseIterator> {
-  /**
-   * Set the ScoringContext; recursively.
-   *  - this allows a single setContext 
-   *    to be called at the root of the tree.
-   * 
-   * TODO: move to either constructor or all tree calls.
-   * @param context 
-   */
-  public void setContext(ScoringContext context);
-  
-  /**
-   * Get the ScoringContext
-   * @param context 
-   */
-  public ScoringContext getContext();
 
-  
   /**
    * returns the iterator to the first candidate
    */

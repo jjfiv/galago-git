@@ -80,7 +80,6 @@ public class SparseFloatListReaderTest extends TestCase {
     int[] lengths = new int[aDocs.length];
     Arrays.fill(lengths, 100);
     FakeLengthIterator fli = new FakeLengthIterator(aDocs, lengths);
-    iter.setContext(context);
     for (i = 0; !iter.isDone(); i++) {
       assertEquals(aDocs[i], iter.currentCandidate());
       context.document = aDocs[i];
@@ -104,7 +103,6 @@ public class SparseFloatListReaderTest extends TestCase {
     int[] lengths = new int[bDocs.length];
     Arrays.fill(lengths, 100);
     FakeLengthIterator fli = new FakeLengthIterator(bDocs, lengths);
-    iter.setContext(ctx);
     for (i = 0; !iter.isDone(); i++) {
       assertEquals(bDocs[i], iter.currentCandidate());
       ctx.document = bDocs[i];
@@ -131,8 +129,6 @@ public class SparseFloatListReaderTest extends TestCase {
     int[] lengths = new int[aDocs.length];
     Arrays.fill(lengths, 100);
     FakeLengthIterator fli = new FakeLengthIterator(aDocs, lengths);
-    fli.setContext(context);
-    lIter.setContext(context);
     for (int i = 0; !lIter.isDone(); i++) {
       assertEquals(lIter.currentCandidate(), aDocs[i]);
       context.document = aDocs[i];
@@ -152,8 +148,6 @@ public class SparseFloatListReaderTest extends TestCase {
     lengths = new int[bDocs.length];
     Arrays.fill(lengths, 100);
     fli = new FakeLengthIterator(bDocs, lengths);
-    fli.setContext(context);
-    lIter.setContext(context);
     for (int i = 0; !lIter.isDone(); i++) {
       assertEquals(lIter.currentCandidate(), bDocs[i]);
       context.document = lIter.currentCandidate();

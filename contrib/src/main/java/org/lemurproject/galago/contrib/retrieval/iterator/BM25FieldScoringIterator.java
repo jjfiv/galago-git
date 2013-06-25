@@ -21,9 +21,9 @@ import org.lemurproject.galago.core.scoring.BM25FieldScorer;
  */
 @RequiredStatistics(statistics = {"nodeDocumentCount", "collectionLength", "documentCount", "maximumCount"})
 @RequiredParameters(parameters = {"b"})
-public class BM25FieldScoringIterator extends ScoringFunctionIterator
-//        implements DeltaScoringIterator {
+public class BM25FieldScoringIterator extends ScoringFunctionIterator //        implements DeltaScoringIterator {
 {
+
   String partName;
   public ScoreCombinationIterator parent;
   public int parentIdx;
@@ -48,7 +48,6 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
 //  public double getWeight() {
 //    return weight;
 //  }
-
   @Override
   public double score(ScoringContext c) {
     int count = (countIterator).count(c);
@@ -106,25 +105,10 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
 //      ctx.startingPotentials[i] += this.K;
 //    }
 //  }
-
   @Override
   public double minimumScore() {
     return 0;
   }
-
-  @Override
-  public void setContext(ScoringContext ctx) {
-    super.setContext(ctx);
-//    if (EarlyTerminationScoringContext.class.isAssignableFrom(ctx.getClass())) {
-//      EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
-//      if (dctx.members.contains(this)) {
-//        return;
-//      }
-//      dctx.scorers.add(this);
-//      dctx.members.add(this);
-//    }
-  }
-
 //  @Override
 //  public double startingPotential() {
 //    return 0.0;

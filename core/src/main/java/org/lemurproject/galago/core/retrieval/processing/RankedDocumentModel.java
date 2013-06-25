@@ -43,7 +43,7 @@ public class RankedDocumentModel extends ProcessingModel {
 
 
     // construct the iterators -- we use tree processing
-    ScoreIterator iterator = (ScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
+    ScoreIterator iterator = (ScoreIterator) retrieval.createIterator(queryParams, queryTree);
 
     // now there should be an iterator at the root of this tree
     while (!iterator.isDone()) {

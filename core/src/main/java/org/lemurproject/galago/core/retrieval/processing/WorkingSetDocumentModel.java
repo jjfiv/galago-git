@@ -54,7 +54,7 @@ public class WorkingSetDocumentModel extends ProcessingModel {
 
     // construct the query iterators
     ScoreIterator iterator =
-            (ScoreIterator) retrieval.createIterator(queryParams, queryTree, context);
+            (ScoreIterator) retrieval.createIterator(queryParams, queryTree);
     int requested = (int) queryParams.get("requested", 1000);
     boolean annotate = queryParams.get("annotate", false);
 

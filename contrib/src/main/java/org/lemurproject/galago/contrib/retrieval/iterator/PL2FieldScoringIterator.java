@@ -24,9 +24,9 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 @RequiredStatistics(statistics = {"collectionLength", "documentCount"})
 @RequiredParameters(parameters = {"c"})
-public class PL2FieldScoringIterator extends ScoringFunctionIterator
-//        implements DeltaScoringIterator {
+public class PL2FieldScoringIterator extends ScoringFunctionIterator //        implements DeltaScoringIterator {
 {
+
   String partName;
   double min = 0.0001;
   int parentIdx = -1;
@@ -47,19 +47,6 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
     beta = Math.log(lambda) / Utility.log2 + (lambda * Utility.loge_base2)
             + ((0.5 * (Math.log(2 * Math.PI) / Utility.log2)) + Utility.loge_base2);
     max = p.getLong("maximumCount");
-  }
-
-  @Override
-  public void setContext(ScoringContext ctx) {
-    super.setContext(ctx);
-//    if (EarlyTerminationScoringContext.class.isAssignableFrom(ctx.getClass())) {
-//      EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
-//      if (dctx.members.contains(this)) {
-//        return;
-//      }
-//      dctx.scorers.add(this);
-//      dctx.members.add(this);
-//    }
   }
 
 //  @Override
@@ -121,6 +108,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
 //    // do nothing
 //  }
 //
+
   @Override
   public double minimumScore() {
     return min;

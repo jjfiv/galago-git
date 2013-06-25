@@ -14,7 +14,6 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
  */
 @Deprecated
 public abstract class DiskIterator implements BaseIterator {
-  protected ScoringContext context;
   
   @Override
   public boolean hasMatch(long identifier) {
@@ -28,16 +27,4 @@ public abstract class DiskIterator implements BaseIterator {
    * @see Utility.toString
    */
   abstract public String getKeyString() throws IOException;
-  
-  // could add a few extra functions to the Leaf Node iterator here.
-  // This will pass up topdocs information if it's available
-  @Override
-  public void setContext(ScoringContext context) {
-    this.context = context;
-  }
-
-  @Override
-  public ScoringContext getContext() {
-    return context;
-  }
 }

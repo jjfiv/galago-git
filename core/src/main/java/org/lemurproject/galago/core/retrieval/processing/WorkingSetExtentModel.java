@@ -76,15 +76,13 @@ public class WorkingSetExtentModel extends ProcessingModel {
     // scoring iterator
     ScoreIterator iterator =
             (ScoreIterator) retrieval.createIterator(queryParams,
-            queryTree,
-            context);
+            queryTree);
 
     // get the extent iterator
     String extent = queryParams.getString("extent");
     ExtentIterator extentIterator =
             (ExtentIterator) retrieval.createIterator(new Parameters(),
-            StructuredQuery.parse("#extents:" + extent + ":part=extents()"),
-            context);
+            StructuredQuery.parse("#extents:" + extent + ":part=extents()"));
 
     if (extentIterator.isDone()) {
       System.err.println("Failed to find iterator for extent " + extent);

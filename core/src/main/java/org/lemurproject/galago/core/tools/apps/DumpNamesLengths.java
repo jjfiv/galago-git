@@ -39,8 +39,6 @@ public class DumpNamesLengths extends AppFunction {
     LengthsIterator lengthsItr = index.getLengthsIterator();
 
     ScoringContext sc = new ScoringContext();
-    namesItr.setContext(sc);
-    lengthsItr.setContext(sc);
 
     while (!namesItr.isDone()) {
       long docId = namesItr.currentCandidate();

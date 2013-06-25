@@ -84,7 +84,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
 
     PositionalPostingList postingList = new PositionalPostingList(key);
     ExtentIterator mi = (ExtentIterator) iterator;
-    ScoringContext sc = mi.getContext();
+    ScoringContext sc = new ScoringContext();
     while (!mi.isDone()) {
       long document = mi.currentCandidate();
       sc.document = document;
@@ -211,7 +211,6 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     ScoringContext sc = new ScoringContext();
     while (!kiterator.isDone()) {
       viterator = (DiskExtentIterator) kiterator.getValueIterator();
-      viterator.setContext(sc);
       writer.processWord(kiterator.getKey());
 
       while (!viterator.isDone()) {

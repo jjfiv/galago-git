@@ -75,7 +75,6 @@ public class MemIndexPartTest extends TestCase {
       KeyIterator dsk_ki = diskreader.getIterator();
       while (!dsk_ki.isDone()) {
         BaseIterator vi = dsk_ki.getValueIterator();
-        vi.setContext(new ScoringContext());
         memcounts2.addIteratorData(dsk_ki.getKey(), vi);
         dsk_ki.nextKey();
       }
@@ -91,9 +90,6 @@ public class MemIndexPartTest extends TestCase {
         CountIterator dsk_vi = (CountIterator) dsk_ki.getValueIterator();
 
         ScoringContext sc = new ScoringContext();
-        mem1_vi.setContext(sc);
-        mem2_vi.setContext(sc);
-        dsk_vi.setContext(sc);
 
         while (!mem1_vi.isDone() || !mem2_vi.isDone() || !dsk_vi.isDone()) {
           assert (dsk_vi.currentCandidate() == mem1_vi.currentCandidate() && mem1_vi.currentCandidate() == mem2_vi.currentCandidate());
@@ -134,7 +130,6 @@ public class MemIndexPartTest extends TestCase {
       double[] scores = {0.2, 1.1, 73, 0.01, -2, 7, 0, 0.01, 0.02, -1, -2};
       FakeScoreIterator scoreItr = new FakeScoreIterator(docs, scores);
       ScoringContext context = new ScoringContext();
-      scoreItr.setContext(context);
 
       memScores.addIteratorData(Utility.fromString("key"), scoreItr);
 
@@ -153,10 +148,6 @@ public class MemIndexPartTest extends TestCase {
       ScoreIterator memScoreItr = memScores.getNodeScores(Utility.fromString("key"));
       ScoreIterator diskScoreItr = (ScoreIterator) reader.getIterator(new Node("scores", "key"));
 
-      context = new ScoringContext();
-      trueScoreItr.setContext(context);
-      memScoreItr.setContext(context);
-      diskScoreItr.setContext(context);
 
       while (!trueScoreItr.isDone() || !memScoreItr.isDone() || !diskScoreItr.isDone()) {
         long doc = trueScoreItr.currentCandidate();

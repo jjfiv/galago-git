@@ -117,16 +117,6 @@ public class NodeTypeTest extends TestCase {
     }
 
     @Override
-    public void setContext(ScoringContext context) {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public ScoringContext getContext() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public int compareTo(BaseIterator t) {
       throw new UnsupportedOperationException("Not supported yet.");
     }

@@ -84,7 +84,6 @@ public class GeometricIndexTest extends TestCase {
       ScoringContext sc = new ScoringContext();
 
       DataIterator<String> names = index.getNamesIterator();
-      names.setContext(sc);
       names.syncTo(99);
       sc.document = 99;
       assertEquals(names.data(sc), "DOC-" + 99);
@@ -93,7 +92,6 @@ public class GeometricIndexTest extends TestCase {
       assertEquals(names.data(sc), "DOC-" + 100);
 
       LengthsIterator lengths = index.getLengthsIterator();
-      lengths.setContext(sc);
       lengths.syncTo(99);
       sc.document = 99;
       assertEquals(lengths.currentCandidate(), 99);
@@ -105,7 +103,6 @@ public class GeometricIndexTest extends TestCase {
 
       Node q1 = StructuredQuery.parse("#counts:sample:part=postings()");
       CountIterator ci1 = (CountIterator) index.getIterator(q1);
-      ci1.setContext(sc);
       assert ci1 != null;
       ci1.syncTo(99);
       sc.document = 99;
@@ -118,7 +115,6 @@ public class GeometricIndexTest extends TestCase {
 
       Node q2 = StructuredQuery.parse("#counts:@/101/:part=postings()");
       CountIterator ci2 = (CountIterator) index.getIterator(q2);
-      ci2.setContext(sc);
       assertEquals(ci2.currentCandidate(), 101);
       sc.document = ci2.currentCandidate();
       assertEquals(ci2.count(sc), 1);

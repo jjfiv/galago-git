@@ -38,7 +38,6 @@ public class DumpTermStatisticsFn extends AppFunction {
     KeyIterator iterator = reader.getIterator();
     while (!iterator.isDone()) {
       CountIterator mci = (CountIterator) iterator.getValueIterator();
-      mci.setContext(sc);
       long frequency = 0;
       long documentCount = 0;
       while (!mci.isDone()) {

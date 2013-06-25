@@ -11,22 +11,10 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public abstract class TransformIterator implements BaseIterator {
 
-  public ScoringContext context;
   public BaseIterator iterator;
 
   public TransformIterator(BaseIterator iterator) {
     this.iterator = iterator;
-  }
-
-  @Override
-  public void setContext(ScoringContext context) {
-    this.context = context;
-    iterator.setContext(context);
-  }
-
-  @Override
-  public ScoringContext getContext() {
-    return this.context;
   }
 
   @Override

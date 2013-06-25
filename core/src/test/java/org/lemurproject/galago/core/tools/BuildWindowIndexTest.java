@@ -123,7 +123,7 @@ public class BuildWindowIndexTest extends TestCase {
       long collectionLength = 44;
       long highestFrequency = 7;
       long highestDocumentCount = 3;
-      
+
       assertEquals(vocab, counts_notSE.getManifest().getLong("statistics/vocabCount"));
       assertEquals(vocab, counts_SE.getManifest().getLong("statistics/vocabCount"));
       assertEquals(vocab, pos_notSE.getManifest().getLong("statistics/vocabCount"));
@@ -140,8 +140,8 @@ public class BuildWindowIndexTest extends TestCase {
       assertEquals(highestDocumentCount, counts_SE.getManifest().getLong("statistics/highestDocumentCount"));
       assertEquals(highestDocumentCount, pos_notSE.getManifest().getLong("statistics/highestDocumentCount"));
       assertEquals(highestDocumentCount, pos_notSE.getManifest().getLong("statistics/highestDocumentCount"));
-      
-      
+
+
       KeyIterator counts_NSE_ki = counts_notSE.getIterator();
       KeyIterator counts__SE_ki = counts_SE.getIterator();
       KeyIterator posits_NSE_ki = pos_notSE.getIterator();
@@ -164,11 +164,7 @@ public class BuildWindowIndexTest extends TestCase {
         ExtentIterator posits__SE_ei = (ExtentIterator) posits__SE_ki.getValueIterator();
 
         ScoringContext sc = new ScoringContext();
-        counts_NSE_ci.setContext(sc);
-        counts__SE_ci.setContext(sc);
-        posits_NSE_ei.setContext(sc);
-        posits__SE_ei.setContext(sc);
-        
+
         while (!counts_NSE_ci.isDone()
                 || !counts__SE_ci.isDone()
                 || !posits_NSE_ei.isDone()
@@ -180,7 +176,7 @@ public class BuildWindowIndexTest extends TestCase {
           assertEquals(doc, posits__SE_ei.currentCandidate());
 
           sc.document = doc;
-          
+
           int count = counts_NSE_ci.count(sc);
           assertEquals(count, counts_NSE_ci.count(sc));
           assertEquals(count, counts__SE_ci.count(sc));
@@ -214,7 +210,6 @@ public class BuildWindowIndexTest extends TestCase {
       }
     }
   }
-
 
   public void testVariousUWWindowIndexes() throws Exception {
     File trecFolder = null;
@@ -331,8 +326,8 @@ public class BuildWindowIndexTest extends TestCase {
       assertEquals(highestDocumentCount, counts_SE.getManifest().getLong("statistics/highestDocumentCount"));
       assertEquals(highestDocumentCount, pos_notSE.getManifest().getLong("statistics/highestDocumentCount"));
       assertEquals(highestDocumentCount, pos_notSE.getManifest().getLong("statistics/highestDocumentCount"));
-      
-      
+
+
       KeyIterator counts_NSE_ki = counts_notSE.getIterator();
       KeyIterator counts__SE_ki = counts_SE.getIterator();
       KeyIterator posits_NSE_ki = pos_notSE.getIterator();
@@ -355,11 +350,7 @@ public class BuildWindowIndexTest extends TestCase {
         ExtentIterator posits__SE_ei = (ExtentIterator) posits__SE_ki.getValueIterator();
 
         ScoringContext sc = new ScoringContext();
-        counts_NSE_ci.setContext(sc);
-        counts__SE_ci.setContext(sc);
-        posits_NSE_ei.setContext(sc);
-        posits__SE_ei.setContext(sc);
-        
+
         while (!counts_NSE_ci.isDone()
                 || !counts__SE_ci.isDone()
                 || !posits_NSE_ei.isDone()
@@ -371,7 +362,7 @@ public class BuildWindowIndexTest extends TestCase {
           assertEquals(doc, posits__SE_ei.currentCandidate());
 
           sc.document = doc;
-          
+
           int count = counts_NSE_ci.count(sc);
           assertEquals(count, counts_NSE_ci.count(sc));
           assertEquals(count, counts__SE_ci.count(sc));

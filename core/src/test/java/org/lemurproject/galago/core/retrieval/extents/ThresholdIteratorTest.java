@@ -24,7 +24,6 @@ public class ThresholdIteratorTest extends TestCase {
   public void testA() throws Exception {
     FakeScoreIterator inner = new FakeScoreIterator(docsA, scoresA);
     ScoringContext dc = new ScoringContext();
-    inner.setContext(dc);
     
     NodeParameters dummyParameters = new NodeParameters();
     dummyParameters.set("raw", 2.5);

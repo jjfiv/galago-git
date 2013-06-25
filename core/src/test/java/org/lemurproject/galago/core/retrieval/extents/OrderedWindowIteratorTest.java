@@ -36,9 +36,6 @@ public class OrderedWindowIteratorTest extends TestCase {
     OrderedWindowIterator instance = new OrderedWindowIterator(oneParam, iters);
 
     ScoringContext context = new ScoringContext();
-    one.setContext(context);
-    two.setContext(context);
-    instance.setContext(context);
 
     context.document = instance.currentCandidate();
     ExtentArray array = instance.extents(context);
@@ -62,9 +59,6 @@ public class OrderedWindowIteratorTest extends TestCase {
     OrderedWindowIterator instance = new OrderedWindowIterator(oneParam, iters);
 
     ScoringContext context = new ScoringContext();
-    one.setContext(context);
-    two.setContext(context);
-    instance.setContext(context);
 
     context.document = instance.currentCandidate();    
     ExtentArray array = instance.extents(context);

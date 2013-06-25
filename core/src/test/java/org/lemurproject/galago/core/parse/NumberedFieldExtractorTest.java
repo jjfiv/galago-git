@@ -95,7 +95,6 @@ public class NumberedFieldExtractorTest extends TestCase {
       KeyIterator iterator = fieldReader.getIterator();
       assertEquals(iterator.getKeyString(), "datefield");
       FieldIndexReader.ListIterator valueIterator = (FieldIndexReader.ListIterator) iterator.getValueIterator();
-      valueIterator.setContext(context);
       context.document = valueIterator.currentCandidate();
       // assertEquals(valueIterator.dateValue());
       valueIterator.movePast(valueIterator.currentCandidate());
@@ -103,11 +102,10 @@ public class NumberedFieldExtractorTest extends TestCase {
       // assertEquals(valueIterator.dateValue());
       valueIterator.movePast(valueIterator.currentCandidate());
       assertEquals(valueIterator.isDone(), true);
-      
+
       assertEquals(iterator.nextKey(), true);
       assertEquals(iterator.getKeyString(), "doublefield");
       valueIterator = (FieldIndexReader.ListIterator) iterator.getValueIterator();
-      valueIterator.setContext(context);
       context.document = valueIterator.currentCandidate();
       assertEquals(valueIterator.doubleValue(context), 1.0, 0.0000001);
       valueIterator.movePast(valueIterator.currentCandidate());
@@ -125,7 +123,6 @@ public class NumberedFieldExtractorTest extends TestCase {
       assertEquals(iterator.nextKey(), true);
       assertEquals(iterator.getKeyString(), "floatfield");
       valueIterator = (FieldIndexReader.ListIterator) iterator.getValueIterator();
-      valueIterator.setContext(context);
       context.document = valueIterator.currentCandidate();
       assertEquals(valueIterator.floatValue(context), 1.0, 0.0000001);
       valueIterator.movePast(valueIterator.currentCandidate());
@@ -143,7 +140,6 @@ public class NumberedFieldExtractorTest extends TestCase {
       assertEquals(iterator.nextKey(), true);
       assertEquals(iterator.getKeyString(), "intfield");
       valueIterator = (FieldIndexReader.ListIterator) iterator.getValueIterator();
-      valueIterator.setContext(context);
       context.document = valueIterator.currentCandidate();
       assertEquals(valueIterator.intValue(context), 1);
       valueIterator.movePast(valueIterator.currentCandidate());
@@ -158,7 +154,6 @@ public class NumberedFieldExtractorTest extends TestCase {
       assertEquals(iterator.nextKey(), true);
       assertEquals(iterator.getKeyString(), "longfield");
       valueIterator = (FieldIndexReader.ListIterator) iterator.getValueIterator();
-      valueIterator.setContext(context);
       context.document = valueIterator.currentCandidate();
       assertEquals(valueIterator.longValue(context), 1);
       valueIterator.movePast(valueIterator.currentCandidate());

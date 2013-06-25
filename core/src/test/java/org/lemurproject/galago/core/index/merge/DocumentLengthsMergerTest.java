@@ -90,7 +90,6 @@ public class DocumentLengthsMergerTest extends TestCase {
       DiskLengthsReader tester = new DiskLengthsReader(output);
       LengthsIterator iterator = tester.getLengthsIterator();
       ScoringContext sc = new ScoringContext();
-      iterator.setContext(sc);
       while (!iterator.isDone()) {
         sc.document = iterator.currentCandidate();
         assert (iterator.currentCandidate() + 1 == iterator.length(sc));
@@ -141,7 +140,6 @@ public class DocumentLengthsMergerTest extends TestCase {
       DiskLengthsReader tester = new DiskLengthsReader(output);
       LengthsIterator iterator = tester.getLengthsIterator();
       ScoringContext sc = new ScoringContext();
-      iterator.setContext(sc);
       while (!iterator.isDone()) {
         sc.document = iterator.currentCandidate();
         assert (sc.document + 1 == iterator.length(sc));

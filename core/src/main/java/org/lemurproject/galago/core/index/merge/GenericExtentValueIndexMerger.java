@@ -21,7 +21,7 @@ public abstract class GenericExtentValueIndexMerger<S> extends GenericIndexMerge
   // wrapper class for ExtentValueIterators
   private class ExtentValueIteratorWrapper implements Comparable<ExtentValueIteratorWrapper> {
 
-    ScoringContext sc;
+    ScoringContext sc = new ScoringContext();
     int indexId;
     ExtentIterator iterator;
     long currentDocument;
@@ -32,7 +32,6 @@ public abstract class GenericExtentValueIndexMerger<S> extends GenericIndexMerge
       this.indexId = indexId;
       this.iterator = extentIterator;
       this.mapping = mapping;
-      this.sc = this.iterator.getContext();
       // initialization
       load();
     }
@@ -69,10 +68,8 @@ public abstract class GenericExtentValueIndexMerger<S> extends GenericIndexMerge
   @Override
   public void performValueMerge(byte[] key, List<KeyIteratorWrapper> keyIterators) throws IOException {
     PriorityQueue<ExtentValueIteratorWrapper> extentQueue = new PriorityQueue();
-    ScoringContext sc = new ScoringContext();
     for (KeyIteratorWrapper w : keyIterators) {
       ExtentIterator extentIterator = (ExtentIterator) w.iterator.getValueIterator();
-      extentIterator.setContext(sc);
       extentQueue.add(new ExtentValueIteratorWrapper(this.partIds.get(w), extentIterator, this.mappingReader));
     }
 

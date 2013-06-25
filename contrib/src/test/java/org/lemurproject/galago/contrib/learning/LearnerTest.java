@@ -92,13 +92,13 @@ public class LearnerTest extends TestCase {
         // System.out.println(root.toPrettyString());
 
         // node is an SDM - root, children, and sub-children are not cached, nodes below that level are cached
-        BaseIterator i = (BaseIterator) r.createIterator(new Parameters(), root, new ScoringContext());
+        BaseIterator i = (BaseIterator) r.createIterator(new Parameters(), root);
         assertFalse(i instanceof SourceIterator); // not disk level
         for (Node child : root.getInternalNodes()) {
-          i = (BaseIterator) r.createIterator(new Parameters(), child, new ScoringContext());
+          i = (BaseIterator) r.createIterator(new Parameters(), child);
           assertFalse(i instanceof SourceIterator); // not disk level
           for (Node subchild : child.getInternalNodes()) {
-            i = r.createIterator(new Parameters(), subchild, new ScoringContext());
+            i = r.createIterator(new Parameters(), subchild);
             SourceIterator si = (SourceIterator) i;
             assertTrue(si.getSource().getClass().getName().contains(".mem.")); // uses a memory source in iterator.
           }

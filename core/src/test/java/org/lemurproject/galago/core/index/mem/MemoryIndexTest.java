@@ -54,13 +54,13 @@ public class MemoryIndexTest extends TestCase {
     assertEquals(collStats.fieldName, "document");
     assertEquals(collStats.maxLength, 5);
     assertEquals(collStats.minLength, 5);
-    
+
     IndexPartStatistics is1 = index.getIndexPartStatistics("postings");
     assertEquals(is1.collectionLength, 1000);
     assertEquals(is1.vocabCount, 204);
     assertEquals(is1.highestFrequency, 200);
     assertEquals(is1.highestDocumentCount, 200);
-    
+
     IndexPartStatistics is2 = index.getIndexPartStatistics("postings.porter");
     assertEquals(is2.collectionLength, 1000);
     assertEquals(is2.vocabCount, 204);
@@ -69,8 +69,7 @@ public class MemoryIndexTest extends TestCase {
 
     Node n = StructuredQuery.parse("#counts:sample:part=postings()");
     CountIterator ci = (CountIterator) index.getIterator(n);
-    ci.setContext(new ScoringContext());
-    ScoringContext sc = ci.getContext();
+    ScoringContext sc = new ScoringContext();
     assertEquals(ci.currentCandidate(), 0);
     int total = 0;
     while (!ci.isDone()) {

@@ -8,6 +8,8 @@ import org.lemurproject.galago.core.retrieval.iterator.UniversalIndicatorIterato
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import java.io.File;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -50,7 +52,7 @@ public class IndicatorIteratorTest extends TestCase {
     indexFile = Utility.createTemporary();
     indexFile.delete();
     App.main(new String[]{"build", "--stemming=false", "--indexPath=" + indexFile.getAbsolutePath(),
-              "--inputPath=" + trecCorpusFile.getAbsolutePath()});
+      "--inputPath=" + trecCorpusFile.getAbsolutePath()});
 
     AppTest.verifyIndexStructures(indexFile);
   }
@@ -82,18 +84,21 @@ public class IndicatorIteratorTest extends TestCase {
     LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
 
     Node parsedTree = StructuredQuery.parse("#any( #counts:cat:part=postings() #counts:program:part=postings() )");
-    ScoringContext context = new ScoringContext();
 
-    ExistentialIndicatorIterator eii = (ExistentialIndicatorIterator) retrieval.createIterator(new Parameters(), parsedTree, context);
+    ExistentialIndicatorIterator eii = (ExistentialIndicatorIterator) retrieval.createIterator(new Parameters(), parsedTree);
+
+    ScoringContext sc = new ScoringContext();
 
     // initial state
     assertEquals(2, eii.currentCandidate());
-    assertTrue(eii.hasMatch(2));
+    sc.document = 2;
+    assertTrue(eii.indicator(sc));
     assertEquals(true, eii.hasMatch(eii.currentCandidate()));
 
     eii.syncTo(3);
     assertEquals(4, eii.currentCandidate());
-    assertEquals(true, eii.hasMatch(eii.currentCandidate()));
+    sc.document = 4;
+    assertEquals(true, eii.indicator(sc));
 
     eii.movePast(eii.currentCandidate());
     assertTrue(eii.isDone());
@@ -109,16 +114,20 @@ public class IndicatorIteratorTest extends TestCase {
     LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
 
     Node parsedTree = StructuredQuery.parse("#all( #counts:document:part=postings() #counts:sample:part=postings() )");
-    ScoringContext context = new ScoringContext();
-    UniversalIndicatorIterator uii = (UniversalIndicatorIterator) retrieval.createIterator(new Parameters(), parsedTree, context);
+    UniversalIndicatorIterator uii = (UniversalIndicatorIterator) retrieval.createIterator(new Parameters(), parsedTree);
+
+    ScoringContext sc = new ScoringContext();
 
     // initial state
     assertEquals(0, uii.currentCandidate());
-    assertTrue(uii.hasMatch(0));
+    sc.document = 0;
+    assertEquals(true, uii.indicator(sc));
     assertEquals(true, uii.hasMatch(uii.currentCandidate()));
 
     uii.syncTo(1);
     assertEquals(2, uii.currentCandidate());
+    sc.document = 2;
+    assertEquals(true, uii.indicator(sc));
     assertEquals(true, uii.hasMatch(uii.currentCandidate()));
 
     uii.movePast(uii.currentCandidate());
@@ -138,12 +147,11 @@ public class IndicatorIteratorTest extends TestCase {
     LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
 
     Node existTree = StructuredQuery.parse("#any( #counts:document:part=postings() )");
-    ScoringContext dc1 = new ScoringContext();
-    ExistentialIndicatorIterator eii = (ExistentialIndicatorIterator) retrieval.createIterator(new Parameters(), existTree,
-            dc1);
+    ScoringContext sc = new ScoringContext();
+    ExistentialIndicatorIterator eii = (ExistentialIndicatorIterator) retrieval.createIterator(new Parameters(), existTree);
 
     Node universeTree = StructuredQuery.parse("#all( #counts:document:part=postings() )");
-    UniversalIndicatorIterator uii = (UniversalIndicatorIterator) retrieval.createIterator(new Parameters(), universeTree, dc1);
+    UniversalIndicatorIterator uii = (UniversalIndicatorIterator) retrieval.createIterator(new Parameters(), universeTree);
 
     // Initialization
     assertFalse(eii.isDone());
@@ -151,6 +159,9 @@ public class IndicatorIteratorTest extends TestCase {
     assertEquals(eii.currentCandidate(), uii.currentCandidate());
     assertEquals(true, eii.hasMatch(eii.currentCandidate()));
     assertEquals(true, uii.hasMatch(uii.currentCandidate()));
+    sc.document = uii.currentCandidate();
+    assertEquals(true, eii.indicator(sc));
+    assertEquals(true, uii.indicator(sc));
 
     // First step to doc 2
     uii.movePast(uii.currentCandidate());
@@ -158,6 +169,9 @@ public class IndicatorIteratorTest extends TestCase {
     assertEquals(true, eii.hasMatch(eii.currentCandidate()));
     assertEquals(true, uii.hasMatch(uii.currentCandidate()));
     assertEquals(eii.currentCandidate(), uii.currentCandidate());
+    sc.document = uii.currentCandidate();
+    assertEquals(true, eii.indicator(sc));
+    assertEquals(true, uii.indicator(sc));
 
     // Now on the doc 4
     uii.movePast(uii.currentCandidate());
@@ -165,6 +179,9 @@ public class IndicatorIteratorTest extends TestCase {
     assertEquals(true, eii.hasMatch(eii.currentCandidate()));
     assertEquals(true, uii.hasMatch(uii.currentCandidate()));
     assertEquals(eii.currentCandidate(), uii.currentCandidate());
+    sc.document = uii.currentCandidate();
+    assertEquals(true, eii.indicator(sc));
+    assertEquals(true, uii.indicator(sc));
 
     // Should be done now
     uii.movePast(uii.currentCandidate());
@@ -183,7 +200,7 @@ public class IndicatorIteratorTest extends TestCase {
     root = retrieval.transformQuery(root, p);
 
     ScoringContext dc1 = new ScoringContext();
-    RequireIterator mi = (RequireIterator) retrieval.createIterator(new Parameters(), root, dc1);
+    RequireIterator mi = (RequireIterator) retrieval.createIterator(new Parameters(), root);
 
     assertEquals(0, mi.currentCandidate());
     dc1.document = 0;

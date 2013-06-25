@@ -258,7 +258,6 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     FieldLengthData ld;
     while (!fields.isDone()) {
       fieldLengths = (DiskLengthsIterator) fields.getValueIterator();
-      fieldLengths.setContext(c);
       while (!fieldLengths.isDone()) {
         c.document = fieldLengths.currentCandidate();
         ld = new FieldLengthData(Utility.fromString(fieldLengths.getKeyString()), fieldLengths.currentCandidate(), fieldLengths.length(c));

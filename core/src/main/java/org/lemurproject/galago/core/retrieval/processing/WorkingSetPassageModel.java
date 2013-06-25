@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.lemurproject.galago.core.index.Index;
@@ -68,12 +67,8 @@ public class WorkingSetPassageModel extends ProcessingModel {
 
     ScoreIterator iterator =
             (ScoreIterator) retrieval.createIterator(queryParams,
-            queryTree,
-            context);
-    LengthsIterator documentLengths =
-            (LengthsIterator) retrieval.createIterator(new Parameters(),
-            StructuredQuery.parse("#lengths:part=lengths()"),
-            context);
+            queryTree);
+    LengthsIterator documentLengths = retrieval.getDocumentLengthsIterator();
 
     FixedSizeMinHeap<ScoredPassage> queue = new FixedSizeMinHeap(ScoredPassage.class, requested, new ScoredPassage.ScoredPassageComparator());
 

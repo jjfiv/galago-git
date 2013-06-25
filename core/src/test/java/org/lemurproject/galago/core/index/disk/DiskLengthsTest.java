@@ -56,7 +56,6 @@ public class DiskLengthsTest extends TestCase {
       DiskLengthsIterator streamItr = ki.getStreamValueIterator();
 
       ScoringContext sc = new ScoringContext();
-      streamItr.setContext(sc);
 
       streamItr.syncTo(50);
       sc.document = 50;

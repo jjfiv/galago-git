@@ -83,8 +83,8 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     // if  we have not already cached this data
     if (!postings.containsKey(key)) {
       PostingList postingList = new PostingList(key);
+      ScoringContext sc = new ScoringContext();
       CountIterator mi = (CountIterator) iterator;
-      ScoringContext sc = mi.getContext();
       while (!mi.isDone()) {
         long document = mi.currentCandidate();
         sc.document = document;
@@ -202,7 +202,6 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     while (!kiterator.isDone()) {
       viterator = (DiskCountIterator) kiterator.getValueIterator();
       writer.processWord(kiterator.getKey());
-      viterator.setContext(sc);
       while (!viterator.isDone()) {
         sc.document = viterator.currentCandidate();
         writer.processDocument(viterator.currentCandidate());

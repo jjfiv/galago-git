@@ -91,12 +91,6 @@ public class InL2ScoringIterator extends TransformIterator implements ScoreItera
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 
-  @Override
-  public void setContext(ScoringContext context) {
-    super.setContext(context);
-    lengths.setContext(context);
-  }
-
   private double log2(double value) {
     return Math.log(value) / Utility.log2;
   }

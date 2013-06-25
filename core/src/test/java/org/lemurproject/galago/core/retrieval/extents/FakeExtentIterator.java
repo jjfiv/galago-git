@@ -21,7 +21,6 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
 
   private int[][] data;
   private int index;
-  private ScoringContext context;
 
   public FakeExtentIterator(int[][] data) {
     this.data = data;
@@ -125,16 +124,6 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
   @Override
   public boolean hasAllCandidates() {
     return false;
-  }
-
-  @Override
-  public void setContext(ScoringContext context) {
-    this.context = context;
-  }
-
-  @Override
-  public ScoringContext getContext() {
-    return context;
   }
 
   @Override

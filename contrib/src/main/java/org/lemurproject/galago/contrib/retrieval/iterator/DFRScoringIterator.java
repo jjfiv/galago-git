@@ -1,7 +1,6 @@
 /*
  * BSD License (http://www.galagosearch.org/license)
  */
-
 package org.lemurproject.galago.contrib.retrieval.iterator;
 
 import java.io.IOException;
@@ -50,24 +49,6 @@ public class DFRScoringIterator extends TransformIterator implements ScoreIterat
     double f3 = 0.5 * Math.log(2 * Math.PI * ts) / Utility.log2;
     double risk = 1.0 / (ts + 1.0);
     return qfratio * risk * (f1 + f2 + f3);
-  }
-
-  @Override
-  public void setContext(ScoringContext ctx) {
-    super.setContext(ctx);
-
-//    if (ctx instanceof EarlyTerminationScoringContext) {
-//      EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
-//      if (dctx.members.contains(this)) {
-//        return;
-//      }
-//
-//      dctx.members.add(this);
-//      // Need to do this at the aggregate level
-//      dctx.startingPotentials[dctx.sentinelIndex] = scorer.maximumScore();
-//      dctx.startingPotential += transform(dctx.startingPotentials[dctx.sentinelIndex]);
-//      dctx.sentinelIndex++;
-//    }
   }
 
   @Override

@@ -21,7 +21,6 @@ public class FakeLengthIterator implements LengthsIterator {
   private int[] ids;
   private int[] lengths;
   private int position;
-  private ScoringContext context;
 
   public FakeLengthIterator(int[] i, int[] l) {
     ids = i;
@@ -88,16 +87,6 @@ public class FakeLengthIterator implements LengthsIterator {
   @Override
   public int compareTo(BaseIterator t) {
     throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  @Override
-  public void setContext(ScoringContext context) {
-    this.context = context;
-  }
-
-  @Override
-  public ScoringContext getContext() {
-    return this.context;
   }
 
   @Override

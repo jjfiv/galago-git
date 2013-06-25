@@ -25,13 +25,8 @@ public class ScaleIteratorTest extends TestCase {
 
   public void testA() throws Exception {
     ScoringContext context = new ScoringContext();
-    int[] lengths = new int[docsA.length];
-    Arrays.fill(lengths, 100);
-    FakeLengthIterator fli = new FakeLengthIterator(docsA, lengths);
-    fli.setContext(context);
 
     FakeScoreIterator inner = new FakeScoreIterator(docsA, scoresA);
-    inner.setContext(context);
     ScaleIterator iterator = new ScaleIterator(new NodeParameters(), inner);
     assertFalse(iterator.isDone());
     assertTrue(iterator.hasMatch(docsA[0]));
@@ -52,7 +47,6 @@ public class ScaleIteratorTest extends TestCase {
     Arrays.fill(lengths, 100);
 
     FakeScoreIterator inner = new FakeScoreIterator(docsB, scoresB);
-    inner.setContext(context);
     NodeParameters weightedParameters = new NodeParameters();
     weightedParameters.set("default", 0.5);
     ScaleIterator iterator = new ScaleIterator(weightedParameters, inner);

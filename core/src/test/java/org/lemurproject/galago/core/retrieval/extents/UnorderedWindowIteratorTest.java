@@ -30,9 +30,6 @@ public class UnorderedWindowIteratorTest extends TestCase {
     UnorderedWindowIterator instance = new UnorderedWindowIterator(twoParam, iters);
 
     ScoringContext context = new ScoringContext();
-    one.setContext(context);
-    two.setContext(context);
-    instance.setContext(context);
 
     context.document = instance.currentCandidate();
 
@@ -62,9 +59,6 @@ public class UnorderedWindowIteratorTest extends TestCase {
     UnorderedWindowIterator instance = new UnorderedWindowIterator(twoParam, iters);
 
     ScoringContext context = new ScoringContext();
-    one.setContext(context);
-    two.setContext(context);
-    instance.setContext(context);
 
     context.document = instance.currentCandidate();
 
@@ -95,9 +89,6 @@ public class UnorderedWindowIteratorTest extends TestCase {
     UnorderedWindowIterator instance = new UnorderedWindowIterator(twoParam, iters);
 
     ScoringContext context = new ScoringContext();
-    one.setContext(context);
-    two.setContext(context);
-    instance.setContext(context);
 
     context.document = instance.currentCandidate();
 
@@ -124,9 +115,6 @@ public class UnorderedWindowIteratorTest extends TestCase {
     UnorderedWindowIterator instance = new UnorderedWindowIterator(fiveParam, iters);
 
     ScoringContext context = new ScoringContext();
-    one.setContext(context);
-    two.setContext(context);
-    instance.setContext(context);
 
     context.document = instance.currentCandidate();
 

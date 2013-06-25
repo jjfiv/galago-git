@@ -46,8 +46,6 @@ public class WeightedSumIteratorTest extends TestCase {
     Arrays.fill(lengths, 100);
     ScoringContext ctx = new ScoringContext();
     FakeLengthIterator fli = new FakeLengthIterator(docsTogether, lengths);
-    one.setContext(ctx);
-    two.setContext(ctx);
     for (int i = 0; i < 12; i++) {
       ctx.document = docsTogether[i];
       assertEquals(scoresTogether[i], instance.score(ctx), 0.00001);
@@ -68,9 +66,6 @@ public class WeightedSumIteratorTest extends TestCase {
     int[] lengths = new int[12];
     Arrays.fill(lengths, 100);
     ScoringContext ctx = new ScoringContext();
-    //FakeLengthIterator fli = new FakeLengthIterator(docsTogether, lengths);
-    one.setContext(ctx);
-    two.setContext(ctx);
     for (int i = 0; i < 12; i++) {
       ctx.document = docsTogether[i];
       assertEquals(normalWeightedScoresTogether[i], instance.score(ctx), 0.0001);
@@ -91,9 +86,6 @@ public class WeightedSumIteratorTest extends TestCase {
     int[] lengths = new int[12];
     Arrays.fill(lengths, 100);
     ScoringContext ctx = new ScoringContext();
-    //FakeLengthIterator fli = new FakeLengthIterator(docsTogether, lengths);
-    one.setContext(ctx);
-    two.setContext(ctx);
     for (int i = 0; i < 12; i++) {
       ctx.document = docsTogether[i];
       assertEquals(unnormalweightedScoresTogether[i], instance.score(ctx), 0.0001);

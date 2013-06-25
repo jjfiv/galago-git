@@ -17,7 +17,6 @@ import org.lemurproject.galago.core.util.ExtentArray;
 public class PassageFilterIterator extends TransformIterator implements ExtentIterator, CountIterator {
 
   ExtentIterator extentIterator;
-  PassageScoringContext passageContext;
   int begin, end;
   long docid;
   ExtentArray cached;
@@ -38,7 +37,8 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
    */
   @Override
   public ExtentArray extents(ScoringContext c) {
-    // TODO : fix this to use c
+    PassageScoringContext passageContext = ((c instanceof PassageScoringContext) ? (PassageScoringContext) c : null);
+
     if (passageContext == null) {
       return extentIterator.extents(c);
     }
@@ -52,6 +52,8 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
 
   // TODO: fix this to actually use the context input
   private void loadExtents(ScoringContext c) {
+    PassageScoringContext passageContext = ((c instanceof PassageScoringContext) ? (PassageScoringContext) c : null);
+
     cached.reset();
     ExtentArray internal = extentIterator.extents(c);
 
@@ -65,19 +67,6 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
       docid = passageContext.document;
       begin = passageContext.begin;
       end = passageContext.end;
-    }
-  }
-
-  @Override
-  public void setContext(ScoringContext context) {
-    super.setContext(context);
-
-    if (!PassageScoringContext.class.isAssignableFrom(context.getClass())) {
-      // debugging info line.
-      // Logger.getLogger(PassageFilterIterator.class.getName()).info("Setting a non-Passage-capable context as a PassageScoringContext - passages can not be used.");
-      passageContext = null;
-    } else {
-      passageContext = (PassageScoringContext) context;
     }
   }
 

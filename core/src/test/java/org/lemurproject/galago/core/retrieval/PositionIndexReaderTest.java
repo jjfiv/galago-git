@@ -99,7 +99,7 @@ public class PositionIndexReaderTest extends TestCase {
     assertEquals(data.length, termExtents.totalEntries());
     int totalPositions = 0;
 
-    ScoringContext sc = termExtents.getContext();
+    ScoringContext sc = new ScoringContext();
 
     for (int[] doc : data) {
       assertFalse(termExtents.isDone());
@@ -125,7 +125,6 @@ public class PositionIndexReaderTest extends TestCase {
   public void testA() throws Exception {
     PositionIndexReader reader = new PositionIndexReader(tempPath.toString());
     ExtentIterator termExtents = reader.getTermExtents("a");
-    termExtents.setContext(new ScoringContext());
 
     internalTestIterator(termExtents, dataA);
     NodeStatistics a_stats = ((NodeAggregateIterator) termExtents).getStatistics();
@@ -137,7 +136,6 @@ public class PositionIndexReaderTest extends TestCase {
   public void testB() throws Exception {
     PositionIndexReader reader = new PositionIndexReader(tempPath.toString());
     ExtentIterator termExtents = reader.getTermExtents("b");
-    termExtents.setContext(new ScoringContext());
 
     internalTestIterator(termExtents, dataB);
     NodeStatistics b_stats = ((NodeAggregateIterator) termExtents).getStatistics();
@@ -170,8 +168,7 @@ public class PositionIndexReaderTest extends TestCase {
     // Now read it
     PositionIndexReader reader = new PositionIndexReader(skipPath.toString());
     DiskExtentIterator termExtents = reader.getTermExtents("a");
-    termExtents.setContext(new ScoringContext());
-    ScoringContext sc = termExtents.getContext();
+    ScoringContext sc = new ScoringContext();
 
     assertEquals("a", termExtents.getKeyString());
 
@@ -216,8 +213,7 @@ public class PositionIndexReaderTest extends TestCase {
     PositionIndexReader reader = new PositionIndexReader(tempPath.toString());
     DiskCountIterator termCounts = reader.getTermCounts("b");
 
-    termCounts.setContext(new ScoringContext());
-    ScoringContext sc = termCounts.getContext();
+    ScoringContext sc = new ScoringContext();
 
     assertEquals(dataB[0][0], termCounts.currentCandidate());
     sc.document = termCounts.currentCandidate();

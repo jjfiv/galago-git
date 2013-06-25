@@ -194,7 +194,7 @@ public class BuildSpecialPartTest extends TestCase {
       // test it as a basic iterator 
       ScoreIterator vIt = (ScoreIterator) reader.getIterator(StructuredQuery.parse("#prior:part=testingPriors()"));
       ScoringContext context = new ScoringContext();
-      vIt.setContext(context);
+
       context.document = 0;
       assertFalse(vIt.isDone());
       assertEquals(-23.0259, vIt.score(context), 0.001);

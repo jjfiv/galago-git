@@ -45,11 +45,8 @@ public class RankedPassageModel extends ProcessingModel {
 
     ScoreIterator iterator =
             (ScoreIterator) retrieval.createIterator(queryParams,
-            queryTree,
-            context);
-    LengthsIterator documentLengths =
-            (LengthsIterator) retrieval.createIterator(new Parameters(),
-            StructuredQuery.parse("#lengths:part=lengths()"), context);
+            queryTree);
+    LengthsIterator documentLengths = retrieval.getDocumentLengthsIterator();
 
     FixedSizeMinHeap<ScoredPassage> queue = new FixedSizeMinHeap(ScoredPassage.class, requested, new ScoredPassage.ScoredPassageComparator());
 

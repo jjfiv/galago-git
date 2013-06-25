@@ -40,7 +40,6 @@ public class DFRScoringIteratorTest extends TestCase {
 
     ScoringContext context = new ScoringContext();
     PL2ScoringIterator scorer = new PL2ScoringIterator(np, lenItr, extItr);
-    scorer.setContext(context);
 
     context.document = scorer.currentCandidate();
 
@@ -79,7 +78,6 @@ public class DFRScoringIteratorTest extends TestCase {
 
     ScoringContext context = new ScoringContext();
     InL2ScoringIterator scorer = new InL2ScoringIterator(np, lenItr, extItr);
-    scorer.setContext(context);
 
     context.document = scorer.currentCandidate();
 
@@ -118,7 +116,6 @@ public class DFRScoringIteratorTest extends TestCase {
 
     ScoringContext context = new ScoringContext();
     BiL2ScoringIterator scorer = new BiL2ScoringIterator(np, lenItr, extItr);
-    scorer.setContext(context);
 
     context.document = scorer.currentCandidate();
 

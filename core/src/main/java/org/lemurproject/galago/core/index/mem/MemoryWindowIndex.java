@@ -84,7 +84,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
 
     WindowPostingList postingList = new WindowPostingList(key);
     ExtentIterator mi = (ExtentIterator) iterator;
-    ScoringContext sc = mi.getContext();
+    ScoringContext sc = new ScoringContext();
     while (!mi.isDone()) {
       long document = mi.currentCandidate();
       sc.document = document;
@@ -201,7 +201,6 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     ScoringContext sc = new ScoringContext();
     while (!kiterator.isDone()) {
       viterator = (ExtentIterator) kiterator.getValueIterator();
-      viterator.setContext(sc);
       writer.processExtentName(kiterator.getKey());
 
       while (!viterator.isDone()) {

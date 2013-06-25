@@ -32,8 +32,6 @@ public class SynonymIteratorTest extends TestCase {
     SynonymIterator instance = new SynonymIterator(new NodeParameters(), iters);
 
     ScoringContext context = new ScoringContext();
-    one.setContext(context);
-    instance.setContext(context);
     context.document = instance.currentCandidate();
     
     assertTrue(instance.isDone());
@@ -49,10 +47,6 @@ public class SynonymIteratorTest extends TestCase {
     SynonymIterator instance = new SynonymIterator(new NodeParameters(), iters);
 
     ScoringContext context = new ScoringContext();
-    one.setContext(context);
-    two.setContext(context);
-    instance.setContext(context);
-
     context.document = instance.currentCandidate();
 
     ExtentArray array = instance.extents(context);
@@ -90,9 +84,6 @@ public class SynonymIteratorTest extends TestCase {
     SynonymIterator instance = new SynonymIterator(new NodeParameters(), iters);
 
     ScoringContext context = new ScoringContext();
-    one.setContext(context);
-    two.setContext(context);
-    instance.setContext(context);
 
     context.document = instance.currentCandidate();
     

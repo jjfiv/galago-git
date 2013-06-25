@@ -61,11 +61,6 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
-  public void setContext(ScoringContext ctx) {
-    super.setContext(ctx);
-  }
-
-  @Override
   public double startingPotential() {
     return max * weight;
   }

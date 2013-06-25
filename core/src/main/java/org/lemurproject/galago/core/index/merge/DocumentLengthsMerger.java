@@ -61,9 +61,7 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
       this.indexId = indexId;
       this.iterator = iterator;
       this.mapping = mapping;
-
       this.sc = new ScoringContext();
-      this.iterator.setContext(sc);
       
       // initialization
       load();

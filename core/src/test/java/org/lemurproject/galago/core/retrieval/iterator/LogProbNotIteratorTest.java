@@ -26,8 +26,7 @@ public class LogProbNotIteratorTest extends TestCase {
 
     FakeScorer child = new FakeScorer(docs, scores);
     LogProbNotIterator scorer = new LogProbNotIterator(new NodeParameters(), child);
-    scorer.setContext(new ScoringContext());
-    ScoringContext sc = scorer.getContext();
+    ScoringContext sc = new ScoringContext();
 
     double[] expected = new double[]{
       -2.352168,
@@ -134,16 +133,6 @@ public class LogProbNotIteratorTest extends TestCase {
     @Override
     public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void setContext(ScoringContext context) {
-      this.context = context;
-    }
-
-    @Override
-    public ScoringContext getContext() {
-      return context;
     }
 
     @Override

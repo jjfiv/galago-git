@@ -15,7 +15,6 @@ public abstract class DisjunctionIterator implements BaseIterator {
 
   protected BaseIterator[] iterators;
   protected BaseIterator[] drivingIterators;
-  protected ScoringContext context;
   protected boolean hasAllCandidates;
 
   public DisjunctionIterator(BaseIterator[] queryIterators) {
@@ -73,10 +72,10 @@ public abstract class DisjunctionIterator implements BaseIterator {
   public long currentCandidate() {
     // the current candidate is the smallest of the set
     long candidate = Long.MAX_VALUE;
-    for(int i=0; i<drivingIterators.length;i++){
+    for (int i = 0; i < drivingIterators.length; i++) {
       if (!drivingIterators[i].isDone()) {
         long otherCandidate = drivingIterators[i].currentCandidate();
-        candidate = (candidate <= otherCandidate)? candidate : otherCandidate;
+        candidate = (candidate <= otherCandidate) ? candidate : otherCandidate;
       }
     }
     return candidate;
@@ -139,19 +138,5 @@ public abstract class DisjunctionIterator implements BaseIterator {
       return 0;
     }
     return Utility.compare(currentCandidate(), other.currentCandidate());
-  }
-  
-  @Override
-  public void setContext(ScoringContext context) {
-    this.context = context;
-
-    for(BaseIterator i : this.iterators){
-      i.setContext(context);
-    }
-  }
-
-  @Override
-  public ScoringContext getContext() {
-    return context;
   }
 }

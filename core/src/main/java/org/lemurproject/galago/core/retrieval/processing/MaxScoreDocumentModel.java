@@ -43,7 +43,7 @@ public class MaxScoreDocumentModel extends ProcessingModel {
     }
 
     // step two: create an iterator for each node
-    List<DeltaScoringIterator> scoringIterators = createScoringIterators(scoringNodes, context, retrieval);
+    List<DeltaScoringIterator> scoringIterators = createScoringIterators(scoringNodes, retrieval);
 
     FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
@@ -194,13 +194,13 @@ public class MaxScoreDocumentModel extends ProcessingModel {
     }
   }
 
-  private List<DeltaScoringIterator> createScoringIterators(List<Node> scoringNodes, ScoringContext c, LocalRetrieval ret) throws Exception {
+  private List<DeltaScoringIterator> createScoringIterators(List<Node> scoringNodes, LocalRetrieval ret) throws Exception {
     List<DeltaScoringIterator> scoringIterators = new ArrayList();
 
     // the cache allows low level iterators to be shared
     Map<String, BaseIterator> queryIteratorCache = new HashMap();
     for (int i = 0; i < scoringNodes.size(); i++) {
-      DeltaScoringIterator scorer = (DeltaScoringIterator) ret.createNodeMergedIterator(scoringNodes.get(i), c, queryIteratorCache);
+      DeltaScoringIterator scorer = (DeltaScoringIterator) ret.createNodeMergedIterator(scoringNodes.get(i), queryIteratorCache);
       scoringIterators.add(scorer);
     }
 

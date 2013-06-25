@@ -64,7 +64,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
 
 
       ScoreIterator mi = (ScoreIterator) iterator;
-      ScoringContext c = mi.getContext();
+      ScoringContext c = new ScoringContext();
       c.document = -1; // impossible document score - to extract defaulty score.
 
       // note that dirichet should not have a static default score
@@ -179,7 +179,6 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     while (!kiterator.isDone()) {
       viterator = (ScoreIterator) kiterator.getValueIterator();
       writer.processWord(kiterator.getKey());
-      viterator.setContext(sc);
       while (!viterator.isDone()) {
         sc.document = viterator.currentCandidate();
         writer.processNumber(viterator.currentCandidate());

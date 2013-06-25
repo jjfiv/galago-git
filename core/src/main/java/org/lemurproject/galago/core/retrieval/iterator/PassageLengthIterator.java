@@ -11,7 +11,6 @@ import org.lemurproject.galago.core.retrieval.processing.PassageScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -21,7 +20,6 @@ public class PassageLengthIterator extends TransformIterator implements LengthsI
 
   boolean lenCheck;
   NodeParameters np;
-  PassageScoringContext passContext;
   LengthsIterator lengths;
 
   public PassageLengthIterator(NodeParameters params, LengthsIterator iterator) {
@@ -29,21 +27,13 @@ public class PassageLengthIterator extends TransformIterator implements LengthsI
     np = params;
     lenCheck = np.get("lenCheck", true);
     lengths = iterator;
-
-    passContext = null;
-  }
-
-  @Override
-  public void setContext(ScoringContext context) {
-    super.setContext(context);
-    if (context instanceof PassageScoringContext) {
-      passContext = (PassageScoringContext) context;
-    }
   }
 
   @Override
   public int length(ScoringContext c) {
     int begin, end;
+
+    PassageScoringContext passContext = ((c instanceof PassageScoringContext) ? (PassageScoringContext) c : null);
 
     if (passContext != null && !lenCheck) {
       begin = passContext.begin;

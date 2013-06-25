@@ -32,7 +32,6 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.retrieval.structured.ContextFactory;
 import org.lemurproject.galago.core.retrieval.structured.FeatureFactory;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -203,7 +202,6 @@ public class LocalRetrieval implements Retrieval {
 
     DataIterator<String> namesIterator = index.getNamesIterator();
     ScoringContext sc = new ScoringContext();
-    namesIterator.setContext(sc);
 
     for (T doc : byID) {
       namesIterator.syncTo(doc.document);
@@ -222,17 +220,14 @@ public class LocalRetrieval implements Retrieval {
     return results;
   }
 
-  public BaseIterator createIterator(Parameters queryParameters, Node node, ScoringContext context) throws Exception {
-    if (globalParameters.get("shareNodes", true)) {
-      if (queryParameters.get("shareNodes", true)) {
-        return createNodeMergedIterator(node, context, new HashMap());
-      }
+  public BaseIterator createIterator(Parameters queryParameters, Node node) throws Exception {
+    if (queryParameters.get("shareNodes", globalParameters.get("shareNodes", true))) {
+      return createNodeMergedIterator(node, new HashMap());
     }
-    return createNodeMergedIterator(node, context, null);
+    return createNodeMergedIterator(node, null);
   }
 
-  public BaseIterator createNodeMergedIterator(Node node, 
-          ScoringContext context,
+  public BaseIterator createNodeMergedIterator(Node node,
           Map<String, BaseIterator> queryIteratorCache)
           throws Exception {
     ArrayList<BaseIterator> internalIterators = new ArrayList<BaseIterator>();
@@ -241,7 +236,6 @@ public class LocalRetrieval implements Retrieval {
     // first check if this is a repeated node in this tree:
     if (queryIteratorCache != null && queryIteratorCache.containsKey(node.toString())) {
       iterator = queryIteratorCache.get(node.toString());
-      context.toNodes.put(iterator, node);
       return iterator;
     }
 
@@ -253,7 +247,7 @@ public class LocalRetrieval implements Retrieval {
       // otherwise we need to create a new iterator
       // start by recursively creating children
       for (Node internalNode : node.getInternalNodes()) {
-        BaseIterator internalIterator = createNodeMergedIterator(internalNode, context, queryIteratorCache);
+        BaseIterator internalIterator = createNodeMergedIterator(internalNode, queryIteratorCache);
         internalIterators.add(internalIterator);
       }
 
@@ -263,18 +257,11 @@ public class LocalRetrieval implements Retrieval {
       }
     }
 
-    // we have now constructed the iterator from the cache or from the index:
-    //  --> deal with the context
-    if (context != null && BaseIterator.class.isAssignableFrom(iterator.getClass())) {
-      ((BaseIterator) iterator).setContext(context);
-    }
-
     // we've created a new iterator - add to the cache for future nodes
     if (queryIteratorCache != null) {
       queryIteratorCache.put(node.toString(), iterator);
     }
 
-    context.toNodes.put(iterator, node);
     return iterator;
   }
 
@@ -311,8 +298,10 @@ public class LocalRetrieval implements Retrieval {
     }
 
     FieldStatistics s;
-    ScoringContext sc = ContextFactory.createContext(globalParameters);
-    BaseIterator structIterator = createIterator(new Parameters(), root, sc);
+    // if you want passage statistics, you'll need a manual solution for now.
+    ScoringContext sc = new ScoringContext();
+
+    BaseIterator structIterator = createIterator(new Parameters(), root);
 
     // first check if this iterator is an aggregate iterator (has direct access to stats)
     if (CollectionAggregateIterator.class.isInstance(structIterator)) {
@@ -372,8 +361,11 @@ public class LocalRetrieval implements Retrieval {
 
 
     NodeStatistics s;
-    ScoringContext sc = ContextFactory.createContext(globalParameters);
-    BaseIterator structIterator = createIterator(new Parameters(), root, sc);
+    // if you want passage statistics, you'll need a manual solution for now.
+    ScoringContext sc = new ScoringContext();
+
+    BaseIterator structIterator = createIterator(new Parameters(), root);
+
     if (NodeAggregateIterator.class.isInstance(structIterator)) {
       s = ((NodeAggregateIterator) structIterator).getStatistics();
 
@@ -460,6 +452,10 @@ public class LocalRetrieval implements Retrieval {
     return index.getIdentifier(docname);
   }
 
+  public LengthsIterator getDocumentLengthsIterator() throws IOException {
+    return index.getLengthsIterator();
+  }
+
   public List<Long> getDocumentIds(List<String> docnames) throws IOException {
     List<Long> internalDocBuffer = new ArrayList<Long>();
 
@@ -476,7 +472,7 @@ public class LocalRetrieval implements Retrieval {
   @Override
   public void addNodeToCache(Node node) throws Exception {
     if (cache != null) {
-      cache.addToCache(node, this.createIterator(new Parameters(), node, new ScoringContext()));
+      cache.addToCache(node, this.createIterator(new Parameters(), node));
     }
   }
 
@@ -488,7 +484,7 @@ public class LocalRetrieval implements Retrieval {
         addAllNodesToCache(child);
       }
 
-      cache.addToCache(node, this.createIterator(new Parameters(), node, new ScoringContext()));
+      cache.addToCache(node, this.createIterator(new Parameters(), node));
     }
   }
 }

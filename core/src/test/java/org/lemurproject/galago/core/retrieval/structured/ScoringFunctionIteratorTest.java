@@ -40,9 +40,6 @@ public class ScoringFunctionIteratorTest extends TestCase {
     iterator.setScoringFunction(new FakeScorer());
 
     ScoringContext context = new ScoringContext();
-    extentIterator.setContext(context);
-    lengthsIterator.setContext(context);
-    iterator.setContext(context);
 
     // check initial setup
 
@@ -95,10 +92,6 @@ public class ScoringFunctionIteratorTest extends TestCase {
 
     // score without explicit context
     ScoringContext context = new ScoringContext();
-
-    iterator.setContext(context);
-    extentIterator.setContext(context);
-    lengthsIterator.setContext(context);
 
     context.document = iterator.currentCandidate();
     assertEquals(1.11315, iterator.score(context), 0.0001);

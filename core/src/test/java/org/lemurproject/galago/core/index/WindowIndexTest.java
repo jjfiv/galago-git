@@ -57,8 +57,7 @@ public class WindowIndexTest extends TestCase {
       while (!iterator.isDone()) {
         iterator.getValueIterator();
         ExtentIterator valueIterator = (ExtentIterator) iterator.getValueIterator();
-        valueIterator.setContext(new ScoringContext());
-        ScoringContext sc = valueIterator.getContext();
+        ScoringContext sc = new ScoringContext();
         int doccount = 0;
         int windowcount = 0;
         while (!valueIterator.isDone()) {

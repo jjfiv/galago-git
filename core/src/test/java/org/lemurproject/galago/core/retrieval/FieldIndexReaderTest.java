@@ -114,8 +114,7 @@ public class FieldIndexReaderTest extends TestCase {
   public void testReadTitle() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("title");
-    fields.setContext(new ScoringContext());
-    ScoringContext sc = fields.getContext();
+    ScoringContext sc = new ScoringContext();
 
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 1);
@@ -144,8 +143,7 @@ public class FieldIndexReaderTest extends TestCase {
   public void testReadDate() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("date");
-    fields.setContext(new ScoringContext());
-    ScoringContext sc = fields.getContext();
+    ScoringContext sc = new ScoringContext();
 
     DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
 
@@ -176,8 +174,7 @@ public class FieldIndexReaderTest extends TestCase {
   public void testReadVersion() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("version");
-    fields.setContext(new ScoringContext());
-    ScoringContext sc = fields.getContext();
+    ScoringContext sc = new ScoringContext();
 
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 1);
@@ -206,13 +203,11 @@ public class FieldIndexReaderTest extends TestCase {
   public void testGreaterThan() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("version");
-    fields.setContext(new ScoringContext());
-    ScoringContext sc = fields.getContext();
+    ScoringContext sc = new ScoringContext();
 
     NodeParameters p = new NodeParameters();
     p.set("0", 5);
     GreaterThanIterator gti = new GreaterThanIterator(p, fields);
-    gti.setContext(sc);
 
     assertFalse(gti.isDone());
     assertEquals(gti.currentCandidate(), 1);
@@ -242,13 +237,11 @@ public class FieldIndexReaderTest extends TestCase {
   public void testLessThan() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("version");
-    fields.setContext(new ScoringContext());
-    ScoringContext sc = fields.getContext();
+    ScoringContext sc = new ScoringContext();
 
     NodeParameters p = new NodeParameters();
     p.set("0", 5);
     LessThanIterator lti = new LessThanIterator(p, fields);
-    lti.setContext(sc);
 
     assertFalse(lti.isDone());
     assertEquals(lti.currentCandidate(), 1);
@@ -278,14 +271,12 @@ public class FieldIndexReaderTest extends TestCase {
   public void testInBetween() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("date");
-    fields.setContext(new ScoringContext());
-    ScoringContext sc = fields.getContext();
+    ScoringContext sc = new ScoringContext();
 
     NodeParameters p = new NodeParameters();
     p.set("0", "12/25/1939");
     p.set("1", "4/12/1984");
     InBetweenIterator ibi = new InBetweenIterator(p, fields);
-    ibi.setContext(sc);
 
     assertFalse(ibi.isDone());
     assertEquals(ibi.currentCandidate(), 15);
@@ -315,13 +306,11 @@ public class FieldIndexReaderTest extends TestCase {
   public void testEquality() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("title");
-    fields.setContext(new ScoringContext());
-    ScoringContext sc = fields.getContext();
+    ScoringContext sc = new ScoringContext();
 
     NodeParameters p = new NodeParameters();
     p.set("0", "doc9");
     EqualityIterator ei = new EqualityIterator(p, fields);
-    ei.setContext(sc);
 
     assertFalse(ei.isDone());
     assertEquals(ei.currentCandidate(), 1);
