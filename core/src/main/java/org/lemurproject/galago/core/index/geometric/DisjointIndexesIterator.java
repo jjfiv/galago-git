@@ -26,20 +26,6 @@ public abstract class DisjointIndexesIterator extends DiskIterator {
     queue = new PriorityQueue(iterators);
     head = queue.poll();
   }
-
-  @Override
-  public void setContext(ScoringContext context) {
-    this.context = context;
-
-    for(BaseIterator i : this.allIterators){
-      i.setContext(context);
-    }
-  }
-
-  @Override
-  public ScoringContext getContext() {
-    return context;
-  }  
   
   @Override
   public boolean isDone() {

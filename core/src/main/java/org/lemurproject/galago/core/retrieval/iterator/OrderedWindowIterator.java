@@ -29,7 +29,7 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
     // check if we're already there
     // TODO: use a ScoringContext.equals(c) function, and store the context used for the cached 
     //       (need to make sure any changes are noted)
-    if (context.cachable && this.extentCache.getDocument() == document) {
+    if (c.cachable && this.extentCache.getDocument() == document) {
       return;
     }
 

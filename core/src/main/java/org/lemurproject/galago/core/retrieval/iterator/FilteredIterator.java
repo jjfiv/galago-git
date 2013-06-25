@@ -81,7 +81,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
 
   @Override
   public int count(ScoringContext c) {
-    if (indication(this.context)) {
+    if (indication(c)) {
       return counter.count(c);
     } else {
       return 0;

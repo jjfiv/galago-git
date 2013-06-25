@@ -52,15 +52,6 @@ public class MinCountIterator extends ConjunctionIterator implements CountIterat
   }
 
   @Override
-  public void setContext(ScoringContext sc) {
-    this.context = sc;
-
-    for (BaseIterator itr : this.iterators) {
-      itr.setContext(context);
-    }
-  }
-
-  @Override
   public String getValueString(ScoringContext c) throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }

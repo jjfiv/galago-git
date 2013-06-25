@@ -25,7 +25,7 @@ public class SynonymIterator extends ExtentDisjunctionIterator {
     long document = c.document;
 
     // check if we're already there
-    if (context.cachable && this.extentCache.getDocument() == document) {
+    if (c.cachable && this.extentCache.getDocument() == document) {
       return;
     }
 
