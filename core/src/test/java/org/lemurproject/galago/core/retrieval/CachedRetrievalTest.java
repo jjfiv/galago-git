@@ -64,7 +64,7 @@ public class CachedRetrievalTest extends TestCase {
       while (!diskScoreIterator.isDone() && !cachedScoreIterator.isDone()) {
         assertEquals(diskScoreIterator.currentCandidate(), cachedScoreIterator.currentCandidate());
         sc.document = diskScoreIterator.currentCandidate();
-        assertEquals(diskScoreIterator.score(), cachedScoreIterator.score(), 0.000001);
+        assertEquals(diskScoreIterator.score(sc), cachedScoreIterator.score(sc), 0.000001);
         diskScoreIterator.movePast(sc.document);
         cachedScoreIterator.movePast(sc.document);
       }

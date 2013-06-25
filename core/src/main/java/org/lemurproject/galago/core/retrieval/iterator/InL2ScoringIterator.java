@@ -51,18 +51,18 @@ public class InL2ScoringIterator extends TransformIterator implements ScoreItera
   }
 
   @Override
-  public double score() {
-    double tf = counts.count(context);
+  public double score(ScoringContext cx) {
+    double tf = counts.count(cx);
     if (tf == 0) {
       return 0;
     }
 
-    double docLength = lengths.length(context);
+    double docLength = lengths.length(cx);
     double TFN = tf * log2(1.0 + (c * averageDocumentLength) / docLength);
     double NORM = 1.0 / (TFN + 1.0);
-    
+
     double score = NORM * TFN
-            * log2( (documentCount + 1.0) / (nodeDocumentCount + 0.5) );
+            * log2((documentCount + 1.0) / (nodeDocumentCount + 0.5));
     return score;
   }
 
@@ -83,7 +83,7 @@ public class InL2ScoringIterator extends TransformIterator implements ScoreItera
     String parameters = np.toString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Double.toString(score());
+    String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = new ArrayList();
     children.add(this.lengths.getAnnotatedNode(c));
     children.add(this.counts.getAnnotatedNode(c));
@@ -99,5 +99,5 @@ public class InL2ScoringIterator extends TransformIterator implements ScoreItera
 
   private double log2(double value) {
     return Math.log(value) / Utility.log2;
-  }  
+  }
 }

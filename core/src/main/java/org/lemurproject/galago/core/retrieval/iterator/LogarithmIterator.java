@@ -32,8 +32,8 @@ public class LogarithmIterator extends TransformIterator implements ScoreIterato
   }
 
   @Override
-  public double score() {
-    return Math.log(scorer.score());
+  public double score(ScoringContext c) {
+    return Math.log(scorer.score(c));
   }
 
   @Override
@@ -53,7 +53,7 @@ public class LogarithmIterator extends TransformIterator implements ScoreIterato
     String parameters = np.toString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Double.toString(score());
+    String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

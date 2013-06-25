@@ -56,7 +56,7 @@ public class DFRScoringIteratorTest extends TestCase {
     for (int i = 0; i < expected.length; i++) {
       context.document = i;
       scorer.syncTo(context.document);
-      assertEquals(scorer.score(), expected[i], 0.00001);
+      assertEquals(scorer.score(context), expected[i], 0.00001);
       scorer.movePast(context.document);
     }
   }
@@ -95,7 +95,7 @@ public class DFRScoringIteratorTest extends TestCase {
     for (int i = 0; i < expected.length; i++) {
       context.document = i;
       scorer.syncTo(context.document);
-      assertEquals(scorer.score(), expected[i], 0.00001);
+      assertEquals(scorer.score(context), expected[i], 0.00001);
       scorer.movePast(context.document);
     }
   }
@@ -134,7 +134,7 @@ public class DFRScoringIteratorTest extends TestCase {
     for (int i = 0; i < expected.length; i++) {
       context.document = i;
       scorer.syncTo(context.document);
-      assertEquals(scorer.score(), expected[i], 0.00001);
+      assertEquals(scorer.score(context), expected[i], 0.00001);
       scorer.movePast(context.document);
     }
   }

@@ -67,8 +67,8 @@ public class FakeScoreIterator implements ScoreIterator {
   }
 
   @Override
-  public double score() {
-    if (!isDone() && docs[index] == context.document) {
+  public double score(ScoringContext c) {
+    if (!isDone() && docs[index] == c.document) {
       return scores[index];
     }
     return defaultScore;
@@ -125,7 +125,7 @@ public class FakeScoreIterator implements ScoreIterator {
 
   @Override
   public String getValueString() throws IOException {
-    return currentCandidate() + "," + score();
+    return currentCandidate() + "," + score(context);
   }
 
   @Override
@@ -140,7 +140,7 @@ public class FakeScoreIterator implements ScoreIterator {
     String parameters = "";
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Double.toString(score());
+    String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

@@ -66,9 +66,9 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
-  public double score() {
-    int count = ((CountIterator) iterator).count(context);
-    double score = function.score(count, this.lengthsIterator.length(context));
+  public double score(ScoringContext c) {
+    int count = ((CountIterator) iterator).count(c);
+    double score = function.score(count, this.lengthsIterator.length(c));
     score = (score > 0.0) ? score : min; // MY smoothing.
     return score;
   }

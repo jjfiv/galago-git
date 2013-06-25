@@ -70,8 +70,8 @@ public class DFRScoringIterator extends TransformIterator implements ScoreIterat
   }
 
   @Override
-  public double score() {
-    double tscore = scorer.score();
+  public double score(ScoringContext c) {
+    double tscore = scorer.score(c);
     double transformedScore = transform(tscore);
     return transformedScore;
   }
@@ -93,7 +93,7 @@ public class DFRScoringIterator extends TransformIterator implements ScoreIterat
     String parameters = p.toString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Double.toString(score());
+    String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = new ArrayList();
     children.add(scorer.getAnnotatedNode(c));
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

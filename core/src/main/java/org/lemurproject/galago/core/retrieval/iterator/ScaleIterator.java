@@ -23,8 +23,8 @@ public class ScaleIterator extends TransformIterator {
     weight = parameters.get("default", 1.0);
   }
 
-  public double score() {
-    return weight * ((ScoreIterator) iterator).score();
+  public double score(ScoringContext c) {
+    return weight * ((ScoreIterator) iterator).score(c);
   }
 
   public double maximumScore() {
@@ -42,7 +42,7 @@ public class ScaleIterator extends TransformIterator {
     String parameters = np.toString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Double.toString(score());
+    String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

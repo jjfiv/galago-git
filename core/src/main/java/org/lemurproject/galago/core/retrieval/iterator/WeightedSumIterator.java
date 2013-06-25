@@ -49,10 +49,10 @@ public class WeightedSumIterator extends DisjunctionIterator implements ScoreIte
   }
 
   @Override
-  public double score() {
+  public double score(ScoringContext c) {
     double[] scores = new double[scoreIterators.length];
     for (int i = 0; i < scoreIterators.length; i++) {
-      scores[i] = scoreIterators[i].score();
+      scores[i] = scoreIterators[i].score(c);
     }
 
     return MathUtils.weightedLogSumExp(weights, scores);
@@ -80,7 +80,7 @@ public class WeightedSumIterator extends DisjunctionIterator implements ScoreIte
 
   @Override
   public String getValueString() throws IOException {
-    return this.currentCandidate() + " " + this.score();
+    return this.currentCandidate() + " " + this.score(context);
   }
 
   @Override
@@ -90,7 +90,7 @@ public class WeightedSumIterator extends DisjunctionIterator implements ScoreIte
     String parameters = np.toString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Double.toString(score());
+    String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = new ArrayList();
     for (BaseIterator child : this.iterators) {
       children.add(child.getAnnotatedNode(c));

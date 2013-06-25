@@ -12,8 +12,8 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * Performs a log-space probablistic not operation 
- * 
+ * Performs a log-space probablistic not operation
+ *
  * returns log(1 - exp(p))
  *
  * @author sjh
@@ -30,10 +30,9 @@ public class LogProbNotIterator extends TransformIterator implements ScoreIterat
   }
 
   /**
-   * Logically this node would actually identify all documents 
-   * that are not a candidate of it's child scorer.
-   *  - To avoid scoring all documents, we assert that this iterator
-   *    scores all documents with non-background probabilities.
+   * Logically this node would actually identify all documents that are not a
+   * candidate of it's child scorer. - To avoid scoring all documents, we assert
+   * that this iterator scores all documents with non-background probabilities.
    */
   @Override
   public boolean hasAllCandidates() {
@@ -46,8 +45,8 @@ public class LogProbNotIterator extends TransformIterator implements ScoreIterat
   }
 
   @Override
-  public double score() {
-    double score = scorer.score();
+  public double score(ScoringContext c) {
+    double score = scorer.score(c);
     // check if the score is a log-space probability:
     if (score < 0) {
       return Math.log(1 - Math.exp(score));
@@ -78,7 +77,7 @@ public class LogProbNotIterator extends TransformIterator implements ScoreIterat
     String parameters = np.toString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Double.toString(score());
+    String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

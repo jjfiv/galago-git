@@ -165,8 +165,8 @@ public class MemIndexPartTest extends TestCase {
         assertEquals(trueScoreItr.currentCandidate(), memScoreItr.currentCandidate());
         assertEquals(trueScoreItr.currentCandidate(), diskScoreItr.currentCandidate());
 
-        assertEquals(trueScoreItr.score(), memScoreItr.score(), 0.00000001);
-        assertEquals(trueScoreItr.score(), diskScoreItr.score(), 0.0001);
+        assertEquals(trueScoreItr.score(context), memScoreItr.score(context), 0.00000001);
+        assertEquals(trueScoreItr.score(context), diskScoreItr.score(context), 0.0001);
 
         trueScoreItr.movePast(trueScoreItr.currentCandidate());
         memScoreItr.movePast(memScoreItr.currentCandidate());

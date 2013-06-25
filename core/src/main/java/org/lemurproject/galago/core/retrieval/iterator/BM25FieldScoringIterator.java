@@ -42,15 +42,15 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator
     max = p.getLong("maximumCount");
   }
 
+  @Override
   public double getWeight() {
     return weight;
   }
 
   @Override
-  public double score() {
-    int count = (countIterator).count(context);
-    //double score = function.score(count, context.getLength(partName));
-    double score = function.score(count, lengthsIterator.length(context));
+  public double score(ScoringContext c) {
+    int count = (countIterator).count(c);
+    double score = function.score(count, lengthsIterator.length(c));
     return score;
   }
 

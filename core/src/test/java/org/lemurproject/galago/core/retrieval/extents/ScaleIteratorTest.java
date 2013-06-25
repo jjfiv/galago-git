@@ -38,7 +38,7 @@ public class ScaleIteratorTest extends TestCase {
     for (int i = 0; i < docsA.length; i++) {
       context.document = iterator.currentCandidate();
       assertEquals(docsA[i], iterator.currentCandidate());
-      assertEquals(scoresA[i], iterator.score());
+      assertEquals(scoresA[i], iterator.score(context));
       iterator.movePast(docsA[i]);
     }
     assertTrue(iterator.isDone());
@@ -63,7 +63,7 @@ public class ScaleIteratorTest extends TestCase {
       iterator.syncTo(docsB[i]);
       context.document = docsB[i];
       assertEquals(docsB[i], iterator.currentCandidate());
-      assertEquals(scoresB[i] * 0.5, iterator.score());
+      assertEquals(scoresB[i] * 0.5, iterator.score(context));
     }
     iterator.reset();
     assertTrue(iterator.hasMatch(docsB[0]));

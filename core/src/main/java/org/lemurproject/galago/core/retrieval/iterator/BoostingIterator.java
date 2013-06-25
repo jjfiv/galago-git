@@ -9,9 +9,10 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
- * The internal iterator is expected to be an indicator
- * iterator. This performs a transform into the "score space"
- * by emitting a boost score (beta) iff the indicator is on.
+ * The internal iterator is expected to be an indicator iterator. This performs
+ * a transform into the "score space" by emitting a boost score (beta) iff the
+ * indicator is on.
+ *
  * @author irmarc
  */
 public class BoostingIterator extends TransformIterator implements ScoreIterator {
@@ -26,9 +27,9 @@ public class BoostingIterator extends TransformIterator implements ScoreIterator
   }
 
   @Override
-  public double score() {
-    if (hasMatch(context.document)
-            && ((IndicatorIterator) iterator).indicator(context)) {
+  public double score(ScoringContext c) {
+    if (hasMatch(c.document)
+            && ((IndicatorIterator) iterator).indicator(c)) {
       return beta;
     } else {
       return 0.0;
@@ -52,7 +53,7 @@ public class BoostingIterator extends TransformIterator implements ScoreIterator
     String parameters = p.toString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Double.toString(score());
+    String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

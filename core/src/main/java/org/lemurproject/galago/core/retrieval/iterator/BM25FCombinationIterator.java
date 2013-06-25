@@ -1,6 +1,7 @@
 // BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
@@ -23,11 +24,11 @@ public class BM25FCombinationIterator extends ScoreCombinationIterator {
   }
 
   @Override
-  public double score() {
+  public double score(ScoringContext c) {
     double total = 0;
 
     for (int i = 0; i < scoreIterators.length; i++) {
-      double score = scoreIterators[i].score();
+      double score = scoreIterators[i].score(c);
       // the second iterator here is the idf iterator - well, it should be
       total += (weights[i] * score) / (K + score) * idfs[i];
     }

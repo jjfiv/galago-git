@@ -27,7 +27,7 @@ public class LogProbNotIteratorTest extends TestCase {
     FakeScorer child = new FakeScorer(docs, scores);
     LogProbNotIterator scorer = new LogProbNotIterator(new NodeParameters(), child);
     scorer.setContext(new ScoringContext());
-    ScoringContext cs = scorer.getContext();
+    ScoringContext sc = scorer.getContext();
 
     double[] expected = new double[]{
       -2.352168,
@@ -39,10 +39,10 @@ public class LogProbNotIteratorTest extends TestCase {
 
     int i = 0;
     while (!scorer.isDone()) {
-      cs.document = scorer.currentCandidate();
-      assertTrue(scorer.hasMatch(cs.document));
-      assertEquals(scorer.score(), expected[i], 0.00001);
-      scorer.movePast(cs.document);
+      sc.document = scorer.currentCandidate();
+      assertTrue(scorer.hasMatch(sc.document));
+      assertEquals(scorer.score(sc), expected[i], 0.00001);
+      scorer.movePast(sc.document);
       i += 1;
     }
 
@@ -64,8 +64,8 @@ public class LogProbNotIteratorTest extends TestCase {
     }
 
     @Override
-    public double score() {
-      if (context.document == docs[index]) {
+    public double score(ScoringContext c) {
+      if (c.document == docs[index]) {
         return scores[index];
       }
       return Utility.tinyLogProbScore;

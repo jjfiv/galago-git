@@ -58,10 +58,10 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Sco
   }
 
   @Override
-  public double score() {
+  public double score(ScoringContext c) {
     double total = 0;
     for (int i = 0; i < scoreIterators.length; i++) {
-      double score = scoreIterators[i].score();
+      double score = scoreIterators[i].score(c);
       total += weights[i] * score;
     }
     return total;
@@ -87,7 +87,7 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Sco
 
   @Override
   public String getValueString() throws IOException {
-    return this.currentCandidate() + " " + this.score();
+    return this.currentCandidate() + " " + this.score(context);
   }
 
   @Override
@@ -97,7 +97,7 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Sco
     String parameters = np.toString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Double.toString(score());
+    String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = new ArrayList();
     for (BaseIterator child : this.iterators) {
       children.add(child.getAnnotatedNode(c));

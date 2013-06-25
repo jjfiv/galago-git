@@ -197,16 +197,16 @@ public class BuildSpecialPartTest extends TestCase {
       vIt.setContext(context);
       context.document = 0;
       assertFalse(vIt.isDone());
-      assertEquals(-23.0259, vIt.score(), 0.001);
+      assertEquals(-23.0259, vIt.score(context), 0.001);
       vIt.movePast(0);
       context.document = 1;
-      assertEquals(-1e-10, vIt.score(), 0.0001);
+      assertEquals(-1e-10, vIt.score(context), 0.0001);
       vIt.movePast(1);
       context.document = 3;
-      assertEquals(-7.0, vIt.score(), 0.001);
+      assertEquals(-7.0, vIt.score(context), 0.001);
       vIt.movePast(3);
       context.document = 4;
-      assertEquals(-6.0, vIt.score(), 0.001);
+      assertEquals(-6.0, vIt.score(context), 0.001);
       vIt.movePast(4);
       assertTrue(vIt.isDone());
 

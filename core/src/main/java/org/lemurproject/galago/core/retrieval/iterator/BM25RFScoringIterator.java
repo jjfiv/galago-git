@@ -2,6 +2,7 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.scoring.BM25RFScorer;
 
@@ -31,9 +32,9 @@ public class BM25RFScoringIterator extends ScoringFunctionIterator {
    * @return
    */
   @Override
-  public double score() {
-    if (iterator.currentCandidate() == context.document) {
-      return function.score(((CountIterator) iterator).count(context), lengthsIterator.length(context));
+  public double score(ScoringContext c) {
+    if (iterator.currentCandidate() == c.document) {
+      return function.score(((CountIterator) iterator).count(c), lengthsIterator.length(c));
     } else {
       return 0;
     }

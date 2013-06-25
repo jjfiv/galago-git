@@ -51,9 +51,9 @@ public class ScoringFunctionIterator extends TransformIterator implements ScoreI
   }
   
   @Override
-  public double score() {
-    int count = countIterator.count(context);
-    double score = function.score(count, lengthsIterator.length(context));
+  public double score(ScoringContext c) {
+    int count = countIterator.count(c);
+    double score = function.score(count, lengthsIterator.length(c));
     return score;
   }
 
@@ -74,7 +74,7 @@ public class ScoringFunctionIterator extends TransformIterator implements ScoreI
     String parameters = np.toString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Double.toString(score());
+    String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = new ArrayList();
     children.add(this.lengthsIterator.getAnnotatedNode(c));
     children.add(this.countIterator.getAnnotatedNode(c));

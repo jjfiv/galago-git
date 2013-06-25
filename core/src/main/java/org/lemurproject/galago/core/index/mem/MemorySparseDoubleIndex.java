@@ -76,7 +76,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
         long document = mi.currentCandidate();
         c.document = document;
         if (mi.hasMatch(document)) {
-          double score = mi.score();
+          double score = mi.score(c);
           postingList.add(document, score);
         }
         mi.movePast(document);
@@ -183,7 +183,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
       while (!viterator.isDone()) {
         sc.document = viterator.currentCandidate();
         writer.processNumber(viterator.currentCandidate());
-        writer.processTuple(viterator.score());
+        writer.processTuple(viterator.score(sc));
         viterator.movePast(viterator.currentCandidate());
       }
       kiterator.nextKey();

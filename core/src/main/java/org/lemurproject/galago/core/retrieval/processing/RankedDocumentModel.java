@@ -53,7 +53,7 @@ public class RankedDocumentModel extends ProcessingModel {
       context.document = document;
       iterator.syncTo(document);
       if (iterator.hasMatch(document)) {
-        double score = iterator.score();
+        double score = iterator.score(context);
         if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
           ScoredDocument scoredDocument = new ScoredDocument(document, score);
           if (annotate) {

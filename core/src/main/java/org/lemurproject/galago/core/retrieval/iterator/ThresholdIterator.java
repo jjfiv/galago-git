@@ -9,9 +9,9 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
- * #threshold: raw=[-]x.xx ( PriorReader ScoreIterator ) 
- * #threshold: prob=0.xx ( PriorReader ScoreIterator ) 
- * #threshold: logprob=-x.xx ( PriorReader ScoreIterator ) 
+ * #threshold: raw=[-]x.xx ( PriorReader ScoreIterator ) #threshold: prob=0.xx (
+ * PriorReader ScoreIterator ) #threshold: logprob=-x.xx ( PriorReader
+ * ScoreIterator )
  *
  * @author sjh
  */
@@ -40,11 +40,9 @@ public class ThresholdIterator extends TransformIterator implements IndicatorIte
     }
   }
 
-  /** note that this indicator may depend on the scoring context! **/
   @Override
   public boolean indicator(ScoringContext c) {
-    // TODO fix this
-    return (scoreIterator.score() >= threshold);
+    return (scoreIterator.score(c) >= threshold);
   }
 
   @Override

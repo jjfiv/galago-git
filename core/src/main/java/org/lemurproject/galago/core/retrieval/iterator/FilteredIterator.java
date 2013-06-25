@@ -89,9 +89,9 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
   }
 
   @Override
-  public double score() {
-    if (indication(this.context)) {
-      return scorer.score();
+  public double score(ScoringContext c) {
+    if (indication(c)) {
+      return scorer.score(c);
     } else {
       return Utility.tinyLogProbScore;
     }
@@ -134,7 +134,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
       returnValue = Integer.toString(count(c));
     } else if (this.scorer != null) {
       type = "score";
-      returnValue = Double.toString(score());
+      returnValue = Double.toString(score(c));
     } else if (this.counter != null) {
       type = "extents";
       returnValue = extents(c).toString();

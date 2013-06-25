@@ -16,15 +16,15 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 public class DiskScoreIterator extends SourceIterator implements ScoreIterator {
 
   ScoreSource scoreSrc;
-  
+
   public DiskScoreIterator(ScoreSource src) {
     super(src);
     scoreSrc = src;
   }
-  
+
   @Override
   public String getValueString() throws IOException {
-    return String.format("%s,%d,%f", getKeyString(), currentCandidate(), score());
+    return String.format("%s,%d,%f", getKeyString(), currentCandidate(), score(context));
   }
 
   @Override
@@ -34,15 +34,15 @@ public class DiskScoreIterator extends SourceIterator implements ScoreIterator {
     String parameters = this.getKeyString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Double.toString(score());
+    String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
-    
+
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 
   @Override
-  public double score() {
-    return scoreSrc.score(context.document);
+  public double score(ScoringContext c) {
+    return scoreSrc.score(c.document);
   }
 
   @Override
@@ -54,5 +54,4 @@ public class DiskScoreIterator extends SourceIterator implements ScoreIterator {
   public double minimumScore() {
     return scoreSrc.minScore();
   }
-  
 }
