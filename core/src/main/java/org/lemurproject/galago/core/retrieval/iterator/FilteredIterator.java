@@ -104,7 +104,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
 
   @Override
   public double minimumScore() {
-    return scorer.minimumScore();
+    return Math.min(scorer.minimumScore(), Utility.tinyLogProbScore);
   }
 
   @Override

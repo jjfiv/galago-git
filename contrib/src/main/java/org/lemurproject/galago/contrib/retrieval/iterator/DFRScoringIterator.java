@@ -1,13 +1,14 @@
 /*
  * BSD License (http://www.galagosearch.org/license)
-
  */
-package org.lemurproject.galago.core.retrieval.iterator;
+
+package org.lemurproject.galago.contrib.retrieval.iterator;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.processing.EarlyTerminationScoringContext;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.TransformIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -55,18 +56,18 @@ public class DFRScoringIterator extends TransformIterator implements ScoreIterat
   public void setContext(ScoringContext ctx) {
     super.setContext(ctx);
 
-    if (ctx instanceof EarlyTerminationScoringContext) {
-      EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
-      if (dctx.members.contains(this)) {
-        return;
-      }
-
-      dctx.members.add(this);
-      // Need to do this at the aggregate level
-      dctx.startingPotentials[dctx.sentinelIndex] = scorer.maximumScore();
-      dctx.startingPotential += transform(dctx.startingPotentials[dctx.sentinelIndex]);
-      dctx.sentinelIndex++;
-    }
+//    if (ctx instanceof EarlyTerminationScoringContext) {
+//      EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
+//      if (dctx.members.contains(this)) {
+//        return;
+//      }
+//
+//      dctx.members.add(this);
+//      // Need to do this at the aggregate level
+//      dctx.startingPotentials[dctx.sentinelIndex] = scorer.maximumScore();
+//      dctx.startingPotential += transform(dctx.startingPotentials[dctx.sentinelIndex]);
+//      dctx.sentinelIndex++;
+//    }
   }
 
   @Override

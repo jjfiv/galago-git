@@ -231,8 +231,9 @@ public class LocalRetrieval implements Retrieval {
     return createNodeMergedIterator(node, context, null);
   }
 
-  protected BaseIterator createNodeMergedIterator(Node node, ScoringContext context,
-          HashMap<String, BaseIterator> queryIteratorCache)
+  public BaseIterator createNodeMergedIterator(Node node, 
+          ScoringContext context,
+          Map<String, BaseIterator> queryIteratorCache)
           throws Exception {
     ArrayList<BaseIterator> internalIterators = new ArrayList<BaseIterator>();
     BaseIterator iterator;

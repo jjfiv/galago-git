@@ -5,66 +5,81 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import org.lemurproject.galago.core.index.Index;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DisjunctionIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * Assumes the use of delta functions for scoring, then prunes using WAND.
  * Generally this causes a substantial speedup in processing time.
- * 
- * You may get small perturbations in rank order at some ranks. As far as I have been able
- * to ascertain, it's from rounding errors b/c the scorers are sometimes not executed in the 
- * same order, causing differences in the 13th decimal place or below (it causes a rank inversion,
- * but not based on a meaningful number).
+ *
+ * You may get small perturbations in rank order at some ranks. As far as I have
+ * been able to ascertain, it's from rounding errors b/c the scorers are
+ * sometimes not executed in the same order, causing differences in the 13th
+ * decimal place or below (it causes a rank inversion, but not based on a
+ * meaningful number).
  *
  * @author irmarc
  */
 public class WANDScoreDocumentModel extends ProcessingModel {
 
+  Comparator<Sentinel> comp = new SentinelPositionComparator();
   LocalRetrieval retrieval;
-  Index index;
-  Comparator<Sentinel> comp;
-  double scoreMinimums;
-  Sentinel[] sortedSentinels = null;
-  
+
   public WANDScoreDocumentModel(LocalRetrieval lr) {
     retrieval = lr;
-    this.index = retrieval.getIndex();
-    comp = new SentinelPositionComparator();
   }
 
   @Override
   public ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception {
-    EarlyTerminationScoringContext context = new EarlyTerminationScoringContext();
-    double factor = retrieval.getGlobalParameters().get("thresholdFactor", 1.0);
+    ScoringContext context = new ScoringContext();
+    
     int requested = (int) queryParams.get("requested", 1000);
+    // default threshol is 1.0 (equivalent to a disjunction (OR))
+    double factor = retrieval.getGlobalParameters().get("thresholdFactor", 1.0);
 
-    context.potentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
-    context.startingPotentials = new double[(int) queryParams.get("numPotentials", queryParams.get("numberOfTerms", 0))];
-    Arrays.fill(context.startingPotentials, 0);
-    BaseIterator iterator = retrieval.createIterator(queryParams, queryTree, context);
+    // step one: find the set of deltaScoringNodes in the tree
+    List<Node> scoringNodes = new ArrayList();
+    boolean canScore = findDeltaNodes(queryTree, scoringNodes, retrieval);
+    if (!canScore) {
+      throw new IllegalArgumentException("Query tree does not support delta scoring interface.\n" + queryTree.toPrettyString());
+    }
+
+    // step two: create an iterator for each node
+    List<DeltaScoringIterator> scoringIterators = createScoringIterators(scoringNodes, context, retrieval);
 
     FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
-    context.minCandidateScore = Double.NEGATIVE_INFINITY;
-    context.sentinelIndex = context.scorers.size();
-    // Compute the starting potential
-    context.scorers.get(0).aggregatePotentials(context);
+    // score of the min document in minheap
+    double maximumPossibleScore = 0.0;
+    for (DeltaScoringIterator scorer : scoringIterators) {
+      maximumPossibleScore += scorer.startingPotential();
+    }
 
     // Make sure the scorers are sorted properly
-    buildSentinels(context, queryParams);
+//    List<Sentinel> sortedSentinels = buildSentinels(scoringIterators, maximumPossibleScore, queryParams);
+
+    // --- OLD CODE --- //    
+    double minCandidateScore = Double.NEGATIVE_INFINITY;
+
+    Sentinel[] sortedSentinels = buildSentinels(scoringIterators, maximumPossibleScore, queryParams);
 
     // Going to need the minimum set
-    scoreMinimums = 0.0;
+    double scoreMinimums = 0.0;
     for (Sentinel s : sortedSentinels) {
       scoreMinimums += s.iterator.getWeight() * s.score;
-      s.score = s.iterator.getWeight() * (s.iterator.maximumScore() - s.iterator.minimumScore());
+      // similar to iterator.maxDifference (but we need the negative value) 
+      s.score = -1 * s.iterator.maximumDifference();
     }
 
     context.document = -1;
@@ -72,7 +87,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     fullSort(sortedSentinels);
     while (true) {
       advancePosition = -1;
-      int pivotPosition = findPivot(context.minCandidateScore);
+      int pivotPosition = findPivot(sortedSentinels, scoreMinimums, minCandidateScore);
 
       if (pivotPosition == -1) {
         break;
@@ -85,22 +100,22 @@ public class WANDScoreDocumentModel extends ProcessingModel {
       long pivot = sortedSentinels[pivotPosition].iterator.currentCandidate();
 
       if (pivot <= context.document) {
-        advancePosition = pickAdvancingSentinel(pivotPosition, pivot);
+        advancePosition = pickAdvancingSentinel(sortedSentinels, pivotPosition, pivot);
         sortedSentinels[advancePosition].iterator.movePast(context.document);
 
       } else {
         if (sortedSentinels[0].iterator.currentCandidate() == pivot) {
           // We're in business. Let's score.
           context.document = pivot;
-          score(context);
+          double score = score(sortedSentinels, context, maximumPossibleScore);
 
-          if (requested < 0 || queue.size() <= requested || context.runningScore > queue.peek().score) {
-            ScoredDocument scoredDocument = new ScoredDocument(context.document, context.runningScore);
+          if (requested < 0 || queue.size() <= requested || score > queue.peek().score) {
+            ScoredDocument scoredDocument = new ScoredDocument(context.document, score);
             queue.offer(scoredDocument);
-            context.minCandidateScore = factor * queue.peek().score;
+            minCandidateScore = factor * queue.peek().score;
           }
         } else {
-          advancePosition = pickAdvancingSentinel(pivotPosition, pivot);
+          advancePosition = pickAdvancingSentinel(sortedSentinels, pivotPosition, pivot);
           sortedSentinels[advancePosition].iterator.syncTo(pivot);
         }
       }
@@ -113,8 +128,6 @@ public class WANDScoreDocumentModel extends ProcessingModel {
 
     return toReversedArray(queue);
   }
-
-
 
   private void fullSort(Sentinel[] s) {
     Arrays.sort(s, comp);
@@ -136,25 +149,25 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     }
   }
 
-  private void score(EarlyTerminationScoringContext context) throws IOException {
+  private double score(Sentinel[] sortedSentinels, ScoringContext context, double startingPotential) throws IOException {
 
     // Setup to score
-    context.runningScore = context.startingPotential;
-    System.arraycopy(context.startingPotentials, 0, context.potentials, 0,
-            context.startingPotentials.length);
+    double runningScore = startingPotential;
 
     // now score all scorers
     int i;
     for (i = 0; i < sortedSentinels.length; i++) {
       DeltaScoringIterator dsi = sortedSentinels[i].iterator;
       dsi.syncTo(context.document); // just in case
-      dsi.deltaScore();
+      runningScore += dsi.deltaScore(context);
     }
+    return runningScore;
   }
 
-  private void buildSentinels(EarlyTerminationScoringContext ctx, Parameters qp) {
+  private Sentinel[] buildSentinels(List<DeltaScoringIterator> scorers, double startingPotential, Parameters qp) {
+
     String type = retrieval.getGlobalParameters().get("sort", "length");
-    ArrayList<Sentinel> tmp = SortStrategies.populateIndependentSentinels(ctx, false);
+    ArrayList<Sentinel> tmp = SortStrategies.populateIndependentSentinels(scorers, startingPotential, false);
 
     if (qp.get("seqdep", true)) {
       if (type.equals("length")) {
@@ -173,15 +186,15 @@ public class WANDScoreDocumentModel extends ProcessingModel {
         throw new IllegalArgumentException(String.format("What the hell is %s?", type));
       }
     }
-    sortedSentinels = tmp.toArray(new Sentinel[0]);
+    return tmp.toArray(new Sentinel[tmp.size()]);
   }
 
-  private int findPivot(double threshold) {
+  private int findPivot(Sentinel[] sortedSentinels, double scoreMinimum, double threshold) {
     if (threshold == Double.NEGATIVE_INFINITY) {
       return 0;
     }
 
-    double sum = scoreMinimums;
+    double sum = scoreMinimum;
 
     for (int i = 0; i < sortedSentinels.length; i++) {
       DeltaScoringIterator dsi = sortedSentinels[i].iterator;
@@ -200,13 +213,13 @@ public class WANDScoreDocumentModel extends ProcessingModel {
   /**
    * Returns the iterator that should be advanced. The current selection
    * strategy involves using the iterator w/ the lowest df (translates to
-   * highest idf), under the assumption that the lowest df will have the
-   * largest skips in doc ids in its list. Candidates are from sorted(0..limit),
+   * highest idf), under the assumption that the lowest df will have the largest
+   * skips in doc ids in its list. Candidates are from sorted(0..limit),
    * inclusive.
    *
    * @return The iterator that should be advanced next
    */
-  private int pickAdvancingSentinel(int limit, long limitDoc) {
+  private int pickAdvancingSentinel(Sentinel[] sortedSentinels, int limit, long limitDoc) {
     long minDF = Long.MAX_VALUE;
     int minPos = 0;
     for (int i = 0; i < limit; i++) {
@@ -217,5 +230,40 @@ public class WANDScoreDocumentModel extends ProcessingModel {
       }
     }
     return minPos;
+  }
+
+  private boolean findDeltaNodes(Node n, List<Node> scorers, LocalRetrieval ret) throws Exception {
+    // throw exception if we can't determine the class of each node.
+    NodeType nt = ret.getNodeType(n);
+    Class<? extends BaseIterator> iteratorClass = nt.getIteratorClass();
+
+    if (DeltaScoringIterator.class.isAssignableFrom(iteratorClass)) {
+      // we have a delta scoring class
+      scorers.add(n);
+      return true;
+
+    } else if (DisjunctionIterator.class.isAssignableFrom(iteratorClass) && ScoreIterator.class.isAssignableFrom(iteratorClass)) {
+      // we have a disjoint score combination node (e.g. #combine)
+      boolean r = true;
+      for (Node c : n.getInternalNodes()) {
+        r &= findDeltaNodes(c, scorers, ret);
+      }
+      return r;
+    } else {
+      return false;
+    }
+  }
+
+  private List<DeltaScoringIterator> createScoringIterators(List<Node> scoringNodes, ScoringContext c, LocalRetrieval ret) throws Exception {
+    List<DeltaScoringIterator> scoringIterators = new ArrayList();
+
+    // the cache allows low level iterators to be shared
+    Map<String, BaseIterator> queryIteratorCache = new HashMap();
+    for (int i = 0; i < scoringNodes.size(); i++) {
+      DeltaScoringIterator scorer = (DeltaScoringIterator) ret.createNodeMergedIterator(scoringNodes.get(i), c, queryIteratorCache);
+      scoringIterators.add(scorer);
+    }
+
+    return scoringIterators;
   }
 }

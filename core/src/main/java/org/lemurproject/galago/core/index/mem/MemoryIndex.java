@@ -47,7 +47,6 @@ public class MemoryIndex implements DynamicIndex, Index {
   protected LengthsReader lengthsReader = null;
   protected NamesReader namesReader = null;
   // haven't got any of these at the moment
-  // Map<String, HashMap<String, StructuredIndexPartModifier>> modifiers;
   HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
   HashSet<String> knownIndexOperators = new HashSet<String>();
 
@@ -203,7 +202,6 @@ public class MemoryIndex implements DynamicIndex, Index {
     IndexPartReader part = parts.get(getIndexPartName(node));
     if (part != null) {
       result = part.getIterator(node);
-      // modify(result, node);
       if (result == null) {
         result = new NullExtentIterator();
       }

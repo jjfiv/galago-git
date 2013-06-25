@@ -38,13 +38,14 @@ public class DeltaScoreDocumentModelTest extends TestCase {
 
       Node query = StructuredQuery.parse("#combine( test text 0 1 2 3 4 )");
       query = ret.transformQuery(query, queryParams);
-      
+
       MaxScoreDocumentModel deltaModel = new MaxScoreDocumentModel(ret);
       ScoredDocument[] deltaResults = deltaModel.execute(query, queryParams);
 
       RankedDocumentModel safeModel = new RankedDocumentModel(ret);
       ScoredDocument[] safeResults = safeModel.execute(query, queryParams);
 
+      assertEquals(safeResults.length, deltaResults.length);
       for (int i = 0; i < safeResults.length; ++i) {
         assertEquals(safeResults[i].document, deltaResults[i].document);
         assertEquals(safeResults[i].score, deltaResults[i].score, 0.00001);
@@ -62,15 +63,13 @@ public class DeltaScoreDocumentModelTest extends TestCase {
         assertEquals(safeResults2[i].document, deltaResults2[i].document);
         assertEquals(safeResults2[i].score, deltaResults2[i].score, 0.00001);
       }
-    
+
     } finally {
       corpus.delete();
       Utility.deleteDirectory(index);
     }
   }
 
-  
-  
   public void testWAND() throws Exception {
     File corpus = Utility.createTemporary();
     File index = Utility.createTemporaryDirectory();
@@ -85,7 +84,7 @@ public class DeltaScoreDocumentModelTest extends TestCase {
 
       Node query = StructuredQuery.parse("#combine( test text 0 1 2 3 4 )");
       query = ret.transformQuery(query, queryParams);
-      
+
       WANDScoreDocumentModel deltaModel = new WANDScoreDocumentModel(ret);
       ScoredDocument[] deltaResults = deltaModel.execute(query, queryParams);
 

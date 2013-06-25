@@ -51,7 +51,7 @@ public class LogProbNotIterator extends TransformIterator implements ScoreIterat
     if (score < 0) {
       return Math.log(1 - Math.exp(score));
     }
-    throw new RuntimeException("LogProbNot operator requires a log probability, for document: " + context.document + " iterator received: " + score);
+    throw new RuntimeException("LogProbNot operator requires a log probability, for document: " + c.document + " iterator received: " + score);
   }
 
   @Override
@@ -59,7 +59,7 @@ public class LogProbNotIterator extends TransformIterator implements ScoreIterat
     if (scorer.maximumScore() < 0) {
       return Math.log(1 - Math.exp(scorer.maximumScore()));
     }
-    return 0;
+    return Double.MAX_VALUE;
   }
 
   @Override
@@ -67,7 +67,7 @@ public class LogProbNotIterator extends TransformIterator implements ScoreIterat
     if (scorer.minimumScore() < 0) {
       return Math.log(1 - Math.exp(scorer.minimumScore()));
     }
-    return Utility.tinyLogProbScore;
+    return Double.MIN_VALUE;
   }
 
   @Override

@@ -67,10 +67,8 @@ public class FeatureFactory {
     {BM25ScoringIterator.class.getName(), "bm25"},
     {BM25RFScoringIterator.class.getName(), "bm25rf"},
     {BoostingIterator.class.getName(), "boost"},
-    {BM25FieldScoringIterator.class.getName(), "bm25f"},
+//    {BM25FieldScoringIterator.class.getName(), "bm25f"},
     {LogarithmIterator.class.getName(), "log"},
-    {DFRScoringIterator.class.getName(), "dfr"},
-    {PL2FieldScoringIterator.class.getName(), "pl2f"},
     {PL2ScoringIterator.class.getName(), "pl2"},
     {InL2ScoringIterator.class.getName(), "inl2"},
     {BiL2ScoringIterator.class.getName(), "bil2"}

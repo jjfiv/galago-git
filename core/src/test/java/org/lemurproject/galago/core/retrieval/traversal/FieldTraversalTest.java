@@ -253,7 +253,8 @@ public class FieldTraversalTest extends TestCase {
     }
 
   }
-//  
+//  [MOVED TO CONTRIB] 
+// 
 //  public void testPL2FDeltaVsModel() throws Exception {
 //    DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 //
@@ -363,6 +364,8 @@ public class FieldTraversalTest extends TestCase {
 //    assertEquals(results[4].score, 0.096271, 0.00001);
 //  }
 //  
+//  [MOVED TO CONTRIB] 
+//
 //  public void testPL2FModelCorrectness() throws Exception {
 //    DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
 //

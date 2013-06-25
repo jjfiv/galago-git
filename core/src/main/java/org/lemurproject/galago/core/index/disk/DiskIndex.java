@@ -37,9 +37,8 @@ import org.lemurproject.galago.tupleflow.Parameters;
 /**
  * This is the main class for a disk based index structure
  *
- * A index is a set of parts and modifiers Each part is a index file that offers
- * one or more iterators Each modifier alters or extends the data provided by
- * the corresponding part Queries are be processed in this class using a tree of
+ * A index is a set of parts Each part is a index file that offers
+ * one or more iterators. Queries are be processed in this class using a tree of
  * iterators
  *
  * See the Index interface for the list of public functions.
@@ -86,8 +85,7 @@ public class DiskIndex implements Index {
   }
 
   /**
-   * recursively open index parts + infer if the file/folder is a part or a
-   * modifier
+   * recursively open index parts + infer if the file/folder is a part
    *
    * prefix should be empty string or a path ending with a slash
    */

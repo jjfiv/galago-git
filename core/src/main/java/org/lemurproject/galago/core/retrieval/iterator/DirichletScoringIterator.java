@@ -2,7 +2,6 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.processing.EarlyTerminationScoringContext;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
@@ -23,8 +22,8 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
 
   double weight;
   int parentIdx;
-  double min;
-  double max;
+  double min; // min score
+  double max; // max tf
 
   public DirichletScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
           throws IOException {
@@ -44,6 +43,11 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
   public double minimumScore() {
     return min;
   }
+  
+  @Override
+  public double maximumScore() {
+    return max;
+  }
 
   @Override
   public double getWeight() {
@@ -51,38 +55,21 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
-  public void deltaScore() {
-    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
-    int count = ((CountIterator) iterator).count(context);
-
-    double diff = weight * (function.score(count, lengthsIterator.length(context)) - max);
-    ctx.runningScore += diff;
+  public double deltaScore(ScoringContext c) {
+    int count = ((CountIterator) iterator).count(c);
+    int length = this.lengthsIterator.length(c);
+    double diff = weight * (function.score(count, length) - max);
+    return diff;
   }
 
   @Override
-  public void maximumDifference() {
-    EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
+  public double maximumDifference() {
     double diff = weight * (min - max);
-    ctx.runningScore += diff;
-    ////CallTable.increment("aux_flops");
+    return diff;
   }
 
   @Override
-  public void setContext(ScoringContext ctx) {
-    super.setContext(ctx);
-    if (EarlyTerminationScoringContext.class.isAssignableFrom(ctx.getClass())) {
-      EarlyTerminationScoringContext dctx = (EarlyTerminationScoringContext) ctx;
-      if (dctx.members.contains(this)) {
-        return;
-      }
-      dctx.scorers.add(this);
-      dctx.members.add(this);
-      dctx.startingPotential += (max * weight);
-    }
-  }
-
-  @Override
-  public void aggregatePotentials(EarlyTerminationScoringContext ctx) {
-    // Nothing to do for this one
+  public double startingPotential() {
+    return (max * weight);
   }
 }

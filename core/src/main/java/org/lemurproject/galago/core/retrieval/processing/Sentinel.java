@@ -1,6 +1,5 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * BSD License (http://lemurproject.org/galago-license)
  */
 package org.lemurproject.galago.core.retrieval.processing;
 
@@ -21,6 +20,7 @@ public class Sentinel {
     this.iterator = it;
   }
 
+  @Override
   public String toString() {
     return String.format("%s -> %f\n", Utility.shortName(iterator), score);
   }

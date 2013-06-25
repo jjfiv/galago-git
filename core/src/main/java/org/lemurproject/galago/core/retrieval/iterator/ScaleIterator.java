@@ -28,11 +28,11 @@ public class ScaleIterator extends TransformIterator {
   }
 
   public double maximumScore() {
-    return ((ScoreIterator) iterator).maximumScore();
+    return weight * ((ScoreIterator) iterator).maximumScore();
   }
 
   public double minimumScore() {
-    return ((ScoreIterator) iterator).minimumScore();
+    return weight * ((ScoreIterator) iterator).minimumScore();
   }
 
   @Override

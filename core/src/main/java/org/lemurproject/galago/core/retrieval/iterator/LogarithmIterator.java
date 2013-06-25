@@ -28,7 +28,6 @@ public class LogarithmIterator extends TransformIterator implements ScoreIterato
     super(svi);
     this.np = params;
     scorer = svi;
-    context = null;
   }
 
   @Override

@@ -47,6 +47,7 @@ public class AnnotateCollectionStatistics extends Traversal {
     // countable-node statistics
     this.availableStatistics.add("nodeFrequency");
     this.availableStatistics.add("nodeDocumentCount");
+    this.availableStatistics.add("maximumCount");
   }
 
   @Override
@@ -128,6 +129,10 @@ public class AnnotateCollectionStatistics extends Traversal {
       if (reqStats.contains("nodeDocumentCount")
               && !nodeParams.containsKey("nodeDocumentCount")) {
         nodeParams.set("nodeDocumentCount", stats.nodeDocumentCount);
+      }
+      if (reqStats.contains("maximumCount")
+              && !nodeParams.containsKey("maximumCount")) {
+        nodeParams.set("maximumCount", stats.maximumCount);
       }
     }
   }
