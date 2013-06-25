@@ -79,8 +79,8 @@ public class WeightedSumIterator extends DisjunctionIterator implements ScoreIte
   }
 
   @Override
-  public String getValueString() throws IOException {
-    return this.currentCandidate() + " " + this.score(context);
+  public String getValueString(ScoringContext c) throws IOException {
+    return this.currentCandidate() + " " + this.score(c);
   }
 
   @Override

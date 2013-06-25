@@ -71,7 +71,7 @@ public class NullExtentIterator extends DiskIterator implements ExtentIterator, 
   }
 
   @Override
-  public String getValueString() throws IOException {
+  public String getValueString(ScoringContext c) throws IOException {
     return "NULL";
   }
 

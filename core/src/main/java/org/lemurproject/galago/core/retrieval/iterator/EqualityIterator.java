@@ -24,17 +24,17 @@ public class EqualityIterator extends FieldComparisonIterator {
     if (currentCandidate() != c.document) {
       return false;
     } else if (format.equals("string")) {
-      return (fieldIterator.stringValue().equals(strValue));
+      return (fieldIterator.stringValue(c).equals(strValue));
     } else if (format.equals("int")) {
-      return (fieldIterator.intValue() == intValue);
+      return (fieldIterator.intValue(c) == intValue);
     } else if (format.equals("long")) {
-      return (fieldIterator.longValue() == longValue);
+      return (fieldIterator.longValue(c) == longValue);
     } else if (format.equals("float")) {
-      return (fieldIterator.floatValue() == floatValue);
+      return (fieldIterator.floatValue(c) == floatValue);
     } else if (format.equals("double")) {
-      return (fieldIterator.doubleValue() == doubleValue);
+      return (fieldIterator.doubleValue(c) == doubleValue);
     } else if (format.equals("date")) {
-      return (fieldIterator.dateValue() == dateValue);
+      return (fieldIterator.dateValue(c) == dateValue);
     } else {
       throw new RuntimeException(String.format("Don't have any plausible format for tag %s\n",
               format));

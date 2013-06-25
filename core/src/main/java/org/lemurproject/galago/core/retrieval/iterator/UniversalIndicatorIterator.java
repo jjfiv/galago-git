@@ -29,9 +29,8 @@ public class UniversalIndicatorIterator extends ConjunctionIterator implements I
   }
 
   @Override
-  public String getValueString() throws IOException {
-    // TODO fix this
-    return this.currentCandidate() + " " + this.indicator(new ScoringContext(this.currentCandidate()));
+  public String getValueString(ScoringContext c) throws IOException {
+    return this.currentCandidate() + " " + this.indicator(c);
   }
 
   @Override

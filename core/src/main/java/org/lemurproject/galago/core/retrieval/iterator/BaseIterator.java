@@ -126,7 +126,7 @@ public interface BaseIterator extends Comparable<BaseIterator> {
    * Returns a string representation of the current candidate + value
    *  Useful for dump index/iterator functions
    */
-  public String getValueString() throws IOException;
+  public String getValueString(ScoringContext sc) throws IOException;
 
   /**
    * Returns an AnnotatedNode representation of the current state of this iterator

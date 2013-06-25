@@ -64,23 +64,23 @@ public class InBetweenIterator extends FieldComparisonIterator {
     if (currentCandidate() != c.document) {
       return false;
     } else if (format.equals("string")) {
-      return (fieldIterator.stringValue().compareTo(strValue) > 0)
-              && (fieldIterator.stringValue().compareTo(strValue2) < 0);
+      return (fieldIterator.stringValue(c).compareTo(strValue) > 0)
+              && (fieldIterator.stringValue(c).compareTo(strValue2) < 0);
     } else if (format.equals("int")) {
-      return (fieldIterator.intValue() > intValue)
-              && (fieldIterator.intValue() < intValue2);
+      return (fieldIterator.intValue(c) > intValue)
+              && (fieldIterator.intValue(c) < intValue2);
     } else if (format.equals("long")) {
-      return (fieldIterator.longValue() > longValue)
-              && (fieldIterator.longValue() < longValue2);
+      return (fieldIterator.longValue(c) > longValue)
+              && (fieldIterator.longValue(c) < longValue2);
     } else if (format.equals("float")) {
-      return (fieldIterator.floatValue() > floatValue)
-              && (fieldIterator.floatValue() < floatValue2);
+      return (fieldIterator.floatValue(c) > floatValue)
+              && (fieldIterator.floatValue(c) < floatValue2);
     } else if (format.equals("double")) {
-      return (fieldIterator.doubleValue() > doubleValue)
-              && (fieldIterator.doubleValue() < doubleValue2);
+      return (fieldIterator.doubleValue(c) > doubleValue)
+              && (fieldIterator.doubleValue(c) < doubleValue2);
     } else if (format.equals("date")) {
-      return (fieldIterator.dateValue() > dateValue)
-              && (fieldIterator.dateValue() < dateValue2);
+      return (fieldIterator.dateValue(c) > dateValue)
+              && (fieldIterator.dateValue(c) < dateValue2);
     } else {
       throw new RuntimeException(String.format("Don't have any plausible format for tag %s\n",
               format));

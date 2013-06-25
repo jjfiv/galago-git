@@ -91,7 +91,7 @@ public abstract class SourceIterator extends DiskIterator {
 
   // This is not implemented here, because it needs to be customized for each SourceIterator
   @Override
-  public abstract String getValueString() throws IOException;
+  public abstract String getValueString(ScoringContext c) throws IOException;
 
   // This is not implemented here, because it needs to be customized for each SourceIterator
   @Override

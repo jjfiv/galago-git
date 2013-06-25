@@ -23,8 +23,8 @@ public class DiskDataIterator<DataType> extends SourceIterator implements DataIt
   }
 
   @Override
-  public String getValueString() throws IOException {
-    DataType dt = data(context);
+  public String getValueString(ScoringContext c) throws IOException {
+    DataType dt = data(c);
     if (dt == null) {
       return "null-value";
     }
@@ -43,7 +43,7 @@ public class DiskDataIterator<DataType> extends SourceIterator implements DataIt
     String parameters = "";
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = getValueString();
+    String returnValue = getValueString(c);
     String extraInfo = data(c).toString();
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

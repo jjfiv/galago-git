@@ -76,7 +76,7 @@ public class FakeLengthIterator implements LengthsIterator {
   }
 
   @Override
-  public String getValueString() throws IOException {
+  public String getValueString(ScoringContext sc) throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 

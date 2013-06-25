@@ -25,9 +25,9 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
   }
 
   @Override
-  public String getValueString() throws IOException {
+  public String getValueString(ScoringContext c) throws IOException {
     ArrayList<String> strs = new ArrayList<String>();
-    ExtentArrayIterator eai = new ExtentArrayIterator(extents(context));
+    ExtentArrayIterator eai = new ExtentArrayIterator(extents(c));
     while (!eai.isDone()) {
       strs.add(String.format("[%d, %d]", eai.currentBegin(), eai.currentEnd()));
       eai.next();

@@ -109,16 +109,16 @@ public class NumberedFieldExtractorTest extends TestCase {
       valueIterator = (FieldIndexReader.ListIterator) iterator.getValueIterator();
       valueIterator.setContext(context);
       context.document = valueIterator.currentCandidate();
-      assertEquals(valueIterator.doubleValue(), 1.0, 0.0000001);
+      assertEquals(valueIterator.doubleValue(context), 1.0, 0.0000001);
       valueIterator.movePast(valueIterator.currentCandidate());
       context.document = valueIterator.currentCandidate();
-      assertEquals(valueIterator.doubleValue(), 1.0, 0.0000001);
+      assertEquals(valueIterator.doubleValue(context), 1.0, 0.0000001);
       valueIterator.movePast(valueIterator.currentCandidate());
       context.document = valueIterator.currentCandidate();
-      assertEquals(valueIterator.doubleValue(), -1.0, 0.0000001);
+      assertEquals(valueIterator.doubleValue(context), -1.0, 0.0000001);
       valueIterator.movePast(valueIterator.currentCandidate());
       context.document = valueIterator.currentCandidate();
-      assertEquals(valueIterator.doubleValue(), 1000000.0, 0.0000001);
+      assertEquals(valueIterator.doubleValue(context), 1000000.0, 0.0000001);
       valueIterator.movePast(valueIterator.currentCandidate());
       assertEquals(valueIterator.isDone(), true);
 
@@ -127,16 +127,16 @@ public class NumberedFieldExtractorTest extends TestCase {
       valueIterator = (FieldIndexReader.ListIterator) iterator.getValueIterator();
       valueIterator.setContext(context);
       context.document = valueIterator.currentCandidate();
-      assertEquals(valueIterator.floatValue(), 1.0, 0.0000001);
+      assertEquals(valueIterator.floatValue(context), 1.0, 0.0000001);
       valueIterator.movePast(valueIterator.currentCandidate());
       context.document = valueIterator.currentCandidate();
-      assertEquals(valueIterator.floatValue(), 1.0, 0.0000001);
+      assertEquals(valueIterator.floatValue(context), 1.0, 0.0000001);
       valueIterator.movePast(valueIterator.currentCandidate());
       context.document = valueIterator.currentCandidate();
-      assertEquals(valueIterator.floatValue(), -1.0, 0.0000001);
+      assertEquals(valueIterator.floatValue(context), -1.0, 0.0000001);
       valueIterator.movePast(valueIterator.currentCandidate());
       context.document = valueIterator.currentCandidate();
-      assertEquals(valueIterator.floatValue(), 1000000.0, 0.0000001);
+      assertEquals(valueIterator.floatValue(context), 1000000.0, 0.0000001);
       valueIterator.movePast(valueIterator.currentCandidate());
       assertEquals(valueIterator.isDone(), true);
 
@@ -145,13 +145,13 @@ public class NumberedFieldExtractorTest extends TestCase {
       valueIterator = (FieldIndexReader.ListIterator) iterator.getValueIterator();
       valueIterator.setContext(context);
       context.document = valueIterator.currentCandidate();
-      assertEquals(valueIterator.intValue(), 1);
+      assertEquals(valueIterator.intValue(context), 1);
       valueIterator.movePast(valueIterator.currentCandidate());
       context.document = valueIterator.currentCandidate();
-      assertEquals(valueIterator.intValue(), 10);
+      assertEquals(valueIterator.intValue(context), 10);
       valueIterator.movePast(valueIterator.currentCandidate());
       context.document = valueIterator.currentCandidate();
-      assertEquals(valueIterator.intValue(), -1);
+      assertEquals(valueIterator.intValue(context), -1);
       valueIterator.movePast(valueIterator.currentCandidate());
       assertEquals(valueIterator.isDone(), true);
 
@@ -160,13 +160,13 @@ public class NumberedFieldExtractorTest extends TestCase {
       valueIterator = (FieldIndexReader.ListIterator) iterator.getValueIterator();
       valueIterator.setContext(context);
       context.document = valueIterator.currentCandidate();
-      assertEquals(valueIterator.longValue(), 1);
+      assertEquals(valueIterator.longValue(context), 1);
       valueIterator.movePast(valueIterator.currentCandidate());
       context.document = valueIterator.currentCandidate();
-      assertEquals(valueIterator.longValue(), 10);
+      assertEquals(valueIterator.longValue(context), 10);
       valueIterator.movePast(valueIterator.currentCandidate());
       context.document = valueIterator.currentCandidate();
-      assertEquals(valueIterator.longValue(), -1);
+      assertEquals(valueIterator.longValue(context), -1);
       valueIterator.movePast(valueIterator.currentCandidate());
       assertEquals(valueIterator.isDone(), true);
 

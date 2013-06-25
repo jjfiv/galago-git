@@ -124,8 +124,8 @@ public class FakeScoreIterator implements ScoreIterator {
   }
 
   @Override
-  public String getValueString() throws IOException {
-    return currentCandidate() + "," + score(context);
+  public String getValueString(ScoringContext sc) throws IOException {
+    return currentCandidate() + "," + score(sc);
   }
 
   @Override

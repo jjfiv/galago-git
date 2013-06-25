@@ -171,13 +171,13 @@ public class FieldIndexReader extends KeyListReader {
     }
 
     @Override
-    public String getValueString() throws IOException {
+    public String getValueString(ScoringContext c) throws IOException {
       StringBuilder builder = new StringBuilder();
       builder.append(getKeyString());
       builder.append(",");
       builder.append(currentDocument);
       builder.append(",");
-      builder.append(printValue());
+      builder.append(printValue(c));
       return builder.toString();
     }
 
@@ -255,8 +255,8 @@ public class FieldIndexReader extends KeyListReader {
       }
     }
 
-    private String printValue() throws RuntimeException {
-      if (this.currentDocument == this.context.document) {
+    private String printValue(ScoringContext c) throws RuntimeException {
+      if (this.currentDocument == c.document) {
         if (format.equals("string")) {
           return String.format("%s (String)", strValue);
         } else if (format.equals("int")) {
@@ -278,8 +278,8 @@ public class FieldIndexReader extends KeyListReader {
       return null;
     }
 
-    public String stringValue() {
-      if (this.currentDocument == this.context.document) {
+    public String stringValue(ScoringContext c) {
+      if (this.currentDocument == c.document) {
         if (format.equals("string")) {
           return strValue;
         } else {
@@ -290,8 +290,8 @@ public class FieldIndexReader extends KeyListReader {
       return null;
     }
 
-    public int intValue() {
-      if (this.currentDocument == this.context.document) {
+    public int intValue(ScoringContext c) {
+      if (this.currentDocument == c.document) {
         if (format.equals("int")) {
           return intValue;
         } else {
@@ -302,8 +302,8 @@ public class FieldIndexReader extends KeyListReader {
       return 0;
     }
 
-    public long longValue() {
-      if (this.currentDocument == this.context.document) {
+    public long longValue(ScoringContext c) {
+      if (this.currentDocument == c.document) {
         if (format.equals("long")) {
           return longValue;
         } else {
@@ -314,8 +314,8 @@ public class FieldIndexReader extends KeyListReader {
       return 0l;
     }
 
-    public float floatValue() {
-      if (this.currentDocument == this.context.document) {
+    public float floatValue(ScoringContext c) {
+      if (this.currentDocument == c.document) {
         if (format.equals("float")) {
           return floatValue;
         } else {
@@ -326,8 +326,8 @@ public class FieldIndexReader extends KeyListReader {
       return 0f;
     }
 
-    public double doubleValue() {
-      if (this.currentDocument == this.context.document) {
+    public double doubleValue(ScoringContext c) {
+      if (this.currentDocument == c.document) {
         if (format.equals("double")) {
           return doubleValue;
         } else {
@@ -338,8 +338,8 @@ public class FieldIndexReader extends KeyListReader {
       return 0d;
     }
 
-    public long dateValue() {
-      if (this.currentDocument == this.context.document) {
+    public long dateValue(ScoringContext c) {
+      if (this.currentDocument == c.document) {
         if (format.equals("date")) {
           return dateValue;
         } else {
@@ -377,7 +377,7 @@ public class FieldIndexReader extends KeyListReader {
       String parameters = "";
       long document = currentCandidate();
       boolean atCandidate = hasMatch(c.document);
-      String returnValue = printValue();
+      String returnValue = printValue(c);
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);

@@ -23,8 +23,8 @@ public class DiskScoreIterator extends SourceIterator implements ScoreIterator {
   }
 
   @Override
-  public String getValueString() throws IOException {
-    return String.format("%s,%d,%f", getKeyString(), currentCandidate(), score(context));
+  public String getValueString(ScoringContext c) throws IOException {
+    return String.format("%s,%d,%f", getKeyString(), currentCandidate(), score(c));
   }
 
   @Override

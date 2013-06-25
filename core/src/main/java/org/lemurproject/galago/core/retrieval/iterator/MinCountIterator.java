@@ -61,7 +61,7 @@ public class MinCountIterator extends ConjunctionIterator implements CountIterat
   }
 
   @Override
-  public String getValueString() throws IOException {
+  public String getValueString(ScoringContext c) throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 }

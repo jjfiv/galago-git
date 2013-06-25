@@ -54,10 +54,11 @@ public class DumpIndexFn extends AppFunction {
     if (KeyListReader.class.isAssignableFrom(reader.getClass())) {
       while (!iterator.isDone()) {
         BaseIterator vIter = iterator.getValueIterator();
-        vIter.setContext(new ScoringContext());
+        ScoringContext sc = new ScoringContext();
+        vIter.setContext(sc);
         while (!vIter.isDone()) {
-          vIter.getContext().document = vIter.currentCandidate();
-          output.println(vIter.getValueString());
+          sc.document = vIter.currentCandidate();
+          output.println(vIter.getValueString(sc));
           vIter.movePast(vIter.currentCandidate());
         }
         iterator.nextKey();

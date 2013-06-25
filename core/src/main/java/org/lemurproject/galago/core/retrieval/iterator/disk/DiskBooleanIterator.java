@@ -23,8 +23,8 @@ public class DiskBooleanIterator extends SourceIterator implements IndicatorIter
   }
 
   @Override
-  public String getValueString() throws IOException {
-    return String.format("%s:%d:%s", getKeyString(), currentCandidate(), indicator(context));
+  public String getValueString(ScoringContext c) throws IOException {
+    return String.format("%s:%d:%s", getKeyString(), currentCandidate(), indicator(c));
   }
 
   @Override

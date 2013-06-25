@@ -127,7 +127,7 @@ public class LogProbNotIteratorTest extends TestCase {
     }
 
     @Override
-    public String getValueString() throws IOException {
+    public String getValueString(ScoringContext sc) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

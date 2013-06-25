@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskDataIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -34,7 +35,6 @@ import org.lemurproject.galago.tupleflow.Utility;
 public class CorpusReader extends KeyValueReader implements DocumentReader {
 
   TagTokenizer tokenizer;
-  boolean psuedoDocs;
 
   public CorpusReader(String fileName) throws FileNotFoundException, IOException {
     super(fileName);
@@ -48,7 +48,6 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
   public void init() {
     Parameters manifest = getManifest();
-    psuedoDocs = manifest.get("psuedo", false);
     if (manifest.containsKey("tokenizer")) {
       tokenizer = new TagTokenizer(new FakeParameters(getManifest().getMap("tokenizer")));
     } else {
@@ -85,14 +84,14 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("corpus", new NodeType(CorpusIterator.class));
+    types.put("corpus", new NodeType(DiskDataIterator.class));
     return types;
   }
 
   @Override
-  public BaseIterator getIterator(Node node) throws IOException {
+  public DiskDataIterator<Document> getIterator(Node node) throws IOException {
     if (node.getOperator().equals("corpus")) {
-      return new CorpusIterator(new KeyIterator(reader));
+      return new DiskDataIterator<Document>(new CorpusReaderSource(reader));
     } else {
       throw new UnsupportedOperationException(
               "Index doesn't support operator: " + node.getOperator());
@@ -129,65 +128,8 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     }
 
     @Override
-    public BaseIterator getValueIterator() throws IOException {
-      return new CorpusIterator(this);
-    }
-  }
-
-  public class CorpusIterator extends KeyToListIterator implements DataIterator<Document> {
-
-    DocumentComponents docParams;
-
-    public CorpusIterator(KeyIterator ki) {
-      super(ki);
-      docParams = new DocumentComponents();
-    }
-
-    @Override
-    public String getValueString() throws IOException {
-      return ((KeyIterator) iterator).getValueString();
-    }
-
-    @Override
-    public long totalEntries() {
-      return reader.getManifest().getLong("keyCount");
-    }
-
-    @Override
-    public Document data(ScoringContext c) {
-      if (c.document != this.currentCandidate()) {
-        try {
-          return ((KeyIterator) iterator).getDocument(docParams);
-        } catch (IOException ioe) {
-          throw new RuntimeException(ioe);
-        }
-      } else {
-        return null;
-      }
-    }
-
-    @Override
-    public boolean hasAllCandidates() {
-      return true;
-    }
-
-    @Override
-    public String getKeyString() {
-      return "corpus";
-    }
-
-    @Override
-    public AnnotatedNode getAnnotatedNode(ScoringContext c) {
-      String type = "corpus";
-      String className = this.getClass().getSimpleName();
-      String parameters = "";
-      long document = currentCandidate();
-      boolean atCandidate = hasMatch(c.document);
-      String returnValue = data(c).name;
-      String extraInfo = data(c).toString();
-      List<AnnotatedNode> children = Collections.EMPTY_LIST;
-
-      return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, extraInfo, children);
+    public DiskDataIterator getValueIterator() throws IOException {
+      return new DiskDataIterator(new CorpusReaderSource(reader));
     }
   }
 }

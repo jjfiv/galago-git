@@ -26,8 +26,8 @@ public class DiskCountIterator extends SourceIterator
   }
 
   @Override
-  public String getValueString() throws IOException {
-    return String.format("%s,%d,%d", getKeyString(), currentCandidate(), count(new ScoringContext(currentCandidate())));
+  public String getValueString(ScoringContext c) throws IOException {
+    return String.format("%s,%d,%d", getKeyString(), currentCandidate(), count(c));
   }
 
   @Override

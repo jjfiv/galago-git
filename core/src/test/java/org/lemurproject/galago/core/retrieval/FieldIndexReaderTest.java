@@ -120,21 +120,21 @@ public class FieldIndexReaderTest extends TestCase {
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 1);
     sc.document = fields.currentCandidate();
-    assertEquals(fields.stringValue(), "doc1");
+    assertEquals(fields.stringValue(sc), "doc1");
 
     fields.movePast(fields.currentCandidate());
 
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 9);
     sc.document = fields.currentCandidate();
-    assertEquals(fields.stringValue(), "doc2");
+    assertEquals(fields.stringValue(sc), "doc2");
 
     fields.movePast(fields.currentCandidate());
 
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 34);
     sc.document = fields.currentCandidate();
-    assertEquals(fields.stringValue(), "doc9");
+    assertEquals(fields.stringValue(sc), "doc9");
 
     fields.movePast(fields.currentCandidate());
     assertTrue(fields.isDone());
@@ -152,21 +152,21 @@ public class FieldIndexReaderTest extends TestCase {
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 15);
     sc.document = fields.currentCandidate();
-    assertEquals(fields.dateValue(), df.parse("6/12/1980").getTime());
+    assertEquals(fields.dateValue(sc), df.parse("6/12/1980").getTime());
 
     fields.movePast(fields.currentCandidate());
 
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 25);
     sc.document = fields.currentCandidate();
-    assertEquals(fields.dateValue(), df.parse("6/12/1949").getTime());
+    assertEquals(fields.dateValue(sc), df.parse("6/12/1949").getTime());
 
     fields.movePast(fields.currentCandidate());
 
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 47);
     sc.document = fields.currentCandidate();
-    assertEquals(fields.dateValue(), df.parse("1/1/1663").getTime());
+    assertEquals(fields.dateValue(sc), df.parse("1/1/1663").getTime());
 
     fields.movePast(fields.currentCandidate());
     assertTrue(fields.isDone());
@@ -182,21 +182,21 @@ public class FieldIndexReaderTest extends TestCase {
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 1);
     sc.document = fields.currentCandidate();
-    assertEquals(fields.intValue(), 1);
+    assertEquals(fields.intValue(sc), 1);
 
     fields.movePast(fields.currentCandidate());
 
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 2);
     sc.document = fields.currentCandidate();
-    assertEquals(fields.intValue(), 12);
+    assertEquals(fields.intValue(sc), 12);
 
     fields.movePast(fields.currentCandidate());
 
     assertFalse(fields.isDone());
     assertEquals(fields.currentCandidate(), 3);
     sc.document = fields.currentCandidate();
-    assertEquals(fields.intValue(), 4);
+    assertEquals(fields.intValue(sc), 4);
 
     fields.movePast(fields.currentCandidate());
     assertTrue(fields.isDone());

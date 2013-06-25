@@ -29,8 +29,8 @@ public class ExistentialIndicatorIterator extends DisjunctionIterator implements
   }
 
   @Override
-  public String getValueString() throws IOException {
-    return this.currentCandidate() + " " + this.indicator(new ScoringContext(this.currentCandidate()));
+  public String getValueString(ScoringContext c) throws IOException {
+    return this.currentCandidate() + " " + this.indicator(c);
   }
 
   @Override

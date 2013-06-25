@@ -65,8 +65,8 @@ public abstract class TransformIterator implements BaseIterator {
   }
 
   @Override
-  public String getValueString() throws IOException {
-    return iterator.getValueString();
+  public String getValueString(ScoringContext c) throws IOException {
+    return iterator.getValueString(c);
   }
 
   @Override

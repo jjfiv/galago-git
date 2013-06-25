@@ -86,8 +86,8 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Sco
   }
 
   @Override
-  public String getValueString() throws IOException {
-    return this.currentCandidate() + " " + this.score(context);
+  public String getValueString(ScoringContext c) throws IOException {
+    return this.currentCandidate() + " " + this.score(c);
   }
 
   @Override

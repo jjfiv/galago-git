@@ -25,12 +25,12 @@ public class DiskExtentIterator extends SourceIterator implements NodeAggregateI
   }
 
   @Override
-  public String getValueString() throws IOException {
+  public String getValueString(ScoringContext c) throws IOException {
     StringBuilder builder = new StringBuilder();
     builder.append(getKeyString());
     builder.append(",");
     builder.append(currentCandidate());
-    ExtentArray e = extents(context);
+    ExtentArray e = extents(c);
     for (int i = 0; i < e.size(); ++i) {
       builder.append(",");
       builder.append(e.begin(i));

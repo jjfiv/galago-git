@@ -29,8 +29,8 @@ public class DiskLengthsIterator extends SourceIterator
   }
 
   @Override
-  public String getValueString() throws IOException {
-    return currentCandidate() + "," + length(context);
+  public String getValueString(ScoringContext c) throws IOException {
+    return currentCandidate() + "," + length(c);
   }
 
   @Override

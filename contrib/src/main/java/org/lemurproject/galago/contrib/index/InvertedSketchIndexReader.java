@@ -294,7 +294,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     }
 
     @Override
-    public String getValueString() throws IOException {
+    public String getValueString(ScoringContext sc) throws IOException {
       StringBuilder builder = new StringBuilder();
 
       builder.append(getKeyString());
