@@ -1,6 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.structured;
 
+import org.lemurproject.galago.core.retrieval.iterator.scoring.InL2ScoringIterator;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.PL2ScoringIterator;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.BiL2ScoringIterator;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.DirichletScoringIterator;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.BM25ScoringIterator;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.JelinekMercerScoringIterator;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.BM25RFScoringIterator;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

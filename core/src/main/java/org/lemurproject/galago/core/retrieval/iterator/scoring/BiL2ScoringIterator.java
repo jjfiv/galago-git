@@ -1,11 +1,15 @@
 /*
  *  BSD License (http://lemurproject.org/galago-license)
  */
-package org.lemurproject.galago.core.retrieval.iterator;
+package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.TransformIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;

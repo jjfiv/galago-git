@@ -7,7 +7,6 @@ import java.util.List;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.scoring.ScoringFunction;
 
 /**
  * An iterator that converts a count iterator's count into a score. This is
@@ -16,10 +15,9 @@ import org.lemurproject.galago.core.scoring.ScoringFunction;
  *
  * @author irmarc
  */
-public class ScoringFunctionIterator extends TransformIterator implements ScoreIterator {
+public abstract class ScoringFunctionIterator extends TransformIterator implements ScoreIterator {
 
   protected NodeParameters np;
-  protected ScoringFunction function;
   protected LengthsIterator lengthsIterator;
   protected CountIterator countIterator;
 
@@ -32,14 +30,6 @@ public class ScoringFunctionIterator extends TransformIterator implements ScoreI
     this.countIterator = iterator;
   }
 
-  public void setScoringFunction(ScoringFunction f) {
-    this.function = f;
-  }
-
-  public ScoringFunction getScoringFunction() {
-    return function;
-  }
-
   /**
    * Over the lengths iterator trails the counts iterator.
    * When 'syncTo' is called, the lengths iterator catches up.
@@ -50,13 +40,6 @@ public class ScoringFunctionIterator extends TransformIterator implements ScoreI
     this.lengthsIterator.syncTo(document);
   }
   
-  @Override
-  public double score(ScoringContext c) {
-    int count = countIterator.count(c);
-    double score = function.score(count, lengthsIterator.length(c));
-    return score;
-  }
-
   @Override
   public double maximumScore() {
     return Double.POSITIVE_INFINITY;

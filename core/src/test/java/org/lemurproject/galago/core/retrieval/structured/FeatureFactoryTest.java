@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.DirichletScoringIterator;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.DirichletScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.OrderedWindowIterator;
 import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;

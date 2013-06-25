@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.lemurproject.galago.core.scoring;
+package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
 import java.util.Arrays;

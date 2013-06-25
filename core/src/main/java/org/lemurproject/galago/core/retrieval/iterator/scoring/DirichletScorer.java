@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.scoring;
+package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
@@ -12,6 +12,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * A Dirichlet smoothing node, applied over a raw term count node.
  *
  * @author trevor, irmarc
+ * @deprecated 
  */
 @RequiredStatistics(statistics = {"nodeFrequency","collectionLength"})
 @RequiredParameters(parameters = {"mu"})
@@ -20,7 +21,7 @@ public class DirichletScorer implements ScoringFunction {
   double background;
   double mu;
 
-  public DirichletScorer(NodeParameters parameters, CountIterator iterator) throws IOException {
+  public DirichletScorer(NodeParameters parameters) throws IOException {
 
     mu = parameters.get("mu", 1500D);
     long collectionLength = parameters.getLong("collectionLength");

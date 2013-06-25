@@ -1,10 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.retrieval.iterator;
+package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
 import java.io.IOException;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.scoring.BM25RFScorer;
 
 /**
  * Implements an iterator over the BM25RF scoring mechanism based on TSV
@@ -17,10 +19,29 @@ import org.lemurproject.galago.core.scoring.BM25RFScorer;
  */
 public class BM25RFScoringIterator extends ScoringFunctionIterator {
 
-  public BM25RFScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
+  private final double value;
+
+  public BM25RFScoringIterator(NodeParameters np, LengthsIterator ls, CountIterator it)
           throws IOException {
-    super(p, ls, it);
-    this.setScoringFunction(new BM25RFScorer(p, it));
+    super(np, ls, it);
+
+
+    int rt = (int) np.get("rt", 0);
+    int R = (int) np.get("R", 0);
+    long N = np.getLong("documentCount");
+    double factor = np.get("factor", 0.33D);
+    // now get idf
+    long ft = 0;
+    if (np.containsKey("ft")) {
+      ft = (int) np.get("ft", 0);
+    } else {
+      ft = iterator.totalEntries();
+    }
+    assert (ft >= rt); // otherwise they're wrong and/or lying
+    double numerator = (rt + 0.5) / (R - rt + 0.5);
+    double denominator = (ft - rt + 0.5) / (N - ft - R + rt + 0.5);
+
+    value = factor * Math.log(numerator / denominator);
   }
 
   /**
@@ -34,7 +55,7 @@ public class BM25RFScoringIterator extends ScoringFunctionIterator {
   @Override
   public double score(ScoringContext c) {
     if (iterator.currentCandidate() == c.document) {
-      return function.score(((CountIterator) iterator).count(c), lengthsIterator.length(c));
+      return value;
     } else {
       return 0;
     }
@@ -48,7 +69,7 @@ public class BM25RFScoringIterator extends ScoringFunctionIterator {
    */
   @Override
   public double maximumScore() {
-    return function.score(0, 0);
+    return value;
   }
 
   /**
@@ -59,6 +80,6 @@ public class BM25RFScoringIterator extends ScoringFunctionIterator {
    */
   @Override
   public double minimumScore() {
-    return function.score(0, 0);
+    return value;
   }
 }

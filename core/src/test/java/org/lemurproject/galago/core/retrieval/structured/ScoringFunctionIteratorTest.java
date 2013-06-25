@@ -1,14 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.structured;
 
+import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
-import org.lemurproject.galago.core.retrieval.iterator.BM25RFScoringIterator;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.BM25RFScoringIterator;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.FakeLengthIterator;
 import org.lemurproject.galago.core.retrieval.extents.FakeExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.scoring.ScoringFunction;
 
 /**
  *
@@ -22,11 +24,19 @@ public class ScoringFunctionIteratorTest extends TestCase {
     {110, 12, 23, 34}
   };
 
-  private static class FakeScorer implements ScoringFunction {
+  private static class FakeScorer extends ScoringFunctionIterator {
 
-    @Override
+    public FakeScorer(NodeParameters p, LengthsIterator l, CountIterator c) throws IOException {
+      super(p, l, c);
+    }
+
     public double score(int count, int length) {
       return (count + length);
+    }
+
+    @Override
+    public double score(ScoringContext c) {
+      return ((CountIterator) this.iterator).count(c) + this.lengthsIterator.length(c);
     }
   }
 
@@ -36,8 +46,7 @@ public class ScoringFunctionIteratorTest extends TestCase {
     int[] lengths = {0, 99, 41};
     FakeLengthIterator lengthsIterator = new FakeLengthIterator(docs, lengths);
 
-    ScoringFunctionIterator iterator = new ScoringFunctionIterator(new NodeParameters(), lengthsIterator, extentIterator);
-    iterator.setScoringFunction(new FakeScorer());
+    ScoringFunctionIterator iterator = new FakeScorer(new NodeParameters(), lengthsIterator, extentIterator);
 
     ScoringContext context = new ScoringContext();
 

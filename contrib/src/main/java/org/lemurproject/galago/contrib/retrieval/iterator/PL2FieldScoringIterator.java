@@ -9,7 +9,8 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
-import org.lemurproject.galago.core.scoring.PL2FieldScorer;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.PL2FieldScorer;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.ScoringFunction;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -33,11 +34,12 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator //        i
   double weight;
   double beta;
   double max;
+  ScoringFunction f;
 
   public PL2FieldScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
           throws IOException {
     super(p, ls, it);
-    this.setScoringFunction(new PL2FieldScorer(p, it));
+    f = new PL2FieldScorer(p);
     partName = p.getString("lengths");
     weight = p.getDouble("w");
     parentIdx = (int) p.getLong("pIdx");
@@ -57,7 +59,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator //        i
   @Override
   public double score(ScoringContext c) {
     int count = ((CountIterator) iterator).count(c);
-    double score = function.score(count, this.lengthsIterator.length(c));
+    double score = f.score(count, this.lengthsIterator.length(c));
     score = (score > 0.0) ? score : min; // MY smoothing.
     return score;
   }

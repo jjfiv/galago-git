@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.scoring;
+package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
  * Jelinek-Mercer smoothing node, applied over raw counts.
  *
  * @author irmarc
+ * @deprecated 
  */
 @RequiredStatistics(statistics = {"nodeFrequency","collectionLength"})
 @RequiredParameters(parameters = {"lambda"})
@@ -19,7 +20,7 @@ public class JelinekMercerScorer implements ScoringFunction {
   double background;
   double lambda;
 
-  public JelinekMercerScorer(NodeParameters parameters, CountIterator iterator) throws IOException {
+  public JelinekMercerScorer(NodeParameters parameters) throws IOException {
 
     lambda = parameters.get("lambda", 0.5D);
     long collectionLength = parameters.getLong("collectionLength");

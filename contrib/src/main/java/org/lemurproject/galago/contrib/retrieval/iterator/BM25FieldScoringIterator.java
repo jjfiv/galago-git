@@ -10,7 +10,8 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
-import org.lemurproject.galago.core.scoring.BM25FieldScorer;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.BM25FieldScorer;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.ScoringFunction;
 
 /**
  *
@@ -31,11 +32,12 @@ public class BM25FieldScoringIterator extends ScoringFunctionIterator //        
   public double idf;
   public static double K;
   double max;
+  ScoringFunction function;
 
   public BM25FieldScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
           throws IOException {
     super(p, ls, it);
-    this.setScoringFunction(new BM25FieldScorer(p, it));
+    function = new BM25FieldScorer(p);
     partName = p.getString("lengths");
     weight = p.getDouble("w");
     parentIdx = (int) p.getLong("pIdx");

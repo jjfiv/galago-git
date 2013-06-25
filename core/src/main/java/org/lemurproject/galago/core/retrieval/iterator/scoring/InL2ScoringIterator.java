@@ -1,11 +1,15 @@
 /*
  *  BSD License (http://lemurproject.org/galago-license)
  */
-package org.lemurproject.galago.core.retrieval.iterator;
+package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.TransformIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -14,13 +18,13 @@ import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * Implements PL2 retrieval model from the DFR framework.
+ * Implements InL2 retrieval model from the DFR framework.
  *
  * @author sjh
  */
-@RequiredStatistics(statistics = {"collectionLength", "documentCount", "nodeFrequency", "maximumCount"})
+@RequiredStatistics(statistics = {"collectionLength", "documentCount", "nodeDocumentCount", "maximumCount"})
 @RequiredParameters(parameters = {"c"})
-public class PL2ScoringIterator extends TransformIterator implements ScoreIterator {
+public class InL2ScoringIterator extends TransformIterator implements ScoreIterator {
 
   private final LengthsIterator lengths;
   private final CountIterator counts;
@@ -29,11 +33,10 @@ public class PL2ScoringIterator extends TransformIterator implements ScoreIterat
   private final double c;
   // collectionStats and constants
   private final double averageDocumentLength;
-  private final double nodeFrequency;
+  private final double nodeDocumentCount;
   private final double documentCount;
-  private final double REC_LOG_2_OF_E;
 
-  public PL2ScoringIterator(NodeParameters np, LengthsIterator lengths, CountIterator counts) {
+  public InL2ScoringIterator(NodeParameters np, LengthsIterator lengths, CountIterator counts) {
     super(counts);
     this.np = np;
     this.counts = counts;
@@ -41,9 +44,8 @@ public class PL2ScoringIterator extends TransformIterator implements ScoreIterat
 
     c = np.get("c", 1.0);
     averageDocumentLength = (double) np.getLong("collectionLength") / (double) np.getLong("documentCount");
-    nodeFrequency = (double) np.getLong("nodeFrequency");
+    nodeDocumentCount = (double) np.getLong("nodeDocumentCount");
     documentCount = (double) np.getLong("documentCount");
-    REC_LOG_2_OF_E = 1.0 / Math.log(2.0); // also equivalent to log_2(e)
   }
 
   @Override
@@ -60,15 +62,11 @@ public class PL2ScoringIterator extends TransformIterator implements ScoreIterat
     }
 
     double docLength = lengths.length(cx);
-    double TF = tf * log2(1.0 + (c * averageDocumentLength) / docLength);
-    double NORM = 1.0 / (TF + 1.0);
-    double f = nodeFrequency / documentCount;
+    double TFN = tf * log2(1.0 + (c * averageDocumentLength) / docLength);
+    double NORM = 1.0 / (TFN + 1.0);
 
-    double score = NORM
-            * (TF * log2(1.0 / f)
-            + f * REC_LOG_2_OF_E
-            + 0.5 * log2(2.0 * Math.PI * TF)
-            + TF * (log2(TF) - REC_LOG_2_OF_E));
+    double score = NORM * TFN
+            * log2((documentCount + 1.0) / (nodeDocumentCount + 0.5));
     return score;
   }
 

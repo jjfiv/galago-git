@@ -2,7 +2,7 @@
  * BSD License (http://www.galagosearch.org/license)
 
  */
-package org.lemurproject.galago.core.scoring;
+package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
 /**
  *
  * @author irmarc
+ * @deprecated 
  */
 @RequiredStatistics(statistics = {"collectionLength", "documentCount"})
 @RequiredParameters(parameters = {"c"})
@@ -21,7 +22,7 @@ public class PL2FieldScorer implements ScoringFunction {
     double avgDocLength;
     double c;
     double log2;
-    public PL2FieldScorer(NodeParameters parameters, CountIterator iterator) throws IOException {
+    public PL2FieldScorer(NodeParameters parameters) throws IOException {
     c = parameters.get("c", 0.5);
 
     if (c <= 0) throw new IllegalArgumentException("c parameter must be greater than 0");

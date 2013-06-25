@@ -1,12 +1,10 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.scoring;
+package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * Smoothes raw counts according to the BM25 scoring model, as described by
@@ -14,6 +12,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * (http://www.sciencedirect.com/science/article/pii/S0306457399000461)
  *
  * @author irmarc
+ * @deprecated 
  */
 @RequiredStatistics(statistics = {"nodeDocumentCount", "collectionLength", "documentCount"})
 @RequiredParameters(parameters = {"b", "k"})
@@ -25,7 +24,7 @@ public class BM25Scorer implements ScoringFunction {
   double idf;
   long documentCount;
   
-  public BM25Scorer(NodeParameters parameters, CountIterator iterator) throws IOException {
+  public BM25Scorer(NodeParameters parameters) throws IOException {
     b = parameters.get("b", 0.75);
     k = parameters.get("k", 1.2);
 
@@ -46,7 +45,7 @@ public class BM25Scorer implements ScoringFunction {
     double denominator = count + (k * (1 - b + (b * length / avgDocLength)));
     return idf * numerator / denominator;
   }
-  
+
   public double score(int count, int length, double externalIDF) {
     double numerator = count * (k + 1);
     double denominator = count + (k * (1 - b + (b * length / avgDocLength)));

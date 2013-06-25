@@ -85,11 +85,15 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     context.document = -1;
     int advancePosition;
     fullSort(sortedSentinels);
+
+    int x = 0;
     while (true) {
       advancePosition = -1;
+      
       int pivotPosition = findPivot(sortedSentinels, scoreMinimums, minCandidateScore);
 
       if (pivotPosition == -1) {
+        System.err.println("Scored " + x);
         break;
       }
 
@@ -97,6 +101,8 @@ public class WANDScoreDocumentModel extends ProcessingModel {
         break;
       }
 
+      x += 1;
+      
       long pivot = sortedSentinels[pivotPosition].iterator.currentCandidate();
 
       if (pivot <= context.document) {

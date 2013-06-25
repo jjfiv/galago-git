@@ -17,7 +17,7 @@ import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
-import org.lemurproject.galago.core.scoring.FieldLanguageModel;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.FieldLanguageModel;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 

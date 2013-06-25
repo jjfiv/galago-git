@@ -6,9 +6,9 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.FakeLengthIterator;
 import org.lemurproject.galago.core.retrieval.extents.FakeExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.BiL2ScoringIterator;
-import org.lemurproject.galago.core.retrieval.iterator.InL2ScoringIterator;
-import org.lemurproject.galago.core.retrieval.iterator.PL2ScoringIterator;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.BiL2ScoringIterator;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.InL2ScoringIterator;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.PL2ScoringIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 

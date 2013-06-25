@@ -1,5 +1,5 @@
 // BSD License (http://www.galagosearch.org/license)
-package org.lemurproject.galago.core.scoring;
+package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
@@ -19,6 +19,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * index.
  *
  * @author irmarc
+ * @deprecated 
  */
 @RequiredStatistics(statistics = {"nodeDocumentCount", "collectionLength", "documentCount"})
 @RequiredParameters(parameters = {"b"})
@@ -27,7 +28,7 @@ public class BM25FieldScorer implements ScoringFunction {
   double b;
   double avgDocLength;
 
-  public BM25FieldScorer(NodeParameters parameters, CountIterator iterator) throws IOException {
+  public BM25FieldScorer(NodeParameters parameters) throws IOException {
     b = parameters.get("b", 0.5);
 
     if (b < 0 || b > 1.0) {

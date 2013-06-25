@@ -4,6 +4,7 @@
 package org.lemurproject.galago.core.retrieval.processing;
 
 import java.io.File;
+import static junit.framework.Assert.assertEquals;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -91,6 +92,7 @@ public class DeltaScoreDocumentModelTest extends TestCase {
       RankedDocumentModel safeModel = new RankedDocumentModel(ret);
       ScoredDocument[] safeResults = safeModel.execute(query, queryParams);
 
+      assertEquals(safeResults.length, deltaResults.length);
       for (int i = 0; i < safeResults.length; ++i) {
         assertEquals(safeResults[i].document, deltaResults[i].document);
         assertEquals(safeResults[i].score, deltaResults[i].score, 0.00001);
