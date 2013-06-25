@@ -35,8 +35,8 @@ public class DisjointExtentsIterator extends DisjointIndexesIterator implements 
   }
 
   @Override
-  public ExtentArray data() {
-    return ((ExtentIterator) head).data();
+  public ExtentArray data(ScoringContext c) {
+    return ((ExtentIterator) head).data(c);
   }
 
   @Override

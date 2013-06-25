@@ -54,11 +54,13 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   // this is likely to waste all of your memory...
   @Override
   public void addIteratorData(byte[] key, BaseIterator iterator) throws IOException {
+    ScoringContext sc = new ScoringContext();
     while (!iterator.isDone()) {
-      Document doc = ((DataIterator<Document>) iterator).data();
+      sc.document = iterator.currentCandidate();
+      Document doc = ((DataIterator<Document>) iterator).data(sc);
       // if the document already exists - no harm done.
       addDocument(doc);
-      iterator.movePast(iterator.currentCandidate());
+      iterator.movePast(sc.document);
     }
   }
 

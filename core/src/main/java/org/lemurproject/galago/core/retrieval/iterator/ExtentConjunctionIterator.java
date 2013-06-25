@@ -44,8 +44,8 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
   }
 
   @Override
-  public ExtentArray data() {
-    return extents(context);
+  public ExtentArray data(ScoringContext c) {
+    return extents(c);
   }
 
   @Override

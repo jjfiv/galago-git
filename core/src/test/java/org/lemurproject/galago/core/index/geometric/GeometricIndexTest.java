@@ -87,10 +87,10 @@ public class GeometricIndexTest extends TestCase {
       names.setContext(sc);
       names.syncTo(99);
       sc.document = 99;
-      assertEquals(names.data(), "DOC-" + 99);
+      assertEquals(names.data(sc), "DOC-" + 99);
       names.movePast(99);
       sc.document = names.currentCandidate();
-      assertEquals(names.data(), "DOC-" + 100);
+      assertEquals(names.data(sc), "DOC-" + 100);
 
       LengthsIterator lengths = index.getLengthsIterator();
       lengths.setContext(sc);

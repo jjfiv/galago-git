@@ -210,7 +210,7 @@ public class LocalRetrieval implements Retrieval {
       sc.document = doc.document;
 
       if (doc.document == namesIterator.currentCandidate()) {
-        doc.documentName = namesIterator.data();
+        doc.documentName = namesIterator.data(sc);
 
       } else {
         System.err.println("NAMES ITERATOR FAILED TO FIND DOCUMENT " + doc.document);

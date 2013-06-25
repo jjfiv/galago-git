@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 
 /**
  *
@@ -9,5 +9,5 @@ import java.io.IOException;
  */
 public interface DataIterator<T> extends BaseIterator {
 
-  public T data();
+  public T data(ScoringContext c);
 }

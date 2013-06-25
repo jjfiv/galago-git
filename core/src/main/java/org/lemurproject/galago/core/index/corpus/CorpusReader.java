@@ -154,8 +154,8 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     }
 
     @Override
-    public Document data() {
-      if (context.document != this.currentCandidate()) {
+    public Document data(ScoringContext c) {
+      if (c.document != this.currentCandidate()) {
         try {
           return ((KeyIterator) iterator).getDocument(docParams);
         } catch (IOException ioe) {
@@ -183,8 +183,8 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
       String parameters = "";
       long document = currentCandidate();
       boolean atCandidate = hasMatch(c.document);
-      String returnValue = data().name;
-      String extraInfo = data().toString();
+      String returnValue = data(c).name;
+      String extraInfo = data(c).toString();
       List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, extraInfo, children);

@@ -23,9 +23,9 @@ public class DisjointNamesIterator extends DisjointIndexesIterator implements Da
   }
 
   @Override
-  public String data() {
+  public String data(ScoringContext c) {
     if (head != null) {
-      return ((DataIterator<String>) this.head).data();
+      return ((DataIterator<String>) this.head).data(c);
     } else {
       throw new RuntimeException("Names Iterator is done.");
     }
@@ -38,7 +38,7 @@ public class DisjointNamesIterator extends DisjointIndexesIterator implements Da
     String parameters = this.getKeyString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = data();
+    String returnValue = data(c);
     List<AnnotatedNode> children = new ArrayList();
     for (BaseIterator child : this.allIterators) {
       children.add(child.getAnnotatedNode(c));

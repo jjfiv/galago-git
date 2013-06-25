@@ -267,7 +267,7 @@ public class GeometricIndex implements DynamicIndex, Index {
     DataIterator<String> i = this.getNamesIterator();
     i.syncTo(document);
     if (i.hasMatch(document)) {
-      return i.data();
+      return i.data(new ScoringContext(i.currentCandidate()));
     } else {
       throw new IOException("Could not find document identifier " + document);
     }

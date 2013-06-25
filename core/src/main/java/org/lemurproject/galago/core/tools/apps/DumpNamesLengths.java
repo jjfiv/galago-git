@@ -47,7 +47,7 @@ public class DumpNamesLengths extends AppFunction {
 
       sc.document = docId;
 
-      String docName = namesItr.data();
+      String docName = namesItr.data(sc);
 
       lengthsItr.syncTo(docId);
       int docLen = lengthsItr.length(sc);

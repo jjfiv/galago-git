@@ -82,8 +82,8 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
   }
 
   @Override
-  public ExtentArray data() {
-    return extents(context);
+  public ExtentArray data(ScoringContext c) {
+    return extents(c);
   }
 
   @Override
