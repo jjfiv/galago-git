@@ -153,13 +153,12 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       fieldLengths = new FieldLengthList(field);
     }
 
-    while (!iterator.isDone()) {
-      long identifier = ((LengthsIterator) iterator).currentCandidate();
-      int length = ((LengthsIterator) iterator).length();
-      fieldLengths.add(identifier, length);
+    ScoringContext c = new ScoringContext();
 
-      // TODO stop casting document to int
-      iterator.movePast((int) identifier);
+    while (!iterator.isDone()) {
+      c.document = ((LengthsIterator) iterator).currentCandidate();
+      fieldLengths.add(c.document, ((LengthsIterator) iterator).length(c));
+      iterator.movePast(c.document);
     }
   }
 
@@ -262,7 +261,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       fieldLengths.setContext(c);
       while (!fieldLengths.isDone()) {
         c.document = fieldLengths.currentCandidate();
-        ld = new FieldLengthData(Utility.fromString(fieldLengths.getKeyString()), fieldLengths.currentCandidate(), fieldLengths.length());
+        ld = new FieldLengthData(Utility.fromString(fieldLengths.getKeyString()), fieldLengths.currentCandidate(), fieldLengths.length(c));
         writer.process(ld);
         fieldLengths.movePast(fieldLengths.currentCandidate());
       }

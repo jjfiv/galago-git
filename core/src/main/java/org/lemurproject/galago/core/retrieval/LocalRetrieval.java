@@ -326,7 +326,7 @@ public class LocalRetrieval implements Retrieval {
       while (!iterator.isDone()) {
         sc.document = iterator.currentCandidate();
         if (iterator.hasMatch(iterator.currentCandidate())) {
-          int len = iterator.length();
+          int len = iterator.length(sc);
           s.collectionLength += len;
           s.documentCount += 1;
           s.nonZeroLenDocCount += (len > 0) ? 1 : 0;

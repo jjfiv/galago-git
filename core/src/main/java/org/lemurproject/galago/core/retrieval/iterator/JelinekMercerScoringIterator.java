@@ -48,7 +48,7 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
 
     int count = ((CountIterator) iterator).count(context);
 
-    double diff = weight * (function.score(count, this.lengthsIterator.length()) - max);
+    double diff = weight * (function.score(count, this.lengthsIterator.length(context)) - max);
     ctx.runningScore += diff;
   }
 

@@ -97,11 +97,11 @@ public class GeometricIndexTest extends TestCase {
       lengths.syncTo(99);
       sc.document = 99;
       assertEquals(lengths.currentCandidate(), 99);
-      assertEquals(lengths.length(), 5);
+      assertEquals(lengths.length(sc), 5);
       lengths.movePast(99);
       sc.document = lengths.currentCandidate();
       assertEquals(lengths.currentCandidate(), 100);
-      assertEquals(lengths.length(), 5);
+      assertEquals(lengths.length(sc), 5);
 
       Node q1 = StructuredQuery.parse("#counts:sample:part=postings()");
       CountIterator ci1 = (CountIterator) index.getIterator(q1);

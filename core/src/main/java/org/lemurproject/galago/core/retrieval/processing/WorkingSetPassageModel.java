@@ -83,7 +83,7 @@ public class WorkingSetPassageModel extends ProcessingModel {
       iterator.syncTo(document);
       context.document = document;
       documentLengths.syncTo(document);
-      int length = documentLengths.length();
+      int length = documentLengths.length(context);
 
       // set the parameters for the first passage
       context.begin = 0;

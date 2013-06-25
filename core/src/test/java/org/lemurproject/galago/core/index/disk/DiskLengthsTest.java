@@ -61,27 +61,27 @@ public class DiskLengthsTest extends TestCase {
       streamItr.syncTo(50);
       sc.document = 50;
       assertEquals(streamItr.currentCandidate(), 50);
-      assertEquals(streamItr.length(), 51);
+      assertEquals(streamItr.length(sc), 51);
 
       streamItr.syncTo(90);
       sc.document = 90;
       assertEquals(streamItr.currentCandidate(), 90);
-      assertEquals(streamItr.length(), 91);
+      assertEquals(streamItr.length(sc), 91);
 
       streamItr.syncTo(90);
       sc.document = 90;
       assertEquals(streamItr.currentCandidate(), 90);
-      assertEquals(streamItr.length(), 91);
+      assertEquals(streamItr.length(sc), 91);
 
       streamItr.syncTo(110);
       sc.document = 110;
       assertEquals(streamItr.currentCandidate(), 110);
-      assertEquals(streamItr.length(), 111);
+      assertEquals(streamItr.length(sc), 111);
 
       streamItr.syncTo(200);
       sc.document = 200;
       assertEquals(streamItr.currentCandidate(), 110);
-      assertEquals(streamItr.length(), 0);
+      assertEquals(streamItr.length(sc), 0);
 
       reader.close();
 

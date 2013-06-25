@@ -37,23 +37,20 @@ public class DumpNamesLengths extends AppFunction {
 
     DataIterator<String> namesItr = index.getNamesIterator();
     LengthsIterator lengthsItr = index.getLengthsIterator();
-    
+
     ScoringContext sc = new ScoringContext();
     namesItr.setContext(sc);
     lengthsItr.setContext(sc);
-    
+
     while (!namesItr.isDone()) {
       long docId = namesItr.currentCandidate();
-      
+
       sc.document = docId;
-      
+
       String docName = namesItr.data();
 
       lengthsItr.syncTo(docId);
-      int docLen = 0;
-      if (lengthsItr.currentCandidate() == docId) {
-        docLen = lengthsItr.length();
-      }
+      int docLen = lengthsItr.length(sc);
 
       if ((docLen == 0) && p.get("zeros", true)) {
         output.println(docId + "\t" + docName + "\t" + docLen);

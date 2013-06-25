@@ -4,7 +4,6 @@ package org.lemurproject.galago.core.index.merge;
 import java.io.IOException;
 import java.util.List;
 import java.util.PriorityQueue;
-import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -82,11 +81,7 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
       long currentIdentifier = iterator.currentCandidate();
       sc.document = currentIdentifier;
       this.currentDocument = mapping.map(indexId, currentIdentifier);
-      this.currentLength = iterator.length();
-    }
-
-    public int getLength() {
-      return iterator.length();
+      this.currentLength = iterator.length(sc);
     }
 
     public boolean isDone() {

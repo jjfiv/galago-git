@@ -32,15 +32,15 @@ public class ExtentToLengthIterator extends TransformIterator implements Lengths
     String parameters = this.np.toString();
     long document = currentCandidate();
     boolean hasMatch = hasMatch(c.document);
-    String returnValue = Integer.toString(this.length());
+    String returnValue = Integer.toString(this.length(c));
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
 
     return new AnnotatedNode(type, className, parameters, document, hasMatch, returnValue, children);
   }
 
   @Override
-  public int length() {
-    ExtentArray ar = extItr.extents(context);
+  public int length(ScoringContext c) {
+    ExtentArray ar = extItr.extents(c);
     int len = 0;
     // IGNORING OVERLAPPING EXTENTS //
     for (int i = 0; i < ar.size(); i++) {

@@ -5,22 +5,14 @@ import org.lemurproject.galago.core.retrieval.iterator.disk.DiskLengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
-import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
-import org.lemurproject.galago.core.index.stats.FieldStatistics;
-import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
-import org.lemurproject.galago.core.retrieval.iterator.disk.SourceIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -70,13 +62,9 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   @Override
   public int getLength(long document) throws IOException {
     LengthsIterator i = getLengthsIterator();
-    ScoringContext sc = new ScoringContext();
-    sc.document = document;
-    i.setContext(sc);
-
     i.syncTo(document);
     // will return either the currect length or a zero if no match.
-    return i.length();
+    return i.length(new ScoringContext(document));
   }
 
   @Override
@@ -88,7 +76,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   public LengthsIterator getLengthsIterator() throws IOException {
     return new DiskLengthsIterator(getLengthsSource());
   }
-  
+
   public DiskLengthSource getLengthsSource() throws IOException {
     BTreeIterator it = reader.getIterator(doc);
     return new DiskLengthSource(it);
@@ -129,11 +117,11 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     public DiskIterator getValueIterator() throws IOException {
       return getStreamValueIterator();
     }
-    
+
     public DiskLengthSource getStreamValueSource() throws IOException {
       return new DiskLengthSource(iterator);
     }
-    
+
     public DiskLengthsIterator getStreamValueIterator() throws IOException {
       return new DiskLengthsIterator(getStreamValueSource());
     }

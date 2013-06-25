@@ -60,7 +60,7 @@ public class RankedPassageModel extends ProcessingModel {
       // This context is shared among all scorers
       context.document = document;
       documentLengths.syncTo(document);
-      int length = documentLengths.length();
+      int length = documentLengths.length(context);
 
       // set the parameters for the first passage
       context.begin = 0;

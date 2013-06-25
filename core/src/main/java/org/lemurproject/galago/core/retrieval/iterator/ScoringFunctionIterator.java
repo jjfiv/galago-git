@@ -53,7 +53,7 @@ public class ScoringFunctionIterator extends TransformIterator implements ScoreI
   @Override
   public double score() {
     int count = countIterator.count(context);
-    double score = function.score(count, lengthsIterator.length());
+    double score = function.score(count, lengthsIterator.length(context));
     return score;
   }
 

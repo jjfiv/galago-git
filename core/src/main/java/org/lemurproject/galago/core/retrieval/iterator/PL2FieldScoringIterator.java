@@ -68,7 +68,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
   @Override
   public double score() {
     int count = ((CountIterator) iterator).count(context);
-    double score = function.score(count, this.lengthsIterator.length());
+    double score = function.score(count, this.lengthsIterator.length(context));
     score = (score > 0.0) ? score : min; // MY smoothing.
     return score;
   }
@@ -79,7 +79,7 @@ public class PL2FieldScoringIterator extends ScoringFunctionIterator
 
     EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
 
-    double score = function.score(count, lengthsIterator.length());
+    double score = function.score(count, lengthsIterator.length(context));
     score = (score > 0.0) ? score : min; // MY smoothing again
     double phi = ctx.potentials[parentIdx];
     double psi = phi + (weight * (score - max));

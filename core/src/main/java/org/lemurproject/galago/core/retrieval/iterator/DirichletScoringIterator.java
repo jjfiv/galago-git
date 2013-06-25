@@ -55,7 +55,7 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
     EarlyTerminationScoringContext ctx = (EarlyTerminationScoringContext) context;
     int count = ((CountIterator) iterator).count(context);
 
-    double diff = weight * (function.score(count, lengthsIterator.length()) - max);
+    double diff = weight * (function.score(count, lengthsIterator.length(context)) - max);
     ctx.runningScore += diff;
   }
 

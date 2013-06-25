@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 /**
  * DiskLengthsIterator wraps the disk-based DiskLengthSource
+ *
  * @author jfoley
  * @see DiskLengthSource
  */
@@ -29,7 +30,7 @@ public class DiskLengthsIterator extends SourceIterator
 
   @Override
   public String getValueString() throws IOException {
-    return currentCandidate() + "," + length();
+    return currentCandidate() + "," + length(context);
   }
 
   @Override
@@ -39,14 +40,14 @@ public class DiskLengthsIterator extends SourceIterator
     String parameters = getKeyString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
-    String returnValue = Integer.toString(length());
+    String returnValue = Integer.toString(length(c));
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 
   @Override
-  public int length() {
-    return lengthSrc.length(context.document);
+  public int length(ScoringContext c) {
+    return lengthSrc.length(c.document);
   }
 
   @Override

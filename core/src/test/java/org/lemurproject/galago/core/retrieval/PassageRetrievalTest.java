@@ -54,9 +54,9 @@ public class PassageRetrievalTest extends TestCase {
     p.set("requested", 10);
     ScoredPassage[] result = (ScoredPassage[]) retrieval.runQuery(root, p);
     
-    for(ScoredPassage sp : result){
-      System.err.println(sp.toString());
-    }
+//    for(ScoredPassage sp : result){
+//      System.err.println(sp.toString());
+//    }
     assertEquals(7, result.length);
 
     // First entry
