@@ -10,16 +10,11 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * A ScoringIterator that makes use of the DirichletScorer function for
  * converting a count into a score.
  * 
- * NOTE: that this scorer returns min where document frequency is zero
- *   -- Indri uses a tiny score, we are using a less conservative number:
- *      score(0, |LONGEST DOC|)
- *
  * @author sjh
  */
 @RequiredStatistics(statistics = {"collectionLength", "documentCount", "nodeFrequency", "maximumCount", "avgLength"})

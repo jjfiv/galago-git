@@ -66,6 +66,7 @@ public class MultiRetrievalTest extends TestCase {
 
       String expected = "#combine:w=1.0("
               + " #dirichlet:"
+              + "avgLength=4.0:"
               + "collectionLength=19:"
               + "documentCount=4:"
               + "maximumCount=1:"
@@ -73,6 +74,7 @@ public class MultiRetrievalTest extends TestCase {
               + "w=0.5"
               + "( #lengths:document:part=lengths() #counts:sample:part=postings.porter() ) "
               + "#dirichlet:"
+              + "avgLength=4.0:"
               + "collectionLength=19:"
               + "documentCount=4:"
               + "maximumCount=1:"

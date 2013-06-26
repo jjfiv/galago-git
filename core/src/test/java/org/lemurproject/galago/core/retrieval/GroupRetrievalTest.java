@@ -70,6 +70,7 @@ public class GroupRetrievalTest extends TestCase {
       Node queryTree1 = gr.transformQuery(parsedQuery, q1, "group1");
 
       String expected = "#combine:w=1.0( #dirichlet:"
+              + "avgLength=4.0:"
               + "collectionLength=8:"
               + "documentCount=2:"
               + "maximumCount=1:"
@@ -77,13 +78,14 @@ public class GroupRetrievalTest extends TestCase {
               + "w=0.5("
               + " #lengths:document:part=lengths() #counts:sample:part=postings.porter() )"
               + " #dirichlet:"
+              + "avgLength=4.0:"
               + "collectionLength=8:"
               + "documentCount=2:"
               + "maximumCount=1:"
               + "nodeFrequency=2:"
               + "w=0.5("
               + " #lengths:document:part=lengths() #counts:document:part=postings.porter() ) )";
-
+      
       assertEquals(expected, queryTree1.toString());
       ScoredDocument[] res1 = gr.runQuery(queryTree1, q1, "group1");
       String[] expectedIds = { "i1-59", "i1-55" };
@@ -100,6 +102,7 @@ public class GroupRetrievalTest extends TestCase {
 
       expected = "#combine:w=1.0("
               + " #dirichlet:"
+              + "avgLength=4.0:"
               + "collectionLength=19:"
               + "documentCount=4:"
               + "maximumCount=1:"
@@ -107,6 +110,7 @@ public class GroupRetrievalTest extends TestCase {
               + "w=0.5"
               + "( #lengths:document:part=lengths() #counts:sample:part=postings.porter() ) "
               + "#dirichlet:"
+              + "avgLength=4.0:"
               + "collectionLength=19:"
               + "documentCount=4:"
               + "maximumCount=1:"

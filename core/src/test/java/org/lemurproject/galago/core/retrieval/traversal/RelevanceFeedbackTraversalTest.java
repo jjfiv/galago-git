@@ -83,7 +83,7 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     // truth data
     StringBuilder correct = new StringBuilder();
 //    correct.append("#combine:0=0.5:1=0.5( #combine:fbDocs=10:fbTerms=4( #dirichlet( #extents:jumped:part=postings() ) ) ");
-    correct.append("#combine:0=0.05001660577881102:1=0.05001660577881102:2=0.0416528285176575:3=0.0416528285176575( ");
+    correct.append("#combine:0=0.05001660577881102:1=0.05001660577881102:2=0.04165282851765748:3=0.04165282851765748( ");
     correct.append("#text:sample() ");
     correct.append("#text:ugly() ");
     correct.append("#text:cat() ");

@@ -18,7 +18,6 @@ import java.util.LinkedList;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.*;
-import org.lemurproject.galago.core.retrieval.iterator.scoring.DirichletTrueScoringIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -73,7 +72,6 @@ public class FeatureFactory {
     {LogProbNotIterator.class.getName(), "logprobnot"},
     // Scorers can be named directly as nodes
     {DirichletScoringIterator.class.getName(), "dirichlet"},
-    {DirichletTrueScoringIterator.class.getName(), "dirichlettrue"},
     {JelinekMercerScoringIterator.class.getName(), "linear"},
     {JelinekMercerScoringIterator.class.getName(), "jm"},
     {BM25ScoringIterator.class.getName(), "bm25"},
