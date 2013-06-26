@@ -63,7 +63,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     // score of the min document in minheap
     double maximumPossibleScore = 0.0;
     for (DeltaScoringIterator scorer : scoringIterators) {
-      maximumPossibleScore += scorer.startingPotential();
+      maximumPossibleScore += scorer.maximumWeightedScore();
     }
 
     // Make sure the scorers are sorted properly
@@ -174,23 +174,6 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     String type = retrieval.getGlobalParameters().get("sort", "length");
     ArrayList<Sentinel> tmp = SortStrategies.populateIndependentSentinels(scorers, startingPotential, false);
 
-    if (qp.get("seqdep", true)) {
-      if (type.equals("length")) {
-        SortStrategies.fullLengthSort(tmp);
-      } else if (type.equals("score")) {
-        SortStrategies.fullScoreSort(tmp);
-      } else if (type.equals("length-split")) {
-        SortStrategies.splitLengthSort(tmp);
-      } else if (type.equals("score-split")) {
-        SortStrategies.splitScoreSort(tmp);
-      } else if (type.equals("mixed-ls")) {
-        SortStrategies.mixedLSSort(tmp);
-      } else if (type.equals("mixed-sl")) {
-        SortStrategies.mixedSLSort(tmp);
-      } else {
-        throw new IllegalArgumentException(String.format("What the hell is %s?", type));
-      }
-    }
     return tmp.toArray(new Sentinel[tmp.size()]);
   }
 

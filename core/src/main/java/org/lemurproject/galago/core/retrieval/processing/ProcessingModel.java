@@ -68,8 +68,9 @@ public abstract class ProcessingModel {
       } else if (modelName.equals("maxscore")) {
         return new MaxScoreDocumentModel(r);
 
-      } else if (modelName.equals("wand")) {
-        return new WANDScoreDocumentModel(r);
+        // CURRENTLY BROKEN DO NOT USE
+//      } else if (modelName.equals("wand")) {
+//        return new WANDScoreDocumentModel(r);
 
       } else {
         // generally it's better to use the full class

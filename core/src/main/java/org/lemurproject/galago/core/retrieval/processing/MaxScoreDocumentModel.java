@@ -2,6 +2,7 @@
 package org.lemurproject.galago.core.retrieval.processing;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,31 +48,40 @@ public class MaxScoreDocumentModel extends ProcessingModel {
 
     FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
-    // score of the min document in minheap
     double maximumPossibleScore = 0.0;
     for (DeltaScoringIterator scorer : scoringIterators) {
-      maximumPossibleScore += scorer.startingPotential();
+      maximumPossibleScore += scorer.maximumWeightedScore();
     }
 
-    // Make sure the scorers are sorted properly
-    List<Sentinel> sortedSentinels = buildSentinels(scoringIterators, maximumPossibleScore, queryParams);
+    // sentinel scores are set to collectionFrequency (sort function ensures decreasing order)
+    Collections.sort(scoringIterators, new DeltaScoringIteratorMaxDiffComparator());
+    
+    // precompute statistics that allow us to update the quorum index
+    double runningMaxScore = maximumPossibleScore;
+    double[] maxScoreOfRemainingIterators = new double[scoringIterators.size()];
+    for (int i = 0; i < scoringIterators.size(); i++) {
+      // before scoring this iterator, the max possible score is:
+      maxScoreOfRemainingIterators[i] = runningMaxScore;
+      // after scoring this iterator (assuming min), the max possible score is:
+      runningMaxScore -= scoringIterators.get(i).maximumDifference();
+    }
 
     // all scorers are scored until the minheap is full
-    double sentinelIndex = scoringIterators.size();
-    double minCandidateScore = Double.NEGATIVE_INFINITY;
+    int quorumIndex = scoringIterators.size();
+    double minHeapThresholdScore = Double.NEGATIVE_INFINITY;
 
     // Routine is as follows:
     // 1) Find the next candidate from the sentinels
-    // 2) Move sentinels and field length readers to candidate
+    // 2) Move iterators and length readers to candidate
     // 3) Score sentinels unconditionally
     // 4) while (runningScore > R)
     //      move iterator to candidate
     //      score candidate w/ iterator
     while (true) {
       long candidate = Long.MAX_VALUE;
-      for (int i = 0; i < sentinelIndex; i++) {
-        if (!sortedSentinels.get(i).iterator.isDone()) {
-          candidate = Math.min(candidate, sortedSentinels.get(i).iterator.currentCandidate());
+      for (int i = 0; i < quorumIndex; i++) {
+        if (!scoringIterators.get(i).isDone()) {
+          candidate = Math.min(candidate, scoringIterators.get(i).currentCandidate());
         }
       }
 
@@ -88,36 +98,38 @@ public class MaxScoreDocumentModel extends ProcessingModel {
       for (ScoreIterator si : scoringIterators) {
         match |= si.hasMatch(candidate);
       }
+
       if (match) {
         // Setup to score
         double runningScore = maximumPossibleScore;
 
         // now score quorum sentinels w/out question
         int i;
-        for (i = 0; i < sentinelIndex; i++) {
-          DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
+        for (i = 0; i < quorumIndex; i++) {
+          DeltaScoringIterator dsi = scoringIterators.get(i);
           dsi.syncTo(candidate);
-          runningScore += dsi.deltaScore(context);
+          runningScore -= dsi.deltaScore(context);
         }
 
         // Now score the rest, but keep checking
-        while (runningScore > minCandidateScore && i < sortedSentinels.size()) {
-          DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
+        while (runningScore > minHeapThresholdScore && i < scoringIterators.size()) {
+          DeltaScoringIterator dsi = scoringIterators.get(i);
           dsi.syncTo(candidate);
-          runningScore += dsi.deltaScore(context);
+          runningScore -= dsi.deltaScore(context);
           ++i;
         }
 
         // Fully scored it
-        if (i == sortedSentinels.size()) {
-          if (requested < 0 || queue.size() <= requested || runningScore > queue.peek().score) {
+        if (i == scoringIterators.size()) {
+          if (queue.size() <= requested || runningScore > queue.peek().score) {
             ScoredDocument scoredDocument = new ScoredDocument(candidate, runningScore);
             queue.offer(scoredDocument);
 
-            if (requested > 0 && queue.size() >= requested) {
-              if (minCandidateScore < queue.peek().score) {
-                minCandidateScore = queue.peek().score;
-                sentinelIndex = determineSentinelIndex(sortedSentinels, maximumPossibleScore, minCandidateScore);
+            if (queue.size() >= requested && minHeapThresholdScore < queue.peek().score) {
+              minHeapThresholdScore = queue.peek().score;
+              // check if this update will allow us to discard an iterator from consideration : 
+              while (quorumIndex > 0 && maxScoreOfRemainingIterators[(quorumIndex - 1)] < minHeapThresholdScore) {
+                quorumIndex--;
               }
             }
           }
@@ -125,51 +137,13 @@ public class MaxScoreDocumentModel extends ProcessingModel {
       }
 
       // Now move all matching sentinels members past the current doc, and repeat
-      for (int i = 0; i < sentinelIndex; i++) {
-        DeltaScoringIterator dsi = sortedSentinels.get(i).iterator;
+      for (int i = 0; i < quorumIndex; i++) {
+        DeltaScoringIterator dsi = scoringIterators.get(i);
         dsi.movePast(candidate);
       }
     }
 
     return toReversedArray(queue);
-  }
-
-  private int determineSentinelIndex(List<Sentinel> sortedSentinels, double startingPotential, double minCandidateScore) {
-    // Now we try to find our sentinel set
-    double runningScore = startingPotential;
-
-    int idx;
-    for (idx = 0; idx < sortedSentinels.size() && runningScore > minCandidateScore; idx++) {
-      runningScore -= sortedSentinels.get(idx).score;
-    }
-
-    return idx;
-  }
-
-  private List<Sentinel> buildSentinels(List<DeltaScoringIterator> scorers, double startingPotential, Parameters qp) {
-    String type = retrieval.getGlobalParameters().get("sort", "length");
-    List<Sentinel> sortedSentinels = SortStrategies.populateIndependentSentinels(scorers, startingPotential);
-
-    if (qp.get("seqdep", true)) {
-      if (type.equals("length")) {
-        SortStrategies.fullLengthSort(sortedSentinels);
-      } else if (type.equals("score")) {
-        SortStrategies.fullScoreSort(sortedSentinels);
-      } else if (type.equals("length-split")) {
-        SortStrategies.splitLengthSort(sortedSentinels);
-      } else if (type.equals("score-split")) {
-        SortStrategies.splitScoreSort(sortedSentinels);
-      } else if (type.equals("mixed-ls")) {
-        SortStrategies.mixedLSSort(sortedSentinels);
-      } else if (type.equals("mixed-sl")) {
-        SortStrategies.mixedSLSort(sortedSentinels);
-      } else {
-        throw new IllegalArgumentException(String.format("What the hell is %s?", type));
-      }
-    } else {
-      throw new IllegalArgumentException("Unimplemented score-split outside Seqdep.");
-    }
-    return sortedSentinels;
   }
 
   private boolean findDeltaNodes(Node n, List<Node> scorers, LocalRetrieval ret) throws Exception {
@@ -189,6 +163,7 @@ public class MaxScoreDocumentModel extends ProcessingModel {
         r &= findDeltaNodes(c, scorers, ret);
       }
       return r;
+
     } else {
       return false;
     }

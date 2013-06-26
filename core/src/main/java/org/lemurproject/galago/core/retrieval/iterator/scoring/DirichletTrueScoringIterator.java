@@ -10,22 +10,17 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
+ *
  * A ScoringIterator that makes use of the DirichletScorer function for
  * converting a count into a score.
- * 
- * NOTE: that this scorer returns min where document frequency is zero
- *   -- Indri uses a tiny score, we are using a less conservative number:
- *      score(0, |LONGEST DOC|)
  *
- * @author sjh
+ * @author irmarc, sjh
  */
-@RequiredStatistics(statistics = {"collectionLength", "documentCount", "nodeFrequency", "maximumCount", "avgLength"})
+@RequiredStatistics(statistics = {"collectionLength", "documentCount", "nodeFrequency", "maximumCount", "maxLength"})
 @RequiredParameters(parameters = {"mu"})
-public class DirichletScoringIterator extends ScoringFunctionIterator
-        implements DeltaScoringIterator {
+public class DirichletTrueScoringIterator extends ScoringFunctionIterator {
 
   // delta
   double weight;
@@ -36,7 +31,7 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
   private final double background;
   private final long collectionFrequency;
 
-  public DirichletScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
+  public DirichletTrueScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
           throws IOException {
     super(p, ls, it);
 
@@ -54,53 +49,24 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
     // the max score can be bounded where the maxtf is also the length of that document (a long document of just tf)
     max = dirichletScore(p.getLong("maximumCount"), p.getLong("maximumCount"));
 
-    // the min score is an over estimate for when the iterator does NOT contain the term (document freq of zero)
-    //   MAX-SCORE requires this to be over estimated, otherwise you will lose documents
-    //   empirically average document length is a good number (even if its NOT an overestimate of min possible score)
-    min = dirichletScore(0, p.getDouble("avgLength"));
-
+    // the min score can be bounded at the longest document that does not contain the term:
+    min = dirichletScore(0, p.getLong("maxLength")+1);
   }
 
-  @Override
-  public double collectionFrequency() {
-    return collectionFrequency;
-  }
-
+  /**
+   * Underestimate of score
+   */
   @Override
   public double minimumScore() {
     return min;
   }
 
+  /**
+   * Overestimate of score
+   */
   @Override
   public double maximumScore() {
     return max;
-  }
-
-  @Override
-  public double getWeight() {
-    return weight;
-  }
-
-  @Override
-  public double deltaScore(ScoringContext c) {
-    int count = ((CountIterator) iterator).count(c);
-    int length = this.lengthsIterator.length(c);
-    return weight * (max - dirichletScore(count, length));
-  }
-
-  @Override
-  public double maximumDifference() {
-    return weight * (max - min);
-  }
-
-  @Override
-  public double maximumWeightedScore() {
-    return (max * weight);
-  }
-
-  @Override
-  public double minimumWeightedScore() {
-    return min * weight;
   }
 
   @Override

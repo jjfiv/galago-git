@@ -20,6 +20,7 @@ public class FixedSizeMinHeap<T> {
   private int _position;
 
   public FixedSizeMinHeap(Class<T> c, int requested, Comparator<T> cmp) {
+    assert (requested > 0);
     this._heap = (T[]) Array.newInstance(c, requested);
     this._position = 0;
     this._cmp = cmp;

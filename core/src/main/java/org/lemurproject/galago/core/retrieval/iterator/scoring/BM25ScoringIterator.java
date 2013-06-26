@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
  *
  * @author irmarc
  */
-@RequiredStatistics(statistics = {"collectionLength", "documentCount", "nodeDocumentCount", "maximumCount"})
+@RequiredStatistics(statistics = {"collectionLength", "documentCount", "nodeFrequency", "nodeDocumentCount", "maximumCount"})
 @RequiredParameters(parameters = {"b", "k"})
 public class BM25ScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {
@@ -30,6 +30,7 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
   private final long documentCount;
   private final double avgDocLength;
   private final double idf;
+  private final long collectionFrequency;
 
   public BM25ScoringIterator(NodeParameters np, LengthsIterator ls, CountIterator it)
           throws IOException {
@@ -40,6 +41,7 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
     k = np.get("k", 1.2);
 
     double collectionLength = np.getLong("collectionLength");
+    collectionFrequency = np.getLong("nodeFrequency");
     documentCount = np.getLong("documentCount");
     avgDocLength = (collectionLength + 0.0) / (documentCount + 0.0);
 
@@ -54,6 +56,11 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
     weight = np.get("w", 1.0);
     max = np.getLong("maximumCount");
     min = score(0, np.getLong("maximumCount"));
+  }
+
+  @Override
+  public double collectionFrequency() {
+    return collectionFrequency;
   }
 
   @Override
@@ -84,10 +91,14 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
-  public double startingPotential() {
+  public double maximumWeightedScore() {
     return max * weight;
   }
 
+  @Override
+  public double minimumWeightedScore() {
+    return min * weight;
+  }
   /**
    * Scoring function interface (allows direct scoring)
    * @return 

@@ -38,5 +38,16 @@ public interface DeltaScoringIterator extends ScoreIterator {
    * 
    * @return weighted maximum score
    */
-  public double startingPotential();
+  public double maximumWeightedScore();
+
+  /**
+   * Returns the minimum score that can be produced by the iterator
+   *  -- weights the score using parameter 'w'
+   * 
+   * @return weighted minimum score
+   */
+  public double minimumWeightedScore();
+  
+  
+  public double collectionFrequency();
 }
