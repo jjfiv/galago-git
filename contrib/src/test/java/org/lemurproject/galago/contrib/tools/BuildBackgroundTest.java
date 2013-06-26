@@ -70,9 +70,9 @@ public class BuildBackgroundTest extends TestCase {
 
       // try to batch search that index with a no-match string
       String queries_reg = "{ \"index\" : \"" + indexFile1.getAbsolutePath() + "\", \"queries\" : ["
-              + "{ \"number\" : \"2\", \"text\": \"#combine( #feature:dirichlet( #counts:two:part=postings.porter() ) #feature:dirichlet( #counts:sample:part=postings.porter() ) )\"},"
-              + "{ \"number\" : \"9\", \"text\" : \"#combine( #feature:dirichlet( #counts:sample:part=postings.porter() ) )\"},"
-              + "{ \"number\" : \"11\", \"text\" : \"#combine( #feature:dirichlet( #counts:is:part=postings.porter() ) #feature:dirichlet( #counts:two:part=postings.porter() ) )\"},"
+              + "{ \"number\" : \"2\", \"text\": \"#combine( #dirichlet( #counts:two:part=postings.porter() ) #dirichlet( #counts:sample:part=postings.porter() ) )\"},"
+              + "{ \"number\" : \"9\", \"text\" : \"#combine( #dirichlet( #counts:sample:part=postings.porter() ) )\"},"
+              + "{ \"number\" : \"11\", \"text\" : \"#combine( #dirichlet( #counts:is:part=postings.porter() ) #dirichlet( #counts:two:part=postings.porter() ) )\"},"
               + "]}";
 //              + "], \"printTransformation\":true}";
 
@@ -89,9 +89,9 @@ public class BuildBackgroundTest extends TestCase {
       
 //  DEPRECATED - need to rethink a bit before re-enabling
 //      String queries_back1 = "{ \"index\" : \"" + indexFile1.getAbsolutePath() + "\", \"queries\" : ["
-//              + "{ \"number\" : \"2\", \"text\": \"#combine( #feature:dirichlet( #counts:two:part=postings.porter() ) #feature:dirichlet( #counts:sample:part=postings.porter() ) )\"},"
-//              + "{ \"number\" : \"9\", \"text\" : \"#combine( #feature:dirichlet( #counts:sample:part=postings.porter() ) )\"},"
-//              + "{ \"number\" : \"11\", \"text\" : \"#combine( #feature:dirichlet( #counts:is:part=postings.porter() ) #feature:dirichlet( #counts:two:part=postings.porter() ) )\"},"
+//              + "{ \"number\" : \"2\", \"text\": \"#combine( #dirichlet( #counts:two:part=postings.porter() ) #dirichlet( #counts:sample:part=postings.porter() ) )\"},"
+//              + "{ \"number\" : \"9\", \"text\" : \"#combine( #dirichlet( #counts:sample:part=postings.porter() ) )\"},"
+//              + "{ \"number\" : \"11\", \"text\" : \"#combine( #dirichlet( #counts:is:part=postings.porter() ) #dirichlet( #counts:two:part=postings.porter() ) )\"},"
 //              + "], \"backgroundPartMap\" : {\"postings.porter\" : \"background.porter\"}}";
 //
 //      Utility.copyStringToFile(queries_back1, queryFile);
@@ -101,9 +101,9 @@ public class BuildBackgroundTest extends TestCase {
               + "\"back\" : \"" + backgroundIndex.getAbsolutePath() + "\" }, "
               + "\"defaultGroup\" : \"reg\","
               + "\"queries\" : ["
-              + " { \"number\" : \"2\", \"text\": \"#combine( #feature:dirichlet( #counts:two:part=postings.porter() ) #feature:dirichlet( #counts:sample:part=postings.porter() ) )\"},"
-              + " { \"number\" : \"9\", \"text\" : \"#combine( #feature:dirichlet( #counts:sample:part=postings.porter() ) )\"},"
-              + " { \"number\" : \"11\", \"text\" : \"#combine( #feature:dirichlet( #counts:is:part=postings.porter() ) #feature:dirichlet( #counts:two:part=postings.porter() ) )\"},"
+              + " { \"number\" : \"2\", \"text\": \"#combine( #dirichlet( #counts:two:part=postings.porter() ) #dirichlet( #counts:sample:part=postings.porter() ) )\"},"
+              + " { \"number\" : \"9\", \"text\" : \"#combine( #dirichlet( #counts:sample:part=postings.porter() ) )\"},"
+              + " { \"number\" : \"11\", \"text\" : \"#combine( #dirichlet( #counts:is:part=postings.porter() ) #dirichlet( #counts:two:part=postings.porter() ) )\"},"
               + "],"
               + "\"backgroundIndex\" : \"back\"}";
 
