@@ -51,7 +51,7 @@ public class CachedRetrievalTest extends TestCase {
       LocalRetrieval cacheRet = (LocalRetrieval) RetrievalFactory.instance(indexFile.getAbsolutePath(), p);
 
       // SCORE node
-      Node score = StructuredQuery.parse("#feature:dirichlet(#counts:is:part=postings())");
+      Node score = StructuredQuery.parse("#dirichlet(#counts:is:part=postings())");
       score = cacheRet.transformQuery(score, p);
       cacheRet.addNodeToCache(score);
 

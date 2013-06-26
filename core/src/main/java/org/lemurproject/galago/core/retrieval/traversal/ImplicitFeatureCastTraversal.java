@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -9,26 +8,20 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.FilteredIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
-import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.FieldComparisonIterator;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * For many kinds of queries, it may be preferable to not have to type
- * an explicit #feature operator around a count or extents term.  For example,
- * we want #combine(#feature:dirichlet(#counts:dog())) to be the same as
- * #combine(dog).  This transformation automatically adds the #feature:dirichlet
+ * an explicit feature operator around a count or extents term.  For example,
+ * we want #combine(#dirichlet(#counts:dog())) to be the same as
+ * #combine(dog).  This transformation automatically adds the #dirichlet
  * operator.
  * 
- * (12/21/2010, irmarc): Modified to annotate topdocs feature nodes, as well as generate them
- *                        if specified by construction globals.
  * (7/17/2011, irmarc): Added a check for the intersection operator. If found, makes sure to add
  *                        a -1 as the default distance, which indicates "whole doc".
- * (12/5/2011, irmarc): Added a check for wrapping extent operators with extent filters for passage
- *                        retrieval.
  *
  * (3/2013, sjh) Added check for expected node type to restrict the conversion of extent nodes to count nodes
  * 
@@ -136,40 +129,13 @@ public class ImplicitFeatureCastTraversal extends Traversal {
 
     ArrayList<Node> data = new ArrayList<Node>();
     data.add(child);
-    String scorerType = queryParameters.get("scorer", globals.get("scorer", "dirichlet"));
+    String scorerNode = queryParameters.get("scorer", globals.get("scorer", "dirichlet"));
 
-    Node smoothed = new Node("feature", scorerType, data, child.getPosition());
+    Node smoothed = new Node(scorerNode, data, child.getPosition());
 
     return smoothed;
-
-//    // TopDocs is disabled for now.
-//    if (!globals.get("topdocs", false)) {
-//       return smoothed;
-//    }
-//    If we're here, we should be adding a topdocs node
-//    return createTopdocsNode(smoothed);
   }
 
-//  private Node createTopdocsNode(Node child) throws Exception {
-//    // First (and only) child should be a scoring function fieldIterator node
-//    if (!isScoringFunctionNode(child)) {
-//      return child;
-//    }
-//
-//    // The replacement
-//    ArrayList<Node> children = new ArrayList<Node>();
-//    children.add(child);
-//    Node workingNode = new Node("feature", "topdocs", children, child.getPosition());
-//
-//    // count node, with the information we need
-//    Node grandchild = child.getInternalNodes().get(0);
-//    NodeParameters descendantParameters = grandchild.getNodeParameters();
-//    NodeParameters workingParameters = workingNode.getNodeParameters();
-//    workingParameters.set("term", descendantParameters.getString("default"));
-//    workingParameters.set("loc", descendantParameters.getString("part"));
-//    workingParameters.set("index", globals.getString("index"));
-//    return workingNode;
-//  }
   private boolean isCountNode(Node node) throws Exception {
     NodeType nodeType = retrieval.getNodeType(node);
     if (nodeType == null) {

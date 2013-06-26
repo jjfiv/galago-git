@@ -1,11 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools.apps;
 
+import gnu.trove.map.hash.TIntLongHashMap;
 import gnu.trove.map.hash.TObjectLongHashMap;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -13,7 +18,6 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.core.util.CallTable;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -66,9 +70,6 @@ public class TimedBatchSearch extends AppFunction {
   @Override
   public void run(Parameters parameters, PrintStream out) throws Exception {
     ScoredDocument[] results = null;
-    TObjectLongHashMap times = new TObjectLongHashMap();
-    long querystarttime, querymidtime, queryendtime;
-    long endtime;
 
     if (!(parameters.containsKey("query")
             || parameters.containsKey("queries"))) {
@@ -76,29 +77,23 @@ public class TimedBatchSearch extends AppFunction {
       return;
     }
 
+    // ensure we can print to a file instead of the commandline
+    if (parameters.isString("outputFile")) {
+      boolean append = parameters.get("appendFile", false);
+      out = new PrintStream(new BufferedOutputStream(
+              new FileOutputStream(parameters.getString("outputFile"), append)));
+    }
+
+    // check if we can print to a file instead of the commandline (else use stderr, same as verbose)
+    PrintStream times = System.err;
+    if (parameters.isString("timesFile")) {
+      boolean append = parameters.get("appendTimes", false);
+      times = new PrintStream(new BufferedOutputStream(
+              new FileOutputStream(parameters.getString("timesFile"), append)));
+    }
+
+    // get queries
     List<Parameters> queries = BatchSearch.collectQueries(parameters);
-
-    // Look for a range
-    int[] queryrange = new int[2];
-    if (parameters.containsKey("range")) {
-      String[] parts = parameters.getString("range").split("-");
-      queryrange[0] = Integer.parseInt(parts[0]);
-      queryrange[1] = Integer.parseInt(parts[1]);
-    } else {
-      queryrange[0] = 0;
-      queryrange[1] = queries.size();
-    }
-
-    // And repeats
-    int repeats = (int) parameters.get("repeats", 1);
-
-    // check for delayed execution
-    if (parameters.containsKey("processingModel")) {
-      String[] parts = parameters.getString("processingModel").split("\\.");
-      if (parts[parts.length - 1].contains("Delayed")) {
-        parameters.set("delayed", true);
-      }
-    }
 
     // open index
     Retrieval retrieval = RetrievalFactory.instance(parameters);
@@ -106,111 +101,135 @@ public class TimedBatchSearch extends AppFunction {
     // record results requested
     int requested = (int) parameters.get("requested", 1000);
 
-    // for each query, run it, get the results, print in TREC format
+    // And repeats
+    int repeats = (int) parameters.get("repeats", 5);
+
+    // timing variables
+    long batchstarttime, batchendtime;
+    long querystarttime, querymidtime, queryendtime;
+    long[] batchTimes = new long[repeats];
+    // keys should be in sorted order for ordered printing
+    Map<String, long[]> queryTimes = new TreeMap();
+    Map<String, long[]> queryExecTimes = new TreeMap();
+
+
+    Random rnd = null;
     if (parameters.containsKey("seed")) {
       long seed = parameters.getLong("seed");
-      Random r = new Random(seed);
-      Collections.shuffle(queries, r);
+      rnd = new Random(seed);
     }
 
-    long starttime = System.currentTimeMillis();
+    for (int rep = 0; rep < repeats; rep++) {
 
-    for (int idx = queryrange[0]; idx < queryrange[1]; idx++) {
-      Parameters query = queries.get(idx);
-      String queryText = query.getString("text");
-
-      if (parameters.get("casefold", false)) {
-        queryText = queryText.toLowerCase();
+      // randomize the query order:
+      if (rnd != null) {
+        Collections.shuffle(queries, rnd);
       }
 
-      Parameters p = new Parameters();
-      p.copyFrom(query);
-      p.set("requested", requested);
+      batchstarttime = System.currentTimeMillis();
 
-      // This is slow - need to improve it, but later
-      if (parameters.containsKey("working")) {
-        p.set("working", parameters.getList("working"));
-      }
-
-      for (int rep = 0; rep < repeats; rep++) {
-        if (rep < (repeats - 1)) {
-          CallTable.turnOff();
-        } else {
-          CallTable.turnOn();
-        }
+      // for each query, run it, get the results, print in TREC format
+      for (Parameters query : queries) {
 
         querystarttime = System.currentTimeMillis();
-        Node root = StructuredQuery.parse(queryText);
-        Node transformed = retrieval.transformQuery(root, p);
 
-        // These must be done after parsing and transformation b/c they're
-        // overrides or post-processing
-        String[] overrides = {"processingModel", "longModel", "shortModel"};
-        for (String o : overrides) {
-          if (parameters.containsKey(o)) {
-            p.set(o, parameters.getString(o));
+        String queryText = query.getString("text");
+        String queryNumber = query.getString("number");
+
+
+        query.setBackoff(parameters);
+        query.set("requested", requested);
+
+        // option to fold query cases -- note that some parameters may require upper case
+        if (query.get("casefold", false)) {
+          queryText = queryText.toLowerCase();
+        }
+
+        if (parameters.get("verbose", false)) {
+          logger.info("RUNNING: " + queryNumber + " : " + queryText);
+        }
+
+        // parse and transform query into runnable form
+        Node root = StructuredQuery.parse(queryText);
+        Node transformed = retrieval.transformQuery(root, query);
+
+        querymidtime = System.currentTimeMillis();
+
+        if (parameters.get("verbose", false)) {
+          logger.info("Transformed Query:\n" + transformed.toPrettyString());
+        }
+
+        // run query
+        results = retrieval.runQuery(transformed, query);
+
+        queryendtime = System.currentTimeMillis();
+
+        if (!queryTimes.containsKey(queryNumber)) {
+          queryTimes.put(queryNumber, new long[repeats]);
+          queryExecTimes.put(queryNumber, new long[repeats]);
+        }
+        queryTimes.get(queryNumber)[rep] = (queryendtime - querystarttime);
+        queryExecTimes.get(queryNumber)[rep] = (queryendtime - querymidtime);
+
+        // if we have some results -- print in to output stream
+        if (rep == 0 && results != null) {
+          for (int i = 0; i < results.length; i++) {
+            out.println(results[i].toTRECformat(queryNumber));
           }
         }
-
-        if (parameters.containsKey("deltaReady")) {
-          p.set("deltaReady", parameters.getBoolean("deltaReady"));
-        }
-
-        if (parameters.get("printTransformation", false)) {
-          System.err.println("Text:" + queryText);
-          System.err.println("Parsed Node:" + root.toPrettyString());
-          System.err.println("Transformed Node:" + transformed.toPrettyString());
-        }
-
-        results = retrieval.runQuery(transformed, p);
-        queryendtime = System.currentTimeMillis();
-        times.put(query.getString("number") + '.' + (rep + 1), queryendtime - querystarttime);
       }
 
-      if (results != null) {
-        for (int i = 0; i < results.length; i++) {
-          ScoredDocument doc = results[i];
-          double score = doc.score;
-          int rank = i + 1;
+      batchendtime = System.currentTimeMillis();
+      batchTimes[rep] = (batchendtime - batchstarttime);
 
-          out.format("%s Q0 %s %d %s galago\n", query.getString("number"), doc.documentName, rank,
-                  formatScore(score));
-        }
-      }
-      if (parameters.get("print_calls", false)) {
-        CallTable.print(System.out, query.getString("number"));
-      }
-      CallTable.reset();
     }
 
-    endtime = System.currentTimeMillis();
-    long runtotal = 0;
-    if (parameters.get("time", false)) {
-      for (int i = queryrange[0]; i < queryrange[1]; i++) {
-        Parameters query = queries.get(i);
-        String id = query.getString("number");
-        for (int rep = 1; rep <= repeats; rep++) {
-          String label = id + "." + rep;
-          long timeInMS = times.get(label);
-          System.err.printf("RUN-ONE\t%s\t%d\n", label, timeInMS);
-          if (rep == repeats) {
-            runtotal += timeInMS;
-          }
-        }
-      }
+    if (parameters.isString("outputFile")) {
+      out.close();
+    }
 
-      long timeInMS = (endtime - starttime);
-      System.err.printf("RUN-TOT\truns\t%d\n", runtotal);
-      System.err.printf("RUN-TOT\ttotal\t%d\n", timeInMS);
+    printTimingData(times, batchTimes, queryTimes, queryExecTimes);
+
+
+    if (parameters.isString("timesFile")) {
+      times.close();
     }
   }
 
-  private static String formatScore(double score) {
-    double difference = Math.abs(score - (int) score);
+  private void printTimingData(PrintStream times, long[] batchTimes, Map<String, long[]> queryTimes, Map<String, long[]> queryExecTimes) {
+    // print per query results
+    // QID [full times] [exec times] avgFull avgExec
 
-    if (difference < 0.00001) {
-      return Integer.toString((int) score);
+    for (String queryNumber : queryTimes.keySet()) {
+      times.print(queryNumber);
+      double fullSum = 0;
+      double execSum = 0;
+      long[] fulls = queryTimes.get(queryNumber);
+      long[] execs = queryExecTimes.get(queryNumber);
+      for (int rep = 0; rep < batchTimes.length; rep++) {
+        times.format("\t%d", fulls[rep]);
+        fullSum += fulls[rep];
+      }
+      for (int rep = 0; rep < batchTimes.length; rep++) {
+        times.format("\t%d", execs[rep]);
+        execSum += execs[rep];
+      }
+      times.format("\t%g", fullSum / batchTimes.length);
+      times.format("\t%g\n", execSum / batchTimes.length);
     }
-    return String.format("%10.8f", score);
+
+    // BATCH [full times] [avgQ times] avgFull avgQtime
+
+    times.print("BATCH");
+    double batchSum = 0;
+    for (int rep = 0; rep < batchTimes.length; rep++) {
+      times.format("\t%d", batchTimes[rep]);
+      batchSum += batchTimes[rep];
+    }
+    for (int rep = 0; rep < batchTimes.length; rep++) {
+      times.format("\t%d", batchTimes[rep] / queryTimes.size());
+    }
+    times.format("\t%g", batchSum / batchTimes.length);
+    times.format("\t%g\n", batchSum / batchTimes.length / queryTimes.size());
   }
 }

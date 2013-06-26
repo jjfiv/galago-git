@@ -24,12 +24,12 @@ import org.lemurproject.galago.tupleflow.Parameters.Type;
  * Given `meg ryan war`, and fields `cast team title` the output should be
  * something like:
  *
- * #combine( #wsum:0=0.407:1=0.382:2=0.187 ( #feature:dirichlet(meg.cast)
- * #feature:dirichlet(meg.team) #feature:dirichlet( meg.title) )
- * #wsum:0=0.601:1=0.381:2=0.017 ( #feature:dirichlet(ryan.cast)
- * #feature:dirichlet(ryan.team) #feature:dirichlet(ryan.title) )
- * #wsum:0=0.927:1=0.070:2=0.002 ( #feature:dirichlet(war.cast)
- * #feature:dirichlet(war.team) #feature:dirichlet(war.title) ) )
+ * #combine( #wsum:0=0.407:1=0.382:2=0.187 ( #dirichlet(meg.cast)
+ * #dirichlet(meg.team) #dirichlet( meg.title) )
+ * #wsum:0=0.601:1=0.381:2=0.017 ( #dirichlet(ryan.cast)
+ * #dirichlet(ryan.team) #dirichlet(ryan.title) )
+ * #wsum:0=0.927:1=0.070:2=0.002 ( #dirichlet(war.cast)
+ * #dirichlet(war.team) #dirichlet(war.title) ) )
  *
  * @author jykim, irmarc, sjh
  */
@@ -137,7 +137,7 @@ public class PRMS2Traversal extends Traversal {
             normalizer += fieldprob;
           }
 
-          Node termScore = new Node("feature", scorerType);
+          Node termScore = new Node(scorerType);
           termScore.getNodeParameters().set("lengths", field);
           termScore.addChild(fieldLenNodes.get(field).clone());
           termScore.addChild(termFieldCounts);

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.scoring.DirichletScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.OrderedWindowIterator;
 import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
@@ -31,17 +30,6 @@ public class FeatureFactoryTest extends TestCase {
     FeatureFactory f = new FeatureFactory(new Parameters());
     String actual = f.getClassName(new Node("syn", "fakeargument"));
     assertEquals(SynonymIterator.class.getName(), actual);
-  }
-
-  /**
-   * Test of getFeatureClassName method, of class FeatureFactory.
-   */
-  public void testGetFeatureClassName() throws Exception {
-    FeatureFactory f = new FeatureFactory(new Parameters());
-    NodeParameters p = new NodeParameters();
-    p.set("default", "dirichlet");
-    String actual = f.getFeatureClassName(p);
-    assertEquals(DirichletScoringIterator.class.getName(), actual);
   }
 
   /**
@@ -84,17 +72,4 @@ public class FeatureFactoryTest extends TestCase {
 
     assertEquals("b", f.getClassName(new Node("a", new ArrayList())));
   }
-
-  /*
-  public void testGetTraversalNames() throws Exception {
-    String config = "{ \"traversals\" : { \"b\" : \"after\", \"a\": \"before\", \"c\" : \"before\" } }";
-    Parameters p = Parameters.parse(config);
-    FeatureFactory f = new FeatureFactory(p);
-    List<String> traversalNames = f.getTraversalNames();
-
-    assertEquals("a", traversalNames.get(0));
-    assertEquals("c", traversalNames.get(1));
-    assertEquals("b", traversalNames.get(traversalNames.size() - 1));
-  }
-   */
 }

@@ -14,12 +14,12 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * "counts" operator will turn into a CountIterator.  This is important to know because
  * a ScoreCombinationIterator can't take a CountIterator as an argument; it needs an
  * iterator between them to convert extents into scores.  A Traversal can check the types
- * of "counts" and "combine", notice the type mismatch, and add a "#feature" node between
+ * of "counts" and "combine", notice the type mismatch, and add a feature node between
  * them so that the types match. This is important because raw counts have to be transformed into
  * a score space, i.e. (# term occurrences in doc D) -->  (#term occurrences) / (|D|) </p>
  *
  *
- * @author trevor, irmarc
+ * @author trevor, irmarc, sjh
  */
 public class NodeType implements Serializable {
 

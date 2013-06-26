@@ -65,14 +65,14 @@ public class MultiRetrievalTest extends TestCase {
       Node queryTree = mr.transformQuery(parsedQuery, qp);
 
       String expected = "#combine:w=1.0("
-              + " #feature:dirichlet:"
+              + " #dirichlet:"
               + "collectionLength=19:"
               + "documentCount=4:"
               + "maximumCount=1:"
               + "nodeFrequency=4:"
               + "w=0.5"
               + "( #lengths:document:part=lengths() #counts:sample:part=postings.porter() ) "
-              + "#feature:dirichlet:"
+              + "#dirichlet:"
               + "collectionLength=19:"
               + "documentCount=4:"
               + "maximumCount=1:"

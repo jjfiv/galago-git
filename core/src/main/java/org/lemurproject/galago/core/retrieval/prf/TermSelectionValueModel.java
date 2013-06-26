@@ -141,10 +141,9 @@ public class TermSelectionValueModel {}
 //      ArrayList<Node> innerChild = new ArrayList<Node>();
 //      innerChild.add(inner);
 //      NodeParameters weightParameters = new NodeParameters();
-//      weightParameters.set("default", "bm25rf");
 //      weightParameters.set("rt", g.rt);
 //      weightParameters.set("R", g.R);
-//      children.add(new Node("feature", weightParameters, innerChild, 0));
+//      children.add(new Node("bm25rf", weightParameters, innerChild, 0));
 //      expanded++;
 //    }
 //    Node newRoot = new Node("combine", expParams, children, 0);

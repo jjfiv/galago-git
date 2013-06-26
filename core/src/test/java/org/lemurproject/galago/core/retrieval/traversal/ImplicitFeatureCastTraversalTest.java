@@ -47,8 +47,8 @@ public class ImplicitFeatureCastTraversalTest extends TestCase {
     tree = StructuredQuery.copy(precedes, tree, new Parameters()); // converts #text to #extents...
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine( ");
-    transformed.append("#feature:dirichlet( #extents:cat:part=postings() ) ");
-    transformed.append("#feature:dirichlet( #inside( #extents:dog:part=postings() ");
+    transformed.append("#dirichlet( #extents:cat:part=postings() ) ");
+    transformed.append("#dirichlet( #inside( #extents:dog:part=postings() ");
     transformed.append("#extents:title:part=extents() ) ) )");
     Node result = StructuredQuery.copy(traversal, tree, new Parameters());
     assertEquals(transformed.toString(), result.toString());

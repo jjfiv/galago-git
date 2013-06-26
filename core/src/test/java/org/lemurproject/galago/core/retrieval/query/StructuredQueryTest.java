@@ -46,7 +46,7 @@ public class StructuredQueryTest extends TestCase {
     Node childA = new Node("text", "a", 0);
     ArrayList<Node> childList = new ArrayList();
     childList.add(childA);
-    Node featureA = new Node("feature", "bm25", childList, 0);
+    Node featureA = new Node("bm25", childList, 0);
     ArrayList<Node> featureList = new ArrayList<Node>();
     featureList.add(featureA);
     featureList.add(childB);
@@ -94,7 +94,7 @@ public class StructuredQueryTest extends TestCase {
   }
 
   public void testSimpleParse() {
-    String query = "#combine( #feature:bm25(a) b )";
+    String query = "#combine( #bm25(a) b )";
     Node tree = createQuery();
 
     Node result = StructuredQuery.parse(query);

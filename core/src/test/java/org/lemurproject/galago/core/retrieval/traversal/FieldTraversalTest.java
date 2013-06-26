@@ -68,17 +68,17 @@ public class FieldTraversalTest extends TestCase {
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine:norm=false( ");
     transformed.append("#wsum:0=0.3333333333333333:1=0.3333333333333333:2=0.3333333333333333 ( ");
-    transformed.append("#feature:dirichlet:lengths=title( #lengths:title:part=lengths() #counts:cat:part=field.title() ) ");
-    transformed.append("#feature:dirichlet:lengths=author( #lengths:author:part=lengths() #counts:cat:part=field.author() ) ");
-    transformed.append("#feature:dirichlet:lengths=anchor( #lengths:anchor:part=lengths() #counts:cat:part=field.anchor() ) ) ");
+    transformed.append("#dirichlet:lengths=title( #lengths:title:part=lengths() #counts:cat:part=field.title() ) ");
+    transformed.append("#dirichlet:lengths=author( #lengths:author:part=lengths() #counts:cat:part=field.author() ) ");
+    transformed.append("#dirichlet:lengths=anchor( #lengths:anchor:part=lengths() #counts:cat:part=field.anchor() ) ) ");
     transformed.append("#wsum:0=0.3333333333333333:1=0.3333333333333333:2=0.3333333333333333 ( ");
-    transformed.append("#feature:dirichlet:lengths=title( #lengths:title:part=lengths() #counts:dog:part=field.title() ) ");
-    transformed.append("#feature:dirichlet:lengths=author( #lengths:author:part=lengths() #counts:dog:part=field.author() ) ");
-    transformed.append("#feature:dirichlet:lengths=anchor( #lengths:anchor:part=lengths() #counts:dog:part=field.anchor() ) ) ");
+    transformed.append("#dirichlet:lengths=title( #lengths:title:part=lengths() #counts:dog:part=field.title() ) ");
+    transformed.append("#dirichlet:lengths=author( #lengths:author:part=lengths() #counts:dog:part=field.author() ) ");
+    transformed.append("#dirichlet:lengths=anchor( #lengths:anchor:part=lengths() #counts:dog:part=field.anchor() ) ) ");
     transformed.append("#wsum:0=0.3333333333333333:1=0.3333333333333333:2=0.3333333333333333 ( ");
-    transformed.append("#feature:dirichlet:lengths=title( #lengths:title:part=lengths() #counts:donkey:part=field.title() ) ");
-    transformed.append("#feature:dirichlet:lengths=author( #lengths:author:part=lengths() #counts:donkey:part=field.author() ) ");
-    transformed.append("#feature:dirichlet:lengths=anchor( #lengths:anchor:part=lengths() #counts:donkey:part=field.anchor() ) ) ");
+    transformed.append("#dirichlet:lengths=title( #lengths:title:part=lengths() #counts:donkey:part=field.title() ) ");
+    transformed.append("#dirichlet:lengths=author( #lengths:author:part=lengths() #counts:donkey:part=field.author() ) ");
+    transformed.append("#dirichlet:lengths=anchor( #lengths:anchor:part=lengths() #counts:donkey:part=field.anchor() ) ) ");
     transformed.append(" )");
 
     Node expected = StructuredQuery.parse(transformed.toString());
@@ -119,17 +119,17 @@ public class FieldTraversalTest extends TestCase {
 //
 //    transformed.append("#bm25fcomb:idf0=0.3566749439387324:idf1=0.3566749439387324:idf2=0.10536051565782635:norm=false:K=1.2( ");
 //    transformed.append("#combine:2=3.7:1=0.5:0=0.5:norm=false( ");
-//    transformed.append("#feature:bm25f:K=1.2:b=0.3:idf=0.3566749439387324:lengths=title:pIdx=0:w=0.5( #extents:cat:part=field.title() ) ");
-//    transformed.append("#feature:bm25f:K=1.2:b=0.8:idf=0.3566749439387324:lengths=author:pIdx=0:w=0.5( #extents:cat:part=field.author() ) ");
-//    transformed.append("#feature:bm25f:K=1.2:b=0.5:idf=0.3566749439387324:lengths=anchor:pIdx=0:w=3.7( #extents:cat:part=field.anchor() ) ) ");
+//    transformed.append("#bm25f:K=1.2:b=0.3:idf=0.3566749439387324:lengths=title:pIdx=0:w=0.5( #extents:cat:part=field.title() ) ");
+//    transformed.append("#bm25f:K=1.2:b=0.8:idf=0.3566749439387324:lengths=author:pIdx=0:w=0.5( #extents:cat:part=field.author() ) ");
+//    transformed.append("#bm25f:K=1.2:b=0.5:idf=0.3566749439387324:lengths=anchor:pIdx=0:w=3.7( #extents:cat:part=field.anchor() ) ) ");
 //    transformed.append("#combine:2=3.7:1=0.5:0=0.5:norm=false( ");
-//    transformed.append("#feature:bm25f:K=1.2:b=0.3:idf=0.3566749439387324:lengths=title:pIdx=1:w=0.5( #extents:dog:part=field.title() ) ");
-//    transformed.append("#feature:bm25f:K=1.2:b=0.8:idf=0.3566749439387324:lengths=author:pIdx=1:w=0.5( #extents:dog:part=field.author() ) ");
-//    transformed.append("#feature:bm25f:K=1.2:b=0.5:idf=0.3566749439387324:lengths=anchor:pIdx=1:w=3.7( #extents:dog:part=field.anchor() ) )");
+//    transformed.append("#bm25f:K=1.2:b=0.3:idf=0.3566749439387324:lengths=title:pIdx=1:w=0.5( #extents:dog:part=field.title() ) ");
+//    transformed.append("#bm25f:K=1.2:b=0.8:idf=0.3566749439387324:lengths=author:pIdx=1:w=0.5( #extents:dog:part=field.author() ) ");
+//    transformed.append("#bm25f:K=1.2:b=0.5:idf=0.3566749439387324:lengths=anchor:pIdx=1:w=3.7( #extents:dog:part=field.anchor() ) )");
 //    transformed.append("#combine:2=3.7:1=0.5:0=0.5:norm=false( ");
-//    transformed.append("#feature:bm25f:K=1.2:b=0.3:idf=0.10536051565782635:lengths=title:pIdx=2:w=0.5( #extents:donkey:part=field.title() ) ");
-//    transformed.append("#feature:bm25f:K=1.2:b=0.8:idf=0.10536051565782635:lengths=author:pIdx=2:w=0.5( #extents:donkey:part=field.author() ) ");
-//    transformed.append("#feature:bm25f:K=1.2:b=0.5:idf=0.10536051565782635:lengths=anchor:pIdx=2:w=3.7( #extents:donkey:part=field.anchor() ) ) ");
+//    transformed.append("#bm25f:K=1.2:b=0.3:idf=0.10536051565782635:lengths=title:pIdx=2:w=0.5( #extents:donkey:part=field.title() ) ");
+//    transformed.append("#bm25f:K=1.2:b=0.8:idf=0.10536051565782635:lengths=author:pIdx=2:w=0.5( #extents:donkey:part=field.author() ) ");
+//    transformed.append("#bm25f:K=1.2:b=0.5:idf=0.10536051565782635:lengths=anchor:pIdx=2:w=3.7( #extents:donkey:part=field.anchor() ) ) ");
 //    transformed.append(" )");
 //
 //    Node expected = StructuredQuery.parse(transformed.toString());
@@ -164,21 +164,21 @@ public class FieldTraversalTest extends TestCase {
 //    StringBuilder transformed = new StringBuilder();
 //
 //    transformed.append("#combine:norm=false( ");
-//    transformed.append("#feature:dfr:qf=1:qfmax=1:nodeFrequency=13:documentCount=5( ");
+//    transformed.append("#dfr:qf=1:qfmax=1:nodeFrequency=13:documentCount=5( ");
 //    transformed.append("#combine:2=0.7:1=0.5:0=0.3( ");
-//    transformed.append("#feature:pl2f:c=0.5:dc=5:lengths=title:nf=13:pIdx=0:w=0.19999999999999998( #counts:cat:part=field.title() ) ");
-//    transformed.append("#feature:pl2f:c=0.5:dc=5:lengths=author:nf=13:pIdx=0:w=0.3333333333333333( #counts:cat:part=field.author() ) ");
-//    transformed.append("#feature:pl2f:c=0.5:dc=5:lengths=anchor:nf=13:pIdx=0:w=0.4666666666666666( #counts:cat:part=field.anchor() ) ) ) ");
-//    transformed.append("#feature:dfr:qf=1:qfmax=1:nodeFrequency=11:documentCount=5( ");
+//    transformed.append("#pl2f:c=0.5:dc=5:lengths=title:nf=13:pIdx=0:w=0.19999999999999998( #counts:cat:part=field.title() ) ");
+//    transformed.append("#pl2f:c=0.5:dc=5:lengths=author:nf=13:pIdx=0:w=0.3333333333333333( #counts:cat:part=field.author() ) ");
+//    transformed.append("#pl2f:c=0.5:dc=5:lengths=anchor:nf=13:pIdx=0:w=0.4666666666666666( #counts:cat:part=field.anchor() ) ) ) ");
+//    transformed.append("#dfr:qf=1:qfmax=1:nodeFrequency=11:documentCount=5( ");
 //    transformed.append("#combine:2=0.7:1=0.5:0=0.3( ");
-//    transformed.append("#feature:pl2f:c=0.5:dc=5:lengths=title:nf=11:pIdx=1:w=0.19999999999999998( #counts:dog:part=field.title() ) ");
-//    transformed.append("#feature:pl2f:c=0.5:dc=5:lengths=author:nf=11:pIdx=1:w=0.3333333333333333( #counts:dog:part=field.author() ) ");
-//    transformed.append("#feature:pl2f:c=0.5:dc=5:lengths=anchor:nf=11:pIdx=1:w=0.4666666666666666( #counts:dog:part=field.anchor() ) ) ) ");
-//    transformed.append("#feature:dfr:qf=1:qfmax=1:nodeFrequency=12:documentCount=5(");
+//    transformed.append("#pl2f:c=0.5:dc=5:lengths=title:nf=11:pIdx=1:w=0.19999999999999998( #counts:dog:part=field.title() ) ");
+//    transformed.append("#pl2f:c=0.5:dc=5:lengths=author:nf=11:pIdx=1:w=0.3333333333333333( #counts:dog:part=field.author() ) ");
+//    transformed.append("#pl2f:c=0.5:dc=5:lengths=anchor:nf=11:pIdx=1:w=0.4666666666666666( #counts:dog:part=field.anchor() ) ) ) ");
+//    transformed.append("#dfr:qf=1:qfmax=1:nodeFrequency=12:documentCount=5(");
 //    transformed.append("#combine:2=0.7:1=0.5:0=0.3( ");
-//    transformed.append("#feature:pl2f:c=0.5:dc=5:lengths=title:nf=12:pIdx=2:w=0.19999999999999998( #counts:donkey:part=field.title() ) ");
-//    transformed.append("#feature:pl2f:c=0.5:dc=5:lengths=author:nf=12:pIdx=2:w=0.3333333333333333( #counts:donkey:part=field.author() ) ");
-//    transformed.append("#feature:pl2f:c=0.5:dc=5:lengths=anchor:nf=12:pIdx=2:w=0.4666666666666666( #counts:donkey:part=field.anchor() ) ) ) ");
+//    transformed.append("#pl2f:c=0.5:dc=5:lengths=title:nf=12:pIdx=2:w=0.19999999999999998( #counts:donkey:part=field.title() ) ");
+//    transformed.append("#pl2f:c=0.5:dc=5:lengths=author:nf=12:pIdx=2:w=0.3333333333333333( #counts:donkey:part=field.author() ) ");
+//    transformed.append("#pl2f:c=0.5:dc=5:lengths=anchor:nf=12:pIdx=2:w=0.4666666666666666( #counts:donkey:part=field.anchor() ) ) ) ");
 //    transformed.append(" )");
 //
 //    Node expected = StructuredQuery.parse(transformed.toString());

@@ -66,7 +66,7 @@ public class ProximityDFRTraversal extends Traversal {
       // build unigram node:
       Node unigramNode = new Node("combine");
       for (int i = 0; i < original.numChildren(); i++) {
-        Node scorer = new Node("feature", termScoringModel);
+        Node scorer = new Node(termScoringModel);
         scorer.getNodeParameters().set("c", c);
         scorer.addChild(StructuredQuery.parse("#lengths:document:part=lengths()"));
         scorer.addChild(original.getChild(i));
@@ -94,7 +94,7 @@ public class ProximityDFRTraversal extends Traversal {
     Node proxy = new Node("combine");
 
     for (int i = 0; i < internalNodes.size() - 1; i++) {
-      Node scorer = new Node("feature", proxScoringModel);
+      Node scorer = new Node(proxScoringModel);
       scorer.getNodeParameters().set("c", cp);
       scorer.addChild(StructuredQuery.parse("#lengths:document:part=lengths()"));
       Node od = new Node("ordered");
@@ -113,7 +113,7 @@ public class ProximityDFRTraversal extends Traversal {
 
     for (int i = 0; i < internalNodes.size(); i++) {
       for (int j = i + 1; j < internalNodes.size(); j++) {
-        Node scorer = new Node("feature", proxScoringModel);
+        Node scorer = new Node(proxScoringModel);
         scorer.getNodeParameters().set("c", cp);
         scorer.addChild(StructuredQuery.parse("#lengths:document:part=lengths()"));
         Node od = new Node("unordered");

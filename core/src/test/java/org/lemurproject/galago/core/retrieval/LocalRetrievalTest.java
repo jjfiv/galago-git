@@ -213,71 +213,69 @@ public class LocalRetrievalTest extends TestCase {
   public void tearDown() throws IOException {
     Utility.deleteDirectory(tempPath);
   }
-//
-//  public void testSimple() throws FileNotFoundException, IOException, Exception {
-//    LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), new Parameters());
-//
-//    Node aTerm = new Node("counts", "a");
-//    ArrayList<Node> aChild = new ArrayList<Node>();
-//    aChild.add(aTerm);
-//    NodeParameters a = new NodeParameters();
-//    a.set("default", "dirichlet");
-//    a.set("mu", 1500);
-//    Node aFeature = new Node("feature", a, aChild, 0);
-//
-//    Node bTerm = new Node("counts", "b");
-//    ArrayList<Node> bChild = new ArrayList<Node>();
-//    NodeParameters b = new NodeParameters();
-//    b.set("default", "dirichlet");
-//    b.set("mu", 1500);
-//    bChild.add(bTerm);
-//    Node bFeature = new Node("feature", b, bChild, 0);
-//
-//    ArrayList<Node> children = new ArrayList<Node>();
-//    children.add(aFeature);
-//    children.add(bFeature);
-//    Node root = new Node("combine", children);
-//
-//    Parameters p = new Parameters();
-//    p.set("requested", 5);
-//    root = retrieval.transformQuery(root, p);
-//    ScoredDocument[] result = retrieval.runQuery(root, p);
-//
-//    assertEquals(result.length, 5);
-//
-//    HashMap<Long, Double> realScores = new HashMap<Long, Double>();
-//
-//    realScores.put(1l, -5.548387728381024);
-//    realScores.put(3l, -5.819614290181323);
-//    realScores.put(5l, -5.937808679213438);
-//    realScores.put(18l, -5.937808679213438);
-//    realScores.put(2l, -5.937808679213438);
-//
-//    HashMap<Long, String> realNames = new HashMap();
-//    realNames.put(1l, "DOC1");
-//    realNames.put(2l, "DOC2");
-//    realNames.put(3l, "DOC3");
-//    realNames.put(5l, "DOC5");
-//    realNames.put(18l, "DOC18");
-//
-//    // make sure the results are sorted
-//    double lastScore = Double.MAX_VALUE;
-//
-//    for (int i = 0; i < result.length; i++) {
-//      double score = result[i].score;
-//      double expected = realScores.get(result[i].document);
-//      String expname = realNames.get(result[i].document);
-//      assertTrue(lastScore >= result[i].score);
-//      assertEquals(expname, result[i].documentName);
-//      assertEquals(expected, score, 0.0001);
-//
-//      lastScore = score;
-//    }
-//  }
+
+  public void testSimple() throws FileNotFoundException, IOException, Exception {
+    LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), new Parameters());
+
+    Node aTerm = new Node("counts", "a");
+    ArrayList<Node> aChild = new ArrayList<Node>();
+    aChild.add(aTerm);
+    NodeParameters a = new NodeParameters();
+    a.set("mu", 1500);
+    Node aFeature = new Node("dirichlet", a, aChild, 0);
+
+    Node bTerm = new Node("counts", "b");
+    ArrayList<Node> bChild = new ArrayList<Node>();
+    NodeParameters b = new NodeParameters();
+    b.set("mu", 1500);
+    bChild.add(bTerm);
+    Node bFeature = new Node("dirichlet", b, bChild, 0);
+
+    ArrayList<Node> children = new ArrayList<Node>();
+    children.add(aFeature);
+    children.add(bFeature);
+    Node root = new Node("combine", children);
+
+    Parameters p = new Parameters();
+    p.set("requested", 5);
+    root = retrieval.transformQuery(root, p);
+    ScoredDocument[] result = retrieval.runQuery(root, p);
+
+    assertEquals(result.length, 5);
+
+    HashMap<Long, Double> realScores = new HashMap<Long, Double>();
+
+    realScores.put(1l, -5.548387728381024);
+    realScores.put(3l, -5.819614290181323);
+    realScores.put(5l, -5.937808679213438);
+    realScores.put(18l, -5.937808679213438);
+    realScores.put(2l, -5.937808679213438);
+
+    HashMap<Long, String> realNames = new HashMap();
+    realNames.put(1l, "DOC1");
+    realNames.put(2l, "DOC2");
+    realNames.put(3l, "DOC3");
+    realNames.put(5l, "DOC5");
+    realNames.put(18l, "DOC18");
+
+    // make sure the results are sorted
+    double lastScore = Double.MAX_VALUE;
+
+    for (int i = 0; i < result.length; i++) {
+      double score = result[i].score;
+      double expected = realScores.get(result[i].document);
+      String expname = realNames.get(result[i].document);
+      assertTrue(lastScore >= result[i].score);
+      assertEquals(expname, result[i].documentName);
+      assertEquals(expected, score, 0.0001);
+
+      lastScore = score;
+    }
+  }
 
   public void testWorkingSet() throws FileNotFoundException, IOException, Exception {
     LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), new Parameters());
-    Node root = StructuredQuery.parse("#combine( #feature:dirichlet:mu=1500( #counts:a() ) #feature:dirichlet:mu=1500( #counts:b() ) )");
+    Node root = StructuredQuery.parse("#combine( #dirichlet:mu=1500( #counts:a() ) #dirichlet:mu=1500( #counts:b() ) )");
     Parameters p = new Parameters();
     p.set("requested", 5);
 
@@ -320,40 +318,40 @@ public class LocalRetrievalTest extends TestCase {
     }
   }
 
-//  public void testWindow() throws FileNotFoundException, IOException, Exception {
-//    LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), new Parameters());
-//
-//    String query = "#combine( #feature:dirichlet:mu=1500( #uw:5( #extents:a:part=postings() #extents:b:part=postings() ) ) )";
-//    Node root = StructuredQuery.parse(query);
-//    Parameters p = new Parameters();
-//    p.set("requested", 5);
-//    root = retrieval.transformQuery(root, p);
-//    ScoredDocument[] result = retrieval.runQuery(root, p);
-//
-//    assertEquals(2, result.length);
-//
-//    HashMap<Long, Double> realScores = new HashMap<Long, Double>();
-//
-//    realScores.put(1l, -5.585999438999818);
-//    realScores.put(3l, -5.991464547107982);
-//
-//    HashMap<Long, String> realNames = new HashMap();
-//    realNames.put(1l, "DOC1");
-//    realNames.put(3l, "DOC3");
-//
-//    // make sure the results are sorted
-//    double lastScore = Double.MAX_VALUE;
-//
-//    for (int i = 0; i < result.length; i++) {
-//      double score = result[i].score;
-//      double expected = realScores.get(result[i].document);
-//      String expname = realNames.get(result[i].document);
-//      assertTrue(lastScore >= result[i].score);
-//      assertEquals(expname, result[i].documentName);
-//      assertEquals(expected, score, 0.0001);
-//
-//      lastScore = score;
-//    }
-//    retrieval.close();
-//  }
+  public void testWindow() throws FileNotFoundException, IOException, Exception {
+    LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), new Parameters());
+
+    String query = "#combine( #dirichlet:mu=1500( #uw:5( #extents:a:part=postings() #extents:b:part=postings() ) ) )";
+    Node root = StructuredQuery.parse(query);
+    Parameters p = new Parameters();
+    p.set("requested", 5);
+    root = retrieval.transformQuery(root, p);
+    ScoredDocument[] result = retrieval.runQuery(root, p);
+
+    assertEquals(2, result.length);
+
+    HashMap<Long, Double> realScores = new HashMap<Long, Double>();
+
+    realScores.put(1l, -5.585999438999818);
+    realScores.put(3l, -5.991464547107982);
+
+    HashMap<Long, String> realNames = new HashMap();
+    realNames.put(1l, "DOC1");
+    realNames.put(3l, "DOC3");
+
+    // make sure the results are sorted
+    double lastScore = Double.MAX_VALUE;
+
+    for (int i = 0; i < result.length; i++) {
+      double score = result[i].score;
+      double expected = realScores.get(result[i].document);
+      String expname = realNames.get(result[i].document);
+      assertTrue(lastScore >= result[i].score);
+      assertEquals(expname, result[i].documentName);
+      assertEquals(expected, score, 0.0001);
+
+      lastScore = score;
+    }
+    retrieval.close();
+  }
 }

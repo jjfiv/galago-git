@@ -31,9 +31,13 @@ import org.lemurproject.galago.tupleflow.Parameters;
 /**
  * @author trevor
  * @author irmarc
+ * @author sjh
  */
 public class FeatureFactory {
 
+  protected HashMap<String, OperatorSpec> operatorLookup;
+  protected List<TraversalSpec> traversals;
+  protected Parameters parameters;
   static String[][] sOperatorLookup = {
     {ThresholdIterator.class.getName(), "threshold"},
     {ScoreCombinationIterator.class.getName(), "combine"},
@@ -65,16 +69,14 @@ public class FeatureFactory {
     {PassageFilterIterator.class.getName(), "passagefilter"},
     {PL2ScoringIterator.class.getName(), "pl2scorer"},
     {PassageLengthIterator.class.getName(), "passagelengths"},
-    {LogProbNotIterator.class.getName(), "logprobnot"}
-  };
-  static String[][] sFeatureLookup = {
+    {LogProbNotIterator.class.getName(), "logprobnot"},
+    // Scorers can be named directly as nodes
     {DirichletScoringIterator.class.getName(), "dirichlet"},
     {JelinekMercerScoringIterator.class.getName(), "linear"},
     {JelinekMercerScoringIterator.class.getName(), "jm"},
     {BM25ScoringIterator.class.getName(), "bm25"},
     {BM25RFScoringIterator.class.getName(), "bm25rf"},
     {BoostingIterator.class.getName(), "boost"},
-//    {BM25FieldScoringIterator.class.getName(), "bm25f"},
     {LogarithmIterator.class.getName(), "log"},
     {PL2ScoringIterator.class.getName(), "pl2"},
     {InL2ScoringIterator.class.getName(), "inl2"},
@@ -108,22 +110,14 @@ public class FeatureFactory {
   };
 
   public FeatureFactory(Parameters p) {
-    this(p, sOperatorLookup, sFeatureLookup, sTraversalList);
+    this(p, sOperatorLookup, sTraversalList);
   }
 
   public FeatureFactory(Parameters parameters,
-          String[][] sOperatorLookup, String[][] sFeatureLookup,
+          String[][] sOperatorLookup,
           String[] sTraversalList) {
     operatorLookup = new HashMap<String, OperatorSpec>();
-    featureLookup = new HashMap<String, OperatorSpec>();
     this.parameters = parameters;
-
-    for (String[] item : sFeatureLookup) {
-      OperatorSpec operator = new OperatorSpec();
-      operator.className = item[0];
-      String operatorName = item[1];
-      featureLookup.put(operatorName, operator);
-    }
 
     for (String[] item : sOperatorLookup) {
       OperatorSpec operator = new OperatorSpec();
@@ -157,7 +151,7 @@ public class FeatureFactory {
       }
     }
 
-    // If the user doesn't want to replace the current pipeline, add in that pipeline
+    // If the user doesn't want to replace the current pipeline, add in the std pipeline
     if (insteadTraversals.size() == 0) {
       for (String className : sTraversalList) {
         TraversalSpec spec = new TraversalSpec();
@@ -182,18 +176,6 @@ public class FeatureFactory {
         operatorLookup.put(operatorName, spec);
       }
     }
-
-    // Load external features
-    if (parameters.isList("features")) {
-      for (Parameters value : (List<Parameters>) parameters.getList("features")) {
-        String className = value.getString("class");
-        String operatorName = value.getString("name");
-        Parameters params = value.isMap("parameters") ? value.getMap("parameters") : null;
-        OperatorSpec spec = new OperatorSpec();
-        spec.className = className;
-        featureLookup.put(operatorName, spec);
-      }
-    }
   }
 
   public static class OperatorSpec {
@@ -205,17 +187,9 @@ public class FeatureFactory {
 
     public String className;
   }
-  protected HashMap<String, OperatorSpec> featureLookup;
-  protected HashMap<String, OperatorSpec> operatorLookup;
-  protected List<TraversalSpec> traversals;
-  protected Parameters parameters;
 
   public String getClassName(Node node) throws Exception {
     String operator = node.getOperator();
-
-    if (operator.equals("feature")) {
-      return getFeatureClassName(node.getNodeParameters());
-    }
 
     OperatorSpec operatorType = operatorLookup.get(operator);
 
@@ -224,27 +198,6 @@ public class FeatureFactory {
     }
 
     // This is to compensate for the transparent behavior of the fitering nodes
-    return operatorType.className;
-  }
-
-  public String getFeatureClassName(NodeParameters parameters) throws Exception {
-    if (parameters.containsKey("class")) {
-      return parameters.getString("class");
-    }
-
-    String name = parameters.get("name", parameters.get("default", (String) null));
-
-    if (name == null) {
-      throw new Exception(
-              "Didn't find 'class', 'name', or 'default' parameter in this feature description.");
-    }
-
-    OperatorSpec operatorType = featureLookup.get(name);
-
-    if (operatorType == null) {
-      throw new Exception("Couldn't find a class for the feature named " + name + ".");
-    }
-
     return operatorType.className;
   }
 

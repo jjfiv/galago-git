@@ -69,14 +69,14 @@ public class GroupRetrievalTest extends TestCase {
       Parameters q1 = params.clone();
       Node queryTree1 = gr.transformQuery(parsedQuery, q1, "group1");
 
-      String expected = "#combine:w=1.0( #feature:dirichlet:"
+      String expected = "#combine:w=1.0( #dirichlet:"
               + "collectionLength=8:"
               + "documentCount=2:"
               + "maximumCount=1:"
               + "nodeFrequency=2:"
               + "w=0.5("
               + " #lengths:document:part=lengths() #counts:sample:part=postings.porter() )"
-              + " #feature:dirichlet:"
+              + " #dirichlet:"
               + "collectionLength=8:"
               + "documentCount=2:"
               + "maximumCount=1:"
@@ -99,14 +99,14 @@ public class GroupRetrievalTest extends TestCase {
       Node queryTree2 = gr.transformQuery(parsedQuery, q2, "group2");
 
       expected = "#combine:w=1.0("
-              + " #feature:dirichlet:"
+              + " #dirichlet:"
               + "collectionLength=19:"
               + "documentCount=4:"
               + "maximumCount=1:"
               + "nodeFrequency=4:"
               + "w=0.5"
               + "( #lengths:document:part=lengths() #counts:sample:part=postings.porter() ) "
-              + "#feature:dirichlet:"
+              + "#dirichlet:"
               + "collectionLength=19:"
               + "documentCount=4:"
               + "maximumCount=1:"

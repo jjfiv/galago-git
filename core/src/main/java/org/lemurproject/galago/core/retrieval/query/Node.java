@@ -27,7 +27,6 @@ public class Node implements Serializable {
 
   static {
     defaultOmissionSet = new HashSet();
-    defaultOmissionSet.add("feature");
     defaultOmissionSet.add("lengths");
     defaultOmissionSet.add("passagelengths");
     defaultOmissionSet.add("passagefilter");
