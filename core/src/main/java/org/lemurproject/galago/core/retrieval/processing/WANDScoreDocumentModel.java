@@ -29,7 +29,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * decimal place or below (it causes a rank inversion, but not based on a
  * meaningful number).
  *
- * @author irmarc
+ * @author irmarc, sjh
  */
 public class WANDScoreDocumentModel extends ProcessingModel {
 
@@ -77,9 +77,10 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     // Going to need the minimum set
     double scoreMinimums = 0.0;
     for (Sentinel s : sortedSentinels) {
-      scoreMinimums += s.iterator.getWeight() * s.score;
-      // similar to iterator.maxDifference (but we need the negative value) 
-      s.score = -1 * s.iterator.maximumDifference();
+      // (weight * min)
+      scoreMinimums += s.iterator.minimumWeightedScore();
+      // weight * (max-min)
+      s.score = s.iterator.maximumDifference();
     }
 
     context.document = -1;
@@ -89,7 +90,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     int x = 0;
     while (true) {
       advancePosition = -1;
-      
+
       int pivotPosition = findPivot(sortedSentinels, scoreMinimums, minCandidateScore);
 
       if (pivotPosition == -1) {
@@ -101,7 +102,7 @@ public class WANDScoreDocumentModel extends ProcessingModel {
       }
 
       x += 1;
-      
+
       long pivot = sortedSentinels[pivotPosition].iterator.currentCandidate();
 
       if (pivot <= context.document) {
@@ -154,31 +155,37 @@ public class WANDScoreDocumentModel extends ProcessingModel {
     }
   }
 
-  private double score(Sentinel[] sortedSentinels, ScoringContext context, double startingPotential) throws IOException {
+  private double score(Sentinel[] sortedSentinels, ScoringContext context, double maximumPossibleScore) throws IOException {
 
     // Setup to score
-    double runningScore = startingPotential;
+    double runningScore = maximumPossibleScore;
 
     // now score all scorers
     int i;
     for (i = 0; i < sortedSentinels.length; i++) {
       DeltaScoringIterator dsi = sortedSentinels[i].iterator;
       dsi.syncTo(context.document); // just in case
-      runningScore += dsi.deltaScore(context);
+
+      // we neeed to subtract the difference from max
+      runningScore -= dsi.deltaScore(context);
     }
     return runningScore;
   }
 
   private Sentinel[] buildSentinels(List<DeltaScoringIterator> scorers, double startingPotential, Parameters qp) {
 
-    String type = retrieval.getGlobalParameters().get("sort", "length");
-    ArrayList<Sentinel> tmp = SortStrategies.populateIndependentSentinels(scorers, startingPotential, false);
+    ArrayList<Sentinel> tmp = new ArrayList<Sentinel>(scorers.size());
+    double max = startingPotential;
+    for (DeltaScoringIterator dsi : scorers) {
+      tmp.add(new Sentinel(dsi, dsi.minimumScore()));
+    }
 
     return tmp.toArray(new Sentinel[tmp.size()]);
   }
 
   private int findPivot(Sentinel[] sortedSentinels, double scoreMinimum, double threshold) {
     if (threshold == Double.NEGATIVE_INFINITY) {
+      // score
       return 0;
     }
 

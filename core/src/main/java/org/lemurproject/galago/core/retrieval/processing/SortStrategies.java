@@ -81,7 +81,8 @@ public class SortStrategies {
     for (DeltaScoringIterator dsi : scorers) {
       if (useMaximums) {
         double runningScore = startingPotential;
-        runningScore += dsi.maximumDifference();
+        runningScore -= dsi.maximumDifference();
+        System.err.println(startingPotential + " " + runningScore);
         s.add(new Sentinel(dsi, max - runningScore));
       } else {
         s.add(new Sentinel(dsi, dsi.minimumScore()));
