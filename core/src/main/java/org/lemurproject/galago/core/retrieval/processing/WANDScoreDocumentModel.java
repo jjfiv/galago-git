@@ -93,7 +93,6 @@ public class WANDScoreDocumentModel extends ProcessingModel {
       int pivotPosition = findPivot(sortedSentinels, scoreMinimums, minCandidateScore);
 
       if (pivotPosition == -1) {
-        System.err.println("Scored " + x);
         break;
       }
 
