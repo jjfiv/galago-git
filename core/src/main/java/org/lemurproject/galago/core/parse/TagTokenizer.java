@@ -740,6 +740,7 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
    * @param document
    * @throws java.io.IOException
    */
+  @Override
   public void process(Document document) throws IOException {
     tokenize(document);
     processor.process(document);
@@ -823,10 +824,12 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
     return this.tokenPositions;
   }
 
+  @Override
   public void setProcessor(final Step processor) throws IncompatibleProcessorException {
     Linkage.link(this, processor);
   }
 
+  @Override
   public void close() throws IOException {
     processor.close();
   }

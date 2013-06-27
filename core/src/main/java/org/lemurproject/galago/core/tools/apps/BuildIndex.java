@@ -246,7 +246,7 @@ public class BuildIndex extends AppFunction {
 
     return stage;
   }
-
+  
   public static Parameters checkBuildIndexParameters(Parameters globalParameters) throws Exception {
     ArrayList<String> errorLog = new ArrayList();
 
