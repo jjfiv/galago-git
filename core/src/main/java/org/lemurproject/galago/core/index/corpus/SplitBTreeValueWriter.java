@@ -124,10 +124,12 @@ public class SplitBTreeValueWriter extends BTreeWriter
     valueOffset += value.length;
   }
 
+  @Override
   public void processTuple() throws IOException {
     // nothing //
   }
 
+  @Override
   public void close() throws IOException {
     if (lastKey != null) {
       keyStream.writeLong(valueLength); // value length

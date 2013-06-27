@@ -105,6 +105,16 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   /// PRIVATE FUNCTIONS ///
   private void processDirectory(File root) throws IOException {
     System.out.println("Processing directory: " + root);
+    
+    // add detection of likely corpus folders
+    if(root.getName().endsWith("corpus")) {
+      if(SplitBTreeReader.isBTree(root)) {
+        System.out.println(" * Treating as a corpus (this will skip any other files that happen to be in that directory)");
+        processCorpusFile(root);
+        return; // don't process children, they're part of the corpus
+      }
+    }
+    
     File[] subs = root.listFiles();
     int count = 0;
     while (subs == null && count < 100) {

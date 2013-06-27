@@ -29,14 +29,17 @@ public class GenericElement implements IndexElement {
         this.data = Utility.fromString(value);
     }
 
+    @Override
     public byte[] key() {
         return key;
     }
 
+    @Override
     public long dataLength() {
         return data.length;
     }
 
+    @Override
     public void write(OutputStream stream) throws IOException {
         stream.write(data);
     }

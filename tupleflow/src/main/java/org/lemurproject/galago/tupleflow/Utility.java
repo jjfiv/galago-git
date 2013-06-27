@@ -478,6 +478,7 @@ public class Utility {
   // comparator for byte arrays
   public static class ByteArrComparator implements Comparator<byte[]> {
 
+    @Override
     public int compare(byte[] a, byte[] b) {
       return Utility.compare(a, b);
     }
@@ -548,7 +549,7 @@ public class Utility {
   }
 
   public static File createTemporaryDirectory(String path) throws IOException {
-    File temporaryDir = null;
+    File temporaryDir;
     if (path.length() > 0) {
       temporaryDir = new File(path);
     } else {
