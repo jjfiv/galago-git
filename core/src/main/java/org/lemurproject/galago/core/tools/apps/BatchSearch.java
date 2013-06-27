@@ -123,7 +123,11 @@ public class BatchSearch extends AppFunction {
       // if we have some results -- print in to output stream
       if (results != null) {
         for (int i = 0; i < results.length; i++) {
-          out.println(results[i].toTRECformat(queryNumber));
+          if (query.get("trec", false)) {
+            out.println(results[i].toTRECformat(queryNumber));
+          } else {
+            out.println(results[i].toString(queryNumber));
+          }
         }
       }
     }
@@ -134,12 +138,11 @@ public class BatchSearch extends AppFunction {
   }
 
   /**
-   * this function extracts a list of queries from a parameter object.
-   *  - there are several methods of inputting queries:
-   *  (query/queries) -> String/List(String)/List(Map)
-   * 
-   * if List(Map):
-   *  [{"number":"id", "text":"query text"}, ...]
+   * this function extracts a list of queries from a parameter object. - there
+   * are several methods of inputting queries: (query/queries) ->
+   * String/List(String)/List(Map)
+   *
+   * if List(Map): [{"number":"id", "text":"query text"}, ...]
    */
   public static List<Parameters> collectQueries(Parameters parameters) throws IOException {
     List<Parameters> queries = new ArrayList();

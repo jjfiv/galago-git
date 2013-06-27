@@ -186,7 +186,11 @@ public class ThreadedBatchSearch extends AppFunction {
           // lock on out to avoid overwriting issues
           synchronized (out) {
             for (int i = 0; i < results.length; i++) {
-              out.println(results[i].toTRECformat(queryNumber));
+              if (query.get("trec", false)) {
+                out.println(results[i].toTRECformat(queryNumber));
+              } else {
+                out.println(results[i].toString(queryNumber));
+              }
             }
           }
         }

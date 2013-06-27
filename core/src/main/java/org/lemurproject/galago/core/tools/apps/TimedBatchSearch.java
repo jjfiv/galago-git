@@ -174,7 +174,11 @@ public class TimedBatchSearch extends AppFunction {
         // if we have some results -- print in to output stream
         if (rep == 0 && results != null) {
           for (int i = 0; i < results.length; i++) {
-            out.println(results[i].toTRECformat(queryNumber));
+            if(parameters.get("trec", false)){
+              out.println(results[i].toTRECformat(queryNumber));
+            } else {
+              out.println(results[i].toString(queryNumber));
+            }
           }
         }
       }

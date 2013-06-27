@@ -47,6 +47,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author trevor
  * @author irmarc
+ * @author sjh
  */
 public class LocalRetrieval implements Retrieval {
 

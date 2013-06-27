@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -43,7 +44,7 @@ public class RetrievalFactory {
       // if we have a mapping from groupName to list of index paths
     } else if (parameters.isMap("index")) {
       Parameters groups = parameters.getMap("index");
-      HashMap<String, Retrieval> indexGroups = new HashMap();
+      Map<String, Retrieval> indexGroups = new HashMap();
       String defGroup = parameters.get("defaultGroup", groups.getKeys().iterator().next());
 
       for (String group : groups.getKeys()) {
@@ -76,11 +77,7 @@ public class RetrievalFactory {
       return (Retrieval) Proxy.newProxyInstance(Retrieval.class.getClassLoader(),
               new Class[]{Retrieval.class}, ih);
     } else {
-//      if (parameters.get("delayed", false)) {
-//        return new StagedLocalRetrieval(path, parameters);
-//      } else {
-        return new LocalRetrieval(path, parameters);
-//      }
+      return new LocalRetrieval(path, parameters);
     }
   }
 
@@ -94,7 +91,7 @@ public class RetrievalFactory {
     final Parameters shardParameters = parameters;
     final List<Retrieval> retrievals = Collections.synchronizedList(new ArrayList());
     final List<String> errors = Collections.synchronizedList(new ArrayList());
-    
+
     for (final String path : indexes) {
       Thread t = new Thread() {
         @Override
@@ -118,10 +115,10 @@ public class RetrievalFactory {
       opener.join();
     }
 
-    if(!errors.isEmpty()){
+    if (!errors.isEmpty()) {
       throw new RuntimeException("Failed to open one or more indexes.");
     }
-    
+
     return new MultiRetrieval(new ArrayList(retrievals), parameters);
   }
 }

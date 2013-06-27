@@ -36,10 +36,10 @@ public class GroupRetrieval implements Retrieval {
   protected FeatureFactory features;
   protected Parameters globalParameters;
   protected String defGroup;
-  protected HashMap<String, Retrieval> groups;
+  protected Map<String, Retrieval> groups;
   protected List<Traversal> defaultTraversals;
 
-  public GroupRetrieval(HashMap<String, Retrieval> groups, Parameters parameters,
+  public GroupRetrieval(Map<String, Retrieval> groups, Parameters parameters,
           String defGroup) throws Exception {
     this.groups = groups;
     this.globalParameters = parameters;
