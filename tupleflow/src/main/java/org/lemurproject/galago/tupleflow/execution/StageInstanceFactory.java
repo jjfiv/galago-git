@@ -49,6 +49,7 @@ public class StageInstanceFactory {
       this.instance = instance;
     }
 
+    @Override
     public Counter getCounter(String name) {
       if (instance.getMasterURL() == null) {
         return null;
@@ -59,29 +60,35 @@ public class StageInstanceFactory {
       }
     }
 
+    @Override
     public TypeReader getTypeReader(String specification) throws IOException {
       PipeOutput pipeOutput = instance.getReaders().get(specification);
       return StageInstanceFactory.getTypeReader(pipeOutput);
     }
 
+    @Override
     public Processor getTypeWriter(String specification) throws IOException {
       Set<String> writers = instance.getWriters().keySet();
       PipeInput pipeInput = instance.getWriters().get(specification);
       return StageInstanceFactory.getTypeWriter(pipeInput);
     }
 
+    @Override
     public boolean readerExists(String specification, String className, String[] order) {
       return instance.readerExists(specification, className, order);
     }
 
+    @Override
     public boolean writerExists(String specification, String className, String[] order) {
       return instance.writerExists(specification, className, order);
     }
 
+    @Override
     public Parameters getJSON() {
       return params;
     }
 
+    @Override
     public int getInstanceId() {
       return instance.index;
     }

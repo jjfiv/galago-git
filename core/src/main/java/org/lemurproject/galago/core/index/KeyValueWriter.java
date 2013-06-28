@@ -46,10 +46,12 @@ public abstract class KeyValueWriter<T> implements Processor<T> {
 
   protected abstract GenericElement prepare(T item) throws IOException;
 
+  @Override
   public void close() throws IOException {
     writer.close();
   }
 
+  @Override
   public void process(T i) throws IOException { 
     GenericElement e = prepare(i);
     if (e != null) {
