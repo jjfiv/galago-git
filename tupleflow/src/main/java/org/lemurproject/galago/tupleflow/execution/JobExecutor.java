@@ -459,7 +459,7 @@ public class JobExecutor {
     HashSet<String> batch = new HashSet();
 
     for (String stageName : stageParents.keySet()) {
-      if (stageParents.get(stageName).size() == 0) {
+      if (stageParents.get(stageName).isEmpty()) {
         batch.add(stageName);
       }
     }
@@ -855,36 +855,44 @@ public class JobExecutor {
         this.instances = instances;
       }
 
+      @Override
       public String getName() {
         return name;
       }
 
+      @Override
       public int getBlockedInstances() {
         return instances;
       }
 
+      @Override
       public int getQueuedInstances() {
         return 0;
       }
 
+      @Override
       public int getRunningInstances() {
         return 0;
       }
 
+      @Override
       public int getCompletedInstances() {
         return 0;
       }
 
+      @Override
       public boolean isDone() {
         return false;
       }
 
+      @Override
       public synchronized List<Double> getRunTimes() {
         ArrayList<Double> times = new ArrayList();
         // actually, don't do anything here. Nothing's running.
         return times;
       }
 
+      @Override
       public List<Exception> getExceptions() {
         return Collections.EMPTY_LIST;
       }
