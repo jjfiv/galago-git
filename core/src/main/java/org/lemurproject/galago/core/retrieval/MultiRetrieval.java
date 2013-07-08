@@ -116,29 +116,40 @@ public class MultiRetrieval implements Retrieval {
    * @throws Exception
    */
   @Override
+  @Deprecated
   public ScoredDocument[] runQuery(Node root) throws Exception {
     return runQuery(root, new Parameters());
   }
 
   // Based on the root of the tree, that dictates how we execute.
   @Override
+  @Deprecated
   public ScoredDocument[] runQuery(Node queryTree, Parameters p) throws Exception {
-    ScoredDocument[] results = null;
-    switch (this.getQueryType(queryTree)) {
-      case RANKED:
-        results = runRankedQuery(queryTree, p);
-        break;
-      case BOOLEAN:
-        results = runBooleanQuery(queryTree, p);
-        break;
-    }
+    ScoredDocument[] results = runRankedQuery(queryTree, p);
     return results;
   }
 
-  private ScoredDocument[] runBooleanQuery(Node root, Parameters parameters) throws Exception {
-    throw new UnsupportedOperationException();
+  /**
+   * Runs a query across all retrieval objects
+   *
+   * @param query
+   * @param parameters
+   * @return
+   * @throws Exception
+   */
+  @Override
+  public Results executeQuery(Node root) throws Exception {
+    return executeQuery(root, new Parameters());
   }
 
+  // Based on the root of the tree, that dictates how we execute.
+  @Override
+  public Results executeQuery(Node queryTree, Parameters p) throws Exception {
+    Results results = executeRankedQuery(queryTree, p);
+    return results;
+  }
+
+  @Deprecated
   private ScoredDocument[] runRankedQuery(Node root, Parameters parameters) throws Exception {
     // Asynchronously run retrieval
     ArrayList<Thread> threads = new ArrayList();
@@ -196,7 +207,18 @@ public class MultiRetrieval implements Retrieval {
     }
 
     return results;
+  }
 
+  /**
+   * This function will be modified to provide the same functionality as in
+   * runRankedQuery.
+   */
+  private Results executeRankedQuery(Node root, Parameters parameters) throws Exception {
+    ScoredDocument[] rankedList = runRankedQuery(root, parameters);
+    Results results = new Results();
+    results.inputQuery = root;
+    results.scoredDocuments = Arrays.asList(rankedList);
+    return results;
   }
 
   @Override
@@ -519,9 +541,9 @@ public class MultiRetrieval implements Retrieval {
   public Integer getDocumentLength(String docname) throws IOException {
     for (Retrieval r : this.retrievals) {
       Integer l = r.getDocumentLength(docname);
-      if(l > 0){
+      if (l > 0) {
         return l;
-      }      
+      }
     }
     return 0;
   }

@@ -145,7 +145,10 @@ public class LocalRetrieval implements Retrieval {
   /**
    * Accepts a transformed query, constructs the iterator tree from the node
    * tree, then iterates over the iterator tree, and returns the results.
+   * 
+   * TODO: export this in Retrieval, as executeQuery, as the training wheels interface
    */
+  @Deprecated
   public ScoredDocument[] runQuery(String query, Parameters p) throws Exception {
     Node root = StructuredQuery.parse(query);
     root = transformQuery(root, p);
@@ -153,12 +156,14 @@ public class LocalRetrieval implements Retrieval {
   }
 
   @Override
+  @Deprecated
   public ScoredDocument[] runQuery(Node queryTree) throws Exception {
     return runQuery(queryTree, new Parameters());
   }
 
   // Based on the root of the tree, that dictates how we execute.
   @Override
+  @Deprecated
   public ScoredDocument[] runQuery(Node queryTree, Parameters queryParams) throws Exception {
     ScoredDocument[] results = null;
     if (globalParameters.containsKey("processingModel")) {
@@ -219,6 +224,36 @@ public class LocalRetrieval implements Retrieval {
     }
 
     return results;
+  }
+
+  @Override
+  public Results executeQuery(Node queryTree) throws Exception {
+    return executeQuery(queryTree, new Parameters());
+  }
+
+  // Based on the root of the tree, that dictates how we execute.
+  @Override
+  public Results executeQuery(Node queryTree, Parameters queryParams) throws Exception {
+    ScoredDocument[] results = null;
+    if (globalParameters.containsKey("processingModel")) {
+      queryParams.set("processingModel", globalParameters.getString("processingModel"));
+    }
+    ProcessingModel pm = ProcessingModel.instance(this, queryTree, queryParams);
+
+    // get some results
+    results = pm.execute(queryTree, queryParams);
+    if (results == null) {
+      results = new ScoredDocument[0];
+    }
+
+    // Format and get names
+    String indexId = this.globalParameters.get("indexId", "0");
+    List<? extends ScoredDocument> rankedList = Arrays.asList(getArrayResults(results, indexId));
+
+    Results r = new Results();
+    r.inputQuery = queryTree;
+    r.scoredDocuments = rankedList;
+    return r;
   }
 
   public BaseIterator createIterator(Parameters queryParameters, Node node) throws Exception {
