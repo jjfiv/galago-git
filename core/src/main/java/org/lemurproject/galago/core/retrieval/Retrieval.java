@@ -107,7 +107,9 @@ public interface Retrieval {
    * @param root
    * @return array of ScoredDocuments
    * @throws Exception
+   * @deprecated Use executeQuery
    */
+  @Deprecated
   public ScoredDocument[] runQuery(Node root) throws Exception;
 
   /**
@@ -119,9 +121,34 @@ public interface Retrieval {
    * @param root, parameters
    * @return array of ScoredDocuments
    * @throws Exception
+   * @deprecated Use executeQuery
    */
+  @Deprecated
   public ScoredDocument[] runQuery(Node root, Parameters parameters) throws Exception;
 
+  /**
+   * Runs the query against the retrieval. Assumes the query has been properly
+   * annotated. An example is the query produced from transformQuery.
+   *
+   * @param root
+   * @return Results (contains a list of scored documents)
+   * @throws Exception
+   */
+  public Results executeQuery(Node root) throws Exception;
+
+  /**
+   * Runs the query against the retrieval. Assumes the query has been properly
+   * annotated. An example is the query produced from transformQuery.
+   * Parameters object allows any global execution parameters or default values
+   * to be overridden.
+   *
+   * @param root, parameters
+   * @return Results (contains a list of scored documents)
+   * @throws Exception
+   */
+  public Results executeQuery(Node root, Parameters parameters) throws Exception;
+
+  
   /**
    * Returns IndexPartStatistics for the named postings part.
    * 

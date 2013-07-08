@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
+import org.lemurproject.galago.core.retrieval.Results;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -122,5 +123,15 @@ public class FakeRetrieval implements Retrieval {
   @Override
   public void addAllNodesToCache(Node node) throws Exception {
     throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
+  public Results executeQuery(Node root) throws Exception {
+    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  }
+
+  @Override
+  public Results executeQuery(Node root, Parameters parameters) throws Exception {
+    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
   }
 }
