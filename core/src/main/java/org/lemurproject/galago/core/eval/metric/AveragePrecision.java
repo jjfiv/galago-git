@@ -27,7 +27,7 @@ public class AveragePrecision extends QueryEvaluator {
   public double evaluate(QueryResults resultList, QueryJudgments judgments) {
     double sumPrecision = 0.0;
     int relevantCount = 0;
-
+    
     for (ScoredDocument doc : resultList.getIterator()) {
       if (judgments.isRelevant(doc.documentName)) {
         relevantCount++;

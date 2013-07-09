@@ -7,12 +7,12 @@ import org.lemurproject.galago.core.eval.QueryJudgments;
 import org.lemurproject.galago.core.eval.QueryResults;
 
 /**
- * Returns the precision of the retrieval at a given number of documents retrieved.
- * The precision is the number of relevant documents retrieved
+ * Returns the precision of the retrieval at a given number of documents
+ * retrieved. The precision is the number of relevant documents retrieved
  * divided by the total number of documents retrieved.
  *
  * @param documentsRetrieved The evaluation rank.
- * 
+ *
  * @author trevor, sjh
  */
 public class Precision extends QueryEvaluator {
@@ -28,7 +28,7 @@ public class Precision extends QueryEvaluator {
 
   public Precision(String metric) {
     super(metric);
-    documentsRetrieved = Integer.MAX_VALUE;
+    this.documentsRetrieved = Integer.MAX_VALUE;
     this.relevantRetrieved = new CountRelevantRetrieved(documentsRetrieved);
   }
 
@@ -40,6 +40,8 @@ public class Precision extends QueryEvaluator {
 
   @Override
   public double evaluate(QueryResults resultList, QueryJudgments judgments) {
-    return relevantRetrieved.evaluate(resultList, judgments) / (double) documentsRetrieved;
+    // need to divide by K (or resultList.size(), whichever is smaller)
+    double ret = (resultList.size() < documentsRetrieved) ? resultList.size() : documentsRetrieved;
+    return relevantRetrieved.evaluate(resultList, judgments) / ret;
   }
 }

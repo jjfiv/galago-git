@@ -21,7 +21,8 @@ public class QuerySetEvaluatorFactory {
     // sum metrics:
     if (lowerMetric.equals("num_ret")
             || lowerMetric.equals("num_rel")
-            || lowerMetric.equals("num_rel_ret")) {
+            || lowerMetric.startsWith("num_rel_ret")
+            || lowerMetric.startsWith("num_unjug_ret")) {
       QueryEvaluator evalFn = QueryEvaluatorFactory.instance(metric, p);
       return new Sum(metric, evalFn);
 

@@ -22,8 +22,10 @@ public class QueryEvaluatorFactory {
       return new CountRetrieved(metric);
     } else if (lowerMetric.equals("num_rel")) {
       return new CountRelevant(metric);
-    } else if (lowerMetric.equals("num_rel_ret")) {
+    } else if (lowerMetric.startsWith("num_rel_ret")) {
       return new CountRelevantRetrieved(metric);
+    } else if (lowerMetric.startsWith("num_unjug_ret")) {
+      return new CountUnjudged(metric);
     } else if (lowerMetric.equals("map")
             || lowerMetric.equals("averagePrecision")) {
       return new AveragePrecision(metric);
@@ -43,7 +45,7 @@ public class QueryEvaluatorFactory {
     } else if (lowerMetric.equals("err")) {
       return new ExpectedReciprocalRank(metric);
         
-    // these may be parametized (e.g. P5, R10, ndcg20, ...)
+      // these may be parametized (e.g. P5, R10, ndcg20, ...)
     } else if (lowerMetric.startsWith("p")) {
       int documentLimit = Integer.parseInt(lowerMetric.replace("p", ""));
       return new Precision(metric, documentLimit);
@@ -56,7 +58,7 @@ public class QueryEvaluatorFactory {
     } else if (lowerMetric.startsWith("err")) {
       int documentLimit = Integer.parseInt(lowerMetric.replace("err", ""));
       return new ExpectedReciprocalRank(metric, documentLimit);
-      
+
     } else if (lowerMetric.startsWith("mdfa")) {
         int falseAlarmRate = Integer.parseInt(lowerMetric.replace("mdfa", ""));
         double rate = falseAlarmRate / (double) 100;
@@ -65,7 +67,7 @@ public class QueryEvaluatorFactory {
       
     // otherwise we don't know which metric to use.
     } else {
-      throw new RuntimeException("Evaluation metric " + metric + " is unknown to QueryEvaluator.");
+      throw new RuntimeException("Evaluation metric " + metric + " is unknown to QueryEvaluatorFactory.");
     }
   }
 }
