@@ -68,6 +68,14 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
     extentArray = new ExtentArray();
     reset();
   }
+
+  public PositionIndexExtentSource(BTreeReader.BTreeIterator iter, String dispKey) throws IOException {
+    super(iter, dispKey);
+    startPosition = btreeIter.getValueStart();
+    endPosition = btreeIter.getValueEnd();
+    extentArray = new ExtentArray();
+    reset();
+  }
   
   @Override
   public void reset() throws IOException {
