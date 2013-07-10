@@ -19,6 +19,10 @@ public class ExtentArrayIterator implements Comparable<ExtentArrayIterator> {
     index = 0;
   }
 
+  public void resetIterator(){
+    index = 0;
+  }
+  
   public int getDocument() {
     // TODO stop casting document to int
     return (int) array.getDocument();
