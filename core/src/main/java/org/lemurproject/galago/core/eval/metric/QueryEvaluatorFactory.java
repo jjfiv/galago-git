@@ -26,6 +26,8 @@ public class QueryEvaluatorFactory {
       return new CountRelevantRetrieved(metric);
     } else if (lowerMetric.startsWith("num_unjug_ret")) {
       return new CountUnjudged(metric);
+    } else if (lowerMetric.startsWith("frac_unjug_ret")) {
+      return new FractionUnjudged(metric);
     } else if (lowerMetric.equals("map")
             || lowerMetric.equals("averagePrecision")) {
       return new AveragePrecision(metric);
