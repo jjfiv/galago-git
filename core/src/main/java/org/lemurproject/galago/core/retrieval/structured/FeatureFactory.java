@@ -301,7 +301,7 @@ public class FeatureFactory {
             break;
           }
           Object typedArray = Array.newInstance(formals.get(0).getComponentType(), 0);
-          Object[] generalArray = childIterators.toArray((Object[]) typedArray);
+          Object[] generalArray = childIterators.subList(childIdx, childIterators.size()).toArray((Object[]) typedArray);
           arguments.add(generalArray);
         }
         formals.poll();
