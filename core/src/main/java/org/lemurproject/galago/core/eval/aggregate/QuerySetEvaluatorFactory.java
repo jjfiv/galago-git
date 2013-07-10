@@ -28,7 +28,7 @@ public class QuerySetEvaluatorFactory {
 
       // mean metrics
     } else if (
-            lowerMetric.equals("frac_unjug_ret")
+            lowerMetric.startsWith("frac_unjug_ret")
             || lowerMetric.equals("map")
             || lowerMetric.equals("averagePrecision")
             || lowerMetric.equals("bpref")
