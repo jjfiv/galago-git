@@ -54,8 +54,8 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
 
     // Delta scoring stuff
     weight = np.get("w", 1.0);
-    max = np.getLong("maximumCount");
-    min = score(0, np.getLong("maximumCount"));
+    max = score(np.getLong("maximumCount"), np.getLong("maximumCount"));
+    min = score(0, 1);
   }
 
   @Override
@@ -80,13 +80,13 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
 
   @Override
   public double deltaScore(ScoringContext c) {
-    double diff = weight * (score(c) - max);
+    double diff = weight * (max - score(c));
     return diff;
   }
 
   @Override
   public double maximumDifference() {
-    double diff = weight * (min - max);
+    double diff = weight * (max - min);
     return diff;
   }
 
