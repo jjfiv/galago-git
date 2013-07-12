@@ -30,7 +30,7 @@ import org.lemurproject.galago.tupleflow.Parameters.Type;
  * Feature def for WSDM: <br>
  * { <br>
  * name : "1-gram" <br>
- * tfFeature : [true | false] :: asserts [ tf or df ], (tf default) <br>
+ * type : [ const, logtf, logdf ] -- (tf default) <br>
  * group : "retrievalGroupName" :: missing or empty = default <br>
  * part : "retrievalPartName" :: missing or empty = default <br>
  * unigram : true|false :: can be used on unigrams <br>
@@ -41,7 +41,7 @@ import org.lemurproject.galago.tupleflow.Parameters.Type;
  */
 public class WeightedSequentialDependenceTraversal extends Traversal {
 
-  private static final Logger logger = Logger.getLogger("WSDM2");
+  private static final Logger logger = Logger.getLogger("WSDM");
   private Retrieval retrieval;
   private GroupRetrieval gRetrieval;
   private Parameters globalParams;
@@ -78,12 +78,12 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     } else {
       // default list of features: (using target collection only)
       uniFeatures.add(new WSDMFeature("1-const", WSDMFeatureType.CONST, 0.8, true));
-      uniFeatures.add(new WSDMFeature("1-tf", WSDMFeatureType.TF, 0.0, true));
-      uniFeatures.add(new WSDMFeature("1-df", WSDMFeatureType.DF, 0.0, true));
+      uniFeatures.add(new WSDMFeature("1-lntf", WSDMFeatureType.LOGTF, 0.0, true));
+      uniFeatures.add(new WSDMFeature("1-lndf", WSDMFeatureType.LOGDF, 0.0, true));
 
       biFeatures.add(new WSDMFeature("2-const", WSDMFeatureType.CONST, 0.1, false));
-      biFeatures.add(new WSDMFeature("2-tf", WSDMFeatureType.TF, 0.0, false));
-      biFeatures.add(new WSDMFeature("2-df", WSDMFeatureType.DF, 0.0, false));
+      biFeatures.add(new WSDMFeature("2-lntf", WSDMFeatureType.LOGTF, 0.0, false));
+      biFeatures.add(new WSDMFeature("2-lndf", WSDMFeatureType.LOGDF, 0.0, false));
     }
   }
 
@@ -170,7 +170,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
           featureValues.put(f, 1.0);
           break;
 
-        case TF:
+        case LOGTF:
           assert (!featureValues.containsKey(f));
 
           // if the feature weight is 0 -- don't compute the feature
@@ -187,7 +187,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
           if (localCache.containsKey(cacheString)) {
             featureStats = (NodeStatistics) localCache.get(cacheString);
-          } else if (!f.group.isEmpty()) {
+          } else if (gRetrieval != null && !f.group.isEmpty()) {
             featureStats = gRetrieval.getNodeStatistics(node, f.group);
             localCache.put(cacheString, featureStats);
           } else {
@@ -199,7 +199,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
           break;
 
-        case DF:
+        case LOGDF:
           assert (!featureValues.containsKey(f));
           // if the feature weight is 0 -- don't compute the feature
           if (queryParams.get(f.name, f.defLambda) == 0.0) {
@@ -215,7 +215,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
           if (localCache.containsKey(cacheString)) {
             featureStats = (NodeStatistics) localCache.get(cacheString);
-          } else if (!f.group.isEmpty()) {
+          } else if (gRetrieval != null && !f.group.isEmpty()) {
             featureStats = gRetrieval.getNodeStatistics(node, f.group);
             localCache.put(cacheString, featureStats);
           } else {
@@ -274,7 +274,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
           featureValues.put(f, 1.0);
           break;
 
-        case TF:
+        case LOGTF:
           assert (!featureValues.containsKey(f));
           // if the feature weight is 0 -- don't compute the feature
           if (queryParams.get(f.name, f.defLambda) == 0.0) {
@@ -293,7 +293,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
           // first check if we have already done this node.
           if (localCache.containsKey(cacheString)) {
             featureStats = (NodeStatistics) localCache.get(cacheString);
-          } else if (!f.group.isEmpty()) {
+          } else if (gRetrieval != null && !f.group.isEmpty()) {
             featureStats = gRetrieval.getNodeStatistics(node, f.group);
             localCache.put(cacheString, featureStats);
           } else {
@@ -305,7 +305,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
           break;
 
-        case DF:
+        case LOGDF:
           assert (!featureValues.containsKey(f));
           // if the feature weight is 0 -- don't compute the feature
           if (queryParams.get(f.name, f.defLambda) == 0.0) {
@@ -322,7 +322,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
           if (localCache.containsKey(cacheString)) {
             featureStats = (NodeStatistics) localCache.get(cacheString);
-          } else if (!f.group.isEmpty()) {
+          } else if (gRetrieval != null && !f.group.isEmpty()) {
             featureStats = gRetrieval.getNodeStatistics(node, f.group);
             localCache.put(cacheString, featureStats);
           } else {
@@ -352,7 +352,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
   public static enum WSDMFeatureType {
 
-    TF, DF, CONST;
+    LOGTF, LOGDF, CONST;
   }
 
   /*
@@ -377,7 +377,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
     public WSDMFeature(Parameters p) {
       this.name = p.getString("name");
-      this.type = WSDMFeatureType.valueOf(p.get("type", "tf").toUpperCase());
+      this.type = WSDMFeatureType.valueOf(p.get("type", "logtf").toUpperCase());
       this.defLambda = p.get("lambda", 1.0);
       this.group = p.get("group", "");
       this.part = p.get("part", "");
