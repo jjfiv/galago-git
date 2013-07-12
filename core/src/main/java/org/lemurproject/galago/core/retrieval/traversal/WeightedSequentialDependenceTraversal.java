@@ -172,6 +172,12 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
         case TF:
           assert (!featureValues.containsKey(f));
+
+          // if the feature weight is 0 -- don't compute the feature
+          if (queryParams.get(f.name, f.defLambda) == 0.0) {
+            break;
+          }
+
           node = t;
           if (!f.part.isEmpty()) {
             node = t.clone();
@@ -195,6 +201,11 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
         case DF:
           assert (!featureValues.containsKey(f));
+          // if the feature weight is 0 -- don't compute the feature
+          if (queryParams.get(f.name, f.defLambda) == 0.0) {
+            break;
+          }
+
           node = t;
           if (!f.part.isEmpty()) {
             node = t.clone();
@@ -221,9 +232,11 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     double weight = 0.0;
     for (WSDMFeature f : uniFeatures) {
       double lambda = np.get(f.name, queryParams.get(f.name, f.defLambda));
-      weight += lambda * featureValues.get(f);
-      if (verbose) {
-        logger.info(String.format("feature:%s:%g * %g = %g", f.name, lambda, featureValues.get(f), lambda * featureValues.get(f)));
+      if (featureValues.containsKey(f)) {
+        weight += lambda * featureValues.get(f);
+        if (verbose) {
+          logger.info(String.format("%s -- feature:%s:%g * %g = %g", term, f.name, lambda, featureValues.get(f), lambda * featureValues.get(f)));
+        }
       }
     }
 
@@ -254,7 +267,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     NodeStatistics featureStats;
     String cacheString;
 
-    for (WSDMFeature f : uniFeatures) {
+    for (WSDMFeature f : biFeatures) {
       switch (f.type) {
         case CONST:
           assert (!featureValues.containsKey(f));
@@ -263,6 +276,11 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
         case TF:
           assert (!featureValues.containsKey(f));
+          // if the feature weight is 0 -- don't compute the feature
+          if (queryParams.get(f.name, f.defLambda) == 0.0) {
+            break;
+          }
+
           node = od1;
           if (!f.part.isEmpty()) {
             node = od1.clone();
@@ -289,6 +307,11 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
         case DF:
           assert (!featureValues.containsKey(f));
+          // if the feature weight is 0 -- don't compute the feature
+          if (queryParams.get(f.name, f.defLambda) == 0.0) {
+            break;
+          }
+
           node = od1;
           if (!f.part.isEmpty()) {
             node = od1.clone();
@@ -314,11 +337,13 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     }
 
     double weight = 0.0;
-    for (WSDMFeature f : uniFeatures) {
+    for (WSDMFeature f : biFeatures) {
       double lambda = np.get(f.name, queryParams.get(f.name, f.defLambda));
-      weight += lambda * featureValues.get(f);
-      if (verbose) {
-        logger.info(String.format("feature:%s:%g * %g = %g", f.name, lambda, featureValues.get(f), lambda * featureValues.get(f)));
+      if (featureValues.containsKey(f)) {
+        weight += lambda * featureValues.get(f);
+        if (verbose) {
+          logger.info(String.format("%s, %s -- feature:%s:%g * %g = %g", term1, term2, f.name, lambda, featureValues.get(f), lambda * featureValues.get(f)));
+        }
       }
     }
 
@@ -357,7 +382,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
       this.group = p.get("group", "");
       this.part = p.get("part", "");
       this.unigram = p.get("unigram", true);
-      this.bigram = !unigram;
+      this.bigram = p.get("bigram", !unigram);
     }
 
     /*

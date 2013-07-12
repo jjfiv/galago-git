@@ -38,7 +38,8 @@ public class BuildPartialIndex extends AppFunction {
             + "\n"
             + "\t--documentNameList=</path/to/file>\n"
             + "\t--index=/path/to/input/index/\n"
-            + "\t--partialIndex=/path/to/output/index/\n";
+            + "\t--partialIndex=/path/to/output/index/\n"
+            + getTupleFlowParameterString();
   }
 
   @Override
@@ -99,7 +100,7 @@ public class BuildPartialIndex extends AppFunction {
         // round-robin distribution
         ids.add(id);
       } else {
-        System.err.println("Unable to determine document : " + name + " ignoring.");
+        System.err.println("Unable to determine document : " + Utility.toString(name) + " ignoring.");
       }
     }
     input.close();
