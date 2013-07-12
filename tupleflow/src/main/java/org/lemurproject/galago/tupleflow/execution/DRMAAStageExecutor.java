@@ -46,7 +46,7 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
   // when submitting each of the jobs to the cluster.
   public String classPath = System.getProperty("java.class.path");
   // This is the TupleFlow executor we'll be using for each of the jobs.
-  public String className = "org.lemurproject.galago.tupleflow.execution.LocalStageExecutor";
+  public String className = org.lemurproject.galago.tupleflow.execution.LocalStageExecutor.class.getCanonicalName();
   // Arbitrary starting and max heap sizes.
   public static final String MEMORY_X = "-Xmx1700m";
   public static final String MEMORY_S = "-Xms1700m";
@@ -86,6 +86,7 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
       }
     }
 
+    @Override
     public ArrayList<Exception> getExceptions() {
 
       for (String job : jobs) {
@@ -130,10 +131,12 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
       return exceptions;
     }
 
+    @Override
     public String getName() {
       return stageName;
     }
 
+    @Override
     public int getCompletedInstances() {
       int comp = 0;
       try {
@@ -143,7 +146,7 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
           //if( status == session.FAILED )
           //System.err.println( "[" + job + "] failed." );
 
-          if (status == session.DONE || status == session.FAILED) {
+          if (status == Session.DONE || status == Session.FAILED) {
             comp += 1;
           }
         }
@@ -154,6 +157,7 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
       return comp;
     }
 
+    @Override
     public int getRunningInstances() {
       int comp = 0;
       try {
@@ -165,7 +169,7 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
           //if( status == session.FAILED )
           //System.err.println( "[" + job + "] failed." );
 
-          if (status == session.QUEUED_ACTIVE || status == session.DONE || status == session.FAILED) {
+          if (status == Session.QUEUED_ACTIVE || status == Session.DONE || status == Session.FAILED) {
             comp -= 1;
           }
         }
@@ -176,13 +180,14 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
       return comp;
     }
 
+    @Override
     public int getQueuedInstances() {
       int queued = 0;
       try {
         for (String job : jobs) {
           int status = session.getJobProgramStatus(job);
 
-          if (status == session.QUEUED_ACTIVE) {
+          if (status == Session.QUEUED_ACTIVE) {
             queued += 1;
           }
         }
@@ -193,10 +198,12 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
       return queued;
     }
 
+    @Override
     public int getBlockedInstances() {
       return 0;
     }
 
+    @Override
     public synchronized List<Double> getRunTimes() {
       ArrayList<Double> times = new ArrayList();
       long current;
@@ -205,7 +212,7 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
           try {
             int status = session.getJobProgramStatus(jobid);
             long start = startTimes.get(jobid);
-            if (status == session.DONE || status == session.FAILED) {
+            if (status == Session.DONE || status == Session.FAILED) {
               if (!stopTimes.containsKey(jobid)) {
                 stopTimes.put(jobid, System.currentTimeMillis());
               }
@@ -222,6 +229,7 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
       return times;
     }
 
+    @Override
     public boolean isDone() {
       try {
         for (String job : jobs) {
@@ -230,7 +238,7 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
           //if( status == session.FAILED )
           //System.err.println( "[" + job + "] failed." );
 
-          if (status == session.DONE || status == session.FAILED) {
+          if (status == Session.DONE || status == Session.FAILED) {
             continue;
           }
 
@@ -355,6 +363,7 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
     this.nodeTempDir = nodeTempDir;
   }
 
+  @Override
   public void shutdown() {
     try {
       session.exit();
@@ -372,6 +381,7 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
    *
    * @return The results of the jobs and eny errors that were thrown.
    */
+  @Override
   public StageExecutionStatus submit(String stageName, ArrayList<String> jobPaths,
           String temporary) {
     ArrayList<String> jobs = new ArrayList<String>();

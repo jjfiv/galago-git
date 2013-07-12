@@ -110,8 +110,7 @@ public class MultiRetrieval implements Retrieval {
    *
    * Runs a query across all retrieval objects
    *
-   * @param query
-   * @param parameters
+   * @param root
    * @return
    * @throws Exception
    */
@@ -132,8 +131,7 @@ public class MultiRetrieval implements Retrieval {
   /**
    * Runs a query across all retrieval objects
    *
-   * @param query
-   * @param parameters
+   * @param root
    * @return
    * @throws Exception
    */
@@ -164,9 +162,9 @@ public class MultiRetrieval implements Retrieval {
         @Override
         public void run() {
           try {
-            ScoredDocument[] results = r.runQuery(queryTree, shardParams);
+            List<? extends ScoredDocument> results = r.executeQuery(queryTree, shardParams).scoredDocuments;
             if (results != null) {
-              queryResultCollector.addAll(Arrays.asList(results));
+              queryResultCollector.addAll(results);
             }
           } catch (Exception e) {
             errorCollector.add(e.getMessage());

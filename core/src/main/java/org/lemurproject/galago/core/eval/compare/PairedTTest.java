@@ -9,7 +9,7 @@ import org.lemurproject.galago.core.eval.stat.Stat;
  *
  * @author trevor, sjh
  */
-class PairedTTest extends QuerySetComparator {
+public class PairedTTest extends QuerySetComparator {
 
   double boost;
 
