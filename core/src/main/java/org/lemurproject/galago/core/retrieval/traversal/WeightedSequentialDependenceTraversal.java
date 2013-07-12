@@ -195,7 +195,10 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
             localCache.put(cacheString, featureStats);
           }
 
-          featureValues.put(f, Math.log(featureStats.nodeFrequency));
+          // only add the value if it occurs in the collection (log (0) = -Inf)
+          if (featureStats.nodeFrequency != 0) {
+            featureValues.put(f, Math.log(featureStats.nodeFrequency));
+          }
 
           break;
 
@@ -223,7 +226,10 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
             localCache.put(cacheString, featureStats);
           }
 
-          featureValues.put(f, Math.log(featureStats.nodeDocumentCount));
+          // only add the value if it occurs in the collection (log (0) = -Inf)
+          if (featureStats.nodeDocumentCount != 0) {
+            featureValues.put(f, Math.log(featureStats.nodeDocumentCount));
+          }
 
           break;
       }
@@ -301,7 +307,10 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
             localCache.put(cacheString, featureStats);
           }
 
-          featureValues.put(f, Math.log(featureStats.nodeFrequency));
+          // only add the value if it occurs in the collection (log (0) = -Inf)
+          if (featureStats.nodeFrequency != 0) {
+            featureValues.put(f, Math.log(featureStats.nodeFrequency));
+          }
 
           break;
 
@@ -330,7 +339,10 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
             localCache.put(cacheString, featureStats);
           }
 
-          featureValues.put(f, Math.log(featureStats.nodeDocumentCount));
+          // only add the value if it occurs in the collection (log (0) = -Inf)
+          if (featureStats.nodeDocumentCount != 0) {
+            featureValues.put(f, Math.log(featureStats.nodeDocumentCount));
+          }
 
           break;
       }
