@@ -54,6 +54,11 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
     reset();
   }
 
+  public PositionIndexCountSource(BTreeReader.BTreeIterator iter, String dispKey) throws IOException {
+    super(iter, dispKey);
+    reset();
+  }
+
   @Override
   public void reset() throws IOException {
     startPosition = btreeIter.getValueStart();
@@ -106,14 +111,14 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
       skipsByteLength = stream.readLong(); // 9 bytes
       skipPositionsByteLength = stream.readLong(); // 9 bytes
     }
-    
+
     // done with header (read at most (6 * 9) + (7 * 5) = 107 bytes)
-    
+
     long documentStart = valueStream.getPosition();
     long countsStart = documentStart + documentByteLength;
     long positionsStart = countsStart + countsByteLength;
     long positionsEnd = positionsStart + positionsByteLength;
-    
+
     documentsStream = btreeIter.getSubValueStream(documentStart, documentByteLength);
     countsStream = btreeIter.getSubValueStream(countsStart, countsByteLength);
     documents = new VByteInput(documentsStream);

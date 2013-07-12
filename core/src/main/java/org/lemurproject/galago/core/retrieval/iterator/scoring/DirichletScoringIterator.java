@@ -52,7 +52,7 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
     // the min score is an over estimate for when the iterator does NOT contain the term (document freq of zero)
     //   MAX-SCORE requires this to be over estimated, otherwise you will lose documents
     //   empirically average document length is a good number (even if its NOT an overestimate of min possible score)
-    min = dirichletScore(0, p.getDouble("avgLength"));
+    min = dirichletScore(0, 1);
 
   }
 

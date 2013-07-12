@@ -90,7 +90,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
   }
 
   @Override
-  public DiskIterator getIterator(Node node) throws IOException {
+  public DiskLengthsIterator getIterator(Node node) throws IOException {
     // operator -> lengths
     if (node.getOperator().equals("lengths")) {
       String key = node.getNodeParameters().get("default", "document");

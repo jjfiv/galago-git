@@ -27,7 +27,9 @@ public class QuerySetEvaluatorFactory {
       return new Sum(metric, evalFn);
 
       // mean metrics
-    } else if (lowerMetric.equals("map")
+    } else if (
+            lowerMetric.startsWith("frac_unjug_ret")
+            || lowerMetric.equals("map")
             || lowerMetric.equals("averagePrecision")
             || lowerMetric.equals("bpref")
             || lowerMetric.equals("r-prec")

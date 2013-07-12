@@ -15,11 +15,16 @@ public abstract class BTreeValueSource implements DiskSource {
   public static final int HAS_INLINING = 0x04;
   
   final protected BTreeReader.BTreeIterator btreeIter;
-  final protected byte[] key;
+  final protected String key;
   
   public BTreeValueSource(BTreeReader.BTreeIterator it) throws IOException {
-    this.key = it.getKey();
-    btreeIter = it;
+    this.key = Utility.toString(it.getKey());
+    this.btreeIter = it;
+  }
+
+  public BTreeValueSource(BTreeReader.BTreeIterator it, String displayKey) throws IOException {
+    this.key = displayKey;
+    this.btreeIter = it;
   }
   
   @Override
@@ -29,6 +34,6 @@ public abstract class BTreeValueSource implements DiskSource {
   
   @Override
   public String key() {
-    return Utility.toString(key);
+    return key;
   }
 }
