@@ -52,7 +52,7 @@ public class MaxScoreDocumentModel extends ProcessingModel {
     for (DeltaScoringIterator scorer : scoringIterators) {
       maximumPossibleScore += scorer.maximumWeightedScore();
     }
-
+    
     // sentinel scores are set to collectionFrequency (sort function ensures decreasing order)
     Collections.sort(scoringIterators, new DeltaScoringIteratorMaxDiffComparator());
     

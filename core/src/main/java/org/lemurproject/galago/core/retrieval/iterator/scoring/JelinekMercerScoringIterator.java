@@ -43,8 +43,8 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
 
     // delta
     weight = p.get("w", 1.0);
-    max = p.getLong("maximumCount");
-    min = score(0, (int) p.getLong("maximumCount"));
+    max = score(p.getLong("maximumCount"), p.getLong("maximumCount"));
+    min = score(0, 1);
 
   }
 
@@ -72,13 +72,13 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
   public double deltaScore(ScoringContext c) {
     int count = ((CountIterator) iterator).count(c);
     int length = this.lengthsIterator.length(c);
-    double diff = weight * (score(count, length) - max);
+    double diff = weight * (max - score(count, length));
     return diff;
   }
 
   @Override
   public double maximumDifference() {
-    double diff = weight * (min - max);
+    double diff = weight * (max - min);
     return diff;
   }
 

@@ -24,7 +24,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 public class CorpusSelectiveSplitParser extends DocumentStreamParser {
 
   int idx;
-  int[] docIds;
+  long[] docIds;
   DocumentReader reader;
 
   public CorpusSelectiveSplitParser(DocumentSplit split, Parameters p) throws FileNotFoundException, IOException {
@@ -35,10 +35,10 @@ public class CorpusSelectiveSplitParser extends DocumentStreamParser {
     // Must be a simple list of strings, one per line;
     File ids = new File(split.fileName);
     Set<String> documentIds = Utility.readFileToStringSet(ids);
-    docIds = new int[documentIds.size()];
+    docIds = new long[documentIds.size()];
     int i = 0;
     for (String sid : documentIds) {
-      int id = Integer.parseInt(sid);
+      long id = Long.parseLong(sid);
       docIds[i] = id;
       i+=1;
     }

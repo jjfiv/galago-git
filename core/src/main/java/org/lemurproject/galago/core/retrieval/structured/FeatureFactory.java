@@ -88,7 +88,7 @@ public class FeatureFactory {
     StopStructureTraversal.class.getName(),
     StopWordTraversal.class.getName(),
     WeightedSequentialDependenceTraversal.class.getName(),
-    WeightedSequentialDependence2Traversal.class.getName(),
+    WeightedSequentialDependenceTraversal.class.getName(),
     SequentialDependenceTraversal.class.getName(),
     FullDependenceTraversal.class.getName(),
     ProximityDFRTraversal.class.getName(),
@@ -253,6 +253,7 @@ public class FeatureFactory {
     ArrayList<Object> arguments = new ArrayList<Object>();
     LinkedList<Class> formals = new LinkedList<Class>();
     boolean fail = false;
+    String failStr = "<unknown>";
     int ic = 0;
     for (; ic < cons.length; ic++) {
       fail = false;
@@ -266,11 +267,12 @@ public class FeatureFactory {
       while (formals.size() > 0) {
         if (formals.get(0) == NodeParameters.class) {
           // Only valid if at the front or preceded by immutables
-          if (arguments.isEmpty() || (arguments.size() == 1 && arguments.get(0) instanceof Parameters)) {
+          if (arguments.isEmpty()) {
             NodeParameters params = node.getNodeParameters().clone();
             arguments.add(params);
           } else {
             fail = true;
+            failStr = "NodeParameters must be the first argument, not the " + arguments.size() + "-th.";
             break;
           }
         } else if (BaseIterator.class.isAssignableFrom(formals.get(0))) {
@@ -280,15 +282,17 @@ public class FeatureFactory {
             childIdx++;
           } else {
             fail = true;
+            failStr = "Argument " + arguments.size() + " is:\n" + childIterators.get(childIdx).getClass().getName() + "\nConstructor expected:\n" + formals.get(0).getName();
             break;
           }
         } else if (formals.get(0).isArray()) {
           // Only an array of structured iterators - all the same type
           // First check that all children match
           Class ac = formals.get(0).getComponentType();
-          for (int i = 0; i < childIterators.size(); i++) {
+          for (int i = childIdx; i < childIterators.size(); i++) {
             if (!ac.isAssignableFrom(childIterators.get(i).getClass())) {
               fail = true;
+              failStr = "Argument " + arguments.size() + " is:\n" + childIterators.get(i).getClass().getName() + "\nConstructor expected an array of:\n" + ac.getName();
               break;
             }
           }
@@ -297,7 +301,7 @@ public class FeatureFactory {
             break;
           }
           Object typedArray = Array.newInstance(formals.get(0).getComponentType(), 0);
-          Object[] generalArray = childIterators.toArray((Object[]) typedArray);
+          Object[] generalArray = childIterators.subList(childIdx, childIterators.size()).toArray((Object[]) typedArray);
           arguments.add(generalArray);
         }
         formals.poll();
@@ -313,6 +317,7 @@ public class FeatureFactory {
       msg.append(String.format("No valid constructor for node %s.\n", node.toString()));
       msg.append("Allowable Iterator constructors allow for leading optional Parameters,");
       msg.append(" followed by optional NodeParameters, and finally the list of child iterators.");
+      msg.append("FAILED AT: " + failStr);
       throw new IllegalArgumentException(msg.toString());
     }
 
