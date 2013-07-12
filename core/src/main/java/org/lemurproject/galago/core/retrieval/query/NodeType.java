@@ -45,10 +45,7 @@ public class NodeType implements Serializable {
 
   public Class[] getParameterTypes(int length) throws Exception {
     Class[] inputs = getInputs();
-    if (inputs == null) {
-      return new Class[0];
-    }
-    if (inputs.length == 0) {
+    if (inputs == null || inputs.length == 0) {
       return new Class[0];
     }
 
