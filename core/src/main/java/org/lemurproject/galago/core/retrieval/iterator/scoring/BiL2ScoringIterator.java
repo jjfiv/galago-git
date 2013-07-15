@@ -59,6 +59,12 @@ public class BiL2ScoringIterator extends TransformIterator implements ScoreItera
 
     double docLength = lengths.length(cx);
     double TFN = tf * log2(1.0 + (c * averageDocumentLength) / docLength);
+
+    // if this number is negative, score = NaN ; so we skip the document (score = 0.0), generally Bil scores are positive.
+    if(docLength - 1.0 - TFN <= 0){
+      return 0.0;
+    }
+    
     double NORM = 1.0 / (TFN + 1.0);
     double PP = 1.0 / (docLength - 1.0);
 
