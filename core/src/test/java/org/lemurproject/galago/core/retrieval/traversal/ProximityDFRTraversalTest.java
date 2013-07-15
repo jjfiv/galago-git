@@ -21,13 +21,14 @@ public class ProximityDFRTraversalTest extends TestCase {
 
   public void testSomeMethod() throws Exception {
     Parameters qparams = new Parameters();
+    qparams.set("termLambda", 0.91);
     Retrieval ret = new FakeRetrieval();
 
     ProximityDFRTraversal traversal = new ProximityDFRTraversal(ret);
 
     Node pl2root = StructuredQuery.parse("#pdfr( test query )");
     Node out = traversal.afterNode(pl2root, qparams);
-    Node exp = StructuredQuery.parse("#combine:0=1.0:1=1.0:norm=false( #combine( "
+    Node exp = StructuredQuery.parse("#combine:0=0.91:1=0.08999999999999997:norm=false( #combine( "
             + "#pl2:c=6.0( #lengths:document:part=lengths() #text:test() ) "
             + "#pl2:c=6.0( #lengths:document:part=lengths() #text:query() ) ) "
             + "#combine( "

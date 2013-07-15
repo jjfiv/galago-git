@@ -171,6 +171,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
           break;
 
         case LOGTF:
+        case LOGNGRAMTF: // unigrams are the same
           assert (!featureValues.containsKey(f));
 
           // if the feature weight is 0 -- don't compute the feature
@@ -345,6 +346,39 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
           }
 
           break;
+
+        case LOGNGRAMTF:
+          assert (!featureValues.containsKey(f));
+          // if the feature weight is 0 -- don't compute the feature
+          if (queryParams.get(f.name, f.defLambda) == 0.0) {
+            break;
+          }
+
+          node = new Node("counts", term1 + "~" + term2);
+          if (!f.part.isEmpty()) {
+            node.getNodeParameters().set("part", f.part);
+          }
+          // f.group is "" or some particular group
+          cacheString = node.toString() + "-" + f.group;
+
+          // first check if we have already done this node.
+          if (localCache.containsKey(cacheString)) {
+            featureStats = (NodeStatistics) localCache.get(cacheString);
+          } else if (gRetrieval != null && !f.group.isEmpty()) {
+            featureStats = gRetrieval.getNodeStatistics(node, f.group);
+            localCache.put(cacheString, featureStats);
+          } else {
+            featureStats = this.retrieval.getNodeStatistics(node);
+            localCache.put(cacheString, featureStats);
+          }
+
+          // only add the value if it occurs in the collection (log (0) = -Inf)
+          if (featureStats.nodeFrequency != 0) {
+            featureValues.put(f, Math.log(featureStats.nodeFrequency));
+          }
+
+          break;
+      
       }
     }
 
@@ -364,7 +398,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
   public static enum WSDMFeatureType {
 
-    LOGTF, LOGDF, CONST;
+    LOGTF, LOGDF, CONST, LOGNGRAMTF;
   }
 
   /*
