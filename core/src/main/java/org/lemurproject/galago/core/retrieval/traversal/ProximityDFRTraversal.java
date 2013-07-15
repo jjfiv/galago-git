@@ -19,7 +19,7 @@ public class ProximityDFRTraversal extends Traversal {
   private int windowSizeDefault;
   private double twDefault;
   private double cDefault;
-  private double pwDefault;
+//  private double pwDefault;
   private double cpDefault;
   private boolean sequentialDefault;
   private String termScoringModelDefault;
@@ -31,8 +31,10 @@ public class ProximityDFRTraversal extends Traversal {
     this.sequentialDefault = ret.getGlobalParameters().get("pdfrSeq", true);
     this.twDefault = ret.getGlobalParameters().get("termLambda", 1.0);
     this.cDefault = ret.getGlobalParameters().get("c", 6.0);
-    this.pwDefault = ret.getGlobalParameters().get("proximityLambda", 1.0);
+
+    // this.pwDefault = ret.getGlobalParameters().get("proximityLambda", 1.0 - twDefault);
     this.cpDefault = ret.getGlobalParameters().get("cp", 0.05);
+    
     this.termScoringModelDefault = ret.getGlobalParameters().get("pdfrTerm", "pl2");
     this.proxScoringModelDefault = ret.getGlobalParameters().get("pdfrProx", "bil2");
     this.windowSizeDefault = (int) ret.getGlobalParameters().get("windowSize", 5);
@@ -50,7 +52,7 @@ public class ProximityDFRTraversal extends Traversal {
       boolean sequential = queryParams.get("pdfrSeq", this.sequentialDefault);
       double tw = queryParams.get("termLambda", twDefault);
       double c = queryParams.get("c", cDefault);
-      double pw = queryParams.get("termLambda", pwDefault);
+      double pw = 1.0 - tw ;
       double cp = queryParams.get("cp", cpDefault);
       String termScoringModel = queryParams.get("pdfrTerm", termScoringModelDefault);
       String proxScoringModel = queryParams.get("pdfrProx", proxScoringModelDefault);
@@ -116,11 +118,11 @@ public class ProximityDFRTraversal extends Traversal {
         Node scorer = new Node(proxScoringModel);
         scorer.getNodeParameters().set("c", cp);
         scorer.addChild(StructuredQuery.parse("#lengths:document:part=lengths()"));
-        Node od = new Node("unordered");
-        od.getNodeParameters().set("default", windowSize);
-        od.addChild(internalNodes.get(i));
-        od.addChild(internalNodes.get(j));
-        scorer.addChild(od);
+        Node uw = new Node("unordered");
+        uw.getNodeParameters().set("default", windowSize);
+        uw.addChild(internalNodes.get(i));
+        uw.addChild(internalNodes.get(j));
+        scorer.addChild(uw);
         proxy.addChild(scorer);
       }
     }

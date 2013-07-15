@@ -59,11 +59,12 @@ public class PL2ScoringIterator extends TransformIterator implements ScoreIterat
   @Override
   public double score(ScoringContext cx) {
     double tf = counts.count(cx);
+    double docLength = lengths.length(cx);
+    
     if (tf == 0) {
-      return 0;
+      return 0.0;
     }
 
-    double docLength = lengths.length(cx);
     double TF = tf * log2(1.0 + (c * averageDocumentLength) / docLength);
     double NORM = 1.0 / (TF + 1.0);
     double f = nodeFrequency / documentCount;
@@ -73,6 +74,12 @@ public class PL2ScoringIterator extends TransformIterator implements ScoreIterat
             + f * REC_LOG_2_OF_E
             + 0.5 * log2(2.0 * Math.PI * TF)
             + TF * (log2(TF) - REC_LOG_2_OF_E));
+
+    // this makes max-Score work
+    if (score < 0) {
+      score = 0.0;
+    }
+
     return score;
   }
 
