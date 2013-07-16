@@ -195,7 +195,8 @@ public class Eval extends AppFunction {
 
     String sep = p.get("sep", " "); // latex : " & "
     String ln = p.get("ln", " ");     // latex : " \\\\ \\hline"
-    String sig = p.get("sig", "*");     // latex : " ^* "
+    String sig = p.get("sig", "*");     // latex : " ^{+} "
+    String neg = p.get("negsig", "");     // latex : " ^{-} "
 
     double thresh = p.get("thresh", 0.05);
 
@@ -241,8 +242,14 @@ public class Eval extends AppFunction {
         output.format("%1$-30s", runId);
         Parameters r = eval.getMap("all").getMap(runId);
         for (String metric : metrics) {
-          if (comparisons.size() > 0 && r.getDouble(metric + "-" + comparisons.get(0)) < thresh) {
+          if (comparisons.size() > 0 
+                  && r.getDouble(metric + "-" + comparisons.get(0)) < thresh) {
             output.format("%1s%2$10.4f%3$1s", sep, r.getDouble(metric), sig);
+          } else if (neg.length() > 0 
+                  && comparisons.size() > 0 
+                  && r.getDouble(metric + "-" + comparisons.get(0) + "-neg") < thresh) {
+            output.format("%1s%2$10.4f%3$1s", sep, r.getDouble(metric), neg);
+            
           } else {
             output.format("%1s%2$10.4f%3$1s", sep, r.getDouble(metric), "");
           }
@@ -391,10 +398,12 @@ public class Eval extends AppFunction {
     }
 
     String[] tests = new String[]{"randomized"};
-
+    boolean negsig = !p.get("negsig", "").isEmpty();
+    
     // override default list if specified:
     if (p.isList("comparisons", Type.STRING)) {
       tests = (String[]) p.getAsList("comparisons").toArray(new String[0]);
+      
     } else if (p.isBoolean("comparisons") && !p.getBoolean("comparisons")) {
       // allow the comparisons to be turned off.
       tests = new String[0];
@@ -445,10 +454,16 @@ public class Eval extends AppFunction {
           for (int testId = 0; testId < tests.length; testId++) {
             if (baseline.getName().equals(run.getName())) {
               qRecord.set(setEvaluator.getMetric() + "-" + tests[testId], 1.0);
+              if(negsig){
+                qRecord.set(setEvaluator.getMetric() + "-" + tests[testId] + "-neg", 1.0);
+              }
             } else {
               QuerySetEvaluation baseResults = setEvaluator.evaluateSet(baseline, judgments);
               QuerySetEvaluation treatResults = setEvaluator.evaluateSet(run, judgments);
               qRecord.set(setEvaluator.getMetric() + "-" + tests[testId], setComparators[testId].evaluate(baseResults, treatResults));
+              if(negsig){
+                qRecord.set(setEvaluator.getMetric() + "-" + tests[testId] + "-neg", setComparators[testId].evaluate(treatResults, baseResults));
+              }
             }
           }
         }
