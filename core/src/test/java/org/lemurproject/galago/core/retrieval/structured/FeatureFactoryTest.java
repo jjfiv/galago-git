@@ -67,7 +67,7 @@ public class FeatureFactoryTest extends TestCase {
 
   public void testGetClassNameConfig() throws Exception {
     String config = "{ \"operators\" : {\"a\" : \"b\" } }";
-    Parameters p = Parameters.parse(config);
+    Parameters p = Parameters.parseString(config);
     FeatureFactory f = new FeatureFactory(p);
 
     assertEquals("b", f.getClassName(new Node("a", new ArrayList())));

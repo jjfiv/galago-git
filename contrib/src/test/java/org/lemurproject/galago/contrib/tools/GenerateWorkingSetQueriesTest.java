@@ -75,14 +75,14 @@ public class GenerateWorkingSetQueriesTest extends TestCase {
     p.set("output", out.getAbsolutePath());
     p.set("wsNumders", true);
     p.set("queries", new ArrayList());
-    p.getList("queries").add(Parameters.parse("{\"number\" : \"q1\", \"text\" : \"#combine(t1 t2)\"}"));
-    p.getList("queries").add(Parameters.parse("{\"number\" : \"q2\", \"text\" : \"#combine(t3 t4)\"}"));
-    p.getList("queries").add(Parameters.parse("{\"number\" : \"q3\", \"text\" : \"#combine(t5 t6)\"}"));
+    p.getList("queries").add(Parameters.parseString("{\"number\" : \"q1\", \"text\" : \"#combine(t1 t2)\"}"));
+    p.getList("queries").add(Parameters.parseString("{\"number\" : \"q2\", \"text\" : \"#combine(t3 t4)\"}"));
+    p.getList("queries").add(Parameters.parseString("{\"number\" : \"q3\", \"text\" : \"#combine(t5 t6)\"}"));
 
     GenerateWorkingSetQueries generator = new GenerateWorkingSetQueries();
     generator.run(p, System.err);
 
-    Parameters outputParams = Parameters.parse(out);
+    Parameters outputParams = Parameters.parseFile(out);
 
     List<Parameters> outQueries = outputParams.getList("queries");
     assertEquals( outQueries.get(0).getList("working").size(), 10 );

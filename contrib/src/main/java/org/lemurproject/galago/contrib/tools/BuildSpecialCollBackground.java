@@ -155,6 +155,6 @@ public class BuildSpecialCollBackground extends AppFunction {
   }
 
   public static void main(String[] args) throws Exception {
-    new BuildSpecialCollBackground().run(new Parameters(args), System.out);
+    new BuildSpecialCollBackground().run(Parameters.parseArgs(args), System.out);
   }
 }

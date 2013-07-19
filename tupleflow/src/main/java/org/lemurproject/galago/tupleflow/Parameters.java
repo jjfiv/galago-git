@@ -4,7 +4,6 @@ package org.lemurproject.galago.tupleflow;
 import gnu.trove.map.hash.TObjectByteHashMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import gnu.trove.map.hash.TObjectLongHashMap;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
@@ -52,362 +51,8 @@ public class Parameters implements Serializable {
   private Parameters _backoff;
 
   public enum Type {
-
     BOOLEAN, LONG, DOUBLE, STRING, MAP, LIST
   };
-
-  // Parsing in JSON
-  private static class JSONParser {
-
-    Reader reader;
-    char delimiter = ' ';
-    Type valueType;
-
-    public JSONParser(Reader input) {
-      this.reader = new BufferedReader(input);
-    }
-
-    /**
-     * Creates a new parameter object by inserting data from the reader
-     */
-    public Parameters parse() throws IOException {
-      return parse(new Parameters());
-    }
-
-    /**
-     * Adds to an existing parameter object by inserting data from the reader
-     */
-    public Parameters parse(Parameters jp) throws IOException {
-      skipWhitespace();
-      if (delimiter != '{') {
-        throw new IOException("Expected top-level JSON object definition (starting with '{'), got " + delimiter);
-      }
-      jp = parseParameters(jp);
-      skipWhitespace(); // eat any remaining whitespace
-      // Need to catch output as an int in order to use the assert
-      int last = reader.read();
-      assert (last == -1); // Makes sure we got to the end
-      reader.close();
-      return jp;
-    }
-
-    private Parameters parseParameters(Parameters container) throws IOException {
-      // Need to move past the opening '{' and find the next meaningful character
-      delimiter = (char) reader.read();
-      skipWhitespace();
-      String key;
-      Object value;
-      while (delimiter != '}') {
-        skipWhitespace();
-        key = parseString();
-        skipWhitespace();
-        if (delimiter != ':') {
-          throw new IOException("Expected ':' while parsing string-value. Got " + delimiter);
-        } else {
-          // Saw the colon - now advance
-          delimiter = (char) reader.read();
-        }
-        skipWhitespace();
-        value = parseValue();
-        skipWhitespace();
-        switch (valueType) {
-          case MAP:
-            container.set(key, (Parameters) value);
-            break;
-          case LIST:
-            container.set(key, (List) value);
-            break;
-          case STRING:
-            container.set(key, (String) value);
-            break;
-          case LONG:
-            container.set(key, ((Long) value).longValue());
-            break;
-          case DOUBLE:
-            container.set(key, ((Double) value).doubleValue());
-            break;
-          case BOOLEAN:
-            container.set(key, ((Boolean) value).booleanValue());
-            break;
-        }
-        if (delimiter != '}' && delimiter != ',') {
-          throw new IOException("Expected '}' or ',' while parsing map. Got " + delimiter);
-        }
-        if (delimiter == ',') {
-          delimiter = (char) reader.read();
-        }
-      }
-
-      // Advance past closing '}'
-      delimiter = (char) reader.read();
-      valueType = Type.MAP;
-      return container;
-    }
-
-    private List parseList() throws IOException {
-      // Have to move past the opening '['
-      delimiter = (char) reader.read();
-      // skip any whitespace
-      skipWhitespace();
-      ArrayList container = new ArrayList();
-      while (delimiter != ']') {
-        skipWhitespace();
-        container.add(parseValue());
-        skipWhitespace();
-        if (delimiter != ',' && delimiter != ']') {
-          throw new IOException("Expected ',' or ']', got " + delimiter);
-        }
-
-        // Advance if it's a comma
-        if (delimiter == ',') {
-          delimiter = (char) reader.read();
-        }
-      }
-
-      // Advance past closing ']'
-      delimiter = (char) reader.read();
-      valueType = Type.LIST;
-      return container;
-    }
-
-    // Will only move forward if the current delimiter is whitespace.
-    // Otherwise has no effect
-    //
-    // TODO - support one-line comments here
-    private void skipWhitespace() throws IOException {
-      while (Character.isWhitespace(delimiter)) {
-        delimiter = (char) reader.read();
-      }
-    }
-
-    // Need to parse to a general delimiter:
-    // " leads a string
-    // - or [0-9] leads a string
-    // { leads a map
-    // [ leads an array
-    // t leads true
-    // f leads false
-    // n leads null (do we allow nulls? I guess to make is full JSON...)
-    private Object parseValue() throws IOException {
-      // Decide on character
-      switch (delimiter) {
-        case '[':
-          valueType = Type.LIST;
-          return parseList();
-        case '{':
-          valueType = Type.MAP;
-          return parseParameters(new Parameters());
-        case 't':
-          valueType = Type.BOOLEAN;
-          return parseTrue();
-        case 'f':
-          valueType = Type.BOOLEAN;
-          return parseFalse();
-        case 'n':
-          valueType = Type.STRING;
-          return parseNull(); // hmm...
-        case '"':
-          valueType = Type.STRING;
-          return parseString();
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-        case '-':
-          return parseNumber();
-      }
-
-      // If we make it here - problem
-      throw new IOException(String.format("Expected leading character for value type. Got '%s'", delimiter));
-    }
-
-    // Lead character's done. Need to do 'rue'
-    private boolean parseTrue() throws IOException {
-      if (reader.read() == 'r' && reader.read() == 'u' && reader.read() == 'e') {
-        delimiter = (char) reader.read();
-        return true;
-      } else {
-        throw new IOException("Value led with 't', but was not a literal 'true' value.\n");
-      }
-    }
-
-    // Lead character is 'n', need to finish w/ 'ull'
-    private String parseNull() throws IOException {
-      if (reader.read() == 'u' && reader.read() == 'l' && reader.read() == 'l') {
-        delimiter = (char) reader.read();
-        return null;
-      } else {
-        throw new IOException("Value led with 'n', but was not a literal 'null' value.\n");
-      }
-    }
-
-    // Lead character's done. Need to do 'alse'
-    private boolean parseFalse() throws IOException {
-      if (reader.read() == 'a' && reader.read() == 'l'
-              && reader.read() == 's' && reader.read() == 'e') {
-        delimiter = (char) reader.read();
-        return false;
-      } else {
-        throw new IOException("Value led with 'f', but was not a literal 'false' value.\n");
-      }
-    }
-
-    // Parses a string - either a label or a value
-    private String parseString() throws IOException {
-      StringBuilder builder = new StringBuilder();
-      char trail;
-      int value;
-
-      // Need to make sure we're on a '"'
-      while (delimiter != '"') {
-        value = reader.read();
-        if (value == -1) {
-          throw new IllegalArgumentException("Missing opening quote for string.");
-        }
-        delimiter = (char) value;
-      }
-
-      // Now reading string content
-      delimiter = (char) reader.read();
-      trail = ' ';
-      while (true) {
-        if (trail == '\\') {
-          switch (delimiter) {
-            case '"':
-            case '\\':
-            case '/':
-            case 'b':
-            case 'f':
-            case 'n':
-            case 'r':
-            case 't':
-              builder.append(delimiter);
-              break;
-            case 'u': {
-              builder.append(delimiter);
-              for (int i = 0; i < 4; i++) {
-                delimiter = (char) reader.read();
-                if ((delimiter >= 'a' && delimiter <= 'f')
-                        || (delimiter >= 'A' && delimiter <= 'F')
-                        || (delimiter >= '0' && delimiter <= '9')) {
-                  builder.append(delimiter);
-                } else {
-                  throw new IllegalArgumentException(String.format("Illegal hex character used: '%c'", delimiter));
-                }
-              }
-            }
-            break;
-            default:
-              throw new IllegalArgumentException(String.format("Escape character followed by illegal character: '%c'", delimiter));
-          }
-          trail = ' '; // Don't put anything there b/c the current chars were escaped
-        } else {
-          if (delimiter == '"') {
-            break;
-          }
-          builder.append(delimiter);
-          trail = delimiter;
-        }
-        value = reader.read();
-        if (value == -1) {
-          throw new IllegalArgumentException("Missing closing quote for string.");
-        }
-        delimiter = (char) value;
-      }
-
-      // Read first thing *after* the close quote
-      delimiter = (char) reader.read();
-
-      return builder.toString();
-    }
-
-    // Parses a number. Decides if it's a double on the fly
-    private Object parseNumber() throws IOException {
-      boolean hasDot = false;
-      char c;
-      int value;
-
-      StringBuilder builder = new StringBuilder();
-      c = delimiter;
-
-      // Read more digits
-      do {
-        builder.append(c);
-        value = reader.read();
-        if (value == -1) {
-          throw new IllegalArgumentException("File ended while reading in number.");
-        }
-        c = (char) value;
-      } while (Character.isDigit(c));
-
-      // If we see a dot, do that subroutine
-      if (c == '.') {
-        hasDot = true;
-        builder.append(c);
-        value = reader.read();
-        if (value == -1) {
-          throw new IllegalArgumentException("File ended while reading in number.");
-        }
-        c = (char) value;
-
-        // better be a number
-        if (!Character.isDigit(c)) {
-          throw new IOException("Encountered invalid fractional character: " + c);
-        }
-
-        // Append that one and others
-        while (Character.isDigit(c)) {
-          builder.append(c);
-          value = reader.read();
-          if (value == -1) {
-            throw new IllegalArgumentException("File ended while reading in number.");
-          }
-          c = (char) value;
-        }
-      }
-
-      // if it's an e or E, cover that subroutine
-      if (c == 'e' || c == 'E') {
-        builder.append(c);
-        c = (char) reader.read();
-
-        // Better be valid
-        if (c != '+' && c != '-' && !Character.isDigit(c)) {
-          throw new IOException("Expected: '+', '-', or [0-9], got : " + c);
-        }
-        builder.append(c);
-
-        // Read some (optional) digits
-        c = (char) reader.read();
-        while (Character.isDigit(c)) {
-          builder.append(c);
-          value = reader.read();
-          if (value == -1) {
-            throw new IllegalArgumentException("File ended while reading in number.");
-          }
-          c = (char) value;
-        }
-      }
-
-      // Finally done, set that last character as the found delimiter,
-      // and infer type. We don't need to advance b/c we stopped on the
-      // non-digit delimiter.
-      delimiter = c;
-      if (hasDot) {
-        valueType = Type.DOUBLE;
-        return Double.parseDouble(builder.toString());
-      } else {
-        valueType = Type.LONG;
-        return Long.parseLong(builder.toString());
-      }
-    }
-  }
 
 // Constructor - we always start empty, and add to it
 // Most of these are constructed statically
@@ -421,73 +66,111 @@ public class Parameters implements Serializable {
     _backoff = null;
   }
 
+  @Deprecated
   public Parameters(Map<String, String> map) {
     _objects = new HashMap();
     _keys = new HashMap<String, Type>();
+    _backoff = null;
+    this.copyFrom(Parameters.parseMap(map));
+  }
 
+  // in this case, we assume everything is a key-value pair of strings
+  // TODO : Make this and the above constructor care about types.
+  @Deprecated
+  public Parameters(String[] args) throws IOException {
+    _keys = new HashMap<String, Type>();
+    _backoff = null;
+    this.copyFrom(Parameters.parseArgs(args));
+  }
+  
+  public static Parameters parseMap(Map<String,String> map) {
+    Parameters self = new Parameters();
+    
     for (String key : map.keySet()) {
       String value = map.get(key);
       Type t = determineType(value);
       switch (t) {
         case BOOLEAN:
-          set(key, Boolean.parseBoolean(value));
+          self.set(key, Boolean.parseBoolean(value));
           break;
         case LONG:
-          set(key, Long.parseLong(value));
+          self.set(key, Long.parseLong(value));
           break;
         case DOUBLE:
-          set(key, Double.parseDouble(value));
+          self.set(key, Double.parseDouble(value));
           break;
         default:
-          set(key, value);
+          self.set(key, value);
       }
     }
-
-    _backoff = null;
+    
+    return self;
   }
-
-  // in this case, we assume everything is a key-value pair of strings
-  // TODO : Make this and the above constructor care about types.
-  public Parameters(String[] args) throws IOException {
-    _keys = new HashMap<String, Type>();
-
+  
+  public static Parameters parseArgs(String[] args) throws IOException {
+    Parameters self = new Parameters();
+    
     for (String arg : args) {
       if (arg.startsWith("--")) {
         String pattern = arg.substring(2);
-        tokenizeComplexValue(this, pattern);
+        tokenizeComplexValue(self, pattern);
       } else {
         // We assume that the input is a file of JSON parameters
-        Parameters other = Parameters.parse(new File(arg));
-        this.copyFrom(other);
+        Parameters other = Parameters.parseFile(new File(arg));
+        self.copyFrom(other);
       }
     }
-
-    _backoff = null;
+    
+    return self;
   }
 
+  @Deprecated
   public static Parameters parse(String data) throws IOException {
-    JSONParser jp = new JSONParser(new StringReader(data));
-    Parameters p = jp.parse();
-    return p;
+    return parseString(data);
   }
 
+  @Deprecated
   public static Parameters parse(InputStream iStream) throws IOException {
+    return parseStream(iStream);
+  }
+
+  @Deprecated
+  public static Parameters parse(byte[] data) throws IOException {
+    return parseBytes(data);
+  }
+
+  @Deprecated
+  public static Parameters parse(File f) throws IOException {
+    return parseFile(f);
+  }
+  
+  public static Parameters parseFile(File f) throws IOException {
+    JSONParser jp = new JSONParser(new FileReader(f));
+    return jp.parse();
+  }
+  
+  public static Parameters parseFile(String path) throws IOException {
+    return parseFile(new File(path));
+  }
+  
+  public static Parameters parseString(String data) throws IOException {
+    JSONParser jp = new JSONParser(new StringReader(data));
+    return jp.parse();
+  }
+  
+  public static Parameters parseReader(Reader reader) throws IOException {
+    JSONParser jp = new JSONParser(reader);
+    return jp.parse();
+  }
+  
+  public static Parameters parseStream(InputStream iStream) throws IOException {
     JSONParser jp = new JSONParser(new InputStreamReader(iStream));
     Parameters p = jp.parse();
     return p;
-
   }
-
-  public static Parameters parse(byte[] data) throws IOException {
-    JSONParser jp = new JSONParser(new InputStreamReader(new ByteArrayInputStream(data)));
-    Parameters p = jp.parse();
-    return p;
-  }
-
-  public static Parameters parse(File f) throws IOException {
-    JSONParser jp = new JSONParser(new FileReader(f));
-    Parameters p = jp.parse();
-    return p;
+  
+  public static Parameters parseBytes(byte[] data) throws IOException {
+    return parseStream(new ByteArrayInputStream(data));
   }
 
   /**
@@ -906,6 +589,7 @@ public class Parameters implements Serializable {
    * @param backoff
    */
   public void setBackoff(Parameters backoff) {
+    assert(backoff != this);
     this._backoff = backoff;
   }
 

@@ -45,7 +45,7 @@ public class MemIndexPartTest extends TestCase {
     File diskCounts = Utility.createTemporary();
     try {
       MemoryCountIndex memcounts1 = new MemoryCountIndex(new Parameters());
-      CountIndexWriter diskcounts = new CountIndexWriter(new FakeParameters(Parameters.parse("{\"filename\":\"" + diskCounts.getAbsolutePath() + "\"}")));
+      CountIndexWriter diskcounts = new CountIndexWriter(new FakeParameters(Parameters.parseString("{\"filename\":\"" + diskCounts.getAbsolutePath() + "\"}")));
       ReduceNumberWordCount reducer = new ReduceNumberWordCount();
       Sorter sorter = new Sorter(new NumberWordCount.WordDocumentOrder());
       sorter.setProcessor(reducer);
@@ -133,7 +133,7 @@ public class MemIndexPartTest extends TestCase {
 
       memScores.addIteratorData(Utility.fromString("key"), scoreItr);
 
-      SparseFloatListWriter writer = new SparseFloatListWriter(new FakeParameters(Parameters.parse("{\"filename\":\"" + f.getAbsolutePath() + "\"}")));
+      SparseFloatListWriter writer = new SparseFloatListWriter(new FakeParameters(Parameters.parseString("{\"filename\":\"" + f.getAbsolutePath() + "\"}")));
 
       writer.processWord(Utility.fromString("key"));
       for (int i = 0; i < docs.length; i++) {

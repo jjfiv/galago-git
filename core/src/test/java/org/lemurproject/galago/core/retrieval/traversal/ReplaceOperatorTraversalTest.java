@@ -19,7 +19,7 @@ public class ReplaceOperatorTraversalTest extends TestCase {
 
   public void testOpRepls() throws Exception {
     FakeRetrieval ret = new FakeRetrieval();
-    Parameters repls = new Parameters(new String[]{
+    Parameters repls = Parameters.parseArgs(new String[]{
       "--opRepls/dummy1=test1", 
       "--opRepls/dummy2+test2", 
       "--opRepls/dummy2+test3"});

@@ -24,7 +24,7 @@ public class NumericParameterAccumulator {
     SerializedParameters serial;
     List<Parameters> params = new ArrayList();
     while ((serial = statsReader.read()) != null) {
-      Parameters fragment = Parameters.parse(serial.parameters);
+      Parameters fragment = Parameters.parseString(serial.parameters);
       params.add(fragment);
     }
     return accumulateParameters(params);

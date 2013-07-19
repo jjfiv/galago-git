@@ -142,6 +142,6 @@ public class BuildCollectionBackground extends AppFunction {
   }
 
   public static void main(String[] args) throws Exception {
-    new BuildCollectionBackground().run(new Parameters(args), System.out);
+    new BuildCollectionBackground().run(Parameters.parseArgs(args), System.out);
   }
 }

@@ -45,16 +45,16 @@ public class OverwriteManifestFn extends AppFunction {
     long magicNumber = indexReaderWriter.readLong();
 
     indexReaderWriter.seek(manifestOffset);
-    byte[] xmlData = new byte[(int) (footerOffset - manifestOffset)];
-    indexReaderWriter.read(xmlData);
-    Parameters newParameters = Parameters.parse(xmlData);
+    byte[] manifestData = new byte[(int) (footerOffset - manifestOffset)];
+    indexReaderWriter.read(manifestData);
+    Parameters newParameters = Parameters.parseBytes(manifestData);
     newParameters.copyFrom(p);
 
     indexReaderWriter.seek(manifestOffset);
 
     // write the new data back to the file
-    xmlData = newParameters.toString().getBytes("UTF-8");
-    indexReaderWriter.write(xmlData);
+    manifestData = newParameters.toString().getBytes("UTF-8");
+    indexReaderWriter.write(manifestData);
     indexReaderWriter.writeLong(vocabularyOffset);
     indexReaderWriter.writeLong(manifestOffset);
     indexReaderWriter.writeInt(blockSize);

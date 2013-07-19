@@ -22,7 +22,7 @@ public class MergeCollectionStats extends StandardStep<SerializedParameters, Ser
 
   @Override
   public void process(SerializedParameters serial) throws IOException {
-    Parameters fragment = Parameters.parse(serial.parameters);
+    Parameters fragment = Parameters.parseString(serial.parameters);
     for (String key : fragment.getKeys()) {
       if (fragment.isLong(key)) {
         long cumulativeStat = stats.get(key, 0L) + fragment.getLong(key);

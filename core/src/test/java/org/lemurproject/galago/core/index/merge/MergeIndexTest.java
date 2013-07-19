@@ -118,8 +118,8 @@ public class MergeIndexTest extends TestCase {
     File index2 = null;
     File indexmerged = null;
     try {
-      Parameters p1 = Parameters.parse("{\"documentNumberOffset\":0}");
-      Parameters p2 = Parameters.parse("{\"documentNumberOffset\":1000}");
+      Parameters p1 = Parameters.parseString("{\"documentNumberOffset\":0}");
+      Parameters p2 = Parameters.parseString("{\"documentNumberOffset\":1000}");
       MemoryIndex mi1 = new MemoryIndex(new FakeParameters(p1));
       MemoryIndex mi2 = new MemoryIndex(new FakeParameters(p2));
 

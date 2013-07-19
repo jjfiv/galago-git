@@ -46,7 +46,7 @@ public class XFoldLearnerTest extends TestCase {
       Utility.copyStringToFile(qrelData, qrels);
 
       // init learn params with queries
-      Parameters learnParams = Parameters.parse("{\"queries\": [{\"number\":\"q1\",\"text\":\"#combine:0=0.5:1=0.5( jump moon )\"}, {\"number\":\"q2\",\"text\":\"#combine:0=0.5:1=0.5( everything shoe )\"}]}");
+      Parameters learnParams = Parameters.parseString("{\"queries\": [{\"number\":\"q1\",\"text\":\"#combine:0=0.5:1=0.5( jump moon )\"}, {\"number\":\"q2\",\"text\":\"#combine:0=0.5:1=0.5( everything shoe )\"}]}");
       learnParams.set("learner", "xfold");
       learnParams.set("xfolds", 2);
       learnParams.set("xfoldLearner", "coord");
@@ -54,8 +54,8 @@ public class XFoldLearnerTest extends TestCase {
       learnParams.set("qrels", qrels.getAbsolutePath());
       // add two parameters
       List<Parameters> learnableParams = new ArrayList();
-      learnableParams.add(Parameters.parse("{\"name\":\"0\"}"));
-      learnableParams.add(Parameters.parse("{\"name\":\"1\"}"));
+      learnableParams.add(Parameters.parseString("{\"name\":\"0\"}"));
+      learnableParams.add(Parameters.parseString("{\"name\":\"1\"}"));
       learnParams.set("learnableParameters", learnableParams);
       // add sum rule to ensure sums to 1
       Parameters normalRule = new Parameters();
@@ -68,7 +68,7 @@ public class XFoldLearnerTest extends TestCase {
 
       learnParams.set("restarts", 1);
       learnParams.set("initialParameters", new ArrayList());
-      learnParams.getList("initialParameters").add(Parameters.parse("{\"0\":0.9,\"1\":-0.2}"));
+      learnParams.getList("initialParameters").add(Parameters.parseString("{\"0\":0.9,\"1\":-0.2}"));
 
       Learner learner = LearnerFactory.instance(learnParams, ret);
       RetrievalModelInstance res = learner.learn();

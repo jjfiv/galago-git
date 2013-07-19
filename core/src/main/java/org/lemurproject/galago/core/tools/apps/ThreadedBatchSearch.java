@@ -28,7 +28,7 @@ public class ThreadedBatchSearch extends AppFunction {
   public static final Logger logger = Logger.getLogger("ThreadedBatchSearch");
 
   public static void main(String[] args) throws Exception {
-    (new ThreadedBatchSearch()).run(new Parameters(args), System.out);
+    (new ThreadedBatchSearch()).run(Parameters.parseArgs(args), System.out);
   }
 
   @Override

@@ -61,7 +61,7 @@ public class ChainFns extends AppFunction {
         throw new IOException(String.format("Unable to locate parameter file '%s'\n",
                 step.getString("parameters")));
       }
-      return Parameters.parse(parameterPath);
+      return Parameters.parseFile(parameterPath);
     } else if (step.isMap("parameters")) {
       return step.getMap("parameters");
     } else {

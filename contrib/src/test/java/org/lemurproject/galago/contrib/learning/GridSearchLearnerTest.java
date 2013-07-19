@@ -46,13 +46,13 @@ public class GridSearchLearnerTest extends TestCase {
       Utility.copyStringToFile(qrelData, qrels);
 
       // init learn params with queries
-      Parameters learnParams = Parameters.parse("{\"queries\": [{\"number\":\"q1\",\"text\":\"#combine:0=0.5:1=0.5( jump moon )\"}, {\"number\":\"q2\",\"text\":\"#combine:0=0.5:1=0.5( everything shoe )\"}]}");
+      Parameters learnParams = Parameters.parseString("{\"queries\": [{\"number\":\"q1\",\"text\":\"#combine:0=0.5:1=0.5( jump moon )\"}, {\"number\":\"q2\",\"text\":\"#combine:0=0.5:1=0.5( everything shoe )\"}]}");
       learnParams.set("learner", "grid");
       learnParams.set("qrels", qrels.getAbsolutePath());
       // add two parameters
       List<Parameters> learnableParams = new ArrayList();
-      learnableParams.add(Parameters.parse("{\"name\":\"0\", \"max\":1.0, \"min\":-1.0}"));
-      learnableParams.add(Parameters.parse("{\"name\":\"1\", \"max\":1.0, \"min\":-1.0}"));
+      learnableParams.add(Parameters.parseString("{\"name\":\"0\", \"max\":1.0, \"min\":-1.0}"));
+      learnableParams.add(Parameters.parseString("{\"name\":\"1\", \"max\":1.0, \"min\":-1.0}"));
       learnParams.set("learnableParameters", learnableParams);
       // add sum rule to ensure sums to 1
       Parameters normalRule = new Parameters();

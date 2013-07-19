@@ -117,7 +117,7 @@ public class ParametersTest extends TestCase {
       params.write(tempPath.getAbsolutePath());
 
       // Now read it in.
-      Parameters newParams = Parameters.parse(tempPath);
+      Parameters newParams = Parameters.parseFile(tempPath);
       assertEquals(params.toString(), newParams.toString());
     } finally {
       if (tempPath != null) {
@@ -134,7 +134,7 @@ public class ParametersTest extends TestCase {
     json.append(", \"key4\" : [ 0 , 1 , 2 , 3 , 4 , 5 , 6 ] , \"key5\" : -4.56 }");
 
 
-    Parameters p = Parameters.parse(json.toString());
+    Parameters p = Parameters.parseString(json.toString());
 
     assertTrue(p.isBoolean("key1"));
     assertTrue(p.getBoolean("key1"));
@@ -169,7 +169,7 @@ public class ParametersTest extends TestCase {
     args[8] = "--mapKey/isTrue";
     args[9] = "--mapKey/innerMap/wayInnerMap/buriedKey=absolutely";
 
-    Parameters p = new Parameters(args);
+    Parameters p = Parameters.parseArgs(args);
     System.err.flush();
     List<String> list = p.getList("arrayKey");
     assertEquals("val1", list.get(0));
@@ -198,8 +198,8 @@ public class ParametersTest extends TestCase {
     String[] fields = {"title", "date", "version"};
     tokenizer.set("fields", Arrays.asList(fields));
     ArrayList pList = new ArrayList();
-    pList.add(Parameters.parse("{\"text\":\"query text one\", \"number\":\"10\"}"));
-    pList.add(Parameters.parse("{\"text\":\"query text two\", \"number\":\"11\"}"));
+    pList.add(Parameters.parseString("{\"text\":\"query text one\", \"number\":\"10\"}"));
+    pList.add(Parameters.parseString("{\"text\":\"query text two\", \"number\":\"11\"}"));
 
     Parameters params = new Parameters();
     params.set("filename", "fictional/path");
@@ -208,7 +208,7 @@ public class ParametersTest extends TestCase {
 
     String prettyString = params.toPrettyString();
 
-    Parameters reParsed = Parameters.parse(prettyString);
+    Parameters reParsed = Parameters.parseString(prettyString);
     assert (reParsed.equals(params));
   }
 }

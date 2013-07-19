@@ -25,6 +25,6 @@ public class CheckPointHandler {
   }
   
   public Parameters getRestore() throws IOException {
-    return Parameters.parse( new File(path) );
+    return Parameters.parseFile( new File(path) );
   }
 }

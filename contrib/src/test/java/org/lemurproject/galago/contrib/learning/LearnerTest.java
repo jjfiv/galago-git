@@ -38,7 +38,7 @@ public class LearnerTest extends TestCase {
       index = files[2]; // index is required
       qrels = Utility.createTemporary();
 
-      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.parse("{\"cache\" : true, \"flattenCombine\" : true, \"cacheScores\": true}"));
+      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.parseString("{\"cache\" : true, \"flattenCombine\" : true, \"cacheScores\": true}"));
 
       String qrelData =
               "q1 x 2 1\n"
@@ -49,14 +49,14 @@ public class LearnerTest extends TestCase {
       Utility.copyStringToFile(qrelData, qrels);
 
       // init learn params with queries
-      Parameters learnParams = Parameters.parse("{\"queries\": [{\"number\":\"q1\",\"text\":\"#sdm( jump moon )\"}, {\"number\":\"q2\",\"text\":\"#sdm( everything shoe )\"}]}");
+      Parameters learnParams = Parameters.parseString("{\"queries\": [{\"number\":\"q1\",\"text\":\"#sdm( jump moon )\"}, {\"number\":\"q2\",\"text\":\"#sdm( everything shoe )\"}]}");
       learnParams.set("learner", "grid");
       learnParams.set("qrels", qrels.getAbsolutePath());
       // add two parameters
       List<Parameters> learnableParams = new ArrayList();
-      learnableParams.add(Parameters.parse("{\"name\":\"uniw\", \"max\":1.0, \"min\":-1.0}"));
-      learnableParams.add(Parameters.parse("{\"name\":\"odw\", \"max\":1.0, \"min\":-1.0}"));
-      learnableParams.add(Parameters.parse("{\"name\":\"uww\", \"max\":1.0, \"min\":-1.0}"));
+      learnableParams.add(Parameters.parseString("{\"name\":\"uniw\", \"max\":1.0, \"min\":-1.0}"));
+      learnableParams.add(Parameters.parseString("{\"name\":\"odw\", \"max\":1.0, \"min\":-1.0}"));
+      learnableParams.add(Parameters.parseString("{\"name\":\"uww\", \"max\":1.0, \"min\":-1.0}"));
       learnParams.set("learnableParameters", learnableParams);
       // add sum rule to ensure sums to 1
       Parameters normalRule = new Parameters();

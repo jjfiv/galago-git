@@ -201,9 +201,9 @@ public class UniversalParserTest extends TestCase {
       p.set("indexPath", index.getAbsolutePath());
       p.set("parser", new Parameters());
       p.getMap("parser").set("externalParsers", new ArrayList<Parameters>());
-      p.getMap("parser").getList("externalParsers").add(Parameters.parse("{\"filetype\" : \"qqe\", \"class\" :\"" + TrecTextParser.class.getName() + "\"}"));
-      p.getMap("parser").getList("externalParsers").add(Parameters.parse("{\"filetype\" : \"qwe\", \"class\" :\"" + TrecWebParser.class.getName() + "\"}"));
-      p.getMap("parser").getList("externalParsers").add(Parameters.parse("{\"filetype\" : \"trecweb\", \"class\" :\"" + TrecTextParser.class.getName() + "\"}"));
+      p.getMap("parser").getList("externalParsers").add(Parameters.parseString("{\"filetype\" : \"qqe\", \"class\" :\"" + TrecTextParser.class.getName() + "\"}"));
+      p.getMap("parser").getList("externalParsers").add(Parameters.parseString("{\"filetype\" : \"qwe\", \"class\" :\"" + TrecWebParser.class.getName() + "\"}"));
+      p.getMap("parser").getList("externalParsers").add(Parameters.parseString("{\"filetype\" : \"trecweb\", \"class\" :\"" + TrecTextParser.class.getName() + "\"}"));
 
       BuildIndex bi = new BuildIndex();
       bi.run(p, System.err);

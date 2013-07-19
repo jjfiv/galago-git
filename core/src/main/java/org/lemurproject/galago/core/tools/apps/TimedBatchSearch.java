@@ -29,7 +29,7 @@ public class TimedBatchSearch extends AppFunction {
   public static final Logger logger = Logger.getLogger("BatchSearch");
 
   public static void main(String[] args) throws Exception {
-    (new BatchSearch()).run(new Parameters(args), System.out);
+    (new BatchSearch()).run(Parameters.parseArgs(args), System.out);
   }
 
   public String getName() {

@@ -33,7 +33,7 @@ public class StatsFnTest extends TestCase {
       PrintStream printStream = new PrintStream(array);
       (new StatsFn()).run(new String[]{"stats",
                 "--index=" + index.getAbsolutePath()}, printStream);
-      Parameters results = Parameters.parse(array.toString());
+      Parameters results = Parameters.parseString(array.toString());
       assert (results.containsKey("postings.porter"));
 
       // test part-based usange
@@ -46,7 +46,7 @@ public class StatsFnTest extends TestCase {
                 "--part+postings.krovetz",
                 "--part+postings"
               }, printStream);
-      results = Parameters.parse(array.toString());
+      results = Parameters.parseString(array.toString());
       assert (results.containsKey("postings.porter"));
       assert (results.containsKey("postings.krovetz"));
       assert (results.containsKey("postings"));
@@ -60,7 +60,7 @@ public class StatsFnTest extends TestCase {
                 "--field+#lengths:document:part=lengths()",
                 "--field+document"
               }, printStream);
-      results = Parameters.parse(array.toString());
+      results = Parameters.parseString(array.toString());
       assert (results.containsKey("#lengths:document:part=lengths()"));
       assert (results.containsKey("document"));
 
@@ -75,7 +75,7 @@ public class StatsFnTest extends TestCase {
                 "--node+#counts:t2:part=postings()",
                 "--node+t3"
               }, printStream);
-      results = Parameters.parse(array.toString());
+      results = Parameters.parseString(array.toString());
       assert (results.containsKey("#counts:t1:part=postings()"));
       assert (results.containsKey("#counts:t2:part=postings()"));
       assert (results.containsKey("t3"));
@@ -93,7 +93,7 @@ public class StatsFnTest extends TestCase {
                 "--node+#counts:t2:part=postings()",
                 "--field+#lengths:document:part=lengths()"
               }, printStream);
-      results = Parameters.parse(array.toString());
+      results = Parameters.parseString(array.toString());
       assert (results.containsKey("postings.porter"));
       assert (results.containsKey("postings.krovetz"));
       assert (results.containsKey("postings"));

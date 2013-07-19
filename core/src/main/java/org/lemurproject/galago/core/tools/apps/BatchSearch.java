@@ -26,9 +26,10 @@ public class BatchSearch extends AppFunction {
   public static final Logger logger = Logger.getLogger("BatchSearch");
 
   public static void main(String[] args) throws Exception {
-    (new BatchSearch()).run(new Parameters(args), System.out);
+    (new BatchSearch()).run(Parameters.parseArgs(args), System.out);
   }
 
+  @Override
   public String getName() {
     return "batch-search";
   }
@@ -152,7 +153,7 @@ public class BatchSearch extends AppFunction {
       for (String q : (List<String>) parameters.getAsList("query")) {
         id = "unk-" + unnumbered;
         unnumbered++;
-        queries.add(Parameters.parse(String.format("{\"number\":\"%s\", \"text\":\"%s\"}", id, q)));
+        queries.add(Parameters.parseString(String.format("{\"number\":\"%s\", \"text\":\"%s\"}", id, q)));
       }
     }
     if (parameters.isString("queries") || parameters.isList("queries", Type.STRING)) {
@@ -160,7 +161,7 @@ public class BatchSearch extends AppFunction {
       for (String q : (List<String>) parameters.getAsList("query")) {
         id = "unk-" + unnumbered;
         unnumbered++;
-        queries.add(Parameters.parse(String.format("{\"number\":\"%s\", \"text\":\"%s\"}", id, q)));
+        queries.add(Parameters.parseString(String.format("{\"number\":\"%s\", \"text\":\"%s\"}", id, q)));
       }
     }
     if (parameters.isList("query", Type.MAP)) {

@@ -48,7 +48,7 @@ public abstract class AppFunction {
       return;
 
     } else if (args.length > 1) {
-      p = new Parameters(Utility.subarray(args, 1));
+      p = Parameters.parseArgs(Utility.subarray(args, 1));
       // don't want to wipe an existing parameter:
     }
 

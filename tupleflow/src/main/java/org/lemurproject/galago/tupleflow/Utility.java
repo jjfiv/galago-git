@@ -53,7 +53,7 @@ public class Utility {
       String homeDirectory = System.getProperty("user.home");
       File prefsFile = new File(homeDirectory + File.separator + ".galago.conf");
       if (prefsFile.exists()) {
-        preferences.copyFrom(Parameters.parse(prefsFile));
+        preferences.copyFrom(Parameters.parseFile(prefsFile));
         if (preferences.containsKey("tmpdir")) {
           for (String tmp : (List<String>) preferences.getAsList("tmpdir")) {
             addTemporaryDirectory(tmp);

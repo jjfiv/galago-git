@@ -318,10 +318,10 @@ public class DiskBTreeReader extends BTreeReader {
       //input.seek(vocabularyOffset);
       vocabulary = new VocabularyReader(new BufferedFileDataStream(input, vocabularyOffset, vocabularyOffset + vocabularyLength), invertedListLength);
 
-      byte[] xmlData = new byte[(int) (footerOffset - manifestOffset)];
+      byte[] manifestData = new byte[(int) (footerOffset - manifestOffset)];
       input.seek(manifestOffset);
-      input.readFully(xmlData);
-      manifest = Parameters.parse(xmlData);
+      input.readFully(manifestData);
+      manifest = Parameters.parseBytes(manifestData);
     }
 
     this.cacheGroupSize = (int) manifest.get("cacheGroupSize", 1);

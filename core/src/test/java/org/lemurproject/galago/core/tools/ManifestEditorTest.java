@@ -45,7 +45,7 @@ public class ManifestEditorTest extends TestCase {
       ByteArrayOutputStream stream = new ByteArrayOutputStream();
       PrintStream catcher = new PrintStream(stream);
       App.run(new String[]{"dump-index-manifest", indexFile.getAbsolutePath()} , catcher);
-      Parameters dumpped = Parameters.parse(stream.toByteArray());
+      Parameters dumpped = Parameters.parseBytes(stream.toByteArray());
       assertEquals(dumpped.getString("key-1"), "init-value-1234");
       assertEquals(dumpped.getString("key-2"), "init-value-2345");
 
@@ -60,7 +60,7 @@ public class ManifestEditorTest extends TestCase {
       stream = new ByteArrayOutputStream();
       catcher = new PrintStream(stream);
       App.run(new String[]{"dump-index-manifest", indexFile.getAbsolutePath()} , catcher);
-      dumpped = Parameters.parse(stream.toByteArray());
+      dumpped = Parameters.parseBytes(stream.toByteArray());
       assertEquals(dumpped.getString("key-1"), "mod-value-1234");
       assertEquals(dumpped.getString("key-2"), "mod-value-2345");
       assertEquals(dumpped.getString("key-3"), "new-value-3456");
