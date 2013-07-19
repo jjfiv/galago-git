@@ -200,6 +200,7 @@ public class LocalRetrieval implements Retrieval {
     T[] byID = Arrays.copyOf(results, results.length);
 
     Arrays.sort(byID, new Comparator<T>() {
+
       @Override
       public int compare(T o1, T o2) {
         return Utility.compare(o1.document, o2.document);
@@ -419,9 +420,10 @@ public class LocalRetrieval implements Retrieval {
       while (!iterator.isDone()) {
         sc.document = iterator.currentCandidate();
         if (iterator.hasMatch(iterator.currentCandidate())) {
+          int c = iterator.count(sc);
           s.nodeFrequency += iterator.count(sc);
           s.maximumCount = Math.max(iterator.count(sc), s.maximumCount);
-          s.nodeDocumentCount++;
+          s.nodeDocumentCount += (c > 0) ? 1 : 0; // positive counting
         }
         iterator.movePast(iterator.currentCandidate());
       }

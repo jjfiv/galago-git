@@ -216,7 +216,7 @@ public class Eval extends AppFunction {
       output.format("%1$-10s", "qids");
       for (String runId : runs) {
         for (String metric : metrics) {
-          output.format("%s%2$20s", sep, metric);
+          output.format("%s%2$10s", sep, metric);
         }
       }
       output.format("%s\n", ln);
@@ -236,7 +236,7 @@ public class Eval extends AppFunction {
     }
 
     if (p.get("summary", true)) {
-      output.format("%1$-30s", "run-id");
+      output.format("%1$-10s", "run-id");
       for (String metric : metrics) {
         output.format("%s%2$10s ", sep, metric);
       }
