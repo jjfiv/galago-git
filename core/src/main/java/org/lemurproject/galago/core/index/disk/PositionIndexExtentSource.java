@@ -228,14 +228,14 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
 
   @Override
   public void syncTo(long document) throws IOException {
-     if (skip != null) {
+     if (!isDone() && skip != null) {
       synchronizeSkipPositions();
     }
-    if (skip != null && document > skip.nextDocument) {
+    if (!isDone() && skip != null && document > skip.nextDocument) {
       extentsLoaded = true;
       extentsByteSize = 0; 
       // if we're here, we're skipping
-      while (skip.read < skip.total && document > skip.nextDocument) {
+      while (!isDone() && skip.read < skip.total && document > skip.nextDocument) {
         skipOnce();
       }
       repositionMainStreams();
@@ -254,7 +254,7 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
    * If we called "next" a lot, these may be out of sync.
    */
   private void synchronizeSkipPositions() throws IOException {
-    while (skip.nextDocument <= currentDocument) {
+    while (!isDone() && skip.nextDocument <= currentDocument) {
       long cd = currentDocument;
       skipOnce();
       currentDocument = cd;
@@ -266,6 +266,11 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
    * needed to update floors
    */
   private void skipOnce() throws IOException {
+    // may have already skipped passed the final document
+    if(skip.nextDocument == Long.MAX_VALUE){
+      return;
+    }
+    
     assert skip.read < skip.total;
     try {
       long currentSkipPosition = skip.nextPosition + skip.data.readLong();
