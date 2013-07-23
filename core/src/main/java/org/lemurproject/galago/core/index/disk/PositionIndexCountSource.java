@@ -194,11 +194,11 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
       return;
     }
 
-    if (skips != null) {
+    if (!done && skips != null) {
       synchronizeSkipPositions();
       if (document > nextSkipDocument) {
         // if we're here, we're skipping
-        while (skipsRead < numSkips && document > nextSkipDocument) {
+        while (!done && skipsRead < numSkips && document > nextSkipDocument) {
           skipOnce();
         }
         repositionMainStreams();
@@ -217,6 +217,11 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
    *
    */
   private void skipOnce() throws IOException {
+    // may have already skipped passed the final document
+    if(nextSkipDocument == Long.MAX_VALUE){
+      return;
+    }
+
     assert skipsRead < numSkips;
     long currentSkipPosition = lastSkipPosition + skips.readLong();
     if (skipsRead % skipResetDistance == 0) {
@@ -242,7 +247,7 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
    * document. If we called "next" a lot, these may be out of sync.
    */
   private void synchronizeSkipPositions() throws IOException {
-    while (nextSkipDocument <= currentDocument) {
+    while (!done && nextSkipDocument <= currentDocument) {
       long cd = currentDocument;
       skipOnce();
       currentDocument = cd;
