@@ -190,7 +190,7 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
 
   @Override
   public void syncTo(long document) throws IOException {
-    if (done) {
+    if (isDone()) {
       return;
     }
 
@@ -205,7 +205,7 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
       }
     }
     // linear from here
-    while (!done && document > currentDocument) {
+    while (!isDone() && document > currentDocument) {
       documentIndex = Math.min(documentIndex + 1, documentCount);
       load();
     }

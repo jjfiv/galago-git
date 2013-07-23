@@ -213,7 +213,7 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
 
   @Override
   public long totalEntries() {
-    return (long) documentCount;
+    return documentCount;
   }
 
   @Override
@@ -228,7 +228,11 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
 
   @Override
   public void syncTo(long document) throws IOException {
-     if (skip != null) {
+    if(isDone()) {
+      return;
+    }
+
+    if (skip != null) {
       synchronizeSkipPositions();
     }
     if (skip != null && document > skip.nextDocument) {
@@ -243,9 +247,7 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
     // Linear from here
     while (!isDone() && document > currentDocument) {
       documentIndex = Math.min(documentIndex + 1, documentCount);
-      if (!isDone()) {
-        loadNextPosting();
-      }
+      loadNextPosting();
     }
   }
   
@@ -267,29 +269,24 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
    */
   private void skipOnce() throws IOException {
     assert skip.read < skip.total;
-    try {
-      long currentSkipPosition = skip.nextPosition + skip.data.readLong();
-      if (skip.read % skip.resetDistance == 0) {
-        // Position the skip positions stream
-        skip.positionsStream.seek(currentSkipPosition);
-        // now set the floor values
-        skip.documentsByteFloor = skip.positions.readLong();
-        skip.countsByteFloor = skip.positions.readLong();
-        skip.positionsByteFloor = skip.positions.readLong();
-      }
-      currentDocument = skip.nextDocument;
-      // May be at the end of the buffer
-      if (skip.read + 1 == skip.total) {
-        skip.nextDocument = Long.MAX_VALUE;
-      } else {
-        skip.nextDocument += skip.data.readLong();
-      }
-      skip.read++;
-      skip.nextPosition = currentSkipPosition;
-    } catch (java.io.EOFException eofe) {
-      System.err.println("EOF in PositionIndexExtentSource for '"+this.key+"'!");
-      throw eofe;
+    long currentSkipPosition = skip.nextPosition + skip.data.readLong();
+    if (skip.read % skip.resetDistance == 0) {
+      // Position the skip positions stream
+      skip.positionsStream.seek(currentSkipPosition);
+      // now set the floor values
+      skip.documentsByteFloor = skip.positions.readLong();
+      skip.countsByteFloor = skip.positions.readLong();
+      skip.positionsByteFloor = skip.positions.readLong();
     }
+    currentDocument = skip.nextDocument;
+    // May be at the end of the buffer
+    if (skip.read + 1 == skip.total) {
+      skip.nextDocument = Long.MAX_VALUE;
+    } else {
+      skip.nextDocument += skip.data.readLong();
+    }
+    skip.read++;
+    skip.nextPosition = currentSkipPosition;
   }
   
   

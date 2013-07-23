@@ -188,7 +188,7 @@ public class LocalRetrieval implements Retrieval {
    */
   protected <T extends ScoredDocument> T[] getArrayResults(T[] results, String indexId) throws IOException {
     if (results == null || results.length == 0) {
-      return null;
+      return results;
     }
 
     for (int i = 0; i < results.length; i++) {

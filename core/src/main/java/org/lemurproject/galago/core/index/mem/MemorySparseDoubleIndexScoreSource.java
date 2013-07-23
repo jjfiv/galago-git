@@ -118,9 +118,7 @@ public class MemorySparseDoubleIndexScoreSource extends MemValueSource implement
 
   @Override
   public void movePast(long identifier) throws IOException {
-    while (!isDone() && (currDocument <= identifier)) {
-      read();
-    }
+    syncTo(identifier+1);
   }
 
   @Override

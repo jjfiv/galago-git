@@ -109,9 +109,7 @@ public class MemoryPositionalIndexCountSource extends MemValueSource implements 
 
   @Override
   public void movePast(long identifier) throws IOException {
-    while (!isDone() && (currDocument <= identifier)) {
-      read();
-    }
+    syncTo(identifier+1);
   }
 
   @Override

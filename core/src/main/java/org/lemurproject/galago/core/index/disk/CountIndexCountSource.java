@@ -166,7 +166,7 @@ public class CountIndexCountSource extends BTreeValueSource implements CountSour
 
   @Override
   public void syncTo(long document) throws IOException {
-    if (done) {
+    if (isDone()) {
       return;
     }
 
@@ -181,7 +181,7 @@ public class CountIndexCountSource extends BTreeValueSource implements CountSour
       }
     }
     // linear from here
-    while (!done && document > currentDocument) {
+    while (!isDone() && document > currentDocument) {
       documentIndex = Math.min(documentIndex + 1, documentCount);
       load();
     }

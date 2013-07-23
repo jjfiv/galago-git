@@ -141,9 +141,7 @@ public class MemoryWindowIndexExtentSource extends MemValueSource implements Ext
 
   @Override
   public void movePast(long identifier) throws IOException {
-    while (!isDone() && (currDocument <= identifier)) {
-      read();
-    }
+    syncTo(identifier+1);
   }
 
   @Override

@@ -60,6 +60,9 @@ public abstract class BTreeKeySource implements DiskSource {
 
   @Override
   public void syncTo(long id) throws IOException {
+    if(isDone()) {
+      return;
+    }
     btreeIter.skipTo(Utility.fromLong(id));
   }
 
