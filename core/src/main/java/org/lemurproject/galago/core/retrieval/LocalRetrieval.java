@@ -187,7 +187,9 @@ public class LocalRetrieval implements Retrieval {
    *
    */
   protected <T extends ScoredDocument> T[] getArrayResults(T[] results, String indexId) throws IOException {
-    if (results == null || results.length == 0) {
+    assert(results != null); // unfortunately, we can't make an array of type T in java
+
+    if (results.length == 0) {
       return results;
     }
 
