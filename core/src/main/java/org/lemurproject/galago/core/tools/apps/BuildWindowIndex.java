@@ -161,7 +161,7 @@ public class BuildWindowIndex extends AppFunction {
     stage.add(BuildStageTemplates.getParserStep(buildParameters));
     stage.add(BuildStageTemplates.getTokenizerStep(buildParameters));
     if (stemming) {
-      Class stemmer = Class.forName(buildParameters.get("stemmer", Porter2Stemmer.class.getName()));
+      Class stemmer = stemmerClass;
       stage.add(BuildStageTemplates.getStemmerStep(new Parameters(), stemmer));
     }
 
@@ -260,7 +260,7 @@ public class BuildWindowIndex extends AppFunction {
         stemmerName = p.getString("stemmer");
         stemmerClass = Class.forName(p.getString("stemmerClass"));
       } else if (p.isString("stemmer")) {
-        stemmerName = p.getString("stemmers");
+        stemmerName = p.getString("stemmer");
         stemmerClass = null;
         if (stemmerName.equals("null")) {
           stemmerClass = NullStemmer.class;
