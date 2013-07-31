@@ -64,6 +64,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
     uniFeatures = new ArrayList();
     biFeatures = new ArrayList();
+    triFeatures = new ArrayList();
 
     if (globalParams.isList("wsdmFeatures", Type.MAP)) {
       for (Parameters f : (List<Parameters>) globalParams.getList("wsdmFeatures")) {
