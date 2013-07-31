@@ -234,7 +234,7 @@ public class BuildWindowIndex extends AppFunction {
     p2.set("threshold", this.threshold);
     if (stemming) {
       p2.set("stemming", stemming); // slightly redundent only present if true //
-      p2.set("stemmer", buildParameters.get("stemmer", Porter2Stemmer.class.getName()));
+      p2.set("stemmer", stemmerClass.getName());
     }
 
     if (this.positionalIndex) {
