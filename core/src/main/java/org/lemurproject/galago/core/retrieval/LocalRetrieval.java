@@ -503,7 +503,8 @@ public class LocalRetrieval implements Retrieval {
       try {
         internalDocBuffer.add(index.getIdentifier(name));
       } catch (Exception e) {
-        // ignore missing document-names (they could be from other index shards)
+        // arrays NEED to be aligned for good error detection
+        internalDocBuffer.add(-1L);
       }
     }
     return internalDocBuffer;
