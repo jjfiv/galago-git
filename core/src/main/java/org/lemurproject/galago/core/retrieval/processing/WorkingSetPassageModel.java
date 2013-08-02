@@ -3,6 +3,7 @@ package org.lemurproject.galago.core.retrieval.processing;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -10,7 +11,6 @@ import org.lemurproject.galago.core.retrieval.ScoredPassage;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -23,6 +23,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class WorkingSetPassageModel extends ProcessingModel {
 
+  Logger logger = Logger.getLogger("WorkingSetPassageModel");
   LocalRetrieval retrieval;
   Index index;
 
@@ -48,6 +49,12 @@ public class WorkingSetPassageModel extends ProcessingModel {
       whitelist = (List<Long>) l;
     } else if (String.class.isAssignableFrom(containedType)) {
       whitelist = retrieval.getDocumentIds((List<String>) l);
+      // check and print missing documents
+      for(int i =0; i<l.size(); i++){
+        if(whitelist.get(i) < 0){
+          logger.warning("Document: " + l.get(i) + " does not exist in index: " + index.getIndexPath() +" IGNORING.");
+        }
+      }
     } else {
       throw new IllegalArgumentException(
               String.format("Parameter 'working' must be a list of longs or a list of strings. Found type %s\n.",
@@ -75,6 +82,9 @@ public class WorkingSetPassageModel extends ProcessingModel {
     // now there should be an iterator at the root of this tree
     for (int i = 0; i < whitelist.size(); i++) {
       long document = whitelist.get(i);
+      if(document < 0){
+        continue;
+      }
       iterator.syncTo(document);
       context.document = document;
       documentLengths.syncTo(document);

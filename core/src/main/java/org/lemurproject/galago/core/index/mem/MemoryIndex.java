@@ -93,6 +93,11 @@ public class MemoryIndex implements DynamicIndex, Index {
     dirty = false;
   }
 
+  @Override
+  public String getIndexPath(){
+    return "memory";
+  }
+  
   /**
    * Special function to return the number of documents stored in memory
    *

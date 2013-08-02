@@ -113,6 +113,12 @@ public class GeometricIndex implements DynamicIndex, Index {
     updateIndex();
   }
 
+  
+  @Override
+  public String getIndexPath(){
+    return shardDirectory;
+  }  
+  
   @Override
   public void process(Document doc) throws IOException {
     currentMemoryIndex.process(doc);

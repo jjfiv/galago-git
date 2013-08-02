@@ -119,8 +119,8 @@ public class DiskIndex implements Index {
     }
   }
 
-  public File getIndexLocation() {
-    return location;
+  public String getIndexPath() {
+    return location.getAbsolutePath();
   }
 
   // I'd really prefer to get this from the manifest, but writing the manifest reliably seems

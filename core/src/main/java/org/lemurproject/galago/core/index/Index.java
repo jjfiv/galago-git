@@ -28,6 +28,8 @@ public interface Index {
     public void close() throws IOException;
   }
 
+  public String getIndexPath();
+
   public String getDefaultPart();
 
   public String getIndexPartName(Node node) throws IOException;

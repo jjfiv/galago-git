@@ -1,9 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -30,6 +30,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class WorkingSetExtentModel extends ProcessingModel {
 
+  Logger logger = Logger.getLogger("WorkingSetExtModel");
   LocalRetrieval retrieval;
   Index index;
 
@@ -56,6 +57,12 @@ public class WorkingSetExtentModel extends ProcessingModel {
       whitelist = (List<Long>) l;
     } else if (String.class.isAssignableFrom(containedType)) {
       whitelist = retrieval.getDocumentIds((List<String>) l);
+      // check and print missing documents
+      for(int i =0; i<l.size(); i++){
+        if(whitelist.get(i) < 0){
+          logger.warning("Document: " + l.get(i) + " does not exist in index: " + index.getIndexPath() +" IGNORING.");
+        }
+      }
     } else {
       throw new IllegalArgumentException(
               String.format("Parameter 'working' must be a list of longs or a list of strings. Found type %s\n.",
@@ -95,6 +102,9 @@ public class WorkingSetExtentModel extends ProcessingModel {
     for (int i = 0; i < whitelist.size(); i++) {
 
       long document = whitelist.get(i);
+      if(document < 0){
+        continue;
+      }
       context.document = document;
 
       extentIterator.syncTo(document);
