@@ -604,7 +604,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
       this.part = p.get("part", "");
       this.unigram = p.get("unigram", true);
       this.bigram = p.get("bigram", !unigram);
-      this.trigram = p.get("trigram", !trigram);
+      this.trigram = p.get("trigram", !unigram && !bigram);
     }
 
     /*
