@@ -193,30 +193,29 @@ public class Eval extends AppFunction {
     List<String> comparisons = eval.getList("_comparisons");
     List<String> qids = eval.getList("_qid");
 
-    String sep = p.get("sep", " "); // latex : " & "
+    String sep = p.get("sep", " ");   // latex : " & "
     String ln = p.get("ln", " ");     // latex : " \\\\ \\hline"
-    String sig = p.get("sig", "*");     // latex : " ^{+} "
-    String neg = p.get("negsig", "");     // latex : " ^{-} "
+    String sig = p.get("sig", "*");   // latex : " ^{+} "
+    String neg = p.get("negsig", ""); // latex : " ^{-} "
     String prec = p.get("precision", "3");
-
 
     double thresh = p.get("thresh", 0.05);
 
     if (p.get("details", false)) {
       // preamble1:    | run-1 | run 2 | ...
-      output.format("%1$-10s", "");
-      for (String runId : runs) {
-        // w is the width of the set of metrics used for a given run.
-        int w = ((10 + sep.length()) * metrics.size()) - sep.length();
-        output.format("%s%2$-" + w + "s", sep, runId);
-      }
-      output.format("%s\n", ln);
+//      output.format("%1$-10s", "");
+//      for (String runId : runs) {
+//        // w is the width of the set of metrics used for a given run.
+//        int w = ((10 + sep.length()) * metrics.size()) - sep.length();
+//        output.format("%s%2$-" + w + "s", sep, runId);
+//      }
+//      output.format("%s\n", ln);
 
-      // preamble2: qids | metric 1 | metric 2 | ...
+      // preamble2: qids | run-1-metric 1 | run-1-metric 2 | ...
       output.format("%1$-10s", "qids");
       for (String runId : runs) {
         for (String metric : metrics) {
-          output.format("%s%2$10s", sep, metric);
+          output.format("%s%s-%s", sep, runId, metric);
         }
       }
       output.format("%s\n", ln);
