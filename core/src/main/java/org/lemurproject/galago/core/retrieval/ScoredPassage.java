@@ -59,19 +59,7 @@ public class ScoredPassage extends ScoredDocument {
 
     @Override
     public int compare(ScoredPassage o1, ScoredPassage o2) {
-      if (o1.score != o2.score) {
-        return Utility.compare(o1.score, o2.score);
-      }
-      if ((o1.source != null) && (o2.source != null)
-              && (!o1.source.equals(o2.source))) {
-        return o1.source.compareTo(o2.source);
-      }
-      int res = Utility.compare(o2.document, o1.document);
-      if (res != 0) {
-        return res;
-      }
-
-      return o2.begin - o1.begin;
+        return o1.compareTo(o2);
     }
   }
 }
