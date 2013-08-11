@@ -42,6 +42,13 @@ public class Precision extends QueryEvaluator {
   public double evaluate(QueryResults resultList, QueryJudgments judgments) {
     // need to divide by K (or resultList.size(), whichever is smaller)
     double ret = (resultList.size() < documentsRetrieved) ? resultList.size() : documentsRetrieved;
+
+    // precision is zero if there are no documents retrieved 
+    // AVOIDS NaNs
+    if(ret == 0){
+      return 0;
+    }
+    
     return relevantRetrieved.evaluate(resultList, judgments) / ret;
   }
 }

@@ -6,12 +6,12 @@ package org.lemurproject.galago.core.eval.compare;
 import org.lemurproject.galago.core.eval.QuerySetEvaluation;
 
 /**
- * QuerySetComparators perform statistical tests to help determine
- * how different the results of one retrieval model are from another
- * 
- * Order of retrieval models is important - the first is considered
- * the baseline model, the second is considered the treatment.
- * 
+ * QuerySetComparators perform statistical tests to help determine how different
+ * the results of one retrieval model are from another
+ *
+ * Order of retrieval models is important - the first is considered the baseline
+ * model, the second is considered the treatment.
+ *
  * @author sjh
  */
 public abstract class QuerySetComparator {
