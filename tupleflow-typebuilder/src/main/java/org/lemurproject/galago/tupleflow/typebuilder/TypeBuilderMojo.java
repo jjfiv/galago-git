@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.antlr.runtime.RecognitionException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
 
 /**
  * This is the Maven plugin that generates Type objects from galagotype specification
@@ -19,23 +20,29 @@ import org.apache.maven.plugin.MojoExecutionException;
 public class TypeBuilderMojo extends AbstractMojo {
 
   /**
+   * Maven project variable
+   * @parameter expression="${project}
+   * @required
+   * @readonly
+   */
+  private MavenProject project;
+
+  /**
    * @parameter expression="${basedir}/src/main/galagotype" default-value="y"
+   * @readonly
    */
   private String sourceDirectory;
   /**
    * @parameter expression="${basedir}" default-value="y"
+   * @readonly
    */
   private String baseDirectory;
 
+  private String outputDirectory;
+
   public String getOutputFilename(String packageName, String typeName) {
     String[] packagePathComponents = packageName.split("\\.");
-    String packageStringPath = baseDirectory;
-    if (baseDirectory == null) {
-      System.err.println("baseDir == null");
-    }
-    packageStringPath += File.separator + "src"
-            + File.separator + "main"
-            + File.separator + "java";
+    String packageStringPath = outputDirectory;
     for (String component : packagePathComponents) {
       packageStringPath += File.separator + component;
     }
@@ -51,6 +58,10 @@ public class TypeBuilderMojo extends AbstractMojo {
     if (files == null) {
       return;
     }
+
+    // add outputDirectory
+    outputDirectory = baseDirectory + File.separator + "target" + File.separator + "generated-sources";
+    project.addCompileSourceRoot(outputDirectory);
 
     for (File f : files) {
       if (f.isFile() && f.getName().endsWith("galagotype")) {
@@ -80,8 +91,7 @@ public class TypeBuilderMojo extends AbstractMojo {
           throw new MojoExecutionException("Trouble creating " + outputFilename, ex);
         }
         String comment =
-                "// This file was automatically generated with the command: \n"
-                + "//     java org.lemurproject.galago.tupleflow.typebuilder.TypeBuilderMojo ...\n";
+                "// This file was automatically generated with the by org.lemurproject.galago.tupleflow.typebuilder.TypeBuilderMojo ...\n";
 
         try {
           writer.write(comment);
