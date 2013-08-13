@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
@@ -39,17 +40,19 @@ public class RelevanceModel1 implements ExpansionModel {
   private int defaultFbDocs;
   private int defaultFbTerms;
   private Set<String> exclusionTerms;
+  private Set<String> inclusionTerms;
   private Stemmer stemmer;
   private TagTokenizer tokenizer;
 
   public RelevanceModel1(Retrieval r) throws Exception {
     this.retrieval = r;
-
     defaultFbDocs = (int) Math.round(r.getGlobalParameters().get("fbDocs", 10.0));
     defaultFbTerms = (int) Math.round(r.getGlobalParameters().get("fbTerm", 5.0));
-
     exclusionTerms = WordLists.getWordList(r.getGlobalParameters().get("rmstopwords", "rmstop"));
-
+    inclusionTerms = null;
+    if (r.getGlobalParameters().isString("rmwhitelist")){
+        inclusionTerms = WordLists.getWordList(r.getGlobalParameters().getString("rmwhitelist"));
+    }
     tokenizer = new TagTokenizer();
     if (r.getGlobalParameters().isString("rmStemmer")) {
       String rmstemmer = r.getGlobalParameters().getString("rmStemmer");
@@ -86,7 +89,14 @@ public class RelevanceModel1 implements ExpansionModel {
     // extract grams from results
     Set<String> stemmedQueryTerms = stemTerms(StructuredQuery.findQueryTerms(transformed));
     Set<String> exclusions = (fbParams.isString("rmstopwords")) ? WordLists.getWordList(fbParams.getString("rmstopwords")) : exclusionTerms;
-    List<WeightedTerm> weightedTerms = extractGrams(initialResults, fbParams, stemmedQueryTerms, exclusions);
+    Set<String> inclusions = null;
+    if (fbParams.isString("rmwhitelist")){
+        inclusions = WordLists.getWordList(fbParams.getString("rmwhitelist"));
+    } else {
+        inclusions = inclusionTerms;
+    }
+    System.err.println((inclusionTerms == null) + " is null");
+    List<WeightedTerm> weightedTerms = extractGrams(initialResults, fbParams, stemmedQueryTerms, exclusions, inclusions);
 
     // select some terms to form exp query node
     Node expNode = generateExpansionQuery(weightedTerms, fbTerms);
@@ -99,12 +109,12 @@ public class RelevanceModel1 implements ExpansionModel {
     return Arrays.asList(res);
   }
 
-  public List<WeightedTerm> extractGrams(List<ScoredDocument> initialResults, Parameters fbParams, Set<String> queryTerms, Set<String> exclusionTerms) throws IOException {
+  public List<WeightedTerm> extractGrams(List<ScoredDocument> initialResults, Parameters fbParams, Set<String> queryTerms, Set<String> exclusionTerms, Set<String> inclusionTerms) throws IOException {
     // convert documentScores to posterior probs
     Map<ScoredDocument, Double> scores = logstoposteriors(initialResults);
 
     // get term frequencies in documents
-    Map<String, Map<ScoredDocument, Integer>> counts = countGrams(initialResults, fbParams, queryTerms, exclusionTerms);
+    Map<String, Map<ScoredDocument, Integer>> counts = countGrams(initialResults, fbParams, queryTerms, exclusionTerms, inclusionTerms);
 
     // compute term weights
     List<WeightedTerm> scored = scoreGrams(counts, scores);
@@ -149,7 +159,7 @@ public class RelevanceModel1 implements ExpansionModel {
     return scores;
   }
 
-  protected Map<String, Map<ScoredDocument, Integer>> countGrams(List<ScoredDocument> results, Parameters fbParams, Set<String> stemmedQueryTerms, Set<String> exclusionTerms) throws IOException {
+  protected Map<String, Map<ScoredDocument, Integer>> countGrams(List<ScoredDocument> results, Parameters fbParams, Set<String> stemmedQueryTerms, Set<String> exclusionTerms, Set<String> inclusionTerms) throws IOException {
     Map<String, Map<ScoredDocument, Integer>> counts = new HashMap<String, Map<ScoredDocument, Integer>>();
     Map<ScoredDocument, Integer> termCounts;
     Document doc;
@@ -157,7 +167,7 @@ public class RelevanceModel1 implements ExpansionModel {
     DocumentComponents corpusParams = new DocumentComponents(true, false, false);
 
     String group = fbParams.get("group", (String) null);
-
+     
     for (ScoredDocument sd : results) {
       if (group != null && retrieval instanceof GroupRetrieval) {
         doc = ((GroupRetrieval) retrieval).getDocument(sd.documentName, corpusParams, group);
@@ -180,10 +190,12 @@ public class RelevanceModel1 implements ExpansionModel {
 
       for (String term : docterms) {
         // perform stopword and query term filtering here //
-        if (stemmedQueryTerms.contains(stemmer.stem(term)) || exclusionTerms.contains(term)) {
-          continue;
+        if (inclusionTerms != null && !inclusionTerms.contains(term)) {
+            continue; // not on the whitelist
         }
-
+        if (stemmedQueryTerms.contains(stemmer.stem(term)) || exclusionTerms.contains(term)) {
+          continue; // on the blacklist
+        }
         if (!counts.containsKey(term)) {
           counts.put(term, new HashMap<ScoredDocument, Integer>());
         }

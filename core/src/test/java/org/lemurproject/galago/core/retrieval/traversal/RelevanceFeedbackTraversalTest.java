@@ -74,7 +74,7 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     p.set("stemmedPostings", false);
     p.set("fbOrigWeight", 0.5);
     p.set("relevanceModel", RelevanceModel1.class.getName());
-
+    p.set("rmwhitelist", "sentiwordlist.txt");
     LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
     RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval);
 
@@ -83,20 +83,26 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     // truth data
     StringBuilder correct = new StringBuilder();
 //    correct.append("#combine:0=0.5:1=0.5( #combine:fbDocs=10:fbTerms=4( #dirichlet( #extents:jumped:part=postings() ) ) ");
+    /* No sentiwordlist.txt
     correct.append("#combine:0=0.05001660577881102:1=0.05001660577881102:2=0.04165282851765748:3=0.04165282851765748( ");
     correct.append("#text:sample() ");
     correct.append("#text:ugly() ");
     correct.append("#text:cat() ");
     correct.append("#text:moon() )");
-    
-//    System.err.println(transformed.toString());
-//    System.err.println(correct.toString());
+  */
+       correct.append("#combine:0=0.05001660577881102:1=0.04165282851765748( ");
+    correct.append("#text:ugly() ");
+    correct.append("#text:moon() )");
+
+ //  System.err.println(transformed.toString());
+ //   System.err.println(correct.toString());
     
     assertEquals(correct.toString(), transformed.toString());
     
     retrieval.close();
   }
 
+   
 //  public void testClassloaderRelevanceModelTraversal() throws Exception {
 //    // Create a retrieval object for use by the traversal
 //    Parameters p = new Parameters();
