@@ -2,7 +2,6 @@
 syntax: glob
 
 *.class
-*/types/*
 */target/*
 *.iml
 .idea

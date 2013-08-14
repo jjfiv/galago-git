@@ -44,7 +44,7 @@ public class RetrievalFactory {
       // if we have a mapping from groupName to list of index paths
     } else if (parameters.isMap("index")) {
       Parameters groups = parameters.getMap("index");
-      Map<String, Retrieval> indexGroups = new HashMap();
+      Map<String, Retrieval> indexGroups = new HashMap<String, Retrieval>();
       String defGroup = parameters.get("defaultGroup", groups.getKeys().iterator().next());
 
       for (String group : groups.getKeys()) {
@@ -87,10 +87,10 @@ public class RetrievalFactory {
       return instance(indexes.get(0), parameters);
     }
 
-    ArrayList<Thread> openers = new ArrayList();
+    ArrayList<Thread> openers = new ArrayList<Thread>();
     final Parameters shardParameters = parameters;
-    final List<Retrieval> retrievals = Collections.synchronizedList(new ArrayList());
-    final List<String> errors = Collections.synchronizedList(new ArrayList());
+    final List<Retrieval> retrievals = Collections.synchronizedList(new ArrayList<Retrieval>());
+    final List<String> errors = Collections.synchronizedList(new ArrayList<String>());
 
     for (final String path : indexes) {
       Thread t = new Thread() {
@@ -119,6 +119,6 @@ public class RetrievalFactory {
       throw new RuntimeException("Failed to open one or more indexes.");
     }
 
-    return new MultiRetrieval(new ArrayList(retrievals), parameters);
+    return new MultiRetrieval(new ArrayList<Retrieval>(retrievals), parameters);
   }
 }
