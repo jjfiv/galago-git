@@ -12,12 +12,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.parse.TagTokenizer;
-import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
+import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
@@ -35,7 +34,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class RelevanceModel1 implements ExpansionModel {
 
-  private static final Logger logger = Logger.getLogger("RM3");
+  private static final Logger logger = Logger.getLogger("RM1");
   private final Retrieval retrieval;
   private int defaultFbDocs;
   private int defaultFbTerms;
@@ -58,7 +57,7 @@ public class RelevanceModel1 implements ExpansionModel {
       String rmstemmer = r.getGlobalParameters().getString("rmStemmer");
       stemmer = (Stemmer) Class.forName(rmstemmer).getConstructor().newInstance();
     } else {
-      stemmer = new Porter2Stemmer();
+      stemmer = new KrovetzStemmer();
     }
   }
 
@@ -95,7 +94,7 @@ public class RelevanceModel1 implements ExpansionModel {
     } else {
         inclusions = inclusionTerms;
     }
-    System.err.println((inclusionTerms == null) + " is null");
+    
     List<WeightedTerm> weightedTerms = extractGrams(initialResults, fbParams, stemmedQueryTerms, exclusions, inclusions);
 
     // select some terms to form exp query node
