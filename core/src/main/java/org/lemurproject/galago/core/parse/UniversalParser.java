@@ -72,7 +72,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
   private Counter documentCounter;
   private TupleFlowParameters tfParameters;
   private Parameters parameters;
-  private Logger LOG = Logger.getLogger(getClass().toString());
+  private static final Logger LOG = Logger.getLogger(UniversalParser.class.getSimpleName());
   private Closeable source;
   private byte[] subCollCheck = "subcoll".getBytes();
 
@@ -106,6 +106,9 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
 
   @Override
   public void process(DocumentSplit split) throws IOException {
+
+    LOG.info("Processing split: "+split.fileName);
+
     DocumentStreamParser parser = null;
     long count = 0;
     long limit = Long.MAX_VALUE;
@@ -162,13 +165,12 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
       }
 
       if (count % 10000 == 0) {
-        Logger.getLogger(getClass().toString()).log(Level.WARNING, "Read " + count + " from split: " + split.fileName);
+        LOG.log(Level.WARNING, "Read " + count + " from split: " + split.fileName);
       }
     }
 
-    if (parser != null) {
-      parser.close();
-    }
+    LOG.info("Processed "+count+" total in split: "+split.fileName);
+    parser.close();
   }
 
   // Try like Hell to match up the formal parameter list with the available
