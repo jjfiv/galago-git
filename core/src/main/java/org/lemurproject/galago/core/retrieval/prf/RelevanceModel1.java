@@ -95,7 +95,7 @@ public class RelevanceModel1 implements ExpansionModel {
     } else {
         inclusions = inclusionTerms;
     }
-    System.err.println((inclusionTerms == null) + " is null");
+    
     List<WeightedTerm> weightedTerms = extractGrams(initialResults, fbParams, stemmedQueryTerms, exclusions, inclusions);
 
     // select some terms to form exp query node
