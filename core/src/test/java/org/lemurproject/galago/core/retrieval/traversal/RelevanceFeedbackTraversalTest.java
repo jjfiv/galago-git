@@ -2,11 +2,13 @@
 package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.io.File;
+import static junit.framework.Assert.assertEquals;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.prf.RelevanceModel1;
+import org.lemurproject.galago.core.retrieval.prf.RelevanceModel3;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -102,6 +104,36 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     retrieval.close();
   }
 
+  public void testRelevanceModel3Traversal() throws Exception {
+    // Create a retrieval object for use by the traversal
+    Parameters p = new Parameters();
+    p.set("index", indexFile.getAbsolutePath());
+    p.set("stemmedPostings", false);
+    p.set("fbOrigWeight", 0.5);
+    p.set("relevanceModel", RelevanceModel3.class.getName());
+    p.set("rmwhitelist", "sentiwordlist.txt");
+    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
+    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval);
+
+    Node parsedTree = StructuredQuery.parse("#rm:fbDocs=10:fbTerms=4( #dirichlet( #extents:jumped:part=postings() ) )");
+    Node transformed = StructuredQuery.copy(traversal, parsedTree, new Parameters());
+    // truth data
+    StringBuilder correct = new StringBuilder();
+//    correct.append("#combine:0=0.5:1=0.5( #combine:fbDocs=10:fbTerms=4( #dirichlet( #extents:jumped:part=postings() ) ) ");
+    /* No sentiwordlist.txt
+    correct.append("#combine:0=0.05001660577881102:1=0.05001660577881102:2=0.04165282851765748:3=0.04165282851765748( ");
+    correct.append("#text:sample() ");
+    correct.append("#text:ugly() ");
+    correct.append("#text:cat() ");
+    correct.append("#text:moon() )");
+  */
+       correct.append("#combine:0=0.5:1=0.5( #combine:fbDocs=10:fbTerms=4( #dirichlet( #extents:jumped:part=postings() ) ) ");
+    correct.append("#combine:0=0.05001660577881102:1=0.04165282851765748( #text:ugly() #text:moon() ) )");
+    
+    assertEquals(correct.toString(), transformed.toString());
+    
+    retrieval.close();
+  }
    
 //  public void testClassloaderRelevanceModelTraversal() throws Exception {
 //    // Create a retrieval object for use by the traversal
