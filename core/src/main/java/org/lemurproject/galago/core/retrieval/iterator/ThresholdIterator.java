@@ -28,7 +28,7 @@ public class ThresholdIterator extends TransformIterator implements IndicatorIte
       this.threshold = parameters.getDouble("raw");
 
     } else if (parameters.containsKey("prob")) {
-      this.threshold = parameters.getDouble("prob");
+      this.threshold = Math.log(parameters.getDouble("prob"));
       assert this.threshold < 0;
 
     } else if (parameters.containsKey("logprob")) {
