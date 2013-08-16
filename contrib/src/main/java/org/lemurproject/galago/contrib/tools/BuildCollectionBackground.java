@@ -123,7 +123,7 @@ public class BuildCollectionBackground extends AppFunction {
             + "                            [default=background]\n"
             + "  --stemmer={porter|korvetz}: \n"
             + "                            Selects a stemmer class for the index part.\n"
-            + "                            [default=porter]\n"
+            + "                            [default=krovetz]\n"
             + "\n"
             + getTupleFlowParameterString();
   }

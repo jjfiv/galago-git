@@ -379,8 +379,8 @@ public class BuildIndex extends AppFunction {
                 + "Stemmer names should be associated with classes in 'stemmerClass' parameter.\n"
                 + "Entries may be automatically generated from the 'stemmerClass' parameter. \n"
                 + "Default to : \n"
-                + "{\"stemmer\": [\"porter\"],\n"
-                + " \"stemmerClass\" : {\"porter\" : \"org.lemurproject.galago.core.parse.stem.Porter2Stemmer\"}}\n");
+                + "{\"stemmer\": [\"krovetz\"],\n"
+                + " \"stemmerClass\" : {\"krovetz\" : \"org.lemurproject.galago.core.parse.stem.KrovetzStemmer\"}}\n");
 
         // now ensure that this error is not propegated.
         globalParameters.remove("stemmer");
@@ -397,8 +397,8 @@ public class BuildIndex extends AppFunction {
             stemmers.add(key);
           }
         } else {
-          // defaults to use porter stemmer
-          stemmers.add("porter");
+          // defaults to use krovetz stemmer
+          stemmers.add("krovetz");
         }
         globalParameters.set("stemmer", stemmers);
       }

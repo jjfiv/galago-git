@@ -136,7 +136,7 @@ public class BuildSpecialCollBackground extends AppFunction {
             + "  --delim={String}:         Sets the deliminator for the input files.\n"
             + "  --stemmer={porter|korvetz}: \n"
             + "                            Selects a stemmer class for the index part.\n"
-            + "                            [default=porter]\n"
+            + "                            [default=krovetz]\n"
             + "\n"
             + getTupleFlowParameterString();
   }
