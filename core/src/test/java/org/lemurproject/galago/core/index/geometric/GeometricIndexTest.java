@@ -74,7 +74,7 @@ public class GeometricIndexTest extends TestCase {
       assertEquals(stats.highestFrequency, 150);
       assertEquals(stats.highestDocumentCount, 150);
 
-      stats = ret.getIndexPartStatistics("postings.porter");
+      stats = ret.getIndexPartStatistics("postings.krovetz");
       assertEquals(stats.collectionLength, 1275);
       // these three are estimated as the max of the set of shards
       assertEquals(stats.vocabCount, 154);

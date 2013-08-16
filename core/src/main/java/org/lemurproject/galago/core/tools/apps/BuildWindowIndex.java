@@ -276,8 +276,8 @@ public class BuildWindowIndex extends AppFunction {
         stemmerName = p.getString("stemmerClass").replaceFirst(".*\\.", "");
       } else {
         // defaults:
-        stemmerName = "porter";
-        stemmerClass = Porter2Stemmer.class;
+        stemmerName = "krovetz";
+        stemmerClass = KrovetzStemmer.class;
       }
     }
 

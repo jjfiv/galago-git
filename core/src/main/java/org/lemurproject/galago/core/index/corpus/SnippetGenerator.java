@@ -7,8 +7,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
 import org.lemurproject.galago.core.parse.TagTokenizer;
+import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 
 /**
  * This is a very simple snippet generator for generating small summaries of
@@ -214,7 +214,7 @@ public class SnippetGenerator {
       return results;
     }
   }
-  private Porter2Stemmer stemmer = new Porter2Stemmer();
+  private KrovetzStemmer stemmer = new KrovetzStemmer();
   private boolean stemming = true;
 
   public void setStemming(boolean stemming) {

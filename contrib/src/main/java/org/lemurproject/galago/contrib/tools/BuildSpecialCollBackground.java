@@ -86,7 +86,7 @@ public class BuildSpecialCollBackground extends AppFunction {
 
     List<String> inputs = p.getAsList("inputPath");
 
-    String stemmer = p.get("stemmer", "porter");
+    String stemmer = p.get("stemmer", "krovetz");
     File output = new File(index, p.get("partName", "background." + stemmer));
     if (stemmer.equals("porter")) {
       p.set("stemmerClass", Porter2Stemmer.class.getName());

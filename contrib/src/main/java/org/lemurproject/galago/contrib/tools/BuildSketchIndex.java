@@ -13,6 +13,7 @@ import org.lemurproject.galago.contrib.index.InvertedSketchIndexWriter;
 import org.lemurproject.galago.core.index.ExtractIndexDocumentNumbers;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.parse.DocumentSource;
+import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.tools.AppFunction;
@@ -49,7 +50,7 @@ public class BuildSketchIndex extends AppFunction {
             + "\t--sketchIndexName=outputFileName\n"
             + "\t--depth=int [2]\n"
             + "\t--stemming=[boolean]\n"
-            + "\t--stemmer=[org.lemurproject.galago.core.parse.stem.Porter2Stemmer]\n"
+            + "\t--stemmer=[org.lemurproject.galago.core.parse.stem.KrovetzStemmer]\n"
             + getTupleFlowParameterString();
   }
 
@@ -91,7 +92,7 @@ public class BuildSketchIndex extends AppFunction {
 
     // ensure stemmer is set
     if (buildParameters.get("stemming", false)) {
-      buildParameters.set("stemmer", buildParameters.get("stemmer", Porter2Stemmer.class.getName()));
+      buildParameters.set("stemmer", buildParameters.get("stemmer", KrovetzStemmer.class.getName()));
     }
 
     buildParameters.set("filename", indexPath + File.separator + buildParameters.getString("sketchIndexName"));

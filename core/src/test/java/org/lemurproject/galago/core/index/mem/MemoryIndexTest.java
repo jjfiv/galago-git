@@ -61,7 +61,7 @@ public class MemoryIndexTest extends TestCase {
     assertEquals(is1.highestFrequency, 200);
     assertEquals(is1.highestDocumentCount, 200);
 
-    IndexPartStatistics is2 = index.getIndexPartStatistics("postings.porter");
+    IndexPartStatistics is2 = index.getIndexPartStatistics("postings.krovetz");
     assertEquals(is2.collectionLength, 1000);
     assertEquals(is2.vocabCount, 204);
     assertEquals(is2.highestFrequency, 200);
@@ -124,7 +124,7 @@ public class MemoryIndexTest extends TestCase {
       assertEquals(postingsStats.highestDocumentCount, 200);
       assertEquals(postingsStats.highestFrequency, 200);
 
-      IndexPartStatistics stemmedPostingsStats = r.getIndexPartStatistics("postings.porter");
+      IndexPartStatistics stemmedPostingsStats = r.getIndexPartStatistics("postings.krovetz");
       assertEquals(stemmedPostingsStats.collectionLength, 1000);
       assertEquals(stemmedPostingsStats.vocabCount, 204);
       assertEquals(stemmedPostingsStats.highestDocumentCount, 200);

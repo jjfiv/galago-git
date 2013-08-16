@@ -18,6 +18,7 @@ import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
+import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
@@ -81,8 +82,8 @@ public class MemoryIndex implements DynamicIndex, Index {
     if (stemming) {
       Parameters stemParams = partParams.clone();
       // should change this to support several stemmers...
-      stemParams.set("stemmer", manifest.get("stemmer", Porter2Stemmer.class.getName()));
-      parts.put("postings.porter", new MemoryPositionalIndex(stemParams));
+      stemParams.set("stemmer", manifest.get("stemmer", KrovetzStemmer.class.getName()));
+      parts.put("postings.krovetz", new MemoryPositionalIndex(stemParams));
     }
 
     // get a pointer to some special parts:
