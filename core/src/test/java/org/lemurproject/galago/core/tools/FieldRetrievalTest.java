@@ -43,14 +43,14 @@ public class FieldRetrievalTest extends TestCase {
     // postings -- there are two files
     childPath = new File(indexPath, "postings");
     assertTrue(childPath.exists());
-    childPath = new File(indexPath, "postings.porter");
+    childPath = new File(indexPath, "postings.krovetz");
     assertTrue(childPath.exists());
 
     // field postings -- there are two files
-    childPath = new File(indexPath, "field.porter.title");
+    childPath = new File(indexPath, "field.krovetz.title");
     assertTrue(childPath.exists());
 
-    childPath = new File(indexPath, "field.porter.other");
+    childPath = new File(indexPath, "field.krovetz.other");
     assertTrue(childPath.exists());
 
     childPath = new File(indexPath, "field.title");
@@ -83,7 +83,7 @@ public class FieldRetrievalTest extends TestCase {
       // try to batch search that index with a no-match string
       String queries = "{ \"queries\" : ["
               + "{ \"number\" : \"1\", \"text\" : \"sample\"},\n"
-              + "{ \"number\" : \"2\", \"text\" : \"#combine(#extents:sample:part=field.porter.title())\"},\n"
+              + "{ \"number\" : \"2\", \"text\" : \"#combine(#extents:sample:part=field.krovetz.title())\"},\n"
               + "{ \"number\" : \"3\", \"text\" : \"#combine(#inside(sample #field:title()))\"},\n"
               + "{ \"number\" : \"4\", \"text\" : \"#combine(#inside:noOpt=true(#extents:sample:part=postings() #field:title()))\"},\n"
               + "{ \"number\" : \"5\", \"text\" : \"#combine(#inside(#extents:sample:part=postings() #field:title()))\"}\n"

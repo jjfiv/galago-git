@@ -72,7 +72,7 @@ public class MultiRetrievalTest extends TestCase {
               + "maximumCount=1:"
               + "nodeFrequency=4:"
               + "w=0.5"
-              + "( #lengths:document:part=lengths() #counts:sample:part=postings.porter() ) "
+              + "( #lengths:document:part=lengths() #counts:sample:part=postings.krovetz() ) "
               + "#dirichlet:"
               + "avgLength=4.0:"
               + "collectionLength=19:"
@@ -80,7 +80,7 @@ public class MultiRetrievalTest extends TestCase {
               + "maximumCount=1:"
               + "nodeFrequency=4:"
               + "w=0.5"
-              + "( #lengths:document:part=lengths() #counts:document:part=postings.porter() ) )";
+              + "( #lengths:document:part=lengths() #counts:document:part=postings.krovetz() ) )";
 
       assertEquals(queryTree.toString(), expected);
 

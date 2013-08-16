@@ -198,15 +198,15 @@ public class AppTest extends TestCase {
       printStream = new PrintStream(byteArrayStream);
 
       String postingsName = Utility.join(new String[]{indexFile.getAbsolutePath(),
-                "postings.porter"}, File.separator);
+                "postings.krovetz"}, File.separator);
       App.run(new String[]{"dump-index", postingsName}, printStream);
       output = byteArrayStream.toString();
       String correct = "a,0,2\n"
               + "document,0,4\n"
               + "document,1,1\n"
               + "is,0,1\n"
-              + "sampl,0,3\n"
-              + "sampl,1,0\n"
+              + "sample,0,3\n"
+              + "sample,1,0\n"
               + "this,0,0\n"
               + "two,1,2\n";
 
@@ -231,7 +231,7 @@ public class AppTest extends TestCase {
       queries = "{ \"x\" : ["
               + "\"document\",\n"
               + "\"#counts:a:part=postings()\",\n"
-              + "\"#counts:a:part=postings.porter()\"\n"
+              + "\"#counts:a:part=postings.krovetz()\"\n"
               + "]}\n";
       queryFile2 = Utility.createTemporary();
       Utility.copyStringToFile(queries, queryFile2);
@@ -246,7 +246,7 @@ public class AppTest extends TestCase {
       output = byteArrayStream.toString();
       String expected = "2\tdocument\n"
               + "1\t#counts:a:part=postings()\n"
-              + "1\t#counts:a:part=postings.porter()\n";
+              + "1\t#counts:a:part=postings.krovetz()\n";
 
        assertEquals(expected, output);
 

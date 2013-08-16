@@ -130,7 +130,7 @@ public class UniversalParserTest extends TestCase {
       IndexPartStatistics is1 = ret.getIndexPartStatistics("postings");
       assertEquals(is1.collectionLength, 553);
 
-      IndexPartStatistics is2 = ret.getIndexPartStatistics("postings.porter");
+      IndexPartStatistics is2 = ret.getIndexPartStatistics("postings.krovetz");
       assertEquals(is2.collectionLength, 553);
 
       // should have about the same vocabs
@@ -173,7 +173,7 @@ public class UniversalParserTest extends TestCase {
       IndexPartStatistics is1 = ret.getIndexPartStatistics("postings");
       assertEquals(is1.collectionLength, 129);
 
-      IndexPartStatistics is2 = ret.getIndexPartStatistics("postings.porter");
+      IndexPartStatistics is2 = ret.getIndexPartStatistics("postings.krovetz");
       assertEquals(is2.collectionLength, 129);
 
       // should have about the same vocabs
@@ -219,7 +219,7 @@ public class UniversalParserTest extends TestCase {
       IndexPartStatistics is1 = ret.getIndexPartStatistics("postings");
       assertEquals(is1.collectionLength, 822);
 
-      IndexPartStatistics is2 = ret.getIndexPartStatistics("postings.porter");
+      IndexPartStatistics is2 = ret.getIndexPartStatistics("postings.krovetz");
       assertEquals(is2.collectionLength, 822);
 
       // should have about the same vocabs

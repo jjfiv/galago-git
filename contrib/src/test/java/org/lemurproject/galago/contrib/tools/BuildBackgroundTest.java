@@ -58,7 +58,7 @@ public class BuildBackgroundTest extends TestCase {
 
       App.main(new String[]{"build-coll-background", "--indexPath=" + indexFile1.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile2.getAbsolutePath(),
-                "--partName=background", "--stemmer=porter"});
+                "--partName=background", "--stemmer=krovetz"});
 
       backgroundIndex = Utility.createTemporary();
       backgroundIndex.delete();
@@ -70,9 +70,9 @@ public class BuildBackgroundTest extends TestCase {
 
       // try to batch search that index with a no-match string
       String queries_reg = "{ \"index\" : \"" + indexFile1.getAbsolutePath() + "\", \"queries\" : ["
-              + "{ \"number\" : \"2\", \"text\": \"#combine( #dirichlet( #counts:two:part=postings.porter() ) #dirichlet( #counts:sample:part=postings.porter() ) )\"},"
-              + "{ \"number\" : \"9\", \"text\" : \"#combine( #dirichlet( #counts:sample:part=postings.porter() ) )\"},"
-              + "{ \"number\" : \"11\", \"text\" : \"#combine( #dirichlet( #counts:is:part=postings.porter() ) #dirichlet( #counts:two:part=postings.porter() ) )\"},"
+              + "{ \"number\" : \"2\", \"text\": \"#combine( #dirichlet( #counts:two:part=postings.krovetz() ) #dirichlet( #counts:sample:part=postings.krovetz() ) )\"},"
+              + "{ \"number\" : \"9\", \"text\" : \"#combine( #dirichlet( #counts:sample:part=postings.krovetz() ) )\"},"
+              + "{ \"number\" : \"11\", \"text\" : \"#combine( #dirichlet( #counts:is:part=postings.krovetz() ) #dirichlet( #counts:two:part=postings.krovetz() ) )\"},"
               + "]}";
 //              + "], \"printTransformation\":true}";
 
@@ -89,10 +89,10 @@ public class BuildBackgroundTest extends TestCase {
       
 //  DEPRECATED - need to rethink a bit before re-enabling
 //      String queries_back1 = "{ \"index\" : \"" + indexFile1.getAbsolutePath() + "\", \"queries\" : ["
-//              + "{ \"number\" : \"2\", \"text\": \"#combine( #dirichlet( #counts:two:part=postings.porter() ) #dirichlet( #counts:sample:part=postings.porter() ) )\"},"
-//              + "{ \"number\" : \"9\", \"text\" : \"#combine( #dirichlet( #counts:sample:part=postings.porter() ) )\"},"
-//              + "{ \"number\" : \"11\", \"text\" : \"#combine( #dirichlet( #counts:is:part=postings.porter() ) #dirichlet( #counts:two:part=postings.porter() ) )\"},"
-//              + "], \"backgroundPartMap\" : {\"postings.porter\" : \"background.porter\"}}";
+//              + "{ \"number\" : \"2\", \"text\": \"#combine( #dirichlet( #counts:two:part=postings.krovetz() ) #dirichlet( #counts:sample:part=postings.krovetz() ) )\"},"
+//              + "{ \"number\" : \"9\", \"text\" : \"#combine( #dirichlet( #counts:sample:part=postings.krovetz() ) )\"},"
+//              + "{ \"number\" : \"11\", \"text\" : \"#combine( #dirichlet( #counts:is:part=postings.krovetz() ) #dirichlet( #counts:two:part=postings.krovetz() ) )\"},"
+//              + "], \"backgroundPartMap\" : {\"postings.krovetz\" : \"background.krovetz\"}}";
 //
 //      Utility.copyStringToFile(queries_back1, queryFile);
 //      runQueries(queryFile, expected_back);
@@ -101,9 +101,9 @@ public class BuildBackgroundTest extends TestCase {
               + "\"back\" : \"" + backgroundIndex.getAbsolutePath() + "\" }, "
               + "\"defaultGroup\" : \"reg\","
               + "\"queries\" : ["
-              + " { \"number\" : \"2\", \"text\": \"#combine( #dirichlet( #counts:two:part=postings.porter() ) #dirichlet( #counts:sample:part=postings.porter() ) )\"},"
-              + " { \"number\" : \"9\", \"text\" : \"#combine( #dirichlet( #counts:sample:part=postings.porter() ) )\"},"
-              + " { \"number\" : \"11\", \"text\" : \"#combine( #dirichlet( #counts:is:part=postings.porter() ) #dirichlet( #counts:two:part=postings.porter() ) )\"},"
+              + " { \"number\" : \"2\", \"text\": \"#combine( #dirichlet( #counts:two:part=postings.krovetz() ) #dirichlet( #counts:sample:part=postings.krovetz() ) )\"},"
+              + " { \"number\" : \"9\", \"text\" : \"#combine( #dirichlet( #counts:sample:part=postings.krovetz() ) )\"},"
+              + " { \"number\" : \"11\", \"text\" : \"#combine( #dirichlet( #counts:is:part=postings.krovetz() ) #dirichlet( #counts:two:part=postings.krovetz() ) )\"},"
               + "],"
               + "\"backgroundIndex\" : \"back\"}";
 

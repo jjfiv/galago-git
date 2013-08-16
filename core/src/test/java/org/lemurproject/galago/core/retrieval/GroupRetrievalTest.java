@@ -76,7 +76,7 @@ public class GroupRetrievalTest extends TestCase {
               + "maximumCount=1:"
               + "nodeFrequency=2:"
               + "w=0.5("
-              + " #lengths:document:part=lengths() #counts:sample:part=postings.porter() )"
+              + " #lengths:document:part=lengths() #counts:sample:part=postings.krovetz() )"
               + " #dirichlet:"
               + "avgLength=4.0:"
               + "collectionLength=8:"
@@ -84,7 +84,7 @@ public class GroupRetrievalTest extends TestCase {
               + "maximumCount=1:"
               + "nodeFrequency=2:"
               + "w=0.5("
-              + " #lengths:document:part=lengths() #counts:document:part=postings.porter() ) )";
+              + " #lengths:document:part=lengths() #counts:document:part=postings.krovetz() ) )";
       
       assertEquals(expected, queryTree1.toString());
       ScoredDocument[] res1 = gr.runQuery(queryTree1, q1, "group1");
@@ -108,7 +108,7 @@ public class GroupRetrievalTest extends TestCase {
               + "maximumCount=1:"
               + "nodeFrequency=4:"
               + "w=0.5"
-              + "( #lengths:document:part=lengths() #counts:sample:part=postings.porter() ) "
+              + "( #lengths:document:part=lengths() #counts:sample:part=postings.krovetz() ) "
               + "#dirichlet:"
               + "avgLength=4.0:"
               + "collectionLength=19:"
@@ -116,7 +116,7 @@ public class GroupRetrievalTest extends TestCase {
               + "maximumCount=1:"
               + "nodeFrequency=4:"
               + "w=0.5"
-              + "( #lengths:document:part=lengths() #counts:document:part=postings.porter() ) )";
+              + "( #lengths:document:part=lengths() #counts:document:part=postings.krovetz() ) )";
 
       assertEquals(expected, queryTree2.toString());
       ScoredDocument[] res2 = gr.runQuery(queryTree2, q2, "group2");
