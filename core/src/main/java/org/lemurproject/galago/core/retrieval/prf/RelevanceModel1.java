@@ -19,6 +19,7 @@ import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;
+import org.lemurproject.galago.core.retrieval.Results;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
@@ -104,8 +105,9 @@ public class RelevanceModel1 implements ExpansionModel {
   }
 
   public List<ScoredDocument> collectInitialResults(Node transformed, Parameters fbParams) throws Exception {
-    ScoredDocument[] res = retrieval.runQuery(transformed, fbParams);
-    return Arrays.asList(res);
+      Results results = retrieval.executeQuery(transformed, fbParams);
+      List<ScoredDocument> res = (List<ScoredDocument>) results.scoredDocuments;
+      return res;
   }
 
   public List<WeightedTerm> extractGrams(List<ScoredDocument> initialResults, Parameters fbParams, Set<String> queryTerms, Set<String> exclusionTerms, Set<String> inclusionTerms) throws IOException {
