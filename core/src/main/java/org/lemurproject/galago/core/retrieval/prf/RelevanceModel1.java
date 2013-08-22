@@ -5,7 +5,6 @@ package org.lemurproject.galago.core.retrieval.prf;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -84,7 +83,7 @@ public class RelevanceModel1 implements ExpansionModel {
     Node transformed = retrieval.transformQuery(root.clone(), fbParams);
 
     // get some initial results
-    List<ScoredDocument> initialResults = collectInitialResults(transformed, fbParams);
+    List<? extends ScoredDocument> initialResults = collectInitialResults(transformed, fbParams);
 
     // extract grams from results
     Set<String> stemmedQueryTerms = stemTerms(StructuredQuery.findQueryTerms(transformed));
@@ -104,13 +103,13 @@ public class RelevanceModel1 implements ExpansionModel {
     return expNode;
   }
 
-  public List<ScoredDocument> collectInitialResults(Node transformed, Parameters fbParams) throws Exception {
+  public List<? extends ScoredDocument> collectInitialResults(Node transformed, Parameters fbParams) throws Exception {
       Results results = retrieval.executeQuery(transformed, fbParams);
-      List<ScoredDocument> res = (List<ScoredDocument>) results.scoredDocuments;
+      List<? extends ScoredDocument> res = results.scoredDocuments;
       return res;
   }
 
-  public List<WeightedTerm> extractGrams(List<ScoredDocument> initialResults, Parameters fbParams, Set<String> queryTerms, Set<String> exclusionTerms, Set<String> inclusionTerms) throws IOException {
+  public List<WeightedTerm> extractGrams(List<? extends ScoredDocument> initialResults, Parameters fbParams, Set<String> queryTerms, Set<String> exclusionTerms, Set<String> inclusionTerms) throws IOException {
     // convert documentScores to posterior probs
     Map<ScoredDocument, Double> scores = logstoposteriors(initialResults);
 
@@ -138,7 +137,7 @@ public class RelevanceModel1 implements ExpansionModel {
 
   // Implementation here is identical to the Relevance Model unigram normaliztion in Indri.
   // See RelevanceModel.cpp for details
-  protected Map<ScoredDocument, Double> logstoposteriors(List<ScoredDocument> results) {
+  protected Map<ScoredDocument, Double> logstoposteriors(List<? extends ScoredDocument> results) {
     Map<ScoredDocument, Double> scores = new HashMap<ScoredDocument, Double>();
     if (results.isEmpty()) {
       return scores;
@@ -160,7 +159,7 @@ public class RelevanceModel1 implements ExpansionModel {
     return scores;
   }
 
-  protected Map<String, Map<ScoredDocument, Integer>> countGrams(List<ScoredDocument> results, Parameters fbParams, Set<String> stemmedQueryTerms, Set<String> exclusionTerms, Set<String> inclusionTerms) throws IOException {
+  protected Map<String, Map<ScoredDocument, Integer>> countGrams(List<? extends ScoredDocument> results, Parameters fbParams, Set<String> stemmedQueryTerms, Set<String> exclusionTerms, Set<String> inclusionTerms) throws IOException {
     Map<String, Map<ScoredDocument, Integer>> counts = new HashMap<String, Map<ScoredDocument, Integer>>();
     Map<ScoredDocument, Integer> termCounts;
     Document doc;
