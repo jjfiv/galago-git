@@ -107,9 +107,6 @@ public class RelevanceModel1 implements ExpansionModel {
   public List<ScoredDocument> collectInitialResults(Node transformed, Parameters fbParams) throws Exception {
       Results results = retrieval.executeQuery(transformed, fbParams);
       List<ScoredDocument> res = (List<ScoredDocument>) results.scoredDocuments;
-      if (res == null) {
-        res = new ArrayList<ScoredDocument>();
-      }
       return res;
   }
 
