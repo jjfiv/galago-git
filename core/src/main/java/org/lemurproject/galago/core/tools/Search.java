@@ -2,6 +2,7 @@
 package org.lemurproject.galago.core.tools;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -125,7 +126,8 @@ public class Search {
     int startAt = (int) p.getLong("startAt");
     int count = (int) p.getLong("resultCount");
 
-    ScoredDocument[] results = retrieval.runQuery(root, p);
+    List<? extends ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
+    
     SearchResult result = new SearchResult();
     Set<String> queryTerms = StructuredQuery.findQueryTerms(root);
     generator.setStemming(root.toString().contains("part=stemmedPostings"));
@@ -133,13 +135,13 @@ public class Search {
     result.transformedQuery = root;
 
     if (results == null) {
-    	results = new  ScoredDocument[0];
+    	results = new  ArrayList<ScoredDocument>();
     }
     
     DocumentComponents p1 = new DocumentComponents();
 
-    for (int i = startAt; i < Math.min(startAt + count, results.length); i++) {
-      String identifier = results[i].documentName;
+    for (int i = startAt; i < Math.min(startAt + count, results.size()); i++) {
+      String identifier = results.get(i).documentName;
       Document document = null;
       if (summarize) {
     	  document = getDocument(identifier, p1);
@@ -170,7 +172,7 @@ public class Search {
       if (document != null) {
     	  item.metadata = document.metadata;
       }
-      item.score = results[i].score;
+      item.score = results.get(i).score;
       result.items.add(item);
     }
 

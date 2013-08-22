@@ -67,7 +67,7 @@ public class BatchSearch extends AppFunction {
 
   @Override
   public void run(Parameters parameters, PrintStream out) throws Exception {
-    ScoredDocument[] results = null;
+    List<? extends ScoredDocument> results = null;
 
     if (!(parameters.containsKey("query")
             || parameters.containsKey("queries"))) {
@@ -119,15 +119,16 @@ public class BatchSearch extends AppFunction {
       }
 
       // run query
-      results = retrieval.runQuery(transformed, query);
+      results = retrieval.executeQuery(transformed, query).scoredDocuments;
+      
 
       // if we have some results -- print in to output stream
       if (results != null) {
-        for (int i = 0; i < results.length; i++) {
+        for (ScoredDocument sd : results) {
           if (query.get("trec", false)) {
-            out.println(results[i].toTRECformat(queryNumber));
+            out.println(sd.toTRECformat(queryNumber));
           } else {
-            out.println(results[i].toString(queryNumber));
+            out.println(sd.toString(queryNumber));
           }
         }
       }

@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
@@ -165,9 +166,9 @@ public class GeometricIndexTest extends TestCase {
           Node query = StructuredQuery.parse("sample " + j);
           query = ret.transformQuery(query, p);
 
-          ScoredDocument[] results = ret.runQuery(query, p);
-          assert (results[0].documentName.contains(Integer.toString(j)));
-        }
+          List<? extends ScoredDocument> results = ret.executeQuery(query, p).scoredDocuments;
+          assert (results.get(0).documentName.contains(Integer.toString(j)));
+          }
       }
     } finally {
       Utility.deleteDirectory(shards);

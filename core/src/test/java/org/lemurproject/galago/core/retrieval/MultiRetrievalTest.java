@@ -8,6 +8,7 @@ import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -84,7 +85,7 @@ public class MultiRetrievalTest extends TestCase {
 
       assertEquals(queryTree.toString(), expected);
 
-      ScoredDocument[] res = mr.runQuery(queryTree, qp);
+      List<? extends ScoredDocument> results = mr.executeQuery(queryTree, qp).scoredDocuments;
 
       ScoredDocument[] expDocs = new ScoredDocument[4];
       expDocs[0] = new ScoredDocument("i1-59", 1, -1.5569809573716442);
@@ -92,11 +93,11 @@ public class MultiRetrievalTest extends TestCase {
       expDocs[2] = new ScoredDocument("i1-55", 3, -1.5583107448016458);
       expDocs[3] = new ScoredDocument("i2-55", 4, -1.5596387662451652);
       
-      assertEquals(expDocs.length, res.length);
-      for (int i = 0; i < res.length; i++) {
-        assertEquals(expDocs[i].documentName, res[i].documentName);
-        assertEquals(expDocs[i].rank, res[i].rank);
-        assertEquals(expDocs[i].score, res[i].score, 0.000001);
+      assertEquals(expDocs.length, results.size());
+      for (int i = 0; i < expDocs.length; i++) {
+        assertEquals(expDocs[i].documentName, results.get(i).documentName);
+        assertEquals(expDocs[i].rank, results.get(i).rank);
+        assertEquals(expDocs[i].score, results.get(i).score, 0.000001);
       }
     } finally {
       if (trecCorpusFile1 != null) {

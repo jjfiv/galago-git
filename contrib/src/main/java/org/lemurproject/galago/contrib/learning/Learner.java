@@ -182,7 +182,7 @@ public abstract class Learner {
       return testedParameters.get(settingString);
     }
 
-    HashMap<String, ScoredDocument[]> resMap = new HashMap();
+    HashMap<String,  List<? extends ScoredDocument>> resMap = new HashMap();
 
     // get the parameter settigns
     Parameters settings = instance.toParameters();
@@ -200,7 +200,7 @@ public abstract class Learner {
       root = this.retrieval.transformQuery(root, settings);
 
       //  need to add queryProcessing params some extra stuff to 'settings'
-      ScoredDocument[] scoredDocs = this.retrieval.runQuery(root, settings);
+      List<? extends ScoredDocument> scoredDocs = this.retrieval.executeQuery(root, settings).scoredDocuments;
       
       // now unset the backoff (next query will have different backoffs)
       settings.setBackoff(null);

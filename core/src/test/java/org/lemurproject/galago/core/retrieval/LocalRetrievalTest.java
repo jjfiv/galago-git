@@ -239,10 +239,10 @@ public class LocalRetrievalTest extends TestCase {
     Parameters p = new Parameters();
     p.set("requested", 5);
     root = retrieval.transformQuery(root, p);
-    ScoredDocument[] result = retrieval.runQuery(root, p);
-
-    assertEquals(result.length, 5);
-
+    List<? extends ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
+    assertEquals(results.size(), 5);
+    
+   
     HashMap<Long, Double> realScores = new HashMap<Long, Double>();
 
     realScores.put(1l, -5.548387728381024);
@@ -260,13 +260,13 @@ public class LocalRetrievalTest extends TestCase {
 
     // make sure the results are sorted
     double lastScore = Double.MAX_VALUE;
-
-    for (int i = 0; i < result.length; i++) {
-      double score = result[i].score;
-      double expected = realScores.get(result[i].document);
-      String expname = realNames.get(result[i].document);
-      assertTrue(lastScore >= result[i].score);
-      assertEquals(expname, result[i].documentName);
+    
+    for (ScoredDocument sd : results) {
+      double score = sd.score;
+      double expected = realScores.get(sd.document);
+      String expname = realNames.get(sd.document);
+      assertTrue(lastScore >= sd.score);
+      assertEquals(expname, sd.documentName);
       assertEquals(expected, score, 0.0001);
 
       lastScore = score;
@@ -286,12 +286,12 @@ public class LocalRetrievalTest extends TestCase {
     ids.add("DOC2");
     ids.add("DOC5");
     p.set("working", ids);
-    ScoredDocument[] result = retrieval.runQuery(root, p);
-    
-    assertEquals(3, result.length);
-    assertEquals(1, result[0].document);
-    assert ((result[1].document == 2 && result[2].document == 5)
-            || (result[1].document == 5 && result[2].document == 2));
+    List<? extends ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
+          
+    assertEquals(3, results.size());
+    assertEquals(1, results.get(0).document);
+    assert ((results.get(1).document == 2 && results.get(2).document == 5)
+            || (results.get(1).document == 5 && results.get(2).document == 2));
 
     HashMap<Long, Double> realScores = new HashMap<Long, Double>();
 
@@ -307,12 +307,12 @@ public class LocalRetrievalTest extends TestCase {
     // make sure the results are sorted
     double lastScore = Double.MAX_VALUE;
 
-    for (int i = 0; i < result.length; i++) {
-      double score = result[i].score;
-      double expected = realScores.get(result[i].document);
-      String expname = realNames.get(result[i].document);
-      assertTrue(lastScore >= result[i].score);
-      assertEquals(expname, result[i].documentName);
+    for (ScoredDocument sd : results) {
+      double score = sd.score;
+      double expected = realScores.get(sd.document);
+      String expname = realNames.get(sd.document);
+      assertTrue(lastScore >= sd.score);
+      assertEquals(expname, sd.documentName);
       assertEquals(expected, score, 0.0001);
       lastScore = score;
     }
@@ -326,9 +326,10 @@ public class LocalRetrievalTest extends TestCase {
     Parameters p = new Parameters();
     p.set("requested", 5);
     root = retrieval.transformQuery(root, p);
-    ScoredDocument[] result = retrieval.runQuery(root, p);
+    List<? extends ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
+    
 
-    assertEquals(2, result.length);
+    assertEquals(2, results.size());
 
     HashMap<Long, Double> realScores = new HashMap<Long, Double>();
 
@@ -342,12 +343,12 @@ public class LocalRetrievalTest extends TestCase {
     // make sure the results are sorted
     double lastScore = Double.MAX_VALUE;
 
-    for (int i = 0; i < result.length; i++) {
-      double score = result[i].score;
-      double expected = realScores.get(result[i].document);
-      String expname = realNames.get(result[i].document);
-      assertTrue(lastScore >= result[i].score);
-      assertEquals(expname, result[i].documentName);
+    for (ScoredDocument sd : results) {
+      double score = sd.score;
+      double expected = realScores.get(sd.document);
+      String expname = realNames.get(sd.document);
+      assertTrue(lastScore >= sd.score);
+      assertEquals(expname, sd.documentName);
       assertEquals(expected, score, 0.0001);
 
       lastScore = score;

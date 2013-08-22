@@ -122,8 +122,8 @@ public class ProxyRetrievalTest extends TestCase {
         instance.getNodeType(StructuredQuery.parse("#counts:@/1/:part=postings()"));
         instance.getQueryType(StructuredQuery.parse("#counts:@/1/:part=postings()"));
         Node trans = instance.transformQuery(StructuredQuery.parse("#combine(1 2 3)"), new Parameters());
-        instance.runQuery(trans);
-        instance.runQuery(trans, new Parameters());
+        instance.executeQuery(trans);
+        instance.executeQuery(trans, new Parameters());
 
 
 

@@ -286,8 +286,8 @@ public class FieldRelevanceModelTraversal extends Traversal {
 
     // transform and run
     Node transformedCombineNode = retrieval.transformQuery(combineNode, localParameters);
-    ScoredDocument[] initialResults = retrieval.runQuery(transformedCombineNode, localParameters);
-
+    List<? extends ScoredDocument> initialResults = retrieval.executeQuery(transformedCombineNode, localParameters).scoredDocuments;
+    
     // Gather content
     ArrayList<String> names = new ArrayList<String>();
     for (ScoredDocument sd : initialResults) {

@@ -177,19 +177,19 @@ public class ThreadedBatchSearch extends AppFunction {
             logger.info("Transformed Query:\n" + transformed.toPrettyString());
           }
         }
-
+        
         // run query
-        ScoredDocument[] results = ret.runQuery(transformed, query);
-
+        List<? extends ScoredDocument> results = ret.executeQuery(transformed, query).scoredDocuments;
+        
         // if we have some results -- print in to output stream
         if (results != null) {
           // lock on out to avoid overwriting issues
           synchronized (out) {
-            for (int i = 0; i < results.length; i++) {
+            for (ScoredDocument sd : results) {
               if (query.get("trec", false)) {
-                out.println(results[i].toTRECformat(queryNumber));
+                out.println(sd.toTRECformat(queryNumber));
               } else {
-                out.println(results[i].toString(queryNumber));
+                out.println(sd.toString(queryNumber));
               }
             }
           }

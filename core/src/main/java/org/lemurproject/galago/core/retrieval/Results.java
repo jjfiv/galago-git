@@ -3,6 +3,7 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -15,7 +16,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
  *
  * @author sjh
  */
-public class Results {
+public class Results implements Serializable{
 
   public Node inputQuery;
   public List<? extends ScoredDocument> scoredDocuments;

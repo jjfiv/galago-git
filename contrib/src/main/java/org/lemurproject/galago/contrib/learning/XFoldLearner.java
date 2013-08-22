@@ -153,7 +153,7 @@ public class XFoldLearner extends Learner {
     long start = 0;
     long end = 0;
 
-    HashMap<String, ScoredDocument[]> resMap = new HashMap();
+    HashMap<String, List<? extends ScoredDocument>> resMap = new HashMap();
 
     // ensure the global parameters contain the current settings.
     Parameters settings = instance.toParameters();
@@ -167,7 +167,7 @@ public class XFoldLearner extends Learner {
 
       //  need to add queryProcessing params some extra stuff to 'settings'
       start = System.currentTimeMillis();
-      ScoredDocument[] scoredDocs = this.retrieval.runQuery(root, settings);
+      List<? extends ScoredDocument> scoredDocs = this.retrieval.executeQuery(root, settings).scoredDocuments;
       end = System.currentTimeMillis();
 
       if (scoredDocs != null) {

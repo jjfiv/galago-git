@@ -4,10 +4,12 @@
 package org.lemurproject.galago.core.index.geometric;
 
 import java.io.IOException;
+import java.util.List;
 import org.lemurproject.galago.core.parse.SequentialDocumentNumberer;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.parse.UniversalParser;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
+import org.lemurproject.galago.core.retrieval.Results;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -103,7 +105,7 @@ public class Indexer {
   }
   
   
-  public ScoredDocument[] runQuery(String query) throws Exception{
+  public List<? extends ScoredDocument> runQuery(String query) throws Exception{
     // parse query
     // transform query
     // run query
@@ -114,8 +116,8 @@ public class Indexer {
     p.set("count", 10);
     Node transformed = retrieval.transformQuery(parsed, p);
 
-    ScoredDocument[] results = retrieval.runQuery(transformed, p);
+    Results results = retrieval.executeQuery(transformed, p);
 
-    return results;
+    return results.scoredDocuments;
   }
 }

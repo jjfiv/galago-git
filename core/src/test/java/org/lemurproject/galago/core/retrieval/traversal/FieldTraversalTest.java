@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
@@ -240,16 +241,17 @@ public class FieldTraversalTest extends TestCase {
     Node raw = StructuredQuery.parse(query);
     Node root = retrieval.transformQuery(raw, global);
     global.set("deltaReady", false);
-    ScoredDocument[] results = retrieval.runQuery(root, global);
-
+    List<? extends ScoredDocument> results = retrieval.executeQuery(root, global).scoredDocuments;
+   
     global.set("deltaReady", true);
-    ScoredDocument[] results2 = retrieval.runQuery(root, global);
+    
+    List<? extends ScoredDocument> results2 = retrieval.executeQuery(root, global).scoredDocuments;
 
-    assertEquals(results.length, results2.length);
+    assertEquals(results.size(), results2.size());
 
-    for (int i = 0; i < results.length; i++) {
-      assertEquals(results[i].document, results2[i].document);
-      assertEquals(results[i].score, results2[i].score, 0.00001);
+    for (int i = 0; i < results.size(); i++) {
+      assertEquals(results.get(i).document, results2.get(i).document);
+      assertEquals(results.get(i).score, results2.get(i).score, 0.00001);
     }
 
   }
@@ -305,20 +307,20 @@ public class FieldTraversalTest extends TestCase {
     Node raw = StructuredQuery.parse(query);
     Node root = retrieval.transformQuery(raw, qp);
     qp.set("deltaReady", false);
-    ScoredDocument[] results = retrieval.runQuery(root, qp);
+    List<? extends ScoredDocument> results = retrieval.executeQuery(root, qp).scoredDocuments;
+ 
+    assertEquals(5, results.size());
 
-    assertEquals(5, results.length);
-
-    assertEquals(1, results[0].document);
-    assertEquals(results[0].score, -11.160840, 0.00001);
-    assertEquals(2, results[1].document);
-    assertEquals(results[1].score, -11.172624, 0.00001);
-    assertEquals(5, results[2].document);
-    assertEquals(results[2].score, -11.189912, 0.00001);
-    assertEquals(4, results[3].document);
-    assertEquals(results[3].score, -11.231324, 0.00001);
-    assertEquals(3, results[4].document);
-    assertEquals(results[4].score, -11.240375, 0.00001);
+    assertEquals(1, results.get(0).document);
+    assertEquals(results.get(0).score, -11.160840, 0.00001);
+    assertEquals(2, results.get(1).document);
+    assertEquals(results.get(1).score, -11.172624, 0.00001);
+    assertEquals(5, results.get(2).document);
+    assertEquals(results.get(2).score, -11.189912, 0.00001);
+    assertEquals(4, results.get(3).document);
+    assertEquals(results.get(3).score, -11.231324, 0.00001);
+    assertEquals(3, results.get(4).document);
+    assertEquals(results.get(4).score, -11.240375, 0.00001);
   }
 //
 //  public void testBM25FModelCorrectness() throws Exception {

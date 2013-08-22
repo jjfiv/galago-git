@@ -65,8 +65,8 @@ public class ThreadingTest extends TestCase {
       for (int qid = 0; qid < qCount; qid++) {
         Node qnode = StructuredQuery.parse(queries.get(qid));
         qnode = ret.transformQuery(qnode, retParams);
-        ScoredDocument[] res = ret.runQuery(qnode);
-        trueCounts.put(qid, res.length);
+        List<? extends ScoredDocument> res = ret.executeQuery(qnode).scoredDocuments;
+        trueCounts.put(qid, res.size());
       }
 
       // start 10 threads.
@@ -81,8 +81,8 @@ public class ThreadingTest extends TestCase {
                 int i = r.nextInt(qCount);
                 Node qnode = StructuredQuery.parse(queries.get(i));
                 qnode = ret.transformQuery(qnode, retParams);
-                ScoredDocument[] res = ret.runQuery(qnode);
-                assert(res.length == trueCounts.get(i));
+                List<? extends ScoredDocument> res = ret.executeQuery(qnode).scoredDocuments;
+                assert(res.size() == trueCounts.get(i));
               }
             } catch (Exception e) {
               exceptions.add(e);

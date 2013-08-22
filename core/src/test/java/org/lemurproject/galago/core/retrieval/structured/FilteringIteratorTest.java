@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import static junit.framework.Assert.assertTrue;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -82,17 +83,19 @@ public class FilteringIteratorTest extends TestCase {
 
     Parameters qp = new Parameters();
     tree = retrieval.transformQuery(tree, qp);
-    ScoredDocument[] results = retrieval.runQuery(tree, qp);
-    assertEquals(5, results.length);
-
+    
+    List<? extends ScoredDocument> results = retrieval.executeQuery(tree, qp).scoredDocuments;
+    
+    assertEquals(5, results.size());
+    int i = 0;
     List<Long> res = new ArrayList<Long>();
     res.add(1l);
     res.add(2l);
     res.add(5l);
     res.add(3l); // rejected with tinyScore
     res.add(18l); // rejected with tinyScore
-    for (int i = 0; i < results.length; i++) {
-      assertTrue(res.get(i) == results[i].document);
+    for (ScoredDocument sd : results) {
+      assertTrue(res.get(i++) == sd.document);
     }
   }
 
@@ -105,18 +108,19 @@ public class FilteringIteratorTest extends TestCase {
     Parameters qp = new Parameters();
     tree = retrieval.transformQuery(tree, qp);
 
-    ScoredDocument[] results = retrieval.runQuery(tree, qp);
-    assertEquals(5, results.length);
+    List<? extends ScoredDocument> results = retrieval.executeQuery(tree, qp).scoredDocuments;
+    assertEquals(5, results.size());
 
     // Check each doc - don't really care about order
+    int i = 0;
     List<Long> res = new ArrayList<Long>();
     res.add(1l);
     res.add(2l);
     res.add(5l);
     res.add(3l); // rejected with tinyScore
     res.add(18l); // rejected with tinyScore
-    for (int i = 0; i < results.length; i++) {
-      assertTrue(res.get(i) == results[i].document);
+    for (ScoredDocument sd : results) {
+      assertTrue(res.get(i++) == sd.document);
     }
   }
 }
