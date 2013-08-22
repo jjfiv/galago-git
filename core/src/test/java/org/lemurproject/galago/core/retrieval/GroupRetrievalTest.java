@@ -5,6 +5,7 @@ package org.lemurproject.galago.core.retrieval;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -87,14 +88,15 @@ public class GroupRetrievalTest extends TestCase {
               + " #lengths:document:part=lengths() #counts:document:part=postings.krovetz() ) )";
       
       assertEquals(expected, queryTree1.toString());
-      ScoredDocument[] res1 = gr.runQuery(queryTree1, q1, "group1");
+      List<? extends ScoredDocument> res1 = gr.executeQuery(queryTree1, q1, "group1").scoredDocuments;
+      
       String[] expectedIds = { "i1-59", "i1-55" };
       double[] expectedScores = { -1.38562924636308, -1.3869590337930815 }; 
 
-      for (int i = 0; i < res1.length; i++) {
-        assertEquals(expectedIds[i], res1[i].documentName);
-        assertEquals(i+1, res1[i].rank);
-        assertEquals(expectedScores[i], res1[i].score, 0.00000001);
+      for (int i = 0; i < res1.size(); i++) {
+        assertEquals(expectedIds[i], res1.get(i).documentName);
+        assertEquals(i+1, res1.get(i).rank);
+        assertEquals(expectedScores[i], res1.get(i).score, 0.00000001);
       }
 
       Parameters q2 = params.clone();
@@ -119,7 +121,7 @@ public class GroupRetrievalTest extends TestCase {
               + "( #lengths:document:part=lengths() #counts:document:part=postings.krovetz() ) )";
 
       assertEquals(expected, queryTree2.toString());
-      ScoredDocument[] res2 = gr.runQuery(queryTree2, q2, "group2");
+      List<? extends ScoredDocument> res2 = gr.executeQuery(queryTree2, q2, "group2").scoredDocuments;
       expectedIds = new String[]{"i1-59", "i2-59", "i1-55", "i2-55"};
       expectedScores = new double[]{
         -1.5569809573716442,
@@ -127,10 +129,10 @@ public class GroupRetrievalTest extends TestCase {
         -1.5583107448016458,
         -1.5596387662451652
       };
-      for (int i = 0; i < res2.length; i++) {
-        assertEquals(expectedIds[i], res2[i].documentName);
-        assertEquals(i+1, res2[i].rank);
-        assertEquals(expectedScores[i], res2[i].score, 0.00000001);
+      for (int i = 0; i < res2.size(); i++) {
+        assertEquals(expectedIds[i], res2.get(i).documentName);
+        assertEquals(i+1, res2.get(i).rank);
+        assertEquals(expectedScores[i], res2.get(i).score, 0.00000001);
       }
     } finally {
 

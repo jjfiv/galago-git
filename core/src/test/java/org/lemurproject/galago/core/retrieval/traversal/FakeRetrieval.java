@@ -66,18 +66,6 @@ public class FakeRetrieval implements Retrieval {
   }
 
   @Override
-  @Deprecated
-  public ScoredDocument[] runQuery(Node root) throws Exception {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  @Override
-  @Deprecated
-  public ScoredDocument[] runQuery(Node root, Parameters parameters) throws Exception {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  @Override
   public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
