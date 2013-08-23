@@ -23,10 +23,10 @@ public class TextPartAssigner {
       return transformedNode(original, availableParts.getString("defaultTextPart"));
     } else {
       Set<String> available = availableParts.getKeys();
-      if (available.contains("postings.porter")) {
-        return transformedNode(original, "postings.porter");
-      } else if (available.contains("postings.krovetz")) {
+      if (available.contains("postings.krovetz")) {
         return transformedNode(original, "postings.krovetz");
+      } else if (available.contains("postings.porter")) {
+        return transformedNode(original, "postings.porter");
       } else if (available.contains("postings")) {
         return transformedNode(original, "postings");
       } else {
