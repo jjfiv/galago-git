@@ -110,7 +110,7 @@ public class PRMS2Traversal extends Traversal {
             NodeParameters par1 = new NodeParameters();
             par1.set("default", term);
             termExtents = new Node("extents", par1, new ArrayList());
-            TextPartAssigner.assignPart(termExtents, globals, this.retrieval.getAvailableParts());
+            termExtents = TextPartAssigner.assignPart(termExtents, globals, this.retrieval.getAvailableParts());
 
             termFieldCounts = new Node("inside");
             termFieldCounts.addChild(StructuredQuery.parse("#extents:part=extents:" + field + "()"));
