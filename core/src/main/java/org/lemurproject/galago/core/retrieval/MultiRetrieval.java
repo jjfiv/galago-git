@@ -107,6 +107,28 @@ public class MultiRetrieval implements Retrieval {
   }
 
   /**
+   *
+   * Runs a query across all retrieval objects
+   *
+   * @param root
+   * @return
+   * @throws Exception
+   */
+  @Override
+  @Deprecated
+  public ScoredDocument[] runQuery(Node root) throws Exception {
+    return runQuery(root, new Parameters());
+  }
+
+  // Based on the root of the tree, that dictates how we execute.
+  @Override
+  @Deprecated
+  public ScoredDocument[] runQuery(Node queryTree, Parameters p) throws Exception {
+    ScoredDocument[] results = runRankedQuery(queryTree, p);
+    return results;
+  }
+
+  /**
    * Runs a query across all retrieval objects
    *
    * @param root

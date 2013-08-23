@@ -102,6 +102,21 @@ public class GroupRetrieval implements Retrieval {
   }
 
   @Override
+  @Deprecated
+  public ScoredDocument[] runQuery(Node root) throws Exception {
+    return groups.get(defGroup).runQuery(root);
+  }
+
+  @Override
+  @Deprecated
+  public ScoredDocument[] runQuery(Node root, Parameters parameters) throws Exception {
+    if (parameters.isString("group")) {
+      return groups.get(parameters.getString("group")).runQuery(root, parameters);
+    }
+    return groups.get(defGroup).runQuery(root, parameters);
+  }
+
+  @Override
   public Results executeQuery(Node root) throws Exception {
     return groups.get(defGroup).executeQuery(root);
   }
@@ -193,6 +208,16 @@ public class GroupRetrieval implements Retrieval {
     return groups.get(group).transformQuery(queryTree, qp);
   }
 
+  @Deprecated
+  public ScoredDocument[] runQuery(Node root, String group) throws Exception {
+    return groups.get(group).runQuery(root);
+  }
+
+  @Deprecated
+  public ScoredDocument[] runQuery(Node root, Parameters parameters, String group) throws Exception {
+    return groups.get(group).runQuery(root, parameters);
+  }
+  
   public Results executeQuery(Node root, String group) throws Exception {
     return groups.get(group).executeQuery(root);
   }
