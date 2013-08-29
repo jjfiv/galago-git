@@ -134,7 +134,7 @@ public class BuildSpecialCollBackground extends AppFunction {
             + "  --partName={String}:      Sets the name of index part.\n"
             + "                            [default=background]\n"
             + "  --delim={String}:         Sets the deliminator for the input files.\n"
-            + "  --stemmer={porter|korvetz}: \n"
+            + "  --stemmer={porter|krovetz}: \n"
             + "                            Selects a stemmer class for the index part.\n"
             + "                            [default=krovetz]\n"
             + "\n"

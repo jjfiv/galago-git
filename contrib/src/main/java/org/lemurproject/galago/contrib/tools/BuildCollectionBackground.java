@@ -121,7 +121,7 @@ public class BuildCollectionBackground extends AppFunction {
             + "Algorithm Flags:\n"
             + "  --partName={String}:      Sets the name of index part.\n"
             + "                            [default=background]\n"
-            + "  --stemmer={porter|korvetz}: \n"
+            + "  --stemmer={porter|krovetz}: \n"
             + "                            Selects a stemmer class for the index part.\n"
             + "                            [default=krovetz]\n"
             + "\n"
