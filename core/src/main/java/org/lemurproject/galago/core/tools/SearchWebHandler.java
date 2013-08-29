@@ -358,9 +358,9 @@ public class SearchWebHandler extends ContextHandler {
     // handle this better...
     Parameters parts = search.getAvailiableParts();
     String part = "postings";
-    part = parts.containsKey("postings.krovetz") ? "postings.krovetz" : part;
     part = parts.containsKey("postings.porter") ? "postings.porter" : part;
-
+    part = parts.containsKey("postings.krovetz") ? "postings.krovetz" : part;
+    
     IndexPartStatistics stats = search.getIndexPartStatistics(part);
     PrintWriter writer = response.getWriter();
     writer.write(stats.toString()); // parameters are output into an XML format already
