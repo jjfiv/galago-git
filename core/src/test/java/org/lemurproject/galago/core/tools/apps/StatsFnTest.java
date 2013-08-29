@@ -34,7 +34,7 @@ public class StatsFnTest extends TestCase {
       (new StatsFn()).run(new String[]{"stats",
                 "--index=" + index.getAbsolutePath()}, printStream);
       Parameters results = Parameters.parseString(array.toString());
-      assert (results.containsKey("postings.porter"));
+      assert (results.containsKey("postings.krovetz"));
 
       // test part-based usange
       array = new ByteArrayOutputStream();

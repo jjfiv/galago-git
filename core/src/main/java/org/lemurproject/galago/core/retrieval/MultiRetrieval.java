@@ -496,14 +496,18 @@ public class MultiRetrieval implements Retrieval {
 
     // HACK - for now //
     if (!this.defaultIndexOperators.containsKey("counts")) {
-      if (parts.containsKey("postings.porter")) {
+      if (parts.containsKey("postings.krovetz")) {
+        this.defaultIndexOperators.put("counts", "postings.krovetz");
+      } else if (parts.containsKey("postings.porter")) {
         this.defaultIndexOperators.put("counts", "postings.porter");
       } else if (parts.containsKey("postings")) {
         this.defaultIndexOperators.put("counts", "postings");
       }
     }
     if (!this.defaultIndexOperators.containsKey("extents")) {
-      if (parts.containsKey("postings.porter")) {
+       if (parts.containsKey("postings.krovetz")) {
+        this.defaultIndexOperators.put("extents", "postings.krovetz");
+      } else if (parts.containsKey("postings.porter")) {
         this.defaultIndexOperators.put("extents", "postings.porter");
       } else if (parts.containsKey("postings")) {
         this.defaultIndexOperators.put("extents", "postings");

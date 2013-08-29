@@ -132,6 +132,9 @@ public class MemoryIndex implements DynamicIndex, Index {
     }
 
     // otherwise, try to default
+    if (parts.containsKey("postings.krovetz")) {
+      return "postings.krovetz";
+    }
     if (parts.containsKey("postings.porter")) {
       return "postings.porter";
     }

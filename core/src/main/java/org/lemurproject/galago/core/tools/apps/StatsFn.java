@@ -49,11 +49,11 @@ public class StatsFn extends AppFunction {
             && !p.containsKey("field")
             && !p.containsKey("node")) {
       Set<String> available = r.getAvailableParts().getKeys();
-      if (available.contains("postings.porter")) {
-        p.set("part", "postings.porter");
-      } else if (available.contains("postings.krovetz")) {
+      if (available.contains("postings.krovetz")) {
         p.set("part", "postings.krovetz");
-      } else if (available.contains("postings")) {
+      } else if (available.contains("postings.porter")) {
+        p.set("part", "postings.porter");
+      } else  if (available.contains("postings")) {
         p.set("part", "postings");
       } else {
         output.print(getHelpString());
