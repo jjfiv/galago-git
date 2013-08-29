@@ -31,7 +31,7 @@ public class DumpDocFn extends AppFunction {
             + "  [format parameters] :\n"
             + "\t --text=[true|false]\n"
             + "\t --metadata=[true|false]\n"
-            + "\t --tokenise=[true|false]\n"
+            + "\t --tokenize=[true|false]\n"
             ;
   }
 
