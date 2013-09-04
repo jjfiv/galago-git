@@ -119,27 +119,21 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     p.set("relevanceModel", RelevanceModel3.class.getName());
     p.set("rmwhitelist", "sentiwordlist.txt");
     LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
-    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval);
-
-    Node parsedTree = StructuredQuery.parse("#rm:fbDocs=10:fbTerms=4(neverawordinedgewise)");
-    Node transformed = StructuredQuery.copy(traversal, parsedTree, new Parameters());
+    
+    Node parsedTree = StructuredQuery.parse("#rm:fbDocs=10:fbTerms=4( neverawordinedgewise )");
+    Node transformed = retrieval.transformQuery(parsedTree, p);
     // truth data
     StringBuilder correct = new StringBuilder();
-
-    correct.append("#combine:fbDocs=10:fbTerms=4( #text:neverawordinedgewise() )");
+    correct.append("#combine:fbDocs=10:fbTerms=4:w=1.0( #dirichlet:avgLength=7.0:collectionLength=70:documentCount=10:maximumCount=0:nodeFrequency=0:w=1.0( #lengths:document:part=lengths() #counts:neverawordinedgewise:part=postings() ) )");
         
     //System.err.println(transformed.toString());
     //System.err.println(correct.toString());
 
     assertEquals(correct.toString(), transformed.toString());
-    
-    try {
-      List <? extends ScoredDocument> results = retrieval.executeQuery(transformed).scoredDocuments;
-      assertTrue(results.isEmpty());
-    } catch (java.lang.IllegalArgumentException exc) {
-        //Throws due to no iterator... That should get fixed.
-        System.err.println(exc.getMessage());
-    }
+ 
+    List <? extends ScoredDocument> results = retrieval.executeQuery(transformed).scoredDocuments;        
+    assertTrue(results.isEmpty());
+   
     retrieval.close();
   }
 
