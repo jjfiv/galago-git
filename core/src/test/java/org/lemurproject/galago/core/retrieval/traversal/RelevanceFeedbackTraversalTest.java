@@ -2,11 +2,13 @@
 package org.lemurproject.galago.core.retrieval.traversal;
 
 import java.io.File;
+import java.util.List;
 import static junit.framework.Assert.assertEquals;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
+import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.prf.RelevanceModel1;
 import org.lemurproject.galago.core.retrieval.prf.RelevanceModel3;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -108,6 +110,39 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     retrieval.close();
   }
    
+  public void testRelevanceModelEmptyTraversal() throws Exception {
+    // Create a retrieval object for use by the traversal
+    Parameters p = new Parameters();
+    p.set("index", indexFile.getAbsolutePath());
+    p.set("stemmedPostings", false);
+    p.set("fbOrigWeight", 0.9);
+    p.set("relevanceModel", RelevanceModel3.class.getName());
+    p.set("rmwhitelist", "sentiwordlist.txt");
+    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
+    RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval);
+
+    Node parsedTree = StructuredQuery.parse("#rm:fbDocs=10:fbTerms=4(neverawordinedgewise)");
+    Node transformed = StructuredQuery.copy(traversal, parsedTree, new Parameters());
+    // truth data
+    StringBuilder correct = new StringBuilder();
+
+    correct.append("#combine:fbDocs=10:fbTerms=4( #text:neverawordinedgewise() )");
+        
+    //System.err.println(transformed.toString());
+    //System.err.println(correct.toString());
+
+    assertEquals(correct.toString(), transformed.toString());
+    
+    try {
+      List <? extends ScoredDocument> results = retrieval.executeQuery(transformed).scoredDocuments;
+      assertTrue(results.isEmpty());
+    } catch (java.lang.IllegalArgumentException exc) {
+        //Throws due to no iterator... That should get fixed.
+        System.err.println(exc.getMessage());
+    }
+    retrieval.close();
+  }
+
   @Override
   public void tearDown() throws Exception {
     if (relsFile != null) {

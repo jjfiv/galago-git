@@ -290,6 +290,11 @@ public class FeatureFactory {
           // First check that all children match
           Class ac = formals.get(0).getComponentType();
           for (int i = childIdx; i < childIterators.size(); i++) {
+            if (childIterators.get(i) == null) { 
+              fail = true;
+              failStr = "Argument " + arguments.size() + " is:\n" + null + "\nConstructor expected an array of:\n" + ac.getName();
+              break;
+            } 
             if (!ac.isAssignableFrom(childIterators.get(i).getClass())) {
               fail = true;
               failStr = "Argument " + arguments.size() + " is:\n" + childIterators.get(i).getClass().getName() + "\nConstructor expected an array of:\n" + ac.getName();

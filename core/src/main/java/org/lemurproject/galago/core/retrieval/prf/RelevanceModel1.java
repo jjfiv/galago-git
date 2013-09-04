@@ -84,7 +84,9 @@ public class RelevanceModel1 implements ExpansionModel {
 
     // get some initial results
     List<? extends ScoredDocument> initialResults = collectInitialResults(transformed, fbParams);
-
+    if (initialResults.isEmpty()) {
+        return root;
+    }
     // extract grams from results
     Set<String> stemmedQueryTerms = stemTerms(StructuredQuery.findQueryTerms(transformed));
     Set<String> exclusions = (fbParams.isString("rmstopwords")) ? WordLists.getWordList(fbParams.getString("rmstopwords")) : exclusionTerms;
