@@ -528,4 +528,9 @@ public class LocalRetrieval implements Retrieval {
       cache.addToCache(node, this.createIterator(new Parameters(), node));
     }
   }
+
+  @Override
+  public String toString() {
+    return "LocalRetrieval("+index.getIndexPath()+")";
+  }
 }

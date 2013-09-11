@@ -216,7 +216,7 @@ public interface Retrieval {
    * the number of documents that return a non-zero count for the node, and
    * the maximum frequency of the node in any single document.
    * 
-   * @param nodeString
+   * @param node
    * @return NodeStatistics
    * @throws Exception
    */
@@ -236,7 +236,7 @@ public interface Retrieval {
    * Returns the length of a particular document. Where docname
    * is the internally stored name of the document.
    *
-   * @param docid
+   * @param docname
    * @return document length
    * @throws IOException
    */

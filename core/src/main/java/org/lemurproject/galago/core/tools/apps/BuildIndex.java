@@ -388,7 +388,7 @@ public class BuildIndex extends AppFunction {
       }
     } else {
       if (globalParameters.getBoolean("stemmedPostings")) {
-        ArrayList<String> stemmers = new ArrayList();
+        ArrayList<String> stemmers = new ArrayList<String>();
         // try to find the stemmerClass parameters
         if (globalParameters.containsKey("stemmerClass")
                 && globalParameters.isMap("stemmerClass")) {
@@ -637,7 +637,7 @@ public class BuildIndex extends AppFunction {
     Utility.makeParentDirectories(buildManifest);
     Utility.copyStringToFile(buildParameters.toPrettyString(), buildManifest);
 
-    List<String> inputPaths = buildParameters.getAsList("inputPath");
+    List<String> inputPaths = (List<String>) buildParameters.getAsList("inputPath");
 
     // common steps + connections
 

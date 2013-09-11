@@ -36,7 +36,7 @@ public class AnnotateCollectionStatistics extends Traversal {
     this.globalParameters = retrieval.getGlobalParameters();
     this.retrieval = retrieval;
 
-    this.availableStatistics = new HashSet();
+    this.availableStatistics = new HashSet<String>();
     // field or document region statistics
     this.availableStatistics.add("collectionLength");
     this.availableStatistics.add("documentCount");
@@ -58,14 +58,13 @@ public class AnnotateCollectionStatistics extends Traversal {
   public Node afterNode(Node node, Parameters qp) throws Exception {
     
     // need to get list of required statistics
-    RequiredStatistics required = null;
     NodeType nt = retrieval.getNodeType(node);
     if(nt == null){
       throw new IllegalArgumentException("NodeType of " + node.toString() + " is unknown.");
     }
     
     Class<? extends BaseIterator> c = nt.getIteratorClass();
-    required = c.getAnnotation(RequiredStatistics.class);
+    RequiredStatistics required = c.getAnnotation(RequiredStatistics.class);
 
     // then annotate the node with any of:
     // -- nodeFreq, nodeDocCount, collLen, docCount, collProb
@@ -145,6 +144,7 @@ public class AnnotateCollectionStatistics extends Traversal {
   private FieldStatistics getCollectionStatistics(String field, Parameters qp) throws Exception {
     if (this.retrieval instanceof GroupRetrieval) {
       String group = qp.get("group", globalParameters.get("group", ""));
+      // merge statistics "group" or read from "backgroundIndex"
       group = qp.get("backgroundIndex", globalParameters.get("backgroundIndex", group));
 
       if (!group.isEmpty()) {

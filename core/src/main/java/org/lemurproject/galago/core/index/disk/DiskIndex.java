@@ -89,7 +89,7 @@ public class DiskIndex implements Index {
    *
    * prefix should be empty string or a path ending with a slash
    */
-  protected void openDiskParts(String name, File directory) throws IOException {
+  private void openDiskParts(String name, File directory) throws IOException {
     // check if the directory is a split index folder: (e.g. corpus)
     if (SplitBTreeReader.isBTree(directory)) {
       IndexComponentReader component = openIndexComponent(directory.getAbsolutePath());
@@ -113,12 +113,13 @@ public class DiskIndex implements Index {
     }
   }
 
-  protected void initializeComponent(String name, IndexComponentReader component) {
+  private void initializeComponent(String name, IndexComponentReader component) {
     if (IndexPartReader.class.isAssignableFrom(component.getClass())) {
       parts.put(name, (IndexPartReader) component);
     }
   }
 
+  @Override
   public String getIndexPath() {
     return location.getAbsolutePath();
   }
@@ -135,7 +136,7 @@ public class DiskIndex implements Index {
     }
 
     // otherwise, try to default
-       if (parts.containsKey("postings.krovetz")) {
+    if (parts.containsKey("postings.krovetz")) {
       return "postings.krovetz";
     }
     if (parts.containsKey("postings.porter")) {
@@ -178,7 +179,7 @@ public class DiskIndex implements Index {
     return (name != null);
   }
 
-  protected void initializeIndexOperators() {
+  private void initializeIndexOperators() {
     for (Entry<String, IndexPartReader> entry : parts.entrySet()) {
       String partName = entry.getKey();
       IndexPartReader part = entry.getValue();
@@ -219,29 +220,26 @@ public class DiskIndex implements Index {
         this.defaultIndexOperators.put("extents", "postings");
       }
     }
-
+    
     // Initialize these now b/c they're so common
     if (parts.containsKey("lengths")) {
       lengthsReader = (DiskLengthsReader) parts.get("lengths");
     } else {
-      logger.warning("Index does not contain a lengths part.");
+      logger.warning("DiskIndex("+location.getAbsolutePath()+") Index does not contain a lengths part.");
     }
     if (parts.containsKey("names")) {
       namesReader = (DiskNameReader) parts.get("names");
     } else {
-      logger.warning("Index does not contain a names part.");
+      logger.warning("DiskIndex("+location.getAbsolutePath()+") Index does not contain a names part.");
     }
-
     if (parts.containsKey("names.reverse")) {
       namesReverseReader = (DiskNameReverseReader) parts.get("names.reverse");
     } else {
-      logger.warning("Index does not contain a names.reverse part.");
+      logger.warning("DiskIndex("+location.getAbsolutePath()+") Index does not contain a names.reverse part.");
     }
     if (parts.size() < 3) {
-      logger.warning("Index contains fewer than 3 parts:- this index might not be compatible with this version.");
+      logger.warning("DiskIndex("+location.getAbsolutePath()+") Index contains fewer than 3 parts: this index might not be compatible with this version.");
     }
-
-
   }
 
   @Override
@@ -405,8 +403,7 @@ public class DiskIndex implements Index {
     try {
       readerClass = Class.forName(className);
     } catch (ClassNotFoundException e) {
-      throw new IOException("Class " + className + ", which was specified as the readerClass "
-              + "in " + path + ", could not be found.");
+      throw new IOException("Class " + className + ", which was specified as the readerClass in " + path + ", could not be found.");
     }
 
     if (!IndexComponentReader.class.isAssignableFrom(readerClass)) {
@@ -417,21 +414,16 @@ public class DiskIndex implements Index {
     try {
       c = readerClass.getConstructor(BTreeReader.class);
     } catch (NoSuchMethodException ex) {
-      throw new IOException(className + " has no constructor that takes a single "
-              + "IndexReader argument.");
+      throw new IOException(className + " has no constructor that takes a single IndexReader argument.");
     } catch (SecurityException ex) {
-      throw new IOException(className + " doesn't have a suitable constructor that "
-              + "this code has access to (SecurityException)");
+      throw new IOException(className + " doesn't have a suitable constructor that this code has access to (SecurityException)");
     }
 
     IndexComponentReader componentReader;
     try {
       componentReader = (IndexComponentReader) c.newInstance(reader);
     } catch (Exception ex) {
-      IOException e = new IOException("Caught an exception while instantiating "
-              + "a StructuredIndexPartReader: ");
-      e.initCause(ex);
-      throw e;
+      throw new IOException("Caught an exception while instantiating a StructuredIndexPartReader: ", ex);
     }
     return componentReader;
   }
@@ -442,5 +434,10 @@ public class DiskIndex implements Index {
       throw new IOException(componentReader.getClass().getName() + " is not a IndexPartReader subclass.");
     }
     return (IndexPartReader) componentReader;
+  }
+
+  @Override
+  public String toString() {
+    return "DiskIndex("+getIndexPath()+")";
   }
 }

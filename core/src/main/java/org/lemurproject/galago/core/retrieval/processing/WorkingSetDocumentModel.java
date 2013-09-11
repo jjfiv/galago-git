@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
@@ -21,7 +20,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class WorkingSetDocumentModel extends ProcessingModel {
 
-  Logger logger = Logger.getLogger("WorkingSetDocModel");
+  static final Logger logger = Logger.getLogger("WorkingSetDocModel");
   LocalRetrieval retrieval;
   Index index;
 
@@ -49,9 +48,11 @@ public class WorkingSetDocumentModel extends ProcessingModel {
       whitelist = retrieval.getDocumentIds((List<String>) l);
           
       // check and print missing documents
-      for(int i =0; i<l.size(); i++){
-        if(whitelist.get(i) < 0){
-          logger.warning("Document: " + l.get(i) + " does not exist in index: " + index.getIndexPath() +" IGNORING.");
+      if(queryParams.get("warnMissingDocuments", true)) {
+        for(long docId : whitelist){
+          if(docId < 0){
+            logger.warning("Document: " + docId + " does not exist in index: " + index.getIndexPath() +" IGNORING.");
+          }
         }
       }
       

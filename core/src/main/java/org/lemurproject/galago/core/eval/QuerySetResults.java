@@ -35,6 +35,7 @@ public class QuerySetResults {
     name = "results";
     for (String query : results.keySet()) {
       List<? extends ScoredDocument> rankedList = results.get(query);
+      check(rankedList);
       Collections.sort(rankedList, new RankComparator());
       querySetResults.put(query, new QueryResults(query, rankedList));
     }
@@ -138,6 +139,14 @@ public class QuerySetResults {
     }
 
     return result;
+  }
+
+  private void check(List<? extends ScoredDocument> rankedList) {
+    for(ScoredDocument sdoc : rankedList) {
+      if(sdoc.rank == 0) {
+        throw new RuntimeException("Ranked list contains a document with zero rank. Ranked lists must start from 1.");
+      }
+    }
   }
 
   private class RankComparator implements Comparator<ScoredDocument> {
