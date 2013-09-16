@@ -162,7 +162,7 @@ public class MultiRetrieval implements Retrieval {
         @Override
         public void run() {
           try {
-            List<? extends ScoredDocument> results = r.executeQuery(queryTree, shardParams).scoredDocuments;
+            List<ScoredDocument> results = r.executeQuery(queryTree, shardParams).scoredDocuments;
             if (results != null) {
               queryResultCollector.addAll(results);
             }

@@ -53,7 +53,7 @@ public class PassageRetrievalTest extends TestCase {
     root = retrieval.transformQuery(root, p);
     
     p.set("requested", 10);
-    List<? extends ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
+    List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
     
     assertEquals(7, results.size());
 

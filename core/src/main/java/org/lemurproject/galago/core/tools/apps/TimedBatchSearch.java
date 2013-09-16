@@ -69,8 +69,6 @@ public class TimedBatchSearch extends AppFunction {
 
   @Override
   public void run(Parameters parameters, PrintStream out) throws Exception {
-    List<? extends ScoredDocument> results = null;
-
     if (!(parameters.containsKey("query")
             || parameters.containsKey("queries"))) {
       out.println(this.getHelpString());
@@ -160,7 +158,7 @@ public class TimedBatchSearch extends AppFunction {
         }
 
         // run query
-        results = retrieval.executeQuery(transformed, query).scoredDocuments;
+        List<ScoredDocument> results = retrieval.executeQuery(transformed, query).scoredDocuments;
 
         queryendtime = System.currentTimeMillis();
 
@@ -172,7 +170,7 @@ public class TimedBatchSearch extends AppFunction {
         queryExecTimes.get(queryNumber)[rep] = (queryendtime - querymidtime);
 
         // if we have some results -- print in to output stream
-        if (rep == 0 && results != null) {
+        if (rep == 0 && !results.isEmpty()) {
           for (ScoredDocument sd : results) {
             if(parameters.get("trec", false)){
               out.println(sd.toTRECformat(queryNumber));

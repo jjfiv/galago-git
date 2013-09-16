@@ -67,7 +67,7 @@ public class BatchSearch extends AppFunction {
 
   @Override
   public void run(Parameters parameters, PrintStream out) throws Exception {
-    List<? extends ScoredDocument> results = null;
+    List<ScoredDocument> results = null;
 
     if (!(parameters.containsKey("query")
             || parameters.containsKey("queries"))) {
@@ -123,7 +123,7 @@ public class BatchSearch extends AppFunction {
       
 
       // if we have some results -- print in to output stream
-      if (results != null) {
+      if (!results.isEmpty()) {
         for (ScoredDocument sd : results) {
           if (query.get("trec", false)) {
             out.println(sd.toTRECformat(queryNumber));

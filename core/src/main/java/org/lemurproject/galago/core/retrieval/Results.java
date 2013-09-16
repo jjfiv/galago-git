@@ -19,7 +19,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 public class Results implements Serializable{
 
   public Node inputQuery;
-  public List<? extends ScoredDocument> scoredDocuments;
+  public List<ScoredDocument> scoredDocuments;
 
   // empty construction -- a
   public Results() {
@@ -30,7 +30,7 @@ public class Results implements Serializable{
     scoredDocuments = new ArrayList();
   }
 
-  public Results(Node query, List<? extends ScoredDocument> scoredDocuments) {
+  public Results(Node query, List<ScoredDocument> scoredDocuments) {
     this.inputQuery = query;
     this.scoredDocuments = scoredDocuments;
   }

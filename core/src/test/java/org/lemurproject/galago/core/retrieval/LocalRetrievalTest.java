@@ -239,7 +239,7 @@ public class LocalRetrievalTest extends TestCase {
     Parameters p = new Parameters();
     p.set("requested", 5);
     root = retrieval.transformQuery(root, p);
-    List<? extends ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
+    List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
     assertEquals(results.size(), 5);
     
    
@@ -286,7 +286,7 @@ public class LocalRetrievalTest extends TestCase {
     ids.add("DOC2");
     ids.add("DOC5");
     p.set("working", ids);
-    List<? extends ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
+    List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
           
     assertEquals(3, results.size());
     assertEquals(1, results.get(0).document);
@@ -326,7 +326,7 @@ public class LocalRetrievalTest extends TestCase {
     Parameters p = new Parameters();
     p.set("requested", 5);
     root = retrieval.transformQuery(root, p);
-    List<? extends ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
+    List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
     
 
     assertEquals(2, results.size());

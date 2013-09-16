@@ -105,7 +105,7 @@ public class Indexer {
   }
   
   
-  public List<? extends ScoredDocument> runQuery(String query) throws Exception{
+  public List<ScoredDocument> runQuery(String query) throws Exception {
     // parse query
     // transform query
     // run query

@@ -126,17 +126,13 @@ public class Search {
     int startAt = (int) p.getLong("startAt");
     int count = (int) p.getLong("resultCount");
 
-    List<? extends ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
+    List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
     
     SearchResult result = new SearchResult();
     Set<String> queryTerms = StructuredQuery.findQueryTerms(root);
     generator.setStemming(root.toString().contains("part=stemmedPostings"));
 
     result.transformedQuery = root;
-
-    if (results == null) {
-    	results = new  ArrayList<ScoredDocument>();
-    }
     
     DocumentComponents p1 = new DocumentComponents();
 

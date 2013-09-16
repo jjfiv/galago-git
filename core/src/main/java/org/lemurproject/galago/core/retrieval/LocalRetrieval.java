@@ -251,7 +251,7 @@ public class LocalRetrieval implements Retrieval {
 
     // Format and get names
     String indexId = this.globalParameters.get("indexId", "0");
-    List<? extends ScoredDocument> rankedList = Arrays.asList(getArrayResults(results, indexId));
+    List<ScoredDocument> rankedList = Arrays.asList(getArrayResults(results, indexId));
 
     Results r = new Results();
     r.inputQuery = queryTree;

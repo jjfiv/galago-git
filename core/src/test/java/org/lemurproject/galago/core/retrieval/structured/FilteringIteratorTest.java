@@ -57,7 +57,7 @@ public class FilteringIteratorTest extends TestCase {
       ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
       PrintStream printStream = new PrintStream(byteArrayStream);
 
-      new App().run(new String[]{"xcount",
+      App.run(new String[]{"xcount",
                 "--index=" + tempPath.getAbsolutePath(),
                 queryFile1.getAbsolutePath()}, printStream);
 
@@ -84,7 +84,7 @@ public class FilteringIteratorTest extends TestCase {
     Parameters qp = new Parameters();
     tree = retrieval.transformQuery(tree, qp);
     
-    List<? extends ScoredDocument> results = retrieval.executeQuery(tree, qp).scoredDocuments;
+    List<ScoredDocument> results = retrieval.executeQuery(tree, qp).scoredDocuments;
     
     assertEquals(5, results.size());
     int i = 0;
@@ -108,7 +108,7 @@ public class FilteringIteratorTest extends TestCase {
     Parameters qp = new Parameters();
     tree = retrieval.transformQuery(tree, qp);
 
-    List<? extends ScoredDocument> results = retrieval.executeQuery(tree, qp).scoredDocuments;
+    List<ScoredDocument> results = retrieval.executeQuery(tree, qp).scoredDocuments;
     assertEquals(5, results.size());
 
     // Check each doc - don't really care about order

@@ -31,10 +31,10 @@ public class QuerySetResults {
   private String name;
   private Map<String, QueryResults> querySetResults = new TreeMap<String, QueryResults>(new NaturalOrderComparator());
 
-  public QuerySetResults(Map<String, List<? extends ScoredDocument>> results) {
+  public QuerySetResults(Map<String, List<ScoredDocument>> results) {
     name = "results";
     for (String query : results.keySet()) {
-      List<? extends ScoredDocument> rankedList = results.get(query);
+      List<ScoredDocument> rankedList = results.get(query);
       check(rankedList);
       Collections.sort(rankedList, new RankComparator());
       querySetResults.put(query, new QueryResults(query, rankedList));
@@ -141,11 +141,9 @@ public class QuerySetResults {
     return result;
   }
 
-  private void check(List<? extends ScoredDocument> rankedList) {
+  private void check(List<ScoredDocument> rankedList) {
     for(ScoredDocument sdoc : rankedList) {
-      if(sdoc.rank == 0) {
-        throw new RuntimeException("Ranked list contains a document with zero rank. Ranked lists must start from 1.");
-      }
+      assert(sdoc.rank != 0) : "Ranked list contains a document with zero rank. Ranked lists must start from 1.";
     }
   }
 

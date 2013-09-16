@@ -98,7 +98,7 @@ public class GenerateWorkingSetQueries extends AppFunction {
       queryParams.set("requested", topK);
       Node query = StructuredQuery.parse(queryParams.getString("text"));
       query = retrieval.transformQuery(query, queryParams);
-      List<? extends ScoredDocument> results = retrieval.executeQuery(query, queryParams).scoredDocuments;
+      List<ScoredDocument> results = retrieval.executeQuery(query, queryParams).scoredDocuments;
       
       for (ScoredDocument r : results) {
         workingSetNames.add(r.documentName);

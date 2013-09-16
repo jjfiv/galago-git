@@ -14,14 +14,14 @@ import org.lemurproject.galago.core.retrieval.ScoredDocument;
 public class QueryResults {
 
   private String query;
-  private List<? extends ScoredDocument> rankedList;
+  private List<ScoredDocument> rankedList;
 
-  public QueryResults(String query, List<? extends ScoredDocument> rankedList) {
+  public QueryResults(String query, List<ScoredDocument> rankedList) {
     this.query = query;
     this.rankedList = rankedList;
   }
 
-  public Iterable<? extends ScoredDocument> getIterator() {
+  public Iterable<ScoredDocument> getIterator() {
     return rankedList;
   }
 

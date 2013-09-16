@@ -131,7 +131,7 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
 
     assertEquals(correct.toString(), transformed.toString());
  
-    List <? extends ScoredDocument> results = retrieval.executeQuery(transformed).scoredDocuments;        
+    List <ScoredDocument> results = retrieval.executeQuery(transformed).scoredDocuments;        
     assertTrue(results.isEmpty());
    
     retrieval.close();

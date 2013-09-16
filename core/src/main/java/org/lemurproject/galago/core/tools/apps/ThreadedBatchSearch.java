@@ -179,10 +179,10 @@ public class ThreadedBatchSearch extends AppFunction {
         }
         
         // run query
-        List<? extends ScoredDocument> results = ret.executeQuery(transformed, query).scoredDocuments;
+        List<ScoredDocument> results = ret.executeQuery(transformed, query).scoredDocuments;
         
         // if we have some results -- print in to output stream
-        if (results != null) {
+        if (!results.isEmpty()) {
           // lock on out to avoid overwriting issues
           synchronized (out) {
             for (ScoredDocument sd : results) {

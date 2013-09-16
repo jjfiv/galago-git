@@ -88,7 +88,7 @@ public class GroupRetrievalTest extends TestCase {
               + " #lengths:document:part=lengths() #counts:document:part=postings.krovetz() ) )";
       
       assertEquals(expected, queryTree1.toString());
-      List<? extends ScoredDocument> res1 = gr.executeQuery(queryTree1, q1, "group1").scoredDocuments;
+      List<ScoredDocument> res1 = gr.executeQuery(queryTree1, q1, "group1").scoredDocuments;
       
       String[] expectedIds = { "i1-59", "i1-55" };
       double[] expectedScores = { -1.38562924636308, -1.3869590337930815 }; 
@@ -121,7 +121,7 @@ public class GroupRetrievalTest extends TestCase {
               + "( #lengths:document:part=lengths() #counts:document:part=postings.krovetz() ) )";
 
       assertEquals(expected, queryTree2.toString());
-      List<? extends ScoredDocument> res2 = gr.executeQuery(queryTree2, q2, "group2").scoredDocuments;
+      List<ScoredDocument> res2 = gr.executeQuery(queryTree2, q2, "group2").scoredDocuments;
       expectedIds = new String[]{"i1-59", "i2-59", "i1-55", "i2-55"};
       expectedScores = new double[]{
         -1.5569809573716442,

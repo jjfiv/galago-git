@@ -241,11 +241,11 @@ public class FieldTraversalTest extends TestCase {
     Node raw = StructuredQuery.parse(query);
     Node root = retrieval.transformQuery(raw, global);
     global.set("deltaReady", false);
-    List<? extends ScoredDocument> results = retrieval.executeQuery(root, global).scoredDocuments;
+    List<ScoredDocument> results = retrieval.executeQuery(root, global).scoredDocuments;
    
     global.set("deltaReady", true);
     
-    List<? extends ScoredDocument> results2 = retrieval.executeQuery(root, global).scoredDocuments;
+    List<ScoredDocument> results2 = retrieval.executeQuery(root, global).scoredDocuments;
 
     assertEquals(results.size(), results2.size());
 
@@ -307,7 +307,7 @@ public class FieldTraversalTest extends TestCase {
     Node raw = StructuredQuery.parse(query);
     Node root = retrieval.transformQuery(raw, qp);
     qp.set("deltaReady", false);
-    List<? extends ScoredDocument> results = retrieval.executeQuery(root, qp).scoredDocuments;
+    List<ScoredDocument> results = retrieval.executeQuery(root, qp).scoredDocuments;
  
     assertEquals(5, results.size());
 

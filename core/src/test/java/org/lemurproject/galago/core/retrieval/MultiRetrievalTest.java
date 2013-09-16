@@ -3,9 +3,6 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
-import org.lemurproject.galago.core.retrieval.MultiRetrieval;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -85,7 +82,7 @@ public class MultiRetrievalTest extends TestCase {
 
       assertEquals(queryTree.toString(), expected);
 
-      List<? extends ScoredDocument> results = mr.executeQuery(queryTree, qp).scoredDocuments;
+      List<ScoredDocument> results = mr.executeQuery(queryTree, qp).scoredDocuments;
 
       ScoredDocument[] expDocs = new ScoredDocument[4];
       expDocs[0] = new ScoredDocument("i1-59", 1, -1.5569809573716442);

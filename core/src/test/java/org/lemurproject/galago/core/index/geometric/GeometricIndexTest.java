@@ -166,7 +166,7 @@ public class GeometricIndexTest extends TestCase {
           Node query = StructuredQuery.parse("sample " + j);
           query = ret.transformQuery(query, p);
 
-          List<? extends ScoredDocument> results = ret.executeQuery(query, p).scoredDocuments;
+          List<ScoredDocument> results = ret.executeQuery(query, p).scoredDocuments;
           assert (results.get(0).documentName.contains(Integer.toString(j)));
           }
       }

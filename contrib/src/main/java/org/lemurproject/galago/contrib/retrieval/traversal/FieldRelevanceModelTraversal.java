@@ -286,7 +286,7 @@ public class FieldRelevanceModelTraversal extends Traversal {
 
     // transform and run
     Node transformedCombineNode = retrieval.transformQuery(combineNode, localParameters);
-    List<? extends ScoredDocument> initialResults = retrieval.executeQuery(transformedCombineNode, localParameters).scoredDocuments;
+    List<ScoredDocument> initialResults = retrieval.executeQuery(transformedCombineNode, localParameters).scoredDocuments;
     
     // Gather content
     ArrayList<String> names = new ArrayList<String>();
@@ -330,30 +330,25 @@ public class FieldRelevanceModelTraversal extends Traversal {
       weights.clear();
       for (String field : fields) {
         double sum = 0.0;
-        double score = 0.0;
         if (uCFSs != null) {
-          score = (ucfw * uCFSs.get(term).get(field));
-          sum += score;
+          sum += (ucfw * uCFSs.get(term).get(field));
         }
 
         if (bCFSs != null) {
           TObjectDoubleHashMap<String> termMap = bCFSs.get(term);
           if (termMap != null) {
-            score = (bcfw * termMap.get(field));
-            sum += score;
+            sum += (bcfw * termMap.get(field));
           }
         }
 
         if (uPRFSs != null) {
-          score = (uprfw * uPRFSs.get(term).get(field));
-          sum += score;
+          sum += (uprfw * uPRFSs.get(term).get(field));
         }
 
         if (bPRFSs != null) {
           TObjectDoubleHashMap<String> termMap = bPRFSs.get(term);
           if (termMap != null) {
-            score = (bprfw * termMap.get(field));
-            sum += score;
+            sum += (bprfw * termMap.get(field));
           }
         }
         weights.put(field, sum);
