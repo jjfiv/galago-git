@@ -11,14 +11,13 @@ import org.lemurproject.galago.core.index.disk.DiskNameWriter;
 import org.lemurproject.galago.core.index.disk.FieldIndexWriter;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.parse.DocumentNumberer;
-import org.lemurproject.galago.core.parse.TagTokenizer;
+import org.lemurproject.galago.core.parse.Tokenizer;
 import org.lemurproject.galago.core.parse.UniversalParser;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.core.types.NumberedExtent;
 import org.lemurproject.galago.core.types.NumberedField;
-import org.lemurproject.galago.tupleflow.ExNihiloSource;
 import org.lemurproject.galago.tupleflow.Order;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -198,7 +197,7 @@ public class BuildStageTemplates {
   }
 
   public static Step getTokenizerStep(Parameters p) {
-    return getTokenizerStep(p, TagTokenizer.class);
+    return getTokenizerStep(p, Tokenizer.getTokenizerClass(p));
   }
 
   public static Step getTokenizerStep(Parameters p, Class defaultClass) {

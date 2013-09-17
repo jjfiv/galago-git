@@ -14,10 +14,13 @@ import java.io.IOException;
 public abstract class StandardStep<T, U> implements Processor<T>, Source<U> {
     public Processor<U> processor;
 
+    @Override
     public abstract void process(T object) throws IOException;
+    @Override
     public void setProcessor(Step next) throws IncompatibleProcessorException {
         Linkage.link(this, next);
     }
+    @Override
     public void close() throws IOException {
         processor.close();
     }

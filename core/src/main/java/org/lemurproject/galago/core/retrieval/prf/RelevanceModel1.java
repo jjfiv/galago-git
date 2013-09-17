@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.core.parse.TagTokenizer;
+import org.lemurproject.galago.core.parse.Tokenizer;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;
@@ -41,7 +41,7 @@ public class RelevanceModel1 implements ExpansionModel {
   private Set<String> exclusionTerms;
   private Set<String> inclusionTerms;
   private Stemmer stemmer;
-  private TagTokenizer tokenizer;
+  private Tokenizer tokenizer;
 
   public RelevanceModel1(Retrieval r) throws Exception {
     this.retrieval = r;
@@ -49,10 +49,12 @@ public class RelevanceModel1 implements ExpansionModel {
     defaultFbTerms = (int) Math.round(r.getGlobalParameters().get("fbTerm", 5.0));
     exclusionTerms = WordLists.getWordList(r.getGlobalParameters().get("rmstopwords", "rmstop"));
     inclusionTerms = null;
-    if (r.getGlobalParameters().isString("rmwhitelist")){
+    Parameters gblParms = r.getGlobalParameters();
+    
+    if (gblParms.isString("rmwhitelist")){
         inclusionTerms = WordLists.getWordList(r.getGlobalParameters().getString("rmwhitelist"));
     }
-    tokenizer = new TagTokenizer();
+    tokenizer = Tokenizer.instance(gblParms);
     if (r.getGlobalParameters().isString("rmStemmer")) {
       String rmstemmer = r.getGlobalParameters().getString("rmStemmer");
       stemmer = (Stemmer) Class.forName(rmstemmer).getConstructor().newInstance();

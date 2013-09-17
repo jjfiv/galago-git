@@ -9,12 +9,10 @@ import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.core.parse.TagTokenizer;
+import org.lemurproject.galago.core.parse.Tokenizer;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskDataIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -27,7 +25,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class CorpusReader extends KeyValueReader implements DocumentReader {
 
-  TagTokenizer tokenizer;
+  Tokenizer tokenizer;
 
   public CorpusReader(String fileName) throws FileNotFoundException, IOException {
     super(fileName);
@@ -39,13 +37,8 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     init();
   }
 
-  public void init() {
-    Parameters manifest = getManifest();
-    if (manifest.containsKey("tokenizer")) {
-      tokenizer = new TagTokenizer(new FakeParameters(getManifest().getMap("tokenizer")));
-    } else {
-      tokenizer = new TagTokenizer(new FakeParameters(new Parameters()));
-    }
+  private void init() {
+    tokenizer = Tokenizer.instance(getManifest());
   }
 
   @Override

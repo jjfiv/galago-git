@@ -4,7 +4,6 @@ package org.lemurproject.galago.core.parse;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -52,7 +51,7 @@ public class TacTextParser extends DocumentStreamParser {
     int start = allText.indexOf("<DOCID>") + 7;
     int end = allText.indexOf("</DOCID>");
 
-    return new String(allText.substring(start, end).trim());
+    return allText.substring(start, end).trim();
   }
 
   public String parseSource() throws IOException {
@@ -75,9 +74,10 @@ public class TacTextParser extends DocumentStreamParser {
     int startOffset = allText.indexOf('>', allText.indexOf(start)) + 1;
     int endOffset = allText.indexOf(end);
 
-    return new String(allText.substring(startOffset, endOffset).trim());
+    return allText.substring(startOffset, endOffset).trim();
   }
 
+  @Override
   public Document nextDocument() throws IOException {
     String line;
 

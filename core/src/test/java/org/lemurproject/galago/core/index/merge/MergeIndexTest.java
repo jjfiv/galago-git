@@ -10,8 +10,7 @@ import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.mem.FlushToDisk;
 import org.lemurproject.galago.core.index.mem.MemoryIndex;
 import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.core.parse.TagTokenizer;
-import org.lemurproject.galago.core.retrieval.LocalRetrieval;
+import org.lemurproject.galago.core.parse.Tokenizer;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FakeParameters;
@@ -123,7 +122,7 @@ public class MergeIndexTest extends TestCase {
       MemoryIndex mi1 = new MemoryIndex(new FakeParameters(p1));
       MemoryIndex mi2 = new MemoryIndex(new FakeParameters(p2));
 
-      TagTokenizer tok = new TagTokenizer();
+      Tokenizer tok = Tokenizer.instance(p1);
       for (int i = 0; i < 100; i++) {
         Document d1 = new Document("DOCS1-" + i, "this is sample document " + i);
         Document d2 = new Document("DOCS2-" + i, "this is a different document " + i);

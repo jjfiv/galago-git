@@ -9,10 +9,8 @@ import org.lemurproject.galago.core.index.source.BTreeKeySource;
 import org.lemurproject.galago.core.index.source.DataSource;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.core.parse.TagTokenizer;
-import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.core.parse.Tokenizer;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -21,18 +19,14 @@ import org.lemurproject.galago.tupleflow.Utility;
 public class CorpusReaderSource extends BTreeKeySource implements DataSource<Document> {
 
   DocumentComponents docParams;
-  TagTokenizer tokenizer;
+  Tokenizer tokenizer;
 
   public CorpusReaderSource(BTreeReader rdr) throws IOException {
     super(rdr);
     docParams = new DocumentComponents();
     final Parameters manifest = btreeReader.getManifest();
 
-    if (manifest.containsKey("tokenizer") && manifest.isMap("tokenizer")) {
-      tokenizer = new TagTokenizer(new FakeParameters(manifest.getMap("tokenizer")));
-    } else {
-      tokenizer = new TagTokenizer(new FakeParameters(new Parameters()));
-    }
+    tokenizer = Tokenizer.instance(manifest);
   }
 
   @Override

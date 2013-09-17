@@ -165,8 +165,7 @@ public class StageInstanceFactory {
                 + "no compatible constructor was found: " + step.getClassName());
       }
     } catch (Exception e) {
-      throw (IOException) new IOException(
-              "Couldn't instantiate a step object: " + step.getClassName()).initCause(e);
+      throw new IOException("Couldn't instantiate a step object: " + step.getClassName(), e);
     }
 
     return object;
@@ -226,8 +225,7 @@ public class StageInstanceFactory {
       org.lemurproject.galago.tupleflow.Type type = (org.lemurproject.galago.tupleflow.Type) typeClass.getConstructor().newInstance();
       order = type.getOrder(orderSpec);
     } catch (Exception e) {
-      throw (IOException) new IOException(
-              "Couldn't create an order object for type: " + className).initCause(e);
+      throw new IOException("Couldn't create an order object for type: " + className, e);
     }
 
     return order;
@@ -306,7 +304,7 @@ public class StageInstanceFactory {
         try {
           reader.setProcessor(writer);
         } catch (IncompatibleProcessorException e) {
-          throw (IOException) new IOException("Incompatible processor for reader tuples").initCause(e);
+          throw new IOException("Incompatible processor for reader tuples", e);
         }
 
         reader.run();
@@ -344,7 +342,7 @@ public class StageInstanceFactory {
         writer = Splitter.splitToFiles(fileNames, order, hashOrder, pipeInput.getPipe().getCompression());
       }
     } catch (IncompatibleProcessorException e) {
-      throw (IOException) new IOException("Failed to create a typeWriter").initCause(e);
+      throw new IOException("Failed to create a typeWriter", e);
     }
 
     return writer;

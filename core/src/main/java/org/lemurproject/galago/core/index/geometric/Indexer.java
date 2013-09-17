@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.index.geometric;
 import java.io.IOException;
 import java.util.List;
 import org.lemurproject.galago.core.parse.SequentialDocumentNumberer;
-import org.lemurproject.galago.core.parse.TagTokenizer;
+import org.lemurproject.galago.core.parse.Tokenizer;
 import org.lemurproject.galago.core.parse.UniversalParser;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.Results;
@@ -43,7 +43,7 @@ public class Indexer {
     //   a fully formed document is the given to the index
     
     indexer = new UniversalParser(new FakeParameters(new Parameters()));
-    TagTokenizer p2 = new TagTokenizer();
+    Tokenizer p2 = Tokenizer.instance(new Parameters());
     SequentialDocumentNumberer p3 = new SequentialDocumentNumberer();
 
     Parameters indexParams = new Parameters();

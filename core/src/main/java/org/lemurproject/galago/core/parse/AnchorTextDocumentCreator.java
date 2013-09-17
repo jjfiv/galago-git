@@ -10,6 +10,7 @@ import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.core.types.IdentifiedLink;
+import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 
 /**
  * From an IdentifiedLink object, this class constructs a document containing
@@ -21,14 +22,19 @@ import org.lemurproject.galago.core.types.IdentifiedLink;
 @InputClass(className = "org.lemurproject.galago.core.types.IdentifiedLink")
 @OutputClass(className = "org.lemurproject.galago.core.parse.Document")
 public class AnchorTextDocumentCreator extends StandardStep<IdentifiedLink, Document> {
-    TagTokenizer tokenizer = new TagTokenizer();
+    Tokenizer tokenizer;
     ArrayList<IdentifiedLink> links = new ArrayList<IdentifiedLink>();
     String lastDocument = null;
-
+    
+    public AnchorTextDocumentCreator(TupleFlowParameters tp) {
+      tokenizer = Tokenizer.instance(tp.getJSON());
+    }
+    
     /**
      * This method takes the text from a link object, tokenizes it,
      * then adds it to a document object.
      */
+    @Override
     public void process(IdentifiedLink link) throws IOException {
         if (lastDocument != null && !lastDocument.equals(link.identifier)) {
             flush();
@@ -40,7 +46,7 @@ public class AnchorTextDocumentCreator extends StandardStep<IdentifiedLink, Docu
     public void flush() throws IOException {
         Document document = new Document();
 
-        if (links.size() == 0) {
+        if (links.isEmpty()) {
             return;
         } else if (links.size() == 1) {
             IdentifiedLink link = links.get(0);

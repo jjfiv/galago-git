@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,15 +10,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Linkage;
-import org.lemurproject.galago.tupleflow.NullProcessor;
 import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.Source;
-import org.lemurproject.galago.tupleflow.Step;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
@@ -37,11 +30,10 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 @Verified
 @InputClass(className = "org.lemurproject.galago.core.parse.Document")
 @OutputClass(className = "org.lemurproject.galago.core.parse.Document")
-public class TagTokenizer implements Source<Document>, Processor<Document> {
-
+public class TagTokenizer extends Tokenizer {
+  
   protected static final boolean[] splits;
   protected static HashSet<String> ignoredTags;
-  public Processor<Document> processor = new NullProcessor(Document.class);
   protected StringPooler pooler = new StringPooler();
   protected String ignoreUntil;
   protected List<Pattern> whitelist;
@@ -139,17 +131,17 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
     return tags;
   }
 
-  class ClosedTag {
+  static class ClosedTag {
 
-    public ClosedTag(BeginTag begin) {
+    public ClosedTag(BeginTag begin, int start, int end) {
       this.name = begin.name;
       this.attributes = begin.attributes;
 
       this.byteStart = begin.bytePosition;
       this.termStart = begin.termPosition;
 
-      this.byteEnd = position;
-      this.termEnd = tokens.size();
+      this.byteEnd = start;
+      this.termEnd = end;
     }
     String name;
     Map<String, String> attributes;
@@ -159,14 +151,14 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
     int termEnd;
   }
 
-  class BeginTag {
+  static class BeginTag {
 
-    public BeginTag(String name, Map<String, String> attributes, int bytePosition) {
+    public BeginTag(String name, Map<String, String> attributes, int bytePosition, int end) {
       this.name = name;
       this.attributes = attributes;
 
       this.bytePosition = bytePosition;
-      this.termPosition = tokens.size();
+      this.termPosition = end;
     }
     String name;
     Map<String, String> attributes;
@@ -251,7 +243,7 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
       int last = tagList.size() - 1;
 
       BeginTag openTag = tagList.get(last);
-      ClosedTag closedTag = new ClosedTag(openTag);
+      ClosedTag closedTag = new ClosedTag(openTag, position, tokens.size());
       closedTags.add(closedTag);
 
       tagList.remove(last);
@@ -420,7 +412,7 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
     position = i;
 
     if (!ignoredTags.contains(tagName)) {
-      BeginTag tag = new BeginTag(tagName, attributes, position + 1);
+      BeginTag tag = new BeginTag(tagName, attributes, position + 1, tokens.size());
 
       if (!openTags.containsKey(tagName)) {
         ArrayList tagList = new ArrayList();
@@ -712,7 +704,7 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
     return result;
   }
 
-  public void onAmpersand() {
+  protected void onAmpersand() {
     onSplit();
 
     for (int i = position + 1; i < text.length(); i++) {
@@ -734,25 +726,11 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
 
   /**
    * Parses the text in the document.text attribute and fills in the
-   * document.terms and document.tags arrays, then passes that document
-   * to the next processing stage.
-   *
-   * @param document
-   * @throws java.io.IOException
-   */
-  @Override
-  public void process(Document document) throws IOException {
-    tokenize(document);
-    processor.process(document);
-  }
-
-  /**
-   * Parses the text in the document.text attribute and fills in the
    * document.terms and document.tags arrays.
    *
    * @param document
-   * @throws java.io.IOException
    */
+  @Override
   public void tokenize(Document document) {
     reset();
     text = document.text;
@@ -797,48 +775,7 @@ public class TagTokenizer implements Source<Document>, Processor<Document> {
     pooler.transform(document);
   }
 
-  /**
-   * Parses the text in the input string and returns a document object.
-   * This method calls the {#link tokenize(Document) other variant}.
-   *
-   * @return A new document object containing the parsed text from the input string.
-   */
-  public Document tokenize(String text) throws IOException {
-    Document document = new Document();
-    document.text = text;
-    tokenize(document);
-
-    return document;
-  }
-
-  /**
-   * Parses the text in the input string and returns a list of parsed terms.
-   * 
-   * @return a list of terms parsed from the input text
-   */
-  public List<String> simpleTokenize(String text) throws IOException {
-    return tokenize(text).terms;
-  }
-
   public ArrayList<Pair> getTokenPositions() {
     return this.tokenPositions;
-  }
-
-  @Override
-  public void setProcessor(final Step processor) throws IncompatibleProcessorException {
-    Linkage.link(this, processor);
-  }
-
-  @Override
-  public void close() throws IOException {
-    processor.close();
-  }
-
-  public Class<Document> getInputClass() {
-    return Document.class;
-  }
-
-  public Class<Document> getOutputClass() {
-    return Document.class;
   }
 }
