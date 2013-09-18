@@ -15,8 +15,10 @@ public class JSONParser {
   Parameters.Type valueType;
   int line = 1;
   int col = 0;
+  String fileName;
 
-  public JSONParser(Reader input) {
+  public JSONParser(Reader input, String fileName) {
+    this.fileName = fileName;
     this.reader = new BufferedReader(input);
   }
 
@@ -52,7 +54,7 @@ public class JSONParser {
    * @throws IOException
    */
   private void error(String msg) throws IOException {
-    throw new IOException("At L:" + line + " C:" + col + ". " + msg);
+    throw new IOException("F: "+fileName+" L:" + line + " C:" + col + ". " + msg);
   }
 
   /**
@@ -116,6 +118,7 @@ public class JSONParser {
       }
       if (delimiter == ',') {
         delimiter = (char) getc();
+        skipWhitespace();
       }
     }
     // Advance past closing '}'
@@ -140,6 +143,7 @@ public class JSONParser {
       // Advance if it's a comma
       if (delimiter == ',') {
         delimiter = (char) getc();
+        skipWhitespace();
       }
     }
     // Advance past closing ']'

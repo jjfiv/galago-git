@@ -4,8 +4,6 @@
  */
 package org.lemurproject.galago.tupleflow;
 
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.Parameters;
 import java.util.ArrayList;
 import java.util.List;
 import junit.framework.TestCase;
@@ -210,5 +208,11 @@ public class ParametersTest extends TestCase {
 
     Parameters reParsed = Parameters.parseString(prettyString);
     assert (reParsed.equals(params));
+  }
+  
+  public void testTrailingCommas() throws Exception {
+    Parameters test = Parameters.parseString(" { \"foo\" : [1, 2,3,\t],\n}");
+    assert(test.isList("foo"));
+    assert(test.getList("foo").size() == 3);
   }
 }

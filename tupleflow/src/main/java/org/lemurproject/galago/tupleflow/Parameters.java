@@ -145,7 +145,7 @@ public class Parameters implements Serializable {
   }
   
   public static Parameters parseFile(File f) throws IOException {
-    JSONParser jp = new JSONParser(new FileReader(f));
+    JSONParser jp = new JSONParser(new FileReader(f), f.getPath());
     return jp.parse();
   }
   
@@ -154,17 +154,17 @@ public class Parameters implements Serializable {
   }
   
   public static Parameters parseString(String data) throws IOException {
-    JSONParser jp = new JSONParser(new StringReader(data));
+    JSONParser jp = new JSONParser(new StringReader(data), "<from string>");
     return jp.parse();
   }
   
   public static Parameters parseReader(Reader reader) throws IOException {
-    JSONParser jp = new JSONParser(reader);
+    JSONParser jp = new JSONParser(reader, "<from reader>");
     return jp.parse();
   }
   
   public static Parameters parseStream(InputStream iStream) throws IOException {
-    JSONParser jp = new JSONParser(new InputStreamReader(iStream));
+    JSONParser jp = new JSONParser(new InputStreamReader(iStream), "<from stream>");
     Parameters p = jp.parse();
     return p;
   }
@@ -179,7 +179,7 @@ public class Parameters implements Serializable {
    */
   public void copyFrom(Parameters other) {
     try {
-      JSONParser jp = new JSONParser(new StringReader(other.toString()));
+      JSONParser jp = new JSONParser(new StringReader(other.toString()), "<copyFrom>");
       jp.parse(this);
     } catch (IOException ex) {
       Logger.getLogger(Parameters.class.getName()).log(Level.SEVERE, null, ex);
@@ -193,7 +193,7 @@ public class Parameters implements Serializable {
    */
   public void copyTo(Parameters other) {
     try {
-      JSONParser jp = new JSONParser(new StringReader(toString()));
+      JSONParser jp = new JSONParser(new StringReader(toString()), "<copyTo>");
       jp.parse(other);
     } catch (IOException ex) {
       Logger.getLogger(Parameters.class.getName()).log(Level.SEVERE, null, ex);
@@ -258,7 +258,7 @@ public class Parameters implements Serializable {
   @Override
   public Parameters clone() {
     try {
-      JSONParser jp = new JSONParser(new StringReader(toString()));
+      JSONParser jp = new JSONParser(new StringReader(toString()), "<clone>");
       Parameters p = jp.parse();
       p.setBackoff(_backoff);
       return p;
