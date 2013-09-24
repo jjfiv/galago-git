@@ -8,8 +8,8 @@ import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
-import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
+import org.lemurproject.galago.core.retrieval.RequiredParameters;
+import org.lemurproject.galago.core.retrieval.RequiredStatistics;
 
 /**
  *

@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.structured;
 
+import org.lemurproject.galago.core.retrieval.FeatureFactory;
 import java.util.ArrayList;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.query.Node;
