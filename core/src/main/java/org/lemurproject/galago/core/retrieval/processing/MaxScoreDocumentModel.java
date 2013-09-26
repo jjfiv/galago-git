@@ -121,7 +121,7 @@ public class MaxScoreDocumentModel extends ProcessingModel {
 
         // Fully scored it
         if (i == scoringIterators.size()) {
-          if (queue.size() <= requested || runningScore > queue.peek().score) {
+          if (queue.size() < requested || runningScore > queue.peek().score) {
             ScoredDocument scoredDocument = new ScoredDocument(candidate, runningScore);
             queue.offer(scoredDocument);
 

@@ -78,7 +78,7 @@ public class RankedPassageModel extends ProcessingModel {
 
         if (iterator.hasMatch(document)) {
           double score = iterator.score(context);
-          if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
+          if (requested < 0 || queue.size() < requested || queue.peek().score < score) {
             ScoredPassage scored = new ScoredPassage(document, score, context.begin, context.end);
             queue.offer(scored);
           }
