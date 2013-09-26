@@ -37,8 +37,11 @@ import org.lemurproject.galago.tupleflow.Utility;
  * @author sjh
  */
 public abstract class BTreeReader {
+
   public abstract class BTreeIterator implements Comparable<BTreeIterator> {
+
     public BTreeReader reader;
+
     public BTreeIterator(BTreeReader parent) {
       reader = parent;
     }
@@ -223,4 +226,6 @@ public abstract class BTreeReader {
     }
     return iter.getValueMemoryMap();
   }
+
+  public abstract DataStream getSpecialStream(long startPosition, long length);
 }

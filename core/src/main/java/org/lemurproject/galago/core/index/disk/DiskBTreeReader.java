@@ -14,27 +14,29 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * <p>This implements the core functionality for all inverted list readers.  It can
- * also be used as a read-only TreeMap for disk-based data structures.  In Galago,
- * it is used both to store index data and to store documents.</p>
- * 
- * <p>An index is a mapping from String to byte[].  If compression is turned on, the
- * value must be small enough that it fits in memory.  If compression is off, values
- * are streamed directly from disk so there is no size restriction.  Indexes support
- * iteration over all keys, or direct lookup of a single key.  The structure is optimized
- * to support fast random lookup on disks.</p>
- * 
- * <p>Data is stored in blocks, typically 32K each.  Each block has a prefix-compressed
- * set of keys at the beginning, followed by a block of value data.  For inverted list
- * data it's best to use your own compression, but for text data the GZip compression
- * is a good choice.</p>
- * 
- * <p>Typically this class is extended by composition instead of inheritance.</p>
+ * <p>This implements the core functionality for all inverted list readers. It
+ * can also be used as a read-only TreeMap for disk-based data structures. In
+ * Galago, it is used both to store index data and to store documents.</p>
  *
- * <p>(11/29/2010, irmarc): After conferral with Sam, going to remove the requirement
- * that keys be Strings. It makes the mapping from other classes/primitives to Strings
- * really restrictive if they always have to be mapped to Strings. Therefore, mapping
- * byte[] keys to the client keyspace is the responsibility of the client of the DiskBTreeReader.</p>
+ * <p>An index is a mapping from String to byte[]. If compression is turned on,
+ * the value must be small enough that it fits in memory. If compression is off,
+ * values are streamed directly from disk so there is no size restriction.
+ * Indexes support iteration over all keys, or direct lookup of a single key.
+ * The structure is optimized to support fast random lookup on disks.</p>
+ *
+ * <p>Data is stored in blocks, typically 32K each. Each block has a
+ * prefix-compressed set of keys at the beginning, followed by a block of value
+ * data. For inverted list data it's best to use your own compression, but for
+ * text data the GZip compression is a good choice.</p>
+ *
+ * <p>Typically this class is extended by composition instead of
+ * inheritance.</p>
+ *
+ * <p>(11/29/2010, irmarc): After conferral with Sam, going to remove the
+ * requirement that keys be Strings. It makes the mapping from other
+ * classes/primitives to Strings really restrictive if they always have to be
+ * mapped to Strings. Therefore, mapping byte[] keys to the client keyspace is
+ * the responsibility of the client of the DiskBTreeReader.</p>
  *
  * @author trevor
  * @author irmarc
@@ -218,7 +220,9 @@ public class DiskBTreeReader extends BTreeReader {
     public DataStream getSubValueStream(long offset, long length) throws IOException {
       long absoluteStart = getValueStart() + offset;
       long absoluteEnd = getValueStart() + offset + length;
-      absoluteEnd = Math.min(Math.min(fileLength, absoluteEnd), getValueEnd());
+      
+      absoluteEnd = (fileLength < absoluteEnd) ? fileLength : absoluteEnd;
+      absoluteEnd = (getValueEnd() < absoluteEnd) ? getValueEnd() : absoluteEnd;
 
       assert absoluteStart <= absoluteEnd;
 
@@ -296,10 +300,10 @@ public class DiskBTreeReader extends BTreeReader {
     fileLength = input.length();
     footerOffset = fileLength - Integer.SIZE / 8 - 3 * Long.SIZE / 8;
 
-    /** 
-     * In a constructor synchronized is not strictly necessary, 
-     *  no other threads can use this object before it's creation...
-     * However, I'm wrapping *all* usage.
+    /**
+     * In a constructor synchronized is not strictly necessary, no other threads
+     * can use this object before it's creation... However, I'm wrapping *all*
+     * usage.
      */
     synchronized (input) {
       input.seek(footerOffset);
@@ -328,8 +332,8 @@ public class DiskBTreeReader extends BTreeReader {
   }
 
   /**
-   * Identical to the {@link #DiskBTreeReader(String) other constructor}, except this
-   * one takes a File object instead of a string as the parameter.
+   * Identical to the {@link #DiskBTreeReader(String) other constructor}, except
+   * this one takes a File object instead of a string as the parameter.
    *
    * @param pathname
    * @throws java.io.FileNotFoundException
@@ -340,10 +344,10 @@ public class DiskBTreeReader extends BTreeReader {
   }
 
   /**
-   * Returns a Parameters object that contains metadata about
-   * the contents of the index.  This is the place to store important
-   * data about the index contents, like what stemmer was used or the
-   * total number of terms in the collection.
+   * Returns a Parameters object that contains metadata about the contents of
+   * the index. This is the place to store important data about the index
+   * contents, like what stemmer was used or the total number of terms in the
+   * collection.
    */
   @Override
   public Parameters getManifest() {
@@ -351,8 +355,8 @@ public class DiskBTreeReader extends BTreeReader {
   }
 
   /**
-   * Returns the vocabulary structure for this DiskBTreeReader.  Note that the vocabulary
-   * contains only the first key in each block.
+   * Returns the vocabulary structure for this DiskBTreeReader. Note that the
+   * vocabulary contains only the first key in each block.
    */
   @Override
   public VocabularyReader getVocabulary() {
@@ -360,10 +364,10 @@ public class DiskBTreeReader extends BTreeReader {
   }
 
   /**
-   * Returns an iterator pointing to the very first key in the index.
-   * This is typically used for iterating through the entire index,
-   * which might be useful for testing and debugging tools, but probably
-   * not for traditional document retrieval.
+   * Returns an iterator pointing to the very first key in the index. This is
+   * typically used for iterating through the entire index, which might be
+   * useful for testing and debugging tools, but probably not for traditional
+   * document retrieval.
    */
   @Override
   public DiskBTreeReader.Iterator getIterator() throws IOException {
@@ -378,8 +382,8 @@ public class DiskBTreeReader extends BTreeReader {
   }
 
   /**
-   * Returns an iterator pointing at a specific key.  Returns
-   * null if the key is not found in the index.
+   * Returns an iterator pointing at a specific key. Returns null if the key is
+   * not found in the index.
    */
   @Override
   public DiskBTreeReader.Iterator getIterator(byte[] key) throws IOException {
@@ -407,11 +411,26 @@ public class DiskBTreeReader extends BTreeReader {
     //}
   }
 
-  /**************/
+  @Override
+  public DataStream getSpecialStream(long startPosition, long length) {
+    long absoluteStart = startPosition;
+    long absoluteEnd = startPosition + length;
+    absoluteEnd = (fileLength < absoluteEnd) ? fileLength : absoluteEnd;
+
+    assert absoluteStart <= absoluteEnd;
+
+    // the end of the sub value is the min of fileLength, valueEnd, or (offset+length);
+    return new BufferedFileDataStream(input, absoluteStart, absoluteEnd);
+  }
+
+  /**
+   * ***********
+   */
   // local functions
   /**
-   * Returns true if the file specified by this pathname was probably written by DiskBTreeWriter.
-   * If this method returns false, the file is definitely not readable by DiskBTreeReader.
+   * Returns true if the file specified by this pathname was probably written by
+   * DiskBTreeWriter. If this method returns false, the file is definitely not
+   * readable by DiskBTreeReader.
    *
    * @param pathname
    * @return
