@@ -265,4 +265,12 @@ public class GroupRetrieval implements Retrieval {
   public void addAllNodesToCache(Node node, String group) throws Exception {
     groups.get(group).addAllNodesToCache(node);
   }
+
+  public boolean containsGroup(String group) {
+    return groups.containsKey(group);
+  }
+
+  public Retrieval getRetrieval(String group) {
+    return groups.get(group);
+  }
 }
