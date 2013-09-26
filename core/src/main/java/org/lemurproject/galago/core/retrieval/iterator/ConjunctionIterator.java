@@ -71,13 +71,16 @@ public abstract class ConjunctionIterator implements BaseIterator {
 
   @Override
   public long currentCandidate() {
-    long candidateMin = Long.MAX_VALUE;
+    long candidateMin = Long.MAX_VALUE; // impossibly large candidate //
     long candidateMax = -1; // impossibly small candidate //
     for(int i=0; i<drivingIterators.length;i++){
       if (!drivingIterators[i].isDone()) {
         long otherCandidate = drivingIterators[i].currentCandidate();
         candidateMin = (candidateMin <= otherCandidate)? candidateMin : otherCandidate;
         candidateMax = (candidateMax >= otherCandidate)? candidateMax : otherCandidate;
+      } else {
+        // One of the iterators is DONE -- So, the conjunction is also done.
+        return Long.MAX_VALUE;
       }
     }
     if (candidateMax == candidateMin) {

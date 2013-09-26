@@ -13,8 +13,8 @@ import org.lemurproject.galago.core.retrieval.iterator.TransformIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
-import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
+import org.lemurproject.galago.core.retrieval.RequiredParameters;
+import org.lemurproject.galago.core.retrieval.RequiredStatistics;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**

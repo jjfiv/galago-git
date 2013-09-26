@@ -2,7 +2,6 @@
 package org.lemurproject.galago.core.retrieval.processing;
 
 import java.util.List;
-import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -15,7 +14,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * Performs straightforward document-at-a-time (daat) processing of a fully
  * annotated query, processing scores over documents.
  *
- * @author irmarc
+ * @author irmarc, sjh
  */
 public class RankedDocumentModel extends ProcessingModel {
 
@@ -41,7 +40,6 @@ public class RankedDocumentModel extends ProcessingModel {
     //PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
     FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
-
     // construct the iterators -- we use tree processing
     ScoreIterator iterator = (ScoreIterator) retrieval.createIterator(queryParams, queryTree);
 
@@ -54,7 +52,7 @@ public class RankedDocumentModel extends ProcessingModel {
       iterator.syncTo(document);
       if (iterator.hasMatch(document)) {
         double score = iterator.score(context);
-        if (requested < 0 || queue.size() <= requested || queue.peek().score < score) {
+        if (requested < 0 || queue.size() < requested || queue.peek().score < score) {
           ScoredDocument scoredDocument = new ScoredDocument(document, score);
           if (annotate) {
             scoredDocument.annotation = iterator.getAnnotatedNode(context);

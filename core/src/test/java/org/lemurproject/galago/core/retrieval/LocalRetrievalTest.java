@@ -265,7 +265,7 @@ public class LocalRetrievalTest extends TestCase {
       double score = sd.score;
       double expected = realScores.get(sd.document);
       String expname = realNames.get(sd.document);
-      assertTrue(lastScore >= sd.score);
+      assertTrue(Utility.compare(lastScore, sd.score) >= 0);
       assertEquals(expname, sd.documentName);
       assertEquals(expected, score, 0.0001);
 

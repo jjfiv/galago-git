@@ -8,8 +8,8 @@ import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.retrieval.structured.RequiredParameters;
-import org.lemurproject.galago.core.retrieval.structured.RequiredStatistics;
+import org.lemurproject.galago.core.retrieval.RequiredParameters;
+import org.lemurproject.galago.core.retrieval.RequiredStatistics;
 
 /**
  *
@@ -21,9 +21,12 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {
 
   // delta
-  double weight;
-  double min;
-  double max;
+  private final double weight;
+  private final double min;
+  private final double max;
+  private final double weightedMax;
+  private final double weightedMin;
+  private final double weightedMaxDiff;
   // scoring
   private final double b;
   private final double k;
@@ -56,6 +59,10 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
     weight = np.get("w", 1.0);
     max = score(np.getLong("maximumCount"), np.getLong("maximumCount"));
     min = score(0, 1);
+
+    weightedMin = weight * min;
+    weightedMax = weight * max;
+    weightedMaxDiff = weightedMax - weightedMin;
   }
 
   @Override
@@ -79,29 +86,30 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
+  public double maximumDifference() {
+    return weightedMaxDiff;
+  }
+
+  @Override
+  public double maximumWeightedScore() {
+    return weightedMax;
+  }
+
+  @Override
+  public double minimumWeightedScore() {
+    return weightedMin;
+  }
+
+  @Override
   public double deltaScore(ScoringContext c) {
     double diff = weight * (max - score(c));
     return diff;
   }
 
-  @Override
-  public double maximumDifference() {
-    double diff = weight * (max - min);
-    return diff;
-  }
-
-  @Override
-  public double maximumWeightedScore() {
-    return max * weight;
-  }
-
-  @Override
-  public double minimumWeightedScore() {
-    return min * weight;
-  }
   /**
    * Scoring function interface (allows direct scoring)
-   * @return 
+   *
+   * @return
    */
   @Override
   public double score(ScoringContext c) {

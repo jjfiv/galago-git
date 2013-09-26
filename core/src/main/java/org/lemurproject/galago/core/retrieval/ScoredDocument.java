@@ -39,9 +39,12 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
 
   @Override
   public int compareTo(ScoredDocument other) {
-    if (score != other.score) {
-      return Utility.compare(score, other.score);
+    
+    int cmp = Utility.compare(score, other.score);
+    if (cmp != 0) {
+      return cmp;
     }
+
     if ((source != null) && (other.source != null)
             && (!source.equals(other.source))) {
       return source.compareTo(other.source);

@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.retrieval.structured;
+package org.lemurproject.galago.core.retrieval;
 
 import org.lemurproject.galago.core.retrieval.iterator.scoring.InL2ScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.scoring.PL2ScoringIterator;

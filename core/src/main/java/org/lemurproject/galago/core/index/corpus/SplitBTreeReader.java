@@ -276,6 +276,11 @@ public class SplitBTreeReader extends BTreeReader {
     }
   }
 
+  @Override
+  public DataStream getSpecialStream(long startPosition, long length){
+    throw new RuntimeException("Impossible request for a split-b-tree -- don't know which value-file to open.");
+  }
+
   //*********************//
   // static functions
   public static boolean isBTree(File f) throws IOException {
