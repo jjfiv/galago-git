@@ -43,6 +43,8 @@ public class Utility {
   public static final double log2 = Math.log(2);
   public static final double loge_base2 = Math.log(Math.E) / log2;
   public static final double tinyLogProbScore = Math.log(Math.pow(10, -10));
+  public static final double epsilon = 0.5 * Math.pow(10, -10);
+  public static final double neg_epsilon = -1.0 * Math.pow(10, -10);
 
   /**
    * Put all initialization here
@@ -431,10 +433,10 @@ public class Utility {
   public static int compare(double one, double two) {
     double result = one - two;
 
-    if (result > 0) {
+    if (result > epsilon) {
       return 1;
     }
-    if (result < 0) {
+    if (result < neg_epsilon) {
       return -1;
     }
     return 0;
@@ -443,10 +445,10 @@ public class Utility {
   public static int compare(float one, float two) {
     float result = one - two;
 
-    if (result > 0) {
+    if (result > epsilon) {
       return 1;
     }
-    if (result < 0) {
+    if (result < neg_epsilon) {
       return -1;
     }
     return 0;
@@ -902,7 +904,7 @@ public class Utility {
       throw new RuntimeException("UTF-8 is not supported by your Java Virtual Machine.");
     }
   }
-  
+
   public static boolean isShort(byte[] key) {
     return key != null && key.length == 2;
   }
@@ -970,11 +972,12 @@ public class Utility {
     writeBuffer[7] = (byte) (key >>> 0);
     return writeBuffer;
   }
-  
+
   /**
    * Check that we are given a byte array of length 1 to parse as a boolean.
+   *
    * @param key
-   * @return 
+   * @return
    */
   public static boolean isBoolean(byte[] key) {
     return key != null && key.length == 1;
@@ -1016,7 +1019,6 @@ public class Utility {
     return Double.longBitsToDouble(l);
   }
 
-  
   public static byte[] fromDouble(double value) {
     long l = Double.doubleToRawLongBits(value);
     return Utility.fromLong(l);
