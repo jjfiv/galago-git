@@ -28,7 +28,7 @@ public class WeakAndDocumentModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   boolean annotate;
-  
+
   public WeakAndDocumentModel(LocalRetrieval lr) {
     this.retrieval = lr;
   }
@@ -81,9 +81,6 @@ public class WeakAndDocumentModel extends ProcessingModel {
       // if advance position is set, then an iterator has moved.
       advancePosition = -1;
 
-      // DEBUGGING.
-      // checkSortOrder(sortedIterators);
-
       int pivotPosition = findPivot(sortedIterators, minimumPossibleScore, minDocScore);
 
       if (pivotPosition == -1) {
@@ -98,13 +95,13 @@ public class WeakAndDocumentModel extends ProcessingModel {
 
       // if the pivot is less than or equal to the last scored document, move on.
       if (pivot <= context.document) {
-        advancePosition = pickAdvancingSentinel(sortedIterators, pivotPosition, pivot);
-        sortedIterators[advancePosition].next();
-        // sortedIterators[advancePosition].next(context.document + 1);
+        advancePosition = pickAdvancingSentinel(sortedIterators, context.document);
+        sortedIterators[advancePosition].next(context.document + 1);
 
 
       } else {
-        if (sortedIterators[0].currentCandidate == pivot && hasMatch(sortedIterators, pivot)) {
+        //if (sortedIterators[0].currentCandidate == pivot && hasMatch(sortedIterators, pivot)) {
+        if (sortedIterators[0].currentCandidate == pivot) {
           // We're in business. Let's score.
           context.document = pivot;
           double score = score(sortedIterators, context, maximumPossibleScore);
@@ -118,9 +115,8 @@ public class WeakAndDocumentModel extends ProcessingModel {
             }
           }
         } else {
-          advancePosition = pickAdvancingSentinel(sortedIterators, pivotPosition, pivot);
-          sortedIterators[advancePosition].next();
-          //sortedIterators[advancePosition].next(pivot);
+          advancePosition = pickAdvancingSentinel(sortedIterators, pivot);
+          sortedIterators[advancePosition].next(pivot);
         }
       }
 
@@ -149,30 +145,6 @@ public class WeakAndDocumentModel extends ProcessingModel {
     }
   }
 
-  private void checkSortOrder(DeltaScoringIteratorWrapper[] s) {
-    // check if sorted correctly
-    for (int i = 0; i < s.length - 1; i++) {
-      int result = s[i].compareTo(s[i + 1]);
-      if (result > 0) {
-        System.err.println("BAD SORT:" + s[i].currentCandidate + " > " + s[i + 1].currentCandidate);
-      }
-    }
-  }
-
-  private boolean hasMatch(DeltaScoringIteratorWrapper[] s, long doc) {
-    // TRUE if at least one iterator has a match.
-    for (int i = 0; i < s.length - 1; i++) {
-      if(s[i].currentCandidate <= doc){
-        if(s[i].itr.hasMatch(doc)){
-          return true;
-        }
-      } else {
-        return false;
-      }
-    }
-    return false;
-  }
-
   private double score(DeltaScoringIteratorWrapper[] sortedIterators, ScoringContext context, double maximumPossibleScore) throws IOException {
 
     // Setup to score
@@ -180,22 +152,10 @@ public class WeakAndDocumentModel extends ProcessingModel {
 
     // now score all scorers
     int i;
-    if (annotate) {
-      System.err.println("SCORING " + context.document);
-    }
     for (i = 0; i < sortedIterators.length; i++) {
       DeltaScoringIterator dsi = sortedIterators[i].itr;
       dsi.syncTo(context.document);
-
-      if (annotate) {
-        System.err.println("SCORING " + context.document);
-        System.err.println(dsi.getAnnotatedNode(context));
-      }
-
       runningScore -= dsi.deltaScore(context);
-    }
-    if (annotate) {
-      System.err.println("FINAL SCORE " + runningScore);
     }
 
     return runningScore;
@@ -232,14 +192,18 @@ public class WeakAndDocumentModel extends ProcessingModel {
    *
    * @return The iterator that should be advanced next
    */
-  private int pickAdvancingSentinel(DeltaScoringIteratorWrapper[] sortedIterators, int limit, long limitDoc) {
+  private int pickAdvancingSentinel(DeltaScoringIteratorWrapper[] sortedIterators, long limitDoc) {
     long minEntries = Long.MAX_VALUE;
     int minPos = 0;
-    for (int i = 0; i < limit; i++) {
+    for (int i = 0; i < sortedIterators.length; i++) {
       DeltaScoringIteratorWrapper dsi = sortedIterators[i];
-      if (dsi.currentCandidate < limitDoc && dsi.entries < minEntries) {
-        minEntries = dsi.entries;
-        minPos = i;
+      if (dsi.currentCandidate < limitDoc) {
+        if (dsi.entries < minEntries) {
+          minEntries = dsi.entries;
+          minPos = i;
+        }
+      } else {
+        return minPos;
       }
     }
     return minPos;
@@ -271,13 +235,6 @@ public class WeakAndDocumentModel extends ProcessingModel {
   private DeltaScoringIteratorWrapper[] createScoringIterators(List<Node> scoringNodes, LocalRetrieval ret) throws Exception {
     DeltaScoringIteratorWrapper[] scoringIterators = new DeltaScoringIteratorWrapper[scoringNodes.size()];
 
-//    // the cache allows low level iterators to be shared
-//    Map<String, BaseIterator> queryIteratorCache = new HashMap();
-//    for (int i = 0; i < scoringNodes.size(); i++) {
-//      DeltaScoringIterator scorer = (DeltaScoringIterator) ret.createNodeMergedIterator(scoringNodes.get(i), queryIteratorCache);
-//      scoringIterators.add(scorer);
-//    }
-
     // NO Node sharing is permitted.
     for (int i = 0; i < scoringNodes.size(); i++) {
       DeltaScoringIterator scorer = (DeltaScoringIterator) ret.createNodeMergedIterator(scoringNodes.get(i), null);
@@ -303,6 +260,7 @@ public class WeakAndDocumentModel extends ProcessingModel {
       } else if (node.getNodeParameters().containsKey("nodeFrequency")) {
         this.entries = node.getNodeParameters().getLong("nodeFrequency");
       } else {
+        // otherwise all nodes are considered equal.
         this.entries = 1;
       }
     }
@@ -317,13 +275,16 @@ public class WeakAndDocumentModel extends ProcessingModel {
     }
 
     public void next() throws IOException {
-      itr.movePast(currentCandidate);
-      currentCandidate = itr.currentCandidate();
+      do {
+        itr.movePast(currentCandidate);
+        currentCandidate = itr.currentCandidate();
+      } while (!itr.isDone() && !itr.hasMatch(currentCandidate));
     }
 
     public void next(long doc) throws IOException {
-      itr.movePast(doc - 1);
-      currentCandidate = itr.currentCandidate();
+      // want to move past currentCandidate, to at least doc
+      currentCandidate = (doc <= currentCandidate)? currentCandidate : (doc - 1);
+      next();
     }
   }
 }
