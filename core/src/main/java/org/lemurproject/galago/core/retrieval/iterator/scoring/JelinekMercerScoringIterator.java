@@ -21,9 +21,12 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {
 
   // delta
-  double weight;
-  double min;
-  double max;
+  private final double weight;
+  private final double min;
+  private final double max;
+  private final double weightedMin;
+  private final double weightedMax;
+  private final double weightedMaxDiff;
   // stats
   private final double lambda;
   private final double background;
@@ -46,13 +49,16 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
     max = score(p.getLong("maximumCount"), p.getLong("maximumCount"));
     min = score(0, 1);
 
+    weightedMin = weight * min;
+    weightedMax = weight * max;
+    weightedMaxDiff = weightedMax - weightedMin;
   }
 
   @Override
-  public double collectionFrequency(){
+  public double collectionFrequency() {
     return collectionFrequency;
   }
-  
+
   @Override
   public double minimumScore() {
     return min;
@@ -69,6 +75,21 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
+  public double maximumDifference() {
+    return weightedMaxDiff;
+  }
+
+  @Override
+  public double maximumWeightedScore() {
+    return weightedMax;
+  }
+
+  @Override
+  public double minimumWeightedScore() {
+    return weightedMin;
+  }
+
+  @Override
   public double deltaScore(ScoringContext c) {
     int count = ((CountIterator) iterator).count(c);
     int length = this.lengthsIterator.length(c);
@@ -77,30 +98,14 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
-  public double maximumDifference() {
-    double diff = weight * (max - min);
-    return diff;
-  }
-
-  @Override
-  public double maximumWeightedScore() {
-    return max * weight;
-  }
-
-  @Override
-  public double minimumWeightedScore() {
-    return min * weight;
-  }
-  
-  public double score(double count, double length) {
-    double foreground = (double) count / (double) length;
-    return Math.log((lambda * foreground) + ((1 - lambda) * background));
-  }
-
-  @Override
   public double score(ScoringContext c) {
     int count = ((CountIterator) iterator).count(c);
     int length = this.lengthsIterator.length(c);
     return score(count, length);
+  }
+
+  private double score(double count, double length) {
+    double foreground = (double) count / (double) length;
+    return Math.log((lambda * foreground) + ((1 - lambda) * background));
   }
 }

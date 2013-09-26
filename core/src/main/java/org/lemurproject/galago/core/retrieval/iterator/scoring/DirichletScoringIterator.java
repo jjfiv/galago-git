@@ -14,7 +14,7 @@ import org.lemurproject.galago.core.retrieval.RequiredStatistics;
 /**
  * A ScoringIterator that makes use of the DirichletScorer function for
  * converting a count into a score.
- * 
+ *
  * @author sjh
  */
 @RequiredStatistics(statistics = {"collectionLength", "documentCount", "nodeFrequency", "maximumCount", "avgLength"})
@@ -23,9 +23,12 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {
 
   // delta
-  double weight;
-  double min; // min score
-  double max; // max tf
+  private final double weight;
+  private final double min; // min score
+  private final double max; // max tf
+  private final double weightedMin;
+  private final double weightedMax;
+  private final double weightedMaxDiff;
   // stats
   private final double mu;
   private final double background;
@@ -54,6 +57,9 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
     //   empirically average document length is a good number (even if its NOT an overestimate of min possible score)
     min = dirichletScore(0, 1);
 
+    weightedMin = weight * min;
+    weightedMax = weight * max;
+    weightedMaxDiff = weightedMax - weightedMin;
   }
 
   @Override
@@ -84,18 +90,18 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
-  public double maximumDifference() {
-    return weight * (max - min);
-  }
-
-  @Override
   public double maximumWeightedScore() {
-    return (max * weight);
+    return weightedMax;
   }
 
   @Override
   public double minimumWeightedScore() {
-    return min * weight;
+    return weightedMin;
+  }
+
+  @Override
+  public double maximumDifference() {
+    return weightedMaxDiff;
   }
 
   @Override
