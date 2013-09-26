@@ -86,7 +86,7 @@ public class DeltaScoreDocumentModelTest extends TestCase {
       Node query = StructuredQuery.parse("#combine( test text 0 1 2 3 4 90 )");
       query = ret.transformQuery(query, queryParams);
 
-      WANDScoreDocumentModel deltaModel = new WANDScoreDocumentModel(ret);
+      WeakAndDocumentModel deltaModel = new WeakAndDocumentModel(ret);
       ScoredDocument[] deltaResults = deltaModel.execute(query, queryParams);
 
       RankedDocumentModel safeModel = new RankedDocumentModel(ret);

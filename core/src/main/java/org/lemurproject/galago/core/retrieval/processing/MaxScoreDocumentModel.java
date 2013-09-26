@@ -44,7 +44,8 @@ public class MaxScoreDocumentModel extends ProcessingModel {
     }
 
     // step two: create an iterator for each node
-    List<DeltaScoringIterator> scoringIterators = createScoringIterators(scoringNodes, retrieval);
+    boolean shareNodes = queryParams.get("shareNodes", retrieval.getGlobalParameters().get("shareNodes", true));
+    List<DeltaScoringIterator> scoringIterators = createScoringIterators(scoringNodes, retrieval, shareNodes);
 
     FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
@@ -52,10 +53,10 @@ public class MaxScoreDocumentModel extends ProcessingModel {
     for (DeltaScoringIterator scorer : scoringIterators) {
       maximumPossibleScore += scorer.maximumWeightedScore();
     }
-    
+
     // sentinel scores are set to collectionFrequency (sort function ensures decreasing order)
     Collections.sort(scoringIterators, new DeltaScoringIteratorMaxDiffComparator());
-    
+
     // precompute statistics that allow us to update the quorum index
     double runningMaxScore = maximumPossibleScore;
     double[] maxScoreOfRemainingIterators = new double[scoringIterators.size()];
@@ -140,6 +141,13 @@ public class MaxScoreDocumentModel extends ProcessingModel {
       for (int i = 0; i < quorumIndex; i++) {
         DeltaScoringIterator dsi = scoringIterators.get(i);
         dsi.movePast(candidate);
+//        if (!shareNodes) {
+//          long dsiCandidate = dsi.currentCandidate();
+//          while (!dsi.isDone() && !dsi.hasMatch(dsiCandidate)) {
+//            dsi.movePast(dsiCandidate);
+//            dsiCandidate = dsi.currentCandidate();
+//          }
+//        }
       }
     }
 
@@ -169,16 +177,20 @@ public class MaxScoreDocumentModel extends ProcessingModel {
     }
   }
 
-  private List<DeltaScoringIterator> createScoringIterators(List<Node> scoringNodes, LocalRetrieval ret) throws Exception {
+  private List<DeltaScoringIterator> createScoringIterators(List<Node> scoringNodes, LocalRetrieval ret, boolean shareNodes) throws Exception {
     List<DeltaScoringIterator> scoringIterators = new ArrayList();
 
     // the cache allows low level iterators to be shared
-    Map<String, BaseIterator> queryIteratorCache = new HashMap();
+    Map<String, BaseIterator> queryIteratorCache;
+    if (shareNodes) {
+      queryIteratorCache = new HashMap();
+    } else {
+      queryIteratorCache = null;
+    }
     for (int i = 0; i < scoringNodes.size(); i++) {
       DeltaScoringIterator scorer = (DeltaScoringIterator) ret.createNodeMergedIterator(scoringNodes.get(i), queryIteratorCache);
       scoringIterators.add(scorer);
     }
-
     return scoringIterators;
   }
 }

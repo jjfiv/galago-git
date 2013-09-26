@@ -52,18 +52,11 @@ public class RankedDocumentModel extends ProcessingModel {
       iterator.syncTo(document);
       if (iterator.hasMatch(document)) {
         double score = iterator.score(context);
-          if (annotate) {
-            System.err.println("SCORING "+ context.document );
-            System.err.println(iterator.getAnnotatedNode(context));
-          }
-
-          if (requested < 0 || queue.size() < requested || queue.peek().score < score) {
+        if (requested < 0 || queue.size() < requested || queue.peek().score < score) {
           ScoredDocument scoredDocument = new ScoredDocument(document, score);
-          if (annotate) {
-//            System.err.println("SCORING "+ context.document );
-//            System.err.println(iterator.getAnnotatedNode(context));
+//          if (annotate) {
 //            scoredDocument.annotation = iterator.getAnnotatedNode(context);
-          }
+//          }
           queue.offer(scoredDocument);
         }
       }
