@@ -27,20 +27,16 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class PositionIndexReader extends KeyListReader implements AggregateIndexPart {
 
-  Stemmer stemmer = null;
+  Stemmer stemmer;
 
   public PositionIndexReader(BTreeReader reader) throws Exception {
     super(reader);
-    if (reader.getManifest().containsKey("stemmer")) {
-      stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
-    }
+    stemmer = Stemmer.instance(reader.getManifest());
   }
 
   public PositionIndexReader(String pathname) throws Exception {
     super(pathname);
-    if (reader.getManifest().containsKey("stemmer")) {
-      stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
-    }
+    stemmer = Stemmer.instance(reader.getManifest());
   }
 
   @Override
@@ -53,7 +49,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
    * doesn't exist in the inverted file.
    */
   public DiskExtentIterator getTermExtents(String term) throws IOException {
-    return getTermExtents(Utility.fromString(stemAsRequired(term)));
+    return getTermExtents(Utility.fromString(stemmer.stemAsRequired(term)));
   }
 
   public DiskExtentIterator getTermExtents(byte[] term) throws IOException {
@@ -65,7 +61,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
   }
 
   public DiskCountIterator getTermCounts(String term) throws IOException {
-    return getTermCounts(Utility.fromString(stemAsRequired(term)));
+    return getTermCounts(Utility.fromString(stemmer.stemAsRequired(term)));
   }
 
   public DiskCountIterator getTermCounts(byte[] term) throws IOException {
@@ -91,17 +87,6 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
     } else {
       return getTermExtents(node.getDefaultParameter());
     }
-  }
-
-  private String stemAsRequired(String term) {
-    if (stemmer != null) {
-      if (term.contains("~")) {
-        return stemmer.stemWindow(term);
-      } else {
-        return stemmer.stem(term);
-      }
-    }
-    return term;
   }
 
   @Override

@@ -27,20 +27,16 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class CountIndexReader extends KeyListReader implements AggregateIndexPart {
 
-  Stemmer stemmer = null;
+  Stemmer stemmer;
 
   public CountIndexReader(BTreeReader reader) throws Exception {
     super(reader);
-    if (reader.getManifest().containsKey("stemmer")) {
-      stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
-    }
+    stemmer = Stemmer.instance(reader.getManifest());
   }
 
   public CountIndexReader(String pathname) throws Exception {
     super(pathname);
-    if (reader.getManifest().containsKey("stemmer")) {
-      stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
-    }
+    stemmer = Stemmer.instance(reader.getManifest());
   }
 
   @Override
@@ -62,7 +58,7 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
   }
 
   public DiskCountIterator getTermCounts(String term) throws IOException {
-    return getTermCounts(Utility.fromString(stemAsRequired(term)));
+    return getTermCounts(Utility.fromString(stemmer.stemAsRequired(term)));
   }
 
   @Override
@@ -90,17 +86,6 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
     is.highestFrequency = manifest.get("statistics/highestFrequency", 0);
     is.partName = manifest.get("filename", "CountIndexPart");
     return is;
-  }
-
-  private String stemAsRequired(String term) {
-    if (stemmer != null) {
-      if (term.contains("~")) {
-        return stemmer.stemWindow(term);
-      } else {
-        return stemmer.stem(term);
-      }
-    }
-    return term;
   }
 
   public class KeyIterator extends KeyListReader.KeyValueIterator {

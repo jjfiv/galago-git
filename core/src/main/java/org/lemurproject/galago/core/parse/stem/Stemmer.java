@@ -9,6 +9,7 @@ import java.util.List;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.Linkage;
+import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.Source;
 import org.lemurproject.galago.tupleflow.Step;
@@ -45,15 +46,14 @@ public abstract class Stemmer implements Source<Document>, Processor<Document> {
   }
 
   public static void verify(TupleFlowParameters fullParameters, ErrorStore store) {
-    return;
   }
 
   public static String getInputClass(TupleFlowParameters parameters) {
-    return "org.lemurproject.galago.core.parse.Document";
+    return org.lemurproject.galago.core.parse.Document.class.getCanonicalName();
   }
 
   public static String getOutputClass(TupleFlowParameters parameters) {
-    return "org.lemurproject.galago.core.parse.Document";
+    return org.lemurproject.galago.core.parse.Document.class.getCanonicalName();
   }
 
   public static String[] getOutputOrder(TupleFlowParameters parameters) {
@@ -89,6 +89,14 @@ public abstract class Stemmer implements Source<Document>, Processor<Document> {
     }
     return stemmedTerm;
   }
+  
+  public final String stemAsRequired(String term) {
+    if(term.contains("~")) {
+      return this.stemWindow(term);
+    } else {
+      return this.stem(term);
+    }
+  }
 
   // This function should only be use synchronously (see 'lock')
   protected abstract String stemTerm(String term);
@@ -105,5 +113,12 @@ public abstract class Stemmer implements Source<Document>, Processor<Document> {
       window.append(stem(t));
     }
     return window.toString();
+  }
+  
+  public static Stemmer instance(Parameters p) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    if(p.containsKey("stemmer")) {
+      return (Stemmer) Class.forName(p.getString("stemmer")).newInstance();
+    }
+    return new NullStemmer();
   }
 }

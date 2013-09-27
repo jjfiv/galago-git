@@ -27,20 +27,16 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class WindowIndexReader extends KeyListReader implements AggregateIndexPart {
 
-  Stemmer stemmer = null;
+  Stemmer stemmer;
 
   public WindowIndexReader(BTreeReader reader) throws Exception {
     super(reader);
-    if (reader.getManifest().containsKey("stemmer")) {
-      stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
-    }
+    stemmer = Stemmer.instance(reader.getManifest());
   }
 
   public WindowIndexReader(String pathname) throws Exception {
     super(pathname);
-    if (reader.getManifest().containsKey("stemmer")) {
-      stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
-    }
+    stemmer = Stemmer.instance(reader.getManifest());
   }
 
   @Override
@@ -53,7 +49,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
    * doesn't exist in the inverted file.
    */
   public DiskExtentIterator getTermExtents(String term) throws IOException {
-    term = stemAsRequired(term);
+    term = stemmer.stemAsRequired(term);
     BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
     if (iterator != null) {
       return new DiskExtentIterator(new WindowIndexExtentSource(iterator));
@@ -62,7 +58,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
   }
 
   public DiskCountIterator getTermCounts(String term) throws IOException {
-    term = stemAsRequired(term);
+    term = stemmer.stemAsRequired(term);
     BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
 
     if (iterator != null) {
@@ -98,17 +94,6 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
     is.highestFrequency = manifest.get("statistics/highestFrequency", 0);
     is.partName = manifest.get("filename", "CountIndexPart");
     return is;
-  }
-
-  private String stemAsRequired(String window) {
-    if (stemmer != null) {
-      if (window.contains("~")) {
-        return stemmer.stemWindow(window);
-      } else {
-        return stemmer.stem(window);
-      }
-    }
-    return window;
   }
 
   public class KeyIterator extends KeyListReader.KeyValueIterator {
