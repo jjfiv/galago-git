@@ -5,6 +5,7 @@ package org.lemurproject.galago.core.retrieval.processing;
 
 import java.util.Comparator;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Sorts iterators by the maximum change in score:
@@ -18,6 +19,6 @@ public class DeltaScoringIteratorMaxDiffComparator implements Comparator<DeltaSc
 
   @Override
   public int compare(DeltaScoringIterator t1, DeltaScoringIterator t2) {
-    return Double.compare(t2.maximumDifference(), t1.maximumDifference());
+    return Utility.compare(t2.maximumDifference(), t1.maximumDifference());
   }
 }
