@@ -9,7 +9,6 @@ import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
 import org.lemurproject.galago.core.index.IndexElement;
-import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.mem.MemoryPositionalIndex;
 import org.lemurproject.galago.core.index.merge.PositionIndexMerger;
 import org.lemurproject.galago.core.types.NumberWordPosition;
