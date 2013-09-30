@@ -104,6 +104,8 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       cs.nonZeroLenDocCount = nonZeroDocumentCount;
       cs.maxLength = maxLength;
       cs.minLength = minLength;
+      cs.firstDocId = firstDocument;
+      cs.lastDocId = lastDocument;
       cs.avgLength = (double) collectionLength / (double) totalDocumentCount;
       return cs;
     }

@@ -59,9 +59,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
 
   private void init() throws Exception {
     Parameters manifest = this.getManifest();
-    if (reader.getManifest().containsKey("stemmer")) {
-      stemmer = (Stemmer) Class.forName(reader.getManifest().getString("stemmer")).newInstance();
-    }
+    stemmer = Stemmer.instance(reader.getManifest());
 
     Parameters hfnParams = manifest.getMap("hashFns");
     depth = (int) manifest.getLong("depth");
@@ -105,7 +103,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
   }
 
   public MinCountIterator getTermCounts(String term) throws IOException {
-    return getTermCounts(Utility.fromString(stemAsRequired(term)));
+    return getTermCounts(Utility.fromString(stemmer.stemAsRequired(term)));
   }
 
   @Override
@@ -130,17 +128,6 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     is.highestFrequency = manifest.get("statistics/highestFrequency", 0);
     is.partName = manifest.get("filename", "CountIndexPart");
     return is;
-  }
-
-  private String stemAsRequired(String term) {
-    if (stemmer != null) {
-      if (term.contains("~")) {
-        return stemmer.stemWindow(term);
-      } else {
-        return stemmer.stem(term);
-      }
-    }
-    return term;
   }
 
   public class KeyIterator extends KeyListReader.KeyValueIterator {

@@ -27,6 +27,9 @@ public class FieldStatistics implements AggregateStatistic {
   // average length of 'field' 
   public double avgLength = 0;
   public long nonZeroLenDocCount = 0;
+  
+  public long firstDocId;
+  public long lastDocId;
 
   public FieldStatistics() {
   }
@@ -38,6 +41,8 @@ public class FieldStatistics implements AggregateStatistic {
     this.maxLength = Math.max(this.maxLength, other.maxLength);
     this.minLength = Math.min(this.minLength, other.minLength);
     this.avgLength = (this.documentCount > 0) ? this.collectionLength / this.documentCount : -1;
+    this.firstDocId = Math.min(this.firstDocId, other.firstDocId);
+    this.lastDocId = Math.max(this.lastDocId, other.lastDocId);
   }
 
   public Parameters toParameters() {
@@ -48,6 +53,8 @@ public class FieldStatistics implements AggregateStatistic {
     p.set("nonZeroLenDocCount", this.nonZeroLenDocCount);
     p.set("maxLength", this.maxLength);
     p.set("minLength", this.minLength);
+    p.set("firstDocId", this.firstDocId);
+    p.set("lastDocId", this.lastDocId);
     p.set("avgLength", this.avgLength);
     return p;
   }
@@ -65,6 +72,8 @@ public class FieldStatistics implements AggregateStatistic {
     ps.nonZeroLenDocCount = this.nonZeroLenDocCount;
     ps.maxLength = this.maxLength;
     ps.minLength = this.minLength;
+    ps.firstDocId = this.firstDocId;
+    ps.lastDocId = this.lastDocId;
     ps.avgLength = this.avgLength;
     return ps;
   }

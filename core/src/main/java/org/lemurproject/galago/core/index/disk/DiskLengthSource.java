@@ -148,6 +148,8 @@ final public class DiskLengthSource extends BTreeValueSource implements LengthSo
     fs.maxLength = this.maxLength;
     fs.minLength = this.minLength;
     fs.avgLength = this.avgLength;
+    fs.firstDocId = this.firstDocument;
+    fs.lastDocId = this.lastDocument;
     return fs;
   }
 
