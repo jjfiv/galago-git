@@ -50,7 +50,7 @@ public abstract class KeyValueReader implements IndexPartReader {
     }
   }
 
-  public abstract class KeyValueIterator implements KeyIterator {
+  public static abstract class KeyValueIterator implements KeyIterator {
 
     public BTreeReader.BTreeIterator iterator;
     public BTreeReader reader;

@@ -56,7 +56,7 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesRevers
     throw new UnsupportedOperationException("Index doesn't support operator: " + node.getOperator());
   }
 
-  public class KeyIterator extends KeyValueReader.KeyValueIterator {
+  public static class KeyIterator extends KeyValueReader.KeyValueIterator {
 
     protected BTreeReader input;
 

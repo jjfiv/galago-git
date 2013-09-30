@@ -102,7 +102,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
   }
 
   // subclasses 
-  public class KeyIterator extends KeyListReader.KeyValueIterator {
+  public static class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);

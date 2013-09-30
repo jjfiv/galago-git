@@ -70,7 +70,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     return new DiskDataIterator(new DiskNameSource(reader));
   }
 
-  public class KeyIterator extends KeyValueReader.KeyValueIterator {
+  public static class KeyIterator extends KeyValueReader.KeyValueIterator {
 
     protected BTreeReader input;
 

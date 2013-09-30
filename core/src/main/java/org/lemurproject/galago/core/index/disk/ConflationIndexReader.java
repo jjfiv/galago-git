@@ -3,8 +3,6 @@
  */
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
@@ -49,7 +47,7 @@ public class ConflationIndexReader extends KeyValueReader {
             "Index doesn't support operator: " + node.getOperator());
   }
 
-  public class StemIterator extends KeyValueReader.KeyValueIterator {
+  public static class StemIterator extends KeyValueReader.KeyValueIterator {
 
     private StemIterator(BTreeReader reader) throws IOException {
       super(reader);

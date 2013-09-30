@@ -45,7 +45,7 @@ public class DocumentPriorReader extends KeyValueReader {
 
   @Override
   public KeyIterator getIterator() throws IOException {
-    return new KeyIterator(reader);
+    return new KeyIterator(reader, def);
   }
 
   @Override
@@ -65,10 +65,12 @@ public class DocumentPriorReader extends KeyValueReader {
     }
   }
 
-  public class KeyIterator extends KeyValueReader.KeyValueIterator {
+  public static class KeyIterator extends KeyValueReader.KeyValueIterator {
+    private final double def;
 
-    public KeyIterator(BTreeReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader, double def) throws IOException {
       super(reader);
+      this.def = def;
     }
 
     @Override

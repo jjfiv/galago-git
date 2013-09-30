@@ -43,12 +43,12 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
   @Override
   public KeyIterator getIterator() throws IOException {
-    return new KeyIterator(reader);
+    return new KeyIterator(reader, tokenizer);
   }
 
   @Override
   public Document getDocument(byte[] key, DocumentComponents p) throws IOException {
-    KeyIterator i = new KeyIterator(reader);
+    KeyIterator i = getIterator();
     if (i.findKey(key)) {
       return i.getDocument(p);
     } else {
@@ -58,7 +58,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
   @Override
   public Document getDocument(long key, DocumentComponents p) throws IOException {
-    KeyIterator i = new KeyIterator(reader);
+    KeyIterator i = getIterator();
     byte[] k = Utility.fromLong(key);
     if (i.findKey(k)) {
       return i.getDocument(p);
@@ -84,10 +84,12 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     }
   }
 
-  public class KeyIterator extends KeyValueReader.KeyValueIterator implements DocumentIterator {
+  public static class KeyIterator extends KeyValueReader.KeyValueIterator implements DocumentIterator {
+    private final Tokenizer tokenizer;
 
-    public KeyIterator(BTreeReader reader) throws IOException {
+    public KeyIterator(BTreeReader reader, Tokenizer tokenizer) throws IOException {
       super(reader);
+      this.tokenizer = tokenizer;
     }
 
     @Override

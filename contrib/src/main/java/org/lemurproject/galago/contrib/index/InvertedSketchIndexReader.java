@@ -130,7 +130,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     return is;
   }
 
-  public class KeyIterator extends KeyListReader.KeyValueIterator {
+  public static class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
@@ -168,7 +168,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     }
   }
 
-  public class TermCountIterator extends BTreeValueIterator
+  public static class TermCountIterator extends BTreeValueIterator
           implements NodeAggregateIterator, CountIterator {
 
     BTreeReader.BTreeIterator iterator;
