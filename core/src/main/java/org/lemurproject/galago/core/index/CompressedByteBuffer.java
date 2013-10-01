@@ -152,6 +152,7 @@ public class CompressedByteBuffer {
     public ByteWriterProcedure() {
     }
 
+    @Override
     public boolean execute(byte value) {
       try {
         stream.write(value);
@@ -169,6 +170,7 @@ public class CompressedByteBuffer {
     public ByteCopierProcedure() {
     }
 
+    @Override
     public boolean execute(byte value) {
       target.values.add(value);
       return true;

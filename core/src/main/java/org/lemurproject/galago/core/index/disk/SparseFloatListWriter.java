@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
-import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
+import org.lemurproject.galago.core.index.DiskSpillCompressedByteBuffer;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.types.NumberWordProbability;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
@@ -61,7 +61,7 @@ public class SparseFloatListWriter implements
 
   public class DoubleInvertedList implements IndexElement {
 
-    CompressedRawByteBuffer data = new CompressedRawByteBuffer();
+    DiskSpillCompressedByteBuffer data = new DiskSpillCompressedByteBuffer();
     CompressedByteBuffer header = new CompressedByteBuffer();
     long lastDocument;
     long documentCount;

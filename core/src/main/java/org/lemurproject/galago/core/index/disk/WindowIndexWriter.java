@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
-import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
+import org.lemurproject.galago.core.index.DiskSpillCompressedByteBuffer;
 import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.merge.WindowIndexMerger;
@@ -158,10 +158,10 @@ public class WindowIndexWriter implements
     private long maximumPositionCount;
     private long totalWindowCount;
     public CompressedByteBuffer header;
-    public CompressedRawByteBuffer documents;
-    public CompressedRawByteBuffer counts;
-    public CompressedRawByteBuffer begins;
-    public CompressedRawByteBuffer ends;
+    public DiskSpillCompressedByteBuffer documents;
+    public DiskSpillCompressedByteBuffer counts;
+    public DiskSpillCompressedByteBuffer begins;
+    public DiskSpillCompressedByteBuffer ends;
     // to support skipping
     private long lastDocumentSkipped;
     private long lastSkipPosition;
@@ -171,19 +171,19 @@ public class WindowIndexWriter implements
     private long lastEndSkip;
     private long numSkips;
     private long docsSinceLastSkip;
-    private CompressedRawByteBuffer skips;
-    private CompressedRawByteBuffer skipPositions;
+    private DiskSpillCompressedByteBuffer skips;
+    private DiskSpillCompressedByteBuffer skipPositions;
 
     public WindowList() {
       header = new CompressedByteBuffer();
-      documents = new CompressedRawByteBuffer();
-      counts = new CompressedRawByteBuffer();
-      begins = new CompressedRawByteBuffer();
-      ends = new CompressedRawByteBuffer();
+      documents = new DiskSpillCompressedByteBuffer();
+      counts = new DiskSpillCompressedByteBuffer();
+      begins = new DiskSpillCompressedByteBuffer();
+      ends = new DiskSpillCompressedByteBuffer();
 
       if ((options & BTreeValueIterator.HAS_SKIPS) == BTreeValueIterator.HAS_SKIPS) {
-        skips = new CompressedRawByteBuffer();
-        skipPositions = new CompressedRawByteBuffer();
+        skips = new DiskSpillCompressedByteBuffer();
+        skipPositions = new DiskSpillCompressedByteBuffer();
       } else {
         skips = null;
       }

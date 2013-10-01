@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
-import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
+import org.lemurproject.galago.core.index.DiskSpillCompressedByteBuffer;
 import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.types.NumberWordCount;
@@ -140,8 +140,8 @@ public class CountIndexWriter implements
     private long maximumPositionCount;
     public byte[] word;
     public CompressedByteBuffer header;
-    public CompressedRawByteBuffer documents;
-    public CompressedRawByteBuffer counts;
+    public DiskSpillCompressedByteBuffer documents;
+    public DiskSpillCompressedByteBuffer counts;
     // to support skipping
     private long lastDocumentSkipped;
     private long lastSkipPosition;
@@ -149,17 +149,17 @@ public class CountIndexWriter implements
     private long lastCountSkip;
     private long numSkips;
     private long docsSinceLastSkip;
-    private CompressedRawByteBuffer skips;
-    private CompressedRawByteBuffer skipPositions;
+    private DiskSpillCompressedByteBuffer skips;
+    private DiskSpillCompressedByteBuffer skipPositions;
 
     public CountsList() {
-      documents = new CompressedRawByteBuffer();
-      counts = new CompressedRawByteBuffer();
+      documents = new DiskSpillCompressedByteBuffer();
+      counts = new DiskSpillCompressedByteBuffer();
       header = new CompressedByteBuffer();
 
       if ((options & BTreeValueIterator.HAS_SKIPS) == BTreeValueIterator.HAS_SKIPS) {
-        skips = new CompressedRawByteBuffer();
-        skipPositions = new CompressedRawByteBuffer();
+        skips = new DiskSpillCompressedByteBuffer();
+        skipPositions = new DiskSpillCompressedByteBuffer();
       } else {
         skips = null;
       }
