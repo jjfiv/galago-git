@@ -28,15 +28,15 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author sjh
  */
 public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
-  
+
   private final LocalRetrieval retrieval;
   private final FieldStatistics colStats;
-  
+
   public HeuristicMaxScoreDocumentModel(LocalRetrieval lr) throws Exception {
     this.retrieval = lr;
     this.colStats = lr.getCollectionStatistics("#lengths:document:part=lengths()");
   }
-  
+
   @Override
   public ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception {
     ScoringContext context = new ScoringContext();
@@ -52,19 +52,19 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
     // step two: create an iterator for each node
     boolean shareNodes = queryParams.get("shareNodes", retrieval.getGlobalParameters().get("shareNodes", true));
     List<DeltaScoringIterator> scoringIterators = createScoringIterators(scoringNodes, retrieval, shareNodes);
-    
+
     FixedSizeSortedArray<ScoredDocument> queue = new FixedSizeSortedArray(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
     // step three: determine the collection segments
-    System.err.println(colStats.toString());
+    // System.err.println(colStats.toString());
     long[] collectionSegments = determineCollectionSegments(queryParams.getDouble("mxerror"), requested, colStats.lastDocId);
     int currentSegment = 0;
-    
-    for (int i = 0; i < collectionSegments.length; i++) {
-      System.err.println(i + "\t" + collectionSegments[i]);
-    }
-    
-    
+
+//    for (int i = 0; i < collectionSegments.length; i++) {
+//      System.err.println(i + "\t" + collectionSegments[i]);
+//    }
+
+
     double maximumPossibleScore = 0.0;
     for (DeltaScoringIterator scorer : scoringIterators) {
       maximumPossibleScore += scorer.maximumWeightedScore();
@@ -73,18 +73,17 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
     // sentinel scores are set to collectionFrequency (sort function ensures decreasing order)
     Collections.sort(scoringIterators, new DeltaScoringIteratorMaxDiffComparator());
 
-// NO QUORUM //   
-//    // precompute statistics that allow us to update the quorum index
-//    double runningMaxScore = maximumPossibleScore;
-//    double[] maxScoreOfRemainingIterators = new double[scoringIterators.size()];
-//    for (int i = 0; i < scoringIterators.size(); i++) {
-//      // before scoring this iterator, the max possible score is:
-//      maxScoreOfRemainingIterators[i] = runningMaxScore;
-//      // after scoring this iterator (assuming min), the max possible score is:
-//      runningMaxScore -= scoringIterators.get(i).maximumDifference();
-//    }
-//
-//    // all scorers are scored until the minheap is full
+    // precompute statistics that allow us to update the quorum index
+    double runningMaxScore = maximumPossibleScore;
+    double[] maxScoreOfRemainingIterators = new double[scoringIterators.size()];
+    for (int i = 0; i < scoringIterators.size(); i++) {
+      // before scoring this iterator, the max possible score is:
+      maxScoreOfRemainingIterators[i] = runningMaxScore;
+      // after scoring this iterator (assuming min), the max possible score is:
+      runningMaxScore -= scoringIterators.get(i).maximumDifference();
+    }
+
+    // all scorers are scored until the minheap is full
     int quorumIndex = scoringIterators.size();
     double minHeapThresholdScore = Double.NEGATIVE_INFINITY;
 
@@ -99,7 +98,8 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
       long candidate = Long.MAX_VALUE;
       for (int i = 0; i < quorumIndex; i++) {
         if (!scoringIterators.get(i).isDone()) {
-          candidate = Math.min(candidate, scoringIterators.get(i).currentCandidate());
+          long itrCandidate = scoringIterators.get(i).currentCandidate();
+          candidate = (candidate < itrCandidate) ? candidate : itrCandidate;
         }
       }
 
@@ -107,7 +107,7 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
       if (candidate == Long.MAX_VALUE) {
         break;
       }
-      
+
       context.document = candidate;
       // Due to slightly different semantics between "currentCandidate" and 
       // "hasMatch", we need to see if the candidate given actually matches
@@ -116,18 +116,18 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
       for (ScoreIterator si : scoringIterators) {
         match |= si.hasMatch(candidate);
       }
-      
+
       if (match) {
         // Setup to score
         double runningScore = maximumPossibleScore;
 
         // now score quorum sentinels w/out question
         int i = 0;
-//        for (i = 0; i < quorumIndex; i++) {
-//          DeltaScoringIterator dsi = scoringIterators.get(i);
-//          dsi.syncTo(candidate);
-//          runningScore -= dsi.deltaScore(context);
-//        }
+        for (i = 0; i < quorumIndex; i++) {
+          DeltaScoringIterator dsi = scoringIterators.get(i);
+          dsi.syncTo(candidate);
+          runningScore -= dsi.deltaScore(context);
+        }
 
         // Now score the rest, but keep checking
         while (runningScore > minHeapThresholdScore && i < scoringIterators.size()) {
@@ -139,25 +139,22 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
 
         // Fully scored it
         if (i == scoringIterators.size()) {
+
+          while (collectionSegments[currentSegment] < candidate) {
+            currentSegment += 1;
+            quorumIndex = scoringIterators.size();
+          }
+
           if (queue.size() < requested || runningScore > queue.getFinal().score) {
             ScoredDocument scoredDocument = new ScoredDocument(candidate, runningScore);
             queue.offer(scoredDocument);
-            
-            if (collectionSegments[currentSegment] < candidate) {
-              currentSegment += 1;
-              System.err.println("Segment = " + currentSegment + " " + candidate + " " + queue.size());
-              System.err.println("Threshold = " + queue.get(currentSegment - 1));
-              System.err.println("Otherwise Threshold = " + minHeapThresholdScore);
-              System.err.println("Next-Seg = " + collectionSegments[currentSegment]);
-            }
-            
-            
-            if (queue.size() >= requested && minHeapThresholdScore < queue.getFinal().score) {
-              minHeapThresholdScore = queue.getFinal().score;
-              // check if this update will allow us to discard an iterator from consideration : 
-//              while (quorumIndex > 0 && maxScoreOfRemainingIterators[(quorumIndex - 1)] < minHeapThresholdScore) {
-//                quorumIndex--;
-//              }
+
+            if (queue.size() > currentSegment && minHeapThresholdScore < queue.get(currentSegment).score) {
+              minHeapThresholdScore = queue.get(currentSegment).score;
+
+              while (quorumIndex > 0 && maxScoreOfRemainingIterators[(quorumIndex - 1)] < minHeapThresholdScore) {
+                quorumIndex--;
+              }
             }
           }
         }
@@ -176,7 +173,7 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
 //        }
       }
     }
-    
+
     return toReversedArray2(queue);
   }
 
@@ -194,21 +191,21 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
 
     return items;
   }
-  
+
   private boolean findDeltaNodes(Node n, List<Node> scorers, LocalRetrieval ret) throws Exception {
     // throw exception if we can't determine the class of each node.
     NodeType nt = ret.getNodeType(n);
     Class<? extends BaseIterator> iteratorClass = nt.getIteratorClass();
-    
-    
-    
+
+
+
     if (DeltaScoringIterator.class
             .isAssignableFrom(iteratorClass)) {
       // we have a delta scoring class
       scorers.add(n);
-      
+
       return true;
-      
+
     } else if (DisjunctionIterator.class
             .isAssignableFrom(iteratorClass) && ScoreIterator.class
             .isAssignableFrom(iteratorClass)) {
@@ -223,7 +220,7 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
       return false;
     }
   }
-  
+
   private List<DeltaScoringIterator> createScoringIterators(List<Node> scoringNodes, LocalRetrieval ret, boolean shareNodes) throws Exception {
     List<DeltaScoringIterator> scoringIterators = new ArrayList();
 
@@ -246,11 +243,11 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
    */
   private long[] determineCollectionSegments(double error, int requested, long documentCount) {
     long[] segments = new long[requested + 1];
-    
+
     for (int i = 0; i < segments.length; i++) {
       segments[i] = 0;
     }
-    
+
     double maxError = error / ((requested - 1));
     double confidence = 1.0 - maxError;
     double prob = (double) requested / (double) documentCount;
@@ -264,24 +261,24 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
     } else {
       segments[1] = (long) Math.floor(low_i);
     }
-    
+
     for (int j = 1; j <= (requested - 2); j++) {
       low_i = low_i + 1.0;
-      
+
       double old_hi = documentCount - 1.0;
-      
+
       while ((old_hi - low_i) > 2.0) {
         double high_i = ((old_hi + low_i - 1.0) / 2.0) + 1.0;
-        
+
         double lambda_i = high_i * prob;
         double term = Math.exp(-1.0 * lambda_i);
         double sum = term;
-        
+
         for (int i = 1; i <= j; i++) {
           term = term * (lambda_i / (double) i);
           sum = sum + term;
         }
-        
+
         if (sum > confidence) {
           low_i = high_i;
         } else {
@@ -290,7 +287,7 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
       }
       segments[j + 1] = (long) Math.floor(low_i);
     }
-    
+
     segments[requested] = documentCount;
     return segments;
   }

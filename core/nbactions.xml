@@ -9,4 +9,41 @@
                 <skipTests>true</skipTests>
             </properties>
         </action>
+        <action>
+            <actionName>run</actionName>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>-Xmx4g -classpath %classpath org.lemurproject.galago.core.tools.apps.BatchSearch --index=./robust-04.index ./rob04.descs.dummy.json --opRepls/dummy=sdm --processingModel=org.lemurproject.galago.core.retrieval.processing.WeakAndDocumentModel --timesFile=./times/rob04.descs.wand.times --outputFile=./out/rob04.descs.wand.out --seed=123131</exec.args>
+                <exec.executable>java</exec.executable>
+                <exec.workingdir>/usr/ben/scratch2/sjh/projects/galago-wand</exec.workingdir>
+            </properties>
+        </action>
+        <action>
+            <actionName>debug</actionName>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -Xmx4g -classpath %classpath org.lemurproject.galago.core.tools.apps.BatchSearch --index=./robust-04.index ./rob04.descs.dummy.json --opRepls/dummy=sdm --processingModel=org.lemurproject.galago.core.retrieval.processing.WeakAndDocumentModel --timesFile=./times/rob04.descs.wand.times --outputFile=./out/rob04.descs.wand.out --seed=123131</exec.args>
+                <exec.executable>java</exec.executable>
+                <jpda.listen>true</jpda.listen>
+                <exec.workingdir>/usr/ben/scratch2/sjh/projects/galago-wand</exec.workingdir>
+            </properties>
+        </action>
+        <action>
+            <actionName>profile</actionName>
+            <goals>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>${profiler.args} -Xmx4g -classpath %classpath org.lemurproject.galago.core.tools.apps.BatchSearch --index=./robust-04.index ./rob04.descs.dummy.json --opRepls/dummy=sdm --processingModel=org.lemurproject.galago.core.retrieval.processing.WeakAndDocumentModel --timesFile=./times/rob04.descs.wand.times --outputFile=./out/rob04.descs.wand.out --seed=123131</exec.args>
+                <exec.executable>${profiler.java}</exec.executable>
+                <exec.workingdir>/usr/ben/scratch2/sjh/projects/galago-wand</exec.workingdir>
+            </properties>
+        </action>
     </actions>
