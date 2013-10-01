@@ -5,7 +5,6 @@ package org.lemurproject.galago.core.retrieval;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
@@ -16,7 +15,6 @@ import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
-import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -55,9 +53,7 @@ public class GroupRetrieval implements Retrieval {
   @Override
   public Node transformQuery(Node queryTree, Parameters queryParams) throws Exception {
     for (Traversal traversal : defaultTraversals) {
-      traversal.beforeTreeRoot(queryTree, queryParams);
-      queryTree = StructuredQuery.walk(traversal, queryTree, queryParams);
-      queryTree = traversal.afterTreeRoot(queryTree, queryParams);
+      queryTree = traversal.traverse(queryTree, queryParams);
     }
     return queryTree;
   }

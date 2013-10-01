@@ -226,9 +226,7 @@ public class MultiRetrieval implements Retrieval {
   // private functions
   private Node transformQuery(List<Traversal> traversals, Node queryTree, Parameters queryParams) throws Exception {
     for (Traversal traversal : traversals) {
-      traversal.beforeTreeRoot(queryTree, queryParams);
-      queryTree = StructuredQuery.walk(traversal, queryTree, queryParams);
-      queryTree = traversal.afterTreeRoot(queryTree, queryParams);
+      queryTree = traversal.traverse(queryTree, queryParams);
     }
     return queryTree;
   }

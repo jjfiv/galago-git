@@ -47,7 +47,7 @@ public class SequentialDependenceTraversalTest extends TestCase {
     transformed.append("#combine( #text:cat() #text:dog() #text:rat() ) ");
     transformed.append("#combine( #ordered:1( #text:cat() #text:dog() ) #ordered:1( #text:dog() #text:rat() ) ) ");
     transformed.append("#combine( #unordered:8( #text:cat() #text:dog() ) #unordered:8( #text:dog() #text:rat() ) ) )");
-    Node result = StructuredQuery.copy(traversal, tree, p);
+    Node result = traversal.traverse(tree, p);
 
     assertEquals(transformed.toString(), result.toString());
 
@@ -64,7 +64,7 @@ public class SequentialDependenceTraversalTest extends TestCase {
     transformed.append("#combine( #text:cat() #text:dog() #text:rat() ) ");
     transformed.append("#combine( #ordered:1( #text:cat() #text:dog() ) #ordered:1( #text:dog() #text:rat() ) ) ");
     transformed.append("#combine( #unordered:8( #text:cat() #text:dog() ) #unordered:8( #text:dog() #text:rat() ) ) )");
-    result = StructuredQuery.copy(traversal, tree, p);
+    result = traversal.traverse(tree, p);
 
     assertEquals(transformed.toString(), result.toString());
 
@@ -75,7 +75,7 @@ public class SequentialDependenceTraversalTest extends TestCase {
     transformed.append("#combine( #text:cat() #text:dog() #text:rat() ) ");
     transformed.append("#combine( #ordered:1( #text:cat() #text:dog() ) #ordered:1( #text:dog() #text:rat() ) ) ");
     transformed.append("#combine( #unordered:8( #text:cat() #text:dog() ) #unordered:8( #text:dog() #text:rat() ) ) )");
-    result = StructuredQuery.copy(traversal, tree, p);
+     result = traversal.traverse(tree, p);
 
     assertEquals(transformed.toString(), result.toString());
 
@@ -93,7 +93,7 @@ public class SequentialDependenceTraversalTest extends TestCase {
     transformed.append("#combine( #text:cat() #text:dog() #text:rat() ) ");
     transformed.append("#combine( #ordered:1( #text:cat() #text:dog() ) #ordered:1( #text:dog() #text:rat() ) #ordered:1( #text:cat() #text:dog() #text:rat() ) ) ");
     transformed.append("#combine( #unordered:8( #text:cat() #text:dog() ) #unordered:8( #text:dog() #text:rat() ) #unordered:12( #text:cat() #text:dog() #text:rat() ) ) )");
-    result = StructuredQuery.copy(traversal, tree, p);
+    result = traversal.traverse(tree, p);
 
     assertEquals(transformed.toString(), result.toString());
 

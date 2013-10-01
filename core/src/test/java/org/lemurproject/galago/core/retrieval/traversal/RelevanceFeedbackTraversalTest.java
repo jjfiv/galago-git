@@ -61,7 +61,7 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval);
 
     Node parsedTree = StructuredQuery.parse("#rm:fbDocs=10:fbTerms=4( #dirichlet( #extents:jumped:part=postings() ) )");
-    Node transformed = StructuredQuery.copy(traversal, parsedTree, new Parameters());
+    Node transformed = traversal.traverse(parsedTree, new Parameters());
     // truth data
     StringBuilder correct = new StringBuilder();
     /* No sentiwordlist.txt
@@ -95,7 +95,7 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval);
 
     Node parsedTree = StructuredQuery.parse("#rm:fbDocs=10:fbTerms=4( #dirichlet( #extents:jumped:part=postings() ) )");
-    Node transformed = StructuredQuery.copy(traversal, parsedTree, new Parameters());
+    Node transformed = traversal.traverse(parsedTree, new Parameters());
     // truth data
     StringBuilder correct = new StringBuilder();
 
@@ -126,8 +126,8 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     StringBuilder correct = new StringBuilder();
     correct.append("#combine:fbDocs=10:fbTerms=4:w=1.0( #dirichlet:avgLength=7.0:collectionLength=70:documentCount=10:maximumCount=0:nodeFrequency=0:w=1.0( #lengths:document:part=lengths() #counts:neverawordinedgewise:part=postings() ) )");
         
-    //System.err.println(transformed.toString());
-    //System.err.println(correct.toString());
+    System.err.println(transformed.toString());
+    System.err.println(correct.toString());
 
     assertEquals(correct.toString(), transformed.toString());
  
