@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
-import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
+import org.lemurproject.galago.core.index.DiskSpillCompressedByteBuffer;
 import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.types.KeyValuePair;
@@ -105,7 +105,7 @@ public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.Shre
   public class ContentList implements IndexElement {
 
     CompressedByteBuffer header;
-    CompressedRawByteBuffer data;
+    DiskSpillCompressedByteBuffer data;
     long lastDocument;
     long documentCount;
     byte[] key;
@@ -116,7 +116,7 @@ public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.Shre
       documentCount = 0;
       lastDocument = 0;
       header = new CompressedByteBuffer();
-      data = new CompressedRawByteBuffer();
+      data = new DiskSpillCompressedByteBuffer();
     }
 
     @Override

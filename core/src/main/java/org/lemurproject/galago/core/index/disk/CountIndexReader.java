@@ -88,7 +88,7 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
     return is;
   }
 
-  public class KeyIterator extends KeyListReader.KeyValueIterator {
+  public static class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);

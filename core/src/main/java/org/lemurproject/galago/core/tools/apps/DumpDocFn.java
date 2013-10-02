@@ -42,7 +42,7 @@ public class DumpDocFn extends AppFunction {
       return;
     }
     String indexPath = p.getString("index");
-    String identifier = p.getString("id");
+    String identifier = p.getAsString("id");
     
     DocumentComponents dc = new DocumentComponents(p);
     

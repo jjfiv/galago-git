@@ -92,7 +92,7 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
     return is;
   }
 
-  public class KeyIterator extends KeyValueReader.KeyValueIterator {
+  public static class KeyIterator extends KeyValueReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
@@ -135,7 +135,7 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
     }
   }
 
-  public class BackgroundStatsIterator extends DiskIterator implements NodeAggregateIterator {
+  public static class BackgroundStatsIterator extends DiskIterator implements NodeAggregateIterator {
 
     protected KeyIterator iterator;
 
@@ -143,6 +143,7 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
       this.iterator = ki;
     }
 
+    @Override
     public NodeStatistics getStatistics() {
       return this.iterator.getNodeStatistics();
     }

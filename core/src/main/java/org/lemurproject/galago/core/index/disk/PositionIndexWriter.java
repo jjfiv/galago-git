@@ -7,9 +7,8 @@ import java.io.OutputStream;
 import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
-import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
+import org.lemurproject.galago.core.index.DiskSpillCompressedByteBuffer;
 import org.lemurproject.galago.core.index.IndexElement;
-import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.mem.MemoryPositionalIndex;
 import org.lemurproject.galago.core.index.merge.PositionIndexMerger;
 import org.lemurproject.galago.core.types.NumberWordPosition;
@@ -87,8 +86,7 @@ public class PositionIndexWriter implements
     options |= BTreeValueIterator.HAS_INLINING;
   }
 
-  @Override
-  public void processWord(byte[] wordBytes) throws IOException {
+  private void closeList() throws IOException {
     if (invertedList != null) {
       highestDocumentCount = Math.max(highestDocumentCount, invertedList.documentCount);
       highestFrequency = Math.max(highestFrequency, invertedList.totalPositionCount);
@@ -98,9 +96,13 @@ public class PositionIndexWriter implements
 
       invertedList = null;
     }
+  }
+  
+  @Override
+  public void processWord(byte[] wordBytes) throws IOException {
+    closeList();
 
-    invertedList = new PositionsList();
-    invertedList.setWord(wordBytes);
+    invertedList = new PositionsList(wordBytes);
     assert lastWord == null || 0 != Utility.compare(lastWord, wordBytes) : "Duplicate word";
     lastWord = wordBytes;
     vocabCount++;
@@ -123,13 +125,7 @@ public class PositionIndexWriter implements
 
   @Override
   public void close() throws IOException {
-    if (invertedList != null) {
-      highestDocumentCount = Math.max(highestDocumentCount, invertedList.documentCount);
-      highestFrequency = Math.max(highestFrequency, invertedList.totalPositionCount);
-      collectionLength += invertedList.totalPositionCount;
-      invertedList.close();
-      writer.add(invertedList);
-    }
+    closeList();
 
     // Add stats to the manifest if needed
     Parameters manifest = writer.getManifest();
@@ -159,15 +155,15 @@ public class PositionIndexWriter implements
 
     private long lastDocument;
     private long lastPosition;
-    private long positionCount;
+    private long lastPositionCount;
     private long documentCount;
     private long maximumPositionCount;
     private long totalPositionCount;
-    public byte[] word;
+    public final byte[] word;
     public CompressedByteBuffer header;
-    public CompressedRawByteBuffer documents;
-    public CompressedRawByteBuffer counts;
-    public CompressedRawByteBuffer positions;
+    public DiskSpillCompressedByteBuffer documents;
+    public DiskSpillCompressedByteBuffer counts;
+    public DiskSpillCompressedByteBuffer positions;
     public CompressedByteBuffer positionBlock;
     // to support skipping
     private long lastDocumentSkipped;
@@ -177,24 +173,53 @@ public class PositionIndexWriter implements
     private long lastPositionSkip;
     private long numSkips;
     private long docsSinceLastSkip;
-    private CompressedRawByteBuffer skips;
-    private CompressedRawByteBuffer skipPositions;
+    private DiskSpillCompressedByteBuffer skips;
+    private DiskSpillCompressedByteBuffer skipPositions;
 
-    public PositionsList() {
-      documents = new CompressedRawByteBuffer();
-      counts = new CompressedRawByteBuffer();
-      positions = new CompressedRawByteBuffer();
+    public PositionsList(byte[] word) {
+      documents = new DiskSpillCompressedByteBuffer();
+      counts = new DiskSpillCompressedByteBuffer();
+      positions = new DiskSpillCompressedByteBuffer();
       positionBlock = new CompressedByteBuffer();
       header = new CompressedByteBuffer();
 
       if ((options & BTreeValueIterator.HAS_SKIPS) == BTreeValueIterator.HAS_SKIPS) {
-        skips = new CompressedRawByteBuffer();
-        skipPositions = new CompressedRawByteBuffer();
+        skips = new DiskSpillCompressedByteBuffer();
+        skipPositions = new DiskSpillCompressedByteBuffer();
       } else {
         skips = null;
       }
+      
+      this.word = word;
+      this.lastDocument = 0;
+      this.lastPosition = 0;
+      this.totalPositionCount = 0;
+      this.maximumPositionCount = 0;
+      this.lastPositionCount = 0;
+      if (skips != null) {
+        this.docsSinceLastSkip = 0;
+        this.lastSkipPosition = 0;
+        this.lastDocumentSkipped = 0;
+        this.lastDocumentSkip = 0;
+        this.lastCountSkip = 0;
+        this.lastPositionSkip = 0;
+        this.numSkips = 0;
+      }
     }
 
+    private void finishDocument() {
+      if (documents.length() > 0) {
+        counts.add(lastPositionCount);
+
+        // Now conditionally add in the skip marker and the array of position bytes
+        if (lastPositionCount > MARKER_MINIMUM) {
+          positions.add(positionBlock.length());
+        }
+        positions.add(positionBlock);
+        maximumPositionCount = Math.max(maximumPositionCount, lastPositionCount);
+      }
+    }
+    
     /**
      * Close the posting list by finishing off counts and completing header
      * data.
@@ -202,17 +227,7 @@ public class PositionIndexWriter implements
      * @throws IOException
      */
     public void close() throws IOException {
-
-      if (documents.length() > 0) {
-        counts.add(positionCount);
-
-        // Now conditionally add in the skip marker and the array of position bytes
-        if (positionCount > MARKER_MINIMUM) {
-          positions.add(positionBlock.length());
-        }
-        positions.add(positionBlock);
-        maximumPositionCount = Math.max(maximumPositionCount, positionCount);
-      }
+      finishDocument();
 
       if (skips != null && skips.length() == 0) {
         // not adding skip information b/c its empty
@@ -305,30 +320,6 @@ public class PositionIndexWriter implements
     }
 
     /**
-     * Sets the key for this PositionsList, and resets all internal buffers.
-     * Should be named 'setKey'.
-     *
-     * @param word
-     */
-    public void setWord(byte[] word) {
-      this.word = word;
-      this.lastDocument = 0;
-      this.lastPosition = 0;
-      this.totalPositionCount = 0;
-      this.maximumPositionCount = 0;
-      this.positionCount = 0;
-      if (skips != null) {
-        this.docsSinceLastSkip = 0;
-        this.lastSkipPosition = 0;
-        this.lastDocumentSkipped = 0;
-        this.lastDocumentSkip = 0;
-        this.lastCountSkip = 0;
-        this.lastPositionSkip = 0;
-        this.numSkips = 0;
-      }
-    }
-
-    /**
      * Add a new document id to the PositionsList. Assumes there will be at
      * least one position added afterwards (otherwise why add the docid?).
      *
@@ -337,29 +328,23 @@ public class PositionIndexWriter implements
      */
     public void addDocument(long documentID) throws IOException {
       // add the last document's counts
+      finishDocument();
+      
+      // TODO should this be in finishDocument()?
       if (documents.length() > 0) {
-        counts.add(positionCount);
-
-        // Now add in the skip marker and the array of position bytes
-        if (positionCount > MARKER_MINIMUM) {
-          positions.add(positionBlock.length());
-        }
-        positions.add(positionBlock);
-        maximumPositionCount = Math.max(maximumPositionCount, positionCount);
-
         // if we're skipping check that
         if (skips != null) {
           updateSkipInformation();
         }
       }
+      
       documents.add(documentID - lastDocument);
       lastDocument = documentID;
 
       lastPosition = 0;
-      positionCount = 0;
+      lastPositionCount = 0;
       positionBlock.clear();
       documentCount++;
-
     }
 
     /**
@@ -370,7 +355,7 @@ public class PositionIndexWriter implements
      * @throws IOException
      */
     public void addPosition(int position) throws IOException {
-      positionCount++;
+      lastPositionCount++;
       totalPositionCount++;
       positionBlock.add(position - lastPosition);
       lastPosition = position;

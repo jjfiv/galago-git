@@ -227,8 +227,8 @@ public class DiskBTreeWriter extends BTreeWriter {
    */
   private void flush() throws IOException {
     // if there aren't any lists, quit now
-    if (lists.size() == 0) {
-      return;        // write everything out
+    if (lists.isEmpty()) {
+      return;
     }
     writeBlock(lists, bufferedSize());
 

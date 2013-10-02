@@ -102,7 +102,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
   }
 
-  public class KeyIterator extends KeyListReader.KeyValueIterator {
+  public static class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);

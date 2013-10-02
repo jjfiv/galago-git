@@ -54,7 +54,7 @@ public class SparseFloatListReader extends KeyListReader {
     }
   }
 
-  public class KeyIterator extends KeyListReader.KeyValueIterator {
+  public static class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);

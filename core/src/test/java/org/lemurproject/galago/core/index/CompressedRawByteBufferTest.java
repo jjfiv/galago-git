@@ -4,7 +4,7 @@
 package org.lemurproject.galago.core.index;
 
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
-import org.lemurproject.galago.core.index.CompressedRawByteBuffer;
+import org.lemurproject.galago.core.index.DiskSpillCompressedByteBuffer;
 import java.io.ByteArrayInputStream;
 import junit.framework.TestCase;
 import java.io.ByteArrayOutputStream;
@@ -22,7 +22,7 @@ public class CompressedRawByteBufferTest extends TestCase {
     }
 
     public void testSpill() throws Exception {
-        CompressedRawByteBuffer instance = new CompressedRawByteBuffer(1, 6, 24);
+        DiskSpillCompressedByteBuffer instance = new DiskSpillCompressedByteBuffer(1, 6, 24);
         for (int i = 0; i < 400; i++) {
             instance.addRaw(i);
         }
@@ -41,7 +41,7 @@ public class CompressedRawByteBufferTest extends TestCase {
     }
 
     public void testAdd() throws Exception {
-        CompressedRawByteBuffer instance = new CompressedRawByteBuffer();
+        DiskSpillCompressedByteBuffer instance = new DiskSpillCompressedByteBuffer();
         instance.add(5);
         instance.add(10);
         instance.add(200);
@@ -76,7 +76,7 @@ public class CompressedRawByteBufferTest extends TestCase {
 
     public void testAddFloat() throws Exception {
         float f = 1.0F;
-        CompressedRawByteBuffer instance = new CompressedRawByteBuffer();
+        DiskSpillCompressedByteBuffer instance = new DiskSpillCompressedByteBuffer();
         instance.addFloat(f);
 
         assertEquals(4, instance.length());
@@ -92,7 +92,7 @@ public class CompressedRawByteBufferTest extends TestCase {
     }
 
     public void testSpecial() throws Exception {
-        CompressedRawByteBuffer instance = new CompressedRawByteBuffer();
+        DiskSpillCompressedByteBuffer instance = new DiskSpillCompressedByteBuffer();
         int[] numbers = {1, 2, 2, 1, 0, 8, 1, 0, 8, 5, 5, 0};
 
         for (int i = 0; i < numbers.length; i++) {

@@ -51,7 +51,7 @@ public class FieldIndexReader extends KeyListReader {
 
   @Override
   public KeyIterator getIterator() throws IOException {
-    return new KeyIterator(reader);
+    return new KeyIterator(reader, formatMap);
   }
 
   @Override
@@ -64,7 +64,7 @@ public class FieldIndexReader extends KeyListReader {
   public ListIterator getField(String fieldname) throws IOException {
     BTreeReader.BTreeIterator iterator =
             reader.getIterator(Utility.fromString(fieldname));
-    ListIterator it = new ListIterator(iterator);
+    ListIterator it = new ListIterator(iterator, formatMap);
     return it;
   }
 
@@ -82,10 +82,13 @@ public class FieldIndexReader extends KeyListReader {
     }
   }
 
-  public class KeyIterator extends KeyListReader.KeyValueIterator {
+  public static class KeyIterator extends KeyListReader.KeyValueIterator {
 
-    public KeyIterator(BTreeReader reader) throws IOException {
+    public Parameters formatMap;
+    
+    public KeyIterator(BTreeReader reader, Parameters formatMap) throws IOException {
       super(reader);
+      this.formatMap = formatMap;
     }
 
     @Override
@@ -93,7 +96,7 @@ public class FieldIndexReader extends KeyListReader {
       ListIterator it;
       long count = -1;
       try {
-        it = new ListIterator(iterator);
+        it = new ListIterator(iterator, formatMap);
         count = it.totalEntries();
       } catch (IOException ioe) {
       }
@@ -110,7 +113,7 @@ public class FieldIndexReader extends KeyListReader {
 
     @Override
     public ListIterator getValueIterator() throws IOException {
-      return new ListIterator(iterator);
+      return new ListIterator(iterator, formatMap);
     }
 
     @Override
@@ -119,9 +122,10 @@ public class FieldIndexReader extends KeyListReader {
     }
   }
 
-  public class ListIterator extends BTreeValueIterator
+  public static class ListIterator extends BTreeValueIterator
           implements BaseIterator {
 
+    Parameters formatMap;
     BTreeReader.BTreeIterator iterator;
     //VByteInput data;
     long startPosition, endPosition;
@@ -139,8 +143,9 @@ public class FieldIndexReader extends KeyListReader {
     long dateValue;
     byte[] dateBytes = new byte[8];
 
-    public ListIterator(BTreeReader.BTreeIterator iterator) throws IOException {
+    public ListIterator(BTreeReader.BTreeIterator iterator, Parameters formatMap) throws IOException {
       super(iterator.getKey());
+      this.formatMap = formatMap;
       reset(iterator);
     }
 

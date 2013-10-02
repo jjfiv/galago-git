@@ -350,6 +350,24 @@ public class Parameters implements Serializable {
       throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
     }
   }
+  
+  /**
+   * If the value is primitive, this reaches into the Parameters object and returns "key" as a string.
+   * @param key The key to look for.
+   * @return the value of key as a string.
+   */
+  public String getAsString(String key) {
+    if(isString(key)) {
+      return getString(key);
+    } else if(isLong(key)) {
+      return Long.toString(getLong(key));
+    } else if(isBoolean(key)) {
+      return Boolean.toString(getBoolean(key));
+    } else if(isDouble(key)) {
+      return Double.toString(getDouble(key));
+    }
+    throw new IllegalArgumentException("Key "+ key +" does not exist as a primitive in parameters object.");
+  }
 
   public String getString(String key) {
     if (_keys.containsKey(key)) {

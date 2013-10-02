@@ -34,7 +34,7 @@ import java.io.File;
 import java.util.ArrayList;
 import org.lemurproject.galago.tupleflow.Utility;
 
-public class CompressedRawByteBuffer extends OutputStream {
+public class DiskSpillCompressedByteBuffer extends OutputStream {
 
   ArrayList<byte[]> values = null;
   TIntArrayList sizes = null;
@@ -52,11 +52,11 @@ public class CompressedRawByteBuffer extends OutputStream {
   private static final int BUFFER_HI = 32768;
   private static final int SPILL_SIZE = 33554432;
 
-  public CompressedRawByteBuffer() {
+  public DiskSpillCompressedByteBuffer() {
     this(BUFFER_LO, BUFFER_HI, SPILL_SIZE);
   }
 
-  public CompressedRawByteBuffer(int minimum, int maximum, int threshold) {
+  public DiskSpillCompressedByteBuffer(int minimum, int maximum, int threshold) {
     assert (minimum <= maximum);
     lo = minimum;
     hi = maximum;
@@ -106,6 +106,7 @@ public class CompressedRawByteBuffer extends OutputStream {
    * Adds a series of bytes to the buffer. Just iterates over
    *
    */
+  @Override
   public void write(byte[] bytes) {
     add(bytes);
   }
@@ -114,6 +115,7 @@ public class CompressedRawByteBuffer extends OutputStream {
     add(bytes, 0, bytes.length);
   }
 
+  @Override
   public void write(byte[] bytes, int offset, int length) {
     add(bytes, offset, length);
   }
@@ -180,7 +182,7 @@ public class CompressedRawByteBuffer extends OutputStream {
    *
    * @param other The buffer to copy.
    */
-  public void add(CompressedRawByteBuffer other) throws IOException {
+  public void add(DiskSpillCompressedByteBuffer other) throws IOException {
     other.write(this);
   }
 
@@ -219,19 +221,6 @@ public class CompressedRawByteBuffer extends OutputStream {
     currentBufferSize = lo;
     position = 0;
     memoryLength = 0;
-  }
-
-  /**
-   * Returns a byte array containing the contents of this buffer. The array
-   * returned may be larger than the actual length of the stored data. Use the
-   * length method to determine the true data length.
-   */
-  private byte[] getBytes() {
-    throw new UnsupportedOperationException("Not yet implemented");
-  }
-
-  private byte[] getBytes(long startpos) {
-    throw new UnsupportedOperationException("Not yet implemented");
   }
 
   /**

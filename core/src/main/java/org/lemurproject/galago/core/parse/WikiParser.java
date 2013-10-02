@@ -42,7 +42,7 @@ public class WikiParser extends DocumentStreamParser {
     try {
       builder = builderFactory.newDocumentBuilder();
     } catch (ParserConfigurationException e) {
-      e.printStackTrace();
+      throw new IOException("bliki configuration exception", e);
     }
     this.wikiParser = new WikiModel("http://en.wikipedia.org/wiki/${image}",
             "http://en.wikipedia.org/wiki/${title}");
@@ -85,6 +85,12 @@ public class WikiParser extends DocumentStreamParser {
     return null;
   }
 
+  private String getFirstTagContents(org.w3c.dom.Document xmlDoc, String tagName) {
+    NodeList idList = xmlDoc.getElementsByTagName(tagName);
+    Element idElement = (Element) idList.item(0);
+    return ((CharacterData) idElement.getFirstChild()).getData();
+  }
+  
   private Document processPage(String page) {
     Document d = null;
     String documentTitle = "";
@@ -93,29 +99,16 @@ public class WikiParser extends DocumentStreamParser {
       is.setCharacterStream(new StringReader(page));
       org.w3c.dom.Document xmlDoc = builder.parse(is);
 
-      // Highlander principle parsing - id!
-      NodeList idList = xmlDoc.getElementsByTagName("id");
-      Element idElement = (Element) idList.item(0);
-      String documentId = ((CharacterData) idElement.getFirstChild()).getData();
-
-      // Highlander principle parsing - title!
-      NodeList titleList = xmlDoc.getElementsByTagName("title");
-      Element titleElement = (Element) titleList.item(0);
-      documentTitle = ((CharacterData) titleElement.getFirstChild()).getData();
+      long wikiId = Integer.parseInt(getFirstTagContents(xmlDoc, "id"));
+      String documentName = "w"+wikiId;
+      documentTitle = getFirstTagContents(xmlDoc, "title");
 
       if (!checkTitle(documentTitle)) {
         return null;
       }
 
-      // Highlander principle parsing - timestamp!
-      NodeList timeList = xmlDoc.getElementsByTagName("timestamp");
-      Element timeElement = (Element) timeList.item(0);
-      String documentTimestamp = ((CharacterData) timeElement.getFirstChild()).getData();
-
-      // Highlander principle parsing - text!
-      NodeList textList = xmlDoc.getElementsByTagName("text");
-      Element textElement = (Element) textList.item(0);
-      String text = ((CharacterData) textElement.getFirstChild()).getData();
+      String documentTimestamp = getFirstTagContents(xmlDoc, "timestamp");
+      String text = getFirstTagContents(xmlDoc, "text");
 
       // prepend document with title and timestamp.
       StringBuilder documentText = new StringBuilder();
@@ -127,9 +120,10 @@ public class WikiParser extends DocumentStreamParser {
         documentText.append(htmlText);
       }
 
-      d = new Document(documentId, documentText.toString().toLowerCase());
-
-      d.metadata.put("url", "http://en.wikipedia.org/wiki/" + documentTitle.toLowerCase());
+      d = new Document(documentName, documentText.toString().toLowerCase());
+      d.metadata.put("title", documentTitle);
+      d.metadata.put("timestamp", documentTimestamp);
+      d.metadata.put("url", "http://en.wikipedia.org/wiki/" + documentTitle);
 
     } catch (Exception ex) {
       System.err.println("FAILED TO PROCESS: " + documentTitle);// failed to parse document data from the page string - return null

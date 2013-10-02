@@ -7,11 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.SourceIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -81,7 +82,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
   }
 
   @Override
-  public DiskIterator getIterator(Node node) throws IOException {
+  public SourceIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("counts")) {
       return getTermCounts(node.getDefaultParameter());
     } else {
@@ -102,7 +103,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
   }
 
   // subclasses 
-  public class KeyIterator extends KeyListReader.KeyValueIterator {
+  public static class KeyIterator extends KeyListReader.KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
