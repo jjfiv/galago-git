@@ -3,8 +3,6 @@
  */
 package org.lemurproject.galago.core.parse.stem;
 
-import org.lemurproject.galago.core.parse.stem.Stemmer;
-import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,9 +21,9 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public class KrovtezStemmerTest extends TestCase {
+public class KrovetzStemmerTest extends TestCase {
 
-  public KrovtezStemmerTest(String name) {
+  public KrovetzStemmerTest(String name) {
     super(name);
   }
   final static String text = "Call me Ishmael. Some years ago never mind how long precisely "

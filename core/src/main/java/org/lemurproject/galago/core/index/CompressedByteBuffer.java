@@ -132,7 +132,7 @@ public class CompressedByteBuffer {
   /**
    * Returns the length of the data stored in this buffer.
    */
-  public int length() {
+  public long length() {
     return values.size();
   }
 
