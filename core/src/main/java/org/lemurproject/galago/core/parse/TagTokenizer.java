@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
+import org.lemurproject.galago.core.tokenize.Tokenizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

@@ -1,9 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import org.lemurproject.galago.core.parse.TagTokenizer;
-import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.NullProcessor;
 import java.io.IOException;

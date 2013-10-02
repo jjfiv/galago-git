@@ -1,12 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.parse;
+package org.lemurproject.galago.core.tokenize;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.corpus.CorpusReader;
+import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;

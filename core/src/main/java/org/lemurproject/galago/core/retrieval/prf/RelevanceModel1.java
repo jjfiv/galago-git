@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.core.parse.Tokenizer;
+import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;

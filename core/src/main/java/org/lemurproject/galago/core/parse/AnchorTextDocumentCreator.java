@@ -2,6 +2,7 @@
 
 package org.lemurproject.galago.core.parse;
 
+import org.lemurproject.galago.core.tokenize.Tokenizer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;

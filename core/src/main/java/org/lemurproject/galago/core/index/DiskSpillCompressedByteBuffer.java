@@ -50,7 +50,7 @@ public class DiskSpillCompressedByteBuffer extends OutputStream {
   int position;
   private static final int BUFFER_LO = 2;
   private static final int BUFFER_HI = 32768;
-  private static final int SPILL_SIZE = 33554432;
+  private static final int SPILL_SIZE = 32 << 20; // 32 MiB
 
   public DiskSpillCompressedByteBuffer() {
     this(BUFFER_LO, BUFFER_HI, SPILL_SIZE);
@@ -70,6 +70,7 @@ public class DiskSpillCompressedByteBuffer extends OutputStream {
    *
    * @param value The byte value to add.
    */
+  @Override
   public void write(int value) {
     addRaw(value);
   }

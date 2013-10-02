@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.mem.FlushToDisk;
 import org.lemurproject.galago.core.index.mem.MemoryIndex;
 import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.core.parse.Tokenizer;
+import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FakeParameters;

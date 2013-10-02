@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.index.disk.DiskNameWriter;
 import org.lemurproject.galago.core.index.disk.FieldIndexWriter;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.parse.DocumentNumberer;
-import org.lemurproject.galago.core.parse.Tokenizer;
+import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.core.parse.UniversalParser;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.FieldLengthData;
