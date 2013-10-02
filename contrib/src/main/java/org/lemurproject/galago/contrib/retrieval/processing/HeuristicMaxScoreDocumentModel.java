@@ -1,7 +1,7 @@
 /*
  *  BSD License (http://lemurproject.org/galago-license)
  */
-package org.lemurproject.galago.core.retrieval.processing;
+package org.lemurproject.galago.contrib.retrieval.processing;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,12 +15,27 @@ import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DisjunctionIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
+import org.lemurproject.galago.core.retrieval.processing.DeltaScoringIteratorMaxDiffComparator;
+import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.util.FixedSizeSortedArray;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
+ * Implementation of a heuristic improvement to MaxScore (Patent #5488725,
+ * Howard Turtle, 1996)
+ *
+ * NOTE this model is NOT rank-safe and that I have not been able to get this
+ * model to execute a query faster than max-score
+ *
+ * Three reasons: ((+/-) time diff to MaxScore using SDM, and 250 Robust desc.)
+ * 1. it uses a FixedSizeSortedArray (not a minheap) (+6s) 2. it computes the
+ * document segments for each query (+10s) 3. the improved speed from higher
+ * thresholds is only a couple of seconds (-4s)
+ *
+ * It may be more useful for non-Dirichlet scoring models.
  *
  * @author sjh
  */
@@ -53,13 +68,8 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
     FixedSizeSortedArray<ScoredDocument> queue = new FixedSizeSortedArray(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
     // step three: determine the collection segments
-    // System.err.println(colStats.toString());
     long[] collectionSegments = determineCollectionSegments(queryParams.getDouble("mxerror"), requested, colStats.lastDocId);
     int currentSegment = 0;
-
-//    for (int i = 0; i < collectionSegments.length; i++) {
-//      System.err.println(i + "\t" + collectionSegments[i]);
-//    }
 
 
     double maximumPossibleScore = 0.0;
@@ -83,6 +93,7 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
     // all scorers are scored until the minheap is full
     int quorumIndex = scoringIterators.size();
     double minHeapThresholdScore = Double.NEGATIVE_INFINITY;
+    long fullyScored = 0;
 
     // Routine is as follows:
     // 1) Find the next candidate from the sentinels
@@ -137,6 +148,8 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
         // Fully scored it
         if (i == scoringIterators.size()) {
 
+          fullyScored += 1;
+
           while (collectionSegments[currentSegment] < candidate) {
             currentSegment += 1;
             quorumIndex = scoringIterators.size();
@@ -146,7 +159,7 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
             ScoredDocument scoredDocument = new ScoredDocument(candidate, runningScore);
             queue.offer(scoredDocument);
 
-            if (queue.size() > currentSegment && minHeapThresholdScore < queue.get(currentSegment).score) {
+            if (queue.size() > currentSegment && minHeapThresholdScore != queue.get(currentSegment).score) {
               minHeapThresholdScore = queue.get(currentSegment).score;
 
               while (quorumIndex > 0 && maxScoreOfRemainingIterators[(quorumIndex - 1)] < minHeapThresholdScore) {
@@ -170,6 +183,8 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
 //        }
       }
     }
+
+    //System.err.println(queryParams.getString("number") + " fullyScored " + fullyScored);
 
     return toReversedArray2(queue);
   }
@@ -238,14 +253,15 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
   /**
    * Returns the document segments
    */
-  private long[] determineCollectionSegments(double error, int requested, long documentCount) {
+  public static long[] determineCollectionSegments(double error, int requested, long documentCount) {
     long[] segments = new long[requested + 1];
 
     for (int i = 0; i < segments.length; i++) {
       segments[i] = 0;
     }
 
-    double maxError = error / ((requested - 1));
+    // double maxError = error / ((requested - 1));
+    double maxError = error;
     double confidence = 1.0 - maxError;
     double prob = (double) requested / (double) documentCount;
 
