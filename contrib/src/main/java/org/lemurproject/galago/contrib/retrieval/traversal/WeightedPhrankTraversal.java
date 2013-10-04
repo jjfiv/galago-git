@@ -28,7 +28,6 @@ public class WeightedPhrankTraversal extends Traversal {
   private Retrieval retrieval;
   private GroupRetrieval gRetrieval;
   private Parameters globalParams;
-  private boolean defCombNorm;
   private boolean verbose;
   private List<WPHRANKFeature> uniFeatures;
   private List<WPHRANKFeature> biFeatures;
@@ -43,7 +42,6 @@ public class WeightedPhrankTraversal extends Traversal {
     this.globalParams = retrieval.getGlobalParameters();
 
     verbose = globalParams.get("verboseWPHRANK", false);
-    defCombNorm = globalParams.get("norm", false);
 
     uniFeatures = new ArrayList();
     biFeatures = new ArrayList();
