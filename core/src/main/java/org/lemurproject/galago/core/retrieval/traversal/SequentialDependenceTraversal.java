@@ -89,7 +89,7 @@ public class SequentialDependenceTraversal extends Traversal {
         for (int i = 0; i < (children.size() - n + 1); i++) {
           List<Node> seq = children.subList(i, i + n);
           ordered.add(new Node(qp.get("sdm.od.op", this.odOp), new NodeParameters(qp.get("sdm.od.width", odWidth)), Node.cloneNodeList(seq)));
-          unordered.add(new Node(qp.get("sdm.uw.op", this.odOp), new NodeParameters(qp.get("sdm.uw.width", uwWidth) * seq.size()), Node.cloneNodeList(seq)));
+          unordered.add(new Node(qp.get("sdm.uw.op", this.uwOp), new NodeParameters(qp.get("sdm.uw.width", uwWidth) * seq.size()), Node.cloneNodeList(seq)));
         }
       }
 
