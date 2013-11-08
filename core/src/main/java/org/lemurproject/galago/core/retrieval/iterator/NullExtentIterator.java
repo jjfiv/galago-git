@@ -4,7 +4,6 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -15,7 +14,7 @@ import org.lemurproject.galago.core.util.ExtentArray;
  * @author trevor
  * @author irmarc
  */
-public class NullExtentIterator extends DiskIterator implements ExtentIterator, CountIterator {
+public class NullExtentIterator implements ExtentIterator, CountIterator {
 
   ExtentArray array = new ExtentArray();
 
@@ -91,11 +90,6 @@ public class NullExtentIterator extends DiskIterator implements ExtentIterator, 
   @Override
   public boolean hasAllCandidates() {
     return false;
-  }
-
-  @Override
-  public String getKeyString() throws IOException {
-    return "";
   }
 
   @Override

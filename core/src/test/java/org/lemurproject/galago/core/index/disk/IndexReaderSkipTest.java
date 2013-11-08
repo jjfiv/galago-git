@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.File;
 import java.util.Random;
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -30,7 +30,6 @@ public class IndexReaderSkipTest extends TestCase {
       parameters.set("filename", temp.getAbsolutePath());
       parameters.set("skipDistance", 10);
       parameters.set("skipResetDistance", 5);
-      parameters.set("estimateDocumentCount", true);
       PositionIndexWriter writer = new PositionIndexWriter(new FakeParameters(parameters));
 
       writer.processWord(Utility.fromString("key"));
@@ -44,11 +43,11 @@ public class IndexReaderSkipTest extends TestCase {
 
       PositionIndexReader reader = new PositionIndexReader(parameters.getString("filename"));
       for (int i = 1; i < 1000; i++) {
-        DiskIterator extents = reader.getTermExtents("key");
+        BaseIterator extents = reader.getTermExtents("key");
         extents.syncTo(i);
         assertEquals(extents.currentCandidate(), i);
 
-        DiskIterator counts = reader.getTermCounts("key");
+        BaseIterator counts = reader.getTermCounts("key");
         counts.syncTo(i);
         assertEquals(counts.currentCandidate(), i);
       }
@@ -78,7 +77,7 @@ public class IndexReaderSkipTest extends TestCase {
 
       CountIndexReader reader = new CountIndexReader(parameters.getString("filename"));
       for (int i = 1; i < 1000; i++) {
-        DiskIterator counts = reader.getTermCounts("key");
+        BaseIterator counts = reader.getTermCounts("key");
         counts.syncTo(i);
         assertEquals(counts.currentCandidate(), i);
       }
@@ -111,11 +110,11 @@ public class IndexReaderSkipTest extends TestCase {
 
       WindowIndexReader reader = new WindowIndexReader(parameters.getString("filename"));
       for (int i = 1; i < 1000; i++) {
-        DiskIterator extents = reader.getTermExtents("key");
+        BaseIterator extents = reader.getTermExtents("key");
         extents.syncTo(i);
         assertEquals(extents.currentCandidate(), i);
 
-        DiskIterator counts = reader.getTermCounts("key");
+        BaseIterator counts = reader.getTermCounts("key");
         counts.syncTo(i);
         assertEquals(counts.currentCandidate(), i);
       }

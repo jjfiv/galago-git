@@ -55,7 +55,6 @@ public class PositionIndexReaderTest extends TestCase {
 
     Parameters p = new Parameters();
     p.set("filename", tempPath.toString());
-    p.set("estimateDocumentCount", true);
 
     PositionIndexWriter writer =
             new PositionIndexWriter(new org.lemurproject.galago.tupleflow.FakeParameters(p));
@@ -151,7 +150,6 @@ public class PositionIndexReaderTest extends TestCase {
     p.set("skipping", true);
     p.set("skipDistance", 20);
     p.set("skipResetDistance", 5);
-    p.set("estimateDocumentCount", true);
 
     PositionIndexWriter writer =
             new PositionIndexWriter(new org.lemurproject.galago.tupleflow.FakeParameters(p));

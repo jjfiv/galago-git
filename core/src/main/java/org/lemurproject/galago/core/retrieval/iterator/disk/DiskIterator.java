@@ -5,7 +5,6 @@ package org.lemurproject.galago.core.retrieval.iterator.disk;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 
 /**
  * Old ValueIterator class (now deprecated)
