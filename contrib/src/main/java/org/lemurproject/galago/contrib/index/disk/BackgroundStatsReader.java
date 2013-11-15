@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -91,7 +92,7 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
     return is;
   }
 
-  public static class KeyIterator extends KeyValueReader.KeyValueIterator {
+  public static class KeyIterator extends KeyValueIterator {
 
     public KeyIterator(BTreeReader reader) throws IOException {
       super(reader);
@@ -119,7 +120,7 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
     }
 
     @Override
-    public DiskIterator getValueIterator() throws IOException {
+    public BaseIterator getValueIterator() throws IOException {
       return new BackgroundStatsIterator(this);
     }
 
