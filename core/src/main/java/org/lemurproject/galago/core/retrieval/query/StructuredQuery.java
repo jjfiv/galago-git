@@ -1,14 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.query;
 
-import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import org.lemurproject.galago.core.retrieval.query.StructuredLexer.Token;
 import org.lemurproject.galago.core.retrieval.query.StructuredLexer.Token.TokenType;
 import org.lemurproject.galago.core.retrieval.query.StructuredLexer.TokenStream;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * Valid query language syntax:
@@ -21,50 +19,6 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author trevor, sjh
  */
 public class StructuredQuery {
-
-  /**
-   * Copies a query tree using a traversal object.
-   *
-   * Both traversal.beforeNode and traversal.afterNode will be called
-   * for every Node object in the query tree.
-   * The traversal.beforeNode method will be called with a parent node
-   * before any of its children (pre-order), while traversal.afterNode method
-   * will be called on the parent after all of its children (post-order).
-   *
-   * The afterNode method will be called with a new copy of the original
-   * node, with the children replaced by new copies.  afterNode can either
-   * return its parameter or a modified node.
-   */
-  public static Node copy(Traversal traversal, Node tree, Parameters queryParams) throws Exception {
-    ArrayList<Node> children = new ArrayList<Node>();
-    traversal.beforeNode(tree, queryParams);
-
-    for (Node n : tree.getInternalNodes()) {
-      Node child = copy(traversal, n, queryParams);
-      children.add(child);
-    }
-
-    Node newNode = new Node(tree.getOperator(), tree.getNodeParameters(),
-            children, tree.getPosition());
-    return traversal.afterNode(newNode, queryParams);
-  }
-
-  /**
-   * Walks a query tree with a traversal object.
-   *
-   * Both traversal.beforeNode and traversal.afterNode will be called
-   * for every Node object in the query tree.
-   * The traversal.beforeNode method will be called with a parent node
-   * before any of its children (pre-order), while traversal.afterNode method
-   * will be called on the parent after all of its children (post-order).
-   */
-  public static Node walk(Traversal traversal, Node tree, Parameters queryParams) throws Exception {
-    traversal.beforeNode(tree, queryParams);
-    for (int i = 0; i < tree.numChildren(); i++) {
-      tree.replaceChildAt(walk(traversal, tree.getChild(i), queryParams), i);
-    }
-    return traversal.afterNode(tree, queryParams);
-  }
 
   public static Token parseParameterTerm(TokenStream tokens) {
     Token term = new Token(tokens.current().text, tokens.current().position, tokens.current().type);

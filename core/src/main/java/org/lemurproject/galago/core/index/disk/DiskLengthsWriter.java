@@ -198,7 +198,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
       // close the length-list buffer
       stream.close();
 
-      double avgLength = (double) collectionLength / (double) totalDocumentCount;
+      double avgLength = (double) collectionLength / (double) nonZeroDocumentCount;
 
 
       fileStream.write(Utility.fromLong(totalDocumentCount));

@@ -4,7 +4,6 @@ package org.lemurproject.galago.core.retrieval.traversal;
 import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.MalformedQueryException;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -25,12 +24,17 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class SequentialDependenceTraversal extends Traversal {
 
-  private int windowLimitDefault;
-  private double unigramDefault;
-  private double orderedDefault;
-  private double unorderedDefault;
-  private Retrieval r;
+  private final int windowLimitDefault;
+  private final double unigramDefault;
+  private final double orderedDefault;
+  private final double unorderedDefault;
+  private final Retrieval r;
 
+  private final String odOp;
+  private final int odWidth;
+  private final String uwOp;
+  private final int uwWidth;
+  
   public SequentialDependenceTraversal(Retrieval retrieval) {
     r = retrieval;
     Parameters parameters = retrieval.getGlobalParameters();
@@ -38,6 +42,12 @@ public class SequentialDependenceTraversal extends Traversal {
     orderedDefault = parameters.get("odw", 0.15);
     unorderedDefault = parameters.get("uww", 0.05);
     windowLimitDefault = (int) parameters.get("windowLimit", 2);
+    
+    odOp = parameters.get("sdm.od.op", "ordered");
+    odWidth = (int) parameters.get("sdm.od.width", 1);
+    
+    uwOp = parameters.get("sdm.uw.op", "unordered");
+    uwWidth = (int) parameters.get("sdm.uw.width", 4);
   }
 
   @Override
@@ -63,10 +73,6 @@ public class SequentialDependenceTraversal extends Traversal {
 
       List<Node> children = original.getInternalNodes();
 
-//      //  TODO: Remove this gross hack and use a proper dependency-graph builder.
-//      qp.set("seqdep", true);
-//      qp.set("numberOfTerms", children.size());
-
       // formatting is ok - now reassemble
       // unigrams go as-is
       Node unigramNode = new Node("combine", Node.cloneNodeList(children));
@@ -82,8 +88,8 @@ public class SequentialDependenceTraversal extends Traversal {
       for (int n = 2; n <= windowLimit; n++) {
         for (int i = 0; i < (children.size() - n + 1); i++) {
           List<Node> seq = children.subList(i, i + n);
-          ordered.add(new Node("ordered", new NodeParameters(1), Node.cloneNodeList(seq)));
-          unordered.add(new Node("unordered", new NodeParameters(4 * seq.size()), Node.cloneNodeList(seq)));
+          ordered.add(new Node(qp.get("sdm.od.op", this.odOp), new NodeParameters(qp.get("sdm.od.width", odWidth)), Node.cloneNodeList(seq)));
+          unordered.add(new Node(qp.get("sdm.uw.op", this.uwOp), new NodeParameters(qp.get("sdm.uw.width", uwWidth) * seq.size()), Node.cloneNodeList(seq)));
         }
       }
 

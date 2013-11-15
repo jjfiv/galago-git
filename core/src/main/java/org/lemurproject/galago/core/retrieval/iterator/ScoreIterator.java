@@ -33,9 +33,8 @@ public interface ScoreIterator extends BaseIterator {
    * Estimate the minimum possible score to be produced by this iterator.
    * If useful estimate cannot be formed, returns Double.MIN_VALUE
    * 
-   * Note that due to the requirements of the MAXSCORE algorithm, this is
-   * an overestimate of the minimum.
-   *
+   * Note that due to the requirements of the MAXSCORE and Weak-And algorithms, 
+   * this is an overestimate of the minimum score.
    */
   public double minimumScore();
 }

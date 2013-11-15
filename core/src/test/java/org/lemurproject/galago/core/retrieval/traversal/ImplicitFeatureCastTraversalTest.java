@@ -44,13 +44,13 @@ public class ImplicitFeatureCastTraversalTest extends TestCase {
     ImplicitFeatureCastTraversal traversal = new ImplicitFeatureCastTraversal(retrieval);
     TextFieldRewriteTraversal precedes = new TextFieldRewriteTraversal(retrieval);
     Node tree = StructuredQuery.parse("#combine( cat dog.title)");
-    tree = StructuredQuery.copy(precedes, tree, new Parameters()); // converts #text to #extents...
+    tree = precedes.traverse(tree, new Parameters()); // converts #text to #extents...
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine( ");
     transformed.append("#dirichlet( #extents:cat:part=postings() ) ");
     transformed.append("#dirichlet( #inside( #extents:dog:part=postings() ");
     transformed.append("#extents:title:part=extents() ) ) )");
-    Node result = StructuredQuery.copy(traversal, tree, new Parameters());
+    Node result = traversal.traverse(tree, new Parameters());
     assertEquals(transformed.toString(), result.toString());
   }
 
@@ -63,7 +63,7 @@ public class ImplicitFeatureCastTraversalTest extends TestCase {
     Node tree = StructuredQuery.parse("#combine( #between( #field:title() abba zztop )");
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine( #between:0=abba:1=zztop( #field:title() ) )");
-    Node result = StructuredQuery.copy(traversal, tree, new Parameters());
+    Node result = traversal.traverse(tree, new Parameters());
     assertEquals(transformed.toString(), result.toString());
   }
 }

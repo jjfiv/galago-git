@@ -96,6 +96,7 @@ public class FeatureFactory {
     TransformRootTraversal.class.getName(),
     WindowRewriteTraversal.class.getName(),
     TextFieldRewriteTraversal.class.getName(),
+    PartAssignerTraversal.class.getName(),
     InsideToFieldPartTraversal.class.getName(),
     ImplicitFeatureCastTraversal.class.getName(),
     InsertLengthsTraversal.class.getName(),

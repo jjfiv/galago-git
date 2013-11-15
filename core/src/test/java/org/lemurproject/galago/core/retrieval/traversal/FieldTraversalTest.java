@@ -64,7 +64,7 @@ public class FieldTraversalTest extends TestCase {
     Parameters qp = new Parameters();
     PRMS2Traversal traversal = new PRMS2Traversal(retrieval);
     Node q1 = StructuredQuery.parse("#prms2(#text:cat() #text:dog() #text:donkey())");
-    Node q2 = StructuredQuery.copy(traversal, q1, qp);
+    Node q2 = traversal.traverse(q1, qp);
     
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine:norm=false( ");

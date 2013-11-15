@@ -1,10 +1,8 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * BSD License (http://lemurproject.org/galago-license)
  */
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import java.util.HashSet;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
@@ -29,8 +27,12 @@ public class DeltaCheckTraversal extends Traversal {
     retrieval = r;
   }
 
+  /**
+   * Replaces default traversal -- this traversal needs to pass specific
+   * information up and down the query tree during the traversal.
+   */
   @Override
-  public Node afterTreeRoot(Node original, Parameters qp) throws Exception {
+  public Node traverse(Node original, Parameters qp) throws Exception {
 
     if (qp.containsKey("deltaReady") && qp.getBoolean("deltaReady") == false) {
       // This means something already turned off the delta
@@ -136,7 +138,7 @@ public class DeltaCheckTraversal extends Traversal {
     }
   }
 
-  // this node requires state -- does nothing for regular traversal functions
+  // These two functions are not required in this traversal.
   @Override
   public void beforeNode(Node original, Parameters queryParameters) throws Exception {
     // nothing

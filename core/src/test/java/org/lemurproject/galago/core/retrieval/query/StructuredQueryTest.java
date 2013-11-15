@@ -55,20 +55,20 @@ public class StructuredQueryTest extends TestCase {
     return tree;
   }
 
-  public void testCopy() throws Exception {
-    Traversal traversal = new SimpleCopyTraversal();
-    Node tree = createQuery();
-    Node result = StructuredQuery.copy(traversal, tree, new Parameters());
-
-    assertEquals(tree.toString(), result.toString());
-  }
-
-  public void testWalk() throws Exception {
-    Traversal traversal = new SimpleCopyTraversal();
-    Node tree = createQuery();
-    StructuredQuery.walk(traversal, tree, new Parameters());
-  }
-
+//  public void testCopy() throws Exception {
+//    Traversal traversal = new SimpleCopyTraversal();
+//    Node tree = createQuery();
+//    Node result = StructuredQuery.copy(traversal, tree, new Parameters());
+//
+//    assertEquals(tree.toString(), result.toString());
+//  }
+//
+//  public void testWalk() throws Exception {
+//    Traversal traversal = new SimpleCopyTraversal();
+//    Node tree = createQuery();
+//    StructuredQuery.walk(traversal, tree, new Parameters());
+//  }
+//
   public void testText() {
     String query = "hello";
     Node result = StructuredQuery.parse(query);
