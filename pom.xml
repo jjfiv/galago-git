@@ -4,7 +4,7 @@
   <groupId>org.lemurproject</groupId>
   <artifactId>galago</artifactId>
   <packaging>pom</packaging>
-  <version>3.5</version>
+  <version>3.6-SNAPSHOT</version>
   <name>galago</name>
   <url>http://lemurproject.org/galago.php</url>
   <description>
@@ -37,7 +37,7 @@
     <site>
       <id>scm-ciir</id>
       <name>Galago Documentation</name>
-      <url>scp://scm-ciir.cs.umass.edu/var/www/lighttpd/doc/galago-3.5</url>
+      <url>scp://scm-ciir.cs.umass.edu/var/www/lighttpd/doc/galago-3.6</url>
     </site>
   </distributionManagement>
   <organization>
