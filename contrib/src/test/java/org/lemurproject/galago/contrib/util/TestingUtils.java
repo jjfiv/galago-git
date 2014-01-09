@@ -6,6 +6,7 @@ package org.lemurproject.galago.contrib.util;
 import java.io.File;
 import junit.framework.Assert;
 import org.lemurproject.galago.core.tools.App;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -34,11 +35,11 @@ public class TestingUtils {
     trecCorpus.append(trecDocument("8", "though cat moon cat cat cat"));
     trecCorpus.append(trecDocument("9", "document document document document"));
     trecCorpus.append(trecDocument("10", "program fits"));
-    trecCorpusFile = Utility.createTemporary();
+    trecCorpusFile = FileUtility.createTemporary();
     Utility.copyStringToFile(trecCorpus.toString(), trecCorpusFile);
 
     // now, attempt to make a corpus file from that.
-    corpusFile = Utility.createTemporaryDirectory();
+    corpusFile = FileUtility.createTemporaryDirectory();
     App.main(new String[]{"make-corpus", "--corpusPath=" + corpusFile.getAbsolutePath(),
               "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--distrib=2"});
 
@@ -46,7 +47,7 @@ public class TestingUtils {
     Assert.assertTrue(corpusFile.exists());
 
     // now, try to build an index from that
-    indexFile = Utility.createTemporaryDirectory();
+    indexFile = FileUtility.createTemporaryDirectory();
     App.main(new String[]{"build", "--stemmedPostings=false", "--indexPath=" + indexFile.getAbsolutePath(),
               "--inputPath=" + corpusFile.getAbsolutePath(), "--stemmer+porter"});
 

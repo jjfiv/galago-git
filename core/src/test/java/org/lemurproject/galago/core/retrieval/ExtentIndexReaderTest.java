@@ -17,6 +17,7 @@ import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -34,7 +35,7 @@ public class ExtentIndexReaderTest extends TestCase {
   @Override
   public void setUp() throws Exception {
     // make a spot for the index
-    tempPath = Utility.createTemporary();
+    tempPath = FileUtility.createTemporary();
     tempPath.delete();
 
     Parameters p = new Parameters();

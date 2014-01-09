@@ -8,6 +8,7 @@ import java.util.Random;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -23,7 +24,7 @@ public class IndexReaderSkipTest extends TestCase {
 
   public void testPositionIndexSkipping() throws Exception {
     Random r = new Random();
-    File temp = Utility.createTemporary();
+    File temp = FileUtility.createTemporary();
 
     try {
       Parameters parameters = new Parameters();
@@ -59,7 +60,7 @@ public class IndexReaderSkipTest extends TestCase {
 
   public void testCountIndexSkipping() throws Exception {
     Random r = new Random();
-    File temp = Utility.createTemporary();
+    File temp = FileUtility.createTemporary();
 
     try {
       Parameters parameters = new Parameters();
@@ -89,7 +90,7 @@ public class IndexReaderSkipTest extends TestCase {
 
   public void testWindowIndexSkipping() throws Exception {
     Random r = new Random();
-    File temp = Utility.createTemporary();
+    File temp = FileUtility.createTemporary();
 
     try {
       Parameters parameters = new Parameters();

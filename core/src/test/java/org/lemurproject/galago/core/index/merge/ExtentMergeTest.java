@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -52,10 +53,10 @@ public class ExtentMergeTest extends TestCase {
     File index3 = null;
     File output = null;
     try {
-      index1 = Utility.createTemporaryDirectory();
-      index2 = Utility.createTemporaryDirectory();
-      index3 = Utility.createTemporaryDirectory();
-      output = Utility.createTemporary();
+      index1 = FileUtility.createTemporaryDirectory();
+      index2 = FileUtility.createTemporaryDirectory();
+      index3 = FileUtility.createTemporaryDirectory();
+      output = FileUtility.createTemporary();
 
       // three 10 document indexes (0 -> 9)
       makeExtentsIndex(100, index1);

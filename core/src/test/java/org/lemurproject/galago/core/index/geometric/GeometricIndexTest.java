@@ -23,6 +23,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -41,7 +42,7 @@ public class GeometricIndexTest extends TestCase {
     PrintStream newErr = new PrintStream(new ByteArrayOutputStream());
     System.setErr(newErr);
 
-    File shards = Utility.createTemporaryDirectory();
+    File shards = FileUtility.createTemporaryDirectory();
     try {
       Parameters p = new Parameters();
       p.set("indexBlockSize", 50);
@@ -140,7 +141,7 @@ public class GeometricIndexTest extends TestCase {
     //PrintStream oldErr = System.err;
     //PrintStream newErr = new PrintStream(new ByteArrayOutputStream());
     //System.setErr(newErr);
-    File shards = Utility.createTemporaryDirectory();
+    File shards = FileUtility.createTemporaryDirectory();
 
     Random rnd = new Random();
     try {

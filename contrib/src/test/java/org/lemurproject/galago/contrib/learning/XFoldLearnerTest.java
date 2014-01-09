@@ -11,6 +11,7 @@ import junit.framework.TestCase;
 import org.lemurproject.galago.contrib.util.TestingUtils;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -33,7 +34,7 @@ public class XFoldLearnerTest extends TestCase {
       files[0].delete(); // trecCorpus not required
       Utility.deleteDirectory(files[1]); // corpus not required
       index = files[2]; // index is required
-      qrels = Utility.createTemporary();
+      qrels = FileUtility.createTemporary();
 
       Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), new Parameters());
 

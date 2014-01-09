@@ -13,6 +13,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 import java.io.File;
 import java.util.List;
 import static junit.framework.Assert.assertEquals;
+import org.lemurproject.galago.tupleflow.FileUtility;
 
 /**
  * Tests for {@link PassageNearDupeRelevanceModel}.
@@ -321,7 +322,7 @@ public class PassageNearDupeRelevanceModelTest extends TestCase {
     corpusFile = files[1];
     indexFile = files[2];
 
-    File whiteListfile = Utility.createTemporary();
+    File whiteListfile = FileUtility.createTemporary();
     Utility.copyStringToFile("financial normally\ncrisis", whiteListfile);
 
     whitelistfileName = whiteListfile.getAbsolutePath();
@@ -371,11 +372,11 @@ public class PassageNearDupeRelevanceModelTest extends TestCase {
     trecCorpus.append(trecDocument("8a", "the toxic asset crisis which caused the real estate bubble to burst and it was the over valuation of real estate that created that bubble Said bubble was a result of an increase in value that was the result"));
     trecCorpus.append(trecDocument("9", "in consumer spending they will result in no net increase in revenue You forget it was specifically the deregulation of the financial market that caused the toxic asset crisis which caused the real estate bubble to burst and it was the over valuation of real estate that created that bubble"));
     trecCorpus.append(trecDocument("10", "subprime crisis and it can be tackled by flooding the system with newly created money Scarcely do they see that instead of being a real estate crisis a stock market crisis or a banking crisis this is a gold crisis It can only be resolved by involving gold in particular"));
-    trecCorpusFile = Utility.createTemporary();
+    trecCorpusFile = FileUtility.createTemporary();
     Utility.copyStringToFile(trecCorpus.toString(), trecCorpusFile);
 
     // now, attempt to make a corpus file from that.
-    corpusFile = Utility.createTemporaryDirectory();
+    corpusFile = FileUtility.createTemporaryDirectory();
     App.main(new String[]{"make-corpus", "--corpusPath=" + corpusFile.getAbsolutePath(),
             "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--distrib=2"});
 
@@ -383,7 +384,7 @@ public class PassageNearDupeRelevanceModelTest extends TestCase {
     assertTrue(corpusFile.exists());
 
     // now, try to build an index from that
-    indexFile = Utility.createTemporaryDirectory();
+    indexFile = FileUtility.createTemporaryDirectory();
     App.main(new String[]{"build", "--stemmedPostings=false", "--indexPath=" + indexFile.getAbsolutePath(),
             "--inputPath=" + corpusFile.getAbsolutePath()});
 

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -19,7 +20,7 @@ public class TrecWebParserTest extends TestCase {
   }
 
   public void testParseNothing() throws IOException {
-    File f = Utility.createTemporary();
+    File f = FileUtility.createTemporary();
     f.createNewFile();
 
     try {
@@ -44,7 +45,7 @@ public class TrecWebParserTest extends TestCase {
             + "</DOCHDR>\n"
             + "This is some text in a document.\n"
             + "</DOC>\n";
-    File f = Utility.createTemporary();
+    File f = FileUtility.createTemporary();
     try {
 
       Utility.copyStringToFile(fileText, f);

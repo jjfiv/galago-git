@@ -22,6 +22,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.core.window.ReduceNumberWordCount;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Sorter;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -41,7 +42,7 @@ public class MemIndexPartTest extends TestCase {
     // - the memoryindex test does not test this part.
 
     Random r = new Random();
-    File diskCounts = Utility.createTemporary();
+    File diskCounts = FileUtility.createTemporary();
     try {
       MemoryCountIndex memcounts1 = new MemoryCountIndex(new Parameters());
       CountIndexWriter diskcounts = new CountIndexWriter(new FakeParameters(Parameters.parseString("{\"filename\":\"" + diskCounts.getAbsolutePath() + "\"}")));
@@ -117,7 +118,7 @@ public class MemIndexPartTest extends TestCase {
   }
 
   public void testScores() throws Exception {
-    File f = Utility.createTemporary();
+    File f = FileUtility.createTemporary();
     try {
       // builds a score index
       // compare it to the SparseFloatDiskIndex

@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.App;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -25,9 +26,9 @@ public class BuildSpecialCollBackgroundTest extends TestCase {
   }
 
   public void testSomeMethod() throws Exception {
-    File docs = Utility.createTemporary();
-    File back = Utility.createTemporary();
-    File index = Utility.createTemporaryDirectory();
+    File docs = FileUtility.createTemporary();
+    File back = FileUtility.createTemporary();
+    File index = FileUtility.createTemporaryDirectory();
     try {
       makeTrecDocs(docs);
 

@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.apps.BuildIndex;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -28,8 +29,8 @@ public class BuildSketchIndexTest extends TestCase {
   }
 
   public void testSomeMethod() throws Exception {
-    File corpus = Utility.createTemporary();
-    File index = Utility.createTemporaryDirectory();
+    File corpus = FileUtility.createTemporary();
+    File index = FileUtility.createTemporaryDirectory();
     try {
       makeCorpus(corpus);
 

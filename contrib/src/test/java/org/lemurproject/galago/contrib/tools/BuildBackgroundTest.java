@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.PrintStream;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.tools.App;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -43,15 +44,15 @@ public class BuildBackgroundTest extends TestCase {
               + trecDocument("73", "samples document document")
               + trecDocument("82", "sample eight two");
 
-      trecCorpusFile1 = Utility.createTemporary();
-      trecCorpusFile2 = Utility.createTemporary();
+      trecCorpusFile1 = FileUtility.createTemporary();
+      trecCorpusFile2 = FileUtility.createTemporary();
       Utility.copyStringToFile(trecCorpus1, trecCorpusFile1);
       Utility.copyStringToFile(trecCorpus2, trecCorpusFile2);
 
       assertTrue(trecCorpusFile1.exists());
       assertTrue(trecCorpusFile2.exists());
 
-      indexFile1 = Utility.createTemporary();
+      indexFile1 = FileUtility.createTemporary();
       indexFile1.delete();
       App.main(new String[]{"build", "--indexPath=" + indexFile1.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile1.getAbsolutePath()});
@@ -60,7 +61,7 @@ public class BuildBackgroundTest extends TestCase {
                 "--inputPath=" + trecCorpusFile2.getAbsolutePath(),
                 "--partName=background", "--stemmer=krovetz"});
 
-      backgroundIndex = Utility.createTemporary();
+      backgroundIndex = FileUtility.createTemporary();
       backgroundIndex.delete();
       App.main(new String[]{"build", "--indexPath=" + backgroundIndex.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile2.getAbsolutePath()});
@@ -76,7 +77,7 @@ public class BuildBackgroundTest extends TestCase {
               + "]}";
 //              + "], \"printTransformation\":true}";
 
-      queryFile = Utility.createTemporary();
+      queryFile = FileUtility.createTemporary();
       Utility.copyStringToFile(queries_reg, queryFile);
       String expected_reg =
               "2 Q0 59 1 -1.73087481 galago\n"

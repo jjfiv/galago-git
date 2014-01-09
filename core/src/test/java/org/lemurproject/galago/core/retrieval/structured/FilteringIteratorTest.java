@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -49,7 +50,7 @@ public class FilteringIteratorTest extends TestCase {
       String q = "#require( #between( date 1/1/1900 1/1/2020 ) a )";
       String queries = "{ \"x\" : [\"" + q + "\"]}";
 
-      queryFile1 = Utility.createTemporary();
+      queryFile1 = FileUtility.createTemporary();
       Utility.copyStringToFile(queries, queryFile1);
 
 

@@ -13,6 +13,7 @@ import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Sorter;
 
@@ -40,7 +41,7 @@ public class IndexReaderSplitParserTest extends TestCase {
   }
 
   public void buildIndex() throws FileNotFoundException, IOException, IncompatibleProcessorException {
-    File temporary = Utility.createTemporary();
+    File temporary = FileUtility.createTemporary();
     temporary.delete();
     temporary.mkdirs();
 

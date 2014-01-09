@@ -15,6 +15,7 @@ import java.util.Random;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import junit.framework.TestCase;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -29,9 +30,9 @@ public class BuildFilteredCollectionTest extends TestCase {
   }
 
   public void testSomeMethod() throws Exception {
-    File input = Utility.createTemporary();
-    File filter = Utility.createTemporary();
-    File output = Utility.createTemporaryDirectory();
+    File input = FileUtility.createTemporary();
+    File filter = FileUtility.createTemporary();
+    File output = FileUtility.createTemporaryDirectory();
     try {
       makeTrecDocs(input);
 

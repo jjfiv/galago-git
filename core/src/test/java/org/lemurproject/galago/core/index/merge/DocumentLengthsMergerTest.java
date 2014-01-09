@@ -16,6 +16,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -55,9 +56,9 @@ public class DocumentLengthsMergerTest extends TestCase {
 
     try {
 
-      folder1 = Utility.createTemporaryDirectory();
-      folder2 = Utility.createTemporaryDirectory();
-      output = Utility.createTemporary().getAbsolutePath();
+      folder1 = FileUtility.createTemporaryDirectory();
+      folder2 = FileUtility.createTemporaryDirectory();
+      output = FileUtility.createTemporary().getAbsolutePath();
 
       String index1 = makeLengthsIndex(0, folder1);
       String index2 = makeLengthsIndex(100, folder2);
@@ -117,9 +118,9 @@ public class DocumentLengthsMergerTest extends TestCase {
     String output = null;
 
     try {
-      indexFolder1 = Utility.createTemporaryDirectory();
-      indexFolder2 = Utility.createTemporaryDirectory();
-      output = Utility.createTemporary().getAbsolutePath();
+      indexFolder1 = FileUtility.createTemporaryDirectory();
+      indexFolder2 = FileUtility.createTemporaryDirectory();
+      output = FileUtility.createTemporary().getAbsolutePath();
 
       String index1 = makeLengthsIndex(0, indexFolder1);
       String index2 = makeLengthsIndex(100, indexFolder2);

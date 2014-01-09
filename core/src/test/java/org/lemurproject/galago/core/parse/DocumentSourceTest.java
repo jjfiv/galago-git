@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -25,10 +26,12 @@ public class DocumentSourceTest extends TestCase {
 
     public ArrayList<DocumentSplit> splits = new ArrayList<DocumentSplit>();
 
+    @Override
     public void process(DocumentSplit split) {
       splits.add(split);
     }
 
+    @Override
     public void close() throws IOException {
     }
   }
@@ -50,7 +53,7 @@ public class DocumentSourceTest extends TestCase {
   }
 
   public void testUnknownExtension() throws Exception {
-    File tempFile = Utility.createTemporary();
+    File tempFile = FileUtility.createTemporary();
     Parameters p = new Parameters();
     p.set("filename", tempFile.getAbsolutePath());
     DocumentSource source = new DocumentSource(new FakeParameters(p));

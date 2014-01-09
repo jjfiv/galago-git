@@ -8,6 +8,7 @@ import static junit.framework.Assert.assertEquals;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.SparseFloatListReader.KeyIterator;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -22,7 +23,7 @@ public class SparseFloatListWriterTest extends TestCase {
   }
 
   public void testSomeMethod() throws Exception {
-    File tmp = Utility.createTemporary();
+    File tmp = FileUtility.createTemporary();
     try {
       Parameters p = new Parameters();
       p.set("filename", tmp.getAbsolutePath());

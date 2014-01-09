@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.types.DocumentMappingData;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -46,9 +47,9 @@ public class DocumentNumberMapperTest extends TestCase {
     File index2 = null;
     File index3 = null;
     try {
-      index1 = Utility.createTemporaryDirectory();
-      index2 = Utility.createTemporaryDirectory();
-      index3 = Utility.createTemporaryDirectory();
+      index1 = FileUtility.createTemporaryDirectory();
+      index2 = FileUtility.createTemporaryDirectory();
+      index3 = FileUtility.createTemporaryDirectory();
 
       // three 10 document indexes (0 -> 9)
       makeNamesIndex(9, index1);

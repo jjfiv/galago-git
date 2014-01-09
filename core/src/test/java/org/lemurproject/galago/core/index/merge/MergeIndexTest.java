@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -40,17 +41,17 @@ public class MergeIndexTest extends TestCase {
         docs1.append(AppTest.trecDocument("DOCS1-" + i, "This is sample document " + i));
         docs2.append(AppTest.trecDocument("DOCS2-" + i, "This is a different document " + i));
       }
-      trecData1 = Utility.createTemporary();
-      trecData2 = Utility.createTemporary();
+      trecData1 = FileUtility.createTemporary();
+      trecData2 = FileUtility.createTemporary();
       Utility.copyStringToFile(docs1.toString(), trecData1);
       Utility.copyStringToFile(docs2.toString(), trecData2);
 
-      index1 = Utility.createTemporaryDirectory();
+      index1 = FileUtility.createTemporaryDirectory();
       App.main(new String[]{"build", "--inputPath=" + trecData1.getAbsolutePath(),
                 "--indexPath=" + index1.getAbsolutePath(),
                 "--corpus=false"});
 
-      index2 = Utility.createTemporaryDirectory();
+      index2 = FileUtility.createTemporaryDirectory();
       App.main(new String[]{"build", "--inputPath=" + trecData2.getAbsolutePath(),
                 "--indexPath=" + index2.getAbsolutePath(),
                 "--corpus=false"});
@@ -58,7 +59,7 @@ public class MergeIndexTest extends TestCase {
       AppTest.verifyIndexStructures(index1);
       AppTest.verifyIndexStructures(index2);
 
-      indexmerged = Utility.createTemporaryDirectory();
+      indexmerged = FileUtility.createTemporaryDirectory();
 
       Parameters mergeParams = new Parameters();
       mergeParams.set("indexPath", indexmerged.getAbsolutePath());
@@ -132,16 +133,16 @@ public class MergeIndexTest extends TestCase {
         mi2.process(d2);
       }
 
-      index1 = Utility.createTemporaryDirectory();
+      index1 = FileUtility.createTemporaryDirectory();
       (new FlushToDisk()).flushMemoryIndex(mi1, index1.getAbsolutePath());
 
-      index2 = Utility.createTemporaryDirectory();
+      index2 = FileUtility.createTemporaryDirectory();
       (new FlushToDisk()).flushMemoryIndex(mi2, index2.getAbsolutePath());
 
       AppTest.verifyIndexStructures(index1);
       AppTest.verifyIndexStructures(index2);
 
-      indexmerged = Utility.createTemporaryDirectory();
+      indexmerged = FileUtility.createTemporaryDirectory();
 
       Parameters mergeParams = new Parameters();
       mergeParams.set("indexPath", indexmerged.getAbsolutePath());

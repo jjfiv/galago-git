@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.index.disk.FieldIndexReader;
 import org.lemurproject.galago.core.index.disk.FieldIndexReader.KeyIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.tools.App;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -62,8 +63,8 @@ public class NumberedFieldExtractorTest extends TestCase {
     // sb.append("<dateField>January 1 2000</dateField>\n");
     sb.append("</TEXT>\n</DOC>\n");
 
-    File input = Utility.createTemporary();
-    File index = Utility.createTemporaryDirectory();
+    File input = FileUtility.createTemporary();
+    File index = FileUtility.createTemporaryDirectory();
     try {
       Utility.copyStringToFile(sb.toString(), input);
       Parameters p = new Parameters();

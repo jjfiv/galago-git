@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Random;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.tools.App;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -32,7 +33,7 @@ public class GenerateWorkingSetQueriesTest extends TestCase {
 
   @Override
   public void setUp() throws Exception {
-    dataFolder = Utility.createTemporaryDirectory();
+    dataFolder = FileUtility.createTemporaryDirectory();
 
     corpus = new File(dataFolder, "corpus.trectext");
     corpus.createNewFile();

@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.SourceIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -36,7 +37,7 @@ public class LearnerTest extends TestCase {
       files[0].delete(); // trecCorpus not required
       Utility.deleteDirectory(files[1]); // corpus not required
       index = files[2]; // index is required
-      qrels = Utility.createTemporary();
+      qrels = FileUtility.createTemporary();
 
       Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.parseString("{\"cache\" : true, \"flattenCombine\" : true, \"cacheScores\": true}"));
 
