@@ -111,7 +111,7 @@ public class ParametersTest extends TestCase {
       params.set("filename", "fictional/path");
       params.set("tokenizer", tokenizer);
 
-      tempPath = Utility.createTemporary();
+      tempPath = FileUtility.createTemporary();
       params.write(tempPath.getAbsolutePath());
 
       // Now read it in.

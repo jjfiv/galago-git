@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.index.disk.FieldIndexReader.KeyIterator;
 import org.lemurproject.galago.core.index.disk.FieldIndexReader.ListIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -25,7 +26,7 @@ public class FieldIndexWriterTest extends TestCase {
   }
 
   public void testFieldIndex() throws Exception {
-    File tmp = Utility.createTemporary();
+    File tmp = FileUtility.createTemporary();
     try {
       Parameters p = new Parameters();
       p.set("filename", tmp.getAbsolutePath());

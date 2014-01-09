@@ -6,6 +6,7 @@ import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import java.io.File;
 import java.io.IOException;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -52,7 +53,7 @@ public class RetrievalTestUtility {
 
     public static File createIndexPath() throws IOException {
         // make a spot for the index
-        File tempPath = Utility.createTemporaryDirectory();
+        File tempPath = FileUtility.createTemporaryDirectory();
 
         // put in a generic manifest
         new Parameters().write(tempPath + File.separator + "manifest");

@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 import org.lemurproject.galago.core.types.DocumentIndicator;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.FileUtility;
 
 /**
  *
@@ -23,7 +23,7 @@ public class DocumentIndicatorWriterTest extends TestCase {
   }
 
   public void testSomeMethod() throws Exception {
-    File tmp = Utility.createTemporary();
+    File tmp = FileUtility.createTemporary();
     try {
       Parameters p = new Parameters();
       p.set("filename", tmp.getAbsolutePath());

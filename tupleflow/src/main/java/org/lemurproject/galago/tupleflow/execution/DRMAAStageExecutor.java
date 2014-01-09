@@ -13,6 +13,7 @@ import org.ggf.drmaa.DrmaaException;
 import org.ggf.drmaa.JobTemplate;
 import org.ggf.drmaa.Session;
 import org.ggf.drmaa.SessionFactory;
+import org.lemurproject.galago.tupleflow.GalagoConf;
 
 /**
  * DRMAAExecutor
@@ -277,7 +278,7 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
       hostname = "localhost";
     }
 
-    Parameters defaults = Utility.getDrmaaOptions();
+    Parameters defaults = GalagoConf.getDrmaaOptions();
     if (defaults.containsKey("mem")) {
       String mem = defaults.getString("mem");
       assert (!mem.startsWith("-X")) : "Error: mem parameter in .galago.conf file should not start with '-Xmx' or '-Xms'.";

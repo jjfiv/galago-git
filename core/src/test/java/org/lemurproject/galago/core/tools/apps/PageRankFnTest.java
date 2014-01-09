@@ -5,6 +5,7 @@ package org.lemurproject.galago.core.tools.apps;
 
 import java.io.File;
 import junit.framework.TestCase;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -19,7 +20,7 @@ public class PageRankFnTest extends TestCase {
   }
 
   public void testSomeMethod() throws Exception {
-    File tempDir = Utility.createTemporaryDirectory();
+    File tempDir = FileUtility.createTemporaryDirectory();
     try {
       File input = new File(tempDir, "input.trecweb");
       HarvestLinksFnTest.writeInput(input);

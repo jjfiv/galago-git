@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Random;
 import junit.framework.TestCase;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -41,7 +42,7 @@ public class IndexWriterTest extends TestCase {
 
     Parameters parameters = new Parameters();
     parameters.set("blockSize", 64);
-    temporary = Utility.createTemporary();
+    temporary = FileUtility.createTemporary();
     DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
     writer.add(new GenericElement("key", "value"));
     writer.close();
@@ -67,7 +68,7 @@ public class IndexWriterTest extends TestCase {
     }
     String key = builder.toString();
         
-    temporary = Utility.createTemporary();
+    temporary = FileUtility.createTemporary();
     
     DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), new Parameters());
     writer.add(new GenericElement(key, "value"));
@@ -83,7 +84,7 @@ public class IndexWriterTest extends TestCase {
   public void testSeek() throws IOException {
     Parameters parameters = new Parameters();
     parameters.set("blockSize", 64);
-    temporary = Utility.createTemporary();
+    temporary = FileUtility.createTemporary();
     DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
     writer.add(new GenericElement("key", "value"));
     writer.add(new GenericElement("more", "value2"));
@@ -121,7 +122,7 @@ public class IndexWriterTest extends TestCase {
     Parameters parameters = new Parameters();
     parameters.set("blockSize", 64);
     parameters.set("isCompressed", true);
-    temporary = Utility.createTemporary();
+    temporary = FileUtility.createTemporary();
     DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
     writer.add(new GenericElement("key", "value"));
     writer.close();
@@ -136,7 +137,7 @@ public class IndexWriterTest extends TestCase {
   public void testSimpleWrite() throws FileNotFoundException, IOException {
     Parameters parameters = new Parameters();
     parameters.set("blockSize", 64);
-    temporary = Utility.createTemporary();
+    temporary = FileUtility.createTemporary();
     DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
 
     for (int i = 0; i < 1000; ++i) {
@@ -162,7 +163,7 @@ public class IndexWriterTest extends TestCase {
     Parameters parameters = new Parameters();
     parameters.set("blockSize", 64);
     parameters.set("isCompressed", true);
-    temporary = Utility.createTemporary();
+    temporary = FileUtility.createTemporary();
     DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
 
     for (int i = 0; i < 1000; ++i) {

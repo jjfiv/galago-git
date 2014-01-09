@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.CountIndexWriter;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -25,7 +26,7 @@ public class ManifestEditorTest extends TestCase {
   public void testManifestEditor() throws Exception {
     File indexFile = null;
     try {
-      indexFile = Utility.createTemporary();
+      indexFile = FileUtility.createTemporary();
       Parameters p = new Parameters();
       p.set("filename", indexFile.getAbsolutePath());
       p.set("key-1", "init-value-1234");

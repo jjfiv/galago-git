@@ -18,6 +18,7 @@ import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.core.types.NumberedExtent;
 import org.lemurproject.galago.core.types.NumberedField;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Order;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -40,7 +41,7 @@ public class BuildStageTemplates {
 
   public static void writeManifest(String indexPath, Parameters jobP) throws IOException {
       File manifest = new File(indexPath, "buildManifest.json");
-      Utility.makeParentDirectories(manifest);
+      FileUtility.makeParentDirectories(manifest);
       Utility.copyStringToFile(jobP.toPrettyString(), manifest);
   }
 

@@ -55,6 +55,7 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  * hopefully reduce the reliance on the disk during sorting.</p>
  *
  * @author Trevor Strohman
+ * @param <T> the TupleflowType to sort
  */
 public class Sorter<T> extends StandardStep<T, T> implements NotificationListener {
 
@@ -149,7 +150,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   }
 
   private void setLimits(Parameters localParameters) {
-    Parameters globalParameters = Utility.getSorterOptions();
+    Parameters globalParameters = GalagoConf.getSorterOptions();
 
     this.limit = localParameters.get("object-limit", globalParameters.get("object-limit", Sorter.DEFAULT_OBJECT_LIMIT));
     this.fileLimit = (int) localParameters.get("file-limit", globalParameters.get("file-limit", Sorter.DEFAULT_FILE_LIMIT));
@@ -160,7 +161,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     forceFlush = false;
   }
 
-  public void requestMemoryWarnings() {
+  public final void requestMemoryWarnings() {
     List<MemoryPoolMXBean> pools = ManagementFactory.getMemoryPoolMXBeans();
     long maxPoolSize = 0;
     MemoryPoolMXBean biggestPool = null;
@@ -198,7 +199,8 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     }
   }
 
-  public void handleNotification(Notification notification, Object handback) {
+  @Override
+  public final void handleNotification(Notification notification, Object handback) {
     if (notification.getType().equals(MemoryNotificationInfo.MEMORY_THRESHOLD_EXCEEDED)) {
       //[sjh] - flushRequested = true;
       final Sorter f = this;
@@ -286,6 +288,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     }
   }
 
+  @Override
   public synchronized void process(T object) throws IOException {
     objects.add(object);
     flushIfNecessary();
@@ -375,7 +378,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
       return;
     }
     reduce();
-    assert objects.size() == 0;
+    assert objects.isEmpty();
 
     FileOrderedWriter<T> writer = getTemporaryWriter();
     combineRuns(writer);
@@ -398,6 +401,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
       this.lessThan = lessThan;
     }
 
+    @Override
     public int compareTo(RunWrapper<T> other) {
       T one = top;
       T two = other.top;
@@ -469,7 +473,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   }
 
   private synchronized FileOrderedWriter<T> getTemporaryWriter(long fileSize) throws IOException, FileNotFoundException {
-    File temporary = Utility.createTemporary(fileSize * 4);
+    File temporary = FileUtility.createTemporary(fileSize * 4);
     // default to VBYTE compression (but make this configurable later...
     FileOrderedWriter<T> writer = new FileOrderedWriter<T>(temporary.getAbsolutePath(), order, compression);
     temporaryFiles.add(temporary);
@@ -477,7 +481,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   }
 
   private synchronized FileOrderedWriter<T> getTemporaryWriter() throws IOException, FileNotFoundException {
-    File temporary = Utility.createTemporary();
+    File temporary = FileUtility.createTemporary();
     FileOrderedWriter<T> writer = new FileOrderedWriter<T>(temporary.getAbsolutePath(), order, compression);
     temporaryFiles.add(temporary);
     return writer;
@@ -486,7 +490,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   private synchronized void combine() throws IOException {
     flush();
 
-    if (temporaryFiles.size() == 0) {
+    if (temporaryFiles.isEmpty()) {
       return;
     }
     while (temporaryFiles.size() > fileLimit) {
@@ -494,6 +498,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
       // are the ones we want to combine together.
       Collections.sort(temporaryFiles, new Comparator<File>() {
 
+        @Override
         public int compare(File one, File two) {
           long oneLength = one.length();
           long twoLength = two.length();

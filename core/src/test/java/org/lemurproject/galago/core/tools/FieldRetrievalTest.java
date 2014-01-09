@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import junit.framework.TestCase;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -68,10 +69,10 @@ public class FieldRetrievalTest extends TestCase {
     try {
       String trecCorpus = AppTest.trecDocument("55", "<title>sampled sample</title> <other>This is a sample document</other>")
               + AppTest.trecDocument("59", "<title>another sample</title> <other>This is another document</other>");
-      trecCorpusFile = Utility.createTemporary();
+      trecCorpusFile = FileUtility.createTemporary();
       Utility.copyStringToFile(trecCorpus, trecCorpusFile);
 
-      indexFile = Utility.createTemporaryDirectory();
+      indexFile = FileUtility.createTemporaryDirectory();
       // now, try to build an index from that
       App.main(new String[]{"build", "--indexPath=" + indexFile.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile.getAbsolutePath(),
@@ -90,7 +91,7 @@ public class FieldRetrievalTest extends TestCase {
               //+ "], \"printTransformation\" : true}";
               +"]}\n";
               
-      queryFile = Utility.createTemporary();
+      queryFile = FileUtility.createTemporary();
       Utility.copyStringToFile(queries, queryFile);
 
       // Smoke test with batch search

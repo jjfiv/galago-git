@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -36,10 +37,10 @@ public class BuildWindowIndexTest extends TestCase {
     File trecFolder = null;
     File index = null;
     try {
-      trecFolder = Utility.createTemporary();
+      trecFolder = FileUtility.createTemporary();
       trecFolder.delete();
       trecFolder.mkdir();
-      index = Utility.createTemporary();
+      index = FileUtility.createTemporary();
       index.delete();
       index.mkdir();
 
@@ -215,10 +216,10 @@ public class BuildWindowIndexTest extends TestCase {
     File trecFolder = null;
     File index = null;
     try {
-      trecFolder = Utility.createTemporary();
+      trecFolder = FileUtility.createTemporary();
       trecFolder.delete();
       trecFolder.mkdir();
-      index = Utility.createTemporary();
+      index = FileUtility.createTemporary();
       index.delete();
       index.mkdir();
 

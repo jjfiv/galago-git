@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -28,7 +29,7 @@ public class DocumentNameTest extends TestCase {
     File f = null;
     try {
       Parameters p = new Parameters();
-      f = Utility.createTemporaryDirectory();
+      f = FileUtility.createTemporaryDirectory();
       File names = new File(f.getAbsolutePath() + File.separator + "names");
       p.set("filename", names.getAbsolutePath());
       FakeParameters params = new FakeParameters(p);
@@ -60,7 +61,7 @@ public class DocumentNameTest extends TestCase {
     File f = null;
     try {
       Parameters p = new Parameters();
-      f = Utility.createTemporaryDirectory();
+      f = FileUtility.createTemporaryDirectory();
       File names = new File(f.getAbsolutePath() + File.separator + "names.reverse");
       p.set("filename", names.getAbsolutePath());
       FakeParameters params = new FakeParameters(p);

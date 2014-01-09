@@ -13,6 +13,7 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.core.types.ExtractedLink;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.OrderedCombiner;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.TypeReader;
@@ -29,7 +30,7 @@ public class HarvestLinksFnTest extends TestCase {
   }
 
   public void testHarvestLinks() throws Exception {
-    File tempDir = Utility.createTemporaryDirectory();
+    File tempDir = FileUtility.createTemporaryDirectory();
     try {
       File input = new File(tempDir, "input.trecweb");
       writeInput(input);

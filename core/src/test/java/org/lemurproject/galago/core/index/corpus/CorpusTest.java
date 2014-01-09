@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -46,7 +47,7 @@ public class CorpusTest extends TestCase {
 
       // TODO: add some massive document ids here.
       
-      corpus = Utility.createTemporary();
+      corpus = FileUtility.createTemporary();
 
       // test defaulty behaviour:
       Parameters p = new Parameters();

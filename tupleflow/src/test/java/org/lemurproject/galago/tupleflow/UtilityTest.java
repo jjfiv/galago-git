@@ -53,13 +53,13 @@ public class UtilityTest extends TestCase {
     File f = null;
     File bbb = null;
     try {
-      f = Utility.createTemporary();
-      bbb = new File(f.getParent() + File.separator + "bbb");
+      f = FileUtility.createTemporary();
+      bbb = new File(f.getParent(), "bbb");
 
       String parent = f.getParent() + File.separator
               + Utility.join(new String[]{"bbb", "b", "c", "d"}, File.separator);
       String path = parent + File.separator + "e";
-      Utility.makeParentDirectories(path);
+      FileUtility.makeParentDirectories(path);
 
       // The parent directory should exist
       assertTrue(new File(parent).isDirectory());

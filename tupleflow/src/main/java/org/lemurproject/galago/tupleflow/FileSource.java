@@ -35,6 +35,7 @@ public class FileSource implements ExNihiloSource<FileName> {
     }
   }
 
+  @Override
   public void run() throws IOException {
     List<String> inputs = new ArrayList();
     if (parameters.getJSON().containsKey("input")) {

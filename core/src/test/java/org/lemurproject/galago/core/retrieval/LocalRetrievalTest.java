@@ -27,6 +27,7 @@ import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Sorter;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
@@ -45,7 +46,7 @@ public class LocalRetrievalTest extends TestCase {
 
   public static File makeIndex() throws FileNotFoundException, IOException, IncompatibleProcessorException {
     // make a spot for the index
-    File tempPath = Utility.createTemporaryDirectory();
+    File tempPath = FileUtility.createTemporaryDirectory();
 
     // put in a generic manifest
     new Parameters().write(tempPath + File.separator + "manifest");
@@ -179,11 +180,11 @@ public class LocalRetrievalTest extends TestCase {
     trecCorpus.append(AppTest.trecDocument("8", "though cat moon cat cat cat"));
     trecCorpus.append(AppTest.trecDocument("9", "document document document document"));
     trecCorpus.append(AppTest.trecDocument("10", "program fits"));
-    trecCorpusFile = Utility.createTemporary();
+    trecCorpusFile = FileUtility.createTemporary();
     Utility.copyStringToFile(trecCorpus.toString(), trecCorpusFile);
 
     // now, attempt to make a corpus file from that.
-    corpusFile = Utility.createTemporaryDirectory();
+    corpusFile = FileUtility.createTemporaryDirectory();
     App.main(new String[]{"make-corpus", "--corpusPath=" + corpusFile.getAbsolutePath(),
               "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--distrib=2"});
 
@@ -191,7 +192,7 @@ public class LocalRetrievalTest extends TestCase {
     assertTrue(corpusFile.exists());
 
     // now, try to build an index from that
-    indexFile = Utility.createTemporaryDirectory();
+    indexFile = FileUtility.createTemporaryDirectory();
     App.main(new String[]{"build", "--stemmedPostings=false", "--indexPath=" + indexFile.getAbsolutePath(),
               "--inputPath=" + corpusFile.getAbsolutePath()});
 

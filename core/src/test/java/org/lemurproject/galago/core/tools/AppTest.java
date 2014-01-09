@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -45,18 +46,18 @@ public class AppTest extends TestCase {
       // create a simple doc file, trec format:
       String trecCorpus = trecDocument("55", "This is a sample document")
               + trecDocument("59", "sample document two");
-      trecCorpusFile = Utility.createTemporary();
+      trecCorpusFile = FileUtility.createTemporary();
       Utility.copyStringToFile(trecCorpus, trecCorpusFile);
 
       // now, attempt to make a corpus folder from that.
-      corpusFile1 = Utility.createTemporary();
+      corpusFile1 = FileUtility.createTemporary();
       App.main(new String[]{"make-corpus", "--corpusPath=" + corpusFile1.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--corpusFormat=file", "--server=false"});
       // make sure the corpus file exists
       assertTrue(corpusFile1.exists());
 
       // now, attempt to make a corpus folder from that.
-      corpusFile2 = Utility.createTemporaryDirectory();
+      corpusFile2 = FileUtility.createTemporaryDirectory();
       App.main(new String[]{"make-corpus", "--corpusPath=" + corpusFile2.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--distrib=2",
                 "--corpusParameters/corpusTags=false", "--corpusParameters/corpusTerms=false", "--server=false"});
@@ -70,12 +71,12 @@ public class AppTest extends TestCase {
       assertFalse(SplitBTreeReader.isBTree(new File(corpusFile2, "0")));
 
       // now, try to build an index from that
-      indexFile1 = Utility.createTemporaryDirectory();
+      indexFile1 = FileUtility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + indexFile1.getAbsolutePath(),
                 "--inputPath=" + corpusFile1.getAbsolutePath(), "--server=false"});
 
       // now, try to build an index from that
-      indexFile2 = Utility.createTemporaryDirectory();
+      indexFile2 = FileUtility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + indexFile2.getAbsolutePath(),
                 "--inputPath=" + corpusFile2.getAbsolutePath(), "--server=false"});
 
@@ -115,11 +116,11 @@ public class AppTest extends TestCase {
       // create a simple doc file, trec format:
       String trecCorpus = trecDocument("55", "This is a sample document")
               + trecDocument("59", "sample document two");
-      trecCorpusFile = Utility.createTemporary();
+      trecCorpusFile = FileUtility.createTemporary();
       Utility.copyStringToFile(trecCorpus, trecCorpusFile);
 
       // now, attempt to make a corpus file from that.
-      corpusFile = Utility.createTemporaryDirectory();
+      corpusFile = FileUtility.createTemporaryDirectory();
       App.main(new String[]{"make-corpus", "--corpusPath=" + corpusFile.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--distrib=2", "--server=false"});
 
@@ -127,7 +128,7 @@ public class AppTest extends TestCase {
       assertTrue(corpusFile.exists());
 
       // now, try to build an index from that
-      indexFile = Utility.createTemporaryDirectory();
+      indexFile = FileUtility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + indexFile.getAbsolutePath(),
                 "--inputPath=" + corpusFile.getAbsolutePath(),
                 "--corpus=true", "--server=false"});
@@ -147,7 +148,7 @@ public class AppTest extends TestCase {
               + "{ \"number\" :\"24\", \"text\" : \"#combine( #combine(sample) two #combine(document document) )\"},\n"
               + "{ \"number\" :\"25\", \"text\" : \"#combine( sample two document )\"}\n"
               + "]}\n";
-      queryFile1 = Utility.createTemporary();
+      queryFile1 = FileUtility.createTemporary();
       Utility.copyStringToFile(queries, queryFile1);
 
       // Smoke test with batch search
@@ -190,8 +191,6 @@ public class AppTest extends TestCase {
       printStream = new PrintStream(byteArrayStream);
 
       App.run(new String[]{"doc", "--index=" + indexFile.getAbsolutePath(), "--id='55'"}, printStream);
-      output = byteArrayStream.toString();
-//      assertEquals("#IDENTIFIER: 55\n<TEXT>\nThis is a sample document</TEXT>\n\n", output);
 
       // Verify dump-index works
       byteArrayStream = new ByteArrayOutputStream();
@@ -216,9 +215,9 @@ public class AppTest extends TestCase {
       byteArrayStream = new ByteArrayOutputStream();
       printStream = new PrintStream(byteArrayStream);
 
-      scoresFile = Utility.createTemporary();
+      scoresFile = FileUtility.createTemporary();
       Utility.copyStringToFile(expectedScores, scoresFile);
-      relsFile = Utility.createTemporary();
+      relsFile = FileUtility.createTemporary();
       Utility.copyStringToFile("9 Q0 55 1\n", relsFile);
 
       // for now this is just a smoke test.
@@ -233,7 +232,7 @@ public class AppTest extends TestCase {
               + "\"#counts:a:part=postings()\",\n"
               + "\"#counts:a:part=postings.krovetz()\"\n"
               + "]}\n";
-      queryFile2 = Utility.createTemporary();
+      queryFile2 = FileUtility.createTemporary();
       Utility.copyStringToFile(queries, queryFile2);
 
 
@@ -285,11 +284,11 @@ public class AppTest extends TestCase {
       // create a simple doc file, trec format:
       String trecCorpus = trecDocument("55", "This is a sample document")
               + trecDocument("59", "sample document two");
-      trecCorpusFile = Utility.createTemporary();
+      trecCorpusFile = FileUtility.createTemporary();
       Utility.copyStringToFile(trecCorpus, trecCorpusFile);
 
       // now, try to build an index from that
-      indexFile = Utility.createTemporaryDirectory();
+      indexFile = FileUtility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + indexFile.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile.getAbsolutePath(),
                 "--corpus=true", "--server=false"});
@@ -309,14 +308,14 @@ public class AppTest extends TestCase {
               + "{ \"number\" :\"24\", \"text\" : \"#combine( #combine(sample) two #combine(document document) )\"},\n"
               + "{ \"number\" :\"25\", \"text\" : \"#combine( sample two document )\"}\n"
               + "]}\n";
-      queryFile = Utility.createTemporary();
+      queryFile = FileUtility.createTemporary();
       Utility.copyStringToFile(queries, queryFile);
 
       // Smoke test with batch search
       ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
       PrintStream printStream = new PrintStream(byteArrayStream);
 
-      new App().run(new String[]{"batch-search",
+      App.run(new String[]{"batch-search",
                 "--index=" + indexFile.getAbsolutePath(),
                 queryFile.getAbsolutePath()}, printStream);
 
@@ -343,7 +342,7 @@ public class AppTest extends TestCase {
       byteArrayStream = new ByteArrayOutputStream();
       printStream = new PrintStream(byteArrayStream);
 
-      new App().run(new String[]{"batch-search",
+      App.run(new String[]{"batch-search",
                 "--norm=false",
                 "--index=" + indexFile.getAbsolutePath(),
                 queryFile.getAbsolutePath()}, printStream);

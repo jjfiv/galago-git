@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.FileOrderedWriter;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Order;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
@@ -33,7 +34,7 @@ public class DataStreamWriter implements Processor<Type> {
 
     File outFile = new File(folder, filename + "." + p.getInstanceId());
 
-    Utility.makeParentDirectories(outFile);
+    FileUtility.makeParentDirectories(outFile);
 
     Class orderClass = Class.forName(p.getJSON().getString("order"));
     inputClass = orderClass.getEnclosingClass();

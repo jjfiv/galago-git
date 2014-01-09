@@ -6,9 +6,8 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.File;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.CountIndexReader.KeyIterator;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -23,7 +22,7 @@ public class CountIndexWriterTest extends TestCase {
   }
 
   public void testCountIndex() throws Exception {
-    File tmp = Utility.createTemporary();
+    File tmp = FileUtility.createTemporary();
     try {
       Parameters p = new Parameters();
       p.set("filename", tmp.getAbsolutePath());

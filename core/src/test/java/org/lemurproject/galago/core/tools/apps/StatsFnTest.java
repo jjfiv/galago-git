@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Random;
 import junit.framework.TestCase;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -23,8 +24,8 @@ public class StatsFnTest extends TestCase {
   }
 
   public void testSomeMethod() throws Exception {
-    File input = Utility.createTemporary();
-    File index = Utility.createTemporaryDirectory();
+    File input = FileUtility.createTemporary();
+    File index = FileUtility.createTemporaryDirectory();
     try {
       makeIndex(input, index);
 

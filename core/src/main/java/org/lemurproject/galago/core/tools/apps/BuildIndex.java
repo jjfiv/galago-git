@@ -32,6 +32,7 @@ import org.lemurproject.galago.core.types.NumberWordPosition;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.core.types.NumberedExtent;
 import org.lemurproject.galago.core.types.NumberedField;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Order;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -634,7 +635,7 @@ public class BuildIndex extends AppFunction {
     String indexPath = new File(buildParameters.getString("indexPath")).getAbsolutePath();
     // ensure the index folder exists
     File buildManifest = new File(indexPath, "buildManifest.json");
-    Utility.makeParentDirectories(buildManifest);
+    FileUtility.makeParentDirectories(buildManifest);
     Utility.copyStringToFile(buildParameters.toPrettyString(), buildManifest);
 
     List<String> inputPaths = (List<String>) buildParameters.getAsList("inputPath");

@@ -19,7 +19,7 @@ public class TextWriterTest extends TestCase {
   public void testWriter() throws Exception {
     File tempPath = null;
     try {
-      tempPath = Utility.createTemporary();
+      tempPath = FileUtility.createTemporary();
       Parameters p = new Parameters();
       p.set("class", FileName.class.getName());
       p.set("filename", tempPath.getAbsolutePath());

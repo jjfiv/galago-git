@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.apps.BuildIndex;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -102,8 +103,8 @@ public class UniversalParserTest extends TestCase {
   }
 
   public void testDefaultyBehavior() throws Exception {
-    File index = Utility.createTemporaryDirectory();
-    File dataDir = Utility.createTemporaryDirectory();
+    File index = FileUtility.createTemporaryDirectory();
+    File dataDir = FileUtility.createTemporaryDirectory();
     try {
 
       createTxtDoc(dataDir, "d1.txt"); // 1 doc
@@ -143,8 +144,8 @@ public class UniversalParserTest extends TestCase {
   }
 
   public void testAllIsOneBehavior() throws Exception {
-    File index = Utility.createTemporaryDirectory();
-    File dataDir = Utility.createTemporaryDirectory();
+    File index = FileUtility.createTemporaryDirectory();
+    File dataDir = FileUtility.createTemporaryDirectory();
     try {
 
       createTxtDoc(dataDir, "d1"); // 1 doc
@@ -186,8 +187,8 @@ public class UniversalParserTest extends TestCase {
   }
 
   public void testManualOverrideBehavior() throws Exception {
-    File index = Utility.createTemporaryDirectory();
-    File dataDir = Utility.createTemporaryDirectory();
+    File index = FileUtility.createTemporaryDirectory();
+    File dataDir = FileUtility.createTemporaryDirectory();
     try {
 
       createTrecTextDoc(dataDir, "d1.qqe"); // 10 docs - trectext

@@ -13,6 +13,7 @@ import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.ExNihiloSource;
 import org.lemurproject.galago.tupleflow.FileOrderedReader;
 import org.lemurproject.galago.tupleflow.FileOrderedWriter;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Order;
@@ -298,7 +299,7 @@ public class StageInstanceFactory {
         reader = combReader;
         CompressionType c = combReader.getCompression();
         
-        File temporary = Utility.createTemporary();
+        File temporary = FileUtility.createTemporary();
         FileOrderedWriter<T> writer = new FileOrderedWriter<T>(temporary.getAbsolutePath(), order, c);
 
         try {

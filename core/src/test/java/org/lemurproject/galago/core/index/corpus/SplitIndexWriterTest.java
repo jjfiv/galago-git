@@ -7,6 +7,7 @@ import java.io.IOException;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -25,7 +26,7 @@ public class SplitIndexWriterTest extends TestCase {
     File temporary = null;
 
     try {
-      temporary = Utility.createTemporary();
+      temporary = FileUtility.createTemporary();
       temporary.delete();
       temporary.mkdir();
 
@@ -55,7 +56,7 @@ public class SplitIndexWriterTest extends TestCase {
     File temporary = null;
 
     try {
-      temporary = Utility.createTemporary();
+      temporary = FileUtility.createTemporary();
       temporary.delete();
       temporary.mkdir();
 
@@ -108,7 +109,7 @@ public class SplitIndexWriterTest extends TestCase {
     File temporary = null;
 
     try {
-      temporary = Utility.createTemporary();
+      temporary = FileUtility.createTemporary();
       temporary.delete();
       temporary.mkdir();
 

@@ -32,6 +32,7 @@ import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.io.File;
 import java.util.ArrayList;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
 
 public class DiskSpillCompressedByteBuffer extends OutputStream {
@@ -263,7 +264,7 @@ public class DiskSpillCompressedByteBuffer extends OutputStream {
   private void spill() {
     try {
       if (spillStream == null) {
-        spillFile = Utility.createTemporary();
+        spillFile = FileUtility.createTemporary();
         spillStream = new FileOutputStream(spillFile);
       }
       // Spill everything in the array list, but not the current sub-buffer

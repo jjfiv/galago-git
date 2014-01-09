@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -26,8 +27,8 @@ public class DeltaScoreDocumentModelTest extends TestCase {
   }
 
   public void testMaxscore() throws Exception {
-    File corpus = Utility.createTemporary();
-    File index = Utility.createTemporaryDirectory();
+    File corpus = FileUtility.createTemporary();
+    File index = FileUtility.createTemporaryDirectory();
     try {
       makeIndex(corpus, index);
 
@@ -72,8 +73,8 @@ public class DeltaScoreDocumentModelTest extends TestCase {
   }
 
   public void testWAND() throws Exception {
-    File corpus = Utility.createTemporary();
-    File index = Utility.createTemporaryDirectory();
+    File corpus = FileUtility.createTemporary();
+    File index = FileUtility.createTemporaryDirectory();
     try {
       makeIndex(corpus, index);
 

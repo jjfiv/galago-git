@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -48,19 +49,19 @@ public class SplitBTreeValueWriter extends BTreeWriter
   public static final long MAGIC_NUMBER = 0x2b3c4d5e6f7a8b9cL;
   public Processor<KeyValuePair> processor;
   public Parameters manifest;
-  private int valueOutputId;
-  private DataOutputStream valueOutput;
+  private final int valueOutputId;
+  private final DataOutputStream valueOutput;
   private byte[] lastKey = null;
   private ByteArrayOutputStream keyArray;
   private DataOutputStream keyStream;
   private long valueOffset;
   private long valueLength;
-  private short valueBlockSize;
-  private Counter docCounter;
+  private final short valueBlockSize;
+  private final Counter docCounter;
 
   public SplitBTreeValueWriter(TupleFlowParameters parameters) throws IOException {
     String valueOutputPath = parameters.getJSON().getString("filename") + File.separator + parameters.getInstanceId();
-    Utility.makeParentDirectories(valueOutputPath);
+    FileUtility.makeParentDirectories(valueOutputPath);
     docCounter = parameters.getCounter("Document Values Stored");
     manifest = parameters.getJSON();
 

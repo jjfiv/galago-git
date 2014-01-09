@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -45,11 +46,11 @@ public class IndicatorIteratorTest extends TestCase {
     trecCorpus.append(AppTest.trecDocument("2", "The cat jumped over third sample document"));
     trecCorpus.append(AppTest.trecDocument("3", "To be trusted is a greater compliment than to be loved"));
     trecCorpus.append(AppTest.trecDocument("4", "Though a sample program be but three lines long, someday it will have to be maintained via document."));
-    trecCorpusFile = Utility.createTemporary();
+    trecCorpusFile = FileUtility.createTemporary();
     Utility.copyStringToFile(trecCorpus.toString(), trecCorpusFile);
 
     // now, try to build an index from that
-    indexFile = Utility.createTemporary();
+    indexFile = FileUtility.createTemporary();
     indexFile.delete();
     App.main(new String[]{"build", "--stemming=false", "--indexPath=" + indexFile.getAbsolutePath(),
       "--inputPath=" + trecCorpusFile.getAbsolutePath()});

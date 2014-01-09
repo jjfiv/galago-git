@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -35,10 +36,10 @@ public class MultiRetrievalTest extends TestCase {
       String trecCorpus = AppTest.trecDocument("i1-55", "This is a sample document")
               + AppTest.trecDocument("i1-59", "sample document two");
 
-      trecCorpusFile1 = Utility.createTemporary();
+      trecCorpusFile1 = FileUtility.createTemporary();
       Utility.copyStringToFile(trecCorpus, trecCorpusFile1);
 
-      index1 = Utility.createTemporaryDirectory();
+      index1 = FileUtility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + index1.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile1.getAbsolutePath()});
 
@@ -46,10 +47,10 @@ public class MultiRetrievalTest extends TestCase {
       trecCorpus = AppTest.trecDocument("i2-55", "This is a sample also a document")
               + AppTest.trecDocument("i2-59", "sample document four long");
 
-      trecCorpusFile2 = Utility.createTemporary();
+      trecCorpusFile2 = FileUtility.createTemporary();
       Utility.copyStringToFile(trecCorpus, trecCorpusFile2);
 
-      index2 = Utility.createTemporaryDirectory();
+      index2 = FileUtility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + index2.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile2.getAbsolutePath()});
 

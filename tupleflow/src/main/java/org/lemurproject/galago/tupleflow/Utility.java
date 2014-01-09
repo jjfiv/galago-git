@@ -16,13 +16,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 import org.lemurproject.galago.tupleflow.execution.Step;
@@ -35,91 +33,13 @@ import org.lemurproject.galago.tupleflow.execution.Step;
 public class Utility {
 
   private static final Logger LOG = Logger.getLogger(Utility.class.getName());
-  private static final Parameters preferences = new Parameters();
-  private static final Parameters drmaaOptions = new Parameters();
-  private static final Parameters sorterOptions = new Parameters();
-  private static final List<String> roots = new ArrayList();
+  
   // Some constant values
   public static final double log2 = Math.log(2);
   public static final double loge_base2 = Math.log(Math.E) / log2;
   public static final double tinyLogProbScore = Math.log(Math.pow(10, -10));
   public static final double epsilon = 0.5 * Math.pow(10, -10);
   public static final double neg_epsilon = -1.0 * Math.pow(10, -10);
-
-  /**
-   * Put all initialization here
-   */
-  static {
-    // try to find a prefs file
-    try {
-      String homeDirectory = System.getProperty("user.home");
-      File prefsFile = new File(homeDirectory + File.separator + ".galago.conf");
-      if (prefsFile.exists()) {
-        preferences.copyFrom(Parameters.parseFile(prefsFile));
-        if (preferences.containsKey("tmpdir")) {
-          for (String tmp : (List<String>) preferences.getAsList("tmpdir")) {
-            addTemporaryDirectory(tmp);
-          }
-        }
-      } else {
-        // make a new directory in cwd.
-        // ensure the directory + contents are deleted on exit
-      }
-    } catch (IOException ioe) {
-      LOG.warning("Unable to locate or read pref file. Using default temp location.\n" + ioe.getMessage());
-    }
-
-    if (preferences.containsKey("drmaa")) {
-      drmaaOptions.copyFrom(preferences.getMap("drmaa"));
-    }
-
-    if (preferences.containsKey("sorter")) {
-      sorterOptions.copyFrom(preferences.getMap("sorter"));
-    }
-  }
-
-  /**
-   * All static parameters
-   */
-  public static Parameters getAllOptions() {
-    return preferences;
-  }
-
-  /**
-   * Drmaa parameters
-   *
-   */
-  public static Parameters getDrmaaOptions() {
-    return drmaaOptions;
-  }
-
-  /**
-   * Sorter parameters
-   */
-  public static Parameters getSorterOptions() {
-    return sorterOptions;
-  }
-
-  /**
-   * <p>If the parent directories for this file don't exist, this function
-   * creates them.</p>
-   *
-   * <p>Often we want to create a file, but we don't yet know if the parent path
-   * has been created yet. Call this function immediately before opening a file
-   * for writing to make sure those directories have been created.</p>
-   *
-   * @param filename A filename that will soon be opened for writing.
-   */
-  public static void makeParentDirectories(File f) {
-    File parent = f.getParentFile();
-    if (parent != null) {
-      parent.mkdirs();
-    }
-  }
-
-  public static void makeParentDirectories(String filename) {
-    makeParentDirectories(new File(filename));
-  }
 
   /**
    * Builds a simple Sorter step that can be added to a TupleFlow stage.
@@ -546,122 +466,6 @@ public class Utility {
     }
   }
 
-  public static File createTemporaryDirectory() throws IOException {
-    return createTemporaryDirectory("");
-  }
-
-  public static File createTemporaryDirectory(String path) throws IOException {
-    File temporaryDir;
-    if (path.length() > 0) {
-      temporaryDir = new File(path);
-    } else {
-      temporaryDir = Utility.createTemporary();
-    }
-
-    makeParentDirectories(temporaryDir.getAbsolutePath());
-    if (temporaryDir.isFile()) {
-      temporaryDir.delete();
-    }
-    temporaryDir.mkdir();
-
-    return temporaryDir;
-  }
-
-  public static File createTemporary() throws IOException {
-    return createTemporary(1024 * 1024 * 1024);
-  }
-
-  public static File createTemporary(long requiredSpace) throws IOException {
-    File temporary;
-    String root = getBestTemporaryLocation(requiredSpace);
-    if (root != null) {
-      temporary = File.createTempFile("tupleflow", "", new File(root));
-    } else {
-      temporary = File.createTempFile("tupleflow", "");
-    }
-
-    // LOG.info("UTILITY_CREATED: " + temporary.getAbsolutePath());
-    return temporary;
-  }
-
-  public static long getFreeSpace(String pathname) throws IOException {
-    try {
-      // this will only work in Java 1.6 or later
-      Method m = File.class.getMethod("getUsableSpace");
-      Long result = (Long) m.invoke(new File(pathname));
-      return (long) result;
-    } catch (Exception e) {
-      try {
-        return getUnixFreeSpace(pathname);
-      } catch (Exception ex) {
-        return 1024 * 1024 * 1024; // 1GB
-      }
-    }
-  }
-
-  public static long getUnixFreeSpace(String pathname) throws IOException {
-    try {
-      // BUGBUG: will not work on windows
-      String[] command = {"df", "-Pk", pathname};
-      Process process = Runtime.getRuntime().exec(command);
-      InputStream procOutput = process.getInputStream();
-      BufferedReader reader = new BufferedReader(new InputStreamReader(procOutput));
-
-      // skip the first line
-      reader.readLine();
-      String line = reader.readLine();
-      String[] fields = line.split("\\s+");
-      reader.close();
-
-      process.getErrorStream().close();
-      process.getInputStream().close();
-      process.getOutputStream().close();
-      process.waitFor();
-
-      long freeSpace = Long.parseLong(fields[3]) * 1024;
-      return freeSpace;
-    } catch (InterruptedException ex) {
-      return 0;
-    }
-  }
-
-  // dynamically add to the set of roots
-  public static void addTemporaryDirectory(String path) {
-    File f = new File(path);
-    if (!f.isDirectory()) {
-      f.mkdirs();
-    }
-    roots.add(path);
-  }
-
-  public static String getBestTemporaryLocation(long requiredSpace) throws IOException {
-    for (String root : roots) {
-      long freeSpace = getFreeSpace(root);
-
-      if (freeSpace >= requiredSpace) {
-        //String logString = String.format("Found %6.3fMB >= %6.3fMB left on %s",
-        //        freeSpace / 1048576.0, requiredSpace / 1048576.0, root);
-        //LOG.info(logString);
-        return root;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * remove all data from all temp directories - be very careful when using this
-   * function!
-   *
-   * @throws IOException
-   */
-  public static void cleanTemporaryDirectories() throws IOException {
-    for (String root : roots) {
-      File f = new File(root);
-      Utility.deleteDirectory(f);
-      f.mkdir();
-    }
-  }
-
   /**
    * Copies data from the input stream to the output stream.
    *
@@ -831,34 +635,7 @@ public class Utility {
     return baos.toByteArray();
   }
 
-  // A workaround to make File versions of packaged resources. If it exists already, we return that and hope
-  // it's what they wanted.
-  // Note that we simply use the filename of the resource because, well, sometimes that's important when
-  // poor coding is involved.
-  public static File createResourceFile(Class requestingClass, String resourcePath) throws IOException {
-    String tmpPath = getBestTemporaryLocation(1024 * 1024 * 100);
-    if (tmpPath == null) {
-      tmpPath = "";
-    }
 
-    String[] parts = resourcePath.split(File.separator);
-    String fileName = parts[parts.length - 1];
-
-    LOG.info(String.format("Creating resource file: %s/%s", tmpPath, fileName));
-    File tmp = new File(tmpPath, fileName);
-    if (tmp.exists()) {
-      return tmp;
-    }
-
-    InputStream resourceStream = requestingClass.getResourceAsStream(resourcePath);
-    if (resourceStream == null) {
-      LOG.warning(String.format("Unable to create resource file."));
-      return null;
-    }
-
-    copyStreamToFile(resourceStream, tmp);
-    return tmp;
-  }
 
   public static long skipLongBytes(DataInput in, long skipAmt) throws IOException {
     if (skipAmt < Integer.MAX_VALUE) {

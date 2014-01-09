@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -43,11 +44,11 @@ public class BuildSpecialPartTest extends TestCase {
               + trecDocument("55", "This is a sample document")
               + trecDocument("59", "sample document two")
               + trecDocument("73", "sample document three");
-      trecCorpusFile = Utility.createTemporary();
+      trecCorpusFile = FileUtility.createTemporary();
       Utility.copyStringToFile(trecCorpus, trecCorpusFile);
 
       // now build an index from that
-      indexFile = Utility.createTemporaryDirectory();
+      indexFile = FileUtility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + indexFile.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--server=false"});
 
@@ -58,7 +59,7 @@ public class BuildSpecialPartTest extends TestCase {
               + "d59\tfalse\n"
               + "d10\n";
 
-      indicatorFile = Utility.createTemporary();
+      indicatorFile = FileUtility.createTemporary();
       Utility.copyStringToFile(indicators, indicatorFile);
 
       App.main(new String[]{"build-special", "--indexPath=" + indexFile.getAbsolutePath(),
@@ -100,7 +101,7 @@ public class BuildSpecialPartTest extends TestCase {
               + "{ \"number\" : \"1\", \"text\" : \"sample\" },\n"
               + "{ \"number\" : \"2\", \"text\" : \"#require( #indicator:part=testingIndicators() #combine( sample ) )\" }\n"
               + "]}\n";
-      queryFile = Utility.createTemporary();
+      queryFile = FileUtility.createTemporary();
       Utility.copyStringToFile(queries, queryFile);
 
       // test with batch search
@@ -153,7 +154,7 @@ public class BuildSpecialPartTest extends TestCase {
               + trecDocument("55", "This is a sample document")
               + trecDocument("59", "sample document two")
               + trecDocument("73", "sample document three");
-      trecCorpusFile = Utility.createTemporary();
+      trecCorpusFile = FileUtility.createTemporary();
       Utility.copyStringToFile(trecCorpus, trecCorpusFile);
 
       String priors =
@@ -162,12 +163,12 @@ public class BuildSpecialPartTest extends TestCase {
               + "d59\t-7.0\n"
               + "d73\t-6.0\n";
 
-      priorFile = Utility.createTemporary();
+      priorFile = FileUtility.createTemporary();
       Utility.copyStringToFile(priors, priorFile);
 
 
       // now, try to build an index from that
-      indexFile = Utility.createTemporary();
+      indexFile = FileUtility.createTemporary();
       indexFile.delete();
       App.main(new String[]{"build", "--indexPath=" + indexFile.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--server=false"});
@@ -216,7 +217,7 @@ public class BuildSpecialPartTest extends TestCase {
               + "{ \"number\" : \"1\", \"text\" : \"sample\" },\n"
               + "{ \"number\" : \"2\", \"text\" : \"#combine( #prior:part=testingPriors() sample )\" }\n"
               + "]}\n";
-      queryFile = Utility.createTemporary();
+      queryFile = FileUtility.createTemporary();
       Utility.copyStringToFile(queries, queryFile);
 
       // test with batch search

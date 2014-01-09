@@ -121,7 +121,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
 
     public LengthsList(byte[] key) throws IOException {
       //this.lengthsData = new CompressedRawByteBuffer();
-      tempFile = Utility.createTemporary();
+      tempFile = FileUtility.createTemporary();
       stream = StreamCreator.realOutputStream(tempFile.getAbsolutePath());
       this.field = key;
 

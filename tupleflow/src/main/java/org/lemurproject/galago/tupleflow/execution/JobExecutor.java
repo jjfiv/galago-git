@@ -24,6 +24,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import org.lemurproject.galago.tupleflow.CompressionType;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -1124,7 +1125,7 @@ public class JobExecutor {
           InterruptedException, ExecutionException, Exception {
     // Extraction from parameters can go here now
     String tempPath = p.get("galagoJobDir", "");
-    File tempFolder = Utility.createTemporaryDirectory(tempPath);
+    File tempFolder = FileUtility.createTemporaryDirectory(tempPath);
 
     File stdout = new File(tempFolder + File.separator + "stdout");
     File stderr = new File(tempFolder + File.separator + "stderr");

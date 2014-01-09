@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -91,17 +92,17 @@ public class KrovetzStemmerTest extends TestCase {
     try {
       // create a simple doc file, trec format:
       String trecCorpus = AppTest.trecDocument("1", text);
-      trecCorpusFile = Utility.createTemporary();
+      trecCorpusFile = FileUtility.createTemporary();
       Utility.copyStringToFile(trecCorpus, trecCorpusFile);
 
       // now, try to build an index from that
-      indexFile1 = Utility.createTemporaryDirectory();
+      indexFile1 = FileUtility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + indexFile1.getAbsolutePath(),
                 "--inputPath+" + trecCorpusFile.getAbsolutePath(),
                 "--stemmerClass/Porter2Stemmer=org.lemurproject.galago.core.parse.stem.Porter2Stemmer"});
 
       // now, try to build an index from that
-      indexFile2 = Utility.createTemporaryDirectory();
+      indexFile2 = FileUtility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + indexFile2.getAbsolutePath(),
                 "--inputPath+" + trecCorpusFile.getAbsolutePath(),
                 "--stemmerClass/KrovetzStemmer=org.lemurproject.galago.core.parse.stem.KrovetzStemmer"});

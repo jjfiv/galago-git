@@ -19,6 +19,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -155,8 +156,8 @@ public class ProxyRetrievalTest extends TestCase {
 
   // index construction
   private File makeIndex(int docCount, int docLen, int vocab) throws Exception {
-    File trecFile = Utility.createTemporary();
-    File indexFolder = Utility.createTemporaryDirectory();
+    File trecFile = FileUtility.createTemporary();
+    File indexFolder = FileUtility.createTemporaryDirectory();
 
     Random r = new Random();
     BufferedWriter writer = new BufferedWriter(new FileWriter(trecFile));

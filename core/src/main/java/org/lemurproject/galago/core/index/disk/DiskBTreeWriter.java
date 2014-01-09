@@ -11,10 +11,10 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.zip.GZIPOutputStream;
 import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -58,7 +58,7 @@ public class DiskBTreeWriter extends BTreeWriter {
    */
   public DiskBTreeWriter(String outputFilename, Parameters parameters)
           throws FileNotFoundException, IOException {
-    Utility.makeParentDirectories(outputFilename);
+    FileUtility.makeParentDirectories(outputFilename);
 
     // max sizes - each defaults to a max length of 2 bytes (short)
     blockSize = (int) parameters.get("blockSize", 16383);

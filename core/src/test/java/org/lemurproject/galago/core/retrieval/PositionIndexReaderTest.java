@@ -22,6 +22,7 @@ import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.tupleflow.FileUtility;
 
 /**
  *
@@ -47,10 +48,10 @@ public class PositionIndexReaderTest extends TestCase {
   @Override
   public void setUp() throws Exception {
     // make a spot for the index
-    tempPath = Utility.createTemporary();
+    tempPath = FileUtility.createTemporary();
     tempPath.delete();
 
-    skipPath = Utility.createTemporary();
+    skipPath = FileUtility.createTemporary();
     skipPath.delete();
 
     Parameters p = new Parameters();

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import org.lemurproject.galago.tupleflow.GalagoConf;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.reflections.Reflections;
@@ -33,9 +34,8 @@ public class App {
     List<String> cps = new ArrayList();
     cps.add("org.lemurproject.galago");
 
-    Parameters p = Utility.getAllOptions();
-    if (p.isString("appclasspath")
-            || p.isList("appclasspath", Parameters.Type.STRING)) {
+    Parameters p = GalagoConf.getAllOptions();
+    if (p.isString("appclasspath") || p.isList("appclasspath", Parameters.Type.STRING)) {
       cps.addAll((List<String>) p.getAsList("appclasspath"));
     }
 

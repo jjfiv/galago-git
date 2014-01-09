@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -32,8 +33,8 @@ public class RankedPassageModelTest extends TestCase {
   @Override
   public void setUp() {
     try {
-      corpus = Utility.createTemporary();
-      index = Utility.createTemporaryDirectory();
+      corpus = FileUtility.createTemporary();
+      index = FileUtility.createTemporaryDirectory();
       makeIndex(corpus, index);
     } catch (Exception e) {
       tearDown();

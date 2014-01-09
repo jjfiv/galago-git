@@ -19,6 +19,7 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -437,7 +438,7 @@ public class FieldTraversalTest extends TestCase {
 
   public File makeFieldIndexes() throws IOException {
     // make a spot for the index
-    File tempPath = Utility.createTemporaryDirectory();
+    File tempPath = FileUtility.createTemporaryDirectory();
 
     // put in a generic manifest
     new Parameters().write(tempPath + File.separator + "manifest");

@@ -22,6 +22,7 @@ import org.lemurproject.galago.core.retrieval.iterator.InBetweenIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LessThanIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -39,7 +40,7 @@ public class FieldIndexReaderTest extends TestCase {
   @Override
   public void setUp() throws Exception {
     // make a spot for the index
-    tempPath = Utility.createTemporary();
+    tempPath = FileUtility.createTemporary();
 
     Parameters tokenizer = new Parameters();
     Parameters formats = new Parameters();

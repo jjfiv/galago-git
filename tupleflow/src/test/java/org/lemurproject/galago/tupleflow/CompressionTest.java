@@ -18,9 +18,9 @@ public class CompressionTest extends TestCase {
   }
 
   public void testCompresion() throws Exception {
-    File f1 = Utility.createTemporary();
-    File f2 = Utility.createTemporary();
-    File f3 = Utility.createTemporary();
+    File f1 = FileUtility.createTemporary();
+    File f2 = FileUtility.createTemporary();
+    File f3 = FileUtility.createTemporary();
     try {
       // write a series of strings to these files.
       Order o = new TupleflowString.ValueOrder();
