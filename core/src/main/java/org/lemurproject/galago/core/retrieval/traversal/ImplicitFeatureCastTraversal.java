@@ -43,7 +43,6 @@ public class ImplicitFeatureCastTraversal extends Traversal {
     // Indicates we want "whole doc" matching
     if (node.getOperator().equals("intersect")) {
       node.getNodeParameters().set("default", -1);
-      return;
     }
   }
 
@@ -81,7 +80,7 @@ public class ImplicitFeatureCastTraversal extends Traversal {
     }
 
     // Fixes handling double-quotes (I hope).
-    if (node.getOperator().equals("quote")) {
+    if ("quote".equals(node.getOperator())) {
       node.getNodeParameters().set("default", "1");
       node.setOperator("od");
       return node;

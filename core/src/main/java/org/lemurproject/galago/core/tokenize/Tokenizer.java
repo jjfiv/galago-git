@@ -79,7 +79,7 @@ public abstract class Tokenizer implements Source<Document>, Processor<Document>
    * document.terms and document.tags arrays, then passes that document
    * to the next processing stage.
    *
-   * @param document
+   * @param input
    * @throws java.io.IOException
    */
   @Override
@@ -110,14 +110,16 @@ public abstract class Tokenizer implements Source<Document>, Processor<Document>
   }
   
   public static Class<? extends Tokenizer> getTokenizerClass(Parameters p) {
-     if(p.isString("tokenizerClass")) {
-       try {
-         return (Class<? extends Tokenizer>) Class.forName(p.getString("tokenizerClass"));
-       } catch (ClassNotFoundException ex) {
-         Logger.getLogger(Tokenizer.class.getName()).log(Level.SEVERE, null, ex);
-       }
-     }
-     return TagTokenizer.class;
+if (p.isString("tokenizerClass")) {
+      try {
+        return (Class<? extends Tokenizer>) Class.forName(p.getString("tokenizerClass"));
+      } catch (ClassNotFoundException ex) {
+        Logger.getLogger(Tokenizer.class.getName()).log(Level.SEVERE, null, ex);
+      }
+    } else if (p.isMap("tokenizer")) {
+      return getTokenizerClass(p.getMap("tokenizer"));
+    }
+    return TagTokenizer.class;
   }
   
     

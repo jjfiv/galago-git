@@ -95,7 +95,7 @@ public class TransformRootTraversal extends Traversal {
     if (retrieval.getQueryType(root) == QueryType.RANKED) {
       return root;
     }
-
+    
     ArrayList<Node> children = new ArrayList<Node>();
     children.add(root.clone());
     return new Node("combine", new NodeParameters(), children, root.getPosition());

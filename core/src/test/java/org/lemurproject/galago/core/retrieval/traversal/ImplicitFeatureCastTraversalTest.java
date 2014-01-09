@@ -51,6 +51,8 @@ public class ImplicitFeatureCastTraversalTest extends TestCase {
     transformed.append("#dirichlet( #inside( #extents:dog:part=postings() ");
     transformed.append("#extents:title:part=extents() ) ) )");
     Node result = traversal.traverse(tree, new Parameters());
+    System.err.println(transformed.toString());
+    System.err.println(result.toString());
     assertEquals(transformed.toString(), result.toString());
   }
 

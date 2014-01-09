@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreCombinationIterator;
 import org.lemurproject.galago.core.retrieval.iterator.SynonymIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
@@ -41,7 +42,7 @@ public class FeatureFactoryTest extends TestCase {
     Class c = f.getClass(new Node("combine", ""));
     assertEquals(ScoreCombinationIterator.class.getName(), c.getName());
   }
-
+  
   /**
    * Test of getNodeType method, of class FeatureFactory.
    */
