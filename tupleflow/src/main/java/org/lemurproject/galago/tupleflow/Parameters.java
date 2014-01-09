@@ -1,6 +1,7 @@
 // BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.tupleflow;
 
+import org.lemurproject.galago.tupleflow.config.JSONParser;
 import gnu.trove.map.hash.TObjectByteHashMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import gnu.trove.map.hash.TObjectLongHashMap;
@@ -14,6 +15,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,9 +33,9 @@ import java.util.regex.Pattern;
  *
  * @author irmarc, sjh
  */
-public class Parameters implements Serializable {
+public class Parameters implements Serializable, Map<String,Object> {
 
-  private static final long serialVersionUID = 4553653651892088434L;
+  private static final long serialVersionUID = 4553653651892088435L;
   // Data structures available in the class
   // Tracks keys and their types
   private HashMap<String, Type> _keys;
@@ -57,30 +59,7 @@ public class Parameters implements Serializable {
 // Constructor - we always start empty, and add to it
 // Most of these are constructed statically
   public Parameters() {
-    _keys = new HashMap<String, Type>();
-    _longs = null;
-    _bools = null;
-    _doubles = null;
-    _objects = null;
-
-    _backoff = null;
-  }
-
-  @Deprecated
-  public Parameters(Map<String, String> map) {
-    _objects = new HashMap();
-    _keys = new HashMap<String, Type>();
-    _backoff = null;
-    this.copyFrom(Parameters.parseMap(map));
-  }
-
-  // in this case, we assume everything is a key-value pair of strings
-  // TODO : Make this and the above constructor care about types.
-  @Deprecated
-  public Parameters(String[] args) throws IOException {
-    _keys = new HashMap<String, Type>();
-    _backoff = null;
-    this.copyFrom(Parameters.parseArgs(args));
+    clear();
   }
   
   public static Parameters parseMap(Map<String,String> map) {
@@ -122,26 +101,6 @@ public class Parameters implements Serializable {
     }
     
     return self;
-  }
-
-  @Deprecated
-  public static Parameters parse(String data) throws IOException {
-    return parseString(data);
-  }
-
-  @Deprecated
-  public static Parameters parse(InputStream iStream) throws IOException {
-    return parseStream(iStream);
-  }
-
-  @Deprecated
-  public static Parameters parse(byte[] data) throws IOException {
-    return parseBytes(data);
-  }
-
-  @Deprecated
-  public static Parameters parse(File f) throws IOException {
-    return parseFile(f);
   }
   
   public static Parameters parseFile(File f) throws IOException {
@@ -1032,4 +991,134 @@ public class Parameters implements Serializable {
         }
     }
   }
+  
+  @Override
+  public int size() {
+    return _keys.size();
+  }
+
+  @Override
+  public boolean containsKey(Object o) {
+    return _keys.containsKey(o);
+  }
+
+  @Override
+  public boolean containsValue(Object o) {
+    if(o instanceof Integer) {
+      long l = ((Integer) o).longValue();
+      return (_longs != null && _longs.containsValue(l));
+    } else if(o instanceof Long) {
+      long l = ((Long) o).longValue();
+      return (_longs != null && _longs.containsValue(l));
+    } else if(o instanceof Boolean) {
+      byte b = (byte) (((Boolean) o).booleanValue() ? 0x1 : 0x0);
+      return (_bools != null && _bools.containsValue(b));
+    } else if(o instanceof Float) {
+      double d = ((Float) o).doubleValue();
+      return (_doubles != null && _doubles.containsValue(d));
+    } else if(o instanceof Double) {
+      double d = ((Double) o).doubleValue();
+      return (_doubles != null && _doubles.containsValue(d));
+    }
+    // strings, maps, lists:
+    return _objects.containsValue(o);
+  }
+
+  @Override
+  public Object get(Object o) {
+    if(!containsKey(o) || !(o instanceof String))
+      return null;
+    
+    String key = (String) o;
+    Type ot = _keys.get(o);
+    switch(ot) {
+      case BOOLEAN:
+        return getBoolean(key);
+      case LONG:
+        return getLong(key);
+      case DOUBLE:
+        return getDouble(key);
+      default:
+      case STRING:
+      case MAP:
+      case LIST:
+        return _objects.get(key);
+    }
+  }
+
+  @Override
+  public Object put(String k, Object v) {
+    if(v instanceof Integer) {
+      long l = ((Integer) v).longValue();
+      set(k, l);
+    } else if(v instanceof Long) {
+      long l = ((Long) v).longValue();
+      set(k, l);
+    } else if(v instanceof Boolean) {
+      byte b = (byte) (((Boolean) v).booleanValue() ? 0x1 : 0x0);
+      set(k, b);
+    } else if(v instanceof Float) {
+      double d = ((Float) v).doubleValue();
+      set(k, d);
+    } else if(v instanceof Double) {
+      double d = ((Double) v).doubleValue();
+      set(k,d);
+    } else if(v instanceof List) {
+      set(k, (List) v);
+    } else if(v instanceof Parameters) {
+      set(k, (Parameters) v);
+    } else if(v instanceof String) {
+      set(k, (String) v);
+    } else {
+      throw new IllegalArgumentException("put("+k+","+v+") is not supported!");
+    }
+    
+    return v;
+  }
+
+  @Override
+  public Object remove(Object o) {
+    // this is optional per the javadoc of java.util.Map
+    throw new UnsupportedOperationException("Not supported because of backoff!");
+  }
+
+  @Override
+  public void putAll(Map<? extends String, ? extends Object> map) {
+    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  }
+
+  @Override
+  public void clear() {
+    _keys = new HashMap<String, Type>();
+    _longs = null;
+    _bools = null;
+    _doubles = null;
+    _objects = null;
+
+    _backoff = null;
+  }
+
+  @Override
+  public Set<String> keySet() {
+    return _keys.keySet();
+  }
+
+  @Override
+  public Collection<Object> values() {
+    ArrayList<Object> vals = new ArrayList<Object>();
+    for(String key : keySet()) {
+      vals.add(get(key));
+    }
+    return vals;
+  }
+
+  @Override
+  public Set<Entry<String, Object>> entrySet() {
+    HashSet<Entry<String,Object>> entries = new HashSet<Entry<String,Object>>();
+    for(String key : keySet()) {
+      entries.add(new AbstractMap.SimpleImmutableEntry<String,Object>(key, get(key)));
+    }
+    return entries;
+  }
+
 }

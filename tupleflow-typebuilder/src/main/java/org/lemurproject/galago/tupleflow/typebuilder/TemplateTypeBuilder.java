@@ -278,7 +278,7 @@ public class TemplateTypeBuilder {
   public static void main(String[] args) throws java.lang.Exception {
     if (args.length < 1) {
       System.err.println(
-              "Usage: java org.lemurproject.galago.tupleflow.typebuilder.TemplateTypeBuilder"
+              "Usage: " + TemplateTypeBuilder.class.getCanonicalName()
               + " <galago type files>");
       System.exit(0);
     }
@@ -332,7 +332,7 @@ public class TemplateTypeBuilder {
         }
         String comment =
                 "// This file was automatically generated with the command: \n"
-                + "//     java org.lemurproject.galago.tupleflow.typebuilder.TypeBuilderTemplate ...\n";
+                + "//     java " + TemplateTypeBuilder.class.getCanonicalName() + " ...\n";
 
         try {
           writer.write(comment);

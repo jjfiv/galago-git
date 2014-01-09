@@ -63,13 +63,13 @@ public class FieldSpecification {
             return boxedName;
         }
 
-        private String baseType;
-        private String internalType;
-        private String className;
-        private String boxedName;
-        private boolean isInteger;
-        private boolean isString;
-        private boolean isArray;
+        private final String baseType;
+        private final String internalType;
+        private final String className;
+        private final String boxedName;
+        private final boolean isInteger;
+        private final boolean isString;
+        private final boolean isArray;
     };
     
     public FieldSpecification(DataType type, String name) {
