@@ -213,17 +213,47 @@ public class Parameters implements Serializable, Map<String,Object> {
     }
     return true;
   }
-
+  
+  private Object copyValue(Object input) {
+    if(input == null) {
+      return input;
+    } else if(input instanceof List) {
+      ArrayList newl = new ArrayList();      
+      for(Object o : (List) input) {
+        newl.add(copyValue(o));
+      }
+      return newl;
+    } else if(input instanceof Parameters) {
+      return ((Parameters) input).clone();
+    } else if(input instanceof Long || input instanceof Double || input instanceof String) {
+      return input;
+    } else {
+      System.err.println("Warning: copy by reference on unknown object-kind: "+input);
+      return input;
+    }
+  }
+  
   @Override
   public Parameters clone() {
-    try {
-      JSONParser jp = new JSONParser(new StringReader(toString()), "<clone>");
-      Parameters p = jp.parse();
-      p.setBackoff(_backoff);
-      return p;
-    } catch (IOException ex) {
-      throw new RuntimeException(ex);
+    Parameters copy = new Parameters();
+    // use secret keySet to not copy backoff keys
+    for(String key : _keys.keySet()) {
+      if(isLong(key)) {
+        copy.set(key, getLong(key));
+      } else if(isDouble(key)) {
+        copy.set(key, getDouble(key));
+      } else if(isBoolean(key)) {
+        copy.set(key, getBoolean(key));
+      } else if(isString(key)) {
+        copy.set(key, getString(key));
+      } else if(isList(key)) {
+        copy.set(key, (List) copyValue(getList(key)));
+      } else if(isMap(key)) {
+        copy.set(key, (Parameters) copyValue(getMap(key)));
+      }
     }
+    copy.setBackoff(_backoff);
+    return copy;
   }
 
   // Getters
@@ -1100,7 +1130,14 @@ public class Parameters implements Serializable, Map<String,Object> {
 
   @Override
   public Set<String> keySet() {
-    return _keys.keySet();
+    if (_backoff != null) {
+      HashSet<String> all = new HashSet<String>();
+      all.addAll(_backoff.keySet());
+      all.addAll(_keys.keySet());
+      return all;
+    } else {
+      return _keys.keySet();
+    }
   }
 
   @Override
