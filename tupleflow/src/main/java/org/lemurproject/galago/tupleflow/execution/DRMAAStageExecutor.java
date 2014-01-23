@@ -403,6 +403,7 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
         // Create the fill a DRMAA job template.
         JobTemplate template = session.createJobTemplate();
         template.setJobName("galago-" + stageName + "-" + i);
+        template.setWorkingDirectory((new File(".")).getCanonicalPath());
         template.setRemoteCommand(command);
         template.setArgs(arguments);
         template.setOutputPath(":" + temporary + File.separator

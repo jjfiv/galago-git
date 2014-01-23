@@ -27,19 +27,6 @@
     <system>SourceForge</system>
     <url>http://sourceforge.net/tracker/?group_id=161383</url>
   </issueManagement>
-  <distributionManagement>
-    <downloadUrl>http://scm-ciir.cs.umass.edu/maven</downloadUrl>
-    <repository>
-     <id>scm-ciir</id>
-      <url>scp://scm-ciir.cs.umass.edu/var/www/lighttpd/maven</url>
-      <uniqueVersion>false</uniqueVersion>
-    </repository>
-    <site>
-      <id>scm-ciir</id>
-      <name>Galago Documentation</name>
-      <url>scp://scm-ciir.cs.umass.edu/var/www/lighttpd/doc/galago-3.6</url>
-    </site>
-  </distributionManagement>
   <organization>
     <name>The Lemur Project</name>
     <url>http://lemurproject.org</url>
@@ -49,6 +36,19 @@
     <developerConnection>scm:hg:ssh://USERNAME@lemur.hg.sourceforge.net/hgroot/lemur/galago</developerConnection>
     <url>http://lemur.hg.sourceforge.net/hgweb/lemur/galago/</url>
   </scm>
+  <distributionManagement>
+    <downloadUrl>http://lemur.sourceforge.net/repo</downloadUrl>
+    <repository>
+      <id>deployment</id>
+      <name>Internal Releases</name>
+      <url>http://scm-ciir.cs.umass.edu:8080/nexus/content/repositories/releases/</url>
+    </repository>
+    <snapshotRepository>
+      <id>deployment</id>
+      <name>Internal Releases</name>
+      <url>http://scm-ciir.cs.umass.edu:8080/nexus/content/repositories/snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
   <modules>
     <module>contrib</module>
     <module>core</module>

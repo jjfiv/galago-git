@@ -179,7 +179,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         return; // now considered processed
       }
 
-      if (UniversalParser.isParsable(extension)) {
+      if (UniversalParser.isParsable(extension) || isExternallyDefined(extension)) {
         fileType = extension;
 
       } else if (file.getName().equals("corpus") || (BTreeFactory.isBTree(file))) {
@@ -193,13 +193,6 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       }
     }
 
-    if (forceFileType != null) {
-      fileType = forceFileType;
-    } else if (UniversalParser.isParsable(extension) || isExternallyDefined(extension)) {
-      fileType = extension;
-    } else {
-      fileType = detectTrecTextOrWeb(file);
-    }
     // Eventually it'd be nice to do more format detection here.
 
     if (fileType != null) {
