@@ -432,24 +432,30 @@ public class DiskBTreeReader extends BTreeReader {
    * DiskBTreeWriter. If this method returns false, the file is definitely not
    * readable by DiskBTreeReader.
    *
-   * @param pathname
+   * @param file
    * @return
    * @throws java.io.FileNotFoundException
    * @throws java.io.IOException
    */
   public static boolean isBTree(File file) throws FileNotFoundException, IOException {
+    RandomAccessFile f = null;
+    boolean result = false;
+    try {
+      f = new RandomAccessFile(file, "r");
+      long length = f.length();
+      long magicNumber = 0;
 
-    RandomAccessFile f = new RandomAccessFile(file, "r");
-    long length = f.length();
-    long magicNumber = 0;
-
-    if (length > Long.SIZE / 8) {
-      f.seek(length - Long.SIZE / 8);
-      magicNumber = f.readLong();
+      if (length > Long.SIZE / 8) {
+        f.seek(length - Long.SIZE / 8);
+        magicNumber = f.readLong();
+      }
+      result = (magicNumber == DiskBTreeWriter.MAGIC_NUMBER);
+    } finally {
+      if(f != null) {
+        f.close();
+      }
     }
-    f.close();
 
-    boolean result = (magicNumber == DiskBTreeWriter.MAGIC_NUMBER);
     return result;
   }
 }

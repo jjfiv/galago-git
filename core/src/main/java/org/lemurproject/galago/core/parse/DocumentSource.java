@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import org.lemurproject.galago.core.index.BTreeFactory;
@@ -35,9 +36,6 @@ import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 @OutputClass(className = "org.lemurproject.galago.core.types.DocumentSplit")
 public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
-  static String[][] specialKnownExtensions = {
-    {"_mbtei.xml.gz", "mbtei"}
-  };
   private Counter inputCounter;
   public Processor<DocumentSplit> processor;
   private TupleFlowParameters parameters;
@@ -182,8 +180,9 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       if (UniversalParser.isParsable(extension) || isExternallyDefined(extension)) {
         fileType = extension;
 
-      } else if (file.getName().equals("corpus") || (BTreeFactory.isBTree(file))) {
-        // perhaps the user has renamed the corpus index
+      } else if (!isCompressed && (file.getName().equals("corpus") || (BTreeFactory.isBTree(file)))) {
+        // perhaps the user has renamed the corpus index, but not if they compressed it
+        // we need random access and even bz2 is dumb. just (b|g)?unzip it.
         processCorpusFile(file);
         return; // done now;
 
@@ -216,12 +215,17 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       br = new BufferedReader(new FileReader(file));
     }
 
+    int n = 0;
     while (br.ready()) {
       String entry = br.readLine().trim();
       if (entry.length() == 0) {
         continue;
       }
+      if(n % 1000 == 0) {
+        logger.log(Level.INFO, "considered {0} items from {1}", new Object[]{n, file});
+      }
       processFile(new File(entry));
+      n++;
     }
     br.close();
     // No more to do here -- this file is now "processed"
@@ -367,14 +371,6 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
     String fileName = file.getName();
 
-    // There's confusion b/c of the naming scheme for MBTEI - so define
-    // a pattern look for that before we do rule-based stuff.
-    for (String[] pattern : specialKnownExtensions) {
-      if (fileName.contains(pattern[0])) {
-        return pattern[1];
-      }
-    }
-
     // now split the filename on '.'s
     String[] fields = fileName.split("\\.");
 
@@ -475,6 +471,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     return externalFileTypes.contains(extension);
   }
 
+  @Override
   public void setProcessor(Step processor) throws IncompatibleProcessorException {
     Linkage.link(this, processor);
   }
