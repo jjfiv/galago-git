@@ -77,13 +77,13 @@ public class Search {
   }
 
   public String getSummary(Document document, Set<String> query) throws IOException {
-    if (document.metadata.containsKey("description")) {
+    /*if (document.metadata.containsKey("description")) {
       String description = document.metadata.get("description");
 
       if (description.length() > 10) {
         return generator.highlight(description, query);
       }
-    }
+    }*/
 
     return generator.getSnippet(document.text, query);
   }

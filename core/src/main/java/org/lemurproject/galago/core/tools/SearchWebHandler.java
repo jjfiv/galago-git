@@ -519,6 +519,7 @@ public class SearchWebHandler extends ContextHandler {
 
   protected SearchResult performSearch(HttpServletRequest request, boolean snippets) throws Exception {
     String query = request.getParameter("q");
+    System.out.println("q="+query);
     String transformString = request.getParameter("transform");
     boolean doTransform = Boolean.parseBoolean(transformString == null ? "true" : transformString);
     String startAtString = request.getParameter("start");
