@@ -2,7 +2,6 @@
 
 package org.lemurproject.galago.core.util;
 
-import org.lemurproject.galago.core.util.MathUtils;
 import junit.framework.TestCase;
 
 /**

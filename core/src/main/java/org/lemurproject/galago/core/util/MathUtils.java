@@ -10,12 +10,13 @@ import java.util.Arrays;
  */
 public class MathUtils {
 
-  // Can't instantiate Math. It's ALWAYS there.
+  /** Can't instantiate Math. It's ALWAYS there. */
   private MathUtils() {
   }
 
-  // Can't believe I'm implementing this.
-  // multiplicative form from Wikipedia -- irmarc
+  /** Multiplicative form from Wikipedia
+	 * @author irmarc
+	 */
   public static long binomialCoeff(int n, int k) {
     if (n <= k) {
       return 1;

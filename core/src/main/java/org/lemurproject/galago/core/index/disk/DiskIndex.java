@@ -8,7 +8,9 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +35,7 @@ import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * This is the main class for a disk based index structure
@@ -225,20 +228,20 @@ public class DiskIndex implements Index {
     if (parts.containsKey("lengths")) {
       lengthsReader = (DiskLengthsReader) parts.get("lengths");
     } else {
-      logger.warning("DiskIndex("+location.getAbsolutePath()+") Index does not contain a lengths part.");
+      logger.log(Level.WARNING, "DiskIndex({0}) Index does not contain a lengths part.", location.getAbsolutePath());
     }
     if (parts.containsKey("names")) {
       namesReader = (DiskNameReader) parts.get("names");
     } else {
-      logger.warning("DiskIndex("+location.getAbsolutePath()+") Index does not contain a names part.");
+      logger.log(Level.WARNING, "DiskIndex({0}) Index does not contain a names part.", location.getAbsolutePath());
     }
     if (parts.containsKey("names.reverse")) {
       namesReverseReader = (DiskNameReverseReader) parts.get("names.reverse");
     } else {
-      logger.warning("DiskIndex("+location.getAbsolutePath()+") Index does not contain a names.reverse part.");
+      logger.log(Level.WARNING, "DiskIndex({0}) Index does not contain a names.reverse part.", location.getAbsolutePath());
     }
     if (parts.size() < 3) {
-      logger.warning("DiskIndex("+location.getAbsolutePath()+") Index contains fewer than 3 parts: this index might not be compatible with this version.");
+      logger.log(Level.WARNING, "DiskIndex({0}) Index contains fewer than 3 parts: this index might not be compatible with this version.", location.getAbsolutePath());
     }
   }
 
@@ -332,7 +335,7 @@ public class DiskIndex implements Index {
         CorpusReader corpus = (CorpusReader) parts.get("corpus");
         long docId = getIdentifier(document);
         return corpus.getDocument(docId, p);
-      } catch (Exception e) {
+      } catch (IOException e) {
         // ignore the exception
         Logger.getLogger(this.getClass().getName()).log(Level.SEVERE,
                 "Failed to get document: {0}\n{1}",
@@ -345,11 +348,32 @@ public class DiskIndex implements Index {
   @Override
   public Map<String, Document> getDocuments(List<String> documents, DocumentComponents p) throws IOException {
     HashMap<String, Document> results = new HashMap();
-
+		
+		ArrayList<Long> docIds = new ArrayList();
     // should get a names iterator + sort requested documents
     for (String name : documents) {
-      results.put(name, getDocument(name, p));
+			docIds.add(getIdentifier(name));
     }
+		Collections.sort(docIds);
+		
+		CorpusReader corpus = (CorpusReader) parts.get("corpus");
+		CorpusReader.KeyIterator iter = corpus.getIterator();
+		for (long id : docIds) {
+			if (iter.findKey(Utility.fromLong(id))) {
+				try {
+					Document doc = iter.getDocument(p);
+					if(doc != null) {
+						results.put(doc.name, doc);
+					}
+				} catch (IOException e) {
+					// ignore the exception
+					Logger.getLogger(this.getClass().getName()).log(Level.SEVERE,
+									"Failed to get document: {0}\n{1}",
+									new Object[]{id, e.toString()});
+				}
+			}
+		}
+		
     return results;
   }
 
