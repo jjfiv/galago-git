@@ -11,10 +11,11 @@ import junit.framework.TestCase;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.parse.Tag;
+import org.lemurproject.galago.core.parse.TagTokenizer;
+import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -34,7 +35,7 @@ public class CorpusTest extends TestCase {
         Document d = new Document();
         d.identifier = i;
         d.name = "name-" + i;
-        d.text = "<tag attr=value-"+i+">text"+i+"</tag>";
+        d.text = "<tag attr=\"value-"+i+"\">text"+i+"</tag>";
         d.metadata = new HashMap();
         d.metadata.put("meta", "data-" + i);
         d.terms = new ArrayList();
@@ -62,15 +63,24 @@ public class CorpusTest extends TestCase {
       writer.close();
 
       CorpusReader reader = new CorpusReader(corpus.getAbsolutePath());
+			
+			// assert that our parameters got put into the manifest appropriately.
+			assertTrue(reader.getManifest().isMap("tokenizer"));
+			assertTrue(reader.getManifest().getMap("tokenizer").isList("fields"));
+			assertEquals((String) reader.getManifest().getMap("tokenizer").getList("fields").get(0), "tag");
+			
       Document testDoc = reader.getDocument(11, new DocumentComponents(true, true, true));
       Document trueDoc = docs.get(11);
-      assert (testDoc.identifier == trueDoc.identifier);
-      assert (testDoc.name.equals(trueDoc.name));
-      assert (testDoc.text.equals(trueDoc.text));
-      assert (testDoc.metadata.get("meta").equals(trueDoc.metadata.get("meta")));
-      assert (testDoc.terms.get(0).equals(trueDoc.terms.get(0)));
-      assert (testDoc.tags.get(0).name.equals(trueDoc.tags.get(0).name));
-      assert (testDoc.tags.get(0).attributes.get("attr").equals(trueDoc.tags.get(0).attributes.get("attr")));
+      assertEquals (testDoc.identifier,trueDoc.identifier);
+      assertEquals (testDoc.name, trueDoc.name);
+      assertEquals (testDoc.text, trueDoc.text);
+      assertEquals (testDoc.metadata.get("meta"), trueDoc.metadata.get("meta"));
+			assertEquals (testDoc.terms.size(), trueDoc.terms.size());
+      assertEquals (testDoc.terms.get(0), trueDoc.terms.get(0));
+			assertFalse (testDoc.tags.isEmpty());
+			assertFalse (trueDoc.tags.isEmpty());
+      assertEquals (testDoc.tags.get(0).name, trueDoc.tags.get(0).name);
+      assertEquals (testDoc.tags.get(0).attributes.get("attr"), trueDoc.tags.get(0).attributes.get("attr"));
 
 
       // test <text> only

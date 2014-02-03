@@ -137,24 +137,20 @@ if (p.isString("tokenizerClass")) {
       tokenizerParms = inputParms.getMap("tokenizer");
     }
 
-    if (inputParms.isString("tokenizerClass")) {
-      try {
-        Class<? extends Tokenizer> tokenizerClass = getTokenizerClass(inputParms);
+		try {
+			Class<? extends Tokenizer> tokenizerClass = getTokenizerClass(inputParms);
 
-        for (Constructor c : tokenizerClass.getConstructors()) {
-          java.lang.reflect.Type[] parameters = c.getGenericParameterTypes();
+			for (Constructor c : tokenizerClass.getConstructors()) {
+				java.lang.reflect.Type[] parameters = c.getGenericParameterTypes();
 
-          if (parameters.length == 0) {
-            tokenizer = (Tokenizer) c.newInstance();
-            break;
-          } else if(parameters.length == 1 && parameters[0] == TupleFlowParameters.class) {
-            tokenizer = (Tokenizer) c.newInstance(new FakeParameters(tokenizerParms));
-          }
-        }
-      } catch (Exception ex) {
-        Logger.getLogger(Tokenizer.class.getName()).log(Level.SEVERE, null, ex);
-      }
-    }
+				if(parameters.length == 1 && parameters[0] == TupleFlowParameters.class) {
+					tokenizer = (Tokenizer) c.newInstance(new FakeParameters(tokenizerParms));
+					break;
+				}
+			}
+		} catch (Exception ex) {
+			Logger.getLogger(Tokenizer.class.getName()).log(Level.SEVERE, null, ex);
+		}
     
     //--- fall back to TagTokenizer if we couldn't find anything
     if(tokenizer == null) {
