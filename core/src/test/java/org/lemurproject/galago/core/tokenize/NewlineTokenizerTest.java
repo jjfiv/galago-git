@@ -13,7 +13,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author jfoley
  */
 public class NewlineTokenizerTest {
-	@Test
+  @Test
   public void testSimple() {
     NewlineTokenizer tok = new NewlineTokenizer();
     Document ridiculous = tok.tokenize("this\nIs\tnot\na\nCAPitaliZATION\nunder_scored\n14.95.dots\ntest");
@@ -24,10 +24,10 @@ public class NewlineTokenizerTest {
     }
   }
 	
-	@Test
-	public void testFromParameters() throws IOException {
-		Parameters tokenizerParms = Parameters.parseString("{\"tokenizer\": { \"tokenizerClass\": \""+NewlineTokenizer.class.getCanonicalName()+"\" } }");
-		Tokenizer tok = Tokenizer.instance(tokenizerParms);
-		assertTrue(tok instanceof NewlineTokenizer);
-	}
+  @Test
+  public void testFromParameters() throws IOException {
+    Parameters tokenizerParms = Parameters.parseString("{\"tokenizer\": { \"tokenizerClass\": \""+NewlineTokenizer.class.getCanonicalName()+"\" } }");
+    Tokenizer tok = Tokenizer.instance(tokenizerParms);
+    assertTrue(tok instanceof NewlineTokenizer);
+  }
 }

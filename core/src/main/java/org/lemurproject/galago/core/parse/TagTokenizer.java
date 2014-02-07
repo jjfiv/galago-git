@@ -78,7 +78,6 @@ public class TagTokenizer extends Tokenizer {
   public TagTokenizer(TupleFlowParameters parameters) {
     this();
     Parameters tokenizerParams = parameters.getJSON();
-		System.out.println(tokenizerParams);
     if (tokenizerParams.isList("fields") || tokenizerParams.isString("fields")) {
       for (String value : (List<String>) tokenizerParams.getAsList("fields")) {
 				addField(value);
@@ -123,7 +122,6 @@ public class TagTokenizer extends Tokenizer {
   }
 
   public void addField(String f) {
-		System.out.println("TagTokenizer addField: "+f);
     whitelist.add(Pattern.compile(f));
   }
 

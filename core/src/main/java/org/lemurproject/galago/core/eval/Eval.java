@@ -13,7 +13,6 @@ import org.lemurproject.galago.core.eval.compare.QuerySetComparator;
 import org.lemurproject.galago.core.eval.compare.QuerySetComparatorFactory;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.tools.apps.BatchSearch;
-import org.lemurproject.galago.core.tools.apps.BatchSearch;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Parameters.Type;
 

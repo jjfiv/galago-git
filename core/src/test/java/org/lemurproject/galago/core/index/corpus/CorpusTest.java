@@ -64,10 +64,10 @@ public class CorpusTest extends TestCase {
 
       CorpusReader reader = new CorpusReader(corpus.getAbsolutePath());
 			
-			// assert that our parameters got put into the manifest appropriately.
-			assertTrue(reader.getManifest().isMap("tokenizer"));
-			assertTrue(reader.getManifest().getMap("tokenizer").isList("fields"));
-			assertEquals((String) reader.getManifest().getMap("tokenizer").getList("fields").get(0), "tag");
+      // assert that our parameters got put into the manifest appropriately.
+      assertTrue(reader.getManifest().isMap("tokenizer"));
+      assertTrue(reader.getManifest().getMap("tokenizer").isList("fields"));
+      assertEquals((String) reader.getManifest().getMap("tokenizer").getList("fields").get(0), "tag");
 			
       Document testDoc = reader.getDocument(11, new DocumentComponents(true, true, true));
       Document trueDoc = docs.get(11);
@@ -75,10 +75,10 @@ public class CorpusTest extends TestCase {
       assertEquals (testDoc.name, trueDoc.name);
       assertEquals (testDoc.text, trueDoc.text);
       assertEquals (testDoc.metadata.get("meta"), trueDoc.metadata.get("meta"));
-			assertEquals (testDoc.terms.size(), trueDoc.terms.size());
+      assertEquals (testDoc.terms.size(), trueDoc.terms.size());
       assertEquals (testDoc.terms.get(0), trueDoc.terms.get(0));
-			assertFalse (testDoc.tags.isEmpty());
-			assertFalse (trueDoc.tags.isEmpty());
+      assertFalse (testDoc.tags.isEmpty());
+      assertFalse (trueDoc.tags.isEmpty());
       assertEquals (testDoc.tags.get(0).name, trueDoc.tags.get(0).name);
       assertEquals (testDoc.tags.get(0).attributes.get("attr"), trueDoc.tags.get(0).attributes.get("attr"));
 

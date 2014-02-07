@@ -485,6 +485,7 @@ public class LocalRetrieval implements Retrieval {
     return index.getName(docid);
   }
 
+  @Override
   public Long getDocumentId(String docname) throws IOException {
     return index.getIdentifier(docname);
   }
