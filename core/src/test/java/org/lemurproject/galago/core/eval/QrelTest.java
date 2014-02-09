@@ -3,7 +3,8 @@ package org.lemurproject.galago.core.eval;
 
 import java.io.File;
 import java.io.IOException;
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -30,6 +31,11 @@ public class QrelTest {
 
       Utility.copyStringToFile(qrels, tmp);
       QuerySetJudgments qsj = new QuerySetJudgments(tmp.getAbsolutePath(), true, true);
+      
+      assertEquals(qsj.size(), 2);
+      assertTrue(qsj.containsKey("1"));
+      assertTrue(qsj.containsKey("2"));
+      
       QueryJudgments qid1 = qsj.get("1");
       assertEquals(qid1.getRelevantJudgmentCount(), 1);
       assertEquals(qid1.getNonRelevantJudgmentCount(), 1);
