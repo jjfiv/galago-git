@@ -3,8 +3,10 @@
  */
 package org.lemurproject.galago.core.eval;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import org.lemurproject.galago.tupleflow.util.WrappedMap;
 
 /**
  * This class store a relevance judgment of documents for a specific query.
@@ -14,85 +16,111 @@ import java.util.TreeMap;
  *
  * @author sjh, trevor
  */
-public class QueryJudgments {
+public class QueryJudgments extends WrappedMap<String, Integer> {
 
   // each instance of QueryJudgments correspond to some query
   private String queryName;
-  /**
-   * mapping from documentNumber to judgment value where positive values mean
-   * relevant, where negative values mean irrelevant, and zero means not
-   * relevant.
-   */
-  private TreeMap<String, Integer> judgments;
-  // global stats
-  private int relevant_judgment_count;
-  private int nonrelevant_judgment_count;
 
+  /**
+   * Initialize as a builder, with no prior Map
+   *
+   * @param queryName
+   */
   public QueryJudgments(String queryName) {
+    this(queryName, new TreeMap());
+  }
+
+  /**
+   * Initialize from a Map
+   *
+   * @param queryName
+   * @param judgments
+   */
+  public QueryJudgments(String queryName, Map<String, Integer> judgments) {
+    super(judgments);
     this.queryName = queryName;
-    this.judgments = new TreeMap();
-    this.relevant_judgment_count = 0;
-    this.nonrelevant_judgment_count = 0;
   }
 
   public void add(String documentName, int judgment) {
-    if (judgments.containsKey(documentName)) {
-      assert (judgments.get(documentName) == judgment) : "Query: " + this.queryName + " Document :" + documentName + " has been double judged, and the judgments to not match.";
+    if (containsKey(documentName)) {
+      assert (get(documentName) == judgment) : "Query: " + this.queryName + " Document :" + documentName + " has been double judged, and the judgments to not match.";
     } else { // ! judgments.contains(documentName)
-      judgments.put(documentName, judgment);
-      if (judgment > 0) {
-        relevant_judgment_count++;
-      } else if (judgment <= 0) {
-        nonrelevant_judgment_count++;
-      }
+      put(documentName, judgment);
     }
   }
 
+  /**
+   * Anything not present and positive is not "relevant".
+   * @param documentName
+   * @return 
+   */
   public boolean isRelevant(String documentName) {
-    if (this.judgments.containsKey(documentName)) {
-      return (this.judgments.get(documentName) > 0);
+    if (containsKey(documentName)) {
+      return (get(documentName) > 0);
     } else {
       return false;
     }
   }
 
+  /**
+   * Note that the semantics of this appears to assume that if the document is
+   * missing, it is not explicitly irrelevant. So even though it returns a
+   * boolean, this coupled with (@see isRelevant) allows you to determine the
+   * ternary status of good, unjudged or bad.
+   *
+   * @see isRelevant
+   * @param documentName
+   * @return
+   */
   public boolean isNonRelevant(String documentName) {
-    if (this.judgments.containsKey(documentName)) {
-      return (this.judgments.get(documentName) <= 0);
+    if (containsKey(documentName)) {
+      return (get(documentName) <= 0);
     } else {
       return false;
     }
   }
 
   public boolean isJudged(String documentName) {
-    return this.judgments.containsKey(documentName);
+    return containsKey(documentName);
   }
 
+  /**
+   * Calculates the number of relevant documents.
+   * @return 
+   */
   public int getRelevantJudgmentCount() {
-    return this.relevant_judgment_count;
+    int rel_count = 0;
+    for (int judgment : values()) {
+      if (judgment > 0) {
+        rel_count++;
+      }
+    }
+    return rel_count;
   }
 
+  /**
+   * Calculate the number of non-relevant documents.
+   * @return 
+   */
   public int getNonRelevantJudgmentCount() {
-    return this.nonrelevant_judgment_count;
+    int non_rel_count = 0;
+    for (int judgment : values()) {
+      if (judgment <= 0) {
+        non_rel_count++;
+      }
+    }
+    return non_rel_count;
   }
 
   public int get(String documentName) {
-    if (this.judgments.containsKey(documentName)) {
-      return this.judgments.get(documentName);
+    if (containsKey(documentName)) {
+      return this.wrapped.get(documentName);
     } else {
       return 0;
     }
   }
 
-  public Iterable<Integer> getIterator() {
-    return judgments.values();
-  }
-
   public Set<String> getDocumentSet() {
-    return judgments.keySet();
-  }
-
-  public int size() {
-    return judgments.size();
+    return keySet();
   }
 }
