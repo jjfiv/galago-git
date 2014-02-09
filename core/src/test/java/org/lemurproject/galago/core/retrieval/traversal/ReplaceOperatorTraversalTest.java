@@ -18,13 +18,12 @@ public class ReplaceOperatorTraversalTest extends TestCase {
   }
 
   public void testOpRepls() throws Exception {
-    FakeRetrieval ret = new FakeRetrieval();
     Parameters repls = Parameters.parseArgs(new String[]{
       "--opRepls/dummy1=test1", 
       "--opRepls/dummy2+test2", 
       "--opRepls/dummy2+test3"});
     
-    ReplaceOperatorTraversal traversal = new ReplaceOperatorTraversal(ret);
+    ReplaceOperatorTraversal traversal = new ReplaceOperatorTraversal(new Parameters());
     
     Node t1 = traversal.afterNode(new Node("dummy1"), repls);
     Node t2 = traversal.afterNode(new Node("dummy2"), repls);

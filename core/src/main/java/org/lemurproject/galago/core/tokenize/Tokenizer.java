@@ -27,7 +27,6 @@ import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 @OutputClass(className = "org.lemurproject.galago.core.parse.Document")
 public abstract class Tokenizer implements Source<Document>, Processor<Document> {
 
-  public Tokenizer() { }
   public Tokenizer(TupleFlowParameters parameters) { }
   
   /**
