@@ -318,7 +318,7 @@ public class FeatureFactory {
       msg.append(String.format("No valid constructor for node %s.\n", node.toString()));
       msg.append("Allowable Iterator constructors allow for leading optional Parameters,");
       msg.append(" followed by optional NodeParameters, and finally the list of child iterators.");
-      msg.append("FAILED AT: " + failStr);
+      msg.append("FAILED AT: ").append(failStr);
       throw new IllegalArgumentException(msg.toString());
     }
 
@@ -337,21 +337,37 @@ public class FeatureFactory {
           throws ClassNotFoundException, NoSuchMethodException, InstantiationException,
           IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     ArrayList<Traversal> result = new ArrayList<Traversal>();
+    
     for (TraversalSpec spec : traversals) {
       Class<? extends Traversal> traversalClass =
               (Class<? extends Traversal>) Class.forName(spec.className);
-      Constructor<? extends Traversal> constructor = (Constructor<? extends Traversal>) traversalClass.getConstructors()[0];
-      Traversal traversal;
-      switch (constructor.getParameterTypes().length) {
-        case 0:
-          traversal = constructor.newInstance();
+      Constructor[] constructors = traversalClass.getConstructors();
+      Traversal traversal = null;
+      
+      // try to construct a traversal with a retrieval
+      for (Constructor c : constructors) {
+        Class[] argTypes = c.getParameterTypes();
+        if (argTypes.length == 1 && argTypes[0].isAssignableFrom(Retrieval.class)) {
+          traversal = (Traversal) c.newInstance(retrieval);
           break;
-        case 1:
-          traversal = constructor.newInstance(retrieval);
-          break;
-        default:
-          throw new IllegalArgumentException("Traversals should not have more than 1 args : failed on " + traversalClass);
+        }
       }
+      
+      // allow a traversal with no retrieval
+      if(traversal == null) {
+        for(Constructor c : constructors) {
+          Class[] argTypes = c.getParameterTypes();
+          if (argTypes.length == 0) {
+            traversal = (Traversal) c.newInstance();
+            break;
+          }
+        }
+      }
+      
+      if(traversal == null) {
+        throw new IllegalArgumentException("Traversals should have obvious constructors, failed on: " + traversalClass);
+      }
+
       result.add(traversal);
     }
 

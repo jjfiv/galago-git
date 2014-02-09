@@ -137,9 +137,10 @@ if (p.isString("tokenizerClass")) {
     }
 
     try {
-      Class<? extends Tokenizer> tokenizerClass = getTokenizerClass(inputParms);
+      Class<? extends Tokenizer> tokenizerClass = getTokenizerClass(inputParms);      
+      Constructor[] constructors = tokenizerClass.getConstructors();
 
-      for (Constructor c : tokenizerClass.getConstructors()) {
+      for (Constructor c : constructors) {
         java.lang.reflect.Type[] parameters = c.getGenericParameterTypes();
 
         if(parameters.length == 1 && parameters[0] == TupleFlowParameters.class) {
