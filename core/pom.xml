@@ -25,9 +25,6 @@
     <developerConnection>scm:hg:ssh://USERNAME@lemur.hg.sourceforge.net/hgroot/lemur/galago</developerConnection>
     <url>http://lemur.hg.sourceforge.net/hgweb/lemur/galago/</url>
   </scm>
-  <properties>
-    <skipTests>false</skipTests>
-  </properties>
   <reporting>
     <plugins>
       <plugin>
@@ -44,7 +41,7 @@
         <version>2.3</version>
       </plugin>
       <plugin>
-        <version>2.7.1</version>
+        <version>2.16</version>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <forkMode>once</forkMode>
@@ -179,7 +176,6 @@
         <configuration>
           <forkMode>once</forkMode>
           <argLine>-Xms1500m -Xmx1900m -Dfile.encoding=UTF-8</argLine>
-          <skipTests>${skipTests}</skipTests>
         </configuration>
       </plugin>
       <plugin>
