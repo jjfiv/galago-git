@@ -23,7 +23,7 @@ public class Mean extends QuerySetEvaluator {
   @Override
   public double evaluate(QuerySetResults querySet, QuerySetJudgments judgmentSet) {
     double sum = 0.0;
-    double count = 0.0;
+    int count = 0;
     for (String query : querySet.getQueryIterator()) {
       QueryResults qres = querySet.get(query);
       QueryJudgments qjudge = judgmentSet.get(query);
@@ -33,6 +33,15 @@ public class Mean extends QuerySetEvaluator {
         count += 1;
       }
     }
-    return sum / count;
+    if (count > 0) {
+      return sum / ((double) count);
+    } else {
+      return 0;
+    }
+  }
+  
+  @Override
+  public String toString() {
+    return "mean "+getMetric();
   }
 }

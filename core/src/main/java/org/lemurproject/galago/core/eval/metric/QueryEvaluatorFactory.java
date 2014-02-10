@@ -22,12 +22,6 @@ public class QueryEvaluatorFactory {
       return new CountRetrieved(metric);
     } else if (lowerMetric.equals("num_rel")) {
       return new CountRelevant(metric);
-    } else if (lowerMetric.startsWith("num_rel_ret")) {
-      return new CountRelevantRetrieved(metric);
-    } else if (lowerMetric.startsWith("num_unjug_ret")) {
-      return new CountUnjudged(metric);
-    } else if (lowerMetric.startsWith("frac_unjug_ret")) {
-      return new FractionUnjudged(metric);
     } else if (lowerMetric.equals("map")
             || lowerMetric.equals("averagePrecision")) {
       return new AveragePrecision(metric);
@@ -60,6 +54,14 @@ public class QueryEvaluatorFactory {
     } else if (lowerMetric.startsWith("err")) {
       int documentLimit = Integer.parseInt(lowerMetric.replace("err", ""));
       return new ExpectedReciprocalRank(metric, documentLimit);
+      
+      // these are parameterized with @ symbols... :/
+    } else if (lowerMetric.startsWith("num_rel_ret")) {
+      return new CountRelevantRetrieved(metric);
+    } else if (lowerMetric.startsWith("num_unjug_ret")) {
+      return new CountUnjudged(metric);
+    } else if (lowerMetric.startsWith("frac_unjug_ret")) {
+      return new FractionUnjudged(metric);
 
     } else if (lowerMetric.startsWith("mdfa")) {
         int falseAlarmRate = Integer.parseInt(lowerMetric.replace("mdfa", ""));
