@@ -32,6 +32,7 @@ public class WorkingSetPassageModel extends ProcessingModel {
     this.index = lr.getIndex();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception {
     PassageScoringContext context = new PassageScoringContext();
@@ -80,9 +81,8 @@ public class WorkingSetPassageModel extends ProcessingModel {
     FixedSizeMinHeap<ScoredPassage> queue = new FixedSizeMinHeap(ScoredPassage.class, requested, new ScoredPassage.ScoredPassageComparator());
 
     // now there should be an iterator at the root of this tree
-    for (int i = 0; i < whitelist.size(); i++) {
-      long document = whitelist.get(i);
-      if(document < 0){
+    for (long document : whitelist) {
+      if (document < 0) {
         continue;
       }
       iterator.syncTo(document);

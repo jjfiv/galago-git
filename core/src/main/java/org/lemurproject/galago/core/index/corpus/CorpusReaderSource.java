@@ -48,7 +48,7 @@ public class CorpusReaderSource extends BTreeKeySource implements DataSource<Doc
   public Document data(long id) {
     if (currentCandidate() == id) {
       try {
-        Document doc = Document.deserialize(btreeIter.getValueBytes(), docParams);
+        Document doc = Document.deserialize(btreeIter.getValueBytes(), btreeReader.getManifest(), docParams);
         if (docParams.tokenize) {
           tokenizer.tokenize(doc);
         }

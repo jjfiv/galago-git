@@ -45,7 +45,7 @@ public class CorpusFolderWriter implements Processor<Document>, Source<KeyValueP
   @Override
   public void process(Document document) throws IOException {
     writer.add(new GenericElement(Utility.fromLong(document.identifier),
-            Document.serialize(document)));
+            Document.serialize(document, corpusParams)));
   }
 
   @Override
