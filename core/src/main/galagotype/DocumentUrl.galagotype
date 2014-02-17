@@ -3,6 +3,8 @@ package org.lemurproject.galago.core.types;
 type DocumentUrl {
     String identifier;
     String url;
+    String filePath;
+    long fileLocation;
     
     order: +url;
     order: +identifier;

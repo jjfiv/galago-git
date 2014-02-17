@@ -47,9 +47,9 @@ public class UrlExtractor extends StandardStep<Document, DocumentUrl> {
   public void process(Document doc) throws IOException {
     if (doc.metadata.get("url") == null) {
       logger.info("null url in document " + doc.name);
-      processor.process(new DocumentUrl(doc.name, ""));
+      processor.process(new DocumentUrl(doc.name, "", doc.filePath, doc.fileLocation));
     } else {
-      processor.process(new DocumentUrl(doc.name, scrubUrl(doc.metadata.get("url"))));
+        processor.process(new DocumentUrl(doc.name, scrubUrl(doc.metadata.get("url")), doc.filePath, doc.fileLocation));
     }
   }
 }

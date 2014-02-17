@@ -51,17 +51,17 @@ public class IndriHavestLinksWriter implements Processor<ExtractedLinkIndri> {
       resetWriter(link.filePath);
     }
     
-    if (!link.srcName.equals(currentDocName)) {
+    if (!link.destName.equals(currentDocName)) {
 
       // check that there was a document to be linked to (first output to file check)
       if(!currentDocName.isEmpty()){
         writeLinks();
       }
 
-      writer.write("DOCNO=" + link.srcName + "\n");
-      writer.write(link.srcUrl + "\n");
+      writer.write("DOCNO=" + link.destName + "\n");
+      writer.write(link.destUrl + "\n");
 
-      currentDocName = link.srcName;
+      currentDocName = link.destName;
     }
 
     currentLinks.add(link);
@@ -106,8 +106,8 @@ public class IndriHavestLinksWriter implements Processor<ExtractedLinkIndri> {
   private void writeLinks() throws IOException {
     writer.write("LINKS=" + currentLinks.size() + "\n");
     for (ExtractedLinkIndri el : currentLinks) {
-      writer.write("LINKDOCNO=" + el.destName + "\n");
-      writer.write("LINKFROM=" + el.destUrl + "\n");
+      writer.write("LINKDOCNO=" + el.srcName + "\n");
+      writer.write("LINKFROM=" + el.srcUrl + "\n");
 
       // ensure quoted "text" is ok.
       el.anchorText = el.anchorText.replaceAll("\"", "\'");

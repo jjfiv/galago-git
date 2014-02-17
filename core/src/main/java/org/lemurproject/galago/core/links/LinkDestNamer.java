@@ -53,6 +53,8 @@ public class LinkDestNamer extends StandardStep<ExtractedLinkIndri, ExtractedLin
 
     if (current != null && Utility.compare(current.url, link.destUrl) == 0) {
       link.destName = current.identifier;
+      link.filePath = current.filePath;
+      link.fileLocation = current.fileLocation;
     }
 
     if (acceptExternalUrls && link.destName.isEmpty()) {
