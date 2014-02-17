@@ -66,7 +66,7 @@ public class NormalizedDiscountedCumulativeGain extends QueryEvaluator {
     // then calling that the ranked list, and computing its DCG value.
     double[] idealJudgments = new double[judgments.size()];
     index = 0;
-    for (int judgment : judgments.getIterator()) {
+    for (int judgment : judgments.values()) {
       if (judgment > 0) {
         idealJudgments[index] = judgment;
         index++;

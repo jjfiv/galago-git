@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.OutputClass;
@@ -80,12 +81,13 @@ public class TagTokenizer extends Tokenizer {
     Parameters tokenizerParams = parameters.getJSON();
     if (tokenizerParams.isList("fields") || tokenizerParams.isString("fields")) {
       for (String value : (List<String>) tokenizerParams.getAsList("fields")) {
-        whitelist.add(Pattern.compile(value));
+				addField(value);
       }
     }
   }
 
   public TagTokenizer() {
+    super(new FakeParameters(new Parameters()));
     text = null;
     position = 0;
     lastSplit = -1;

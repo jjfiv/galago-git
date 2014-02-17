@@ -15,7 +15,6 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class ProximityDFRTraversal extends Traversal {
 
-  private final Retrieval ret;
   private int windowSizeDefault;
   private double twDefault;
   private double cDefault;
@@ -26,18 +25,20 @@ public class ProximityDFRTraversal extends Traversal {
   private String proxScoringModelDefault;
 
   public ProximityDFRTraversal(Retrieval ret) {
-    this.ret = ret;
+    this(ret.getGlobalParameters());
+  }
+  
+  public ProximityDFRTraversal(Parameters p) {
+    this.sequentialDefault = p.get("pdfrSeq", true);
+    this.twDefault = p.get("termLambda", 1.0);
+    this.cDefault = p.get("c", 6.0);
 
-    this.sequentialDefault = ret.getGlobalParameters().get("pdfrSeq", true);
-    this.twDefault = ret.getGlobalParameters().get("termLambda", 1.0);
-    this.cDefault = ret.getGlobalParameters().get("c", 6.0);
-
-    // this.pwDefault = ret.getGlobalParameters().get("proximityLambda", 1.0 - twDefault);
-    this.cpDefault = ret.getGlobalParameters().get("cp", 0.05);
+    // this.pwDefault = p.get("proximityLambda", 1.0 - twDefault);
+    this.cpDefault = p.get("cp", 0.05);
     
-    this.termScoringModelDefault = ret.getGlobalParameters().get("pdfrTerm", "pl2");
-    this.proxScoringModelDefault = ret.getGlobalParameters().get("pdfrProx", "bil2");
-    this.windowSizeDefault = (int) ret.getGlobalParameters().get("windowSize", 5);
+    this.termScoringModelDefault = p.get("pdfrTerm", "pl2");
+    this.proxScoringModelDefault = p.get("pdfrProx", "bil2");
+    this.windowSizeDefault = (int) p.get("windowSize", 5);
   }
 
   @Override

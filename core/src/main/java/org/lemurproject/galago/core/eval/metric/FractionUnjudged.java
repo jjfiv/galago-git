@@ -54,6 +54,10 @@ public class FractionUnjudged extends QueryEvaluator {
       }
     }
     double retrieved = (documentsRetrieved < resultList.size())? documentsRetrieved: resultList.size();
-    return count / retrieved;
+    if(retrieved > 0) {
+      return count / retrieved;
+    } else {
+      return 0;
+    }
   }
 }

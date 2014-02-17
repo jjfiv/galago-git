@@ -27,6 +27,10 @@ public abstract class QueryEvaluator {
   public QueryEvaluator(String metric) {
     this.metric = metric;
   }
+  
+  public String getMetric() {
+    return metric;
+  }
 
   public abstract double evaluate(QueryResults resultList, QueryJudgments judgments);
 }

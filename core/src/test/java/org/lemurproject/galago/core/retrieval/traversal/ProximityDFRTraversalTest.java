@@ -4,7 +4,6 @@
 package org.lemurproject.galago.core.retrieval.traversal;
 
 import junit.framework.TestCase;
-import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -22,9 +21,8 @@ public class ProximityDFRTraversalTest extends TestCase {
   public void testSomeMethod() throws Exception {
     Parameters qparams = new Parameters();
     qparams.set("termLambda", 0.91);
-    Retrieval ret = new FakeRetrieval();
 
-    ProximityDFRTraversal traversal = new ProximityDFRTraversal(ret);
+    ProximityDFRTraversal traversal = new ProximityDFRTraversal(new Parameters());
 
     Node pl2root = StructuredQuery.parse("#pdfr( test query )");
     Node out = traversal.afterNode(pl2root, qparams);

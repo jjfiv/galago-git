@@ -14,6 +14,10 @@ public class FakeParameters implements TupleFlowParameters {
         this.parameters = p;
     }
 
+  public FakeParameters() {
+    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  }
+
     public Parameters getJSON() {
         return parameters;
     }

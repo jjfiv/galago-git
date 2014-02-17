@@ -33,4 +33,9 @@ public class Sum extends QuerySetEvaluator {
     }
     return sum;
   }
+  
+  @Override
+  public String toString() {
+    return "sum "+getMetric();
+  }
 }

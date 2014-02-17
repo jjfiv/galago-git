@@ -60,6 +60,15 @@ public interface Retrieval {
   public Document getDocument(String identifier, DocumentComponents p) throws IOException;
 
   /**
+   * Returns the requested Document Id, if found.
+   *
+   * @param docname The external name of the document to locate.
+   * @return If found, the Document identifier, null otherwise.
+   * @throws IOException
+   */
+  public Long getDocumentId(String docname) throws IOException;
+
+  /**
    * Returns a Map of Document objects that have been found, given the list of
    * identifiers provided.
    *

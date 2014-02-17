@@ -13,7 +13,7 @@ import org.xerial.snappy.SnappyOutputStream;
 
 public class Document implements Serializable {
 
-  static final int BUFFER_SIZE = 5000;
+  static final int BUFFER_SIZE = 8192;
   // document id - this value is serialized
   public long identifier = -1;
   // document data - these values are serialized
@@ -94,7 +94,7 @@ public class Document implements Serializable {
     return sb.toString();
   }
 
-  public static byte[] serialize(Document doc) throws IOException {
+  public static byte[] serialize(Document doc, Parameters conf) throws IOException {
     ByteArrayOutputStream headerArray = new ByteArrayOutputStream();
     DataOutputStream output = new DataOutputStream(headerArray);
     // identifier
@@ -212,12 +212,12 @@ public class Document implements Serializable {
     return docArray.toByteArray();
   }
 
-  public static Document deserialize(byte[] data, DocumentComponents selection) throws IOException {
+  public static Document deserialize(byte[] data, Parameters manifest, DocumentComponents selection) throws IOException {
     ByteArrayInputStream stream = new ByteArrayInputStream(data);
-    return deserialize(new DataInputStream(stream), selection);
+    return deserialize(new DataInputStream(stream), manifest, selection);
   }
 
-  public static Document deserialize(DataInputStream stream, DocumentComponents selection) throws IOException {
+  public static Document deserialize(DataInputStream stream, Parameters manifest, DocumentComponents selection) throws IOException {
     byte[] buffer = new byte[BUFFER_SIZE];
     int blen;
     DataInputStream input = new DataInputStream(new SnappyInputStream(stream));

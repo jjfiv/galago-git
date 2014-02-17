@@ -27,7 +27,6 @@ import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 @OutputClass(className = "org.lemurproject.galago.core.parse.Document")
 public abstract class Tokenizer implements Source<Document>, Processor<Document> {
 
-  public Tokenizer() { }
   public Tokenizer(TupleFlowParameters parameters) { }
   
   /**
@@ -126,36 +125,33 @@ if (p.isString("tokenizerClass")) {
   public static Tokenizer instance(Parameters p) {
     return instance(new FakeParameters(p));
   }
-  
+
   public static Tokenizer instance(TupleFlowParameters tp) {
     Tokenizer tokenizer = null;
     Parameters inputParms = tp.getJSON();
     Parameters tokenizerParms = new Parameters();
-    
+
     //--- pull out tokenizer options if available
     if(inputParms.isMap("tokenizer")) {
       tokenizerParms = inputParms.getMap("tokenizer");
     }
 
-    if (inputParms.isString("tokenizerClass")) {
-      try {
-        Class<? extends Tokenizer> tokenizerClass = getTokenizerClass(inputParms);
+    try {
+      Class<? extends Tokenizer> tokenizerClass = getTokenizerClass(inputParms);      
+      Constructor[] constructors = tokenizerClass.getConstructors();
 
-        for (Constructor c : tokenizerClass.getConstructors()) {
-          java.lang.reflect.Type[] parameters = c.getGenericParameterTypes();
+      for (Constructor c : constructors) {
+        java.lang.reflect.Type[] parameters = c.getGenericParameterTypes();
 
-          if (parameters.length == 0) {
-            tokenizer = (Tokenizer) c.newInstance();
-            break;
-          } else if(parameters.length == 1 && parameters[0] == TupleFlowParameters.class) {
-            tokenizer = (Tokenizer) c.newInstance(new FakeParameters(tokenizerParms));
-          }
+        if(parameters.length == 1 && parameters[0] == TupleFlowParameters.class) {
+          tokenizer = (Tokenizer) c.newInstance(new FakeParameters(tokenizerParms));
+          break;
         }
-      } catch (Exception ex) {
-        Logger.getLogger(Tokenizer.class.getName()).log(Level.SEVERE, null, ex);
       }
+    } catch (Exception ex) {
+      Logger.getLogger(Tokenizer.class.getName()).log(Level.SEVERE, null, ex);
     }
-    
+
     //--- fall back to TagTokenizer if we couldn't find anything
     if(tokenizer == null) {
       tokenizer = new TagTokenizer(new FakeParameters(tokenizerParms));

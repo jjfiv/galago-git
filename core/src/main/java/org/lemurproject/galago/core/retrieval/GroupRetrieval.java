@@ -165,6 +165,11 @@ public class GroupRetrieval implements Retrieval {
   }
 
   @Override
+  public Long getDocumentId(String docname) throws IOException {
+    return groups.get(defGroup).getDocumentId(docname);
+  }
+
+  @Override
   public void addNodeToCache(Node node) throws Exception {
     groups.get(defGroup).addNodeToCache(node);
   }

@@ -27,8 +27,10 @@ public class ReplaceOperatorTraversal extends Traversal {
   Parameters operators;
 
   public ReplaceOperatorTraversal(Retrieval ret) {
-    Parameters p = ret.getGlobalParameters();
-    
+    this(ret.getGlobalParameters());
+  }
+  
+  public ReplaceOperatorTraversal(Parameters p) {
     operators = p.isMap("opRepls") ? p.getMap("opRepls") : new Parameters();
   }
 

@@ -549,7 +549,22 @@ public class MultiRetrieval implements Retrieval {
 
   @Override
   public String getDocumentName(Integer docid) throws IOException {
-    throw new UnsupportedOperationException("Not supported.");
+    for (Retrieval r: this.retrievals) {
+      String id = r.getDocumentName(docid);
+      if(id != null)
+        return id;
+    }
+    return null;
+  }
+
+  @Override
+  public Long getDocumentId(String docname) throws IOException {
+    for (Retrieval r: this.retrievals) {
+      Long id = r.getDocumentId(docname);
+      if(id != null)
+        return id;
+    }
+    return null;
   }
 
   @Override

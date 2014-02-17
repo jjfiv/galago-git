@@ -99,7 +99,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
     @Override
     public Document getDocument(DocumentComponents p) throws IOException {
-      Document d = Document.deserialize(iterator.getValueBytes(), p);
+      Document d = Document.deserialize(iterator.getValueBytes(), reader.getManifest(), p);
       if (p.tokenize) {
         tokenizer.tokenize(d);
       }

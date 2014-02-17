@@ -2,7 +2,6 @@
 
 package org.lemurproject.galago.core.index.corpus;
 
-import org.lemurproject.galago.core.index.corpus.SnippetGenerator;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;

@@ -35,4 +35,9 @@ public class GeometricMean extends QuerySetEvaluator {
     }
     return Math.pow(sum, 1.0 / count);
   }
+  
+  @Override
+  public String toString() {
+    return "Geometric Mean "+getMetric();
+  }
 }

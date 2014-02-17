@@ -1078,31 +1078,32 @@ public class Parameters implements Serializable, Map<String,Object> {
 
   @Override
   public Object put(String k, Object v) {
-    if(v instanceof Integer) {
+    if (v == null) {
+      set(k, (String) null);
+    } else if (v instanceof Boolean) {
+      set(k, ((Boolean) v).booleanValue());
+    } else if (v instanceof Integer) {
       long l = ((Integer) v).longValue();
       set(k, l);
-    } else if(v instanceof Long) {
+    } else if (v instanceof Long) {
       long l = ((Long) v).longValue();
       set(k, l);
-    } else if(v instanceof Boolean) {
-      byte b = (byte) (((Boolean) v).booleanValue() ? 0x1 : 0x0);
-      set(k, b);
-    } else if(v instanceof Float) {
+    } else if (v instanceof Float) {
       double d = ((Float) v).doubleValue();
       set(k, d);
-    } else if(v instanceof Double) {
+    } else if (v instanceof Double) {
       double d = ((Double) v).doubleValue();
-      set(k,d);
-    } else if(v instanceof List) {
+      set(k, d);
+    } else if (v instanceof List) {
       set(k, (List) v);
-    } else if(v instanceof Parameters) {
+    } else if (v instanceof Parameters) {
       set(k, (Parameters) v);
-    } else if(v instanceof String) {
+    } else if (v instanceof String) {
       set(k, (String) v);
     } else {
-      throw new IllegalArgumentException("put("+k+","+v+") is not supported!");
+      throw new IllegalArgumentException("put(" + k + "," + v + ") is not supported!");
     }
-    
+
     return v;
   }
 
@@ -1114,7 +1115,9 @@ public class Parameters implements Serializable, Map<String,Object> {
 
   @Override
   public void putAll(Map<? extends String, ? extends Object> map) {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    for(Entry<? extends String, ?> entry : map.entrySet()) {
+      this.put(entry.getKey(), entry.getValue());
+    }
   }
 
   @Override

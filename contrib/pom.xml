@@ -137,7 +137,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
+      <version>4.11</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -174,7 +174,7 @@
   <build>
     <plugins>
       <plugin>
-        <version>2.7.1</version>
+        <version>2.16</version>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <forkMode>once</forkMode>

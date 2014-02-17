@@ -48,7 +48,7 @@ public class CorpusFileWriter implements Processor<Document> {
 
   @Override
   public void process(Document document) throws IOException {
-    writer.add(new GenericElement(Utility.fromLong(document.identifier), Document.serialize(document)));
+    writer.add(new GenericElement(Utility.fromLong(document.identifier), Document.serialize(document, corpusParams)));
     if (documentsWritten != null) {
       documentsWritten.increment();
     }
