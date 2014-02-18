@@ -36,7 +36,7 @@ public class QuerySetResults {
     for (String query : results.keySet()) {
       List<ScoredDocument> rankedList = results.get(query);
       check(rankedList);
-      Collections.sort(rankedList, new RankComparator());
+      Collections.sort(rankedList, new ScoredDocument.RankComparator());
       querySetResults.put(query, new QueryResults(query, rankedList));
     }
   }
@@ -85,7 +85,7 @@ public class QuerySetResults {
       ScoredDocument document = new ScoredDocument(docno, Integer.valueOf(rank), Double.valueOf(score));
 
       if (!ranking.containsKey(queryNumber)) {
-        ranking.put(queryNumber, new ArrayList());
+        ranking.put(queryNumber, new ArrayList<ScoredDocument>());
       }
       ranking.get(queryNumber).add(document);
     }
@@ -93,7 +93,7 @@ public class QuerySetResults {
     // ensure sorted order by rank
     for (String query : ranking.keySet()) {
       List<ScoredDocument> documents = ranking.get(query);
-      Collections.sort(documents, new RankComparator());
+      Collections.sort(documents, new ScoredDocument.RankComparator());
       querySetResults.put(query, new QueryResults(query, documents));
     }
 
@@ -109,7 +109,7 @@ public class QuerySetResults {
       if (query.isString("number")) {
         String num = query.getString("number");
         if (!querySetResults.containsKey(num)) {
-          querySetResults.put(num, new QueryResults(num, new ArrayList()));
+          querySetResults.put(num, new QueryResults(num, new ArrayList<ScoredDocument>()));
         }
       }
     }
@@ -144,14 +144,6 @@ public class QuerySetResults {
   private void check(List<ScoredDocument> rankedList) {
     for(ScoredDocument sdoc : rankedList) {
       assert(sdoc.rank != 0) : "Ranked list contains a document with zero rank. Ranked lists must start from 1.";
-    }
-  }
-
-  private class RankComparator implements Comparator<ScoredDocument> {
-
-    @Override
-    public int compare(ScoredDocument o1, ScoredDocument o2) {
-      return Utility.compare(o1.rank, o2.rank);
     }
   }
 }

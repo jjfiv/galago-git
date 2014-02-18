@@ -81,4 +81,13 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
         return o1.compareTo(o2);
     }
   }
+
+
+  public static class RankComparator implements Comparator<ScoredDocument> {
+
+    @Override
+    public int compare(ScoredDocument o1, ScoredDocument o2) {
+      return Utility.compare(o1.rank, o2.rank);
+    }
+  }
 }
