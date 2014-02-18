@@ -67,6 +67,10 @@ public class LocalRetrieval implements Retrieval {
     this(index, new Parameters());
   }
 
+  public LocalRetrieval(String filename) throws Exception {
+    this(filename, new Parameters());
+  }
+
   public LocalRetrieval(String filename, Parameters parameters) throws Exception {
     this(new DiskIndex(filename), parameters);
   }

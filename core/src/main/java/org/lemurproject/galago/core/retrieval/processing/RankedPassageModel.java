@@ -34,6 +34,10 @@ public class RankedPassageModel extends ProcessingModel {
     PassageScoringContext context = new PassageScoringContext();
     context.cachable = false;
 
+    if(!queryParams.get("passageQuery", false)) {
+      throw new IllegalArgumentException("passageQuery must be true for passage retrieval to work!");
+    }
+
     // Following operations are all just setup
     int requested = (int) queryParams.get("requested", 1000);
     int passageSize = (int) queryParams.getLong("passageSize");

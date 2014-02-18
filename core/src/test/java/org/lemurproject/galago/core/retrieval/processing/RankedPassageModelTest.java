@@ -4,9 +4,13 @@
 package org.lemurproject.galago.core.retrieval.processing;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import junit.framework.TestCase;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredPassage;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -17,21 +21,20 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author sjh
  */
-public class RankedPassageModelTest extends TestCase {
+@RunWith(JUnit4.class)
+public class RankedPassageModelTest {
 
-  File corpus = null;
-  File index = null;
+  static File corpus = null;
+  static File index = null;
 
-  public RankedPassageModelTest(String testName) {
-    super(testName);
-  }
-
-  @Override
-  public void setUp() {
+  @BeforeClass
+  public static void setUp() {
     try {
       corpus = FileUtility.createTemporary();
       index = FileUtility.createTemporaryDirectory();
@@ -41,8 +44,8 @@ public class RankedPassageModelTest extends TestCase {
     }
   }
 
-  @Override
-  public void tearDown() {
+  @AfterClass
+  public static void tearDown() {
     try {
       if (corpus != null) {
         corpus.delete();
@@ -54,6 +57,7 @@ public class RankedPassageModelTest extends TestCase {
     }
   }
 
+  @Test
   public void testEntireCollection() throws Exception {
     Parameters globals = new Parameters();
     globals.set("passageQuery", true);
@@ -115,6 +119,55 @@ public class RankedPassageModelTest extends TestCase {
 
   }
 
+  private ScoredPassage[] scorePassages(Parameters p) throws Exception {
+    LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath());
+    Node query = StructuredQuery.parse("test");
+    query = ret.transformQuery(query, p);
+    WorkingSetPassageModel model = new WorkingSetPassageModel(ret);
+    return (ScoredPassage[]) model.execute(query, p);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testMissingPassageQuery() throws Exception {
+    Parameters badParms = new Parameters();
+    badParms.set("requested", 100);
+    badParms.set("passageSize", 10);
+    badParms.set("passageShift", 5);
+    badParms.set("working",
+      Arrays.asList(new Long[]{2l}));
+    scorePassages(badParms);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testMissingPassageSize() throws Exception {
+    Parameters badParms = new Parameters();
+    badParms.set("passageQuery", true);
+    badParms.set("passageShift", 5);
+    badParms.set("working",
+      Arrays.asList(new Long[]{2l}));
+    scorePassages(badParms);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testMissingPassageShift() throws Exception {
+    Parameters badParms = new Parameters();
+    badParms.set("passageQuery", true);
+    badParms.set("passageSize", 10);
+    badParms.set("working",
+      Arrays.asList(new Long[]{2l}));
+    scorePassages(badParms);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testMissingWorkingSet() throws Exception {
+    Parameters badParms = new Parameters();
+    badParms.set("passageQuery", true);
+    badParms.set("passageSize", 10);
+    badParms.set("passageShift", 5);
+    scorePassages(badParms);
+  }
+
+  @Test
   public void testWhiteList() throws Exception {
     Parameters globals = new Parameters();
     globals.set("passageQuery", true);
@@ -187,7 +240,7 @@ public class RankedPassageModelTest extends TestCase {
 
   }
 
-  private void makeIndex(File corpus, File index) throws Exception {
+  public static void makeIndex(File corpus, File index) throws Exception {
     StringBuilder c = new StringBuilder();
     for (int i = 0; i < 100; i++) {
       StringBuilder data = new StringBuilder();

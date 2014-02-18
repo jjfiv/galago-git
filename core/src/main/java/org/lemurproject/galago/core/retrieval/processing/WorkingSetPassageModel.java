@@ -38,6 +38,10 @@ public class WorkingSetPassageModel extends ProcessingModel {
     PassageScoringContext context = new PassageScoringContext();
     context.cachable = false;
 
+    if(!queryParams.get("passageQuery", false)) {
+      throw new IllegalArgumentException("passageQuery must be true for passage retrieval to work!");
+    }
+
     // There should be a whitelist to deal with
     List l = queryParams.getList("working");
     if (l == null) {
@@ -93,11 +97,6 @@ public class WorkingSetPassageModel extends ProcessingModel {
       // set the parameters for the first passage
       context.begin = 0;
       context.end = Math.min(passageSize, length);
-
-      // ensure we are at the document we wish to score
-      // -- this function will move ALL iterators, 
-      //     not just the ones that do not have all candidates
-      iterator.syncTo(document);
 
       // Keep iterating over the same doc, but incrementing the begin/end fields of the
       // context until the next one
