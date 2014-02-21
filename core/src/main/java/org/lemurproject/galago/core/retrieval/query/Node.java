@@ -4,7 +4,6 @@ package org.lemurproject.galago.core.retrieval.query;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -411,5 +410,14 @@ public class Node implements Serializable {
       newNodes.add(n.clone());
     }
     return newNodes;
+  }
+
+  /** Build a text node at the first position */
+  public static Node Text(String text) {
+    return Text(text, 0);
+  }
+  /** Build a text node at the given position */
+  public static Node Text(String text, int position) {
+    return new Node("text", new NodeParameters(text), new ArrayList(), position);
   }
 }

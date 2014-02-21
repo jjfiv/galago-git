@@ -103,7 +103,7 @@ public class StructuredQuery {
     int position = tokens.current().position;
     tokens.next();
 
-    Node node = new Node("text", new NodeParameters(tokens.current().text), new ArrayList(), tokens.current().position);
+    Node node = Node.Text(tokens.current().text, tokens.current().position);
     tokens.next();
 
     if (tokens.currentEquals("\"")) {
@@ -117,7 +117,7 @@ public class StructuredQuery {
     if (tokens.currentEquals("\"")) {
       return parseQuotedTerms(tokens);
     } else {
-      Node node = new Node("text", new NodeParameters(tokens.current().text), new ArrayList(), tokens.current().position);
+      Node node = Node.Text(tokens.current().text, tokens.current().position);
       tokens.next();
       return node;
     }
