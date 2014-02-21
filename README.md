@@ -18,16 +18,18 @@ If you have downloaded the source, see BUILD for information on how to build and
 
 ## Project Layout
 The main Java projects are:
-### core
-The Galago structured search engine code
-### tupleflow
-TupleFlow, Galago's distributed computation framework
-### tupleflow-typebuilder
-TypeBuilder, a code generator for producing serializable, hashable and comparable types that TupleFlow can use
+
+- core
+  - The Galago structured search engine code
+- tupleflow
+  - TupleFlow, Galago's distributed computation framework
+- tupleflow-typebuilder
+  - TypeBuilder, a code generator for producing serializable, hashable and comparable types that TupleFlow can use
 
 ## Library Thanks
 
 Galago makes use of some great open-source code, among others:
+
 - [Porter2 Stemmer](http://snowball.tartarus.org)
 - [Flanagan Math libraries](http://www.ee.ucl.ac.uk/~mflanaga/java/)
 - [ANTLR and StringTemplate](http://www.antlr.org)
@@ -38,6 +40,7 @@ Galago makes use of some great open-source code, among others:
 ## Contact
 
 Websites and other contact information:
+
 - [official releases, Source repository, Issue tracking, mailing lists](http://sourceforge.net/projects/lemur/)
 - [Website hosting older versions of Galago](http://lemurproject.org)
 - [Textbook website, sample collections](http://www.search-engines-book.com)
