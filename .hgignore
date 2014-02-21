@@ -1,6 +1,8 @@
 # going to use glob ignore
 syntax: glob
 
+nbactions.xml
+nb-configuration.xml
 *.class
 */target/*
 *.iml
