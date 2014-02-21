@@ -3,19 +3,16 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetAddress;
+import org.eclipse.jetty.server.Server;
 import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.core.tools.JSONContextHandler;
 import org.lemurproject.galago.core.tools.Search;
 import org.lemurproject.galago.core.tools.SearchWebHandler;
 import org.lemurproject.galago.core.tools.StreamContextHandler;
 import org.lemurproject.galago.core.tools.URLMappingHandler;
-import org.lemurproject.galago.core.tools.XMLContextHandler;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.mortbay.jetty.Server;
 
 /**
  *
@@ -65,18 +62,12 @@ public class SearchFn extends AppFunction {
     int port = (int) p.get("port", 0);
     if (port == 0) {
       port = Utility.getFreePort();
-    } else {
-      if (!Utility.isFreePort(port)) {
-        throw new IOException("Tried to bind to port " + port + " which is in use.");
-      }
     }
     Server server = new Server(port);
     URLMappingHandler mh = new URLMappingHandler();
     mh.setHandler("/stream", new StreamContextHandler(search));
-    mh.setHandler("/xml", new XMLContextHandler(search));
-    mh.setHandler("/json", new JSONContextHandler(search));
     mh.setDefault(new SearchWebHandler(search));
-    server.addHandler(mh);
+    server.setHandler(mh);
     server.start();
     output.println("Server: http://localhost:" + port);
 

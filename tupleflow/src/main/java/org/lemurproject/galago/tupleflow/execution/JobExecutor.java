@@ -3,7 +3,6 @@ package org.lemurproject.galago.tupleflow.execution;
 
 import java.io.BufferedReader;
 import java.net.UnknownHostException;
-import org.mortbay.jetty.Server;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.StageGroupDescription.DataPipeRegion;
 import java.io.File;
@@ -23,6 +22,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
+import org.eclipse.jetty.server.Server;
 import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
@@ -1103,17 +1103,18 @@ public class JobExecutor {
     }
   }
 
-  public void runWithServer(StageExecutor executor, Server server, String command) throws ExecutionException, InterruptedException, UnknownHostException {
+  public void runWithServer(StageExecutor executor, Server server, String command) throws ExecutionException, InterruptedException, UnknownHostException, Exception {
     // FIXME: all of this needs to be refactored.
     InetAddress address = java.net.InetAddress.getLocalHost();
     int port = server.getConnectors()[0].getPort();
     String masterURL = String.format("http://%s:%d", address.getHostAddress(), port);
     JobExecutionStatus status = new JobExecutionStatus(stages, temporaryStorage, executor, masterURL, command);
     MasterWebHandler handler = new MasterWebHandler(status);
-    server.addHandler(handler);
+    server.setHandler(handler);
+    server.start();
     status.run();
     handler.waitForFinalPage();
-    server.removeHandler(handler);
+    server.stop();
   }
 
   public void runWithoutServer(StageExecutor executor) throws ExecutionException, InterruptedException {
@@ -1141,10 +1142,6 @@ public class JobExecutor {
     int port = (int) p.get("port", 0);
     if (port == 0) {
       port = Utility.getFreePort();
-    } else {
-      if (!Utility.isFreePort(port)) {
-        throw new IOException("Tried to bind to port " + port + " which is in use.");
-      }
     }
 
     String[] params = new String[]{};
@@ -1167,7 +1164,6 @@ public class JobExecutor {
 
     if (p.get("server", false)) {
       Server server = new Server(port);
-      server.start();
       System.err.println("Status: http://localhost:" + port);
       try {
         jobExecutor.runWithServer(executor, server, command);

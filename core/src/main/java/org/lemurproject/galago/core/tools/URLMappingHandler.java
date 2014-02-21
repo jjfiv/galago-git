@@ -8,8 +8,9 @@ import java.util.HashMap;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.handler.AbstractHandler;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 
 /**
  * Maps url based requests to the correct service
@@ -34,13 +35,15 @@ public class URLMappingHandler extends AbstractHandler {
     defaultHandler = h;
   }
 
-  public void handle(String target, HttpServletRequest request, HttpServletResponse response, int dispatch) throws IOException, ServletException {
+  @Override
+  public void handle(String target, Request jettyReq, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    jettyReq.setHandled(true);
     String path = request.getPathInfo();
     Handler h = handlers.get(path);
     if (h != null) {
-      h.handle(target, request, response, dispatch);
+      h.handle(target, jettyReq, request, response);
     } else if (defaultHandler != null) {
-      defaultHandler.handle(target, request, response, dispatch);
+      defaultHandler.handle(target, jettyReq, request, response);
     } else {
       throw new UnsupportedOperationException(" '" + path + "'  is not supported yet.");
     }

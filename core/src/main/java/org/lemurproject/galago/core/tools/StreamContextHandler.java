@@ -8,7 +8,8 @@ import java.lang.reflect.Method;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.mortbay.jetty.handler.ContextHandler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 
 /**
  * Uses Java object serialization to answer requests over the 
@@ -19,7 +20,7 @@ import org.mortbay.jetty.handler.ContextHandler;
  *
  * @author irmarc
  */
-public class StreamContextHandler extends ContextHandler {
+public class StreamContextHandler extends AbstractHandler {
 
   Search search;
 
@@ -28,8 +29,9 @@ public class StreamContextHandler extends ContextHandler {
   }
 
   @Override
-  public void handle(String target, HttpServletRequest request,
-          HttpServletResponse response, int dispatch) throws IOException, ServletException {
+  public void handle(String target, Request jettyReq, HttpServletRequest request,
+          HttpServletResponse response) throws IOException, ServletException {
+    jettyReq.setHandled(true);
 
     try {
       // Recover method

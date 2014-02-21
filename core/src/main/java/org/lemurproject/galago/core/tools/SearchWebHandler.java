@@ -19,6 +19,8 @@ import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
@@ -28,7 +30,6 @@ import org.lemurproject.galago.core.tools.Search.SearchResult;
 import org.lemurproject.galago.core.tools.Search.SearchResultItem;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.mortbay.jetty.handler.ContextHandler;
 import org.znerd.xmlenc.XMLOutputter;
 
 /**
@@ -49,7 +50,7 @@ import org.znerd.xmlenc.XMLOutputter;
  *
  * @author trevor, irmarc
  */
-public class SearchWebHandler extends ContextHandler {
+public class SearchWebHandler extends AbstractHandler {
 
   protected Search search;
 
@@ -109,7 +110,7 @@ public class SearchWebHandler extends ContextHandler {
     Document document = search.getDocument(identifier, p);
 
     if (document == null) {
-      response.setStatus(response.SC_NOT_FOUND);
+      response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     } else {
       response.setContentType("text/xml");
       PrintWriter writer = response.getWriter();
@@ -472,9 +473,10 @@ public class SearchWebHandler extends ContextHandler {
   }
 
   public void handle(String target,
+          Request jettyReq,
           HttpServletRequest request,
-          HttpServletResponse response,
-          int dispatch) throws IOException, ServletException {
+          HttpServletResponse response) throws IOException, ServletException {
+    jettyReq.setHandled(true);
     if (request.getPathInfo().equals("/search")) {
       try {
         handleSearch(request, response);

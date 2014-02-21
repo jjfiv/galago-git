@@ -12,8 +12,9 @@ import java.util.TreeMap;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.lemurproject.galago.tupleflow.execution.JobExecutor.JobExecutionStatus;
-import org.mortbay.jetty.handler.AbstractHandler;
 
 /**
  * This handler creates a web interface for checking on the status of a
@@ -49,6 +50,7 @@ public class MasterWebHandler extends AbstractHandler {
       return stageName;
     }
 
+    @Override
     public int compareTo(CounterName other) {
       int result = stageName.compareTo(other.stageName);
       if (result != 0) {
@@ -306,12 +308,11 @@ public class MasterWebHandler extends AbstractHandler {
     }
   }
 
-  public synchronized void handle(
-          String target,
-          HttpServletRequest request,
-          HttpServletResponse response,
-          int dispatch)
+  @Override
+  public void handle(String target, Request jettyRequest, HttpServletRequest request, HttpServletResponse response)
           throws IOException, ServletException {
+    jettyRequest.setHandled(true);
+
     if (request.getPathInfo().equals("/setcounter")) {
       handleSetCounter(request, response);
     } else {
