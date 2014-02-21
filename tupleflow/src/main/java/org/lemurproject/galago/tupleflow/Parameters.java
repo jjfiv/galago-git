@@ -1,7 +1,7 @@
 // BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.tupleflow;
 
-import org.lemurproject.galago.tupleflow.config.JSONParser;
+import org.lemurproject.galago.tupleflow.json.JSONParser;
 import gnu.trove.map.hash.TObjectByteHashMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import gnu.trove.map.hash.TObjectLongHashMap;
@@ -1029,7 +1029,7 @@ public class Parameters implements Serializable, Map<String,Object> {
 
   @Override
   public boolean containsKey(Object o) {
-    return _keys.containsKey(o);
+    return containsKey((String) o);
   }
 
   @Override
@@ -1056,24 +1056,25 @@ public class Parameters implements Serializable, Map<String,Object> {
 
   @Override
   public Object get(Object o) {
-    if(!containsKey(o) || !(o instanceof String))
-      return null;
-    
-    String key = (String) o;
-    Type ot = _keys.get(o);
-    switch(ot) {
-      case BOOLEAN:
-        return getBoolean(key);
-      case LONG:
-        return getLong(key);
-      case DOUBLE:
-        return getDouble(key);
-      default:
-      case STRING:
-      case MAP:
-      case LIST:
-        return _objects.get(key);
+    if(_keys.containsKey(o)) {
+      String key = (String) o;
+      Type ot = _keys.get(o);
+      switch(ot) {
+        case BOOLEAN:
+          return getBoolean(key);
+        case LONG:
+          return getLong(key);
+        case DOUBLE:
+          return getDouble(key);
+        case STRING:
+        case MAP:
+        case LIST:
+          return _objects.get(key);
+      }
+    } else if(_backoff != null) {
+      return _backoff.get(o);
     }
+    return null;
   }
 
   @Override
