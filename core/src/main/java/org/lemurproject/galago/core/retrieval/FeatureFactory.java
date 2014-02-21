@@ -245,7 +245,7 @@ public class FeatureFactory {
     // Get the matching class for the node
     Class<? extends BaseIterator> c = getClass(node);
     if (c == null) {
-      return null;
+      throw new IllegalArgumentException("Couldn't get the class of node: "+node);
     }
 
     // There better be only 1 constructor
