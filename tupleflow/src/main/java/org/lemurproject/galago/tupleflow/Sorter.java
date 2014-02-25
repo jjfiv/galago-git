@@ -520,7 +520,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
       // calculate the total amount of space we'll need for this
       long totalFileSize = 0;
 
-      for (File f : temporaryFiles) {
+      for (File f : temporaryFileSet) {
         totalFileSize += f.length();
       }
 
