@@ -1,4 +1,4 @@
-
+// BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow.util;
 
 import java.util.Collection;
