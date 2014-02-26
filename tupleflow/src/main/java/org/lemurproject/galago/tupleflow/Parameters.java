@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +29,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import org.lemurproject.galago.tupleflow.json.JSONUtil;
 
 /**
  *
@@ -804,6 +808,29 @@ public class Parameters implements Serializable, Map<String,Object> {
 
     builder.append(" }");
     return builder.toString();
+  }
+  
+  public String toXML() throws IOException {
+    StringWriter sw = new StringWriter();
+    
+    try {
+      XMLStreamWriter xml = JSONUtil.xmlOutputFactory.createXMLStreamWriter(sw);
+
+      xml.writeStartDocument();
+      xml.writeStartElement("parameters");
+      JSONUtil.writeXML(this, xml);
+      xml.writeEndElement();
+      xml.writeEndDocument();
+      xml.flush();
+      xml.close();
+    } catch (XMLStreamException ex) {
+      throw new RuntimeException(ex);
+    } finally {
+      sw.flush();
+      sw.close();
+    }
+    
+    return sw.toString();
   }
 
   public String toPrettyString() {
