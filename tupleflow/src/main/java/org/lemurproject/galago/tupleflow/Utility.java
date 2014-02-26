@@ -1002,16 +1002,4 @@ public class Utility {
     }
     return sb.toString();
   }
-
-  public static String shortName(Object o) {
-    String id = o.toString();
-    String[] parts = id.split("\\.");
-    return parts[parts.length - 1];
-  }
-
-  public static String tinyName(Object o) {
-    String id = o.toString();
-    String[] parts = id.split("\\@");
-    return parts[parts.length - 1];
-  }
 }
