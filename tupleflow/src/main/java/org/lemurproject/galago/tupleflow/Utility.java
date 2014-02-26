@@ -19,8 +19,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 import org.lemurproject.galago.tupleflow.execution.Step;
@@ -229,7 +231,11 @@ public class Utility {
    * Returns a string containing all the elements of args, space delimited.
    */
   public static String join(String[] args, String delimiter) {
-    String output = "";
+		return join(Arrays.asList(args), delimiter);
+  }
+	
+	public static String join(List<String> args, String delimiter) {
+		String output = "";
     StringBuilder builder = new StringBuilder();
 
     for (String arg : args) {
@@ -240,7 +246,7 @@ public class Utility {
     }
 
     return builder.toString();
-  }
+	}
 
   public static String join(String[] args) {
     return join(args, " ");
