@@ -82,6 +82,14 @@ public class Indexer {
       }
     }
 
+    if (fields[fields.length - 1].equals("bz")) {
+      if (fields.length > 2) {
+        return fields[fields.length - 2];
+      } else {
+        return "";
+      }
+    }
+
     // Do the same thing w/ bz2 as above (MAC)
     if (fields[fields.length - 1].equals("bz2")) {
       if (fields.length > 2) {
@@ -98,7 +106,7 @@ public class Indexer {
   public void addFile(String filename) throws IOException {
 
     // a split is a file with some annotations
-    boolean compressed = (filename.endsWith(".gz") || filename.endsWith(".bz2") || filename.endsWith(".xz"));
+    boolean compressed = (filename.endsWith(".gz") || filename.endsWith(".bz") || filename.endsWith(".bz2") || filename.endsWith(".xz"));
     DocumentSplit split = new DocumentSplit(filename, getExtension(filename), compressed, new byte[0], new byte[0], 0, 0);
     indexer.process(split);
 

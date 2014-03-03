@@ -41,7 +41,7 @@ public class FileLineParser implements ExNihiloSource<String> {
     for (String f : (List<String>) p.getList("inputPath")) {
       DocumentSplit split = new DocumentSplit();
       split.fileName = f;
-      split.isCompressed = ( f.endsWith(".gz") || f.endsWith(".bz") );
+      split.isCompressed = ( f.endsWith(".gz") || f.endsWith(".bz") || f.endsWith(".bz2") );
       reader = DocumentStreamParser.getBufferedReader( split );
       String line;
       while (null != (line = reader.readLine())) {
