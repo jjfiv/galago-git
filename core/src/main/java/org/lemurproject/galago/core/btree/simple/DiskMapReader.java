@@ -2,13 +2,7 @@
 package org.lemurproject.galago.core.btree.simple;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.BTreeReader;
@@ -60,6 +54,8 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> {
     try {
       byte[] key = (byte[]) o;
       BTreeReader.BTreeIterator iter = getIter(key);
+      if(iter == null || iter.getKey() == null)
+        return false;
       return Arrays.equals(key, iter.getKey());
     } catch (ClassCastException ex) {
       return false;
@@ -68,7 +64,7 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> {
   
   @Override
   public Set<byte[]> keySet() {
-    HashSet<byte[]> keys = new HashSet<byte[]>();
+    Set<byte[]> keys = new TreeSet<byte[]>(new Utility.ByteArrComparator());
     try {
       DiskBTreeReader.Iterator iter = btree.getIterator();
       while(!iter.isDone()) {
