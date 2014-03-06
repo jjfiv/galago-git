@@ -80,6 +80,10 @@ public class RetrievalFactory {
       return new LocalRetrieval(path, parameters);
     }
   }
+	
+	public static Retrieval instance(String path) throws Exception {
+		return instance(path, new Parameters());
+	}
 
   public static Retrieval instance(List<String> indexes, Parameters parameters) throws Exception {
 

@@ -22,14 +22,18 @@ public class JSONPerLineParser extends DocumentStreamParser {
 
   @Override
   public Document nextDocument() throws IOException {
-    String next = reader.readLine();
-    if(next == null)
-      return null;
-    
+		String next = "";
+		// skip all blank lines
+		while(next.trim().isEmpty()) {
+			next = reader.readLine();
+			if(next == null)
+				return null;
+		}
+		
     Parameters json = Parameters.parseString(next);
     
     Document result =  new Document();
-    result.name = json.getString(documentNameField);
+    result.name = json.getAsString(documentNameField);
     result.text = json.toXML();
     
     return result;
