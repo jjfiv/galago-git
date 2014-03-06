@@ -43,6 +43,7 @@ class FileParser extends DocumentStreamParser {
   }
 
   public String stripExtensions(String name) {
+    name = stripExtension(name, ".bz");
     name = stripExtension(name, ".bz2");
     name = stripExtension(name, ".gz");
     name = stripExtension(name, ".html");

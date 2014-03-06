@@ -158,7 +158,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     }
 
     // Now try to detect what kind of file this is:
-    boolean isCompressed = (file.getName().endsWith(".gz") || file.getName().endsWith(".bz2") || file.getName().endsWith(".xz"));
+    boolean isCompressed = (file.getName().endsWith(".gz") || file.getName().endsWith(".bz") || file.getName().endsWith(".bz2") || file.getName().endsWith(".xz"));
     String fileType = forceFileType;
 
     // We'll try to detect by extension first, so we don't have to open the file
@@ -283,7 +283,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         }
 
         // Now try to detect what kind of file this is:
-        boolean isCompressed = (file.getName().endsWith(".gz") || file.getName().endsWith(".bz2") || file.getName().endsWith(".xz"));
+        boolean isCompressed = (file.getName().endsWith(".gz") || file.getName().endsWith(".bz") || file.getName().endsWith(".bz2") || file.getName().endsWith(".xz"));
         String fileType = null;
 
         // We'll try to detect by extension first, so we don't have to open the file
@@ -383,6 +383,14 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     // The second-to-last bit is the type extension (but only if
     // there are at least three parts to the name).
     if (fields[fields.length - 1].equals("gz")) {
+      if (fields.length > 2) {
+        return fields[fields.length - 2];
+      } else {
+        return "";
+      }
+    }
+
+     if (fields[fields.length - 1].equals("bz")) {
       if (fields.length > 2) {
         return fields[fields.length - 2];
       } else {
