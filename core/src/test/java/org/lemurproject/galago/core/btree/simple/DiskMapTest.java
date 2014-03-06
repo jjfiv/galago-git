@@ -49,8 +49,6 @@ public class DiskMapTest {
 
     assertEquals(diskKeys.size(), memKeys.size());
 
-    // java using object equality is dumb
-    // assertTrue(memKeys.contains(key)) will fail because it does pointer comparisons...
     for (byte[] key : memKeys) {
       assertTrue(memKeys.contains(key));
       assertTrue(diskKeys.contains(key));
