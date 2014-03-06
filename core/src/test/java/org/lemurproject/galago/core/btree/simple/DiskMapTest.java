@@ -4,7 +4,9 @@ package org.lemurproject.galago.core.btree.simple;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +29,7 @@ public class DiskMapTest {
     byte[] baz = Utility.fromString("baz");
     byte[] hmm = Utility.fromString("hmm");
 
-    HashMap<byte[], byte[]> data = new HashMap<byte[], byte[]>();
+    Map<byte[], byte[]> data = new TreeMap<byte[], byte[]>(new Utility.ByteArrComparator());
     data.put(foo, bar);
     data.put(bar, baz);
     data.put(baz, hmm);
