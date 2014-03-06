@@ -9,7 +9,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  *
  * @author jfoley
  */
-class DiskMapSortedBuilder {
+public class DiskMapSortedBuilder {
 	DiskBTreeWriter btree;
   Parameters opts;
   public DiskMapSortedBuilder(String path, Parameters opts) throws IOException {
