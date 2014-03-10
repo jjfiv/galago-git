@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.lemurproject.galago.tupleflow.execution.JobExecutor.JobExecutionStatus;
+import org.lemurproject.galago.tupleflow.web.WebHandler;
 
 /**
  * This handler creates a web interface for checking on the status of a
@@ -22,7 +23,7 @@ import org.lemurproject.galago.tupleflow.execution.JobExecutor.JobExecutionStatu
  *
  * @author trevor
  */
-public class MasterWebHandler extends AbstractHandler {
+public class MasterWebHandler implements WebHandler {
 
   JobExecutionStatus status;
   Map<CounterName, AggregateCounter> counters = new TreeMap<CounterName, AggregateCounter>();
@@ -309,10 +310,7 @@ public class MasterWebHandler extends AbstractHandler {
   }
 
   @Override
-  public void handle(String target, Request jettyRequest, HttpServletRequest request, HttpServletResponse response)
-          throws IOException, ServletException {
-    jettyRequest.setHandled(true);
-
+  public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
     if (request.getPathInfo().equals("/setcounter")) {
       handleSetCounter(request, response);
     } else {

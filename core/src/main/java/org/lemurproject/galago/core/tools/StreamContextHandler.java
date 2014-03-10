@@ -1,15 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
+import org.lemurproject.galago.tupleflow.web.WebHandler;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 
 /**
  * Uses Java object serialization to answer requests over the 
@@ -19,8 +19,9 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
  * the retrieval object attached to the Search object.
  *
  * @author irmarc
+ * @see org.lemurproject.galago.core.retrieval.ProxyRetrieval
  */
-public class StreamContextHandler extends AbstractHandler {
+public class StreamContextHandler implements WebHandler {
 
   Search search;
 
@@ -29,10 +30,8 @@ public class StreamContextHandler extends AbstractHandler {
   }
 
   @Override
-  public void handle(String target, Request jettyReq, HttpServletRequest request,
+  public void handle(HttpServletRequest request,
           HttpServletResponse response) throws IOException, ServletException {
-    jettyReq.setHandled(true);
-
     try {
       // Recover method
       ObjectInputStream ois = new ObjectInputStream(request.getInputStream());

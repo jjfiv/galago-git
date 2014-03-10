@@ -1,31 +1,20 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow.execution;
 
-import java.io.BufferedReader;
-import java.net.UnknownHostException;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.StageGroupDescription.DataPipeRegion;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.concurrent.ExecutionException;
-import org.eclipse.jetty.server.Server;
 import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.execution.StageGroupDescription.DataPipeRegion;
+import org.lemurproject.galago.tupleflow.web.WebServer;
+import org.lemurproject.galago.tupleflow.web.WebServerException;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * <p>This class is responsible for executing TupleFlow jobs.</p>
@@ -813,7 +802,7 @@ public class JobExecutor {
     String temporaryStorage;
     StageExecutor executor;
     Date startDate;
-    String masterURL;
+    public String masterURL;
     String fullcmd = null;
     // (irmarc)
     // We're going to do something a little nutso here - accept user input!
@@ -822,12 +811,12 @@ public class JobExecutor {
     BufferedReader poller = new BufferedReader(new InputStreamReader(System.in));
 
     public JobExecutionStatus(HashMap<String, StageGroupDescription> stages,
-            String temporaryStorage, StageExecutor executor, String masterURL, String cmd) {
+            String temporaryStorage, StageExecutor executor, String cmd) {
       this.stages = stages;
       this.temporaryStorage = temporaryStorage;
       this.executor = executor;
       this.startDate = new Date();
-      this.masterURL = masterURL;
+      this.masterURL = "TBD";
       this.fullcmd = cmd;
 
       for (StageGroupDescription description : stages.values()) {
@@ -1103,27 +1092,30 @@ public class JobExecutor {
     }
   }
 
-  public void runWithServer(StageExecutor executor, Server server, String command) throws ExecutionException, InterruptedException, UnknownHostException, Exception {
-    // FIXME: all of this needs to be refactored.
-    InetAddress address = java.net.InetAddress.getLocalHost();
-    int port = server.getConnectors()[0].getPort();
-    String masterURL = String.format("http://%s:%d", address.getHostAddress(), port);
-    JobExecutionStatus status = new JobExecutionStatus(stages, temporaryStorage, executor, masterURL, command);
+  public void runWithServer(StageExecutor executor, String command, int port) throws WebServerException, ExecutionException, InterruptedException {
+    JobExecutionStatus status = new JobExecutionStatus(stages, temporaryStorage, executor, command);
     MasterWebHandler handler = new MasterWebHandler(status);
-    server.setHandler(handler);
-    server.start();
-    status.run();
-    handler.waitForFinalPage();
-    server.stop();
+    WebServer webServer = null;
+
+    try {
+      webServer = WebServer.start(handler, port);
+      status.masterURL = webServer.getURL();
+      status.run();
+      handler.waitForFinalPage();
+      webServer.stop();
+    } finally {
+      if(webServer != null) {
+        webServer.stop();
+      }
+    }
   }
 
   public void runWithoutServer(StageExecutor executor) throws ExecutionException, InterruptedException {
-    JobExecutionStatus status = new JobExecutionStatus(stages, temporaryStorage, executor, null, null);
+    JobExecutionStatus status = new JobExecutionStatus(stages, temporaryStorage, executor, null);
     status.run();
   }
 
-  public static boolean runLocally(Job job, ErrorStore store, Parameters p) throws IOException,
-          InterruptedException, ExecutionException, Exception {
+  public static boolean runLocally(Job job, ErrorStore store, Parameters p) throws Exception {
     // Extraction from parameters can go here now
     String tempPath = p.get("galagoJobDir", "");
     File tempFolder = FileUtility.createTemporaryDirectory(tempPath);
@@ -1138,11 +1130,6 @@ public class JobExecutor {
     }
 
     String mode = p.get("mode", "local");
-
-    int port = (int) p.get("port", 0);
-    if (port == 0) {
-      port = Utility.getFreePort();
-    }
 
     String[] params = new String[]{};
 
@@ -1163,12 +1150,14 @@ public class JobExecutor {
     }
 
     if (p.get("server", false)) {
-      Server server = new Server(port);
-      System.err.println("Status: http://localhost:" + port);
+      int port = (int) p.get("port", 0);
+      if (port == 0) {
+        port = Utility.getFreePort();
+      }
+
       try {
-        jobExecutor.runWithServer(executor, server, command);
+        jobExecutor.runWithServer(executor, command, port);
       } finally {
-        server.stop();
         executor.shutdown();
       }
     } else {

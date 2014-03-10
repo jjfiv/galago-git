@@ -1,26 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
@@ -30,7 +10,17 @@ import org.lemurproject.galago.core.tools.Search.SearchResult;
 import org.lemurproject.galago.core.tools.Search.SearchResultItem;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.web.WebHandler;
 import org.znerd.xmlenc.XMLOutputter;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * <p>Handles web search requests against a Galago index. Also handles XML
@@ -50,7 +40,7 @@ import org.znerd.xmlenc.XMLOutputter;
  *
  * @author trevor, irmarc
  */
-public class SearchWebHandler extends AbstractHandler {
+public class SearchWebHandler implements WebHandler {
 
   protected Search search;
 
@@ -64,7 +54,7 @@ public class SearchWebHandler extends AbstractHandler {
     for (int i = 0; i < text.length(); ++i) {
       char c = text.charAt(i);
       if (c >= 128) {
-        builder.append("&#" + (int) c + ";");
+        builder.append("&#").append((int) c).append(";");
       } else {
         builder.append(c);
       }
@@ -135,7 +125,7 @@ public class SearchWebHandler extends AbstractHandler {
 
   protected String scrub(String s) throws UnsupportedEncodingException {
     if (s == null) {
-      return s;
+      return null;
     }
     return s.replace("<", "&gt;").replace(">", "&lt;").replace("&", "&amp;");
   }
@@ -184,9 +174,10 @@ public class SearchWebHandler extends AbstractHandler {
     writer.append("<table><tr>");
     writer.append("<td><a href=\"http://lemurproject.org\">"
             + "<img src=\"/images/galago.png\"></a></td>");
-    writer.append("<td><br/><form action=\"search\">"
-            + String.format("<input name=\"q\" size=\"40\" value=\"%s\" />", displayQuery)
-            + "<input value=\"Search\" type=\"submit\" /></form></td>");
+    writer.append("<td><br/><form action=\"search\">")
+        .append("<input name=\"q\" size=\"40\" value=\"")
+        .append(displayQuery).append("\" />")
+        .append("<input value=\"Search\" type=\"submit\" /></form></td>");
     writer.append("</tr>");
     writer.append("</table>\n");
     writer.append("</div>\n");
@@ -248,13 +239,7 @@ public class SearchWebHandler extends AbstractHandler {
     writer.close();
   }
 
-  private String getId(String identifier) {
-    int lastPath = identifier.lastIndexOf('/');
-    return identifier.substring(lastPath + 1, identifier.length() - 4);
-  }
-
-  public void handleSearchXML(HttpServletRequest request, HttpServletResponse response)
-          throws IllegalStateException, IllegalArgumentException, IOException, Exception {
+  public void handleSearchXML(HttpServletRequest request, HttpServletResponse response) throws Exception {
     SearchResult result = performSearch(request, false);
     PrintWriter writer = response.getWriter();
     XMLOutputter outputter = new XMLOutputter(writer, "UTF-8");
@@ -320,7 +305,7 @@ public class SearchWebHandler extends AbstractHandler {
   }
 
   public void handleXCount(HttpServletRequest request, HttpServletResponse response)
-          throws IllegalStateException, IllegalArgumentException, IOException, Exception {
+          throws Exception {
     String exp = request.getParameter("expression");
     long count = search.xCount(exp);
     PrintWriter writer = response.getWriter();
@@ -337,7 +322,7 @@ public class SearchWebHandler extends AbstractHandler {
   }
 
   public void handleDocCount(HttpServletRequest request, HttpServletResponse response)
-          throws IllegalStateException, IllegalArgumentException, IOException, Exception {
+          throws Exception {
     String exp = request.getParameter("expression");
     long count = search.docCount(exp);
     PrintWriter writer = response.getWriter();
@@ -401,7 +386,7 @@ public class SearchWebHandler extends AbstractHandler {
   public void writeCollectionSelector(PrintWriter writer) {
     // About to add this in
     //ArrayList<String> collGroups = search.getCollectionGroups();
-    ArrayList<String> collGroups = new ArrayList();
+    ArrayList<String> collGroups = new ArrayList<String>();
     if (collGroups.size() == 1) {
       return;
     }
@@ -416,25 +401,6 @@ public class SearchWebHandler extends AbstractHandler {
     }
     writer.append("</select>\n");
     writer.append("</td></tr>");
-  }
-
-  public void writeCodecs(PrintWriter writer) {
-    writer.append("<script type=\"text/javascript\">\n");
-    writer.append("function encode(obj) {\n");
-    writer.append("   //alert(\"Before encoding: \"+ obj.value);\n");
-    writer.append("   var encoded = encodeURIComponent(obj.value);\n");
-    writer.append("   obj.value = encoded;\n");
-    writer.append("   //alert(\"After encoding: \"+ obj.value);\n");
-    writer.append("}\n\n");
-    writer.append("function decode(obj) {\n");
-    writer.append("   //alert(\"Before decoding: \"+ obj.value);\n");
-    writer.append("   var decoded = decodeURIComponent(obj.value);\n");
-    writer.append("   obj.value = decoded;\n");
-    writer.append("   //alert(\"After decoding: \"+ obj.value);\n");
-    writer.append("}\n\n");
-    writer.append("decode(document.getElementById('q'));\n");
-    writer.append("document.title = decodeURIComponent(document.title);\n");
-    writer.append("</script>\n");
   }
 
   public void writeStyle(PrintWriter writer) {
@@ -472,11 +438,7 @@ public class SearchWebHandler extends AbstractHandler {
     writer.close();
   }
 
-  public void handle(String target,
-          Request jettyReq,
-          HttpServletRequest request,
-          HttpServletResponse response) throws IOException, ServletException {
-    jettyReq.setHandled(true);
+  public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     if (request.getPathInfo().equals("/search")) {
       try {
         handleSearch(request, response);

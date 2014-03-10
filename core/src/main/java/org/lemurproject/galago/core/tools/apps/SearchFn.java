@@ -5,14 +5,18 @@ package org.lemurproject.galago.core.tools.apps;
 
 import java.io.PrintStream;
 import java.net.InetAddress;
-import org.eclipse.jetty.server.Server;
+
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.tools.Search;
 import org.lemurproject.galago.core.tools.SearchWebHandler;
 import org.lemurproject.galago.core.tools.StreamContextHandler;
-import org.lemurproject.galago.core.tools.URLMappingHandler;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.web.WebHandler;
+import org.lemurproject.galago.tupleflow.web.WebServer;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  *
@@ -63,12 +67,21 @@ public class SearchFn extends AppFunction {
     if (port == 0) {
       port = Utility.getFreePort();
     }
-    Server server = new Server(port);
-    URLMappingHandler mh = new URLMappingHandler();
-    mh.setHandler("/stream", new StreamContextHandler(search));
-    mh.setDefault(new SearchWebHandler(search));
-    server.setHandler(mh);
-    server.start();
+
+    final StreamContextHandler streamHandler = new StreamContextHandler(search);
+    final SearchWebHandler searchHandler = new SearchWebHandler(search);
+
+    WebServer server = WebServer.start(new WebHandler() {
+      @Override
+      public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        if(request.getPathInfo().equals("/stream")) {
+          streamHandler.handle(request, response);
+        } else {
+          searchHandler.handle(request, response);
+        }
+      }
+    }, port);
+
     output.println("Server: http://localhost:" + port);
 
     // Ensure we print out the ip addr url as well
