@@ -3,16 +3,9 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -22,23 +15,30 @@ import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.web.WebServer;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author sjh
  */
-public class ProxyRetrievalTest extends TestCase {
+@RunWith(JUnit4.class)
+public class ProxyRetrievalTest {
 
-  public ProxyRetrievalTest(String name) {
-    super(name);
-  }
-
+  @Test
   public void testProxyRet() throws Exception {
     final int vocab = 1000;
     final int docCount = 1000;
     final int docLen = 100;
-    final int qCount = 100;
-    final int qLen = 3;
     final int port = 1111;
 
     File index = null;
@@ -49,7 +49,7 @@ public class ProxyRetrievalTest extends TestCase {
       retParams.set("index", index.getAbsolutePath());
       retParams.set("port", port);
 
-      final List<Exception> exceptions = Collections.synchronizedList(new ArrayList());
+      final List<Exception> exceptions = Collections.synchronizedList(new ArrayList<Exception>());
       final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
       final PrintStream stream = new PrintStream(byteStream);
 
@@ -58,6 +58,7 @@ public class ProxyRetrievalTest extends TestCase {
         @Override
         public void run() {
           try {
+            System.out.println("remoteRetThread.start()");
             App.run("search", retParams, stream);
 
           } catch (InterruptedException i) {
@@ -71,12 +72,14 @@ public class ProxyRetrievalTest extends TestCase {
 
       remoteRetThread.start();
 
-      String url = "http://localhost:" + port;
+      // look through output of server startup to ensure it contains this url
+      String url = "http://"+WebServer.getHostName()+":" + port;
       boolean success = false;
       int i = 0;
       while (i < 10) {
         stream.flush();
         String s = byteStream.toString();
+        System.out.println(s);
         if (s.contains(url)) {
           success = true;
           break;
@@ -104,18 +107,20 @@ public class ProxyRetrievalTest extends TestCase {
         instance.getCollectionStatistics("#lengths:document:part=lengths()");
 
         Document d = instance.getDocument("doc-" + 2, new DocumentComponents(true, false, false));
-        assert (d.text != null);
-        assert (d.terms == null);
-        assert (d.tags == null);
-        assert (d.metadata.isEmpty());
+        assertNotNull(d.text);
+        assertNull(d.terms);
+        assertNull(d.tags);
+        assertTrue(d.metadata.isEmpty());
 
         instance.getDocumentLength("doc-" + 2);
         instance.getDocumentLength(1);
         instance.getDocumentName(1);
-        ArrayList<String> names = new ArrayList();
-        names.add("doc-" + 1);
-        names.add("doc-" + 2);
-//        instance.getDocuments(names, new Parameters());
+
+        // lemur bug #231
+        //ArrayList<String> names = new ArrayList<String>();
+        //names.add("doc-" + 1);
+        //names.add("doc-" + 2);
+        //instance.getDocuments(names, new DocumentComponents());
         instance.getGlobalParameters();
         instance.getIndexPartStatistics("postings");
         instance.getNodeStatistics(StructuredQuery.parse("#counts:@/1/:part=postings()"));

@@ -3,6 +3,8 @@ package org.lemurproject.galago.tupleflow.web;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -30,11 +32,19 @@ public class WebServer {
     }
   }
 
+  public void join() throws WebServerException {
+    try {
+      this.server.join();
+    } catch (InterruptedException e) {
+      throw new WebServerException(e);
+    }
+  }
+
   public int getPort() {
     return server.getConnectors()[0].getPort();
   }
 
-  public String getHostName() {
+  public static String getHostName() {
     try {
       return java.net.InetAddress.getLocalHost().getHostAddress();
     } catch (UnknownHostException e) {
@@ -47,7 +57,7 @@ public class WebServer {
     return String.format("http://%s:%d", getHostName(), getPort());
   }
 
-  public static WebServer start(WebHandler handler, int port) throws WebServerException {
+  public static WebServer start(int port, WebHandler handler) throws WebServerException {
     Server server = new Server(port);
     server.setHandler(new JettyHandler(handler));
     try {
@@ -57,6 +67,18 @@ public class WebServer {
     }
 
     return new WebServer(server);
+  }
+
+  public static WebServer start(Parameters p, WebHandler handler) throws WebServerException {
+    int port = (int) p.get("port", 0);
+    if (port == 0) {
+      try {
+        port = Utility.getFreePort();
+      } catch (IOException e) {
+        throw new WebServerException(e);
+      }
+    }
+    return start(port, handler);
   }
 
   public static final class JettyHandler extends AbstractHandler {

@@ -63,15 +63,10 @@ public class SearchFn extends AppFunction {
     }
 
     Search search = new Search(p);
-    int port = (int) p.get("port", 0);
-    if (port == 0) {
-      port = Utility.getFreePort();
-    }
-
     final StreamContextHandler streamHandler = new StreamContextHandler(search);
     final SearchWebHandler searchHandler = new SearchWebHandler(search);
 
-    WebServer server = WebServer.start(new WebHandler() {
+    WebServer server = WebServer.start(p, new WebHandler() {
       @Override
       public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
         if(request.getPathInfo().equals("/stream")) {
@@ -80,13 +75,8 @@ public class SearchFn extends AppFunction {
           searchHandler.handle(request, response);
         }
       }
-    }, port);
+    });
 
-    output.println("Server: http://localhost:" + port);
-
-    // Ensure we print out the ip addr url as well
-    InetAddress address = InetAddress.getLocalHost();
-    String masterURL = String.format("http://%s:%d", address.getHostAddress(), port);
-    output.println("ServerIP: " + masterURL);
+    output.println("Server: "+server.getURL());
   }
 }

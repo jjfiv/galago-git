@@ -1092,13 +1092,13 @@ public class JobExecutor {
     }
   }
 
-  public void runWithServer(StageExecutor executor, String command, int port) throws WebServerException, ExecutionException, InterruptedException {
+  public void runWithServer(StageExecutor executor, String command, Parameters argp) throws WebServerException, ExecutionException, InterruptedException {
     JobExecutionStatus status = new JobExecutionStatus(stages, temporaryStorage, executor, command);
     MasterWebHandler handler = new MasterWebHandler(status);
     WebServer webServer = null;
 
     try {
-      webServer = WebServer.start(handler, port);
+      webServer = WebServer.start(argp, handler);
       status.masterURL = webServer.getURL();
       status.run();
       handler.waitForFinalPage();
@@ -1150,13 +1150,8 @@ public class JobExecutor {
     }
 
     if (p.get("server", false)) {
-      int port = (int) p.get("port", 0);
-      if (port == 0) {
-        port = Utility.getFreePort();
-      }
-
       try {
-        jobExecutor.runWithServer(executor, command, port);
+        jobExecutor.runWithServer(executor, command, p);
       } finally {
         executor.shutdown();
       }
