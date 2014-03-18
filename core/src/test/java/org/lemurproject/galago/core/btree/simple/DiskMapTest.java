@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 public class DiskMapTest {
 	@Test
   public void createMap() throws IOException {
-    byte[] foo = Utility.fromString("foo");
+    byte[] foo = Utility.fromString("foo space");
     byte[] bar = Utility.fromString("bar");
     byte[] baz = Utility.fromString("baz");
     byte[] hmm = Utility.fromString("hmm");
@@ -62,8 +62,8 @@ public class DiskMapTest {
     assertNull(onDisk.get(Utility.fromString("Still not in the map!")));
 
     // test that different address byte arrays still work
-    assertTrue(onDisk.containsKey(Utility.fromString("foo")));
-    assertNotNull(onDisk.get(Utility.fromString("foo")));
+    assertTrue(onDisk.containsKey(Utility.fromString("foo space")));
+    assertNotNull(onDisk.get(Utility.fromString("foo space")));
   }
 	
 }

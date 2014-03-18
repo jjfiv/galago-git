@@ -29,15 +29,20 @@ public class JSONUtil {
         hasDot = true;
       } else {
         isNumber = false;
+        break;
       }
     }
 
-    if(isNumber) {
-      if(hasDot) {
-        return Double.parseDouble(value);
-      } else {
-        return Long.parseLong(value);
+    try {
+      if(isNumber) {
+        if(hasDot) {
+          return Double.parseDouble(value);
+        } else {
+          return Long.parseLong(value);
+        }
       }
+    } catch (NumberFormatException nfe) {
+      // we tried our best to make it a number, fall back to string
     }
 
     return value;
