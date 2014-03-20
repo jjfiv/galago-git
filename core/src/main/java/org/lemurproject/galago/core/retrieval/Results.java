@@ -12,22 +12,21 @@ import org.lemurproject.galago.core.retrieval.query.Node;
  * Base results class Wrapper for a list of results, and provides some utility
  * functions for merging several results
  *
- * Can be sub-classed in
- *
  * @author sjh
  */
-public class Results implements Serializable{
+public class Results implements Serializable {
 
   public Node inputQuery;
   public List<ScoredDocument> scoredDocuments;
 
   // empty construction -- a
   public Results() {
+    this.scoredDocuments = new ArrayList<ScoredDocument>();
   }
 
   public Results(Node query) {
     this.inputQuery = query;
-    scoredDocuments = new ArrayList();
+    this.scoredDocuments = new ArrayList<ScoredDocument>();
   }
 
   public Results(Node query, List<ScoredDocument> scoredDocuments) {
@@ -35,7 +34,21 @@ public class Results implements Serializable{
     this.scoredDocuments = scoredDocuments;
   }
 
+  /**
+   * When performing passage retrieval, it's probably convenient to have this method.
+   * @return a list of results, cast to ScoredPassages.
+   */
+  public List<ScoredPassage> asPassages() {
+    ArrayList<ScoredPassage> passages = new ArrayList<ScoredPassage>();
+    for(ScoredDocument doc : scoredDocuments) {
+      assert(doc instanceof ScoredPassage);
+      passages.add((ScoredPassage) doc);
+    }
+    return passages;
+  }
+
   public void addBest(List<Results> results, int requested) {
-    // create new results, and merge in sorted order
+    // TODO create new results, and merge in sorted order
+    throw new UnsupportedOperationException();
   }
 }
