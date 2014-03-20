@@ -41,6 +41,7 @@ public class DiskMapBuilder {
    */
   public void close() throws IOException {
     sorter.close(); // probably takes a while to flush everything...
-    endPoint.close(); // now finish writing this guy
+    // sorter will close endpoint for us!
+    // endPoint.close(); // now finish writing this guy
   }
 }
