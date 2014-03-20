@@ -28,6 +28,7 @@ public class PrecisionTest {
         //query 1 has 10 relevant documents
         //query 2 has 5 relevant documents
         //query 3 has 5 relevant documents
+        //query 4 has 6 relevant documents
         String qrels =
                 "1 0 doc0 1\n" +
                 "1 0 doc1 1\n" +
@@ -53,7 +54,17 @@ public class PrecisionTest {
                 "3 0 doc6 0\n" +
                 "3 0 doc7 0\n" +
                 "3 0 doc8 0\n" +
-                "3 0 doc9 0\n";
+                "3 0 doc9 0\n" +
+                "4 0 doc0 1\n" +
+                "4 0 doc1 1\n" +
+                "4 0 doc2 0\n" +
+                "4 0 doc3 0\n" +
+                "4 0 doc4 1\n" +
+                "4 0 doc5 1\n" +
+                "4 0 doc6 0\n" +
+                "4 0 doc7 0\n" +
+                "4 0 doc8 1\n" +
+                "4 0 doc9 1\n";
         Utility.copyStringToFile(qrels, tmpQ);
         QuerySetJudgments qsj = new QuerySetJudgments(tmpQ.getAbsolutePath(), true, true);
         String results =
@@ -86,7 +97,17 @@ public class PrecisionTest {
                 "3 Q0 doc6 7 -12.12 galago\n" +
                 "3 Q0 doc7 8 -13.08 galago\n" +
                 "3 Q0 doc8 9 -13.55 galago\n" +
-                "3 Q0 doc9 10 -13.85 galago\n";
+                "3 Q0 doc9 10 -13.85 galago\n" +
+                "4 Q0 doc0 1 -10.08 galago\n" +
+                "4 Q0 doc1 2 -10.12 galago\n" +
+                "4 Q0 doc2 3 -11.08 galago\n" +
+                "4 Q0 doc3 4 -11.55 galago\n" +
+                "4 Q0 doc4 5 -11.85 galago\n" +
+                "4 Q0 doc5 6 -12.08 galago\n" +
+                "4 Q0 doc6 7 -12.12 galago\n" +
+                "4 Q0 doc7 8 -13.08 galago\n" +
+                "4 Q0 doc8 9 -13.55 galago\n" +
+                "4 Q0 doc9 10 -13.85 galago\n";
         Utility.copyStringToFile(results, tmpR);
         QuerySetResults qsr = new QuerySetResults(tmpR.getAbsolutePath());
         Precision pFive = new Precision(5);
@@ -94,9 +115,11 @@ public class PrecisionTest {
         assertEquals(1.00, pFive.evaluate(qsr.get("1"), qsj.get("1")),.0001);
         assertEquals(0.00, pFive.evaluate(qsr.get("2"), qsj.get("2")),.0001);
         assertEquals(1.00, pFive.evaluate(qsr.get("3"), qsj.get("3")),.0001);
+        assertEquals(0.60, pFive.evaluate(qsr.get("4"), qsj.get("4")),.0001);
         assertEquals(0.50, pTen.evaluate(qsr.get("1"), qsj.get("1")),.0001);
         assertEquals(0.50, pTen.evaluate(qsr.get("2"), qsj.get("2")),.0001);
         assertEquals(0.50, pTen.evaluate(qsr.get("3"), qsj.get("3")),.0001);
+        assertEquals(0.60, pTen.evaluate(qsr.get("4"), qsj.get("4")),.0001);
     }
         finally{
             tmpQ.delete();
