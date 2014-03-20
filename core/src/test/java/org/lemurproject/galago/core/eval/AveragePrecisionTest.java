@@ -1,23 +1,25 @@
 
 package org.lemurproject.galago.core.eval;
 
-import java.io.File;
-import java.io.IOException;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.lemurproject.galago.core.eval.metric.AveragePrecision;
 import org.lemurproject.galago.core.eval.metric.Precision;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test the precision class
  * @author wem
  */
 @RunWith(JUnit4.class)
-public class PrecisionTest {
+public class AveragePrecisionTest {
     @Test
     public void calculatePrecision() throws IOException {
         File tmpQ = FileUtility.createTemporary();
@@ -110,16 +112,11 @@ public class PrecisionTest {
                 "4 Q0 doc9 10 -13.85 galago\n";
         Utility.copyStringToFile(results, tmpR);
         QuerySetResults qsr = new QuerySetResults(tmpR.getAbsolutePath());
-        Precision pFive = new Precision(5);
-        Precision pTen = new Precision(10);
-        assertEquals(1.000, pFive.evaluate(qsr.get("1"), qsj.get("1")),.0001);
-        assertEquals(0.000, pFive.evaluate(qsr.get("2"), qsj.get("2")),.0001);
-        assertEquals(1.000, pFive.evaluate(qsr.get("3"), qsj.get("3")),.0001);
-        assertEquals(0.600, pFive.evaluate(qsr.get("4"), qsj.get("4")),.0001);
-        assertEquals(0.500, pTen.evaluate(qsr.get("1"), qsj.get("1")),.0001);
-        assertEquals(0.500, pTen.evaluate(qsr.get("2"), qsj.get("2")),.0001);
-        assertEquals(0.500, pTen.evaluate(qsr.get("3"), qsj.get("3")),.0001);
-        assertEquals(0.600, pTen.evaluate(qsr.get("4"), qsj.get("4")),.0001);
+        AveragePrecision ap = new AveragePrecision("");
+        assertEquals(1.000, ap.evaluate(qsr.get("1"), qsj.get("1")),.001);
+        assertEquals(0.354, ap.evaluate(qsr.get("2"), qsj.get("2")),.001);
+        assertEquals(1.000, ap.evaluate(qsr.get("3"), qsj.get("3")),.001);
+        assertEquals(0.737, ap.evaluate(qsr.get("4"), qsj.get("4")),.0001);
     }
         finally{
             tmpQ.delete();

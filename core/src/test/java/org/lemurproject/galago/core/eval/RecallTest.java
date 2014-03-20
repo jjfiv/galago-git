@@ -112,14 +112,14 @@ public class RecallTest {
             QuerySetResults qsr = new QuerySetResults(tmpR.getAbsolutePath());
             Precision rFive = new Precision(5);
             Precision rTen = new Precision(10);
-            assertEquals(1.00, rFive.evaluate(qsr.get("1"), qsj.get("1")),.0001);
-            assertEquals(0.00, rFive.evaluate(qsr.get("2"), qsj.get("2")),.0001);
-            assertEquals(1.00, rFive.evaluate(qsr.get("3"), qsj.get("3")),.0001);
-            assertEquals(0.50, rFive.evaluate(qsr.get("4"), qsj.get("4")),.0001);
-            assertEquals(1.00, rTen.evaluate(qsr.get("1"), qsj.get("1")),.0001);
-            assertEquals(1.00, rTen.evaluate(qsr.get("2"), qsj.get("2")),.0001);
-            assertEquals(1.00, rTen.evaluate(qsr.get("3"), qsj.get("3")),.0001);
-            assertEquals(1.00, rTen.evaluate(qsr.get("4"), qsj.get("4")),.0001);
+            assertEquals(1.000, rFive.evaluate(qsr.get("1"), qsj.get("1")),.0001);
+            assertEquals(0.000, rFive.evaluate(qsr.get("2"), qsj.get("2")),.0001);
+            assertEquals(1.000, rFive.evaluate(qsr.get("3"), qsj.get("3")),.0001);
+            assertEquals(0.500, rFive.evaluate(qsr.get("4"), qsj.get("4")),.0001);
+            assertEquals(1.000, rTen.evaluate(qsr.get("1"), qsj.get("1")),.0001);
+            assertEquals(1.000, rTen.evaluate(qsr.get("2"), qsj.get("2")),.0001);
+            assertEquals(1.000, rTen.evaluate(qsr.get("3"), qsj.get("3")),.0001);
+            assertEquals(1.000, rTen.evaluate(qsr.get("4"), qsj.get("4")),.0001);
         }
         finally{
             tmpQ.delete();
