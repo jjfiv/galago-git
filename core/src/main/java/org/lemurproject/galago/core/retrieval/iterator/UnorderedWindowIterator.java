@@ -13,6 +13,7 @@ public class UnorderedWindowIterator extends ExtentConjunctionIterator {
 
   int width;
   boolean overlap;
+  private ScoringContext cachedContext = null;
 
   /**
    * Creates a new instance of UnorderedWindowIterator
@@ -29,10 +30,13 @@ public class UnorderedWindowIterator extends ExtentConjunctionIterator {
     // get the document
     long document = c.document;
 
-    // check if we're already there
-    if (c.cachable && this.extentCache.getDocument() == document) {
-      return;
+    if (c.equals(cachedContext)) {
+      assert (this.extentCache.getDocument() == c.document);
+      return; // we already have it computed
     }
+    // set current context as cached
+    if (cachedContext == null) cachedContext = c.getPrototype();
+    else cachedContext.setFrom(c);
 
     // reset the extentCache
     extentCache.reset();

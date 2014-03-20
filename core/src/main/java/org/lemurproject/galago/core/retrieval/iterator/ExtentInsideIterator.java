@@ -18,6 +18,7 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
 
   ExtentIterator innerIterator;
   ExtentIterator outerIterator;
+  private ScoringContext cachedContext = null;
 
   /**
    * <p>Constructs an #inside instance. For <tt>#inside(a b)</tt>, this produces
@@ -57,12 +58,14 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
     // get the document
     long document = c.document;
 
-    // check if we're already there
-    // TODO: use a ScoringContext.equals(c) function, and store the context used for the cached 
-    //       (need to make sure any changes are noted)
-    if (c.cachable && this.extentCache.getDocument() == document) {
-      return;
+    if (c.equals(cachedContext)) {
+      assert (this.extentCache.getDocument() == c.document);
+      return; // we already have it computed
     }
+    // set current context as cached
+    if (cachedContext == null) cachedContext = c.getPrototype();
+    else cachedContext.setFrom(c);
+
 
     // reset the extentCache
     extentCache.reset();

@@ -50,9 +50,11 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
     return cached;
   }
 
-  // TODO: fix this to actually use the context input
   private void loadExtents(ScoringContext c) {
     PassageScoringContext passageContext = ((c instanceof PassageScoringContext) ? (PassageScoringContext) c : null);
+      if (passageContext == null) {
+          throw new IllegalArgumentException("Expected PassageScoringContext, got a ScoringContext");
+      }
 
     cached.reset();
     ExtentArray internal = extentIterator.extents(c);

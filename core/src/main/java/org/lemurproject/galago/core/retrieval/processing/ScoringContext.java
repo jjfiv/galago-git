@@ -20,4 +20,39 @@ public class ScoringContext {
   public ScoringContext(long doc) {
     this.document = doc;
   }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ScoringContext that = (ScoringContext) o;
+
+        if (document != that.document) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (document ^ (document >>> 32));
+    }
+
+    public ScoringContext getPrototype() {
+        ScoringContext context = new ScoringContext();
+        context.document = this.document;
+        context.cachable = this.cachable;
+        return context;
+    }
+
+    public void setFrom(ScoringContext other){
+        assert (other != null);
+
+        if(this.getClass() != other.getClass()){
+            throw new UnsupportedOperationException("ScoringContext implementation class changed from "+
+                    this.getClass()+" to "+other.getClass());
+        }
+        this.document = other.document;
+        this.cachable = other.cachable;
+    }
 }
