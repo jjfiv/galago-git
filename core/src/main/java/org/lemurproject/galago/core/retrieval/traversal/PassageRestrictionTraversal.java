@@ -93,6 +93,11 @@ public class PassageRestrictionTraversal extends Traversal {
       }
     }
 
+     // TODO: check for a counts node, if found, replace it with an extents node
+     // However, keep in mind that not all indexes have extents so this may fail later
+     // That said, this is a best-effort approach and if you don't have extents then passage retrieval
+     // doesn't make any sense anyway.
+
     return original;
   }
 }

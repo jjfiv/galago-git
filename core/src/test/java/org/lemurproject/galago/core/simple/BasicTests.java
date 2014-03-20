@@ -31,7 +31,6 @@ public class BasicTests extends TestCase {
 	public static final Map<String,String> data = new HashMap<String,String>();
 	static {
 		data.put("1","This is a sample document");
-		data.put("1", "This is a sample document");
     data.put("2", "The cat jumped over the moon");
     data.put("3", "If the shoe fits, it's ugly");
     data.put("4", "Though a program be but three lines long, someday it will have to be maintained.");
