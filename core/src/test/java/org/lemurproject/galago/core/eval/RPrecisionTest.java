@@ -14,7 +14,7 @@ import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Test the precision class
+ * Test the RPrecision class
  * @author wem
  */
 @RunWith(JUnit4.class)

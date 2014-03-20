@@ -14,7 +14,7 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * Test the recall class
+ * Test the Recall class
  * @author wem
  */
 @RunWith(JUnit4.class)
@@ -110,8 +110,8 @@ public class RecallTest {
                             "4 Q0 doc9 10 -13.85 galago\n";
             Utility.copyStringToFile(results, tmpR);
             QuerySetResults qsr = new QuerySetResults(tmpR.getAbsolutePath());
-            Precision rFive = new Precision(5);
-            Precision rTen = new Precision(10);
+            Recall rFive = new Recall(5);
+            Recall rTen = new Recall(10);
             assertEquals(1.000, rFive.evaluate(qsr.get("1"), qsj.get("1")),.0001);
             assertEquals(0.000, rFive.evaluate(qsr.get("2"), qsj.get("2")),.0001);
             assertEquals(1.000, rFive.evaluate(qsr.get("3"), qsj.get("3")),.0001);

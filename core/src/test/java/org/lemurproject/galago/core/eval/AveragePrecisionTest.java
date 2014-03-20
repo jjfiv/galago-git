@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.lemurproject.galago.core.eval.metric.AveragePrecision;
-import org.lemurproject.galago.core.eval.metric.Precision;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -15,7 +14,7 @@ import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Test the precision class
+ * Test the AveragePrecision class
  * @author wem
  */
 @RunWith(JUnit4.class)

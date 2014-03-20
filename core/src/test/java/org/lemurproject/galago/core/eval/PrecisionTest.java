@@ -3,7 +3,6 @@ package org.lemurproject.galago.core.eval;
 
 import java.io.File;
 import java.io.IOException;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +12,7 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
- * Test the precision class
+ * Test the Precision class
  * @author wem
  */
 @RunWith(JUnit4.class)
