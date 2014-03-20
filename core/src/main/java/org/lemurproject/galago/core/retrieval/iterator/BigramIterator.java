@@ -29,7 +29,7 @@ public class BigramIterator extends ExtentConjunctionIterator {
     // get the document
     long document = c.document;
 
-      if (c.cachable && c.equals(cachedContext)) {
+      if (c.equals(cachedContext)) {
           assert (this.extentCache.getDocument() == c.document);
           return; // we already have it computed
       }
