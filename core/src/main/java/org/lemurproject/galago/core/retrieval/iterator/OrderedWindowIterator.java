@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 public class OrderedWindowIterator extends ExtentConjunctionIterator {
 
   private int width;
+  private ScoringContext cachedContext = null;
 
   public OrderedWindowIterator(NodeParameters parameters, ExtentIterator[] iterators) throws IOException {
     super(parameters, iterators);
@@ -23,15 +24,17 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
 
   @Override
   public void loadExtents(ScoringContext c) {
-    // get the document
-    long document = c.document;
+      // get the document
+      long document = c.document;
 
-    // check if we're already there
-    // TODO: use a ScoringContext.equals(c) function, and store the context used for the cached 
-    //       (need to make sure any changes are noted)
-    if (c.cachable && this.extentCache.getDocument() == document) {
-      return;
-    }
+
+      if (c.cachable && c.equals(cachedContext)) {
+          assert (this.extentCache.getDocument() == c.document);
+          return; // we already have it computed
+      }
+      // set current context as cached
+      if (cachedContext == null) cachedContext = c.getPrototype();
+      else cachedContext.setFrom(c);
 
     // reset the extentCache
     extentCache.reset();

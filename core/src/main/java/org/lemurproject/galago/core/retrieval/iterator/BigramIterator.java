@@ -15,10 +15,12 @@ import java.io.IOException;
 public class BigramIterator extends ExtentConjunctionIterator {
 
   private int width;
+    private ScoringContext cachedContext = null;
 
   public BigramIterator(NodeParameters parameters, ExtentIterator[] iterators) throws IOException {
     super(parameters, iterators);
     this.width = (int) parameters.get("default", -1);
+      assert(this.width == 1):"Bigram iterator can only work with width 1";
     syncTo(0);
   }
 
@@ -27,15 +29,17 @@ public class BigramIterator extends ExtentConjunctionIterator {
     // get the document
     long document = c.document;
 
+      if (c.cachable && c.equals(cachedContext)) {
+          assert (this.extentCache.getDocument() == c.document);
+          return; // we already have it computed
+      }
+      // set current context as cached
+      if (cachedContext == null) cachedContext = c.getPrototype();
+      else cachedContext.setFrom(c);
 
 
 
-      // check if we're already there
-    // TODO: use a ScoringContext.equals(c) function, and store the context used for the cached 
-    //       (need to make sure any changes are noted)
-    if (c.cachable && this.extentCache.getDocument() == document) {
-      return;
-    }
+
 
 //     System.out.println(document);
 
