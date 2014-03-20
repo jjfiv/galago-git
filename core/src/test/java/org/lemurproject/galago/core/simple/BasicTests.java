@@ -103,7 +103,9 @@ public class BasicTests {
     for(String name : fromCorpus.keySet()) {
       Document pulled = fromCorpus.get(name);
       assertTrue(documents.contains(name));
-      assertEquals(pulled.text, data.get(name));
+      String withoutTextTags = pulled.text.replace("<TEXT>", "").replace("</TEXT>", "").trim();
+      System.out.println(withoutTextTags);
+      assertEquals(data.get(name), withoutTextTags);
     }
   }
 }

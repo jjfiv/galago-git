@@ -1,9 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.PrintStream;
 import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.retrieval.Retrieval;
@@ -11,6 +8,10 @@ import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.PrintStream;
 
 /**
  *
@@ -24,7 +25,7 @@ public class AppTest extends TestCase {
 
   public static String trecDocument(String docno, String text) {
     return "<DOC>\n<DOCNO>" + docno + "</DOCNO>\n"
-            + "<TEXT>\n" + text + "</TEXT>\n</DOC>\n";
+            + "<TEXT>\n" + text + "\n</TEXT>\n</DOC>\n";
   }
 
   public static void verifyIndexStructures(File indexPath) throws Exception {
