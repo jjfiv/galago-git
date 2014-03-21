@@ -3,26 +3,26 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
+import org.junit.Test;
+import org.lemurproject.galago.core.tools.AppTest;
+import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Random;
-import junit.framework.TestCase;
-import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author sjh
  */
-public class StatsFnTest extends TestCase {
-
-  public StatsFnTest(String testName) {
-    super(testName);
-  }
-
+public class StatsFnTest {
+  @Test
   public void testSomeMethod() throws Exception {
     File input = FileUtility.createTemporary();
     File index = FileUtility.createTemporaryDirectory();
@@ -48,9 +48,9 @@ public class StatsFnTest extends TestCase {
                 "--part+postings"
               }, printStream);
       results = Parameters.parseString(array.toString());
-      assert (results.containsKey("postings.porter"));
-      assert (results.containsKey("postings.krovetz"));
-      assert (results.containsKey("postings"));
+      assertTrue(results.containsKey("postings.porter"));
+      assertTrue (results.containsKey("postings.krovetz"));
+      assertTrue(results.containsKey("postings"));
 
       // test length-based usange
       array = new ByteArrayOutputStream();
@@ -62,8 +62,8 @@ public class StatsFnTest extends TestCase {
                 "--field+document"
               }, printStream);
       results = Parameters.parseString(array.toString());
-      assert (results.containsKey("#lengths:document:part=lengths()"));
-      assert (results.containsKey("document"));
+      assertTrue(results.containsKey("#lengths:document:part=lengths()"));
+      assertTrue (results.containsKey("document"));
 
 
       // test node-based usange
@@ -77,9 +77,9 @@ public class StatsFnTest extends TestCase {
                 "--node+t3"
               }, printStream);
       results = Parameters.parseString(array.toString());
-      assert (results.containsKey("#counts:t1:part=postings()"));
-      assert (results.containsKey("#counts:t2:part=postings()"));
-      assert (results.containsKey("t3"));
+      assertTrue (results.containsKey("#counts:t1:part=postings()"));
+      assertTrue (results.containsKey("#counts:t2:part=postings()"));
+      assertTrue (results.containsKey("t3"));
 
       // test mixed usange
       array = new ByteArrayOutputStream();
@@ -95,23 +95,18 @@ public class StatsFnTest extends TestCase {
                 "--field+#lengths:document:part=lengths()"
               }, printStream);
       results = Parameters.parseString(array.toString());
-      assert (results.containsKey("postings.porter"));
-      assert (results.containsKey("postings.krovetz"));
-      assert (results.containsKey("postings"));
-      assert (results.containsKey("#lengths:document:part=lengths()"));
-      assert (results.containsKey("#counts:t1:part=postings()"));
-      assert (results.containsKey("#counts:t2:part=postings()"));
+      assertTrue (results.containsKey("postings.porter"));
+      assertTrue (results.containsKey("postings.krovetz"));
+      assertTrue (results.containsKey("postings"));
+      assertTrue (results.containsKey("#lengths:document:part=lengths()"));
+      assertTrue (results.containsKey("#counts:t1:part=postings()"));
+      assertTrue (results.containsKey("#counts:t2:part=postings()"));
 
 
     } finally {
       input.delete();
       Utility.deleteDirectory(index);
     }
-  }
-
-  public static String trecDocument(String docno, String text) {
-    return "<DOC>\n<DOCNO>" + docno + "</DOCNO>\n"
-            + "<TEXT>\n" + text + "</TEXT>\n</DOC>\n";
   }
 
   private void makeIndex(File input, File index) throws Exception {
@@ -122,9 +117,8 @@ public class StatsFnTest extends TestCase {
       text.append("t").append(i);
       for (int j = 0; j < 100; j++) {
         text.append(" t").append(r.nextInt(100));
-//        text.append(" ").append(j);
       }
-      corpus.append(trecDocument("doc-" + i, text.toString()));
+      corpus.append(AppTest.trecDocument("doc-" + i, text.toString()));
     }
     Utility.copyStringToFile(corpus.toString(), input);
 

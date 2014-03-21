@@ -1,25 +1,27 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import java.io.File;
-import java.io.IOException;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 /**
  *
  * @author trevor
  */
-public class TrecTextParserTest extends TestCase {
+public class TrecTextParserTest {
 
-  public TrecTextParserTest(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testParseNothing() throws IOException {
     File f = FileUtility.createTemporary();
     f.createNewFile();
@@ -35,6 +37,7 @@ public class TrecTextParserTest extends TestCase {
     }
   }
 
+  @Test
 	public void testAppTestGenDoc() throws IOException {
 		String fileText = AppTest.trecDocument("CACM-0001", "This is some text in a document.\n");
 		
@@ -56,7 +59,8 @@ public class TrecTextParserTest extends TestCase {
       f.delete();
     }
 	}
-	
+
+  @Test
   public void testParseOneDocument() throws IOException {
     String fileText =
             "<DOC>\n"
@@ -84,6 +88,7 @@ public class TrecTextParserTest extends TestCase {
     }
   }
 
+  @Test
   public void testParseTwoDocuments() throws IOException {
     String fileText =
             "<DOC>\n"
@@ -122,3 +127,4 @@ public class TrecTextParserTest extends TestCase {
     }
   }
 }
+

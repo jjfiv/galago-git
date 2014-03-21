@@ -25,7 +25,7 @@ public class AppTest extends TestCase {
 
   public static String trecDocument(String docno, String text) {
     return "<DOC>\n<DOCNO>" + docno + "</DOCNO>\n"
-            + "<TEXT>\n" + text + "\n</TEXT>\n</DOC>\n";
+            + "<TEXT>\n" + text + "</TEXT>\n</DOC>\n";
   }
 
   public static void verifyIndexStructures(File indexPath) throws Exception {

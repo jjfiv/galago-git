@@ -3,22 +3,22 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
-import java.io.File;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author sjh
  */
-public class PageRankFnTest extends TestCase {
+public class PageRankFnTest {
 
-  public PageRankFnTest(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testSomeMethod() throws Exception {
     File tempDir = FileUtility.createTemporaryDirectory();
     try {
@@ -120,4 +120,5 @@ public class PageRankFnTest extends TestCase {
       }
     }
   }
+
 }

@@ -1,28 +1,24 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.window;
 
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
+import org.junit.Test;
+import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Tag;
+import org.lemurproject.galago.tupleflow.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import junit.framework.TestCase;
-import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.core.parse.Tag;
-import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.Utility;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author trevor
  */
-public class WindowProducerTest extends TestCase {
+public class WindowProducerTest {
 
-  public WindowProducerTest(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testOrderedWindowProduction() throws IOException, IncompatibleProcessorException {
     // Document:
     Document doc1 = new Document();
@@ -74,6 +70,7 @@ public class WindowProducerTest extends TestCase {
 
   }
 
+  @Test
   public void testUnorderedWindowProduction() throws IOException, IncompatibleProcessorException {
     // Document:
     Document doc = new Document();
@@ -93,20 +90,20 @@ public class WindowProducerTest extends TestCase {
 
     bigramProducer.process(doc);
 
-    assertEquals (catcher.data.size(), 15);
+    assertEquals(15, catcher.data.size());
     assert (Utility.toString(catcher.data.get(0).data).equals("1~9"));
     assert (Utility.toString(catcher.data.get(1).data).equals("1~2"));
     assert (Utility.toString(catcher.data.get(2).data).equals("2~9"));
     assert (Utility.toString(catcher.data.get(3).data).equals("8~9"));
 
-    assertEquals(catcher.data.get(4).document, 10);
-    assertEquals(catcher.data.get(5).document, 10);
+    assertEquals(10, catcher.data.get(4).document);
+    assertEquals(10, catcher.data.get(5).document);
 
-    assertEquals(catcher.data.get(6).begin, 3);
-    assertEquals(catcher.data.get(6).end, 5);
+    assertEquals(3, catcher.data.get(6).begin);
+    assertEquals(5, catcher.data.get(6).end);
 
-    assertEquals(catcher.data.get(7).begin, 3);
-    assertEquals(catcher.data.get(7).end, 6);
+    assertEquals(3, catcher.data.get(7).begin);
+    assertEquals(6, catcher.data.get(7).end);
 
   }
 
@@ -151,6 +148,7 @@ public class WindowProducerTest extends TestCase {
     assertEquals(catcher.data.get(4).filePosition, 4);
   }
 
+  @Test
   public void testOverlappingTagOrderedWindowProduction() throws IOException, IncompatibleProcessorException {
     // Document:
     Document doc1 = new Document();
@@ -195,7 +193,7 @@ public class WindowProducerTest extends TestCase {
   }
 
   
-  public class Catcher<T> implements Processor<T> {
+  private static class Catcher<T> implements Processor<T> {
 
     ArrayList<T> data = new ArrayList();
 
@@ -209,13 +207,6 @@ public class WindowProducerTest extends TestCase {
 
     public void close() throws IOException {
       //nothing
-    }
-
-    private void printAll() {
-      for (int i = 0; i < data.size(); i++) {
-        Window w = (Window) data.get(i);
-        System.err.format("%d - %s %d %d\n", i, Utility.toString(w.data), w.begin, w.end);
-      }
     }
   }
 }

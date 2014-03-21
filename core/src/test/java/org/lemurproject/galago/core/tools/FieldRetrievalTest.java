@@ -3,24 +3,24 @@
  */
 package org.lemurproject.galago.core.tools;
 
+import org.junit.Test;
+import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.tupleflow.Utility;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import junit.framework.TestCase;
-import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Utility;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author sjh
  */
-public class FieldRetrievalTest extends TestCase {
-
-  public FieldRetrievalTest(String testName) {
-    super(testName);
-  }
-
+public class FieldRetrievalTest {
+  @Test
   public static void verifyIndexStructures(File indexPath) throws IOException {
     // Check main path
     assertTrue(indexPath.isDirectory());

@@ -3,26 +3,26 @@
  */
 package org.lemurproject.galago.core.tools;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.PrintStream;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.CountIndexWriter;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.PrintStream;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author sjh
  */
-public class ManifestEditorTest extends TestCase {
+public class ManifestEditorTest {
 
-  public ManifestEditorTest(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testManifestEditor() throws Exception {
     File indexFile = null;
     try {

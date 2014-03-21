@@ -3,9 +3,7 @@
  */
 package org.lemurproject.galago.core.tools;
 
-import java.io.File;
-import java.util.Collections;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.disk.CountIndexReader;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
@@ -18,21 +16,23 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author sjh
  */
-public class BuildWindowIndexTest extends TestCase {
-
-  public BuildWindowIndexTest(String name) {
-    super(name);
-  }
+public class BuildWindowIndexTest {
 
   public static String trecDocument(String docno, String text) {
     return "<DOC>\n<DOCNO>" + docno + "</DOCNO>\n"
             + "<TEXT>\n" + text + "</TEXT>\n</DOC>\n";
   }
 
+  @Test
   public void testVariousODWindowIndexes() throws Exception {
     File trecFolder = null;
     File index = null;
@@ -212,6 +212,7 @@ public class BuildWindowIndexTest extends TestCase {
     }
   }
 
+  @Test
   public void testVariousUWWindowIndexes() throws Exception {
     File trecFolder = null;
     File index = null;

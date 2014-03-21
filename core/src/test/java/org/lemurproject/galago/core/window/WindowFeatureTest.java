@@ -2,30 +2,24 @@
 package org.lemurproject.galago.core.window;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
-import java.security.NoSuchAlgorithmException;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import java.io.IOException;
-import java.util.ArrayList;
-import junit.framework.*;
+import org.junit.Test;
 import org.lemurproject.galago.core.types.TextFeature;
-import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.*;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 /**
  *
  * @author trevor
  */
-public class WindowFeaturerTest extends TestCase {
+public class WindowFeatureTest {
 
-  public WindowFeaturerTest(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testOrderedWindowFeaturer() throws IOException, NoSuchAlgorithmException, IncompatibleProcessorException{
 
-    Catcher<TextFeature> catcher = new Catcher();
+    ArrayListTupleflowSink<TextFeature> catcher = new ArrayListTupleflowSink();
 
     // first try bi-grams ~(#od:1(a b))
     WindowFeaturer featurer = new WindowFeaturer(new FakeParameters(new Parameters()));
@@ -50,7 +44,7 @@ public class WindowFeaturerTest extends TestCase {
     assert (c == 0);
   }
 
-  public class Catcher<T> implements Processor<T> {
+  public static class ArrayListTupleflowSink<T> implements Processor<T> {
 
     ArrayList<T> data = new ArrayList();
 
