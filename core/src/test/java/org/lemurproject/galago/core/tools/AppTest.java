@@ -34,6 +34,22 @@ public class AppTest extends TestCase {
     // Time to check standard parts
     Retrieval ret = RetrievalFactory.instance(indexPath.getAbsolutePath(), new Parameters());
     Parameters availableParts = ret.getAvailableParts();
+    assertNotNull(availableParts);
+
+    // doc lengths
+    File childPath = new File(indexPath, "lengths");
+    assertTrue(childPath.exists());
+
+    // doc names -- there are two files
+    childPath = new File(indexPath, "names");
+    assertTrue(childPath.exists());
+    childPath = new File(indexPath, "names.reverse");
+    assertTrue(childPath.exists());
+
+    // postings
+    childPath = new File(indexPath, "postings");
+    assertTrue(childPath.exists());
+
   }
 
   public void testMakeCorpora() throws Exception {

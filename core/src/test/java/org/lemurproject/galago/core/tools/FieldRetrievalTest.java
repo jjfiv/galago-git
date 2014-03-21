@@ -9,7 +9,6 @@ import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 
 import static org.junit.Assert.assertEquals;
@@ -21,46 +20,6 @@ import static org.junit.Assert.assertTrue;
  */
 public class FieldRetrievalTest {
   @Test
-  public static void verifyIndexStructures(File indexPath) throws IOException {
-    // Check main path
-    assertTrue(indexPath.isDirectory());
-
-    // Time to check standard parts
-
-    // doc lengths
-    File childPath = new File(indexPath, "lengths");
-    assertTrue(childPath.exists());
-
-    // doc names -- there are two files
-    childPath = new File(indexPath, "names");
-    assertTrue(childPath.exists());
-    childPath = new File(indexPath, "names.reverse");
-    assertTrue(childPath.exists());
-
-    // corpus -- there is one folder
-    childPath = new File(indexPath, "corpus");
-    assertTrue(childPath.isDirectory());
-
-    // postings -- there are two files
-    childPath = new File(indexPath, "postings");
-    assertTrue(childPath.exists());
-    childPath = new File(indexPath, "postings.krovetz");
-    assertTrue(childPath.exists());
-
-    // field postings -- there are two files
-    childPath = new File(indexPath, "field.krovetz.title");
-    assertTrue(childPath.exists());
-
-    childPath = new File(indexPath, "field.krovetz.other");
-    assertTrue(childPath.exists());
-
-    childPath = new File(indexPath, "field.title");
-    assertTrue(childPath.exists());
-
-    childPath = new File(indexPath, "field.other");
-    assertTrue(childPath.exists());
-  }
-
   public void testFieldRetrievalPipeline() throws Exception {
     File trecCorpusFile = null;
     File indexFile = null;
@@ -79,7 +38,20 @@ public class FieldRetrievalTest {
                 "--tokenizer/fields+title", "--tokenizer/fields+other"});
 
       // Checks path and components
-      verifyIndexStructures(indexFile);
+      AppTest.verifyIndexStructures(indexFile);
+
+      // field postings -- there are two files
+      File childPath = new File(indexFile, "field.krovetz.title");
+      assertTrue(childPath.exists());
+
+      childPath = new File(indexFile, "field.krovetz.other");
+      assertTrue(childPath.exists());
+
+      childPath = new File(indexFile, "field.title");
+      assertTrue(childPath.exists());
+
+      childPath = new File(indexFile, "field.other");
+      assertTrue(childPath.exists());
 
       // try to batch search that index with a no-match string
       String queries = "{ \"queries\" : ["
