@@ -1,60 +1,52 @@
 package org.lemurproject.galago.tupleflow;
 
-import org.lemurproject.galago.tupleflow.Sorter;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.NullProcessor;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.FakeParameters;
-import junit.framework.*;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author trevor
  */
-public class SorterTest extends TestCase {
-    public SorterTest(String testName) {
-        super(testName);
-    }
+public class SorterTest {
+  @Test
+  public void testGetInputClass() {
+    Parameters p = new Parameters();
+    p.set("class", FakeType.class.toString());
+    String expResult = FakeType.class.toString();
+    String result = Sorter.getInputClass(new FakeParameters(p));
+    assertEquals(expResult, result);
+  }
 
-    public void testGetInputClass() {
-        Sorter instance = new Sorter(new FakeType().getOrder("+document", "+length"));
+  @Test
+  public void testGetOutputClass() {
+    Parameters p = new Parameters();
+    p.set("class", FakeType.class.toString());
+    String expResult = FakeType.class.toString();
+    String result = Sorter.getOutputClass(new FakeParameters(p));
+    assertEquals(expResult, result);
+  }
 
-        Parameters p = new Parameters();
-        p.set("class", FakeType.class.toString());
-        String expResult = FakeType.class.toString();
-        String result = Sorter.getInputClass(new FakeParameters(p));
-        assertEquals(expResult, result);
-    }
+  @Test
+  public void testProcess() throws Exception {
+    FakeType object = new FakeType();
+    Sorter<FakeType> instance = new Sorter<FakeType>(new FakeType().getOrder("+document", "+length"));
+    instance.process(object);
+  }
 
-    public void testGetOutputClass() {
-        Sorter instance = new Sorter(new FakeType().getOrder("+value"));
+  @Test
+  public void testClose() throws Exception {
+    FakeType object = new FakeType();
+    Sorter<FakeType> instance = new Sorter<FakeType>(new FakeType().getOrder("+document", "+length"));
 
-        Parameters p = new Parameters();
-        p.set("class", FakeType.class.toString());
-        String expResult = FakeType.class.toString();
-        String result = Sorter.getOutputClass(new FakeParameters(p));
-        assertEquals(expResult, result);
-    }
+    instance.setProcessor(new NullProcessor<FakeType>(FakeType.class));
+    instance.process(object);
+    instance.close();
+  }
 
-    public void testProcess() throws Exception {
-        FakeType object = new FakeType();
-        Sorter instance = new Sorter(new FakeType().getOrder("+document", "+length"));
-
-        instance.process(object);
-    }
-
-    public void testClose() throws Exception {
-        FakeType object = new FakeType();
-        Sorter instance = new Sorter(new FakeType().getOrder("+document", "+length"));
-
-        instance.setProcessor(new NullProcessor(FakeType.class));
-        instance.process(object);
-        instance.close();
-    }
-
-    public void testSetProcessor() throws IncompatibleProcessorException {
-        Sorter instance = new Sorter(new FakeType().getOrder("+document", "+length"));
-
-        instance.setProcessor(new NullProcessor(FakeType.class));
-    }
+  @Test
+  public void testSetProcessor() throws IncompatibleProcessorException {
+    Sorter<FakeType> instance = new Sorter<FakeType>(new FakeType().getOrder("+document", "+length"));
+    instance.setProcessor(new NullProcessor<FakeType>(FakeType.class));
+  }
 }

@@ -5,36 +5,34 @@
 
 package org.lemurproject.galago.tupleflow;
 
-import org.lemurproject.galago.tupleflow.VByteOutput;
+import org.junit.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import junit.framework.TestCase;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author trevor
  */
-public class VByteOutputTest extends TestCase {
-    
-    public VByteOutputTest(String testName) {
-        super(testName);
-    }
+public class VByteOutputTest {
+  @Test
+  public void testWriteString() throws IOException {
+    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    VByteOutput output = new VByteOutput(new DataOutputStream(stream));
+    stream.close();
 
-    public void testWriteString() throws IOException {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        VByteOutput output = new VByteOutput(new DataOutputStream(stream));
-        stream.close();
+    output.writeString("\u2297");
+    final byte[] outBytes = stream.toByteArray();
+    assertEquals(4, outBytes.length);
 
-        output.writeString("\u2297");
-        byte[] outBytes = stream.toByteArray();
-        assertEquals(4, outBytes.length);
-
-        byte[] actualBytes = "\u2297".getBytes("UTF-8");
-        assertEquals(actualBytes.length, 3);
-        assertEquals(actualBytes[0], outBytes[1]);
-        assertEquals(actualBytes[1], outBytes[2]);
-        assertEquals(actualBytes[2], outBytes[3]);
-    }
+    final byte[] actualBytes = "\u2297".getBytes("UTF-8");
+    assertEquals(actualBytes.length, 3);
+    assertEquals(actualBytes[0], outBytes[1]);
+    assertEquals(actualBytes[1], outBytes[2]);
+    assertEquals(actualBytes[2], outBytes[3]);
+  }
 
 }

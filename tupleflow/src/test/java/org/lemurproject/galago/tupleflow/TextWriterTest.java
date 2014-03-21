@@ -1,21 +1,21 @@
 package org.lemurproject.galago.tupleflow;
 
+import org.junit.Assert;
+import org.junit.Test;
+import org.lemurproject.galago.tupleflow.types.FileName;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import junit.framework.TestCase;
-import org.lemurproject.galago.tupleflow.types.FileName;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author trevor
  */
-public class TextWriterTest extends TestCase {
-
-  public TextWriterTest(String testName) {
-    super(testName);
-  }
-
+public class TextWriterTest {
+  @Test
   public void testWriter() throws Exception {
     File tempPath = null;
     try {
@@ -23,7 +23,7 @@ public class TextWriterTest extends TestCase {
       Parameters p = new Parameters();
       p.set("class", FileName.class.getName());
       p.set("filename", tempPath.getAbsolutePath());
-      TextWriter writer = new TextWriter(new FakeParameters(p));
+      TextWriter<FileName> writer = new TextWriter<FileName>(new FakeParameters(p));
 
       writer.process(new FileName("hey"));
       writer.process(new FileName("you"));
@@ -39,8 +39,9 @@ public class TextWriterTest extends TestCase {
       assertEquals(null, line);
     } finally {
       if (tempPath != null) {
-        tempPath.delete();
+        Assert.assertTrue(tempPath.delete());
       }
     }
   }
 }
+

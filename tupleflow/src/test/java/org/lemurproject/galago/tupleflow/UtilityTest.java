@@ -4,20 +4,20 @@
  */
 package org.lemurproject.galago.tupleflow;
 
-import org.lemurproject.galago.tupleflow.Utility;
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.io.*;
-import junit.framework.TestCase;
+
+import static org.junit.Assert.*;
 
 /**
  *
  * @author trevor
  */
-public class UtilityTest extends TestCase {
+public class UtilityTest {
 
-  public UtilityTest(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testCopyStream() throws IOException {
     byte[] data = {0, 1, 2, 3, 4, 5};
     ByteArrayInputStream input = new ByteArrayInputStream(data);
@@ -28,6 +28,7 @@ public class UtilityTest extends TestCase {
     assertEquals(0, Utility.compare(data, result));
   }
 
+  @Test
   public void testFilterFlags() {
     String[][] filtered;
 
@@ -48,6 +49,7 @@ public class UtilityTest extends TestCase {
     assertEquals("notflag", nonFlags[0]);
   }
 
+  @Test
   public void testMakeParentDirectories() throws IOException {
     // This gives us a usable temporary path.
     File f = null;
@@ -68,16 +70,14 @@ public class UtilityTest extends TestCase {
 
     } finally {
       if (f != null) {
-        f.delete();
-
-      }
-      if (bbb != null) {
+        Assert.assertTrue(f.delete());
+      } if (bbb != null) {
         Utility.deleteDirectory(bbb);
-        
       }
     }
   }
 
+  @Test
   public void testConverters() throws IOException {
     // String
     String testString = "I am a little teapot, short and stout";
@@ -138,33 +138,4 @@ public class UtilityTest extends TestCase {
     convLong = Utility.uncompressLong(buffer, 0);
     assertEquals(testLong, convLong);
   }
-  /*
-   * Debugging function - tests the .galagopref file parsing.
-   *
-  public void testPreferences() throws IOException {
-
-  String nativeSpecification_each = "-w n";
-  String nativeSpecification_combined = "-w n";
-
-  Parameters defaults = Utility.getDrmaaOptions();
-  if (defaults.containsKey("mem")) {
-  String mem = defaults.get("mem");
-  assert (!mem.startsWith("-X")) : "Error: mem parameter in .galagopref file should not start with '-Xmx' or '-Xms'.";
-  System.err.println("Setting mem: -Xmx"+mem+" -Xms"+mem);
-  }
-  if (defaults.containsKey("nativeSpec")) {
-  nativeSpecification_each = nativeSpecification_each + " " +defaults.get("nativeSpec");
-  nativeSpecification_combined = nativeSpecification_combined + " "+ defaults.get("nativeSpec");
-  System.err.println("Setting ns-base: "+nativeSpecification_each);
-  }
-  if (defaults.containsKey("nativeSpecEach")) {
-  nativeSpecification_each = nativeSpecification_each + " " + defaults.get("nativeSpecEach");
-  System.err.println("Setting ns-each: "+nativeSpecification_each);
-  }
-  if (defaults.containsKey("nativeSpecCombined")) {
-  nativeSpecification_combined = nativeSpecification_combined + " " + defaults.get("nativeSpecCombined");
-  System.err.println("Setting ns-comb: "+nativeSpecification_combined);
-  }
-  }
-   */
 }

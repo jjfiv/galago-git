@@ -3,29 +3,22 @@
  */
 package org.lemurproject.galago.tupleflow.execution;
 
-import java.io.IOException;
-import junit.framework.TestCase;
-import org.lemurproject.galago.tupleflow.ExNihiloSource;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.Linkage;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.TypeReader;
+import org.junit.Test;
+import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.types.TupleflowString;
 import org.lemurproject.galago.tupleflow.types.XMLFragment;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *  Tests the connection of two stages with multiple connections between them.
  * 
  * @author sjh
  */
-public class MultiConnectionTest extends TestCase {
-
-  public MultiConnectionTest(String name) {
-    super(name);
-  }
-
+public class MultiConnectionTest {
+  @Test
   public void testMultiConnections() throws Exception {
     Job job = new Job();
 

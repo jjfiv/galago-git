@@ -3,27 +3,26 @@
  */
 package org.lemurproject.galago.tupleflow;
 
-import java.io.File;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.tupleflow.types.TupleflowString;
+
+import java.io.File;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author sjh
  */
-public class CompressionTest extends TestCase {
-
-  public CompressionTest(String name) {
-    super(name);
-  }
-
+public class CompressionTest {
+  @Test
   public void testCompresion() throws Exception {
     File f1 = FileUtility.createTemporary();
     File f2 = FileUtility.createTemporary();
     File f3 = FileUtility.createTemporary();
     try {
       // write a series of strings to these files.
-      Order o = new TupleflowString.ValueOrder();
+      Order<TupleflowString> o = new TupleflowString.ValueOrder();
 
       FileOrderedWriter<TupleflowString> w1 = new FileOrderedWriter<TupleflowString>(f1.getAbsolutePath(), o, CompressionType.NONE);
       FileOrderedWriter<TupleflowString> w2 = new FileOrderedWriter<TupleflowString>(f2.getAbsolutePath(), o, CompressionType.VBYTE);
@@ -38,9 +37,9 @@ public class CompressionTest extends TestCase {
       w2.close();
       w3.close();
 
-      FileOrderedReader<TupleflowString> r1 = new FileOrderedReader(f1.getAbsolutePath());
-      FileOrderedReader<TupleflowString> r2 = new FileOrderedReader(f2.getAbsolutePath());
-      FileOrderedReader<TupleflowString> r3 = new FileOrderedReader(f3.getAbsolutePath());
+      FileOrderedReader<TupleflowString> r1 = new FileOrderedReader<TupleflowString>(f1.getAbsolutePath());
+      FileOrderedReader<TupleflowString> r2 = new FileOrderedReader<TupleflowString>(f2.getAbsolutePath());
+      FileOrderedReader<TupleflowString> r3 = new FileOrderedReader<TupleflowString>(f3.getAbsolutePath());
 
       assert (r1.getCompression().equals(CompressionType.NONE));
       assert (r2.getCompression().equals(CompressionType.VBYTE));
@@ -57,9 +56,9 @@ public class CompressionTest extends TestCase {
       r3.close();
 
     } finally {
-      f1.delete();
-      f2.delete();
-      f3.delete();
+      assertTrue(f1.delete());
+      assertTrue(f2.delete());
+      assertTrue(f3.delete());
     }
   }
 }

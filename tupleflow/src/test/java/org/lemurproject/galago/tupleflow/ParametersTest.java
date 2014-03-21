@@ -4,27 +4,29 @@
  */
 package org.lemurproject.galago.tupleflow;
 
-import java.util.ArrayList;
-import java.util.List;
-import junit.framework.TestCase;
+import org.junit.Test;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author irmarc
  */
-public class ParametersTest extends TestCase {
-
-  public ParametersTest(String testName) {
-    super(testName);
-  }
-
+public class ParametersTest {
+  @Test
   public void testCreation() {
     Parameters p = new Parameters();
   }
 
+  @Test
   public void testAddSimpleData() {
     Parameters p = new Parameters();
 
@@ -48,7 +50,7 @@ public class ParametersTest extends TestCase {
     assertTrue(p.isDouble("tf"));
     assertFalse(p.isLong("tf"));
     assertFalse(p.isMap("tf"));
-    assertEquals(Math.PI, p.getDouble("tf"));
+    assertEquals(Math.PI, p.getDouble("tf"), 0.001);
 
     // add String data
     p.set("str", "TestString");
@@ -57,6 +59,7 @@ public class ParametersTest extends TestCase {
     assertEquals("TestString", p.getString("str"));
   }
 
+  @Test
   public void testAddLists() throws Exception {
     ArrayList<String> a = new ArrayList<String>();
     a.add("woot");
@@ -77,6 +80,7 @@ public class ParametersTest extends TestCase {
     assertFalse(p.isList("list"));
   }
 
+  @Test
   public void testAddParameters() throws Exception {
     Parameters inner = new Parameters();
 
@@ -95,6 +99,7 @@ public class ParametersTest extends TestCase {
     assertEquals(true, recv.getBoolean("ib"));
   }
 
+  @Test
   public void testWritingAndReading() throws IOException {
     File tempPath = null;
     try {
@@ -124,6 +129,7 @@ public class ParametersTest extends TestCase {
     }
   }
 
+  @Test
   public void testParseAndGenerateParameters() throws Exception {
     StringBuilder json = new StringBuilder();
     json.append("{ \"inner\" : { \"inner1\" : 1 , \"inner2\" : \"jackal\" } ");
@@ -153,6 +159,7 @@ public class ParametersTest extends TestCase {
     assertEquals(p.toString(), clone.toString());
   }
 
+  @Test
   public void testCommandLineArgs() throws Exception {
     String[] args = new String[10];
     args[0] = "--arrayKey+val1";
@@ -186,6 +193,7 @@ public class ParametersTest extends TestCase {
     assertEquals("absolutely", innerOnceMore.getString("buriedKey"));
   }
 
+  @Test
   public void testPrettyPrinter() throws Exception {
     Parameters tokenizer = new Parameters();
     Parameters formats = new Parameters();
@@ -209,10 +217,12 @@ public class ParametersTest extends TestCase {
     Parameters reParsed = Parameters.parseString(prettyString);
     assert (reParsed.equals(params));
   }
-  
+
+  @Test
   public void testTrailingCommas() throws Exception {
     Parameters test = Parameters.parseString(" { \"foo\" : [1, 2,3,\t],\n}");
     assert(test.isList("foo"));
     assert(test.getList("foo").size() == 3);
   }
 }
+

@@ -3,20 +3,13 @@
  */
 package org.lemurproject.galago.tupleflow.execution;
 
+import org.junit.Test;
+import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.Parameters.Type;
+import org.lemurproject.galago.tupleflow.types.TupleflowString;
+
 import java.io.IOException;
 import java.util.List;
-import junit.framework.TestCase;
-import org.lemurproject.galago.tupleflow.CompressionType;
-import org.lemurproject.galago.tupleflow.ExNihiloSource;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.Linkage;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Parameters.Type;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.Sorter;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.TypeReader;
-import org.lemurproject.galago.tupleflow.types.TupleflowString;
 
 /**
  * Tests the connection of stages (single/distributed) using (combined/each)
@@ -82,12 +75,9 @@ import org.lemurproject.galago.tupleflow.types.TupleflowString;
  * 
  * @author sjh
  */
-public class ConnectionTest extends TestCase {
+public class ConnectionTest {
 
-  public ConnectionTest(String name) {
-    super(name);
-  }
-
+  @Test
   public void testSingleSingleComb() throws Exception {
     Job job = new Job();
 
@@ -115,6 +105,7 @@ public class ConnectionTest extends TestCase {
     }
   }
 
+  @Test
   public void testSingleMultiEach() throws Exception {
     Job job = new Job();
 
@@ -151,6 +142,7 @@ public class ConnectionTest extends TestCase {
     }
   }
 
+  @Test
   public void testMultiMultiEach() throws Exception {
     Job job = new Job();
 
@@ -178,7 +170,7 @@ public class ConnectionTest extends TestCase {
 
     Stage four = new Stage("four");
     four.add(new StageConnectionPoint(ConnectionPointType.Input,
-            "conn-3-4", new TupleflowString.ValueOrder()));
+        "conn-3-4", new TupleflowString.ValueOrder()));
     // should recieve 10 items from each instance of two - they will be passed through three
     four.add(new Step(Receiver.class, Parameters.parseString("{\"expectedCount\":20, \"connIn\" : [\"conn-3-4\"]}")));
     job.add(four);
@@ -198,6 +190,7 @@ public class ConnectionTest extends TestCase {
     }
   }
 
+  @Test
   public void testSingleSingleIntoMulti() throws Exception {
     Job job = new Job();
 
@@ -262,6 +255,7 @@ public class ConnectionTest extends TestCase {
     }
   }
 
+  @Test
   public void testSingleMultiIntoMulti() throws Exception {
     Job job = new Job();
 
@@ -326,6 +320,7 @@ public class ConnectionTest extends TestCase {
     }
   }
 
+  @Test
   public void testMultiMultiIntoMulti() throws Exception {
     Job job = new Job();
 
@@ -390,6 +385,7 @@ public class ConnectionTest extends TestCase {
     }
   }
 
+  @Test
   public void testSingleIntoSingleMulti() throws Exception {
     Job job = new Job();
 
@@ -453,6 +449,7 @@ public class ConnectionTest extends TestCase {
     }
   }
 
+  @Test
   public void testMultiIntoSingleMulti() throws Exception {
     Job job = new Job();
 
@@ -516,6 +513,7 @@ public class ConnectionTest extends TestCase {
     }
   }
 
+  @Test
   public void testSingleSingleCombGZIP() throws Exception {
     Job job = new Job();
 
@@ -541,6 +539,7 @@ public class ConnectionTest extends TestCase {
     }
   }
 
+  @Test
   public void testSingleMultiEachGZIP() throws Exception {
     Job job = new Job();
 
@@ -771,3 +770,4 @@ public class ConnectionTest extends TestCase {
     }
   }
 }
+
