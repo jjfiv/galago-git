@@ -3,38 +3,39 @@
  */
 package org.lemurproject.galago.contrib.learning;
 
-import java.io.File;
-import java.util.*;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.contrib.util.TestingUtils;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.SourceIterator;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 /**
  *
  * @author sjh
  */
-public class LearnerTest extends TestCase {
-
-  public LearnerTest(String name) {
-    super(name);
-  }
-
+public class LearnerTest {
+  @Test
   public void testLearnerCaching() throws Exception {
     File index = null;
     File qrels = null;
 
     try {
       File[] files = TestingUtils.make10DocIndex();
-      files[0].delete(); // trecCorpus not required
+      assertTrue(files[0].delete());
       Utility.deleteDirectory(files[1]); // corpus not required
       index = files[2]; // index is required
       qrels = FileUtility.createTemporary();
@@ -54,7 +55,7 @@ public class LearnerTest extends TestCase {
       learnParams.set("learner", "grid");
       learnParams.set("qrels", qrels.getAbsolutePath());
       // add two parameters
-      List<Parameters> learnableParams = new ArrayList();
+      List<Parameters> learnableParams = new ArrayList<Parameters>();
       learnableParams.add(Parameters.parseString("{\"name\":\"uniw\", \"max\":1.0, \"min\":-1.0}"));
       learnableParams.add(Parameters.parseString("{\"name\":\"odw\", \"max\":1.0, \"min\":-1.0}"));
       learnableParams.add(Parameters.parseString("{\"name\":\"uww\", \"max\":1.0, \"min\":-1.0}"));
@@ -93,10 +94,10 @@ public class LearnerTest extends TestCase {
         // System.out.println(root.toPrettyString());
 
         // node is an SDM - root, children, and sub-children are not cached, nodes below that level are cached
-        BaseIterator i = (BaseIterator) r.createIterator(new Parameters(), root);
+        BaseIterator i = r.createIterator(new Parameters(), root);
         assertFalse(i instanceof SourceIterator); // not disk level
         for (Node child : root.getInternalNodes()) {
-          i = (BaseIterator) r.createIterator(new Parameters(), child);
+          i = r.createIterator(new Parameters(), child);
           assertFalse(i instanceof SourceIterator); // not disk level
           for (Node subchild : child.getInternalNodes()) {
             i = r.createIterator(new Parameters(), subchild);
@@ -112,7 +113,7 @@ public class LearnerTest extends TestCase {
         Utility.deleteDirectory(index);
       }
       if (qrels != null) {
-        qrels.delete();
+        assertTrue(qrels.delete());
       }
     }
   }

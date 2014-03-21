@@ -3,11 +3,12 @@
  */
 package org.lemurproject.galago.contrib.util;
 
-import java.io.File;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
 
 /**
  *

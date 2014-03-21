@@ -3,9 +3,8 @@
  */
 package org.lemurproject.galago.contrib.tools;
 
-import java.io.File;
-import java.util.Random;
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 import org.lemurproject.galago.contrib.index.disk.BackgroundStatsReader;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.retrieval.Retrieval;
@@ -15,16 +14,18 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.util.Random;
+
+import static org.junit.Assert.assertEquals;
+import static org.lemurproject.galago.contrib.util.TestingUtils.trecDocument;
+
 /**
  *
  * @author sjh
  */
-public class BuildSpecialCollBackgroundTest extends TestCase {
-
-  public BuildSpecialCollBackgroundTest(String testName) {
-    super(testName);
-  }
-
+public class BuildSpecialCollBackgroundTest {
+  @Test
   public void testSomeMethod() throws Exception {
     File docs = FileUtility.createTemporary();
     File back = FileUtility.createTemporary();
@@ -38,13 +39,12 @@ public class BuildSpecialCollBackgroundTest extends TestCase {
       p.set("corpus", false);
       App.run("build", p, System.out);
 
-      StringBuilder sb = new StringBuilder();
-      sb.append("1\t1\n");
-      sb.append("2\t2\n");
-      sb.append("3\t3\n");
-      sb.append("4\t4\n");
-      sb.append("4\t4\n");
-      Utility.copyStringToFile(sb.toString(), back);
+      Utility.copyStringToFile(
+          "1\t1\n" +
+          "2\t2\n" +
+          "3\t3\n" +
+          "4\t4\n" +
+          "4\t4\n", back);
 
       Parameters p2 = new Parameters();
       p2.set("inputPath", back.getAbsolutePath());
@@ -61,8 +61,8 @@ public class BuildSpecialCollBackgroundTest extends TestCase {
       assertEquals(r.getNodeStatistics("#counts:@/4/:part=back()").nodeFrequency, 8);
       
     } finally {
-      docs.delete();
-      back.delete();
+      Assert.assertTrue(docs.delete());
+      Assert.assertTrue(back.delete());
       Utility.deleteDirectory(index);
     }
   }
@@ -74,15 +74,9 @@ public class BuildSpecialCollBackgroundTest extends TestCase {
       StringBuilder text = new StringBuilder();
       for (int j = 0; j < 100; j++) {
         text.append(" ").append(r.nextInt(100));
-//        text.append(" ").append(j);
       }
       corpus.append(trecDocument("doc-" + i, text.toString()));
     }
     Utility.copyStringToFile(corpus.toString(), input);
-  }
-
-  public static String trecDocument(String docno, String text) {
-    return "<DOC>\n<DOCNO>" + docno + "</DOCNO>\n"
-            + "<TEXT>\n" + text + "</TEXT>\n</DOC>\n";
   }
 }

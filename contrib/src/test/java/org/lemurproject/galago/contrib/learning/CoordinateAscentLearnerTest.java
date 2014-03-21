@@ -3,11 +3,7 @@
  */
 package org.lemurproject.galago.contrib.learning;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.contrib.util.TestingUtils;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
@@ -15,16 +11,17 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  *
  * @author sjh
  */
-public class CoordinateAscentLearnerTest extends TestCase {
-
-  public CoordinateAscentLearnerTest(String name) {
-    super(name);
-  }
-
+public class CoordinateAscentLearnerTest {
+  @Test
   public void testCoordSearch() throws Exception {
     File index = null;
     File qrels = null;
@@ -74,7 +71,7 @@ public class CoordinateAscentLearnerTest extends TestCase {
       
       Learner learner = LearnerFactory.instance(learnParams, ret);
       RetrievalModelInstance res = learner.learn();
-      System.err.println(res.toParameters().toString());
+      //System.err.println(res.toParameters().toString());
 
     } finally {
       if (index != null) {

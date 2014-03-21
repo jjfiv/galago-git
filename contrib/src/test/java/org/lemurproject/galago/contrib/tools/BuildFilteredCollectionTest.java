@@ -3,32 +3,25 @@
  */
 package org.lemurproject.galago.contrib.tools;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Random;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.*;
+import java.util.Random;
+import java.util.zip.GZIPInputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.lemurproject.galago.contrib.util.TestingUtils.trecDocument;
 
 /**
  *
  * @author sjh
  */
-public class BuildFilteredCollectionTest extends TestCase {
-
-  public BuildFilteredCollectionTest(String testName) {
-    super(testName);
-  }
-
+public class BuildFilteredCollectionTest {
+  @Test
   public void testSomeMethod() throws Exception {
     File input = FileUtility.createTemporary();
     File filter = FileUtility.createTemporary();
@@ -48,6 +41,8 @@ public class BuildFilteredCollectionTest extends TestCase {
       (new BuildFilteredCollection()).run(p, System.out);
 
       int dcount = 0;
+      assertNotNull(output);
+      assertNotNull(output.listFiles());
       for (File o : output.listFiles()) {
         // System.err.println(o);
         dcount += countDocuments(o);
@@ -74,11 +69,6 @@ public class BuildFilteredCollectionTest extends TestCase {
       corpus.append(trecDocument("doc-" + i, text.toString()));
     }
     Utility.copyStringToFile(corpus.toString(), input);
-  }
-
-  public static String trecDocument(String docno, String text) {
-    return "<DOC>\n<DOCNO>" + docno + "</DOCNO>\n"
-            + "<TEXT>\n" + text + "</TEXT>\n</DOC>\n";
   }
 
   public static int countDocuments(File f) throws IOException {

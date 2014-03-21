@@ -3,31 +3,23 @@
  */
 package org.lemurproject.galago.contrib.tools;
 
-import java.io.File;
-import java.util.Random;
-import junit.framework.TestCase;
-import org.lemurproject.galago.contrib.index.InvertedSketchIndexReader;
-import org.lemurproject.galago.contrib.index.InvertedSketchIndexReader.KeyIterator;
-import org.lemurproject.galago.core.retrieval.LocalRetrieval;
-import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.junit.Assert;
+import org.junit.Test;
 import org.lemurproject.galago.core.tools.apps.BuildIndex;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+
+import static org.lemurproject.galago.contrib.util.TestingUtils.trecDocument;
+
 /**
  *
  * @author sjh
  */
-public class BuildSketchIndexTest extends TestCase {
-
-  public BuildSketchIndexTest(String testName) {
-    super(testName);
-  }
-
+public class BuildSketchIndexTest {
+  @Test
   public void testSomeMethod() throws Exception {
     File corpus = FileUtility.createTemporary();
     File index = FileUtility.createTemporaryDirectory();
@@ -120,27 +112,20 @@ public class BuildSketchIndexTest extends TestCase {
 //      ret.close();
 
     } finally {
-      corpus.delete();
+      Assert.assertTrue(corpus.delete());
       Utility.deleteDirectory(index);
     }
   }
 
-  private void makeCorpus(File corpusFile) throws Exception {
-    Random r = new Random();
+  private static void makeCorpus(File corpusFile) throws Exception {
     StringBuilder corpus = new StringBuilder();
     for (int i = 0; i < 100; i++) {
       StringBuilder text = new StringBuilder();
       for (int j = 0; j < 100; j++) {
-//        text.append(" ").append( r.nextInt( 100 ));
         text.append(" ").append(j);
       }
       corpus.append(trecDocument("doc-" + i, text.toString()));
     }
     Utility.copyStringToFile(corpus.toString(), corpusFile);
-  }
-
-  public static String trecDocument(String docno, String text) {
-    return "<DOC>\n<DOCNO>" + docno + "</DOCNO>\n"
-            + "<TEXT>\n" + text + "</TEXT>\n</DOC>\n";
   }
 }

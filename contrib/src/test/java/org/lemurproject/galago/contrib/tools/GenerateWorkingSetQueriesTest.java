@@ -3,39 +3,36 @@
  */
 package org.lemurproject.galago.contrib.tools;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import static org.junit.Assert.assertEquals;
+import static org.lemurproject.galago.contrib.util.TestingUtils.trecDocument;
+
 /**
  *
  * @author sjh
  */
-public class GenerateWorkingSetQueriesTest extends TestCase {
+public class GenerateWorkingSetQueriesTest {
+  private File dataFolder;
+  private File index;
 
-  File dataFolder, corpus, index;
-
-  public GenerateWorkingSetQueriesTest(String testName) {
-    super(testName);
-  }
-
-  public static String trecDocument(String docno, String text) {
-    return "<DOC>\n<DOCNO>" + docno + "</DOCNO>\n"
-            + "<TEXT>\n" + text + "</TEXT>\n</DOC>\n";
-  }
-
-  @Override
+  @Before
   public void setUp() throws Exception {
     dataFolder = FileUtility.createTemporaryDirectory();
 
-    corpus = new File(dataFolder, "corpus.trectext");
+    File corpus = new File(dataFolder, "corpus.trectext");
     corpus.createNewFile();
 
     index = new File(dataFolder, "index");
@@ -59,13 +56,14 @@ public class GenerateWorkingSetQueriesTest extends TestCase {
     App.run("build", p, System.out);
   }
 
-  @Override
+  @After
   public void tearDown() throws IOException {
     if (dataFolder != null) {
       Utility.deleteDirectory(dataFolder);
     }
   }
 
+  @Test
   public void testSomeMethod() throws Exception {
 
     File out = new File(dataFolder, "out1");

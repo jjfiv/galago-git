@@ -19,6 +19,7 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -62,7 +63,7 @@ public class DocumentLengthsMergerTest {
       IndexPartReader reader1 = DiskIndex.openIndexPart(index1);
       IndexPartReader reader2 = DiskIndex.openIndexPart(index2);
 
-      HashMap<IndexPartReader, Integer> indexPartReaders = new HashMap();
+      HashMap<IndexPartReader, Integer> indexPartReaders = new HashMap<IndexPartReader, Integer>();
       indexPartReaders.put(reader1, 1);
       indexPartReaders.put(reader2, 2);
 
@@ -74,6 +75,7 @@ public class DocumentLengthsMergerTest {
       p.set("filename", output);
 
       Class m = Class.forName(mergeClassName);
+      @SuppressWarnings("unchecked")
       Constructor c = m.getConstructor(TupleFlowParameters.class);
       GenericIndexMerger merger = (GenericIndexMerger) c.newInstance(new FakeParameters(p));
 
@@ -117,6 +119,13 @@ public class DocumentLengthsMergerTest {
     try {
       indexFolder1 = FileUtility.createTemporaryDirectory();
       indexFolder2 = FileUtility.createTemporaryDirectory();
+
+      String index1 = makeLengthsIndex(0, indexFolder1);
+      String index2 = makeLengthsIndex(100, indexFolder2);
+
+      assertNotNull(index1);
+      assertNotNull(index2);
+
       output = FileUtility.createTemporary().getAbsolutePath();
 
       Parameters p = new Parameters();

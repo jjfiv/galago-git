@@ -1,29 +1,26 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.contrib.tools;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.PrintStream;
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.PrintStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.lemurproject.galago.contrib.util.TestingUtils.trecDocument;
 
 /**
  *
  * @author sjh
  */
-public class BuildBackgroundTest extends TestCase {
-
-  public BuildBackgroundTest(String testName) {
-    super(testName);
-  }
-
-  public static String trecDocument(String docno, String text) {
-    return "<DOC>\n<DOCNO>" + docno + "</DOCNO>\n"
-            + "<TEXT>\n" + text + "</TEXT>\n</DOC>\n";
-  }
-
+public class BuildBackgroundTest {
+  @Test
   public void testBackgrounds() throws Exception {
     File trecCorpusFile1 = null;
     File trecCorpusFile2 = null;
@@ -31,7 +28,6 @@ public class BuildBackgroundTest extends TestCase {
     File backgroundIndex = null;
     File queryFile = null;
     try {
-
       String trecCorpus1 = trecDocument("55", "This is a sample document")
               + trecDocument("59", "sample document two");
 
@@ -53,7 +49,7 @@ public class BuildBackgroundTest extends TestCase {
       assertTrue(trecCorpusFile2.exists());
 
       indexFile1 = FileUtility.createTemporary();
-      indexFile1.delete();
+      assertTrue(indexFile1.delete());
       App.main(new String[]{"build", "--indexPath=" + indexFile1.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile1.getAbsolutePath()});
 
@@ -62,7 +58,7 @@ public class BuildBackgroundTest extends TestCase {
                 "--partName=background", "--stemmer=krovetz"});
 
       backgroundIndex = FileUtility.createTemporary();
-      backgroundIndex.delete();
+      assertTrue(backgroundIndex.delete());
       App.main(new String[]{"build", "--indexPath=" + backgroundIndex.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile2.getAbsolutePath()});
 
@@ -122,13 +118,13 @@ public class BuildBackgroundTest extends TestCase {
 
     } finally {
       if (trecCorpusFile1 != null) {
-        trecCorpusFile1.delete();
+        Assert.assertTrue(trecCorpusFile1.delete());
       }
       if (trecCorpusFile2 != null) {
-        trecCorpusFile2.delete();
+        Assert.assertTrue(trecCorpusFile2.delete());
       }
       if (queryFile != null) {
-        queryFile.delete();
+        Assert.assertTrue(queryFile.delete());
       }
       if (indexFile1 != null) {
         Utility.deleteDirectory(indexFile1);
@@ -139,13 +135,13 @@ public class BuildBackgroundTest extends TestCase {
     }
   }
 
-  public void runQueries(File queries, String expected) throws Exception {
+  private static void runQueries(File queries, String expected) throws Exception {
     // Smoke test with batch search
     ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
     PrintStream printStream = new PrintStream(byteArrayStream);
 
-    new App().run(new String[]{"batch-search",
-              queries.getAbsolutePath()}, printStream);
+    App.run(new String[]{"batch-search",
+        queries.getAbsolutePath()}, printStream);
 
     String output = byteArrayStream.toString();
 
