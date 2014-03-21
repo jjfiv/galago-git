@@ -7,23 +7,24 @@
  */
 package org.lemurproject.galago.core.retrieval.extents;
 
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.iterator.SynonymIterator;
-import java.io.IOException;
-import junit.framework.*;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author trevor, sjh
  */
-public class SynonymIteratorTest extends TestCase {
-
-  public SynonymIteratorTest(String testName) {
-    super(testName);
-  }
-
+public class SynonymIteratorTest {
+  @Test
   public void testNoData() throws IOException {
     int[][] dataOne = {};
     FakeExtentIterator one = new FakeExtentIterator(dataOne);
@@ -37,6 +38,7 @@ public class SynonymIteratorTest extends TestCase {
     assertTrue(instance.isDone());
   }
 
+  @Test
   public void testTwoDocuments() throws IOException {
     int[][] dataOne = {{1, 3}};
     int[][] dataTwo = {{2, 4}};
@@ -74,6 +76,7 @@ public class SynonymIteratorTest extends TestCase {
     assertTrue(instance.isDone());
   }
 
+  @Test
   public void testSameDocument() throws IOException {
     int[][] dataOne = {{1, 3}};
     int[][] dataTwo = {{1, 4}};

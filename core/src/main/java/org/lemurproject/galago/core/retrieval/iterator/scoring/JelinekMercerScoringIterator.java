@@ -1,15 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
-import java.io.IOException;
+import org.lemurproject.galago.core.retrieval.RequiredParameters;
+import org.lemurproject.galago.core.retrieval.RequiredStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.RequiredParameters;
-import org.lemurproject.galago.core.retrieval.RequiredStatistics;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+
+import java.io.IOException;
 
 /**
  *
@@ -28,9 +29,9 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
   private final double weightedMax;
   private final double weightedMaxDiff;
   // stats
-  private final double lambda;
-  private final double background;
-  private final long collectionFrequency;
+  public final double lambda;
+  public final double background;
+  public final long collectionFrequency;
 
   public JelinekMercerScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
           throws IOException {
@@ -104,7 +105,7 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
     return score(count, length);
   }
 
-  private double score(double count, double length) {
+  public double score(double count, double length) {
     double foreground = (double) count / (double) length;
     return Math.log((lambda * foreground) + ((1 - lambda) * background));
   }

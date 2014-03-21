@@ -3,7 +3,7 @@
  */
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.FakeLengthIterator;
 import org.lemurproject.galago.core.retrieval.extents.FakeExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.scoring.BiL2ScoringIterator;
@@ -12,23 +12,22 @@ import org.lemurproject.galago.core.retrieval.iterator.scoring.PL2ScoringIterato
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author sjh
  */
-public class DFRScoringIteratorTest extends TestCase {
+public class DFRScoringIteratorTest {
 
-  public DFRScoringIteratorTest(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testPL2Scorer() throws Exception {
     // data : {{doc, begin}, ...}
-    int[][] data = {{1, 3}, {2, 5}, {5, 11}};
+    final int[][] data = {{1, 3}, {2, 5}, {5, 11}};
     FakeExtentIterator extItr = new FakeExtentIterator(data);
 
-    int[] ids = new int[]{0, 1, 2, 3, 4, 5};
-    int[] lengths = new int[]{5, 10, 11, 12, 13, 14};
+    final int[] ids = new int[]{0, 1, 2, 3, 4, 5};
+    final int[] lengths = new int[]{5, 10, 11, 12, 13, 14};
     FakeLengthIterator lenItr = new FakeLengthIterator(ids, lengths);
 
     NodeParameters np = new NodeParameters();
@@ -60,13 +59,14 @@ public class DFRScoringIteratorTest extends TestCase {
     }
   }
 
+  @Test
   public void testInL2Scorer() throws Exception {
     // data : {{doc, begin}, ...}
-    int[][] data = {{1, 3}, {2, 5}, {5, 11}};
+    final int[][] data = {{1, 3}, {2, 5}, {5, 11}};
     FakeExtentIterator extItr = new FakeExtentIterator(data);
 
-    int[] ids = new int[]{0, 1, 2, 3, 4, 5};
-    int[] lengths = new int[]{5, 10, 11, 12, 13, 14};
+    final int[] ids = new int[]{0, 1, 2, 3, 4, 5};
+    final int[] lengths = new int[]{5, 10, 11, 12, 13, 14};
     FakeLengthIterator lenItr = new FakeLengthIterator(ids, lengths);
 
     NodeParameters np = new NodeParameters();
@@ -98,6 +98,7 @@ public class DFRScoringIteratorTest extends TestCase {
     }
   }
 
+  @Test
   public void testBiL2Scorer() throws Exception {
     // data : {{doc, begin}, ...}
     int[][] data = {{1, 3}, {2, 5}, {5, 11}};

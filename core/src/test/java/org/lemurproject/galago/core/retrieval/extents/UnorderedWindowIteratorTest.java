@@ -1,23 +1,23 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.extents;
 
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.iterator.UnorderedWindowIterator;
-import java.io.IOException;
-import junit.framework.*;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 /**
  *
  * @author trevor
  */
-public class UnorderedWindowIteratorTest extends TestCase {
+public class UnorderedWindowIteratorTest {
 
-  public UnorderedWindowIteratorTest(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testPhrase() throws IOException {
     int[][] dataOne = {{1, 3}};
     int[][] dataTwo = {{1, 4}};
@@ -47,6 +47,7 @@ public class UnorderedWindowIteratorTest extends TestCase {
     assertTrue(instance.isDone());
   }
 
+  @Test
   public void testUnordered() throws IOException {
     int[][] dataOne = {{1, 3}};
     int[][] dataTwo = {{1, 4}};
@@ -76,6 +77,7 @@ public class UnorderedWindowIteratorTest extends TestCase {
     assertTrue(instance.isDone());
   }
 
+  @Test
   public void testDifferentDocuments() throws IOException {
     int[][] dataOne = {{2, 3}};
     int[][] dataTwo = {{1, 4}};
@@ -102,6 +104,7 @@ public class UnorderedWindowIteratorTest extends TestCase {
     assertTrue(instance.isDone());
   }
 
+  @Test
   public void testMultipleDocuments() throws IOException {
     int[][] dataOne = {{1, 3}, {2, 5}, {5, 11}};
     int[][] dataTwo = {{1, 4}, {3, 8}, {5, 9}};

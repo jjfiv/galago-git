@@ -1,26 +1,24 @@
  // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.extents;
 
-import junit.framework.TestCase;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ThresholdIterator;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+ import org.junit.Test;
+ import org.lemurproject.galago.core.retrieval.iterator.ThresholdIterator;
+ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
-/**
+ import static org.junit.Assert.assertFalse;
+ import static org.junit.Assert.assertTrue;
+
+ /**
  *
  * @author marc
  */
-public class ThresholdIteratorTest extends TestCase {
+public class ThresholdIteratorTest {
 
-  int[] docsA = new int[]{5, 10, 15, 20};
-  double[] scoresA = new double[]{1.0, 2.0, 3.0, 4.0};
-  int[] docsB = new int[]{2, 4, 6, 8, 10, 12, 14, 16, 18, 20};
-  double[] scoresB = new double[]{2, 4, 6, 8, 10, 12, 14, 16, 18, 20};
+  private static final int[] docsA = new int[]{5, 10, 15, 20};
+  private static final double[] scoresA = new double[]{1.0, 2.0, 3.0, 4.0};
 
-  public ThresholdIteratorTest(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testA() throws Exception {
     FakeScoreIterator inner = new FakeScoreIterator(docsA, scoresA);
     ScoringContext dc = new ScoringContext();

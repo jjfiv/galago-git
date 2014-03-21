@@ -2,8 +2,6 @@
 package org.lemurproject.galago.core.eval;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.lemurproject.galago.core.eval.metric.AveragePrecision;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -17,7 +15,6 @@ import static org.junit.Assert.assertEquals;
  * Test the AveragePrecision class
  * @author wem
  */
-@RunWith(JUnit4.class)
 public class AveragePrecisionTest {
     @Test
     public void calculatePrecision() throws IOException {

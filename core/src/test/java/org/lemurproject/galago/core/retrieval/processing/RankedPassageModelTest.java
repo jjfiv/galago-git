@@ -3,14 +3,9 @@
  */
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.io.File;
-import java.util.Arrays;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredPassage;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -21,39 +16,35 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author sjh
  */
-@RunWith(JUnit4.class)
 public class RankedPassageModelTest {
 
   static File corpus = null;
   static File index = null;
 
   @BeforeClass
-  public static void setUp() {
-    try {
-      corpus = FileUtility.createTemporary();
-      index = FileUtility.createTemporaryDirectory();
-      makeIndex(corpus, index);
-    } catch (Exception e) {
-      tearDown();
-    }
+  public static void setUp() throws Exception {
+    corpus = FileUtility.createTemporary();
+    index = FileUtility.createTemporaryDirectory();
+    makeIndex(corpus, index);
   }
 
   @AfterClass
-  public static void tearDown() {
-    try {
-      if (corpus != null) {
-        corpus.delete();
-      }
-      if (index != null) {
-        Utility.deleteDirectory(index);
-      }
-    } catch (Exception e) {
+  public static void tearDown() throws IOException {
+    if (corpus != null) {
+      corpus.delete();
+    }
+    if (index != null) {
+      Utility.deleteDirectory(index);
     }
   }
 

@@ -1,20 +1,20 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
-import org.lemurproject.galago.core.retrieval.iterator.scoring.BM25Scorer;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.extents.FakeExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.tupleflow.Parameters;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author irmarc
  */
-public class BM25ScorerTest extends TestCase {
+public class BM25ScorerTest {
 
-  int[][] dummy = {};
-  int[][] five = {
+  private static final int[][] dummy = {};
+  private static final int[][] five = {
     {1, 2, 3},
     {5, 10, 60},
     {1, 90},
@@ -22,6 +22,7 @@ public class BM25ScorerTest extends TestCase {
     {100}};
   FakeExtentIterator iterator;
 
+  @Test
   public void testScorer() throws Exception {
     // start with as many defaults as possible and
     // a fake iterator
@@ -32,9 +33,9 @@ public class BM25ScorerTest extends TestCase {
     FakeExtentIterator iterator = new FakeExtentIterator(dummy);
 
     BM25Scorer scorer = new BM25Scorer(p);
-    assertEquals(0.75, scorer.b);
-    assertEquals(1.2, scorer.k);
-    assertEquals(50.0, scorer.avgDocLength);
+    assertEquals(0.75, scorer.b, 0.001);
+    assertEquals(1.2, scorer.k, 0.001);
+    assertEquals(50.0, scorer.avgDocLength, 0.001);
     assertEquals(5.29832, scorer.idf, 0.0001);
     assertEquals(8.20866, scorer.score(5, 100), 0.0001);
 
@@ -42,9 +43,9 @@ public class BM25ScorerTest extends TestCase {
     iterator = new FakeExtentIterator(five);
     p.set("nodeDocumentCount", 5);
     scorer = new BM25Scorer(p);
-    assertEquals(0.75, scorer.b);
-    assertEquals(1.2, scorer.k);
-    assertEquals(50.0, scorer.avgDocLength);
+    assertEquals(0.75, scorer.b, 0.001);
+    assertEquals(1.2, scorer.k, 0.001);
+    assertEquals(50.0, scorer.avgDocLength, 0.001);
     assertEquals(2.90042, scorer.idf, 0.0001);
     assertEquals(5.53660, scorer.score(12, 85), 0.0001);
 
@@ -53,9 +54,9 @@ public class BM25ScorerTest extends TestCase {
     p.set("k", 2.0);
     p.set("nodeDocumentCount", 20);
     scorer = new BM25Scorer(p);
-    assertEquals(0.3, scorer.b);
-    assertEquals(2.0, scorer.k);
-    assertEquals(50.0, scorer.avgDocLength);
+    assertEquals(0.3, scorer.b, 0.001);
+    assertEquals(2.0, scorer.k, 0.001);
+    assertEquals(50.0, scorer.avgDocLength, 0.001);
     assertEquals(1.58474, scorer.idf, 0.0001);
     assertEquals(3.79327, scorer.score(15, 200), 0.0001);
   }

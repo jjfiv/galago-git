@@ -1,23 +1,21 @@
 
 package org.lemurproject.galago.core.eval;
 
-import java.io.File;
-import java.io.IOException;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test some simple Qrel behavior.
  * 
- * @todo Someday actually validate that the metrics work.
  * @author jfoley
  */
-@RunWith(JUnit4.class)
 public class QrelTest {
   @Test
   public void loadAndVerifyQrel() throws IOException {

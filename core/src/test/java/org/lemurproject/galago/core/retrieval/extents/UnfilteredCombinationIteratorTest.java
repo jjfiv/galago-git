@@ -1,31 +1,32 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.extents;
 
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreCombinationIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+
 import java.io.IOException;
 import java.util.Arrays;
-import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.FakeLengthIterator;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.tupleflow.Parameters;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author trevor
  */
-public class UnfilteredCombinationIteratorTest extends TestCase {
+public class UnfilteredCombinationIteratorTest {
 
-  public UnfilteredCombinationIteratorTest(String testName) {
-    super(testName);
-  }
-  int[] docsA = new int[]{5, 10, 15, 20};
-  double[] scoresA = new double[]{1.0, 2.0, 3.0, 4.0};
-  int[] docsB = new int[]{2, 4, 6, 8, 10, 12, 14, 16, 18, 20};
-  double[] scoresB = new double[]{2, 4, 6, 8, 10, 12, 14, 16, 18, 20};
-  int[] docsTogether = new int[]{2, 4, 5, 6, 8, 10, 12, 14, 15, 16, 18, 20};
-  double[] scoresTogether = new double[]{1, 2, 0.5, 3, 4, 6, 6, 7, 1.5, 8, 9, 12};
+  private static final int[] docsA = new int[]{5, 10, 15, 20};
+  private static final double[] scoresA = new double[]{1.0, 2.0, 3.0, 4.0};
+  private static final int[] docsB = new int[]{2, 4, 6, 8, 10, 12, 14, 16, 18, 20};
+  private static final double[] scoresB = new double[]{2, 4, 6, 8, 10, 12, 14, 16, 18, 20};
+  private static final int[] docsTogether = new int[]{2, 4, 5, 6, 8, 10, 12, 14, 15, 16, 18, 20};
+  private static final double[] scoresTogether = new double[]{1, 2, 0.5, 3, 4, 6, 6, 7, 1.5, 8, 9, 12};
 
+  @Test
   public void testNextCandidateAny() throws IOException {
     FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA);
     FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
@@ -43,6 +44,7 @@ public class UnfilteredCombinationIteratorTest extends TestCase {
     assertEquals(6, instance.currentCandidate());
   }
 
+  @Test
   public void testHasMatch() {
     FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA);
     FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
@@ -55,6 +57,7 @@ public class UnfilteredCombinationIteratorTest extends TestCase {
     assertFalse(instance.hasMatch(3));
   }
 
+  @Test
   public void testScore() throws IOException {
     FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA);
     FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
@@ -79,6 +82,7 @@ public class UnfilteredCombinationIteratorTest extends TestCase {
     assertTrue(instance.isDone());
   }
 
+  @Test
   public void testMovePast() throws Exception {
     FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA);
     FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);
@@ -91,6 +95,7 @@ public class UnfilteredCombinationIteratorTest extends TestCase {
     assertEquals(6, instance.currentCandidate());
   }
 
+  @Test
   public void testMoveTo() throws Exception {
     FakeScoreIterator one = new FakeScoreIterator(docsA, scoresA);
     FakeScoreIterator two = new FakeScoreIterator(docsB, scoresB);

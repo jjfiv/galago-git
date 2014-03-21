@@ -3,9 +3,7 @@
  */
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.io.File;
-import static junit.framework.Assert.assertEquals;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -16,16 +14,17 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author sjh
  */
-public class DeltaScoreDocumentModelTest extends TestCase {
+public class DeltaScoreDocumentModelTest {
 
-  public DeltaScoreDocumentModelTest(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testMaxscore() throws Exception {
     File corpus = FileUtility.createTemporary();
     File index = FileUtility.createTemporaryDirectory();
@@ -72,6 +71,7 @@ public class DeltaScoreDocumentModelTest extends TestCase {
     }
   }
 
+  @Test
   public void testWAND() throws Exception {
     File corpus = FileUtility.createTemporary();
     File index = FileUtility.createTemporaryDirectory();

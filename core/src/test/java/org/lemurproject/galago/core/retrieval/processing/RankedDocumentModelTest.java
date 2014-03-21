@@ -3,9 +3,9 @@
  */
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.io.File;
-import java.util.Arrays;
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -16,43 +16,39 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author sjh
  */
-public class RankedDocumentModelTest extends TestCase {
+public class RankedDocumentModelTest {
 
   File corpus = null;
   File index = null;
 
-  public RankedDocumentModelTest(String testName) {
-    super(testName);
+  @Before
+  public void setUp() throws Exception {
+    corpus = FileUtility.createTemporary();
+    index = FileUtility.createTemporaryDirectory();
+    makeIndex(corpus, index);
   }
 
-  @Override
-  public void setUp() {
-    try {
-      corpus = FileUtility.createTemporary();
-      index = FileUtility.createTemporaryDirectory();
-      makeIndex(corpus, index);
-    } catch (Exception e) {
-      tearDown();
+  @After
+  public void tearDown() throws IOException {
+    if (corpus != null) {
+      corpus.delete();
+    }
+    if (index != null) {
+      Utility.deleteDirectory(index);
     }
   }
 
-  @Override
-  public void tearDown() {
-    try {
-      if (corpus != null) {
-        corpus.delete();
-      }
-      if (index != null) {
-        Utility.deleteDirectory(index);
-      }
-    } catch (Exception e) {
-    }
-  }
-
+  @Test
   public void testEntireCollection() throws Exception {
     Parameters globals = new Parameters();
     LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), globals);
@@ -90,6 +86,7 @@ public class RankedDocumentModelTest extends TestCase {
     }
   }
 
+  @Test
   public void testWhiteList() throws Exception {
     Parameters globals = new Parameters();
     LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), globals);
@@ -138,7 +135,7 @@ public class RankedDocumentModelTest extends TestCase {
     }
   }
 
-  private void makeIndex(File corpus, File index) throws Exception {
+  private static void makeIndex(File corpus, File index) throws Exception {
     StringBuilder c = new StringBuilder();
     for (int i = 0; i < 100; i++) {
       StringBuilder data = new StringBuilder();

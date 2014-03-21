@@ -1,18 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.btree.simple;
 
+import org.junit.Test;
+import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.tupleflow.Utility;
+
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import static org.junit.Assert.*;
 
@@ -20,7 +17,6 @@ import static org.junit.Assert.*;
  *
  * @author jfoley
  */
-@RunWith(JUnit4.class)
 public class DiskMapTest {
 	@Test
   public void createMap() throws IOException {

@@ -7,23 +7,22 @@
  */
 package org.lemurproject.galago.core.retrieval.extents;
 
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.iterator.OrderedWindowIterator;
-import org.lemurproject.galago.core.util.ExtentArray;
-import java.io.IOException;
-import junit.framework.*;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.util.ExtentArray;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author trevor
  */
-public class OrderedWindowIteratorTest extends TestCase {
-
-  public OrderedWindowIteratorTest(String testName) {
-    super(testName);
-  }
-
+public class OrderedWindowIteratorTest {
+  @Test
   public void testPhrase() throws IOException {
     int[][] dataOne = {{1, 3}};
     int[][] dataTwo = {{1, 4}};
@@ -46,6 +45,7 @@ public class OrderedWindowIteratorTest extends TestCase {
     assertEquals(array.end(0), 5);
   }
 
+  @Test
   public void testWrongOrder() throws IOException {
     int[][] dataOne = {{1, 3}};
     int[][] dataTwo = {{1, 4}};

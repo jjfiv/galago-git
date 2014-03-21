@@ -7,19 +7,18 @@
  */
 package org.lemurproject.galago.core.retrieval.extents;
 
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
-import junit.framework.*;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author trevor
  */
-public class NullExtentIteratorTest extends TestCase {
+public class NullExtentIteratorTest {
 
-  public NullExtentIteratorTest(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testIsDone() {
     NullExtentIterator instance = new NullExtentIterator();
     assertEquals(true, instance.isDone());

@@ -3,26 +3,27 @@
  */
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  *
  * @author sjh
  */
-public class LogProbNotIteratorTest extends TestCase {
+public class LogProbNotIteratorTest {
 
-  public LogProbNotIteratorTest(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testLogProbNot() throws IOException {
-    int[] docs = new int[]{1, 2, 3, 4, 5, 10};
-    double[] scores = new double[]{-0.1, -0.2, -0.3, -0.4, -0.5, -0.6};
+    final int[] docs = new int[]{1, 2, 3, 4, 5, 10};
+    final double[] scores = new double[]{-0.1, -0.2, -0.3, -0.4, -0.5, -0.6};
 
     FakeScorer child = new FakeScorer(docs, scores);
     LogProbNotIterator scorer = new LogProbNotIterator(new NodeParameters(), child);
