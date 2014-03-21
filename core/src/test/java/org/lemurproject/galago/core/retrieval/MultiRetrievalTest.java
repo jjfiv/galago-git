@@ -3,10 +3,7 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
@@ -15,16 +12,18 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author sjh
  */
-public class MultiRetrievalTest extends TestCase {
-
-  public MultiRetrievalTest(String name) {
-    super(name);
-  }
-
+public class MultiRetrievalTest {
+  @Test
   public void testMultiRetrieval() throws Exception {
     File trecCorpusFile1 = null;
     File trecCorpusFile2 = null;

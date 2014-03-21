@@ -3,8 +3,7 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
-import java.io.File;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.mem.MemoryCountIndexCountSource;
 import org.lemurproject.galago.core.index.mem.MemorySparseDoubleIndexScoreSource;
 import org.lemurproject.galago.core.index.mem.MemoryWindowIndexExtentSource;
@@ -22,16 +21,18 @@ import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 /**
  *
  * @author sjh
  */
-public class CachedRetrievalTest extends TestCase {
-
-  public CachedRetrievalTest(String name) {
-    super(name);
-  }
-
+public class CachedRetrievalTest {
+  @Test
   public void testBuildCache() throws Exception {
     File trecCorpusFile = null;
     File corpusFile = null;

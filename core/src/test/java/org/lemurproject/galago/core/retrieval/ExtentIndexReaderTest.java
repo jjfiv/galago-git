@@ -7,32 +7,35 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
+import org.lemurproject.galago.core.index.disk.WindowIndexReader;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.core.util.ExtentArray;
-import java.io.File;
-import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.disk.WindowIndexReader;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author trevor
  */
-public class ExtentIndexReaderTest extends TestCase {
+public class ExtentIndexReaderTest {
 
   File tempPath;
 
-  public ExtentIndexReaderTest(String testName) {
-    super(testName);
-  }
-
-  @Override
+  @Before
   public void setUp() throws Exception {
     // make a spot for the index
     tempPath = FileUtility.createTemporary();
@@ -63,13 +66,14 @@ public class ExtentIndexReaderTest extends TestCase {
     writer.close();
   }
 
-  @Override
+  @After
   public void tearDown() throws Exception {
     if (tempPath != null) {
       tempPath.delete();
     }
   }
 
+  @Test
   public void testReadTitle() throws Exception {
     WindowIndexReader reader = new WindowIndexReader(new DiskBTreeReader(tempPath.toString()));
     ExtentIterator extents = reader.getTermExtents("title");
@@ -113,6 +117,7 @@ public class ExtentIndexReaderTest extends TestCase {
     reader.close();
   }
 
+  @Test
   public void testReadZ() throws Exception {
     WindowIndexReader reader = new WindowIndexReader(new DiskBTreeReader(tempPath.toString()));
     ExtentIterator extents = reader.getTermExtents("z");
@@ -134,6 +139,7 @@ public class ExtentIndexReaderTest extends TestCase {
     reader.close();
   }
 
+  @Test
   public void testSimpleSkipTitle() throws Exception {
     WindowIndexReader reader = new WindowIndexReader(new DiskBTreeReader(tempPath.toString()));
     ExtentIterator extents = reader.getTermExtents("title");
@@ -146,6 +152,7 @@ public class ExtentIndexReaderTest extends TestCase {
     reader.close();
   }
 
+  @Test
   public void testSkipList() throws Exception {
     Parameters p = new Parameters();
     p.set("filename", tempPath.toString());

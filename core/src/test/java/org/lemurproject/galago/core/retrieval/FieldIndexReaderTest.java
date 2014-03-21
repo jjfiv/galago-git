@@ -7,14 +7,11 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
-import java.io.ByteArrayOutputStream;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 import org.lemurproject.galago.core.index.disk.FieldIndexReader;
-import org.lemurproject.galago.tupleflow.Utility;
-import java.io.File;
-import java.text.DateFormat;
-import java.util.Arrays;
-import junit.framework.TestCase;
 import org.lemurproject.galago.core.index.disk.FieldIndexWriter;
 import org.lemurproject.galago.core.retrieval.iterator.EqualityIterator;
 import org.lemurproject.galago.core.retrieval.iterator.GreaterThanIterator;
@@ -24,20 +21,26 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.text.DateFormat;
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author irmarc
  */
-public class FieldIndexReaderTest extends TestCase {
+public class FieldIndexReaderTest {
 
   File tempPath;
 
-  public FieldIndexReaderTest(String testName) {
-    super(testName);
-  }
-
-  @Override
+  @Before
   public void setUp() throws Exception {
     // make a spot for the index
     tempPath = FileUtility.createTemporary();
@@ -99,7 +102,7 @@ public class FieldIndexReaderTest extends TestCase {
     writer.close();
   }
 
-  @Override
+  @After
   public void tearDown() throws Exception {
     tempPath.delete();
   }
@@ -112,6 +115,7 @@ public class FieldIndexReaderTest extends TestCase {
     return (baos.toByteArray());
   }
 
+  @Test
   public void testReadTitle() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("title");
@@ -141,6 +145,7 @@ public class FieldIndexReaderTest extends TestCase {
     reader.close();
   }
 
+  @Test
   public void testReadDate() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("date");
@@ -172,6 +177,7 @@ public class FieldIndexReaderTest extends TestCase {
     reader.close();
   }
 
+  @Test
   public void testReadVersion() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("version");
@@ -201,6 +207,7 @@ public class FieldIndexReaderTest extends TestCase {
     reader.close();
   }
 
+  @Test
   public void testGreaterThan() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("version");
@@ -235,6 +242,7 @@ public class FieldIndexReaderTest extends TestCase {
     reader.close();
   }
 
+  @Test
   public void testLessThan() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("version");
@@ -269,6 +277,7 @@ public class FieldIndexReaderTest extends TestCase {
     reader.close();
   }
 
+  @Test
   public void testInBetween() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("date");
@@ -304,6 +313,7 @@ public class FieldIndexReaderTest extends TestCase {
     reader.close();
   }
 
+  @Test
   public void testEquality() throws Exception {
     FieldIndexReader reader = new FieldIndexReader(new DiskBTreeReader(tempPath.toString()));
     FieldIndexReader.ListIterator fields = reader.getField("title");

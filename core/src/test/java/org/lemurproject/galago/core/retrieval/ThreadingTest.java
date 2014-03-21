@@ -3,16 +3,7 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
@@ -21,16 +12,17 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.*;
+
 /**
  *
  * @author sjh
  */
-public class ThreadingTest extends TestCase {
-
-  public ThreadingTest(String name) {
-    super(name);
-  }
-
+public class ThreadingTest {
+  @Test
   public void testLocalRetrievalThreading() throws Exception {
     final int vocab = 1000;
     final int docCount = 1000;

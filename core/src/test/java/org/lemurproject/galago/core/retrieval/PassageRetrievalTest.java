@@ -4,28 +4,29 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author irmarc
  */
-public class PassageRetrievalTest extends TestCase {
+public class PassageRetrievalTest {
 
   File trecCorpusFile, corpusFile, indexFile;
 
-  public PassageRetrievalTest(String testName) {
-    super(testName);
-  }
-
-  @Override
+  @Before
   public void setUp() throws Exception {
     File[] files = LocalRetrievalTest.make10DocIndex();
     trecCorpusFile = files[0];
@@ -33,13 +34,14 @@ public class PassageRetrievalTest extends TestCase {
     indexFile = files[2];
   }
 
-  @Override
+  @After
   public void tearDown() throws IOException {
     trecCorpusFile.delete();
     Utility.deleteDirectory(indexFile);
     Utility.deleteDirectory(corpusFile);
   }
 
+  @Test
   public void testPassageRetrieval() throws Exception {
     Parameters p = new Parameters();
     p.set("passageSize", 4);
@@ -96,4 +98,5 @@ public class PassageRetrievalTest extends TestCase {
     // final 2 entries are background scores (no extents to score)
     
   }
+
 }

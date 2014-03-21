@@ -1,22 +1,10 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
-import org.lemurproject.galago.core.index.disk.DiskNameWriter;
-import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
-import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
-import org.lemurproject.galago.core.index.disk.FieldIndexWriter;
-import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.lemurproject.galago.core.index.disk.*;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -24,27 +12,29 @@ import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Sorter;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
+import org.lemurproject.galago.tupleflow.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author trevor
  */
-public class LocalRetrievalTest extends TestCase {
+public class LocalRetrievalTest {
 
   File tempPath;
 
-  public LocalRetrievalTest(String testName) {
-    super(testName);
-  }
-
-  public static File makeIndex() throws FileNotFoundException, IOException, IncompatibleProcessorException {
+  public static File makeIndex() throws IOException, IncompatibleProcessorException {
     // make a spot for the index
     File tempPath = FileUtility.createTemporaryDirectory();
 
@@ -205,17 +195,18 @@ public class LocalRetrievalTest extends TestCase {
     return files;
   }
 
-  @Override
+  @Before
   public void setUp() throws IOException, IncompatibleProcessorException {
     this.tempPath = makeIndex();
   }
 
-  @Override
+  @After
   public void tearDown() throws IOException {
     Utility.deleteDirectory(tempPath);
   }
 
-  public void testSimple() throws FileNotFoundException, IOException, Exception {
+  @Test
+  public void testSimple() throws Exception {
     LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), new Parameters());
 
     Node aTerm = new Node("counts", "a");
@@ -274,7 +265,8 @@ public class LocalRetrievalTest extends TestCase {
     }
   }
 
-  public void testWorkingSet() throws FileNotFoundException, IOException, Exception {
+  @Test
+  public void testWorkingSet() throws Exception {
     LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), new Parameters());
     Node root = StructuredQuery.parse("#combine( #dirichlet:mu=1500( #counts:a() ) #dirichlet:mu=1500( #counts:b() ) )");
     Parameters p = new Parameters();
@@ -319,7 +311,8 @@ public class LocalRetrievalTest extends TestCase {
     }
   }
 
-  public void testWindow() throws FileNotFoundException, IOException, Exception {
+  @Test
+  public void testWindow() throws Exception {
     LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), new Parameters());
 
     String query = "#combine( #dirichlet:mu=1500( #uw:5( #extents:a:part=postings() #extents:b:part=postings() ) ) )";

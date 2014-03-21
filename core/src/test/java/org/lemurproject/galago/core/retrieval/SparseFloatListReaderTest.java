@@ -7,27 +7,30 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.lemurproject.galago.core.index.FakeLengthIterator;
 import org.lemurproject.galago.core.index.disk.SparseFloatListReader;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.core.index.disk.SparseFloatListWriter;
-import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.tupleflow.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import junit.framework.TestCase;
-import org.lemurproject.galago.core.index.FakeLengthIterator;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author trevor
  */
-public class SparseFloatListReaderTest extends TestCase {
+public class SparseFloatListReaderTest {
 
   private File tempPath;
   int[] aDocs = new int[]{5, 6};
@@ -35,11 +38,7 @@ public class SparseFloatListReaderTest extends TestCase {
   int[] bDocs = new int[]{9, 11, 13};
   float[] bScores = new float[]{0.1f, 0.2f, 0.3f};
 
-  public SparseFloatListReaderTest(String testName) {
-    super(testName);
-  }
-
-  @Override
+  @Before
   public void setUp() throws IOException {
     // make a spot for the index
     tempPath = FileUtility.createTemporary();
@@ -67,11 +66,12 @@ public class SparseFloatListReaderTest extends TestCase {
     writer.close();
   }
 
-  @Override
+  @After
   public void tearDown() throws IOException {
     tempPath.delete();
   }
 
+  @Test
   public void testA() throws Exception {
     SparseFloatListReader instance = new SparseFloatListReader(tempPath.toString());
     ScoreIterator iter = (ScoreIterator) instance.getIterator(new Node("scores", "a"));
@@ -94,6 +94,7 @@ public class SparseFloatListReaderTest extends TestCase {
     assertTrue(iter.isDone());
   }
 
+  @Test
   public void testB() throws Exception {
     SparseFloatListReader instance = new SparseFloatListReader(tempPath.toString());
     ScoreIterator iter = (ScoreIterator) instance.getIterator(new Node("scores", "b"));
@@ -117,6 +118,7 @@ public class SparseFloatListReaderTest extends TestCase {
     assertTrue(iter.isDone());
   }
 
+  @Test
   public void testIterator() throws Exception {
     SparseFloatListReader instance = new SparseFloatListReader(tempPath.toString());
     SparseFloatListReader.KeyValueIterator iter = instance.getIterator();

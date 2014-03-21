@@ -7,45 +7,46 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.PositionIndexReader;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.core.util.ExtentArray;
-import java.io.File;
-import java.io.IOException;
-import junit.framework.TestCase;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskExtentIterator;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 /**
  *
  * @author trevor
  */
-public class PositionIndexReaderTest extends TestCase {
+public class PositionIndexReaderTest {
 
   File tempPath;
   File skipPath = null;
-  static int[][] dataA = {
+  private final static int[][] dataA = {
     {5, 7, 9},
     {19, 27, 300}
   };
-  static int[][] dataB = {
+  private final static int[][] dataB = {
     {149, 15500, 30319},
     {555555, 2}
   };
 
-  public PositionIndexReaderTest(String testName) {
-    super(testName);
-  }
-
-  @Override
+  @Before
   public void setUp() throws Exception {
     // make a spot for the index
     tempPath = FileUtility.createTemporary();
@@ -83,7 +84,7 @@ public class PositionIndexReaderTest extends TestCase {
     writer.close();
   }
 
-  @Override
+  @After
   public void tearDown() throws Exception {
     tempPath.delete();
     if (skipPath != null) {
@@ -122,6 +123,7 @@ public class PositionIndexReaderTest extends TestCase {
     assertTrue(termExtents.isDone());
   }
 
+  @Test
   public void testA() throws Exception {
     PositionIndexReader reader = new PositionIndexReader(tempPath.toString());
     ExtentIterator termExtents = reader.getTermExtents("a");
@@ -133,6 +135,7 @@ public class PositionIndexReaderTest extends TestCase {
     reader.close();
   }
 
+  @Test
   public void testB() throws Exception {
     PositionIndexReader reader = new PositionIndexReader(tempPath.toString());
     ExtentIterator termExtents = reader.getTermExtents("b");
@@ -144,6 +147,7 @@ public class PositionIndexReaderTest extends TestCase {
     reader.close();
   }
 
+  @Test
   public void testSkipLists() throws Exception {
     // internally fill the skip file
     Parameters p = new Parameters();
@@ -208,6 +212,7 @@ public class PositionIndexReaderTest extends TestCase {
     skipPath = null;
   }
 
+  @Test
   public void testCountIterator() throws Exception {
     PositionIndexReader reader = new PositionIndexReader(tempPath.toString());
     DiskCountIterator termCounts = reader.getTermCounts("b");
@@ -223,10 +228,11 @@ public class PositionIndexReaderTest extends TestCase {
     sc.document = termCounts.currentCandidate();
     assertEquals(dataB[1].length - 1, termCounts.count(sc));
 
-    NodeStatistics b_stats = ((NodeAggregateIterator) termCounts).getStatistics();
+    NodeStatistics b_stats = termCounts.getStatistics();
     assertEquals(2, b_stats.nodeDocumentCount);
     assertEquals(3, b_stats.nodeFrequency);
 
     reader.close();
   }
 }
+
