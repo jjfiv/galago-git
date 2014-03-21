@@ -1,38 +1,31 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.corpus;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author trevor
  */
-public class DocumentToKeyValuePairTest extends TestCase {
-
-  public DocumentToKeyValuePairTest(String testName) {
-    super(testName);
-  }
-
-  public class KeyValuePairProcessor implements KeyValuePair.Processor {
-
+public class DocumentToKeyValuePairTest {
+  private static final class KeyValuePairProcessor implements KeyValuePair.Processor {
     KeyValuePair pair;
-
     @Override
-    public void process(KeyValuePair pair) {
-      this.pair = pair;
-    }
-
+    public void process(KeyValuePair pair) { this.pair = pair; }
     @Override
-    public void close() throws IOException {
-    }
+    public void close() throws IOException { }
   }
 
+  @Test
   public void testProcess() throws Exception {
     DocumentToKeyValuePair dkvp = new DocumentToKeyValuePair();
     KeyValuePairProcessor kvpProcessor = new KeyValuePairProcessor();

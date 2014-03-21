@@ -3,24 +3,22 @@
  */
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.File;
-import static junit.framework.Assert.assertEquals;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author sjh
  */
-public class WindowIndexWriterTest extends TestCase {
-
-  public WindowIndexWriterTest(String testName) {
-    super(testName);
-  }
-
+public class WindowIndexWriterTest {
+  @Test
   public void testSomeMethod() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {

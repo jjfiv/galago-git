@@ -3,41 +3,42 @@
  */
 package org.lemurproject.galago.core.index;
 
-import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Random;
-import junit.framework.TestCase;
+import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Random;
+
+import static org.junit.Assert.*;
 
 /**
  *
  * @author trevor
  */
-public class IndexWriterTest extends TestCase {
+public class IndexWriterTest {
 
   File temporary;
 
-  public IndexWriterTest(String testName) {
-    super(testName);
-  }
-
-  @Override
+  @Before
   public void setUp() {
     temporary = null;
   }
 
-  @Override
+  @After
   public void tearDown() {
     if (temporary != null) {
       temporary.delete();
     }
   }
 
+  @Test
   public void testSingleKeyValue() throws IOException {
 
     Parameters parameters = new Parameters();
@@ -53,13 +54,9 @@ public class IndexWriterTest extends TestCase {
     assertEquals("value", reader.getValueString(Utility.fromString("key")));
     reader.close();
   }
-  
-  public void testLargeKey() throws IOException {
 
-    //    for(int i=1;i<Integer.MAX_VALUE; i*=2){
-//      System.err.println((i-1) + " in bytes: " + Utility.compressInt(i-1).length);
-//    }
-    
+  @Test
+  public void testLargeKey() throws IOException {
     Random rnd = new Random();
 
     StringBuilder builder = new StringBuilder();
@@ -81,6 +78,7 @@ public class IndexWriterTest extends TestCase {
     reader.close();
   }
 
+  @Test
   public void testSeek() throws IOException {
     Parameters parameters = new Parameters();
     parameters.set("blockSize", 64);
@@ -118,6 +116,7 @@ public class IndexWriterTest extends TestCase {
     reader.close();
   }
 
+  @Test
   public void testSingleCompressedKeyValue() throws IOException {
     Parameters parameters = new Parameters();
     parameters.set("blockSize", 64);
@@ -134,7 +133,8 @@ public class IndexWriterTest extends TestCase {
     reader.close();
   }
 
-  public void testSimpleWrite() throws FileNotFoundException, IOException {
+  @Test
+  public void testSimpleWrite() throws IOException {
     Parameters parameters = new Parameters();
     parameters.set("blockSize", 64);
     temporary = FileUtility.createTemporary();
@@ -159,7 +159,8 @@ public class IndexWriterTest extends TestCase {
     reader.close();
   }
 
-  public void testSimpleWriteCompressed() throws FileNotFoundException, IOException {
+  @Test
+  public void testSimpleWriteCompressed() throws IOException {
     Parameters parameters = new Parameters();
     parameters.set("blockSize", 64);
     parameters.set("isCompressed", true);

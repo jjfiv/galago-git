@@ -3,25 +3,23 @@
  */
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.File;
-import static junit.framework.Assert.assertEquals;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.SparseFloatListReader.KeyIterator;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author sjh
  */
-public class SparseFloatListWriterTest extends TestCase {
-  
-  public SparseFloatListWriterTest(String testName) {
-    super(testName);
-  }
-
+public class SparseFloatListWriterTest {
+  @Test
   public void testSomeMethod() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {

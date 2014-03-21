@@ -1,34 +1,28 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.corpus;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.GenericElement;
-import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.*;
+
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 /**
  *
  * @author trevor
  */
-public class SplitIndexWriterTest extends TestCase {
-
-  public SplitIndexWriterTest(String testName) {
-    super(testName);
-  }
-
+public class SplitIndexWriterTest{
+  @Test
   public void testSingleKeyValue() throws IOException, IncompatibleProcessorException {
     File temporary = null;
 
     try {
       temporary = FileUtility.createTemporary();
-      temporary.delete();
-      temporary.mkdir();
+      assertTrue(temporary.delete());
+      assertTrue(temporary.mkdir());
 
       Parameters parameters = new Parameters();
       parameters.set("blockSize", 64);
@@ -52,13 +46,14 @@ public class SplitIndexWriterTest extends TestCase {
     }
   }
 
+  @Test
   public void testSeek() throws IOException, IncompatibleProcessorException {
     File temporary = null;
 
     try {
       temporary = FileUtility.createTemporary();
-      temporary.delete();
-      temporary.mkdir();
+      assertTrue(temporary.delete());
+      assertTrue(temporary.mkdir());
 
       Parameters parameters = new Parameters();
       parameters.set("blockSize", 64);
@@ -105,13 +100,14 @@ public class SplitIndexWriterTest extends TestCase {
     }
   }
 
-  public void testSimpleWrite() throws FileNotFoundException, IOException, IncompatibleProcessorException {
+  @Test
+  public void testSimpleWrite() throws IOException, IncompatibleProcessorException {
     File temporary = null;
 
     try {
       temporary = FileUtility.createTemporary();
-      temporary.delete();
-      temporary.mkdir();
+      assertTrue(temporary.delete());
+      assertTrue(temporary.mkdir());
 
       Parameters parameters = new Parameters();
       parameters.set("blockSize", 128);

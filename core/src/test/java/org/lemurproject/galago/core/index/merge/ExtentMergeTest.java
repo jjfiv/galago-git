@@ -3,27 +3,22 @@
  */
 package org.lemurproject.galago.core.index.merge;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
 
 /**
  *
  * @author sjh
  */
 public class ExtentMergeTest extends TestCase {
-
-  public ExtentMergeTest(String name) {
-    super(name);
-  }
-
+  @Test
   private void makeExtentsIndex(int offset, File folder) throws Exception {
     File temp = new File(folder + File.separator + "extents");
     Parameters p = new Parameters();
@@ -45,7 +40,7 @@ public class ExtentMergeTest extends TestCase {
     writer.close();
   }
 
-
+  @Test
   public void testExtentIndexMerger() throws Exception {
 
     File index1 = null;
@@ -103,22 +98,4 @@ public class ExtentMergeTest extends TestCase {
       }
     }
   }
-
-  public class Catcher<T> implements Processor<T> {
-
-    ArrayList<T> data = new ArrayList();
-
-    public void reset(){
-      data = new ArrayList();
-    }
-
-    public void process(T object) throws IOException {
-      data.add(object);
-    }
-
-    public void close() throws IOException {
-      //nothing
-    }
-  }
-
 }

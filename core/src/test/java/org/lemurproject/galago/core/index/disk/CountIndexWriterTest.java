@@ -3,24 +3,24 @@
  */
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.File;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.CountIndexReader.KeyIterator;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  *
  * @author sjh
  */
-public class CountIndexWriterTest extends TestCase {
-
-  public CountIndexWriterTest(String testName) {
-    super(testName);
-  }
-
+public class CountIndexWriterTest {
+  @Test
   public void testCountIndex() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {
@@ -71,7 +71,7 @@ public class CountIndexWriterTest extends TestCase {
       assertEquals(keyCount, 2);
 
     } finally {
-      tmp.delete();
+      assertTrue(tmp.delete());
     }
   }
 }

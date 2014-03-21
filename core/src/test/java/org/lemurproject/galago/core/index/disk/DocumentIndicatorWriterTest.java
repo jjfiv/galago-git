@@ -3,25 +3,25 @@
  */
 package org.lemurproject.galago.core.index.disk;
 
+import org.junit.Test;
+import org.lemurproject.galago.core.types.DocumentIndicator;
+import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.tupleflow.Parameters;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.TestCase;
-import org.lemurproject.galago.core.types.DocumentIndicator;
-import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.FileUtility;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author sjh
  */
-public class DocumentIndicatorWriterTest extends TestCase {
-
-  public DocumentIndicatorWriterTest(String testName) {
-    super(testName);
-  }
-
+public class DocumentIndicatorWriterTest {
+  @Test
   public void testSomeMethod() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {
@@ -29,7 +29,7 @@ public class DocumentIndicatorWriterTest extends TestCase {
       p.set("filename", tmp.getAbsolutePath());
       DocumentIndicatorWriter writer = new DocumentIndicatorWriter(new FakeParameters(p));
 
-      Map<Long, Boolean> trueData = new HashMap();
+      Map<Long, Boolean> trueData = new HashMap<Long,Boolean>();
 
       for (int i = 0; i < 100; i++) {
         trueData.put((long) i, (i % 2 == 0));
@@ -54,7 +54,7 @@ public class DocumentIndicatorWriterTest extends TestCase {
       }
 
     } finally {
-      tmp.delete();
+      assertTrue(tmp.delete());
     }
   }
 }

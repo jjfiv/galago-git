@@ -3,11 +3,10 @@
  */
 package org.lemurproject.galago.core.index;
 
-import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
-import java.io.File;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader.KeyIterator;
+import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.FakeParameters;
@@ -15,16 +14,15 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+
 /**
  *
  * @author sjh
  */
-public class WindowIndexTest extends TestCase {
+public class WindowIndexTest {
 
-  public WindowIndexTest(String name) {
-    super(name);
-  }
-
+  @Test
   public void testWindowIndex() throws Exception {
     File index = FileUtility.createTemporary();
     try {

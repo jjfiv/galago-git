@@ -3,12 +3,9 @@
  */
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskLengthsIterator;
-import java.io.File;
-import java.io.IOException;
-import static junit.framework.Assert.assertEquals;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskLengthsReader.KeyIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
@@ -16,16 +13,19 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.io.IOException;
+
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  *
  * @author sjh
  */
-public class DiskLengthsTest extends TestCase {
+public class DiskLengthsTest{
 
-  public DiskLengthsTest(String name) {
-    super(name);
-  }
-
+  @Test
   public void testLengths() throws IOException {
     File len = null;
     try {
@@ -87,12 +87,13 @@ public class DiskLengthsTest extends TestCase {
 
     } finally {
       if (len != null) {
-        len.delete();
+        assertTrue(len.delete());
       }
 
     }
   }
 
+  @Test
   public void testBigLengths() throws IOException {
     File len = FileUtility.createTemporary();
     try {
@@ -127,7 +128,7 @@ public class DiskLengthsTest extends TestCase {
       reader.close();
 
     } finally {
-      len.delete();
+      assertTrue(len.delete());
     }
   }
 }

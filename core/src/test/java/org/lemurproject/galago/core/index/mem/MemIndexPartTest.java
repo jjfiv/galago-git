@@ -3,10 +3,7 @@
  */
 package org.lemurproject.galago.core.index.mem;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Random;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.disk.CountIndexReader;
 import org.lemurproject.galago.core.index.disk.CountIndexWriter;
@@ -21,22 +18,21 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.core.window.ReduceNumberWordCount;
-import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Sorter;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.*;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Random;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author sjh
  */
-public class MemIndexPartTest extends TestCase {
-
-  public MemIndexPartTest(String name) {
-    super(name);
-  }
-
+public class MemIndexPartTest {
+  @Test
   public void testCounts() throws Exception {
     // builds three count indexes
     // - the memoryindex test does not test this part.
@@ -47,14 +43,14 @@ public class MemIndexPartTest extends TestCase {
       MemoryCountIndex memcounts1 = new MemoryCountIndex(new Parameters());
       CountIndexWriter diskcounts = new CountIndexWriter(new FakeParameters(Parameters.parseString("{\"filename\":\"" + diskCounts.getAbsolutePath() + "\"}")));
       ReduceNumberWordCount reducer = new ReduceNumberWordCount();
-      Sorter sorter = new Sorter(new NumberWordCount.WordDocumentOrder());
+      Sorter<NumberWordCount> sorter = new Sorter<NumberWordCount>(new NumberWordCount.WordDocumentOrder());
       sorter.setProcessor(reducer);
       reducer.setProcessor(diskcounts);
 
       // three methods of filling it:
       // 1: documents - as in MemoryIndex
       Document d = new Document();
-      d.terms = new ArrayList();
+      d.terms = new ArrayList<String>();
       for (int did = 0; did < 100; did++) {
         d.identifier = did;
         d.terms.clear();
@@ -112,11 +108,12 @@ public class MemIndexPartTest extends TestCase {
 
     } finally {
       if (diskCounts != null) {
-        diskCounts.delete();
+        assertTrue(diskCounts.delete());
       }
     }
   }
 
+  @Test
   public void testScores() throws Exception {
     File f = FileUtility.createTemporary();
     try {
@@ -146,12 +143,11 @@ public class MemIndexPartTest extends TestCase {
 
       ScoreIterator trueScoreItr = new FakeScoreIterator(docs, scores);
       ScoreIterator memScoreItr = memScores.getNodeScores(Utility.fromString("key"));
-      ScoreIterator diskScoreItr = (ScoreIterator) reader.getIterator(new Node("scores", "key"));
+      ScoreIterator diskScoreItr = reader.getIterator(new Node("scores", "key"));
 
 
       while (!trueScoreItr.isDone() || !memScoreItr.isDone() || !diskScoreItr.isDone()) {
-        long doc = trueScoreItr.currentCandidate();
-        context.document = doc;
+        context.document = trueScoreItr.currentCandidate();
 
         assertEquals(trueScoreItr.currentCandidate(), memScoreItr.currentCandidate());
         assertEquals(trueScoreItr.currentCandidate(), diskScoreItr.currentCandidate());
@@ -167,7 +163,7 @@ public class MemIndexPartTest extends TestCase {
 
     } finally {
       if (f != null) {
-        f.delete();
+        assertTrue(f.delete());
       }
     }
   }

@@ -3,27 +3,27 @@
  */
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.File;
-import java.util.Random;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.util.Random;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  *
  * @author sjh
  */
-public class IndexReaderSkipTest extends TestCase {
+public class IndexReaderSkipTest {
 
-  public IndexReaderSkipTest(String name) {
-    super(name);
-  }
-
+  @Test
   public void testPositionIndexSkipping() throws Exception {
-    Random r = new Random();
     File temp = FileUtility.createTemporary();
 
     try {
@@ -54,10 +54,11 @@ public class IndexReaderSkipTest extends TestCase {
       }
 
     } finally {
-      temp.delete();
+      assertTrue(temp.delete());
     }
   }
 
+  @Test
   public void testCountIndexSkipping() throws Exception {
     Random r = new Random();
     File temp = FileUtility.createTemporary();
@@ -84,10 +85,11 @@ public class IndexReaderSkipTest extends TestCase {
       }
 
     } finally {
-      temp.delete();
+      assertTrue(temp.delete());
     }
   }
 
+  @Test
   public void testWindowIndexSkipping() throws Exception {
     Random r = new Random();
     File temp = FileUtility.createTemporary();
@@ -121,7 +123,7 @@ public class IndexReaderSkipTest extends TestCase {
       }
 
     } finally {
-      temp.delete();
+      assertTrue(temp.delete());
     }
   }
 }

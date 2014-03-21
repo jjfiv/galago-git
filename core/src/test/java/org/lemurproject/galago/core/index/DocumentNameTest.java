@@ -1,30 +1,27 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
-import org.lemurproject.galago.core.index.disk.DiskNameWriter;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskNameReader;
-import java.io.File;
-
-import junit.framework.TestCase;
-
 import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
+import org.lemurproject.galago.core.index.disk.DiskNameWriter;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author sjh
  */
-public class DocumentNameTest extends TestCase {
-
-  public DocumentNameTest(String testName) {
-    super(testName);
-  }
-
+public class DocumentNameTest {
+  @Test
   public void testDocumentNameStore() throws Exception {
     File f = null;
     try {
@@ -48,7 +45,7 @@ public class DocumentNameTest extends TestCase {
       String name = "document_name_key_is_" + key;
 
       String result1 = reader.getDocumentName(key);
-      assert name.equals(result1);
+      assertEquals(name, result1);
 
     } finally {
       if (f != null) {
@@ -57,6 +54,7 @@ public class DocumentNameTest extends TestCase {
     }
   }
 
+  @Test
   public void testDocumentNameReverseStore() throws Exception {
     File f = null;
     try {
@@ -80,7 +78,7 @@ public class DocumentNameTest extends TestCase {
       String name = "document_name_key_is_" + key;
 
       long result2 = reader.getDocumentIdentifier(name);
-      assert key == result2;
+      assertEquals(key, result2);
     } finally {
       if (f != null) {
         Utility.deleteDirectory(f);

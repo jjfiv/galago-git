@@ -3,31 +3,25 @@
  */
 package org.lemurproject.galago.core.index.merge;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskNameWriter;
 import org.lemurproject.galago.core.types.DocumentMappingData;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
-import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author sjh
  */
-public class DocumentNumberMapperTest extends TestCase {
-
-  public DocumentNumberMapperTest(String name) {
-    super(name);
-  }
-
-  private void makeNamesIndex(int maxDocNum, File folder) throws Exception {
+public class DocumentNumberMapperTest {
+  private static void makeNamesIndex(int maxDocNum, File folder) throws Exception {
     File temp = new File(folder + File.separator + "names");
     Parameters p = new Parameters();
     p.set("filename", temp.getAbsolutePath());
@@ -40,9 +34,8 @@ public class DocumentNumberMapperTest extends TestCase {
     writer.close();
   }
 
-
+  @Test
   public void testDocumentMappingCreator() throws Exception {
-
     File index1 = null;
     File index2 = null;
     File index3 = null;
@@ -56,7 +49,7 @@ public class DocumentNumberMapperTest extends TestCase {
       makeNamesIndex(9, index2);
       makeNamesIndex(9, index3);
 
-      Catcher<DocumentMappingData> catcher = new Catcher();
+      Catcher<DocumentMappingData> catcher = new Catcher<DocumentMappingData>();
       DocumentNumberMapper mapper = new DocumentNumberMapper();
       mapper.setProcessor( catcher );
 
@@ -66,9 +59,12 @@ public class DocumentNumberMapperTest extends TestCase {
 
       mapper.close();
 
-      assert( catcher.data.get(0).indexId == 0 &&  catcher.data.get(0).docNumIncrement == 0);
-      assert( catcher.data.get(1).indexId == 1 &&  catcher.data.get(1).docNumIncrement == 10);
-      assert( catcher.data.get(2).indexId == 2 &&  catcher.data.get(2).docNumIncrement == 20);
+      assertEquals(0, catcher.data.get(0).indexId);
+      assertEquals(0, catcher.data.get(0).docNumIncrement);
+      assertEquals(1, catcher.data.get(1).indexId);
+      assertEquals(10, catcher.data.get(1).docNumIncrement);
+      assertEquals(2, catcher.data.get(2).indexId);
+      assertEquals(20, catcher.data.get(2).docNumIncrement);
 
     } finally {
       if (index1 != null) {
@@ -85,10 +81,10 @@ public class DocumentNumberMapperTest extends TestCase {
 
   public class Catcher<T> implements Processor<T> {
 
-    ArrayList<T> data = new ArrayList();
+    ArrayList<T> data = new ArrayList<T>();
 
     public void reset(){
-      data = new ArrayList();
+      data = new ArrayList<T>();
     }
 
     public void process(T object) throws IOException {

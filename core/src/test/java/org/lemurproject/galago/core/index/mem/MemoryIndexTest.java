@@ -1,15 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
@@ -22,16 +19,19 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author sjh
  */
-public class MemoryIndexTest extends TestCase {
-
-  public MemoryIndexTest(String testName) {
-    super(testName);
-  }
-
+public class MemoryIndexTest {
+  @Test
   public void testProcessDocuments() throws Exception {
     Parameters p = new Parameters();
 
@@ -42,8 +42,8 @@ public class MemoryIndexTest extends TestCase {
       d.name = "DOC-" + i;
       d.text = "this is sample document " + i;
       d.terms = Arrays.asList(d.text.split(" "));
-      d.tags = new ArrayList();
-      d.metadata = new HashMap();
+      d.tags = new ArrayList<Tag>();
+      d.metadata = new HashMap<String,String>();
 
       index.process(d);
     }
@@ -81,6 +81,7 @@ public class MemoryIndexTest extends TestCase {
     assertEquals(total, 200);
   }
 
+  @Test
   public void testDocumentOffset() throws Exception {
     File output = null;
     try {

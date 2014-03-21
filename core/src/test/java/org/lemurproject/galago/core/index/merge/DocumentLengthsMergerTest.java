@@ -3,35 +3,30 @@
  */
 package org.lemurproject.galago.core.index.merge;
 
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.lemurproject.galago.core.index.IndexPartReader;
+import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.disk.DiskLengthsReader;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
-import org.lemurproject.galago.core.index.disk.DiskIndex;
-import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.FieldLengthData;
-import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.*;
+
+import java.io.File;
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author sjh
  */
-public class DocumentLengthsMergerTest extends TestCase {
-
-  public DocumentLengthsMergerTest(String testName) {
-    super(testName);
-  }
-
-  private String makeLengthsIndex(int firstDocNum, File folder) throws Exception {
+public class DocumentLengthsMergerTest {
+  private static String makeLengthsIndex(int firstDocNum, File folder) throws Exception {
     File temp = new File(folder + File.separator + "lengths");
     Parameters p = new Parameters();
     p.set("filename", temp.getAbsolutePath());
@@ -47,6 +42,7 @@ public class DocumentLengthsMergerTest extends TestCase {
     return temp.getAbsolutePath();
   }
 
+  @Test
   public void testMerge1() throws Exception {
     // make two or three doclengths files
 
@@ -93,7 +89,7 @@ public class DocumentLengthsMergerTest extends TestCase {
       ScoringContext sc = new ScoringContext();
       while (!iterator.isDone()) {
         sc.document = iterator.currentCandidate();
-        assert (iterator.currentCandidate() + 1 == iterator.length(sc));
+        assertEquals(iterator.currentCandidate() + 1, iterator.length(sc));
         iterator.movePast(iterator.currentCandidate());
       }
 
@@ -106,11 +102,12 @@ public class DocumentLengthsMergerTest extends TestCase {
         Utility.deleteDirectory(folder2);
       }
       if (output != null) {
-        new File(output).delete();
+        assertTrue(new File(output).delete());
       }
     }
   }
 
+  @Test
   public void testMerge2() throws Exception {
     // make two or three doclengths files
     File indexFolder1 = null;
@@ -121,9 +118,6 @@ public class DocumentLengthsMergerTest extends TestCase {
       indexFolder1 = FileUtility.createTemporaryDirectory();
       indexFolder2 = FileUtility.createTemporaryDirectory();
       output = FileUtility.createTemporary().getAbsolutePath();
-
-      String index1 = makeLengthsIndex(0, indexFolder1);
-      String index2 = makeLengthsIndex(100, indexFolder2);
 
       Parameters p = new Parameters();
       p.set("part", "lengths");
@@ -143,7 +137,7 @@ public class DocumentLengthsMergerTest extends TestCase {
       ScoringContext sc = new ScoringContext();
       while (!iterator.isDone()) {
         sc.document = iterator.currentCandidate();
-        assert (sc.document + 1 == iterator.length(sc));
+        assertEquals(sc.document + 1, iterator.length(sc));
         iterator.movePast(sc.document);
       }
 
@@ -157,7 +151,7 @@ public class DocumentLengthsMergerTest extends TestCase {
         Utility.deleteDirectory(indexFolder2);
       }
       if (output != null) {
-        new File(output).delete();
+        assertTrue(new File(output).delete());
       }
     }
   }

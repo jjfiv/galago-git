@@ -3,9 +3,7 @@
  */
 package org.lemurproject.galago.core.index.merge;
 
-import java.io.File;
-import java.util.ArrayList;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.mem.FlushToDisk;
 import org.lemurproject.galago.core.index.mem.MemoryIndex;
@@ -18,16 +16,17 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.util.ArrayList;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author sjh
  */
-public class MergeIndexTest extends TestCase {
-
-  public MergeIndexTest(String name) {
-    super(name);
-  }
-
+public class MergeIndexTest {
+  @Test
   public void testMergeDiskIndexes() throws Exception {
     File trecData1 = null;
     File trecData2 = null;
@@ -113,6 +112,7 @@ public class MergeIndexTest extends TestCase {
     }
   }
 
+  @Test
   public void testMergeFlushedSequentialIndexes() throws Exception {
     File index1 = null;
     File index2 = null;

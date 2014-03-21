@@ -3,25 +3,24 @@
  */
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.File;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskNameReader.KeyIterator;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author sjh
  */
-public class DiskNameWriterTest extends TestCase {
-
-  public DiskNameWriterTest(String testName) {
-    super(testName);
-  }
-
+public class DiskNameWriterTest {
+  @Test
   public void testNamesWriter() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {
@@ -57,7 +56,7 @@ public class DiskNameWriterTest extends TestCase {
       assertEquals(count, actual);
 
     } finally {
-      tmp.delete();
+      assertTrue(tmp.delete());
     }
   }
 }

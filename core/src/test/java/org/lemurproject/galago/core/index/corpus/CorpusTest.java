@@ -3,45 +3,43 @@
  */
 package org.lemurproject.galago.core.index.corpus;
 
+import org.junit.Test;
+import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Document.DocumentComponents;
+import org.lemurproject.galago.core.parse.Tag;
+import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.tupleflow.Parameters;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import junit.framework.TestCase;
-import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.core.parse.Tag;
-import org.lemurproject.galago.core.parse.TagTokenizer;
-import org.lemurproject.galago.core.tokenize.Tokenizer;
-import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+
+import static org.junit.Assert.*;
 
 /**
  *
  * @author sjh
  */
-public class CorpusTest extends TestCase {
-
-  public CorpusTest(String name) {
-    super(name);
-  }
-
+public class CorpusTest {
+  @Test
+  @SuppressWarnings("unchecked")
   public void testCorpus() throws Exception {
     File corpus = null;
     try {
-      List<Document> docs = new ArrayList();
+      List<Document> docs = new ArrayList<Document>();
       for (int i = 0; i < 100; i++) {
         Document d = new Document();
         d.identifier = i;
         d.name = "name-" + i;
         d.text = "<tag attr=\"value-"+i+"\">text"+i+"</tag>";
-        d.metadata = new HashMap();
+        d.metadata = new HashMap<String,String>();
         d.metadata.put("meta", "data-" + i);
-        d.terms = new ArrayList();
+        d.terms = new ArrayList<String>();
         d.terms.add("text" + i);
-        d.tags = new ArrayList();
-        d.tags.add(new Tag("tag", new HashMap(), 0, 1));
+        d.tags = new ArrayList<Tag>();
+        d.tags.add(new Tag("tag", new HashMap<String,String>(), 0, 1));
         d.tags.get(0).attributes.put("attr", "value-" + i);
         docs.add(d);
       }
@@ -67,7 +65,7 @@ public class CorpusTest extends TestCase {
       // assert that our parameters got put into the manifest appropriately.
       assertTrue(reader.getManifest().isMap("tokenizer"));
       assertTrue(reader.getManifest().getMap("tokenizer").isList("fields"));
-      assertEquals((String) reader.getManifest().getMap("tokenizer").getList("fields").get(0), "tag");
+      assertEquals("tag", reader.getManifest().getMap("tokenizer").getList("fields").get(0));
 			
       Document testDoc = reader.getDocument(11, new DocumentComponents(true, true, true));
       Document trueDoc = docs.get(11);
@@ -95,16 +93,16 @@ public class CorpusTest extends TestCase {
       reader = new CorpusReader(corpus.getAbsolutePath());
       testDoc = reader.getDocument(11, new DocumentComponents(true, false, false));
       trueDoc = docs.get(11);
-      assert (testDoc.identifier == trueDoc.identifier);
-      assert (testDoc.name.equals(trueDoc.name));
-      assert (testDoc.text.equals(trueDoc.text));      
-      assert (testDoc.metadata.isEmpty());
-      assert (testDoc.terms == null);
-      assert (testDoc.tags == null);
+      assertEquals(trueDoc.identifier, testDoc.identifier);
+      assertEquals(trueDoc.name, testDoc.name);
+      assertEquals (trueDoc.text, testDoc.text);
+      assertEquals(0, testDoc.metadata.size());
+      assertNull(testDoc.terms);
+      assertNull(testDoc.tags);
 
     } finally {
       if (corpus != null) {
-        corpus.delete();
+        assertTrue(corpus.delete());
       }
     }
   }

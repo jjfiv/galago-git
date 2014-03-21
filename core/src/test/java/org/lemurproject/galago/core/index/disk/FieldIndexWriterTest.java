@@ -3,28 +3,23 @@
  */
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.FieldIndexReader.KeyIterator;
-import org.lemurproject.galago.core.index.disk.FieldIndexReader.ListIterator;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author sjh
  */
-public class FieldIndexWriterTest extends TestCase {
-
-  public FieldIndexWriterTest(String testName) {
-    super(testName);
-  }
-
+public class FieldIndexWriterTest {
+  @Test
   public void testFieldIndex() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {
@@ -39,13 +34,9 @@ public class FieldIndexWriterTest extends TestCase {
 
       writer.processFieldName(Utility.fromString("test1"));
 
-      Map<String, String> trueData = new HashMap();
-
       for (long d = 0; d < 100; d++) {
         writer.processNumber(d);
         writer.processTuple(Utility.fromDouble(d + 0.1));
-
-        trueData.put("" + d, "" + (d + 0.1));
       }
 
       // big numbers
@@ -53,8 +44,6 @@ public class FieldIndexWriterTest extends TestCase {
       for (long d = 8000000000L; d < 9000000000L; d += 100000000L) {
         writer.processNumber(d);
         writer.processTuple(Utility.fromDouble(d + 0.1));
-
-        trueData.put("" + d, "" + (d + 0.1));
       }
 
       writer.close();

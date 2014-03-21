@@ -3,27 +3,25 @@
  */
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import static junit.framework.Assert.assertEquals;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.types.DocumentFeature;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author sjh
  */
-public class DocumentPriorWriterTest extends TestCase {
-
-  public DocumentPriorWriterTest(String testName) {
-    super(testName);
-  }
-
+public class DocumentPriorWriterTest {
+  @Test
   public void testSomeMethod() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {
@@ -31,7 +29,7 @@ public class DocumentPriorWriterTest extends TestCase {
       p.set("filename", tmp.getAbsolutePath());
       DocumentPriorWriter writer = new DocumentPriorWriter(new FakeParameters(p));
 
-      Map<Long, Double> trueData = new HashMap();
+      Map<Long, Double> trueData = new HashMap<Long,Double>();
 
       for (long i = 0; i < 100; i++) {
         trueData.put(i, i + 0.1);
@@ -57,7 +55,7 @@ public class DocumentPriorWriterTest extends TestCase {
       }
 
     } finally {
-      tmp.delete();
+      assertTrue(tmp.delete());
     }
   }
 }

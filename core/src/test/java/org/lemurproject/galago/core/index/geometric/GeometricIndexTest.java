@@ -1,19 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.geometric;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
-
+import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
@@ -27,16 +19,19 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.PrintStream;
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author sjh
  */
-public class GeometricIndexTest extends TestCase {
-
-  public GeometricIndexTest(String testName) {
-    super(testName);
-  }
-
+public class GeometricIndexTest {
+  @Test
   public void testProcessDocuments() throws Exception {
     PrintStream oldErr = System.err;
     PrintStream newErr = new PrintStream(new ByteArrayOutputStream());
@@ -55,8 +50,8 @@ public class GeometricIndexTest extends TestCase {
         d.name = "DOC-" + i;
         d.text = "this is sample document " + i;
         d.terms = Arrays.asList(d.text.split(" "));
-        d.tags = new ArrayList();
-        d.metadata = new HashMap();
+        d.tags = new ArrayList<Tag>();
+        d.metadata = new HashMap<String,String>();
 
         index.process(d);
       }
@@ -137,10 +132,8 @@ public class GeometricIndexTest extends TestCase {
     }
   }
 
+  @Test
   public void testRetrievalFunctions() throws Exception {
-    //PrintStream oldErr = System.err;
-    //PrintStream newErr = new PrintStream(new ByteArrayOutputStream());
-    //System.setErr(newErr);
     File shards = FileUtility.createTemporaryDirectory();
 
     Random rnd = new Random();
@@ -158,8 +151,8 @@ public class GeometricIndexTest extends TestCase {
         d.name = "DOC-" + i;
         d.text = "this is sample document " + i;
         d.terms = Arrays.asList(d.text.split(" "));
-        d.tags = new ArrayList();
-        d.metadata = new HashMap();
+        d.tags = new ArrayList<Tag>();
+        d.metadata = new HashMap<String,String>();
 
         index.process(d);
         if (i > 0) {
