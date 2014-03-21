@@ -3,8 +3,7 @@
  */
 package org.lemurproject.galago.core.retrieval.query;
 
-import java.io.File;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
@@ -14,16 +13,18 @@ import org.lemurproject.galago.core.retrieval.processing.RankedDocumentModel;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 /**
  *
  * @author sjh
  */
-public class AnnotatedNodeTest extends TestCase {
+public class AnnotatedNodeTest {
 
-  public AnnotatedNodeTest(String name) {
-    super(name);
-  }
-
+  @Test
   public void testAnnotatedNodes() throws Exception {
     File[] files = LocalRetrievalTest.make10DocIndex();
     files[0].delete();
@@ -42,9 +43,9 @@ public class AnnotatedNodeTest extends TestCase {
       ScoredDocument[] results = proc.execute(qnode, p);
       AnnotatedNode prev = null;
       for (ScoredDocument d : results) {
-        assert (d.annotation != null);
+        assertNotNull(d.annotation);
         AnnotatedNode anode = d.annotation;
-        assert (anode.atCandidate == true);
+        assertTrue(anode.atCandidate);
         if (prev != null) {
           assert (Double.parseDouble(prev.returnValue) > Double.parseDouble(anode.returnValue));
         }

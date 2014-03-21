@@ -1,16 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.structured;
 
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.RequireIterator;
-import org.lemurproject.galago.core.retrieval.iterator.ExistentialIndicatorIterator;
-import org.lemurproject.galago.core.retrieval.iterator.UniversalIndicatorIterator;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
-import java.io.File;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import junit.framework.TestCase;
+import org.lemurproject.galago.core.retrieval.iterator.ExistentialIndicatorIterator;
+import org.lemurproject.galago.core.retrieval.iterator.RequireIterator;
+import org.lemurproject.galago.core.retrieval.iterator.UniversalIndicatorIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
@@ -19,11 +18,15 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+
+import static org.junit.Assert.*;
+
 /**
  *
  * @author irmarc
  */
-public class IndicatorIteratorTest extends TestCase {
+public class IndicatorIteratorTest {
 
   File relsFile = null;
   File queryFile = null;
@@ -31,12 +34,8 @@ public class IndicatorIteratorTest extends TestCase {
   File trecCorpusFile = null;
   File indexFile = null;
 
-  public IndicatorIteratorTest(String testName) {
-    super(testName);
-  }
-
   // Build an index based on 10 short docs
-  @Override
+  @Before
   public void setUp() throws Exception {
 
     // create a simple doc file, trec format:
@@ -58,7 +57,7 @@ public class IndicatorIteratorTest extends TestCase {
     AppTest.verifyIndexStructures(indexFile);
   }
 
-  @Override
+  @After
   public void tearDown() throws Exception {
     if (relsFile != null) {
       relsFile.delete();
@@ -77,6 +76,7 @@ public class IndicatorIteratorTest extends TestCase {
     }
   }
 
+  @Test
   public void testExistentialIndicator() throws Exception {
     // Create a retrieval object for use by the traversal
     Parameters p = new Parameters();
@@ -107,6 +107,7 @@ public class IndicatorIteratorTest extends TestCase {
     retrieval.close();
   }
 
+  @Test
   public void testUniversalIndicator() throws Exception {
     // Create a retrieval object for use by the traversal
     Parameters p = new Parameters();
@@ -140,6 +141,7 @@ public class IndicatorIteratorTest extends TestCase {
     retrieval.close();
   }
 
+  @Test
   public void testIteratorPair() throws Exception {
     // Create a retrieval object for use by the traversal
     Parameters p = new Parameters();
@@ -191,6 +193,7 @@ public class IndicatorIteratorTest extends TestCase {
     assertTrue(eii.isDone());
   }
 
+  @Test
   public void testComplexIterator() throws Exception {
     // Create a retrieval object for use by the traversal
     Parameters p = new Parameters();

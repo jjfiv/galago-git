@@ -1,30 +1,30 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.query;
 
+import org.junit.Test;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Date;
-import junit.framework.TestCase;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+
+import static org.junit.Assert.*;
 
 /**
  *
  * @author trevor
  */
-public class NodeTypeTest extends TestCase {
-
-  public NodeTypeTest(String testName) {
-    super(testName);
-  }
-
+public class NodeTypeTest {
+  @Test
   public void testGetIteratorClass() {
     NodeType n = new NodeType(ExtentIterator.class);
     assertEquals(ExtentIterator.class, n.getIteratorClass());
   }
 
+  @Test
   public void testIsIteratorOrArray() {
     NodeType n = new NodeType(ExtentIterator.class);
     assertTrue(n.isIteratorOrArray(ExtentIterator.class));
@@ -34,6 +34,7 @@ public class NodeTypeTest extends TestCase {
     assertTrue(n.isIteratorOrArray(new ExtentIterator[0].getClass()));
   }
 
+  @Test
   public void testGetInputs() throws Exception {
     NodeType n = new NodeType(FakeIterator.class);
     Class[] input = n.getInputs();
@@ -43,6 +44,7 @@ public class NodeTypeTest extends TestCase {
     assertEquals(new ScoreIterator[0].getClass(), input[2]);
   }
 
+  @Test
   public void testGetParameterTypes() throws Exception {
     NodeType n = new NodeType(FakeIterator.class);
     Class[] input = n.getParameterTypes(4);
@@ -53,6 +55,7 @@ public class NodeTypeTest extends TestCase {
     assertEquals(ScoreIterator.class, input[3]);
   }
 
+  @Test
   public void testGetConstructor() throws Exception {
     NodeType n = new NodeType(FakeIterator.class);
     Constructor c = n.getConstructor();

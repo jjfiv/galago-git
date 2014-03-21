@@ -3,8 +3,7 @@
  */
 package org.lemurproject.galago.core.retrieval.traversal.optimize;
 
-import org.lemurproject.galago.core.retrieval.traversal.optimize.FlattenCombineTraversal;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 
@@ -12,12 +11,9 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
  *
  * @author sjh
  */
-public class FlattenCombineTraversalTest extends TestCase {
+public class FlattenCombineTraversalTest {
 
-  public FlattenCombineTraversalTest(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testNestedCombineMerger() throws Exception {
     String query = "#combine(#combine:0=0.1:1=0.4(#text:a() #text:b()) #combine:0=150:1=350(#text:c() #text:d()))";
     Node result = StructuredQuery.parse(query);

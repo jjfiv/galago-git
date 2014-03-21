@@ -3,43 +3,45 @@
  */
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskExtentIterator;
+import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.retrieval.LocalRetrieval;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author sjh
  */
-public class InsideToFieldPartTraversalTest extends TestCase {
+public class InsideToFieldPartTraversalTest {
 
   private File indexPath;
 
-  public InsideToFieldPartTraversalTest(String name) {
-    super(name);
-  }
-
-  @Override
+  @Before
   public void setUp() throws FileNotFoundException, IOException, IncompatibleProcessorException {
     indexPath = LocalRetrievalTest.makeIndex();
   }
 
-  @Override
+  @After
   public void tearDown() throws IOException {
     Utility.deleteDirectory(indexPath);
   }
 
+  @Test
   public void testTraversal() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
     LocalRetrieval retrieval = new LocalRetrieval(index);

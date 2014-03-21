@@ -1,10 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import java.io.File;
-import java.util.List;
-import static junit.framework.Assert.assertEquals;
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
@@ -15,6 +14,12 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * This test is seriously a pain so all traversals that make use of 2 rounds of
@@ -27,7 +32,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author irmarc, sjh, dietz, dmf
  */
-public class RelevanceFeedbackTraversalTest extends TestCase {
+public class RelevanceFeedbackTraversalTest {
 
   File relsFile = null;
   File queryFile = null;
@@ -36,12 +41,8 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
   File corpusFile = null;
   File indexFile = null;
 
-  public RelevanceFeedbackTraversalTest(String testName) {
-    super(testName);
-  }
-
   // Build an index based on 10 short docs
-  @Override
+  @Before
   public void setUp() throws Exception {
     File[] files = LocalRetrievalTest.make10DocIndex();
     trecCorpusFile = files[0];
@@ -49,6 +50,7 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     indexFile = files[2];
   }
 
+  @Test
   public void testRelevanceModel1Traversal() throws Exception {
     // Create a retrieval object for use by the traversal
     Parameters p = new Parameters();
@@ -83,6 +85,7 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     retrieval.close();
   }
 
+  @Test
   public void testRelevanceModel3Traversal() throws Exception {
     // Create a retrieval object for use by the traversal
     Parameters p = new Parameters();
@@ -109,7 +112,8 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
  
     retrieval.close();
   }
-   
+
+  @Test
   public void testRelevanceModelEmptyTraversal() throws Exception {
     // Create a retrieval object for use by the traversal
     Parameters p = new Parameters();
@@ -137,7 +141,7 @@ public class RelevanceFeedbackTraversalTest extends TestCase {
     retrieval.close();
   }
 
-  @Override
+  @After
   public void tearDown() throws Exception {
     if (relsFile != null) {
       relsFile.delete();

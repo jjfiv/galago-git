@@ -3,21 +3,20 @@
  */
 package org.lemurproject.galago.core.retrieval.traversal.optimize;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author sjh
  */
-public class MergeCombineChildrenTraversalTest extends TestCase {
-  
-  public MergeCombineChildrenTraversalTest(String testName) {
-    super(testName);
-  }
+public class MergeCombineChildrenTraversalTest {
 
+  @Test
   public void testNestedCombineMerger() throws Exception {
     String query = "#combine:3=0.7:2=0.3:1=0.8:0=0.2( #ow:1(#text:a() #text:b()) #text:b() #ow:1(#text:a() #text:b()) #text:d() )";
     Node result = StructuredQuery.parse(query);

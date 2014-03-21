@@ -1,17 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.structured;
 
-import java.io.ByteArrayOutputStream;
-import org.lemurproject.galago.core.retrieval.LocalRetrieval;
-import java.io.File;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import static junit.framework.Assert.assertTrue;
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
+import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
+import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
@@ -19,28 +15,34 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+
 /**
  * Tests the #require and #reject operators against stored date fields.
  * @author irmarc
  */
-public class FilteringIteratorTest extends TestCase {
+public class FilteringIteratorTest {
 
   public File tempPath;
 
-  public FilteringIteratorTest(String testName) {
-    super(testName);
-  }
-
-  @Override
+  @Before
   public void setUp() throws Exception {
     tempPath = LocalRetrievalTest.makeIndex();
   }
 
-  @Override
+  @After
   public void tearDown() throws Exception {
     Utility.deleteDirectory(tempPath);
   }
 
+  @Test
   public void testFilteredXCountOperator() throws Exception {
     File queryFile1 = null;
     try {
@@ -70,11 +72,12 @@ public class FilteringIteratorTest extends TestCase {
 
     } finally {
       if (queryFile1 != null) {
-        queryFile1.delete();
+        assertTrue(queryFile1.delete());
       }
     }
   }
 
+  @Test
   public void testRequireOperator() throws Exception {
     DiskIndex index = new DiskIndex(tempPath.getAbsolutePath());
     LocalRetrieval retrieval = new LocalRetrieval(index, new Parameters());
@@ -100,6 +103,7 @@ public class FilteringIteratorTest extends TestCase {
     }
   }
 
+  @Test
   public void testRejectOperator() throws Exception {
     DiskIndex index = new DiskIndex(tempPath.getAbsolutePath());
     LocalRetrieval retrieval = new LocalRetrieval(index, new Parameters());

@@ -1,24 +1,29 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.structured;
 
-import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
-import org.lemurproject.galago.core.retrieval.iterator.scoring.BM25RFScoringIterator;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.FakeLengthIterator;
 import org.lemurproject.galago.core.retrieval.extents.FakeExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.BM25RFScoringIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author marc, sjh
  */
-public class ScoringFunctionIteratorTest extends TestCase {
+public class ScoringFunctionIteratorTest {
 
-  int[][] extents = {
+  private static final int[][] extents = {
     {34, 55, 56, 57},
     {44, 67, 77},
     {110, 12, 23, 34}
@@ -40,6 +45,7 @@ public class ScoringFunctionIteratorTest extends TestCase {
     }
   }
 
+  @Test
   public void testGenericIterator() throws Exception {
     FakeExtentIterator extentIterator = new FakeExtentIterator(extents);
     int[] docs = {0, 34, 110};
@@ -60,11 +66,11 @@ public class ScoringFunctionIteratorTest extends TestCase {
     // score with bad context.document
     context.document = 0;
 
-    assertEquals(0.0, iterator.score(context));
+    assertEquals(0.0, iterator.score(context), 0.001);
 
     // score with good context.document
     context.document = 34;
-    assertEquals(102.0, iterator.score(context));
+    assertEquals(102.0, iterator.score(context), 0.001);
 
     // score next document
     iterator.movePast(44);
@@ -72,13 +78,14 @@ public class ScoringFunctionIteratorTest extends TestCase {
     iterator.syncTo(context.document);
     assertTrue(iterator.hasMatch(110));
     context.document = iterator.currentCandidate();
-    assertEquals(44.0, iterator.score(context));
+    assertEquals(44.0, iterator.score(context), 0.001);
 
     iterator.syncTo(120);
     context.document = iterator.currentCandidate();
     assertTrue(iterator.isDone());
   }
 
+  @Test
   public void testBM25RFIterator() throws Exception {
     FakeExtentIterator extentIterator = new FakeExtentIterator(extents);
 

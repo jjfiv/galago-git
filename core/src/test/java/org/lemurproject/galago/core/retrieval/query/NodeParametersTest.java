@@ -3,29 +3,26 @@
  */
 package org.lemurproject.galago.core.retrieval.query;
 
-import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import java.util.ArrayList;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.tupleflow.Parameters.Type;
+
+import java.util.ArrayList;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  *
  * @author sjh
  */
-public class NodeParametersTest extends TestCase {
-
-  public NodeParametersTest(String testName) {
-    super(testName);
-  }
-
+public class NodeParametersTest {
+  @Test
   public void testLongDoubleCasting() {
     NodeParameters p = new NodeParameters();
     p.set("long", 1234);
     p.set("double", 1234.0);
 
-    assert p.getDouble("long") == p.getDouble("double");
+    assertEquals(p.getDouble("long"), p.getDouble("double"), 0.0001);
 
     Exception e = null;
     try {
@@ -36,6 +33,7 @@ public class NodeParametersTest extends TestCase {
     assert e != null;
   }
 
+  @Test
   public void testConfusableParameters() {
     NodeParameters p = new NodeParameters();
     p.set("bool", "true");
@@ -46,13 +44,13 @@ public class NodeParametersTest extends TestCase {
     p.set("other2", ":test");
     p.set("other3", "=test");
 
-    assert "true".equals(p.getString("bool"));
-    assert "1234".equals(p.getString("long"));
-    assert "0.1234".equals(p.getString("double"));
-    assert "'test-string'".equals(p.getString("string"));
-    assert "@test".equals(p.getString("other1"));
-    assert ":test".equals(p.getString("other2"));
-    assert "=test".equals(p.getString("other3"));
+    assertEquals("true", p.getString("bool"));
+    assertEquals("1234", p.getString("long"));
+    assertEquals("0.1234", p.getString("double"));
+    assertEquals("'test-string'", p.getString("string"));
+    assertEquals("@test", p.getString("other1"));
+    assertEquals(":test", p.getString("other2"));
+    assertEquals("=test", p.getString("other3"));
 
     String paramString = p.toString();
     assertEquals(":bool=@/true/"
@@ -80,6 +78,7 @@ public class NodeParametersTest extends TestCase {
 
   }
 
+  @Test
   public void testNodeParameters() {
     NodeParameters p = new NodeParameters();
     // try setting some stuff
@@ -89,10 +88,10 @@ public class NodeParametersTest extends TestCase {
     p.set("string", "test string");
 
     // try getting it back again
-    assert p.getBoolean("bool") == true;
-    assert p.getLong("long") == 1234;
-    assert p.getDouble("double") == 0.1234;
-    assert p.getString("string").equals("test string");
+    assertEquals(true, p.getBoolean("bool"));
+    assertEquals(1234, p.getLong("long"));
+    assertEquals(0.1234, p.getDouble("double"), 0.0001);
+    assertEquals("test string", p.getString("string"));
 
     // try adding something badly
     Exception e = null;
@@ -101,29 +100,28 @@ public class NodeParametersTest extends TestCase {
     } catch (Exception except) {
       e = except;
     }
-    assert e != null;
+    assertNotNull(e);
 
     // try toString methods
-    assert p.getAsString("bool").equals("true");
-    assert p.getAsString("long").equals("1234");
-    assert p.getAsString("double").equals("0.1234");
-    assert p.getAsString("string").equals("test string");
+    assertEquals("true", p.getAsString("bool"));
+    assertEquals("1234", p.getAsString("long"));
+    assertEquals("0.1234", p.getAsString("double"));
+    assertEquals("test string", p.getAsString("string"));
 
     // try serialisation
     String paramString = p.toString();
-    assert paramString.equals(
-            ":bool=true"
-            + ":double=0.1234:long=1234"
-            + ":string=test string");
+    assertEquals(":bool=true"
+        + ":double=0.1234:long=1234"
+        + ":string=test string", paramString);
 
     Node n = new Node("op", p, new ArrayList(), 0);
 
     Node m = StructuredQuery.parse(n.toString());
 
     NodeParameters p2 = m.getNodeParameters();
-    assert (p2.getKeyType("bool").equals(Type.BOOLEAN));
-    assert (p2.getKeyType("long").equals(Type.LONG));
-    assert (p2.getKeyType("double").equals(Type.DOUBLE));
-    assert (p2.getKeyType("string").equals(Type.STRING));
+    assertEquals (Type.BOOLEAN, p2.getKeyType("bool"));
+    assertEquals (Type.LONG, p2.getKeyType("long"));
+    assertEquals (Type.DOUBLE, p2.getKeyType("double"));
+    assertEquals (Type.STRING, p2.getKeyType("string"));
   }
 }

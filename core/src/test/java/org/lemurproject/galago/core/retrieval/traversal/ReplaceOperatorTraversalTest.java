@@ -3,20 +3,18 @@
  */
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author sjh
  */
-public class ReplaceOperatorTraversalTest extends TestCase {
-  
-  public ReplaceOperatorTraversalTest(String testName) {
-    super(testName);
-  }
-
+public class ReplaceOperatorTraversalTest {
+  @Test
   public void testOpRepls() throws Exception {
     Parameters repls = Parameters.parseArgs(new String[]{
       "--opRepls/dummy1=test1", 
