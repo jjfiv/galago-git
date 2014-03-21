@@ -116,7 +116,7 @@ public class JSONPerLineTest {
 	}
 
 	@Test
-	public void buildRoutineTest() throws IOException, Exception {
+	public void buildRoutineTest() throws Exception {
 		ArrayList<Parameters> pdocs = fakeJSONDocs();
 		String toParseText = fakeJSONText(pdocs);
 		

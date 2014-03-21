@@ -1,49 +1,39 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.corpus.CorpusFolderWriter;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeKeyWriter;
-import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Sorter;
+import org.lemurproject.galago.tupleflow.*;
+
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 /**
  *
  * @author trevor
  */
-public class IndexReaderSplitParserTest extends TestCase {
+public class IndexReaderSplitParserTest {
 
   Document document;
   String temporaryName = "";
 
-  public IndexReaderSplitParserTest(String testName) {
-    super(testName);
+  @After
+  public void tearDown() throws IOException {
+    Utility.deleteDirectory(new File(temporaryName));
   }
 
-  @Override
-  public void tearDown() {
-    if (temporaryName.length() != 0) {
-      try {
-        Utility.deleteDirectory(new File(temporaryName));
-      } catch (IOException e) {
-      }
-    }
-  }
-
-  public void buildIndex() throws FileNotFoundException, IOException, IncompatibleProcessorException {
+  @Test
+  public void buildIndex() throws IOException, IncompatibleProcessorException {
     File temporary = FileUtility.createTemporary();
-    temporary.delete();
-    temporary.mkdirs();
+    assertTrue(temporary.delete());
+    assertTrue(temporary.mkdirs());
 
     temporaryName = temporary.getAbsolutePath();
 
@@ -73,6 +63,7 @@ public class IndexReaderSplitParserTest extends TestCase {
   /**
    * Test of nextDocument method, of class IndexReaderSplitParser.
    */
+  @Test
   public void testNextDocument() throws Exception {
     buildIndex();
 
@@ -100,7 +91,8 @@ public class IndexReaderSplitParserTest extends TestCase {
     assertNull(parser.nextDocument());
   }
 
-  public void testStartKey() throws FileNotFoundException, IOException, IncompatibleProcessorException {
+  @Test
+  public void testStartKey() throws IOException, IncompatibleProcessorException {
     buildIndex();
 
     DocumentSplit split = new DocumentSplit();
@@ -114,7 +106,8 @@ public class IndexReaderSplitParserTest extends TestCase {
     assertNull(parser.nextDocument());
   }
 
-  public void testEndKey() throws FileNotFoundException, IOException, IncompatibleProcessorException {
+  @Test
+  public void testEndKey() throws IOException, IncompatibleProcessorException {
     buildIndex();
 
     DocumentSplit split = new DocumentSplit();

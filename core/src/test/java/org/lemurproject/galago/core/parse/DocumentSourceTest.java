@@ -1,28 +1,26 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
  * @author trevor
  */
-public class DocumentSourceTest extends TestCase {
-
-  public DocumentSourceTest(String testName) {
-    super(testName);
-  }
-
-  public class FakeProcessor implements Processor<DocumentSplit> {
+public class DocumentSourceTest {
+  public static final class FakeProcessor implements Processor<DocumentSplit> {
 
     public ArrayList<DocumentSplit> splits = new ArrayList<DocumentSplit>();
 
@@ -36,6 +34,7 @@ public class DocumentSourceTest extends TestCase {
     }
   }
 
+  @Test
   public void testUnknownFile() throws Exception {
     Parameters p = new Parameters();
     p.set("filename", "foo.c");
@@ -52,6 +51,7 @@ public class DocumentSourceTest extends TestCase {
     assertTrue(threwException);
   }
 
+  @Test
   public void testUnknownExtension() throws Exception {
     File tempFile = FileUtility.createTemporary();
     Parameters p = new Parameters();
@@ -62,6 +62,6 @@ public class DocumentSourceTest extends TestCase {
 
     source.run();
     assertEquals(0, processor.splits.size());
-    tempFile.delete();
+    assertTrue(tempFile.delete());
   }
 }

@@ -1,24 +1,25 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import java.io.File;
-import java.io.IOException;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 /**
  *
  * @author trevor
  */
-public class TrecWebParserTest extends TestCase {
-
-  public TrecWebParserTest(String testName) {
-    super(testName);
-  }
-
+public class TrecWebParserTest {
+  @Test
   public void testParseNothing() throws IOException {
     File f = FileUtility.createTemporary();
     f.createNewFile();
@@ -35,6 +36,7 @@ public class TrecWebParserTest extends TestCase {
     }
   }
 
+  @Test
   public void testParseOneDocument() throws IOException {
     String fileText =
             "<DOC>\n"

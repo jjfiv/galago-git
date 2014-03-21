@@ -3,9 +3,7 @@
  */
 package org.lemurproject.galago.core.parse;
 
-import java.io.File;
-import java.util.ArrayList;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.disk.FieldIndexReader;
 import org.lemurproject.galago.core.index.disk.FieldIndexReader.KeyIterator;
@@ -15,16 +13,17 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.util.ArrayList;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  *
  * @author sjh
  */
-public class NumberedFieldExtractorTest extends TestCase {
-
-  public NumberedFieldExtractorTest(String testName) {
-    super(testName);
-  }
-
+public class NumberedFieldExtractorTest {
+  @Test
   public void testFieldExtraction() throws Exception {
     StringBuilder sb = new StringBuilder();
     sb.append("<DOC>\n<DOCNO>1</DOCNO>\n<TEXT>\n");

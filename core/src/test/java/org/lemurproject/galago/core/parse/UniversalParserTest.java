@@ -3,34 +3,33 @@
  */
 package org.lemurproject.galago.core.parse;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.apps.BuildIndex;
-import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author sjh
  */
-public class UniversalParserTest extends TestCase {
+public class UniversalParserTest {
 
-  Random r = new Random();
+  private static final Random r = new Random();
 
-  public UniversalParserTest(String name) {
-    super(name);
-  }
-
-  public void createTxtDoc(File folder, String fn) throws IOException {
+  public static void createTxtDoc(File folder, String fn) throws IOException {
 
     StringBuilder sb = new StringBuilder();
     sb.append("Text document\n");
@@ -41,7 +40,7 @@ public class UniversalParserTest extends TestCase {
     Utility.copyStringToFile(sb.toString(), new File(folder, fn));
   }
 
-  public void createXMLDoc(File folder, String fn) throws IOException {
+  public static void createXMLDoc(File folder, String fn) throws IOException {
 
     StringBuilder sb = new StringBuilder();
     sb.append("<document>\n");
@@ -55,7 +54,7 @@ public class UniversalParserTest extends TestCase {
     Utility.copyStringToFile(sb.toString(), new File(folder, fn));
   }
 
-  public void createTrecTextDoc(File folder, String fn) throws IOException {
+  public static void createTrecTextDoc(File folder, String fn) throws IOException {
 
     StringBuilder sb = new StringBuilder();
     for (int d = 0; d < 10; d++) {
@@ -71,7 +70,7 @@ public class UniversalParserTest extends TestCase {
     Utility.copyStringToFile(sb.toString(), new File(folder, fn));
   }
 
-  public void createTrecWebDoc(File folder, String fn) throws IOException {
+  public static void createTrecWebDoc(File folder, String fn) throws IOException {
 
     StringBuilder sb = new StringBuilder();
     for (int d = 0; d < 10; d++) {
@@ -87,7 +86,7 @@ public class UniversalParserTest extends TestCase {
     Utility.copyStringToFile(sb.toString(), new File(folder, fn));
   }
 
-  public void createTwitterDoc(File folder, String fn) throws IOException {
+  public static void createTwitterDoc(File folder, String fn) throws IOException {
 
     StringBuilder sb = new StringBuilder();
     for (int d = 0; d < 10; d++) {
@@ -102,6 +101,7 @@ public class UniversalParserTest extends TestCase {
     Utility.copyStringToFile(sb.toString(), new File(folder, fn));
   }
 
+  @Test
   public void testDefaultyBehavior() throws Exception {
     File index = FileUtility.createTemporaryDirectory();
     File dataDir = FileUtility.createTemporaryDirectory();
@@ -143,6 +143,7 @@ public class UniversalParserTest extends TestCase {
     }
   }
 
+  @Test
   public void testAllIsOneBehavior() throws Exception {
     File index = FileUtility.createTemporaryDirectory();
     File dataDir = FileUtility.createTemporaryDirectory();
@@ -186,6 +187,7 @@ public class UniversalParserTest extends TestCase {
     }
   }
 
+  @Test
   public void testManualOverrideBehavior() throws Exception {
     File index = FileUtility.createTemporaryDirectory();
     File dataDir = FileUtility.createTemporaryDirectory();
@@ -232,3 +234,4 @@ public class UniversalParserTest extends TestCase {
     }
   }
 }
+

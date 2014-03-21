@@ -3,11 +3,7 @@
  */
 package org.lemurproject.galago.core.parse.stem;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.disk.PositionIndexReader;
 import org.lemurproject.galago.core.parse.Document;
@@ -18,15 +14,20 @@ import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  *
  * @author sjh
  */
-public class KrovetzStemmerTest extends TestCase {
+public class KrovetzStemmerTest {
 
-  public KrovetzStemmerTest(String name) {
-    super(name);
-  }
   final static String text = "Call me Ishmael. Some years ago never mind how long precisely "
           + "having little or no money in my purse, and nothing particular to interest "
           + "me on shore, I thought I would sail about a little and see the watery part "
@@ -44,6 +45,7 @@ public class KrovetzStemmerTest extends TestCase {
           + "some time or other, cherish very nearly the same feelings towards the ocean "
           + "with me.";
 
+  @Test
   public void testStemming() {
 
     Document test = new Document("test", text);
@@ -84,6 +86,7 @@ public class KrovetzStemmerTest extends TestCase {
     }
   }
 
+  @Test
   public void testIndexStemming() throws Exception {
     File trecCorpusFile = null;
     File indexFile1 = null;
