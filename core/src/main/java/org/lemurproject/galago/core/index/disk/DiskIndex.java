@@ -1,30 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.util.logging.Level;
-import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.NodeType;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.BTreeFactory;
-import org.lemurproject.galago.core.index.BTreeReader;
-import org.lemurproject.galago.core.index.Index;
-import org.lemurproject.galago.core.index.NamesReader;
-import org.lemurproject.galago.core.index.IndexPartReader;
-import org.lemurproject.galago.core.index.LengthsReader;
-import org.lemurproject.galago.core.index.NamesReverseReader;
+import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
@@ -34,8 +11,19 @@ import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
+import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This is the main class for a disk based index structure
@@ -333,6 +321,10 @@ public class DiskIndex implements Index {
     if (parts.containsKey("corpus")) {
       try {
         CorpusReader corpus = (CorpusReader) parts.get("corpus");
+        if(corpus == null) {
+          throw new IllegalArgumentException("Attempted to pull a document from index without a corpus");
+        }
+
         long docId = getIdentifier(document);
         return corpus.getDocument(docId, p);
       } catch (IOException e) {
@@ -347,9 +339,9 @@ public class DiskIndex implements Index {
 
   @Override
   public Map<String, Document> getDocuments(List<String> documents, DocumentComponents p) throws IOException {
-    HashMap<String, Document> results = new HashMap();
+    HashMap<String, Document> results = new HashMap<String,Document>();
 		
-		ArrayList<Long> docIds = new ArrayList();
+		ArrayList<Long> docIds = new ArrayList<Long>();
     // should get a names iterator + sort requested documents
     for (String name : documents) {
 			docIds.add(getIdentifier(name));
@@ -357,7 +349,12 @@ public class DiskIndex implements Index {
 		Collections.sort(docIds);
 		
 		CorpusReader corpus = (CorpusReader) parts.get("corpus");
-		CorpusReader.KeyIterator iter = corpus.getIterator();
+    if(corpus == null) {
+      throw new IllegalArgumentException("Attempted to pull documents from index without a corpus");
+    }
+
+    // loop over documents and pull them as requested
+    CorpusReader.KeyIterator iter = corpus.getIterator();
 		for (long id : docIds) {
 			if (iter.findKey(Utility.fromLong(id))) {
 				try {
@@ -399,10 +396,11 @@ public class DiskIndex implements Index {
 
   @Override
   public Map<String, NodeType> getPartNodeTypes(String partName) throws IOException {
-    if (!parts.containsKey(partName)) {
-      throw new IOException("The index has no part named '" + partName + "'");
+    IndexPartReader part = parts.get(partName);
+    if (part == null) {
+      throw new IllegalArgumentException("The index has no part named '" + partName + "'");
     }
-    return parts.get(partName).getNodeTypes();
+    return part.getNodeTypes();
   }
 
 
