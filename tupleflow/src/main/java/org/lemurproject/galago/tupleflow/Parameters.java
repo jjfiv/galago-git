@@ -1,37 +1,19 @@
 // BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.tupleflow;
 
-import org.lemurproject.galago.tupleflow.json.JSONParser;
 import gnu.trove.map.hash.TObjectByteHashMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import gnu.trove.map.hash.TObjectLongHashMap;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.Serializable;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.lemurproject.galago.tupleflow.json.JSONParser;
+import org.lemurproject.galago.tupleflow.json.JSONUtil;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.*;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import org.lemurproject.galago.tupleflow.json.JSONUtil;
 
 /**
  *
@@ -293,6 +275,11 @@ public class Parameters implements Serializable, Map<String,Object> {
     } else {
       throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  public List<String> getStrings(String key) {
+    return getAsList(key);
   }
 
   public List getAsList(String key) {
