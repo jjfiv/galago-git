@@ -8,9 +8,8 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.io.StringReader;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -220,8 +219,63 @@ public class ParametersTest {
   @Test
   public void testTrailingCommas() throws Exception {
     Parameters test = Parameters.parseString(" { \"foo\" : [1, 2,3,\t],\n}");
-    assert(test.isList("foo"));
-    assert(test.getList("foo").size() == 3);
+    assertTrue(test.isList("foo"));
+    assertEquals(3, test.getList("foo").size());
   }
+
+  @Test
+  public void testParseMap() {
+    Map<String,String> data = new HashMap<String,String>();
+    data.put("keyA", "0");
+    data.put("keyB", "1");
+    Parameters test = Parameters.parseMap(data);
+
+    assertEquals(0, test.getLong("keyA"));
+    assertEquals(1, test.getLong("keyB"));
+    assertEquals("0", test.getAsString("keyA"));
+    assertEquals("1", test.getAsString("keyB"));
+    assertEquals(data.size(), test.size());
+  }
+
+  @Test
+  public void testWriteAndRead() throws IOException {
+    Parameters truth = complicated();
+    Parameters same0 = Parameters.parseReader(new StringReader(truth.toString()));
+    assertEquals(truth, same0);
+    Parameters same1 = Parameters.parseString(same0.toString());
+    assertEquals(truth, same1);
+  }
+
+  @Test
+  public void testEscaping() throws IOException {
+    Parameters truth = new Parameters();
+    truth.set("withAQuote!", "here it comes \" to wreck the day...");
+    truth.set("withANewline!", "here it comes \n to wreck the day...");
+    truth.set("withABackslash!", "here it comes \\ to wreck the day...");
+    truth.set("too much!", "\\\r\n\t\b\f \\hmm\\ \f\b\n\r\\");
+    truth.set("C:\\", "busted keys \f\b\n\r\\");
+
+    Parameters same = Parameters.parseString(truth.toString());
+    for(String key : truth.keySet()) {
+      assertEquals(truth.get(key), same.get(key));
+    }
+  }
+
+  public static Parameters complicated() {
+    Parameters p = new Parameters();
+    p.set("bool-t", true);
+    p.set("bool-f", false);
+    p.set("long-a", 120L);
+    p.set("long-b", 0xdeadbeefL);
+    p.set("double-pi", Math.PI);
+    p.set("double-neg-e", -Math.exp(1));
+    p.set("list-a", Arrays.asList(true, false, "bar", "foo", Math.PI, -Math.exp(1), p.clone()));
+    p.set("list-b", Collections.EMPTY_LIST);
+    p.set("map-a", p.clone());
+    p.set("map-b", new Parameters());
+
+    return p;
+  }
+
 }
 

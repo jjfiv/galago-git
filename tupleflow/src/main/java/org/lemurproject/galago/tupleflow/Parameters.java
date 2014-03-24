@@ -213,6 +213,8 @@ public class Parameters implements Serializable, Map<String,Object> {
       return ((Parameters) input).clone();
     } else if(input instanceof Long || input instanceof Double || input instanceof String) {
       return input;
+    } else if(input instanceof Boolean) {
+      return ((Boolean) input).booleanValue();
     } else {
       System.err.println("Warning: copy by reference on unknown object-kind: "+input);
       return input;
@@ -758,7 +760,7 @@ public class Parameters implements Serializable, Map<String,Object> {
         String key = keys.get(i);
         Type vt = getKeyType(key);
 
-        builder.append("\"").append(key).append("\" : ");
+        builder.append("\"").append(JSONUtil.escape(key)).append("\" : ");
         Object val;
         switch (vt) {
           case BOOLEAN:
@@ -922,13 +924,10 @@ public class Parameters implements Serializable, Map<String,Object> {
 
       builder.append(" ]");
       return builder.toString();
-
     } else if (Parameters.class.isAssignableFrom(val.getClass())) {
       return val.toString();
-
     } else if (String.class.isAssignableFrom(val.getClass())) {
-      return "\"" + val + "\"";
-
+      return "\"" + JSONUtil.escape((String) val) + "\"";
     } else {
       // long, double, boolean
       return val.toString();

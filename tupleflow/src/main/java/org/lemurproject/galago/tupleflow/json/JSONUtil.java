@@ -1,11 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow.json;
 
-import java.util.List;
+import org.lemurproject.galago.tupleflow.Parameters;
+
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import org.lemurproject.galago.tupleflow.Parameters;
+import java.util.List;
 
 public class JSONUtil {
   public static Object parseString(String value) {
@@ -84,5 +85,34 @@ public class JSONUtil {
       throw new IllegalArgumentException("toXML(" + v + ") is not supported!");
     }
   }
+
+  public static String escape(String input) {
+    StringBuffer output = new StringBuffer();
+
+    for(int i=0; i<input.length(); i++) {
+      char ch = input.charAt(i);
+      if(ch == '\n') {
+        output.append("\\n");
+      } else if(ch == '\t') {
+        output.append("\\t");
+      } else if(ch == '\r') {
+        output.append("\\r");
+      } else if(ch == '\\') {
+        output.append("\\\\");
+      } else if(ch == '"') {
+        output.append("\\\"");
+      } else if(ch == '\b') {
+        output.append("\\b");
+      } else if(ch == '\f') {
+        output.append("\\f");
+      } else {
+        output.append(ch);
+      }
+      //TODO: escape unicode
+    }
+
+    return output.toString();
+  }
+
 }
 

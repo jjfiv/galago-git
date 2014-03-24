@@ -1,12 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow.json;
 
+import org.lemurproject.galago.tupleflow.Parameters;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 // Parsing in JSON
 public class JSONParser {
@@ -243,7 +244,6 @@ public class JSONParser {
   // Parses a string - either a label or a value
   private String parseString() throws IOException {
     StringBuilder builder = new StringBuilder();
-    char trail;
     int value;
     // Need to make sure we're on a '"'
     while (delimiter != '"') {
@@ -255,49 +255,38 @@ public class JSONParser {
     }
     // Now reading string content
     delimiter = (char) getc();
-    trail = ' ';
     while (true) {
-      if (trail == '\\') {
-        switch (delimiter) {
-          case '"':
-          case '\\':
-          case '/':
-          case 'b':
-          case 'f':
-          case 'n':
-          case 'r':
-          case 't':
-            builder.append(delimiter);
-            break;
-          case 'u': {
-            builder.append(delimiter);
-            for (int i = 0; i < 4; i++) {
-              delimiter = (char) getc();
-              if ((delimiter >= 'a' && delimiter <= 'f') || (delimiter >= 'A' && delimiter <= 'F') || (delimiter >= '0' && delimiter <= '9')) {
-                builder.append(delimiter);
-              } else {
-                error(String.format("Illegal hex character used: '%c'", delimiter));
-              }
-            }
-          }
-          break;
-          default:
-            error(String.format("Escape character followed by illegal character: '%c'", delimiter));
-        }
-        trail = ' '; // Don't put anything there b/c the current chars were escaped
-      } else {
-        if (delimiter == '"') {
-          break;
-        }
-        builder.append(delimiter);
-        trail = delimiter;
+      if(delimiter == '"') {
+        break;
       }
-      value = getc();
-      if (value == -1) {
-        error("Missing closing quote for string.");
+
+      if(delimiter == '\\') {
+        // prepare ye escape codes:
+        int nextCode = getc();
+        if(nextCode == -1) {
+          error("EOF in escape sequence.");
+        }
+        char ch = (char) nextCode;
+        if(ch == '\\' || ch == '/' || ch == '"' || ch == '\'') {
+          builder.append(ch);
+        }
+        else if(ch == 'n') builder.append('\n');
+        else if(ch == 'r') builder.append('\r');
+        else if(ch == 't') builder.append('\t');
+        else if(ch == 'b') builder.append('\b');
+        else if(ch == 'f') builder.append('\f');
+        else if(ch == 'u') throw new UnsupportedOperationException("TODO: support unicode escapes.");
+        else {
+          error("Illegal escape sequence: \\"+ch);
+        }
+        delimiter = (char) getc();
+        continue;
       }
-      delimiter = (char) value;
+
+      builder.append(delimiter);
+      delimiter = (char) getc();
     }
+
     // Read first thing *after* the close quote
     delimiter = (char) getc();
     return builder.toString();
