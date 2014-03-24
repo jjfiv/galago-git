@@ -1,7 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
@@ -13,16 +14,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 
+import static org.junit.Assert.*;
+
 /**
  *
  * @author trevor
  */
-public class AppTest extends TestCase {
-
-  public AppTest(String testName) {
-    super(testName);
-  }
-
+public class AppTest {
   public static String trecDocument(String docno, String text) {
     return "<DOC>\n<DOCNO>" + docno + "</DOCNO>\n"
             + "<TEXT>\n" + text + "</TEXT>\n</DOC>\n";
@@ -52,6 +50,7 @@ public class AppTest extends TestCase {
 
   }
 
+  @Test
   public void testMakeCorpora() throws Exception {
     File trecCorpusFile = null;
     File corpusFile1 = null;
@@ -103,10 +102,10 @@ public class AppTest extends TestCase {
 
     } finally {
       if (trecCorpusFile != null) {
-        trecCorpusFile.delete();
+        Assert.assertTrue(trecCorpusFile.delete());
       }
       if (corpusFile1 != null) {
-        corpusFile1.delete();
+        Assert.assertTrue(corpusFile1.delete());
       }
       if (corpusFile2 != null) {
         Utility.deleteDirectory(corpusFile2);
@@ -120,6 +119,7 @@ public class AppTest extends TestCase {
     }
   }
 
+  @Test
   public void testSimplePipeline() throws Exception {
     File relsFile = null;
     File queryFile1 = null;
@@ -268,19 +268,19 @@ public class AppTest extends TestCase {
 
     } finally {
       if (relsFile != null) {
-        relsFile.delete();
+        Assert.assertTrue(relsFile.delete());
       }
       if (queryFile1 != null) {
-        queryFile1.delete();
+        Assert.assertTrue(queryFile1.delete());
       }
       if (queryFile2 != null) {
-        queryFile2.delete();
+        Assert.assertTrue(queryFile2.delete());
       }
       if (scoresFile != null) {
-        scoresFile.delete();
+        Assert.assertTrue(scoresFile.delete());
       }
       if (trecCorpusFile != null) {
-        trecCorpusFile.delete();
+        Assert.assertTrue(trecCorpusFile.delete());
       }
       if (corpusFile != null) {
         Utility.deleteDirectory(corpusFile);
@@ -291,9 +291,9 @@ public class AppTest extends TestCase {
     }
   }
 
+  @Test
   public void testSimplePipeline2() throws Exception {
     File queryFile = null;
-    File scoresFile = null;
     File trecCorpusFile = null;
     File indexFile = null;
 
@@ -386,13 +386,10 @@ public class AppTest extends TestCase {
 
     } finally {
       if (queryFile != null) {
-        queryFile.delete();
-      }
-      if (scoresFile != null) {
-        scoresFile.delete();
+        Assert.assertTrue(queryFile.delete());
       }
       if (trecCorpusFile != null) {
-        trecCorpusFile.delete();
+        Assert.assertTrue(trecCorpusFile.delete());
       }
       if (indexFile != null) {
         Utility.deleteDirectory(indexFile);

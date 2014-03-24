@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
  *
  * @author jfoley
  */
-public class BasicTests {
+public class PullDocumentsTest {
   public File inputFile;
   public File indexPath;
   public LocalRetrieval retrieval;

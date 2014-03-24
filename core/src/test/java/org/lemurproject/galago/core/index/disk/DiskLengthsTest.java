@@ -16,8 +16,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 import java.io.File;
 import java.io.IOException;
 
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  *

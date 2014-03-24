@@ -3,32 +3,24 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.util.zip.GZIPInputStream;
-import java.util.Arrays;
-import junit.framework.TestCase;
+import org.junit.Test;
 import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.core.types.ExtractedLink;
-import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.OrderedCombiner;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.TypeReader;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.*;
+
+import java.io.*;
+import java.util.Arrays;
+import java.util.zip.GZIPInputStream;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author sjh
  */
-public class HarvestLinksFnTest extends TestCase {
+public class HarvestLinksFnTest {
 
-  public HarvestLinksFnTest(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testHarvestLinks() throws Exception {
     File tempDir = FileUtility.createTemporaryDirectory();
     try {
@@ -154,6 +146,12 @@ public class HarvestLinksFnTest extends TestCase {
     }
   }
 
+  /**
+   * Also used by PageRankFnTest
+   * @see org.lemurproject.galago.core.tools.apps.PageRankFnTest
+   * @param input
+   * @throws IOException
+   */
   public static void writeInput(File input) throws IOException {
     String data = "<DOC>\n"
             + "<DOCNO>test-0</DOCNO>\n"

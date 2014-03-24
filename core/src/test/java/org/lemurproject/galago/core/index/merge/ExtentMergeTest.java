@@ -3,7 +3,6 @@
  */
 package org.lemurproject.galago.core.index.merge;
 
-import junit.framework.TestCase;
 import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.tupleflow.FakeParameters;
@@ -17,9 +16,8 @@ import java.io.File;
  *
  * @author sjh
  */
-public class ExtentMergeTest extends TestCase {
-  @Test
-  private void makeExtentsIndex(int offset, File folder) throws Exception {
+public class ExtentMergeTest {
+  private static void makeExtentsIndex(int offset, File folder) throws Exception {
     File temp = new File(folder + File.separator + "extents");
     Parameters p = new Parameters();
     p.set("filename", temp.getAbsolutePath());

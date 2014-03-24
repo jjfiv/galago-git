@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,19 +14,20 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author trevor
  */
-public class ImplicitFeatureCastTraversalTest extends TestCase {
+public class ImplicitFeatureCastTraversalTest {
 
   File indexPath;
 
   @Before
-  public void setUp() throws FileNotFoundException, IOException, IncompatibleProcessorException {
+  public void setUp() throws IOException, IncompatibleProcessorException {
     indexPath = LocalRetrievalTest.makeIndex();
   }
 
@@ -65,9 +65,7 @@ public class ImplicitFeatureCastTraversalTest extends TestCase {
 
     ImplicitFeatureCastTraversal traversal = new ImplicitFeatureCastTraversal(retrieval);
     Node tree = StructuredQuery.parse("#combine( #between( #field:title() abba zztop )");
-    StringBuilder transformed = new StringBuilder();
-    transformed.append("#combine( #between:0=abba:1=zztop( #field:title() ) )");
     Node result = traversal.traverse(tree, new Parameters());
-    assertEquals(transformed.toString(), result.toString());
+    assertEquals("#combine( #between:0=abba:1=zztop( #field:title() ) )", result.toString());
   }
 }
