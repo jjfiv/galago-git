@@ -8,7 +8,7 @@ No, that version is older and preserved here: [galagosearch.org](http://www.gala
 
 ## License
 Galago is distributed under the BSD license.  See the LICENSE file for details.
-For more information about Galago, check out the docs directory.
+For more information about Galago, check out the sourceforge wiki.
 
 ## From source or binary
 If you have downloaded the source, see BUILD for information on how to build and run the code.  If you downloaded the binary version, use these commands to get started:
