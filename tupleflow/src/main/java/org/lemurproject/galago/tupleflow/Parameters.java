@@ -351,7 +351,7 @@ public class Parameters implements Serializable, Map<String,Object> {
 
   public <T> void set(String key, Collection<T> value) {
     if (List.class.isAssignableFrom(value.getClass())) {
-      put(key, (List<T>) value);
+      put(key, value);
     } else {
       put(key, new ArrayList<T>(value));
     }
@@ -380,14 +380,16 @@ public class Parameters implements Serializable, Map<String,Object> {
 
   /**
    * Overrides current backoff with this object.
-   *
-   * @param backoff
    */
   public void setBackoff(Parameters backoff) {
     assert(backoff != this);
     this._backoff = backoff;
   }
 
+  /**
+   * Set the deepest backoff level possible... this seems like a terrible idea.
+   * @param backoff the parameters to insert deep in the tree.
+   */
   public void setFinalBackoff(Parameters backoff) {
     if (_backoff == null) {
       this._backoff = backoff;
@@ -709,7 +711,7 @@ public class Parameters implements Serializable, Map<String,Object> {
   }
 
   @Override
-  public void putAll(Map<? extends String, ? extends Object> map) {
+  public void putAll(Map<? extends String, ?> map) {
     for(Entry<? extends String, ?> entry : map.entrySet()) {
       this.put(entry.getKey(), entry.getValue());
     }

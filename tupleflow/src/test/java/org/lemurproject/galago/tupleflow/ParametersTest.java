@@ -279,6 +279,17 @@ public class ParametersTest {
     }
   }
 
+  @Test
+  public void testBackoff() {
+    Parameters theBack = complicated();
+    Parameters theFront = new Parameters();
+    theFront.setBackoff(theBack);
+
+    assertEquals(theBack.toString(), theFront.toString());
+    assertEquals(theFront.getBackoff(), theBack);
+    assertSame(theFront.getBackoff(), theBack);
+  }
+
   public static Parameters complicated() {
     Parameters p = new Parameters();
     p.set("bool-t", true);
