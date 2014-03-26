@@ -1,23 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tokenize;
 
+import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.TagTokenizer;
+import org.lemurproject.galago.tupleflow.*;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.core.parse.TagTokenizer;
-import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.Linkage;
-import org.lemurproject.galago.tupleflow.NullProcessor;
-import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.Source;
-import org.lemurproject.galago.tupleflow.Step;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 
 /**
  *
@@ -109,7 +100,7 @@ public abstract class Tokenizer implements Source<Document>, Processor<Document>
   }
   
   public static Class<? extends Tokenizer> getTokenizerClass(Parameters p) {
-if (p.isString("tokenizerClass")) {
+    if (p.isString("tokenizerClass")) {
       try {
         return (Class<? extends Tokenizer>) Class.forName(p.getString("tokenizerClass"));
       } catch (ClassNotFoundException ex) {

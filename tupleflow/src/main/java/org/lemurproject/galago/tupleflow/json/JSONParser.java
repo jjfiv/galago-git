@@ -12,12 +12,17 @@ import java.util.List;
 // Parsing in JSON
 public class JSONParser {
 
+  private static enum Type {
+    STRING, LONG, DOUBLE, MAP, BOOLEAN, LIST
+  }
   Reader reader;
   char delimiter = ' ';
-  Parameters.Type valueType;
-  int line = 1;
-  int col = 0;
-  String fileName;
+  Type valueType;
+
+  // position
+  public int line = 1;
+  public int col = 0;
+  public String fileName;
 
   public JSONParser(Reader input, String fileName) {
     this.fileName = fileName;
@@ -34,7 +39,7 @@ public class JSONParser {
   /**
    * Common interface to read a character, this keeps track of position.
    *
-   * @return
+   * @return next character or -1 if EOF
    * @throws IOException
    */
   private int getc() throws IOException {
@@ -52,7 +57,7 @@ public class JSONParser {
    * This is a common error routine for printing out the current location in the
    * file before printing the rest of the message.
    *
-   * @param msg
+   * @param msg error message
    * @throws IOException
    */
   private void error(String msg) throws IOException {
@@ -95,26 +100,7 @@ public class JSONParser {
       skipWhitespace();
       value = parseValue();
       skipWhitespace();
-      switch (valueType) {
-        case MAP:
-          container.set(key, (Parameters) value);
-          break;
-        case LIST:
-          container.set(key, (List) value);
-          break;
-        case STRING:
-          container.set(key, (String) value);
-          break;
-        case LONG:
-          container.set(key, ((Long) value).longValue());
-          break;
-        case DOUBLE:
-          container.set(key, ((Double) value).doubleValue());
-          break;
-        case BOOLEAN:
-          container.set(key, ((Boolean) value).booleanValue());
-          break;
-      }
+      container.put(key, value);
       if (delimiter != '}' && delimiter != ',') {
         error("Expected '}' or ',' while parsing map. Got " + delimiter);
       }
@@ -125,7 +111,7 @@ public class JSONParser {
     }
     // Advance past closing '}'
     delimiter = (char) getc();
-    valueType = Parameters.Type.MAP;
+    valueType = Type.MAP;
     return container;
   }
 
@@ -134,7 +120,7 @@ public class JSONParser {
     delimiter = (char) getc();
     // skip any whitespace
     skipWhitespace();
-    ArrayList container = new ArrayList();
+    ArrayList<Object> container = new ArrayList<Object>();
     while (delimiter != ']') {
       skipWhitespace();
       container.add(parseValue());
@@ -150,7 +136,7 @@ public class JSONParser {
     }
     // Advance past closing ']'
     delimiter = (char) getc();
-    valueType = Parameters.Type.LIST;
+    valueType = Type.LIST;
     return container;
   }
 
@@ -176,22 +162,22 @@ public class JSONParser {
     // Decide on character
     switch (delimiter) {
       case '[':
-        valueType = Parameters.Type.LIST;
+        valueType = Type.LIST;
         return parseList();
       case '{':
-        valueType = Parameters.Type.MAP;
+        valueType = Type.MAP;
         return parseParameters(new Parameters());
       case 't':
-        valueType = Parameters.Type.BOOLEAN;
+        valueType = Type.BOOLEAN;
         return parseTrue();
       case 'f':
-        valueType = Parameters.Type.BOOLEAN;
+        valueType = Type.BOOLEAN;
         return parseFalse();
       case 'n':
-        valueType = Parameters.Type.STRING;
+        valueType = Type.STRING;
         return parseNull(); // hmm...
       case '"':
-        valueType = Parameters.Type.STRING;
+        valueType = Type.STRING;
         return parseString();
       case '0':
       case '1':
@@ -356,10 +342,10 @@ public class JSONParser {
     // non-digit delimiter.
     delimiter = c;
     if (hasDot) {
-      valueType = Parameters.Type.DOUBLE;
+      valueType = Type.DOUBLE;
       return Double.parseDouble(builder.toString());
     } else {
-      valueType = Parameters.Type.LONG;
+      valueType = Type.LONG;
       return Long.parseLong(builder.toString());
     }
   }

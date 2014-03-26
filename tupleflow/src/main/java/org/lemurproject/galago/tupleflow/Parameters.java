@@ -1,9 +1,6 @@
 // BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.tupleflow;
 
-import gnu.trove.map.hash.TObjectByteHashMap;
-import gnu.trove.map.hash.TObjectDoubleHashMap;
-import gnu.trove.map.hash.TObjectLongHashMap;
 import org.lemurproject.galago.tupleflow.json.JSONParser;
 import org.lemurproject.galago.tupleflow.json.JSONUtil;
 
@@ -13,34 +10,25 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 /**
  *
  * @author irmarc, sjh
  */
 public class Parameters implements Serializable, Map<String,Object> {
+  /** Marker object for null literals in JSON, to distinguish from "missing" */
+  public static final class NullMarker {
+    @Override public boolean equals(Object o) { return o instanceof NullMarker; }
+    @Override public int hashCode() { throw new UnsupportedOperationException("hashCode in NullMarker"); }
+    @Override public String toString() { return "null"; }
+  }
+
 
   private static final long serialVersionUID = 4553653651892088435L;
-  // Data structures available in the class
-  // Tracks keys and their types
-  private HashMap<String, Type> _keys;
-  // Holds longs
-  private TObjectLongHashMap<String> _longs;
-  // holds bools as bytes - 0 == false, 1 == true
-  private TObjectByteHashMap<String> _bools;
-  // holds doubles
-  private TObjectDoubleHashMap<String> _doubles;
-  // holds Strings, maps, and lists - no interpretation is attempted.
-  private HashMap _objects;
-  // faster to use static types for parsing and lookup
-  // backoff parameters allow combination of several different parameter objects without copying
-  // Highlander Principle applies: There can only be one backoff -- however, chaining is possible.
-  private Parameters _backoff;
 
-  public enum Type {
-    BOOLEAN, LONG, DOUBLE, STRING, MAP, LIST
-  };
+  private HashMap<String,Object> _data;
+
+  private Parameters _backoff;
 
 // Constructor - we always start empty, and add to it
 // Most of these are constructed statically
@@ -52,21 +40,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     Parameters self = new Parameters();
     
     for (String key : map.keySet()) {
-      String value = map.get(key);
-      Type t = determineType(value);
-      switch (t) {
-        case BOOLEAN:
-          self.set(key, Boolean.parseBoolean(value));
-          break;
-        case LONG:
-          self.set(key, Long.parseLong(value));
-          break;
-        case DOUBLE:
-          self.set(key, Double.parseDouble(value));
-          break;
-        default:
-          self.set(key, value);
-      }
+      self.put(key, JSONUtil.parseString(map.get(key)));
     }
     
     return self;
@@ -110,8 +84,7 @@ public class Parameters implements Serializable, Map<String,Object> {
   
   public static Parameters parseStream(InputStream iStream) throws IOException {
     JSONParser jp = new JSONParser(new InputStreamReader(iStream), "<from stream>");
-    Parameters p = jp.parse();
-    return p;
+    return jp.parse();
   }
   
   public static Parameters parseBytes(byte[] data) throws IOException {
@@ -161,40 +134,19 @@ public class Parameters implements Serializable, Map<String,Object> {
 
     // Otherwise determine how similar they are
     Parameters other = (Parameters) o;
-    for (Map.Entry<String, Type> entry : _keys.entrySet()) {
-      String key = entry.getKey();
+    for (String key : keySet()) {
       if (!other.containsKey(key)) {
         return false;
       }
-      Type ot = other._keys.get(key);
-      if (!entry.getValue().equals(ot)) {
+
+      Object val = get(key);
+      Object oval = other.get(key);
+
+      // if either is null, they should both be
+      if(val == null || oval == null) {
+        if(val != oval) return false;
+      } else if(!val.equals(oval)) {
         return false;
-      }
-      switch (ot) {
-        case BOOLEAN:
-          if (_bools.get(key) != other._bools.get(key)) {
-            return false;
-          }
-          break;
-        case LONG:
-          if (_longs.get(key) != other._longs.get(key)) {
-            return false;
-          }
-          break;
-        case DOUBLE:
-          if (_doubles.get(key) != other._doubles.get(key)) {
-            return false;
-          }
-          break;
-        case STRING:
-        case MAP:
-        case LIST:
-          if (_objects.get(key).equals(other._objects.get(key)) == false) {
-            return false;
-          }
-          break;
-        default:
-          throw new IllegalArgumentException("Key somehow has an illegal type: " + _keys.get(key));
       }
     }
     return true;
@@ -202,19 +154,17 @@ public class Parameters implements Serializable, Map<String,Object> {
   
   private Object copyValue(Object input) {
     if(input == null) {
-      return input;
+      throw new IllegalArgumentException("null given to copyValue()");
     } else if(input instanceof List) {
-      ArrayList newl = new ArrayList();      
+      ArrayList<Object> newl = new ArrayList<Object>();
       for(Object o : (List) input) {
         newl.add(copyValue(o));
       }
       return newl;
     } else if(input instanceof Parameters) {
       return ((Parameters) input).clone();
-    } else if(input instanceof Long || input instanceof Double || input instanceof String) {
+    } else if(input instanceof Long || input instanceof Double || input instanceof String || input instanceof Boolean || input instanceof NullMarker) {
       return input;
-    } else if(input instanceof Boolean) {
-      return ((Boolean) input).booleanValue();
     } else {
       System.err.println("Warning: copy by reference on unknown object-kind: "+input);
       return input;
@@ -225,7 +175,7 @@ public class Parameters implements Serializable, Map<String,Object> {
   public Parameters clone() {
     Parameters copy = new Parameters();
     // use secret keySet to not copy backoff keys
-    for(String key : _keys.keySet()) {
+    for(String key : _data.keySet()) {
       if(isLong(key)) {
         copy.set(key, getLong(key));
       } else if(isDouble(key)) {
@@ -234,10 +184,8 @@ public class Parameters implements Serializable, Map<String,Object> {
         copy.set(key, getBoolean(key));
       } else if(isString(key)) {
         copy.set(key, getString(key));
-      } else if(isList(key)) {
-        copy.set(key, (List) copyValue(getList(key)));
-      } else if(isMap(key)) {
-        copy.set(key, (Parameters) copyValue(getMap(key)));
+      } else if(isList(key) || isMap(key)) {
+        copy.put(key, copyValue(get(key)));
       }
     }
     copy.setBackoff(_backoff);
@@ -248,88 +196,45 @@ public class Parameters implements Serializable, Map<String,Object> {
   public Set<String> getKeys() {
     if (_backoff != null) {
       // have to duplicate this list to get an AddAll function (immutable set)
-      Set<String> keys = new HashSet(this._backoff.getKeys());
-      keys.addAll(_keys.keySet());
+      Set<String> keys = new HashSet<String>(this._backoff.getKeys());
+      keys.addAll(_data.keySet());
       return keys;
     }
-    return _keys.keySet();
-  }
-
-  public Type getKeyType(String key) {
-    if (_keys.containsKey(key)) {
-      return _keys.get(key);
-    } else if (_backoff != null) {
-      return _backoff.getKeyType(key);
-    } else {
-      throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
-    }
-  }
-
-  public List getList(String key) {
-    if (_keys.containsKey(key)) {
-      if (_keys.get(key).equals(Type.LIST)) {
-        return (List) _objects.get(key);
-      } else {
-        throw new IllegalArgumentException("Key " + key + " does not exist as List in parameters object, found " + _keys.get(key));
-      }
-    } else if (_backoff != null) {
-      return _backoff.getList(key);
-    } else {
-      throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
-    }
+    return _data.keySet();
   }
 
   @SuppressWarnings("unchecked")
-  public List<String> getStrings(String key) {
-    return getAsList(key);
+  public <T> List<T> getList(String key, Class<T> klazz) {
+    assert(klazz != null);
+    return (List<T>) getList(key);
+  }
+
+  public List getList(String key) {
+    Object val = getOrThrow(key);
+    if (val instanceof List) {
+      return (List) val;
+    } else {
+      throw new IllegalArgumentException("Key " + key + " does not exist as List in parameters object, found " + get(key));
+    }
   }
 
   public List getAsList(String key) {
-    if (_keys.containsKey(key)) {
-      List tmp;
-      switch (_keys.get(key)) {
-        case LONG:
-          tmp = new ArrayList<Long>();
-          tmp.add(_longs.get(key));
-          return tmp;
-        case DOUBLE:
-          tmp = new ArrayList<Double>();
-          tmp.add(_doubles.get(key));
-          return tmp;
-        case BOOLEAN:
-          tmp = new ArrayList<Boolean>();
-          tmp.add(getBoolean(key));
-          return tmp;
-        case STRING:
-          tmp = new ArrayList<String>();
-          tmp.add(_objects.get(key));
-          return tmp;
-        case MAP:
-          tmp = new ArrayList<Parameters>();
-          tmp.add(_objects.get(key));
-          return tmp;
-        case LIST:
-          return (List) _objects.get(key);
-      }
-    } else if (_backoff != null) {
-      return _backoff.getAsList(key);
+    Object val = get(key);
+    if (val == null || val instanceof NullMarker) {
+      return Collections.EMPTY_LIST;
+    } else if (val instanceof List) {
+      return (List) val;
     } else {
-      return new ArrayList();
+      return Arrays.asList(val);
     }
-    return new ArrayList();
   }
 
   public Parameters getMap(String key) {
-    if (_keys.containsKey(key)) {
-      if (_keys.get(key).equals(Type.MAP)) {
-        return (Parameters) _objects.get(key);
-      } else {
-        throw new IllegalArgumentException("Key " + key + " does not exist as JSONParameters in parameters object, instead found " + _keys.get(key));
-      }
-    } else if (_backoff != null) {
-      return _backoff.getMap(key);
+    Object val = getOrThrow(key);
+    if(val instanceof Parameters) {
+      return (Parameters) val;
     } else {
-      throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
+      throw new IllegalArgumentException("Key " + key + " does not exist as JSONParameters in parameters object, instead found " + val);
     }
   }
   
@@ -351,139 +256,88 @@ public class Parameters implements Serializable, Map<String,Object> {
     throw new IllegalArgumentException("Key "+ key +" does not exist as a primitive in parameters object.");
   }
 
+  /**
+   * May return null!
+   * @param key key object
+   * @return note that string values may be null
+   */
   public String getString(String key) {
-    if (_keys.containsKey(key)) {
-      if (_keys.get(key).equals(Type.STRING)) {
-        return (String) _objects.get(key);
-      } else {
-        throw new IllegalArgumentException("Key " + key + " does not exist as String in parameters object, instead found " + _keys.get(key));
-      }
-    } else if (_backoff != null) {
-      return _backoff.getString(key);
+    Object val = get(key);
+    if(val instanceof NullMarker) {
+      return null;
+    } else if(val instanceof String) {
+      return (String) val;
     } else {
-      throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
+      throw new IllegalArgumentException("Key " + key + " does not exist as String in parameters object, instead found " + val);
     }
   }
 
   public Parameters get(String key, Parameters def) {
-    if (_keys.containsKey(key)) {
-      if (_keys.get(key).equals(Type.MAP)) {
-        return (Parameters) _objects.get(key);
-      } else {
-        throw new IllegalArgumentException("Key " + key + " does not exist as Map in parameters object, instead found " + _keys.get(key));
-      }
-    } else {
-      return def;
-    }
+    Object val = get(key);
+    if(val == null) return def;
+    return getMap(key);
   }
 
   public String get(String key, String def) {
-    if (_keys.containsKey(key)) {
-      if (_keys.get(key).equals(Type.STRING)) {
-        return (String) _objects.get(key);
-      } else {
-        throw new IllegalArgumentException("Key " + key + " does not exist as String in parameters object, instead found " + _keys.get(key));
-      }
-    } else if (_backoff != null) {
-      return _backoff.get(key, def);
-    } else {
-      return def;
-    }
+    Object val = get(key);
+    if(val == null) return def;
+    return getString(key);
   }
 
   public long getLong(String key) {
-    if (_keys.containsKey(key)) {
-      if (_keys.get(key).equals(Type.LONG)) {
-        return _longs.get(key);
-      } else {
-        throw new IllegalArgumentException("Key " + key + " does not exist as Long in parameters object, instead found " + _keys.get(key));
-      }
-    } else if (_backoff != null) {
-      return _backoff.getLong(key);
+    Object val = getOrThrow(key);
+    if(val instanceof Long) {
+      return (Long) val;
+    } else if(val instanceof Integer) {
+      return (Integer) val;
     } else {
-      throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
+      throw new IllegalArgumentException("Key " + key + " does not exist as Long in parameters object, instead found " + val);
     }
   }
 
   public long get(String key, long def) {
-    if (_keys.containsKey(key)) {
-      if (_keys.get(key).equals(Type.LONG)) {
-        return _longs.get(key);
-      } else {
-        throw new IllegalArgumentException("Key " + key + " does not exist as Long in parameters object, instead found " + _keys.get(key));
-      }
-    } else if (_backoff != null) {
-      return _backoff.get(key, def);
-    } else {
+    Object val = get(key);
+    if(val == null)
       return def;
-    }
+    return getLong(key);
   }
 
   public double getDouble(String key) {
-    if (_keys.containsKey(key)) {
-      if (_keys.get(key).equals(Type.DOUBLE)) {
-        return _doubles.get(key);
-
-        // it is possible to cast a long to a double
-      } else if (_keys.get(key).equals(Type.LONG)) {
-        return _longs.get(key);
-
-      } else {
-        throw new IllegalArgumentException("Key " + key + " does not exist as Double/Long in parameters object, instead found " + _keys.get(key));
-      }
-    } else if (_backoff != null) {
-      return _backoff.getDouble(key);
+    Object val = getOrThrow(key);
+    if(val instanceof Double) {
+      return (Double) val;
+    } else if(val instanceof Float) {
+      return (Float) val;
+    } else if(val instanceof Long) {
+      return (Long) val;
+    } else if(val instanceof Integer) {
+      return (Integer) val;
     } else {
-      throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
+      throw new IllegalArgumentException("Key " + key + " does not exist as Double/Long in parameters object, instead found " + val);
     }
   }
 
   public double get(String key, double def) {
-    if (_keys.containsKey(key)) {
-      if (_keys.get(key).equals(Type.DOUBLE)) {
-        return _doubles.get(key);
-
-        // it is possible to cast a long to a double
-      } else if (_keys.get(key).equals(Type.LONG)) {
-        return _longs.get(key);
-
-      } else {
-        throw new IllegalArgumentException("Key " + key + " does not exist as Double/Long in parameters object, instead found " + _keys.get(key));
-      }
-
-    } else if (_backoff != null) {
-      return _backoff.get(key, def);
-    } else {
+    Object val = get(key);
+    if(val == null)
       return def;
-    }
+    return getDouble(key);
   }
 
   public boolean getBoolean(String key) {
-    if (_keys.containsKey(key)) {
-      if (_keys.get(key).equals(Type.BOOLEAN)) {
-        return _bools.get(key) == 1 ? true : false;
-      } else {
-        throw new IllegalArgumentException("Key " + key + " does not exist as Boolean in parameters object, instead found " + _keys.get(key));
-      }
-    } else if (_backoff != null) {
-      return _backoff.getBoolean(key);
+    Object val = getOrThrow(key);
+    if(val instanceof Boolean) {
+      return (Boolean) val;
     } else {
-      throw new IllegalArgumentException("Key " + key + " does not exist in parameters object.");
+      throw new IllegalArgumentException("Key " + key + " does not exist as Boolean in parameters object, instead found " + val);
     }
   }
 
   public boolean get(String key, boolean def) {
-    if (_keys.containsKey(key)) {
-      if (_keys.get(key).equals(Type.BOOLEAN)) {
-        return _bools.get(key) == 1 ? true : false;
-      } else {
-        throw new IllegalArgumentException("Key " + key + " does not exist as Boolean in parameters object, instead found " + _keys.get(key));
-      }
-    } else if (_backoff != null) {
-      return _backoff.get(key, def);
-    } else {
+    Object val = get(key);
+    if(val == null)
       return def;
-    }
+    return getBoolean(key);
   }
 
   public Parameters getBackoff() {
@@ -492,95 +346,36 @@ public class Parameters implements Serializable, Map<String,Object> {
 
   // Setters
   public void set(String key, Parameters value) {
-    if (_keys.containsKey(key) && _keys.get(key) != Type.MAP) {
-      throw new IllegalArgumentException(String.format("Tried to put key '%s' as JSONParameters, is %s\n",
-              key, _keys.get(key)));
-    }
-    if (_objects == null) {
-      _objects = new HashMap();
-    }
-    _objects.put(key, value);
-    _keys.put(key, Type.MAP);
+    put(key, value);
   }
 
-  public void set(String key, Collection value) {
+  public <T> void set(String key, Collection<T> value) {
     if (List.class.isAssignableFrom(value.getClass())) {
-      set(key, (List) value);
+      put(key, (List<T>) value);
     } else {
-      set(key, new ArrayList(value));
+      put(key, new ArrayList<T>(value));
     }
   }
 
   public void set(String key, Object[] value) {
-    // using ArrayList to ensure mutability
-    set(key, new ArrayList(Arrays.asList(value)));
-  }
-
-  public void set(String key, List value) {
-    if (_keys.containsKey(key) && _keys.get(key) != Type.LIST) {
-      throw new IllegalArgumentException(String.format("Tried to put key '%s' as List, is %s\n",
-              key, _keys.get(key)));
-    }
-    if (_objects == null) {
-      _objects = new HashMap();
-    }
-    _objects.put(key, value);
-    _keys.put(key, Type.LIST);
+    // using ArrayList copy to ensure mutability
+    put(key, new ArrayList<Object>(Arrays.asList(value)));
   }
 
   public void set(String key, String value) {
-    if (_keys.containsKey(key) && _keys.get(key) != Type.STRING) {
-      throw new IllegalArgumentException(String.format("Tried to put key '%s' as String, is %s\n",
-              key, _keys.get(key)));
-    }
-    if (_objects == null) {
-      _objects = new HashMap();
-    }
-    _objects.put(key, value);
-    _keys.put(key, Type.STRING);
+    put(key, value);
   }
 
   public void set(String key, long value) {
-    if (_keys.containsKey(key) && _keys.get(key) != Type.LONG) {
-      throw new IllegalArgumentException(String.format("Tried to put key '%s' as Long, is %s\n",
-              key, _keys.get(key)));
-    }
-    if (_longs == null) {
-      _longs = new TObjectLongHashMap();
-    }
-    _longs.put(key, value);
-    _keys.put(key, Type.LONG);
+    put(key, value);
   }
 
   public void set(String key, double value) {
-    if (_keys.containsKey(key) && _keys.get(key) != Type.DOUBLE) {
-      if (_keys.get(key) == Type.LONG) {
-        // auto cast from long to double -- remove existing value.
-        remove(key);
-      } else {
-        throw new IllegalArgumentException(String.format("Tried to put key '%s' as Double, is %s\n",
-                key, _keys.get(key)));
-      }
-    }
-    if (_doubles == null) {
-      _doubles = new TObjectDoubleHashMap();
-    }
-    _doubles.put(key, value);
-    _keys.put(key, Type.DOUBLE);
+    put(key, value);
   }
 
   public void set(String key, boolean value) {
-    if (_keys.containsKey(key) && _keys.get(key) != Type.BOOLEAN) {
-      throw new IllegalArgumentException(String.format("Tried to put key '%s' as Boolean, is %s\n",
-              key, _keys.get(key)));
-    }
-    if (_bools == null) {
-      _bools = new TObjectByteHashMap();
-    }
-
-    byte result = (byte) (value ? 0x1 : 0x0);
-    _bools.put(key, result);
-    _keys.put(key, Type.BOOLEAN);
+    put(key, value);
   }
 
   /**
@@ -606,141 +401,54 @@ public class Parameters implements Serializable, Map<String,Object> {
    * delete from there if necessary (?)
    */
   public boolean remove(String key) {
-    if (!_keys.containsKey(key)) {
-      return false;
-    }
-    Type t = _keys.get(key);
-    switch (t) {
-      case LIST:
-      case MAP:
-      case STRING:
-        _objects.remove(key);
-        break;
-      case LONG:
-        _longs.remove(key);
-        break;
-      case DOUBLE:
-        _doubles.remove(key);
-        break;
-      case BOOLEAN:
-        _bools.remove(key);
-        break;
-    }
-    _keys.remove(key);
-    return true;
+    return _data.remove(key) != null;
   }
 
   // Verifiers
   public boolean isString(String key) {
-    if (_keys.containsKey(key) && _keys.get(key) == Type.STRING) {
-      return true;
-    } else if (_backoff != null && _backoff.isString(key)) {
-      return true;
-    } else {
-      return false;
-    }
+    Object val = get(key);
+    return val instanceof NullMarker || val instanceof String;
   }
 
   public boolean isList(String key) {
-    if (_keys.containsKey(key) && _keys.get(key) == Type.LIST) {
-      return true;
-    } else if (_backoff != null && _backoff.isList(key)) {
-      return true;
-    } else {
-      return false;
-    }
+    return get(key) instanceof List;
   }
 
-  public boolean isList(String key, Type type) {
+  public <T> boolean isList(String key, Class<T> klazz) {
     if (isList(key)) {
-      List<Object> list = getList(key);
+      List<Object> list = getList(key, Object.class);
       // empty lists can store anything
-      if (list.isEmpty()) {
-        return true;
-      }
+      if (list.isEmpty()) return true;
+
       Object o = list.get(0);
-      switch (type) {
-        case MAP:
-          if (Parameters.class.isAssignableFrom(o.getClass())) {
-            return true;
-          }
-          break;
-        case LIST:
-          if (List.class.isAssignableFrom(o.getClass())) {
-            return true;
-          }
-          break;
-        case STRING:
-          if (String.class.isAssignableFrom(o.getClass())) {
-            return true;
-          }
-          break;
-        case DOUBLE:
-          if (Double.class.isAssignableFrom(o.getClass())) {
-            return true;
-          }
-          break;
-        case LONG:
-          if (Long.class.isAssignableFrom(o.getClass())) {
-            return true;
-          }
-          break;
-        case BOOLEAN:
-          if (Boolean.class.isAssignableFrom(o.getClass())) {
-            return true;
-          }
-          break;
-      }
+      if(klazz.isAssignableFrom(o.getClass()))
+        return true;
     }
     return false;
   }
 
   public boolean isMap(String key) {
-    if (_keys.containsKey(key) && _keys.get(key) == Type.MAP) {
-      return true;
-    } else if (_backoff != null && _backoff.isMap(key)) {
-      return true;
-    } else {
-      return false;
-    }
+    return get(key) instanceof Parameters;
   }
 
   public boolean isDouble(String key) {
-    if (_keys.containsKey(key) && _keys.get(key) == Type.DOUBLE) {
-      return true;
-    } else if (_backoff != null && _backoff.isDouble(key)) {
-      return true;
-    } else {
-      return false;
-    }
+    return get(key) instanceof Double;
   }
 
   public boolean isLong(String key) {
-    if (_keys.containsKey(key) && _keys.get(key) == Type.LONG) {
-      return true;
-    } else if (_backoff != null && _backoff.isLong(key)) {
-      return true;
-    } else {
-      return false;
-    }
+    return get(key) instanceof Long;
   }
 
   public boolean isBoolean(String key) {
-    if (_keys.containsKey(key) && _keys.get(key) == Type.BOOLEAN) {
-      return true;
-    } else if (_backoff != null && _backoff.isBoolean(key)) {
-      return true;
-    } else {
-      return false;
-    }
+    return get(key) instanceof Boolean;
   }
 
   public boolean containsKey(String key) {
-    return ((_keys.containsKey(key)) || (_backoff != null && _backoff.containsKey(key)));
+    return _data.containsKey(key);
   }
 
   public boolean isEmpty() {
-    return ((_keys.size() == 0) || (_backoff != null && _backoff.isEmpty()));
+    return (_data.isEmpty() && (_backoff != null && _backoff.isEmpty()));
   }
 
   public void write(String filename) throws IOException {
@@ -754,41 +462,26 @@ public class Parameters implements Serializable, Map<String,Object> {
     StringBuilder builder = new StringBuilder();
     builder.append("{ ");
     try {
-      List<String> keys = new ArrayList(getKeys());
+      List<String> keys = new ArrayList<String>(getKeys());
       Collections.sort(keys);
       for (int i = 0; i < keys.size(); i++) {
         String key = keys.get(i);
-        Type vt = getKeyType(key);
+        if(i != 0) builder.append(" , ");
 
+        // output key
         builder.append("\"").append(JSONUtil.escape(key)).append("\" : ");
-        Object val;
-        switch (vt) {
-          case BOOLEAN:
-            boolean b = getBoolean(key);
-            builder.append(b);
-            break;
-          case LONG:
-            builder.append(getLong(key));
-            break;
-          case DOUBLE:
-            builder.append(getDouble(key));
-            break;
-          case STRING:
-            val = getString(key);
-            builder.append(emitComplex(val));
-            break;
-          case MAP:
-            val = getMap(key);
-            builder.append(emitComplex(val));
-            break;
-          case LIST:
-            val = getList(key);
-            builder.append(emitComplex(val));
-            break;
-        }
 
-        if (i < (keys.size() - 1)) {
-          builder.append(" , ");
+        // output value
+        if(isBoolean(key)) {
+          builder.append(getBoolean(key));
+        } else if(isLong(key)) {
+          builder.append(getLong(key));
+        } else if(isDouble(key)) {
+          builder.append(getDouble(key));
+        } else if(isString(key) || isMap(key) || isList(key)) {
+          builder.append(emitComplex(get(key)));
+        } else {
+          throw new IllegalArgumentException("Unknown object kind: {"+key+": "+get(key)+"}");
         }
       }
     } catch (IOException ioe) {
@@ -859,36 +552,26 @@ public class Parameters implements Serializable, Map<String,Object> {
 
       String internalPrefix = prefix + "  ";
 
-      List<String> keys = new ArrayList(p.getKeys());
+      List<String> keys = new ArrayList<String>(p.getKeys());
       Collections.sort(keys);
       for (int i = 0; i < keys.size(); i++) {
         String key = keys.get(i);
-        Type vt = p.getKeyType(key);
 
-        builder.append(internalPrefix).append("\"").append(key).append("\" : ");
-        switch (vt) {
-          case BOOLEAN:
-            builder.append(p.getBoolean(key));
-            break;
-          case LONG:
-            builder.append(p.getLong(key));
-            break;
-          case DOUBLE:
-            builder.append(p.getDouble(key));
-            break;
-          case STRING:
-            builder.append(toPrettyString(p.getString(key), internalPrefix));
-            break;
-          case MAP:
-            builder.append(toPrettyString(p.getMap(key), internalPrefix));
-            break;
-          case LIST:
-            builder.append(toPrettyString(p.getList(key), internalPrefix));
-            break;
-        }
+        if(i != 0) builder.append(",\n");
 
-        if (i < (keys.size() - 1)) {
-          builder.append(",\n");
+        builder.append(internalPrefix).append("\"").append(JSONUtil.escape(key)).append("\" : ");
+        if(p.isBoolean(key)) {
+          builder.append(p.getBoolean(key));
+        } else if(p.isLong(key)) {
+          builder.append(p.getLong(key));
+        } else if(p.isDouble(key)) {
+          builder.append(p.getDouble(key));
+        } else if(p.isString(key)) {
+          builder.append(toPrettyString(p.getString(key), internalPrefix));
+        } else if(p.isMap(key)) {
+          builder.append(toPrettyString(p.getMap(key), internalPrefix));
+        } else if(p.isList(key)) {
+          builder.append(toPrettyString(p.getList(key), internalPrefix));
         }
       }
 
@@ -896,7 +579,7 @@ public class Parameters implements Serializable, Map<String,Object> {
       return builder.toString();
 
     } else if (String.class.isAssignableFrom(val.getClass())) {
-      return "\"" + val + "\"";
+      return "\"" + JSONUtil.escape((String) val) + "\"";
 
     } else {
       // Long, Double, Boolean
@@ -905,10 +588,8 @@ public class Parameters implements Serializable, Map<String,Object> {
   }
 
   private static String emitComplex(Object val) throws IOException {
-    if (val == null) {
-      return "null";
-
-    } else if (List.class.isAssignableFrom(val.getClass())) {
+    assert(val != null);
+    if (List.class.isAssignableFrom(val.getClass())) {
       StringBuilder builder = new StringBuilder();
       builder.append("[ ");
       boolean first = true;
@@ -932,28 +613,6 @@ public class Parameters implements Serializable, Map<String,Object> {
       // long, double, boolean
       return val.toString();
     }
-  }
-
-  /**
-   * Parsing functions :
-   */
-  private static Type determineType(String s) {
-    if (Pattern.matches("true|false", s)) {
-      return Type.BOOLEAN;
-    }
-
-    if (Pattern.matches("\\-?\\d+", s)) {
-      return Type.LONG;
-    }
-
-    try {
-      double d = Double.parseDouble(s);
-      return Type.DOUBLE;
-    } catch (Exception e) {
-      // Do nothing - just didn't work
-    }
-
-    return Type.STRING;
   }
 
   private static void tokenizeComplexValue(Parameters map, String pattern) throws IOException {
@@ -981,63 +640,28 @@ public class Parameters implements Serializable, Map<String,Object> {
   }
 
   private static void tokenizeSimpleValue(Parameters map, String key, String value, boolean isArray) throws IOException {
-    Type t = determineType(value);
-    switch (t) {
-      case BOOLEAN: {
-        boolean v = Boolean.parseBoolean(value);
-        if (isArray) {
-          if (!map.isList(key)) {
-            map.set(key, new ArrayList<Boolean>());
-          }
-          map.getList(key).add(v);
-        } else {
-          map.set(key, v);
-        }
+    Object v = JSONUtil.parseString(value);
+
+    if(v instanceof String) {
+      // attempt to clean a string: 'string'
+      if (value.startsWith("'") && value.endsWith("'") && value.length() > 1) {
+        v = JSONUtil.parseString(value.substring(1, value.length() - 1));
       }
-      break;
-      case LONG: {
-        long v = Long.parseLong(value);
-        if (isArray) {
-          if (!map.isList(key)) {
-            map.set(key, new ArrayList<Long>());
-          }
-          map.getList(key).add(v);
-        } else {
-          map.set(key, v);
-        }
+    }
+
+    if (isArray) {
+      if (!map.isList(key)) {
+        map.put(key, new ArrayList());
       }
-      break;
-      case DOUBLE: {
-        double v = Double.parseDouble(value);
-        if (isArray) {
-          if (!map.isList(key)) {
-            map.set(key, new ArrayList<Double>());
-          }
-          map.getList(key).add(v);
-        } else {
-          map.set(key, v);
-        }
-      }
-      break;
-      default:
-        if (isArray) {
-          if (!map.isList(key)) {
-            map.set(key, new ArrayList<String>());
-          }
-          map.getList(key).add(value);
-        } else {
-          // attempt to clean a string: 'string'
-          if (value.startsWith("'") && value.endsWith("'") && value.length() > 1) {
-            value = value.substring(1, value.length() - 1);
-          }
-          map.set(key, value);
-        }
+      map.getList(key, Object.class).add(v);
+    } else {
+      map.put(key, v);
     }
   }
   
   @Override
   public int size() {
-    return _keys.size();
+    return _data.size();
   }
 
   @Override
@@ -1047,78 +671,35 @@ public class Parameters implements Serializable, Map<String,Object> {
 
   @Override
   public boolean containsValue(Object o) {
-    if(o instanceof Integer) {
-      long l = ((Integer) o).longValue();
-      return (_longs != null && _longs.containsValue(l));
-    } else if(o instanceof Long) {
-      long l = ((Long) o).longValue();
-      return (_longs != null && _longs.containsValue(l));
-    } else if(o instanceof Boolean) {
-      byte b = (byte) (((Boolean) o).booleanValue() ? 0x1 : 0x0);
-      return (_bools != null && _bools.containsValue(b));
-    } else if(o instanceof Float) {
-      double d = ((Float) o).doubleValue();
-      return (_doubles != null && _doubles.containsValue(d));
-    } else if(o instanceof Double) {
-      double d = ((Double) o).doubleValue();
-      return (_doubles != null && _doubles.containsValue(d));
-    }
-    // strings, maps, lists:
-    return _objects.containsValue(o);
+    return _data.containsValue(o);
   }
 
   @Override
   public Object get(Object o) {
-    if(_keys.containsKey(o)) {
-      String key = (String) o;
-      Type ot = _keys.get(o);
-      switch(ot) {
-        case BOOLEAN:
-          return getBoolean(key);
-        case LONG:
-          return getLong(key);
-        case DOUBLE:
-          return getDouble(key);
-        case STRING:
-        case MAP:
-        case LIST:
-          return _objects.get(key);
-      }
+    if(_data.containsKey(o)) {
+      return _data.get(o);
     } else if(_backoff != null) {
       return _backoff.get(o);
     }
     return null;
   }
 
+  public Object getOrThrow(String key) {
+    if(_data.containsKey(key)) {
+      return _data.get(key);
+    } else if(_backoff != null) {
+      return _backoff.getOrThrow(key);
+    } else {
+      throw new IllegalArgumentException("No key '"+key+"' present in Parameters object.");
+    }
+  }
+
   @Override
   public Object put(String k, Object v) {
-    if (v == null) {
-      set(k, (String) null);
-    } else if (v instanceof Boolean) {
-      set(k, ((Boolean) v).booleanValue());
-    } else if (v instanceof Integer) {
-      long l = ((Integer) v).longValue();
-      set(k, l);
-    } else if (v instanceof Long) {
-      long l = ((Long) v).longValue();
-      set(k, l);
-    } else if (v instanceof Float) {
-      double d = ((Float) v).doubleValue();
-      set(k, d);
-    } else if (v instanceof Double) {
-      double d = ((Double) v).doubleValue();
-      set(k, d);
-    } else if (v instanceof List) {
-      set(k, (List) v);
-    } else if (v instanceof Parameters) {
-      set(k, (Parameters) v);
-    } else if (v instanceof String) {
-      set(k, (String) v);
-    } else {
-      throw new IllegalArgumentException("put(" + k + "," + v + ") is not supported!");
+    if(v == null) {
+      return _data.put(k, new NullMarker());
     }
-
-    return v;
+    return _data.put(k, v);
   }
 
   @Override
@@ -1136,12 +717,7 @@ public class Parameters implements Serializable, Map<String,Object> {
 
   @Override
   public void clear() {
-    _keys = new HashMap<String, Type>();
-    _longs = null;
-    _bools = null;
-    _doubles = null;
-    _objects = null;
-
+    _data = new HashMap<String, Object>();
     _backoff = null;
   }
 
@@ -1150,10 +726,10 @@ public class Parameters implements Serializable, Map<String,Object> {
     if (_backoff != null) {
       HashSet<String> all = new HashSet<String>();
       all.addAll(_backoff.keySet());
-      all.addAll(_keys.keySet());
+      all.addAll(_data.keySet());
       return all;
     } else {
-      return _keys.keySet();
+      return _data.keySet();
     }
   }
 

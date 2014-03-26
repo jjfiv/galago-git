@@ -109,7 +109,7 @@ public class Node implements Serializable {
   }
 
   public String getDefaultParameter() {
-    return nodeParameters.get("default", null);
+    return nodeParameters.get("default", (String) null);
   }
 
   public String getOperator() {

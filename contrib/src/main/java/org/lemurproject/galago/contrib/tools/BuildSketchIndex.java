@@ -149,7 +149,7 @@ public class BuildSketchIndex extends AppFunction {
     p2.set("n", buildParameters.getLong("n"));
     p2.set("width", buildParameters.getLong("width"));
     p2.set("ordered", buildParameters.getBoolean("ordered"));
-    if (buildParameters.isString("fields") || buildParameters.isList("fields", Parameters.Type.STRING)) {
+    if (buildParameters.isString("fields") || buildParameters.isList("fields", String.class)) {
       p2.set("fields", (List<String>) buildParameters.getAsList("fields"));
     }
     stage.add(new Step(WindowProducer.class, p2));

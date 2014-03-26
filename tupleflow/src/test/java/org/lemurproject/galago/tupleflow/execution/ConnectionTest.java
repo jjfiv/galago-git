@@ -5,7 +5,6 @@ package org.lemurproject.galago.tupleflow.execution;
 
 import org.junit.Test;
 import org.lemurproject.galago.tupleflow.*;
-import org.lemurproject.galago.tupleflow.Parameters.Type;
 import org.lemurproject.galago.tupleflow.types.TupleflowString;
 
 import java.io.IOException;
@@ -625,7 +624,7 @@ public class ConnectionTest {
       if (!parameters.getJSON().isString("name")) {
         store.addError("Generator - Could not find the name of the stage in parameters");
       }
-      if (!parameters.getJSON().isList("conn", Type.STRING)) {
+      if (!parameters.getJSON().isList("conn", String.class)) {
         store.addError("Generator - Could not find any connections specified in parameters");
       }
       for (String conn : (List<String>) parameters.getJSON().getList("conn")) {
@@ -674,10 +673,10 @@ public class ConnectionTest {
       if (!parameters.getJSON().isString("name")) {
         store.addError("PassThrough - Could not find the name of the stage in parameters");
       }
-      if (!parameters.getJSON().isList("connIn", Type.STRING)) {
+      if (!parameters.getJSON().isList("connIn", String.class)) {
         store.addError("PassThrough - Could not find any Input connections specified in parameters");
       }
-      if (!parameters.getJSON().isList("connOut", Type.STRING)) {
+      if (!parameters.getJSON().isList("connOut", String.class)) {
         store.addError("PassThrough - Could not find any Output connections specified in parameters");
       }
     }
@@ -722,7 +721,7 @@ public class ConnectionTest {
       if (!parameters.getJSON().isString("name")) {
         store.addError("PassThrough - Could not find the name of the stage in parameters");
       }
-      if (!parameters.getJSON().isList("connIn", Type.STRING)) {
+      if (!parameters.getJSON().isList("connIn", String.class)) {
         store.addError("PassThrough - Could not find any Input connections specified in parameters");
       }
       if (!parameters.getJSON().isString("connOut")) {
@@ -764,7 +763,7 @@ public class ConnectionTest {
     }
 
     public static void verify(TupleFlowParameters parameters, ErrorStore store) throws IOException {
-      if (!parameters.getJSON().isList("connIn", Type.STRING)) {
+      if (!parameters.getJSON().isList("connIn", String.class)) {
         store.addError("PassThrough - Could not find any Input connections specified in parameters");
       }
     }

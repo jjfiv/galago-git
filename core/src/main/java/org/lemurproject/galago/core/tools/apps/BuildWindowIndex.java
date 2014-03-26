@@ -29,7 +29,6 @@ import org.lemurproject.galago.core.window.WindowProducer;
 import org.lemurproject.galago.core.window.WindowToNumberWordCount;
 import org.lemurproject.galago.core.window.WindowToNumberedExtent;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Parameters.Type;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
 import org.lemurproject.galago.tupleflow.execution.ConnectionPointType;
@@ -96,7 +95,7 @@ public class BuildWindowIndex extends AppFunction {
     p2.set("n", n);
     p2.set("width", width);
     p2.set("ordered", ordered);
-    if (buildParameters.isString("fields") || buildParameters.isList("fields", Type.STRING)) {
+    if (buildParameters.isString("fields") || buildParameters.isList("fields", String.class)) {
       p2.set("fields", (List<String>) buildParameters.getAsList("fields"));
     }
     stage.add(new Step(WindowProducer.class, p2));
@@ -173,7 +172,7 @@ public class BuildWindowIndex extends AppFunction {
     p2.set("n", n);
     p2.set("width", width);
     p2.set("ordered", ordered);
-    if (buildParameters.isString("fields") || buildParameters.isList("fields", Type.STRING)) {
+    if (buildParameters.isString("fields") || buildParameters.isList("fields", String.class)) {
       p2.set("fields", (List<String>) buildParameters.getAsList("fields"));
     }
     stage.add(new Step(WindowProducer.class, p2));
@@ -295,7 +294,7 @@ public class BuildWindowIndex extends AppFunction {
     }
 
     // tokenizer - fields
-    if (buildParameters.isList("fields", Type.STRING) || buildParameters.isString("fields")) {
+    if (buildParameters.isList("fields", String.class) || buildParameters.isString("fields")) {
       buildParameters.set("tokenizer", new Parameters());
       buildParameters.getMap("tokenizer").set("fields", buildParameters.getAsList("fields"));
     }

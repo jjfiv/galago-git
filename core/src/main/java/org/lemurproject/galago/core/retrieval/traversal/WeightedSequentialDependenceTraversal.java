@@ -1,21 +1,21 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
+import org.lemurproject.galago.core.index.stats.AggregateStatistic;
+import org.lemurproject.galago.core.index.stats.NodeStatistics;
+import org.lemurproject.galago.core.retrieval.GroupRetrieval;
+import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.query.MalformedQueryException;
+import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.util.TextPartAssigner;
+import org.lemurproject.galago.tupleflow.Parameters;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.stats.AggregateStatistic;
-import org.lemurproject.galago.core.index.stats.NodeStatistics;
-import org.lemurproject.galago.core.retrieval.GroupRetrieval;
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.MalformedQueryException;
-import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.util.TextPartAssigner;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Parameters.Type;
 
 /**
  * Weighted Sequential Dependency Model model is structurally similar to the
@@ -66,7 +66,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     biFeatures = new ArrayList();
     triFeatures = new ArrayList();
 
-    if (globalParams.isList("wsdmFeatures", Type.MAP)) {
+    if (globalParams.isList("wsdmFeatures", Parameters.class)) {
       for (Parameters f : (List<Parameters>) globalParams.getList("wsdmFeatures")) {
         WSDMFeature wf = new WSDMFeature(f);
         if (wf.unigram) {

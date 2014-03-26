@@ -1,6 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools.apps;
 
+import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.RetrievalFactory;
+import org.lemurproject.galago.core.retrieval.ScoredDocument;
+import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.tupleflow.Parameters;
+
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,14 +16,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.retrieval.RetrievalFactory;
-import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Parameters.Type;
 
 /**
  *
@@ -149,7 +149,7 @@ public class BatchSearch extends AppFunction {
   public static List<Parameters> collectQueries(Parameters parameters) throws IOException {
     List<Parameters> queries = new ArrayList();
     int unnumbered = 0;
-    if (parameters.isString("query") || parameters.isList("query", Type.STRING)) {
+    if (parameters.isString("query") || parameters.isList("query", String.class)) {
       String id;
       for (String q : (List<String>) parameters.getAsList("query")) {
         id = "unk-" + unnumbered;
@@ -157,7 +157,7 @@ public class BatchSearch extends AppFunction {
         queries.add(Parameters.parseString(String.format("{\"number\":\"%s\", \"text\":\"%s\"}", id, q)));
       }
     }
-    if (parameters.isString("queries") || parameters.isList("queries", Type.STRING)) {
+    if (parameters.isString("queries") || parameters.isList("queries", String.class)) {
       String id;
       for (String q : (List<String>) parameters.getAsList("query")) {
         id = "unk-" + unnumbered;
@@ -165,10 +165,10 @@ public class BatchSearch extends AppFunction {
         queries.add(Parameters.parseString(String.format("{\"number\":\"%s\", \"text\":\"%s\"}", id, q)));
       }
     }
-    if (parameters.isList("query", Type.MAP)) {
+    if (parameters.isList("query", Parameters.class)) {
       queries.addAll(parameters.getList("query"));
     }
-    if (parameters.isList("queries", Type.MAP)) {
+    if (parameters.isList("queries", Parameters.class)) {
       queries.addAll(parameters.getList("queries"));
     }
     return queries;

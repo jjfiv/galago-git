@@ -3,17 +3,7 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import org.lemurproject.galago.core.links.DataStreamWriter;
-import org.lemurproject.galago.core.links.ELItoEL;
-import org.lemurproject.galago.core.links.IndriHavestLinksWriter;
-import org.lemurproject.galago.core.links.LinkDestNamer;
-import org.lemurproject.galago.core.links.LinkExtractor;
-import org.lemurproject.galago.core.links.UrlExtractor;
+import org.lemurproject.galago.core.links.*;
 import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentSplit;
@@ -23,15 +13,14 @@ import org.lemurproject.galago.core.types.ExtractedLinkIndri;
 import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.tupleflow.Order;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Parameters.Type;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
-import org.lemurproject.galago.tupleflow.execution.InputStep;
-import org.lemurproject.galago.tupleflow.execution.Job;
-import org.lemurproject.galago.tupleflow.execution.MultiStep;
-import org.lemurproject.galago.tupleflow.execution.OutputStep;
-import org.lemurproject.galago.tupleflow.execution.Stage;
-import org.lemurproject.galago.tupleflow.execution.Step;
+import org.lemurproject.galago.tupleflow.execution.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -66,7 +55,7 @@ public class HarvestLinksFn extends AppFunction {
   @Override
   public void run(Parameters p, PrintStream output) throws Exception {
     if (!p.isString("inputPath")
-            && !p.isList("inputPath", Type.STRING)) {
+            && !p.isList("inputPath", String.class)) {
       output.println(getHelpString());
       return;
     }

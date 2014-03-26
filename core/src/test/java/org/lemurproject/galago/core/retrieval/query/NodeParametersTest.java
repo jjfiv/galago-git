@@ -4,12 +4,12 @@
 package org.lemurproject.galago.core.retrieval.query;
 
 import org.junit.Test;
-import org.lemurproject.galago.tupleflow.Parameters.Type;
 
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -119,9 +119,9 @@ public class NodeParametersTest {
     Node m = StructuredQuery.parse(n.toString());
 
     NodeParameters p2 = m.getNodeParameters();
-    assertEquals (Type.BOOLEAN, p2.getKeyType("bool"));
-    assertEquals (Type.LONG, p2.getKeyType("long"));
-    assertEquals (Type.DOUBLE, p2.getKeyType("double"));
-    assertEquals (Type.STRING, p2.getKeyType("string"));
+    assertTrue(p2.isBoolean("bool"));
+    assertTrue (p2.isLong("long"));
+    assertTrue(p2.isDouble("double"));
+    assertTrue(p2.isString("string"));
   }
 }

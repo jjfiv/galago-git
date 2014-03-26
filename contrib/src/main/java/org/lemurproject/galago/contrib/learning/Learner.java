@@ -3,13 +3,6 @@
  */
 package org.lemurproject.galago.contrib.learning;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.*;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.eval.QuerySetJudgments;
 import org.lemurproject.galago.core.eval.QuerySetResults;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluator;
@@ -20,8 +13,12 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.apps.BatchSearch;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Parameters.Type;
+
+import java.io.*;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Main interface for learning methods - eg. coord-ascent, gradient ascent, etc.
@@ -67,6 +64,7 @@ public abstract class Learner {
     if (p.isString("output")) {
       outputFolder = new File(p.getString("output"));
       if (!outputFolder.isDirectory()) {
+        FileUtility.makeParentDirectories(outputFolder);
         outputFolder.mkdirs();
       }
       outputPrintStream = new PrintStream(new BufferedOutputStream(new FileOutputStream(new File(outputFolder, name + ".out"))));
@@ -91,11 +89,11 @@ public abstract class Learner {
    * UTILITY FUNCTIONS : functions that can be used inside of any implemented
    * learner
    */
-  protected void initialize(Parameters p, Retrieval r) throws IOException, Exception {
+  protected void initialize(Parameters p, Retrieval r) throws Exception {
 
     assert (p.isString("qrels")) : this.getClass().getName() + " requires `qrels' parameter, of type String.";
-    assert (p.isList("learnableParameters", Type.MAP)) : this.getClass().getName() + " requires `learnableParameters' parameter, of type List<Map>.";
-    assert (!p.containsKey("normalization") || (p.isMap("normalization") || p.isList("normalization", Type.MAP))) : this.getClass().getName() + " requires `normalization' parameter to be of type List<Map>.";
+    assert (p.isList("learnableParameters", Parameters.class)) : this.getClass().getName() + " requires `learnableParameters' parameter, of type List<Map>.";
+    assert (!p.containsKey("normalization") || (p.isMap("normalization") || p.isList("normalization", Parameters.class))) : this.getClass().getName() + " requires `normalization' parameter to be of type List<Map>.";
 
     queries = new QuerySet(BatchSearch.collectQueries(p), p);
     assert !queries.isEmpty() : this.getClass().getName() + " requires `queries' parameter, of type List(Parameters): see Batch-Search for an example.";
@@ -109,8 +107,8 @@ public abstract class Learner {
     threadCount = (int) (p.isLong("threadCount") ? p.getLong("threadCount") : Runtime.getRuntime().availableProcessors());
 
     List<Parameters> params = (List<Parameters>) p.getList("learnableParameters");
-    List<Parameters> normalizationRules = new ArrayList();
-    if (p.isList("normalization", Type.MAP)
+    List<Parameters> normalizationRules = new ArrayList<Parameters>();
+    if (p.isList("normalization", Parameters.class)
             || p.isMap("normalization")) {
       normalizationRules.addAll(p.getAsList("normalization"));
     }
@@ -118,8 +116,8 @@ public abstract class Learner {
     learnableParameters = new RetrievalModelParameters(params, normalizationRules);
 
     restarts = (int) p.get("restarts", 1);
-    initialSettings = new ArrayList(restarts);
-    if (p.isList("initialParameters", Type.MAP)) {
+    initialSettings = new ArrayList<RetrievalModelInstance>(restarts);
+    if (p.isList("initialParameters", Parameters.class)) {
       List<Parameters> inits = (List<Parameters>) p.getAsList("initialParameters");
       for (Parameters init : inits) {
         RetrievalModelInstance inst = new RetrievalModelInstance(learnableParameters, init);
@@ -127,7 +125,7 @@ public abstract class Learner {
       }
     }
 
-    testedParameters = new HashMap();
+    testedParameters = new HashMap<String,Double>();
 
     // caching system
     if (retrieval.getGlobalParameters().get("cache", false)) {
@@ -182,7 +180,7 @@ public abstract class Learner {
       return testedParameters.get(settingString);
     }
 
-    HashMap<String,  List<ScoredDocument>> resMap = new HashMap();
+    HashMap<String,  List<ScoredDocument>> resMap = new HashMap<String, List<ScoredDocument>>();
 
     // get the parameter settigns
     Parameters settings = instance.toParameters();
@@ -260,7 +258,7 @@ public abstract class Learner {
 
       root1 = this.ensureSettings(root1, settings1);
       root1 = this.retrieval.transformQuery(root1, settings1);
-      Set<String> cachableNodes1 = new HashSet();
+      Set<String> cachableNodes1 = new HashSet<String>();
       collectCachableNodes(root1, cachableNodes1);
 
       Node root2 = this.queries.getNode(number).clone();
@@ -270,7 +268,7 @@ public abstract class Learner {
 
       root2 = this.ensureSettings(root2, settings2);
       root2 = this.retrieval.transformQuery(root2, settings2);
-      Set<String> cachableNodes2 = new HashSet();
+      Set<String> cachableNodes2 = new HashSet<String>();
       collectCachableNodes(root2, cachableNodes2);
 
       // intersect these sets
@@ -282,7 +280,7 @@ public abstract class Learner {
     }
   }
 
-  private void collectCachableNodes(Node root, Set nodeCache) {
+  private void collectCachableNodes(Node root, Set<String> nodeCache) {
     for (Node child : root.getInternalNodes()) {
       collectCachableNodes(child, nodeCache);
     }

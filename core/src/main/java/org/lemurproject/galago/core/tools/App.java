@@ -1,18 +1,18 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
+import org.lemurproject.galago.tupleflow.GalagoConf;
+import org.lemurproject.galago.tupleflow.Parameters;
+import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import org.lemurproject.galago.tupleflow.GalagoConf;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author sjh, irmarc, trevor
@@ -35,7 +35,7 @@ public class App {
     cps.add("org.lemurproject.galago");
 
     Parameters p = GalagoConf.getAllOptions();
-    if (p.isString("appclasspath") || p.isList("appclasspath", Parameters.Type.STRING)) {
+    if (p.isString("appclasspath") || p.isList("appclasspath", String.class)) {
       cps.addAll((List<String>) p.getAsList("appclasspath"));
     }
 

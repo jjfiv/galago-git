@@ -1,12 +1,6 @@
 // BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
@@ -15,7 +9,13 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Parameters.Type;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Transforms a #prms operator into a full expansion of the PRM-S model. That
@@ -45,7 +45,7 @@ public class PRMS2Traversal extends Traversal {
     this.globals = retrieval.getGlobalParameters();
 
     // get field list
-    if (globals.isList("fields", Type.STRING)) {
+    if (globals.isList("fields", String.class)) {
       this.defaultFields = (List<String>) globals.getAsList("fields");
     } else {
       this.defaultFields = null;
@@ -69,7 +69,7 @@ public class PRMS2Traversal extends Traversal {
 
       String scorerType = queryParameters.get("scorer", globals.get("scorer", "dirichlet"));
       
-      List<String> fields = queryParameters.isList("fields", Type.STRING) ? queryParameters.getList("fields") : defaultFields;
+      List<String> fields = queryParameters.isList("fields", String.class) ? queryParameters.getList("fields") : defaultFields;
       Parameters weights = queryParameters.isMap("weights") ? queryParameters.getMap("weights") : defaultWeights;
 
       List<String> terms = getTextTerms(original.getInternalNodes());
@@ -165,7 +165,7 @@ public class PRMS2Traversal extends Traversal {
   }
 
   private List<String> getTextTerms(List<Node> nodes) throws IOException {
-    ArrayList<String> terms = new ArrayList();
+    ArrayList<String> terms = new ArrayList<String>();
     for (Node n : nodes) {
       if (n.getOperator().equals("text")) {
         terms.add(n.getDefaultParameter());

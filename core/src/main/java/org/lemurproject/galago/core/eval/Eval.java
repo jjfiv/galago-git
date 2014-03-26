@@ -1,12 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.eval;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluator;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluatorFactory;
 import org.lemurproject.galago.core.eval.compare.QuerySetComparator;
@@ -14,7 +8,12 @@ import org.lemurproject.galago.core.eval.compare.QuerySetComparatorFactory;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.tools.apps.BatchSearch;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Parameters.Type;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Main method for retrieval evaluation. Evaluates query results using a set of
@@ -110,12 +109,12 @@ public class Eval extends AppFunction {
     assert (p.isString("judgments")) : "eval requires 'judgments' parameter.";
     assert (p.isString("baseline") || p.isList("runs")) : "eval requires 'baseline' or 'runs' parameter.";
     assert (!p.containsKey("treatment") || p.isString("treatment")) : "eval parameter 'treatment' must be a string.";
-    assert (!p.containsKey("queries") || p.isList("queries", Type.MAP)) : "eval parameter 'queries' must be a list.";
+    assert (!p.containsKey("queries") || p.isList("queries", Parameters.class)) : "eval parameter 'queries' must be a list.";
     assert (!p.containsKey("summary") || p.isBoolean("summary")) : "eval parameter 'summary' must be a boolean.";
     assert (!p.containsKey("details") || p.isBoolean("details")) : "eval parameter 'details' must be a boolean.";
-    assert (!p.containsKey("metrics") || p.isList("metrics", Type.STRING)) : "eval parameter 'metrics' must be a list of strings.";
+    assert (!p.containsKey("metrics") || p.isList("metrics", String.class)) : "eval parameter 'metrics' must be a list of strings.";
     assert (p.get("summary", true) || p.get("details", false)) : "eval requires either 'summary' or 'details' to be set true.";
-    assert (!p.containsKey("comparisons") || p.isList("comparisons", Type.STRING) || p.isBoolean("comparisons")) : "eval parameter 'comparisons' must be a list of strings, or a boolean to turn it off (set only)";
+    assert (!p.containsKey("comparisons") || p.isList("comparisons", String.class) || p.isBoolean("comparisons")) : "eval parameter 'comparisons' must be a list of strings, or a boolean to turn it off (set only)";
 
     boolean binaryJudgments = p.get("binary", false);
     boolean positiveJudgments = p.get("postive", true);
@@ -405,7 +404,7 @@ public class Eval extends AppFunction {
     boolean negsig = !p.get("negsig", "").isEmpty();
 
     // override default list if specified:
-    if (p.isList("comparisons", Type.STRING)) {
+    if (p.isList("comparisons", String.class)) {
       tests = (String[]) p.getAsList("comparisons").toArray(new String[0]);
 
     } else if (p.isBoolean("comparisons") && !p.getBoolean("comparisons")) {

@@ -3,15 +3,16 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
-import java.io.PrintStream;
-import java.util.List;
-import java.util.Set;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.io.PrintStream;
+import java.util.List;
+import java.util.Set;
 
 /**
  *

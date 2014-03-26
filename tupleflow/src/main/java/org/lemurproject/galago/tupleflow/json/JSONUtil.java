@@ -11,7 +11,7 @@ import java.util.List;
 public class JSONUtil {
   public static Object parseString(String value) {
     if(value == null || value.equalsIgnoreCase("null")) {
-      return null;
+      return new Parameters.NullMarker();
     } else if(value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
       return Boolean.parseBoolean(value.toLowerCase());
     }
@@ -59,7 +59,7 @@ public class JSONUtil {
   }
 
   private static void writeValue(Object v, XMLStreamWriter xml) throws XMLStreamException {
-    if (v == null) {
+    if (v instanceof Parameters.NullMarker) {
       xml.writeCharacters("null");
     } else if (v instanceof Boolean) {
       xml.writeCharacters(Boolean.toString((Boolean) v));
@@ -87,7 +87,7 @@ public class JSONUtil {
   }
 
   public static String escape(String input) {
-    StringBuffer output = new StringBuffer();
+    StringBuilder output = new StringBuilder();
 
     for(int i=0; i<input.length(); i++) {
       char ch = input.charAt(i);

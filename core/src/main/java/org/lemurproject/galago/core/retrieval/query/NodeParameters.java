@@ -6,16 +6,11 @@ package org.lemurproject.galago.core.retrieval.query;
 import gnu.trove.map.hash.TObjectByteHashMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import gnu.trove.map.hash.TObjectLongHashMap;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Set;
-import org.lemurproject.galago.tupleflow.Parameters.Type;
+import java.util.*;
 
 /**
  * Currently the parameters that are attached to query Nodes are not quite the
@@ -29,6 +24,9 @@ import org.lemurproject.galago.tupleflow.Parameters.Type;
  * @author sjh
  */
 public class NodeParameters implements Serializable {
+  private static enum Type {
+    STRING, LONG, DOUBLE, MAP, BOOLEAN, LIST
+  }
 
   private HashMap<String, Type> keyMapping = new HashMap();
   private HashMap<String, String> stringMap = null;

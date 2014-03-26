@@ -3,11 +3,11 @@
  */
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import java.util.HashMap;
-import java.util.List;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.util.List;
 
 /**
  * Allows direct replacement of operators in queries.
@@ -42,31 +42,29 @@ public class ReplaceOperatorTraversal extends Traversal {
     
     String key = original.getOperator();
     if (instOperators.containsKey(key)) {
-      switch (instOperators.getKeyType(key)) {
-        case STRING:
-          original.setOperator(instOperators.getString(key));
-          return original;
-
-        case LIST:
-          if (instOperators.isList(key, Parameters.Type.STRING)) {
-            List<String> repls = (List<String>) instOperators.getList(key);
-            Node root = null;
-            Node curr = null;
-            for (String r : repls) {
-              if (root == null) {
-                curr = new Node(r);
-                root = curr;
-              } else {
-                curr.addChild(new Node(r));
-                curr = curr.getChild(0);
-              }
+      if(instOperators.isString(key)) {
+        original.setOperator(instOperators.getString(key));
+        return original;
+      } else if(instOperators.isList(key)) {
+        if (instOperators.isList(key, String.class)) {
+          List<String> repls = (List<String>) instOperators.getList(key);
+          Node root = null;
+          Node curr = null;
+          for (String r : repls) {
+            if (root == null) {
+              curr = new Node(r);
+              root = curr;
+            } else {
+              curr.addChild(new Node(r));
+              curr = curr.getChild(0);
             }
-            for (Node c : original.getInternalNodes()) {
-              curr.addChild(c);
-            }
-            return root;
           }
-        default:
+          for (Node c : original.getInternalNodes()) {
+            curr.addChild(c);
+          }
+          return root;
+        }
+      } else {
           throw new IllegalArgumentException("--opReps mapping must contain only Strings or lists of Strings.");
       }
     }

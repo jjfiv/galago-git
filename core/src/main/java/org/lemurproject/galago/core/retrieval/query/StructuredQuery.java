@@ -1,12 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.query;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 import org.lemurproject.galago.core.retrieval.query.StructuredLexer.Token;
 import org.lemurproject.galago.core.retrieval.query.StructuredLexer.Token.TokenType;
 import org.lemurproject.galago.core.retrieval.query.StructuredLexer.TokenStream;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Valid query language syntax:
@@ -211,10 +212,9 @@ public class StructuredQuery {
   }
 
   public static Node parse(String query) {
-    StructuredLexer lexer = new StructuredLexer();
     ArrayList<StructuredLexer.Token> tokens;
     try {
-      tokens = lexer.tokens(query);
+      tokens = StructuredLexer.tokens(query);
     } catch (Exception e) {
       // TODO: fix this
       e.printStackTrace();

@@ -1,23 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
-import org.lemurproject.galago.core.retrieval.iterator.scoring.InL2ScoringIterator;
-import org.lemurproject.galago.core.retrieval.iterator.scoring.PL2ScoringIterator;
-import org.lemurproject.galago.core.retrieval.iterator.scoring.BiL2ScoringIterator;
-import org.lemurproject.galago.core.retrieval.iterator.scoring.DirichletScoringIterator;
-import org.lemurproject.galago.core.retrieval.iterator.scoring.BM25ScoringIterator;
-import org.lemurproject.galago.core.retrieval.iterator.scoring.JelinekMercerScoringIterator;
-import org.lemurproject.galago.core.retrieval.iterator.scoring.BM25RFScoringIterator;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.*;
+import org.lemurproject.galago.core.retrieval.iterator.scoring.*;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
@@ -27,6 +12,11 @@ import org.lemurproject.galago.core.retrieval.traversal.optimize.FlattenCombineT
 import org.lemurproject.galago.core.retrieval.traversal.optimize.FlattenWindowTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.optimize.MergeCombineChildrenTraversal;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 /**
  * @author trevor
@@ -132,7 +122,7 @@ public class FeatureFactory {
     ArrayList<TraversalSpec> beforeTraversals = new ArrayList<TraversalSpec>();
     ArrayList<TraversalSpec> insteadTraversals = new ArrayList<TraversalSpec>();
 
-    if (parameters.isMap("traversals") || parameters.isList("traversals", Parameters.Type.MAP)) {
+    if (parameters.isMap("traversals") || parameters.isList("traversals", Parameters.class)) {
       List<Parameters> traversals = (List<Parameters>) parameters.getAsList("traversals");
       for (Parameters traversal : traversals) {
         String className = traversal.getString("name");

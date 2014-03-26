@@ -3,11 +3,6 @@
  */
 package org.lemurproject.galago.contrib.retrieval.traversal;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.stats.AggregateStatistic;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;
@@ -17,6 +12,12 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  *
@@ -47,7 +48,7 @@ public class WeightedPhrankTraversal extends Traversal {
     biFeatures = new ArrayList();
     triFeatures = new ArrayList();
 
-    if (globalParams.isList("wphrankFeatures", Parameters.Type.MAP)) {
+    if (globalParams.isList("wphrankFeatures", Parameters.class)) {
       for (Parameters f : (List<Parameters>) globalParams.getList("wphrankFeatures")) {
         WPHRANKFeature wf = new WPHRANKFeature(f);
         if (wf.unigram) {
