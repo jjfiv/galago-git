@@ -18,7 +18,11 @@ import static org.junit.Assert.assertTrue;
  *
  * @author sjh
  */
-public class FieldRetrievalTest {
+ 
+public class FieldRetrievalTest   {
+
+ final String newLine = System.getProperty("line.separator");
+ 
   @Test
   public void testFieldRetrievalPipeline() throws Exception {
     File trecCorpusFile = null;
@@ -55,13 +59,13 @@ public class FieldRetrievalTest {
 
       // try to batch search that index with a no-match string
       String queries = "{ \"queries\" : ["
-              + "{ \"number\" : \"1\", \"text\" : \"sample\"},\n"
-              + "{ \"number\" : \"2\", \"text\" : \"#combine(#extents:sample:part=field.krovetz.title())\"},\n"
-              + "{ \"number\" : \"3\", \"text\" : \"#combine(#inside(sample #field:title()))\"},\n"
-              + "{ \"number\" : \"4\", \"text\" : \"#combine(#inside:noOpt=true(#extents:sample:part=postings() #field:title()))\"},\n"
-              + "{ \"number\" : \"5\", \"text\" : \"#combine(#inside(#extents:sample:part=postings() #field:title()))\"}\n"
+              + "{ \"number\" : \"1\", \"text\" : \"sample\"}," + newLine
+              + "{ \"number\" : \"2\", \"text\" : \"#combine(#extents:sample:part=field.krovetz.title())\"}," + newLine
+              + "{ \"number\" : \"3\", \"text\" : \"#combine(#inside(sample #field:title()))\"}," + newLine
+              + "{ \"number\" : \"4\", \"text\" : \"#combine(#inside:noOpt=true(#extents:sample:part=postings() #field:title()))\"}," + newLine
+              + "{ \"number\" : \"5\", \"text\" : \"#combine(#inside(#extents:sample:part=postings() #field:title()))\"}" + newLine
               //+ "], \"printTransformation\" : true}";
-              +"]}\n";
+              +"]}" + newLine;
               
       queryFile = FileUtility.createTemporary();
       Utility.copyStringToFile(queries, queryFile);
@@ -78,16 +82,16 @@ public class FieldRetrievalTest {
       String output = byteArrayStream.toString();
 
       String expectedScores =
-              "1 Q0 55 1 -1.17683184 galago\n"
-              + "1 Q0 59 2 -1.18048269 galago\n"
-              + "2 Q0 55 1 -1.46523173 galago\n"
-              + "2 Q0 59 2 -1.46744437 galago\n"
-              + "3 Q0 55 1 -1.46523173 galago\n"
-              + "3 Q0 59 2 -1.46744437 galago\n"
-              + "4 Q0 59 1 -1.87147023 galago\n"
-              + "4 Q0 55 2 -1.87213402 galago\n"
-              + "5 Q0 59 1 -1.87147023 galago\n"
-              + "5 Q0 55 2 -1.87213402 galago\n";
+              "1 Q0 55 1 -1.17683184 galago" + newLine
+              + "1 Q0 59 2 -1.18048269 galago" + newLine
+              + "2 Q0 55 1 -1.46523173 galago" + newLine
+              + "2 Q0 59 2 -1.46744437 galago" + newLine
+              + "3 Q0 55 1 -1.46523173 galago" + newLine
+              + "3 Q0 59 2 -1.46744437 galago" + newLine
+              + "4 Q0 59 1 -1.87147023 galago" + newLine
+              + "4 Q0 55 2 -1.87213402 galago" + newLine
+              + "5 Q0 59 1 -1.87147023 galago" + newLine
+              + "5 Q0 55 2 -1.87213402 galago" + newLine;
         
 //              "1 Q0 55 1 -1.17683184 galago\n"
 //              + "1 Q0 59 2 -1.18048269 galago\n"

@@ -52,7 +52,8 @@ public class DiskNameWriterTest {
         actual += 1;
         ki.nextKey();
       }
-
+      reader.close();
+      
       assertEquals(count, actual);
 
     } finally {

@@ -160,6 +160,7 @@ public class MemIndexPartTest {
         diskScoreItr.movePast(diskScoreItr.currentCandidate());
       }
 
+      reader.close();
 
     } finally {
       if (f != null) {

@@ -52,7 +52,7 @@ public class IndexReaderSkipTest {
         counts.syncTo(i);
         assertEquals(counts.currentCandidate(), i);
       }
-
+      reader.close();
     } finally {
       assertTrue(temp.delete());
     }
@@ -83,7 +83,8 @@ public class IndexReaderSkipTest {
         counts.syncTo(i);
         assertEquals(counts.currentCandidate(), i);
       }
-
+      reader.close();
+      
     } finally {
       assertTrue(temp.delete());
     }
@@ -121,7 +122,8 @@ public class IndexReaderSkipTest {
         counts.syncTo(i);
         assertEquals(counts.currentCandidate(), i);
       }
-
+      reader.close();
+      
     } finally {
       assertTrue(temp.delete());
     }

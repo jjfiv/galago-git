@@ -94,6 +94,7 @@ public class DocumentLengthsMergerTest {
         assertEquals(iterator.currentCandidate() + 1, iterator.length(sc));
         iterator.movePast(iterator.currentCandidate());
       }
+      tester.close();
 
     } finally {
 
@@ -150,7 +151,8 @@ public class DocumentLengthsMergerTest {
         iterator.movePast(sc.document);
       }
 
-
+      tester.close();
+      
     } finally {
 
       if (indexFolder1 != null) {

@@ -53,7 +53,7 @@ public class DocumentPriorWriterTest {
         
         ki.nextKey();
       }
-
+      reader.close();
     } finally {
       assertTrue(tmp.delete());
     }

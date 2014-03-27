@@ -79,7 +79,7 @@ public class CorpusTest {
       assertFalse (trueDoc.tags.isEmpty());
       assertEquals (testDoc.tags.get(0).name, trueDoc.tags.get(0).name);
       assertEquals (testDoc.tags.get(0).attributes.get("attr"), trueDoc.tags.get(0).attributes.get("attr"));
-
+      reader.close();
 
       // test <text> only
       p = new Parameters();
@@ -99,7 +99,8 @@ public class CorpusTest {
       assertEquals(0, testDoc.metadata.size());
       assertNull(testDoc.terms);
       assertNull(testDoc.tags);
-
+      reader.close();
+      
     } finally {
       if (corpus != null) {
         assertTrue(corpus.delete());

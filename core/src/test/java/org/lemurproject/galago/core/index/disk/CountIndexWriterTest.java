@@ -69,6 +69,7 @@ public class CountIndexWriterTest {
         ki.nextKey();
       }
       assertEquals(keyCount, 2);
+      r.close();
 
     } finally {
       assertTrue(tmp.delete());

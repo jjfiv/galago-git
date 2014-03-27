@@ -113,11 +113,12 @@ public class ParametersTest {
       tokenizer.set("fields", Arrays.asList(fields));
 
       Parameters params = new Parameters();
-      params.set("filename", "fictional/path");
+      // MCZ 3/21/2014 - made platform independent
+      params.set("filename", "fictional" + File.separatorChar + "path");
       params.set("tokenizer", tokenizer);
 
       tempPath = FileUtility.createTemporary();
-      params.write(tempPath.getAbsolutePath());
+      params.write(tempPath.getAbsolutePath() );
 
       // Now read it in.
       Parameters newParams = Parameters.parseFile(tempPath);
