@@ -19,6 +19,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.core.window.ReduceNumberWordCount;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.json.JSONUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class MemIndexPartTest {
     File diskCounts = FileUtility.createTemporary();
     try {
       MemoryCountIndex memcounts1 = new MemoryCountIndex(new Parameters());
-      CountIndexWriter diskcounts = new CountIndexWriter(new FakeParameters(Parameters.parseString("{\"filename\":\"" + diskCounts.getAbsolutePath() + "\"}")));
+      CountIndexWriter diskcounts = new CountIndexWriter(new FakeParameters(Parameters.parseString("{\"filename\":\"" + JSONUtil.escape(diskCounts.getAbsolutePath()) + "\"}")));
       ReduceNumberWordCount reducer = new ReduceNumberWordCount();
       Sorter<NumberWordCount> sorter = new Sorter<NumberWordCount>(new NumberWordCount.WordDocumentOrder());
       sorter.setProcessor(reducer);
@@ -130,7 +131,7 @@ public class MemIndexPartTest {
 
       memScores.addIteratorData(Utility.fromString("key"), scoreItr);
 
-      SparseFloatListWriter writer = new SparseFloatListWriter(new FakeParameters(Parameters.parseString("{\"filename\":\"" + f.getAbsolutePath() + "\"}")));
+      SparseFloatListWriter writer = new SparseFloatListWriter(new FakeParameters(Parameters.parseString("{\"filename\":\"" + JSONUtil.escape(f.getAbsolutePath()) + "\"}")));
 
       writer.processWord(Utility.fromString("key"));
       for (int i = 0; i < docs.length; i++) {
