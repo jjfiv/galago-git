@@ -19,7 +19,10 @@ import static org.lemurproject.galago.contrib.util.TestingUtils.trecDocument;
  *
  * @author sjh
  */
-public class BuildBackgroundTest {
+public class BuildBackgroundTest  {
+
+  final String newLine = System.getProperty("line.separator");
+      
   @Test
   public void testBackgrounds() throws Exception {
     File trecCorpusFile1 = null;
@@ -76,12 +79,12 @@ public class BuildBackgroundTest {
       queryFile = FileUtility.createTemporary();
       Utility.copyStringToFile(queries_reg, queryFile);
       String expected_reg =
-              "2 Q0 59 1 -1.73087481 galago\n"
-              + "2 Q0 55 2 -1.73486418 galago\n"
-              + "9 Q0 59 1 -1.38562925 galago\n"
-              + "9 Q0 55 2 -1.38695903 galago\n"
-              + "11 Q0 59 1 -2.07877996 galago\n"
-              + "11 Q0 55 2 -2.08010975 galago\n";
+              "2 Q0 59 1 -1.73087481 galago" + newLine
+              + "2 Q0 55 2 -1.73486418 galago" + newLine
+              + "9 Q0 59 1 -1.38562925 galago" + newLine
+              + "9 Q0 55 2 -1.38695903 galago" + newLine
+              + "11 Q0 59 1 -2.07877996 galago" + newLine
+              + "11 Q0 55 2 -2.08010975 galago" + newLine;
       runQueries(queryFile, expected_reg);
       
 //  DEPRECATED - need to rethink a bit before re-enabling
@@ -107,12 +110,12 @@ public class BuildBackgroundTest {
       Utility.copyStringToFile(queries_back2, queryFile);
 
       String expected_back =
-              "2 Q0 59 1 -1.60833350 galago\n"
-              + "2 Q0 55 2 -1.61254386 galago\n"
-              + "9 Q0 59 1 -1.06094589 galago\n"
-              + "9 Q0 55 2 -1.06227568 galago\n"
-              + "11 Q0 55 1 -2.36122993 galago\n"
-              + "11 Q0 59 2 -2.36133423 galago\n";
+              "2 Q0 59 1 -1.60833350 galago" + newLine
+              + "2 Q0 55 2 -1.61254386 galago" + newLine
+              + "9 Q0 59 1 -1.06094589 galago" + newLine
+              + "9 Q0 55 2 -1.06227568 galago" + newLine
+              + "11 Q0 55 1 -2.36122993 galago" + newLine
+              + "11 Q0 59 2 -2.36133423 galago" + newLine;
       
       runQueries(queryFile, expected_back);
 

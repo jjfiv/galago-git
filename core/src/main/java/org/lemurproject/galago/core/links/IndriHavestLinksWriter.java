@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.zip.GZIPOutputStream;
 import org.lemurproject.galago.core.types.ExtractedLinkIndri;
 import org.lemurproject.galago.tupleflow.FileUtility;
@@ -96,7 +97,8 @@ public class IndriHavestLinksWriter implements Processor<ExtractedLinkIndri> {
         writer = null;
 
         if (filePath != null) {
-            String outputPath = filePath.replaceFirst(filePrefix, prefixReplacement);
+            // MCZ 3/2014 - added quoteReplacement() for Windows compatibility
+            String outputPath = filePath.replaceFirst(Matcher.quoteReplacement(filePrefix) ,  Matcher.quoteReplacement(prefixReplacement) );
             if (outputPath.equals(filePath)) {
                 throw new IOException("Can not over write input data.");
             }

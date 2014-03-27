@@ -565,6 +565,7 @@ public class Utility {
   public static void copyStringToFile(String s, File file) throws IOException {
     InputStream stream = new ByteArrayInputStream(Utility.fromString(s));
     Utility.copyStreamToFile(stream, file);
+    stream.close();
   }
 
   public static void calculateMessageDigest(File file, MessageDigest instance) throws IOException {

@@ -15,6 +15,7 @@ public class JSONParser {
   private static enum Type {
     STRING, LONG, DOUBLE, MAP, BOOLEAN, LIST
   }
+
   Reader reader;
   char delimiter = ' ';
   Type valueType;
@@ -29,17 +30,17 @@ public class JSONParser {
     this.reader = new BufferedReader(input);
   }
 
-  /**
-   * Creates a new parameter object by inserting data from the reader
-   */
-  public Parameters parse() throws IOException {
-    return parse(new Parameters());
-  }
+    /**
+     * Creates a new parameter object by inserting data from the reader
+     */
+    public Parameters parse() throws IOException {
+        return parse(new Parameters());
+    }
 
   /**
    * Common interface to read a character, this keeps track of position.
    *
-   * @return next character or -1 if EOF
+   * @return character code or -1 if EOF
    * @throws IOException
    */
   private int getc() throws IOException {
@@ -57,7 +58,6 @@ public class JSONParser {
    * This is a common error routine for printing out the current location in the
    * file before printing the rest of the message.
    *
-   * @param msg error message
    * @throws IOException
    */
   private void error(String msg) throws IOException {
@@ -81,69 +81,87 @@ public class JSONParser {
     return jp;
   }
 
-  private Parameters parseParameters(Parameters container) throws IOException {
-    // Need to move past the opening '{' and find the next meaningful character
-    delimiter = (char) getc();
-    skipWhitespace();
-    String key;
-    Object value;
-    while (delimiter != '}') {
-      skipWhitespace();
-      key = parseString();
-      skipWhitespace();
-      if (delimiter != ':') {
-        error("Expected ':' while parsing string-value. Got " + delimiter);
-      } else {
-        // Saw the colon - now advance
-        delimiter = (char) getc();
-      }
-      skipWhitespace();
-      value = parseValue();
-      skipWhitespace();
-      container.put(key, value);
-      if (delimiter != '}' && delimiter != ',') {
-        error("Expected '}' or ',' while parsing map. Got " + delimiter);
-      }
-      if (delimiter == ',') {
+    private Parameters parseParameters(Parameters container) throws IOException {
+        // Need to move past the opening '{' and find the next meaningful character
         delimiter = (char) getc();
         skipWhitespace();
-      }
+        String key;
+        Object value;
+        while (delimiter != '}') {
+            skipWhitespace();
+            key = parseString();
+            skipWhitespace();
+            if (delimiter != ':') {
+                error("Expected ':' while parsing string-value. Got " + delimiter);
+            } else {
+                // Saw the colon - now advance
+                delimiter = (char) getc();
+            }
+            skipWhitespace();
+            value = parseValue();
+            skipWhitespace();
+            switch (valueType) {
+                case MAP:
+                    container.set(key, (Parameters) value);
+                    break;
+                case LIST:
+                    container.set(key, (List) value);
+                    break;
+                case STRING:
+                    container.set(key, (String) value);
+                    break;
+                case LONG:
+                    container.set(key, ((Long) value).longValue());
+                    break;
+                case DOUBLE:
+                    container.set(key, (Double) value);
+                    break;
+                case BOOLEAN:
+                    container.set(key, (Boolean) value);
+                    break;
+            }
+            if (delimiter != '}' && delimiter != ',') {
+                error("Expected '}' or ',' while parsing map. Got " + delimiter);
+            }
+            if (delimiter == ',') {
+                delimiter = (char) getc();
+                skipWhitespace();
+            }
+        }
+        // Advance past closing '}'
+        delimiter = (char) getc();
+        valueType = Type.MAP;
+        return container;
     }
-    // Advance past closing '}'
-    delimiter = (char) getc();
-    valueType = Type.MAP;
-    return container;
-  }
 
-  private List parseList() throws IOException {
-    // Have to move past the opening '['
-    delimiter = (char) getc();
-    // skip any whitespace
-    skipWhitespace();
-    ArrayList<Object> container = new ArrayList<Object>();
-    while (delimiter != ']') {
-      skipWhitespace();
-      container.add(parseValue());
-      skipWhitespace();
-      if (delimiter != ',' && delimiter != ']') {
-        error("Expected ',' or ']', got " + delimiter);
-      }
-      // Advance if it's a comma
-      if (delimiter == ',') {
+    private List parseList() throws IOException {
+        // Have to move past the opening '['
         delimiter = (char) getc();
+        // skip any whitespace
         skipWhitespace();
-      }
+        ArrayList<Object> container = new ArrayList<Object>();
+        while (delimiter != ']') {
+            skipWhitespace();
+            container.add(parseValue());
+            skipWhitespace();
+            if (delimiter != ',' && delimiter != ']') {
+                error("Expected ',' or ']', got " + delimiter);
+            }
+            // Advance if it's a comma
+            if (delimiter == ',') {
+                delimiter = (char) getc();
+                skipWhitespace();
+            }
+        }
+        // Advance past closing ']'
+        delimiter = (char) getc();
+        valueType = Type.LIST;
+        return container;
     }
-    // Advance past closing ']'
-    delimiter = (char) getc();
-    valueType = Type.LIST;
-    return container;
-  }
 
   // Will only move forward if the current delimiter is whitespace.
   // Otherwise has no effect
   //
-  // TODO - support one-line comments here
   private void skipWhitespace() throws IOException {
     while (Character.isWhitespace(delimiter)) {
       delimiter = (char) getc();
@@ -272,7 +290,6 @@ public class JSONParser {
       builder.append(delimiter);
       delimiter = (char) getc();
     }
-
     // Read first thing *after* the close quote
     delimiter = (char) getc();
     return builder.toString();
@@ -317,6 +334,7 @@ public class JSONParser {
         c = (char) value;
       }
     }
+
     // if it's an e or E, cover that subroutine
     if (c == 'e' || c == 'E') {
       builder.append(c);

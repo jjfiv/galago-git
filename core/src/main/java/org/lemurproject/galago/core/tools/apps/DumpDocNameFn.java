@@ -35,6 +35,7 @@ public class DumpDocNameFn extends AppFunction {
     String identifier = args[2];
     DiskNameReader reader = new DiskNameReader(indexPath);
     String docIdentifier = reader.getDocumentName(Integer.parseInt(identifier));
+    reader.close();
     output.println(docIdentifier);
   }
 

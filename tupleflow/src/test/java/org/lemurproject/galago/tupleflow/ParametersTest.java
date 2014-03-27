@@ -111,11 +111,12 @@ public class ParametersTest {
       tokenizer.set("fields", Arrays.asList(fields));
 
       Parameters params = new Parameters();
-      params.set("filename", "fictional/path");
+      // MCZ 3/21/2014 - made platform independent
+      params.set("filename", "fictional" + File.separatorChar + "path");
       params.set("tokenizer", tokenizer);
 
       tempPath = FileUtility.createTemporary();
-      params.write(tempPath.getAbsolutePath());
+      params.write(tempPath.getAbsolutePath() );
 
       // Now read it in.
       Parameters newParams = Parameters.parseFile(tempPath);
@@ -288,6 +289,13 @@ public class ParametersTest {
     assertEquals(theBack.toString(), theFront.toString());
     assertEquals(theFront.getBackoff(), theBack);
     assertSame(theFront.getBackoff(), theBack);
+  }
+
+  @Test
+  public void testENotation() throws IOException {
+    Parameters test = Parameters.parseString("{ \"foo\": -1.0E-10 }");
+    assertNotNull(test);
+    assertEquals(test.getDouble("foo"), -1.0e-10, 1e-12);
   }
 
   public static Parameters complicated() {

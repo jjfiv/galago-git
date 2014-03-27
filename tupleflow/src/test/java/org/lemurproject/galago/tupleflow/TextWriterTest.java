@@ -37,6 +37,7 @@ public class TextWriterTest {
       assertEquals("you", line);
       line = reader.readLine();
       assertEquals(null, line);
+      reader.close();
     } finally {
       if (tempPath != null) {
         Assert.assertTrue(tempPath.delete());

@@ -52,6 +52,7 @@ public class DocumentIndicatorWriterTest {
         assertEquals(val, trueData.get(id));
         ki.nextKey();
       }
+      reader.close();
 
     } finally {
       assertTrue(tmp.delete());

@@ -794,6 +794,7 @@ public class BuildIndex extends AppFunction {
     // sanity check - get the number of documents out of ./names
     DiskNameReader names = new DiskNameReader(p.getString("indexPath") + File.separator + "names");
     Parameters namesParams = names.getManifest();
+    names.close();
     output.println("Documents Indexed: " + namesParams.getLong("keyCount") + ".");
   }
 }

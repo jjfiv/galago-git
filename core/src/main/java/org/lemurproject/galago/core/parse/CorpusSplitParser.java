@@ -61,6 +61,7 @@ public class CorpusSplitParser extends DocumentStreamParser {
     if (reader != null) {
       reader.close();
       reader = null;
+    
       iterator = null;
     }
   }

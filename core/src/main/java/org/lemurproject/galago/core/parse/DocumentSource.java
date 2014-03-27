@@ -304,6 +304,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         }
       }
     }
+    br.close();
   }
 
   private void processCorpusFile(File file) throws IOException {
