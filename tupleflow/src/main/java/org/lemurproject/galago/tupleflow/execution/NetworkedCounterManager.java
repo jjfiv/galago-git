@@ -1,8 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow.execution;
 
-import java.util.HashMap;
 import org.lemurproject.galago.tupleflow.Counter;
+
+import java.util.HashMap;
 
 /**
  *
@@ -26,7 +27,7 @@ public class NetworkedCounterManager implements Runnable {
     return counter;
   }
 
-  public void start() {
+  public synchronized void start() {
     thread = new Thread(this);
     thread.start();
   }

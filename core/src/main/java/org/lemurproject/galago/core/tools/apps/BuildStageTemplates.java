@@ -1,33 +1,21 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools.apps;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
-import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
-import org.lemurproject.galago.core.index.disk.DiskNameWriter;
-import org.lemurproject.galago.core.index.disk.FieldIndexWriter;
-import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
+import org.lemurproject.galago.core.index.disk.*;
 import org.lemurproject.galago.core.parse.DocumentNumberer;
-import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.core.parse.UniversalParser;
-import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.core.types.FieldLengthData;
-import org.lemurproject.galago.core.types.NumberedDocumentData;
-import org.lemurproject.galago.core.types.NumberedExtent;
-import org.lemurproject.galago.core.types.NumberedField;
+import org.lemurproject.galago.core.tokenize.Tokenizer;
+import org.lemurproject.galago.core.types.*;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Order;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ConnectionPointType;
-import org.lemurproject.galago.tupleflow.execution.InputStep;
-import org.lemurproject.galago.tupleflow.execution.OutputStep;
-import org.lemurproject.galago.tupleflow.execution.Stage;
-import org.lemurproject.galago.tupleflow.execution.StageConnectionPoint;
-import org.lemurproject.galago.tupleflow.execution.Step;
+import org.lemurproject.galago.tupleflow.execution.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -213,7 +201,7 @@ public class BuildStageTemplates {
     Parameters stepParams = p.getMap(stepname);
 
     // Try to get the stepParams class specified - use default otherwise
-    Class stepClass = null;
+    Class stepClass;
     String stepClassName = null;
     try {
       stepClassName = stepParams.get("class", defaultClass.getName());
@@ -221,6 +209,7 @@ public class BuildStageTemplates {
     } catch (ClassNotFoundException cnfe) {
       System.err.printf("WARNING: Step class %s cound not be found: %s\n",
               stepClassName, cnfe.getMessage());
+      throw new RuntimeException(cnfe);
     }
 
     // Pull out any parameters under the stepParams class name

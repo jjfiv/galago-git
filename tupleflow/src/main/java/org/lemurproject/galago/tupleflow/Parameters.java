@@ -245,6 +245,11 @@ public class Parameters implements Serializable, Map<String,Object> {
     }
   }
 
+  @SuppressWarnings("unchecked")
+  public <T> List<T> getAsList(String key, Class<T> klazz) {
+    return (List<T>) getAsList(key);
+  }
+
   public Parameters getMap(String key) {
     Object val = getOrThrow(key);
     if(val instanceof Parameters) {
@@ -470,9 +475,13 @@ public class Parameters implements Serializable, Map<String,Object> {
   }
 
   public void write(String filename) throws IOException {
-    FileWriter writer = new FileWriter(filename);
-    writer.append(this.toString());
-    writer.close();
+    FileWriter writer = null;
+    try {
+      writer = new FileWriter(filename);
+      writer.append(this.toString());
+    } finally {
+      if(writer != null) writer.close();
+    }
   }
 
   @Override

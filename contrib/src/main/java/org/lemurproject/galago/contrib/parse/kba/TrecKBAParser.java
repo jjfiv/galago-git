@@ -1,16 +1,5 @@
 package org.lemurproject.galago.contrib.parse.kba;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TIOStreamTransport;
@@ -19,6 +8,12 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.DocumentStreamParser;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class TrecKBAParser extends DocumentStreamParser {
 
@@ -119,7 +114,7 @@ public class TrecKBAParser extends DocumentStreamParser {
           nerData = "";
         }
 
-        String srcMetadata = new String(item.source_metadata.array());
+        String srcMetadata = Utility.toString(item.source_metadata.array());
         StringBuilder content = new StringBuilder();
         content.append("<kbadate>");
         content.append(Long.toString(date.getTime()));

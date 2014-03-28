@@ -1,29 +1,19 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
-import java.lang.management.MemoryNotificationInfo;
-import java.lang.management.MemoryPoolMXBean;
-import java.lang.management.MemoryType;
-import java.lang.management.MemoryUsage;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.logging.Logger;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
+import org.lemurproject.galago.tupleflow.execution.Verification;
+
 import javax.management.ListenerNotFoundException;
 import javax.management.Notification;
 import javax.management.NotificationEmitter;
 import javax.management.NotificationListener;
-import org.lemurproject.galago.tupleflow.execution.ErrorStore;
-import org.lemurproject.galago.tupleflow.execution.Verification;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.lang.management.*;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * <p> This class sorts an incoming stream of objects in some specified order.

@@ -67,8 +67,8 @@ public abstract class Learner {
         FileUtility.makeParentDirectories(outputFolder);
         outputFolder.mkdirs();
       }
-      outputPrintStream = new PrintStream(new BufferedOutputStream(new FileOutputStream(new File(outputFolder, name + ".out"))));
-      outputTraceStream = new PrintStream(new BufferedOutputStream(new FileOutputStream(new File(outputFolder, name + ".trace"))));
+      outputPrintStream = new PrintStream(new File(outputFolder, name + ".out"), "UTF-8");
+      outputTraceStream = new PrintStream(new File(outputFolder, name + ".trace"), "UTF-8");
     } else {
       outputFolder = null;
       outputPrintStream = System.out;

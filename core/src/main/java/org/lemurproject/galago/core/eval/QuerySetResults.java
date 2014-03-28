@@ -3,20 +3,14 @@
  */
 package org.lemurproject.galago.core.eval;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import org.lemurproject.galago.core.eval.stat.NaturalOrderComparator;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * This class holds retrieval results for a set of queries. Each query
@@ -82,7 +76,7 @@ public class QuerySetResults {
       String score = line.substring(splits[8], splits[9]);
       String runtag = line.substring(splits[10]);
 
-      ScoredDocument document = new ScoredDocument(docno, Integer.valueOf(rank), Double.valueOf(score));
+      ScoredDocument document = new ScoredDocument(docno, Integer.parseInt(rank), Double.parseDouble(score));
 
       if (!ranking.containsKey(queryNumber)) {
         ranking.put(queryNumber, new ArrayList<ScoredDocument>());

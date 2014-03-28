@@ -1,31 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.ServerSocket;
-import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Logger;
 import org.lemurproject.galago.tupleflow.execution.Step;
+
+import java.io.*;
+import java.net.ServerSocket;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Lots of static methods here that have broad use.
@@ -55,18 +36,6 @@ public class Utility {
 
   public static Step getSorter(Order sortOrder, CompressionType c) {
     return getSorter(sortOrder, null, c);
-  }
-
-  /**
-   * Builds a Sorter step with a reducer that can be added to a TupleFlow stage.
-   *
-   * @param sortOrder An order object representing how and what to sort.
-   * @param reducerClass The class of a reducer object that can reduce this
-   * data.
-   * @return a Step object that can be added to a TupleFlow Stage.
-   */
-  public static Step getSorter(Order sortOrder, Class reducerClass) {
-    return getSorter(sortOrder, null, CompressionType.VBYTE);
   }
 
   public static Step getSorter(Order sortOrder, Class reducerClass, CompressionType c) {
@@ -104,20 +73,6 @@ public class Utility {
     return port;
   }
 
-  /**
-   * Determines if the specified port is available for use.
-   */
-  public static boolean isFreePort(int portnum) {
-    try {
-      ServerSocket server = new ServerSocket(portnum);
-      int boundPort = server.getLocalPort();
-      server.close();
-      return (boundPort == portnum);
-    } catch (IOException ioe) {
-      return false;
-    }
-  }
-
   public static boolean isInteger(String s) {
     try {
       Integer.parseInt(s);
@@ -125,25 +80,6 @@ public class Utility {
     } catch (Exception e) {
       return false;
     }
-  }
-
-  public static String wrap(String t) {
-    int start = 0;
-    StringBuilder result = new StringBuilder();
-
-    while (t.length() > start + 50) {
-      int end = t.indexOf(" ", start + 50);
-
-      if (end < 0) {
-        break;
-      }
-      result.append(t, start, end);
-      result.append('\n');
-      start = end + 1;
-    }
-
-    result.append(t.substring(start));
-    return result.toString();
   }
 
   public static String escape(String raw) {
@@ -190,7 +126,6 @@ public class Utility {
    * arguments. This splits those into two arrays so they can be processed
    * separately.</p>
    *
-   * @param args
    * @return An array of length 2, where the first element is an array of flags
    * and the second is an array of arguments.
    */
@@ -207,8 +142,8 @@ public class Utility {
     }
 
     String[][] twoArrays = new String[2][];
-    twoArrays[0] = flags.toArray(new String[0]);
-    twoArrays[1] = nonFlags.toArray(new String[0]);
+    twoArrays[0] = flags.toArray(new String[flags.size()]);
+    twoArrays[1] = nonFlags.toArray(new String[nonFlags.size()]);
 
     return twoArrays;
   }
@@ -316,30 +251,6 @@ public class Utility {
     return builder.toString();
   }
 
-  public static void normalize(double[] args) {
-    double total = 0.0;
-    int i;
-    for (i = 0; i < args.length; i++) {
-      total += args[i];
-    }
-
-    for (i = 0; i < args.length; i++) {
-      args[i] /= total;
-    }
-  }
-
-  public static String caps(String input) {
-    if (input.length() == 0) {
-      return input;
-    }
-    char first = Character.toUpperCase(input.charAt(0));
-    return "" + first + input.substring(1);
-  }
-
-  public static String plural(String input) {
-    return input + "s";
-  }
-
   public static int compare(int one, int two) {
     return one - two;
   }
@@ -404,7 +315,7 @@ public class Utility {
   }
 
   // comparator for byte arrays
-  public static class ByteArrComparator implements Comparator<byte[]> {
+  public static class ByteArrComparator implements Comparator<byte[]>, Serializable {
 
     @Override
     public int compare(byte[] a, byte[] b) {
@@ -446,30 +357,18 @@ public class Utility {
 
   public static void deleteDirectory(File directory) throws IOException {
     if (directory.isDirectory()) {
-      for (File sub : directory.listFiles()) {
-        if (sub.isDirectory()) {
-          deleteDirectory(sub);
-        } else {
-          sub.delete();
+      File[] files = directory.listFiles();
+      if(files != null) {
+        for (File sub : files) {
+          if (sub.isDirectory()) {
+            deleteDirectory(sub);
+          } else {
+            sub.delete();
+          }
         }
       }
     }
     directory.delete();
-  }
-
-  public static void partialDeleteDirectory(File directory, Set<String> omissions) throws IOException {
-    for (File sub : directory.listFiles()) {
-      if (omissions.contains(sub.getName())) {
-        // don't delete this file
-      } else if (sub.isDirectory()) {
-        deleteDirectory(sub);
-      } else {
-        sub.delete();
-      }
-    }
-    if (directory.listFiles().length == 0) {
-      directory.delete();
-    }
   }
 
   /**
@@ -514,19 +413,22 @@ public class Utility {
    * @throws java.io.IOException
    */
   public static void copyFileToStream(File file, OutputStream stream) throws IOException {
-    FileInputStream input = new FileInputStream(file);
-    long longLength = file.length();
-    final int fiveMegabytes = 5 * 1024 * 1024;
+    FileInputStream input = null;
+    try {
+      input = new FileInputStream(file);
+      long longLength = file.length();
+      final int fiveMegabytes = 5 * 1024 * 1024;
 
-    while (longLength > 0) {
-      int chunk = (int) Math.min(longLength, fiveMegabytes);
-      byte[] data = new byte[chunk];
-      input.read(data, 0, chunk);
-      stream.write(data, 0, chunk);
-      longLength -= chunk;
+      while (longLength > 0) {
+        int chunk = (int) Math.min(longLength, fiveMegabytes);
+        byte[] data = new byte[chunk];
+        int readlen = input.read(data, 0, chunk);
+        stream.write(data, 0, readlen);
+        longLength -= chunk;
+      }
+    } finally {
+      if(input != null) input.close();
     }
-
-    input.close();
   }
 
   /**
@@ -538,21 +440,24 @@ public class Utility {
    * @throws java.io.IOException
    */
   public static void copyStreamToFile(InputStream stream, File file) throws IOException {
-    FileOutputStream output = new FileOutputStream(file);
-    final int oneMegabyte = 1 * 1024 * 1024;
-    byte[] data = new byte[oneMegabyte];
+    FileOutputStream output = null;
+    try {
+      output = new FileOutputStream(file);
+      final int oneMegabyte = 1 * 1024 * 1024;
+      byte[] data = new byte[oneMegabyte];
 
-    while (true) {
-      int bytesRead = stream.read(data);
+      while (true) {
+        int bytesRead = stream.read(data);
 
-      if (bytesRead < 0) {
-        break;
+        if (bytesRead < 0) {
+          break;
+        }
+        output.write(data, 0, bytesRead);
       }
-      output.write(data, 0, bytesRead);
+    } finally {
+      stream.close();
+      if(output != null) output.close();
     }
-
-    stream.close();
-    output.close();
   }
 
   /**
@@ -568,25 +473,20 @@ public class Utility {
     output.close();
   }
 
-  public static void calculateMessageDigest(File file, MessageDigest instance) throws IOException {
-    FileInputStream input = new FileInputStream(file);
-    final int oneMegabyte = 1024 * 1024;
-    byte[] data = new byte[oneMegabyte];
+  public static BufferedReader utf8Reader(String file) throws FileNotFoundException {
+    return utf8Reader(new File(file));
+  }
 
-    while (true) {
-      int bytesRead = input.read(data);
-
-      if (bytesRead < 0) {
-        break;
-      }
-      instance.update(data, 0, bytesRead);
+  public static BufferedReader utf8Reader(File fp) throws FileNotFoundException {
+    try {
+      return new BufferedReader(new InputStreamReader(new FileInputStream(fp), "UTF-8"));
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
     }
-
-    input.close();
   }
 
   public static HashSet<String> readStreamToStringSet(InputStream stream) throws IOException {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+    BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
     HashSet<String> set = new HashSet<String>();
     String line;
 
@@ -599,7 +499,7 @@ public class Utility {
   }
 
   public static HashSet<String> readFileToStringSet(File file) throws IOException {
-    BufferedReader reader = new BufferedReader(new FileReader(file));
+    BufferedReader reader = utf8Reader(file);
     HashSet<String> set = new HashSet<String>();
     String line;
 
@@ -612,50 +512,20 @@ public class Utility {
   }
 
   public static String readFileToString(File file) throws IOException {
-    BufferedReader reader = new BufferedReader(new FileReader(file));
-    StringBuilder sb = new StringBuilder();
-    String line;
+    BufferedReader reader = null;
+    try {
+      reader = utf8Reader(file);
+      StringBuilder sb = new StringBuilder();
+      String line;
 
-    while ((line = reader.readLine()) != null) {
-      sb.append(line).append("\n");
+      while ((line = reader.readLine()) != null) {
+        sb.append(line).append("\n");
+      }
+
+      return sb.toString();
+    } finally {
+      if(reader != null) reader.close();
     }
-
-    reader.close();
-    return sb.toString();
-  }
-
-  public static byte[] readResourceBytes(Class requestingClass, String resourcePath) throws IOException {
-    InputStream resourceStream = requestingClass.getResourceAsStream(resourcePath);
-    if (resourceStream == null) {
-      LOG.warning(String.format("Unable to create resource file."));
-      return null;
-    }
-
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    final int oneMegabyte = 1 * 1024 * 1024;
-    byte[] data = new byte[oneMegabyte];
-    int read;
-    while ((read = resourceStream.read(data)) != -1) {
-      baos.write(data, 0, read);
-    }
-    resourceStream.close();
-    return baos.toByteArray();
-  }
-
-
-
-  public static long skipLongBytes(DataInput in, long skipAmt) throws IOException {
-    if (skipAmt < Integer.MAX_VALUE) {
-      return in.skipBytes((int) skipAmt);
-    }
-
-    long skipped = 0;
-    while (skipAmt >= Integer.MAX_VALUE) {
-      skipped += in.skipBytes(Integer.MAX_VALUE);
-      skipAmt -= Integer.MAX_VALUE;
-    }
-    skipped += in.skipBytes((int) skipAmt);
-    return skipped;
   }
 
   /*
@@ -687,10 +557,6 @@ public class Utility {
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException("UTF-8 is not supported by your Java Virtual Machine.");
     }
-  }
-
-  public static boolean isShort(byte[] key) {
-    return key != null && key.length == 2;
   }
 
   public static short toShort(byte[] key) {
@@ -774,7 +640,7 @@ public class Utility {
 
   public static byte[] fromBoolean(boolean key) {
     byte[] out = new byte[1];
-    if (key == true) {
+    if (key) {
       out[0] = 1;
     } else {
       out[0] = 0;
@@ -942,65 +808,5 @@ public class Utility {
     }
 
     return result;
-  }
-
-  /*
-   * The following methods are used to display bytes as strings
-   */
-  public static String binaryString(double d) {
-    return binaryString(Double.doubleToLongBits(d));
-  }
-
-  public static String binaryString(long l) {
-    StringBuilder sb = new StringBuilder();
-    long mask = 0x8000000000000000L;
-    while (mask != 0) {
-      if ((mask & l) != 0) {
-        sb.append("1");
-      } else {
-        sb.append("0");
-      }
-      mask >>>= 1;
-    }
-    return sb.toString();
-  }
-
-  public static String binaryString(int i) {
-    StringBuilder sb = new StringBuilder();
-    int mask = 0x80000000;
-    while (mask != 0) {
-      if ((mask & i) != 0) {
-        sb.append("1");
-      } else {
-        sb.append("0");
-      }
-      mask >>>= 1;
-    }
-    return sb.toString();
-  }
-
-  public static String intsToString(int[] ints) {
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < ints.length; i++) {
-      sb.append(ints[i]).append(" ");
-    }
-    return sb.toString();
-  }
-
-  public static String byteString(byte[] bytes) {
-    return byteString(bytes, bytes.length);
-  }
-
-  public static String byteString(byte[] bytes, int l) {
-    StringBuilder sb = new StringBuilder();
-    for (int j = 0; j < l; j++) {
-      int mask = 0x80;
-      while (mask != 0) {
-        sb.append(((((byte) mask) & bytes[j]) != 0) ? 1 : 0);
-        mask >>>= 1;
-      }
-      sb.append(" ");
-    }
-    return sb.toString();
   }
 }

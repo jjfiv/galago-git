@@ -1,14 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import java.io.IOException;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.util.WordLists;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.io.IOException;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.logging.Logger;
 
 /*
  * Removes stop structures, as defined by the stopStructure file 
@@ -27,11 +28,12 @@ public class StopStructureTraversal extends Traversal {
       // default to 'stopStructure' list
       String stopstructurelist = retrieval.getGlobalParameters().get("stopstructurelist", "stopStructure");
       Set<String> ss_set = WordLists.getWordList(stopstructurelist);
-      defaultStopStructures = new TreeSet();
+      Set<String> stopstr = new TreeSet<String>();
       for (String ss : ss_set) {
         // need to ensure that each ss ends with a space (ensures terms are not cutoff)
-        defaultStopStructures.add(ss.trim() + " ");
+        stopstr.add(ss.trim() + " ");
       }
+      defaultStopStructures = stopstr;
     }
   }
 

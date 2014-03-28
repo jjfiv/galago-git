@@ -1,21 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow.execution;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.lemurproject.galago.tupleflow.execution.JobExecutor.JobExecutionStatus;
 import org.lemurproject.galago.tupleflow.web.WebHandler;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * This handler creates a web interface for checking on the status of a
@@ -146,7 +140,7 @@ public class MasterWebHandler implements WebHandler {
       String name = request.getParameter("counterName");
       String stageName = request.getParameter("stageName");
       String stringValue = request.getParameter("value");
-      Long longValue = new Long(stringValue);
+      Long longValue = Long.valueOf(stringValue);
 
       if (instance == null || stringValue == null || name == null || stageName == null) {
         return;

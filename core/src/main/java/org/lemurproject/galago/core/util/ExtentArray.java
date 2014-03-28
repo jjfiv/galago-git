@@ -62,7 +62,7 @@ public class ExtentArray {
     }
 
     _begins[_position] = begin;
-    if (_ends == null && _position == 0) {
+    if (_ends == null) {
       _ends = new int[_begins.length];
     }
     _ends[_position] = end;

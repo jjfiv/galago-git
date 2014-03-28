@@ -1,11 +1,12 @@
 package org.lemurproject.galago.tupleflow.execution;
 
+import org.lemurproject.galago.tupleflow.Counter;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import org.lemurproject.galago.tupleflow.Counter;
 
 public class NetworkedCounter implements Counter {
 

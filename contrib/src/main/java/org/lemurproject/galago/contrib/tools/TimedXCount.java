@@ -3,16 +3,6 @@
  */
 package org.lemurproject.galago.contrib.tools;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
@@ -20,6 +10,13 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 /**
  *
@@ -120,22 +117,23 @@ public class TimedXCount extends AppFunction {
   }
 
   private List<Parameters> prepareExpressions(String file, String op, String part) throws IOException {
-    List<Parameters> exprs = new ArrayList();
-    BufferedReader r = new BufferedReader(new FileReader(file));
+    List<Parameters> exprs = new ArrayList<Parameters>();
+    BufferedReader r = Utility.utf8Reader(file);
     String l;
     while ((l = r.readLine()) != null) {
       String[] terms = l.split(" ");
 
       Parameters expr = new Parameters();
 
-      String node = op + "( ";
+      StringBuilder node = new StringBuilder();
+      node.append(op).append("(");
       for (String t : terms) {
-        node += "#extents:" + t + ":part=" + part + "() ";
+        node.append("#extents:").append(t).append(":part=").append(part).append("() ");
       }
-      node += ")";
+      node.append(")");
 
       expr.set("l", l);
-      expr.set("node", node);
+      expr.set("node", node.toString());
 
     }
     r.close();

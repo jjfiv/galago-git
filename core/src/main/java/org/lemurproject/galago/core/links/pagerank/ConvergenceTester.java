@@ -3,18 +3,13 @@
  */
 package org.lemurproject.galago.core.links.pagerank;
 
-import java.io.File;
-import java.io.IOException;
 import org.lemurproject.galago.core.types.PageRankScore;
-import org.lemurproject.galago.tupleflow.ExNihiloSource;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Step;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.TypeReader;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  *
@@ -46,7 +41,7 @@ public class ConvergenceTester implements ExNihiloSource<PageRankScore> {
 
     boolean converged = true;
 
-    while (prev != null || curr != null) {
+    while (prev != null && curr != null) {
       // check difference
       if (prev.docName.equals(curr.docName)) {
         if (Math.abs(prev.score - curr.score) > delta) {

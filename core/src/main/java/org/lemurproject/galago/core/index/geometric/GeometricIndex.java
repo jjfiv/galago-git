@@ -1,25 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.geometric;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.DynamicIndex;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.index.mem.FlushToDisk;
 import org.lemurproject.galago.core.index.mem.MemoryIndex;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
@@ -29,12 +16,20 @@ import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /*
@@ -512,7 +507,7 @@ public class GeometricIndex implements DynamicIndex, Index {
     }
 
     public Bin get(int size) {
-      return radixBins.get(new Integer(size));
+      return radixBins.get(Integer.valueOf(size));
     }
 
     public Collection<DiskIndex> getIndexes() {

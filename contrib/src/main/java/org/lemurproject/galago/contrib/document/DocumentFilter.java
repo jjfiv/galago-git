@@ -3,21 +3,14 @@
  */
 package org.lemurproject.galago.contrib.document;
 
+import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.execution.Verified;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.HashSet;
-import java.util.List;
-import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.tupleflow.Counter;
-import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.StandardStep;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.Verified;
 
 /**
  *
@@ -36,9 +29,9 @@ public class DocumentFilter extends StandardStep<Document, Document> {
     passingDocuments = tp.getCounter("Retained Documents");
     
     Parameters p = tp.getJSON();
-    filter = new HashSet();
-    for (String f : (List<String>) p.getAsList("filter")) {
-      BufferedReader reader = new BufferedReader(new FileReader(f));
+    filter = new HashSet<String>();
+    for (String f : p.getAsList("filter", String.class)) {
+      BufferedReader reader = Utility.utf8Reader(new File(f));
       String line;
 
       while ((line = reader.readLine()) != null) {
