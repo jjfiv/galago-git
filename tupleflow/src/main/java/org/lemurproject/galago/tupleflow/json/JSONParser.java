@@ -279,7 +279,20 @@ public class JSONParser {
         else if(ch == 't') builder.append('\t');
         else if(ch == 'b') builder.append('\b');
         else if(ch == 'f') builder.append('\f');
-        else if(ch == 'u') throw new UnsupportedOperationException("TODO: support unicode escapes.");
+        else if(ch == 'u') {
+          StringBuilder hex = new StringBuilder();
+          for(int i=0; i<4; i++) {
+            int x = getc();
+            if(x == -1) { error("Unexpected EOF in unicode escape."); }
+            char hch = Character.toLowerCase((char) x);
+            if(!Character.isLetterOrDigit(x)) {
+              error("Bad character in unicode escape.");
+            }
+            hex.append(hch);
+          }
+          int code = Integer.parseInt(hex.toString(), 16);
+          builder.append((char) code);
+        }
         else {
           error("Illegal escape sequence: \\"+ch);
         }

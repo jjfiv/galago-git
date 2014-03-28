@@ -91,6 +91,11 @@ public class JSONUtil {
 
     for(int i=0; i<input.length(); i++) {
       char ch = input.charAt(i);
+      int chx = (int) ch;
+
+      // let's not put any nulls in our strings
+      assert(chx != 0);
+
       if(ch == '\n') {
         output.append("\\n");
       } else if(ch == '\t') {
@@ -105,6 +110,11 @@ public class JSONUtil {
         output.append("\\b");
       } else if(ch == '\f') {
         output.append("\\f");
+      } else if(chx >= 0x10000) {
+        // need two u escapes
+        System.out.println("Need to escape: " + ch + "=" + chx);
+      } else if(chx > 127) {
+        output.append(String.format("\\u%04x", chx));
       } else {
         output.append(ch);
       }

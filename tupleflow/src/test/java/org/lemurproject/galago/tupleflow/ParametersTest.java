@@ -6,6 +6,7 @@ package org.lemurproject.galago.tupleflow;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.lemurproject.galago.tupleflow.json.JSONUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -312,6 +313,22 @@ public class ParametersTest {
     assertEquals(2, baz.get(1).longValue());
     assertEquals(3, baz.get(2).longValue());
     assertEquals(4, baz.get(3).longValue());
+  }
+
+  @Test
+  public void testUnicode() throws IOException {
+    String testShort = "Eating a piece of \u03c0 (pi)";
+    assertEquals("Eating a piece of \\u03c0 (pi)", JSONUtil.escape(testShort));
+    String testLong = "I stole this guy from wikipedia: \ud83d\ude02"; // emoji "face with tears of joy"
+    assertEquals("I stole this guy from wikipedia: \\ud83d\\ude02", JSONUtil.escape(testLong));
+
+    Parameters p = new Parameters();
+    p.set("short", testShort);
+    p.set("long", testLong);
+    Parameters p2 = Parameters.parseString(p.toString());
+
+    assertEquals(p.getString("short"), p2.getString("short"));
+    assertEquals(p.getString("long"), p2.getString("long"));
   }
 
   public static Parameters complicated() {
