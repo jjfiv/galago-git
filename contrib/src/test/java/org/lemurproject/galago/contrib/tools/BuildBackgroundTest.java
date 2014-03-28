@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.json.JSONUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -69,7 +70,7 @@ public class BuildBackgroundTest  {
       assertTrue(new File(indexFile1.getAbsolutePath() + File.separator + "background").exists());
 
       // try to batch search that index with a no-match string
-      String queries_reg = "{ \"index\" : \"" + indexFile1.getAbsolutePath() + "\", \"queries\" : ["
+      String queries_reg = "{ \"index\" : \"" + JSONUtil.escape(indexFile1.getAbsolutePath()) + "\", \"queries\" : ["
               + "{ \"number\" : \"2\", \"text\": \"#combine( #dirichlet( #counts:two:part=postings.krovetz() ) #dirichlet( #counts:sample:part=postings.krovetz() ) )\"},"
               + "{ \"number\" : \"9\", \"text\" : \"#combine( #dirichlet( #counts:sample:part=postings.krovetz() ) )\"},"
               + "{ \"number\" : \"11\", \"text\" : \"#combine( #dirichlet( #counts:is:part=postings.krovetz() ) #dirichlet( #counts:two:part=postings.krovetz() ) )\"},"
@@ -97,8 +98,8 @@ public class BuildBackgroundTest  {
 //      Utility.copyStringToFile(queries_back1, queryFile);
 //      runQueries(queryFile, expected_back);
 
-      String queries_back2 = "{ \"index\" : {\"reg\" : \"" + indexFile1.getAbsolutePath() + "\","
-              + "\"back\" : \"" + backgroundIndex.getAbsolutePath() + "\" }, "
+      String queries_back2 = "{ \"index\" : {\"reg\" : \"" + JSONUtil.escape(indexFile1.getAbsolutePath()) + "\","
+              + "\"back\" : \"" + JSONUtil.escape(backgroundIndex.getAbsolutePath()) + "\" }, "
               + "\"defaultGroup\" : \"reg\","
               + "\"queries\" : ["
               + " { \"number\" : \"2\", \"text\": \"#combine( #dirichlet( #counts:two:part=postings.krovetz() ) #dirichlet( #counts:sample:part=postings.krovetz() ) )\"},"
@@ -127,7 +128,9 @@ public class BuildBackgroundTest  {
         Assert.assertTrue(trecCorpusFile2.delete());
       }
       if (queryFile != null) {
-        Assert.assertTrue(queryFile.delete());
+        //TODO: jfoley - this intermittently fails on windows for me.
+        //Assert.assertTrue(queryFile.delete());
+        queryFile.delete();
       }
       if (indexFile1 != null) {
         Utility.deleteDirectory(indexFile1);
@@ -145,6 +148,9 @@ public class BuildBackgroundTest  {
 
     App.run(new String[]{"batch-search",
         queries.getAbsolutePath()}, printStream);
+
+    printStream.close();
+    byteArrayStream.close();
 
     String output = byteArrayStream.toString();
 

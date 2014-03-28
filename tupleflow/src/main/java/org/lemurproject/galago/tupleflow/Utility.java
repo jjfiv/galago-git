@@ -563,9 +563,9 @@ public class Utility {
    * @throws java.io.IOException
    */
   public static void copyStringToFile(String s, File file) throws IOException {
-    InputStream stream = new ByteArrayInputStream(Utility.fromString(s));
-    Utility.copyStreamToFile(stream, file);
-    stream.close();
+    FileOutputStream output = new FileOutputStream(file);
+    output.write(Utility.fromString(s));
+    output.close();
   }
 
   public static void calculateMessageDigest(File file, MessageDigest instance) throws IOException {
