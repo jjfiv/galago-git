@@ -91,6 +91,22 @@ public class Parameters implements Serializable, Map<String,Object> {
     return parseStream(new ByteArrayInputStream(data));
   }
 
+  public static Parameters parseArray(Object... args) {
+    if(args.length % 2 == 1) {
+      throw new IllegalArgumentException("Uneven number of parameters in vararg constructor.");
+    }
+    Parameters result = new Parameters();
+    for(int i=0; i<args.length; i+=2) {
+      Object key = args[i];
+      Object value = args[i+1];
+      if(!(key instanceof String)) {
+        throw new IllegalArgumentException("Expected strings as keys; got: "+key);
+      }
+      result.put((String) key, value);
+    }
+    return result;
+  }
+
   /**
    * Ensures items are not shared across parameter objects -- identical keys can
    * be overwritten -- Backoff parameters are copied.

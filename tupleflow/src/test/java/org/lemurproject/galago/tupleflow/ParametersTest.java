@@ -298,6 +298,22 @@ public class ParametersTest {
     assertEquals(test.getDouble("foo"), -1.0e-10, 1e-12);
   }
 
+  @Test
+  public void testVarargs() {
+    Parameters p = Parameters.parseArray("foo", 17, "bar", true, "baz", Arrays.asList(1L,2L,3L,4L));
+
+    assertNotNull(p);
+    assertEquals(17, p.getLong("foo"));
+    assertEquals(true, p.getBoolean("bar"));
+
+    List<Long> baz = p.getList("baz", Long.class);
+    assertEquals(4, baz.size());
+    assertEquals(1, baz.get(0).longValue());
+    assertEquals(2, baz.get(1).longValue());
+    assertEquals(3, baz.get(2).longValue());
+    assertEquals(4, baz.get(3).longValue());
+  }
+
   public static Parameters complicated() {
     Parameters p = new Parameters();
     p.set("bool-t", true);

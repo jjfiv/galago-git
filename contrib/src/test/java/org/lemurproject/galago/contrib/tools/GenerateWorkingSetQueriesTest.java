@@ -73,17 +73,18 @@ public class GenerateWorkingSetQueriesTest {
     p.set("topK", 10);
     p.set("output", out.getAbsolutePath());
     p.set("wsNumders", true);
-    p.set("queries", new ArrayList());
-    p.getList("queries").add(Parameters.parseString("{\"number\" : \"q1\", \"text\" : \"#combine(t1 t2)\"}"));
-    p.getList("queries").add(Parameters.parseString("{\"number\" : \"q2\", \"text\" : \"#combine(t3 t4)\"}"));
-    p.getList("queries").add(Parameters.parseString("{\"number\" : \"q3\", \"text\" : \"#combine(t5 t6)\"}"));
+    ArrayList<Parameters> qs = new ArrayList<Parameters>();
+    qs.add(Parameters.parseString("{\"number\" : \"q1\", \"text\" : \"#combine(t1 t2)\"}"));
+    qs.add(Parameters.parseString("{\"number\" : \"q2\", \"text\" : \"#combine(t3 t4)\"}"));
+    qs.add(Parameters.parseString("{\"number\" : \"q3\", \"text\" : \"#combine(t5 t6)\"}"));
+    p.set("queries", qs);
 
     GenerateWorkingSetQueries generator = new GenerateWorkingSetQueries();
     generator.run(p, System.err);
 
     Parameters outputParams = Parameters.parseFile(out);
 
-    List<Parameters> outQueries = outputParams.getList("queries");
+    List<Parameters> outQueries = outputParams.getList("queries", Parameters.class);
     assertEquals( outQueries.get(0).getList("working").size(), 10 );
     assertEquals( outQueries.get(1).getList("working").size(), 10 );
     assertEquals( outQueries.get(2).getList("working").size(), 10 );
