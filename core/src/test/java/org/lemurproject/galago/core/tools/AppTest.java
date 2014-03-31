@@ -113,15 +113,20 @@ public class AppTest {
             // this currently fails on Windows, 
             // I beleive there is a reader or writer that has not been
             // closed so the delete() returns false. 
-//            if (corpusFile1 != null) {
-//                Assert.assertTrue(corpusFile1.delete());
-//            }
-//            if (corpusFile2 != null) {
-//                Assert.assertTrue(corpusFile2.delete());
-//           }
-            corpusFile1.delete();
-            corpusFile2.delete();
-            
+            boolean deleted;
+            deleted = corpusFile1.delete();
+            if (!deleted) {
+                deleted = true; 
+                Utility.deleteDirectory(corpusFile1);
+            }
+            assertTrue(deleted);
+            deleted = corpusFile2.delete();
+            if (!deleted) {
+                deleted = true; 
+                Utility.deleteDirectory(corpusFile2);
+            }
+            assertTrue(deleted);
+
             if (indexFile1 != null) {
                 Utility.deleteDirectory(indexFile1);
             }
