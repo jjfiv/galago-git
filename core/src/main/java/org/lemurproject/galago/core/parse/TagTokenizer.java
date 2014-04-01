@@ -2,22 +2,13 @@
 package org.lemurproject.galago.core.parse;
 
 import org.lemurproject.galago.core.tokenize.Tokenizer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.execution.Verified;
+
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.Verified;
 
 /**
  * <p>This class processes document text into tokens that can be indexed.</p>
@@ -33,6 +24,7 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 @InputClass(className = "org.lemurproject.galago.core.parse.Document")
 @OutputClass(className = "org.lemurproject.galago.core.parse.Document")
 public class TagTokenizer extends Tokenizer {
+  public static final Logger log = Logger.getLogger(TagTokenizer.class.getName());
   
   protected static final boolean[] splits;
   protected static HashSet<String> ignoredTags;
@@ -53,7 +45,7 @@ public class TagTokenizer extends Tokenizer {
   ArrayList<Pair> tokenPositions;
   private boolean tokenizeTagContent = true;
 
-  public static class Pair {
+  public static final class Pair {
 
     public Pair(int start, int end) {
       this.start = start;
@@ -80,7 +72,7 @@ public class TagTokenizer extends Tokenizer {
     this();
     Parameters tokenizerParams = parameters.getJSON();
     if (tokenizerParams.isList("fields") || tokenizerParams.isString("fields")) {
-      for (String value : (List<String>) tokenizerParams.getAsList("fields")) {
+      for (String value : tokenizerParams.getAsList("fields", String.class)) {
 				addField(value);
       }
     }
@@ -134,7 +126,7 @@ public class TagTokenizer extends Tokenizer {
     return tags;
   }
 
-  static class ClosedTag {
+  static final class ClosedTag {
 
     public ClosedTag(BeginTag begin, int start, int end) {
       this.name = begin.name;
@@ -154,7 +146,7 @@ public class TagTokenizer extends Tokenizer {
     int termEnd;
   }
 
-  static class BeginTag {
+  static final class BeginTag {
 
     public BeginTag(String name, Map<String, String> attributes, int bytePosition, int end) {
       this.name = name;
@@ -301,20 +293,6 @@ public class TagTokenizer extends Tokenizer {
     return Integer.MIN_VALUE;
   }
 
-  protected int indexOfSpace(int start) {
-    if (start < 0) {
-      return Integer.MIN_VALUE;
-    }
-    for (int i = start; i < text.length(); i++) {
-      char c = text.charAt(i);
-      if (Character.isSpaceChar(c)) {
-        return i;
-      }
-    }
-
-    return Integer.MIN_VALUE;
-  }
-
   protected int indexOfEquals(int start, int end) {
     if (start < 0) {
       return Integer.MIN_VALUE;
@@ -418,7 +396,7 @@ public class TagTokenizer extends Tokenizer {
       BeginTag tag = new BeginTag(tagName, attributes, position + 1, tokens.size());
 
       if (!openTags.containsKey(tagName)) {
-        ArrayList tagList = new ArrayList();
+        ArrayList<BeginTag> tagList = new ArrayList<BeginTag>();
         tagList.add(tag);
         openTags.put(tagName, tagList);
       } else {
@@ -427,11 +405,7 @@ public class TagTokenizer extends Tokenizer {
 
       if (attributes.containsKey("tokenizetagcontent") && !closeIt) {
         String parseAttr = attributes.get("tokenizetagcontent");
-        try {
-          boolean tokenize = Boolean.parseBoolean(parseAttr);
-          tokenizeTagContent = tokenize;
-        } catch (Exception e) {
-        }
+        tokenizeTagContent = Boolean.parseBoolean(parseAttr);
       }
 
       if (closeIt) {
@@ -526,10 +500,6 @@ public class TagTokenizer extends Tokenizer {
    *      smaller tokens ("umass.edu" becomes {"umass", "edu"}).  Notice
    *      that this means ("ph.d." becomes {"ph", "d"}).</li>
    * </ul>
-   *
-   * @param token
-   * @param start
-   * @param end
    */
   protected void tokenAcronymProcessing(String token, int start, int end) {
     token = tokenComplexFix(token);
@@ -584,9 +554,6 @@ public class TagTokenizer extends Tokenizer {
   /**
    * Scans through the token, removing apostrophes and converting
    * uppercase to lowercase letters.
-   *
-   * @param token
-   * @return
    */
   protected static String tokenSimpleFix(String token) {
     char[] chars = token.toCharArray();
@@ -621,16 +588,12 @@ public class TagTokenizer extends Tokenizer {
    * NeedsSimpleFix.  If it contains special characters (especially Unicode
    * characters), it returns NeedsComplexFix.  Finally, if any periods are
    * present, this returns NeedsAcronymProcessing.
-   *
-   * @param token
-   * @return
    */
   protected StringStatus checkTokenStatus(final String token) {
     StringStatus status = StringStatus.Clean;
     char[] chars = token.toCharArray();
 
-    for (int i = 0; i < chars.length; i++) {
-      char c = chars[i];
+    for (char c : chars) {
       boolean isAsciiLowercase = (c >= 'a' && c <= 'z');
       boolean isAsciiNumber = (c >= '0' && c <= '9');
 
@@ -680,7 +643,7 @@ public class TagTokenizer extends Tokenizer {
    * that are not matched by any patterns in the whitelist
    */
   protected ArrayList<Tag> coalesceTags() {
-    ArrayList<Tag> result = new ArrayList();
+    ArrayList<Tag> result = new ArrayList<Tag>();
 
     // close all open tags
     for (ArrayList<BeginTag> tagList : openTags.values()) {
@@ -731,7 +694,6 @@ public class TagTokenizer extends Tokenizer {
    * Parses the text in the document.text attribute and fills in the
    * document.terms and document.tags arrays.
    *
-   * @param document
    */
   @Override
   public void tokenize(Document document) {
@@ -762,8 +724,7 @@ public class TagTokenizer extends Tokenizer {
         }
       }
     } catch (Exception e) {
-      Logger.getLogger(getClass().toString()).log(Level.WARNING,
-              "Parse failure: " + document.name);
+      log.log(Level.WARNING, "Parse failure: " + document.name, e);
     }
 
     if (ignoreUntil == null) {
