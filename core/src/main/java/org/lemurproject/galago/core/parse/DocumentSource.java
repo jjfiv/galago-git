@@ -366,6 +366,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         this.splitBuffer.add(split);
       }
     }
+    reader.close();
   }
 
   private String getExtension(File file) {
