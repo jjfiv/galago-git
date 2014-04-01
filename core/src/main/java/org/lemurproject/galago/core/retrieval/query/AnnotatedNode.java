@@ -3,13 +3,14 @@
  */
 package org.lemurproject.galago.core.retrieval.query;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  *
  * @author sjh
  */
-public class AnnotatedNode {
+public class AnnotatedNode implements Serializable {
 
   public String type;
   public String className;

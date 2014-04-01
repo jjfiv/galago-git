@@ -3,17 +3,13 @@
  */
 package org.lemurproject.galago.contrib.document;
 
+import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.execution.Verified;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
-import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.StreamCreator;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.Verified;
 
 /**
  *

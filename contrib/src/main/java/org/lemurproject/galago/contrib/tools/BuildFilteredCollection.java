@@ -3,10 +3,6 @@
  */
 package org.lemurproject.galago.contrib.tools;
 
-import java.io.File;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
 import org.lemurproject.galago.contrib.document.DocumentFilter;
 import org.lemurproject.galago.contrib.document.TrecWebDocumentWriter;
 import org.lemurproject.galago.core.parse.DocumentSource;
@@ -16,11 +12,12 @@ import org.lemurproject.galago.core.tools.apps.BuildStageTemplates;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
-import org.lemurproject.galago.tupleflow.execution.InputStep;
-import org.lemurproject.galago.tupleflow.execution.Job;
-import org.lemurproject.galago.tupleflow.execution.Stage;
-import org.lemurproject.galago.tupleflow.execution.Step;
+import org.lemurproject.galago.tupleflow.execution.*;
+
+import java.io.File;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -66,10 +63,11 @@ public class BuildFilteredCollection extends AppFunction {
     // check filter parameters
     Parameters filterParameters = new Parameters();
     filterParameters.set("require", buildParameters.get("require", true));
-    filterParameters.set("filter", new ArrayList());
-    for (String path : (List<String>) buildParameters.getAsList("filter")) {
-      filterParameters.getList("filter").add((new File(path).getAbsolutePath()));
+    ArrayList<String> filters = new ArrayList<String>();
+    for (String path : buildParameters.getAsList("filter", String.class)) {
+      filters.add((new File(path).getAbsolutePath()));
     }
+    filterParameters.set("filter", filters);
 
     Parameters outputParameters = new Parameters();
     outputParameters.set("outputPath", (new File(buildParameters.getString("outputPath")).getAbsolutePath()));
@@ -88,7 +86,7 @@ public class BuildFilteredCollection extends AppFunction {
     Job job = new Job();
 
     // reading input files
-    List<String> inputPaths = buildParameters.getAsList("inputPath");
+    List<String> inputPaths = buildParameters.getAsList("inputPath", String.class);
 
     Parameters splitParameters = new Parameters();
     splitParameters.set("corpusPieces", buildParameters.get("distrib", 10));

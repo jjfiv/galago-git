@@ -2,12 +2,6 @@
 package org.lemurproject.galago.contrib.retrieval.traversal;
 
 import gnu.trove.map.hash.TObjectDoubleHashMap;
-import java.io.File;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
@@ -19,6 +13,12 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -81,8 +81,6 @@ public class FieldRelevanceModelTraversal extends Traversal {
   }
 
   private List<Document> getDocuments(List<String> names) throws Exception {
-    String path = p.containsKey("corpus") ? p.getString("corpus")
-            : p.getString("index") + File.separator + "corpus";
     Map<String, Document> docmap = retrieval.getDocuments(names, new DocumentComponents());
     List<Document> docs = new ArrayList<Document>(docmap.values());
     if (p.containsKey("parser")) {

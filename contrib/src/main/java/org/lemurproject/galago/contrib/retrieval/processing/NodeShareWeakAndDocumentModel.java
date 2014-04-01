@@ -3,12 +3,6 @@
  */
 package org.lemurproject.galago.contrib.retrieval.processing;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
@@ -17,12 +11,14 @@ import org.lemurproject.galago.core.retrieval.iterator.DisjunctionIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import static org.lemurproject.galago.core.retrieval.processing.ProcessingModel.toReversedArray;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Implements A variant of Weak-And processing model (Broder et al. 2003)
@@ -51,7 +47,7 @@ public class NodeShareWeakAndDocumentModel extends ProcessingModel {
     double factor = queryParams.get("weakandfactor", 1.0);
 
     // step one: find the set of deltaScoringNodes in the tree
-    List<Node> scoringNodes = new ArrayList();
+    List<Node> scoringNodes = new ArrayList<Node>();
     boolean canScore = findDeltaNodes(queryTree, scoringNodes, retrieval);
     if (!canScore) {
       throw new IllegalArgumentException("Query tree does not support delta scoring interface.\n" + queryTree.toPrettyString());
@@ -61,7 +57,7 @@ public class NodeShareWeakAndDocumentModel extends ProcessingModel {
     DeltaScoringIteratorWrapper[] sortedIterators = createScoringIterators(scoringNodes, retrieval);
     Arrays.sort(sortedIterators);
 
-    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
+    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap<ScoredDocument>(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
     // NOTE that the min scores here are OVER-ESTIMATES of the actual minimum scores
     double minimumPossibleScore = 0.0;
@@ -129,9 +125,9 @@ public class NodeShareWeakAndDocumentModel extends ProcessingModel {
   }
 
   private boolean hasMatch(DeltaScoringIteratorWrapper[] s, long doc) {
-    for (int i = 0; i < s.length; i++) {
-      if (s[i].currentCandidate <= doc) {
-        if (s[i].itr.hasMatch(doc)) {
+    for (DeltaScoringIteratorWrapper value : s) {
+      if (value.currentCandidate <= doc) {
+        if (value.itr.hasMatch(doc)) {
           return true;
         }
       } else {
@@ -145,8 +141,8 @@ public class NodeShareWeakAndDocumentModel extends ProcessingModel {
   // any other iterator at position n where 0 <= n < start. So we don't even look at those. Makes the sort
   // linear at worst.
   private void fullSort(DeltaScoringIteratorWrapper[] s) {
-    for (int i = 0; i < s.length; i++) {
-      s[i].updateCC();
+    for (DeltaScoringIteratorWrapper value : s) {
+      value.updateCC();
     }    
     // too SLOW
     // Arrays.sort(s);
@@ -285,7 +281,7 @@ public class NodeShareWeakAndDocumentModel extends ProcessingModel {
   private DeltaScoringIteratorWrapper[] createScoringIterators(List<Node> scoringNodes, LocalRetrieval ret) throws Exception {
     DeltaScoringIteratorWrapper[] scoringIterators = new DeltaScoringIteratorWrapper[scoringNodes.size()];
 
-    Map<String, BaseIterator> queryIteratorCache = new HashMap();
+    Map<String, BaseIterator> queryIteratorCache = new HashMap<String,BaseIterator>();
     for (int i = 0; i < scoringNodes.size(); i++) {
       DeltaScoringIterator scorer = (DeltaScoringIterator) ret.createNodeMergedIterator(scoringNodes.get(i), queryIteratorCache);
       scoringIterators[i] = new DeltaScoringIteratorWrapper(scorer, scoringNodes.get(i));
@@ -294,16 +290,14 @@ public class NodeShareWeakAndDocumentModel extends ProcessingModel {
     return scoringIterators;
   }
 
-  public class DeltaScoringIteratorWrapper implements Comparable<DeltaScoringIteratorWrapper> {
+  public static class DeltaScoringIteratorWrapper implements Comparable<DeltaScoringIteratorWrapper> {
 
     public DeltaScoringIterator itr;
     public long currentCandidate;
-    private Node node;
     private long entries;
 
     private DeltaScoringIteratorWrapper(DeltaScoringIterator itr, Node node) throws IOException {
       this.itr = itr;
-      this.node = node;
 
       if (node.getNodeParameters().containsKey("nodeDocumentCount")) {
         this.entries = node.getNodeParameters().getLong("nodeDocumentCount");

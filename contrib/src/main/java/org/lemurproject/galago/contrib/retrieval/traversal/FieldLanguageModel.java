@@ -5,14 +5,11 @@
 package org.lemurproject.galago.contrib.retrieval.traversal;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.util.*;
 
 /**
  *
@@ -26,7 +23,7 @@ public class FieldLanguageModel {
   TObjectIntHashMap<String> termDFs;
   TObjectIntHashMap<String> fieldDFs;
   TObjectIntHashMap<String> fieldLengths;
-  public static double smoothing = 0.000000001;
+  public final static double smoothing = 0.000000001;
   HashMap<String, TObjectIntHashMap<String>> termInFieldFrequencies;
   int gramsize;
 
@@ -58,7 +55,8 @@ public class FieldLanguageModel {
       ArrayList<String> grams = new ArrayList<String>();
       int i = f.begin;
       while (i <= (f.end - gramsize) + 1 && (i + gramsize <= terms.size())) {
-        grams.add(Utility.join(terms.subList(i, i + gramsize).toArray(new String[0])));
+        List<String> strings = terms.subList(i, i + gramsize);
+        grams.add(Utility.join(strings, " "));
         i++;
       }
       return grams;
@@ -84,8 +82,7 @@ public class FieldLanguageModel {
     for (Tag f : fields) {
       fieldUniques.add(f.name);
       List<String> grams = getGrams(terms, f);
-      for (int i = 0; i < grams.size(); i++) {
-        String term = grams.get(i);
+      for (String term : grams) {
         termUniques.add(term);
         termFrequencies.adjustOrPutValue(term, 1, 1);
         if (!termInFieldFrequencies.containsKey(f.name)) {
@@ -109,14 +106,6 @@ public class FieldLanguageModel {
       fieldDFs.adjustOrPutValue(f, 1, 1);
     }
     docCount++;
-  }
-
-  public double getTermDF(String t) {
-    return termDFs.containsKey(t) ? termDFs.get(t) : smoothing;
-  }
-
-  public double getFieldDF(String f) {
-    return fieldDFs.containsKey(f) ? fieldDFs.get(f) : smoothing;
   }
 
   // P(F|T) -- Uses Bayes' rule
@@ -159,34 +148,6 @@ public class FieldLanguageModel {
     }
     double den = (termCount > 0) ? (termCount + 0.0) : Double.MIN_VALUE;
     return (num + 0.0) / den;
-  }
-
-  // |D|
-  public int getDocCount() {
-    return docCount;
-  }
-
-  // |D_f|
-  public int getDocCount(String field) {
-    if (!fieldDFs.containsKey(field)) {
-      return 0;
-    } else {
-      return fieldDFs.get(field);
-    }
-  }
-
-  // |C|
-  public int getTermCount() {
-    return termCount;
-  }
-
-  // |C_f|
-  public int getTermCount(String field) {
-    if (!fieldLengths.containsKey(field)) {
-      return 0;
-    } else {
-      return fieldLengths.get(field);
-    }
   }
 
   public String toString() {

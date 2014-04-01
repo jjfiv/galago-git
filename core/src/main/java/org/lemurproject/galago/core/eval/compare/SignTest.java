@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.eval.stat.Stat;
  * @author trevor, sjh
  */
 class SignTest extends QuerySetComparator {
-
+  public static double tolerance = 0.0000001;
   double boost;
 
   public SignTest(String testName) {
@@ -33,7 +33,7 @@ class SignTest extends QuerySetComparator {
       if (treatment[i] > boostedBaseline) {
         treatmentIsBetter++;
       }
-      if (treatment[i] != boostedBaseline) {
+      if (Math.abs(treatment[i] - boostedBaseline) > tolerance) {
         different++;
       }
     }

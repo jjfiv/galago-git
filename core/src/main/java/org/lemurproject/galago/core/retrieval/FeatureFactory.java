@@ -228,8 +228,6 @@ public class FeatureFactory {
    * Parameters object and an ArrayList of DocumentDataIterators as parameters.
    */
   public BaseIterator getIterator(Node node, ArrayList<BaseIterator> childIterators) throws Exception {
-    NodeType type = getNodeType(node);
-
     // One type of constructor allowed: Parameters?, NodeParameters?, child+
     // Anything not conforming to that gets an exception
 

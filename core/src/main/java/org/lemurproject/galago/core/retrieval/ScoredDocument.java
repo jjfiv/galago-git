@@ -1,10 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
-import java.io.Serializable;
-import java.util.Comparator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.Serializable;
+import java.util.Comparator;
 
 /**
  * Basic retrieval unit. The results returned by the Retrieval.runQuery typically return
@@ -53,6 +54,13 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
   }
 
   @Override
+  public boolean equals(Object other) {
+    if(other == null) return false;
+    if(other == this) return true;
+    return other instanceof ScoredDocument && compareTo((ScoredDocument) other) == 0;
+  }
+
+  @Override
   public String toString() {
     return String.format("%s %d %s galago", documentName, rank, formatScore(score));
   }
@@ -74,7 +82,7 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
     return String.format("%10.8f", score);
   }
 
-  public static class ScoredDocumentComparator implements Comparator<ScoredDocument> {
+  public static class ScoredDocumentComparator implements Comparator<ScoredDocument>, Serializable {
 
     @Override
     public int compare(ScoredDocument o1, ScoredDocument o2) {
@@ -83,7 +91,7 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
   }
 
 
-  public static class RankComparator implements Comparator<ScoredDocument> {
+  public static class RankComparator implements Comparator<ScoredDocument>, Serializable {
 
     @Override
     public int compare(ScoredDocument o1, ScoredDocument o2) {

@@ -43,8 +43,7 @@ public class TimedXCount extends AppFunction {
 
     // ensure we can print to a file instead of the commandline
     if (parameters.isString("outputFile")) {
-      out = new PrintStream(new BufferedOutputStream(
-              new FileOutputStream(parameters.getString("outputFile"))));
+      out = new PrintStream(parameters.getString("outputFile"), "UTF-8");
     }
 
     // get queries
@@ -93,7 +92,7 @@ public class TimedXCount extends AppFunction {
         if (!expr.containsKey("times")) {
           expr.set("times", new ArrayList<Long>());
         }
-        expr.getList("times").add(queryendtime - querystarttime);
+        expr.getList("times", Long.class).add(queryendtime - querystarttime);
         if (!expr.containsKey("cf")) {
           expr.set("cf", s.nodeFrequency);
           expr.set("dc", s.nodeDocumentCount);
@@ -104,7 +103,7 @@ public class TimedXCount extends AppFunction {
     for (Parameters expr : exprs) {
       out.format("%s\t%d\t%d\t", expr.getString("l"), expr.getLong("cf"), expr.getLong("dc"));
       double sum = 0.0;
-      for (Long t : (List<Long>) expr.getList("times")) {
+      for (Long t : (List<Long>) expr.getList("times", Long.class)) {
         out.format("%d\t", t);
         sum += t;
       }
