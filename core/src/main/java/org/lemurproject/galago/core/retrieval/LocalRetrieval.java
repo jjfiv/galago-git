@@ -1,31 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
-import org.lemurproject.galago.core.index.stats.AggregateStatistic;
-import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
-import org.lemurproject.galago.core.index.stats.FieldStatistics;
-import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
-import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
-import org.lemurproject.galago.core.index.stats.NodeStatistics;
+import org.lemurproject.galago.core.index.stats.*;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
-import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
-import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
-import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
-import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
+import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -35,6 +16,10 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * The responsibility of the LocalRetrieval object is to provide a simpler
@@ -145,46 +130,6 @@ public class LocalRetrieval implements Retrieval {
     return this.index.getDocuments(identifier, p);
   }
 
-  /**
-   * Accepts a transformed query, constructs the iterator tree from the node
-   * tree, then iterates over the iterator tree, and returns the results.
-   * 
-   * TODO: export this in Retrieval, as executeQuery, as the training wheels interface
-   */
-  @Deprecated
-  public ScoredDocument[] runQuery(String query, Parameters p) throws Exception {
-    Node root = StructuredQuery.parse(query);
-    root = transformQuery(root, p);
-    return runQuery(root, p);
-  }
-
-  @Override
-  @Deprecated
-  public ScoredDocument[] runQuery(Node queryTree) throws Exception {
-    return runQuery(queryTree, new Parameters());
-  }
-
-  // Based on the root of the tree, that dictates how we execute.
-  @Override
-  @Deprecated
-  public ScoredDocument[] runQuery(Node queryTree, Parameters queryParams) throws Exception {
-    ScoredDocument[] results = null;
-    if (globalParameters.containsKey("processingModel")) {
-      queryParams.set("processingModel", globalParameters.getString("processingModel"));
-    }
-    ProcessingModel pm = ProcessingModel.instance(this, queryTree, queryParams);
-
-    // get some results
-    results = pm.execute(queryTree, queryParams);
-    if (results == null) {
-      results = new ScoredDocument[0];
-    }
-
-    // Format and get names
-    String indexId = this.globalParameters.get("indexId", "0");
-    return getArrayResults(results, indexId);
-  }
-
   /*
    * getArrayResults annotates a queue of scored documents returns an array
    *
@@ -240,7 +185,7 @@ public class LocalRetrieval implements Retrieval {
   // Based on the root of the tree, that dictates how we execute.
   @Override
   public Results executeQuery(Node queryTree, Parameters queryParams) throws Exception {
-    ScoredDocument[] results = null;
+    ScoredDocument[] results;
     if (globalParameters.containsKey("processingModel")) {
       queryParams.set("processingModel", globalParameters.getString("processingModel"));
     }
@@ -264,7 +209,7 @@ public class LocalRetrieval implements Retrieval {
 
   public BaseIterator createIterator(Parameters queryParameters, Node node) throws Exception {
     if (queryParameters.get("shareNodes", globalParameters.get("shareNodes", true))) {
-      return createNodeMergedIterator(node, new HashMap());
+      return createNodeMergedIterator(node, new HashMap<String,BaseIterator>());
     }
     return createNodeMergedIterator(node, null);
   }
@@ -384,8 +329,7 @@ public class LocalRetrieval implements Retrieval {
   public NodeStatistics getNodeStatistics(String nodeString) throws Exception {
     // first parse the node
     Node root = StructuredQuery.parse(nodeString);
-    NodeStatistics ns = getNodeStatistics(root);
-    return ns;
+    return getNodeStatistics(root);
   }
 
   @Override

@@ -3,10 +3,6 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
@@ -17,6 +13,11 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Provides a facility to map labels to an abstract retrieval. Therefore, if you
@@ -94,21 +95,6 @@ public class GroupRetrieval implements Retrieval {
   @Override
   public QueryType getQueryType(Node node) throws Exception {
     return groups.get(defGroup).getQueryType(node);
-  }
-
-  @Override
-  @Deprecated
-  public ScoredDocument[] runQuery(Node root) throws Exception {
-    return groups.get(defGroup).runQuery(root);
-  }
-
-  @Override
-  @Deprecated
-  public ScoredDocument[] runQuery(Node root, Parameters parameters) throws Exception {
-    if (parameters.isString("group")) {
-      return groups.get(parameters.getString("group")).runQuery(root, parameters);
-    }
-    return groups.get(defGroup).runQuery(root, parameters);
   }
 
   @Override
@@ -208,16 +194,6 @@ public class GroupRetrieval implements Retrieval {
     return groups.get(group).transformQuery(queryTree, qp);
   }
 
-  @Deprecated
-  public ScoredDocument[] runQuery(Node root, String group) throws Exception {
-    return groups.get(group).runQuery(root);
-  }
-
-  @Deprecated
-  public ScoredDocument[] runQuery(Node root, Parameters parameters, String group) throws Exception {
-    return groups.get(group).runQuery(root, parameters);
-  }
-  
   public Results executeQuery(Node root, String group) throws Exception {
     return groups.get(group).executeQuery(root);
   }

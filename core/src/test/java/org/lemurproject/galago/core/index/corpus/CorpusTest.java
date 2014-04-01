@@ -24,7 +24,6 @@ import static org.junit.Assert.*;
  */
 public class CorpusTest {
   @Test
-  @SuppressWarnings("unchecked")
   public void testCorpus() throws Exception {
     File corpus = null;
     try {
@@ -53,7 +52,7 @@ public class CorpusTest {
       p.set("filename", corpus.getAbsolutePath());
       p.set("tokenizer", new Parameters());
       p.getMap("tokenizer").set("fields", new ArrayList());
-      p.getMap("tokenizer").getList("fields").add("tag");
+      p.getMap("tokenizer").getList("fields", String.class).add("tag");
       CorpusFileWriter writer = new CorpusFileWriter(new FakeParameters(p));
       for (Document d : docs) {
         writer.process(d);

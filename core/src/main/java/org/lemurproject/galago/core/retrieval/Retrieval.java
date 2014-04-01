@@ -1,9 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
@@ -13,6 +10,10 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>This is a base interface for all kinds of retrieval classes. Historically
@@ -45,7 +46,6 @@ public interface Retrieval {
    * returned as a Parameters object, which acts as a map between parts and the
    * node types they support.
    *
-   * @return
    * @throws IOException
    */
   public Parameters getAvailableParts() throws IOException;
@@ -72,8 +72,6 @@ public interface Retrieval {
    * Returns a Map of Document objects that have been found, given the list of
    * identifiers provided.
    *
-   * @param identifier
-   * @return
    * @throws IOException
    */
   public Map<String, Document> getDocuments(List<String> identifier, DocumentComponents p) throws IOException;
@@ -81,8 +79,6 @@ public interface Retrieval {
   /**
    * Attempts to return a NodeType object for the supplied Node.
    *
-   * @param node
-   * @return
    * @throws Exception
    */
   public NodeType getNodeType(Node node) throws Exception;
@@ -91,8 +87,6 @@ public interface Retrieval {
    * Attempts to return a QueryType object for the supplied Node. This is
    * typically called on root nodes of query trees.
    *
-   * @param node
-   * @return
    * @throws Exception
    */
   public QueryType getQueryType(Node node) throws Exception;
@@ -101,10 +95,8 @@ public interface Retrieval {
    * Performs any additional transformations necessary to prepare the query for
    * execution.
    *
-   * @param root
    * @param queryParams a Parameters object that may further populated by the
    * transformations applied
-   * @return
    * @throws Exception
    */
   public Node transformQuery(Node root, Parameters queryParams) throws Exception;
@@ -113,33 +105,6 @@ public interface Retrieval {
    * Runs the query against the retrieval. Assumes the query has been properly
    * annotated. An example is the query produced from transformQuery.
    *
-   * @param root
-   * @return array of ScoredDocuments
-   * @throws Exception
-   * @deprecated Use executeQuery
-   */
-  @Deprecated
-  public ScoredDocument[] runQuery(Node root) throws Exception;
-
-  /**
-   * Runs the query against the retrieval. Assumes the query has been properly
-   * annotated. An example is the query produced from transformQuery.
-   * Parameters object allows any global execution parameters or default values
-   * to be overridden.
-   *
-   * @param root, parameters
-   * @return array of ScoredDocuments
-   * @throws Exception
-   * @deprecated Use executeQuery
-   */
-  @Deprecated
-  public ScoredDocument[] runQuery(Node root, Parameters parameters) throws Exception;
-
-  /**
-   * Runs the query against the retrieval. Assumes the query has been properly
-   * annotated. An example is the query produced from transformQuery.
-   *
-   * @param root
    * @return Results (contains a list of scored documents)
    * @throws Exception
    */
@@ -164,7 +129,6 @@ public interface Retrieval {
    * Data includes statistics for vocabulary size, 
    * total number of postings stored and longest posting list.
    * 
-   * @param partName
    * @return IndexPartStatistics
    * @throws IOException
    */
@@ -177,7 +141,6 @@ public interface Retrieval {
    * Data returned includes collectionLength, document count, longest document,
    * shortest document, average document. 
    *
-   * @param nodeString
    * @return FieldStatistics
    * @throws Exception
    */
@@ -194,7 +157,6 @@ public interface Retrieval {
    * specified region of indexed documents.
    * 
    *
-   * @param node
    * @return FieldStatistics
    * @throws Exception
    */
@@ -209,7 +171,6 @@ public interface Retrieval {
    * the number of documents that return a non-zero count for the node, and
    * the maximum frequency of the node in any single document.
    * 
-   * @param nodeString
    * @return NodeStatistics
    * @throws Exception
    */
@@ -225,7 +186,6 @@ public interface Retrieval {
    * the number of documents that return a non-zero count for the node, and
    * the maximum frequency of the node in any single document.
    * 
-   * @param node
    * @return NodeStatistics
    * @throws Exception
    */
@@ -235,7 +195,6 @@ public interface Retrieval {
    * Returns the length of a particular document. Where docid
    * is the internal identifier of the document.
    *
-   * @param docid
    * @return document length
    * @throws IOException
    */
@@ -245,7 +204,6 @@ public interface Retrieval {
    * Returns the length of a particular document. Where docname
    * is the internally stored name of the document.
    *
-   * @param docname
    * @return document length
    * @throws IOException
    */
@@ -255,7 +213,6 @@ public interface Retrieval {
    * Returns the internally stored name of a particular document. 
    * Where docid is the internal identifier of the document.
    * 
-   * @param docid
    * @return document length
    * @throws IOException
    */

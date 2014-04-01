@@ -11,7 +11,6 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.tupleflow.Utility;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +27,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
   Tokenizer tokenizer;
 
-  public CorpusReader(String fileName) throws FileNotFoundException, IOException {
+  public CorpusReader(String fileName) throws IOException {
     super(fileName);
     init();
   }
@@ -118,8 +117,8 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     }
 
     @Override
-    public DiskDataIterator getValueIterator() throws IOException {
-      return new DiskDataIterator(new CorpusReaderSource(reader));
+    public DiskDataIterator<Document> getValueIterator() throws IOException {
+      return new DiskDataIterator<Document>(new CorpusReaderSource(reader));
     }
   }
 }
