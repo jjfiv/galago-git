@@ -698,7 +698,9 @@ public class TagTokenizer extends Tokenizer {
   @Override
   public void tokenize(Document document) {
     reset();
+    assert(document != null);
     text = document.text;
+    assert(text != null);
 
     try {
       // this loop is looking for tags, split characters, and XML escapes,

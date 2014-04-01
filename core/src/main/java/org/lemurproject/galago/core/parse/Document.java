@@ -1,15 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
+import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.Utility;
+import org.xerial.snappy.SnappyInputStream;
+import org.xerial.snappy.SnappyOutputStream;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.xerial.snappy.SnappyInputStream;
-import org.xerial.snappy.SnappyOutputStream;
 
 public class Document implements Serializable {
 
@@ -21,8 +22,8 @@ public class Document implements Serializable {
   public Map<String, String> metadata;
   public String text;
   public List<String> terms;
-  public List<Integer> termCharBegin = new ArrayList();
-  public List<Integer> termCharEnd = new ArrayList();
+  public List<Integer> termCharBegin = new ArrayList<Integer>();
+  public List<Integer> termCharEnd = new ArrayList<Integer>();
   public List<Tag> tags;
   // other data - used to generate an identifier; these values can not be serialized!
   public int fileId = -1;
@@ -31,7 +32,7 @@ public class Document implements Serializable {
   public long fileLocation = -1;
 
   public Document() {
-    metadata = new HashMap();
+    metadata = new HashMap<String,String>();
   }
 
   public Document(String externalIdentifier, String text) {
@@ -43,12 +44,12 @@ public class Document implements Serializable {
   public Document(Document d) {
     this.identifier = d.identifier;
     this.name = d.name;
-    this.metadata = new HashMap(d.metadata);
+    this.metadata = new HashMap<String,String>(d.metadata);
     this.text = d.text;
-    this.terms = new ArrayList(d.terms);
-    this.termCharBegin = new ArrayList(d.termCharBegin);
-    this.termCharEnd = new ArrayList(d.termCharEnd);
-    this.tags = new ArrayList(d.tags);
+    this.terms = new ArrayList<String>(d.terms);
+    this.termCharBegin = new ArrayList<Integer>(d.termCharBegin);
+    this.termCharEnd = new ArrayList<Integer>(d.termCharEnd);
+    this.tags = new ArrayList<Tag>(d.tags);
     this.fileId = d.fileId;
     this.totalFileCount = d.totalFileCount;
   }
@@ -81,7 +82,7 @@ public class Document implements Serializable {
       sb.append("\nTerm vector: \n");
       for (String s : terms) {
         sb.append(count).append(" : ");
-        sb.append(s.toString()).append("\n");
+        sb.append(s).append("\n");
         count += 1;
       }
     }
@@ -238,7 +239,7 @@ public class Document implements Serializable {
     if (selection.metadata) {
       // metadata
       int metadataCount = input.readInt();
-      d.metadata = new HashMap(metadataCount);
+      d.metadata = new HashMap<String,String>(metadataCount);
 
       for (int i = 0; i < metadataCount; i++) {
         blen = input.readInt();
@@ -314,12 +315,39 @@ public class Document implements Serializable {
       this.text = text;
       this.metadata = metadata;
       this.tokenize = tokenize;
+
+      validate();
     }
 
     public DocumentComponents(Parameters p) {
       this.text = p.get("text", text);
       this.metadata = p.get("metadata", metadata);
       this.tokenize = p.get("tokenize", tokenize);
+
+      validate();
+    }
+
+    /**
+     * Because I prefer an illegal argument exception earlier to a null pointer exception in the tokenizer code, don't you?
+     */
+    public void validate() {
+      if(!text && tokenize) {
+        throw new IllegalArgumentException("DocumentComponents doesn't make sense! Found tokenize=true with text=false.");
+      }
+    }
+
+    public Parameters toJSON() {
+      Parameters p = new Parameters();
+      p.put("text", text);
+      p.put("metadata", metadata);
+      p.put("tokenize", tokenize);
+      return p;
+    }
+
+    @Override
+    public String toString() {
+      return toJSON().toString();
     }
   }
 }
+
