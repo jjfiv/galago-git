@@ -3,15 +3,15 @@
  */
 package org.lemurproject.galago.core.links;
 
-import java.io.IOException;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.execution.Verified;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  *
@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 @OutputClass(className = "org.lemurproject.galago.core.types.DocumentUrl")
 public class UrlExtractor extends StandardStep<Document, DocumentUrl> {
 
-  Logger logger = LoggerFactory.getLogger("UrlExtractor");
+  Logger logger = Logger.getLogger("UrlExtractor");
 
   public String scrubUrl(String url) {
     // remove a leading pound sign

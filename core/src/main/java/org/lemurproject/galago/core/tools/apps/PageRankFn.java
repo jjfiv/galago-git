@@ -3,42 +3,22 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import org.lemurproject.galago.core.links.pagerank.ComputeRandomJump;
-import org.lemurproject.galago.core.links.pagerank.ComputeRandomWalk;
-import org.lemurproject.galago.core.links.pagerank.ConvergenceTester;
-import org.lemurproject.galago.core.links.pagerank.FinalPageRankScoreWriter;
-import org.lemurproject.galago.core.links.pagerank.ObjectCounter;
-import org.lemurproject.galago.core.links.pagerank.PageRankScoreCombiner;
-import org.lemurproject.galago.core.links.pagerank.TypeFileReader;
-import org.lemurproject.galago.core.links.pagerank.TypeFileWriter;
-import org.lemurproject.galago.core.links.pagerank.UrlToInitialPagerankScore;
+import org.lemurproject.galago.core.links.pagerank.*;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.core.types.ExtractedLink;
 import org.lemurproject.galago.core.types.PageRankJumpScore;
 import org.lemurproject.galago.core.types.PageRankScore;
-import org.lemurproject.galago.tupleflow.CompressionType;
-import org.lemurproject.galago.tupleflow.FileSource;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.Order;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
-import org.lemurproject.galago.tupleflow.execution.ErrorStore;
-import org.lemurproject.galago.tupleflow.execution.InputStep;
-import org.lemurproject.galago.tupleflow.execution.Job;
-import org.lemurproject.galago.tupleflow.execution.JobExecutor;
-import org.lemurproject.galago.tupleflow.execution.MultiStep;
-import org.lemurproject.galago.tupleflow.execution.OutputStep;
-import org.lemurproject.galago.tupleflow.execution.Stage;
+import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.execution.*;
 import org.lemurproject.galago.tupleflow.execution.Step;
 import org.lemurproject.galago.tupleflow.types.FileName;
 import org.lemurproject.galago.tupleflow.types.TupleflowLong;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.logging.Logger;
 
 /**
  *
@@ -46,7 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PageRankFn extends AppFunction {
 
-  private static final Logger logger = LoggerFactory.getLogger("Pagerank");
+  private static final Logger logger = Logger.getLogger("Pagerank");
 
   @Override
   public String getName() {
@@ -113,7 +93,7 @@ public class PageRankFn extends AppFunction {
         boolean success = runTupleFlowInstance(itr, new File(outputFolder, "pagerank-job-tmp." + i), p, output);
 
         if (!success) {
-          logger.warn("PAGERANK FAILED TO EXECUTE.");
+          logger.warning("PAGERANK FAILED TO EXECUTE.");
           return;
         }
 

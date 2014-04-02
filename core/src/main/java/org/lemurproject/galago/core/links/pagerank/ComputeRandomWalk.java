@@ -3,25 +3,18 @@
  */
 package org.lemurproject.galago.core.links.pagerank;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
 import org.lemurproject.galago.core.links.LinkDestNamer;
 import org.lemurproject.galago.core.types.ExtractedLink;
 import org.lemurproject.galago.core.types.PageRankJumpScore;
 import org.lemurproject.galago.core.types.PageRankScore;
-import org.lemurproject.galago.tupleflow.Counter;
-import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.StandardStep;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.TypeReader;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -32,7 +25,7 @@ import org.slf4j.LoggerFactory;
 @OutputClass(className = "org.lemurproject.galago.core.types.PageRankScore")
 public class ComputeRandomWalk extends StandardStep<PageRankScore, PageRankScore> {
 
-  private static final Logger logger = LoggerFactory.getLogger("ComputeRandomWalk");
+  private static final Logger logger = Logger.getLogger("ComputeRandomWalk");
   private final TypeReader<ExtractedLink> linkReader;
   private final Processor<PageRankJumpScore> jumpWriter;
   private final double lambda;
@@ -71,7 +64,7 @@ public class ComputeRandomWalk extends StandardStep<PageRankScore, PageRankScore
 
     while (currentLink != null && Utility.compare(docScore.docName, currentLink.srcName) > 0.0) {
       // This shouldn't happen....
-      logger.info("Processing : {0}, IGNORED LINK: {1}-{2}", new Object[]{docScore.docName, currentLink.srcName, currentLink.destName});
+      logger.log(Level.INFO, "Processing : {0}, IGNORED LINK: {1}-{2}", new Object[]{docScore.docName, currentLink.srcName, currentLink.destName});
       currentLink = linkReader.read();
     }
 

@@ -3,12 +3,11 @@
  */
 package org.lemurproject.galago.core.eval.metric;
 
-import java.util.Arrays;
-import java.util.TreeMap;
-import org.apache.commons.lang.ArrayUtils;
 import org.lemurproject.galago.core.eval.QueryJudgments;
 import org.lemurproject.galago.core.eval.QueryResults;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
+
+import java.util.Arrays;
 
 /** 
  * <p>Normalized Discounted Cumulative Gain </p>
@@ -74,7 +73,7 @@ public class NormalizedDiscountedCumulativeGain extends QueryEvaluator {
     }
 
     Arrays.sort(idealJudgments);
-    ArrayUtils.reverse(idealJudgments);
+    idealJudgments = reverse(idealJudgments);
     double normalizer = computeDCG(idealJudgments);
 
     if(normalizer != 0){
@@ -85,6 +84,19 @@ public class NormalizedDiscountedCumulativeGain extends QueryEvaluator {
     // the average is artificially defined as zero, to mimic trec_eval
     // Really, the output is NaN, or the query should be ignored.
     return 0.0;
+  }
+
+  /**
+   * Reverse an array
+   * @param input an array of doubles
+   * @return a copy of the input array, reversed
+   */
+  private double[] reverse(double[] input) {
+    double[] output = new double[input.length];
+    for(int i=0; i<input.length; i++) {
+      output[input.length-i-1] = input[i];
+    }
+    return output;
   }
 
   /**

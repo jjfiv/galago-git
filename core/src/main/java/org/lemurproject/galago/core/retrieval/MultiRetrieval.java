@@ -1,31 +1,21 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
-import java.io.IOException;
-import java.lang.String;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
+import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
-import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * This class allows searching over a set of Retrievals.
@@ -98,7 +88,7 @@ public class MultiRetrieval implements Retrieval {
 
   @Override
   public Map<String, Document> getDocuments(List<String> identifiers, DocumentComponents p) throws IOException {
-    HashMap<String, Document> results = new HashMap();
+    HashMap<String, Document> results = new HashMap<String,Document>();
     for (Retrieval r : this.retrievals) {
       results.putAll(r.getDocuments(identifiers, p));
     }
@@ -106,32 +96,8 @@ public class MultiRetrieval implements Retrieval {
   }
 
   /**
-   *
    * Runs a query across all retrieval objects
    *
-   * @param root
-   * @return
-   * @throws Exception
-   */
-  @Override
-  @Deprecated
-  public ScoredDocument[] runQuery(Node root) throws Exception {
-    return runQuery(root, new Parameters());
-  }
-
-  // Based on the root of the tree, that dictates how we execute.
-  @Override
-  @Deprecated
-  public ScoredDocument[] runQuery(Node queryTree, Parameters p) throws Exception {
-    ScoredDocument[] results = runRankedQuery(queryTree, p);
-    return results;
-  }
-
-  /**
-   * Runs a query across all retrieval objects
-   *
-   * @param root
-   * @return
    * @throws Exception
    */
   @Override
@@ -142,21 +108,20 @@ public class MultiRetrieval implements Retrieval {
   // Based on the root of the tree, that dictates how we execute.
   @Override
   public Results executeQuery(Node queryTree, Parameters p) throws Exception {
-    Results results = executeRankedQuery(queryTree, p);
-    return results;
+    return executeRankedQuery(queryTree, p);
   }
 
   @Deprecated
   private ScoredDocument[] runRankedQuery(Node root, Parameters parameters) throws Exception {
     // Asynchronously run retrieval
-    ArrayList<Thread> threads = new ArrayList();
-    final List<ScoredDocument> queryResultCollector = Collections.synchronizedList(new ArrayList());
-    final List<String> errorCollector = Collections.synchronizedList(new ArrayList());
+    ArrayList<Thread> threads = new ArrayList<Thread>();
+    final List<ScoredDocument> queryResultCollector = Collections.synchronizedList(new ArrayList<ScoredDocument>());
+    final List<String> errorCollector = Collections.synchronizedList(new ArrayList<String>());
     final Node queryTree = root;
 
-    for (int i = 0; i < retrievals.size(); i++) {
+    for (Retrieval retrieval : retrievals) {
       final Parameters shardParams = parameters.clone();
-      final Retrieval r = retrievals.get(i);
+      final Retrieval r = retrieval;
       Thread t = new Thread() {
         @Override
         public void run() {
@@ -196,7 +161,8 @@ public class MultiRetrieval implements Retrieval {
     int requested = (int) parameters.get("requested", 1000);
 
     // fix ranks
-    ScoredDocument[] results = queryResultCollector.subList(0, Math.min(queryResultCollector.size(), requested)).toArray(new ScoredDocument[0]);
+    List<ScoredDocument> scoredDocuments = queryResultCollector.subList(0, Math.min(queryResultCollector.size(), requested));
+    ScoredDocument[] results = scoredDocuments.toArray(new ScoredDocument[scoredDocuments.size()]);
     int rank = 1;
     for (ScoredDocument r : results) {
       r.rank = rank;
@@ -233,7 +199,7 @@ public class MultiRetrieval implements Retrieval {
 
   private void initRetrieval() throws IOException {
 
-    ArrayList<Parameters> parts = new ArrayList();
+    ArrayList<Parameters> parts = new ArrayList<Parameters>();
     for (Retrieval r : retrievals) {
       Parameters partSet = r.getAvailableParts();
       parts.add(partSet);
@@ -315,13 +281,12 @@ public class MultiRetrieval implements Retrieval {
   @Override
   public FieldStatistics getCollectionStatistics(Node node) throws Exception {
 
-    ArrayList<Thread> threads = new ArrayList();
+    ArrayList<Thread> threads = new ArrayList<Thread>();
     final Node root = node;
-    final List<FieldStatistics> stats = Collections.synchronizedList(new ArrayList());
-    final List<String> errors = Collections.synchronizedList(new ArrayList());
+    final List<FieldStatistics> stats = Collections.synchronizedList(new ArrayList<FieldStatistics>());
+    final List<String> errors = Collections.synchronizedList(new ArrayList<String>());
 
-    for (int i = 0; i < this.retrievals.size(); i++) {
-      final Retrieval r = this.retrievals.get(i);
+    for (final Retrieval r : this.retrievals) {
       Thread t = new Thread() {
         @Override
         public void run() {
@@ -370,13 +335,12 @@ public class MultiRetrieval implements Retrieval {
   @Override
   public NodeStatistics getNodeStatistics(Node node) throws Exception {
 
-    ArrayList<Thread> threads = new ArrayList();
+    ArrayList<Thread> threads = new ArrayList<Thread>();
     final Node root = node;
-    final List<NodeStatistics> stats = Collections.synchronizedList(new ArrayList());
-    final List<String> errors = Collections.synchronizedList(new ArrayList());
+    final List<NodeStatistics> stats = Collections.synchronizedList(new ArrayList<NodeStatistics>());
+    final List<String> errors = Collections.synchronizedList(new ArrayList<String>());
 
-    for (int i = 0; i < this.retrievals.size(); i++) {
-      final Retrieval r = this.retrievals.get(i);
+    for (final Retrieval r : this.retrievals) {
       Thread t = new Thread() {
         @Override
         public void run() {
@@ -468,48 +432,6 @@ public class MultiRetrieval implements Retrieval {
       }
     }
     return partName;
-  }
-
-  protected void initializeIndexOperators() throws IOException {
-    Parameters parts = getAvailableParts();
-
-
-    for (String part : parts.getKeys()) {
-
-      knownIndexOperators.add(part);
-
-      if (!defaultIndexOperators.containsKey(part)) {
-        defaultIndexOperators.put(part, part);
-      } else if (part.startsWith("default")) {
-        if (defaultIndexOperators.get(part).startsWith("default")) {
-          defaultIndexOperators.remove(part);
-        } else {
-          defaultIndexOperators.put(part, part);
-        }
-      } else {
-        defaultIndexOperators.remove(part);
-      }
-    }
-
-    // HACK - for now //
-    if (!this.defaultIndexOperators.containsKey("counts")) {
-      if (parts.containsKey("postings.krovetz")) {
-        this.defaultIndexOperators.put("counts", "postings.krovetz");
-      } else if (parts.containsKey("postings.porter")) {
-        this.defaultIndexOperators.put("counts", "postings.porter");
-      } else if (parts.containsKey("postings")) {
-        this.defaultIndexOperators.put("counts", "postings");
-      }
-    }
-    if (!this.defaultIndexOperators.containsKey("extents")) {
-       if (parts.containsKey("postings.krovetz")) {
-        this.defaultIndexOperators.put("extents", "postings.krovetz");
-      } else if (parts.containsKey("postings.porter")) {
-        this.defaultIndexOperators.put("extents", "postings.porter");
-      } else if (parts.containsKey("postings")) {
-        this.defaultIndexOperators.put("extents", "postings");
-      }
-    }
   }
 
   @Override

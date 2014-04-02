@@ -3,19 +3,14 @@
  */
 package org.lemurproject.galago.core.links.pagerank;
 
-import java.io.IOException;
-import java.util.logging.Level;
 import org.lemurproject.galago.core.types.PageRankJumpScore;
 import org.lemurproject.galago.core.types.PageRankScore;
-import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.StandardStep;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.TypeReader;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -26,7 +21,7 @@ import org.slf4j.LoggerFactory;
 @OutputClass(className = "org.lemurproject.galago.core.types.PageRankScore")
 public class PageRankScoreCombiner extends StandardStep<PageRankScore, PageRankScore> {
 
-  private static final Logger logger = LoggerFactory.getLogger("PageRankScoreCombiner");
+  private static final Logger logger = Logger.getLogger("PageRankScoreCombiner");
   double rndJump;
   TypeReader<PageRankScore> partialScores;
   PageRankScore curr;
@@ -63,7 +58,7 @@ public class PageRankScoreCombiner extends StandardStep<PageRankScore, PageRankS
 
     // This should never happen -- but I want to be sure.
     while (curr != null && Utility.compare(docScore.docName, curr.docName) > 0) {
-      logger.info("Processing : {0}, IGNORED PARTIAL SCORE!!: {1}-{2}", new Object[]{docScore.docName, curr.docName, curr.score});
+      logger.log(Level.INFO, "Processing : {0}, IGNORED PARTIAL SCORE!!: {1}-{2}", new Object[]{docScore.docName, curr.docName, curr.score});
       curr = partialScores.read();
     }
 
@@ -89,7 +84,7 @@ public class PageRankScoreCombiner extends StandardStep<PageRankScore, PageRankS
 //    System.err.println(instance + " COMBINED TOTAL MASS = " + totalScore);
 
     while (curr != null) {
-      logger.info("On-Close : IGNORED PARTIAL SCORE!!: {1}-{2}", new Object[]{curr.docName, curr.score});
+      logger.log(Level.INFO, "On-Close : IGNORED PARTIAL SCORE!!: {1}-{2}", new Object[]{curr.docName, curr.score});
       curr = partialScores.read();
     }
 
