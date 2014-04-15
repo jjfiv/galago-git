@@ -1,13 +1,17 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
-import org.lemurproject.galago.core.eval.Eval;
-import org.lemurproject.galago.core.index.merge.MergeIndex;
-import org.lemurproject.galago.core.tools.apps.*;
+import org.lemurproject.galago.tupleflow.GalagoConf;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.reflections.Reflections;
 
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -26,48 +30,36 @@ public class App {
     log = Logger.getLogger("Galago-App");
     appFunctions = new HashMap<String,AppFunction>();
 
-    AppFunction[] fns = {
-        new BatchSearch(),
-        new BuildIndex(),
-        new BuildPartialIndex(),
-        new BuildSpecialPart(),
-        new BuildStemmerConflation(),
-        new BuildWindowIndex(),
-        new ChainFns(),
-        new DocCountFn(),
-        new DumpConnectionFn(),
-        new DumpCorpusFn(),
-        new DumpDocFn(),
-        new DumpDocIdFn(),
-        new DumpDocNameFn(),
-        new DumpIndexFn(),
-        new DumpIndexManifestFn(),
-        new DumpKeysFn(),
-        new DumpKeyValueFn(),
-        new DumpNamesLengths(),
-        new DumpTermStatisticsFn(),
-        new HarvestLinksFn(),
-        new HelpFn(),
-        new OverwriteManifestFn(),
-        new PageRankFn(),
-        new SearchFn(),
-        new StatsFn(),
-        new ThreadedBatchSearch(),
-        new TimedBatchSearch(),
-        new TransformQueryFn(),
-        new XCountFn(),
-        new MakeCorpus(),
-        new Eval(),
-        new MergeIndex(),
-    };
+    // list of classpaths to scan
+    List<String> cps = new ArrayList<String>();
+    cps.add("org.lemurproject.galago");
 
-    for(AppFunction fn : fns) {
-      registerAppFn(fn);
+    Parameters p = GalagoConf.getAllOptions();
+    if (p.isString("appclasspath") || p.isList("appclasspath", String.class)) {
+      cps.addAll(p.getAsList("appclasspath", String.class));
     }
-  }
 
-  public static void registerAppFn(AppFunction fn) {
-    appFunctions.put(fn.getName(), fn);
+    for (String cp : cps) {
+      Reflections reflections = new Reflections(cp);
+      Set<Class<? extends AppFunction>> apps = reflections.getSubTypesOf(AppFunction.class);
+
+      for (Class<? extends AppFunction> c : apps) {
+        try {
+          Constructor<? extends AppFunction> cons = c.getConstructor();
+          AppFunction fn = cons.newInstance();
+          String name = fn.getName();
+
+          // if we have a duplicated function - use the first one.
+          if (appFunctions.containsKey(fn.getName())) {
+            log.info("Found duplicated function name: " + c.getName() + ". Arbitrarily using: " + appFunctions.get(name).getClass().getName());
+          } else {
+            appFunctions.put(fn.getName(), fn);
+          }
+        } catch (Exception e) {
+          log.log(Level.INFO, "Failed to find constructor for app: {0}", c.getName());
+        }
+      }
+    }
   }
 
   /*
@@ -94,7 +86,7 @@ public class App {
     if (appFunctions.containsKey(fn)) {
       appFunctions.get(fn).run(p, out);
     } else {
-      log.warning("Could not find app: " + fn);
+      log.log(Level.WARNING, "Could not find app: " + fn);
     }
   }
 }

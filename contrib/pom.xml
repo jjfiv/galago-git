@@ -95,7 +95,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.lemurproject.galago.contrib.Main</mainClass>
+              <mainClass>org.lemurproject.galago.core.tools.App</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -124,7 +124,7 @@
         <configuration>
           <programs>
             <program>
-              <mainClass>org.lemurproject.galago.contrib.Main</mainClass>
+              <mainClass>org.lemurproject.galago.core.tools.App</mainClass>
               <name>galago</name>
             </program>
           </programs>
