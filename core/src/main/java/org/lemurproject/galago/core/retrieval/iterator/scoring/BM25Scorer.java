@@ -1,10 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
-import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.RequiredStatistics;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+
+import java.io.IOException;
 
 /**
  * Smoothes raw counts according to the BM25 scoring model, as described by
@@ -12,11 +13,10 @@ import org.lemurproject.galago.core.retrieval.RequiredStatistics;
  * (http://www.sciencedirect.com/science/article/pii/S0306457399000461)
  *
  * @author irmarc
- * @deprecated 
  */
 @RequiredStatistics(statistics = {"nodeDocumentCount", "collectionLength", "documentCount"})
 @RequiredParameters(parameters = {"b", "k"})
-public class BM25Scorer implements ScoringFunction {
+public class BM25Scorer {
 
   double b;
   double k;

@@ -3,10 +3,12 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
-import java.io.PrintStream;
-import java.io.RandomAccessFile;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.StreamCreator;
+
+import java.io.PrintStream;
+import java.io.RandomAccessFile;
 
 /**
  *
@@ -31,7 +33,7 @@ public class OverwriteManifestFn extends AppFunction {
   public void run(Parameters p, PrintStream output) throws Exception {
     // first open the index
     String filename = p.getString("indexPath");
-    RandomAccessFile indexReaderWriter = new RandomAccessFile(filename, "rw");
+    RandomAccessFile indexReaderWriter = StreamCreator.writeFile(filename);
 
     long length = indexReaderWriter.length();
     long footerOffset = length - Integer.SIZE / 8 - 3 * Long.SIZE / 8;

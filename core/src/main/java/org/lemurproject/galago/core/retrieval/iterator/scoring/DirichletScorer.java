@@ -1,22 +1,20 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
-import java.io.IOException;
-import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.RequiredStatistics;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+
+import java.io.IOException;
 
 /**
  * A Dirichlet smoothing node, applied over a raw term count node.
  *
  * @author trevor, irmarc
- * @deprecated 
  */
 @RequiredStatistics(statistics = {"nodeFrequency","collectionLength"})
 @RequiredParameters(parameters = {"mu"})
-public class DirichletScorer implements ScoringFunction {
+public class DirichletScorer {
 
   double background;
   double mu;

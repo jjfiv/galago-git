@@ -14,7 +14,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
@@ -71,12 +71,7 @@ public class NumberedFieldExtractorTest {
       p.set("inputPath", input.getAbsolutePath());
       p.set("corpus", false);
       p.set("tokenizer", new Parameters());
-      p.getMap("tokenizer").set("fields", new ArrayList());
-      p.getMap("tokenizer").getList("fields").add("intfield");
-      p.getMap("tokenizer").getList("fields").add("longfield");
-      p.getMap("tokenizer").getList("fields").add("floatfield");
-      p.getMap("tokenizer").getList("fields").add("doublefield");
-      p.getMap("tokenizer").getList("fields").add("datefield");
+      p.getMap("tokenizer").set("fields", Arrays.asList("intfield", "longfield", "floatfield", "doublefield", "datefield"));
 
       p.getMap("tokenizer").set("formats", new Parameters());
       p.getMap("tokenizer").getMap("formats").set("intfield", "int");
@@ -94,7 +89,7 @@ public class NumberedFieldExtractorTest {
 
       KeyIterator iterator = fieldReader.getIterator();
       assertEquals(iterator.getKeyString(), "datefield");
-      FieldIndexReader.ListIterator valueIterator = (FieldIndexReader.ListIterator) iterator.getValueIterator();
+      FieldIndexReader.ListIterator valueIterator = iterator.getValueIterator();
       context.document = valueIterator.currentCandidate();
       // assertEquals(valueIterator.dateValue());
       valueIterator.movePast(valueIterator.currentCandidate());
@@ -105,7 +100,7 @@ public class NumberedFieldExtractorTest {
 
       assertEquals(iterator.nextKey(), true);
       assertEquals(iterator.getKeyString(), "doublefield");
-      valueIterator = (FieldIndexReader.ListIterator) iterator.getValueIterator();
+      valueIterator = iterator.getValueIterator();
       context.document = valueIterator.currentCandidate();
       assertEquals(valueIterator.doubleValue(context), 1.0, 0.0000001);
       valueIterator.movePast(valueIterator.currentCandidate());
@@ -122,7 +117,7 @@ public class NumberedFieldExtractorTest {
 
       assertEquals(iterator.nextKey(), true);
       assertEquals(iterator.getKeyString(), "floatfield");
-      valueIterator = (FieldIndexReader.ListIterator) iterator.getValueIterator();
+      valueIterator = iterator.getValueIterator();
       context.document = valueIterator.currentCandidate();
       assertEquals(valueIterator.floatValue(context), 1.0, 0.0000001);
       valueIterator.movePast(valueIterator.currentCandidate());
@@ -139,7 +134,7 @@ public class NumberedFieldExtractorTest {
 
       assertEquals(iterator.nextKey(), true);
       assertEquals(iterator.getKeyString(), "intfield");
-      valueIterator = (FieldIndexReader.ListIterator) iterator.getValueIterator();
+      valueIterator = iterator.getValueIterator();
       context.document = valueIterator.currentCandidate();
       assertEquals(valueIterator.intValue(context), 1);
       valueIterator.movePast(valueIterator.currentCandidate());
@@ -153,7 +148,7 @@ public class NumberedFieldExtractorTest {
 
       assertEquals(iterator.nextKey(), true);
       assertEquals(iterator.getKeyString(), "longfield");
-      valueIterator = (FieldIndexReader.ListIterator) iterator.getValueIterator();
+      valueIterator = iterator.getValueIterator();
       context.document = valueIterator.currentCandidate();
       assertEquals(valueIterator.longValue(context), 1);
       valueIterator.movePast(valueIterator.currentCandidate());

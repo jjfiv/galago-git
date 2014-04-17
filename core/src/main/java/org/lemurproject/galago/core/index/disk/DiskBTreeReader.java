@@ -1,17 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
+import org.lemurproject.galago.tupleflow.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
-import org.lemurproject.galago.core.index.BTreeReader;
-import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
-import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
-import org.lemurproject.galago.tupleflow.DataStream;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * <p>This implements the core functionality for all inverted list readers. It
@@ -294,7 +292,7 @@ public class DiskBTreeReader extends BTreeReader {
    * @throws IOException
    */
   public DiskBTreeReader(String pathname) throws FileNotFoundException, IOException {
-    input = new RandomAccessFile(pathname, "r");
+    input = StreamCreator.readFile(pathname);
 
     // Seek to the end of the file
     fileLength = input.length();

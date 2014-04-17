@@ -3,20 +3,12 @@
  */
 package org.lemurproject.galago.core.parse;
 
+import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.execution.Verified;
+
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.List;
-import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.tupleflow.Counter;
-import org.lemurproject.galago.tupleflow.ExNihiloSource;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Linkage;
-import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.Step;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.execution.Verified;
 
 /**
  *
@@ -38,10 +30,9 @@ public class FileLineParser implements ExNihiloSource<String> {
   @Override
   public void run() throws IOException {
     BufferedReader reader;
-    for (String f : (List<String>) p.getList("inputPath")) {
+    for (String f : p.getAsList("inputPath", String.class)) {
       DocumentSplit split = new DocumentSplit();
       split.fileName = f;
-      split.isCompressed = ( f.endsWith(".gz") || f.endsWith(".bz") || f.endsWith(".bz2") );
       reader = DocumentStreamParser.getBufferedReader( split );
       String line;
       while (null != (line = reader.readLine())) {

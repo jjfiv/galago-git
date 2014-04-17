@@ -1,34 +1,21 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
+import org.tukaani.xz.LZMA2Options;
+import org.tukaani.xz.XZInputStream;
+import org.tukaani.xz.XZOutputStream;
+
+import java.io.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  *
  * @author trevor
  */
 public class StreamCreator {
-
-  private static String stripPrefix(String filename) {
-    String[] fields = filename.split(":");
-    if (fields.length > 1) {
-      return filename.substring(fields[0].length() + 1);
-    }
-
-    return filename;
-  }
 
   public static InputStream bufferedInputStream(String filename) throws IOException {
     return new BufferedInputStream(new FileInputStream(filename));
@@ -39,12 +26,12 @@ public class StreamCreator {
     return stream;
   }
 
-  public static RandomAccessFile inputStream(String filename) throws IOException {
+  public static RandomAccessFile readFile(String filename) throws IOException {
     RandomAccessFile file = new RandomAccessFile(filename, "r");
     return file;
   }
 
-  public static RandomAccessFile outputStream(String filename) throws IOException {
+  public static RandomAccessFile writeFile(String filename) throws IOException {
     RandomAccessFile file = new RandomAccessFile(filename, "rw");
     return file;
   }
@@ -57,8 +44,10 @@ public class StreamCreator {
   public static DataInputStream openInputStream(String filename) throws IOException {
     if (filename.endsWith(".gz")) {
       return new DataInputStream(new GZIPInputStream(new FileInputStream(filename)));
-    } else if (filename.endsWith(".bz")) {
+    } else if (filename.endsWith(".bz") || filename.endsWith(".bz2")) {
       return new DataInputStream(new BZip2CompressorInputStream(new FileInputStream(filename)));
+    } else if(filename.endsWith(".xz")) {
+      return new DataInputStream(new XZInputStream(new FileInputStream(filename)));
     } else {
       return new DataInputStream(new FileInputStream(filename));
     }
@@ -67,10 +56,22 @@ public class StreamCreator {
   public static DataOutputStream openOutputStream(String filename) throws IOException {
     if (filename.endsWith(".gz")) {
       return new DataOutputStream(new GZIPOutputStream(new FileOutputStream(filename)));
-    } else if (filename.endsWith(".bz")) {
+    } else if (filename.endsWith(".bz") || filename.endsWith(".bz2")) {
       return new DataOutputStream(new BZip2CompressorOutputStream(new FileOutputStream(filename)));
+    } else if(filename.endsWith(".xz")) {
+      return new DataOutputStream(new XZOutputStream(new FileOutputStream(filename), new LZMA2Options()));
     } else {
       return new DataOutputStream(new FileOutputStream(filename));
     }
+  }
+
+  public static String[] compressionExtensions = {".gz", ".bz", ".bz2", ".xz"};
+
+  public static boolean isCompressed(String filename) {
+    for(String ext : compressionExtensions) {
+      if(filename.endsWith(ext))
+        return true;
+    }
+    return false;
   }
 }
