@@ -21,7 +21,7 @@ public abstract class Traversal {
    * The two corresponding abstract functions are called on each node in the
    * tree.
    *
-   * @param query tree
+   * @param tree a parsed query
    * @param queryParams
    * @return query tree
    * @throws Exception

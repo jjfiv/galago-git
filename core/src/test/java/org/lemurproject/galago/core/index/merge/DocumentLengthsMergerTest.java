@@ -135,8 +135,8 @@ public class DocumentLengthsMergerTest {
       IndexPartMergeManager manager = new IndexPartMergeManager(new FakeParameters(p));
 
       // add indexes to be merged
-      manager.process(new DocumentSplit(indexFolder1.getAbsolutePath(), "", false, new byte[0], new byte[0], 2, 2));
-      manager.process(new DocumentSplit(indexFolder2.getAbsolutePath(), "", false, new byte[0], new byte[0], 1, 2));
+      manager.process(new DocumentSplit(indexFolder1.getAbsolutePath(), "", new byte[0], new byte[0], 2, 2));
+      manager.process(new DocumentSplit(indexFolder2.getAbsolutePath(), "", new byte[0], new byte[0], 1, 2));
 
       // perform merge
       manager.close();

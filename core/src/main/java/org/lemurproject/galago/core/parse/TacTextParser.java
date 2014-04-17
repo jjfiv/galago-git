@@ -1,12 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.io.BufferedReader;
+import java.io.IOException;
 
 /**
  *
@@ -17,7 +16,7 @@ public class TacTextParser extends DocumentStreamParser {
   BufferedReader reader;
 
   public TacTextParser(DocumentSplit split, Parameters p)
-          throws FileNotFoundException, IOException {
+          throws IOException {
     super(split, p);
     this.reader = getBufferedReader(split);
   }
@@ -40,7 +39,7 @@ public class TacTextParser extends DocumentStreamParser {
       return null;
     }
 
-    while (allText.contains("</DOCID>") == false) {
+    while (!allText.contains("</DOCID>")) {
       String line = reader.readLine();
       if (line == null) {
         break;
@@ -63,7 +62,7 @@ public class TacTextParser extends DocumentStreamParser {
       return null;
     }
 
-    while (allText.contains(end) == false) {
+    while (!allText.contains(end)) {
       String line = reader.readLine();
       if (line == null) {
         break;
@@ -131,37 +130,6 @@ public class TacTextParser extends DocumentStreamParser {
     Document doc = new Document(identifier, buffer.toString());
     doc.metadata.put("doctype", source);
     return doc;
-  }
-
-  public static void main(String[] args) throws Exception {
-    File dir = new File("/usr/aubury/scratch2/jdalton/tac-kbp/data/TAC_2010_KBP_Source_Data/data/2010/wb/");
-    File[] testFiles = dir.listFiles();
-
-    for (int i = 0; i < 10; i++) {
-
-      File tacFile = testFiles[i];
-      DocumentSplit split = new DocumentSplit(tacFile.getAbsolutePath(), "", false, new byte[0], new byte[0], 0, 0);
-      TacTextParser parser = new TacTextParser(split, new Parameters());
-      Document doc = null;
-
-      while ((doc = parser.nextDocument()) != null) {
-        TagTokenizer tt = new TagTokenizer();
-        tt.addField("title");
-        tt.addField("category");
-        tt.addField("anchor");
-        tt.addField("fbnames");
-
-        System.out.println(doc.toString());
-        tt.process(doc);
-//              System.out.println("PARSED TERMS");
-//              List<String> tokens = doc.terms;
-//              for (int i = 0; i < tokens.size(); i++) {
-//                  System.out.println("Token: " + tokens.get(i));
-//              }
-
-        System.out.println(doc.toString());
-      }
-    }
   }
 
   @Override

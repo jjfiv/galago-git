@@ -28,75 +28,69 @@ import java.io.IOException;
  */
 public class SingleFileParser extends DocumentStreamParser {
 
-    protected BufferedReader reader;
-    protected String identifier;
-    private int debugCounter = 0;
+  protected BufferedReader reader;
+  protected String identifier;
 
-    public SingleFileParser(DocumentSplit split, Parameters pp) throws IOException {
-        super(split, pp);
-        this.reader = getBufferedReader(split);
+  public SingleFileParser(DocumentSplit split, Parameters pp) throws IOException {
+    super(split, pp);
+    this.reader = getBufferedReader(split);
 
-//        Parameters p = null;
-//        for(Object parserP_ : pp.getList("externalParsers")){
-//            Parameters parserP = (Parameters) parserP_;
-//            if(parserP.get("filetype","").equalsIgnoreCase(split.fileType)){
-//                p = parserP;
-//            }
-//        }
-//        if(p == null) p = new Parameters();
-        try{
-        identifier = split.fileName;
-        int idx;
-        if((idx=identifier.lastIndexOf(File.separator))>=0){
-            identifier = identifier.substring(idx+1);
-        }
-        if(split.fileType != null && identifier.endsWith(split.fileType)) {
-            identifier = identifier.substring(0, identifier.length()-split.fileType.length()-1);
-        }
+    //        Parameters p = null;
+    //        for(Object parserP_ : pp.getList("externalParsers")){
+    //            Parameters parserP = (Parameters) parserP_;
+    //            if(parserP.get("filetype","").equalsIgnoreCase(split.fileType)){
+    //                p = parserP;
+    //            }
+    //        }
+    //        if(p == null) p = new Parameters();
+    try{
+      identifier = split.fileName;
+      int idx;
+      if((idx=identifier.lastIndexOf(File.separator))>=0){
+        identifier = identifier.substring(idx+1);
+      }
+      if(split.fileType != null && identifier.endsWith(split.fileType)) {
+        identifier = identifier.substring(0, identifier.length()-split.fileType.length()-1);
+      }
+    } catch(Exception e) {
+      e.printStackTrace();
+      System.err.println("split.fileName="+split.fileName);
+      System.err.println("split.fileType="+split.fileType);
+    }
+  }
 
-        if(debugCounter%100==0){
-            System.out.println("Created SingleFileParser with filename "+identifier);
-        }
-        debugCounter++;
-        } catch(Exception e) {
-            e.printStackTrace();
-            System.err.println("split.fileName="+split.fileName);
-            System.err.println("split.fileType="+split.fileType);
-        }
+
+  public Document nextDocument() throws IOException {
+    String line;
+
+    if (reader == null) {
+      return null;
     }
 
-
-    public Document nextDocument() throws IOException {
-        String line;
-
-        if (reader == null) {
-            return null;
-        }
-
-        if (identifier.length() == 0) {
-            return null;
-        }
-
-        StringBuilder buffer = new StringBuilder();
-
-        int lines = 0;
-        while ((line = reader.readLine()) != null) {
-            buffer.append(line);
-            buffer.append('\n');
-            lines ++;
-        }
-
-        if(lines == 0) return null;
-
-//        System.out.println(identifier+ "\t\t"+lines+" lines.");
-        return new Document(identifier, buffer.toString());
+    if (identifier.length() == 0) {
+      return null;
     }
 
-    @Override
-    public void close() throws IOException {
-        if (this.reader != null) {
-            this.reader.close();
-            this.reader = null;
-        }
+    StringBuilder buffer = new StringBuilder();
+
+    int lines = 0;
+    while ((line = reader.readLine()) != null) {
+      buffer.append(line);
+      buffer.append('\n');
+      lines ++;
     }
+
+    if(lines == 0) return null;
+
+    //        System.out.println(identifier+ "\t\t"+lines+" lines.");
+    return new Document(identifier, buffer.toString());
+  }
+
+  @Override
+  public void close() throws IOException {
+    if (this.reader != null) {
+      this.reader.close();
+      this.reader = null;
+    }
+  }
 }

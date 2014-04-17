@@ -1,11 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.io.BufferedReader;
+import java.io.IOException;
 
 /**
  *
@@ -19,10 +19,7 @@ public class TwitterParser extends DocumentStreamParser {
 
   BufferedReader reader;
 
-  /**
-   * Creates a new instance of TrecTextParser
-   */
-  public TwitterParser(DocumentSplit split, Parameters p) throws FileNotFoundException, IOException {
+  public TwitterParser(DocumentSplit split, Parameters p) throws IOException {
     super(split, p);
     this.reader = getBufferedReader(split);
   }

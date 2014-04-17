@@ -4,20 +4,20 @@
 package org.lemurproject.galago.core.parse;
 
 import info.bliki.wiki.model.WikiModel;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.HashSet;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.HashSet;
 
 /*
  *
@@ -33,7 +33,7 @@ public class WikiParser extends DocumentStreamParser {
   /**
    * Creates a new instance of TrecWebParser
    */
-  public WikiParser(DocumentSplit split, Parameters p) throws FileNotFoundException, IOException {
+  public WikiParser(DocumentSplit split, Parameters p) throws IOException {
     super(split, p);
     this.reader = getBufferedReader(split);
     DocumentBuilderFactory builderFactory =
@@ -47,7 +47,7 @@ public class WikiParser extends DocumentStreamParser {
     this.wikiParser = new WikiModel("http://en.wikipedia.org/wiki/${image}",
             "http://en.wikipedia.org/wiki/${title}");
 
-    this.specialPrefixWhiteList = new HashSet();
+    this.specialPrefixWhiteList = new HashSet<String>();
     this.specialPrefixWhiteList.add("Category:");
   }
 

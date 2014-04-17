@@ -3,7 +3,6 @@ package org.lemurproject.galago.core.types;
 type DocumentSplit {
     String fileName;
     String fileType;
-    boolean isCompressed;
     bytes startKey;
     bytes endKey;
     int fileId;
@@ -12,5 +11,5 @@ type DocumentSplit {
 
     order: ;
     order: +fileName +startKey;
-	order: +fileId;
+    order: +fileId;
 };

@@ -1,11 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.corpus;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader;
@@ -13,6 +8,12 @@ import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.StreamCreator;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 
 /**
  * Split index reader
@@ -199,7 +200,7 @@ public class SplitBTreeReader extends BTreeReader {
       valueLength = stream.readLong();
 
       if (dataFiles[file] == null) {
-        dataFiles[file] = StreamCreator.inputStream(indexFolder + File.separator + file);
+        dataFiles[file] = StreamCreator.readFile(indexFolder + File.separator + file);
       }
     }
   }
@@ -301,7 +302,7 @@ public class SplitBTreeReader extends BTreeReader {
     if (keys.exists()
             && data.exists()
             && DiskBTreeReader.isBTree(keys)) {
-      RandomAccessFile reader = StreamCreator.inputStream(data.getAbsolutePath());
+      RandomAccessFile reader = StreamCreator.readFile(data.getAbsolutePath());
       reader.seek(reader.length() - 8);
       magic = reader.readLong();
       reader.close();

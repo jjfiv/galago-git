@@ -75,9 +75,9 @@ public class PullDocumentsTest {
 
   @After
   public void tearDown() throws IOException {
-    if(inputFile.exists()) inputFile.delete();
-    if(indexPath.exists()) indexPath.delete();
     retrieval.close();
+    if(inputFile.exists()) inputFile.delete();
+    if(indexPath.exists()) Utility.deleteDirectory(indexPath);
   }
 
 

@@ -1,28 +1,22 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.zip.GZIPInputStream;
 import org.lemurproject.galago.core.index.BTreeFactory;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
-import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
+import org.lemurproject.galago.tupleflow.execution.Verified;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
 
 /**
  * From a set of inputs, splits the input into many DocumentSplit records. This
@@ -42,7 +36,6 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   private int fileId = 0;
   private int totalFileCount = 0;
   private List<DocumentSplit> splitBuffer;
-  private Set<String> externalFileTypes;
   private String forceFileType;
   private Logger logger;
   private String inputPolicy;
@@ -52,32 +45,26 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     inputPolicy = parameters.getJSON().get("inputPolicy", "require");
     this.inputCounter = parameters.getCounter("Inputs Processed");
     logger = Logger.getLogger("DOCSOURCE");
-    externalFileTypes = new HashSet<String>();
     forceFileType = parameters.getJSON().get("filetype", (String) null);
     if (parameters.getJSON().containsKey("externalParsers")) {
-      List<Parameters> extP = parameters.getJSON().getAsList("externalParsers");
-      for (Parameters p : extP) {
-        logger.info(String.format("Adding external file type %s\n",
-                p.getString("filetype")));
-        externalFileTypes.add(p.getString("filetype"));
-      }
+      DocumentStreamParser.addExternalParsers(parameters.getJSON());
     }
   }
 
   @Override
   public void run() throws IOException {
     // splitBuffer stores the full list of documents to emit.
-    splitBuffer = new ArrayList();
+    splitBuffer = new ArrayList<DocumentSplit>();
 
     if (parameters.getJSON().containsKey("directory")) {
-      List<String> directories = parameters.getJSON().getAsList("directory");
+      List<String> directories = parameters.getJSON().getAsList("directory", String.class);
       for (String directory : directories) {
         File directoryFile = new File(directory);
         processDirectory(directoryFile);
       }
     }
     if (parameters.getJSON().containsKey("filename")) {
-      List<String> files = parameters.getJSON().getAsList("filename");
+      List<String> files = parameters.getJSON().getAsList("filename", String.class);
       for (String file : files) {
         processFile(new File(file));
       }
@@ -112,33 +99,17 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         return; // don't process children, they're part of the corpus
       }
     }
-    
-    File[] subs = root.listFiles();
-    int count = 0;
-    while (subs == null && count < 100) {
-      try {
-        Thread.sleep(1000);
-      } catch (Exception e) {
-      }
-      System.out.println("sleeping. subs is null. Wuh?");
-      count++;
-      subs = root.listFiles();
-    }
 
-    if (subs != null) {
-      for (File file : subs) {
-        if (file.isHidden()) {
-          continue;
-        }
-        if (file.isDirectory()) {
-          processDirectory(file);
-        } else {
-          processFile(file);
-        }
+    File[] subs = FileUtility.safeListFiles(root);
+    for (File file : subs) {
+      if (file.isHidden()) {
+        continue;
       }
-    } else {
-      System.out.println("subs is still null... ");
-      throw new IllegalStateException("subs is null");
+      if (file.isDirectory()) {
+        processDirectory(file);
+      } else {
+        processFile(file);
+      }
     }
   }
 
@@ -158,13 +129,13 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     }
 
     // Now try to detect what kind of file this is:
-    boolean isCompressed = (file.getName().endsWith(".gz") || file.getName().endsWith(".bz") || file.getName().endsWith(".bz2") || file.getName().endsWith(".xz"));
+    boolean isCompressed = StreamCreator.isCompressed(file.getName());
     String fileType = forceFileType;
 
     // We'll try to detect by extension first, so we don't have to open the file
-    String extension = null;
+    String extension;
     if (fileType == null) {
-      extension = getExtension(file);
+      extension = FileUtility.getExtension(file);
 
       // first lets look for special cases that require some processing here:
       if (extension.equals("list")) {
@@ -177,7 +148,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         return; // now considered processed
       }
 
-      if (UniversalParser.isParsable(extension) || isExternallyDefined(extension)) {
+      if (DocumentStreamParser.hasParserForExtension(extension)) {
         fileType = extension;
 
       } else if (!isCompressed && (file.getName().equals("corpus") || (BTreeFactory.isBTree(file)))) {
@@ -195,7 +166,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     // Eventually it'd be nice to do more format detection here.
 
     if (fileType != null) {
-      DocumentSplit split = new DocumentSplit(file.getAbsolutePath(), fileType, isCompressed, new byte[0], new byte[0], fileId, totalFileCount);
+      DocumentSplit split = new DocumentSplit(file.getAbsolutePath(), fileType, new byte[0], new byte[0], fileId, totalFileCount);
       this.splitBuffer.add(split);
     }
   }
@@ -245,7 +216,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
     running = 0;
     frac = 0.0;
-    long splitsize = 0;
+    long splitsize;
 
 
     // Favor the absolute # variable (second one)
@@ -269,7 +240,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
           processFile(f);
         } else if (prevfrac < pctthreshold) {
           // Works out the number of needed docs to meet the proper pct
-          splitsize = (long) Math.round((running * (pctthreshold / frac)) - prevRunning);
+          splitsize = Math.round((running * (pctthreshold / frac)) - prevRunning);
         }
       } else {
         processFile(f);
@@ -282,15 +253,14 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
           throw new IOException(String.format("File %s was not found. Exiting.\n", f));
         }
 
-        // Now try to detect what kind of file this is:
-        boolean isCompressed = (file.getName().endsWith(".gz") || file.getName().endsWith(".bz") || file.getName().endsWith(".bz2") || file.getName().endsWith(".xz"));
-        String fileType = null;
 
+        // Now try to detect what kind of file this is:
+        String fileType;
         // We'll try to detect by extension first, so we don't have to open the file
-        String extension = getExtension(file);
+        String extension = FileUtility.getExtension(file);
         if (forceFileType != null) {
           fileType = forceFileType;
-        } else if (UniversalParser.isParsable(extension) || isExternallyDefined(extension)) {
+        } else if (DocumentStreamParser.hasParserForExtension(extension)) {
           fileType = extension;
         } else {
           fileType = detectTrecTextOrWeb(file);
@@ -298,8 +268,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         }
 
         if (fileType != null) {
-          DocumentSplit split = new DocumentSplit(file.getAbsolutePath(), fileType, isCompressed,
-                  "subcoll".getBytes(), Utility.compressLong(splitsize), fileId, totalFileCount);
+          DocumentSplit split = new DocumentSplit(file.getAbsolutePath(), fileType, "subcoll".getBytes(), Utility.compressLong(splitsize), fileId, totalFileCount);
           this.splitBuffer.add(split);
         }
       }
@@ -328,9 +297,10 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       // if we have a corpus folder sum the lengths of files in the folder
       if (SplitBTreeReader.isBTree(file)) {
         File folder = file.getParentFile();
-        for (File f : folder.listFiles()) {
+        for (File f : FileUtility.safeListFiles(folder)) {
           corpusSize += f.length();
         }
+
       } else {
         // else must be a corpus file.
         corpusSize = file.length();
@@ -362,61 +332,17 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       }
 
       if (Utility.compare(firstKey, lastKey) != 0) {
-        DocumentSplit split = new DocumentSplit(file.getAbsolutePath(), "corpus", false, firstKey, lastKey, fileId, totalFileCount);
+        DocumentSplit split = new DocumentSplit(file.getAbsolutePath(), "corpus", firstKey, lastKey, fileId, totalFileCount);
         this.splitBuffer.add(split);
       }
     }
     reader.close();
   }
 
-  private String getExtension(File file) {
-
-    String fileName = file.getName();
-
-    // now split the filename on '.'s
-    String[] fields = fileName.split("\\.");
-
-    // A filename needs to have a period to have an extension.
-    if (fields.length <= 1) {
-      return "";
-    }
-
-    // If the last chunk of the filename is gz, we'll ignore it.
-    // The second-to-last bit is the type extension (but only if
-    // there are at least three parts to the name).
-    if (fields[fields.length - 1].equals("gz")) {
-      if (fields.length > 2) {
-        return fields[fields.length - 2];
-      } else {
-        return "";
-      }
-    }
-
-     if (fields[fields.length - 1].equals("bz")) {
-      if (fields.length > 2) {
-        return fields[fields.length - 2];
-      } else {
-        return "";
-      }
-    }
-
-    // Do the same thing w/ bz2 as above (MAC)
-    if (fields[fields.length - 1].equals("bz2")) {
-      if (fields.length > 2) {
-        return fields[fields.length - 2];
-      } else {
-        return "";
-      }
-    }
-
-    // No 'gz'/'bz2' extensions, so just return the last part.
-    return fields[fields.length - 1];
-  }
-
   // For now we assume <doc> tags, so we read in one doc
   // (i.e. <doc> to </doc>), and look for the following
   // tags: <docno> and (<text> or <html>)
-  private String detectTrecTextOrWeb(File file) {
+  private String detectTrecTextOrWeb(File file) throws IOException {
     String fileType = null;
     BufferedReader br = null;
     try {
@@ -425,7 +351,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
       // check the first line for a "<doc>" line
       line = br.readLine();
-      if (line == null || line.equalsIgnoreCase("<doc>") == false) {
+      if (line == null || !line.equalsIgnoreCase("<doc>")) {
         return fileType;
       }
 
@@ -438,15 +364,15 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
           break; // doc is closed or null line
         }
         line = line.toLowerCase();
-        if (line.indexOf("<docno>") != -1) {
+        if (line.contains("<docno>")) {
           hasDocno = true;
-        } else if (line.indexOf("<dochdr>") != -1) {
+        } else if (line.contains("<dochdr>")) {
           hasDocHdr = true;
-        } else if (line.indexOf("<text>") != -1) {
+        } else if (line.contains("<text>")) {
           hasText = true;
-        } else if (line.indexOf("<html>") != -1) {
+        } else if (line.contains("<html>")) {
           hasHtml = true;
-        } else if (line.indexOf("<body>") != -1) {
+        } else if (line.contains("<body>")) {
           hasBody = true;
         }
 
@@ -468,17 +394,10 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       ioe.printStackTrace(System.err);
       return null;
     } finally {
-      try {
-        if (br != null) {
-          br.close();
-        }
-      } catch (Exception e) {
+      if (br != null) {
+        br.close();
       }
     }
-  }
-
-  protected boolean isExternallyDefined(String extension) {
-    return externalFileTypes.contains(extension);
   }
 
   @Override

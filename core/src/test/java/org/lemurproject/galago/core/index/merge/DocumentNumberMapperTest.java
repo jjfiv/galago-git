@@ -53,9 +53,9 @@ public class DocumentNumberMapperTest {
       DocumentNumberMapper mapper = new DocumentNumberMapper();
       mapper.setProcessor( catcher );
 
-      mapper.process( new DocumentSplit(index1.getAbsolutePath(), "", false, new byte[0],new byte[0],0,3 ));
-      mapper.process( new DocumentSplit(index2.getAbsolutePath(), "", false, new byte[0],new byte[0],1,3 ));
-      mapper.process( new DocumentSplit(index3.getAbsolutePath(), "", false, new byte[0],new byte[0],2,3 ));
+      mapper.process( new DocumentSplit(index1.getAbsolutePath(), "", new byte[0],new byte[0],0,3 ));
+      mapper.process( new DocumentSplit(index2.getAbsolutePath(), "", new byte[0],new byte[0],1,3 ));
+      mapper.process( new DocumentSplit(index3.getAbsolutePath(), "", new byte[0],new byte[0],2,3 ));
 
       mapper.close();
 
@@ -79,7 +79,7 @@ public class DocumentNumberMapperTest {
     }
   }
 
-  public class Catcher<T> implements Processor<T> {
+  public static final class Catcher<T> implements Processor<T> {
 
     ArrayList<T> data = new ArrayList<T>();
 

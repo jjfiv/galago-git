@@ -23,6 +23,7 @@ public class QueryEvaluatorFactory {
     } else if (lowerMetric.equals("num_rel")) {
       return new CountRelevant(metric);
     } else if (lowerMetric.equals("map")
+            || lowerMetric.equals("ap")
             || lowerMetric.equals("averageprecision")) {
       return new AveragePrecision(metric);
     } else if (lowerMetric.equals("r-prec")

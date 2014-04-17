@@ -1,12 +1,7 @@
 
 package org.lemurproject.galago.tupleflow;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Method;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -17,7 +12,7 @@ import java.util.logging.Logger;
  */
 public class FileUtility {
   private static final Logger LOG = Logger.getLogger(FileUtility.class.getName());
-  private static final List<String> roots = new ArrayList();  
+  private static final List<String> roots = new ArrayList<String>();
 
   
   // dynamically add to the set of roots
@@ -124,47 +119,11 @@ public class FileUtility {
     // LOG.info("UTILITY_CREATED: " + temporary.getAbsolutePath());
     return temporary;
   }
-  
-  
+
+
+  /* We depend on jars that only work on 1.6, so it's okay to use this 1.6-only function. */
   public static long getFreeSpace(String pathname) throws IOException {
-    try {
-      // this will only work in Java 1.6 or later
-      Method m = File.class.getMethod("getUsableSpace");
-      Long result = (Long) m.invoke(new File(pathname));
-      return (long) result;
-    } catch (Exception e) {
-      try {
-        return getUnixFreeSpace(pathname);
-      } catch (Exception ex) {
-        return 1024 * 1024 * 1024; // 1GB
-      }
-    }
-  }
-
-  public static long getUnixFreeSpace(String pathname) throws IOException {
-    try {
-      // BUGBUG: will not work on windows
-      String[] command = {"df", "-Pk", pathname};
-      Process process = Runtime.getRuntime().exec(command);
-      InputStream procOutput = process.getInputStream();
-      BufferedReader reader = new BufferedReader(new InputStreamReader(procOutput));
-
-      // skip the first line
-      reader.readLine();
-      String line = reader.readLine();
-      String[] fields = line.split("\\s+");
-      reader.close();
-
-      process.getErrorStream().close();
-      process.getInputStream().close();
-      process.getOutputStream().close();
-      process.waitFor();
-
-      long freeSpace = Long.parseLong(fields[3]) * 1024;
-      return freeSpace;
-    } catch (InterruptedException ex) {
-      return 0;
-    }
+    return (new File(pathname)).getUsableSpace();
   }
 
   /**
@@ -182,6 +141,49 @@ public class FileUtility {
     if (parent != null) {
       parent.mkdirs();
     }
+  }
+
+  public static String getExtension(File file) {
+    String fileName = file.getName();
+
+    // now split the filename on '.'s
+    String[] fields = fileName.split("\\.");
+
+    // A filename needs to have a period to have an extension.
+    if (fields.length <= 1) {
+      return "";
+    }
+
+    String last = fields[fields.length - 1];
+    String secondToLast = "";
+    if(fields.length > 2) {
+      secondToLast = fields[fields.length - 2];
+    }
+
+    for(String ext : StreamCreator.compressionExtensions) {
+      if (last.equals(ext)) {
+        return secondToLast;
+      }
+    }
+    return last;
+  }
+
+  public static File[] safeListFiles(File root) {
+    File[] subs = root.listFiles();
+    int count = 0;
+    while (subs == null && count < 100) {
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) { }
+      System.out.println("Listing files is taking a long time...");
+      count++;
+      subs = root.listFiles();
+    }
+
+    if (subs == null) {
+      throw new IllegalStateException("safeListFiles is having a hard time with hte really slow filesystem :(... ");
+    }
+    return subs;
   }
 
   public static void makeParentDirectories(String filename) {

@@ -65,8 +65,7 @@ public class LearnerTest {
       normalRule.set("mode", "sum");
       normalRule.set("params", Arrays.asList(new String[]{"0", "1"}));
       normalRule.set("value", 1D);
-      learnParams.set("normalization", new ArrayList());
-      learnParams.getList("normalization").add(normalRule);
+      learnParams.set("normalization", Arrays.asList(normalRule));
 
       learnParams.set("gridSize", 3);
       learnParams.set("restarts", 1);

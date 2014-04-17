@@ -3,10 +3,7 @@
  */
 package org.lemurproject.galago.core.index.geometric;
 
-import java.io.IOException;
-import java.util.List;
 import org.lemurproject.galago.core.parse.SequentialDocumentNumberer;
-import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.core.parse.UniversalParser;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.Results;
@@ -14,9 +11,15 @@ import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * 
@@ -62,54 +65,12 @@ public class Indexer {
     p3.setProcessor(index);
   }
 
-  
-  private String getExtension(String fileName) {
-    String[] fields = fileName.split("\\.");
-
-    // A filename needs to have a period to have an extension.
-    if (fields.length <= 1) {
-      return "";
-    }
-
-    // If the last chunk of the filename is gz, we'll ignore it.
-    // The second-to-last bit is the type extension (but only if
-    // there are at least three parts to the name).
-    if (fields[fields.length - 1].equals("gz")) {
-      if (fields.length > 2) {
-        return fields[fields.length - 2];
-      } else {
-        return "";
-      }
-    }
-
-    if (fields[fields.length - 1].equals("bz")) {
-      if (fields.length > 2) {
-        return fields[fields.length - 2];
-      } else {
-        return "";
-      }
-    }
-
-    // Do the same thing w/ bz2 as above (MAC)
-    if (fields[fields.length - 1].equals("bz2")) {
-      if (fields.length > 2) {
-        return fields[fields.length - 2];
-      } else {
-        return "";
-      }
-    }
-
-    // No 'gz' extension, so just return the last part.
-    return fields[fields.length - 1];
-  }
-
   public void addFile(String filename) throws IOException {
-
     // a split is a file with some annotations
-    boolean compressed = (filename.endsWith(".gz") || filename.endsWith(".bz") || filename.endsWith(".bz2") || filename.endsWith(".xz"));
-    DocumentSplit split = new DocumentSplit(filename, getExtension(filename), compressed, new byte[0], new byte[0], 0, 0);
+    DocumentSplit split = new DocumentSplit();
+    split.fileName = filename;
+    split.fileType = FileUtility.getExtension(new File(filename));
     indexer.process(split);
-
   }
   
   

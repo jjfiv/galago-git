@@ -4,17 +4,12 @@
 
 package org.lemurproject.galago.core.index.merge;
 
+import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.execution.Verified;
+
 import java.io.IOException;
 import java.util.List;
-import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.tupleflow.ExNihiloSource;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.Linkage;
-import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.Step;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.execution.Verified;
 
 /**
  *
@@ -34,7 +29,7 @@ public class IndexNumberer implements ExNihiloSource<DocumentSplit> {
     int i = 0 ;
     int total = parameters.getJSON().getList("inputPath").size();
     for(String inputIndex : (List<String>) parameters.getJSON().getList("inputPath")) {
-      processor.process(new DocumentSplit(inputIndex,"",false,new byte[0],new byte[0],i,total));
+      processor.process(new DocumentSplit(inputIndex,"",new byte[0],new byte[0],i,total));
       i++;
     }
 

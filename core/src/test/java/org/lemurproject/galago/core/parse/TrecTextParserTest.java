@@ -61,6 +61,30 @@ public class TrecTextParserTest {
 	}
 
   @Test
+  public void testDocumentStreamParser() throws IOException {
+    String fileText = AppTest.trecDocument("CACM-0001", "This is some text in a document.\n");
+
+    File f = FileUtility.createTemporary();
+    try {
+      Utility.copyStringToFile(fileText, f);
+      DocumentSplit split = new DocumentSplit();
+      split.fileName = f.getAbsolutePath();
+      split.fileType = "trectext";
+      DocumentStreamParser parser = DocumentStreamParser.instance(split, new Parameters());
+
+      Document document = parser.nextDocument();
+      assertNotNull(document);
+      assertEquals("CACM-0001", document.name);
+      assertEquals("<TEXT>\nThis is some text in a document.\n</TEXT>\n", document.text);
+
+      document = parser.nextDocument();
+      assertNull(document);
+    } finally {
+      f.delete();
+    }
+  }
+
+  @Test
   public void testParseOneDocument() throws IOException {
     String fileText =
             "<DOC>\n"

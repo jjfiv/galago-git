@@ -41,7 +41,7 @@ public class TrecTextParser extends DocumentStreamParser {
       return null;
     }
 
-    while (allText.contains("</DOCNO>") == false) {
+    while (!allText.contains("</DOCNO>")) {
       String line = reader.readLine();
       if (line == null) {
         break;
