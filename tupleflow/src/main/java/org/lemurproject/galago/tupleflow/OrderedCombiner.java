@@ -20,9 +20,7 @@ public class OrderedCombiner<T> implements ReaderSource<T> {
   public Step processor;
   boolean closeOnExit;
   static int defaultBufferSize = 1000;
-  boolean initialized = false;
   ReaderSource<T> source = null;
-  T last = null;
 
   public static class SortPair<T> {
 
@@ -74,8 +72,8 @@ public class OrderedCombiner<T> implements ReaderSource<T> {
     return combineFromFiles(filenames, order, null, true, defaultBufferSize);
   }
 
-  public static <S> OrderedCombiner combineFromFileObjs(List<File> filenames, Order<S> order) throws IOException {
-    List<String> paths = new ArrayList();
+  public static <S> OrderedCombiner<S> combineFromFileObjs(List<File> filenames, Order<S> order) throws IOException {
+    List<String> paths = new ArrayList<String>();
     for (File f : filenames) {
       paths.add(f.getAbsolutePath());
     }
@@ -83,7 +81,7 @@ public class OrderedCombiner<T> implements ReaderSource<T> {
   }
 
   @SuppressWarnings(value = "unchecked")
-  public static <S> OrderedCombiner combineFromFiles(List<String> filenames, Order<S> order, Processor<S> processor, boolean closeOnExit, int bufferSize) throws IOException {
+  public static <S> OrderedCombiner<S> combineFromFiles(List<String> filenames, Order<S> order, Processor<S> processor, boolean closeOnExit, int bufferSize) throws IOException {
     TypeReader[] inputs = new TypeReader[filenames.size()];
     FileOrderedReader[] readers = new FileOrderedReader[filenames.size()];
 
@@ -96,7 +94,7 @@ public class OrderedCombiner<T> implements ReaderSource<T> {
   }
 
   @SuppressWarnings(value = "unchecked")
-  public static <S> OrderedCombiner combineFromFiles(List<String> filenames) throws IOException {
+  public static <S> OrderedCombiner<S> combineFromFiles(List<String> filenames) throws IOException {
     TypeReader[] inputs = new TypeReader[filenames.size()];
     FileOrderedReader[] readers = new FileOrderedReader[filenames.size()];
     assert filenames.size() > 0;
@@ -109,7 +107,7 @@ public class OrderedCombiner<T> implements ReaderSource<T> {
     return new OrderedCombiner<S>(inputs, readers, readers[0].getOrder(), null, true);
   }
 
-  public static <S> OrderedCombiner combineFromFiles(List<String> filenames, Order<S> order, Processor<S> processor) throws IOException {
+  public static <S> OrderedCombiner<S> combineFromFiles(List<String> filenames, Order<S> order, Processor<S> processor) throws IOException {
     return combineFromFiles(filenames, order, processor, true, defaultBufferSize);
   }
 

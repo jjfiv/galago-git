@@ -53,6 +53,10 @@ public class StreamCreator {
     }
   }
 
+  public static DataInputStream openInputStream(File fp) throws IOException {
+    return openInputStream(fp.getAbsolutePath());
+  }
+
   public static DataOutputStream openOutputStream(String filename) throws IOException {
     if (filename.endsWith(".gz")) {
       return new DataOutputStream(new GZIPOutputStream(new FileOutputStream(filename)));
@@ -63,6 +67,10 @@ public class StreamCreator {
     } else {
       return new DataOutputStream(new FileOutputStream(filename));
     }
+  }
+
+  public static DataOutputStream openOutputStream(File path) throws IOException {
+    return openOutputStream(path.getAbsolutePath());
   }
 
   public static String[] compressionExtensions = {".gz", ".bz", ".bz2", ".xz"};

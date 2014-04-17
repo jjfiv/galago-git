@@ -19,7 +19,7 @@ import org.lemurproject.galago.tupleflow.execution.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -69,15 +69,13 @@ public class HarvestLinksFn extends AppFunction {
     output.println("Done harvesting link.");
   }
 
-  private Job getHarvestLinksJob(Parameters p) throws IOException, Exception {
+  private Job getHarvestLinksJob(Parameters p) throws Exception {
     Job job = new Job();
 
     // ensure we can extract links from tag: 'a'
     // sjh -- parameterize this to allow different link tags?
     p.set("tokenizer", new Parameters());
-    p.getMap("tokenizer").set("fields", new ArrayList());
-    p.getMap("tokenizer").getList("fields").add("a");
-    p.getMap("tokenizer").getList("fields").add("base");
+    p.getMap("tokenizer").set("fields", Arrays.asList("a", "base"));
 
     // check indri
     p.set("indri", p.get("indri", false));
@@ -93,7 +91,7 @@ public class HarvestLinksFn extends AppFunction {
       splitParameters.set("filetype", p.getString("filetype"));
     }
 
-    List<String> inputPaths = p.getAsList("inputPath");
+    List<String> inputPaths = p.getAsList("inputPath", String.class);
     job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
 
     // stage 2: parse files

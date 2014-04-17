@@ -53,18 +53,10 @@ public class HarvestLinksFnTest {
       File outputFile = new File(indri, "input.trecweb");
       assert (outputFile.exists()) : "input.trecweb should exist in the indri directory.";
 
-      //      String data = Utility.readFileToString(outputFile); //compressed
       // perhaps there ought to be a test for gzip in the Utility method
       GZIPInputStream gzis = new GZIPInputStream(new FileInputStream(outputFile));
-      BufferedReader in = new BufferedReader(new InputStreamReader(gzis));
-      String line;
-      StringBuilder sb = new StringBuilder();
-      while ((line = in.readLine()) != null) {
-          sb.append(line).append("\n");          
-      }
-      in.close();
-      String data = sb.toString();
-      
+      String data = Utility.copyStreamToString(gzis);
+
       String expectedPrefix = 
           "DOCNO=test-0\n"
           + "http://small-test.0\n"
@@ -120,7 +112,7 @@ public class HarvestLinksFnTest {
       File destOrder = new File(galago, "destNameOrder");
 
       assert (names.isDirectory() && srcOrder.isDirectory() && destOrder.isDirectory()) : "galago folder should contain three folders.";
-      File[] nameFiles = names.listFiles();
+      File[] nameFiles = FileUtility.safeListFiles(names);
       assertEquals(nameFiles.length, 3);
 
       TypeReader<DocumentUrl> reader1 = OrderedCombiner.combineFromFileObjs(Arrays.asList(nameFiles), new DocumentUrl.IdentifierOrder());
@@ -132,7 +124,7 @@ public class HarvestLinksFnTest {
       }
       assertEquals(count, 12);
 
-      TypeReader<ExtractedLink> reader2 = OrderedCombiner.combineFromFileObjs(Arrays.asList(srcOrder.listFiles()), new ExtractedLink.SrcNameOrder());
+      TypeReader<ExtractedLink> reader2 = OrderedCombiner.combineFromFileObjs(Arrays.asList(FileUtility.safeListFiles(srcOrder)), new ExtractedLink.SrcNameOrder());
       ExtractedLink ln = reader2.read();
       count = 0;
       while (ln != null) {
@@ -149,7 +141,6 @@ public class HarvestLinksFnTest {
   /**
    * Also used by PageRankFnTest
    * @see org.lemurproject.galago.core.tools.apps.PageRankFnTest
-   * @param input
    * @throws IOException
    */
   public static void writeInput(File input) throws IOException {

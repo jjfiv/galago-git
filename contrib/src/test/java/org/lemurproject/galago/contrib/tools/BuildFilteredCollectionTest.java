@@ -8,9 +8,10 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.util.Random;
-import java.util.zip.GZIPInputStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -43,7 +44,7 @@ public class BuildFilteredCollectionTest {
       int dcount = 0;
       assertNotNull(output);
       assertNotNull(output.listFiles());
-      for (File o : output.listFiles()) {
+      for (File o : FileUtility.safeListFiles(output)) {
         // System.err.println(o);
         dcount += countDocuments(o);
       }
@@ -72,7 +73,7 @@ public class BuildFilteredCollectionTest {
   }
 
   public static int countDocuments(File f) throws IOException {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(f))));
+    BufferedReader reader = Utility.utf8Reader(f);
     String line;
     int count = 0;
     while (null != (line = reader.readLine())) {

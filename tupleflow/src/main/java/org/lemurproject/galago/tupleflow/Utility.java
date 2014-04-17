@@ -6,7 +6,6 @@ import org.lemurproject.galago.tupleflow.execution.Step;
 import java.io.*;
 import java.net.ServerSocket;
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * Lots of static methods here that have broad use.
@@ -14,9 +13,6 @@ import java.util.logging.Logger;
  * @author trevor
  */
 public class Utility {
-
-  private static final Logger LOG = Logger.getLogger(Utility.class.getName());
-  
   // Some constant values
   public static final double log2 = Math.log(2);
   public static final double loge_base2 = Math.log(Math.E) / log2;
@@ -170,7 +166,6 @@ public class Utility {
   }
 	
 	public static String join(List<String> args, String delimiter) {
-		String output = "";
     StringBuilder builder = new StringBuilder();
 
     for (String arg : args) {
@@ -347,10 +342,10 @@ public class Utility {
     return s.hashCode();
   }
 
-  public static int hash(byte[] b) {
+  public static int hash(byte[] bytes) {
     int h = 0;
-    for (int i = 0; i < b.length; i++) {
-      h += 7 * h + b[i];
+    for (byte b : bytes) {
+      h += 7 * h + b;
     }
     return h;
   }
@@ -408,12 +403,10 @@ public class Utility {
    * Copies the data from file into the stream. Note that this method does not
    * close the stream (in case you want to put more in it).
    *
-   * @param file
-   * @param stream
    * @throws java.io.IOException
    */
   public static void copyFileToStream(File file, OutputStream stream) throws IOException {
-    FileInputStream input = null;
+    InputStream input = null;
     try {
       input = new FileInputStream(file);
       long longLength = file.length();
@@ -435,14 +428,12 @@ public class Utility {
    * Copies the data from the InputStream to a file, then closes both when
    * finished.
    *
-   * @param stream
-   * @param file
    * @throws java.io.IOException
    */
   public static void copyStreamToFile(InputStream stream, File file) throws IOException {
-    FileOutputStream output = null;
+    DataOutputStream output = null;
     try {
-      output = new FileOutputStream(file);
+      output = StreamCreator.openOutputStream(file);
       final int oneMegabyte = 1 * 1024 * 1024;
       byte[] data = new byte[oneMegabyte];
 
@@ -462,24 +453,25 @@ public class Utility {
 
   /**
    * Copies the data from the string s to the file.
-   *
-   * @param s
-   * @param file
    * @throws java.io.IOException
    */
   public static void copyStringToFile(String s, File file) throws IOException {
-    FileOutputStream output = new FileOutputStream(file);
-    output.write(Utility.fromString(s));
-    output.close();
+    DataOutputStream output = null;
+    try {
+      output = StreamCreator.openOutputStream(file);
+      output.write(Utility.fromString(s));
+    } finally {
+      if(output != null) output.close();
+    }
   }
 
-  public static BufferedReader utf8Reader(String file) throws FileNotFoundException {
+  public static BufferedReader utf8Reader(String file) throws IOException {
     return utf8Reader(new File(file));
   }
 
-  public static BufferedReader utf8Reader(File fp) throws FileNotFoundException {
+  public static BufferedReader utf8Reader(File fp) throws IOException {
     try {
-      return new BufferedReader(new InputStreamReader(new FileInputStream(fp), "UTF-8"));
+      return new BufferedReader(new InputStreamReader(StreamCreator.openInputStream(fp), "UTF-8"));
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
@@ -625,9 +617,6 @@ public class Utility {
 
   /**
    * Check that we are given a byte array of length 1 to parse as a boolean.
-   *
-   * @param key
-   * @return
    */
   public static boolean isBoolean(byte[] key) {
     return key != null && key.length == 1;
@@ -781,10 +770,10 @@ public class Utility {
       b = input.readUnsignedByte();
 
       if ((b & 0x80) == 0x80) {
-        result |= ((long) (b & 0x7f) << (7 * position));
+        result |= ((b & 0x7f) << (7 * position));
         break;
       } else {
-        result |= ((long) b << (7 * position));
+        result |= (b << (7 * position));
       }
     }
 
@@ -800,10 +789,10 @@ public class Utility {
       b = input[position + offset];
 
       if ((b & 0x80) == 0x80) {
-        result |= ((long) (b & 0x7f) << (7 * position));
+        result |= ((b & 0x7f) << (7 * position));
         break;
       } else {
-        result |= ((long) b << (7 * position));
+        result |= (b << (7 * position));
       }
     }
 

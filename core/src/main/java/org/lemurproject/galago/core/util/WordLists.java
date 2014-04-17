@@ -3,17 +3,14 @@
  */
 package org.lemurproject.galago.core.util;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * This is a utility class to hold word lists in memory.
@@ -28,7 +25,7 @@ public class WordLists {
 
   public static Set<String> getWordList(String name) throws IOException {
     if (wordLists == null) {
-      wordLists = new HashMap();
+      wordLists = new HashMap<String,Set<String>>();
     }
     if (!wordLists.containsKey(name)) {
       Set<String> list;

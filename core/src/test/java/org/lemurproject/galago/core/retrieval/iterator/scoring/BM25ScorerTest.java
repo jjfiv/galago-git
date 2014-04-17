@@ -2,7 +2,6 @@
 package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
 import org.junit.Test;
-import org.lemurproject.galago.core.retrieval.extents.FakeExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 import static org.junit.Assert.assertEquals;
@@ -13,15 +12,6 @@ import static org.junit.Assert.assertEquals;
  */
 public class BM25ScorerTest {
 
-  private static final int[][] dummy = {};
-  private static final int[][] five = {
-    {1, 2, 3},
-    {5, 10, 60},
-    {1, 90},
-    {4, 78, 2343},
-    {100}};
-  FakeExtentIterator iterator;
-
   @Test
   public void testScorer() throws Exception {
     // start with as many defaults as possible and
@@ -30,7 +20,6 @@ public class BM25ScorerTest {
     p.set("collectionLength", 5000);
     p.set("documentCount", 100);
     p.set("nodeDocumentCount", 0);
-    FakeExtentIterator iterator = new FakeExtentIterator(dummy);
 
     BM25Scorer scorer = new BM25Scorer(p);
     assertEquals(0.75, scorer.b, 0.001);
@@ -40,7 +29,6 @@ public class BM25ScorerTest {
     assertEquals(8.20866, scorer.score(5, 100), 0.0001);
 
     // Add in an iterator w/ some docs
-    iterator = new FakeExtentIterator(five);
     p.set("nodeDocumentCount", 5);
     scorer = new BM25Scorer(p);
     assertEquals(0.75, scorer.b, 0.001);
