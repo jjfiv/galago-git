@@ -51,6 +51,10 @@ public class WorkingSetExtentModel extends ProcessingModel {
       throw new IllegalArgumentException("Parameters must contain a 'working' parameter specifying the working set");
     }
 
+    if (l.isEmpty()) {
+      throw new IllegalArgumentException("Working set may not be empty");
+    }
+
     Class containedType = l.get(0).getClass();
     List<Long> whitelist;
     if (Long.class.isAssignableFrom(containedType)) {
