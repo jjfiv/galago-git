@@ -1,27 +1,17 @@
 package org.lemurproject.galago.core.parse;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.*;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Wikipedia WEX parser
@@ -188,18 +178,15 @@ public class WikiWexParser extends DocumentStreamParser {
     }
 
     String wikiTitle = data[1];
-    if (wikiTitle.startsWith("File:") || wikiTitle.startsWith("Category:") || wikiTitle.startsWith("Template:") || wikiTitle.startsWith("List of") || wikiTitle.startsWith("Lists of")) {
-      return true;
-    }
+    return wikiTitle.startsWith("File:") || wikiTitle.startsWith("Category:") || wikiTitle.startsWith("Template:") || wikiTitle.startsWith("List of") || wikiTitle.startsWith("Lists of") || filter;
 
-    return filter;
   }
 
   private String cleanText(String rawText) {
     String newText = rawText.replace("\\n", " ");
     newText = newText.replace("#tag:ref", "");
 
-    boolean containsBrackets = newText.indexOf("[[", 0) > -1 ? true : false;
+    boolean containsBrackets = newText.indexOf("[[", 0) > -1;
 
     // clean it up
     if (containsBrackets) {
@@ -299,7 +286,7 @@ public class WikiWexParser extends DocumentStreamParser {
       StringBuilder sb = new StringBuilder();
       Set<String> keys = cooccurringLinks.keySet();
       for (String key : keys) {
-        sb.append(key + "\t" + cooccurringLinks.get(key).toString() + "\n");
+        sb.append(key).append("\t").append(cooccurringLinks.get(key).toString()).append("\n");
       }
 
 
@@ -383,11 +370,7 @@ public class WikiWexParser extends DocumentStreamParser {
   private boolean filterAnchorText(String text, int count) {
     String[] wikiStopwords = {"more....", "wikipedia article", "source: wikipedia", "here", "wiki", "wikipedia", "wikipedia the free encyclopedia", "en.wikipedia.org", "full article at wikipedia.org"};
     Set<String> wikiStopwordSet = new HashSet<String>(Arrays.asList(wikiStopwords));
-    if (text.length() == 0 || (text.startsWith("[") && text.endsWith("]")) || wikiStopwordSet.contains(text.toLowerCase())) {
-      return true;
-    } else {
-      return false;
-    }
+    return text.length() == 0 || (text.startsWith("[") && text.endsWith("]")) || wikiStopwordSet.contains(text.toLowerCase());
   }
 
   private Iterable<String> parseSources(String sources) {
@@ -491,7 +474,7 @@ public class WikiWexParser extends DocumentStreamParser {
    * @return   a String representing its contents
    */
   public String getText(Node node) {
-    StringBuffer result = new StringBuffer();
+    StringBuilder result = new StringBuilder();
     if (!node.hasChildNodes()) {
       return "";
     }
@@ -501,7 +484,7 @@ public class WikiWexParser extends DocumentStreamParser {
       Node subnode = list.item(i);
       //System.out.println(subnode.getNodeValue() + "; " + subnode.getTextContent() + "\n");
       if (subnode.getNodeType() == Node.TEXT_NODE) {
-        result.append(subnode.getNodeValue() + " ");
+        result.append(subnode.getNodeValue()).append(" ");
       } else if (subnode.getNodeType()
               == Node.CDATA_SECTION_NODE) {
         result.append(subnode.getNodeValue());
@@ -523,42 +506,6 @@ public class WikiWexParser extends DocumentStreamParser {
 
   public String cleanTitle(String title) {
     return title.replaceAll(" ", "_");
-  }
-
-  public static void main(String[] args) throws FileNotFoundException, IOException {
-
-//	    String test = "1234\tEurope\t2011-123-123\t<?xml version=1.0>stuff</xml>\tVarious groups of Europeans"+
-//" and Chinese also integrated with the native population during that period.#tag:ref" +
-//	            "[[File:Visayas regions.PNG|right|thumb|A map of the Visayas colour-coded according to the constituent regions."
-//+"The major islands, from west to east, are Panay, Negros, Cebu, Bohol, Leyte, and Samar.]]Administratively, Bollywood films.\\n\\nOn 10"+
-//	            "\tEurope\t/location/location\tcategory:place\tEuropean\t\t\t\t\t";
-    File testFile = new File("/usr/aubury/scratch2/jdalton/aristotle.wex");
-//	      WikiWexParser parser = new WikiWexParser(new BufferedReader(new StringReader(test)));
-
-    DocumentSplit split = new DocumentSplit(testFile.getAbsolutePath(), "", false, new byte[0], new byte[0], 0, 0);
-    WikiWexParser parser = new WikiWexParser(split, new Parameters());
-    Document doc = null;
-
-    while ((doc = parser.nextDocument()) != null) {
-
-      TagTokenizer tt = new TagTokenizer();
-      tt.addField("title");
-      tt.addField("category");
-      tt.addField("anchor");
-      tt.addField("anchor-exact");
-      tt.addField("fbnames");
-      tt.addField("stanf_anchor");
-
-      System.out.println(doc.toString());
-      tt.process(doc);
-//		    System.out.println("PARSED TERMS");
-//		    List<String> tokens = doc.terms;
-//		    for (int i = 0; i < tokens.size(); i++) {
-//	            System.out.println("Token: " + tokens.get(i));
-//	        }
-
-      System.out.println(doc.toString());
-    }
   }
 
   @Override

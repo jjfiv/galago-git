@@ -1,8 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator;
@@ -10,6 +8,8 @@ import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.IOException;
 
 /**
  * Reads Document data from an index file. Typically you'd use this parser by
@@ -24,11 +24,7 @@ public class CorpusSplitParser extends DocumentStreamParser {
   DocumentSplit split;
   DocumentComponents extractionParameters;
 
-  public CorpusSplitParser(DocumentSplit split) throws FileNotFoundException, IOException {
-    this(split, new Parameters());
-  }
-
-  public CorpusSplitParser(DocumentSplit split, Parameters p) throws FileNotFoundException, IOException {
+  public CorpusSplitParser(DocumentSplit split, Parameters p) throws IOException {
     super(split, p);
     this.reader = new CorpusReader(split.fileName);
     this.iterator = (DocumentIterator) reader.getIterator();

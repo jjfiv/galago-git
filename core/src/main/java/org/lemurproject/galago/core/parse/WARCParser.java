@@ -10,6 +10,9 @@
  */
 package org.lemurproject.galago.core.parse;
 
+import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.tupleflow.Parameters;
+
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -17,8 +20,6 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 public class WARCParser extends DocumentStreamParser {
 
@@ -51,7 +52,7 @@ public class WARCParser extends DocumentStreamParser {
     totalNumBytesRead += (long) record.getTotalRecordLength();
 
     Document doc = new Document(record.getHeaderMetadataItem("WARC-TREC-ID"), record.getContentUTF8());
-    doc.metadata = new HashMap();
+    doc.metadata = new HashMap<String,String>();
     for(Entry<String, String> entry : record.getHeaderMetadata()){
       doc.metadata.put(entry.getKey(), entry.getValue());
     }

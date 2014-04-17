@@ -1,18 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.zip.GZIPInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.StreamCreator;
 import org.tukaani.xz.XZInputStream;
+
+import java.io.*;
+import java.util.zip.GZIPInputStream;
 
 /**
  *
@@ -20,10 +16,10 @@ import org.tukaani.xz.XZInputStream;
  */
 public abstract class DocumentStreamParser {
 
-  public DocumentStreamParser(DocumentSplit split, Parameters p) {
-    // This is the constructor expected by UniversalParser
-    // It must be implemented in each implementing class
-  }
+  /** This is the constructor expected by UniversalParser
+   *  It must be implemented in each implementing class
+   */
+  public DocumentStreamParser(DocumentSplit split, Parameters p) {}
 
   public abstract Document nextDocument() throws IOException;
 

@@ -20,23 +20,20 @@ public class TrecKBAParser extends DocumentStreamParser {
   private DataInputStream reader = null;
   private TProtocol tp;
   private Date date;
-  //TDeserializer deserializer = new TDeserializer(new TBinaryProtocol.Factory());
-  private InputStream stream = null;
   private String sourceFile = null;
   private String contentType = null;
   private long numSkipped = 0;
   private long totalRecords = 0;
 
   public TrecKBAParser(DocumentSplit split, Parameters p)
-          throws FileNotFoundException, IOException {
+          throws IOException {
     super(split, p);
-    stream = getBufferedInputStream(split);
+    InputStream stream = getBufferedInputStream(split);
     reader = new DataInputStream(stream);
     tp = new TBinaryProtocol.Factory().getProtocol(new TIOStreamTransport(stream));
     sourceFile = split.fileName;
     String fileName = sourceFile.substring(sourceFile.lastIndexOf('/') + 1);
-    String type = fileName.substring(0, fileName.indexOf('.'));
-    contentType = type;
+    contentType = fileName.substring(0, fileName.indexOf('.'));
     String dateString = getIdentifier(split);
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd-HH");
     try {
@@ -48,10 +45,9 @@ public class TrecKBAParser extends DocumentStreamParser {
 
   private String getIdentifier(DocumentSplit split) {
     String filename = split.fileName;
-    String dirDate = filename.substring(
+    return filename.substring(
             filename.lastIndexOf('/', filename.lastIndexOf('/') - 1) + 1,
             filename.lastIndexOf('/'));
-    return dirDate;
   }
 
   public void close() throws IOException {
@@ -80,7 +76,7 @@ public class TrecKBAParser extends DocumentStreamParser {
 
         // NOTE: for 2012 we only index documents with cleansed text.
         // These were the only ones judged by the assessors.
-        String bodyText = null;
+        String bodyText;
         byte[] cleansedTextBytes = item.getBody().getCleansed();
         if (cleansedTextBytes == null) {
           //System.out.println("Skipping doc without cleansed text." + streamId);
@@ -104,12 +100,11 @@ public class TrecKBAParser extends DocumentStreamParser {
 
         String rawHtml = new String(item.getBody().getRaw(), encoding);
 
-        String nerData = null;
+        String nerData;
         try {
           nerData = new String(item.getBody().getNer(), encoding);
         } catch (UnsupportedEncodingException e) {
           nerData = new String(item.getBody().getNer(), "UTF-8");
-          encoding = "UTF-8";
         } catch (Exception e) {
           nerData = "";
         }
