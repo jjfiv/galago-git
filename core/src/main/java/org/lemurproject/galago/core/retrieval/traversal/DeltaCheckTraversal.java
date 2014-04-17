@@ -47,6 +47,8 @@ public class DeltaCheckTraversal extends Traversal {
 
       // now add w parameters to each node
       propagateWeights(original, qp);
+    } else {
+      qp.set("deltaReady", false);
     }
 
     return original;
