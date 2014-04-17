@@ -57,8 +57,8 @@ public class ErrorStore {
     String message;
   }
 
-  ArrayList<Statement> errors = new ArrayList();
-  ArrayList<Statement> warnings = new ArrayList();
+  ArrayList<Statement> errors = new ArrayList<Statement>();
+  ArrayList<Statement> warnings = new ArrayList<Statement>();
 
   public void addError(String message) {
     errors.add(new Statement(message));

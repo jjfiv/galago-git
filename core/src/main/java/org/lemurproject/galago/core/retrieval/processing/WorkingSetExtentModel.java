@@ -1,9 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -16,11 +13,15 @@ import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 import org.lemurproject.galago.tupleflow.Parameters;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Logger;
+
 /**
  * Performs extent-level retrieval scoring. Scores each named extent in the
  * document. Useful for scoring sentences or paragraphs.
  *
- * Can also score seqential sets of extents. (but it assumes no break in
+ * Can also score sequential sets of extents. (but it assumes no break in
  * extents) -- any gaps will be scored.
  *
  *
@@ -44,6 +45,10 @@ public class WorkingSetExtentModel extends ProcessingModel {
 
     PassageScoringContext context = new PassageScoringContext();
     context.cachable = false;
+
+    if(queryParams.get("extentQuery", false)) {
+      throw new IllegalArgumentException("WorkingSetExtentModel invoked without extentQuery=true");
+    }
 
     // There should be a whitelist to deal with
     List l = queryParams.getList("working");
@@ -100,13 +105,11 @@ public class WorkingSetExtentModel extends ProcessingModel {
       return null;
     }
 
-    FixedSizeMinHeap<ScoredPassage> queue = new FixedSizeMinHeap(ScoredPassage.class, requested, new ScoredPassage.ScoredPassageComparator());
+    FixedSizeMinHeap<ScoredPassage> queue = new FixedSizeMinHeap<ScoredPassage>(ScoredPassage.class, requested, new ScoredPassage.ScoredPassageComparator());
 
     // now there should be an iterator at the root of this tree
-    for (int i = 0; i < whitelist.size(); i++) {
-
-      long document = whitelist.get(i);
-      if(document < 0){
+    for (long document : whitelist) {
+      if (document < 0) {
         continue;
       }
       context.document = document;
