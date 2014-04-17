@@ -25,6 +25,16 @@ public abstract class DocumentStreamParser {
   public static HashMap<String, Class> fileTypeMap;
   static {
     fileTypeMap = new HashMap<String, Class>();
+  }
+
+  // isParsable
+  public static boolean hasParserForExtension(String ext) {
+    return fileTypeMap.containsKey(ext);
+  }
+
+  // configuring extra parsers
+  public static void addExternalParsers(Parameters parameters) {
+    try {
     fileTypeMap.put("html", FileParser.class);
     fileTypeMap.put("xml", FileParser.class);
     fileTypeMap.put("txt", FileParser.class);
@@ -36,16 +46,7 @@ public abstract class DocumentStreamParser {
     fileTypeMap.put("corpus", CorpusSplitParser.class);
     fileTypeMap.put("selectivecorpus", CorpusSelectiveSplitParser.class);
     fileTypeMap.put("wiki", WikiParser.class);
-  }
 
-  // isParsable
-  public static boolean hasParserForExtension(String ext) {
-    return fileTypeMap.containsKey(ext);
-  }
-
-  // configuring extra parsers
-  public static void addExternalParsers(Parameters parameters) {
-    try {
       // Look for external mapping definitions
       if (parameters.containsKey("externalParsers")) {
         for (Parameters extP : parameters.getAsList("externalParsers", Parameters.class)) {
@@ -70,7 +71,7 @@ public abstract class DocumentStreamParser {
 
     // see if filetype is in our list of known types
     if (fileTypeMap.containsKey(fileType)) {
-      return constructParserWithSplit(fileTypeMap.get(fileType), split, parameters);
+       return constructParserWithSplit(fileTypeMap.get(fileType), split, parameters);
     }
 
     // see if filetype is a full class, and can be instantiated that way.
