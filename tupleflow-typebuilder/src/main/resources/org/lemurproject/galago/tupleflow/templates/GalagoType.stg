@@ -21,15 +21,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Collection;
-import gnu.trove.list.array.TByteArrayList;
-import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TFloatArrayList;
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.list.array.TLongArrayList;
-import gnu.trove.list.array.TShortArrayList;
+import gnu.trove.list.array.*;
 
 
-public class <typeName> implements Type\<<typeName>\> {
+public final class <typeName> implements Type\<<typeName>\> {
     <fields:{public <it.type> <it.name>;}; separator="\n"> 
     
     public <typeName>() {}
@@ -112,7 +107,7 @@ if (Arrays.equals(spec, new String[] { <order.orderedFields:{f|"<f.direction><f.
 >>
 
 orderClass(order) ::= <<
-public static class <order.className> implements Order\<<typeName>\> {
+public static final class <order.className> implements Order\<<typeName>\> {
     <hash()>
     <comparator(functionName="greaterThan", direction="-")>
     <comparator(functionName="lessThan", direction="")>
@@ -246,7 +241,7 @@ public interface ShreddedSource extends Step {
 //               
  
 shreddedBuffer() ::= <<
-public static class ShreddedBuffer {
+public static final class ShreddedBuffer {
     <shreddedBufferDecls()>                                     
     
     <shreddedProcessCalls()>
@@ -494,7 +489,7 @@ shreddedObjectRead() ::= ""
 //                    
 
 duplicateEliminator() ::= <<
-public static class DuplicateEliminator implements ShreddedProcessor {
+public static final class DuplicateEliminator implements ShreddedProcessor {
     public ShreddedProcessor processor;
     <typeName> last = new <typeName>();
     <[order.rleFields,order.deltaFields]:{f|boolean <f.name>Process = true;}; separator="\n">
@@ -545,7 +540,7 @@ public void reset<f.current.capsName>() {
 //
 
 tupleUnshredder() ::= <<
-public static class TupleUnshredder implements ShreddedProcessor {
+public static final class TupleUnshredder implements ShreddedProcessor {
     <typeName> last = new <typeName>();
     public org.lemurproject.galago.tupleflow.Processor\<<typeName>\> processor;                               
     
@@ -581,7 +576,7 @@ public void process<f.capsName>(<f.type> <f.name>) throws IOException {
 //              
 
 tupleShredder() ::= <<
-public static class TupleShredder implements Processor {
+public static final class TupleShredder implements Processor {
     <typeName> last = null;
     public ShreddedProcessor processor;
     
@@ -619,7 +614,7 @@ if(result != 0) break;
 >>
 
 shreddedReader() ::= <<
-public static class ShreddedReader implements Step, Comparable\<ShreddedReader\>, TypeReader\<<typeName>\>, ShreddedSource {      
+public static final class ShreddedReader implements Step, Comparable\<ShreddedReader\>, TypeReader\<<typeName>\>, ShreddedSource {
     public ShreddedProcessor processor;
     ShreddedBuffer buffer;
     <typeName> last = new <typeName>();         
@@ -773,7 +768,7 @@ public OrderedWriter\<<typeName>\> orderedWriter(ArrayOutput _output) {
 
 
 shreddedWriter() ::= <<
-public static class ShreddedWriter implements ShreddedProcessor {
+public static final class ShreddedWriter implements ShreddedProcessor {
     ArrayOutput output;
     ShreddedBuffer buffer = new ShreddedBuffer();
     <order.orderedFields:{f|<f.type> last<f.capsName>;}; separator="\n">
@@ -890,7 +885,7 @@ public final void flushTuples(int pauseIndex) throws IOException {
 //                                      
 
 orderedWriterClass() ::= <<
-public static class OrderedWriterClass extends OrderedWriter\< <typeName> \> {
+public static final class OrderedWriterClass extends OrderedWriter\< <typeName> \> {
     <typeName> last = null;
     ShreddedWriter shreddedWriter = null; 
     
@@ -920,7 +915,7 @@ public static class OrderedWriterClass extends OrderedWriter\< <typeName> \> {
 //                 
 
 shreddedCombiner() ::= <<
-public static class ShreddedCombiner implements ReaderSource\<<typeName>\>, ShreddedSource {   
+public static final class ShreddedCombiner implements ReaderSource\<<typeName>\>, ShreddedSource {
     public ShreddedProcessor processor;
     Collection\<ShreddedReader\> readers;       
     boolean closeOnExit = false;
