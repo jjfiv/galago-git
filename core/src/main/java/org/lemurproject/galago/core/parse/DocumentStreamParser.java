@@ -68,11 +68,24 @@ public abstract class DocumentStreamParser {
       fileType = split.fileType;
     }
 
+    // see if filetype is in our list of known types
     if (fileTypeMap.containsKey(fileType)) {
       return constructParserWithSplit(fileTypeMap.get(fileType), split, parameters);
-    } else {
-      throw new IOException("Unknown fileType: " + fileType + " for fileName: " + split.fileName);
     }
+
+    // see if filetype is a full class, and can be instantiated that way.
+    try {
+      Class<?> clazz = Class.forName(fileType);
+      if(clazz != null) {
+        // cache it
+        fileTypeMap.put(fileType, clazz);
+        return constructParserWithSplit(clazz, split, parameters);
+      }
+    } catch (ClassNotFoundException e) {
+      // not actually a valid class
+    }
+
+    throw new IOException("Unknown fileType: " + fileType + " for fileName: " + split.fileName);
   }
 
   private static DocumentStreamParser constructParserWithSplit(Class parserClass, DocumentSplit split, Parameters parameters) throws IOException {

@@ -46,10 +46,6 @@ public class WorkingSetExtentModel extends ProcessingModel {
     PassageScoringContext context = new PassageScoringContext();
     context.cachable = false;
 
-    if(queryParams.get("extentQuery", false)) {
-      throw new IllegalArgumentException("WorkingSetExtentModel invoked without extentQuery=true");
-    }
-
     // There should be a whitelist to deal with
     List l = queryParams.getList("working");
     if (l == null) {
