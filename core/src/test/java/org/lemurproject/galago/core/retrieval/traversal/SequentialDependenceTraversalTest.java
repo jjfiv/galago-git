@@ -43,7 +43,7 @@ public class SequentialDependenceTraversalTest {
     Parameters p = new Parameters();
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
     SequentialDependenceTraversal traversal = new SequentialDependenceTraversal(retrieval);
-    Node tree = StructuredQuery.parse("#seqdep( cat dog rat )");
+    Node tree = StructuredQuery.parse("#sdm( cat dog rat )");
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine:0=0.8:1=0.15:2=0.05( ");
     transformed.append("#combine( #text:cat() #text:dog() #text:rat() ) ");
@@ -60,7 +60,7 @@ public class SequentialDependenceTraversalTest {
     p.set("uww", 0.15);
     retrieval = new LocalRetrieval(index, p);
     traversal = new SequentialDependenceTraversal(retrieval);
-    tree = StructuredQuery.parse("#seqdep( cat dog rat )");
+    tree = StructuredQuery.parse("#sdm( cat dog rat )");
     transformed = new StringBuilder();
     transformed.append("#combine:0=0.75:1=0.1:2=0.15( ");
     transformed.append("#combine( #text:cat() #text:dog() #text:rat() ) ");
@@ -71,7 +71,7 @@ public class SequentialDependenceTraversalTest {
     assertEquals(transformed.toString(), result.toString());
 
     // now change weights via the operator
-    tree = StructuredQuery.parse("#seqdep:uniw=0.55:odw=0.27:uww=0.18( cat dog rat )");
+    tree = StructuredQuery.parse("#sdm:uniw=0.55:odw=0.27:uww=0.18( cat dog rat )");
     transformed = new StringBuilder();
     transformed.append("#combine:0=0.55:1=0.27:2=0.18( ");
     transformed.append("#combine( #text:cat() #text:dog() #text:rat() ) ");
@@ -89,7 +89,7 @@ public class SequentialDependenceTraversalTest {
     p.set("windowLimit", 3);
     retrieval = new LocalRetrieval(index, p);
     traversal = new SequentialDependenceTraversal(retrieval);
-    tree = StructuredQuery.parse("#seqdep( cat dog rat )");
+    tree = StructuredQuery.parse("#sdm( cat dog rat )");
     transformed = new StringBuilder();
     transformed.append("#combine:0=0.75:1=0.1:2=0.15( ");
     transformed.append("#combine( #text:cat() #text:dog() #text:rat() ) ");

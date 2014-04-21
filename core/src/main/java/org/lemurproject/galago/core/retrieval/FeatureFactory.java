@@ -42,6 +42,7 @@ public class FeatureFactory {
     {OrderedWindowIterator.class.getName(), "quote"}, // don't rely on this - ImplicitFeatureCast does: quote -> od:1 for now. (irmarc)
     {UnorderedWindowIterator.class.getName(), "unordered"},
     {UnorderedWindowIterator.class.getName(), "uw"},
+    {UnorderedWindowBigramIterator.class.getName(), "ubigram"},
     {UnorderedWindowIterator.class.getName(), "intersect"},
     {ScaleIterator.class.getName(), "scale"},
     {ScoreCombinationIterator.class.getName(), "rm"},

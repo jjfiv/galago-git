@@ -1,9 +1,10 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+
+import java.io.IOException;
 
 /**
  *
@@ -12,7 +13,6 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 public class UnorderedWindowIterator extends ExtentConjunctionIterator {
 
   int width;
-  boolean overlap;
   private ScoringContext cachedContext = null;
 
   /**
@@ -21,7 +21,6 @@ public class UnorderedWindowIterator extends ExtentConjunctionIterator {
   public UnorderedWindowIterator(NodeParameters parameters, ExtentIterator[] evIterators) throws IOException {
     super(parameters, evIterators);
     this.width = (int) parameters.get("default", -1);
-    this.overlap = parameters.get("overlap", false);
     syncTo(0);
   }
 

@@ -1,12 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Transforms a #sdm operator into a full expansion of the sequential dependence
@@ -34,6 +35,8 @@ public class SequentialDependenceTraversal extends Traversal {
   private final int odWidth;
   private final String uwOp;
   private final int uwWidth;
+
+  private final boolean fasterOperators;
   
   public SequentialDependenceTraversal(Retrieval retrieval) {
     r = retrieval;
@@ -42,7 +45,10 @@ public class SequentialDependenceTraversal extends Traversal {
     orderedDefault = parameters.get("odw", 0.15);
     unorderedDefault = parameters.get("uww", 0.05);
     windowLimitDefault = (int) parameters.get("windowLimit", 2);
-    
+
+    // this parameter controls the use of specialized bigram and ubigram operators
+    fasterOperators = parameters.get("fast", false);
+
     odOp = parameters.get("sdm.od.op", "ordered");
     odWidth = (int) parameters.get("sdm.od.width", 1);
     
@@ -80,16 +86,26 @@ public class SequentialDependenceTraversal extends Traversal {
         return unigramNode;
       }
 
+      boolean fast = np.get("fast", qp.get("fast", fasterOperators));
+
       // ordered and unordered can go at the same time
       ArrayList<Node> ordered = new ArrayList<Node>();
       ArrayList<Node> unordered = new ArrayList<Node>();
 
-
       for (int n = 2; n <= windowLimit; n++) {
         for (int i = 0; i < (children.size() - n + 1); i++) {
           List<Node> seq = children.subList(i, i + n);
-          ordered.add(new Node(qp.get("sdm.od.op", this.odOp), new NodeParameters(qp.get("sdm.od.width", odWidth)), Node.cloneNodeList(seq)));
-          unordered.add(new Node(qp.get("sdm.uw.op", this.uwOp), new NodeParameters(qp.get("sdm.uw.width", uwWidth) * seq.size()), Node.cloneNodeList(seq)));
+
+          String orderedOp = this.odOp;
+          String unorderedOp = this.uwOp;
+
+          if(fast && n == 2) {
+            orderedOp = "bigram";
+            unorderedOp = "ubigram";
+          }
+
+          ordered.add(new Node(qp.get("sdm.od.op", orderedOp), new NodeParameters(qp.get("sdm.od.width", odWidth)), Node.cloneNodeList(seq)));
+          unordered.add(new Node(qp.get("sdm.uw.op", unorderedOp), new NodeParameters(qp.get("sdm.uw.width", uwWidth) * seq.size()), Node.cloneNodeList(seq)));
         }
       }
 
