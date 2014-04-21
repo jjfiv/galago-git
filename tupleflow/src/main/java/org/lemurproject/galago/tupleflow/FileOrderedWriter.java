@@ -34,7 +34,7 @@ public class FileOrderedWriter<T> implements Processor<T> {
             stream = new ArrayOutput(dataStream);
             break;
 
-            // UNSPECIFIED, DEAFULT, NONE are all the same -- no compression
+            // UNSPECIFIED, DEFAULT, NONE are all the same -- no compression
           case UNSPECIFIED:
           case NONE:
           default:

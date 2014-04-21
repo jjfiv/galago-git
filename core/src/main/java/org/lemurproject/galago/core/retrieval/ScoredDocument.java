@@ -40,7 +40,6 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
 
   @Override
   public int compareTo(ScoredDocument other) {
-    
     int cmp = Utility.compare(score, other.score);
     if (cmp != 0) {
       return cmp;
@@ -83,7 +82,6 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
   }
 
   public static class ScoredDocumentComparator implements Comparator<ScoredDocument>, Serializable {
-
     @Override
     public int compare(ScoredDocument o1, ScoredDocument o2) {
         return o1.compareTo(o2);
@@ -92,7 +90,6 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
 
 
   public static class RankComparator implements Comparator<ScoredDocument>, Serializable {
-
     @Override
     public int compare(ScoredDocument o1, ScoredDocument o2) {
       return Utility.compare(o1.rank, o2.rank);

@@ -290,7 +290,7 @@ public class Document implements Serializable {
       return currentBuffer;
     }
   }
-  
+
   /**
    * This class allows the selection
    *

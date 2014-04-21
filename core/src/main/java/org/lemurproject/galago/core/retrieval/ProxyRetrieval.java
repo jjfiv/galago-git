@@ -1,17 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.io.*;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashSet;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * This acts as the client-side stub for forwarding requests across 
@@ -26,14 +22,9 @@ import org.lemurproject.galago.tupleflow.Parameters;
 public class ProxyRetrieval implements InvocationHandler {
 
   String indexUrl;
-  HashSet<String> unImplemented;
-  // For async execution
-  Thread queryRunner = null;
-  Object[] argHolder;
 
   public ProxyRetrieval(String url, Parameters parameters) throws IOException {
     this.indexUrl = url + "/stream";
-    unImplemented = new HashSet<String>();
   }
 
   public void close() throws IOException {
@@ -46,11 +37,6 @@ public class ProxyRetrieval implements InvocationHandler {
   }
 
   public Object invoke(String methodName, Object[] args) throws Throwable {
-
-    // Check to make sure we shouldn't skip it
-    if (unImplemented.contains(methodName)) {
-      throw new UnsupportedOperationException("Proxy class does not support this operation.");
-    }
 
     URL resource = new URL(this.indexUrl);
     HttpURLConnection connection = (HttpURLConnection) resource.openConnection();
@@ -73,13 +59,12 @@ public class ProxyRetrieval implements InvocationHandler {
     oos.writeShort((short) args.length);
 
     // Types of arguments
-    for (int i = 0; i < args.length; i++) {
-      oos.writeObject(args[i].getClass());
+    for (Object arg : args) {
+      oos.writeObject(arg.getClass());
     }
 
     // Now write them out via serialization
-    for (int i = 0; i < args.length; i++) {
-      Object arg = args[i];
+    for (Object arg : args) {
       oos.writeObject(arg);
     }
     oos.close();

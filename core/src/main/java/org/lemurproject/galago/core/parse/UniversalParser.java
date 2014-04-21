@@ -75,11 +75,11 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
         }
 
         if (count % 10000 == 0) {
-          LOG.log(Level.WARNING, "Read " + count + " from split: " + split.fileName);
+          LOG.log(Level.WARNING, "Read " + count + " from split: " + split.fileName + " with "+parser.getClass());
         }
       }
 
-      LOG.info("Processed " + count + " total in split: " + split.fileName);
+      LOG.info("Processed " + count + " total in split: " + split.fileName+ " with "+parser.getClass());
     } finally {
       parser.close();
     }
