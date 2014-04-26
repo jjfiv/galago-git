@@ -1,19 +1,20 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import java.io.IOException;
-import java.util.HashSet;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
+import org.lemurproject.galago.core.retrieval.RequiredStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
+import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.retrieval.RequiredStatistics;
+import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.io.IOException;
+import java.util.HashSet;
 
 /**
  * Class collects collections statistics:
@@ -69,7 +70,7 @@ public class AnnotateCollectionStatistics extends Traversal {
     // then annotate the node with any of:
     // -- nodeFreq, nodeDocCount, collLen, docCount, collProb
     if (required != null) {
-      HashSet<String> reqStats = new HashSet();
+      HashSet<String> reqStats = new HashSet<String>();
       for (String stat : required.statistics()) {
         if (availableStatistics.contains(stat)) {
           reqStats.add(stat);
