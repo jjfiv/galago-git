@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * Tests for correctness of field-based retrieval models. Currently this
@@ -42,6 +42,25 @@ public class FieldTraversalTest {
   @After
   public void tearDown() throws IOException {
     Utility.deleteDirectory(indexPath);
+  }
+
+  @Test
+  public void testSetFieldTraversal() throws Exception {
+    LocalRetrieval retrieval = new LocalRetrieval(indexPath.getAbsolutePath(), Parameters.parseArray("fields", Arrays.asList("title", "anchor", "author")));
+
+    Node raw = StructuredQuery.parse("cat dog donkey");
+    Node prepared = retrieval.transformQuery(raw, new Parameters());
+
+    System.out.println(raw);
+
+    Traversal fieldSetter = new SetFieldTraversal();
+    Node fielded = fieldSetter.traverse(prepared, Parameters.parseArray("setField", "title", "stemmer", ""));
+
+    // make sure we've switched the parts appropriately
+    assertEquals("#combine:w=1.0( #dirichlet:avgLength=200.0:collectionLength=1000:documentCount=5:maximumCount=5:nodeFrequency=13:w=0.3333333333333333( #lengths:title:part=lengths() #counts:cat:part=field.title() ) #dirichlet:avgLength=200.0:collectionLength=1000:documentCount=5:maximumCount=4:nodeFrequency=11:w=0.3333333333333333( #lengths:title:part=lengths() #counts:dog:part=field.title() ) #dirichlet:avgLength=200.0:collectionLength=1000:documentCount=5:maximumCount=5:nodeFrequency=12:w=0.3333333333333333( #lengths:title:part=lengths() #counts:donkey:part=field.title() ) )", fielded.toString());
+
+    List<ScoredDocument> docs = retrieval.executeQuery(fielded).scoredDocuments;
+    assertFalse(docs.isEmpty());
   }
 
   // We pull statistics directly from the index to make sure they are
