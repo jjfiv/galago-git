@@ -17,7 +17,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  * 
  * @author jfoley, sjh
  */
-public abstract class SourceIterator extends DiskIterator {
+public abstract class SourceIterator implements BaseIterator {
 
   protected DiskSource source = null;
 
@@ -30,7 +30,6 @@ public abstract class SourceIterator extends DiskIterator {
     return source;
   }
 
-  @Override
   public String getKeyString() {
     return source.key();
   }

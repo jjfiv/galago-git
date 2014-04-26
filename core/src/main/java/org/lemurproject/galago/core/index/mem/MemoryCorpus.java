@@ -1,32 +1,27 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import org.lemurproject.galago.core.index.KeyIterator;
-import org.lemurproject.galago.core.index.KeyToListIterator;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.index.corpus.CorpusFileWriter;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
-import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskDataIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.Utility.ByteArrComparator;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
@@ -37,7 +32,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
   public MemoryCorpus(Parameters params) throws IOException {
     this.params = params;
-    this.corpusData = new TreeMap(new ByteArrComparator());
+    this.corpusData = new TreeMap<byte[], Document>(new ByteArrComparator());
   }
 
   @Override
@@ -138,7 +133,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   @Override
   public DiskDataIterator<Document> getIterator(Node node) throws IOException {
     if (node.getOperator().equals("corpus")) {
-      return new DiskDataIterator(new MemoryCorpusSource(corpusData));
+      return new DiskDataIterator<Document>(new MemoryCorpusSource(corpusData));
     } else {
       throw new UnsupportedOperationException(
               "Index doesn't support operator: " + node.getOperator());
@@ -147,7 +142,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
   // unsupported functions - perhaps eventually they will be supported.
   @Override
-  public DiskIterator getIterator(byte[] nodeString) throws IOException {
+  public DiskDataIterator getIterator(byte[] nodeString) throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
@@ -227,10 +222,9 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
       }
     }
 
-    // unsupported functions:
     @Override
-    public DiskDataIterator getValueIterator() throws IOException {
-      return new DiskDataIterator(new MemoryCorpusSource(corpusData));
+    public DiskDataIterator<Document> getValueIterator() throws IOException {
+      return new DiskDataIterator<Document>(new MemoryCorpusSource(corpusData));
     }
 
     @Override

@@ -31,15 +31,14 @@ public class DisjointCountsIterator extends DisjointIndexesIterator implements C
   public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "counts";
     String className = this.getClass().getSimpleName();
-    String parameters = this.getKeyString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
     String returnValue = Integer.toString(count(c));
-    List<AnnotatedNode> children = new ArrayList();
+    List<AnnotatedNode> children = new ArrayList<AnnotatedNode>();
     for (BaseIterator child : this.allIterators) {
       children.add(child.getAnnotatedNode(c));
     }
 
-    return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+    return new AnnotatedNode(type, className, this.toString(), document, atCandidate, returnValue, children);
   }
 }

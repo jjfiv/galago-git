@@ -3,19 +3,19 @@
  */
 package org.lemurproject.galago.core.index.geometric;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.PriorityQueue;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.PriorityQueue;
 
 /**
  *
  * @author sjh
  */
-public abstract class DisjointIndexesIterator extends DiskIterator {
+public abstract class DisjointIndexesIterator implements BaseIterator {
 
   Collection<BaseIterator> allIterators;
   BaseIterator head;
@@ -23,10 +23,10 @@ public abstract class DisjointIndexesIterator extends DiskIterator {
 
   public DisjointIndexesIterator(Collection<BaseIterator> iterators) {
     allIterators = iterators;
-    queue = new PriorityQueue(iterators);
+    queue = new PriorityQueue<BaseIterator>(iterators);
     head = queue.poll();
   }
-  
+
   @Override
   public boolean isDone() {
     return queue.isEmpty() && head.isDone();
@@ -86,7 +86,7 @@ public abstract class DisjointIndexesIterator extends DiskIterator {
 
   @Override
   public void reset() throws IOException {
-    queue = new PriorityQueue();
+    queue = new PriorityQueue<BaseIterator>();
     for (BaseIterator i : allIterators) {
       i.reset();
       queue.offer(i);
@@ -111,10 +111,5 @@ public abstract class DisjointIndexesIterator extends DiskIterator {
   @Override
   public int compareTo(BaseIterator o) {
     return Utility.compare(this.currentCandidate(), o.currentCandidate());
-  }
-
-  @Override
-  public String getKeyString() throws IOException {
-    return ((DiskIterator) head).getKeyString();
   }
 }

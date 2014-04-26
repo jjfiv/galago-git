@@ -3,6 +3,13 @@
  */
 package org.lemurproject.galago.core.index.merge;
 
+import org.lemurproject.galago.core.index.disk.DiskIndex;
+import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.core.types.DocumentMappingData;
+import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.tupleflow.execution.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -12,18 +19,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.index.disk.DiskIndex;
-import org.lemurproject.galago.core.tools.App;
-import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.core.types.DocumentMappingData;
-import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
-import org.lemurproject.galago.tupleflow.execution.InputStep;
-import org.lemurproject.galago.tupleflow.execution.Job;
-import org.lemurproject.galago.tupleflow.execution.OutputStep;
-import org.lemurproject.galago.tupleflow.execution.Stage;
-import org.lemurproject.galago.tupleflow.execution.Step;
 
 /**
  *

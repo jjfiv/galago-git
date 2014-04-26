@@ -46,12 +46,8 @@ public class DiskBTreeReader extends BTreeReader {
   // other variables do not
   private VocabularyReader vocabulary;
   private Parameters manifest;
-  private int blockSize;
   private int cacheGroupSize = 5;
   private long fileLength;
-  private long vocabularyOffset;
-  private long manifestOffset;
-  private long footerOffset;
 
   public class Iterator extends BTreeReader.BTreeIterator {
 
@@ -291,12 +287,12 @@ public class DiskBTreeReader extends BTreeReader {
    * @throws FileNotFoundException
    * @throws IOException
    */
-  public DiskBTreeReader(String pathname) throws FileNotFoundException, IOException {
+  public DiskBTreeReader(String pathname) throws IOException {
     input = StreamCreator.readFile(pathname);
 
     // Seek to the end of the file
     fileLength = input.length();
-    footerOffset = fileLength - Integer.SIZE / 8 - 3 * Long.SIZE / 8;
+    long footerOffset = fileLength - Integer.SIZE / 8 - 3 * Long.SIZE / 8;
 
     /**
      * In a constructor synchronized is not strictly necessary, no other threads
@@ -306,9 +302,9 @@ public class DiskBTreeReader extends BTreeReader {
     synchronized (input) {
       input.seek(footerOffset);
       // Now, read metadata values:
-      vocabularyOffset = input.readLong();
-      manifestOffset = input.readLong();
-      blockSize = input.readInt();
+      long vocabularyOffset = input.readLong();
+      long manifestOffset = input.readLong();
+      int blockSize = input.readInt();
       long magicNumber = input.readLong();
       if (magicNumber != DiskBTreeWriter.MAGIC_NUMBER) {
         throw new IOException("This does not appear to be an index file (wrong magic number)");
@@ -333,11 +329,9 @@ public class DiskBTreeReader extends BTreeReader {
    * Identical to the {@link #DiskBTreeReader(String) other constructor}, except
    * this one takes a File object instead of a string as the parameter.
    *
-   * @param pathname
-   * @throws java.io.FileNotFoundException
    * @throws java.io.IOException
    */
-  public DiskBTreeReader(File pathname) throws FileNotFoundException, IOException {
+  public DiskBTreeReader(File pathname) throws IOException {
     this(pathname.toString());
   }
 
@@ -375,8 +369,7 @@ public class DiskBTreeReader extends BTreeReader {
     }
 
     // otherwise there is some data.
-    Iterator result = new Iterator(this, vocabulary.getSlot(0));
-    return result;
+    return new Iterator(this, vocabulary.getSlot(0));
   }
 
   /**
@@ -411,14 +404,13 @@ public class DiskBTreeReader extends BTreeReader {
 
   @Override
   public DataStream getSpecialStream(long startPosition, long length) {
-    long absoluteStart = startPosition;
     long absoluteEnd = startPosition + length;
     absoluteEnd = (fileLength < absoluteEnd) ? fileLength : absoluteEnd;
 
-    assert absoluteStart <= absoluteEnd;
+    assert startPosition <= absoluteEnd;
 
     // the end of the sub value is the min of fileLength, valueEnd, or (offset+length);
-    return new BufferedFileDataStream(input, absoluteStart, absoluteEnd);
+    return new BufferedFileDataStream(input, startPosition, absoluteEnd);
   }
 
   /**
@@ -430,12 +422,9 @@ public class DiskBTreeReader extends BTreeReader {
    * DiskBTreeWriter. If this method returns false, the file is definitely not
    * readable by DiskBTreeReader.
    *
-   * @param file
-   * @return
-   * @throws java.io.FileNotFoundException
    * @throws java.io.IOException
    */
-  public static boolean isBTree(File file) throws FileNotFoundException, IOException {
+  public static boolean isBTree(File file) throws IOException {
     RandomAccessFile f = null;
     boolean result = false;
     try {

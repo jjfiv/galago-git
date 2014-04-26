@@ -335,10 +335,10 @@ public void copyUntil(ShreddedBuffer other, ShreddedProcessor output) throws IOE
 shreddedBufferDecls() ::= <<
 <order.rleFields:{f |
 <if(f.isString)>
-ArrayList\<<f.classTypeName>\> <f.pluralName> = new ArrayList();
+ArrayList\<<f.classTypeName>\> <f.pluralName> = new ArrayList\<<f.classTypeName>\>();
 <else>
 <if(f.isArray)>
-ArrayList\<<f.classTypeName>\> <f.pluralName> = new ArrayList();
+ArrayList\<<f.classTypeName>\> <f.pluralName> = new ArrayList\<<f.classTypeName>\>();
 <else>
 T<f.boxedName>ArrayList <f.pluralName> = new T<f.boxedName>ArrayList();
 <endif>
@@ -998,7 +998,7 @@ public static final class ShreddedCombiner implements ReaderSource\<<typeName>\>
 
 orderedCombiner() ::= <<
 public ReaderSource\<<typeName>\> orderedCombiner(Collection\<TypeReader\<<typeName>\>\> readers, boolean closeOnExit) {
-    ArrayList\<ShreddedReader\> shreddedReaders = new ArrayList();
+    ArrayList\<ShreddedReader\> shreddedReaders = new ArrayList\<ShreddedReader\>();
     
     for (TypeReader\<<typeName>\> reader : readers) {
         shreddedReaders.add((ShreddedReader)reader);
