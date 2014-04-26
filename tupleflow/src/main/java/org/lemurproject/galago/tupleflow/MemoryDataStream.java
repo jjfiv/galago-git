@@ -122,7 +122,7 @@ public class MemoryDataStream implements DataStream {
         return input.readDouble();
     }
 
-    @SuppressWarnings("deprecated")
+    @Deprecated
     public String readLine() throws IOException {
         return input.readLine();
     }

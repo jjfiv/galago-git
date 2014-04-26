@@ -1,12 +1,6 @@
 // BSD License (http://lemurproject.org/galago-galago-license)
 package org.lemurproject.galago.tupleflow.typebuilder;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.stringtemplate.CommonGroupLoader;
 import org.antlr.stringtemplate.StringTemplate;
@@ -14,6 +8,13 @@ import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.AngleBracketTemplateLexer;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.lemurproject.galago.tupleflow.typebuilder.FieldSpecification.DataType;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  *
@@ -26,41 +27,6 @@ public class TemplateTypeBuilder {
   String typePackage;
   ArrayList<Field> typeFields;
   ArrayList<OrderSpec> typeOrders;
-
-  /**
-   * For an array master, returns
-   * an array containing the last master.length-index elements.
-   */
-  public static String[] subarray(String[] master, int index) {
-    if (master.length <= index) {
-      return new String[0];
-    } else {
-      String[] sub = new String[master.length - index];
-      System.arraycopy(master, index, sub, 0, sub.length);
-      return sub;
-    }
-  }
-
-  /**
-   * Returns a string containing all the elements of args, space delimited.
-   */
-  public static String join(String[] args, String delimiter) {
-    String output = "";
-    StringBuilder builder = new StringBuilder();
-
-    for (String arg : args) {
-      if (builder.length() > 0) {
-        builder.append(delimiter);
-      }
-      builder.append(arg);
-    }
-
-    return builder.toString();
-  }
-
-  public static String join(String[] args) {
-    return join(args, " ");
-  }
 
   public static String caps(String input) {
     if (input.length() == 0) {
@@ -90,6 +56,7 @@ public class TemplateTypeBuilder {
       this.isArray = dataType.isArray();
       this.isString = dataType.isString();
     }
+
     public DataType dataType;
     public String type;
     public String name;
@@ -123,7 +90,7 @@ public class TemplateTypeBuilder {
     public String directionName;
     public boolean delta;
     public boolean runLengthEncoded;
-    public ArrayList<OrderedField> remaining = new ArrayList();
+    public ArrayList<OrderedField> remaining = new ArrayList<OrderedField>();
   }
 
   public static class OrderSpec {
@@ -131,8 +98,8 @@ public class TemplateTypeBuilder {
     public OrderSpec(OrderSpecification spec, ArrayList<Field> allFields) {
       this.allFields = allFields;
 
-      HashMap<String, Field> fieldMap = new HashMap();
-      HashSet<String> orderedNames = new HashSet();
+      HashMap<String, Field> fieldMap = new HashMap<String,Field>();
+      HashSet<String> orderedNames = new HashSet<String>();
 
       for (Field f : allFields) {
         fieldMap.put(f.name, f);
@@ -140,22 +107,19 @@ public class TemplateTypeBuilder {
 
       ArrayList<OrderedFieldSpecification> inputFields = spec.getOrderedFields();
 
-      for (int i = 0; i < inputFields.size(); i++) {
-        Field field = fieldMap.get(inputFields.get(i).getName());
-        boolean isLastField = ((inputFields.size() - i) == 1);
+      for (OrderedFieldSpecification inputField : inputFields) {
         // BUGBUG: this is where delta encoding should go
         boolean useDelta = false; //isLastField && (field.isInteger || field.isString);
         boolean useRLE = !useDelta;
-        boolean isAscending = (inputFields.get(i).getDirection() == Direction.ASCENDING);
-        String fieldName = inputFields.get(i).getName();
+        boolean isAscending = (inputField.getDirection() == Direction.ASCENDING);
+        String fieldName = inputField.getName();
 
         if (fieldMap.get(fieldName) == null) {
           throw new RuntimeException("'" + fieldName + "' is specified in an order statement, "
-                  + "but it isn't a type field name.");
+              + "but it isn't a type field name.");
         }
 
-        OrderedField ordered = new OrderedField(fieldMap.get(fieldName),
-                isAscending, useDelta, useRLE);
+        OrderedField ordered = new OrderedField(fieldMap.get(fieldName), isAscending, useDelta, useRLE);
         orderedFields.add(ordered);
         orderedNames.add(fieldName);
       }
@@ -168,12 +132,12 @@ public class TemplateTypeBuilder {
       backwardOrderedFields.addAll(orderedFields);
       Collections.reverse(backwardOrderedFields);
 
-      for (int i = 0; i < orderedFields.size(); i++) {
-        if (orderedFields.get(i).runLengthEncoded) {
-          rleFields.add(orderedFields.get(i));
+      for (OrderedField field : orderedFields) {
+        if (field.runLengthEncoded) {
+          rleFields.add(field);
         }
-        if (orderedFields.get(i).delta) {
-          deltaFields.add(orderedFields.get(i));
+        if (field.delta) {
+          deltaFields.add(field);
         }
       }
 
@@ -185,14 +149,17 @@ public class TemplateTypeBuilder {
         fieldPairs.add(new FieldPair(current, next, previous));
       }
 
-      for (int i = 0; i < allFields.size(); i++) {
-        if (orderedNames.contains(allFields.get(i).name)) {
+      for (Field field : allFields) {
+        if (orderedNames.contains(field.name)) {
           continue;
         }
-        unorderedFields.add(allFields.get(i));
+        unorderedFields.add(field);
       }
     }
 
+    /**
+     * This is invoked by reflection.
+     */
     public String getClassName() {
       StringBuilder builder = new StringBuilder();
 
@@ -223,12 +190,12 @@ public class TemplateTypeBuilder {
       public OrderedField next;
       public OrderedField previous;
     }
-    public ArrayList<OrderedField> orderedFields = new ArrayList();
-    public ArrayList<OrderedField> backwardOrderedFields = new ArrayList();
-    public ArrayList<FieldPair> fieldPairs = new ArrayList();
-    public ArrayList<OrderedField> rleFields = new ArrayList();
-    public ArrayList<Field> unorderedFields = new ArrayList();
-    public ArrayList<OrderedField> deltaFields = new ArrayList();
+    public ArrayList<OrderedField> orderedFields = new ArrayList<OrderedField>();
+    public ArrayList<OrderedField> backwardOrderedFields = new ArrayList<OrderedField>();
+    public ArrayList<FieldPair> fieldPairs = new ArrayList<FieldPair>();
+    public ArrayList<OrderedField> rleFields = new ArrayList<OrderedField>();
+    public ArrayList<Field> unorderedFields = new ArrayList<Field>();
+    public ArrayList<OrderedField> deltaFields = new ArrayList<OrderedField>();
     public ArrayList<Field> allFields;
   }
 
@@ -283,34 +250,32 @@ public class TemplateTypeBuilder {
       System.exit(0);
     }
 
-    ArrayList<File> files = new ArrayList();
+    ArrayList<File> files = new ArrayList<File>();
 
     File outputDir = null;
 
-    for (int i = 0; i < args.length; i++) {
-      if (args[i].startsWith("--outputDir=")) {
-        outputDir = new File(args[i].split("=")[1]);
-        outputDir.mkdirs();
+    for (String arg : args) {
+      if (arg.startsWith("--outputDir=")) {
+        outputDir = new File(arg.split("=")[1]);
+        assert outputDir.mkdirs() : "Output directory " + outputDir + " could not be created.";
         assert outputDir.isDirectory() : "Output directory " + outputDir + " does not exist, could not be created, or is not a directory.";
       } else {
-        files.add(new File(args[i]));
+        files.add(new File(arg));
       }
     }
 
 
     for (File f : files) {
       if (f.isFile() && f.getName().endsWith("galagotype")) {
-        TypeSpecification spec = null;
+        TypeSpecification spec;
         java.io.FileWriter writer = null;
 
         try {
           spec = ParserDriver.getTypeSpecification(f.getAbsolutePath());
         } catch (IOException ex) {
-          throw new MojoExecutionException("Couldn't open file: "
-                  + f.getAbsolutePath(), ex);
+          throw new MojoExecutionException("Couldn't open file: " + f.getAbsolutePath(), ex);
         } catch (RecognitionException ex) {
-          throw new MojoExecutionException("Parsing failed: "
-                  + f.getAbsolutePath(), ex);
+          throw new MojoExecutionException("Parsing failed: " + f.getAbsolutePath(), ex);
         }
 
         String outputFilename =
@@ -322,26 +287,20 @@ public class TemplateTypeBuilder {
         }
 
         // always generate the new file
-        //if (!outputFile.exists() || f.lastModified() > outputFile.lastModified()) {
         System.err.println("Generating " + spec.getTypeName());
         TemplateTypeBuilder builder = new TemplateTypeBuilder(spec);
         try {
           writer = new java.io.FileWriter(outputFile);
-        } catch (IOException ex) {
-          throw new MojoExecutionException("Trouble creating " + outputFile, ex);
-        }
-        String comment =
-                "// This file was automatically generated with the command: \n"
-                + "//     java " + TemplateTypeBuilder.class.getCanonicalName() + " ...\n";
-
-        try {
+          final String comment =
+              "// This file was automatically generated with the command: \n"
+            + "//     java " + TemplateTypeBuilder.class.getCanonicalName() + " ...\n";
           writer.write(comment);
           writer.write(builder.toString());
-          writer.close();
         } catch (IOException e) {
           throw new MojoExecutionException("Trouble writing " + outputFile);
+        } finally {
+          if(writer != null) writer.close();
         }
-        //}
       }
     }
   }

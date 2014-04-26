@@ -70,7 +70,7 @@ public class FieldSpecification {
         private final boolean isInteger;
         private final boolean isString;
         private final boolean isArray;
-    };
+    }
     
     public FieldSpecification(DataType type, String name) {
         this.type = type;
