@@ -111,11 +111,10 @@ public class ProxyRetrievalTest {
         instance.getDocumentLength(1);
         instance.getDocumentName(1);
 
-        // lemur bug #231
-        //ArrayList<String> names = new ArrayList<String>();
-        //names.add("doc-" + 1);
-        //names.add("doc-" + 2);
-        //instance.getDocuments(names, new DocumentComponents());
+        ArrayList<String> names = new ArrayList<String>();
+        names.add("doc-" + 1);
+        names.add("doc-" + 2);
+        instance.getDocuments(names, new DocumentComponents());
         instance.getGlobalParameters();
         instance.getIndexPartStatistics("postings");
         instance.getNodeStatistics(StructuredQuery.parse("#counts:@/1/:part=postings()"));

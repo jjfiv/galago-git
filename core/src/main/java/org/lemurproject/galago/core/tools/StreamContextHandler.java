@@ -54,8 +54,21 @@ public class StreamContextHandler implements WebHandler {
       
       // NOW we can get the method itself and invoke it on our retrieval object
       // with the extracted arguments
-      Method m = search.retrieval.getClass().getMethod(methodName, argTypes);
-      Object result = m.invoke(search.getRetrieval(), arguments);
+        Method m = null;
+        for (Method method : search.retrieval.getClass().getMethods()) {
+            if (methodName.equals(method.getName()) && method.getParameterTypes().length == argTypes.length) {
+                m = method;
+                for (int i = 0; i < argTypes.length; i++) {
+                    if (!method.getParameterTypes()[i].isAssignableFrom(argTypes[i])) {
+                        m = null;
+                    }
+                }
+                if (m != null) {
+                    break;
+                }
+            }
+        }
+        Object result = m.invoke(search.getRetrieval(), arguments);
 
       // Finally send back our result
       ObjectOutputStream oos = new ObjectOutputStream(response.getOutputStream());
