@@ -43,11 +43,11 @@ public class DisjointExtentsIterator extends DisjointIndexesIterator implements 
   public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "extents";
     String className = this.getClass().getSimpleName();
-    String parameters = this.getKeyString();
+    String parameters = this.toString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
     String returnValue = extents(c).toString();
-    List<AnnotatedNode> children = new ArrayList();
+    List<AnnotatedNode> children = new ArrayList<AnnotatedNode>();
     for (BaseIterator child : this.allIterators) {
       children.add(child.getAnnotatedNode(c));
     }

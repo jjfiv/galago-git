@@ -1,19 +1,20 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskLengthsIterator;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import org.lemurproject.galago.core.index.*;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
+import org.lemurproject.galago.core.index.KeyListReader;
+import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
+import org.lemurproject.galago.core.retrieval.iterator.disk.DiskLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Reads documents lengths from a document lengths file. KeyValueIterator
@@ -41,7 +42,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 //  private MappedByteBuffer documentLengths;
 //  private MemoryMapLengthsIterator documentLengthsIterator;
 
-  public DiskLengthsReader(String filename) throws FileNotFoundException, IOException {
+  public DiskLengthsReader(String filename) throws IOException {
     super(filename);
     init();
   }
@@ -114,7 +115,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     }
 
     @Override
-    public DiskIterator getValueIterator() throws IOException {
+    public DiskLengthsIterator getValueIterator() throws IOException {
       return getStreamValueIterator();
     }
 

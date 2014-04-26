@@ -35,11 +35,11 @@ public class DisjointNamesIterator extends DisjointIndexesIterator implements Da
   public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
     String type = "counts";
     String className = this.getClass().getSimpleName();
-    String parameters = this.getKeyString();
+    String parameters = this.toString();
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
     String returnValue = data(c);
-    List<AnnotatedNode> children = new ArrayList();
+    List<AnnotatedNode> children = new ArrayList<AnnotatedNode>();
     for (BaseIterator child : this.allIterators) {
       children.add(child.getAnnotatedNode(c));
     }

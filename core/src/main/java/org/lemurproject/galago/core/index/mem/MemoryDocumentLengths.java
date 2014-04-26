@@ -2,15 +2,9 @@
 package org.lemurproject.galago.core.index.mem;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
-import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
-import org.lemurproject.galago.core.retrieval.iterator.disk.DiskIterator;
+import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
@@ -26,6 +20,12 @@ import org.lemurproject.galago.core.util.IntArray;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
@@ -212,7 +212,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   @Override
-  public DiskIterator getIterator(Node node) throws IOException {
+  public DiskLengthsIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("lengths")) {
       String fieldName = node.getNodeParameters().get("default", "document");
       return this.getIterator(Utility.fromString(fieldName));

@@ -335,6 +335,11 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     }
 
     @Override
+    public boolean hasMatch(long identifier) {
+      return !isDone() && currentCandidate() == identifier;
+    }
+
+    @Override
     public void movePast(long document) throws IOException {
       syncTo(document + 1);
     }

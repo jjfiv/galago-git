@@ -63,7 +63,7 @@ public class ImplicitFeatureCastTraversal extends Traversal {
     //
     // #lessThan:0=6/16/1980( date )
     if (FieldComparisonIterator.class.isAssignableFrom(nt.getIteratorClass())) {
-      ArrayList<Node> children = new ArrayList(node.getInternalNodes());
+      ArrayList<Node> children = new ArrayList<Node>(node.getInternalNodes());
       if (!children.get(0).getOperator().equals("field")) {
         Node fieldNode = new Node("field", children.get(0).getDefaultParameter());
         children.remove(0);
@@ -87,8 +87,7 @@ public class ImplicitFeatureCastTraversal extends Traversal {
     }
 
     // Determine if we need to add a scoring node
-    Node scored = addScorers(node, queryParameters);
-    return scored;
+    return addScorers(node, queryParameters);
   }
 
   private Node addScorers(Node node, Parameters queryParameters) throws Exception {
@@ -130,9 +129,7 @@ public class ImplicitFeatureCastTraversal extends Traversal {
     data.add(child);
     String scorerNode = queryParameters.get("scorer", globals.get("scorer", "dirichlet"));
 
-    Node smoothed = new Node(scorerNode, data, child.getPosition());
-
-    return smoothed;
+    return new Node(scorerNode, data, child.getPosition());
   }
 
   private boolean isCountNode(Node node) throws Exception {

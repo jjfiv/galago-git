@@ -43,7 +43,7 @@ public class SnippetGenerator {
     ArrayList<Match> matches;
 
     public SnippetRegion(String term, int index, int width, int maximum) {
-      matches = new ArrayList();
+      matches = new ArrayList<Match>();
       matches.add(new Match(term, index));
       start = Math.max(index - width, 0);
       end = Math.min(maximum, index + width);
@@ -74,13 +74,11 @@ public class SnippetGenerator {
     }
 
     public SnippetRegion merge(SnippetRegion o) {
-      ArrayList<Match> m = new ArrayList();
+      ArrayList<Match> m = new ArrayList<Match>();
       m.addAll(matches);
       m.addAll(o.matches);
 
-      SnippetRegion result =
-              new SnippetRegion(m, Math.min(start, o.start), Math.max(end, o.end));
-      return result;
+      return new SnippetRegion(m, Math.min(start, o.start), Math.max(end, o.end));
     }
 
     public boolean equals(SnippetRegion o) {
@@ -172,12 +170,10 @@ public class SnippetGenerator {
      * <p>This is part of an aborted attempt to score many candidate snippets to
      * produce the best one. It returns many different candidates which can then
      * be scored using the score method. As coded, this method is too slow to be
-     * useful.</o>
-     *
-     * @return
+     * useful.</p>
      */
     public ArrayList<Snippet> expand() {
-      ArrayList<Snippet> results = new ArrayList();
+      ArrayList<Snippet> results = new ArrayList<Snippet>();
       int size = 0;
 
       for (SnippetRegion region : regions) {
@@ -187,7 +183,7 @@ public class SnippetGenerator {
       if (size > 150) {
         // try deletions
         for (int i = 0; i < regions.size(); i++) {
-          ArrayList<SnippetRegion> newRegions = new ArrayList();
+          ArrayList<SnippetRegion> newRegions = new ArrayList<SnippetRegion>();
 
           newRegions.addAll(regions.subList(0, i));
           newRegions.addAll(regions.subList(i + 1, regions.size()));
@@ -201,7 +197,7 @@ public class SnippetGenerator {
         if (regions.get(i + 1).start - regions.get(i).end > 100) {
           continue;
         }
-        ArrayList<SnippetRegion> newRegions = new ArrayList();
+        ArrayList<SnippetRegion> newRegions = new ArrayList<SnippetRegion>();
 
         newRegions.addAll(regions.subList(0, i));
         SnippetRegion merged = regions.get(i).merge(regions.get(i + 1));
@@ -244,19 +240,18 @@ public class SnippetGenerator {
    * for highlighting query terms in document titles.</p>
    */
   public String highlight(String documentText, Set<String> queryTerms) throws IOException {
-    ArrayList<TagTokenizer.Pair> positions = new ArrayList();
+    ArrayList<TagTokenizer.Pair> positions = new ArrayList<TagTokenizer.Pair>();
     Document document = parseAsDocument(documentText, positions);
 
     SnippetRegion merged = findSingleRegion(document, queryTerms);
-    Snippet best = new Snippet(new ArrayList(Collections.singletonList(merged)));
+    Snippet best = new Snippet(new ArrayList<SnippetRegion>(Collections.singletonList(merged)));
 
     // sjh nasty hack to return something, rather than erroring.
     if (positions.isEmpty()) {
       return documentText;
     }
 
-    String result = buildHtmlString(best, document, positions);
-    return result;
+    return buildHtmlString(best, document, positions);
   }
 
   /**
@@ -264,21 +259,9 @@ public class SnippetGenerator {
    * highlighted. The result is an HTML string.</p>
    */
   public String getSnippet(String documentText, Set<String> queryTerms) throws IOException {
-    ArrayList<TagTokenizer.Pair> positions = new ArrayList();
+    ArrayList<TagTokenizer.Pair> positions = new ArrayList<TagTokenizer.Pair>();
     Document document = parseAsDocument(documentText, positions);
     return generateSnippet(document, positions, queryTerms);
-  }
-
-  public String getSnippet(String documentText, int startPos) throws IOException {
-    ArrayList<TagTokenizer.Pair> positions = new ArrayList();
-    Document document = parseAsDocument(documentText, positions);
-    // ...and the rest is a filthy hack. Ugh. -- irmarc
-    SnippetRegion region = new SnippetRegion(document.terms.get(startPos), startPos, width, document.terms.size());
-    ArrayList<SnippetRegion> regions = new ArrayList<SnippetRegion>();
-    regions.add(region);
-    Snippet wrapper = new Snippet(regions);
-    String result = buildHtmlString(wrapper, document, positions);
-    return result;
   }
 
   private String generateSnippet(
@@ -289,14 +272,13 @@ public class SnippetGenerator {
     ArrayList<SnippetRegion> finalRegions = combineRegions(regions);
     Snippet best = new Snippet(finalRegions);
 
-    String result = buildHtmlString(best, document, positions);
-    return result;
+    return buildHtmlString(best, document, positions);
   }
 
   private SnippetRegion findSingleRegion(final Document document, final Set<String> queryTerms) {
     // Make a snippet region object for each term occurrence in the document,
     // while also counting matches
-    ArrayList<Match> matches = new ArrayList();
+    ArrayList<Match> matches = new ArrayList<Match>();
 
     for (int i = 0; i < document.terms.size(); i++) {
       String term = document.terms.get(i);
@@ -311,7 +293,7 @@ public class SnippetGenerator {
   private ArrayList<SnippetRegion> findMatches(final Document document, final Set<String> queryTerms) {
     // Make a snippet region object for each term occurrence in the document,
     // while also counting matches
-    ArrayList<SnippetRegion> regions = new ArrayList();
+    ArrayList<SnippetRegion> regions = new ArrayList<SnippetRegion>();
 
     for (int i = 0; i < document.terms.size(); i++) {
       String term = document.terms.get(i);
@@ -391,14 +373,12 @@ public class SnippetGenerator {
   // BUGBUG: might not have all the terms highlighted here
 
   public ArrayList<SnippetRegion> combineRegions(final ArrayList<SnippetRegion> regions) {
-    ArrayList<SnippetRegion> finalRegions = new ArrayList();
+    ArrayList<SnippetRegion> finalRegions = new ArrayList<SnippetRegion>();
     SnippetRegion last = null;
     int snippetSize = 0;
     int maxSize = 40;
 
-    for (int i = 0; i < regions.size(); i++) {
-      SnippetRegion current = regions.get(i);
-
+    for (SnippetRegion current : regions) {
       if (last == null) {
         last = current;
       } else if (last.overlap(current)) {

@@ -132,7 +132,7 @@ public class LocalRetrievalTest {
     Parameters dnrp = new Parameters();
     dnrp.set("filename", tempPath + File.separator + "names.reverse");
     DiskNameReverseWriter dnrWriter = new DiskNameReverseWriter(new FakeParameters(dnrp));
-    Sorter<NumberedDocumentData> dnrSorter = new Sorter(new NumberedDocumentData.IdentifierOrder());
+    Sorter<NumberedDocumentData> dnrSorter = new Sorter<NumberedDocumentData>(new NumberedDocumentData.IdentifierOrder());
     dnrSorter.setProcessor(dnrWriter);
 
     for (int i = 0; i < 20; i++) {
@@ -159,19 +159,19 @@ public class LocalRetrievalTest {
     File trecCorpusFile, corpusFile, indexFile;
 
     // create a simple doc file, trec format:
-    StringBuilder trecCorpus = new StringBuilder();
-    trecCorpus.append(AppTest.trecDocument("1", "This is a sample document"));
-    trecCorpus.append(AppTest.trecDocument("2", "The cat jumped over the moon"));
-    trecCorpus.append(AppTest.trecDocument("3", "If the shoe fits, it's ugly"));
-    trecCorpus.append(AppTest.trecDocument("4", "Though a program be but three lines long, someday it will have to be maintained."));
-    trecCorpus.append(AppTest.trecDocument("5", "To be trusted is a greater compliment than to be loved"));
-    trecCorpus.append(AppTest.trecDocument("6", "Just because everything is different doesn't mean anything has changed."));
-    trecCorpus.append(AppTest.trecDocument("7", "everything everything jumped sample ugly"));
-    trecCorpus.append(AppTest.trecDocument("8", "though cat moon cat cat cat"));
-    trecCorpus.append(AppTest.trecDocument("9", "document document document document"));
-    trecCorpus.append(AppTest.trecDocument("10", "program fits"));
     trecCorpusFile = FileUtility.createTemporary();
-    Utility.copyStringToFile(trecCorpus.toString(), trecCorpusFile);
+    Utility.copyStringToFile(
+        AppTest.trecDocument("1", "This is a sample document") +
+        AppTest.trecDocument("2", "The cat jumped over the moon") +
+        AppTest.trecDocument("3", "If the shoe fits, it's ugly") +
+        AppTest.trecDocument("4", "Though a program be but three lines long, someday it will have to be maintained.") +
+        AppTest.trecDocument("5", "To be trusted is a greater compliment than to be loved") +
+        AppTest.trecDocument("6", "Just because everything is different doesn't mean anything has changed.") +
+        AppTest.trecDocument("7", "everything everything jumped sample ugly") +
+        AppTest.trecDocument("8", "though cat moon cat cat cat") +
+        AppTest.trecDocument("9", "document document document document") +
+        AppTest.trecDocument("10", "program fits"),
+      trecCorpusFile);
 
     // now, attempt to make a corpus file from that.
     corpusFile = FileUtility.createTemporaryDirectory();
@@ -243,7 +243,7 @@ public class LocalRetrievalTest {
     realScores.put(18l, -5.937808679213438);
     realScores.put(2l, -5.937808679213438);
 
-    HashMap<Long, String> realNames = new HashMap();
+    HashMap<Long, String> realNames = new HashMap<Long,String>();
     realNames.put(1l, "DOC1");
     realNames.put(2l, "DOC2");
     realNames.put(3l, "DOC3");
@@ -292,7 +292,7 @@ public class LocalRetrievalTest {
     realScores.put(5l, -5.937808679213438);
     realScores.put(2l, -5.937808679213438);
 
-    HashMap<Long, String> realNames = new HashMap();
+    HashMap<Long, String> realNames = new HashMap<Long,String>();
     realNames.put(1l, "DOC1");
     realNames.put(2l, "DOC2");
     realNames.put(5l, "DOC5");
@@ -330,7 +330,7 @@ public class LocalRetrievalTest {
     realScores.put(1l, -5.585999438999818);
     realScores.put(3l, -5.991464547107982);
 
-    HashMap<Long, String> realNames = new HashMap();
+    HashMap<Long, String> realNames = new HashMap<Long,String>();
     realNames.put(1l, "DOC1");
     realNames.put(3l, "DOC3");
 

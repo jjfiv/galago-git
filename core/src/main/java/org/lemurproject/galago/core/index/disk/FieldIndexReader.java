@@ -1,13 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.DataInput;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
@@ -21,6 +14,13 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
+import java.io.DataInput;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
 /**
  *
  * @author irmarc, sjh
@@ -29,7 +29,7 @@ public class FieldIndexReader extends KeyListReader {
 
   Parameters formatMap = new Parameters();
 
-  public FieldIndexReader(BTreeReader reader) throws FileNotFoundException, IOException {
+  public FieldIndexReader(BTreeReader reader) throws IOException {
     super(reader);
     if (reader.getManifest().isMap("tokenizer")) {
       Parameters tokenizer = reader.getManifest().getMap("tokenizer");
@@ -39,7 +39,7 @@ public class FieldIndexReader extends KeyListReader {
     }
   }
 
-  public FieldIndexReader(String path) throws FileNotFoundException, IOException {
+  public FieldIndexReader(String path) throws IOException {
     super(path);
     if (reader.getManifest().isMap("tokenizer")) {
       Parameters tokenizer = reader.getManifest().getMap("tokenizer");
@@ -64,8 +64,7 @@ public class FieldIndexReader extends KeyListReader {
   public ListIterator getField(String fieldname) throws IOException {
     BTreeReader.BTreeIterator iterator =
             reader.getIterator(Utility.fromString(fieldname));
-    ListIterator it = new ListIterator(iterator, formatMap);
-    return it;
+    return new ListIterator(iterator, formatMap);
   }
 
   @Override
@@ -94,11 +93,12 @@ public class FieldIndexReader extends KeyListReader {
     @Override
     public String getValueString() {
       ListIterator it;
-      long count = -1;
+      long count;
       try {
         it = new ListIterator(iterator, formatMap);
         count = it.totalEntries();
       } catch (IOException ioe) {
+        count = -1;
       }
       StringBuilder sb = new StringBuilder();
       sb.append(Utility.toString(getKey())).append(",");
@@ -131,7 +131,6 @@ public class FieldIndexReader extends KeyListReader {
     long startPosition, endPosition;
     DataStream dataStream;
     long documentCount;
-    int options;
     long currentDocument;
     long documentIndex;
     String format = null;
@@ -177,13 +176,7 @@ public class FieldIndexReader extends KeyListReader {
 
     @Override
     public String getValueString(ScoringContext c) throws IOException {
-      StringBuilder builder = new StringBuilder();
-      builder.append(getKeyString());
-      builder.append(",");
-      builder.append(currentDocument);
-      builder.append(",");
-      builder.append(printValue(c));
-      return builder.toString();
+      return getKeyString() + "," + currentDocument + "," + printValue(c);
     }
 
     private void initialize() throws IOException {
@@ -221,6 +214,11 @@ public class FieldIndexReader extends KeyListReader {
           loadValue();
         }
       }
+    }
+
+    @Override
+    public boolean hasMatch(long identifier) {
+      return !isDone() && currentCandidate() == identifier;
     }
 
     @Override
@@ -288,7 +286,7 @@ public class FieldIndexReader extends KeyListReader {
         if (format.equals("string")) {
           return strValue;
         } else {
-          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
+          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %s)\n",
                   "string", format));
         }
       }
@@ -300,7 +298,7 @@ public class FieldIndexReader extends KeyListReader {
         if (format.equals("int")) {
           return intValue;
         } else {
-          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
+          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %s)\n",
                   "int", format));
         }
       }
@@ -312,7 +310,7 @@ public class FieldIndexReader extends KeyListReader {
         if (format.equals("long")) {
           return longValue;
         } else {
-          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
+          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %s)\n",
                   "long", format));
         }
       }
@@ -324,7 +322,7 @@ public class FieldIndexReader extends KeyListReader {
         if (format.equals("float")) {
           return floatValue;
         } else {
-          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
+          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %s)\n",
                   "float", format));
         }
       }
@@ -336,7 +334,7 @@ public class FieldIndexReader extends KeyListReader {
         if (format.equals("double")) {
           return doubleValue;
         } else {
-          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
+          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %s)\n",
                   "double", format));
         }
       }
@@ -348,7 +346,7 @@ public class FieldIndexReader extends KeyListReader {
         if (format.equals("date")) {
           return dateValue;
         } else {
-          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %d)\n",
+          throw new RuntimeException(String.format("Incorrect format (requested: %s, found: %s)\n",
                   "date", format));
         }
       }
@@ -383,7 +381,7 @@ public class FieldIndexReader extends KeyListReader {
       long document = currentCandidate();
       boolean atCandidate = hasMatch(c.document);
       String returnValue = printValue(c);
-      List<AnnotatedNode> children = Collections.EMPTY_LIST;
+      List<AnnotatedNode> children = Collections.emptyList();
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
