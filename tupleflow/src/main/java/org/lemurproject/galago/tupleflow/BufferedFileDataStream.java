@@ -1,15 +1,15 @@
     // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow;
 
-import java.io.EOFException;
+    import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-/**
- *
- * @author trevor
- */
-public class BufferedFileDataStream implements DataStream {
+    /**
+     *
+     * @author trevor
+     */
+public class BufferedFileDataStream extends DataStream {
 
   // the fileStream object must be used in a synchronous manner
   // as this class is used heavily by the IndexReader class
@@ -259,4 +259,5 @@ public class BufferedFileDataStream implements DataStream {
   private byte cacheByte(int i) {
     return cacheBuffer[bufferPosition + i];
   }
+
 }

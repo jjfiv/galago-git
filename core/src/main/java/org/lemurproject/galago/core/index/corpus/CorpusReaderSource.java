@@ -1,16 +1,17 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.corpus;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.lemurproject.galago.core.corpus.DocumentSerializer;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.source.BTreeKeySource;
 import org.lemurproject.galago.core.index.source.DataSource;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
-import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -18,15 +19,14 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class CorpusReaderSource extends BTreeKeySource implements DataSource<Document> {
 
-  DocumentComponents docParams;
-  Tokenizer tokenizer;
+  private final DocumentSerializer serializer;
+  private final DocumentComponents docParams;
 
   public CorpusReaderSource(BTreeReader rdr) throws IOException {
     super(rdr);
     docParams = new DocumentComponents();
     final Parameters manifest = btreeReader.getManifest();
-
-    tokenizer = Tokenizer.instance(manifest);
+    serializer = DocumentSerializer.instance(manifest);
   }
 
   @Override
@@ -48,11 +48,7 @@ public class CorpusReaderSource extends BTreeKeySource implements DataSource<Doc
   public Document data(long id) {
     if (currentCandidate() == id) {
       try {
-        Document doc = Document.deserialize(btreeIter.getValueBytes(), btreeReader.getManifest(), docParams);
-        if (docParams.tokenize) {
-          tokenizer.tokenize(doc);
-        }
-        return doc;
+        return serializer.fromStream(btreeIter.getValueStream(), docParams);
       } catch (IOException ex) {
         Logger.getLogger(CorpusReaderSource.class.getName()).log(Level.SEVERE, "Failed to deserialize document " + id, ex);
       }

@@ -1,12 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
+import org.lemurproject.galago.core.corpus.DocumentSerializer;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.xerial.snappy.SnappyInputStream;
-import org.xerial.snappy.SnappyOutputStream;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +14,6 @@ import java.util.Map;
 
 public class Document implements Serializable {
 
-  static final int BUFFER_SIZE = 8192;
   // document id - this value is serialized
   public long identifier = -1;
   // document data - these values are serialized
@@ -95,200 +94,19 @@ public class Document implements Serializable {
     return sb.toString();
   }
 
+  @Deprecated
   public static byte[] serialize(Document doc, Parameters conf) throws IOException {
-    ByteArrayOutputStream headerArray = new ByteArrayOutputStream();
-    DataOutputStream output = new DataOutputStream(headerArray);
-    // identifier
-    output.writeLong(doc.identifier);
-
-    // name
-    byte[] bytes = Utility.fromString(doc.name);
-    output.writeInt(bytes.length);
-    output.write(bytes);
-    output.close();
-
-
-    ByteArrayOutputStream metadataArray = new ByteArrayOutputStream();
-    output = new DataOutputStream(metadataArray);
-    // metadata
-    if (doc.metadata == null) {
-      output.writeInt(0);
-    } else {
-      output.writeInt(doc.metadata.size());
-      for (String key : doc.metadata.keySet()) {
-        bytes = Utility.fromString(key);
-        output.writeInt(bytes.length);
-        output.write(bytes);
-
-        bytes = Utility.fromString(doc.metadata.get(key));
-        output.writeInt(bytes.length);
-        output.write(bytes);
-      }
-    }
-    output.close();
-
-
-    ByteArrayOutputStream textArray = new ByteArrayOutputStream();
-    output = new DataOutputStream(textArray);
-    // text
-    if (doc.text == null) {
-      output.writeInt(0);
-    } else {
-      bytes = Utility.fromString(doc.text);
-      output.writeInt(bytes.length);
-      output.write(bytes);
-    }
-    output.close();
-
-//  [sjh] : Deprecated because it requires TOO much space for large documents,
-//          Use TagTokenizer to regenerate
-//          -- you can get the list of indexed fields from the corpus parameters.
-
-//    ByteArrayOutputStream tagsArray = new ByteArrayOutputStream();
-//    output = new DataOutputStream(tagsArray);
-//    // tags
-//    if (doc.tags == null) {
-//      output.writeInt(0);
-//    } else {
-//      output.writeInt(doc.tags.size());
-//      for (Tag tag : doc.tags) {
-//        bytes = Utility.fromString(tag.name);
-//        output.writeInt(bytes.length);
-//        output.write(bytes);
-//        output.writeInt(tag.begin);
-//        output.writeInt(tag.end);
-//        output.writeInt(tag.attributes.size());
-//        for (String key : tag.attributes.keySet()) {
-//          bytes = Utility.fromString(key);
-//          output.writeInt(bytes.length);
-//          output.write(bytes);
-//          bytes = Utility.fromString(tag.attributes.get(key));
-//          output.writeInt(bytes.length);
-//          output.write(bytes);
-//        }
-//      }
-//    }
-//    output.close();
-//
-//
-//    ByteArrayOutputStream termsArray = new ByteArrayOutputStream();
-//    output = new DataOutputStream(termsArray);
-//    DataOutput vOutput = new VByteOutput(output);
-//
-//    // terms
-//    if (doc.terms == null) {
-//      vOutput.writeInt(0);
-//    } else {
-//      vOutput.writeInt(doc.terms.size());
-//      int begin = 0;
-//      int end = 0;
-//      for(int i=0; i<doc.termCharBegin.size();i++){
-//        // begin - prevEnd // -- d-gapping
-//        begin = doc.termCharBegin.get(i) - end;
-//        end = doc.termCharEnd.get(i) - begin;
-//        assert(begin >= 0);
-//        assert(end >= 0);
-//        vOutput.writeInt(begin);
-//        vOutput.writeInt(end);
-//      }
-//    }
-//    output.close();
-
-    ByteArrayOutputStream docArray = new ByteArrayOutputStream();
-    output = new DataOutputStream(new SnappyOutputStream(docArray));
-
-    output.writeInt(metadataArray.size());
-    output.writeInt(textArray.size());
-//    output.writeInt(tagsArray.size());
-//    output.writeInt(termsArray.size());
-
-    output.write(headerArray.toByteArray());
-    output.write(metadataArray.toByteArray());
-    output.write(textArray.toByteArray());
-//    output.write(tagsArray.toByteArray());
-//    output.write(termsArray.toByteArray());
-
-    output.close();
-
-    return docArray.toByteArray();
+    return DocumentSerializer.instance(conf).toBytes(doc);
   }
 
+  @Deprecated
   public static Document deserialize(byte[] data, Parameters manifest, DocumentComponents selection) throws IOException {
-    ByteArrayInputStream stream = new ByteArrayInputStream(data);
-    return deserialize(new DataInputStream(stream), manifest, selection);
+    return DocumentSerializer.instance(manifest).fromBytes(data, selection);
   }
 
+  @Deprecated
   public static Document deserialize(DataInputStream stream, Parameters manifest, DocumentComponents selection) throws IOException {
-    byte[] buffer = new byte[BUFFER_SIZE];
-    int blen;
-    DataInputStream input = new DataInputStream(new SnappyInputStream(stream));
-    Document d = new Document();
-
-    int metadataSize = input.readInt();
-    int textSize = input.readInt();
-
-    // identifier
-    d.identifier = input.readLong();
-
-    // name
-    blen = input.readInt();
-    buffer = sizeCheck(buffer, blen);
-    input.readFully(buffer, 0, blen);
-    d.name = Utility.toString(buffer, 0, blen);
-
-    if (selection.metadata) {
-      // metadata
-      int metadataCount = input.readInt();
-      d.metadata = new HashMap<String,String>(metadataCount);
-
-      for (int i = 0; i < metadataCount; i++) {
-        blen = input.readInt();
-        buffer = sizeCheck(buffer, blen);
-        input.readFully(buffer, 0, blen);
-        String key = Utility.toString(buffer, 0, blen);
-
-        blen = input.readInt();
-        buffer = sizeCheck(buffer, blen);
-        input.readFully(buffer, 0, blen);
-        String value = Utility.toString(buffer, 0, blen);
-
-        d.metadata.put(key, value);
-      }
-      // only both skipping if we need to
-    } else if (selection.text) {
-      input.skip(metadataSize);
-    }
-
-    if (selection.text) {
-      // text
-      blen = input.readInt();
-
-      int start = (selection.subTextStart < 0) ? 0 : selection.subTextStart;
-      int maxLen = blen - start;
-      if (start > 0) {
-        input.skip(start);
-      }
-      int readLen = (selection.subTextLen > 0 && selection.subTextLen < maxLen) ? selection.subTextLen : maxLen;
-
-      buffer = sizeCheck(buffer, readLen);
-      input.readFully(buffer, 0, readLen);
-      d.text = Utility.toString(buffer, 0, readLen);
-
-      if (readLen < maxLen) {
-        input.skip(maxLen - readLen);
-      }
-
-    }
-    input.close();
-    return d;
-  }
-
-  protected static byte[] sizeCheck(byte[] currentBuffer, int sz) {
-    if (sz > currentBuffer.length) {
-      return new byte[sz];
-    } else {
-      return currentBuffer;
-    }
+    return DocumentSerializer.instance(manifest).fromStream(stream, selection);
   }
 
   /**

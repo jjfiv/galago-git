@@ -13,7 +13,7 @@ import java.io.IOException;
  *
  * @author trevor
  */
-public class MemoryDataStream implements DataStream {
+public class MemoryDataStream extends DataStream {
     byte[] data;
     int offset;
     int length;

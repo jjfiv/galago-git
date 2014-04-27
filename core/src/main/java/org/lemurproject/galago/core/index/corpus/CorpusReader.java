@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.corpus;
 
+import org.lemurproject.galago.core.corpus.DocumentSerializer;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.parse.Document;
@@ -9,6 +10,7 @@ import org.lemurproject.galago.core.retrieval.iterator.disk.DiskDataIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.tokenize.Tokenizer;
+import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.IOException;
@@ -26,24 +28,27 @@ import java.util.Map;
 public class CorpusReader extends KeyValueReader implements DocumentReader {
 
   Tokenizer tokenizer;
+  DocumentSerializer serializer;
 
   public CorpusReader(String fileName) throws IOException {
     super(fileName);
     init();
   }
 
-  public CorpusReader(BTreeReader r) {
+  public CorpusReader(BTreeReader r) throws IOException {
     super(r);
     init();
   }
 
-  private void init() {
-    tokenizer = Tokenizer.instance(getManifest());
+  private void init() throws IOException {
+    final Parameters manifest = getManifest();
+    tokenizer = Tokenizer.instance(manifest);
+    serializer = DocumentSerializer.instance(manifest);
   }
 
   @Override
   public KeyIterator getIterator() throws IOException {
-    return new KeyIterator(reader, tokenizer);
+    return new KeyIterator(reader, tokenizer, serializer);
   }
 
   @Override
@@ -86,10 +91,12 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
   public static class KeyIterator extends KeyValueReader.KeyValueIterator implements DocumentIterator {
     private final Tokenizer tokenizer;
+    private final DocumentSerializer serializer;
 
-    public KeyIterator(BTreeReader reader, Tokenizer tokenizer) throws IOException {
+    public KeyIterator(BTreeReader reader, Tokenizer tokenizer, DocumentSerializer serializer) throws IOException {
       super(reader);
       this.tokenizer = tokenizer;
+      this.serializer = serializer;
     }
 
     @Override
@@ -100,11 +107,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     @Override
     public Document getDocument(DocumentComponents p) throws IOException {
       p.validate();
-      Document d = Document.deserialize(iterator.getValueBytes(), reader.getManifest(), p);
-      if (p.tokenize && d != null) {
-        tokenizer.tokenize(d);
-      }
-      return d;
+      return serializer.fromStream(iterator.getValueStream(), p);
     }
 
     @Override

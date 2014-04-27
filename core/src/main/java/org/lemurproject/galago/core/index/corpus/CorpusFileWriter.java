@@ -1,20 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.corpus;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import org.lemurproject.galago.core.corpus.DocumentSerializer;
 import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import org.lemurproject.galago.core.index.merge.CorpusMerger;
 import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.tupleflow.Counter;
-import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+
+import java.io.IOException;
 
 /**
  * Writes document text and metadata to an index file. The output files are in
@@ -27,11 +23,12 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
 @InputClass(className = "org.lemurproject.galago.core.parse.Document")
 public class CorpusFileWriter implements Processor<Document> {
 
-  Parameters corpusParams;
-  DiskBTreeWriter writer;
-  Counter documentsWritten;
+  final DocumentSerializer serializer;
+  final Parameters corpusParams;
+  final DiskBTreeWriter writer;
+  final Counter documentsWritten;
 
-  public CorpusFileWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
+  public CorpusFileWriter(TupleFlowParameters parameters) throws IOException {
     corpusParams = parameters.getJSON();
     // create a writer;
     corpusParams.set("writerClass", getClass().getName());
@@ -39,6 +36,8 @@ public class CorpusFileWriter implements Processor<Document> {
     corpusParams.set("mergerClass", CorpusMerger.class.getName());
     writer = new DiskBTreeWriter(parameters.getJSON().getString("filename"), corpusParams);
     documentsWritten = parameters.getCounter("Documents Written");
+    serializer = DocumentSerializer.instance(corpusParams);
+    corpusParams.set("documentSerializerClass", serializer.getClass().getName());
   }
 
   @Override
@@ -48,7 +47,7 @@ public class CorpusFileWriter implements Processor<Document> {
 
   @Override
   public void process(Document document) throws IOException {
-    writer.add(new GenericElement(Utility.fromLong(document.identifier), Document.serialize(document, corpusParams)));
+    writer.add(new GenericElement(Utility.fromLong(document.identifier), serializer.toBytes(document)));
     if (documentsWritten != null) {
       documentsWritten.increment();
     }
