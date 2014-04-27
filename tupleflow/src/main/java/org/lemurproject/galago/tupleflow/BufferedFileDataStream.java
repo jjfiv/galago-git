@@ -44,7 +44,8 @@ public class BufferedFileDataStream extends DataStream {
 
   @Override
   public boolean isDone() {
-    return stopPosition <= bufferStart + bufferPosition;
+    final long position = bufferStart + bufferPosition;
+    return position >= stopPosition;
   }
 
   @Override
@@ -126,7 +127,7 @@ public class BufferedFileDataStream extends DataStream {
   @Override
   public boolean readBoolean() throws IOException {
     cache(1);
-    boolean result = (cacheByte(0) != 0) ? true : false;
+    boolean result = (cacheByte(0) != 0);
     update(1);
     return result;
   }
@@ -232,7 +233,8 @@ public class BufferedFileDataStream extends DataStream {
       // file to cache this much data?
     }
     if (bufferStart + bufferPosition + length > stopPosition) {
-      throw new EOFException("Tried to read off the end of the file.");
+      throw new EOFException("Tried to read off the end of the file.\n"+
+        "bufferStart: "+bufferStart+" bufferPos: "+bufferPosition+" length:"+length+" stopAt:"+stopPosition);
     }
     long current = bufferStart + bufferPosition;
     int readLength = (int) Math.min(stopPosition - current, cacheLength);

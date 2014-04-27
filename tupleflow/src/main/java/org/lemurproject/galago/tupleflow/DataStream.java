@@ -18,7 +18,7 @@ public abstract class DataStream extends InputStream implements DataInput {
     @Override
     public int read() throws IOException {
       if(isDone()) { return -1; }
-      return readByte();
+      return readUnsignedByte();
     }
 
     /**

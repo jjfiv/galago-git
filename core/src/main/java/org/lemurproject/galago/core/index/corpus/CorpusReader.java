@@ -9,7 +9,6 @@ import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskDataIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -27,7 +26,6 @@ import java.util.Map;
  */
 public class CorpusReader extends KeyValueReader implements DocumentReader {
 
-  Tokenizer tokenizer;
   DocumentSerializer serializer;
 
   public CorpusReader(String fileName) throws IOException {
@@ -42,13 +40,12 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
   private void init() throws IOException {
     final Parameters manifest = getManifest();
-    tokenizer = Tokenizer.instance(manifest);
     serializer = DocumentSerializer.instance(manifest);
   }
 
   @Override
   public KeyIterator getIterator() throws IOException {
-    return new KeyIterator(reader, tokenizer, serializer);
+    return new KeyIterator(reader, serializer);
   }
 
   @Override
@@ -90,12 +87,10 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
   }
 
   public static class KeyIterator extends KeyValueReader.KeyValueIterator implements DocumentIterator {
-    private final Tokenizer tokenizer;
     private final DocumentSerializer serializer;
 
-    public KeyIterator(BTreeReader reader, Tokenizer tokenizer, DocumentSerializer serializer) throws IOException {
+    public KeyIterator(BTreeReader reader, DocumentSerializer serializer) throws IOException {
       super(reader);
-      this.tokenizer = tokenizer;
       this.serializer = serializer;
     }
 
