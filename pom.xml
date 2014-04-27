@@ -88,6 +88,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>
         <configuration>
+          <!--<compilerArgument>-Xlint:unchecked</compilerArgument>-->
           <source>1.6</source>
           <target>1.6</target>
         </configuration>
@@ -125,6 +126,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>cobertura-maven-plugin</artifactId>
+        <version>2.6</version>
         <configuration>
           <formats>
             <format>html</format>

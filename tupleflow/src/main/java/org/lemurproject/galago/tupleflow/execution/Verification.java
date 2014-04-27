@@ -1,22 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow.execution;
 
+import org.lemurproject.galago.tupleflow.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.lemurproject.galago.tupleflow.Counter;
-import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Type;
-import org.lemurproject.galago.tupleflow.TypeReader;
 
 /**
  *
@@ -498,7 +491,7 @@ public class Verification {
         store.addWarning(step.getLocation(), "Class " + step.getClassName()
                 + " has no suitable verify method.");
       } else if (Modifier.isStatic(verify.getModifiers()) == false) {
-        store.addWarning(step.getLocation(), "Class " + step.getClassName()
+       store.addWarning(step.getLocation(), "Class " + step.getClassName()
                 + " has a verify method, but it isn't static.");
       } else {
         verify.invoke(null, vp, store);

@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.simple;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.tools.App;
@@ -83,7 +84,11 @@ public class PullDocumentsTest {
 
   @Test
   public void testGetDocument() throws IOException {
-    Document doc = retrieval.getDocument("10", new Document.DocumentComponents());
+    DiskIndex index = (DiskIndex) (retrieval.getIndex());
+    Document doc = index.getDocument("10", new Document.DocumentComponents());
+    assertNotNull(doc);
+
+    doc = retrieval.getDocument("10", new Document.DocumentComponents());
     assertNotNull(doc);
     assertEquals("10", doc.name);
     assertNull(doc.terms); // it shouldn't tokenize by default

@@ -66,7 +66,7 @@ public class SearchWebHandler implements WebHandler {
   public void handleDocument(HttpServletRequest request, HttpServletResponse response) throws IOException {
     request.getParameterMap();
     String identifier = request.getParameter("identifier");
-    identifier = URLDecoder.decode(identifier);
+    identifier = URLDecoder.decode(identifier, "UTF-8");
     DocumentComponents p = new DocumentComponents(true, true, false);
     Document document = search.getDocument(identifier, p);
     response.setContentType("text/html; charset=UTF-8");

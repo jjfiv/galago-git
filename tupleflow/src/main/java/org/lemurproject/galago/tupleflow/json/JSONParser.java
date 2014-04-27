@@ -105,7 +105,7 @@ public class JSONParser {
                     container.set(key, (Parameters) value);
                     break;
                 case LIST:
-                    container.set(key, (List) value);
+                    container.set(key, (List<?>) value);
                     break;
                 case STRING:
                     container.set(key, (String) value);

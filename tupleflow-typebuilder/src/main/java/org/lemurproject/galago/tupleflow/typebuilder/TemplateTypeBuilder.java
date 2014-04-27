@@ -159,6 +159,7 @@ public class TemplateTypeBuilder {
 
     /**
      * This is invoked by reflection.
+     * @return the className to generate
      */
     public String getClassName() {
       StringBuilder builder = new StringBuilder();
@@ -200,7 +201,7 @@ public class TemplateTypeBuilder {
   }
 
   /**
-   * Returns the text of a Type<T> object for the T class.
+   * @return the text of a Type&lt;T&gt; object for the T class.
    */
   @Override
   public String toString() {

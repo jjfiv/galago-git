@@ -34,7 +34,7 @@ public class Utility {
     return getSorter(sortOrder, null, c);
   }
 
-  public static Step getSorter(Order sortOrder, Class reducerClass, CompressionType c) {
+  public static Step getSorter(Order sortOrder, Class<?> reducerClass, CompressionType c) {
     Parameters p = new Parameters();
     p.set("class", sortOrder.getOrderedClass().getName());
     p.set("order", Utility.join(sortOrder.getOrderSpec()));
@@ -164,8 +164,8 @@ public class Utility {
   public static String join(String[] args, String delimiter) {
 		return join(Arrays.asList(args), delimiter);
   }
-	
-	public static String join(List<String> args, String delimiter) {
+
+  public static String join(List<String> args, String delimiter) {
     StringBuilder builder = new StringBuilder();
 
     for (String arg : args) {
@@ -176,7 +176,7 @@ public class Utility {
     }
 
     return builder.toString();
-	}
+  }
 
   public static String join(String[] args) {
     return join(args, " ");

@@ -1,12 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow;
 
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
+import org.lemurproject.galago.tupleflow.types.FileName;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.tupleflow.execution.ErrorStore;
-import org.lemurproject.galago.tupleflow.types.FileName;
 
 /**
  *
@@ -29,7 +30,7 @@ public class FileSource implements ExNihiloSource<FileName> {
     if (root.isFile() && !root.isHidden()) {
       processor.process(new FileName(root.toString()));
     } else {
-      for (File file : root.listFiles()) {
+      for (File file : FileUtility.safeListFiles(root)) {
         processRecursively(file);
       }
     }
@@ -37,15 +38,15 @@ public class FileSource implements ExNihiloSource<FileName> {
 
   @Override
   public void run() throws IOException {
-    List<String> inputs = new ArrayList();
+    List<String> inputs = new ArrayList<String>();
     if (parameters.getJSON().containsKey("input")) {
-      inputs.addAll(parameters.getJSON().getAsList("input"));
+      inputs.addAll(parameters.getJSON().getAsList("input", String.class));
     }
     if (parameters.getJSON().containsKey("directory")) {
-      inputs.addAll(parameters.getJSON().getAsList("directory"));
+      inputs.addAll(parameters.getJSON().getAsList("directory", String.class));
     }
     if (parameters.getJSON().containsKey("filename")) {
-      inputs.addAll(parameters.getJSON().getAsList("filename"));
+      inputs.addAll(parameters.getJSON().getAsList("filename", String.class));
     }
     for (String input : inputs) {
       processRecursively(new File(input));
@@ -70,23 +71,23 @@ public class FileSource implements ExNihiloSource<FileName> {
     }
 
     if (parameters.getJSON().containsKey("directory")) {
-      List<String> directories = parameters.getJSON().getList("directory");
+      List<String> directories = parameters.getJSON().getList("directory", String.class);
 
       for (String directory : directories) {
         File directoryFile = new File(directory);
 
-        if (directoryFile.exists() == false) {
+        if (!directoryFile.exists()) {
           store.addError("Directory " + directoryFile.toString() + " doesn't exist.");
         }
       }
     }
     if (parameters.getJSON().containsKey("filename")) {
-      List<String> files = parameters.getJSON().getList("filename");
+      List<String> files = parameters.getJSON().getList("filename", String.class);
 
       for (String file : files) {
         File f = new File(file);
 
-        if (f.exists() == false) {
+        if (!f.exists()) {
           store.addError("File " + file + " doesn't exist.");
         }
       }

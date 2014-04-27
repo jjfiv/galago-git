@@ -62,7 +62,7 @@ public class MergeIndexTest {
 
       Parameters mergeParams = new Parameters();
       mergeParams.set("indexPath", indexmerged.getAbsolutePath());
-      ArrayList<String> inputs = new ArrayList();
+      ArrayList<String> inputs = new ArrayList<String>();
       inputs.add(index1.getAbsolutePath());
       inputs.add(index2.getAbsolutePath());
       mergeParams.set("inputPath", inputs);
@@ -146,7 +146,7 @@ public class MergeIndexTest {
 
       Parameters mergeParams = new Parameters();
       mergeParams.set("indexPath", indexmerged.getAbsolutePath());
-      ArrayList<String> inputs = new ArrayList();
+      ArrayList<String> inputs = new ArrayList<String>();
       inputs.add(index1.getAbsolutePath());
       inputs.add(index2.getAbsolutePath());
       mergeParams.set("inputPath", inputs);

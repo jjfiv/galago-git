@@ -1,12 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow.execution;
 
+import org.lemurproject.galago.tupleflow.ExNihiloSource;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.lemurproject.galago.tupleflow.ExNihiloSource;
 
 /**
  *
@@ -91,7 +92,7 @@ public class ThreadedStageExecutor implements StageExecutor {
 
     public ThreadedStageContext(StageGroupDescription stage, String temporaryDirectory) {
       this.done = false;
-      this.runnables = new ArrayList();
+      this.runnables = new ArrayList<InstanceRunnable>();
       this.stage = stage;
       this.counterManager = new NetworkedCounterManager();
       this.temporaryDirectory = temporaryDirectory;
@@ -184,14 +185,13 @@ public class ThreadedStageExecutor implements StageExecutor {
 
     @Override
     public synchronized List<Double> getRunTimes() {
-      ArrayList<Double> times = new ArrayList();
       // do something
-      return times;
+      return new ArrayList<Double>();
     }
 
     @Override
     public synchronized List<Exception> getExceptions() {
-      ArrayList<Exception> exceptions = new ArrayList();
+      ArrayList<Exception> exceptions = new ArrayList<Exception>();
 
       for (InstanceRunnable instance : runnables) {
         Exception e = instance.getException();

@@ -90,7 +90,7 @@ public class MasterWebHandler implements WebHandler {
       total += delta;
       instances.put(instance, value);
     }
-    HashMap<String, Long> instances = new HashMap();
+    HashMap<String, Long> instances = new HashMap<String,Long>();
     long total = 0;
   }
 
@@ -153,10 +153,10 @@ public class MasterWebHandler implements WebHandler {
 
       counters.get(fullName).setValue(instance, longValue);
     } catch (Exception e) {
-      response.sendError(response.SC_NOT_ACCEPTABLE);
+      response.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE);
     }
 
-    response.setStatus(response.SC_OK);
+    response.setStatus(HttpServletResponse.SC_OK);
   }
 
   private String getElapsed(Date start) {
@@ -228,8 +228,8 @@ public class MasterWebHandler implements WebHandler {
 
     // Added in a hack here to start tracking avg run time and variance in run time of the various
     // stages -- marc
-    double avgTime = 0.0;
-    double sdTime = 0.0;
+    double avgTime;
+    double sdTime;
 
     for (Entry<String, StageExecutionStatus> entry : stagesStatus.entrySet()) {
       StageExecutionStatus stageStatus = entry.getValue();
@@ -257,7 +257,7 @@ public class MasterWebHandler implements WebHandler {
         writer.append("<tr class=\"complete\">");
       }
 
-      writer.append("<td>" + entry.getKey() + "</td>");
+      writer.append("<td>").append(entry.getKey()).append("</td>");
       writer.append("<td class=\"right\">" + stageStatus.getBlockedInstances() + "</td>");
       writer.append("<td class=\"right\">" + stageStatus.getQueuedInstances() + "</td>");
       writer.append("<td class=\"right\">" + stageStatus.getRunningInstances() + "</td>");
