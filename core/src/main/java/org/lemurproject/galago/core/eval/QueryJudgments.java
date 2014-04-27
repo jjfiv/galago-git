@@ -3,10 +3,11 @@
  */
 package org.lemurproject.galago.core.eval;
 
+import org.lemurproject.galago.tupleflow.util.WrappedMap;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import org.lemurproject.galago.tupleflow.util.WrappedMap;
 
 /**
  * This class store a relevance judgment of documents for a specific query.
@@ -23,18 +24,13 @@ public class QueryJudgments extends WrappedMap<String, Integer> {
 
   /**
    * Initialize as a builder, with no prior Map
-   *
-   * @param queryName
    */
   public QueryJudgments(String queryName) {
-    this(queryName, new TreeMap());
+    this(queryName, new TreeMap<String,Integer>());
   }
 
   /**
    * Initialize from a Map
-   *
-   * @param queryName
-   * @param judgments
    */
   public QueryJudgments(String queryName, Map<String, Integer> judgments) {
     super(judgments);
@@ -50,16 +46,10 @@ public class QueryJudgments extends WrappedMap<String, Integer> {
   }
 
   /**
-   * Anything not present and positive is not "relevant".
-   * @param documentName
-   * @return 
+   * Anything not present and positive is "relevant".
    */
   public boolean isRelevant(String documentName) {
-    if (containsKey(documentName)) {
-      return (get(documentName) > 0);
-    } else {
-      return false;
-    }
+    return containsKey(documentName) && (get(documentName) > 0);
   }
 
   /**
@@ -67,17 +57,9 @@ public class QueryJudgments extends WrappedMap<String, Integer> {
    * missing, it is not explicitly irrelevant. So even though it returns a
    * boolean, this coupled with (@see isRelevant) allows you to determine the
    * ternary status of good, unjudged or bad.
-   *
-   * @see isRelevant
-   * @param documentName
-   * @return
    */
   public boolean isNonRelevant(String documentName) {
-    if (containsKey(documentName)) {
-      return (get(documentName) <= 0);
-    } else {
-      return false;
-    }
+    return containsKey(documentName) && (get(documentName) <= 0);
   }
 
   public boolean isJudged(String documentName) {
@@ -86,7 +68,6 @@ public class QueryJudgments extends WrappedMap<String, Integer> {
 
   /**
    * Calculates the number of relevant documents.
-   * @return 
    */
   public int getRelevantJudgmentCount() {
     int rel_count = 0;
@@ -100,7 +81,6 @@ public class QueryJudgments extends WrappedMap<String, Integer> {
 
   /**
    * Calculate the number of non-relevant documents.
-   * @return 
    */
   public int getNonRelevantJudgmentCount() {
     int non_rel_count = 0;

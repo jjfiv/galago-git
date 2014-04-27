@@ -3,18 +3,7 @@
  */
 package org.lemurproject.galago.contrib.index;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.lemurproject.galago.contrib.hash.UniversalStringHashFunction;
-import org.lemurproject.galago.core.retrieval.iterator.MinCountIterator;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.index.BTreeValueIterator;
@@ -26,16 +15,19 @@ import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.MinCountIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.tupleflow.DataStream;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.VByteInput;
-import org.lemurproject.galago.tupleflow.VByteOutput;
+import org.lemurproject.galago.tupleflow.*;
+
+import java.io.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -282,15 +274,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
 
     @Override
     public String getValueString(ScoringContext sc) throws IOException {
-      StringBuilder builder = new StringBuilder();
-
-      builder.append(getKeyString());
-      builder.append(",");
-      builder.append(currentDocument);
-      builder.append(",");
-      builder.append(currentCount);
-
-      return builder.toString();
+      return getKeyString() + "," + currentDocument + "," + currentCount;
     }
 
     @Override
@@ -442,7 +426,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
       long document = currentCandidate();
       boolean atCandidate = hasMatch(c.document);
       String returnValue = Integer.toString(count(c));
-      List<AnnotatedNode> children = Collections.EMPTY_LIST;
+      List<AnnotatedNode> children = Collections.emptyList();
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }

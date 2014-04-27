@@ -4,14 +4,10 @@
 package org.lemurproject.galago.contrib.learning;
 
 import gnu.trove.map.hash.TObjectDoubleHashMap;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.logging.Logger;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Data type to store a set of query parameters for learning - each parameter
@@ -20,8 +16,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  * @author sjh
  */
 public class RetrievalModelParameters {
-
-  private Logger logger;
+  private static final Logger logger = Logger.getLogger(RetrievalModelParameters.class.getName());
   private TreeSet<String> names;
   private ParameterNormalizationRules normalizationRules;
   private Map<String, Parameters> parameterSpecifics;
@@ -30,12 +25,11 @@ public class RetrievalModelParameters {
   private TObjectDoubleHashMap<String> ranges;
 
   public RetrievalModelParameters(List<Parameters> learnableParameters, List<Parameters> rules) {
-    this.logger = Logger.getLogger(this.getClass().getName());
-    this.names = new TreeSet();
-    this.parameterSpecifics = new HashMap();
-    this.maxValues = new TObjectDoubleHashMap();
-    this.minValues = new TObjectDoubleHashMap();
-    this.ranges = new TObjectDoubleHashMap();
+    this.names = new TreeSet<String>();
+    this.parameterSpecifics = new HashMap<String,Parameters>();
+    this.maxValues = new TObjectDoubleHashMap<String>();
+    this.minValues = new TObjectDoubleHashMap<String>();
+    this.ranges = new TObjectDoubleHashMap<String>();
 
     for (Parameters param : learnableParameters) {
       String name = param.getString("name");

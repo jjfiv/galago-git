@@ -3,10 +3,6 @@
  */
 package org.lemurproject.galago.contrib.tools;
 
-import java.io.File;
-import java.io.PrintStream;
-import java.util.List;
-import java.util.Random;
 import org.lemurproject.galago.contrib.hash.UniversalStringHashFunction;
 import org.lemurproject.galago.contrib.hash.WindowHasher;
 import org.lemurproject.galago.contrib.index.InvertedSketchIndexWriter;
@@ -14,7 +10,6 @@ import org.lemurproject.galago.core.index.ExtractIndexDocumentNumbers;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
-import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.tools.apps.BuildStageTemplates;
@@ -24,12 +19,12 @@ import org.lemurproject.galago.core.window.ReduceNumberWordCount;
 import org.lemurproject.galago.core.window.WindowProducer;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
-import org.lemurproject.galago.tupleflow.execution.InputStep;
-import org.lemurproject.galago.tupleflow.execution.Job;
-import org.lemurproject.galago.tupleflow.execution.OutputStep;
-import org.lemurproject.galago.tupleflow.execution.Stage;
-import org.lemurproject.galago.tupleflow.execution.Step;
+import org.lemurproject.galago.tupleflow.execution.*;
+
+import java.io.File;
+import java.io.PrintStream;
+import java.util.List;
+import java.util.Random;
 
 /**
  *
@@ -79,7 +74,7 @@ public class BuildSketchIndex extends AppFunction {
     // ensure full paths
     buildParameters.set("indexPath", indexPath);
 
-    List<String> inputPaths = buildParameters.getAsList("inputPath");
+    List<String> inputPaths = buildParameters.getAsList("inputPath", String.class);
     Parameters splitParameters = (buildParameters.isMap("parser"))?buildParameters.getMap("parser"): new Parameters();
     splitParameters.set("corpusPieces", buildParameters.get("distrib", 10));
     if (buildParameters.isMap("parser")) {
@@ -150,7 +145,7 @@ public class BuildSketchIndex extends AppFunction {
     p2.set("width", buildParameters.getLong("width"));
     p2.set("ordered", buildParameters.getBoolean("ordered"));
     if (buildParameters.isString("fields") || buildParameters.isList("fields", String.class)) {
-      p2.set("fields", (List<String>) buildParameters.getAsList("fields"));
+      p2.set("fields", buildParameters.getAsList("fields", String.class));
     }
     stage.add(new Step(WindowProducer.class, p2));
     stage.add(new Step(WindowHasher.class, buildParameters));

@@ -3,16 +3,17 @@
  */
 package org.lemurproject.galago.contrib.retrieval.iterator;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import org.lemurproject.galago.core.retrieval.RequiredStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.TransformIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.retrieval.RequiredStatistics;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -54,8 +55,7 @@ public class DFRScoringIterator extends TransformIterator implements ScoreIterat
   @Override
   public double score(ScoringContext c) {
     double tscore = scorer.score(c);
-    double transformedScore = transform(tscore);
-    return transformedScore;
+    return transform(tscore);
   }
 
   @Override
@@ -76,7 +76,7 @@ public class DFRScoringIterator extends TransformIterator implements ScoreIterat
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
     String returnValue = Double.toString(score(c));
-    List<AnnotatedNode> children = new ArrayList();
+    List<AnnotatedNode> children = new ArrayList<AnnotatedNode>();
     children.add(scorer.getAnnotatedNode(c));
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }

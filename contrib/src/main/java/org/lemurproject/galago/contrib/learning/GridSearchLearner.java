@@ -3,12 +3,13 @@
  */
 package org.lemurproject.galago.contrib.learning;
 
+import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.tupleflow.Parameters;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * Very simple grid search learning algorithm - divides the n dimensional space
@@ -40,7 +41,7 @@ public class GridSearchLearner extends Learner {
 
     // collect local parameters
     gridSize = (double) p.getLong("gridSize");
-    parameterSpecificGridSizes = new HashMap();
+    parameterSpecificGridSizes = new HashMap<String, Double>();
 
     for (String param : this.learnableParameters.getParams()) {
       if (this.learnableParameters.getParameterSpecifics(param).containsKey("gridSize")) {
@@ -53,7 +54,7 @@ public class GridSearchLearner extends Learner {
 
   @Override
   public RetrievalModelInstance learn() throws Exception {
-    List<String> params = new ArrayList(this.learnableParameters.getParams());
+    List<String> params = new ArrayList<String>(this.learnableParameters.getParams());
     RetrievalModelInstance settings;
     if (this.initialSettings.isEmpty()) {
       settings = super.generateRandomInitalValues();

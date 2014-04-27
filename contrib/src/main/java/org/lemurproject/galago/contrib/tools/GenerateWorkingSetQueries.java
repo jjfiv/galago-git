@@ -3,13 +3,6 @@
  */
 package org.lemurproject.galago.contrib.tools;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import org.lemurproject.galago.core.eval.QueryJudgments;
 import org.lemurproject.galago.core.eval.QuerySetJudgments;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
@@ -23,6 +16,14 @@ import org.lemurproject.galago.core.tools.apps.BatchSearch;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  *
@@ -64,7 +65,7 @@ public class GenerateWorkingSetQueries extends AppFunction {
 
     Retrieval retrieval = RetrievalFactory.instance(parameters);
 
-    List<Parameters> wsQueries = new ArrayList();
+    List<Parameters> wsQueries = new ArrayList<Parameters>();
     int topK = (int) parameters.get("topK", 10000);
     //int randomK = (int) p.get("randomK", 0);
 
@@ -92,8 +93,8 @@ public class GenerateWorkingSetQueries extends AppFunction {
       Parameters wsQ = queryParams.clone();
       wsQueries.add(wsQ);
 
-      HashSet<String> workingSetNames = new HashSet();
-      HashSet<Long> workingSetNumbers = new HashSet();
+      HashSet<String> workingSetNames = new HashSet<String>();
+      HashSet<Long> workingSetNumbers = new HashSet<Long>();
 
       // first run the query - collect topK
       queryParams.set("requested", topK);
@@ -142,12 +143,12 @@ public class GenerateWorkingSetQueries extends AppFunction {
 //        }
 //      }
 
-      List<String> wsNames = new ArrayList(workingSetNames);
+      List<String> wsNames = new ArrayList<String>(workingSetNames);
       Collections.sort(wsNames);
       wsQ.set("working", wsNames);
 
       if (numbers) {
-        List<Long> wsNumbers = new ArrayList(workingSetNumbers);
+        List<Long> wsNumbers = new ArrayList<Long>(workingSetNumbers);
         Collections.sort(wsNumbers);
         wsQ.set("workingIds", wsNumbers);
       }

@@ -60,7 +60,7 @@ public class FieldRelevanceModelTraversal extends Traversal {
 
       // Load and filter the fields once
       fields = new ArrayList<String>();
-      for (String f : (List<String>) p.getList("fields")) {
+      for (String f : p.getList("fields", String.class)) {
         String partName = "field." + f;
         if (availableFields.containsKey(partName)) {
           fields.add(f);
@@ -84,7 +84,7 @@ public class FieldRelevanceModelTraversal extends Traversal {
     Map<String, Document> docmap = retrieval.getDocuments(names, new DocumentComponents());
     List<Document> docs = new ArrayList<Document>(docmap.values());
     if (p.containsKey("parser")) {
-      Class c = Class.forName(p.getString("parser"));
+      Class<?> c = Class.forName(p.getString("parser"));
       Method m = c.getMethod("parse", List.class, Parameters.class);
       docs = (List<Document>) m.invoke(null, docs, p);
     }
@@ -101,7 +101,7 @@ public class FieldRelevanceModelTraversal extends Traversal {
       NodeParameters par1 = new NodeParameters();
       par1.set("default", term);
       par1.set("part", partName);
-      Node termCount = new Node("counts", par1, new ArrayList(), 0);
+      Node termCount = new Node("counts", par1, new ArrayList<Node>(), 0);
       double weight = weights.get(field);
       weight = (weight > 0.0) ? weight : FieldLanguageModel.smoothing;
       if (retrieval.getGlobalParameters().get("printWeights", false)) {
@@ -123,7 +123,7 @@ public class FieldRelevanceModelTraversal extends Traversal {
   }
 
   private Node useRelevantDocuments() throws Exception {
-    List<String> docnames = (List<String>) p.getList("documents");
+    List<String> docnames = p.getList("documents", String.class);
     List<Document> docs = getDocuments(docnames);
     FieldLanguageModel flm = new FieldLanguageModel();
     for (Document d : docs) {
@@ -161,7 +161,7 @@ public class FieldRelevanceModelTraversal extends Traversal {
         NodeParameters par1 = new NodeParameters();
         par1.set("default", term);
         par1.set("part", partName);
-        Node termCount = new Node("counts", par1, new ArrayList(), 0);
+        Node termCount = new Node("counts", par1, new ArrayList<Node>(), 0);
         NodeStatistics ns = retrieval.getNodeStatistics(termCount);
         double fieldprob = (ns.nodeFrequency + 0.0) / field_cs.collectionLength; // P(t|F_j)
         inner.put(field, fieldprob);
@@ -229,7 +229,8 @@ public class FieldRelevanceModelTraversal extends Traversal {
   private List<String> getGrams(int size) {
     ArrayList<String> grams = new ArrayList<String>();
     for (int i = 0; i < queryTerms.size() - (size - 1); i++) {
-      grams.add(Utility.join(queryTerms.subList(i, i + size).toArray(new String[0])));
+      List<String> strings = queryTerms.subList(i, i + size);
+      grams.add(Utility.join(strings, " "));
     }
     return grams;
   }

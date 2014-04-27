@@ -3,6 +3,9 @@
  */
 package org.lemurproject.galago.contrib.learning;
 
+import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.tupleflow.Parameters;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,8 +14,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.tupleflow.Parameters;
 
 /**
  * Coordinate ascent learning algorithm.
@@ -47,7 +48,7 @@ public class CoordinateAscentLearner extends Learner {
     this.maxStepRatio = p.get("maxStepRatio", 0.3);  // if a particular step is bigger than the value, reduce step to a third of the value.
     this.stepScale = p.get("stepScale", 2.0);
     this.maxIterations = (int) p.get("maxIterations", 5);
-    this.minStepSizes = new HashMap();
+    this.minStepSizes = new HashMap<String,Double>();
     this.minStepSize = p.get("minStepSize", 0.02);
     this.limitRange = p.get("limitRange", false);
 
@@ -65,11 +66,11 @@ public class CoordinateAscentLearner extends Learner {
   @Override
   public RetrievalModelInstance learn() throws Exception {
     // loop for each random restart:
-    final List<RetrievalModelInstance> learntParams = Collections.synchronizedList(new ArrayList());
+    final List<RetrievalModelInstance> learntParams = Collections.synchronizedList(new ArrayList<RetrievalModelInstance>());
 
     if (threading) {
       ExecutorService threadPool = Executors.newFixedThreadPool(threadCount);
-      final List<Exception> exceptions = Collections.synchronizedList(new ArrayList());
+      final List<Exception> exceptions = Collections.synchronizedList(new ArrayList<Exception>());
       final CountDownLatch latch = new CountDownLatch(restarts);
 
       for (int i = 0; i < restarts; i++) {
@@ -182,12 +183,12 @@ public class CoordinateAscentLearner extends Learner {
   public RetrievalModelInstance runCoordAscent(RetrievalModelInstance parameterSettings) throws Exception {
 
     double best = this.evaluate(parameterSettings);
-    outputTraceStream.println(String.format("Initial parameter weights: %s Metric: %f. Starting optimization...", parameterSettings.toParameters().toString().toString(), best));
+    outputTraceStream.println(String.format("Initial parameter weights: %s Metric: %f. Starting optimization...", parameterSettings.toParameters().toString(), best));
 
     boolean optimized = true;
     int iters = 0;
     while (optimized && iters < maxIterations) {
-      List<String> optimizationOrder = new ArrayList(this.learnableParameters.getParams());
+      List<String> optimizationOrder = new ArrayList<String>(this.learnableParameters.getParams());
       Collections.shuffle(optimizationOrder, this.random);
       outputTraceStream.println(String.format("Starting a new coordinate sweep...."));
       iters += 1;

@@ -35,17 +35,17 @@ public abstract class DocumentStreamParser {
   // configuring extra parsers
   public static void addExternalParsers(Parameters parameters) {
     try {
-    fileTypeMap.put("html", FileParser.class);
-    fileTypeMap.put("xml", FileParser.class);
-    fileTypeMap.put("txt", FileParser.class);
-    fileTypeMap.put("arc", ArcParser.class);
-    fileTypeMap.put("warc", WARCParser.class);
-    fileTypeMap.put("trectext", TrecTextParser.class);
-    fileTypeMap.put("trecweb", TrecWebParser.class);
-    fileTypeMap.put("twitter", TwitterParser.class);
-    fileTypeMap.put("corpus", CorpusSplitParser.class);
-    fileTypeMap.put("selectivecorpus", CorpusSelectiveSplitParser.class);
-    fileTypeMap.put("wiki", WikiParser.class);
+      fileTypeMap.put("html", FileParser.class);
+      fileTypeMap.put("xml", FileParser.class);
+      fileTypeMap.put("txt", FileParser.class);
+      fileTypeMap.put("arc", ArcParser.class);
+      fileTypeMap.put("warc", WARCParser.class);
+      fileTypeMap.put("trectext", TrecTextParser.class);
+      fileTypeMap.put("trecweb", TrecWebParser.class);
+      fileTypeMap.put("twitter", TwitterParser.class);
+      fileTypeMap.put("corpus", CorpusSplitParser.class);
+      fileTypeMap.put("selectivecorpus", CorpusSelectiveSplitParser.class);
+      fileTypeMap.put("wiki", WikiParser.class);
 
       // Look for external mapping definitions
       if (parameters.containsKey("externalParsers")) {

@@ -106,11 +106,11 @@ public abstract class Learner {
     threading = p.get("threading", false);
     threadCount = (int) (p.isLong("threadCount") ? p.getLong("threadCount") : Runtime.getRuntime().availableProcessors());
 
-    List<Parameters> params = (List<Parameters>) p.getList("learnableParameters");
+    List<Parameters> params = p.getList("learnableParameters", Parameters.class);
     List<Parameters> normalizationRules = new ArrayList<Parameters>();
     if (p.isList("normalization", Parameters.class)
             || p.isMap("normalization")) {
-      normalizationRules.addAll(p.getAsList("normalization"));
+      normalizationRules.addAll(p.getAsList("normalization", Parameters.class));
     }
 
     learnableParameters = new RetrievalModelParameters(params, normalizationRules);
@@ -118,7 +118,7 @@ public abstract class Learner {
     restarts = (int) p.get("restarts", 1);
     initialSettings = new ArrayList<RetrievalModelInstance>(restarts);
     if (p.isList("initialParameters", Parameters.class)) {
-      List<Parameters> inits = (List<Parameters>) p.getAsList("initialParameters");
+      List<Parameters> inits = p.getAsList("initialParameters", Parameters.class);
       for (Parameters init : inits) {
         RetrievalModelInstance inst = new RetrievalModelInstance(learnableParameters, init);
         initialSettings.add(inst);

@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -91,7 +92,7 @@ public class DiskIndex implements Index {
     }
 
     // otherwise the directory might contain stand-alone index files
-    for (File part : directory.listFiles()) {
+    for (File part : FileUtility.safeListFiles(directory)) {
       String partName = (name.length() == 0) ? part.getName() : name + "/" + part.getName();
       if (part.isDirectory()) {
         openDiskParts(partName, part);
@@ -329,9 +330,10 @@ public class DiskIndex implements Index {
         return corpus.getDocument(docId, p);
       } catch (IOException e) {
         // ignore the exception
-        Logger.getLogger(this.getClass().getName()).log(Level.SEVERE,
+        logger.log(Level.SEVERE,"IOException while pulling document: "+document,e);
+        /*logger.log(Level.SEVERE,
                 "Failed to get document: {0}\n{1}",
-                new Object[]{document, e.toString()});
+                new Object[]{document, e.toString()});*/
       }
     }
     return null;
@@ -421,7 +423,7 @@ public class DiskIndex implements Index {
     }
 
     String className = reader.getManifest().get("readerClass", (String) null);
-    Class readerClass;
+    Class<?> readerClass;
     try {
       readerClass = Class.forName(className);
     } catch (ClassNotFoundException e) {

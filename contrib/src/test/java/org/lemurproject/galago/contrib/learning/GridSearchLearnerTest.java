@@ -3,6 +3,7 @@
  */
 package org.lemurproject.galago.contrib.learning;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.lemurproject.galago.contrib.util.TestingUtils;
 import org.lemurproject.galago.core.retrieval.Retrieval;
@@ -48,7 +49,7 @@ public class GridSearchLearnerTest {
       learnParams.set("learner", "grid");
       learnParams.set("qrels", qrels.getAbsolutePath());
       // add two parameters
-      List<Parameters> learnableParams = new ArrayList();
+      List<Parameters> learnableParams = new ArrayList<Parameters>();
       learnableParams.add(Parameters.parseString("{\"name\":\"0\", \"max\":1.0, \"min\":-1.0}"));
       learnableParams.add(Parameters.parseString("{\"name\":\"1\", \"max\":1.0, \"min\":-1.0}"));
       learnParams.set("learnableParameters", learnableParams);
@@ -58,13 +59,14 @@ public class GridSearchLearnerTest {
       normalRule.set("params", Arrays.asList(new String[]{"0", "1"}));
       normalRule.set("value", 1D);
       learnParams.set("normalization", new ArrayList());
-      learnParams.getList("normalization").add(normalRule);
+      learnParams.getList("normalization", Parameters.class).add(normalRule);
 
       learnParams.set("gridSize", 3);
       learnParams.set("restarts", 1);
 
       Learner learner = LearnerFactory.instance(learnParams, ret);
       RetrievalModelInstance res = learner.learn();
+      Assert.assertNotNull(res);
       //System.err.println(res.toParameters().toString());
 
     } finally {
@@ -72,7 +74,7 @@ public class GridSearchLearnerTest {
         Utility.deleteDirectory(index);
       }
       if (qrels != null) {
-        qrels.delete();
+        Assert.assertTrue(qrels.delete());
       }
     }
   }

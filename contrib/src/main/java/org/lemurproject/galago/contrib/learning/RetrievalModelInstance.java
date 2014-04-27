@@ -4,8 +4,9 @@
 package org.lemurproject.galago.contrib.learning;
 
 import gnu.trove.map.hash.TObjectDoubleHashMap;
-import java.util.List;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.util.List;
 
 /**
  *
@@ -22,7 +23,7 @@ public class RetrievalModelInstance {
 
   public RetrievalModelInstance(RetrievalModelParameters params, Parameters settings) {
     this.params = params;
-    this.settings = new TObjectDoubleHashMap();
+    this.settings = new TObjectDoubleHashMap<String>();
     this.outParams = new Parameters();
 
     for (String p : params.getParams()) {
@@ -66,7 +67,7 @@ public class RetrievalModelInstance {
   public RetrievalModelInstance clone() {
     RetrievalModelInstance lpi = new RetrievalModelInstance();
     lpi.params = this.params;
-    lpi.settings = new TObjectDoubleHashMap(this.settings);
+    lpi.settings = new TObjectDoubleHashMap<String>(this.settings);
     lpi.outParams = outParams.clone();
     return lpi;
   }

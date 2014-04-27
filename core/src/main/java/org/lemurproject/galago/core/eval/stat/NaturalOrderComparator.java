@@ -30,7 +30,7 @@ import java.util.Comparator;
  * Natural comparator is useful for sorting query ids (in eval)
  *  into a reasonable order.
  */
-public class NaturalOrderComparator implements Comparator, Serializable {
+public class NaturalOrderComparator implements Comparator<Object>, Serializable {
 
   int compareRight(String a, String b) {
     int bias = 0;

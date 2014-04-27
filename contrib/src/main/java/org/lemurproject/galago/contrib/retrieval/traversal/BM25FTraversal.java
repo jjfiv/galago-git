@@ -1,8 +1,6 @@
 // BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.contrib.retrieval.traversal;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
@@ -10,6 +8,9 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Transforms a #bm25f operator into a full expansion of the BM25F model. That
@@ -48,7 +49,7 @@ public class BM25FTraversal extends Traversal {
     this.retrieval = retrieval;
     Parameters globals = retrieval.getGlobalParameters();
     weights = globals.containsKey("bm25f") ? globals.getMap("bm25f") : new Parameters();
-    fieldList = globals.getAsList("fields");
+    fieldList = globals.getAsList("fields", String.class);
     try {
       availableFields = retrieval.getAvailableParts();
     } catch (Exception e) {
@@ -100,8 +101,7 @@ public class BM25FTraversal extends Traversal {
     long df = ns.nodeDocumentCount;
 
     // compute idf and return
-    double idf = Math.log(documentCount / (df + 0.5));
-    return idf;
+    return Math.log(documentCount / (df + 0.5));
   }
 
   private Node createFieldsOfTerm(Node termNode, Parameters smoothingWeights,

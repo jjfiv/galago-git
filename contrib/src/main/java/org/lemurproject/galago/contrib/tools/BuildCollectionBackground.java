@@ -3,9 +3,6 @@
  */
 package org.lemurproject.galago.contrib.tools;
 
-import java.io.File;
-import java.io.PrintStream;
-import java.util.List;
 import org.lemurproject.galago.contrib.index.disk.BackgroundStatsWriter;
 import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.parse.WordCountReducer;
@@ -18,12 +15,11 @@ import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.WordCount;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
-import org.lemurproject.galago.tupleflow.execution.InputStep;
-import org.lemurproject.galago.tupleflow.execution.Job;
-import org.lemurproject.galago.tupleflow.execution.OutputStep;
-import org.lemurproject.galago.tupleflow.execution.Stage;
-import org.lemurproject.galago.tupleflow.execution.Step;
+import org.lemurproject.galago.tupleflow.execution.*;
+
+import java.io.File;
+import java.io.PrintStream;
+import java.util.List;
 
 /**
  * builds a background language model from a set of documents - mapping from
@@ -73,7 +69,7 @@ public class BuildCollectionBackground extends AppFunction {
     assert (index.isDirectory()) : getHelpString() + "\nindexPath must be an existing index.";
     p.set("indexPath", index.getAbsolutePath());
 
-    List<String> inputs = p.getAsList("inputPath");
+    List<String> inputs = p.getAsList("inputPath", String.class);
 
     String stemmer = p.get("stemmer", "krovetz");
     File output = new File(index, p.get("partName", "background." + stemmer));

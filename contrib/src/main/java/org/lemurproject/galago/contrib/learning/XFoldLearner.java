@@ -3,20 +3,15 @@
  */
 package org.lemurproject.galago.contrib.learning;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.lemurproject.galago.core.eval.QuerySetResults;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.File;
+import java.util.*;
 
 /**
  *
@@ -30,7 +25,7 @@ public class XFoldLearner extends Learner {
   private Map<Integer, Learner> foldLearners;
   private Map<Integer, List<String>> trainQueryFolds;
   private Map<Integer, List<String>> testQueryFolds;
-  private ArrayList queryNumbers;
+  private ArrayList<String> queryNumbers;
   private boolean execute;
 
   public XFoldLearner(Parameters p, Retrieval r) throws Exception {
@@ -45,21 +40,21 @@ public class XFoldLearner extends Learner {
 
     // create one set of parameters (and learner) for each xfold.
     xfoldCount = (int) p.getLong("xfolds");
-    trainQueryFolds = new HashMap(xfoldCount);
-    testQueryFolds = new HashMap(xfoldCount);
-    foldTrainParameters = new HashMap(xfoldCount);
-    foldTestParameters = new HashMap(xfoldCount);
-    foldLearners = new HashMap(xfoldCount);
+    trainQueryFolds = new HashMap<Integer,List<String>>(xfoldCount);
+    testQueryFolds = new HashMap<Integer,List<String>>(xfoldCount);
+    foldTrainParameters = new HashMap<Integer,Parameters>(xfoldCount);
+    foldTestParameters = new HashMap<Integer,Parameters>(xfoldCount);
+    foldLearners = new HashMap<Integer,Learner>(xfoldCount);
 
     // randomize order of queries
-    queryNumbers = new ArrayList(this.queries.queryIdentifiers);
+    queryNumbers = new ArrayList<String>(this.queries.queryIdentifiers);
     Collections.shuffle(queryNumbers, random);
 
     // split queries into folds
     int foldSize = (int) Math.ceil((double) queryNumbers.size() / (double) xfoldCount);
     for (int foldId = 0; foldId < xfoldCount; foldId++) {
       List<String> xfoldQueryNumbers = queryNumbers.subList(foldId * foldSize, (foldId + 1) * foldSize);
-      List<String> xfoldQueryNumbersInverse = new ArrayList(queryNumbers);
+      List<String> xfoldQueryNumbersInverse = new ArrayList<String>(queryNumbers);
       xfoldQueryNumbersInverse.removeAll(xfoldQueryNumbers);
 
       outputTraceStream.println(String.format("%s - Fold: %d contains %d + %d = %d queries", name, foldId, xfoldQueryNumbers.size(), xfoldQueryNumbersInverse.size(), this.queries.queryIdentifiers.size()));
@@ -110,7 +105,7 @@ public class XFoldLearner extends Learner {
   @Override
   public RetrievalModelInstance learn() throws Exception {
     if (execute) {
-      final List<RetrievalModelInstance> learntParams = new ArrayList();
+      final List<RetrievalModelInstance> learntParams = new ArrayList<RetrievalModelInstance>();
 
       // one set of results per fold.
       for (int foldId : foldLearners.keySet()) {
@@ -153,7 +148,7 @@ public class XFoldLearner extends Learner {
     long start = 0;
     long end = 0;
 
-    HashMap<String, List<ScoredDocument>> resMap = new HashMap();
+    HashMap<String, List<ScoredDocument>> resMap = new HashMap<String,List<ScoredDocument>>();
 
     // ensure the global parameters contain the current settings.
     Parameters settings = instance.toParameters();

@@ -5,8 +5,6 @@
 package org.lemurproject.galago.contrib.retrieval.traversal;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
-import java.util.ArrayList;
-import java.util.List;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
@@ -15,6 +13,9 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Transforms a #pl2f( text1 text2 ) node into the fully expanded PL2F model
@@ -61,7 +62,7 @@ public class PL2FTraversal extends Traversal {
     params = globals.containsKey("pl2f") ? globals.getMap("pl2f") : new Parameters();
     weights = params.containsKey("weights") ? params.getMap("weights") : new Parameters();
     smoothing = params.containsKey("smoothing") ? params.getMap("smoothing") : new Parameters();
-    fieldList = globals.getAsList("fields");
+    fieldList = globals.getAsList("fields", String.class);
     qTermCounts = new TObjectIntHashMap<String>();
     try {
       availableFields = retrieval.getAvailableParts();
@@ -89,8 +90,8 @@ public class PL2FTraversal extends Traversal {
       qp.set("deltaWeightsSet", true);
       // Let's get qfmax
       int[] counts = qTermCounts.values();
-      for (int i = 0; i < counts.length; i++) {
-        qfmax = (counts[i] > qfmax) ? counts[i] : qfmax;
+      for (int count : counts) {
+        qfmax = (count > qfmax) ? count : qfmax;
       }
 
       ArrayList<Node> termNodes = new ArrayList<Node>();

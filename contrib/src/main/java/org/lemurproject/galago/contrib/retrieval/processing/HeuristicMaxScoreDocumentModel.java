@@ -3,11 +3,6 @@
  */
 package org.lemurproject.galago.contrib.retrieval.processing;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -22,6 +17,8 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.util.FixedSizeSortedArray;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.util.*;
 
 /**
  * Implementation of a heuristic improvement to MaxScore (Patent #5488725,
@@ -55,7 +52,7 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
     int requested = (int) queryParams.get("requested", 1000);
 
     // step one: find the set of deltaScoringNodes in the tree
-    List<Node> scoringNodes = new ArrayList();
+    List<Node> scoringNodes = new ArrayList<Node>();
     boolean canScore = findDeltaNodes(queryTree, scoringNodes, retrieval);
     if (!canScore) {
       throw new IllegalArgumentException("Query tree does not support delta scoring interface.\n" + queryTree.toPrettyString());
@@ -65,7 +62,7 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
     boolean shareNodes = queryParams.get("shareNodes", retrieval.getGlobalParameters().get("shareNodes", true));
     List<DeltaScoringIterator> scoringIterators = createScoringIterators(scoringNodes, retrieval, shareNodes);
 
-    FixedSizeSortedArray<ScoredDocument> queue = new FixedSizeSortedArray(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
+    FixedSizeSortedArray<ScoredDocument> queue = new FixedSizeSortedArray<ScoredDocument>(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
     // step three: determine the collection segments
     long[] collectionSegments = determineCollectionSegments(queryParams.getDouble("mxerror"), requested, colStats.lastDocId);
@@ -93,7 +90,6 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
     // all scorers are scored until the minheap is full
     int quorumIndex = scoringIterators.size();
     double minHeapThresholdScore = Double.NEGATIVE_INFINITY;
-    long fullyScored = 0;
 
     // Routine is as follows:
     // 1) Find the next candidate from the sentinels
@@ -148,8 +144,6 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
         // Fully scored it
         if (i == scoringIterators.size()) {
 
-          fullyScored += 1;
-
           while (collectionSegments[currentSegment] < candidate) {
             currentSegment += 1;
             quorumIndex = scoringIterators.size();
@@ -183,8 +177,6 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
 //        }
       }
     }
-
-    //System.err.println(queryParams.getString("number") + " fullyScored " + fullyScored);
 
     return toReversedArray2(queue);
   }
@@ -234,17 +226,17 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
   }
 
   private List<DeltaScoringIterator> createScoringIterators(List<Node> scoringNodes, LocalRetrieval ret, boolean shareNodes) throws Exception {
-    List<DeltaScoringIterator> scoringIterators = new ArrayList();
+    List<DeltaScoringIterator> scoringIterators = new ArrayList<DeltaScoringIterator>();
 
     // the cache allows low level iterators to be shared
     Map<String, BaseIterator> queryIteratorCache;
     if (shareNodes) {
-      queryIteratorCache = new HashMap();
+      queryIteratorCache = new HashMap<String,BaseIterator>();
     } else {
       queryIteratorCache = null;
     }
-    for (int i = 0; i < scoringNodes.size(); i++) {
-      DeltaScoringIterator scorer = (DeltaScoringIterator) ret.createNodeMergedIterator(scoringNodes.get(i), queryIteratorCache);
+    for (Node scoringNode : scoringNodes) {
+      DeltaScoringIterator scorer = (DeltaScoringIterator) ret.createNodeMergedIterator(scoringNode, queryIteratorCache);
       scoringIterators.add(scorer);
     }
     return scoringIterators;

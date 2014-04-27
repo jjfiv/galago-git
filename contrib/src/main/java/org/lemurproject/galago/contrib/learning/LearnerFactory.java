@@ -3,10 +3,11 @@
  */
 package org.lemurproject.galago.contrib.learning;
 
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
 
 /**
  *
@@ -14,7 +15,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
  */
 public class LearnerFactory {
   
-  static HashMap<String, Class> learnerLookup = new HashMap();
+  static HashMap<String, Class> learnerLookup = new HashMap<String, Class>();
   
   static {
     learnerLookup.put("coord", CoordinateAscentLearner.class);
@@ -32,14 +33,14 @@ public class LearnerFactory {
       throw new RuntimeException("Learner factory can not create learner: " + p.getString("learner"));
     }
     
-    Class learner = learnerLookup.get(p.get("learner", "default"));
+    Class<?> learner = learnerLookup.get(p.get("learner", "default"));
 
     // there is currently only one possible constructor: \w (Parameters, Retrieval)
-    Constructor cons = learner.getConstructor(Parameters.class, Retrieval.class);
+    Constructor<?> cons = learner.getConstructor(Parameters.class, Retrieval.class);
     
     if (cons != null) {
       // cast is safe - because only 'learner' classes should be in the lookup
-      return (Learner) cons.newInstance(new Object[]{p, retrieval});
+      return (Learner) cons.newInstance(p, retrieval);
     } else {
       return null;
     }

@@ -1,12 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An iterator that converts a count iterator's count into a score. This is
@@ -58,7 +59,7 @@ public abstract class ScoringFunctionIterator extends TransformIterator implemen
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
     String returnValue = Double.toString(score(c));
-    List<AnnotatedNode> children = new ArrayList();
+    List<AnnotatedNode> children = new ArrayList<AnnotatedNode>();
     children.add(this.lengthsIterator.getAnnotatedNode(c));
     children.add(this.countIterator.getAnnotatedNode(c));
 

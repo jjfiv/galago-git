@@ -3,17 +3,13 @@
  */
 package org.lemurproject.galago.contrib.parse;
 
+import org.lemurproject.galago.core.types.WordCount;
+import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.execution.Verified;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.regex.Pattern;
-import org.lemurproject.galago.core.types.WordCount;
-import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.StandardStep;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.Verified;
 
 /**
  *
@@ -34,7 +30,7 @@ public class WordCountCleaner extends StandardStep<WordCount, WordCount> {
     lower = p.getJSON().get("lower", true);
 
     Parameters repls = p.getJSON().getMap("replacements");
-    replacements = new HashMap();
+    replacements = new HashMap<String,String>();
     exceptions = "[^\\w";
     for (String key : repls.getKeys()) {
       replacements.put(key, repls.getString(key));

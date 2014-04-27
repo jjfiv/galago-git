@@ -28,7 +28,6 @@ public class WeightedPhrankTraversal extends Traversal {
   private static final Logger logger = Logger.getLogger("WPHRANK");
   private Retrieval retrieval;
   private GroupRetrieval gRetrieval;
-  private Parameters globalParams;
   private boolean verbose;
   private List<WPHRANKFeature> uniFeatures;
   private List<WPHRANKFeature> biFeatures;
@@ -40,16 +39,16 @@ public class WeightedPhrankTraversal extends Traversal {
     }
     this.retrieval = retrieval;
 
-    this.globalParams = retrieval.getGlobalParameters();
+    Parameters globalParams = retrieval.getGlobalParameters();
 
     verbose = globalParams.get("verboseWPHRANK", false);
 
-    uniFeatures = new ArrayList();
-    biFeatures = new ArrayList();
-    triFeatures = new ArrayList();
+    uniFeatures = new ArrayList<WPHRANKFeature>();
+    biFeatures = new ArrayList<WPHRANKFeature>();
+    triFeatures = new ArrayList<WPHRANKFeature>();
 
     if (globalParams.isList("wphrankFeatures", Parameters.class)) {
-      for (Parameters f : (List<Parameters>) globalParams.getList("wphrankFeatures")) {
+      for (Parameters f : globalParams.getList("wphrankFeatures", Parameters.class)) {
         WPHRANKFeature wf = new WPHRANKFeature(f);
         if (wf.unigram) {
           uniFeatures.add(wf);
@@ -89,7 +88,7 @@ public class WeightedPhrankTraversal extends Traversal {
 
       NodeParameters np = original.getNodeParameters();
 
-      List<Node> newChildren = new ArrayList();
+      List<Node> newChildren = new ArrayList<Node>();
       NodeParameters newWeights = new NodeParameters();
 
       for (Node child : original.getInternalNodes()) {
@@ -168,8 +167,7 @@ public class WeightedPhrankTraversal extends Traversal {
         }
       }
 
-      Node wphrank = new Node("combine", newWeights, newChildren, original.getPosition());
-      return wphrank;
+      return new Node("combine", newWeights, newChildren, original.getPosition());
     }
     return original;
   }
@@ -181,10 +179,10 @@ public class WeightedPhrankTraversal extends Traversal {
     t = TextPartAssigner.assignPart(t, queryParams, retrieval.getAvailableParts());
 
     // feature value store
-    Map<WPHRANKFeature, Double> featureValues = new HashMap();
+    Map<WPHRANKFeature, Double> featureValues = new HashMap<WPHRANKFeature, Double>();
 
     // tf/df comes from the same object - can be used  twice
-    Map<String, AggregateStatistic> localCache = new HashMap();
+    Map<String, AggregateStatistic> localCache = new HashMap<String, AggregateStatistic>();
 
     // NOW : collect some feature values
     Node node;
@@ -292,10 +290,10 @@ public class WeightedPhrankTraversal extends Traversal {
     od1.addChild(t2);
 
     // feature value store
-    Map<WPHRANKFeature, Double> featureValues = new HashMap();
+    Map<WPHRANKFeature, Double> featureValues = new HashMap<WPHRANKFeature, Double>();
 
     // tf/df comes from the same object - can be used  twice
-    Map<String, AggregateStatistic> localCache = new HashMap();
+    Map<String, AggregateStatistic> localCache = new HashMap<String,AggregateStatistic>();
 
     // NOW : collect some feature values
     Node node;
@@ -441,10 +439,10 @@ public class WeightedPhrankTraversal extends Traversal {
     od1.addChild(t3);
 
     // feature value store
-    Map<WPHRANKFeature, Double> featureValues = new HashMap();
+    Map<WPHRANKFeature, Double> featureValues = new HashMap<WPHRANKFeature, Double>();
 
     // tf/df comes from the same object - can be used twice
-    Map<String, AggregateStatistic> localCache = new HashMap();
+    Map<String, AggregateStatistic> localCache = new HashMap<String,AggregateStatistic>();
 
     // NOW : collect some feature values
     Node node;
@@ -576,7 +574,7 @@ public class WeightedPhrankTraversal extends Traversal {
 
   public static enum WPHRANKFeatureType {
 
-    LOGTF, LOGDF, CONST, LOGNGRAMTF;
+    LOGTF, LOGDF, CONST, LOGNGRAMTF
   }
 
   /*
