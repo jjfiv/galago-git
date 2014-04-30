@@ -541,7 +541,7 @@ public class TagTokenizer extends Tokenizer {
           }
         }
 
-        if (token.length() - s > 1) {
+        if (token.length() - s > 0) {
           String subtoken = token.substring(s);
           addToken(subtoken, start + s, end);
         }
