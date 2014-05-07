@@ -110,10 +110,13 @@ public class Document implements Serializable {
   }
 
   /**
-   * This class allows the selection
-   *
+   * This class allows the selection of parts of the document to serialize or deserialize.
    */
   public static class DocumentComponents implements Serializable {
+    public static DocumentComponents All = new DocumentComponents(true, true, true);
+    public static DocumentComponents JustMetadata = new DocumentComponents(false, true, false);
+    public static DocumentComponents JustText = new DocumentComponents(true, false, false);
+    public static DocumentComponents JustTerms = new DocumentComponents(true, false, true);
 
     public boolean text = true;
     public boolean metadata = true;
