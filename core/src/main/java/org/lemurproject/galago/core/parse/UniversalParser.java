@@ -38,8 +38,6 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
   @Override
   public void process(DocumentSplit split) throws IOException {
 
-    LOG.info("Processing split: "+split.fileName);
-
     long count = 0;
     long limit = Long.MAX_VALUE;
     if (split.startKey.length > 0) {
@@ -49,6 +47,8 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     }
 
     DocumentStreamParser parser = DocumentStreamParser.instance(split, parameters);
+
+    LOG.info("Processing split: "+split.fileName+ " with: "+parser.getClass().getName());
 
     // A parser is instantiated. Start producing documents for consumption
     // downstream.

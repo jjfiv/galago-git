@@ -28,7 +28,9 @@ public class CorpusSplitParser extends DocumentStreamParser {
     super(split, p);
     this.reader = new CorpusReader(split.fileName);
     this.iterator = (DocumentIterator) reader.getIterator();
-    this.iterator.skipToKey(split.startKey);
+    if(split.startKey != null) {
+      this.iterator.skipToKey(split.startKey);
+    }
     this.split = split;
 
     extractionParameters = new DocumentComponents(true, true, false);
@@ -43,7 +45,7 @@ public class CorpusSplitParser extends DocumentStreamParser {
     byte[] keyBytes = iterator.getKey();
 
     // Don't go past the end of the split.
-    if (split.endKey.length > 0 && Utility.compare(keyBytes, split.endKey) >= 0) {
+    if (split.endKey != null && split.endKey.length > 0 && Utility.compare(keyBytes, split.endKey) >= 0) {
       return null;
     }
 

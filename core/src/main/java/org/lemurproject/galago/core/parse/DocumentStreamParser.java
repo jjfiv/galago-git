@@ -12,12 +12,14 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 /**
  *
  * @author trevor, sjh
  */
 public abstract class DocumentStreamParser {
+  private static Logger log = Logger.getLogger(DocumentStreamParser.class.getName());
 
   /* Static interface */
 
@@ -72,6 +74,9 @@ public abstract class DocumentStreamParser {
     // see if filetype is in our list of known types
     if (fileTypeMap.containsKey(fileType)) {
        return constructParserWithSplit(fileTypeMap.get(fileType), split, parameters);
+    } else {
+      log.info("No parser in default map for fileType="+fileType);
+      log.info("fileTypeMap="+fileTypeMap);
     }
 
     // see if filetype is a full class, and can be instantiated that way.

@@ -1,11 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools.apps;
 
-import java.io.File;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import org.lemurproject.galago.core.index.corpus.CorpusFolderWriter;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeKeyWriter;
@@ -13,36 +8,23 @@ import org.lemurproject.galago.core.index.disk.DiskNameReader;
 import org.lemurproject.galago.core.index.disk.PositionFieldIndexWriter;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.index.merge.CorpusMerger;
-import org.lemurproject.galago.core.parse.DocumentSource;
-import org.lemurproject.galago.core.parse.FieldLengthExtractor;
-import org.lemurproject.galago.core.parse.NumberedDocumentDataExtractor;
-import org.lemurproject.galago.core.parse.NumberedExtentExtractor;
-import org.lemurproject.galago.core.parse.NumberedExtentPostingsExtractor;
-import org.lemurproject.galago.core.parse.NumberedFieldExtractor;
-import org.lemurproject.galago.core.parse.NumberedPostingsPositionExtractor;
+import org.lemurproject.galago.core.parse.*;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.NullStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
 import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.core.types.FieldLengthData;
-import org.lemurproject.galago.core.types.FieldNumberWordPosition;
-import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.core.types.NumberWordPosition;
-import org.lemurproject.galago.core.types.NumberedDocumentData;
-import org.lemurproject.galago.core.types.NumberedExtent;
-import org.lemurproject.galago.core.types.NumberedField;
+import org.lemurproject.galago.core.types.*;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Order;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
-import org.lemurproject.galago.tupleflow.execution.InputStep;
-import org.lemurproject.galago.tupleflow.execution.Job;
-import org.lemurproject.galago.tupleflow.execution.MultiStep;
-import org.lemurproject.galago.tupleflow.execution.OutputStep;
-import org.lemurproject.galago.tupleflow.execution.Stage;
-import org.lemurproject.galago.tupleflow.execution.Step;
+import org.lemurproject.galago.tupleflow.execution.*;
+
+import java.io.File;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  *
@@ -249,12 +231,12 @@ public class BuildIndex extends AppFunction {
   }
   
   public static Parameters checkBuildIndexParameters(Parameters globalParameters) throws Exception {
-    ArrayList<String> errorLog = new ArrayList();
+    ArrayList<String> errorLog = new ArrayList<String>();
 
     // inputPath may be a string, or a list of strings -- required
     try {
-      List<String> inputPath = (List<String>) globalParameters.getAsList("inputPath");
-      ArrayList<String> absolutePaths = new ArrayList();
+      List<String> inputPath = globalParameters.getAsList("inputPath", String.class);
+      ArrayList<String> absolutePaths = new ArrayList<String>();
       for (String path : inputPath) {
         absolutePaths.add((new File(path)).getAbsolutePath());
       }
@@ -373,7 +355,7 @@ public class BuildIndex extends AppFunction {
     if (globalParameters.containsKey("stemmer")) {
       // check that it's a list of strings:
       try {
-        List<String> stemmers = globalParameters.getList("stemmer");
+        List<String> stemmers = globalParameters.getList("stemmer", String.class);
       } catch (Exception e) {
         errorLog.add("Parameter 'stemmer' should be a list of strings indicating stemmer names. \n"
                 + "This parameter is only active when the 'stemmedPostings' parameter is true. \n"
@@ -417,11 +399,12 @@ public class BuildIndex extends AppFunction {
       if (globalParameters.getBoolean("stemmedPostings")
               && globalParameters.isList("stemmer")) {
         // this is safe - thanks to previous checks
-        List<String> stemmer = (List<String>) globalParameters.getList("stemmer");
+        List<String> stemmer = globalParameters.getList("stemmer", String.class);
         for (String stemmerKey : stemmer) {
           if (stemmerClasses.containsKey(stemmerKey)) {
             // check that the class can be assigned
             Class c = Class.forName(stemmerClasses.getString(stemmerKey));
+            assert(c != null);
           } else {
             // we are missing a class
             if (stemmerKey.equals("null")) {
@@ -482,7 +465,7 @@ public class BuildIndex extends AppFunction {
     //  each type needs to be indexable {string,int,long,float,double,date}
     if (tokenizerParams.containsKey("formats")) {
       try {
-        HashSet<String> possibleFormats = new HashSet();
+        HashSet<String> possibleFormats = new HashSet<String>();
         possibleFormats.add("string");
         possibleFormats.add("int");
         possibleFormats.add("long");

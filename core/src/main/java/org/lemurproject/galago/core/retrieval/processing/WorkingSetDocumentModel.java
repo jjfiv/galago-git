@@ -1,9 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -11,6 +8,10 @@ import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Performs straightforward document-at-a-time (daat) processing of a fully
@@ -74,11 +75,10 @@ public class WorkingSetDocumentModel extends ProcessingModel {
     boolean annotate = queryParams.get("annotate", false);
 
     // now there should be an iterator at the root of this tree
-    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
+    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap<ScoredDocument>(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
-    for (int i = 0; i < whitelist.size(); i++) {
-      long document = whitelist.get(i);
-      if(document < 0){
+    for (long document : whitelist) {
+      if (document < 0) {
         continue;
       }
       iterator.syncTo(document);
