@@ -1,12 +1,11 @@
 //  BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.core.eval;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import org.lemurproject.galago.tupleflow.util.WrappedMap;
+
+import java.io.*;
 import java.util.Map;
 import java.util.TreeMap;
-import org.lemurproject.galago.tupleflow.util.WrappedMap;
 
 /**
  * This class store a relevance judgments for a set of queries
@@ -45,7 +44,6 @@ public class QuerySetJudgments extends WrappedMap<String, QueryJudgments> {
 
   /**
    * 
-   * @return
    * @deprecated Use keySet() instead
    */
   @Deprecated
@@ -69,7 +67,7 @@ public class QuerySetJudgments extends WrappedMap<String, QueryJudgments> {
    */
   public static Map<String, QueryJudgments> loadJudgments(String filename, boolean makeBinary, boolean makePositive) throws IOException {
     BufferedReader in = null;
-    Map<String, QueryJudgments> judgments = new TreeMap();
+    Map<String, QueryJudgments> judgments = new TreeMap<String,QueryJudgments>();
 
     try {
       in = new BufferedReader(new FileReader(filename));
@@ -112,5 +110,27 @@ public class QuerySetJudgments extends WrappedMap<String, QueryJudgments> {
       throw new RuntimeException("Error: no judgments found in file: "+filename);
     }
     return judgments;
+  }
+
+  public void saveJudgments(File fp) throws FileNotFoundException {
+    PrintWriter out = null;
+
+    try {
+      out = new PrintWriter(fp);
+
+      // for each qid
+      for (String qid : this.keySet()) {
+        QueryJudgments qj = this.get(qid);
+
+        // for each document, rel pair
+        for (Map.Entry<String, Integer> judgement : qj.entrySet()) {
+          String doc = judgement.getKey();
+          int rel = judgement.getValue();
+          out.println(String.format("%s 0 %s %d", qid, doc, rel));
+        }
+      }
+    } finally {
+      if(out != null) out.close();
+    }
   }
 }
