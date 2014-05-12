@@ -347,5 +347,18 @@ public class ParametersTest {
     return p;
   }
 
+  @Test
+  public void testPrettyPrint() {
+    Parameters test = Parameters.parseArray("foo", Parameters.parseArray("bar", "baz"));
+    String data = test.toPrettyString("#");
+    String expected = "#{\n" +
+      "#  \"foo\" : {\n" +
+      "#    \"bar\" : \"baz\"\n" +
+      "#  }\n" +
+      "#}";
+
+    assertEquals(expected, data);
+  }
+
 }
 

@@ -543,15 +543,15 @@ public class Parameters implements Serializable, Map<String,Object> {
   }
 
   public String toPrettyString() {
-    return toPrettyString(this, "");
+    return toPrettyString(this, "", true);
   }
 
   public String toPrettyString(String prefix) {
-    return toPrettyString(this, prefix);
+    return toPrettyString(this, prefix, true);
   }
 
   // PRIVATE FUNCTIONS
-  private static String toPrettyString(Object val, String prefix) {
+  private static String toPrettyString(Object val, String prefix, boolean topLevel) {
     if (val == null) {
       return "null";
 
@@ -566,7 +566,7 @@ public class Parameters implements Serializable, Map<String,Object> {
           builder.append(" , ");
         }
 
-        builder.append(toPrettyString(v, prefix + "  "));
+        builder.append(toPrettyString(v, prefix + "  ", false));
       }
 
       builder.append("]");
@@ -575,7 +575,10 @@ public class Parameters implements Serializable, Map<String,Object> {
       Parameters p = (Parameters) val;
 
       StringBuilder builder = new StringBuilder();
-      builder.append(prefix).append("{\n");
+      if(topLevel) { // otherwise, this is coming out on the same line
+        builder.append(prefix);
+      }
+      builder.append("{\n");
 
       String internalPrefix = prefix + "  ";
 
@@ -594,11 +597,11 @@ public class Parameters implements Serializable, Map<String,Object> {
         } else if(p.isDouble(key)) {
           builder.append(p.getDouble(key));
         } else if(p.isString(key)) {
-          builder.append(toPrettyString(p.getString(key), internalPrefix));
+          builder.append(toPrettyString(p.getString(key), internalPrefix, false));
         } else if(p.isMap(key)) {
-          builder.append(toPrettyString(p.getMap(key), internalPrefix));
+          builder.append(toPrettyString(p.getMap(key), internalPrefix, false));
         } else if(p.isList(key)) {
-          builder.append(toPrettyString(p.getList(key), internalPrefix));
+          builder.append(toPrettyString(p.getList(key), internalPrefix, false));
         }
       }
 
