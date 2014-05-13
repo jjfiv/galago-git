@@ -76,10 +76,14 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
     return types;
   }
 
+  public CorpusReaderSource getSource() throws IOException {
+    return new CorpusReaderSource(reader);
+  }
+
   @Override
   public DiskDataIterator<Document> getIterator(Node node) throws IOException {
     if (node.getOperator().equals("corpus")) {
-      return new DiskDataIterator<Document>(new CorpusReaderSource(reader));
+      return new DiskDataIterator<Document>(getSource());
     } else {
       throw new UnsupportedOperationException(
               "Index doesn't support operator: " + node.getOperator());
@@ -114,9 +118,13 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
       }
     }
 
+    public CorpusReaderSource getSource() throws IOException {
+      return new CorpusReaderSource(reader);
+    }
+
     @Override
     public DiskDataIterator<Document> getValueIterator() throws IOException {
-      return new DiskDataIterator<Document>(new CorpusReaderSource(reader));
+      return new DiskDataIterator<Document>(getSource());
     }
   }
 }
