@@ -30,7 +30,7 @@ public class RepairFn extends AppFunction {
   public void run(Parameters p, PrintStream output) throws Exception {
     String action = p.getString("action");
     if(action.equals("names-to-names-reverse")) {
-      IndexRepair.createNamesReverseFromNames(p.getString("names"), p.getString("output"));
+      IndexRepair.createNamesReverseFromNames(p.getString("input"), p.getString("output"));
     } else {
       throw new IllegalArgumentException("Action '"+action+"' on repair not supported yet.");
     }

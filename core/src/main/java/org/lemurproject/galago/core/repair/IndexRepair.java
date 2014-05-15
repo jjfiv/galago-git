@@ -31,6 +31,7 @@ public class IndexRepair {
 
     // iterate over the disknamesource
     DataSource<String> source = namesReader.getSource();
+    long count = 0;
     while(!source.isDone()) {
       long identifier = source.currentCandidate();
       String name = source.data(identifier);
@@ -38,6 +39,10 @@ public class IndexRepair {
       ndd.identifier = name;
       ndd.number = identifier;
       pipe.process(ndd);
+      if(count++ % 10000 == 0) {
+        System.err.println("# converted: "+count+" names");
+        pipe.flush();
+      }
       source.movePast(identifier);
     }
     pipe.close();
