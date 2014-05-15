@@ -16,6 +16,7 @@ public class WebDocumentSerializerTest {
 
     Document doc = new Document();
     doc.metadata.put("meta-key", "value");
+    doc.metadata.put("null-meta-key", null);
     doc.name = "doc-name";
     doc.text = "doc text goes here\nand <tag>continues. This is weird</tag>";
     wds.tokenizer.tokenize(doc);
@@ -28,6 +29,8 @@ public class WebDocumentSerializerTest {
     assertEquals(doc.text, doc2.text);
     assertNotNull(doc2.metadata);
     assertEquals(doc.metadata.get("meta-key"), doc2.metadata.get("meta-key"));
+    assertTrue(doc.metadata.containsKey("null-meta-key"));
+    assertNull(doc.metadata.get("null-meta-key"));
     assertEquals(doc.terms, doc2.terms);
     assertEquals(doc.tags, doc2.tags);
   }

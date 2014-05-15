@@ -12,12 +12,14 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 /**
  * This class only stores the raw text, and expects to pass the data through your Tokenizer again.
  * @author jfoley.
  */
 public class WebDocumentSerializer extends DocumentSerializer {
+  static final Logger log = Logger.getLogger(WebDocumentSerializer.class.getName());
   static final int BUFFER_SIZE = 8192;
   final Tokenizer tokenizer;
 
@@ -52,9 +54,13 @@ public class WebDocumentSerializer extends DocumentSerializer {
         output.writeInt(bytes.length);
         output.write(bytes);
 
-        bytes = Utility.fromString(doc.metadata.get(key));
-        output.writeInt(bytes.length);
-        output.write(bytes);
+        if(doc.metadata.get(key) == null) {
+          output.writeInt(0);
+        } else {
+          bytes = Utility.fromString(doc.metadata.get(key));
+          output.writeInt(bytes.length);
+          output.write(bytes);
+        }
       }
     }
     output.close();
@@ -119,9 +125,14 @@ public class WebDocumentSerializer extends DocumentSerializer {
         String key = Utility.toString(buffer, 0, blen);
 
         blen = input.readInt();
-        buffer = sizeCheck(buffer, blen);
-        input.readFully(buffer, 0, blen);
-        String value = Utility.toString(buffer, 0, blen);
+        String value;
+        if(blen == 0) {
+          value = null;
+        } else {
+          buffer = sizeCheck(buffer, blen);
+          input.readFully(buffer, 0, blen);
+          value = Utility.toString(buffer, 0, blen);
+        }
 
         d.metadata.put(key, value);
       }

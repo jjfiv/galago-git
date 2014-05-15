@@ -22,23 +22,19 @@ public class StreamCreator {
   }
   
   public static FileInputStream realInputStream(String filename) throws IOException {
-    FileInputStream stream = new FileInputStream(filename);
-    return stream;
+    return new FileInputStream(filename);
   }
 
   public static RandomAccessFile readFile(String filename) throws IOException {
-    RandomAccessFile file = new RandomAccessFile(filename, "r");
-    return file;
+    return new RandomAccessFile(filename, "r");
   }
 
   public static RandomAccessFile writeFile(String filename) throws IOException {
-    RandomAccessFile file = new RandomAccessFile(filename, "rw");
-    return file;
+    return new RandomAccessFile(filename, "rw");
   }
 
   public static DataOutputStream realOutputStream(String filename) throws IOException {
-    DataOutputStream file = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(filename)));
-    return file;
+    return new DataOutputStream(new BufferedOutputStream(new FileOutputStream(filename)));
   }
 
   public static DataInputStream openInputStream(String filename) throws IOException {
