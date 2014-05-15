@@ -1,19 +1,18 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeFactory;
 import org.lemurproject.galago.core.index.BTreeReader;
-import org.lemurproject.galago.core.index.KeyToListIterator;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskDataIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Reads a binary file of document names produced by DocumentNameWriter2
@@ -65,9 +64,13 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     }
   }
 
+  public DiskNameSource getSource() throws IOException {
+    return new DiskNameSource(reader);
+  }
+
   @Override
   public DiskDataIterator<String> getNamesIterator() throws IOException {
-    return new DiskDataIterator(new DiskNameSource(reader));
+    return new DiskDataIterator<String>(new DiskNameSource(reader));
   }
 
   public static class KeyIterator extends KeyValueReader.KeyValueIterator {
