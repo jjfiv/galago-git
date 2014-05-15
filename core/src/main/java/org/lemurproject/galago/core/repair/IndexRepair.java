@@ -36,13 +36,17 @@ public class IndexRepair {
       long identifier = source.currentCandidate();
       String name = source.data(identifier);
       NumberedDocumentData ndd = new NumberedDocumentData();
+      ndd.fieldList = "";
+      ndd.url = "";
+      ndd.textLength = 0;
       ndd.identifier = name;
       ndd.number = identifier;
       pipe.process(ndd);
-      if(count++ % 10000 == 0) {
+      if(count % 10000 == 0) {
         System.err.println("# converted: "+count+" names");
         pipe.flush();
       }
+      count++;
       source.movePast(identifier);
     }
     pipe.close();
