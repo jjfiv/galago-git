@@ -46,7 +46,7 @@ public class GalagoConf {
       }
       
       if (preferences.containsKey("tmpdir")) {
-        for (String tmp : (List<String>) preferences.getAsList("tmpdir")) {
+        for (String tmp : preferences.getAsList("tmpdir", String.class)) {
           FileUtility.addTemporaryDirectory(tmp);
         }
       }

@@ -3,20 +3,17 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
-import java.io.PrintStream;
-import java.net.InetAddress;
-
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.tools.Search;
 import org.lemurproject.galago.core.tools.SearchWebHandler;
 import org.lemurproject.galago.core.tools.StreamContextHandler;
 import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.web.WebHandler;
 import org.lemurproject.galago.tupleflow.web.WebServer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.PrintStream;
 
 /**
  *
@@ -47,11 +44,11 @@ public class SearchFn extends AppFunction {
             + "   --port={int<65000}   : port number for web retrieval.\n\n"
             + "  JSONParameters can also be input through a configuration file.\n"
             + "  For example: search.parameters\n"
-            + "  <parameters>\n"
-            + "   <index>/path/to/index1</index>\n"
-            + "   <index>/path/to/index2</index>\n"
-            + "   <corpus>/path/to/corpus</corpus>\n"
-            + "  </parameters>\n\n"
+            + "  {\n"
+            + "   \"index\": [\"/path/to/index1\",\n"
+            + "               \"/path/to/index2\"],\n"
+            + "   \"corpus\":\"/path/to/corpus\"\n"
+            + "  }\n\n"
             + "  Note that the set of  parameters must include at least one index path.\n";
   }
 

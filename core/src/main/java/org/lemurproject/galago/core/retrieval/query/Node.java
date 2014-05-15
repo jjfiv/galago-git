@@ -25,7 +25,7 @@ public class Node implements Serializable {
   private static final Set<String> defaultOmissionSet;
 
   static {
-    defaultOmissionSet = new HashSet();
+    defaultOmissionSet = new HashSet<String>();
     defaultOmissionSet.add("lengths");
     defaultOmissionSet.add("passagelengths");
     defaultOmissionSet.add("passagefilter");
@@ -46,11 +46,11 @@ public class Node implements Serializable {
   private static final long serialVersionUID = 4553653651892088433L;
 
   public Node() {
-    this("", new NodeParameters(), new ArrayList(), 0);
+    this("", new NodeParameters(), new ArrayList<Node>(), 0);
   }
 
   public Node(String operator) {
-    this(operator, new NodeParameters(), new ArrayList(), 0);
+    this(operator, new NodeParameters(), new ArrayList<Node>(), 0);
   }
 
   public Node(String operator, List<Node> internalNodes) {
@@ -101,7 +101,6 @@ public class Node implements Serializable {
    * Deep-clones this Node. Be aware this clones the *entire* subtree rooted at
    * this node, therefore all descendants are also cloned.
    *
-   * @return
    */
   @Override
   public Node clone() {
@@ -289,7 +288,7 @@ public class Node implements Serializable {
               weightString = weightString.substring(0, firstNonZeroIndex + 1);
             }
           }
-          for (int i = 0; i < internalNodes.size(); i++) {
+          for (Node internalNode : internalNodes) {
             combineWeightList.add(weightString);
           }
         }
@@ -405,7 +404,7 @@ public class Node implements Serializable {
   }
 
   public static List<Node> cloneNodeList(List<Node> textNodes) {
-    ArrayList<Node> newNodes = new ArrayList();
+    ArrayList<Node> newNodes = new ArrayList<Node>();
     for (Node n : textNodes) {
       newNodes.add(n.clone());
     }
@@ -418,6 +417,6 @@ public class Node implements Serializable {
   }
   /** Build a text node at the given position */
   public static Node Text(String text, int position) {
-    return new Node("text", new NodeParameters(text), new ArrayList(), position);
+    return new Node("text", new NodeParameters(text), new ArrayList<Node>(), position);
   }
 }

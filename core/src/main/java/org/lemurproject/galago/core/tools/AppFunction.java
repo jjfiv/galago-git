@@ -3,12 +3,13 @@
  */
 package org.lemurproject.galago.core.tools;
 
-import java.io.PrintStream;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Job;
 import org.lemurproject.galago.tupleflow.execution.JobExecutor;
+
+import java.io.PrintStream;
 
 /**
  * General interface for all galago applications.
@@ -33,6 +34,14 @@ public abstract class AppFunction {
    */
   public abstract void run(Parameters p, PrintStream output) throws Exception;
 
+
+  /**
+   * If this is false, we will show help if not given any parameters
+   */
+  public boolean allowsZeroParameters() {
+    return false;
+  }
+
   /**
    * run the function by processing command line parameters, using 'output' to
    * print the required output data.
@@ -44,9 +53,10 @@ public abstract class AppFunction {
     Parameters p = new Parameters();
 
     if (args.length == 1) {
-      output.print(this.getHelpString());
-      return;
-
+      if(!allowsZeroParameters()) {
+        output.print(this.getHelpString());
+        return;
+      }
     } else if (args.length > 1) {
       p = Parameters.parseArgs(Utility.subarray(args, 1));
       // don't want to wipe an existing parameter:

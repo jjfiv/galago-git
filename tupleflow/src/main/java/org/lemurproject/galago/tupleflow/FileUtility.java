@@ -189,4 +189,8 @@ public class FileUtility {
   public static void makeParentDirectories(String filename) {
     makeParentDirectories(new File(filename));
   }
+
+  public static List<String> getRoots() {
+    return roots;
+  }
 }

@@ -1,15 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.btree.simple;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.util.ReadOnlyMap;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -107,7 +108,7 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> {
 
   @Override
   public Set<Entry<byte[], byte[]>> entrySet() {
-    HashSet<Entry<byte[], byte[]>> entries = new HashSet();
+    HashSet<Entry<byte[], byte[]>> entries = new HashSet<Entry<byte[],byte[]>>();
     for(byte[] key : keySet()) {
       entries.add(new DiskMapReaderEntry(this, key));
     }
@@ -119,11 +120,11 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> {
     
     DiskMapSortedBuilder mb = new DiskMapSortedBuilder(path, new Parameters());
     
-    ArrayList<byte[]> keys = new ArrayList(other.keySet());
+    ArrayList<byte[]> keys = new ArrayList<byte[]>(other.keySet());
     Collections.sort(keys, new Utility.ByteArrComparator());
     
     for(byte[] key : keys) {
-      mb.put(key, (byte[]) other.get(key));
+      mb.put(key, other.get(key));
     }
     mb.close();
     

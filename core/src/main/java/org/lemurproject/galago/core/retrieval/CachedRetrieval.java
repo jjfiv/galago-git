@@ -3,15 +3,15 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
-import java.io.IOException;
-import java.util.HashMap;
 import org.lemurproject.galago.core.index.mem.*;
 import org.lemurproject.galago.core.index.stats.AggregateStatistic;
 import org.lemurproject.galago.core.retrieval.iterator.*;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The CacbedRetrieval object exists in a retrieval - it allows in-memory
@@ -27,9 +27,9 @@ public class CachedRetrieval {
   protected boolean cacheScores;
   protected boolean cacheLeafNodes;
   protected boolean cacheStats;
-  protected HashMap<String, MemoryIndexPart> cacheParts;
-  protected HashMap<String, String> cachedNodes;
-  protected HashMap<String, AggregateStatistic> cachedStats;
+  protected ConcurrentHashMap<String, MemoryIndexPart> cacheParts;
+  protected ConcurrentHashMap<String, String> cachedNodes;
+  protected ConcurrentHashMap<String, AggregateStatistic> cachedStats;
 
   /**
    * One retrieval interacts with one index. Parameters dictate the behavior
@@ -49,9 +49,9 @@ public class CachedRetrieval {
     this.cacheLeafNodes = this.parameters.get("cacheLeafNodes", true);
     this.cacheStats = this.parameters.get("cacheStats", false); // useful when we just need lots of stats, no real iterators
 
-    this.cachedNodes = new HashMap();
-    this.cachedStats = new HashMap();
-    this.cacheParts = new HashMap();
+    this.cachedNodes = new ConcurrentHashMap();
+    this.cachedStats = new ConcurrentHashMap();
+    this.cacheParts = new ConcurrentHashMap();
 
     this.cacheParts.put("score", new MemorySparseDoubleIndex(new Parameters()));
     this.cacheParts.put("extent", new MemoryWindowIndex(new Parameters()));
