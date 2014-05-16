@@ -1,14 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.*;
-
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.merge.DocumentLengthsMerger;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+
+import java.io.*;
 
 /**
  * Writes the document lengths file, - stores the length data for each field,
@@ -41,7 +41,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
   /**
    * Creates a new instance of DiskLengthsWriter
    */
-  public DiskLengthsWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
+  public DiskLengthsWriter(TupleFlowParameters parameters) throws IOException {
     writer = new DiskBTreeWriter(parameters);
     Parameters p = this.writer.getManifest();
     p.set("writerClass", DiskLengthsWriter.class.getName());
@@ -104,7 +104,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     Verification.requireWriteableFile(index, store);
   }
 
-  public class LengthsList implements IndexElement {
+  public static final class LengthsList implements IndexElement {
 
     private File tempFile;
     private DataOutputStream stream;

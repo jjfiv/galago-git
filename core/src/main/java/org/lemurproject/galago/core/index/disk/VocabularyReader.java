@@ -1,11 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
+import org.lemurproject.galago.tupleflow.Utility;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * 

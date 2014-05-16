@@ -1,11 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.tupleflow.Utility;
+
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * [sjh] this class could cause problems for VERY large vocabularies

@@ -80,8 +80,8 @@ public class DiskBTreeReader extends BTreeReader {
       // now we decode everything from the stream
       this.endValueFileOffset = startFileOffset + blockInfo.length;
       this.keyCount = (int) blockStream.readLong();
-      this.keyCache = new byte[(int) this.keyCount][];
-      this.endValueOffsetCache = new long[(int) this.keyCount];
+      this.keyCache = new byte[this.keyCount][];
+      this.endValueOffsetCache = new long[this.keyCount];
       this.startValueFileOffset = this.startFileOffset + this.blockInfo.headerLength;
       this.keyIndex = 0;
       this.done = false;

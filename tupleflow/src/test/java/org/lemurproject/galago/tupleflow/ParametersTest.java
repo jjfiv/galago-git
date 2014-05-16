@@ -35,6 +35,10 @@ public class ParametersTest {
     assertTrue(p.isBoolean("testa"));
     assertFalse(p.getBoolean("testa"));
 
+    p.setIfMissing("testa", true);
+    assertTrue(p.isBoolean("testa"));
+    assertFalse(p.getBoolean("testa"));
+
     // remove
     p.remove("testa");
     assertFalse(p.isBoolean("testa"));

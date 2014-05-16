@@ -44,7 +44,7 @@ public class BuildStageTemplates {
     return stage;
   }
 
-  public static Stage getGenericWriteStage(String stageName, File destination, String[] inputs, 
+  public static Stage getGenericWriteStage(String stageName, File destination, String[] inputs,
            Order[] orders, Class<? extends org.lemurproject.galago.tupleflow.Step> writer, Parameters p) throws IOException {
     Stage stage = new Stage(stageName);
     assert(inputs.length == orders.length);
@@ -82,7 +82,8 @@ public class BuildStageTemplates {
   }
 
   public static Stage getWriteLengthsStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
-    p.set("blockSize", 512);
+    // this is the factor by which we want to pack in fields...
+    p.setIfMissing("blockSize", 4096);
     return getGenericWriteStage(stageName, destination, inputPipeName,
             DiskLengthsWriter.class, new FieldLengthData.FieldDocumentOrder(), p);
   }
@@ -95,7 +96,7 @@ public class BuildStageTemplates {
   }
 
   public static Stage getWriteNamesStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
-    p.set("blockSize", 512);
+    p.setIfMissing("blockSize", 4096);
     return getGenericWriteStage(stageName, destination, inputPipeName,
             DiskNameWriter.class, new NumberedDocumentData.NumberOrder(), p);
   }
@@ -105,7 +106,7 @@ public class BuildStageTemplates {
   }
 
   public static Stage getWriteNamesRevStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
-    p.set("blockSize", 512);
+    p.setIfMissing("blockSize", 4096);
     return getGenericWriteStage(stageName, destination, inputPipeName,
             DiskNameReverseWriter.class, new NumberedDocumentData.IdentifierOrder(), p);
   }

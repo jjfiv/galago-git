@@ -732,6 +732,11 @@ public class Parameters implements Serializable, Map<String,Object> {
     return _data.put(k, v);
   }
 
+  public void setIfMissing(String k, Object v) {
+    if(containsKey(k)) return;
+    put(k, v);
+  }
+
   @Override
   public Object remove(Object o) {
     // this is optional per the javadoc of java.util.Map

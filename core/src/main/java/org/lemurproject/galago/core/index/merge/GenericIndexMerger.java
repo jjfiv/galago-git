@@ -1,17 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.merge;
 
+import org.lemurproject.galago.core.index.IndexPartReader;
+import org.lemurproject.galago.core.index.KeyIterator;
+import org.lemurproject.galago.tupleflow.Processor;
+import org.lemurproject.galago.tupleflow.TupleFlowParameters;
+
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
-import org.lemurproject.galago.core.index.KeyIterator;
-import org.lemurproject.galago.core.index.IndexPartReader;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -28,8 +27,8 @@ public abstract class GenericIndexMerger<T> {
   protected Processor<T> writer = null;
 
   public GenericIndexMerger(TupleFlowParameters parameters) throws Exception {
-    queue = new PriorityQueue();
-    partIds = new HashMap();
+    queue = new PriorityQueue<KeyIteratorWrapper>();
+    partIds = new HashMap<KeyIteratorWrapper, Integer>();
 
     writer = createIndexWriter(parameters);
   }
@@ -52,7 +51,7 @@ public abstract class GenericIndexMerger<T> {
   }
 
   public void performKeyMerge() throws IOException {
-    ArrayList<KeyIteratorWrapper> head = new ArrayList();
+    ArrayList<KeyIteratorWrapper> head = new ArrayList<KeyIteratorWrapper>();
     while (!queue.isEmpty()) {
       head.clear();
       head.add(queue.poll());

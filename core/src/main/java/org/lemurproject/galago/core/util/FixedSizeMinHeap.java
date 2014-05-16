@@ -7,7 +7,6 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
 
 /**
  *
@@ -19,6 +18,7 @@ public class FixedSizeMinHeap<T> {
   private T[] _heap;
   private int _position;
 
+  @SuppressWarnings("unchecked")
   public FixedSizeMinHeap(Class<T> c, int requested, Comparator<T> cmp) {
     assert (requested > 0);
     this._heap = (T[]) Array.newInstance(c, requested);
@@ -53,7 +53,7 @@ public class FixedSizeMinHeap<T> {
   }
 
   public T[] getSortedArray() {
-    T[] data = (T[]) Arrays.copyOf(_heap, _position);
+    T[] data = Arrays.copyOf(_heap, _position);
     Arrays.sort(data, Collections.reverseOrder(_cmp));
     return data;
   }
