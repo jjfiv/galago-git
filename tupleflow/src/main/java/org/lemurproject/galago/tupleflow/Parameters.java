@@ -729,6 +729,9 @@ public class Parameters implements Serializable, Map<String,Object> {
     if(v == null) {
       return _data.put(k, new NullMarker());
     }
+    if(this == v) {
+      throw new IllegalArgumentException("Stop your recursive Parameter madness!");
+    }
     return _data.put(k, v);
   }
 

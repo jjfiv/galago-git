@@ -52,7 +52,7 @@ public class BuildIndex extends AppFunction {
       stage.addOutput("numberedPostings", new NumberWordPosition.WordDocumentPositionOrder());
     }
     if (buildParameters.getBoolean("stemmedPostings")) {
-      for (String stemmer : (List<String>) buildParameters.getList("stemmer")) {
+      for (String stemmer : buildParameters.getList("stemmer", String.class)) {
         stage.addOutput("numberedStemmedPostings-" + stemmer, new NumberWordPosition.WordDocumentPositionOrder());
       }
     }
@@ -443,11 +443,11 @@ public class BuildIndex extends AppFunction {
       globalParameters.set("tokenizer", new Parameters());
     }
 
-    HashSet<String> fieldNames = new HashSet();
+    HashSet<String> fieldNames = new HashSet<String>();
     Parameters tokenizerParams = globalParameters.getMap("tokenizer");
     if (tokenizerParams.containsKey("fields")) {
       try {
-        List<String> fields = tokenizerParams.getAsList("fields");
+        List<String> fields = tokenizerParams.getAsList("fields", String.class);
         fieldNames.addAll(fields);
       } catch (Exception e) {
         errorLog.add("Parameter 'tokenizer/fields' should be a list of strings.\n"
@@ -621,20 +621,13 @@ public class BuildIndex extends AppFunction {
     FileUtility.makeParentDirectories(buildManifest);
     Utility.copyStringToFile(buildParameters.toPrettyString(), buildManifest);
 
-    List<String> inputPaths = (List<String>) buildParameters.getAsList("inputPath");
+    List<String> inputPaths = buildParameters.getAsList("inputPath", String.class);
 
     // common steps + connections
 
-    Parameters splitParameters = buildParameters.isMap("parser") ? buildParameters.getMap("parser") : new Parameters();
-    splitParameters.set("corpusPieces", buildParameters.get("distrib", 10));
-    if (buildParameters.isMap("parser")) {
-      splitParameters.set("parser", buildParameters.getMap("parser"));
-    }
+    buildParameters.put("corpusPieces", buildParameters.get("distrib", 10));
 
-    if (buildParameters.isString("filetype")) {
-      splitParameters.set("filetype", buildParameters.getString("filetype"));
-    }
-    job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
+    job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), buildParameters));
 
     job.add(getParsePostingsStage(buildParameters));
     job.add(BuildStageTemplates.getWriteNamesStage("writeNames", new File(indexPath, "names"), "numberedDocumentDataNumbers"));

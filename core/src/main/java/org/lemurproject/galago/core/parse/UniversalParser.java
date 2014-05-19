@@ -32,7 +32,8 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
   public UniversalParser(TupleFlowParameters parameters) {
     documentCounter = parameters.getCounter("Documents Parsed");
     this.parameters = parameters.getJSON();
-    DocumentStreamParser.addExternalParsers(this.parameters);
+
+    DocumentStreamParser.addExternalParsers(this.parameters.get("parser", new Parameters()));
   }
 
   @Override
@@ -83,9 +84,5 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     } finally {
       parser.close();
     }
-  }
-
-  public static boolean isParsable(String extension) {
-    return DocumentStreamParser.hasParserForExtension(extension);
   }
 }

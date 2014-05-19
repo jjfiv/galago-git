@@ -15,14 +15,18 @@ import java.io.IOException;
  * @author jfoley.
  */
 public class IndexRepair {
-  public static void createNamesReverseFromNames(String names, String outputName) throws IOException, IncompatibleProcessorException {
+  public static void createNamesReverseFromNames(String names, String outputName, Parameters opts) throws IOException, IncompatibleProcessorException {
     // input
     DiskNameReader namesReader = new DiskNameReader(names);
 
     Parameters oldP = namesReader.getManifest();
-    Parameters newP = Parameters.parseArray("filename", outputName,
-      "blockSize", oldP.getLong("blockSize"),
-      "maxKeySize", oldP.getLong("maxKeySize"));
+    Parameters newP = new Parameters();
+    newP.put("filename", outputName);
+
+    if(opts.get("keepBlockSize", true)) {
+      newP.put("blockSize", oldP.getLong("blockSize"));
+    }
+
     DiskNameReverseWriter reverseWriter = new DiskNameReverseWriter(new FakeParameters(newP));
 
     // build a tupleflow pipeline to resort the data

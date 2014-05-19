@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.apps.BuildIndex;
+import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -17,9 +18,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -29,7 +32,7 @@ public class UniversalParserTest {
 
   private static final Random r = new Random();
 
-  public static void createTxtDoc(File folder, String fn) throws IOException {
+  public static File createTxtDoc(File folder, String fn) throws IOException {
 
     StringBuilder sb = new StringBuilder();
     sb.append("Text document\n");
@@ -38,6 +41,8 @@ public class UniversalParserTest {
     }
 
     Utility.copyStringToFile(sb.toString(), new File(folder, fn));
+
+    return new File(folder, fn);
   }
 
   public static void createXMLDoc(File folder, String fn) throws IOException {
@@ -188,6 +193,84 @@ public class UniversalParserTest {
   }
 
   @Test
+  public void testExtensions() throws IOException {
+    File tmp = FileUtility.createTemporary();
+
+    Parameters p = new Parameters();
+    p.set("parser", new Parameters());
+
+    List<Parameters> kinds = new ArrayList<Parameters>();
+    kinds.add(Parameters.parseArray("filetype", "qqe",
+      "class", TrecTextParser.class.getName()));
+    kinds.add(Parameters.parseArray("filetype", "qwe",
+      "class", TrecWebParser.class.getName()));
+    kinds.add(Parameters.parseArray("filetype", "trecweb",
+      "class", TrecWebParser.class.getName()));
+    p.getMap("parser").put("externalParsers", kinds);
+
+    DocumentStreamParser.addExternalParsers(p.getMap("parser"));
+
+    DocumentStreamParser.addExternalParsers(p);
+    assertTrue(DocumentStreamParser.hasParserForExtension("qwe"));
+    assertTrue(DocumentStreamParser.hasParserForExtension("qqe"));
+    assertTrue(DocumentStreamParser.hasParserForExtension("trecweb"));
+
+    DocumentSplit split = new DocumentSplit();
+    split.fileName = tmp.getAbsolutePath();
+    split.fileType = "qwe";
+    DocumentStreamParser parser = DocumentStreamParser.instance(split, new Parameters());
+    assertTrue(parser instanceof TrecWebParser);
+
+    assertTrue(tmp.delete());
+  }
+
+  @Test
+  public void testGetExtension() {
+    assertEquals("foo", FileUtility.getExtension(new File("something.foo.bz2")));
+    assertEquals("foo", FileUtility.getExtension(new File("something.foo.bz")));
+    assertEquals("foo", FileUtility.getExtension(new File("something.foo.xz")));
+    assertEquals("foo", FileUtility.getExtension(new File("something.foo.gz")));
+    assertEquals("", FileUtility.getExtension(new File("something.gz")));
+  }
+
+  @Test
+  public void testDocumentSourceLogic() throws IOException {
+    Parameters conf = new Parameters();
+    conf.set("parser", new Parameters());
+
+    List<Parameters> kinds = new ArrayList<Parameters>();
+    kinds.add(Parameters.parseArray("filetype", "qqe",
+      "class", TrecTextParser.class.getName()));
+    kinds.add(Parameters.parseArray("filetype", "qwe",
+      "class", TrecWebParser.class.getName()));
+    kinds.add(Parameters.parseArray("filetype", "trecweb",
+      "class", TrecWebParser.class.getName()));
+    conf.getMap("parser").put("externalParsers", kinds);
+
+    DocumentStreamParser.addExternalParsers(conf.getMap("parser"));
+
+    assertTrue(DocumentStreamParser.hasParserForExtension("qwe"));
+    assertTrue(DocumentStreamParser.hasParserForExtension("qqe"));
+    assertTrue(DocumentStreamParser.hasParserForExtension("trecweb"));
+    File dataDir = FileUtility.createTemporaryDirectory();
+
+    File qqe = createTxtDoc(dataDir, "d1.qqe"); // 1 doc
+    File qqe_bz = createTxtDoc(dataDir, "d1.qqe.bz2"); // 1 doc
+
+    List<DocumentSplit> splits = DocumentSource.processFile(qqe, conf);
+    assertEquals(1, splits.size());
+    assertEquals(splits.get(0).fileType, "qqe");
+
+    assertEquals("qqe", FileUtility.getExtension(qqe_bz));
+    splits = DocumentSource.processFile(qqe_bz, conf);
+    assertEquals(1, splits.size());
+    assertEquals(splits.get(0).fileType, "qqe");
+
+    Utility.deleteDirectory(dataDir);
+
+  }
+
+  @Test
   public void testManualOverrideBehavior() throws Exception {
     File index = FileUtility.createTemporaryDirectory();
     File dataDir = FileUtility.createTemporaryDirectory();
@@ -196,17 +279,19 @@ public class UniversalParserTest {
       createTrecTextDoc(dataDir, "d1.qqe"); // 10 docs - trectext
       createTrecWebDoc(dataDir, "d2.qwe"); // 10 docs - trecweb
       createTrecTextDoc(dataDir, "d3.trectext"); // 10 docs - trectext
-      createTrecTextDoc(dataDir, "d4.trecweb"); // 10 docs - trectext
+      createTrecWebDoc(dataDir, "d4.trecweb"); // 10 docs - trectext
       createTxtDoc(dataDir, "d5.txt"); // 1 docs - txt
 
       Parameters p = new Parameters();
       p.set("inputPath", Collections.singletonList(dataDir.getAbsolutePath()));
       p.set("indexPath", index.getAbsolutePath());
       p.set("parser", new Parameters());
-      p.getMap("parser").set("externalParsers", new ArrayList<Parameters>());
-      p.getMap("parser").getList("externalParsers").add(Parameters.parseString("{\"filetype\" : \"qqe\", \"class\" :\"" + TrecTextParser.class.getName() + "\"}"));
-      p.getMap("parser").getList("externalParsers").add(Parameters.parseString("{\"filetype\" : \"qwe\", \"class\" :\"" + TrecWebParser.class.getName() + "\"}"));
-      p.getMap("parser").getList("externalParsers").add(Parameters.parseString("{\"filetype\" : \"trecweb\", \"class\" :\"" + TrecTextParser.class.getName() + "\"}"));
+
+      List<Parameters> kinds = new ArrayList<Parameters>();
+      kinds.add(Parameters.parseString("{\"filetype\" : \"qqe\", \"class\" :\"" + TrecTextParser.class.getName() + "\"}"));
+      kinds.add(Parameters.parseString("{\"filetype\" : \"qwe\", \"class\" :\"" + TrecWebParser.class.getName() + "\"}"));
+      kinds.add(Parameters.parseString("{\"filetype\" : \"trecweb\", \"class\" :\"" + TrecTextParser.class.getName() + "\"}"));
+      p.getMap("parser").put("externalParsers", kinds);
 
       BuildIndex bi = new BuildIndex();
       bi.run(p, System.err);
