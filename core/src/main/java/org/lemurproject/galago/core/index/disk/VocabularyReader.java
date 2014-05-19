@@ -1,11 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
+import org.lemurproject.galago.tupleflow.Utility;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * 
@@ -83,6 +84,13 @@ public class VocabularyReader {
       IndexBlockInfo finalSlot = slots.get(slots.size()-1);
       finalSlot.length = valueDataEnd - finalSlot.begin;
       finalSlot.nextSlotKey = finalIndexKey;
+
+      if(slots.size() % 10000 == 0) {
+        System.err.println("# read "+slots.size()+" slots from index");
+      }
+      if(slots.size() % 1000000 == 0) {
+        throw new RuntimeException("10 mil slots! Not good.");
+      }
     }
     assert valueDataEnd >= last;
   }
