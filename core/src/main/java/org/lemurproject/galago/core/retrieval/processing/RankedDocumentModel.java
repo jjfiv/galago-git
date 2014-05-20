@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.util.List;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -9,6 +8,8 @@ import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.util.List;
 
 /**
  * Performs straightforward document-at-a-time (daat) processing of a fully
@@ -38,7 +39,7 @@ public class RankedDocumentModel extends ProcessingModel {
 
     // Maintain a queue of candidates
     //PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
-    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
+    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap<ScoredDocument>(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
     // construct the iterators -- we use tree processing
     ScoreIterator iterator = (ScoreIterator) retrieval.createIterator(queryParams, queryTree);

@@ -11,7 +11,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 /**
@@ -24,9 +25,10 @@ public abstract class DocumentStreamParser {
   /* Static interface */
 
   // The built-in type map
-  public static HashMap<String, Class> fileTypeMap;
+  public static Map<String, Class> fileTypeMap;
   static {
-    fileTypeMap = new HashMap<String, Class>();
+    fileTypeMap = new ConcurrentHashMap<String, Class>();
+    addExternalParsers(new Parameters());
   }
 
   // isParsable

@@ -160,8 +160,9 @@ public class FileUtility {
       secondToLast = fields[fields.length - 2];
     }
 
+    String lastWithDot = "."+last;
     for(String ext : StreamCreator.compressionExtensions) {
-      if (last.equals(ext)) {
+      if (lastWithDot.equals(ext)) {
         return secondToLast;
       }
     }

@@ -13,6 +13,7 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,49 +31,43 @@ import java.util.zip.GZIPInputStream;
 @OutputClass(className = "org.lemurproject.galago.core.types.DocumentSplit")
 public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
+  private static final Logger logger = Logger.getLogger("DOCSOURCE");
+
   private Counter inputCounter;
   public Processor<DocumentSplit> processor;
   private TupleFlowParameters parameters;
-  private int fileId = 0;
-  private int totalFileCount = 0;
-  private List<DocumentSplit> splitBuffer;
-  private String forceFileType;
-  private Logger logger;
-  private String inputPolicy;
 
   public DocumentSource(TupleFlowParameters parameters) {
     this.parameters = parameters;
-    inputPolicy = parameters.getJSON().get("inputPolicy", "require");
     this.inputCounter = parameters.getCounter("Inputs Processed");
-    logger = Logger.getLogger("DOCSOURCE");
-    forceFileType = parameters.getJSON().get("filetype", (String) null);
-    if (parameters.getJSON().containsKey("externalParsers")) {
-      DocumentStreamParser.addExternalParsers(parameters.getJSON());
-    }
+    DocumentStreamParser.addExternalParsers(parameters.getJSON().get("parser", new Parameters()));
   }
 
   @Override
   public void run() throws IOException {
     // splitBuffer stores the full list of documents to emit.
-    splitBuffer = new ArrayList<DocumentSplit>();
+    ArrayList<DocumentSplit> splitBuffer = new ArrayList<DocumentSplit>();
+    Parameters conf = parameters.getJSON();
 
-    if (parameters.getJSON().containsKey("directory")) {
+    logger.log(Level.INFO, parameters.getJSON().toString());
+
+    if (conf.containsKey("directory")) {
       List<String> directories = parameters.getJSON().getAsList("directory", String.class);
       for (String directory : directories) {
         File directoryFile = new File(directory);
-        processDirectory(directoryFile);
+        splitBuffer.addAll(processDirectory(directoryFile, conf));
       }
     }
-    if (parameters.getJSON().containsKey("filename")) {
+    if (conf.containsKey("filename")) {
       List<String> files = parameters.getJSON().getAsList("filename", String.class);
       for (String file : files) {
-        processFile(new File(file));
+        splitBuffer.addAll(processFile(new File(file), conf));
       }
     }
 
     // we now have an accurate count of emitted files / splits
-    totalFileCount = splitBuffer.size();
-    fileId = 0; // reset to enumerate splits
+    int totalFileCount = splitBuffer.size();
+    int fileId = 0; // reset to enumerate splits
 
     // now process each file
     for (DocumentSplit split : splitBuffer) {
@@ -88,87 +83,98 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   }
 
   /// PRIVATE FUNCTIONS ///
-  private void processDirectory(File root) throws IOException {
+  private static List<DocumentSplit> processDirectory(File root, Parameters conf) throws IOException {
     System.out.println("Processing directory: " + root);
     
     // add detection of likely corpus folders
     if(root.getName().endsWith("corpus")) {
       if(SplitBTreeReader.isBTree(root)) {
         System.out.println(" * Treating as a corpus (this will skip any other files that happen to be in that directory)");
-        processCorpusFile(root);
-        return; // don't process children, they're part of the corpus
+        return processCorpusFile(root, conf);
+        // don't process children, they're part of the corpus
       }
     }
 
     File[] subs = FileUtility.safeListFiles(root);
+    List<DocumentSplit> splits = new ArrayList<DocumentSplit>(subs.length);
     for (File file : subs) {
       if (file.isHidden()) {
         continue;
       }
       if (file.isDirectory()) {
-        processDirectory(file);
+        splits.addAll(processDirectory(file, conf));
       } else {
-        processFile(file);
+        splits.addAll(processFile(file, conf));
       }
     }
+
+    return splits;
   }
 
-  private void processFile(File file) throws IOException {
+  public static List<DocumentSplit> processFile(File fp, Parameters conf) throws IOException {
+    String inputPolicy = conf.get("inputPolicy", "require");
+
+    String forceFileType = null;
+    if(conf.containsKey("filetype"))
+      forceFileType = conf.getAsString("filetype");
+
+    ArrayList<DocumentSplit> documents = new ArrayList<DocumentSplit>();
 
     // First, make sure this file exists. If not, whine about it.
-    if (!file.exists()) {
+    if (!fp.exists()) {
       if (inputPolicy.equals("require")) {
-        throw new IOException(String.format("File %s was not found. Exiting.\n", file));
+        throw new IOException(String.format("File %s was not found. Exiting.\n", fp));
       } else if (inputPolicy.equals("warn")) {
-        logger.warning(String.format("File %s was not found. Skipping.\n", file));
-        return;
+        logger.warning(String.format("File %s was not found. Skipping.\n", fp));
+        return Collections.emptyList();
       } else {
-        // Return quietly
-        return;
+        throw new IllegalArgumentException("No such inputPolicy="+inputPolicy);
       }
     }
 
     // Now try to detect what kind of file this is:
-    boolean isCompressed = StreamCreator.isCompressed(file.getName());
+    boolean isCompressed = StreamCreator.isCompressed(fp.getName());
     String fileType = forceFileType;
 
     // We'll try to detect by extension first, so we don't have to open the file
     String extension;
     if (fileType == null) {
-      extension = FileUtility.getExtension(file);
+      extension = FileUtility.getExtension(fp);
 
       // first lets look for special cases that require some processing here:
       if (extension.equals("list")) {
-        processListFile(file);
-        return; // now considered processed1
+        documents.addAll(processListFile(fp, conf));
+        return documents; // now considered processed1
       }
 
       if (extension.equals("subcoll")) {
-        processSubCollectionFile(file);
-        return; // now considered processed
+        documents.addAll(processSubCollectionFile(fp, conf));
+        return documents; // now considered processed
       }
 
       if (DocumentStreamParser.hasParserForExtension(extension)) {
         fileType = extension;
 
-      } else if (!isCompressed && (file.getName().equals("corpus") || (BTreeFactory.isBTree(file)))) {
+      } else if (!isCompressed && (fp.getName().equals("corpus") || (BTreeFactory.isBTree(fp)))) {
         // perhaps the user has renamed the corpus index, but not if they compressed it
         // we need random access and even bz2 is dumb. just (b|g)?unzip it.
-        processCorpusFile(file);
-        return; // done now;
+        documents.addAll(processCorpusFile(fp, conf));
+        return documents; // done now;
 
       } else {
         // finally try to be 'clever'...
-        fileType = detectTrecTextOrWeb(file);
+        fileType = detectTrecTextOrWeb(fp);
       }
     }
 
     // Eventually it'd be nice to do more format detection here.
 
     if (fileType != null) {
-      DocumentSplit split = new DocumentSplit(file.getAbsolutePath(), fileType, new byte[0], new byte[0], fileId, totalFileCount);
-      this.splitBuffer.add(split);
+      DocumentSplit split = new DocumentSplit(fp.getAbsolutePath(), fileType, new byte[0], new byte[0], 0, 0);
+      return Collections.singletonList(split);
     }
+
+    return Collections.emptyList();
   }
 
   /**
@@ -178,7 +184,9 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
    * Assumptions: Each line in this file should be a filename, NOT a directory.
    * List file is either uncompressed or compressed using gzip ONLY.
    */
-  private void processListFile(File file) throws IOException {
+  private static List<DocumentSplit> processListFile(File file, Parameters conf) throws IOException {
+    ArrayList<DocumentSplit> splits = new ArrayList<DocumentSplit>();
+
     BufferedReader br;
     if (file.getName().endsWith("gz")) {
       br = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file))));
@@ -195,18 +203,19 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       if(n % 1000 == 0) {
         logger.log(Level.INFO, "considered {0} items from {1}", new Object[]{n, file});
       }
-      processFile(new File(entry));
+      splits.addAll(processFile(new File(entry), conf));
       n++;
     }
     br.close();
     // No more to do here -- this file is now "processed"
+    return splits;
   }
 
-  private void processSubCollectionFile(File file) throws IOException {
+  private static List<DocumentSplit> processSubCollectionFile(File file, Parameters conf) throws IOException {
     BufferedReader br = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file))));
     // Look for a fraction and an absolute number of docs
-    double pctthreshold = parameters.getJSON().get("pct", 1.0);
-    long numdocs = parameters.getJSON().get("numdocs", -1);
+    double pctthreshold = conf.get("pct", 1.0);
+    long numdocs = conf.get("numdocs", -1);
 
     System.out.printf("pct: %f, numdocs=%d\n", pctthreshold, numdocs);
 
@@ -218,6 +227,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     frac = 0.0;
     long splitsize;
 
+    List<DocumentSplit> splits = new ArrayList<DocumentSplit>();
 
     // Favor the absolute # variable (second one)
     while (br.ready()) {
@@ -231,19 +241,19 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
       if (numdocs > 0) {
         if (running <= numdocs) {
-          processFile(f);
+          splits.addAll(processFile(f, conf));
         } else if (prevRunning < numdocs) {
           splitsize = numdocs - prevRunning;
         }
       } else if (pctthreshold < 1.0) {
         if (frac <= pctthreshold) {
-          processFile(f);
+          splits.addAll(processFile(f, conf));
         } else if (prevfrac < pctthreshold) {
           // Works out the number of needed docs to meet the proper pct
           splitsize = Math.round((running * (pctthreshold / frac)) - prevRunning);
         }
       } else {
-        processFile(f);
+        splits.addAll(processFile(f, conf));
       }
 
       // Delayed processing - somewhere we set the splitsize, and now we create and process the split
@@ -255,6 +265,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
 
         // Now try to detect what kind of file this is:
+        String forceFileType = conf.get("filetype", (String) null);
         String fileType;
         // We'll try to detect by extension first, so we don't have to open the file
         String extension = FileUtility.getExtension(file);
@@ -268,15 +279,17 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         }
 
         if (fileType != null) {
-          DocumentSplit split = new DocumentSplit(file.getAbsolutePath(), fileType, "subcoll".getBytes(), Utility.compressLong(splitsize), fileId, totalFileCount);
-          this.splitBuffer.add(split);
+          DocumentSplit split = new DocumentSplit(file.getAbsolutePath(), fileType, "subcoll".getBytes(), Utility.compressLong(splitsize), 0, 0);
+          splits.add(split);
         }
       }
     }
     br.close();
+
+    return splits;
   }
 
-  private void processCorpusFile(File file) throws IOException {
+  private static List<DocumentSplit> processCorpusFile(File file, Parameters conf) throws IOException {
 
     // open the corpus
     BTreeReader reader = BTreeFactory.getBTreeReader(file);
@@ -287,7 +300,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     ArrayList<byte[]> keys = new ArrayList<byte[]>();
 
     // look for a manually specified number of corpus pieces:
-    long pieces = this.parameters.getJSON().get("corpusPieces", 10);
+    int pieces = (int) conf.get("corpusPieces", 10);
 
     // otherwise we want to divde the corpus up into ~50MB chunks
     if (pieces < 0) {
@@ -320,6 +333,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       keys.add(slots.get(slot).firstKey);
     }
 
+    List<DocumentSplit> splits = new ArrayList<DocumentSplit>(pieces);
     for (int i = 0; i < pieces; ++i) {
       byte[] firstKey = new byte[0];
       byte[] lastKey = new byte[0];
@@ -332,17 +346,19 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       }
 
       if (Utility.compare(firstKey, lastKey) != 0) {
-        DocumentSplit split = new DocumentSplit(file.getAbsolutePath(), "corpus", firstKey, lastKey, fileId, totalFileCount);
-        this.splitBuffer.add(split);
+        DocumentSplit split = new DocumentSplit(file.getAbsolutePath(), "corpus", firstKey, lastKey, 0, 0);
+        splits.add(split);
       }
     }
     reader.close();
+
+    return splits;
   }
 
   // For now we assume <doc> tags, so we read in one doc
   // (i.e. <doc> to </doc>), and look for the following
   // tags: <docno> and (<text> or <html>)
-  private String detectTrecTextOrWeb(File file) throws IOException {
+  private static String detectTrecTextOrWeb(File file) throws IOException {
     String fileType = null;
     BufferedReader br = null;
     try {

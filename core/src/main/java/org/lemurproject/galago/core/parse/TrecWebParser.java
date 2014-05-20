@@ -61,6 +61,7 @@ public class TrecWebParser extends DocumentStreamParser {
 
   public String readUrl() throws IOException {
     String url = reader.readLine();
+    assert(url != null);
     int space = url.indexOf(' ');
 
     if (space < 0) {
