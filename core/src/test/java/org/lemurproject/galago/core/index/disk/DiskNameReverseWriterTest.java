@@ -24,6 +24,7 @@ public class DiskNameReverseWriterTest {
     try {
       Parameters p = new Parameters();
       p.set("filename", tmp.getAbsolutePath());
+      p.setIfMissing("blockSize", 4096);
       DiskNameReverseWriter writer = new DiskNameReverseWriter(new FakeParameters(p));
 
       // small numbers

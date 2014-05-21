@@ -459,7 +459,7 @@ public class Parameters implements Serializable, Map<String,Object> {
   }
 
   public boolean isLong(String key) {
-    return get(key) instanceof Long;
+    return get(key) instanceof Long || get(key) instanceof Integer;
   }
 
   public boolean isBoolean(String key) {
