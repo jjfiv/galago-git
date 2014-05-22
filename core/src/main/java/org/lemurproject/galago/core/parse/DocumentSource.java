@@ -82,8 +82,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     processor.close();
   }
 
-  /// PRIVATE FUNCTIONS ///
-  private static List<DocumentSplit> processDirectory(File root, Parameters conf) throws IOException {
+  public static List<DocumentSplit> processDirectory(File root, Parameters conf) throws IOException {
     System.out.println("Processing directory: " + root);
     
     // add detection of likely corpus folders
