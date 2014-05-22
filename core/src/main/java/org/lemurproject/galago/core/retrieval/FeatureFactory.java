@@ -124,7 +124,7 @@ public class FeatureFactory {
     ArrayList<TraversalSpec> insteadTraversals = new ArrayList<TraversalSpec>();
 
     if (parameters.isMap("traversals") || parameters.isList("traversals", Parameters.class)) {
-      List<Parameters> traversals = (List<Parameters>) parameters.getAsList("traversals");
+      List<Parameters> traversals = parameters.getAsList("traversals", Parameters.class);
       for (Parameters traversal : traversals) {
         String className = traversal.getString("name");
         String order = traversal.get("order", "after");

@@ -7,6 +7,7 @@ import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.util.ReadOnlyMap;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
@@ -16,7 +17,7 @@ import java.util.logging.Logger;
  *
  * @author jfoley
  */
-public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> {
+public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> implements Closeable {
 	private static final Logger LOG = Logger.getLogger(DiskMapReader.class.getName());
 
   public final DiskBTreeReader btree;
@@ -130,8 +131,13 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> {
     
     return new DiskMapReader(path);    
   }
-  
-	/**
+
+  @Override
+  public void close() throws IOException {
+    this.btree.close();
+  }
+
+  /**
 	 * This class allows you to iterate over all the entries, paying only to look up values you're interested in. Unfortunately, it charges log(n) for every .getValue() call. It doesn't and can't easily hide iterators inside.
 	 */
   public static final class DiskMapReaderEntry implements Entry<byte[], byte[]> {

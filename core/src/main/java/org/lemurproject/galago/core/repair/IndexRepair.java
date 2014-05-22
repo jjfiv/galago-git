@@ -26,6 +26,7 @@ public class IndexRepair {
     if(opts.get("keepBlockSize", true)) {
       newP.put("blockSize", oldP.getLong("blockSize"));
     }
+    int flushSize = (int) opts.get("flushSize", 10000);
 
     DiskNameReverseWriter reverseWriter = new DiskNameReverseWriter(new FakeParameters(newP));
 
@@ -46,7 +47,7 @@ public class IndexRepair {
       ndd.identifier = name;
       ndd.number = identifier;
       pipe.process(ndd);
-      if(count % 10000 == 0) {
+      if(count % flushSize == 0) {
         System.err.println("# converted: "+count+" names");
         pipe.flush();
       }
