@@ -1,12 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.util;
 
-import java.io.IOException;
-import java.util.Set;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.io.IOException;
+import java.util.Set;
 
 /**
  *

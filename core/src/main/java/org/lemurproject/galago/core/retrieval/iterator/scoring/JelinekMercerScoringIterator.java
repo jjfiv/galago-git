@@ -56,11 +56,6 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
-  public double collectionFrequency() {
-    return collectionFrequency;
-  }
-
-  @Override
   public double minimumScore() {
     return min;
   }

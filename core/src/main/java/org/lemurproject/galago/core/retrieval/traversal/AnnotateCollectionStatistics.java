@@ -195,6 +195,8 @@ public class AnnotateCollectionStatistics extends Traversal {
 
   private Node assignParts(Node n) {
     if (n.getInternalNodes().isEmpty()) {
+      if(!n.getNodeParameters().isString("part"))
+        return n;
 
       // we should have a part by now.
       String part = n.getNodeParameters().getString("part");

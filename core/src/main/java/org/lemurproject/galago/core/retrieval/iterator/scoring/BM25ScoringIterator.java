@@ -1,15 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
-import java.io.IOException;
+import org.lemurproject.galago.core.retrieval.RequiredParameters;
+import org.lemurproject.galago.core.retrieval.RequiredStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.retrieval.RequiredParameters;
-import org.lemurproject.galago.core.retrieval.RequiredStatistics;
+
+import java.io.IOException;
 
 /**
  *
@@ -63,11 +64,6 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
     weightedMin = weight * min;
     weightedMax = weight * max;
     weightedMaxDiff = weightedMax - weightedMin;
-  }
-
-  @Override
-  public double collectionFrequency() {
-    return collectionFrequency;
   }
 
   @Override

@@ -1,33 +1,34 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
-import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
+import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.NodeType;
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.SourceIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.Utility.ByteArrComparator;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
 
 /*
@@ -40,7 +41,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
 
   // this could be a bit big -- but we need random access here
   // perhaps we should use a trie (but java doesn't have one?)
-  protected TreeMap<byte[], PositionalPostingList> postings = new TreeMap(new ByteArrComparator());
+  protected TreeMap<byte[], PositionalPostingList> postings = new TreeMap<byte[], PositionalPostingList>(new ByteArrComparator());
   protected Parameters parameters;
   protected long collectionDocumentCount = 0;
   protected long collectionPostingsCount = 0;
@@ -210,7 +211,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     ExtentArray extents;
     ScoringContext sc = new ScoringContext();
     while (!kiterator.isDone()) {
-      viterator = (DiskExtentIterator) kiterator.getValueIterator();
+      viterator = kiterator.getValueIterator();
       writer.processWord(kiterator.getKey());
 
       while (!viterator.isDone()) {
@@ -385,9 +386,8 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
 
     @Override
     public String getValueString() throws IOException {
-      long count = -1;
       DiskExtentIterator it = getValueIterator();
-      count = it.totalEntries();
+      long count = it.totalEntries();
       StringBuilder sb = new StringBuilder();
       sb.append(Utility.toString(getKey())).append(",");
       sb.append("list of size: ");
