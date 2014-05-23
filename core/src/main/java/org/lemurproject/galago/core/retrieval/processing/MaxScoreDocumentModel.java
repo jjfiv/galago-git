@@ -1,11 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
@@ -16,6 +11,8 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.util.*;
 
 /**
  * Assumes the use of delta functions for scoring, then prunes using Maxscore.
@@ -37,7 +34,7 @@ public class MaxScoreDocumentModel extends ProcessingModel {
     int requested = (int) queryParams.get("requested", 1000);
 
     // step one: find the set of deltaScoringNodes in the tree
-    List<Node> scoringNodes = new ArrayList();
+    List<Node> scoringNodes = new ArrayList<Node>();
     boolean canScore = findDeltaNodes(queryTree, scoringNodes, retrieval);
     if (!canScore) {
       throw new IllegalArgumentException("Query tree does not support delta scoring interface.\n" + queryTree.toPrettyString());
@@ -47,7 +44,7 @@ public class MaxScoreDocumentModel extends ProcessingModel {
     boolean shareNodes = queryParams.get("shareNodes", retrieval.getGlobalParameters().get("shareNodes", true));
     List<DeltaScoringIterator> scoringIterators = createScoringIterators(scoringNodes, retrieval, shareNodes);
 
-    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
+    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap<ScoredDocument>(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
     double maximumPossibleScore = 0.0;
     for (DeltaScoringIterator scorer : scoringIterators) {
@@ -178,17 +175,17 @@ public class MaxScoreDocumentModel extends ProcessingModel {
   }
 
   private List<DeltaScoringIterator> createScoringIterators(List<Node> scoringNodes, LocalRetrieval ret, boolean shareNodes) throws Exception {
-    List<DeltaScoringIterator> scoringIterators = new ArrayList();
+    List<DeltaScoringIterator> scoringIterators = new ArrayList<DeltaScoringIterator>();
 
     // the cache allows low level iterators to be shared
     Map<String, BaseIterator> queryIteratorCache;
     if (shareNodes) {
-      queryIteratorCache = new HashMap();
+      queryIteratorCache = new HashMap<String,BaseIterator>();
     } else {
       queryIteratorCache = null;
     }
-    for (int i = 0; i < scoringNodes.size(); i++) {
-      DeltaScoringIterator scorer = (DeltaScoringIterator) ret.createNodeMergedIterator(scoringNodes.get(i), queryIteratorCache);
+    for (Node scoringNode : scoringNodes) {
+      DeltaScoringIterator scorer = (DeltaScoringIterator) ret.createNodeMergedIterator(scoringNode, queryIteratorCache);
       scoringIterators.add(scorer);
     }
     return scoringIterators;

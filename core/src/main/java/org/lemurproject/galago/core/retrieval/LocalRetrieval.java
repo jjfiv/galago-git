@@ -203,6 +203,7 @@ public class LocalRetrieval implements Retrieval {
 
     Results r = new Results();
     r.inputQuery = queryTree;
+    r.processingModel = pm.getClass();
     r.scoredDocuments = rankedList;
     return r;
   }
