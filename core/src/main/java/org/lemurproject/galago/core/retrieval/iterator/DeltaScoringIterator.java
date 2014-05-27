@@ -47,7 +47,4 @@ public interface DeltaScoringIterator extends ScoreIterator {
    * @return weighted minimum score
    */
   public double minimumWeightedScore();
-  
-  
-  public double collectionFrequency();
 }

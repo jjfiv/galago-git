@@ -22,11 +22,19 @@ public class PartAssignerTraversal extends Traversal {
 
   @Override
   public void beforeNode(Node original, Parameters queryParameters) throws Exception {
+    // only assing parts to leaf nodes
+    if (original.numChildren() > 0)
+      return;
 
-    // if a leaf node doesn't have a part, assign one.
-    if (original.numChildren() == 0 && !original.getNodeParameters().containsKey("part")) {
-      TextPartAssigner.assignPart(original, queryParameters, r.getAvailableParts());
-    }
+    // skip anything that's not a "text" node
+    if(!original.isText())
+      return;
+
+    // don't need to reassign anything
+    if(original.getNodeParameters().containsKey("part"))
+      return;
+
+    TextPartAssigner.assignPart(original, queryParameters, r.getAvailableParts());
   }
 
   @Override

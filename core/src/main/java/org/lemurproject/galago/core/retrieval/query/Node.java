@@ -74,7 +74,7 @@ public class Node implements Serializable {
   }
 
   public Node(String operator, NodeParameters np) {
-    this(operator, np, new ArrayList(), 0);
+    this(operator, np, new ArrayList<Node>(), 0);
   }
 
   public Node(String operator, NodeParameters np, List<Node> internalNodes) {
@@ -108,7 +108,7 @@ public class Node implements Serializable {
   }
 
   public String getDefaultParameter() {
-    return nodeParameters.get("default", (String) null);
+    return nodeParameters.get("default", null);
   }
 
   public String getOperator() {
@@ -419,4 +419,9 @@ public class Node implements Serializable {
   public static Node Text(String text, int position) {
     return new Node("text", new NodeParameters(text), new ArrayList<Node>(), position);
   }
+
+  public boolean isText() {
+    return operator.equals("extents") || operator.equals("counts") || operator.equals("text");
+  }
 }
+

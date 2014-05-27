@@ -43,8 +43,8 @@ public class MemoryIndex implements DynamicIndex, Index {
   HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
   HashSet<String> knownIndexOperators = new HashSet<String>();
 
-  public MemoryIndex(TupleFlowParameters parameters) throws Exception {
-    manifest = parameters.getJSON();
+  public MemoryIndex(Parameters parameters) throws Exception {
+    manifest = parameters;
     // determine which parts are to be created:
     stemming = manifest.get("stemming", true);
     nonstemming = manifest.get("nonstemming", true);
@@ -84,6 +84,14 @@ public class MemoryIndex implements DynamicIndex, Index {
 
     initializeIndexOperators();
     dirty = false;
+  }
+
+  public MemoryIndex() throws Exception {
+    this(new Parameters());
+  }
+
+  public MemoryIndex(TupleFlowParameters tfp) throws Exception {
+    this(tfp.getJSON());
   }
 
   @Override

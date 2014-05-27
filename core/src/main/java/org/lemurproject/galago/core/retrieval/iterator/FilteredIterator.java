@@ -1,14 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.util.ExtentArray;
+import org.lemurproject.galago.tupleflow.Utility;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
-import org.lemurproject.galago.core.util.ExtentArray;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * #filter ( AbstractIndicator ScoreIterator ) : Only scores documents that
@@ -57,12 +58,7 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
     this.scorer = null;
     this.extents = extents;
     this.mover = extents;
-    // Try to treat it as a counter if possible
-    if (CountIterator.class.isAssignableFrom(extents.getClass())) {
-      this.counter = (CountIterator) extents;
-    } else {
-      this.counter = null;
-    }
+    this.counter = extents;
   }
 
   @Override

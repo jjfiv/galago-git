@@ -1,15 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
-import java.io.IOException;
+import org.lemurproject.galago.core.retrieval.RequiredParameters;
+import org.lemurproject.galago.core.retrieval.RequiredStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.retrieval.RequiredParameters;
-import org.lemurproject.galago.core.retrieval.RequiredStatistics;
+
+import java.io.IOException;
 
 /**
  * A ScoringIterator that makes use of the DirichletScorer function for
@@ -32,7 +33,6 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
   // stats
   private final double mu;
   private final double background;
-  private final long collectionFrequency;
 
   public DirichletScoringIterator(NodeParameters p, LengthsIterator ls, CountIterator it)
           throws IOException {
@@ -41,7 +41,7 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
     // stats
     mu = p.get("mu", 1500D);
     long collectionLength = p.getLong("collectionLength");
-    collectionFrequency = p.getLong("nodeFrequency");
+    long collectionFrequency = p.getLong("nodeFrequency");
     background = (collectionFrequency > 0)
             ? (double) collectionFrequency / (double) collectionLength
             : 0.5 / (double) collectionLength;
@@ -63,11 +63,6 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
   }
 
   @Override
-  public double collectionFrequency() {
-    return collectionFrequency;
-  }
-
-  @Override
   public double minimumScore() {
     return min;
   }
@@ -84,9 +79,7 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
 
   @Override
   public double deltaScore(ScoringContext c) {
-    int count = ((CountIterator) iterator).count(c);
-    int length = this.lengthsIterator.length(c);
-    return weight * (max - dirichletScore(count, length));
+    return weight * (max - score(c));
   }
 
   @Override

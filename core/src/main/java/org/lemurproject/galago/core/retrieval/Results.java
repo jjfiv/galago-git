@@ -3,10 +3,12 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
+import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
+import org.lemurproject.galago.core.retrieval.query.Node;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.query.Node;
 
 /**
  * Base results class Wrapper for a list of results, and provides some utility
@@ -18,6 +20,7 @@ public class Results implements Serializable {
 
   public Node inputQuery;
   public List<ScoredDocument> scoredDocuments;
+  public Class<? extends ProcessingModel> processingModel;
 
   // empty construction -- a
   public Results() {
