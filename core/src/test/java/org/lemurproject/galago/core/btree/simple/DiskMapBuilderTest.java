@@ -1,6 +1,10 @@
 package org.lemurproject.galago.core.btree.simple;
 
 import org.junit.Test;
+import org.lemurproject.galago.core.index.disk.DiskIndex;
+import org.lemurproject.galago.core.retrieval.LocalRetrieval;
+import org.lemurproject.galago.core.tools.App;
+import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -8,6 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static org.junit.Assert.*;
 
@@ -58,5 +64,56 @@ public class DiskMapBuilderTest {
       assertNull(fromShuffled.get(Utility.fromLong(i + N)));
       assertNull(fromMap.get(Utility.fromLong(i+N)));
     }
+  }
+
+  @Test
+  public void canLiveInAnIndex() throws Exception {
+    File tmpDir = FileUtility.createTemporaryDirectory();
+    try {
+      // build an index
+      StringBuilder trecCorpus = new StringBuilder();
+      for(int i=0; i<10; i++) {
+        trecCorpus.append(AppTest.trecDocument("doc" + i, "doc" + i + " text"));
+      }
+      File inputFile = new File(tmpDir, "input.trectext");
+      File indexPath = new File(tmpDir, "index");
+      Utility.copyStringToFile(trecCorpus.toString(), inputFile);
+
+      App.main(new String[]{"build",
+          "--stemmedPostings=false",
+          "--corpus=false",
+          "--indexPath=" + indexPath.getAbsolutePath(),
+          "--inputPath=" + inputFile.getAbsolutePath()});
+
+      // stick a map in the middle
+      byte[] foo = Utility.fromString("foo space");
+      byte[] bar = Utility.fromString("bar");
+      byte[] baz = Utility.fromString("baz");
+      byte[] hmm = Utility.fromString("hmm");
+
+      Map<byte[], byte[]> data = new TreeMap<byte[], byte[]>(new Utility.ByteArrComparator());
+      data.put(foo, bar);
+      data.put(bar, baz);
+      data.put(baz, hmm);
+      data.put(hmm, foo);
+
+      File tmp = FileUtility.createTemporary();
+      tmp.deleteOnExit();
+
+      DiskMapReader onDisk = DiskMapReader.fromMap((new File(indexPath, "myCustomFeature")).getAbsolutePath(), data);
+
+      // make sure map works
+      assertTrue(onDisk.containsKey(Utility.fromString("foo space")));
+      assertTrue(onDisk.containsKey(Utility.fromString("bar")));
+      assertTrue(onDisk.containsKey(Utility.fromString("baz")));
+      assertTrue(onDisk.containsKey(Utility.fromString("hmm")));
+
+      // make sure retrieval works
+      LocalRetrieval ret = new LocalRetrieval(new DiskIndex(indexPath.getAbsolutePath()));
+      assertNotNull(ret);
+    } finally {
+      Utility.deleteDirectory(tmpDir);
+    }
+
   }
 }

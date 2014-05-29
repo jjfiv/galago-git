@@ -415,7 +415,14 @@ public class DiskIndex implements Index {
       return null;
     }
 
+    // doesn't have a readerClass
     if (!reader.getManifest().isString("readerClass")) {
+
+      // is this okay? e.g. DiskMapReader
+      if(reader.getManifest().get("nonIndexPart", false))
+        return null;
+
+      // scream if somebody forgot to build a readerClass
       throw new IOException("Tried to open an index part at " + path + ", but the "
               + "file has no readerClass specified in its manifest. "
               + "(the readerClass is the class that knows how to decode the "

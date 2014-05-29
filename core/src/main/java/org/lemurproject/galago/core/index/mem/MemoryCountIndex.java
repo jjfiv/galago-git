@@ -166,11 +166,6 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
   }
 
   @Override
-  public String getDefaultOperator() {
-    return "counts";
-  }
-
-  @Override
   public Parameters getManifest() {
     return parameters;
   }

@@ -176,11 +176,6 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
   }
 
   @Override
-  public String getDefaultOperator() {
-    return "extents";
-  }
-
-  @Override
   public Parameters getManifest() {
     return parameters;
   }

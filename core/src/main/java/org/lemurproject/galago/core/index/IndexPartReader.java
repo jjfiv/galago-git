@@ -2,12 +2,13 @@
 
 package org.lemurproject.galago.core.index;
 
-import java.io.IOException;
-import java.util.Map;
 import org.lemurproject.galago.core.index.Index.IndexComponentReader;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
+
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * Usually a IndexPartReader uses an IndexReader to retrieve data from disk,
@@ -19,8 +20,6 @@ public interface IndexPartReader extends IndexComponentReader {
 
   /// Returns a list of node types that this index can provide.
     public Map<String, NodeType> getNodeTypes();
-
-    public String getDefaultOperator();
 
     /// Returns an iterator over the keys of the index.
     public KeyIterator getIterator() throws IOException;

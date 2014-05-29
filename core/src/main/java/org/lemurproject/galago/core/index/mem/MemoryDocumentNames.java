@@ -113,11 +113,6 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
   }
 
   @Override
-  public String getDefaultOperator() {
-    return "names";
-  }
-
-  @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
     types.put("names", new NodeType(DiskDataIterator.class));

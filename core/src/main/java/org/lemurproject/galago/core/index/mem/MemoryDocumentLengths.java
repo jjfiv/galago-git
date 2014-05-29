@@ -187,11 +187,6 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   }
 
   @Override
-  public String getDefaultOperator() {
-    return "lengths";
-  }
-
-  @Override
   public KeyIterator getIterator() throws IOException {
     return new FieldIterator();
   }

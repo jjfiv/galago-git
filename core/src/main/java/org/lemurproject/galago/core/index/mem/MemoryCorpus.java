@@ -119,11 +119,6 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
   }
 
   @Override
-  public String getDefaultOperator() {
-    return "corpus";
-  }
-
-  @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
     types.put("corpus", new NodeType(DiskDataIterator.class));

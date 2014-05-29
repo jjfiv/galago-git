@@ -1,12 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Map;
-import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * Superclass for any iterator that provides a direct mapping
@@ -38,16 +37,6 @@ public abstract class KeyValueReader implements IndexPartReader {
   @Override
   public void close() throws IOException {
     reader.close();
-  }
-
-  @Override
-  public String getDefaultOperator() {
-    Map<String, NodeType> types = this.getNodeTypes();
-    if (types.size() == 1) {
-      return types.keySet().toArray(new String[0])[0];
-    } else {
-      return reader.getManifest().get("defaultOperator", "none");
-    }
   }
 
   public static abstract class KeyValueIterator implements KeyIterator {

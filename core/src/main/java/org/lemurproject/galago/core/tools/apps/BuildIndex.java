@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class BuildIndex extends AppFunction {
 
-  public Stage getParsePostingsStage(Parameters buildParameters) throws ClassNotFoundException {
+  public static Stage getParsePostingsStage(Parameters buildParameters) throws ClassNotFoundException {
     Stage stage = new Stage("parsePostings")
             .addInput("splits", new DocumentSplit.FileIdOrder())
             .addOutput("fieldLengthData", new FieldLengthData.FieldDocumentOrder())
@@ -68,7 +68,7 @@ public class BuildIndex extends AppFunction {
         stage.addOutput("numberedExtentPostings", new FieldNumberWordPosition.FieldWordDocumentPositionOrder());
       }
       if (buildParameters.getMap("fieldIndexParameters").getBoolean("stemmedPostings")) {
-        for (String stemmer : (List<String>) buildParameters.getMap("fieldIndexParameters").getList("stemmer")) {
+        for (String stemmer : buildParameters.getMap("fieldIndexParameters").getList("stemmer", String.class)) {
           stage.addOutput("numberedExtentPostings-" + stemmer, new FieldNumberWordPosition.FieldWordDocumentPositionOrder());
         }
       }
@@ -127,7 +127,7 @@ public class BuildIndex extends AppFunction {
     }
 
     if (buildParameters.getBoolean("stemmedPostings")) {
-      for (String stemmer : (List<String>) buildParameters.getList("stemmer")) {
+      for (String stemmer : buildParameters.getList("stemmer", String.class)) {
         String name = "postings-" + stemmer;
         processingFork.addGroup(name).addToGroup(name,
                 BuildStageTemplates.getStemmerStep(new Parameters(),
@@ -147,7 +147,7 @@ public class BuildIndex extends AppFunction {
       }
 
       if (buildParameters.getMap("fieldIndexParameters").getBoolean("stemmedPostings")) {
-        for (String stemmer : (List<String>) buildParameters.getMap("fieldIndexParameters").getList("stemmer")) {
+        for (String stemmer : buildParameters.getMap("fieldIndexParameters").getList("stemmer", String.class)) {
           String name = "fieldIndex-" + stemmer;
           processingFork.addGroup(name).addToGroup(name,
                   BuildStageTemplates.getStemmerStep(new Parameters(),
@@ -199,7 +199,7 @@ public class BuildIndex extends AppFunction {
 //
 //    return stage;
 //  }
-  public Stage getWritePostingsStage(Parameters buildParameters, String stageName,
+  public static Stage getWritePostingsStage(Parameters buildParameters, String stageName,
           String inputName, Order inputOrder, String indexName,
           Class indexWriter, String stemmerName) {
 
@@ -220,7 +220,7 @@ public class BuildIndex extends AppFunction {
     return stage;
   }
 
-  public Stage getParallelIndexKeyWriterStage(String name, String input, Parameters indexParameters) {
+  public static Stage getParallelIndexKeyWriterStage(String name, String input, Parameters indexParameters) {
     Stage stage = new Stage(name);
 
     stage.addInput(input, new KeyValuePair.KeyOrder());
@@ -606,7 +606,7 @@ public class BuildIndex extends AppFunction {
     }
   }
 
-  public Job getIndexJob(Parameters buildParameters) throws Exception {
+  public static Job getIndexJob(Parameters buildParameters) throws Exception {
 
     buildParameters = checkBuildIndexParameters(buildParameters);
     if (buildParameters == null) {
@@ -666,7 +666,7 @@ public class BuildIndex extends AppFunction {
 
     // stemmedpostings
     if (buildParameters.getBoolean("stemmedPostings")) {
-      for (String stemmer : (List<String>) buildParameters.getList("stemmer")) {
+      for (String stemmer : buildParameters.getList("stemmer", String.class)) {
         job.add(getWritePostingsStage(buildParameters, "writePostings-" + stemmer,
                 "numberedStemmedPostings-" + stemmer,
                 new NumberWordPosition.WordDocumentPositionOrder(),
@@ -701,7 +701,7 @@ public class BuildIndex extends AppFunction {
         job.connect("parsePostings", "writeExtentPostings", ConnectionAssignmentType.Combined);
       }
       if (buildParameters.getMap("fieldIndexParameters").getBoolean("stemmedPostings")) {
-        for (String stemmer : (List<String>) buildParameters.getMap("fieldIndexParameters").getList("stemmer")) {
+        for (String stemmer : buildParameters.getMap("fieldIndexParameters").getList("stemmer", String.class)) {
           job.add(getWritePostingsStage(buildParameters, "writeExtentPostings-" + stemmer, "numberedExtentPostings-" + stemmer,
                   new FieldNumberWordPosition.FieldWordDocumentPositionOrder(), "field." + stemmer + ".", PositionFieldIndexWriter.class, stemmer));
 
@@ -749,17 +749,8 @@ public class BuildIndex extends AppFunction {
     //TODO: need to design parameters for field indexes + stemming for field indexes
   }
 
-  @Override
-  public void run(Parameters p, PrintStream output) throws Exception {
-    // build index input
-    if (!p.isString("indexPath") && !p.isList("inputPath")) {
-      output.println(getHelpString());
-      return;
-    }
-
-    Job job;
-    BuildIndex build = new BuildIndex();
-    job = build.getIndexJob(p);
+  public static void execute(Parameters p, PrintStream output) throws Exception {
+    Job job = getIndexJob(p);
 
     if (job != null) {
       runTupleFlowJob(job, p, output);
@@ -772,5 +763,16 @@ public class BuildIndex extends AppFunction {
     Parameters namesParams = names.getManifest();
     names.close();
     output.println("Documents Indexed: " + namesParams.getLong("keyCount") + ".");
+  }
+
+  @Override
+  public void run(Parameters p, PrintStream output) throws Exception {
+    // build index input
+    if (!p.isString("indexPath") && !p.isList("inputPath")) {
+      output.println(getHelpString());
+      return;
+    }
+
+    execute(p, output);
   }
 }

@@ -162,11 +162,6 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
   }
 
   @Override
-  public String getDefaultOperator() {
-    return "extents";
-  }
-
-  @Override
   public Parameters getManifest() {
     return parameters;
   }

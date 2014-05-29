@@ -75,8 +75,6 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
 
   public static class KeyIterator extends KeyValueReader.KeyValueIterator {
 
-    protected BTreeReader input;
-
     public KeyIterator(BTreeReader input) throws IOException {
       super(input);
     }
@@ -109,7 +107,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
 
     @Override
     public DiskDataIterator<String> getValueIterator() throws IOException {
-      return new DiskDataIterator(new DiskNameSource(input));
+      return new DiskDataIterator<String>(new DiskNameSource(reader));
     }
   }
 }

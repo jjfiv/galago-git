@@ -137,11 +137,6 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
   }
 
   @Override
-  public String getDefaultOperator() {
-    return "scores";
-  }
-
-  @Override
   public Parameters getManifest() {
     return parameters;
   }
