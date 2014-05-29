@@ -102,6 +102,33 @@ public class DiskMapWrapper<KT, VT> extends ReadOnlyMap<KT, VT> implements Close
     }
   }
 
+  public Map<KT,VT> bulkGet(Collection<KT> keys) {
+    ArrayList<byte[]> rawKeys = new ArrayList<byte[]>(keys.size());
+    for(KT key : keys) {
+      rawKeys.add(keyCodec.toBytes(key));
+    }
+    Map<KT,VT> output = new HashMap<KT,VT>(rawKeys.size());
+
+    Collections.sort(rawKeys, new Utility.ByteArrComparator());
+    try {
+      BTreeReader.BTreeIterator iterator = reader.btree.getIterator();
+      for(int i=0; i<rawKeys.size() && !iterator.isDone(); i++) {
+        byte[] query = rawKeys.get(i);
+        iterator.skipTo(rawKeys.get(i));
+        byte[] actual = iterator.getKey();
+        if(actual == null || Utility.compare(actual, query) != 0) {
+          break;
+        }
+        KT key = keyCodec.fromBytes(actual);
+        VT value = valCodec.fromBytes(iterator.getValueBytes());
+        output.put(key, value);
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return output;
+  }
+
   @Override
   public void close() throws IOException {
     reader.btree.close();

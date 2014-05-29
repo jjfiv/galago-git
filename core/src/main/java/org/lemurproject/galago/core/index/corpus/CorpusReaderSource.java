@@ -44,8 +44,7 @@ public class CorpusReaderSource extends BTreeKeySource implements DataSource<Doc
     return (!isDone() && currentCandidate() == id);
   }
 
-  @Override
-  public Document data(long id) {
+  public Document getDocument(long id, DocumentComponents doc) {
     if (currentCandidate() == id) {
       try {
         return serializer.fromStream(btreeIter.getValueStream(), docParams);
@@ -54,5 +53,10 @@ public class CorpusReaderSource extends BTreeKeySource implements DataSource<Doc
       }
     }
     return null;
+  }
+
+  @Override
+  public Document data(long id) {
+    return getDocument(id, docParams);
   }
 }

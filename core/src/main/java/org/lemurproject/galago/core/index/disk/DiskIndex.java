@@ -76,6 +76,10 @@ public class DiskIndex implements Index {
     initializeIndexOperators();
   }
 
+  public DiskIndex(File path) throws IOException {
+    this(path.getAbsolutePath());
+  }
+
   /**
    * recursively open index parts + infer if the file/folder is a part
    *

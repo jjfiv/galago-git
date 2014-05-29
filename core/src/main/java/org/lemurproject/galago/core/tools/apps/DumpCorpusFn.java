@@ -3,14 +3,15 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
-import java.io.PrintStream;
-import java.util.Map;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.tupleflow.Parameters;
+
+import java.io.PrintStream;
+import java.util.Map;
 
 /**
  *
@@ -33,14 +34,13 @@ public class DumpCorpusFn extends AppFunction {
 
   @Override
   public void run(Parameters p, PrintStream output) throws Exception {
-    DocumentReader reader = new CorpusReader(p.getString("path"));
+    CorpusReader reader = new CorpusReader(p.getString("path"));
     if (reader.getManifest().get("emptyIndexFile", false)) {
       output.println("Empty Corpus.");
       return;
     }
 
-    DocumentReader.DocumentIterator iterator = (DocumentReader.DocumentIterator) reader.getIterator();
-
+    DocumentReader.DocumentIterator iterator = reader.getIterator();
     DocumentComponents dc = new DocumentComponents(p);
     
     while (!iterator.isDone()) {
