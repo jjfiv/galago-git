@@ -170,19 +170,21 @@ public class FileUtility {
   }
 
   public static File[] safeListFiles(File root) {
+    final String psa = "Galago's ls is having getting no results... If you're not on a distributed file system, this just means your directory is empty.";
+
     File[] subs = root.listFiles();
     int count = 0;
     while (subs == null && count < 100) {
       try {
         Thread.sleep(1000);
       } catch (InterruptedException e) { }
-      System.out.println("Listing files is taking a long time...");
+      LOG.warning(psa);
       count++;
       subs = root.listFiles();
     }
 
     if (subs == null) {
-      throw new IllegalStateException("safeListFiles is having a hard time with hte really slow filesystem :(... ");
+      throw new IllegalStateException(psa);
     }
     return subs;
   }
