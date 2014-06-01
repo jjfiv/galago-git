@@ -1,6 +1,7 @@
 package org.lemurproject.galago.core.btree.simple;
 
 import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.util.ReadOnlyMap;
 
@@ -112,12 +113,12 @@ public class DiskMapWrapper<KT, VT> extends ReadOnlyMap<KT, VT> implements Close
     Collections.sort(rawKeys, new Utility.ByteArrComparator());
     try {
       BTreeReader.BTreeIterator iterator = reader.btree.getIterator();
-      for(int i=0; i<rawKeys.size() && !iterator.isDone(); i++) {
-        byte[] query = rawKeys.get(i);
-        iterator.skipTo(rawKeys.get(i));
+      for (byte[] query : rawKeys) {
+        iterator.skipTo(query);
+
         byte[] actual = iterator.getKey();
-        if(actual == null || Utility.compare(actual, query) != 0) {
-          break;
+        if (actual == null || Utility.compare(actual, query) != 0) {
+          continue;
         }
         KT key = keyCodec.fromBytes(actual);
         VT value = valCodec.fromBytes(iterator.getValueBytes());
@@ -158,6 +159,21 @@ public class DiskMapWrapper<KT, VT> extends ReadOnlyMap<KT, VT> implements Close
     @Override
     public byte[] toBytes(Integer out) {
       return Utility.fromInt(out);
+    }
+  }
+  public static final class JSONCodec implements Codec<Parameters> {
+    @Override
+    public Parameters fromBytes(byte[] in) {
+      try {
+        return Parameters.parseString(Utility.toString(in));
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    @Override
+    public byte[] toBytes(Parameters out) {
+      return Utility.fromString(out.toString());
     }
   }
 
