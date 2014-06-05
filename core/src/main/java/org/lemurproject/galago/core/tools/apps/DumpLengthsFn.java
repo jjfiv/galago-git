@@ -40,6 +40,7 @@ public class DumpLengthsFn extends AppFunction {
       lengthsItr.syncTo(docId);
       int docLen = lengthsItr.length(sc);
       output.println(docId + "\t" + docLen);
+      lengthsItr.movePast(docId);
     }
   }
 }

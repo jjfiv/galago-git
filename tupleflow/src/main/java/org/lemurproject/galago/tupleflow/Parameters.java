@@ -350,7 +350,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     if(val instanceof Boolean) {
       return (Boolean) val;
     } else {
-      throw new IllegalArgumentException("Key " + key + " does not exist as Boolean in parameters object, instead found " + val);
+      throw new IllegalArgumentException("Key " + key + " does not exist as Boolean in parameters object, instead found " + val+" isa "+val.getClass());
     }
   }
 
