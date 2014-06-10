@@ -18,7 +18,7 @@ public class Utility {
   public static final double loge_base2 = Math.log(Math.E) / log2;
   public static final double tinyLogProbScore = Math.log(Math.pow(10, -10));
   public static final double epsilon = 0.5 * Math.pow(10, -10);
-  public static final double neg_epsilon = -1.0 * Math.pow(10, -10);
+  public static final double neg_epsilon = -1.0 * epsilon;
 
   /**
    * Builds a simple Sorter step that can be added to a TupleFlow stage.
