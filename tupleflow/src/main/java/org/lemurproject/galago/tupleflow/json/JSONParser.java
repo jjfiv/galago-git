@@ -264,6 +264,10 @@ public class JSONParser {
         break;
       }
 
+      if(delimiter == -1) {
+        error("Found EOF in the middle of a string!");
+      }
+
       if(delimiter == '\\') {
         // prepare ye escape codes:
         int nextCode = getc();
