@@ -602,7 +602,7 @@ public class Parameters implements Serializable, Map<String,Object> {
           builder.append(toPrettyString(p.getMap(key), internalPrefix, false));
         } else if(p.isList(key)) {
           builder.append(toPrettyString(p.getList(key), internalPrefix, false));
-        }
+        } else throw new UnsupportedOperationException(key+"="+p.get(key));
       }
 
       builder.append("\n").append(prefix).append("}");
@@ -731,6 +731,9 @@ public class Parameters implements Serializable, Map<String,Object> {
     }
     if(this == v) {
       throw new IllegalArgumentException("Stop your recursive Parameter madness!");
+    }
+    if(v instanceof File) {
+      return _data.put(k, ((File) v).getAbsolutePath());
     }
     return _data.put(k, v);
   }
