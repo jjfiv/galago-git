@@ -18,6 +18,7 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -37,7 +38,7 @@ import java.util.logging.Logger;
  *
  * @author trevor, sjh, irmarc
  */
-public class DiskIndex implements Index {
+public class DiskIndex implements Index, Closeable {
 
   private static final Logger logger = Logger.getLogger("DiskIndex");
   protected File location;
@@ -304,6 +305,7 @@ public class DiskIndex implements Index {
     parts.clear();
     lengthsReader.close();
     namesReader.close();
+    namesReverseReader.close();
   }
 
   @Override
