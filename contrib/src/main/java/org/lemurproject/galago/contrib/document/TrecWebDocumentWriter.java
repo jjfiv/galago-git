@@ -61,7 +61,7 @@ public class TrecWebDocumentWriter implements Processor<Document> {
             + "%s\n"
             + "</DOCHDR>\n"
             + "%s\n"
-            + "</DOC>\n", d.name, d.getMetadata().get("url"), d.getText()));
+            + "</DOC>\n", d.name, d.metadata.get("url"), d.text));
 
     currentWriter.write(bytes);
     currentFileSize += bytes.length;

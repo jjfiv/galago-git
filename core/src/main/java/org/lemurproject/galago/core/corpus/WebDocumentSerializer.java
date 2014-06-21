@@ -69,10 +69,10 @@ public class WebDocumentSerializer extends DocumentSerializer {
     ByteArrayOutputStream textArray = new ByteArrayOutputStream();
     output = new DataOutputStream(textArray);
     // text
-    if (doc.getText() == null) {
+    if (doc.text == null) {
       output.writeInt(0);
     } else {
-      bytes = Utility.fromString(doc.getText());
+      bytes = Utility.fromString(doc.text);
       output.writeInt(bytes.length);
       output.write(bytes);
     }

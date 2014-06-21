@@ -19,17 +19,11 @@ public class Document implements Serializable {
   public long identifier = -1;
   // document data - these values are serialized
   public String name;
-  @Deprecated
   public Map<String, String> metadata;
-  @Deprecated
   public String text;
-  @Deprecated
   public List<String> terms;
-  @Deprecated
   public List<Integer> termCharBegin = new ArrayList<Integer>();
-  @Deprecated
   public List<Integer> termCharEnd = new ArrayList<Integer>();
-  @Deprecated
   public List<Tag> tags;
   // other data - used to generate an identifier; these values can not be serialized!
   public int fileId = -1;
@@ -116,24 +110,6 @@ public class Document implements Serializable {
     return DocumentSerializer.instance(manifest).fromStream(stream, selection);
   }
 
-  public String getText() {
-    return text;
-  }
-  public Map<String,String> getMetadata() {
-    return metadata;
-  }
-  public List<String> getTerms() {
-    return terms;
-  }
-  public List<Tag> getTags() {
-    return tags;
-  }
-  public List<Integer> getTermCharBegin() {
-    return termCharBegin;
-  }
-  public List<Integer> getTermCharEnd() {
-    return termCharEnd;
-  }
   public TObjectIntHashMap<String> getBagOfWords() {
     TObjectIntHashMap<String> termCounts = new TObjectIntHashMap<String>();
     for(String term : terms) {

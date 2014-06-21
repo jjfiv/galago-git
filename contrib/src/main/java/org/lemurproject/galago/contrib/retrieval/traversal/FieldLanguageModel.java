@@ -67,11 +67,11 @@ public class FieldLanguageModel {
   // Assumptions: terms vector is nonempty (this class does NOT do parsing)
   //              tags vector is nonempty, otherwise this reduces to a standard LM.
   public void addDocument(Document d) {
-    if (d.getText().length() == 0) {
+    if (d.text.length() == 0) {
       return; // nothing to do
     }
     // not cool 
-    if ((d.getTerms() == null || d.getTerms().size() == 0) && d.getText().length() > 0) {
+    if ((d.text == null || d.terms.size() == 0) && d.text.length() > 0) {
       throw new IllegalArgumentException("Adding unparsed document to language model is not ok.");
     }
 

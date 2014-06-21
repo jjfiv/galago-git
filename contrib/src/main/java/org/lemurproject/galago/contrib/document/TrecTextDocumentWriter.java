@@ -54,7 +54,7 @@ public class TrecTextDocumentWriter implements Processor<Document> {
             + "<TEXT>\n"
             + "%s\n"
             + "</TEXT>\n"
-            + "</DOC>\n", d.name, d.getText()));
+            + "</DOC>\n", d.name, d.text));
 
     currentWriter.write(bytes);
     currentFileSize += bytes.length;
