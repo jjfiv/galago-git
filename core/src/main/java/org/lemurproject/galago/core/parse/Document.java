@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
+import gnu.trove.map.hash.TObjectIntHashMap;
 import org.lemurproject.galago.core.corpus.DocumentSerializer;
 import org.lemurproject.galago.tupleflow.Parameters;
 
@@ -18,11 +19,17 @@ public class Document implements Serializable {
   public long identifier = -1;
   // document data - these values are serialized
   public String name;
+  @Deprecated
   public Map<String, String> metadata;
+  @Deprecated
   public String text;
+  @Deprecated
   public List<String> terms;
+  @Deprecated
   public List<Integer> termCharBegin = new ArrayList<Integer>();
+  @Deprecated
   public List<Integer> termCharEnd = new ArrayList<Integer>();
+  @Deprecated
   public List<Tag> tags;
   // other data - used to generate an identifier; these values can not be serialized!
   public int fileId = -1;
@@ -107,6 +114,29 @@ public class Document implements Serializable {
   @Deprecated
   public static Document deserialize(DataInputStream stream, Parameters manifest, DocumentComponents selection) throws IOException {
     return DocumentSerializer.instance(manifest).fromStream(stream, selection);
+  }
+
+  public Map<String,String> getMetadata() {
+    return metadata;
+  }
+  public List<String> getTerms() {
+    return terms;
+  }
+  public List<Tag> getTags() {
+    return tags;
+  }
+  public List<Integer> getTermCharBegin() {
+    return termCharBegin;
+  }
+  public List<Integer> getTermCharEnd() {
+    return termCharEnd;
+  }
+  public TObjectIntHashMap<String> getBagOfWords() {
+    TObjectIntHashMap<String> termCounts = new TObjectIntHashMap<String>();
+    for(String term : terms) {
+      termCounts.adjustOrPutValue(term, 1, 1);
+    }
+    return termCounts;
   }
 
   /**
