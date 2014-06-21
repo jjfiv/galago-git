@@ -29,6 +29,13 @@ public class CorpusReaderSource extends BTreeKeySource implements DataSource<Doc
     serializer = DocumentSerializer.instance(manifest);
   }
 
+  public CorpusReaderSource(BTreeReader rdr, DocumentComponents opts) throws IOException {
+    super(rdr);
+    this.docParams = opts;
+    final Parameters manifest = btreeReader.getManifest();
+    serializer = DocumentSerializer.instance(manifest);
+  }
+
   @Override
   public boolean hasAllCandidates() {
     return true;

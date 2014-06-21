@@ -122,6 +122,10 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
       return new CorpusReaderSource(reader);
     }
 
+    public CorpusReaderSource getSource(DocumentComponents opts) throws IOException {
+      return new CorpusReaderSource(reader, opts);
+    }
+
     @Override
     public DiskDataIterator<Document> getValueIterator() throws IOException {
       return new DiskDataIterator<Document>(getSource());
