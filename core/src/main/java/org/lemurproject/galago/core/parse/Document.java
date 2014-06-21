@@ -116,6 +116,9 @@ public class Document implements Serializable {
     return DocumentSerializer.instance(manifest).fromStream(stream, selection);
   }
 
+  public String getText() {
+    return text;
+  }
   public Map<String,String> getMetadata() {
     return metadata;
   }
