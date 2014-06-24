@@ -2,6 +2,8 @@
 package org.lemurproject.galago.tupleflow;
 
 import org.lemurproject.galago.tupleflow.execution.Step;
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -372,31 +374,29 @@ public class Utility {
    * @param input The input stream.
    * @param output The output stream.
    * @throws java.io.IOException
+   * @deprecated use StreamUtil version instead
    */
+  @Deprecated
   public static void copyStream(InputStream input, OutputStream output) throws IOException {
-    byte[] data = new byte[65536];
-    while (true) {
-      int bytesRead = input.read(data);
-      if (bytesRead < 0) {
-        break;
-      }
-      output.write(data, 0, bytesRead);
-    }
+    StreamUtil.copyStream(input, output);
   }
 
   /**
    * Copies data from the input stream and returns a String (UTF-8 if not
    * specified)
+   * @deprecated use StreamUtil version instead
    */
+  @Deprecated
   public static String copyStreamToString(InputStream input, String encoding) throws IOException {
-    encoding = (encoding == null) ? "UTF-8" : encoding;
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    copyStream(input, baos);
-    return baos.toString(encoding);
+    return StreamUtil.copyStreamToString(input, encoding);
   }
 
+  /**
+   * @deprecated use StreamUtil version instead
+   */
+  @Deprecated
   public static String copyStreamToString(InputStream input) throws IOException {
-    return copyStreamToString(input, "UTF-8");
+    return StreamUtil.copyStreamToString(input, "UTF-8");
   }
 
   /**
@@ -404,24 +404,11 @@ public class Utility {
    * close the stream (in case you want to put more in it).
    *
    * @throws java.io.IOException
+   * @deprecated use StreamUtil version instead
    */
+  @Deprecated
   public static void copyFileToStream(File file, OutputStream stream) throws IOException {
-    InputStream input = null;
-    try {
-      input = new FileInputStream(file);
-      long longLength = file.length();
-      final int fiveMegabytes = 5 * 1024 * 1024;
-
-      while (longLength > 0) {
-        int chunk = (int) Math.min(longLength, fiveMegabytes);
-        byte[] data = new byte[chunk];
-        int readlen = input.read(data, 0, chunk);
-        stream.write(data, 0, readlen);
-        longLength -= chunk;
-      }
-    } finally {
-      if(input != null) input.close();
-    }
+    StreamUtil.copyFileToStream(file, stream);
   }
 
   /**
@@ -535,20 +522,20 @@ public class Utility {
     }
   }
 
+  /**
+   * @deprecated use ByteUtil instead
+   */
+  @Deprecated
   public static String toString(byte[] word) {
-    try {
-      return new String(word, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException("UTF-8 is not supported by your Java Virtual Machine.");
-    }
+    return ByteUtil.toString(word);
   }
 
+  /**
+   * @deprecated use ByteUtil instead
+   */
+  @Deprecated
   public static byte[] fromString(String word) {
-    try {
-      return word.getBytes("UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException("UTF-8 is not supported by your Java Virtual Machine.");
-    }
+    return ByteUtil.fromString(word);
   }
 
   public static short toShort(byte[] key) {

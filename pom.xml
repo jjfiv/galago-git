@@ -54,6 +54,7 @@
     <module>core</module>
     <module>tupleflow</module>
     <module>tupleflow-typebuilder</module>
+    <module>utility</module>
   </modules>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
