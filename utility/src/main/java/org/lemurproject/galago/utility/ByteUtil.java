@@ -1,3 +1,4 @@
+// BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.utility;
 
 import java.nio.charset.Charset;
