@@ -66,12 +66,12 @@ public class CorpusTest {
       assertTrue(reader.getManifest().getMap("tokenizer").isList("fields"));
       assertEquals("tag", reader.getManifest().getMap("tokenizer").getList("fields").get(0));
 			
-      Document testDoc = reader.getDocument(11, new DocumentComponents(true, true, true));
+      Document testDoc = reader.getDocument(11, DocumentComponents.All);
       Document trueDoc = docs.get(11);
       assertEquals (testDoc.identifier,trueDoc.identifier);
       assertEquals (testDoc.name, trueDoc.name);
       assertEquals (testDoc.text, trueDoc.text);
-      assertEquals (testDoc.metadata.get("meta"), trueDoc.metadata.get("meta"));
+      assertEquals (trueDoc.metadata.get("meta"), testDoc.metadata.get("meta"));
       assertEquals (testDoc.terms.size(), trueDoc.terms.size());
       assertEquals (testDoc.terms.get(0), trueDoc.terms.get(0));
       assertFalse (testDoc.tags.isEmpty());

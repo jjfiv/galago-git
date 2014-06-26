@@ -1,8 +1,8 @@
 package org.lemurproject.galago.core.corpus;
 
 import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.xerial.snappy.SnappyInputStream;
 import org.xerial.snappy.SnappyOutputStream;
 
@@ -10,18 +10,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.logging.Logger;
 
 /**
- * This class only stores the raw text, and expects to pass the data through your Tokenizer again.
  * @author jfoley.
  */
-public class WebDocumentSerializer extends DocumentSerializer {
-  static final int BUFFER_SIZE = 8192;
-  final Tokenizer tokenizer;
-
-  public WebDocumentSerializer(Parameters opts) {
+public class TokenizedDocumentSerializer extends DocumentSerializer {
+  static final Logger log = Logger.getLogger(TokenizedDocumentSerializer.class.getName());
+  public TokenizedDocumentSerializer(Parameters opts) {
     super(opts);
-    tokenizer = Tokenizer.instance(opts);
   }
 
   @Override
@@ -30,21 +28,30 @@ public class WebDocumentSerializer extends DocumentSerializer {
     DataOutputStream output = new DataOutputStream(headerArray);
     // identifier
     output.writeLong(doc.identifier);
+
     // name
-    SerializerCommon.writeString(output, doc.name);
+    byte[] bytes = ByteUtil.fromString(doc.name);
+    output.writeInt(bytes.length);
+    output.write(bytes);
+    output.close();
 
     ByteArrayOutputStream metadataArray = SerializerCommon.writeMetadata(doc);
     ByteArrayOutputStream textArray = SerializerCommon.writeText(doc);
+    ByteArrayOutputStream termsArray = SerializerCommon.writeTerms(doc);
 
     ByteArrayOutputStream docArray = new ByteArrayOutputStream();
     output = new DataOutputStream(new SnappyOutputStream(docArray));
 
-    output.writeInt(metadataArray.size());
-    output.writeInt(textArray.size());
 
     output.write(headerArray.toByteArray());
+
+    output.writeInt(metadataArray.size());
+    output.writeInt(textArray.size());
+    output.writeInt(termsArray.size());
+
     output.write(metadataArray.toByteArray());
     output.write(textArray.toByteArray());
+    output.write(termsArray.toByteArray());
 
     output.close();
 
@@ -53,13 +60,9 @@ public class WebDocumentSerializer extends DocumentSerializer {
 
   @Override
   public Document fromStream(DataInputStream stream, Document.DocumentComponents selection) throws IOException {
-    byte[] buffer = new byte[BUFFER_SIZE];
-    int blen;
+    byte[] buffer = new byte[SerializerCommon.BUFFER_SIZE];
     DataInputStream input = new DataInputStream(new SnappyInputStream(stream));
     Document d = new Document();
-
-    int metadataSize = input.readInt();
-    int textSize = input.readInt(); // ignored
 
     // identifier
     d.identifier = input.readLong();
@@ -67,32 +70,38 @@ public class WebDocumentSerializer extends DocumentSerializer {
     // name
     d.name = SerializerCommon.readString(input, buffer);
 
+    // exit with no parts
+    if(!selection.metadata && !selection.text && !selection.tokenize) return d;
+
+    int metadataSize = input.readInt();
+    int textSize = input.readInt();
+    int termsSize = input.readInt();
+
     if (selection.metadata) {
       d.metadata = SerializerCommon.readMetadata(input, buffer);
       // only both skipping if we need to
-    } else if (selection.text || selection.tokenize) {
+    } else {
       input.skip(metadataSize);
     }
 
-    // can't get tokens without text in this case...
-    if (selection.text || selection.tokenize) {
+    if (selection.text) {
       d.text = SerializerCommon.readText(input, selection, buffer);
+    } else {
+      input.skip(textSize);
+    }
+
+    // give back terms
+    if(selection.tokenize) {
+      int count = input.readInt();
+      ArrayList<String> terms = new ArrayList<String>(count);
+      for (int i = 0; i < count; i++) {
+        terms.add(SerializerCommon.readString(input, buffer));
+      }
+      d.terms = terms;
     }
     input.close();
-
-    // give back terms & tags
-    if(selection.tokenize) {
-      tokenizer.tokenize(d);
-    }
 
     return d;
   }
 
-  private static byte[] sizeCheck(byte[] currentBuffer, int sz) {
-    if (sz > currentBuffer.length) {
-      return new byte[sz];
-    } else {
-      return currentBuffer;
-    }
-  }
 }

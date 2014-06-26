@@ -49,7 +49,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     ArrayList<DocumentSplit> splitBuffer = new ArrayList<DocumentSplit>();
     Parameters conf = parameters.getJSON();
 
-    logger.log(Level.INFO, parameters.getJSON().toString());
+    //logger.log(Level.INFO, parameters.getJSON().toString());
 
     if (conf.containsKey("directory")) {
       List<String> directories = parameters.getJSON().getAsList("directory", String.class);

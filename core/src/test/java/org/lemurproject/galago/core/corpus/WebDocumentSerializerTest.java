@@ -1,7 +1,9 @@
 package org.lemurproject.galago.core.corpus;
 
 import org.junit.Test;
+import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.tools.apps.BuildIndex;
 import org.lemurproject.galago.tupleflow.*;
 
 import java.io.*;
@@ -24,7 +26,7 @@ public class WebDocumentSerializerTest {
     byte[] docBytes = wds.toBytes(doc);
     assertNotNull(docBytes);
 
-    Document doc2 = wds.fromBytes(docBytes, new Document.DocumentComponents(true, true, true));
+    Document doc2 = wds.fromBytes(docBytes, Document.DocumentComponents.All);
     assertEquals(doc.name, doc2.name);
     assertEquals(doc.text, doc2.text);
     assertNotNull(doc2.metadata);
@@ -33,6 +35,35 @@ public class WebDocumentSerializerTest {
     assertNull(doc.metadata.get("null-meta-key"));
     assertEquals(doc.terms, doc2.terms);
     assertEquals(doc.tags, doc2.tags);
+  }
+
+  @Test
+  public void testBuildIndexSpecific() throws Exception {
+    File tmpDir = FileUtility.createTemporaryDirectory();
+    try {
+      File inputTxt = new File(tmpDir, "input.txt");
+      File testIndex = new File(tmpDir, "test.galago");
+      Utility.copyStringToFile("this is a document of some kind", inputTxt);
+      BuildIndex.execute(
+          Parameters.parseArray(
+              "inputPath", inputTxt,
+              "indexPath", testIndex,
+              "corpusParameters", Parameters.parseArray(
+                  "documentSerializerClass", WebDocumentSerializer.class.getName())),
+          System.out);
+
+      CorpusReader reader = new CorpusReader(new File(testIndex, "corpus").getAbsolutePath());
+      assertEquals(WebDocumentSerializer.class.getName(), reader.getManifest().getString("documentSerializerClass"));
+      System.out.println(reader.serializer.getClass());
+      Document document = reader.getIterator().getDocument(Document.DocumentComponents.JustTerms);
+      assertNotNull(document);
+      assertNotNull(document.text);
+      assertNotNull(document.terms);
+      assertEquals(7, document.terms.size());
+      assertEquals("this", document.terms.get(0));
+    } finally {
+      Utility.deleteDirectory(tmpDir);
+    }
   }
 
   @Test

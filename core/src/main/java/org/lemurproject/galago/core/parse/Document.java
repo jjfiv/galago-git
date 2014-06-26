@@ -125,7 +125,7 @@ public class Document implements Serializable {
     public static DocumentComponents All = new DocumentComponents(true, true, true);
     public static DocumentComponents JustMetadata = new DocumentComponents(false, true, false);
     public static DocumentComponents JustText = new DocumentComponents(true, false, false);
-    public static DocumentComponents JustTerms = new DocumentComponents(true, false, true);
+    public static DocumentComponents JustTerms = new DocumentComponents(false, false, true);
 
     public boolean text = true;
     public boolean metadata = true;
@@ -145,25 +145,12 @@ public class Document implements Serializable {
       this.text = text;
       this.metadata = metadata;
       this.tokenize = tokenize;
-
-      validate();
     }
 
     public DocumentComponents(Parameters p) {
       this.text = p.get("text", text);
       this.metadata = p.get("metadata", metadata);
       this.tokenize = p.get("tokenize", tokenize);
-
-      validate();
-    }
-
-    /**
-     * Because I prefer an illegal argument exception earlier to a null pointer exception in the tokenizer code, don't you?
-     */
-    public void validate() {
-      if(!text && tokenize) {
-        throw new IllegalArgumentException("DocumentComponents doesn't make sense! Found tokenize=true with text=false.");
-      }
     }
 
     public Parameters toJSON() {

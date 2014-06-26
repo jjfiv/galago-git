@@ -16,4 +16,8 @@ public class ByteUtil {
   public static byte[] fromString(String word) {
     return word.getBytes(utf8);
   }
+
+  public static String toString(byte[] buffer, int offset, int len) {
+    return new String(buffer, offset, len, utf8);
+  }
 }

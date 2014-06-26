@@ -446,7 +446,7 @@ public class Utility {
     DataOutputStream output = null;
     try {
       output = StreamCreator.openOutputStream(file);
-      output.write(Utility.fromString(s));
+      output.write(ByteUtil.fromString(s));
     } finally {
       if(output != null) output.close();
     }
@@ -508,18 +508,11 @@ public class Utility {
   }
 
   /*
-   * Functions to translate:
-   *  - strings to bytes
-   *  - bytes to strings
-   *  - integers to bytes
-   *  - bytes to integers
+   * @deprecated use ByteUtil instead
    */
+  @Deprecated
   public static String toString(byte[] buffer, int offset, int len) {
-    try {
-      return new String(buffer, offset, len, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException("UTF-8 is not supported by your Java Virtual Machine.");
-    }
+    return ByteUtil.toString(buffer, offset, len);
   }
 
   /**

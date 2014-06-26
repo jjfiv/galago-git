@@ -299,6 +299,7 @@ public class BuildIndex extends AppFunction {
     if (globalParameters.containsKey("corpusParameters")) {
       try {
         Parameters cp = globalParameters.getMap("corpusParameters");
+        assert(cp != null);
       } catch (Exception e) {
         errorLog.add("Parameter 'corpusParameters' should be a map object. "
                 + "Default creates a compressed corpus folder in a folder called 'corpus'. "

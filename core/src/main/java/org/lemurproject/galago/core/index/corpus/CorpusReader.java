@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public class CorpusReader extends KeyValueReader implements DocumentReader {
 
-  DocumentSerializer serializer;
+  public DocumentSerializer serializer;
 
   public CorpusReader(String fileName) throws IOException {
     super(fileName);
@@ -105,7 +105,6 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
     @Override
     public Document getDocument(DocumentComponents p) throws IOException {
-      p.validate();
       return serializer.fromStream(iterator.getValueStream(), p);
     }
 
