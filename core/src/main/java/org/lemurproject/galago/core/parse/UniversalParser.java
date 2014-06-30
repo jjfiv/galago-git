@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.parse;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -33,7 +34,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     documentCounter = parameters.getCounter("Documents Parsed");
     this.parameters = parameters.getJSON();
 
-    DocumentStreamParser.addExternalParsers(this.parameters.get("parser", new Parameters()));
+    DocumentStreamParser.addExternalParsers(this.parameters.get("parser", Parameters.instance()));
   }
 
   @Override

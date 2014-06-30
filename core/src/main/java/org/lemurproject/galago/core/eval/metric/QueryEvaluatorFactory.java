@@ -3,7 +3,7 @@
  */
 package org.lemurproject.galago.core.eval.metric;
 
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 /**
  * Factory for QueryEvaluators

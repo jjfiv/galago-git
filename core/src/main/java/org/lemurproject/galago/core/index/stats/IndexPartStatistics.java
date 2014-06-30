@@ -3,7 +3,7 @@
  */
 package org.lemurproject.galago.core.index.stats;
 
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 /**
  *
@@ -37,7 +37,7 @@ public class IndexPartStatistics implements AggregateStatistic {
   }
 
   public Parameters toParameters() {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("partName", partName);
     p.set("statistics/collectionLength", collectionLength);
     p.set("statistics/vocabCount", vocabCount);

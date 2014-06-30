@@ -7,7 +7,7 @@ import org.lemurproject.galago.core.eval.QuerySetResults;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -121,7 +121,7 @@ public class XFoldLearner extends Learner {
       }
 
       // take an average value across fold instances
-      Parameters settings = new Parameters();
+      Parameters settings = Parameters.instance();
       for (String param : this.learnableParameters.getParams()) {
         double setting = 0.0;
         for (RetrievalModelInstance foldOpt : learntParams) {

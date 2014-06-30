@@ -16,7 +16,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 public class MemoryIndexTest {
   @Test
   public void testProcessDocuments() throws Exception {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
 
     MemoryIndex index = new MemoryIndex(new FakeParameters(p));
 
@@ -85,7 +85,7 @@ public class MemoryIndexTest {
   public void testDocumentOffset() throws Exception {
     File output = null;
     try {
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("documentNumberOffset", 101);
       MemoryIndex index = new MemoryIndex(new FakeParameters(p));
 
@@ -112,7 +112,7 @@ public class MemoryIndexTest {
       output = FileUtility.createTemporaryDirectory();
       (new FlushToDisk()).flushMemoryIndex(index, output.getAbsolutePath(), false);
 
-      Retrieval r = RetrievalFactory.instance(output.getAbsolutePath(), new Parameters());
+      Retrieval r = RetrievalFactory.instance(output.getAbsolutePath(), Parameters.instance());
       FieldStatistics collStats = r.getCollectionStatistics("#lengths:part=lengths()");
       assertEquals(collStats.collectionLength, 1000);
       assertEquals(collStats.documentCount, 200);

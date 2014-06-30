@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.btree.simple;
 import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
 
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class DiskMapSortedBuilder implements Processor<KeyValuePair> {
   }
   
   public DiskMapSortedBuilder(String path) throws IOException {
-    this(path, new Parameters());
+    this(path, Parameters.instance());
   }
   
   /**

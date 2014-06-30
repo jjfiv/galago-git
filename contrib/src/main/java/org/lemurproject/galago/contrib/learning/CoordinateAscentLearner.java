@@ -4,7 +4,7 @@
 package org.lemurproject.galago.contrib.learning;
 
 import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,7 +54,7 @@ public class CoordinateAscentLearner extends Learner {
 
     this.MAX_STEPS = p.get("maxSteps", this.MAX_STEPS);
 
-    Parameters specialMinStepSizes = new Parameters();
+    Parameters specialMinStepSizes = Parameters.instance();
     if (p.isMap("specialMinStepSize")) {
       specialMinStepSizes = p.getMap("specialMinStepSize");
     }

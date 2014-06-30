@@ -19,7 +19,7 @@ import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentFeature;
 import org.lemurproject.galago.core.types.DocumentIndicator;
 import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Job;
 import org.lemurproject.galago.tupleflow.execution.Stage;
@@ -41,16 +41,16 @@ public class BuildSpecialPart extends AppFunction {
 
   public Stage getSpecialJobStage(String jobName, Parameters p) {
 
-    Parameters parserParams = new Parameters();
+    Parameters parserParams = Parameters.instance();
     parserParams.set("inputPath", new ArrayList());
     for (String filePath : (List<String>) p.getAsList("inputPath")) {
       parserParams.getList("inputPath").add(new File(filePath).getAbsolutePath());
     }
 
-    Parameters splitterParams = new Parameters();
+    Parameters splitterParams = Parameters.instance();
     splitterParams.set("split", p.get("split", "\t"));
 
-    Parameters indexParams = new Parameters();
+    Parameters indexParams = Parameters.instance();
     indexParams.set("indexPath", p.getString("indexPath"));
 
     Stage stage = new Stage(jobName);
@@ -74,7 +74,7 @@ public class BuildSpecialPart extends AppFunction {
     stage.add(new Step(IndicatorExtractor.class, p));
     stage.add(Utility.getSorter(new DocumentIndicator.DocumentOrder()));
 
-    Parameters writerParams = new Parameters();
+    Parameters writerParams = Parameters.instance();
     writerParams.set("filename", indexPath + File.separator + p.getString("partName"));
     writerParams.set("default", p.get("default", false));
     stage.add(new Step(DocumentIndicatorWriter.class, writerParams));
@@ -96,7 +96,7 @@ public class BuildSpecialPart extends AppFunction {
     stage.add(new Step(PriorExtractor.class, p));
     stage.add(Utility.getSorter(new DocumentFeature.DocumentOrder()));
 
-    Parameters writerParams = new Parameters();
+    Parameters writerParams = Parameters.instance();
     writerParams.set("filename", indexPath + File.separator + p.getString("partName"));
     stage.add(new Step(DocumentPriorWriter.class, writerParams));
 

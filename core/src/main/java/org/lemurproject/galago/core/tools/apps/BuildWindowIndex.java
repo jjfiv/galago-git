@@ -28,7 +28,7 @@ import org.lemurproject.galago.core.window.WindowFilter;
 import org.lemurproject.galago.core.window.WindowProducer;
 import org.lemurproject.galago.core.window.WindowToNumberWordCount;
 import org.lemurproject.galago.core.window.WindowToNumberedExtent;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
 import org.lemurproject.galago.tupleflow.execution.ConnectionPointType;
@@ -83,15 +83,15 @@ public class BuildWindowIndex extends AppFunction {
     stage.add(BuildStageTemplates.getTokenizerStep(buildParameters));
 
     if (stemming) {
-      stage.add(BuildStageTemplates.getStemmerStep(new Parameters(), stemmerClass));
+      stage.add(BuildStageTemplates.getStemmerStep(Parameters.instance(), stemmerClass));
     }
 
     // Document numbers don't really matter - they are dropped by the Featurer.
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("indexPath", indexPath);
     stage.add(new Step(ExtractIndexDocumentNumbers.class, p));
 
-    Parameters p2 = new Parameters();
+    Parameters p2 = Parameters.instance();
     p2.set("n", n);
     p2.set("width", width);
     p2.set("ordered", ordered);
@@ -118,7 +118,7 @@ public class BuildWindowIndex extends AppFunction {
 
     stage.add(new InputStep("featureData"));
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("threshold", threshold);
     stage.add(new Step(TextFeatureThresholder.class, p));
 
@@ -161,14 +161,14 @@ public class BuildWindowIndex extends AppFunction {
     stage.add(BuildStageTemplates.getTokenizerStep(buildParameters));
     if (stemming) {
       Class stemmer = stemmerClass;
-      stage.add(BuildStageTemplates.getStemmerStep(new Parameters(), stemmer));
+      stage.add(BuildStageTemplates.getStemmerStep(Parameters.instance(), stemmer));
     }
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("indexPath", indexPath);
     stage.add(new Step(ExtractIndexDocumentNumbers.class, p));
 
-    Parameters p2 = new Parameters();
+    Parameters p2 = Parameters.instance();
     p2.set("n", n);
     p2.set("width", width);
     p2.set("ordered", ordered);
@@ -178,7 +178,7 @@ public class BuildWindowIndex extends AppFunction {
     stage.add(new Step(WindowProducer.class, p2));
 
     if (spaceEfficient) {
-      Parameters p3 = new Parameters();
+      Parameters p3 = Parameters.instance();
       p3.set("filterStream", "filterData");
       stage.add(new Step(WindowFilter.class, p3));
     }
@@ -212,7 +212,7 @@ public class BuildWindowIndex extends AppFunction {
 
     stage.add(new InputStep(inputName));
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("threshold", threshold);
     p.set("threshdf", threshdf);
     if (threshold > 1) {
@@ -224,7 +224,7 @@ public class BuildWindowIndex extends AppFunction {
       }
     }
 
-    Parameters p2 = new Parameters();
+    Parameters p2 = Parameters.instance();
     p2.set("filename", indexPath + File.separator + indexName);
     p2.set("n", this.n);
     p2.set("width", this.width);
@@ -295,7 +295,7 @@ public class BuildWindowIndex extends AppFunction {
 
     // tokenizer - fields
     if (buildParameters.isList("fields", String.class) || buildParameters.isString("fields")) {
-      buildParameters.set("tokenizer", new Parameters());
+      buildParameters.set("tokenizer", Parameters.instance());
       buildParameters.getMap("tokenizer").set("fields", buildParameters.getAsList("fields"));
     }
 
@@ -329,7 +329,7 @@ public class BuildWindowIndex extends AppFunction {
 
 
 
-    Parameters splitParameters = new Parameters();
+    Parameters splitParameters = Parameters.instance();
     splitParameters.set("corpusPieces", p.get("distrib", 10));
     job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
     job.add(getParsePostingsStage());

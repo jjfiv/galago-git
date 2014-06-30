@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.types.TupleflowString;
 import org.lemurproject.galago.tupleflow.types.XMLFragment;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
 
@@ -44,7 +45,7 @@ public class MultiConnectionTest {
     ErrorStore store = new ErrorStore();
     Verification.verify(job, store);
     
-    JobExecutor.runLocally(job, store, new Parameters());
+    JobExecutor.runLocally(job, store, Parameters.instance());
     if (store.hasStatements()) {
       throw new RuntimeException(store.toString());
     }

@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -43,7 +43,7 @@ public class PassageRetrievalTest {
 
   @Test
   public void testPassageRetrieval() throws Exception {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("passageSize", 4);
     p.set("passageShift", 2);
     p.set("passageQuery", true);

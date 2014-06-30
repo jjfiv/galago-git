@@ -13,7 +13,7 @@ import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.tools.apps.BuildStageTemplates;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.WordCount;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
 
@@ -79,7 +79,7 @@ public class BuildCollectionBackground extends AppFunction {
       p.set("stemmerClass", KrovetzStemmer.class.getName());
     }
 
-    Parameters writerParams = new Parameters();
+    Parameters writerParams = Parameters.instance();
     writerParams.set("filename", output.getAbsolutePath());
     if (p.containsKey("stemmer")) {
       writerParams.set("stemmer", p.getString("stemmerClass"));
@@ -87,7 +87,7 @@ public class BuildCollectionBackground extends AppFunction {
 
     Job job = new Job();
 
-    Parameters splitParameters = new Parameters();
+    Parameters splitParameters = Parameters.instance();
     splitParameters.set("corpusPieces", p.get("distrib", 10));
     job.add(BuildStageTemplates.getSplitStage(inputs, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
 

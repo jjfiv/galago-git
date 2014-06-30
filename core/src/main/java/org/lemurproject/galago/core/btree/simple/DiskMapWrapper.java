@@ -1,9 +1,9 @@
 package org.lemurproject.galago.core.btree.simple;
 
 import org.lemurproject.galago.core.index.BTreeReader;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.util.ReadOnlyMap;
+import org.lemurproject.galago.utility.ReadOnlyMap;
 
 import java.io.Closeable;
 import java.io.File;

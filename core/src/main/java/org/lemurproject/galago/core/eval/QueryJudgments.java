@@ -3,7 +3,7 @@
  */
 package org.lemurproject.galago.core.eval;
 
-import org.lemurproject.galago.tupleflow.util.WrappedMap;
+import org.lemurproject.galago.utility.WrappedMap;
 
 import java.util.Map;
 import java.util.Set;

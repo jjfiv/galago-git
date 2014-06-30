@@ -4,7 +4,7 @@
 package org.lemurproject.galago.contrib.learning;
 
 import gnu.trove.map.hash.TObjectDoubleHashMap;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -61,12 +61,12 @@ public class RetrievalModelParameters {
 
       if (param.get("rangeLimiting", false)) {
         //  generate new rules based on this range:
-        Parameters maxRule = new Parameters();
+        Parameters maxRule = Parameters.instance();
         maxRule.set("mode", "max");
         maxRule.set("value", max);
         maxRule.set("params", Collections.singletonList(name));
 
-        Parameters minRule = new Parameters();
+        Parameters minRule = Parameters.instance();
         minRule.set("mode", "min");
         minRule.set("value", min);
         minRule.set("params", Collections.singletonList(name));

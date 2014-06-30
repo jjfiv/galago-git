@@ -19,7 +19,8 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.core.window.ReduceNumberWordCount;
 import org.lemurproject.galago.tupleflow.*;
-import org.lemurproject.galago.tupleflow.json.JSONUtil;
+import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.json.JSONUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class MemIndexPartTest {
     Random r = new Random();
     File diskCounts = FileUtility.createTemporary();
     try {
-      MemoryCountIndex memcounts1 = new MemoryCountIndex(new Parameters());
+      MemoryCountIndex memcounts1 = new MemoryCountIndex(Parameters.instance());
       CountIndexWriter diskcounts = new CountIndexWriter(new FakeParameters(Parameters.parseString("{\"filename\":\"" + JSONUtil.escape(diskCounts.getAbsolutePath()) + "\"}")));
       ReduceNumberWordCount reducer = new ReduceNumberWordCount();
       Sorter<NumberWordCount> sorter = new Sorter<NumberWordCount>(new NumberWordCount.WordDocumentOrder());
@@ -122,7 +123,7 @@ public class MemIndexPartTest {
       // compare it to the SparseFloatDiskIndex
       // - the memoryindex test does not test this part.
 
-      MemorySparseDoubleIndex memScores = new MemorySparseDoubleIndex(new Parameters());
+      MemorySparseDoubleIndex memScores = new MemorySparseDoubleIndex(Parameters.instance());
 
       int[] docs = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 52};
       double[] scores = {0.2, 1.1, 73, 0.01, -2, 7, 0, 0.01, 0.02, -1, -2};

@@ -17,7 +17,7 @@ import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.core.window.ReduceNumberWordCount;
 import org.lemurproject.galago.core.window.WindowProducer;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
 
@@ -75,7 +75,7 @@ public class BuildSketchIndex extends AppFunction {
     buildParameters.set("indexPath", indexPath);
 
     List<String> inputPaths = buildParameters.getAsList("inputPath", String.class);
-    Parameters splitParameters = (buildParameters.isMap("parser"))?buildParameters.getMap("parser"): new Parameters();
+    Parameters splitParameters = buildParameters.get("parser", Parameters.instance());
     splitParameters.set("corpusPieces", buildParameters.get("distrib", 10));
     if (buildParameters.isMap("parser")) {
       splitParameters.set("parser", buildParameters.getMap("parser"));
@@ -93,7 +93,7 @@ public class BuildSketchIndex extends AppFunction {
     buildParameters.set("filename", indexPath + File.separator + buildParameters.getString("sketchIndexName"));
 
     // determine the sketch index parameters here, and create HashFunctions
-    LocalRetrieval r = new LocalRetrieval(indexPath, new Parameters());
+    LocalRetrieval r = new LocalRetrieval(indexPath);
     FieldStatistics collectionStatistics = r.getCollectionStatistics("#lengths:document:part=lengths()");
     long collectionLength = collectionStatistics.collectionLength;
     long universe = 256; // each array unit is a byte //    
@@ -102,7 +102,7 @@ public class BuildSketchIndex extends AppFunction {
     int depth = (int) buildParameters.getLong("depth");
     double error = buildParameters.getDouble("error");
 
-    Parameters hashFns = new Parameters();
+    Parameters hashFns = Parameters.instance();
     hashFns.set("depth", depth);
     hashFns.set("error", error);
     for (int i = 0; i < depth; i++) {
@@ -133,14 +133,14 @@ public class BuildSketchIndex extends AppFunction {
 
     if (buildParameters.containsKey("stemmer")) {
       Class stemmer = Class.forName(buildParameters.getString("stemmer"));
-      stage.add(BuildStageTemplates.getStemmerStep(new Parameters(), stemmer));
+      stage.add(BuildStageTemplates.getStemmerStep(Parameters.instance(), stemmer));
     }
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("indexPath", buildParameters.getString("indexPath"));
     stage.add(new Step(ExtractIndexDocumentNumbers.class, p));
 
-    Parameters p2 = new Parameters();
+    Parameters p2 = Parameters.instance();
     p2.set("n", buildParameters.getLong("n"));
     p2.set("width", buildParameters.getLong("width"));
     p2.set("ordered", buildParameters.getBoolean("ordered"));

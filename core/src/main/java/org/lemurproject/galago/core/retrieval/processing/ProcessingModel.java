@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.retrieval.processing;
 
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.util.PriorityQueue;

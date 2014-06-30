@@ -3,7 +3,7 @@
  */
 package org.lemurproject.galago.core.index.stats;
 
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 /**
  *
@@ -46,7 +46,7 @@ public class FieldStatistics implements AggregateStatistic {
   }
 
   public Parameters toParameters() {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("fieldName", this.fieldName);
     p.set("collectionLength", this.collectionLength);
     p.set("documentCount", this.documentCount);

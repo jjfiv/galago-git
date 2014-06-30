@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.web.WebServer;
 
@@ -40,7 +40,7 @@ public class ProxyRetrievalTest {
 
     try {
       index = makeIndex(docCount, docLen, vocab);
-      final Parameters retParams = new Parameters();
+      final Parameters retParams = Parameters.instance();
       retParams.set("index", index.getAbsolutePath());
       retParams.set("port", port);
 
@@ -91,7 +91,7 @@ public class ProxyRetrievalTest {
         throw new RuntimeException("FAILED! could not find local proxy...");
       }
 
-      Parameters proxyParams = new Parameters();
+      Parameters proxyParams = Parameters.instance();
       proxyParams.set("index", url);
       Retrieval instance = RetrievalFactory.instance(proxyParams);
       // test proxied functions:
@@ -121,9 +121,9 @@ public class ProxyRetrievalTest {
         instance.getNodeStatistics("#counts:@/1/:part=postings()");
         instance.getNodeType(StructuredQuery.parse("#counts:@/1/:part=postings()"));
         instance.getQueryType(StructuredQuery.parse("#counts:@/1/:part=postings()"));
-        Node trans = instance.transformQuery(StructuredQuery.parse("#combine(1 2 3)"), new Parameters());
+        Node trans = instance.transformQuery(StructuredQuery.parse("#combine(1 2 3)"), Parameters.instance());
         instance.executeQuery(trans);
-        instance.executeQuery(trans, new Parameters());
+        instance.executeQuery(trans, Parameters.instance());
 
 
 
@@ -170,7 +170,7 @@ public class ProxyRetrievalTest {
     }
     writer.close();
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("inputPath", trecFile.getAbsolutePath());
     p.set("indexPath", indexFolder.getAbsolutePath());
     p.set("corpus", true);

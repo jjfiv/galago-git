@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.lemurproject.galago.core.tools.apps.BuildIndex;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -26,12 +26,12 @@ public class BuildSketchIndexTest {
     try {
       makeCorpus(corpus);
 
-      Parameters idxParams = new Parameters();
+      Parameters idxParams = Parameters.instance();
       idxParams.set("inputPath", corpus.getAbsolutePath());
       idxParams.set("indexPath", index.getAbsolutePath());
       (new BuildIndex()).run(idxParams, System.out);
 
-      Parameters sketchParams = new Parameters();
+      Parameters sketchParams = Parameters.instance();
       sketchParams.set("inputPath", corpus.getAbsolutePath());
       sketchParams.set("indexPath", index.getAbsolutePath());
       sketchParams.set("sketchIndexName", "sketch-od1-e1-d2");
@@ -42,7 +42,7 @@ public class BuildSketchIndexTest {
       sketchParams.set("depth", 2);
       (new BuildSketchIndex()).run(sketchParams, System.out);
 
-//      LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), new Parameters());
+//      LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), Parameters.instance());
 //      InvertedSketchIndexReader sketchIdx =
 //              (InvertedSketchIndexReader) ret.getIndex().getIndexPart("sketch-od1-e1-d2");
 //
@@ -70,7 +70,7 @@ public class BuildSketchIndexTest {
 //
 //      ret.close();
 
-      sketchParams = new Parameters();
+      sketchParams = Parameters.instance();
       sketchParams.set("inputPath", corpus.getAbsolutePath());
       sketchParams.set("indexPath", index.getAbsolutePath());
       sketchParams.set("sketchIndexName", "sketch-od1-e100-d2");
@@ -81,7 +81,7 @@ public class BuildSketchIndexTest {
       sketchParams.set("depth", 2);
       (new BuildSketchIndex()).run(sketchParams, System.out);
 
-//      ret = new LocalRetrieval(index.getAbsolutePath(), new Parameters());
+//      ret = new LocalRetrieval(index.getAbsolutePath(), Parameters.instance());
 //      sketchIdx =
 //              (InvertedSketchIndexReader) ret.getIndex().getIndexPart("sketch-od1-e100-d2");
 //

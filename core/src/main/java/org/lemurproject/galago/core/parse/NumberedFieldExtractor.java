@@ -12,7 +12,7 @@ import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import org.lemurproject.galago.core.types.NumberedField;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 

@@ -2,7 +2,7 @@
 package org.lemurproject.galago.tupleflow.execution;
 
 import java.io.Serializable;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 /**
  *
@@ -18,11 +18,11 @@ public class Step implements Serializable {
   }
 
   public Step(Class c) {
-    this(c.getName(), new Parameters());
+    this(c.getName(), Parameters.instance());
   }
 
   public Step(String className) {
-    this(className, new Parameters());
+    this(className, Parameters.instance());
   }
 
   public Step(Class c, Parameters parameters) {

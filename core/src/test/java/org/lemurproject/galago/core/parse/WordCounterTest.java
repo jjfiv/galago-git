@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.parse;
 import org.junit.Test;
 import org.lemurproject.galago.core.types.WordCount;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class WordCounterTest{
 
   @Test
   public void testCountUnigrams() throws IOException, IncompatibleProcessorException {
-    WordCounter counter = new WordCounter(new FakeParameters(new Parameters()));
+    WordCounter counter = new WordCounter(new FakeParameters(Parameters.instance()));
     Document document = new Document();
     PostStep post = new PostStep();
 
@@ -56,7 +57,7 @@ public class WordCounterTest{
 
   @Test
   public void testCountReducer() throws IOException, IncompatibleProcessorException {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     WordCounter counter = new WordCounter(new FakeParameters(p));
     Sorter sorter = new Sorter<WordCount>(new WordCount.WordOrder());
     WordCountReducer reducer = new WordCountReducer();
@@ -105,7 +106,7 @@ public class WordCounterTest{
 
   @Test
   public void testCountFilter() throws IOException, IncompatibleProcessorException {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("minThreshold", 2);
     WordCounter counter = new WordCounter(new FakeParameters(p));
     Sorter sorter = new Sorter<WordCount>(new WordCount.WordOrder());

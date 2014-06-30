@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.json.JSONUtil;
+import org.lemurproject.galago.utility.json.JSONUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

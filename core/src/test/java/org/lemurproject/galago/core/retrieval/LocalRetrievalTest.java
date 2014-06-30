@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,10 +40,10 @@ public class LocalRetrievalTest {
     File tempPath = FileUtility.createTemporaryDirectory();
 
     // put in a generic manifest
-    new Parameters().write(tempPath + File.separator + "manifest");
+    Parameters.instance().write(tempPath + File.separator + "manifest");
 
     // build an empty extent index
-    Parameters extp = new Parameters();
+    Parameters extp = Parameters.instance();
     extp.set("filename", tempPath + File.separator + "extents");
     TupleFlowParameters extParameters = new FakeParameters(extp);
 
@@ -55,13 +56,13 @@ public class LocalRetrievalTest {
 
     // build an empty field index
 
-    Parameters formats = new Parameters();
+    Parameters formats = Parameters.instance();
     formats.set("date", "date");
-    Parameters tokenizer = new Parameters();
+    Parameters tokenizer = Parameters.instance();
     tokenizer.set("formats", formats);
     String[] fields = {"date"};
     tokenizer.set("fields", Arrays.asList(fields));
-    Parameters params = new Parameters();
+    Parameters params = Parameters.instance();
     params.set("filename", tempPath + File.separator + "fields");
     params.set("tokenizer", tokenizer);
 
@@ -89,7 +90,7 @@ public class LocalRetrievalTest {
     fwriter.close();
 
     // write positions!
-    Parameters pp = new Parameters();
+    Parameters pp = Parameters.instance();
     pp.set("filename", tempPath + File.separator + "postings");
     pp.set("statistics/collectionLength", 10000);
     pp.set("statistics/documentCount", 100);
@@ -126,10 +127,10 @@ public class LocalRetrievalTest {
     pwriter.close();
 
     // add some document names
-    Parameters dnp = new Parameters();
+    Parameters dnp = Parameters.instance();
     dnp.set("filename", tempPath + File.separator + "names");
     DiskNameWriter dnWriter = new DiskNameWriter(new FakeParameters(dnp));
-    Parameters dnrp = new Parameters();
+    Parameters dnrp = Parameters.instance();
     dnrp.set("filename", tempPath + File.separator + "names.reverse");
     DiskNameReverseWriter dnrWriter = new DiskNameReverseWriter(new FakeParameters(dnrp));
     Sorter<NumberedDocumentData> dnrSorter = new Sorter<NumberedDocumentData>(new NumberedDocumentData.IdentifierOrder());
@@ -142,7 +143,7 @@ public class LocalRetrievalTest {
     dnWriter.close();
     dnrSorter.close();
 
-    Parameters lp = new Parameters();
+    Parameters lp = Parameters.instance();
     lp.set("filename", tempPath + File.separator + "lengths");
     DiskLengthsWriter lWriter = new DiskLengthsWriter(new FakeParameters(lp));
 
@@ -207,7 +208,7 @@ public class LocalRetrievalTest {
 
   @Test
   public void testSimple() throws Exception {
-    LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), new Parameters());
+    LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), Parameters.instance());
 
     Node aTerm = new Node("counts", "a");
     ArrayList<Node> aChild = new ArrayList<Node>();
@@ -228,7 +229,7 @@ public class LocalRetrievalTest {
     children.add(bFeature);
     Node root = new Node("combine", children);
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("requested", 5);
     root = retrieval.transformQuery(root, p);
     List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
@@ -267,9 +268,9 @@ public class LocalRetrievalTest {
 
   @Test
   public void testWorkingSet() throws Exception {
-    LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), new Parameters());
+    LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), Parameters.instance());
     Node root = StructuredQuery.parse("#combine( #dirichlet:mu=1500( #counts:a() ) #dirichlet:mu=1500( #counts:b() ) )");
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("requested", 5);
 
     root = retrieval.transformQuery(root, p);
@@ -313,11 +314,11 @@ public class LocalRetrievalTest {
 
   @Test
   public void testWindow() throws Exception {
-    LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), new Parameters());
+    LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), Parameters.instance());
 
     String query = "#combine( #dirichlet:mu=1500( #uw:5( #extents:a:part=postings() #extents:b:part=postings() ) ) )";
     Node root = StructuredQuery.parse(query);
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("requested", 5);
     root = retrieval.transformQuery(root, p);
     List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;

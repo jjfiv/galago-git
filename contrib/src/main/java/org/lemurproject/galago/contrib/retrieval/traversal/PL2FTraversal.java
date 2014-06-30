@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.core.util.TextPartAssigner;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,9 +59,9 @@ public class PL2FTraversal extends Traversal {
     this.retrieval = retrieval;
     levels = 0;
     Parameters globals = retrieval.getGlobalParameters();
-    params = globals.containsKey("pl2f") ? globals.getMap("pl2f") : new Parameters();
-    weights = params.containsKey("weights") ? params.getMap("weights") : new Parameters();
-    smoothing = params.containsKey("smoothing") ? params.getMap("smoothing") : new Parameters();
+    params = globals.get("pl2f", Parameters.instance());
+    weights = params.get("weights", Parameters.instance());
+    smoothing = params.get("smoothing", Parameters.instance());
     fieldList = globals.getAsList("fields", String.class);
     qTermCounts = new TObjectIntHashMap<String>();
     try {

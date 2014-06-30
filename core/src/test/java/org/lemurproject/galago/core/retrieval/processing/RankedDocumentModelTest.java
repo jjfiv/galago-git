@@ -13,7 +13,7 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -50,10 +50,10 @@ public class RankedDocumentModelTest {
 
   @Test
   public void testEntireCollection() throws Exception {
-    Parameters globals = new Parameters();
+    Parameters globals = Parameters.instance();
     LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), globals);
 
-    Parameters queryParams = new Parameters();
+    Parameters queryParams = Parameters.instance();
     queryParams.set("requested", 10);
 
     Node query = StructuredQuery.parse("#combine( test text 0 1 2 3 4 )");
@@ -88,10 +88,10 @@ public class RankedDocumentModelTest {
 
   @Test
   public void testWhiteList() throws Exception {
-    Parameters globals = new Parameters();
+    Parameters globals = Parameters.instance();
     LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), globals);
 
-    Parameters queryParams = new Parameters();
+    Parameters queryParams = Parameters.instance();
     queryParams.set("requested", 10);
 
     Node query = StructuredQuery.parse("#combine( test text 0 1 2 3 4 )");
@@ -146,7 +146,7 @@ public class RankedDocumentModelTest {
     }
     Utility.copyStringToFile(c.toString(), corpus);
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("inputPath", corpus.getAbsolutePath());
     p.set("indexPath", index.getAbsolutePath());
     App.run("build", p, System.out);

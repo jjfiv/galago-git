@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.tools.apps;
 import org.junit.Test;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.ByteArrayOutputStream;
@@ -122,7 +122,7 @@ public class StatsFnTest {
     }
     Utility.copyStringToFile(corpus.toString(), input);
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("inputPath", input.getAbsolutePath());
     p.set("indexPath", index.getAbsolutePath());
     p.set("stemmer", Arrays.asList(new String[]{"krovetz", "porter"}));

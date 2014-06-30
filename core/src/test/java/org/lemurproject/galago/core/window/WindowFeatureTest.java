@@ -5,6 +5,7 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 import org.junit.Test;
 import org.lemurproject.galago.core.types.TextFeature;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -22,7 +23,7 @@ public class WindowFeatureTest {
     ArrayListTupleflowSink<TextFeature> catcher = new ArrayListTupleflowSink();
 
     // first try bi-grams ~(#od:1(a b))
-    WindowFeaturer featurer = new WindowFeaturer(new FakeParameters(new Parameters()));
+    WindowFeaturer featurer = new WindowFeaturer(new FakeParameters(Parameters.instance()));
     featurer.setProcessor( catcher );
     
     for(int i =0 ; i < 1000 ; i++){

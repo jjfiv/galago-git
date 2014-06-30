@@ -20,7 +20,7 @@ import org.lemurproject.galago.core.retrieval.iterator.LessThanIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.ByteArrayOutputStream;
@@ -45,8 +45,8 @@ public class FieldIndexReaderTest {
     // make a spot for the index
     tempPath = FileUtility.createTemporary();
 
-    Parameters tokenizer = new Parameters();
-    Parameters formats = new Parameters();
+    Parameters tokenizer = Parameters.instance();
+    Parameters formats = Parameters.instance();
     formats.set("title", "string");
     formats.set("date", "date");
     formats.set("version", "int");
@@ -54,7 +54,7 @@ public class FieldIndexReaderTest {
     String[] fields = {"title", "date", "version"};
     tokenizer.set("fields", Arrays.asList(fields));
 
-    Parameters params = new Parameters();
+    Parameters params = Parameters.instance();
     params.set("filename", tempPath.toString());
     params.set("tokenizer", tokenizer);
 

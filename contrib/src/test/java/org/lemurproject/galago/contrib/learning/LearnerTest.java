@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.SourceIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -61,7 +61,7 @@ public class LearnerTest {
       learnableParams.add(Parameters.parseString("{\"name\":\"uww\", \"max\":1.0, \"min\":-1.0}"));
       learnParams.set("learnableParameters", learnableParams);
       // add sum rule to ensure sums to 1
-      Parameters normalRule = new Parameters();
+      Parameters normalRule = Parameters.instance();
       normalRule.set("mode", "sum");
       normalRule.set("params", Arrays.asList(new String[]{"0", "1"}));
       normalRule.set("value", 1D);
@@ -93,13 +93,13 @@ public class LearnerTest {
         // System.out.println(root.toPrettyString());
 
         // node is an SDM - root, children, and sub-children are not cached, nodes below that level are cached
-        BaseIterator i = r.createIterator(new Parameters(), root);
+        BaseIterator i = r.createIterator(Parameters.instance(), root);
         assertFalse(i instanceof SourceIterator); // not disk level
         for (Node child : root.getInternalNodes()) {
-          i = r.createIterator(new Parameters(), child);
+          i = r.createIterator(Parameters.instance(), child);
           assertFalse(i instanceof SourceIterator); // not disk level
           for (Node subchild : child.getInternalNodes()) {
-            i = r.createIterator(new Parameters(), subchild);
+            i = r.createIterator(Parameters.instance(), subchild);
             SourceIterator si = (SourceIterator) i;
             assertTrue(si.getSource().getClass().getName().contains(".mem.")); // uses a memory source in iterator.
           }

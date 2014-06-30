@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.CountIndexWriter;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.ByteArrayOutputStream;
@@ -27,7 +27,7 @@ public class ManifestEditorTest {
     File indexFile = null;
     try {
       indexFile = FileUtility.createTemporary();
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("filename", indexFile.getAbsolutePath());
       p.set("key-1", "init-value-1234");
       p.set("key-2", "init-value-2345");
@@ -50,7 +50,7 @@ public class ManifestEditorTest {
       assertEquals(dumpped.getString("key-1"), "init-value-1234");
       assertEquals(dumpped.getString("key-2"), "init-value-2345");
 
-      Parameters dump = new Parameters();
+      Parameters dump = Parameters.instance();
       dump.set("indexPath", indexFile.getAbsolutePath());
       dump.set("key-1", "mod-value-1234");
       dump.set("key-2", "mod-value-2345");

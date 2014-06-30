@@ -6,6 +6,7 @@ package org.lemurproject.galago.contrib.parse;
 import org.lemurproject.galago.core.types.WordCount;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
 import java.util.HashMap;

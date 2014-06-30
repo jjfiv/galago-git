@@ -1,7 +1,7 @@
 package org.lemurproject.galago.core.corpus;
 
 import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.xerial.snappy.SnappyInputStream;
 import org.xerial.snappy.SnappyOutputStream;

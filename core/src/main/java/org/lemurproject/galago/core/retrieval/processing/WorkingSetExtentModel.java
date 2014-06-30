@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.util.Collections;
 import java.util.List;
@@ -93,7 +93,7 @@ public class WorkingSetExtentModel extends ProcessingModel {
     // get the extent iterator
     String extent = queryParams.getString("extent");
     ExtentIterator extentIterator =
-            (ExtentIterator) retrieval.createIterator(new Parameters(),
+            (ExtentIterator) retrieval.createIterator(Parameters.instance(),
             StructuredQuery.parse("#extents:" + extent + ":part=extents()"));
 
     if (extentIterator.isDone()) {

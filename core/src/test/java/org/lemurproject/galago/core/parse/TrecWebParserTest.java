@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.parse;
 import org.junit.Test;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -27,7 +27,7 @@ public class TrecWebParserTest {
     try {
       DocumentSplit split = new DocumentSplit();
       split.fileName = f.getAbsolutePath();
-      TrecWebParser parser = new TrecWebParser(split, new Parameters());
+      TrecWebParser parser = new TrecWebParser(split, Parameters.instance());
 
       Document document = parser.nextDocument();
       assertNull(document);
@@ -53,7 +53,7 @@ public class TrecWebParserTest {
       Utility.copyStringToFile(fileText, f);
       DocumentSplit split = new DocumentSplit();
       split.fileName = f.getAbsolutePath();
-      TrecWebParser parser = new TrecWebParser(split, new Parameters());
+      TrecWebParser parser = new TrecWebParser(split, Parameters.instance());
 
       Document document = parser.nextDocument();
       assertNotNull(document);

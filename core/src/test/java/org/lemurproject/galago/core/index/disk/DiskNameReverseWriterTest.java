@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 
@@ -22,7 +22,7 @@ public class DiskNameReverseWriterTest {
   public void testNamesWriter() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("filename", tmp.getAbsolutePath());
       p.setIfMissing("blockSize", 4096);
       DiskNameReverseWriter writer = new DiskNameReverseWriter(new FakeParameters(p));

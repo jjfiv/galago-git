@@ -9,7 +9,7 @@ import org.lemurproject.galago.contrib.util.TestingUtils;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -34,7 +34,7 @@ public class XFoldLearnerTest {
       index = files[2]; // index is required
       qrels = FileUtility.createTemporary();
 
-      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), new Parameters());
+      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.instance());
 
       String qrelData =
               "q1 x 2 1\n"
@@ -57,7 +57,7 @@ public class XFoldLearnerTest {
       learnableParams.add(Parameters.parseString("{\"name\":\"1\"}"));
       learnParams.set("learnableParameters", learnableParams);
       // add sum rule to ensure sums to 1
-      Parameters normalRule = new Parameters();
+      Parameters normalRule = Parameters.instance();
       normalRule.set("mode", "sum");
       normalRule.set("params", Arrays.asList(new String[]{"0", "1"}));
       normalRule.set("value", 1.0);

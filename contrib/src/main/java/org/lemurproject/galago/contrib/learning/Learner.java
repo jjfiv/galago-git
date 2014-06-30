@@ -14,7 +14,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.apps.BatchSearch;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.*;
 import java.util.*;
@@ -155,7 +155,7 @@ public abstract class Learner {
    * generateRandomInitalValues
    */
   protected RetrievalModelInstance generateRandomInitalValues() {
-    Parameters init = new Parameters();
+    Parameters init = Parameters.instance();
     for (String p : this.learnableParameters.getParams()) {
       double val = random.nextDouble();
       val *= this.learnableParameters.getRange(p);

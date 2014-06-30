@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.tokenize;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -120,7 +121,7 @@ public abstract class Tokenizer implements Source<Document>, Processor<Document>
   public static Tokenizer instance(TupleFlowParameters tp) {
     Tokenizer tokenizer = null;
     Parameters inputParms = tp.getJSON();
-    Parameters tokenizerParms = new Parameters();
+    Parameters tokenizerParms = Parameters.instance();
 
     //--- pull out tokenizer options if available
     if(inputParms.isMap("tokenizer")) {

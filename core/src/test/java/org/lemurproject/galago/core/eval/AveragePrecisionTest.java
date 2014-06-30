@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.eval.metric.AveragePrecision;
 import org.lemurproject.galago.core.eval.metric.QueryEvaluatorFactory;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 public class AveragePrecisionTest {
   @Test
   public void fromFactory() {
-    Parameters empty = new Parameters();
+    Parameters empty = Parameters.instance();
     assertTrue(QueryEvaluatorFactory.instance("MAP", empty) instanceof AveragePrecision);
     assertTrue(QueryEvaluatorFactory.instance("map", empty) instanceof AveragePrecision);
     assertTrue(QueryEvaluatorFactory.instance("ap", empty) instanceof AveragePrecision);

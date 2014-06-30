@@ -20,7 +20,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
@@ -434,11 +434,11 @@ public class GeometricIndex implements DynamicIndex, Index {
   // should also contain the last document name that was written to disk
   // (copied from the last flush)
   private Parameters createCheckpoint() {
-    Parameters checkpoint = new Parameters();
+    Parameters checkpoint = Parameters.instance();
     checkpoint.set("lastDoc/identifier", this.lastAddedDocumentIdentifier);
     checkpoint.set("lastDoc/number", this.lastAddedDocumentNumber);
     checkpoint.set("indexBlockCount", this.indexBlockCount);
-    Parameters shards = new Parameters();
+    Parameters shards = Parameters.instance();
     for (Bin b : this.geometricParts.radixBins.values()) {
       for (String indexPath : b.getBinPaths()) {
         shards.set(indexPath, b.size);

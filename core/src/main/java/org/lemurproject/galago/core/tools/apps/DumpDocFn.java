@@ -9,7 +9,7 @@ import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 /**
  *
@@ -46,7 +46,7 @@ public class DumpDocFn extends AppFunction {
     
     DocumentComponents dc = new DocumentComponents(p);
     
-    Retrieval r = RetrievalFactory.instance(indexPath, new Parameters());
+    Retrieval r = RetrievalFactory.instance(indexPath, Parameters.instance());
     assert r.getAvailableParts().containsKey("corpus") : "Index does not contain a corpus part.";
     Document document = r.getDocument(identifier, dc);
     if (document != null) {

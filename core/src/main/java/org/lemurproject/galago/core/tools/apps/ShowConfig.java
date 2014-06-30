@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.tools.apps;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.GalagoConf;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.io.PrintStream;

@@ -7,7 +7,7 @@ import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.ByteArrayOutputStream;
@@ -33,7 +33,7 @@ public class AppTest {
         // Check main path
         assertTrue(indexPath.isDirectory());
         // Time to check standard parts
-        Retrieval ret = RetrievalFactory.instance(indexPath.getAbsolutePath(), new Parameters());
+        Retrieval ret = RetrievalFactory.instance(indexPath.getAbsolutePath(), Parameters.instance());
         Parameters availableParts = ret.getAvailableParts();
         assertNotNull(availableParts);
 

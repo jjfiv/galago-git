@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.index.disk;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.io.FileNotFoundException;

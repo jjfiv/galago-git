@@ -1,6 +1,7 @@
 package org.lemurproject.galago.tupleflow;
 
 import org.junit.Test;
+import org.lemurproject.galago.utility.Parameters;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 public class SorterTest {
   @Test
   public void testGetInputClass() {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("class", FakeType.class.toString());
     String expResult = FakeType.class.toString();
     String result = Sorter.getInputClass(new FakeParameters(p));
@@ -20,7 +21,7 @@ public class SorterTest {
 
   @Test
   public void testGetOutputClass() {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("class", FakeType.class.toString());
     String expResult = FakeType.class.toString();
     String result = Sorter.getOutputClass(new FakeParameters(p));

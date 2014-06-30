@@ -9,7 +9,7 @@ import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.*;
@@ -122,7 +122,7 @@ public class TimedXCount extends AppFunction {
     while ((l = r.readLine()) != null) {
       String[] terms = l.split(" ");
 
-      Parameters expr = new Parameters();
+      Parameters expr = Parameters.instance();
 
       StringBuilder node = new StringBuilder();
       node.append(op).append("(");

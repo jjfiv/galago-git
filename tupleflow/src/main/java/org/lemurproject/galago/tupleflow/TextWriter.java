@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.utility.Parameters;
 
 /**
  * Writes a stream of objects to a text file.  Useful for debugging or as

@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.index.corpus;
 import org.junit.Test;
 import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +25,7 @@ public class SplitIndexWriterTest{
       assertTrue(temporary.delete());
       assertTrue(temporary.mkdir());
 
-      Parameters parameters = new Parameters();
+      Parameters parameters = Parameters.instance();
       parameters.set("blockSize", 64);
       parameters.set("filename", temporary.getAbsolutePath());
       parameters.set("parallel", true);
@@ -55,7 +56,7 @@ public class SplitIndexWriterTest{
       assertTrue(temporary.delete());
       assertTrue(temporary.mkdir());
 
-      Parameters parameters = new Parameters();
+      Parameters parameters = Parameters.instance();
       parameters.set("blockSize", 64);
       parameters.set("filename", temporary.getAbsolutePath());
       parameters.set("parallel", "true");
@@ -109,7 +110,7 @@ public class SplitIndexWriterTest{
       assertTrue(temporary.delete());
       assertTrue(temporary.mkdir());
 
-      Parameters parameters = new Parameters();
+      Parameters parameters = Parameters.instance();
       parameters.set("blockSize", 128);
       parameters.set("filename", temporary.getAbsolutePath());
       parameters.set("parallel", true);

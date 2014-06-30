@@ -16,7 +16,7 @@ import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.types.*;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Order;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
 
@@ -80,7 +80,7 @@ public class BuildIndex extends AppFunction {
             add(BuildStageTemplates.getTokenizerStep(buildParameters))
             .add(BuildStageTemplates.getNumberingStep(buildParameters));
 //    if (buildParameters.getBoolean("links")) {
-//      Parameters p = new Parameters();
+//      Parameters p = Parameters.instance();
 //      p.set("textSource", "anchorText");
 //      stage.add(new Step(AdditionalTextCombiner.class, p));
 //    }
@@ -130,7 +130,7 @@ public class BuildIndex extends AppFunction {
       for (String stemmer : buildParameters.getList("stemmer", String.class)) {
         String name = "postings-" + stemmer;
         processingFork.addGroup(name).addToGroup(name,
-                BuildStageTemplates.getStemmerStep(new Parameters(),
+                BuildStageTemplates.getStemmerStep(Parameters.instance(),
                 Class.forName(buildParameters.getMap("stemmerClass").getString(stemmer))))
                 .addToGroup(name, new Step(NumberedPostingsPositionExtractor.class))
                 .addToGroup(name, Utility.getSorter(new NumberWordPosition.WordDocumentPositionOrder()))
@@ -150,7 +150,7 @@ public class BuildIndex extends AppFunction {
         for (String stemmer : buildParameters.getMap("fieldIndexParameters").getList("stemmer", String.class)) {
           String name = "fieldIndex-" + stemmer;
           processingFork.addGroup(name).addToGroup(name,
-                  BuildStageTemplates.getStemmerStep(new Parameters(),
+                  BuildStageTemplates.getStemmerStep(Parameters.instance(),
                   Class.forName(buildParameters.getMap("stemmerClass").getString(stemmer))))
                   .addToGroup(name, new Step(NumberedExtentPostingsExtractor.class))
                   .addToGroup(name, Utility.getSorter(new FieldNumberWordPosition.FieldWordDocumentPositionOrder()))
@@ -189,7 +189,7 @@ public class BuildIndex extends AppFunction {
 //    stage.addOutput("anchorText", new AdditionalDocumentText.IdentifierOrder());
 //
 //    // Steps
-//    Parameters p = new Parameters();
+//    Parameters p = Parameters.instance();
 //    p.set("documentDatas", "documentUrls");
 //    p.set("extractedLinks", "links");
 //    stage.add(new Step(LinkCombinerOld.class, p));
@@ -203,7 +203,7 @@ public class BuildIndex extends AppFunction {
           String inputName, Order inputOrder, String indexName,
           Class indexWriter, String stemmerName) {
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("filename", buildParameters.getString("indexPath") + File.separator + indexName);
     p.set("skipping", buildParameters.getBoolean("skipping"));
     p.set("skipDistance", buildParameters.getLong("skipDistance"));
@@ -308,7 +308,7 @@ public class BuildIndex extends AppFunction {
     }
     // ensure there are some specific parameters
     if (globalParameters.isBoolean("corpus") && globalParameters.getBoolean("corpus")) {
-      Parameters corpusParameters = new Parameters();
+      Parameters corpusParameters = Parameters.instance();
       corpusParameters.set("readerClass", CorpusReader.class.getName());
       corpusParameters.set("writerClass", CorpusFolderWriter.class.getName());
       corpusParameters.set("mergerClass", CorpusMerger.class.getName());
@@ -394,7 +394,7 @@ public class BuildIndex extends AppFunction {
     // must match the full list of stemmers in parameter 'stemmer'
     try {
       if (!globalParameters.containsKey("stemmerClass")) {
-        globalParameters.set("stemmerClass", new Parameters());
+        globalParameters.set("stemmerClass", Parameters.instance());
       }
       Parameters stemmerClasses = globalParameters.getMap("stemmerClass");
       if (globalParameters.getBoolean("stemmedPostings")
@@ -438,10 +438,10 @@ public class BuildIndex extends AppFunction {
       } catch (Exception e) {
         errorLog.add("Parameter 'tokenizer' must be a map.\n");
         globalParameters.remove("tokenizer");
-        globalParameters.set("tokenizer", new Parameters());
+        globalParameters.set("tokenizer", Parameters.instance());
       }
     } else {
-      globalParameters.set("tokenizer", new Parameters());
+      globalParameters.set("tokenizer", Parameters.instance());
     }
 
     HashSet<String> fieldNames = new HashSet<String>();
@@ -486,7 +486,7 @@ public class BuildIndex extends AppFunction {
                 + "default is to omit parameter.");
       }
     } else {
-      tokenizerParams.set("formats", new Parameters());
+      tokenizerParams.set("formats", Parameters.instance());
     }
 
     // ensure the corpusParameters has access to the tokenizer Parameters
@@ -518,7 +518,7 @@ public class BuildIndex extends AppFunction {
     // fieldIndexParameters/stemmedPostings must be a boolean
     // fieldIndexParameters/stemmer must be a list of stemmers (that must occur in stemmer list above)
     if (!globalParameters.containsKey("fieldIndexParameters")) {
-      globalParameters.set("fieldIndexParameters", new Parameters());
+      globalParameters.set("fieldIndexParameters", Parameters.instance());
     }
     try {
       Parameters fieldIndexParameters = globalParameters.getMap("fieldIndexParameters");
@@ -685,7 +685,7 @@ public class BuildIndex extends AppFunction {
 
     // if we have at least one field format - write fields
     if (!buildParameters.getMap("tokenizer").getMap("formats").isEmpty()) {
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("tokenizer", buildParameters.getMap("tokenizer"));
       job.add(BuildStageTemplates.getWriteFieldsStage("writeFields", new File(indexPath, "fields"), "numberedFields", p));
 

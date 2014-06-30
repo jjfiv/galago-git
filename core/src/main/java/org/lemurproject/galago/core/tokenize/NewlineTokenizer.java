@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.tokenize;
 import java.util.Arrays;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 
 /**
@@ -17,7 +17,7 @@ public class NewlineTokenizer extends Tokenizer {
     super(tfp);
   }
   public NewlineTokenizer() {
-    super(new FakeParameters(new Parameters()));
+    super(new FakeParameters(Parameters.instance()));
   }
 
   @Override

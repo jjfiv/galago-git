@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.parse.UniversalParser;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.tools.apps.BuildStageTemplates;
 import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
 
@@ -61,7 +61,7 @@ public class BuildFilteredCollection extends AppFunction {
   private static Job getIndexJob(Parameters buildParameters) throws Exception {
 
     // check filter parameters
-    Parameters filterParameters = new Parameters();
+    Parameters filterParameters = Parameters.instance();
     filterParameters.set("require", buildParameters.get("require", true));
     ArrayList<String> filters = new ArrayList<String>();
     for (String path : buildParameters.getAsList("filter", String.class)) {
@@ -69,7 +69,7 @@ public class BuildFilteredCollection extends AppFunction {
     }
     filterParameters.set("filter", filters);
 
-    Parameters outputParameters = new Parameters();
+    Parameters outputParameters = Parameters.instance();
     outputParameters.set("outputPath", (new File(buildParameters.getString("outputPath")).getAbsolutePath()));
     outputParameters.set("shardName", buildParameters.get("shardName", "shard"));
     outputParameters.set("outFileSize", buildParameters.get("outFileSize", 50 * 1024 * 1024));
@@ -88,7 +88,7 @@ public class BuildFilteredCollection extends AppFunction {
     // reading input files
     List<String> inputPaths = buildParameters.getAsList("inputPath", String.class);
 
-    Parameters splitParameters = new Parameters();
+    Parameters splitParameters = Parameters.instance();
     splitParameters.set("corpusPieces", buildParameters.get("distrib", 10));
     job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileNameStartKeyOrder(), splitParameters));
 

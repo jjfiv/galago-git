@@ -3,7 +3,6 @@
  */
 package org.lemurproject.galago.contrib.learning;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -11,7 +10,7 @@ import java.util.TreeSet;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 /** 
  * Data class contains information about a set of queries

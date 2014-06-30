@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 
@@ -59,7 +59,7 @@ public class MemoryIndex implements DynamicIndex, Index {
 
     // Load all parts
     parts = new HashMap<String, MemoryIndexPart>();
-    Parameters partParams = new Parameters();
+    Parameters partParams = Parameters.instance();
     partParams.set("documentNumberOffset", documentNumberOffset);
     parts.put("names", new MemoryDocumentNames(partParams.clone()));
     parts.put("lengths", new MemoryDocumentLengths(partParams.clone()));
@@ -87,7 +87,7 @@ public class MemoryIndex implements DynamicIndex, Index {
   }
 
   public MemoryIndex() throws Exception {
-    this(new Parameters());
+    this(Parameters.instance());
   }
 
   public MemoryIndex(TupleFlowParameters tfp) throws Exception {

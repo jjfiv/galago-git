@@ -6,7 +6,7 @@ import org.lemurproject.galago.core.index.source.DataSource;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Sorter;
 
 import java.io.IOException;
@@ -20,7 +20,7 @@ public class IndexRepair {
     DiskNameReader namesReader = new DiskNameReader(names);
 
     Parameters oldP = namesReader.getManifest();
-    Parameters newP = new Parameters();
+    Parameters newP = Parameters.instance();
     newP.put("filename", outputName);
 
     if(opts.get("keepBlockSize", true)) {

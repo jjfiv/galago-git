@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,11 +45,11 @@ public class Indexer {
     //   a number is assigned
     //   a fully formed document is the given to the index
     
-    indexer = new UniversalParser(new FakeParameters(new Parameters()));
-    Tokenizer p2 = Tokenizer.instance(new Parameters());
+    indexer = new UniversalParser(new FakeParameters(Parameters.instance()));
+    Tokenizer p2 = Tokenizer.instance(Parameters.instance());
     SequentialDocumentNumberer p3 = new SequentialDocumentNumberer();
 
-    Parameters indexParams = new Parameters();
+    Parameters indexParams = Parameters.instance();
     indexParams.set("shardDirectory", "/path/to/store/output/");
     indexParams.set("indexBlockSize", 100);
     indexParams.set("radix", 2);
@@ -81,7 +81,7 @@ public class Indexer {
     
     Node parsed = StructuredQuery.parse(query);
     
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("count", 10);
     Node transformed = retrieval.transformQuery(parsed, p);
 

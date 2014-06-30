@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.index.corpus.SplitBTreeKeyWriter;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +46,7 @@ public class IndexReaderSplitParserTest {
     document.metadata.put("Key", "Value");
     document.metadata.put("Something", "Else");
 
-    Parameters corpusWriterParameters = new Parameters();
+    Parameters corpusWriterParameters = Parameters.instance();
     corpusWriterParameters.set("readerClass", CorpusReader.class.getName());
     corpusWriterParameters.set("writerClass", CorpusFolderWriter.class.getName());
     corpusWriterParameters.set("filename", temporary.getAbsolutePath());
@@ -74,7 +75,7 @@ public class IndexReaderSplitParserTest {
     split.endKey = new byte[0];
 
     // Open up the file:
-    CorpusSplitParser parser = new CorpusSplitParser(split, new Parameters());
+    CorpusSplitParser parser = new CorpusSplitParser(split, Parameters.instance());
 
     // Check the document:
     Document actual = parser.nextDocument();
@@ -102,7 +103,7 @@ public class IndexReaderSplitParserTest {
     split.endKey = new byte[0];
 
     // Open up the file:
-    CorpusSplitParser parser = new CorpusSplitParser(split, new Parameters());
+    CorpusSplitParser parser = new CorpusSplitParser(split, Parameters.instance());
     assertNull(parser.nextDocument());
   }
 
@@ -117,7 +118,7 @@ public class IndexReaderSplitParserTest {
     split.endKey = Utility.fromLong(9);
 
     // Open up the file:
-    CorpusSplitParser parser = new CorpusSplitParser(split, new Parameters());
+    CorpusSplitParser parser = new CorpusSplitParser(split, Parameters.instance());
     assertNull(parser.nextDocument());
   }
 }

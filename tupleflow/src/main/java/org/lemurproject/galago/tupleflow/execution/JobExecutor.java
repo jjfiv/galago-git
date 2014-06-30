@@ -3,7 +3,7 @@ package org.lemurproject.galago.tupleflow.execution;
 
 import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.StageGroupDescription.DataPipeRegion;
 import org.lemurproject.galago.tupleflow.web.WebServer;

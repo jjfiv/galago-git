@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.types.DocumentMappingData;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 public class DocumentNumberMapperTest {
   private static void makeNamesIndex(int maxDocNum, File folder) throws Exception {
     File temp = new File(folder + File.separator + "names");
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("filename", temp.getAbsolutePath());
     DiskNameWriter writer = new DiskNameWriter(new FakeParameters(p));
 

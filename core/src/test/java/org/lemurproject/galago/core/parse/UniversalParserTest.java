@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.apps.BuildIndex;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -118,14 +118,14 @@ public class UniversalParserTest {
       createTrecWebDoc(dataDir, "d4.trecweb"); // 10 docs
       createTwitterDoc(dataDir, "d5.twitter"); // 10 docs
 
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("inputPath", Collections.singletonList(dataDir.getAbsolutePath()));
       p.set("indexPath", index.getAbsolutePath());
 
       BuildIndex bi = new BuildIndex();
       bi.run(p, System.err);
 
-      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), new Parameters());
+      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.instance());
 
       FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
       assertEquals(cs.collectionLength, 553);
@@ -161,7 +161,7 @@ public class UniversalParserTest {
       createTxtDoc(dataDir, "d5"); // 1 doc
       createXMLDoc(dataDir, "d6"); // 1 doc
 
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("inputPath", Collections.singletonList(dataDir.getAbsolutePath()));
       p.set("indexPath", index.getAbsolutePath());
       p.set("filetype", "txt");
@@ -169,7 +169,7 @@ public class UniversalParserTest {
       BuildIndex bi = new BuildIndex();
       bi.run(p, System.err);
 
-      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), new Parameters());
+      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.instance());
 
       FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
       assertEquals(cs.collectionLength, 129);
@@ -196,8 +196,8 @@ public class UniversalParserTest {
   public void testExtensions() throws IOException {
     File tmp = FileUtility.createTemporary();
 
-    Parameters p = new Parameters();
-    p.set("parser", new Parameters());
+    Parameters p = Parameters.instance();
+    p.set("parser", Parameters.instance());
 
     List<Parameters> kinds = new ArrayList<Parameters>();
     kinds.add(Parameters.parseArray("filetype", "qqe",
@@ -218,7 +218,7 @@ public class UniversalParserTest {
     DocumentSplit split = new DocumentSplit();
     split.fileName = tmp.getAbsolutePath();
     split.fileType = "qwe";
-    DocumentStreamParser parser = DocumentStreamParser.instance(split, new Parameters());
+    DocumentStreamParser parser = DocumentStreamParser.instance(split, Parameters.instance());
     assertTrue(parser instanceof TrecWebParser);
 
     assertTrue(tmp.delete());
@@ -235,8 +235,8 @@ public class UniversalParserTest {
 
   @Test
   public void testDocumentSourceLogic() throws IOException {
-    Parameters conf = new Parameters();
-    conf.set("parser", new Parameters());
+    Parameters conf = Parameters.instance();
+    conf.set("parser", Parameters.instance());
 
     List<Parameters> kinds = new ArrayList<Parameters>();
     kinds.add(Parameters.parseArray("filetype", "qqe",
@@ -282,10 +282,10 @@ public class UniversalParserTest {
       createTrecWebDoc(dataDir, "d4.trecweb"); // 10 docs - trectext
       createTxtDoc(dataDir, "d5.txt"); // 1 docs - txt
 
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("inputPath", Collections.singletonList(dataDir.getAbsolutePath()));
       p.set("indexPath", index.getAbsolutePath());
-      p.set("parser", new Parameters());
+      p.set("parser", Parameters.instance());
 
       List<Parameters> kinds = new ArrayList<Parameters>();
       kinds.add(Parameters.parseString("{\"filetype\" : \"qqe\", \"class\" :\"" + TrecTextParser.class.getName() + "\"}"));
@@ -296,7 +296,7 @@ public class UniversalParserTest {
       BuildIndex bi = new BuildIndex();
       bi.run(p, System.err);
 
-      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), new Parameters());
+      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.instance());
 
       FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
       assertEquals(cs.collectionLength, 822);

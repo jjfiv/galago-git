@@ -8,7 +8,7 @@ import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.core.types.*;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Order;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
 
@@ -78,7 +78,7 @@ public class BuildStageTemplates {
    * Writes document lengths to a document lengths file.
    */
   public static Stage getWriteLengthsStage(String stageName, File destination, String inputPipeName) throws IOException {
-    return getWriteLengthsStage(stageName, destination, inputPipeName, new Parameters());
+    return getWriteLengthsStage(stageName, destination, inputPipeName, Parameters.instance());
   }
 
   public static Stage getWriteLengthsStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
@@ -92,7 +92,7 @@ public class BuildStageTemplates {
    * Writes document names to a document names file.
    */
   public static Stage getWriteNamesStage(String stageName, File destination, String inputPipeName) throws IOException {
-    return getWriteNamesStage(stageName, destination, inputPipeName, new Parameters());
+    return getWriteNamesStage(stageName, destination, inputPipeName, Parameters.instance());
   }
 
   public static Stage getWriteNamesStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
@@ -102,7 +102,7 @@ public class BuildStageTemplates {
   }
   
   public static Stage getWriteNamesRevStage(String stageName, File destination, String inputPipeName) throws IOException {
-    return getWriteNamesRevStage(stageName, destination, inputPipeName, new Parameters());
+    return getWriteNamesRevStage(stageName, destination, inputPipeName, Parameters.instance());
   }
 
   public static Stage getWriteNamesRevStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
@@ -113,7 +113,7 @@ public class BuildStageTemplates {
 
   public static Stage getWriteExtentsStage(String stageName, File destination, String inputPipeName) throws IOException {
     return getGenericWriteStage(stageName, destination, inputPipeName,
-            WindowIndexWriter.class, new NumberedExtent.ExtentNameNumberBeginOrder(), new Parameters());
+            WindowIndexWriter.class, new NumberedExtent.ExtentNameNumberBeginOrder(), Parameters.instance());
   }
 
   public static Stage getWriteExtentsStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
@@ -123,7 +123,7 @@ public class BuildStageTemplates {
 
   public static Stage getWriteFieldsStage(String stageName, File destination, String inputPipeName) throws IOException {
     return getGenericWriteStage(stageName, destination, inputPipeName,
-            FieldIndexWriter.class, new NumberedField.FieldNameNumberOrder(), new Parameters());
+            FieldIndexWriter.class, new NumberedField.FieldNameNumberOrder(), Parameters.instance());
   }
 
   public static Stage getWriteFieldsStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
@@ -132,7 +132,7 @@ public class BuildStageTemplates {
   }
 
   public static Stage getSplitStage(List<String> inputPaths, Class sourceClass) throws IOException {
-    return getSplitStage(inputPaths, sourceClass, new DocumentSplit.FileIdOrder(), new Parameters());
+    return getSplitStage(inputPaths, sourceClass, new DocumentSplit.FileIdOrder(), Parameters.instance());
   }
 
   public static Stage getSplitStage(List<String> inputPaths, Class sourceClass, Parameters p) throws IOException {

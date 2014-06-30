@@ -3,12 +3,11 @@
  */
 package org.lemurproject.galago.contrib.hash;
 
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-import org.lemurproject.galago.tupleflow.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.Parameters;
+
+import java.math.BigInteger;
+import java.util.Random;
 
 /**
  *
@@ -141,7 +140,7 @@ public class UniversalStringHashFunction {
   }
 
   public Parameters toParameters() {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("errorCount", errorCount);
     p.set("p1", p1.toString());
     p.set("p2", p2.toString());

@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.core.types.ExtractedLink;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.*;
 import java.util.Arrays;
@@ -32,7 +33,7 @@ public class HarvestLinksFnTest {
       File jobTmp = new File(tempDir, "jobTmp");
 
       // run harvest links
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("inputPath", input.getAbsolutePath());
       p.set("indri", true);
       p.set("filePrefix", tempDir.getAbsolutePath());

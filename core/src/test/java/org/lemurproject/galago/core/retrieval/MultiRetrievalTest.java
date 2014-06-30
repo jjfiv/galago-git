@@ -9,7 +9,7 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -53,13 +53,13 @@ public class MultiRetrievalTest {
       App.main(new String[]{"build", "--indexPath=" + index2.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile2.getAbsolutePath()});
 
-      Parameters params = new Parameters();
+      Parameters params = Parameters.instance();
       String[] indexes = {index1.getAbsolutePath(), index2.getAbsolutePath()};
       params.set("index", Arrays.asList(indexes));
       MultiRetrieval mr = (MultiRetrieval) RetrievalFactory.instance(params);
       String query = "#combine( sample document )";
       Node parsedQuery = StructuredQuery.parse(query);
-      Parameters qp = new Parameters();
+      Parameters qp = Parameters.instance();
       Node queryTree = mr.transformQuery(parsedQuery, qp);
 
       String expected = "#combine:w=1.0("

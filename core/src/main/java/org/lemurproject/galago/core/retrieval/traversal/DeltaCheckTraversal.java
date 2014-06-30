@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.retrieval.iterator.FilteredIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 /**
  * This ensures that the current query tree can be run using the delta scoring

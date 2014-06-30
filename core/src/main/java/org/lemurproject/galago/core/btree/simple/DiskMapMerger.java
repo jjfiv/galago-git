@@ -5,12 +5,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 public class DiskMapMerger {
   public static DiskMapReader merge(String outputPath, List<String> inputPaths) throws IOException {
-    DiskMapSortedBuilder mb = new DiskMapSortedBuilder(outputPath, new Parameters());
+    DiskMapSortedBuilder mb = new DiskMapSortedBuilder(outputPath, Parameters.instance());
     
     ArrayList<DiskMapReader> readers = new ArrayList();
     for(String in : inputPaths) {
@@ -39,7 +39,7 @@ public class DiskMapMerger {
   }
   
   public static DiskMapReader mergeWith(String outputPath, List<String> inputPaths, MergeStrategy mergeFn) throws IOException {
-    DiskMapSortedBuilder mb = new DiskMapSortedBuilder(outputPath, new Parameters());
+    DiskMapSortedBuilder mb = new DiskMapSortedBuilder(outputPath, Parameters.instance());
     
     ArrayList<DiskMapReader> readers = new ArrayList();
     for(String in : inputPaths) {

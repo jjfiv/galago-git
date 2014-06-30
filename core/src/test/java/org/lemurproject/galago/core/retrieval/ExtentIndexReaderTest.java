@@ -18,7 +18,7 @@ import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -41,7 +41,7 @@ public class ExtentIndexReaderTest {
     tempPath = FileUtility.createTemporary();
     tempPath.delete();
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("filename", tempPath.toString());
 
     WindowIndexWriter writer =
@@ -154,7 +154,7 @@ public class ExtentIndexReaderTest {
 
   @Test
   public void testSkipList() throws Exception {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("filename", tempPath.toString());
     p.set("skipDistance", 10);
 

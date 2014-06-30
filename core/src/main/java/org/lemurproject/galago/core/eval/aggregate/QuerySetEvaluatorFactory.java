@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.eval.aggregate;
 import org.lemurproject.galago.core.eval.metric.QueryEvaluator;
 import org.lemurproject.galago.core.eval.metric.QueryEvaluatorFactory;
 
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 /**
  * Factory for QuerySetEvaluators

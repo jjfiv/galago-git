@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.PositionIndexReader.KeyIterator;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -24,7 +24,7 @@ public class PositionIndexWriterTest {
   public void testCountIndex() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("filename", tmp.getAbsolutePath());
       PositionIndexWriter writer = new PositionIndexWriter(new FakeParameters(p));
       

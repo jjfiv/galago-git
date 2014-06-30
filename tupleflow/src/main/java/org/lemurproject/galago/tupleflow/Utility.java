@@ -3,6 +3,7 @@ package org.lemurproject.galago.tupleflow;
 
 import org.lemurproject.galago.tupleflow.execution.Step;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.*;
@@ -37,7 +38,7 @@ public class Utility {
   }
 
   public static Step getSorter(Order sortOrder, Class<?> reducerClass, CompressionType c) {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("class", sortOrder.getOrderedClass().getName());
     p.set("order", Utility.join(sortOrder.getOrderSpec()));
     if (c != null) {

@@ -3,6 +3,7 @@ package org.lemurproject.galago.tupleflow;
 import org.junit.Assert;
 import org.junit.Test;
 import org.lemurproject.galago.tupleflow.types.FileName;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,7 +21,7 @@ public class TextWriterTest {
     File tempPath = null;
     try {
       tempPath = FileUtility.createTemporary();
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("class", FileName.class.getName());
       p.set("filename", tempPath.getAbsolutePath());
       TextWriter<FileName> writer = new TextWriter<FileName>(new FakeParameters(p));

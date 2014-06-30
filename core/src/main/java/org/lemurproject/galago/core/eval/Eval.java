@@ -7,7 +7,7 @@ import org.lemurproject.galago.core.eval.compare.QuerySetComparator;
 import org.lemurproject.galago.core.eval.compare.QuerySetComparatorFactory;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.tools.apps.BatchSearch;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -300,14 +300,14 @@ public class Eval extends AppFunction {
 
     QuerySetEvaluator[] setEvaluators = createSetEvaluators(metrics, p);
 
-    Parameters recorded = new Parameters();
+    Parameters recorded = Parameters.instance();
     recorded.set("_metrics", new ArrayList(Arrays.asList(metrics)));
 
     Parameters qRecord;
     if (p.get("details", false)) {
       List<String> qids = new ArrayList();
       for (String query : results.getQueryIterator()) {
-        qRecord = new Parameters();
+        qRecord = Parameters.instance();
         for (QuerySetEvaluator setEvaluator : setEvaluators) {
           qRecord.set(setEvaluator.getMetric(), setEvaluator.evaluate(results.get(query), judgments.get(query)));
         }
@@ -318,7 +318,7 @@ public class Eval extends AppFunction {
     }
 
     if (p.get("summary", true)) {
-      qRecord = new Parameters();
+      qRecord = Parameters.instance();
       for (QuerySetEvaluator setEvaluator : setEvaluators) {
         qRecord.set(setEvaluator.getMetric(), setEvaluator.evaluate(results, judgments));
       }
@@ -357,7 +357,7 @@ public class Eval extends AppFunction {
 
     QuerySetEvaluator[] setEvaluators = createSetEvaluators(metrics, p);
     QuerySetComparator[] setComparators = createSetComparators(tests);
-    Parameters recorded = new Parameters();
+    Parameters recorded = Parameters.instance();
 
     recorded.set("_metrics", new ArrayList(Arrays.asList(metrics)));
     recorded.set("_comparisons", new ArrayList(Arrays.asList(tests)));
@@ -366,7 +366,7 @@ public class Eval extends AppFunction {
       String metricString = evaluator.getMetric();
       QuerySetEvaluation baseResults = evaluator.evaluateSet(baseline, judgments);
       QuerySetEvaluation treatResults = evaluator.evaluateSet(treatment, judgments);
-      Parameters mRecord = new Parameters();
+      Parameters mRecord = Parameters.instance();
 
       for (QuerySetComparator comparator : setComparators) {
         mRecord.set(comparator.getTestName(), comparator.evaluate(baseResults, treatResults));
@@ -421,7 +421,7 @@ public class Eval extends AppFunction {
     QuerySetEvaluator[] setEvaluators = createSetEvaluators(metrics, p);
     QuerySetComparator[] setComparators = createSetComparators(tests);
 
-    Parameters recorded = new Parameters();
+    Parameters recorded = Parameters.instance();
     recorded.set("_runs", runIds);
     recorded.set("_metrics", new ArrayList(Arrays.asList(metrics)));
     recorded.set("_comparisons", Arrays.asList(tests));
@@ -430,11 +430,11 @@ public class Eval extends AppFunction {
     Parameters qRecord, qrRecord;
     if (p.get("details", false)) {
       for (String qid : qids) {
-        qRecord = new Parameters();
+        qRecord = Parameters.instance();
 
         for (QuerySetResults run : runs) {
           String runName = run.getName();
-          qrRecord = new Parameters();
+          qrRecord = Parameters.instance();
 
           for (QuerySetEvaluator setEvaluator : setEvaluators) {
             qrRecord.set(setEvaluator.getMetric(), setEvaluator.evaluate(run.get(qid), judgments.get(qid)));
@@ -446,11 +446,11 @@ public class Eval extends AppFunction {
     }
 
     if (p.get("summary", true)) {
-      Parameters all = new Parameters();
+      Parameters all = Parameters.instance();
       QuerySetResults baseline = runs.get(0);
 
       for (QuerySetResults run : runs) {
-        qRecord = new Parameters();
+        qRecord = Parameters.instance();
         for (QuerySetEvaluator setEvaluator : setEvaluators) {
           qRecord.set(setEvaluator.getMetric(), setEvaluator.evaluate(run, judgments));
 

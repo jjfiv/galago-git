@@ -6,6 +6,7 @@ package org.lemurproject.galago.core.parse;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.BufferedReader;
 import java.io.IOException;

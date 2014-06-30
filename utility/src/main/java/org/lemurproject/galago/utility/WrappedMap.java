@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.tupleflow.util;
+package org.lemurproject.galago.utility;
 
 import java.util.Collection;
 import java.util.Map;
@@ -9,7 +9,6 @@ import java.util.Set;
  * This is an abstract class for wrapping a particular map type.
  * Useful for when classes are a glorified map.
  * 
- * @see QueryJudgments
  * @author jfoley
  * @param <K>
  * @param <V>

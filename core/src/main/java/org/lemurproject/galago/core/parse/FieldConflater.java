@@ -2,10 +2,9 @@
 package org.lemurproject.galago.core.parse;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
+
 import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
@@ -35,7 +34,7 @@ public class FieldConflater extends StandardStep<Document, Document> {
     if (parameters.getJSON().isMap("tokenizer/conflations")) {
       conflations = parameters.getJSON().getMap("tokenizer/conflations");
     } else {
-      conflations = new Parameters();
+      conflations = Parameters.instance();
     }
   }
 

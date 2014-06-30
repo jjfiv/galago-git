@@ -5,7 +5,7 @@ package org.lemurproject.galago.core.tools.apps;
 
 import org.junit.Test;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -29,7 +29,7 @@ public class PageRankFnTest {
       File jobTmp = new File(tempDir, "jobTmp");
 
       // run harvest links
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("inputPath", input.getAbsolutePath());
       p.set("indri", false);
       p.set("galago", true);
@@ -46,7 +46,7 @@ public class PageRankFnTest {
       File pagerank = new File(tempDir, "pagerank");
       File jobTmp2 = new File(tempDir, "jobTmp2");
 
-      Parameters p2 = new Parameters();
+      Parameters p2 = Parameters.instance();
       p2.set("linkdata", galago.getAbsolutePath());
       p2.set("outputFolder", pagerank.getAbsolutePath());
       p2.set("lambda", 0.5);

@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -28,7 +28,7 @@ public class TrecTextParserTest {
     try {
       DocumentSplit split = new DocumentSplit();
       split.fileName = f.getAbsolutePath();
-      TrecTextParser parser = new TrecTextParser(split, new Parameters());
+      TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
 
       Document document = parser.nextDocument();
       assertNull(document);
@@ -46,7 +46,7 @@ public class TrecTextParserTest {
       Utility.copyStringToFile(fileText, f);
       DocumentSplit split = new DocumentSplit();
       split.fileName = f.getAbsolutePath();
-      TrecTextParser parser = new TrecTextParser(split, new Parameters());
+      TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
 
       Document document = parser.nextDocument();
       assertNotNull(document);
@@ -70,7 +70,7 @@ public class TrecTextParserTest {
       DocumentSplit split = new DocumentSplit();
       split.fileName = f.getAbsolutePath();
       split.fileType = "trectext";
-      DocumentStreamParser parser = DocumentStreamParser.instance(split, new Parameters());
+      DocumentStreamParser parser = DocumentStreamParser.instance(split, Parameters.instance());
 
       Document document = parser.nextDocument();
       assertNotNull(document);
@@ -98,7 +98,7 @@ public class TrecTextParserTest {
       Utility.copyStringToFile(fileText, f);
       DocumentSplit split = new DocumentSplit();
       split.fileName = f.getAbsolutePath();
-      TrecTextParser parser = new TrecTextParser(split, new Parameters());
+      TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
 
       Document document = parser.nextDocument();
       assertNotNull(document);
@@ -132,7 +132,7 @@ public class TrecTextParserTest {
       Utility.copyStringToFile(fileText, f);
       DocumentSplit split = new DocumentSplit();
       split.fileName = f.getAbsolutePath();
-      TrecTextParser parser = new TrecTextParser(split, new Parameters());
+      TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
 
       Document document = parser.nextDocument();
       assertNotNull(document);

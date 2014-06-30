@@ -9,7 +9,7 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.BufferedWriter;
@@ -34,7 +34,7 @@ public class ThreadingTest {
 
     try {
       index = makeIndex(docCount, docLen, vocab);
-      final Parameters retParams = new Parameters();
+      final Parameters retParams = Parameters.instance();
       retParams.set("index", index.getAbsolutePath());
 
 
@@ -124,7 +124,7 @@ public class ThreadingTest {
     }
     writer.close();
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("inputPath", trecFile.getAbsolutePath());
     p.set("indexPath", indexFolder.getAbsolutePath());
     p.set("stemmedPostings", false); // we just have numbers - no need to stem.

@@ -1,8 +1,8 @@
 // BSD License (http://www.galagosearch.org/license)
-package org.lemurproject.galago.tupleflow;
+package org.lemurproject.galago.utility;
 
-import org.lemurproject.galago.tupleflow.json.JSONParser;
-import org.lemurproject.galago.tupleflow.json.JSONUtil;
+import org.lemurproject.galago.utility.json.JSONParser;
+import org.lemurproject.galago.utility.json.JSONUtil;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -30,14 +30,20 @@ public class Parameters implements Serializable, Map<String,Object> {
 
   private Parameters _backoff;
 
-// Constructor - we always start empty, and add to it
-// Most of these are constructed statically
+  /** Constructor - we always start empty, and add to it. Most of these are constructed statically.
+   *  @deprecated use Parameters.instance() instead.
+   */
+  @Deprecated
   public Parameters() {
     clear();
   }
-  
+
+  public static Parameters instance() {
+    return new Parameters();
+  }
+
   public static Parameters parseMap(Map<String,String> map) {
-    Parameters self = new Parameters();
+    Parameters self = Parameters.instance();
     
     for (String key : map.keySet()) {
       self.put(key, JSONUtil.parseString(map.get(key)));
@@ -47,7 +53,7 @@ public class Parameters implements Serializable, Map<String,Object> {
   }
   
   public static Parameters parseArgs(String[] args) throws IOException {
-    Parameters self = new Parameters();
+    Parameters self = Parameters.instance();
     
     for (String arg : args) {
       if (arg.startsWith("--")) {
@@ -95,7 +101,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     if(args.length % 2 == 1) {
       throw new IllegalArgumentException("Uneven number of parameters in vararg constructor.");
     }
-    Parameters result = new Parameters();
+    Parameters result = Parameters.instance();
     for(int i=0; i<args.length; i+=2) {
       Object key = args[i];
       Object value = args[i+1];
@@ -189,7 +195,7 @@ public class Parameters implements Serializable, Map<String,Object> {
   
   @Override
   public Parameters clone() {
-    Parameters copy = new Parameters();
+    Parameters copy = Parameters.instance();
     // use secret keySet to not copy backoff keys
     for(String key : _data.keySet()) {
       if(isLong(key)) {
@@ -645,7 +651,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     }
   }
 
-  private static void tokenizeComplexValue(Parameters map, String pattern) throws IOException {
+  protected static void tokenizeComplexValue(Parameters map, String pattern) throws IOException {
     int eqPos = pattern.indexOf('=') == -1 ? Integer.MAX_VALUE : pattern.indexOf('=');
     int arPos = pattern.indexOf('/') == -1 ? Integer.MAX_VALUE : pattern.indexOf('/');
     int plPos = pattern.indexOf('+') == -1 ? Integer.MAX_VALUE : pattern.indexOf('+');
@@ -662,7 +668,7 @@ public class Parameters implements Serializable, Map<String,Object> {
       } else {
         String mapKey = pattern.substring(0, smallest);
         if (!map.isMap(mapKey)) {
-          map.set(mapKey, new Parameters());
+          map.set(mapKey, Parameters.instance());
         }
         tokenizeComplexValue(map.getMap(mapKey), pattern.substring(smallest + 1, pattern.length()));
       }

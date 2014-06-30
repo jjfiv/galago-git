@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.retrieval.traversal;
 import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import static org.junit.Assert.assertEquals;
 
@@ -18,10 +18,10 @@ public class ProximityDFRTraversalTest {
 
   @Test
   public void testSomeMethod() throws Exception {
-    Parameters qparams = new Parameters();
+    Parameters qparams = Parameters.instance();
     qparams.set("termLambda", 0.91);
 
-    ProximityDFRTraversal traversal = new ProximityDFRTraversal(new Parameters());
+    ProximityDFRTraversal traversal = new ProximityDFRTraversal(Parameters.instance());
 
     Node pl2root = StructuredQuery.parse("#pdfr( test query )");
     Node out = traversal.afterNode(pl2root, qparams);

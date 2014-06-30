@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.parse;
 
 import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.StreamCreator;
 
 import java.io.BufferedInputStream;
@@ -28,7 +28,7 @@ public abstract class DocumentStreamParser {
   public static Map<String, Class> fileTypeMap;
   static {
     fileTypeMap = new ConcurrentHashMap<String, Class>();
-    addExternalParsers(new Parameters());
+    addExternalParsers(Parameters.instance());
   }
 
   // isParsable

@@ -3,6 +3,7 @@ package org.lemurproject.galago.tupleflow;
 
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.utility.Parameters;
 
 import javax.management.ListenerNotFoundException;
 import javax.management.Notification;
@@ -98,7 +99,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     this.lessThanCompare = order.lessThan();
     this.compression = CompressionType.VBYTE;
     
-    setLimits(new Parameters());
+    setLimits(Parameters.instance());
 
     requestMemoryWarnings();
   }
@@ -134,7 +135,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     this.filesWritten = parameters.getCounter("Sorter Files Written");
     this.sorterCombineSteps = parameters.getCounter("Sorter Combine Steps");
 
-    setLimits(new Parameters());
+    setLimits(Parameters.instance());
 
     requestMemoryWarnings();
   }

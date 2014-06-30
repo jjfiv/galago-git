@@ -7,7 +7,7 @@ import org.lemurproject.galago.core.index.mem.*;
 import org.lemurproject.galago.core.index.stats.AggregateStatistic;
 import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.IOException;
@@ -53,11 +53,11 @@ public class CachedRetrieval {
     this.cachedStats = new ConcurrentHashMap();
     this.cacheParts = new ConcurrentHashMap();
 
-    this.cacheParts.put("score", new MemorySparseDoubleIndex(new Parameters()));
-    this.cacheParts.put("extent", new MemoryWindowIndex(new Parameters()));
-    this.cacheParts.put("count", new MemoryCountIndex(new Parameters()));
-    // this.cacheParts.put("names", new MemoryDocumentNames(new Parameters()));
-    this.cacheParts.put("lengths", new MemoryDocumentLengths(new Parameters()));
+    this.cacheParts.put("score", new MemorySparseDoubleIndex(Parameters.instance()));
+    this.cacheParts.put("extent", new MemoryWindowIndex(Parameters.instance()));
+    this.cacheParts.put("count", new MemoryCountIndex(Parameters.instance()));
+    // this.cacheParts.put("names", new MemoryDocumentNames(Parameters.instance()));
+    this.cacheParts.put("lengths", new MemoryDocumentLengths(Parameters.instance()));
 
   }
 

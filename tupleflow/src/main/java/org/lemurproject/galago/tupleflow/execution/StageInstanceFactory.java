@@ -4,6 +4,7 @@ package org.lemurproject.galago.tupleflow.execution;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.StageInstanceDescription.PipeInput;
 import org.lemurproject.galago.tupleflow.execution.StageInstanceDescription.PipeOutput;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.io.IOException;

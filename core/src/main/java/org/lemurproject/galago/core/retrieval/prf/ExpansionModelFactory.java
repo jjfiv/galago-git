@@ -5,7 +5,7 @@ package org.lemurproject.galago.core.retrieval.prf;
 
 import java.lang.reflect.Constructor;
 import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 /**
  *

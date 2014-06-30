@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -27,7 +27,7 @@ public class IndexReaderSkipTest {
     File temp = FileUtility.createTemporary();
 
     try {
-      Parameters parameters = new Parameters();
+      Parameters parameters = Parameters.instance();
       parameters.set("filename", temp.getAbsolutePath());
       parameters.set("skipDistance", 10);
       parameters.set("skipResetDistance", 5);
@@ -64,7 +64,7 @@ public class IndexReaderSkipTest {
     File temp = FileUtility.createTemporary();
 
     try {
-      Parameters parameters = new Parameters();
+      Parameters parameters = Parameters.instance();
       parameters.set("filename", temp.getAbsolutePath());
       parameters.set("skipDistance", 10);
       parameters.set("skipResetDistance", 5);
@@ -96,7 +96,7 @@ public class IndexReaderSkipTest {
     File temp = FileUtility.createTemporary();
 
     try {
-      Parameters parameters = new Parameters();
+      Parameters parameters = Parameters.instance();
       parameters.set("filename", temp.getAbsolutePath());
       parameters.set("skipDistance", 10);
       parameters.set("skipResetDistance", 5);

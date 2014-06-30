@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -19,7 +19,7 @@ import java.io.File;
 public class ExtentMergeTest {
   private static void makeExtentsIndex(int offset, File folder) throws Exception {
     File temp = new File(folder + File.separator + "extents");
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("filename", temp.getAbsolutePath());
     WindowIndexWriter writer = new WindowIndexWriter(new FakeParameters(p));
 
@@ -56,7 +56,7 @@ public class ExtentMergeTest {
       makeExtentsIndex(200, index2);
       makeExtentsIndex(300, index3);
 
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("filename", output.getAbsolutePath());
       p.set("writerClass", WindowIndexWriter.class.getName());
       /*ExtentIndexMerger merger = new ExtentIndexMerger(new FakeParameters(p));

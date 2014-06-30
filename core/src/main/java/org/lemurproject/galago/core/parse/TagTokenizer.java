@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.parse;
 import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -79,7 +80,7 @@ public class TagTokenizer extends Tokenizer {
   }
 
   public TagTokenizer() {
-    super(new FakeParameters(new Parameters()));
+    super(new FakeParameters(Parameters.instance()));
     text = null;
     position = 0;
     lastSplit = -1;

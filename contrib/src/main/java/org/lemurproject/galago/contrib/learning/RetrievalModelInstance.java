@@ -4,7 +4,7 @@
 package org.lemurproject.galago.contrib.learning;
 
 import gnu.trove.map.hash.TObjectDoubleHashMap;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class RetrievalModelInstance {
   public RetrievalModelInstance(RetrievalModelParameters params, Parameters settings) {
     this.params = params;
     this.settings = new TObjectDoubleHashMap<String>();
-    this.outParams = new Parameters();
+    this.outParams = Parameters.instance();
 
     for (String p : params.getParams()) {
       unsafeSet(p, settings.getDouble(p));

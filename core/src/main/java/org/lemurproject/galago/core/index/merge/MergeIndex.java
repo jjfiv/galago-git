@@ -7,7 +7,7 @@ import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentMappingData;
 import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.execution.*;
 
 import java.io.File;
@@ -36,7 +36,7 @@ public class MergeIndex extends AppFunction {
 
     stage.addOutput("indexes", new DocumentSplit.FileIdOrder());
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("inputPath", inputPaths);
     stage.add(new Step(IndexNumberer.class, p));
     stage.add(new OutputStep("indexes"));
@@ -67,7 +67,7 @@ public class MergeIndex extends AppFunction {
     stage.addInput("documentMappingData", new DocumentMappingData.IndexIdOrder());
 
     stage.add(new InputStep("indexes"));
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("mappingDataStream", "documentMappingData");
     p.set("part", part);
     p.set("filename", outputFile);

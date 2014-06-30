@@ -13,7 +13,7 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -50,11 +50,11 @@ public class RankedPassageModelTest {
 
   @Test
   public void testEntireCollection() throws Exception {
-    Parameters globals = new Parameters();
+    Parameters globals = Parameters.instance();
     globals.set("passageQuery", true);
     LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), globals);
 
-    Parameters queryParams = new Parameters();
+    Parameters queryParams = Parameters.instance();
     int req = 10;
     queryParams.set("requested", req);
     queryParams.set("passageQuery", true);
@@ -120,7 +120,7 @@ public class RankedPassageModelTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testMissingPassageQuery() throws Exception {
-    Parameters badParms = new Parameters();
+    Parameters badParms = Parameters.instance();
     badParms.set("requested", 100);
     badParms.set("passageSize", 10);
     badParms.set("passageShift", 5);
@@ -131,7 +131,7 @@ public class RankedPassageModelTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testMissingPassageSize() throws Exception {
-    Parameters badParms = new Parameters();
+    Parameters badParms = Parameters.instance();
     badParms.set("passageQuery", true);
     badParms.set("passageShift", 5);
     badParms.set("working",
@@ -141,7 +141,7 @@ public class RankedPassageModelTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testMissingPassageShift() throws Exception {
-    Parameters badParms = new Parameters();
+    Parameters badParms = Parameters.instance();
     badParms.set("passageQuery", true);
     badParms.set("passageSize", 10);
     badParms.set("working",
@@ -151,7 +151,7 @@ public class RankedPassageModelTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testMissingWorkingSet() throws Exception {
-    Parameters badParms = new Parameters();
+    Parameters badParms = Parameters.instance();
     badParms.set("passageQuery", true);
     badParms.set("passageSize", 10);
     badParms.set("passageShift", 5);
@@ -160,11 +160,11 @@ public class RankedPassageModelTest {
 
   @Test
   public void testWhiteList() throws Exception {
-    Parameters globals = new Parameters();
+    Parameters globals = Parameters.instance();
     globals.set("passageQuery", true);
     LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), globals);
 
-    Parameters queryParams = new Parameters();
+    Parameters queryParams = Parameters.instance();
     queryParams.set("requested", 100);
     queryParams.set("passageQuery", true);
     queryParams.set("passageSize", 10);
@@ -242,7 +242,7 @@ public class RankedPassageModelTest {
     }
     Utility.copyStringToFile(c.toString(), corpus);
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("inputPath", corpus.getAbsolutePath());
     p.set("indexPath", index.getAbsolutePath());
     p.set("corpus", false);

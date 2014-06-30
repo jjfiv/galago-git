@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.merge.WindowIndexMerger;
 import org.lemurproject.galago.core.types.NumberedExtent;
 import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;

@@ -13,7 +13,7 @@ import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -48,17 +48,17 @@ public class BuildWindowIndexTest {
       Utility.copyStringToFile(trecDocument("d2", "<f>b a c a c b b a a c a a c b a c a a</f> z z z"), new File(trecFolder, "two.trectext"));
       Utility.copyStringToFile(trecDocument("d3", "<f>a c b b a a c a a c b a c a a b a a</f> z z z"), new File(trecFolder, "three.trectext"));
 
-      Parameters indexParams = new Parameters();
+      Parameters indexParams = Parameters.instance();
       indexParams.set("inputPath", Collections.singletonList(trecFolder.getAbsolutePath()));
       indexParams.set("indexPath", index.getAbsolutePath());
       indexParams.set("stemmedPostings", false);
       indexParams.set("server", false);
-      indexParams.set("tokenizer", new Parameters());
+      indexParams.set("tokenizer", Parameters.instance());
       indexParams.set("fieldIndex", false);
       indexParams.getMap("tokenizer").set("fields", Collections.singletonList("f"));
       App.run("build", indexParams, System.out);
 
-      Parameters windowParams_count_NSE = new Parameters();
+      Parameters windowParams_count_NSE = Parameters.instance();
       windowParams_count_NSE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_count_NSE.set("indexPath", index.getAbsolutePath());
       windowParams_count_NSE.set("stemming", false);
@@ -71,7 +71,7 @@ public class BuildWindowIndexTest {
       windowParams_count_NSE.set("fields", Collections.singleton("f"));
       App.run("build-window", windowParams_count_NSE, System.out);
 
-      Parameters windowParams_count_SE = new Parameters();
+      Parameters windowParams_count_SE = Parameters.instance();
       windowParams_count_SE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_count_SE.set("indexPath", index.getAbsolutePath());
       windowParams_count_SE.set("stemming", false);
@@ -84,7 +84,7 @@ public class BuildWindowIndexTest {
       windowParams_count_SE.set("fields", Collections.singleton("f"));
       App.run("build-window", windowParams_count_SE, System.out);
 
-      Parameters windowParams_posit_NSE = new Parameters();
+      Parameters windowParams_posit_NSE = Parameters.instance();
       windowParams_posit_NSE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_posit_NSE.set("indexPath", index.getAbsolutePath());
       windowParams_posit_NSE.set("stemming", false);
@@ -97,7 +97,7 @@ public class BuildWindowIndexTest {
       windowParams_posit_NSE.set("fields", Collections.singleton("f"));
       App.run("build-window", windowParams_posit_NSE, System.out);
 
-      Parameters windowParams_posit_SE = new Parameters();
+      Parameters windowParams_posit_SE = Parameters.instance();
       windowParams_posit_SE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_posit_SE.set("indexPath", index.getAbsolutePath());
       windowParams_posit_SE.set("stemming", false);
@@ -228,17 +228,17 @@ public class BuildWindowIndexTest {
       Utility.copyStringToFile(trecDocument("d2", "<f>b a c a c b b a a c a a c b a c a a</f> z z z"), new File(trecFolder, "two.trectext"));
       Utility.copyStringToFile(trecDocument("d3", "<f>a c b b a a c a a c b a c a a b a a</f> z z z"), new File(trecFolder, "three.trectext"));
 
-      Parameters indexParams = new Parameters();
+      Parameters indexParams = Parameters.instance();
       indexParams.set("inputPath", Collections.singletonList(trecFolder.getAbsolutePath()));
       indexParams.set("indexPath", index.getAbsolutePath());
       indexParams.set("stemmedPostings", false);
       indexParams.set("server", false);
-      indexParams.set("tokenizer", new Parameters());
+      indexParams.set("tokenizer", Parameters.instance());
       indexParams.set("fieldIndex", false);
       indexParams.getMap("tokenizer").set("fields", Collections.singletonList("f"));
       App.run("build", indexParams, System.out);
 
-      Parameters windowParams_count_NSE = new Parameters();
+      Parameters windowParams_count_NSE = Parameters.instance();
       windowParams_count_NSE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_count_NSE.set("indexPath", index.getAbsolutePath());
       windowParams_count_NSE.set("stemming", false);
@@ -253,7 +253,7 @@ public class BuildWindowIndexTest {
       windowParams_count_NSE.set("fields", Collections.singleton("f"));
       App.run("build-window", windowParams_count_NSE, System.out);
 
-      Parameters windowParams_count_SE = new Parameters();
+      Parameters windowParams_count_SE = Parameters.instance();
       windowParams_count_SE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_count_SE.set("indexPath", index.getAbsolutePath());
       windowParams_count_SE.set("stemming", false);
@@ -268,7 +268,7 @@ public class BuildWindowIndexTest {
       windowParams_count_SE.set("fields", Collections.singleton("f"));
       App.run("build-window", windowParams_count_SE, System.out);
 
-      Parameters windowParams_posit_NSE = new Parameters();
+      Parameters windowParams_posit_NSE = Parameters.instance();
       windowParams_posit_NSE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_posit_NSE.set("indexPath", index.getAbsolutePath());
       windowParams_posit_NSE.set("stemming", false);
@@ -283,7 +283,7 @@ public class BuildWindowIndexTest {
       windowParams_posit_NSE.set("fields", Collections.singleton("f"));
       App.run("build-window", windowParams_posit_NSE, System.out);
 
-      Parameters windowParams_posit_SE = new Parameters();
+      Parameters windowParams_posit_SE = Parameters.instance();
       windowParams_posit_SE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_posit_SE.set("indexPath", index.getAbsolutePath());
       windowParams_posit_SE.set("stemming", false);

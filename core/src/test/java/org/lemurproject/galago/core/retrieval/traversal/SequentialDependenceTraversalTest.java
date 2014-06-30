@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -40,7 +40,7 @@ public class SequentialDependenceTraversalTest {
   @Test
   public void testTraversal() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
     SequentialDependenceTraversal traversal = new SequentialDependenceTraversal(retrieval);
     Node tree = StructuredQuery.parse("#sdm( cat dog rat )");
@@ -54,7 +54,7 @@ public class SequentialDependenceTraversalTest {
     assertEquals(transformed.toString(), result.toString());
 
     // now change weights
-    p = new Parameters();
+    p = Parameters.instance();
     p.set("uniw", 0.75);
     p.set("odw", 0.10);
     p.set("uww", 0.15);
@@ -82,7 +82,7 @@ public class SequentialDependenceTraversalTest {
     assertEquals(transformed.toString(), result.toString());
 
     // now change the window size param
-    p = new Parameters();
+    p = Parameters.instance();
     p.set("uniw", 0.75);
     p.set("odw", 0.10);
     p.set("uww", 0.15);

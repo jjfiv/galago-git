@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
 import java.util.*;
@@ -102,7 +102,7 @@ public class MultiRetrieval implements Retrieval {
    */
   @Override
   public Results executeQuery(Node root) throws Exception {
-    return executeQuery(root, new Parameters());
+    return executeQuery(root, Parameters.instance());
   }
 
   // Based on the root of the tree, that dictates how we execute.
@@ -212,7 +212,7 @@ public class MultiRetrieval implements Retrieval {
   // a part is valid if it has at least one usable operator, and an operator is usable if the
   // iteratorClass that implements it is the same across all constituents under a given part.
   private Parameters mergeParts(List<Parameters> ps) {
-    Parameters unifiedParts = new Parameters();
+    Parameters unifiedParts = Parameters.instance();
     HashSet<String> operators = new HashSet<String>();
 
     // Get *all* parts
@@ -225,7 +225,7 @@ public class MultiRetrieval implements Retrieval {
     // Now iterate over the keys, looking for matches
     for (String part : allParts) {
 
-      Parameters unifiedPart = new Parameters();
+      Parameters unifiedPart = Parameters.instance();
       // If one of the constituents doesn't have a part of this name, we skip
       // further processing of it
       boolean hasPart = true;

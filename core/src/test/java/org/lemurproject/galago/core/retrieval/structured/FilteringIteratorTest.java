@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.ByteArrayOutputStream;
@@ -79,12 +79,12 @@ public class FilteringIteratorTest {
   @Test
   public void testRequireOperator() throws Exception {
     DiskIndex index = new DiskIndex(tempPath.getAbsolutePath());
-    LocalRetrieval retrieval = new LocalRetrieval(index, new Parameters());
+    LocalRetrieval retrieval = new LocalRetrieval(index, Parameters.instance());
 
     // Let's try requiring a greater than
     Node tree = StructuredQuery.parse("#combine ( #require( #greater( date 1/7/1920 ) a ) #require( #greater( date 1/7/1920 ) b ) ) ");
 
-    Parameters qp = new Parameters();
+    Parameters qp = Parameters.instance();
     tree = retrieval.transformQuery(tree, qp);
     
     List<ScoredDocument> results = retrieval.executeQuery(tree, qp).scoredDocuments;
@@ -105,11 +105,11 @@ public class FilteringIteratorTest {
   @Test
   public void testRejectOperator() throws Exception {
     DiskIndex index = new DiskIndex(tempPath.getAbsolutePath());
-    LocalRetrieval retrieval = new LocalRetrieval(index, new Parameters());
+    LocalRetrieval retrieval = new LocalRetrieval(index, Parameters.instance());
 
     // Let's try requiring a greater than
     Node tree = StructuredQuery.parse("#combine( #reject( #between( date 1/1/0100 1/1/1900 ) b ) #reject( #between( date 1/1/0100 1/1/1900)a ) )");
-    Parameters qp = new Parameters();
+    Parameters qp = Parameters.instance();
     tree = retrieval.transformQuery(tree, qp);
 
     List<ScoredDocument> results = retrieval.executeQuery(tree, qp).scoredDocuments;

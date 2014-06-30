@@ -1,7 +1,7 @@
 //  BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.core.eval;
 
-import org.lemurproject.galago.tupleflow.util.WrappedMap;
+import org.lemurproject.galago.utility.WrappedMap;
 
 import java.io.*;
 import java.util.Map;

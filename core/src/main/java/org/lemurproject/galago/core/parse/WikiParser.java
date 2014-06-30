@@ -5,7 +5,7 @@ package org.lemurproject.galago.core.parse;
 
 import info.bliki.wiki.model.WikiModel;
 import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

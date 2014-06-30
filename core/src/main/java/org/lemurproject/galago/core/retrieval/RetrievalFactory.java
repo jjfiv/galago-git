@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 /**
  * Class for creating retrieval objects based on provided parameters
@@ -82,7 +82,7 @@ public class RetrievalFactory {
   }
 	
 	public static Retrieval instance(String path) throws Exception {
-		return instance(path, new Parameters());
+		return instance(path, Parameters.instance());
 	}
 
   public static Retrieval instance(List<String> indexes, Parameters parameters) throws Exception {

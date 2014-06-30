@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.retrieval.prf.RelevanceModel1;
 import org.lemurproject.galago.core.retrieval.prf.RelevanceModel3;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -53,7 +53,7 @@ public class RelevanceFeedbackTraversalTest {
   @Test
   public void testRelevanceModel1Traversal() throws Exception {
     // Create a retrieval object for use by the traversal
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("index", indexFile.getAbsolutePath());
     p.set("stemmedPostings", false);
     p.set("fbOrigWeight", 0.5);
@@ -63,7 +63,7 @@ public class RelevanceFeedbackTraversalTest {
     RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval);
 
     Node parsedTree = StructuredQuery.parse("#rm:fbDocs=10:fbTerms=4( #dirichlet( #extents:jumped:part=postings() ) )");
-    Node transformed = traversal.traverse(parsedTree, new Parameters());
+    Node transformed = traversal.traverse(parsedTree, Parameters.instance());
     // truth data
     StringBuilder correct = new StringBuilder();
     /* No sentiwordlist.txt
@@ -88,7 +88,7 @@ public class RelevanceFeedbackTraversalTest {
   @Test
   public void testRelevanceModel3Traversal() throws Exception {
     // Create a retrieval object for use by the traversal
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("index", indexFile.getAbsolutePath());
     p.set("stemmedPostings", false);
     p.set("fbOrigWeight", 0.9);
@@ -98,7 +98,7 @@ public class RelevanceFeedbackTraversalTest {
     RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval);
 
     Node parsedTree = StructuredQuery.parse("#rm:fbDocs=10:fbTerms=4( #dirichlet( #extents:jumped:part=postings() ) )");
-    Node transformed = traversal.traverse(parsedTree, new Parameters());
+    Node transformed = traversal.traverse(parsedTree, Parameters.instance());
     // truth data
     StringBuilder correct = new StringBuilder();
 
@@ -116,7 +116,7 @@ public class RelevanceFeedbackTraversalTest {
   @Test
   public void testRelevanceModelEmptyTraversal() throws Exception {
     // Create a retrieval object for use by the traversal
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("index", indexFile.getAbsolutePath());
     p.set("stemmedPostings", false);
     p.set("fbOrigWeight", 0.9);

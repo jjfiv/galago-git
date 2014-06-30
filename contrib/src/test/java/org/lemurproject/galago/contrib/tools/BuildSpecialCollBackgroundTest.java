@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -34,7 +34,7 @@ public class BuildSpecialCollBackgroundTest {
         try {
             makeTrecDocs(docs);
 
-            Parameters p = new Parameters();
+            Parameters p = Parameters.instance();
             p.set("inputPath", docs.getAbsolutePath());
             p.set("indexPath", index.getAbsolutePath());
             p.set("corpus", false);
@@ -47,7 +47,7 @@ public class BuildSpecialCollBackgroundTest {
                     + "4\t4\n"
                     + "4\t4\n", back);
 
-            Parameters p2 = new Parameters();
+            Parameters p2 = Parameters.instance();
             p2.set("inputPath", back.getAbsolutePath());
             p2.set("indexPath", index.getAbsolutePath());
             p2.set("partName", "back");
@@ -56,7 +56,7 @@ public class BuildSpecialCollBackgroundTest {
             BackgroundStatsReader backPart = (BackgroundStatsReader) DiskIndex.openIndexComponent(new File(index, "back").getAbsolutePath());
             assertEquals(backPart.getManifest().getLong("statistics/highestCollectionFrequency"), 8);
 
-            Retrieval r = RetrievalFactory.instance(index.getAbsolutePath(), new Parameters());
+            Retrieval r = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.instance());
             assertEquals(r.getNodeStatistics("#counts:@/0/:part=back()").nodeFrequency, 0);
             assertEquals(r.getNodeStatistics("#counts:@/4/:part=back()").nodeFrequency, 8);
 

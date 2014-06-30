@@ -5,7 +5,7 @@ package org.lemurproject.galago.core.retrieval.traversal;
 
 import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import static org.junit.Assert.assertEquals;
 
@@ -21,7 +21,7 @@ public class ReplaceOperatorTraversalTest {
       "--opRepls/dummy2+test2", 
       "--opRepls/dummy2+test3"});
     
-    ReplaceOperatorTraversal traversal = new ReplaceOperatorTraversal(new Parameters());
+    ReplaceOperatorTraversal traversal = new ReplaceOperatorTraversal(Parameters.instance());
     
     Node t1 = traversal.afterNode(new Node("dummy1"), repls);
     Node t2 = traversal.afterNode(new Node("dummy2"), repls);

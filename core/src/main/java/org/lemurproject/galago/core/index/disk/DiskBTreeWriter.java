@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -68,7 +68,7 @@ public class DiskBTreeWriter extends BTreeWriter {
     output = new DataOutputStream(new BufferedOutputStream(
             new FileOutputStream(outputFilename)));
     vocabulary = new VocabularyWriter();
-    manifest = new Parameters();
+    manifest = Parameters.instance();
     manifest.copyFrom(parameters);
     lists = new ArrayList<IndexElement>();
 
@@ -79,7 +79,7 @@ public class DiskBTreeWriter extends BTreeWriter {
 
   public DiskBTreeWriter(String outputFilename)
           throws FileNotFoundException, IOException {
-    this(outputFilename, new Parameters());
+    this(outputFilename, Parameters.instance());
   }
 
   public DiskBTreeWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {

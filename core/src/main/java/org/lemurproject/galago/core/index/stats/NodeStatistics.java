@@ -3,7 +3,7 @@
  */
 package org.lemurproject.galago.core.index.stats;
 
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 /**
  *
@@ -24,7 +24,7 @@ public class NodeStatistics implements AggregateStatistic {
   }
 
   public Parameters toParameters() {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("node", this.node);
     p.set("nodeFrequency", this.nodeFrequency);
     p.set("maximumCount", this.maximumCount);

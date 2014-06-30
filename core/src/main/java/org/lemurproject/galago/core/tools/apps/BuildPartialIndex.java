@@ -14,7 +14,7 @@ import java.util.Set;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseReader.KeyIterator;
 import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Job;
 
@@ -73,7 +73,7 @@ public class BuildPartialIndex extends AppFunction {
     p.set("indexPath", outputIndex.getAbsolutePath());
 
     if (!p.isMap("parser")) {
-      p.set("parser", new Parameters());
+      p.set("parser", Parameters.instance());
     }
     p.getMap("parser").set("corpus", corpus.getAbsolutePath());
 

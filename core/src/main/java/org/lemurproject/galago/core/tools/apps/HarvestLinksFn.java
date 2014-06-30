@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.types.ExtractedLink;
 import org.lemurproject.galago.core.types.ExtractedLinkIndri;
 import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.tupleflow.Order;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
 
@@ -74,7 +74,7 @@ public class HarvestLinksFn extends AppFunction {
 
     // ensure we can extract links from tag: 'a'
     // sjh -- parameterize this to allow different link tags?
-    p.set("tokenizer", new Parameters());
+    p.set("tokenizer", Parameters.instance());
     p.getMap("tokenizer").set("fields", Arrays.asList("a", "base"));
 
     // check indri
@@ -84,7 +84,7 @@ public class HarvestLinksFn extends AppFunction {
 
     // stage 1: split files
 
-    Parameters splitParameters = p.isMap("parser")? p.getMap("parser") : new Parameters();
+    Parameters splitParameters = p.isMap("parser")? p.getMap("parser") : Parameters.instance();
     splitParameters.set("corpusPieces", p.get("distrib", 10));
 
     if (p.isString("filetype")) {
@@ -170,7 +170,7 @@ public class HarvestLinksFn extends AppFunction {
     stage.addInput("links", new ExtractedLinkIndri.DestUrlOrder());
 
     stage.add(new InputStep("links"));
-    Parameters namerParams = new Parameters();
+    Parameters namerParams = Parameters.instance();
     namerParams.set("destNameStream", "docUrls");
     namerParams.set("acceptExternalUrls", p.get("acceptExternalUrls", false));
     stage.add(new Step(LinkDestNamer.class, namerParams));
@@ -212,7 +212,7 @@ public class HarvestLinksFn extends AppFunction {
     stage.addInput("indriNamedLinks", new ExtractedLinkIndri.FilePathFileLocationOrder());
 
     // I'm doing this manually to ensure the existence of these parameters early.
-    Parameters writerParams = new Parameters();
+    Parameters writerParams = Parameters.instance();
     writerParams.set("filePrefix", p.getString("filePrefix"));
     writerParams.set("prefixReplacement", p.getString("prefixReplacement"));
 
@@ -233,7 +233,7 @@ public class HarvestLinksFn extends AppFunction {
     stage.addInput(streamName, order.getConstructor().newInstance());
 
     // I'm doing this manually to ensure the existence of these parameters early.
-    Parameters writerParams = new Parameters();
+    Parameters writerParams = Parameters.instance();
     writerParams.set("outputFolder", outputFolder);
     writerParams.set("outputFile", outputPrefix);
     writerParams.set("order", order.getName());

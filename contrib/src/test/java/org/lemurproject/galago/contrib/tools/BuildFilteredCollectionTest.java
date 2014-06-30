@@ -5,7 +5,7 @@ package org.lemurproject.galago.contrib.tools;
 
 import org.junit.Test;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.BufferedReader;
@@ -33,7 +33,7 @@ public class BuildFilteredCollectionTest {
       String docs = "doc-1\ndoc-2\ndoc-88\ndoc-99\ndoc-100";
       Utility.copyStringToFile(docs, filter);
 
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("inputPath", input.getAbsolutePath());
       p.set("outputPath", output.getAbsolutePath());
       p.set("filter", filter.getAbsolutePath());

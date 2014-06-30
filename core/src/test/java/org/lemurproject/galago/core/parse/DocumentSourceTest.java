@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
 
 import java.io.File;
@@ -36,7 +36,7 @@ public class DocumentSourceTest {
 
   @Test
   public void testUnknownFile() throws Exception {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("filename", "foo.c");
     DocumentSource source = new DocumentSource(new FakeParameters(p));
     FakeProcessor processor = new FakeProcessor();
@@ -54,7 +54,7 @@ public class DocumentSourceTest {
   @Test
   public void testUnknownExtension() throws Exception {
     File tempFile = FileUtility.createTemporary();
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("filename", tempFile.getAbsolutePath());
     DocumentSource source = new DocumentSource(new FakeParameters(p));
     FakeProcessor processor = new FakeProcessor();

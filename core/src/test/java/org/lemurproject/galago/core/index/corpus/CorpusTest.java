@@ -9,7 +9,7 @@ import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -48,9 +48,9 @@ public class CorpusTest {
       corpus = FileUtility.createTemporary();
 
       // test defaulty behaviour:
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("filename", corpus.getAbsolutePath());
-      p.set("tokenizer", new Parameters());
+      p.set("tokenizer", Parameters.instance());
       p.getMap("tokenizer").set("fields", new ArrayList());
       p.getMap("tokenizer").getList("fields", String.class).add("tag");
       CorpusFileWriter writer = new CorpusFileWriter(new FakeParameters(p));
@@ -81,7 +81,7 @@ public class CorpusTest {
       reader.close();
 
       // test <text> only
-      p = new Parameters();
+      p = Parameters.instance();
       p.set("filename", corpus.getAbsolutePath());
       writer = new CorpusFileWriter(new FakeParameters(p));
       for (Document d : docs) {

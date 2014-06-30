@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.index.geometric;
 import java.io.File;
 import java.io.IOException;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**

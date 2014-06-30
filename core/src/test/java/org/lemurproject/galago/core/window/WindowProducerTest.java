@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class WindowProducerTest {
     Catcher<Window> catcher = new Catcher();
 
     // first try bi-grams ~(#od:2(a b))
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("n", 2);
     p.set("width", 2);
     p.set("ordered", true);
@@ -81,7 +82,7 @@ public class WindowProducerTest {
     Catcher<Window> catcher = new Catcher();
 
     // first try bi-grams ~(#uw:3(a b))
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("n", 2);
     p.set("width", 3);
     p.set("ordered", false);
@@ -119,7 +120,7 @@ public class WindowProducerTest {
     Catcher<Window> catcher = new Catcher();
 
     // first try bi-grams ~(#od:2(a b))
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("n", 2);
     p.set("width", 1);
     p.set("ordered", true);
@@ -161,7 +162,7 @@ public class WindowProducerTest {
     Catcher<Window> catcher = new Catcher();
 
     // first try bi-grams ~(#od:2(a b))
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("n", 2);
     p.set("width", 1);
     p.set("ordered", true);

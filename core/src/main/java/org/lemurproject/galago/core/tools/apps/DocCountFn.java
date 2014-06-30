@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 /**
  *
@@ -44,7 +44,7 @@ public class DocCountFn extends AppFunction {
     for (String query : (List<String>) p.getList("x")) {
       Node parsed = StructuredQuery.parse(query);
       parsed.getNodeParameters().set("queryType", "count");
-      Node transformed = r.transformQuery(parsed, new Parameters());
+      Node transformed = r.transformQuery(parsed, Parameters.instance());
 
       if (p.get("printTransformation", false)) {
         System.err.println(query);

@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.retrieval.traversal.optimize.ExtentsToCountL
 import org.lemurproject.galago.core.retrieval.traversal.optimize.FlattenCombineTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.optimize.FlattenWindowTraversal;
 import org.lemurproject.galago.core.retrieval.traversal.optimize.MergeCombineChildrenTraversal;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;

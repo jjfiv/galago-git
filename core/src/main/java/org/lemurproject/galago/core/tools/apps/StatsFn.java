@@ -8,7 +8,7 @@ import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -90,7 +90,7 @@ public class StatsFn extends AppFunction {
 
       Node n = StructuredQuery.parse(field);
       // It would be nice to make the traversals deal with this corrently.
-      //n = r.transformQuery(n, new Parameters());
+      //n = r.transformQuery(n, Parameters.instance());
 
       // however, currently - I'm only willing to fix one type of lengths node:
       if(n.getOperator().equals("text")){
@@ -112,7 +112,7 @@ public class StatsFn extends AppFunction {
 
       Node n = StructuredQuery.parse(node);
       n.getNodeParameters().set("queryType", "count");
-      n = r.transformQuery(n, new Parameters());
+      n = r.transformQuery(n, Parameters.instance());
 
       output.println("  \"" + node + "\" : ");
       try {

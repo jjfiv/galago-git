@@ -16,7 +16,7 @@ import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
 
@@ -69,7 +69,7 @@ public class BuildStemmerConflation extends AppFunction {
     List<String> inputPaths = p.getAsList("inputPath");
     File output = new File(p.getString("outputPath"));
 
-    Parameters splitParameters = new Parameters();
+    Parameters splitParameters = Parameters.instance();
     splitParameters.set("corpusPieces", p.get("distrib", 10));
     job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
     job.add(getParserStage(p));
@@ -93,7 +93,7 @@ public class BuildStemmerConflation extends AppFunction {
     stage.add(BuildStageTemplates.getParserStep(p));
     stage.add(BuildStageTemplates.getTokenizerStep(p));
 
-    Parameters conflationParams = new Parameters();
+    Parameters conflationParams = Parameters.instance();
     conflationParams.set("stemmerClass", getStemmerClass(p.getString("stemmer")));
 
     stage.add(new Step(ConflationExtractor.class, conflationParams));
@@ -113,7 +113,7 @@ public class BuildStemmerConflation extends AppFunction {
     // repeat the discard step - over the newly combined data
     stage.add(new Step(ConflationReducer.class));
 
-    Parameters writerParams = new Parameters();
+    Parameters writerParams = Parameters.instance();
     writerParams.set("filename", output.getAbsolutePath());
     stage.add(new Step(ConflationIndexWriter.class, writerParams));
 

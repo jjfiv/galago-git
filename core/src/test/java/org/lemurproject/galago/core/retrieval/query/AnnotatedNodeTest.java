@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
 import org.lemurproject.galago.core.retrieval.processing.RankedDocumentModel;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -31,13 +31,13 @@ public class AnnotatedNodeTest {
     Utility.deleteDirectory(files[1]);
     File indexFile = files[2];
     try {
-      LocalRetrieval r = (LocalRetrieval) RetrievalFactory.instance(indexFile.getAbsolutePath(), new Parameters());
+      LocalRetrieval r = (LocalRetrieval) RetrievalFactory.instance(indexFile.getAbsolutePath(), Parameters.instance());
 
       String qtext = "#combine( sample document )";
       Node qnode = StructuredQuery.parse(qtext);
-      qnode = r.transformQuery(qnode, new Parameters());
+      qnode = r.transformQuery(qnode, Parameters.instance());
       ProcessingModel proc = new RankedDocumentModel(r);
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("requested", 100);
       p.set("annotate", true);
       ScoredDocument[] results = proc.execute(qnode, p);

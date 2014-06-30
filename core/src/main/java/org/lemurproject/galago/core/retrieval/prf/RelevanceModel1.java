@@ -16,7 +16,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.util.MathUtils;
 import org.lemurproject.galago.core.util.WordLists;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -86,7 +86,7 @@ public class RelevanceModel1 implements ExpansionModel {
     }
 
     // transform query to ensure it will run
-    Parameters fbParams = new Parameters();
+    Parameters fbParams = Parameters.instance();
     fbParams.set("requested", fbDocs);
     // first pass is asserted to be document level
     fbParams.set("passageQuery", false);

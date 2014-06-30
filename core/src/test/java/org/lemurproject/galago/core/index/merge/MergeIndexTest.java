@@ -13,7 +13,7 @@ import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -60,7 +60,7 @@ public class MergeIndexTest {
 
       indexmerged = FileUtility.createTemporaryDirectory();
 
-      Parameters mergeParams = new Parameters();
+      Parameters mergeParams = Parameters.instance();
       mergeParams.set("indexPath", indexmerged.getAbsolutePath());
       ArrayList<String> inputs = new ArrayList<String>();
       inputs.add(index1.getAbsolutePath());
@@ -144,7 +144,7 @@ public class MergeIndexTest {
 
       indexmerged = FileUtility.createTemporaryDirectory();
 
-      Parameters mergeParams = new Parameters();
+      Parameters mergeParams = Parameters.instance();
       mergeParams.set("indexPath", indexmerged.getAbsolutePath());
       ArrayList<String> inputs = new ArrayList<String>();
       inputs.add(index1.getAbsolutePath());

@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.types.DocumentFeature;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.util.HashMap;
@@ -25,7 +25,7 @@ public class DocumentPriorWriterTest {
   public void testSomeMethod() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("filename", tmp.getAbsolutePath());
       DocumentPriorWriter writer = new DocumentPriorWriter(new FakeParameters(p));
 

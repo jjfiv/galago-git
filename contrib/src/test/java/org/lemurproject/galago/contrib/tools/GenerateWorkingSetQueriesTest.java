@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -49,7 +49,7 @@ public class GenerateWorkingSetQueriesTest {
     }
     Utility.copyStringToFile(c.toString(), corpus);
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("inputPath", corpus.getAbsolutePath());
     p.set("indexPath", index.getAbsolutePath());
     p.set("distrib", 1);
@@ -68,7 +68,7 @@ public class GenerateWorkingSetQueriesTest {
 
     File out = new File(dataFolder, "out1");
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("index", index.getAbsolutePath());
     p.set("topK", 10);
     p.set("output", out.getAbsolutePath());

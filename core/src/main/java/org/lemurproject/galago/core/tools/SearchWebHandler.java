@@ -8,7 +8,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.Search.SearchResult;
 import org.lemurproject.galago.core.tools.Search.SearchResultItem;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.web.WebHandler;
 import org.znerd.xmlenc.XMLOutputter;
@@ -366,7 +366,7 @@ public class SearchWebHandler implements WebHandler {
     String retrievalGroup = request.getParameter("retrievalGroup");
     Node root = StructuredQuery.parse(nodeString);
     try {
-      Node transformed = search.retrieval.transformQuery(root, new Parameters());
+      Node transformed = search.retrieval.transformQuery(root, Parameters.instance());
       PrintWriter writer = response.getWriter();
       XMLOutputter outputter = new XMLOutputter(writer, "UTF-8");
       response.setContentType("text/xml");
@@ -494,7 +494,7 @@ public class SearchWebHandler implements WebHandler {
     int startAt = (startAtString == null) ? 0 : Integer.parseInt(startAtString);
     int resultCount = (countString == null) ? 10 : Integer.parseInt(countString);
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("indexId", id);
     p.set("queryType", qtype);
     p.set("requested", startAt + resultCount);

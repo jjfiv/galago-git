@@ -10,6 +10,7 @@ import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   public DocumentSource(TupleFlowParameters parameters) {
     this.parameters = parameters;
     this.inputCounter = parameters.getCounter("Inputs Processed");
-    DocumentStreamParser.addExternalParsers(parameters.getJSON().get("parser", new Parameters()));
+    DocumentStreamParser.addExternalParsers(parameters.getJSON().get("parser", Parameters.instance()));
   }
 
   @Override

@@ -1,6 +1,8 @@
 
 package org.lemurproject.galago.tupleflow;
 
+import org.lemurproject.galago.utility.Parameters;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,9 +16,9 @@ import java.util.logging.Logger;
 public class GalagoConf {
   private static final Logger LOG = Logger.getLogger(GalagoConf.class.getName());
  
-  private static final Parameters preferences = new Parameters();
-  private static final Parameters drmaaOptions = new Parameters();
-  private static final Parameters sorterOptions = new Parameters();
+  private static final Parameters preferences = Parameters.instance();
+  private static final Parameters drmaaOptions = Parameters.instance();
+  private static final Parameters sorterOptions = Parameters.instance();
   
   public static List<File> findGalagoConfigFiles() {
     ArrayList<File> files = new ArrayList<File>();

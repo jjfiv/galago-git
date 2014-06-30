@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -41,7 +41,7 @@ public class IndexWriterTest {
   @Test
   public void testSingleKeyValue() throws IOException {
 
-    Parameters parameters = new Parameters();
+    Parameters parameters = Parameters.instance();
     parameters.set("blockSize", 64);
     temporary = FileUtility.createTemporary();
     DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
@@ -67,7 +67,7 @@ public class IndexWriterTest {
         
     temporary = FileUtility.createTemporary();
     
-    DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), new Parameters());
+    DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), Parameters.instance());
     writer.add(new GenericElement(key, "value"));
     writer.close();
 
@@ -80,7 +80,7 @@ public class IndexWriterTest {
 
   @Test
   public void testSeek() throws IOException {
-    Parameters parameters = new Parameters();
+    Parameters parameters = Parameters.instance();
     parameters.set("blockSize", 64);
     temporary = FileUtility.createTemporary();
     DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
@@ -118,7 +118,7 @@ public class IndexWriterTest {
 
   @Test
   public void testSingleCompressedKeyValue() throws IOException {
-    Parameters parameters = new Parameters();
+    Parameters parameters = Parameters.instance();
     parameters.set("blockSize", 64);
     parameters.set("isCompressed", true);
     temporary = FileUtility.createTemporary();
@@ -135,7 +135,7 @@ public class IndexWriterTest {
 
   @Test
   public void testSimpleWrite() throws IOException {
-    Parameters parameters = new Parameters();
+    Parameters parameters = Parameters.instance();
     parameters.set("blockSize", 64);
     temporary = FileUtility.createTemporary();
     DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
@@ -161,7 +161,7 @@ public class IndexWriterTest {
 
   @Test
   public void testSimpleWriteCompressed() throws IOException {
-    Parameters parameters = new Parameters();
+    Parameters parameters = Parameters.instance();
     parameters.set("blockSize", 64);
     parameters.set("isCompressed", true);
     temporary = FileUtility.createTemporary();

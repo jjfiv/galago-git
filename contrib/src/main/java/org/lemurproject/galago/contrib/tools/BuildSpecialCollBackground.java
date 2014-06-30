@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.tools.apps.BuildStageTemplates;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.WordCount;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
 
@@ -38,11 +38,11 @@ public class BuildSpecialCollBackground extends AppFunction {
 
     stage.add(new InputStep(inputName));
 
-    Parameters parseParams = new Parameters();
+    Parameters parseParams = Parameters.instance();
     parseParams.set("delim", p.get("delim", "\t"));
     parseParams.set("lower", p.get("lower", true));
     parseParams.set("stripPunct", p.get("stripPunct", true));
-    parseParams.set("replacements", new Parameters());
+    parseParams.set("replacements", Parameters.instance());
     parseParams.getMap("replacements").set("_","~");
     parseParams.getMap("replacements").set(" ","~");
     
@@ -50,7 +50,7 @@ public class BuildSpecialCollBackground extends AppFunction {
     stage.add(new Step(WordCountCleaner.class, parseParams));
     
     if (p.containsKey("stemmer")) {
-      Parameters stemParams = new Parameters();
+      Parameters stemParams = Parameters.instance();
       stemParams.set("stemmer", p.getString("stemmerClass"));
       stage.add(new Step(WordCountStemmer.class, stemParams));
     }
@@ -90,7 +90,7 @@ public class BuildSpecialCollBackground extends AppFunction {
       p.set("stemmerClass", KrovetzStemmer.class.getName());
     }
 
-    Parameters writerParams = new Parameters();
+    Parameters writerParams = Parameters.instance();
     writerParams.set("filename", output.getAbsolutePath());
     if (p.containsKey("stemmer")) {
       writerParams.set("stemmer", p.getString("stemmerClass"));
@@ -98,7 +98,7 @@ public class BuildSpecialCollBackground extends AppFunction {
 
     Job job = new Job();
 
-    Parameters splitParameters = new Parameters();
+    Parameters splitParameters = Parameters.instance();
     splitParameters.set("corpusPieces", p.get("distrib", 10));
     splitParameters.set("filetype", "misc");
     job.add(BuildStageTemplates.getSplitStage(inputs, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));

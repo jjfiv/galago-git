@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.tools;
 
 import org.lemurproject.galago.tupleflow.GalagoConf;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.reflections.Reflections;
 
 import java.io.PrintStream;

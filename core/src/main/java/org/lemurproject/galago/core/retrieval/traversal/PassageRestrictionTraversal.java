@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.retrieval.iterator.PassageFilterIterator;
 import org.lemurproject.galago.core.retrieval.iterator.PassageLengthIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 /**
  * Inserts global passage restriction (length/extent) iterators in a node tree.

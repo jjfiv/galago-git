@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.Closeable;
@@ -42,7 +42,7 @@ public class DiskIndex implements Index, Closeable {
 
   private static final Logger logger = Logger.getLogger("DiskIndex");
   protected File location;
-  protected Parameters manifest = new Parameters();
+  protected Parameters manifest = Parameters.instance();
   protected LengthsReader lengthsReader = null;
   protected NamesReader namesReader = null;
   protected NamesReverseReader namesReverseReader = null;

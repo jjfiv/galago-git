@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.btree.simple;
 
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Sorter;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ public class DiskMapBuilder {
   }
 
   public DiskMapBuilder(String path) throws IOException {
-    this(path, new Parameters());
+    this(path, Parameters.instance());
   }
 
   public void put(byte[] key, byte[] value) throws IOException {

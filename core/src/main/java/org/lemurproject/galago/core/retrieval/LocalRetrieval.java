@@ -14,7 +14,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.IOException;
@@ -49,11 +49,11 @@ public class LocalRetrieval implements Retrieval {
    * feature factory.
    */
   public LocalRetrieval(Index index) throws Exception {
-    this(index, new Parameters());
+    this(index, Parameters.instance());
   }
 
   public LocalRetrieval(String filename) throws Exception {
-    this(filename, new Parameters());
+    this(filename, Parameters.instance());
   }
 
   public LocalRetrieval(String filename, Parameters parameters) throws Exception {
@@ -104,9 +104,9 @@ public class LocalRetrieval implements Retrieval {
    */
   @Override
   public Parameters getAvailableParts() throws IOException {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     for (String partName : index.getPartNames()) {
-      Parameters inner = new Parameters();
+      Parameters inner = Parameters.instance();
       Map<String, NodeType> nodeTypes = index.getPartNodeTypes(partName);
       for (String nodeName : nodeTypes.keySet()) {
         inner.set(nodeName, nodeTypes.get(nodeName).getIteratorClass().getName());
@@ -179,7 +179,7 @@ public class LocalRetrieval implements Retrieval {
 
   @Override
   public Results executeQuery(Node queryTree) throws Exception {
-    return executeQuery(queryTree, new Parameters());
+    return executeQuery(queryTree, Parameters.instance());
   }
 
   // Based on the root of the tree, that dictates how we execute.
@@ -287,7 +287,7 @@ public class LocalRetrieval implements Retrieval {
     // if you want passage statistics, you'll need a manual solution for now.
     ScoringContext sc = new ScoringContext();
 
-    BaseIterator structIterator = createIterator(new Parameters(), root);
+    BaseIterator structIterator = createIterator(Parameters.instance(), root);
 
     // first check if this iterator is an aggregate iterator (has direct access to stats)
     if (CollectionAggregateIterator.class.isInstance(structIterator)) {
@@ -349,7 +349,7 @@ public class LocalRetrieval implements Retrieval {
     // if you want passage statistics, you'll need a manual solution for now.
     ScoringContext sc = new ScoringContext();
 
-    BaseIterator structIterator = createIterator(new Parameters(), root);
+    BaseIterator structIterator = createIterator(Parameters.instance(), root);
 
     if (NodeAggregateIterator.class.isInstance(structIterator)) {
       s = ((NodeAggregateIterator) structIterator).getStatistics();
@@ -460,7 +460,7 @@ public class LocalRetrieval implements Retrieval {
   @Override
   public void addNodeToCache(Node node) throws Exception {
     if (cache != null) {
-      cache.addToCache(node, this.createIterator(new Parameters(), node));
+      cache.addToCache(node, this.createIterator(Parameters.instance(), node));
     }
   }
 
@@ -472,7 +472,7 @@ public class LocalRetrieval implements Retrieval {
         addAllNodesToCache(child);
       }
 
-      cache.addToCache(node, this.createIterator(new Parameters(), node));
+      cache.addToCache(node, this.createIterator(Parameters.instance(), node));
     }
   }
 

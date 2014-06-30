@@ -21,7 +21,7 @@ import org.lemurproject.galago.core.retrieval.iterator.disk.DiskExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -55,7 +55,7 @@ public class PositionIndexReaderTest {
     skipPath = FileUtility.createTemporary();
     skipPath.delete();
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("filename", tempPath.toString());
 
     PositionIndexWriter writer =
@@ -150,7 +150,7 @@ public class PositionIndexReaderTest {
   @Test
   public void testSkipLists() throws Exception {
     // internally fill the skip file
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("filename", skipPath.toString());
     p.set("skipping", true);
     p.set("skipDistance", 20);

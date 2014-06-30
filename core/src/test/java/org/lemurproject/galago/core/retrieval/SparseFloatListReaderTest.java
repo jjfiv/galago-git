@@ -17,6 +17,7 @@ import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class SparseFloatListReaderTest {
     // make a spot for the index
     tempPath = FileUtility.createTemporary();
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("filename", tempPath.toString());
 
     TupleFlowParameters parameters = new FakeParameters(p);

@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.parse;
 import java.io.IOException;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
@@ -29,7 +29,7 @@ public class CollectionLengthCounter extends StandardStep<NumberedDocumentData, 
 
   @Override
   public void close() throws IOException {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("statistics/collectionLength", collectionLength);
     p.set("statistics/documentCount", documentCount);
     processor.process(new SerializedParameters(p.toString()));

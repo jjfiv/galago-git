@@ -17,7 +17,7 @@ import org.lemurproject.galago.core.index.corpus.KeyValuePairToDocument;
 import org.lemurproject.galago.core.parse.DocumentNumberer;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
 import org.lemurproject.galago.tupleflow.execution.InputStep;
@@ -42,7 +42,7 @@ public class MakeCorpus extends AppFunction {
 
     Stage stage = new Stage("make-corpus");
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     ArrayList<String> inputFiles = new ArrayList<String>();
     ArrayList<String> inputDirectories = new ArrayList<String>();
     for (String input : inputs) {
@@ -67,7 +67,7 @@ public class MakeCorpus extends AppFunction {
     stage.add(new Step(DocumentToKeyValuePair.class));
     stage.add(Utility.getSorter(new KeyValuePair.KeyOrder()));
     stage.add(new Step(KeyValuePairToDocument.class));
-    p = new Parameters();
+    p = Parameters.instance();
     p.set("filename", outputCorpus);
     if (corpusParameters.isLong("corpusBlockSize")) {
       p.set("blockSize", corpusParameters.getLong("corpusBlockSize"));
@@ -123,7 +123,7 @@ public class MakeCorpus extends AppFunction {
       }
     }
 
-    Parameters corpusWriterParameters = new Parameters();
+    Parameters corpusWriterParameters = Parameters.instance();
     corpusWriterParameters.set("readerClass", CorpusReader.class.getName());
     corpusWriterParameters.set("writerClass", CorpusFolderWriter.class.getName());
     corpusWriterParameters.set("filename", corpus.getAbsolutePath());
@@ -135,7 +135,7 @@ public class MakeCorpus extends AppFunction {
 
     Job job = new Job();
 
-    Parameters splitParameters = new Parameters();
+    Parameters splitParameters = Parameters.instance();
     splitParameters.set("corpusPieces", corpusParams.get("distrib", 10));
     job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
     job.add(getParseWriteDocumentsStage(corpusParams, corpusWriterParameters));

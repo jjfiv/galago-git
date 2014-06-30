@@ -2,7 +2,7 @@ package org.lemurproject.galago.core.repair;
 
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.PrintStream;
 

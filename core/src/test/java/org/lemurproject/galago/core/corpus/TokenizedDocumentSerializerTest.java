@@ -6,7 +6,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.tools.apps.BuildIndex;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -18,7 +18,7 @@ public class TokenizedDocumentSerializerTest {
   @Test
   public void testSerializeDocument() throws IOException {
     TagTokenizer tagTokenizer = new TagTokenizer();
-    DocumentSerializer tds = new TokenizedDocumentSerializer(new Parameters());
+    DocumentSerializer tds = new TokenizedDocumentSerializer(Parameters.instance());
 
     Document doc = new Document();
     doc.metadata.put("meta-key", "value");

@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,7 +50,7 @@ public class FieldTraversalTest {
     LocalRetrieval retrieval = new LocalRetrieval(indexPath.getAbsolutePath(), Parameters.parseArray("fields", Arrays.asList("title", "anchor", "author")));
 
     Node raw = StructuredQuery.parse("cat dog donkey");
-    Node prepared = retrieval.transformQuery(raw, new Parameters());
+    Node prepared = retrieval.transformQuery(raw, Parameters.instance());
 
     System.out.println(raw);
 
@@ -71,11 +72,11 @@ public class FieldTraversalTest {
 
     // set fields
     String[] fields = {"title", "author", "anchor"};
-    Parameters global = new Parameters();
+    Parameters global = Parameters.instance();
     global.set("fields", Arrays.asList(fields));
 
     LocalRetrieval retrieval = new LocalRetrieval(index, global);
-    Parameters qp = new Parameters();
+    Parameters qp = Parameters.instance();
     PRMS2Traversal traversal = new PRMS2Traversal(retrieval);
     Node q1 = StructuredQuery.parse("#prms2(#text:cat() #text:dog() #text:donkey())");
     Node q2 = traversal.traverse(q1, qp);
@@ -106,7 +107,7 @@ public class FieldTraversalTest {
 
     // set fields
     String[] fields = {"title", "author", "anchor"};
-    Parameters global = new Parameters();
+    Parameters global = Parameters.instance();
     global.set("fields", Arrays.asList(fields));
 
     String query = "#prms2(cat dog donkey)";
@@ -136,10 +137,10 @@ public class FieldTraversalTest {
 
     // set fields
     String[] fields = {"title", "author", "anchor"};
-    Parameters global = new Parameters();
+    Parameters global = Parameters.instance();
 
     LocalRetrieval retrieval = new LocalRetrieval(index, global);
-    Parameters qp = new Parameters();
+    Parameters qp = Parameters.instance();
     qp.set("fields", Arrays.asList(fields));
     String query = "#prms2(cat dog donkey)";
     Node raw = StructuredQuery.parse(query);
@@ -192,10 +193,10 @@ public class FieldTraversalTest {
     File tempPath = FileUtility.createTemporaryDirectory();
 
     // put in a generic manifest
-    new Parameters().write(tempPath + File.separator + "manifest");
+    Parameters.instance().write(tempPath + File.separator + "manifest");
 
     // build the title index
-    Parameters extp = new Parameters();
+    Parameters extp = Parameters.instance();
     extp.set("statistics/collectionLength", 500);
     extp.set("statistics/documentCount", 5);
     extp.set("statistics/vocabCount", 3);
@@ -210,7 +211,7 @@ public class FieldTraversalTest {
     writer.close();
 
     // build the author index
-    extp = new Parameters();
+    extp = Parameters.instance();
     extp.set("statistics/collectionLength", 500);
     extp.set("statistics/documentCount", 5);
     extp.set("statistics/vocabCount", 3);
@@ -226,7 +227,7 @@ public class FieldTraversalTest {
     writer.close();
 
     // build the anchor index
-    extp = new Parameters();
+    extp = Parameters.instance();
     extp.set("statistics/collectionLength", 500);
     extp.set("statistics/documentCount", 5);
     extp.set("statistics/vocabCount", 3);
@@ -253,7 +254,7 @@ public class FieldTraversalTest {
     writer.close();
 
     // add some document names
-    Parameters dnp = new Parameters();
+    Parameters dnp = Parameters.instance();
     dnp.set("filename", tempPath + File.separator + "names");
 
     DiskNameWriter dnWriter = new DiskNameWriter(new FakeParameters(dnp));
@@ -263,13 +264,13 @@ public class FieldTraversalTest {
     dnWriter.close();
 
     // build an extent index for field lengths
-    extp = new Parameters();
+    extp = Parameters.instance();
     extp.set("filename", tempPath + File.separator + "extents");
     extParameters = new FakeParameters(extp);
 
     WindowIndexWriter ewriter = new WindowIndexWriter(extParameters);
     
-    Parameters lp = new Parameters();
+    Parameters lp = Parameters.instance();
     lp.set("filename", tempPath + File.separator + "lengths");
     DiskLengthsWriter lwriter = new DiskLengthsWriter(new FakeParameters(lp));
 

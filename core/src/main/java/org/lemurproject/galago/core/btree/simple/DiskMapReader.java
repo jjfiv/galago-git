@@ -3,9 +3,9 @@ package org.lemurproject.galago.core.btree.simple;
 
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.util.ReadOnlyMap;
+import org.lemurproject.galago.utility.ReadOnlyMap;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -119,7 +119,7 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> implements Closea
   public static DiskMapReader fromMap(String path, Map<byte[], byte[]> other) throws IOException {
     LOG.log(Level.INFO, "Creating DiskMap at {0}", path);
     
-    DiskMapSortedBuilder mb = new DiskMapSortedBuilder(path, new Parameters());
+    DiskMapSortedBuilder mb = new DiskMapSortedBuilder(path, Parameters.instance());
     
     ArrayList<byte[]> keys = new ArrayList<byte[]>(other.keySet());
     Collections.sort(keys, new Utility.ByteArrComparator());

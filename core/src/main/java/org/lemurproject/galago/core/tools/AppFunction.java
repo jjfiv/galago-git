@@ -3,7 +3,7 @@
  */
 package org.lemurproject.galago.core.tools;
 
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Job;
@@ -50,7 +50,7 @@ public abstract class AppFunction {
    * methods.
    */
   public void run(String[] args, PrintStream output) throws Exception {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
 
     if (args.length == 1) {
       if(!allowsZeroParameters()) {

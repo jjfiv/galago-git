@@ -16,7 +16,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.ByteArrayOutputStream;
@@ -39,7 +39,7 @@ public class GeometricIndexTest {
 
     File shards = FileUtility.createTemporaryDirectory();
     try {
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("indexBlockSize", 50);
       p.set("shardDirectory", shards.getAbsolutePath());
       GeometricIndex index = new GeometricIndex(new FakeParameters(p));
@@ -138,7 +138,7 @@ public class GeometricIndexTest {
 
     Random rnd = new Random();
     try {
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("indexBlockSize", 50);
       p.set("shardDirectory", shards.getAbsolutePath());
       p.set("requested", 10);

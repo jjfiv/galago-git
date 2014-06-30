@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.retrieval.query;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 /**
  * <p>A NodeType describes the class type and input types of an iterator.</p>

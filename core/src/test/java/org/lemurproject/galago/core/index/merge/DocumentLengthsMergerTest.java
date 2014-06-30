@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -29,7 +30,7 @@ import static org.junit.Assert.assertTrue;
 public class DocumentLengthsMergerTest {
   private static String makeLengthsIndex(int firstDocNum, File folder) throws Exception {
     File temp = new File(folder + File.separator + "lengths");
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("filename", temp.getAbsolutePath());
     DiskLengthsWriter writer = new DiskLengthsWriter(new FakeParameters(p));
 
@@ -70,7 +71,7 @@ public class DocumentLengthsMergerTest {
       String writerClassName = reader1.getManifest().getString("writerClass");
       String mergeClassName = reader1.getManifest().getString("mergerClass");
 
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("writerClass", writerClassName);
       p.set("filename", output);
 
@@ -129,7 +130,7 @@ public class DocumentLengthsMergerTest {
 
       output = FileUtility.createTemporary().getAbsolutePath();
 
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("part", "lengths");
       p.set("filename", output);
       IndexPartMergeManager manager = new IndexPartMergeManager(new FakeParameters(p));

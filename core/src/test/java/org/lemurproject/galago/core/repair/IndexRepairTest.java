@@ -9,7 +9,7 @@ import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +35,7 @@ public class IndexRepairTest {
 
     try {
       tempPart = FileUtility.createTemporary();
-      IndexRepair.createNamesReverseFromNames(namesPart, tempPart.getAbsolutePath(), new Parameters());
+      IndexRepair.createNamesReverseFromNames(namesPart, tempPart.getAbsolutePath(), Parameters.instance());
 
       DiskNameReverseReader original = new DiskNameReverseReader(originalRNames);
       DiskNameReverseReader recreated = new DiskNameReverseReader(tempPart.getAbsolutePath());

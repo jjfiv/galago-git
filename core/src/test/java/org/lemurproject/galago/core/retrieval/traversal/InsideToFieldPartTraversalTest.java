@@ -14,7 +14,7 @@ import org.lemurproject.galago.core.retrieval.iterator.disk.DiskExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -46,19 +46,19 @@ public class InsideToFieldPartTraversalTest {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
     LocalRetrieval retrieval = new LocalRetrieval(index);
     TextFieldRewriteTraversal rewriter = new TextFieldRewriteTraversal(retrieval);
-    Parameters inner1 = new Parameters();
+    Parameters inner1 = Parameters.instance();
     inner1.set("extents", DiskExtentIterator.class.getName());
     inner1.set("counts", DiskCountIterator.class.getName());
     
     InsideToFieldPartTraversal traversal = new InsideToFieldPartTraversal(retrieval);
-    Parameters inner2 = new Parameters();
+    Parameters inner2 = Parameters.instance();
     inner2.set("extents", DiskExtentIterator.class.getName());
     inner2.set("counts", DiskCountIterator.class.getName());
     traversal.availableParts.set("field.subject", inner2);
     
     Node q1 = StructuredQuery.parse("#combine( cat dog.title donkey.subject absolute.subject)");
-    Node q2 = rewriter.traverse(q1, new Parameters()); // converts #text to #extents...
-    Node q3 = traversal.traverse(q2, new Parameters()); // converts #inside to #extents...
+    Node q2 = rewriter.traverse(q1, Parameters.instance()); // converts #text to #extents...
+    Node q3 = traversal.traverse(q2, Parameters.instance()); // converts #inside to #extents...
 
     StringBuilder transformed = new StringBuilder();
 

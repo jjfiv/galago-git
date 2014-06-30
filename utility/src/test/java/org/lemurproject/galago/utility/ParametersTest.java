@@ -2,11 +2,11 @@
  * BSD License (http://lemurproject.org/galago-license)
 
  */
-package org.lemurproject.galago.tupleflow;
+package org.lemurproject.galago.utility;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.lemurproject.galago.tupleflow.json.JSONUtil;
+import org.lemurproject.galago.utility.json.JSONUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,13 +22,13 @@ import static org.junit.Assert.*;
 public class ParametersTest {
   @Test
   public void testCreation() {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     assertNotNull(p);
   }
 
   @Test
   public void testAddSimpleData() {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
 
     // add boolean data
     p.set("testa", false);
@@ -69,7 +69,7 @@ public class ParametersTest {
     a.add("woot");
     a.add("yeah");
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("list", a);
     assertTrue(p.isList("list"));
     assertTrue(p.isList("list", String.class));
@@ -85,7 +85,7 @@ public class ParametersTest {
 
   @Test
   public void testAddParameters() throws Exception {
-    Parameters inner = new Parameters();
+    Parameters inner = Parameters.instance();
 
     inner.set("ib", true);
     inner.set("ii", 5L);
@@ -93,7 +93,7 @@ public class ParametersTest {
     assertEquals(true, inner.getBoolean("ib"));
     assertEquals(5L, inner.getLong("ii"));
 
-    Parameters outer = new Parameters();
+    Parameters outer = Parameters.instance();
     outer.set("inside", inner);
 
     assertTrue(outer.isMap("inside"));
@@ -106,8 +106,8 @@ public class ParametersTest {
   public void testWritingAndReading() throws IOException {
     File tempPath = null;
     try {
-      Parameters tokenizer = new Parameters();
-      Parameters formats = new Parameters();
+      Parameters tokenizer = Parameters.instance();
+      Parameters formats = Parameters.instance();
       formats.set("title", "string");
       formats.set("date", "date");
       formats.set("version", "int");
@@ -115,12 +115,12 @@ public class ParametersTest {
       String[] fields = {"title", "date", "version"};
       tokenizer.set("fields", Arrays.asList(fields));
 
-      Parameters params = new Parameters();
+      Parameters params = Parameters.instance();
       // MCZ 3/21/2014 - made platform independent
       params.set("filename", "fictional" + File.separatorChar + "path");
       params.set("tokenizer", tokenizer);
 
-      tempPath = FileUtility.createTemporary();
+      tempPath = File.createTempFile("parametersTest", ".json");
       params.write(tempPath.getAbsolutePath() );
 
       // Now read it in.
@@ -205,8 +205,8 @@ public class ParametersTest {
 
   @Test
   public void testPrettyPrinter() throws Exception {
-    Parameters tokenizer = new Parameters();
-    Parameters formats = new Parameters();
+    Parameters tokenizer = Parameters.instance();
+    Parameters formats = Parameters.instance();
     formats.set("title", "string");
     formats.set("date", "date");
     formats.set("version", "int");
@@ -217,7 +217,7 @@ public class ParametersTest {
     pList.add(Parameters.parseString("{\"text\":\"query text one\", \"number\":\"10\"}"));
     pList.add(Parameters.parseString("{\"text\":\"query text two\", \"number\":\"11\"}"));
 
-    Parameters params = new Parameters();
+    Parameters params = Parameters.instance();
     params.set("filename", "fictional/path");
     params.set("tokenizer", tokenizer);
     params.set("paramList", pList);
@@ -264,7 +264,7 @@ public class ParametersTest {
   @Test
   public void testCopyTo() throws IOException {
     Parameters truth = complicated();
-    Parameters newP = new Parameters();
+    Parameters newP = Parameters.instance();
     truth.copyTo(newP);
     assertEquals(truth.toString(), newP.toString());
     assertEquals(truth, newP);
@@ -272,7 +272,7 @@ public class ParametersTest {
 
   @Test
   public void testEscaping() throws IOException {
-    Parameters truth = new Parameters();
+    Parameters truth = Parameters.instance();
     truth.set("withAQuote!", "here it comes \" to wreck the day...");
     truth.set("withANewline!", "here it comes \n to wreck the day...");
     truth.set("withABackslash!", "here it comes \\ to wreck the day...");
@@ -288,7 +288,7 @@ public class ParametersTest {
   @Test
   public void testBackoff() {
     Parameters theBack = complicated();
-    Parameters theFront = new Parameters();
+    Parameters theFront = Parameters.instance();
     theFront.setBackoff(theBack);
 
     assertEquals(theBack.toString(), theFront.toString());
@@ -326,7 +326,7 @@ public class ParametersTest {
     String testLong = "I stole this guy from wikipedia: \ud83d\ude02"; // emoji "face with tears of joy"
     assertEquals("I stole this guy from wikipedia: \\ud83d\\ude02", JSONUtil.escape(testLong));
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("short", testShort);
     p.set("long", testLong);
     Parameters p2 = Parameters.parseString(p.toString());
@@ -336,7 +336,7 @@ public class ParametersTest {
   }
 
   public static Parameters complicated() {
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("bool-t", true);
     p.set("bool-f", false);
     p.set("long-a", 120L);
@@ -346,7 +346,7 @@ public class ParametersTest {
     p.set("list-a", Arrays.asList(true, false, "bar", "foo", Math.PI, -Math.exp(1), p.clone()));
     p.set("list-b", Collections.EMPTY_LIST);
     p.set("map-a", p.clone());
-    p.set("map-b", new Parameters());
+    p.set("map-b", Parameters.instance());
 
     return p;
   }

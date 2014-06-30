@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.tupleflow.json;
+package org.lemurproject.galago.utility.json;
 
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class JSONParser {
      * Creates a new parameter object by inserting data from the reader
      */
     public Parameters parse() throws IOException {
-        return parse(new Parameters());
+        return parse(Parameters.instance());
     }
 
   /**
@@ -184,7 +184,7 @@ public class JSONParser {
         return parseList();
       case '{':
         valueType = Type.MAP;
-        return parseParameters(new Parameters());
+        return parseParameters(Parameters.instance());
       case 't':
         valueType = Type.BOOLEAN;
         return parseTrue();

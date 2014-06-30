@@ -1,33 +1,11 @@
 package org.lemurproject.galago.contrib.tools;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import org.lemurproject.galago.contrib.index.AnchorTextWriter;
-import org.lemurproject.galago.core.parse.AnchorTextCreator;
-import org.lemurproject.galago.core.parse.DocumentNumberer;
-import org.lemurproject.galago.core.parse.DocumentSource;
 //import org.lemurproject.galago.core.parse.LinkCombiner;
 //import org.lemurproject.galago.core.parse.LinkExtractor;
-import org.lemurproject.galago.core.parse.NumberedDocumentDataExtractor;
 import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.core.tools.apps.BuildIndex;
-import org.lemurproject.galago.core.tools.apps.BuildStageTemplates;
-import org.lemurproject.galago.core.types.AdditionalDocumentText;
-import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.core.types.ExtractedLink;
-import org.lemurproject.galago.core.types.NumberedDocumentData;
-import org.lemurproject.galago.tupleflow.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
-import org.lemurproject.galago.tupleflow.execution.InputStep;
-import org.lemurproject.galago.tupleflow.execution.Job;
-import org.lemurproject.galago.tupleflow.execution.MultiStep;
-import org.lemurproject.galago.tupleflow.execution.OutputStep;
-import org.lemurproject.galago.tupleflow.execution.Stage;
-import org.lemurproject.galago.tupleflow.execution.Step;
+import org.lemurproject.galago.utility.Parameters;
+
 //
 ///**
 // * 

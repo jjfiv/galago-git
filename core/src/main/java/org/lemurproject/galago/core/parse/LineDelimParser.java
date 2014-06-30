@@ -1,13 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import info.bliki.wiki.tags.SourceTag;
 import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.lang.Error;
 import java.lang.String;
 
 /**
@@ -46,7 +44,7 @@ public class LineDelimParser extends DocumentStreamParser {
                 p = parserP;
             }
         }
-        if(p == null) p = new Parameters();
+        if(p == null) p = Parameters.instance();
         this.linedelim = p.get("linedelim", "----------");
         this.docIdPrefix = p.get("docIdPrefix", "");
         this.textBeginLine = p.get("textBeginLine","");

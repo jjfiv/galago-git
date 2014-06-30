@@ -4,10 +4,9 @@ package org.lemurproject.galago.core.retrieval.traversal;
 import java.util.ArrayList;
 import java.util.List;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.MalformedQueryException;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 /**
  * Transforms a #fulldep operator into a full expansion of the sequential

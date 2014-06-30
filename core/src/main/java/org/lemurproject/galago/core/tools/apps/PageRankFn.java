@@ -14,6 +14,7 @@ import org.lemurproject.galago.tupleflow.execution.*;
 import org.lemurproject.galago.tupleflow.execution.Step;
 import org.lemurproject.galago.tupleflow.types.FileName;
 import org.lemurproject.galago.tupleflow.types.TupleflowLong;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.io.IOException;
@@ -152,12 +153,12 @@ public class PageRankFn extends AppFunction {
       writer.addInput("urls", new FileName.FilenameOrder());
 
       writer.add(new InputStep("urls"));
-      Parameters readerParams = new Parameters();
+      Parameters readerParams = Parameters.instance();
       readerParams.set("order", Utility.join(new DocumentUrl.IdentifierOrder().getOrderSpec()));
       readerParams.set("outputClass", DocumentUrl.class.getCanonicalName());
       writer.add(new Step(TypeFileReader.class, readerParams));
 
-      Parameters writerParams = new Parameters();
+      Parameters writerParams = Parameters.instance();
       writerParams.set("outputFile", itrZeroprefix.getAbsolutePath()); // + i
       writerParams.set("class", PageRankScore.class.getCanonicalName());
       writerParams.set("order", Utility.join(new PageRankScore.DocNameOrder().getOrderSpec()));
@@ -187,12 +188,12 @@ public class PageRankFn extends AppFunction {
         counterStage.addOutput("docCount", new TupleflowLong.ValueOrder());
 
         counterStage.add(new InputStep("urls"));
-        Parameters counterParams1 = new Parameters();
+        Parameters counterParams1 = Parameters.instance();
         counterParams1.set("order", Utility.join(new DocumentUrl.IdentifierOrder().getOrderSpec()));
         counterParams1.set("outputClass", DocumentUrl.class.getCanonicalName());
         counterStage.add(new Step(TypeFileReader.class, counterParams1));
 
-        Parameters counterParams2 = new Parameters();
+        Parameters counterParams2 = Parameters.instance();
         counterParams2.set("inputClass", DocumentUrl.class.getName());
         counterStage.add(new Step(ObjectCounter.class, counterParams2));
 
@@ -244,12 +245,12 @@ public class PageRankFn extends AppFunction {
     Stage stage = new Stage("final");
 
     // collect files
-    Parameters inParams = new Parameters();
+    Parameters inParams = Parameters.instance();
     inParams.set("input", finalPageranks.getAbsolutePath());
     stage.add(new Step(FileSource.class, inParams));
 
     // open reader
-    Parameters readerParams = new Parameters();
+    Parameters readerParams = Parameters.instance();
     readerParams.set("order", Utility.join(new PageRankScore.DocNameOrder().getOrderSpec()));
     readerParams.set("outputClass", PageRankScore.class.getCanonicalName());
     stage.add(new Step(TypeFileReader.class, readerParams));
@@ -261,14 +262,14 @@ public class PageRankFn extends AppFunction {
 
     // fork 1 - write document-name ordered output
     fork.addGroup("docName");
-    Parameters writerParams1 = new Parameters();
+    Parameters writerParams1 = Parameters.instance();
     writerParams1.set("output", docNameOutput.getAbsolutePath());
     fork.addToGroup("docName", new Step(FinalPageRankScoreWriter.class, writerParams1));
 
     // fork 2 - write score ordered output
     fork.addGroup("scores");
     fork.addToGroup("scores", Utility.getSorter(new PageRankScore.DescScoreOrder()));
-    Parameters writerParams2 = new Parameters();
+    Parameters writerParams2 = Parameters.instance();
     writerParams2.set("output", scoreOutput.getAbsolutePath());
     fork.addToGroup("scores", new Step(FinalPageRankScoreWriter.class, writerParams2));
 
@@ -373,7 +374,7 @@ public class PageRankFn extends AppFunction {
     Stage stage = new Stage(name);
     stage.addOutput(outputName, new FileName.FilenameOrder());
 
-    Parameters inParams = new Parameters();
+    Parameters inParams = Parameters.instance();
     inParams.set("input", folder.getAbsolutePath());
     stage.add(new Step(FileSource.class, inParams));
     stage.add(Utility.getSorter(new FileName.FilenameOrder()));
@@ -390,7 +391,7 @@ public class PageRankFn extends AppFunction {
 
     stage.add(new InputStep(input));
 
-    Parameters p = new Parameters();
+    Parameters p = Parameters.instance();
     p.set("order", Utility.join(order.getOrderSpec()));
     p.set("outputClass", outputClass);
     stage.add(new Step(TypeFileReader.class, p));
@@ -409,7 +410,7 @@ public class PageRankFn extends AppFunction {
     stage.addOutput("outputExtraJumps", new PageRankJumpScore.ScoreOrder(), CompressionType.GZIP);
 
     stage.add(new InputStep("inputScores"));
-    Parameters rndWalk = new Parameters();
+    Parameters rndWalk = Parameters.instance();
     rndWalk.set("linkStream", "inputLinks");
     rndWalk.set("jumpStream", "outputExtraJumps");
     rndWalk.set("lambda", p.getDouble("lambda"));
@@ -431,7 +432,7 @@ public class PageRankFn extends AppFunction {
     stage.add(new InputStep("inputScores"));
     // sum the scores, divide by count of pages, 
     // then emit single value that is the value of all random jumps to any given page.
-    Parameters rndJumpParams = new Parameters();
+    Parameters rndJumpParams = Parameters.instance();
     rndJumpParams.set("lambda", p.getDouble("lambda"));
     rndJumpParams.set("docCount", p.getLong("docCount"));
     rndJumpParams.set("extraJumpStream", "outputExtraJumps");
@@ -454,7 +455,7 @@ public class PageRankFn extends AppFunction {
 
     stage.add(new InputStep("inputScores"));
 
-    Parameters combinerParams = new Parameters();
+    Parameters combinerParams = Parameters.instance();
     combinerParams.set("jumpStream1", "outputCumulativeJump");
     combinerParams.set("scoreStream", "outputPartialScores");
     stage.add(new Step(PageRankScoreCombiner.class, combinerParams));
@@ -464,7 +465,7 @@ public class PageRankFn extends AppFunction {
     processingFork.addGroup("writer");
     processingFork.addGroup("stream");
 
-    Parameters writerParams = new Parameters();
+    Parameters writerParams = Parameters.instance();
     writerParams.set("outputFile", outputFilePrefix.getAbsolutePath()); // + i
     writerParams.set("class", PageRankScore.class.getCanonicalName());
     writerParams.set("order", Utility.join(new PageRankScore.DocNameOrder().getOrderSpec()));
@@ -486,7 +487,7 @@ public class PageRankFn extends AppFunction {
     stage.addInput("inputScores", new PageRankScore.DocNameOrder());
     stage.addInput("outputScores", new PageRankScore.DocNameOrder());
 
-    Parameters convgParams = new Parameters();
+    Parameters convgParams = Parameters.instance();
     convgParams.set("convFile", conv.getAbsolutePath());
     convgParams.set("prevScoreStream", "inputScores");
     convgParams.set("currScoreStream", "outputScores");
@@ -503,7 +504,7 @@ public class PageRankFn extends AppFunction {
       jobFolder.mkdirs();
     }
 
-    Parameters runParams = new Parameters();
+    Parameters runParams = Parameters.instance();
     if (p.isLong("distrib")) {
       runParams.set("distrib", p.getLong("distrib"));
     }

@@ -14,7 +14,7 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.tools.apps.BatchSearch;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
@@ -154,7 +154,7 @@ public class GenerateWorkingSetQueries extends AppFunction {
       }
     }
 
-    Parameters wsParameters = new Parameters();
+    Parameters wsParameters = Parameters.instance();
     wsParameters.set("queries", wsQueries);
 
     if (parameters.isString("output")) {

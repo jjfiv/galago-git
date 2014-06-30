@@ -8,7 +8,7 @@ import org.lemurproject.galago.core.index.disk.DiskNameReader.KeyIterator;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 
@@ -24,7 +24,7 @@ public class DiskNameWriterTest {
   public void testNamesWriter() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {
-      Parameters p = new Parameters();
+      Parameters p = Parameters.instance();
       p.set("filename", tmp.getAbsolutePath());
       DiskNameWriter writer = new DiskNameWriter(new FakeParameters(p));
 

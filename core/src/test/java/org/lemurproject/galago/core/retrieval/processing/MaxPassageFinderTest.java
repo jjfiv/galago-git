@@ -5,22 +5,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.After;
+
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.lemurproject.galago.core.parse.Document;
+
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.ScoredPassage;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Parameters;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -51,7 +49,7 @@ public class MaxPassageFinderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testMissingPassageQuery() throws Exception {
-        Parameters badParms = new Parameters();
+        Parameters badParms = Parameters.instance();
         badParms.set("requested", 100);
         badParms.set("passageSize", 10);
         badParms.set("passageShift", 5);
@@ -65,11 +63,11 @@ public class MaxPassageFinderTest {
 
     @Test
     public void testEntireCollection() throws Exception {
-        Parameters globals = new Parameters();
+        Parameters globals = Parameters.instance();
         globals.set("passageQuery", true);
         LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), globals);
 
-        Parameters queryParams = new Parameters();
+        Parameters queryParams = Parameters.instance();
 
         queryParams.set("passageQuery", true);
         queryParams.set("passageSize", 10);
@@ -81,7 +79,7 @@ public class MaxPassageFinderTest {
         queryParams.set("working", docs);
         Node query = StructuredQuery.parse("#combine( test text 0 1 )");
         query = ret.transformQuery(query, queryParams);
-        // List<ScoredDocument> results = ret.executeQuery(query, new Parameters()).scoredDocuments;
+        // List<ScoredDocument> results = ret.executeQuery(query, Parameters.instance()).scoredDocuments;
 
         MaxPassageFinder model = new MaxPassageFinder(ret);
 
@@ -135,7 +133,7 @@ public class MaxPassageFinderTest {
         }
         Utility.copyStringToFile(c.toString(), corpus);
 
-        Parameters p = new Parameters();
+        Parameters p = Parameters.instance();
         p.set("inputPath", corpus.getAbsolutePath());
         p.set("indexPath", index.getAbsolutePath());
         p.set("corpus", false);
