@@ -10,18 +10,19 @@ import org.lemurproject.galago.core.index.disk.DiskLengthsReader;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.FieldLengthData;
-import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.core.util.DocumentSplitFactory;
+import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.tupleflow.TupleFlowParameters;
+import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -136,8 +137,8 @@ public class DocumentLengthsMergerTest {
       IndexPartMergeManager manager = new IndexPartMergeManager(new FakeParameters(p));
 
       // add indexes to be merged
-      manager.process(new DocumentSplit(indexFolder1.getAbsolutePath(), "", new byte[0], new byte[0], 2, 2));
-      manager.process(new DocumentSplit(indexFolder2.getAbsolutePath(), "", new byte[0], new byte[0], 1, 2));
+      manager.process(DocumentSplitFactory.numberedFile(indexFolder1.getAbsolutePath(), 2, 2));
+      manager.process(DocumentSplitFactory.numberedFile(indexFolder2.getAbsolutePath(), 1, 2));
 
       // perform merge
       manager.close();

@@ -6,9 +6,12 @@ package org.lemurproject.galago.core.index.merge;
 import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskNameWriter;
 import org.lemurproject.galago.core.types.DocumentMappingData;
-import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
-import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.core.util.DocumentSplitFactory;
+import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.tupleflow.Processor;
+import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
@@ -54,10 +57,9 @@ public class DocumentNumberMapperTest {
       DocumentNumberMapper mapper = new DocumentNumberMapper();
       mapper.setProcessor( catcher );
 
-      mapper.process( new DocumentSplit(index1.getAbsolutePath(), "", new byte[0],new byte[0],0,3 ));
-      mapper.process( new DocumentSplit(index2.getAbsolutePath(), "", new byte[0],new byte[0],1,3 ));
-      mapper.process( new DocumentSplit(index3.getAbsolutePath(), "", new byte[0],new byte[0],2,3 ));
-
+      mapper.process( DocumentSplitFactory.numberedFile(index1.getAbsolutePath(), 0, 3));
+      mapper.process( DocumentSplitFactory.numberedFile(index2.getAbsolutePath(), 1, 3));
+      mapper.process( DocumentSplitFactory.numberedFile(index3.getAbsolutePath(), 2, 3));
       mapper.close();
 
       assertEquals(0, catcher.data.get(0).indexId);
