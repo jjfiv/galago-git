@@ -247,11 +247,11 @@ public class DiskIndex implements Index, Closeable {
     if (node.getNodeParameters().containsKey("part")) {
       partName = node.getNodeParameters().getString("part");
       if (!parts.containsKey(partName)) {
-        throw new IOException("The index has no part named '" + partName + "'");
+        throw new IOException("The index '"+this.getIndexPath()+"' has no part named '" + partName + "'");
       }
     } else if (knownIndexOperators.contains(operator)) {
       if (!defaultIndexOperators.containsKey(operator)) {
-        throw new IOException("More than one index part supplies the operator '"
+        throw new IOException("More than one index in '"+this.getIndexPath()+"'part supplies the operator '"
                 + operator + "', but no part name was specified.");
       } else {
         partName = defaultIndexOperators.get(operator);
