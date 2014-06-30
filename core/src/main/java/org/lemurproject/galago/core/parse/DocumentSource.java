@@ -200,7 +200,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
           if (DocumentStreamParser.hasParserForExtension(extension)) {
             fileType = extension;
           } else {
-            fileType = detectTrecTextOrWeb(ZipUtil.streamZipEntry(zipF, name), fp.getAbsolutePath());
+            fileType = detectTrecTextOrWeb(ZipUtil.streamZipEntry(zipF, name), fp.getAbsolutePath()+"!"+name);
           }
           DocumentSplit split = DocumentSplitFactory.file(fp);
           split.fileType = fileType;
