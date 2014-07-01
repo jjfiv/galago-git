@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.util;
 
 
 import org.junit.Test;
+import org.lemurproject.galago.utility.MathUtils;
 
 import static org.junit.Assert.assertEquals;
 

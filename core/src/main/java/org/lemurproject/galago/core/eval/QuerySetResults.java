@@ -6,6 +6,7 @@ package org.lemurproject.galago.core.eval;
 import org.lemurproject.galago.core.eval.stat.NaturalOrderComparator;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.lists.Ranked;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -30,7 +31,7 @@ public class QuerySetResults {
     for (String query : results.keySet()) {
       List<ScoredDocument> rankedList = results.get(query);
       check(rankedList);
-      Collections.sort(rankedList, new ScoredDocument.RankComparator());
+      Collections.sort(rankedList, Ranked.byAscendingRank);
       querySetResults.put(query, new QueryResults(query, rankedList));
     }
   }
@@ -56,12 +57,11 @@ public class QuerySetResults {
    * Reads in a TREC ranking file.
    *
    * @param filename The filename of the ranking file.
-   * @return
    */
   public void loadRanking(String filename) throws IOException {
     // open file
     BufferedReader in = new BufferedReader(new FileReader(filename), 256 * 1024);
-    String line = null;
+    String line;
     TreeMap<String, List<ScoredDocument>> ranking = new TreeMap<String, List<ScoredDocument>>();
 
     while ((line = in.readLine()) != null) {
@@ -87,7 +87,7 @@ public class QuerySetResults {
     // ensure sorted order by rank
     for (String query : ranking.keySet()) {
       List<ScoredDocument> documents = ranking.get(query);
-      Collections.sort(documents, new ScoredDocument.RankComparator());
+      Collections.sort(documents, Ranked.byAscendingRank);
       querySetResults.put(query, new QueryResults(query, documents));
     }
 

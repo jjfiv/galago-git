@@ -2,7 +2,6 @@
 package org.lemurproject.galago.core.retrieval;
 
 import java.util.Comparator;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * An extension to the ScoredDocument class, to include a begin and end over
@@ -39,6 +38,16 @@ public class ScoredPassage extends ScoredDocument {
     }
 
     return other.begin - begin;
+  }
+
+  @Override
+  public ScoredPassage clone(double score) {
+    ScoredPassage psg = new ScoredPassage(this.document, this.score, this.begin, this.end);
+    psg.documentName = this.documentName;
+    psg.source = this.source;
+    psg.rank = this.rank;
+    psg.annotation = this.annotation;
+    return psg;
   }
 
   @Override

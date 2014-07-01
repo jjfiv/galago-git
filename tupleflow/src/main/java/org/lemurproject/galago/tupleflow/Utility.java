@@ -3,6 +3,7 @@ package org.lemurproject.galago.tupleflow;
 
 import org.lemurproject.galago.tupleflow.execution.Step;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.StreamUtil;
 
@@ -20,8 +21,10 @@ public class Utility {
   public static final double log2 = Math.log(2);
   public static final double loge_base2 = Math.log(Math.E) / log2;
   public static final double tinyLogProbScore = Math.log(Math.pow(10, -10));
-  public static final double epsilon = 0.5 * Math.pow(10, -10);
-  public static final double neg_epsilon = -1.0 * epsilon;
+  @Deprecated
+  public static final double epsilon = CmpUtil.epsilon;
+  @Deprecated
+  public static final double neg_epsilon = CmpUtil.neg_epsilon;
 
   /**
    * Builds a simple Sorter step that can be added to a TupleFlow stage.
@@ -249,70 +252,45 @@ public class Utility {
     return builder.toString();
   }
 
+  /** @deprecated see CmpUtil instead */
+  @Deprecated
   public static int compare(int one, int two) {
-    return one - two;
+    return CmpUtil.compare(one, two);
   }
 
+  /** @deprecated see CmpUtil instead */
+  @Deprecated
   public static int compare(long one, long two) {
-    long result = one - two;
-
-    if (result > 0) {
-      return 1;
-    }
-    if (result < 0) {
-      return -1;
-    }
-    return 0;
+    return CmpUtil.compare(one, two);
   }
 
+  /** @deprecated see CmpUtil instead */
+  @Deprecated
   public static int compare(double one, double two) {
-    double result = one - two;
-
-    if (result > epsilon) {
-      return 1;
-    }
-    if (result < neg_epsilon) {
-      return -1;
-    }
-    return 0;
+    return CmpUtil.compare(one, two);
   }
 
+  /** @deprecated see CmpUtil instead */
+  @Deprecated
   public static int compare(float one, float two) {
-    float result = one - two;
-
-    if (result > epsilon) {
-      return 1;
-    }
-    if (result < neg_epsilon) {
-      return -1;
-    }
-    return 0;
+    return CmpUtil.compare(one, two);
   }
 
+  /** @deprecated see CmpUtil instead */
+  @Deprecated
   public static int compare(String one, String two) {
-    return one.compareTo(two);
+    return CmpUtil.compare(one, two);
   }
 
+  /** @deprecated see CmpUtil instead */
+  @Deprecated
   public static int compare(byte[] one, byte[] two) {
-    int sharedLength = Math.min(one.length, two.length);
-
-    for (int i = 0; i < sharedLength; i++) {
-      int a = ((int) one[i]) & 0xFF;
-      int b = ((int) two[i]) & 0xFF;
-      int result = a - b;
-
-      if (result < 0) {
-        return -1;
-      }
-      if (result > 0) {
-        return 1;
-      }
-    }
-
-    return one.length - two.length;
+    return CmpUtil.compare(one, two);
   }
 
   // comparator for byte arrays
+  /** @deprecated see CmpUtil instead */
+  @Deprecated
   public static class ByteArrComparator implements Comparator<byte[]>, Serializable {
 
     @Override
@@ -321,36 +299,46 @@ public class Utility {
     }
   }
 
+  /** @deprecated see CmpUtil instead */
+  @Deprecated
   public static int hash(byte b) {
-    return ((int) b) & 0xFF;
+    return CmpUtil.hash(b);
   }
 
+  /** @deprecated see CmpUtil instead */
+  @Deprecated
   public static int hash(int i) {
-    return i;
+    return CmpUtil.hash(i);
   }
 
+  /** @deprecated see CmpUtil instead */
+  @Deprecated
   public static int hash(long l) {
-    return (int) l;
+    return CmpUtil.hash(l);
   }
 
+  /** @deprecated see CmpUtil instead */
+  @Deprecated
   public static int hash(double d) {
-    return (int) (d * 100000);
+    return CmpUtil.hash(d);
   }
 
+  /** @deprecated see CmpUtil instead */
+  @Deprecated
   public static int hash(float f) {
-    return (int) (f * 100000);
+    return CmpUtil.hash(f);
   }
 
+  /** @deprecated see CmpUtil instead */
+  @Deprecated
   public static int hash(String s) {
-    return s.hashCode();
+    return CmpUtil.hash(s);
   }
 
+  /** @deprecated see CmpUtil instead */
+  @Deprecated
   public static int hash(byte[] bytes) {
-    int h = 0;
-    for (byte b : bytes) {
-      h += 7 * h + b;
-    }
-    return h;
+    return CmpUtil.hash(bytes);
   }
 
   public static void deleteDirectory(File directory) throws IOException {

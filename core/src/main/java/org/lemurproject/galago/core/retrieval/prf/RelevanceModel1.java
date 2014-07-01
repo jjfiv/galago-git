@@ -14,12 +14,12 @@ import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.util.MathUtils;
 import org.lemurproject.galago.core.util.WordLists;
+import org.lemurproject.galago.utility.MathUtils;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.lists.Scored;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -57,15 +57,7 @@ public class RelevanceModel1 implements ExpansionModel {
       String rmstemmer = ret.getGlobalParameters().getString("rmStemmer");
       try {
         stemmer = (Stemmer) Class.forName(rmstemmer).getConstructor().newInstance();
-      } catch (InstantiationException e) {
-        throw new RuntimeException(e);
-      } catch (IllegalAccessException e) {
-        throw new RuntimeException(e);
-      } catch (InvocationTargetException e) {
-        throw new RuntimeException(e);
-      } catch (NoSuchMethodException e) {
-        throw new RuntimeException(e);
-      } catch (ClassNotFoundException e) {
+      } catch (Exception e) {
         throw new RuntimeException(e);
       }
     } else {
@@ -227,7 +219,7 @@ public class RelevanceModel1 implements ExpansionModel {
     Map<ScoredDocument, Integer> termCounts;
 
     for (String term : counts.keySet()) {
-      Gram g = new Gram(term);
+      WeightedUnigram g = new WeightedUnigram(term);
       termCounts = counts.get(term);
       for (ScoredDocument sd : termCounts.keySet()) {
         // we forced this into the scored document earlier
@@ -253,14 +245,16 @@ public class RelevanceModel1 implements ExpansionModel {
   }
 
   // implementation of weighted term (term, score) pairs
-  public static class Gram implements WeightedTerm {
-
+  public static class WeightedUnigram extends WeightedTerm {
     public String term;
-    public double score;
 
-    public Gram(String t) {
-      term = t;
-      score = 0.0;
+    public WeightedUnigram(String t) {
+      this(t, 0.0);
+    }
+
+    public WeightedUnigram(String term, double score) {
+      super(score);
+      this.term = term;
     }
 
     @Override
@@ -268,15 +262,10 @@ public class RelevanceModel1 implements ExpansionModel {
       return term;
     }
 
-    @Override
-    public double getWeight() {
-      return score;
-    }
-
     // The secondary sort is to have defined behavior for statistically tied samples.
     @Override
     public int compareTo(WeightedTerm other) {
-      Gram that = (Gram) other;
+      WeightedUnigram that = (WeightedUnigram) other;
       int result = this.score > that.score ? -1 : (this.score < that.score ? 1 : 0);
       if (result != 0) {
         return result;
@@ -288,6 +277,11 @@ public class RelevanceModel1 implements ExpansionModel {
     @Override
     public String toString() {
       return "<" + term + "," + score + ">";
+    }
+
+    @Override
+    public Scored clone(double score) {
+      return new WeightedUnigram(this.term, score);
     }
   }
 }

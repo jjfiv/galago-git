@@ -3,6 +3,8 @@ package org.lemurproject.galago.core.retrieval;
 
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.CmpUtil;
+import org.lemurproject.galago.utility.lists.Ranked;
 
 import java.io.Serializable;
 import java.util.Comparator;
@@ -13,13 +15,11 @@ import java.util.Comparator;
  *
  * @author trevor, irmarc, sjh
  */
-public class ScoredDocument implements Comparable<ScoredDocument>, Serializable {
+public class ScoredDocument extends Ranked implements Comparable<ScoredDocument>, Serializable {
 
   public String documentName;
   public String source; // lets us know where this scored doc came from
   public long document;
-  public int rank;
-  public double score;
   public AnnotatedNode annotation = null;
 
   public ScoredDocument() {
@@ -27,20 +27,19 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
   }
 
   public ScoredDocument(long document, double score) {
+    super(0,score);
     this.document = document;
-    this.score = score;
   }
 
   public ScoredDocument(String documentName, int rank, double score) {
+    super(rank, score);
     this.documentName = documentName;
-    this.rank = rank;
-    this.score = score;
     this.document = -1;
   }
 
   @Override
   public int compareTo(ScoredDocument other) {
-    int cmp = Utility.compare(score, other.score);
+    int cmp = CmpUtil.compare(score, other.score);
     if (cmp != 0) {
       return cmp;
     }
@@ -49,7 +48,7 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
             && (!source.equals(other.source))) {
       return source.compareTo(other.source);
     }
-    return Utility.compare(other.document, document);
+    return CmpUtil.compare(other.document, document);
   }
 
   @Override
@@ -79,6 +78,18 @@ public class ScoredDocument implements Comparable<ScoredDocument>, Serializable 
       return Integer.toString((int) score);
     }
     return String.format("%10.8f", score);
+  }
+
+  @Override
+  public ScoredDocument clone(double score) {
+    ScoredDocument doc = new ScoredDocument();
+    doc.score = score;
+    doc.rank = this.rank;
+    doc.documentName = this.documentName;
+    doc.document = this.document;
+    doc.source = this.source;
+    doc.annotation = this.annotation;
+    return doc;
   }
 
   public static class ScoredDocumentComparator implements Comparator<ScoredDocument>, Serializable {
