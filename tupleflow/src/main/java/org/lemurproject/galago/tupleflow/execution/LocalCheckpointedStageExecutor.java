@@ -1,19 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow.execution;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import org.lemurproject.galago.tupleflow.ExNihiloSource;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lemurproject.galago.tupleflow.ExNihiloSource;
 
 /**
  * This executor has no practical use at all. It's only here to make it easy to
@@ -96,7 +92,7 @@ public class LocalCheckpointedStageExecutor extends CheckpointedStageExecutor {
             source.run();
           } catch (Throwable err) {
             err.printStackTrace();
-            addException(new Exception(err.toString()));
+            addException(new Exception(err));
           }
         }
 
