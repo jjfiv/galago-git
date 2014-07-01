@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
  * @author jfoley
  */
 public class ByteUtil {
-  private static Charset utf8 = Charset.forName("UTF-8");
+  public static Charset utf8 = Charset.forName("UTF-8");
   public static final byte[] EmptyArr = new byte[0];
 
   public static String toString(byte[] word) {

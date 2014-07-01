@@ -2,8 +2,10 @@
 package org.lemurproject.galago.core.parse;
 
 import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.StreamCreator;
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.ZipUtil;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -14,6 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
+import java.util.zip.ZipFile;
 
 /**
  *
@@ -127,10 +130,26 @@ public abstract class DocumentStreamParser {
   /*** static functions for opening files ***/
 
   public static BufferedReader getBufferedReader(DocumentSplit split) throws IOException {
-    return new BufferedReader(new InputStreamReader(StreamCreator.openInputStream(split.fileName), "UTF-8"));
+    if(split.innerName.isEmpty())
+      return new BufferedReader(new InputStreamReader(StreamCreator.openInputStream(split.fileName), ByteUtil.utf8));
+
+    // else zip file:
+    ZipFile zipFile = ZipUtil.open(split.fileName);
+    return new BufferedReader(new InputStreamReader(ZipUtil.streamZipEntry(zipFile, split.innerName), ByteUtil.utf8));
   }
 
   public static BufferedInputStream getBufferedInputStream(DocumentSplit split) throws IOException {
-    return new BufferedInputStream(StreamCreator.openInputStream(split.fileName));
+    if(split.innerName.isEmpty())
+      return new BufferedInputStream(StreamCreator.openInputStream(split.fileName));
+
+    // else zip file:
+    ZipFile zipFile = ZipUtil.open(split.fileName);
+    return new BufferedInputStream(ZipUtil.streamZipEntry(zipFile, split.innerName));
+  }
+
+  public static String getFullPath(DocumentSplit split) {
+    if(split.innerName.isEmpty())
+      return split.fileName;
+    return split.fileName+"!"+split.innerName;
   }
 }

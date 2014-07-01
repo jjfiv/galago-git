@@ -54,4 +54,8 @@ public class ZipUtil {
   public static ZipFile open(File zipFile) throws IOException {
     return new ZipFile(zipFile);
   }
+
+  public static ZipFile open(String fileName) throws IOException {
+    return new ZipFile(fileName);
+  }
 }
