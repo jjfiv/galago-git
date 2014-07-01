@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.parse;
 import org.junit.Test;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.core.util.DocumentSplitFactory;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -11,9 +12,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -26,8 +25,7 @@ public class TrecTextParserTest {
     File f = FileUtility.createTemporary();
     f.createNewFile();
     try {
-      DocumentSplit split = new DocumentSplit();
-      split.fileName = f.getAbsolutePath();
+      DocumentSplit split = DocumentSplitFactory.file(f, "trectext");
       TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
 
       Document document = parser.nextDocument();
@@ -44,8 +42,7 @@ public class TrecTextParserTest {
 		File f = FileUtility.createTemporary();
     try {
       Utility.copyStringToFile(fileText, f);
-      DocumentSplit split = new DocumentSplit();
-      split.fileName = f.getAbsolutePath();
+      DocumentSplit split = DocumentSplitFactory.file(f, "trectext");
       TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
 
       Document document = parser.nextDocument();
@@ -67,9 +64,7 @@ public class TrecTextParserTest {
     File f = FileUtility.createTemporary();
     try {
       Utility.copyStringToFile(fileText, f);
-      DocumentSplit split = new DocumentSplit();
-      split.fileName = f.getAbsolutePath();
-      split.fileType = "trectext";
+      DocumentSplit split = DocumentSplitFactory.file(f, "trectext");
       DocumentStreamParser parser = DocumentStreamParser.instance(split, Parameters.instance());
 
       Document document = parser.nextDocument();
@@ -96,8 +91,7 @@ public class TrecTextParserTest {
     File f = FileUtility.createTemporary();
     try {
       Utility.copyStringToFile(fileText, f);
-      DocumentSplit split = new DocumentSplit();
-      split.fileName = f.getAbsolutePath();
+      DocumentSplit split = DocumentSplitFactory.file(f);
       TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
 
       Document document = parser.nextDocument();
@@ -108,7 +102,7 @@ public class TrecTextParserTest {
       document = parser.nextDocument();
       assertNull(document);
     } finally {
-      f.delete();
+      assertTrue(f.delete());
     }
   }
 
@@ -130,8 +124,7 @@ public class TrecTextParserTest {
     File f = FileUtility.createTemporary();
     try {
       Utility.copyStringToFile(fileText, f);
-      DocumentSplit split = new DocumentSplit();
-      split.fileName = f.getAbsolutePath();
+      DocumentSplit split = DocumentSplitFactory.file(f);
       TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
 
       Document document = parser.nextDocument();
@@ -147,7 +140,7 @@ public class TrecTextParserTest {
       document = parser.nextDocument();
       assertNull(document);
     } finally {
-      f.delete();
+      assertTrue(f.delete());
     }
   }
 }

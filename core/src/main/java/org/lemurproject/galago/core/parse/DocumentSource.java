@@ -7,10 +7,13 @@ import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.core.util.DocumentSplitFactory;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.ZipUtil;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -19,6 +22,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipFile;
 
 /**
  * From a set of inputs, splits the input into many DocumentSplit records. This
@@ -114,9 +118,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   public static List<DocumentSplit> processFile(File fp, Parameters conf) throws IOException {
     String inputPolicy = conf.get("inputPolicy", "require");
 
-    String forceFileType = null;
-    if(conf.containsKey("filetype"))
-      forceFileType = conf.getAsString("filetype");
+    String forceFileType = conf.get("filetype", (String) null);
 
     ArrayList<DocumentSplit> documents = new ArrayList<DocumentSplit>();
 
@@ -135,18 +137,25 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     // Now try to detect what kind of file this is:
     boolean isCompressed = StreamCreator.isCompressed(fp.getName());
     String fileType = forceFileType;
+    String extension = FileUtility.getExtension(fp);
+
+    // don't allow forcing of filetype on zip files;
+    // expect that the "force" applies to the inside
+    // only process zip files; don't process zip files somebody has re-compressed
+    if (!isCompressed && extension.equals("zip")) {
+      documents.addAll(processZipFile(fp, conf));
+      return documents;
+    }
+
+    // don't allow forcing of filetype on list files:
+    // expect that the "force" applies to the inside
+    if (extension.equals("list")) {
+      documents.addAll(processListFile(fp, conf));
+      return documents; // now considered processed1
+    }
 
     // We'll try to detect by extension first, so we don't have to open the file
-    String extension;
     if (fileType == null) {
-      extension = FileUtility.getExtension(fp);
-
-      // first lets look for special cases that require some processing here:
-      if (extension.equals("list")) {
-        documents.addAll(processListFile(fp, conf));
-        return documents; // now considered processed1
-      }
-
       if (extension.equals("subcoll")) {
         documents.addAll(processSubCollectionFile(fp, conf));
         return documents; // now considered processed
@@ -163,18 +172,48 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
       } else {
         // finally try to be 'clever'...
-        fileType = detectTrecTextOrWeb(fp);
+        fileType = detectTrecTextOrWeb(StreamCreator.openInputStream(fp), fp.getAbsolutePath());
       }
     }
 
     // Eventually it'd be nice to do more format detection here.
 
     if (fileType != null) {
-      DocumentSplit split = new DocumentSplit(fp.getAbsolutePath(), fileType, new byte[0], new byte[0], 0, 0);
+      DocumentSplit split = DocumentSplitFactory.file(fp, fileType);
       return Collections.singletonList(split);
     }
 
     return Collections.emptyList();
+  }
+
+  public static List<DocumentSplit> processZipFile(File fp, Parameters conf) throws IOException {
+    String forceFileType = conf.get("filetype", (String) null);
+
+    ZipFile zipF = ZipUtil.open(fp);
+    ArrayList<DocumentSplit> splits = new ArrayList<DocumentSplit>();
+    try {
+
+      List<String> names = ZipUtil.listZipFile(zipF);
+      for (String name : names) {
+        String fileType = forceFileType;
+        if (fileType == null) {
+          File inside = new File(name);
+          String extension = FileUtility.getExtension(inside);
+          if (DocumentStreamParser.hasParserForExtension(extension)) {
+            fileType = extension;
+          } else {
+            fileType = detectTrecTextOrWeb(ZipUtil.streamZipEntry(zipF, name), fp.getAbsolutePath() + "!" + name);
+          }
+        }
+        DocumentSplit split = DocumentSplitFactory.file(fp);
+        split.fileType = fileType;
+        split.innerName = name;
+        splits.add(split);
+      }
+    } finally {
+      zipF.close();
+    }
+    return splits;
   }
 
   /**
@@ -274,12 +313,14 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         } else if (DocumentStreamParser.hasParserForExtension(extension)) {
           fileType = extension;
         } else {
-          fileType = detectTrecTextOrWeb(file);
+          fileType = detectTrecTextOrWeb(StreamCreator.openInputStream(file), file.getAbsolutePath());
           // Eventually it'd be nice to do more format detection here.
         }
 
         if (fileType != null) {
-          DocumentSplit split = new DocumentSplit(file.getAbsolutePath(), fileType, "subcoll".getBytes(), Utility.compressLong(splitsize), 0, 0);
+          DocumentSplit split = DocumentSplitFactory.file(file, fileType);
+          split.startKey = ByteUtil.fromString("subcoll");
+          split.endKey = Utility.compressLong(splitsize);
           splits.add(split);
         }
       }
@@ -335,8 +376,8 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
     List<DocumentSplit> splits = new ArrayList<DocumentSplit>(pieces);
     for (int i = 0; i < pieces; ++i) {
-      byte[] firstKey = new byte[0];
-      byte[] lastKey = new byte[0];
+      byte[] firstKey = ByteUtil.EmptyArr;
+      byte[] lastKey = ByteUtil.EmptyArr;
 
       if (i > 0) {
         firstKey = keys.get(i - 1);
@@ -346,7 +387,10 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       }
 
       if (Utility.compare(firstKey, lastKey) != 0) {
-        DocumentSplit split = new DocumentSplit(file.getAbsolutePath(), "corpus", firstKey, lastKey, 0, 0);
+        DocumentSplit split = DocumentSplitFactory.file(file);
+        split.fileType = "corpus";
+        split.startKey = firstKey;
+        split.endKey = lastKey;
         splits.add(split);
       }
     }
@@ -358,11 +402,11 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   // For now we assume <doc> tags, so we read in one doc
   // (i.e. <doc> to </doc>), and look for the following
   // tags: <docno> and (<text> or <html>)
-  private static String detectTrecTextOrWeb(File file) throws IOException {
+  private static String detectTrecTextOrWeb(InputStream is, String path) throws IOException {
     String fileType = null;
     BufferedReader br = null;
     try {
-      br = new BufferedReader(new FileReader(file));
+      br = new BufferedReader(new InputStreamReader(is));
       String line;
 
       // check the first line for a "<doc>" line
@@ -401,9 +445,9 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       }
       br.close();
       if (fileType != null) {
-        System.out.println(file.getAbsolutePath() + " detected as " + fileType);
+        System.out.println(path + " detected as " + fileType);
       } else {
-        System.out.println("Unable to determine file type of " + file.getAbsolutePath());
+        System.out.println("Unable to determine file type of " + path);
       }
       return fileType;
     } catch (IOException ioe) {

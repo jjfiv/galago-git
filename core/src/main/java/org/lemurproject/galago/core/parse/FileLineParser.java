@@ -4,6 +4,7 @@
 package org.lemurproject.galago.core.parse;
 
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.core.util.DocumentSplitFactory;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.Parameters;
@@ -32,8 +33,7 @@ public class FileLineParser implements ExNihiloSource<String> {
   public void run() throws IOException {
     BufferedReader reader;
     for (String f : p.getAsList("inputPath", String.class)) {
-      DocumentSplit split = new DocumentSplit();
-      split.fileName = f;
+      DocumentSplit split = DocumentSplitFactory.file(f);
       reader = DocumentStreamParser.getBufferedReader( split );
       String line;
       while (null != (line = reader.readLine())) {

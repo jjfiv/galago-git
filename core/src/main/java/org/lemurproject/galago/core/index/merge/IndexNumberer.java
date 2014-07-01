@@ -5,11 +5,11 @@
 package org.lemurproject.galago.core.index.merge;
 
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.core.util.DocumentSplitFactory;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  *
@@ -28,8 +28,9 @@ public class IndexNumberer implements ExNihiloSource<DocumentSplit> {
   public void run() throws IOException {
     int i = 0 ;
     int total = parameters.getJSON().getList("inputPath").size();
-    for(String inputIndex : (List<String>) parameters.getJSON().getList("inputPath")) {
-      processor.process(new DocumentSplit(inputIndex,"",new byte[0],new byte[0],i,total));
+    for(String inputIndex : parameters.getJSON().getList("inputPath", String.class)) {
+      DocumentSplit split = DocumentSplitFactory.numberedFile(inputIndex, i, total);
+      processor.process(split);
       i++;
     }
 

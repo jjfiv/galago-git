@@ -1048,7 +1048,7 @@ public class JobExecutor {
                 for(Exception e : exceptions){
                   System.err.println(e.toString());
                 }
-                throw new ExecutionException("Stage threw an exception: ", exceptions.get(0));
+                throw new RuntimeException("Stage threw an exception: ", exceptions.get(0));
               }
               completedStages.put(name, status);
               runningStages.remove(name);

@@ -1,17 +1,18 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.NodeType;
+import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.FieldComparisonIterator;
 import org.lemurproject.galago.core.retrieval.iterator.FilteredIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
-import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.iterator.FieldComparisonIterator;
+import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.utility.Parameters;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * For many kinds of queries, it may be preferable to not have to type

@@ -434,6 +434,7 @@ public class Utility {
   public static void copyStringToFile(String s, File file) throws IOException {
     DataOutputStream output = null;
     try {
+      FileUtility.makeParentDirectories(file);
       output = StreamCreator.openOutputStream(file);
       output.write(ByteUtil.fromString(s));
     } finally {

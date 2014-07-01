@@ -10,6 +10,7 @@ import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.apps.BuildIndex;
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.core.util.DocumentSplitFactory;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -215,9 +216,7 @@ public class UniversalParserTest {
     assertTrue(DocumentStreamParser.hasParserForExtension("qqe"));
     assertTrue(DocumentStreamParser.hasParserForExtension("trecweb"));
 
-    DocumentSplit split = new DocumentSplit();
-    split.fileName = tmp.getAbsolutePath();
-    split.fileType = "qwe";
+    DocumentSplit split = DocumentSplitFactory.file(tmp, "qwe");
     DocumentStreamParser parser = DocumentStreamParser.instance(split, Parameters.instance());
     assertTrue(parser instanceof TrecWebParser);
 
