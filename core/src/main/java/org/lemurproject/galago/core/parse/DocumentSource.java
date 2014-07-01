@@ -137,26 +137,28 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     // Now try to detect what kind of file this is:
     boolean isCompressed = StreamCreator.isCompressed(fp.getName());
     String fileType = forceFileType;
+    String extension = FileUtility.getExtension(fp);
+
+    // don't allow forcing of filetype on zip files;
+    // expect that the "force" applies to the inside
+    // only process zip files; don't process zip files somebody has re-compressed
+    if (!isCompressed && extension.equals("zip")) {
+      documents.addAll(processZipFile(fp, conf));
+      return documents;
+    }
+
+    // don't allow forcing of filetype on list files:
+    // expect that the "force" applies to the inside
+    if (extension.equals("list")) {
+      documents.addAll(processListFile(fp, conf));
+      return documents; // now considered processed1
+    }
 
     // We'll try to detect by extension first, so we don't have to open the file
-    String extension;
     if (fileType == null) {
-      extension = FileUtility.getExtension(fp);
-
-      // first lets look for special cases that require some processing here:
-      if (extension.equals("list")) {
-        documents.addAll(processListFile(fp, conf));
-        return documents; // now considered processed1
-      }
-
       if (extension.equals("subcoll")) {
         documents.addAll(processSubCollectionFile(fp, conf));
         return documents; // now considered processed
-      }
-
-      // only process zip files; don't process zip files somebody has re-compressed
-      if (!isCompressed && extension.equals("zip")) {
-        documents.addAll(processZipFile(fp, conf));
       }
 
       if (DocumentStreamParser.hasParserForExtension(extension)) {
@@ -200,13 +202,13 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
           if (DocumentStreamParser.hasParserForExtension(extension)) {
             fileType = extension;
           } else {
-            fileType = detectTrecTextOrWeb(ZipUtil.streamZipEntry(zipF, name), fp.getAbsolutePath()+"!"+name);
+            fileType = detectTrecTextOrWeb(ZipUtil.streamZipEntry(zipF, name), fp.getAbsolutePath() + "!" + name);
           }
-          DocumentSplit split = DocumentSplitFactory.file(fp);
-          split.fileType = fileType;
-          split.innerName = name;
-          splits.add(split);
         }
+        DocumentSplit split = DocumentSplitFactory.file(fp);
+        split.fileType = fileType;
+        split.innerName = name;
+        splits.add(split);
       }
     } finally {
       zipF.close();
