@@ -39,6 +39,35 @@ public class MathUtils {
     Arrays.fill(weights, 1.0);
     return weightedLogSumExp(weights, scores);
   }
+
+  /**
+   * Compute the log(geometric_mean( weight[0]*exp(score[0]) ...))
+   * This is just the arithmetic mean with logspace scores...
+   * http://en.wikipedia.org/wiki/Geometric_mean#Relationship_with_arithmetic_mean_of_logarithms
+   */
+  public static double logWeightedGeometricMean(double[] weights, double[] logScores) {
+    return weightedArithmeticMean(weights, logScores);
+  }
+
+  /** Compute the weighted arithmetic mean */
+  public static double weightedArithmeticMean(double[] weights, double[] scores) {
+    if(weights.length == 0) return 0;
+    if(weights.length != scores.length) throw new IllegalArgumentException("weights and scores must be of the same length");
+
+    double sum = 0;
+    for (int i = 0; i < scores.length; i++) {
+      sum += weights[i]*scores[i];
+    }
+    return sum / ((double) weights.length);
+  }
+
+  /**
+   * Compute the weighted geometric mean.
+   */
+  public static double weightedGeometricMean(double[] weights, double[] scores) {
+    return 0.0;
+  }
+
   /**
    * Computes the weighted average of scores: -> log( w0 * exp(score[0]) + w1 *
    * exp(score[1]) + w1 * exp(score[2]) + .. )
