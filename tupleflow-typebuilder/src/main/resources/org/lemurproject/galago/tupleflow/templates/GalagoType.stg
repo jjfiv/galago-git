@@ -3,31 +3,19 @@ group GalagoType;
 type(typeName, fields, orders) ::= <<
 package <package>;
 
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.ArrayInput;
-import org.lemurproject.galago.tupleflow.ArrayOutput;
-import org.lemurproject.galago.tupleflow.Order;   
-import org.lemurproject.galago.tupleflow.OrderedWriter;
-import org.lemurproject.galago.tupleflow.Type; 
-import org.lemurproject.galago.tupleflow.TypeReader;
-import org.lemurproject.galago.tupleflow.Step; 
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.ReaderSource;
-import java.io.IOException;             
-import java.io.EOFException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;   
-import java.util.Comparator;
-import java.util.PriorityQueue;
-import java.util.Collection;
+import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.*;
+import java.io.*;
+import java.util.*;
 import gnu.trove.list.array.*;
 
-
+/** Tupleflow-Typebuilder automatically-generated class: <typeName> */
 public final class <typeName> implements Type\<<typeName>\> {
     <fields:{public <it.type> <it.name>;}; separator="\n"> 
     
+    /** default constructor makes most fields null */
     public <typeName>() {}
+    /** additional constructor takes all fields explicitly */
     public <typeName>(<fields:{<it.type> <it.name>}; separator=", ">) {
         <fields:{this.<it.name> = <it.name>;}; separator="\n">
     }  
@@ -154,7 +142,7 @@ public Class\<<typeName>\> getOrderedClass() {
 hash() ::= <<
 public int hash(<typeName> object) {
     int h = 0;
-    <order.orderedFields:{ f | h += Utility.hash(object.<f.name>);}; separator="\n">
+    <order.orderedFields:{ f | h += CmpUtil.hash(object.<f.name>);}; separator="\n">
     return h;
 } 
 >>
@@ -174,7 +162,7 @@ public Comparator\<<typeName>\> <functionName>() {
 >>  
              
 compareLine(field) ::= <<
-result = <field.direction> Utility.compare(one.<field.name>, two.<field.name>);
+result = <field.direction> CmpUtil.compare(one.<field.name>, two.<field.name>);
 if(result != 0) break;
 >> 
 
@@ -276,7 +264,7 @@ public void copyUntil<f.current.capsName>(ShreddedBuffer other, ShreddedProcesso
     while (!isAtEnd()) {
         if (other != null) {   
             assert !other.isAtEnd();
-            int c = <f.current.direction> Utility.compare(get<f.current.capsName>(), other.get<f.current.capsName>());
+            int c = <f.current.direction> CmpUtil.compare(get<f.current.capsName>(), other.get<f.current.capsName>());
         
             if (c \> 0) {
                 break;   
@@ -519,7 +507,7 @@ public static final class DuplicateEliminator implements ShreddedProcessor {
 
 duplicateRLECall(f) ::= <<
 public void process<f.current.capsName>(<f.current.type> <f.current.name>) throws IOException {  
-    if (<f.current.name>Process || Utility.compare(<f.current.name>, last.<f.current.name>) != 0) {
+    if (<f.current.name>Process || CmpUtil.compare(<f.current.name>, last.<f.current.name>) != 0) {
         last.<f.current.name> = <f.current.name>;
         processor.process<f.current.capsName>(<f.current.name>);
         <if(f.next)>reset<f.next.capsName>();<endif>
@@ -588,7 +576,7 @@ public static final class TupleShredder implements Processor {
     
     public void process(<typeName> object) throws IOException {                                                                                                                                                   
         boolean processAll = false;
-        <order.rleFields:{f|if(last == null || Utility.compare(last.<f.name>, object.<f.name>) != 0 || processAll) { processor.process<f.capsName>(object.<f.name>); processAll = true; }}; separator="\n">
+        <order.rleFields:{f|if(last == null || CmpUtil.compare(last.<f.name>, object.<f.name>) != 0 || processAll) { processor.process<f.capsName>(object.<f.name>); processAll = true; }}; separator="\n">
         <order.deltaFields:{f|processor.process<f.capsName>(object.<f.name>);}; separator="\n">
         processor.processTuple(<order.unorderedFields:{f|object.<f.name>}; separator=", ">);                                         
         last = object;
@@ -609,7 +597,7 @@ public static final class TupleShredder implements Processor {
 // 
           
 readerCompareLine(f) ::= <<
-result = <f.direction> Utility.compare(buffer.get<f.capsName>(), otherBuffer.get<f.capsName>());
+result = <f.direction> CmpUtil.compare(buffer.get<f.capsName>(), otherBuffer.get<f.capsName>());
 if(result != 0) break;
 >>
 
@@ -895,7 +883,7 @@ public static final class OrderedWriterClass extends OrderedWriter\< <typeName> 
     
     public void process(<typeName> object) throws IOException {
        boolean processAll = false;
-       <order.orderedFields:{f|if (processAll || last == null || 0 != Utility.compare(object.<f.name>, last.<f.name>)) { processAll = true; shreddedWriter.process<f.capsName>(object.<f.name>); }}; separator="\n">
+       <order.orderedFields:{f|if (processAll || last == null || 0 != CmpUtil.compare(object.<f.name>, last.<f.name>)) { processAll = true; shreddedWriter.process<f.capsName>(object.<f.name>); }}; separator="\n">
        shreddedWriter.processTuple(<order.unorderedFields:{f|object.<f.name>}; separator=", ">);
        last = object;
     }           
