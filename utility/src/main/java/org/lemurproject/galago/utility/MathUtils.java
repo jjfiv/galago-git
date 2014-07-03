@@ -65,7 +65,15 @@ public class MathUtils {
    * Compute the weighted geometric mean.
    */
   public static double weightedGeometricMean(double[] weights, double[] scores) {
-    return 0.0;
+    if(weights.length == 0) throw new IllegalArgumentException("Not clear what geometric mean should do with empty arguments");
+    if(weights.length != scores.length) throw new IllegalArgumentException("weights and scores must be of the same length");
+
+    double product = 1;
+    for (int i = 0; i < weights.length; i++) {
+      product *= weights[i]*scores[i];
+    }
+
+    return Math.pow(product, 1.0/weights.length);
   }
 
   /**

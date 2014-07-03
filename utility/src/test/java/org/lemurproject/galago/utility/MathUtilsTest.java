@@ -26,9 +26,15 @@ public class MathUtilsTest {
   }
 
   @Test
-  public void testLogWeightedGeometricMean() throws Exception {
-
+  public void testWeightedGeometricMean() {
+    assertEquals(4.0, MathUtils.weightedGeometricMean(new double[] {2,1}, new double[] { 2, 4 }), 0.1);
   }
+
+  @Test
+  public void testLogWeightedGeometricMean() {
+    assertEquals(Math.log(4), MathUtils.logWeightedGeometricMean(new double[] {2,1}, new double[] { Math.log(2), Math.log(4) }), 0.1);
+  }
+
 
   @Test
   public void testWeightedLogSumExp() throws Exception {
