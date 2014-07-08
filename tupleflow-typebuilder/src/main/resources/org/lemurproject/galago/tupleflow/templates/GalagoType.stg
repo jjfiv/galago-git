@@ -9,7 +9,10 @@ import java.io.*;
 import java.util.*;
 import gnu.trove.list.array.*;
 
-/** Tupleflow-Typebuilder automatically-generated class: <typeName> */
+/**
+ * Tupleflow-Typebuilder automatically-generated class: <typeName>.
+ */
+@SuppressWarnings("unused")
 public final class <typeName> implements Type\<<typeName>\> {
     <fields:{public <it.type> <it.name>;}; separator="\n"> 
     
