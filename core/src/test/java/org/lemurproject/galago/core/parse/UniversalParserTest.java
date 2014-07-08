@@ -31,291 +31,290 @@ import static org.junit.Assert.assertTrue;
  */
 public class UniversalParserTest {
 
-  private static final Random r = new Random();
+    private static final Random r = new Random();
 
-  public static File createTxtDoc(File folder, String fn) throws IOException {
+    public static File createTxtDoc(File folder, String fn) throws IOException {
 
-    StringBuilder sb = new StringBuilder();
-    sb.append("Text document\n");
-    for (int i = 0; i < 10; i++) {
-      sb.append(i).append(" ").append(r.nextInt(100)).append("\n");
+        StringBuilder sb = new StringBuilder();
+        sb.append("Text document\n");
+        for (int i = 0; i < 10; i++) {
+            sb.append(i).append(" ").append(r.nextInt(100)).append("\n");
+        }
+
+        Utility.copyStringToFile(sb.toString(), new File(folder, fn));
+
+        return new File(folder, fn);
     }
 
-    Utility.copyStringToFile(sb.toString(), new File(folder, fn));
+    public static void createXMLDoc(File folder, String fn) throws IOException {
 
-    return new File(folder, fn);
-  }
+        StringBuilder sb = new StringBuilder();
+        sb.append("<document>\n");
+        sb.append("<title>XMLdocument</title>\n");
+        for (int i = 0; i < 10; i++) {
+            sb.append("<num>").append(i).append("</num>");
+            sb.append("<num>").append(r.nextInt(100)).append("</num>\n");
+        }
+        sb.append("</document>\n");
 
-  public static void createXMLDoc(File folder, String fn) throws IOException {
-
-    StringBuilder sb = new StringBuilder();
-    sb.append("<document>\n");
-    sb.append("<title>XMLdocument</title>\n");
-    for (int i = 0; i < 10; i++) {
-      sb.append("<num>").append(i).append("</num>");
-      sb.append("<num>").append(r.nextInt(100)).append("</num>\n");
-    }
-    sb.append("</document>\n");
-
-    Utility.copyStringToFile(sb.toString(), new File(folder, fn));
-  }
-
-  public static void createTrecTextDoc(File folder, String fn) throws IOException {
-
-    StringBuilder sb = new StringBuilder();
-    for (int d = 0; d < 10; d++) {
-      sb.append("<DOC>\n");
-      sb.append("<DOCNO>tt-").append(d).append("</DOCNO>\n<TEXT>\n");
-      for (int i = 0; i < 10; i++) {
-        sb.append("<num>").append(i).append("</num>");
-        sb.append("<num>").append(r.nextInt(100)).append("</num>\n");
-      }
-      sb.append("</TEXT>\n</DOC>\n");
-
-    }
-    Utility.copyStringToFile(sb.toString(), new File(folder, fn));
-  }
-
-  public static void createTrecWebDoc(File folder, String fn) throws IOException {
-
-    StringBuilder sb = new StringBuilder();
-    for (int d = 0; d < 10; d++) {
-      sb.append("<DOC>\n");
-      sb.append("<DOCNO>tw-").append(d).append("</DOCNO>\n");
-      sb.append("<DOCHDR>\nURL\n</DOCHDR>\n");
-      for (int i = 0; i < 10; i++) {
-        sb.append("<num>").append(i).append("</num>");
-        sb.append("<num>").append(r.nextInt(100)).append("</num>\n");
-      }
-      sb.append("</DOC>\n");
-    }
-    Utility.copyStringToFile(sb.toString(), new File(folder, fn));
-  }
-
-  public static void createTwitterDoc(File folder, String fn) throws IOException {
-
-    StringBuilder sb = new StringBuilder();
-    for (int d = 0; d < 10; d++) {
-      sb.append("uid-").append(d).append("\tnow\t");
-
-      for (int i = 0; i < 10; i++) {
-        sb.append(i).append(" ").append(r.nextInt(100));
-      }
-      sb.append("\tfaked\n");
+        Utility.copyStringToFile(sb.toString(), new File(folder, fn));
     }
 
-    Utility.copyStringToFile(sb.toString(), new File(folder, fn));
-  }
+    public static void createTrecTextDoc(File folder, String fn) throws IOException {
 
-  @Test
-  public void testDefaultyBehavior() throws Exception {
-    File index = FileUtility.createTemporaryDirectory();
-    File dataDir = FileUtility.createTemporaryDirectory();
-    try {
+        StringBuilder sb = new StringBuilder();
+        for (int d = 0; d < 10; d++) {
+            sb.append("<DOC>\n");
+            sb.append("<DOCNO>tt-").append(d).append("</DOCNO>\n<TEXT>\n");
+            for (int i = 0; i < 10; i++) {
+                sb.append("<num>").append(i).append("</num>");
+                sb.append("<num>").append(r.nextInt(100)).append("</num>\n");
+            }
+            sb.append("</TEXT>\n</DOC>\n");
 
-      createTxtDoc(dataDir, "d1.txt"); // 1 doc
-      createXMLDoc(dataDir, "d2.xml"); // 1 doc
-      createTrecTextDoc(dataDir, "d3.trectext"); // 10 docs
-      createTrecWebDoc(dataDir, "d4.trecweb"); // 10 docs
-      createTwitterDoc(dataDir, "d5.twitter"); // 10 docs
-
-      Parameters p = Parameters.instance();
-      p.set("inputPath", Collections.singletonList(dataDir.getAbsolutePath()));
-      p.set("indexPath", index.getAbsolutePath());
-
-      BuildIndex bi = new BuildIndex();
-      bi.run(p, System.err);
-
-      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.instance());
-
-      FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
-      assertEquals(cs.collectionLength, 553);
-      assertEquals(cs.documentCount, 32);
-      assertEquals(cs.maxLength, 22);
-      assertEquals(cs.minLength, 11);
-
-      IndexPartStatistics is1 = ret.getIndexPartStatistics("postings");
-      assertEquals(is1.collectionLength, 553);
-
-      IndexPartStatistics is2 = ret.getIndexPartStatistics("postings.krovetz");
-      assertEquals(is2.collectionLength, 553);
-
-      // should have about the same vocabs
-      assertEquals(is1.vocabCount, is2.vocabCount);
-
-    } finally {
-      Utility.deleteDirectory(index);
-      Utility.deleteDirectory(dataDir);
+        }
+        Utility.copyStringToFile(sb.toString(), new File(folder, fn));
     }
-  }
 
-  @Test
-  public void testAllIsOneBehavior() throws Exception {
-    File index = FileUtility.createTemporaryDirectory();
-    File dataDir = FileUtility.createTemporaryDirectory();
-    try {
+    public static void createTrecWebDoc(File folder, String fn) throws IOException {
 
-      createTxtDoc(dataDir, "d1"); // 1 doc
-      createXMLDoc(dataDir, "d2"); // 1 doc
-      createTxtDoc(dataDir, "d3"); // 1 doc
-      createXMLDoc(dataDir, "d4"); // 1 doc
-      createTxtDoc(dataDir, "d5"); // 1 doc
-      createXMLDoc(dataDir, "d6"); // 1 doc
-
-      Parameters p = Parameters.instance();
-      p.set("inputPath", Collections.singletonList(dataDir.getAbsolutePath()));
-      p.set("indexPath", index.getAbsolutePath());
-      p.set("filetype", "txt");
-
-      BuildIndex bi = new BuildIndex();
-      bi.run(p, System.err);
-
-      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.instance());
-
-      FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
-      assertEquals(cs.collectionLength, 129);
-      assertEquals(cs.documentCount, 6);
-      assertEquals(cs.maxLength, 22);
-      assertEquals(cs.minLength, 21);
-
-      IndexPartStatistics is1 = ret.getIndexPartStatistics("postings");
-      assertEquals(is1.collectionLength, 129);
-
-      IndexPartStatistics is2 = ret.getIndexPartStatistics("postings.krovetz");
-      assertEquals(is2.collectionLength, 129);
-
-      // should have about the same vocabs
-      assertEquals(is1.vocabCount, is2.vocabCount);
-
-    } finally {
-      Utility.deleteDirectory(index);
-      Utility.deleteDirectory(dataDir);
+        StringBuilder sb = new StringBuilder();
+        for (int d = 0; d < 10; d++) {
+            sb.append("<DOC>\n");
+            sb.append("<DOCNO>tw-").append(d).append("</DOCNO>\n");
+            sb.append("<DOCHDR>\nURL\n</DOCHDR>\n");
+            for (int i = 0; i < 10; i++) {
+                sb.append("<num>").append(i).append("</num>");
+                sb.append("<num>").append(r.nextInt(100)).append("</num>\n");
+            }
+            sb.append("</DOC>\n");
+        }
+        Utility.copyStringToFile(sb.toString(), new File(folder, fn));
     }
-  }
 
-  @Test
-  public void testExtensions() throws IOException {
-    File tmp = FileUtility.createTemporary();
+    public static void createTwitterDoc(File folder, String fn) throws IOException {
 
-    Parameters p = Parameters.instance();
-    p.set("parser", Parameters.instance());
+        StringBuilder sb = new StringBuilder();
+        for (int d = 0; d < 10; d++) {
+            sb.append("uid-").append(d).append("\tnow\t");
 
-    List<Parameters> kinds = new ArrayList<Parameters>();
-    kinds.add(Parameters.parseArray("filetype", "qqe",
-      "class", TrecTextParser.class.getName()));
-    kinds.add(Parameters.parseArray("filetype", "qwe",
-      "class", TrecWebParser.class.getName()));
-    kinds.add(Parameters.parseArray("filetype", "trecweb",
-      "class", TrecWebParser.class.getName()));
-    p.getMap("parser").put("externalParsers", kinds);
+            for (int i = 0; i < 10; i++) {
+                sb.append(i).append(" ").append(r.nextInt(100));
+            }
+            sb.append("\tfaked\n");
+        }
 
-    DocumentStreamParser.addExternalParsers(p.getMap("parser"));
-
-    DocumentStreamParser.addExternalParsers(p);
-    assertTrue(DocumentStreamParser.hasParserForExtension("qwe"));
-    assertTrue(DocumentStreamParser.hasParserForExtension("qqe"));
-    assertTrue(DocumentStreamParser.hasParserForExtension("trecweb"));
-
-    DocumentSplit split = DocumentSplitFactory.file(tmp, "qwe");
-    DocumentStreamParser parser = DocumentStreamParser.instance(split, Parameters.instance());
-    assertTrue(parser instanceof TrecWebParser);
-
-    assertTrue(tmp.delete());
-  }
-
-  @Test
-  public void testGetExtension() {
-    assertEquals("foo", FileUtility.getExtension(new File("something.foo.bz2")));
-    assertEquals("foo", FileUtility.getExtension(new File("something.foo.bz")));
-    assertEquals("foo", FileUtility.getExtension(new File("something.foo.xz")));
-    assertEquals("foo", FileUtility.getExtension(new File("something.foo.gz")));
-    assertEquals("", FileUtility.getExtension(new File("something.gz")));
-  }
-
-  @Test
-  public void testDocumentSourceLogic() throws IOException {
-    Parameters conf = Parameters.instance();
-    conf.set("parser", Parameters.instance());
-
-    List<Parameters> kinds = new ArrayList<Parameters>();
-    kinds.add(Parameters.parseArray("filetype", "qqe",
-      "class", TrecTextParser.class.getName()));
-    kinds.add(Parameters.parseArray("filetype", "qwe",
-      "class", TrecWebParser.class.getName()));
-    kinds.add(Parameters.parseArray("filetype", "trecweb",
-      "class", TrecWebParser.class.getName()));
-    conf.getMap("parser").put("externalParsers", kinds);
-
-    DocumentStreamParser.addExternalParsers(conf.getMap("parser"));
-
-    assertTrue(DocumentStreamParser.hasParserForExtension("qwe"));
-    assertTrue(DocumentStreamParser.hasParserForExtension("qqe"));
-    assertTrue(DocumentStreamParser.hasParserForExtension("trecweb"));
-    File dataDir = FileUtility.createTemporaryDirectory();
-
-    File qqe = createTxtDoc(dataDir, "d1.qqe"); // 1 doc
-    File qqe_bz = createTxtDoc(dataDir, "d1.qqe.bz2"); // 1 doc
-
-    List<DocumentSplit> splits = DocumentSource.processFile(qqe, conf);
-    assertEquals(1, splits.size());
-    assertEquals(splits.get(0).fileType, "qqe");
-
-    assertEquals("qqe", FileUtility.getExtension(qqe_bz));
-    splits = DocumentSource.processFile(qqe_bz, conf);
-    assertEquals(1, splits.size());
-    assertEquals(splits.get(0).fileType, "qqe");
-
-    Utility.deleteDirectory(dataDir);
-
-  }
-
-  @Test
-  public void testManualOverrideBehavior() throws Exception {
-    File index = FileUtility.createTemporaryDirectory();
-    File dataDir = FileUtility.createTemporaryDirectory();
-    try {
-
-      createTrecTextDoc(dataDir, "d1.qqe"); // 10 docs - trectext
-      createTrecWebDoc(dataDir, "d2.qwe"); // 10 docs - trecweb
-      createTrecTextDoc(dataDir, "d3.trectext"); // 10 docs - trectext
-      createTrecWebDoc(dataDir, "d4.trecweb"); // 10 docs - trectext
-      createTxtDoc(dataDir, "d5.txt"); // 1 docs - txt
-
-      Parameters p = Parameters.instance();
-      p.set("inputPath", Collections.singletonList(dataDir.getAbsolutePath()));
-      p.set("indexPath", index.getAbsolutePath());
-      p.set("parser", Parameters.instance());
-
-      List<Parameters> kinds = new ArrayList<Parameters>();
-      kinds.add(Parameters.parseString("{\"filetype\" : \"qqe\", \"class\" :\"" + TrecTextParser.class.getName() + "\"}"));
-      kinds.add(Parameters.parseString("{\"filetype\" : \"qwe\", \"class\" :\"" + TrecWebParser.class.getName() + "\"}"));
-      kinds.add(Parameters.parseString("{\"filetype\" : \"trecweb\", \"class\" :\"" + TrecTextParser.class.getName() + "\"}"));
-      p.getMap("parser").put("externalParsers", kinds);
-
-      BuildIndex bi = new BuildIndex();
-      bi.run(p, System.err);
-
-      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.instance());
-
-      FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
-      assertEquals(cs.collectionLength, 822);
-      assertEquals(cs.documentCount, 41); 
-      assertEquals(cs.maxLength, 22);
-      assertEquals(cs.minLength, 20);
-
-      IndexPartStatistics is1 = ret.getIndexPartStatistics("postings");
-      assertEquals(is1.collectionLength, 822);
-
-      IndexPartStatistics is2 = ret.getIndexPartStatistics("postings.krovetz");
-      assertEquals(is2.collectionLength, 822);
-
-      // should have about the same vocabs
-      assertEquals(is1.vocabCount, is2.vocabCount);
-
-    } finally {
-      Utility.deleteDirectory(index);
-      Utility.deleteDirectory(dataDir);
+        Utility.copyStringToFile(sb.toString(), new File(folder, fn));
     }
-  }
+
+    @Test
+    public void testDefaultyBehavior() throws Exception {
+        File index = FileUtility.createTemporaryDirectory();
+        File dataDir = FileUtility.createTemporaryDirectory();
+        try {
+
+            createTxtDoc(dataDir, "d1.txt"); // 1 doc
+            createXMLDoc(dataDir, "d2.xml"); // 1 doc
+            createTrecTextDoc(dataDir, "d3.trectext"); // 10 docs
+            createTrecWebDoc(dataDir, "d4.trecweb"); // 10 docs
+            createTwitterDoc(dataDir, "d5.twitter"); // 10 docs
+
+            Parameters p = Parameters.instance();
+            p.set("inputPath", Collections.singletonList(dataDir.getAbsolutePath()));
+            p.set("indexPath", index.getAbsolutePath());
+
+            BuildIndex bi = new BuildIndex();
+            bi.run(p, System.err);
+
+            Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.instance());
+
+            FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
+            assertEquals(cs.collectionLength, 553);
+            assertEquals(cs.documentCount, 32);
+            assertEquals(cs.maxLength, 22);
+            assertEquals(cs.minLength, 11);
+
+            IndexPartStatistics is1 = ret.getIndexPartStatistics("postings");
+            assertEquals(is1.collectionLength, 553);
+
+            IndexPartStatistics is2 = ret.getIndexPartStatistics("postings.krovetz");
+            assertEquals(is2.collectionLength, 553);
+
+            // should have about the same vocabs
+            assertEquals(is1.vocabCount, is2.vocabCount);
+
+        } finally {
+            Utility.deleteDirectory(index);
+            Utility.deleteDirectory(dataDir);
+        }
+    }
+
+    @Test
+    public void testAllIsOneBehavior() throws Exception {
+        File index = FileUtility.createTemporaryDirectory();
+        File dataDir = FileUtility.createTemporaryDirectory();
+        try {
+
+            createTxtDoc(dataDir, "d1"); // 1 doc
+            createXMLDoc(dataDir, "d2"); // 1 doc
+            createTxtDoc(dataDir, "d3"); // 1 doc
+            createXMLDoc(dataDir, "d4"); // 1 doc
+            createTxtDoc(dataDir, "d5"); // 1 doc
+            createXMLDoc(dataDir, "d6"); // 1 doc
+
+            Parameters p = Parameters.instance();
+            p.set("inputPath", Collections.singletonList(dataDir.getAbsolutePath()));
+            p.set("indexPath", index.getAbsolutePath());
+            p.set("filetype", "txt");
+
+            BuildIndex bi = new BuildIndex();
+            bi.run(p, System.err);
+
+            Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.instance());
+
+            FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
+            assertEquals(cs.collectionLength, 129);
+            assertEquals(cs.documentCount, 6);
+            assertEquals(cs.maxLength, 22);
+            assertEquals(cs.minLength, 21);
+
+            IndexPartStatistics is1 = ret.getIndexPartStatistics("postings");
+            assertEquals(is1.collectionLength, 129);
+
+            IndexPartStatistics is2 = ret.getIndexPartStatistics("postings.krovetz");
+            assertEquals(is2.collectionLength, 129);
+
+            // should have about the same vocabs
+            assertEquals(is1.vocabCount, is2.vocabCount);
+
+        } finally {
+            Utility.deleteDirectory(index);
+            Utility.deleteDirectory(dataDir);
+        }
+    }
+
+    @Test
+    public void testExtensions() throws IOException {
+        File tmp = FileUtility.createTemporary();
+
+        Parameters p = Parameters.instance();
+        p.set("parser", Parameters.instance());
+
+        List<Parameters> kinds = new ArrayList<Parameters>();
+        kinds.add(Parameters.parseArray("filetype", "qqe",
+                "class", TrecTextParser.class.getName()));
+        kinds.add(Parameters.parseArray("filetype", "qwe",
+                "class", TrecWebParser.class.getName()));
+        kinds.add(Parameters.parseArray("filetype", "trecweb",
+                "class", TrecWebParser.class.getName()));
+        p.getMap("parser").put("externalParsers", kinds);
+
+        DocumentStreamParser.addExternalParsers(p.getMap("parser"));
+
+        DocumentStreamParser.addExternalParsers(p);
+        assertTrue(DocumentStreamParser.hasParserForExtension("qwe"));
+        assertTrue(DocumentStreamParser.hasParserForExtension("qqe"));
+        assertTrue(DocumentStreamParser.hasParserForExtension("trecweb"));
+
+        DocumentSplit split = DocumentSplitFactory.file(tmp, "qwe");
+        DocumentStreamParser parser = DocumentStreamParser.instance(split, Parameters.instance());
+        assertTrue(parser instanceof TrecWebParser);
+
+        tmp.delete();
+    }
+
+    @Test
+    public void testGetExtension() {
+        assertEquals("foo", FileUtility.getExtension(new File("something.foo.bz2")));
+        assertEquals("foo", FileUtility.getExtension(new File("something.foo.bz")));
+        assertEquals("foo", FileUtility.getExtension(new File("something.foo.xz")));
+        assertEquals("foo", FileUtility.getExtension(new File("something.foo.gz")));
+        assertEquals("", FileUtility.getExtension(new File("something.gz")));
+    }
+
+    @Test
+    public void testDocumentSourceLogic() throws IOException {
+        Parameters conf = Parameters.instance();
+        conf.set("parser", Parameters.instance());
+
+        List<Parameters> kinds = new ArrayList<Parameters>();
+        kinds.add(Parameters.parseArray("filetype", "qqe",
+                "class", TrecTextParser.class.getName()));
+        kinds.add(Parameters.parseArray("filetype", "qwe",
+                "class", TrecWebParser.class.getName()));
+        kinds.add(Parameters.parseArray("filetype", "trecweb",
+                "class", TrecWebParser.class.getName()));
+        conf.getMap("parser").put("externalParsers", kinds);
+
+        DocumentStreamParser.addExternalParsers(conf.getMap("parser"));
+
+        assertTrue(DocumentStreamParser.hasParserForExtension("qwe"));
+        assertTrue(DocumentStreamParser.hasParserForExtension("qqe"));
+        assertTrue(DocumentStreamParser.hasParserForExtension("trecweb"));
+        File dataDir = FileUtility.createTemporaryDirectory();
+
+        File qqe = createTxtDoc(dataDir, "d1.qqe"); // 1 doc
+        File qqe_bz = createTxtDoc(dataDir, "d1.qqe.bz2"); // 1 doc
+
+        List<DocumentSplit> splits = DocumentSource.processFile(qqe, conf);
+        assertEquals(1, splits.size());
+        assertEquals(splits.get(0).fileType, "qqe");
+
+        assertEquals("qqe", FileUtility.getExtension(qqe_bz));
+        splits = DocumentSource.processFile(qqe_bz, conf);
+        assertEquals(1, splits.size());
+        assertEquals(splits.get(0).fileType, "qqe");
+
+        Utility.deleteDirectory(dataDir);
+
+    }
+
+    @Test
+    public void testManualOverrideBehavior() throws Exception {
+        File index = FileUtility.createTemporaryDirectory();
+        File dataDir = FileUtility.createTemporaryDirectory();
+        try {
+
+            createTrecTextDoc(dataDir, "d1.qqe"); // 10 docs - trectext
+            createTrecWebDoc(dataDir, "d2.qwe"); // 10 docs - trecweb
+            createTrecTextDoc(dataDir, "d3.trectext"); // 10 docs - trectext
+            createTrecWebDoc(dataDir, "d4.trecweb"); // 10 docs - trectext
+            createTxtDoc(dataDir, "d5.txt"); // 1 docs - txt
+
+            Parameters p = Parameters.instance();
+            p.set("inputPath", Collections.singletonList(dataDir.getAbsolutePath()));
+            p.set("indexPath", index.getAbsolutePath());
+            p.set("parser", Parameters.instance());
+
+            List<Parameters> kinds = new ArrayList<Parameters>();
+            kinds.add(Parameters.parseString("{\"filetype\" : \"qqe\", \"class\" :\"" + TrecTextParser.class.getName() + "\"}"));
+            kinds.add(Parameters.parseString("{\"filetype\" : \"qwe\", \"class\" :\"" + TrecWebParser.class.getName() + "\"}"));
+            kinds.add(Parameters.parseString("{\"filetype\" : \"trecweb\", \"class\" :\"" + TrecTextParser.class.getName() + "\"}"));
+            p.getMap("parser").put("externalParsers", kinds);
+
+            BuildIndex bi = new BuildIndex();
+            bi.run(p, System.err);
+
+            Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.instance());
+
+            FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
+            assertEquals(cs.collectionLength, 822);
+            assertEquals(cs.documentCount, 41);
+            assertEquals(cs.maxLength, 22);
+            assertEquals(cs.minLength, 20);
+
+            IndexPartStatistics is1 = ret.getIndexPartStatistics("postings");
+            assertEquals(is1.collectionLength, 822);
+
+            IndexPartStatistics is2 = ret.getIndexPartStatistics("postings.krovetz");
+            assertEquals(is2.collectionLength, 822);
+
+            // should have about the same vocabs
+            assertEquals(is1.vocabCount, is2.vocabCount);
+
+        } finally {
+            Utility.deleteDirectory(index);
+            Utility.deleteDirectory(dataDir);
+        }
+    }
 }
-

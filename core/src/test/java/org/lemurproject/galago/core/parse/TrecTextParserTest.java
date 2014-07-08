@@ -20,128 +20,127 @@ import static org.junit.Assert.*;
  */
 public class TrecTextParserTest {
 
-  @Test
-  public void testParseNothing() throws IOException {
-    File f = FileUtility.createTemporary();
-    f.createNewFile();
-    try {
-      DocumentSplit split = DocumentSplitFactory.file(f, "trectext");
-      TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
+    @Test
+    public void testParseNothing() throws IOException {
+        File f = FileUtility.createTemporary();
+        f.createNewFile();
+        try {
+            DocumentSplit split = DocumentSplitFactory.file(f, "trectext");
+            TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
 
-      Document document = parser.nextDocument();
-      assertNull(document);
-    } finally {
-      f.delete();
+            Document document = parser.nextDocument();
+            assertNull(document);
+        } finally {
+            f.delete();
+        }
     }
-  }
 
-  @Test
-	public void testAppTestGenDoc() throws IOException {
-		String fileText = AppTest.trecDocument("CACM-0001", "This is some text in a document.\n");
-		
-		File f = FileUtility.createTemporary();
-    try {
-      Utility.copyStringToFile(fileText, f);
-      DocumentSplit split = DocumentSplitFactory.file(f, "trectext");
-      TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
+    @Test
+    public void testAppTestGenDoc() throws IOException {
+        String fileText = AppTest.trecDocument("CACM-0001", "This is some text in a document.\n");
 
-      Document document = parser.nextDocument();
-      assertNotNull(document);
-      assertEquals("CACM-0001", document.name);
-      assertEquals("<TEXT>\nThis is some text in a document.\n</TEXT>\n", document.text);
+        File f = FileUtility.createTemporary();
+        try {
+            Utility.copyStringToFile(fileText, f);
+            DocumentSplit split = DocumentSplitFactory.file(f, "trectext");
+            TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
 
-      document = parser.nextDocument();
-      assertNull(document);
-    } finally {
-      f.delete();
+            Document document = parser.nextDocument();
+            assertNotNull(document);
+            assertEquals("CACM-0001", document.name);
+            assertEquals("<TEXT>\nThis is some text in a document.\n</TEXT>\n", document.text);
+
+            document = parser.nextDocument();
+            assertNull(document);
+        } finally {
+            f.delete();
+        }
     }
-	}
 
-  @Test
-  public void testDocumentStreamParser() throws IOException {
-    String fileText = AppTest.trecDocument("CACM-0001", "This is some text in a document.\n");
+    @Test
+    public void testDocumentStreamParser() throws IOException {
+        String fileText = AppTest.trecDocument("CACM-0001", "This is some text in a document.\n");
 
-    File f = FileUtility.createTemporary();
-    try {
-      Utility.copyStringToFile(fileText, f);
-      DocumentSplit split = DocumentSplitFactory.file(f, "trectext");
-      DocumentStreamParser parser = DocumentStreamParser.instance(split, Parameters.instance());
+        File f = FileUtility.createTemporary();
+        try {
+            Utility.copyStringToFile(fileText, f);
+            DocumentSplit split = DocumentSplitFactory.file(f, "trectext");
+            DocumentStreamParser parser = DocumentStreamParser.instance(split, Parameters.instance());
 
-      Document document = parser.nextDocument();
-      assertNotNull(document);
-      assertEquals("CACM-0001", document.name);
-      assertEquals("<TEXT>\nThis is some text in a document.\n</TEXT>\n", document.text);
+            Document document = parser.nextDocument();
+            assertNotNull(document);
+            assertEquals("CACM-0001", document.name);
+            assertEquals("<TEXT>\nThis is some text in a document.\n</TEXT>\n", document.text);
 
-      document = parser.nextDocument();
-      assertNull(document);
-    } finally {
-      f.delete();
+            document = parser.nextDocument();
+            assertNull(document);
+        } finally {
+            f.delete();
+        }
     }
-  }
 
-  @Test
-  public void testParseOneDocument() throws IOException {
-    String fileText =
-            "<DOC>\n"
-            + "<DOCNO>CACM-0001</DOCNO>\n"
-            + "<TEXT>\n"
-            + "This is some text in a document.\n"
-            + "</TEXT>\n"
-            + "</DOC>\n";
-    File f = FileUtility.createTemporary();
-    try {
-      Utility.copyStringToFile(fileText, f);
-      DocumentSplit split = DocumentSplitFactory.file(f);
-      TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
+    @Test
+    public void testParseOneDocument() throws IOException {
+        String fileText
+                = "<DOC>\n"
+                + "<DOCNO>CACM-0001</DOCNO>\n"
+                + "<TEXT>\n"
+                + "This is some text in a document.\n"
+                + "</TEXT>\n"
+                + "</DOC>\n";
+        File f = FileUtility.createTemporary();
+        try {
+            Utility.copyStringToFile(fileText, f);
+            DocumentSplit split = DocumentSplitFactory.file(f);
+            TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
 
-      Document document = parser.nextDocument();
-      assertNotNull(document);
-      assertEquals("CACM-0001", document.name);
-      assertEquals("<TEXT>\nThis is some text in a document.\n</TEXT>\n", document.text);
+            Document document = parser.nextDocument();
+            assertNotNull(document);
+            assertEquals("CACM-0001", document.name);
+            assertEquals("<TEXT>\nThis is some text in a document.\n</TEXT>\n", document.text);
 
-      document = parser.nextDocument();
-      assertNull(document);
-    } finally {
-      assertTrue(f.delete());
+            document = parser.nextDocument();
+            assertNull(document);
+        } finally {
+            f.delete();
+        }
     }
-  }
 
-  @Test
-  public void testParseTwoDocuments() throws IOException {
-    String fileText =
-            "<DOC>\n"
-            + "<DOCNO>CACM-0001</DOCNO>\n"
-            + "<TEXT>\n"
-            + "This is some text in a document.\n"
-            + "</TEXT>\n"
-            + "</DOC>\n"
-            + "<DOC>\n"
-            + "<DOCNO>CACM-0002</DOCNO>\n"
-            + "<TEXT>\n"
-            + "This is some text in a document.\n"
-            + "</TEXT>\n"
-            + "</DOC>\n";
-    File f = FileUtility.createTemporary();
-    try {
-      Utility.copyStringToFile(fileText, f);
-      DocumentSplit split = DocumentSplitFactory.file(f);
-      TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
+    @Test
+    public void testParseTwoDocuments() throws IOException {
+        String fileText
+                = "<DOC>\n"
+                + "<DOCNO>CACM-0001</DOCNO>\n"
+                + "<TEXT>\n"
+                + "This is some text in a document.\n"
+                + "</TEXT>\n"
+                + "</DOC>\n"
+                + "<DOC>\n"
+                + "<DOCNO>CACM-0002</DOCNO>\n"
+                + "<TEXT>\n"
+                + "This is some text in a document.\n"
+                + "</TEXT>\n"
+                + "</DOC>\n";
+        File f = FileUtility.createTemporary();
+        try {
+            Utility.copyStringToFile(fileText, f);
+            DocumentSplit split = DocumentSplitFactory.file(f);
+            TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
 
-      Document document = parser.nextDocument();
-      assertNotNull(document);
-      assertEquals("CACM-0001", document.name);
-      assertEquals("<TEXT>\nThis is some text in a document.\n</TEXT>\n", document.text);
+            Document document = parser.nextDocument();
+            assertNotNull(document);
+            assertEquals("CACM-0001", document.name);
+            assertEquals("<TEXT>\nThis is some text in a document.\n</TEXT>\n", document.text);
 
-      document = parser.nextDocument();
-      assertNotNull(document);
-      assertEquals("CACM-0002", document.name);
-      assertEquals("<TEXT>\nThis is some text in a document.\n</TEXT>\n", document.text);
+            document = parser.nextDocument();
+            assertNotNull(document);
+            assertEquals("CACM-0002", document.name);
+            assertEquals("<TEXT>\nThis is some text in a document.\n</TEXT>\n", document.text);
 
-      document = parser.nextDocument();
-      assertNull(document);
-    } finally {
-      assertTrue(f.delete());
+            document = parser.nextDocument();
+            assertNull(document);
+        } finally {
+            f.delete();
+        }
     }
-  }
 }
-
