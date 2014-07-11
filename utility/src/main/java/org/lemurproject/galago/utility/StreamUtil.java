@@ -59,5 +59,4 @@ public class StreamUtil {
   public static String getResourceAsString(String path) throws IOException {
     return copyStreamToString(StreamUtil.class.getResourceAsStream(path));
   }
-
 }

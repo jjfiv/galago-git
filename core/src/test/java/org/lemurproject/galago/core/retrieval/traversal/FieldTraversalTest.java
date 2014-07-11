@@ -11,16 +11,20 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
-import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.tupleflow.TupleFlowParameters;
+import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Tests for correctness of field-based retrieval models. Currently this
@@ -36,7 +40,7 @@ public class FieldTraversalTest {
   File indexPath;
 
   @Before
-  public void setUp() throws FileNotFoundException, IOException {
+  public void setUp() throws IOException {
     indexPath = makeFieldIndexes();
   }
 
@@ -80,7 +84,7 @@ public class FieldTraversalTest {
     PRMS2Traversal traversal = new PRMS2Traversal(retrieval);
     Node q1 = StructuredQuery.parse("#prms2(#text:cat() #text:dog() #text:donkey())");
     Node q2 = traversal.traverse(q1, qp);
-    
+
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine:norm=false( ");
     transformed.append("#wsum:0=0.3333333333333333:1=0.3333333333333333:2=0.3333333333333333 ( ");
@@ -163,7 +167,7 @@ public class FieldTraversalTest {
   }
 
   public static void addEntries(PositionIndexWriter writer, String term, int[][] entries) throws IOException {
-    writer.processWord(Utility.fromString(term));
+    writer.processWord(ByteUtil.fromString(term));
     for (int[] plist : entries) {
       writer.processDocument(plist[0]);
       for (int i = 1; i < plist.length; i++) {
@@ -293,30 +297,30 @@ public class FieldTraversalTest {
    *    (when compared with the extents)
    */
   private void addDummyLengths(WindowIndexWriter ewriter, DiskLengthsWriter lwriter, String key, int error) throws IOException {
-    ewriter.processExtentName(Utility.fromString(key));
+    ewriter.processExtentName(ByteUtil.fromString(key));
     ewriter.processNumber(1);
     ewriter.processBegin(1);
     ewriter.processTuple(121);
-    lwriter.process( new FieldLengthData(Utility.fromString(key), 1, (121 - 1) + error) );
+    lwriter.process( new FieldLengthData(ByteUtil.fromString(key), 1, (121 - 1) + error) );
     
     ewriter.processNumber(2);
     ewriter.processBegin(1);
     ewriter.processTuple(101);
-    lwriter.process( new FieldLengthData(Utility.fromString(key), 2, (101 - 1) + error) );
+    lwriter.process( new FieldLengthData(ByteUtil.fromString(key), 2, (101 - 1) + error) );
 
     ewriter.processNumber(3);
     ewriter.processBegin(1);
     ewriter.processTuple(51);
-    lwriter.process( new FieldLengthData(Utility.fromString(key), 3, (51 - 1) + error) );
+    lwriter.process( new FieldLengthData(ByteUtil.fromString(key), 3, (51 - 1) + error) );
 
     ewriter.processNumber(4);
     ewriter.processBegin(1);
     ewriter.processTuple(81);
-    lwriter.process( new FieldLengthData(Utility.fromString(key), 4, (81 - 1) + error) );
+    lwriter.process( new FieldLengthData(ByteUtil.fromString(key), 4, (81 - 1) + error) );
 
     ewriter.processNumber(5);
     ewriter.processBegin(1);
     ewriter.processTuple(151);
-    lwriter.process( new FieldLengthData(Utility.fromString(key), 5, (151 - 1) + error ));
+    lwriter.process( new FieldLengthData(ByteUtil.fromString(key), 5, (151 - 1) + error ));
   }
 }

@@ -74,6 +74,16 @@ public class CmpUtil {
     return one.length - two.length;
   }
 
+  public static boolean equals(byte[] one, byte[] two) {
+    if(one.length != two.length) return false;
+
+    for (int i = 0; i < one.length; i++) {
+      if(one[i] != two[i]) return false;
+    }
+
+    return true;
+  }
+
   // comparator for byte arrays
   public static class ByteArrComparator implements Comparator<byte[]>, Serializable {
     @Override
