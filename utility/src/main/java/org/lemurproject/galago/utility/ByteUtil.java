@@ -21,4 +21,8 @@ public class ByteUtil {
   public static String toString(byte[] buffer, int offset, int len) {
     return new String(buffer, offset, len, utf8);
   }
+
+  public static String toString(byte[] buffer, int len) {
+    return new String(buffer, 0, len, utf8);
+  }
 }

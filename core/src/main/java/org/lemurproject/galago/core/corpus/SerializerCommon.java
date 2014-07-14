@@ -29,9 +29,10 @@ public class SerializerCommon {
   public static String readString(DataInputStream input, byte[] buffer) throws IOException {
     int length = input.readInt();
     if(length < 0) return null;
-    sizeCheck(buffer, length);
+    System.err.println(length);
+    buffer = sizeCheck(buffer, length);
     input.readFully(buffer, 0, length);
-    return ByteUtil.toString(buffer, 0, length);
+    return ByteUtil.toString(buffer, length);
   }
 
   public static ByteArrayOutputStream writeText(Document doc) throws IOException {
@@ -114,7 +115,9 @@ public class SerializerCommon {
 
     for (int i = 0; i < metadataCount; i++) {
       String key = readString(input, buffer);
+      System.out.println("K:"+key);
       String value = readString(input, buffer);
+      System.out.println("V:"+value);
       metadata.put(key, value);
     }
 
