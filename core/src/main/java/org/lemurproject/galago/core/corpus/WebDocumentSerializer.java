@@ -16,7 +16,6 @@ import java.io.IOException;
  * @author jfoley.
  */
 public class WebDocumentSerializer extends DocumentSerializer {
-  static final int BUFFER_SIZE = 8192;
   final Tokenizer tokenizer;
 
   public WebDocumentSerializer(Parameters opts) {
@@ -53,8 +52,7 @@ public class WebDocumentSerializer extends DocumentSerializer {
 
   @Override
   public Document fromStream(DataInputStream stream, Document.DocumentComponents selection) throws IOException {
-    byte[] buffer = new byte[BUFFER_SIZE];
-    int blen;
+    SerializerCommon.ByteBuf buffer = new SerializerCommon.ByteBuf();
     DataInputStream input = new DataInputStream(new SnappyInputStream(stream));
     Document d = new Document();
 
@@ -65,7 +63,7 @@ public class WebDocumentSerializer extends DocumentSerializer {
     d.identifier = input.readLong();
 
     // name
-    d.name = SerializerCommon.readString(input, buffer);
+    d.name = buffer.readString(input);
 
     if (selection.metadata) {
       d.metadata = SerializerCommon.readMetadata(input, buffer);
@@ -86,13 +84,5 @@ public class WebDocumentSerializer extends DocumentSerializer {
     }
 
     return d;
-  }
-
-  private static byte[] sizeCheck(byte[] currentBuffer, int sz) {
-    if (sz > currentBuffer.length) {
-      return new byte[sz];
-    } else {
-      return currentBuffer;
-    }
   }
 }

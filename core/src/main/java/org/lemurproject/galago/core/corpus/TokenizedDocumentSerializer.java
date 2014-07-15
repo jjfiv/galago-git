@@ -1,8 +1,8 @@
 package org.lemurproject.galago.core.corpus;
 
 import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.Parameters;
 import org.xerial.snappy.SnappyInputStream;
 import org.xerial.snappy.SnappyOutputStream;
 
@@ -60,7 +60,7 @@ public class TokenizedDocumentSerializer extends DocumentSerializer {
 
   @Override
   public Document fromStream(DataInputStream stream, Document.DocumentComponents selection) throws IOException {
-    byte[] buffer = new byte[SerializerCommon.BUFFER_SIZE];
+    SerializerCommon.ByteBuf buffer = new SerializerCommon.ByteBuf();
     DataInputStream input = new DataInputStream(new SnappyInputStream(stream));
     Document d = new Document();
 
@@ -68,7 +68,7 @@ public class TokenizedDocumentSerializer extends DocumentSerializer {
     d.identifier = input.readLong();
 
     // name
-    d.name = SerializerCommon.readString(input, buffer);
+    d.name = buffer.readString(input);
 
     // exit with no parts
     if(!selection.metadata && !selection.text && !selection.tokenize) return d;
@@ -95,7 +95,7 @@ public class TokenizedDocumentSerializer extends DocumentSerializer {
       int count = input.readInt();
       ArrayList<String> terms = new ArrayList<String>(count);
       for (int i = 0; i < count; i++) {
-        terms.add(SerializerCommon.readString(input, buffer));
+        terms.add(buffer.readString(input));
       }
       d.terms = terms;
     }

@@ -14,7 +14,41 @@ import java.util.Map;
  * @author jfoley.
  */
 public class SerializerCommon {
-  public static final int BUFFER_SIZE = 8192;
+
+  /** Shared wrapper around a byte[] in order to limit allocations */
+  public static class ByteBuf {
+    public static final int BUFFER_SIZE = 8192;
+    public byte[] data;
+    public ByteBuf(int size) {
+      data = new byte[size];
+    }
+    public ByteBuf() {
+      this(BUFFER_SIZE);
+    }
+
+    /** use this internal buffer to read into a String object; assumes next item in string is an integer length, followed by the string */
+    public String readString(DataInputStream input) throws IOException {
+      int length = input.readInt();
+      if(length < 0) return null;
+      if(length == 0) return "";
+      return readString(input, length);
+    }
+
+    /** use this internal buffer to read into a String object; reads the next length bytes as a UTF-8 string */
+    public String readString(DataInputStream input, int length) throws IOException {
+      reserve(length);
+      input.readFully(data, 0, length);
+      return ByteUtil.toString(data, length);
+    }
+
+
+    /** make sure the internal buffer can hold at least length bytes */
+    public void reserve(int length) {
+      if(data.length >= length) return;
+      data = new byte[length];
+    }
+  }
+
 
   public static void writeString(DataOutputStream output, String text) throws IOException {
     if(text == null) {
@@ -24,15 +58,6 @@ public class SerializerCommon {
     byte[] bytes = ByteUtil.fromString(text);
     output.writeInt(bytes.length);
     output.write(bytes);
-  }
-
-  public static String readString(DataInputStream input, byte[] buffer) throws IOException {
-    int length = input.readInt();
-    if(length < 0) return null;
-    System.err.println(length);
-    buffer = sizeCheck(buffer, length);
-    input.readFully(buffer, 0, length);
-    return ByteUtil.toString(buffer, length);
   }
 
   public static ByteArrayOutputStream writeText(Document doc) throws IOException {
@@ -80,7 +105,7 @@ public class SerializerCommon {
     return textArray;
   }
 
-  public static String readText(DataInputStream input, Document.DocumentComponents selection, byte[] buffer) throws IOException {
+  public static String readText(DataInputStream input, Document.DocumentComponents selection, ByteBuf buffer) throws IOException {
     final int textLen = input.readInt();
     if(textLen < 0) return null;
 
@@ -96,9 +121,7 @@ public class SerializerCommon {
     // skip
     if(start > 0) input.skip(start);
 
-    buffer = sizeCheck(buffer, len);
-    input.readFully(buffer, 0, len);
-    String output = ByteUtil.toString(buffer, 0, len);
+    String output = buffer.readString(input, len);
 
     // move past rest
     if (len < textLen) {
@@ -108,27 +131,17 @@ public class SerializerCommon {
     return output;
   }
 
-  public static Map<String,String> readMetadata(DataInputStream input, byte[] buffer) throws IOException {
+  public static Map<String,String> readMetadata(DataInputStream input, ByteBuf buffer) throws IOException {
     // metadata
     int metadataCount = input.readInt();
     Map<String,String> metadata = new HashMap<String,String>(metadataCount);
 
     for (int i = 0; i < metadataCount; i++) {
-      String key = readString(input, buffer);
-      System.out.println("K:"+key);
-      String value = readString(input, buffer);
-      System.out.println("V:"+value);
+      String key = buffer.readString(input);
+      String value = buffer.readString(input);
       metadata.put(key, value);
     }
 
     return metadata;
-  }
-
-  public static byte[] sizeCheck(byte[] currentBuffer, int sz) {
-    if (sz > currentBuffer.length) {
-      return new byte[sz];
-    } else {
-      return currentBuffer;
-    }
   }
 }
