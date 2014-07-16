@@ -9,15 +9,15 @@ import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.Counter;
-import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Linkage;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.Step;
-import org.lemurproject.galago.tupleflow.StreamCreator;
+import org.lemurproject.galago.utility.StreamCreator;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
@@ -60,7 +60,7 @@ public class SplitBTreeValueWriter extends BTreeWriter
 
   public SplitBTreeValueWriter(TupleFlowParameters parameters) throws IOException {
     String valueOutputPath = parameters.getJSON().getString("filename") + File.separator + parameters.getInstanceId();
-    FileUtility.makeParentDirectories(valueOutputPath);
+    FSUtil.makeParentDirectories(valueOutputPath);
     docCounter = parameters.getCounter("Document Values Stored");
     manifest = parameters.getJSON();
 

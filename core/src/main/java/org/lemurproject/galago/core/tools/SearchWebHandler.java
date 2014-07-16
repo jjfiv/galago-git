@@ -8,9 +8,9 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.Search.SearchResult;
 import org.lemurproject.galago.core.tools.Search.SearchResultItem;
-import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.web.WebHandler;
+import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.StreamUtil;
 import org.znerd.xmlenc.XMLOutputter;
 
 import javax.servlet.ServletException;
@@ -137,7 +137,7 @@ public class SearchWebHandler implements WebHandler {
 
   public void retrieveImage(OutputStream output) throws IOException {
     InputStream image = getClass().getResourceAsStream("/images/galago.png");
-    Utility.copyStream(image, output);
+    StreamUtil.copyStream(image, output);
     output.close();
   }
 

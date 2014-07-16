@@ -19,6 +19,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.core.window.ReduceNumberWordCount;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.json.JSONUtil;
 
@@ -60,7 +61,7 @@ public class MemIndexPartTest {
           // randomly pick 100 terms from a vocab of 40
           String term = "term" + r.nextInt(40);
           d.terms.add(term);
-          sorter.process(new NumberWordCount(Utility.fromString(term), did, 1));
+          sorter.process(new NumberWordCount(ByteUtil.fromString(term), did, 1));
         }
         memcounts1.addDocument(d);
       }
@@ -130,11 +131,11 @@ public class MemIndexPartTest {
       FakeScoreIterator scoreItr = new FakeScoreIterator(docs, scores);
       ScoringContext context = new ScoringContext();
 
-      memScores.addIteratorData(Utility.fromString("key"), scoreItr);
+      memScores.addIteratorData(ByteUtil.fromString("key"), scoreItr);
 
       SparseFloatListWriter writer = new SparseFloatListWriter(new FakeParameters(Parameters.parseString("{\"filename\":\"" + JSONUtil.escape(f.getAbsolutePath()) + "\"}")));
 
-      writer.processWord(Utility.fromString("key"));
+      writer.processWord(ByteUtil.fromString("key"));
       for (int i = 0; i < docs.length; i++) {
         writer.processNumber(docs[i]);
         writer.processTuple(scores[i]);
@@ -144,7 +145,7 @@ public class MemIndexPartTest {
       SparseFloatListReader reader = new SparseFloatListReader(f.getAbsolutePath());
 
       ScoreIterator trueScoreItr = new FakeScoreIterator(docs, scores);
-      ScoreIterator memScoreItr = memScores.getNodeScores(Utility.fromString("key"));
+      ScoreIterator memScoreItr = memScores.getNodeScores(ByteUtil.fromString("key"));
       ScoreIterator diskScoreItr = reader.getIterator(new Node("scores", "key"));
 
 

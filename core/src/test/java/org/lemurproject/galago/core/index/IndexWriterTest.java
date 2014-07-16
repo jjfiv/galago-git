@@ -9,8 +9,8 @@ import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class IndexWriterTest {
     assertTrue(DiskBTreeReader.isBTree(temporary));
     DiskBTreeReader reader = new DiskBTreeReader(temporary.getAbsolutePath());
 
-    assertEquals("value", reader.getValueString(Utility.fromString("key")));
+    assertEquals("value", reader.getValueString(ByteUtil.fromString("key")));
     reader.close();
   }
 
@@ -74,7 +74,7 @@ public class IndexWriterTest {
     assertTrue(DiskBTreeReader.isBTree(temporary));
     DiskBTreeReader reader = new DiskBTreeReader(temporary.getAbsolutePath());
 
-    assertEquals("value", reader.getValueString(Utility.fromString(key)));
+    assertEquals("value", reader.getValueString(ByteUtil.fromString(key)));
     reader.close();
   }
 
@@ -95,16 +95,16 @@ public class IndexWriterTest {
     // Skip to 'more'
     iterator.skipTo(new byte[]{(byte) 'm'});
     assertFalse(iterator.isDone());
-    assertEquals("more", Utility.toString(iterator.getKey()));
+    assertEquals("more", ByteUtil.toString(iterator.getKey()));
     assertEquals("value2", iterator.getValueString());
     assertFalse(iterator.nextKey());
 
     // Start at the beginning
     iterator = reader.getIterator();
     assertFalse(iterator.isDone());
-    assertEquals("key", Utility.toString(iterator.getKey()));
+    assertEquals("key", ByteUtil.toString(iterator.getKey()));
     assertTrue(iterator.nextKey());
-    assertEquals("more", Utility.toString(iterator.getKey()));
+    assertEquals("more", ByteUtil.toString(iterator.getKey()));
     assertFalse(iterator.nextKey());
 
     // Start after all keys
@@ -129,7 +129,7 @@ public class IndexWriterTest {
     assertTrue(DiskBTreeReader.isBTree(temporary));
     DiskBTreeReader reader = new DiskBTreeReader(temporary.getAbsolutePath());
 
-    assertEquals("value", reader.getValueString(Utility.fromString("key")));
+    assertEquals("value", reader.getValueString(ByteUtil.fromString("key")));
     reader.close();
   }
 
@@ -154,7 +154,7 @@ public class IndexWriterTest {
       String key = String.format("%05d", i);
       String value = String.format("value%05d", i);
 
-      assertEquals(value, reader.getValueString(Utility.fromString(key)));
+      assertEquals(value, reader.getValueString(ByteUtil.fromString(key)));
     }
     reader.close();
   }
@@ -181,7 +181,7 @@ public class IndexWriterTest {
       String key = String.format("%05d", i);
       String value = String.format("value%05d", i);
 
-      assertEquals(value, reader.getValueString(Utility.fromString(key)));
+      assertEquals(value, reader.getValueString(ByteUtil.fromString(key)));
     }
     reader.close();
   }

@@ -14,8 +14,8 @@ import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.SourceIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Reads a simple positions-based index, where each inverted list in the index
@@ -49,7 +49,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
    * doesn't exist in the inverted file.
    */
   public DiskExtentIterator getTermExtents(String term) throws IOException {
-    return getTermExtents(Utility.fromString(stemmer.stemAsRequired(term)));
+    return getTermExtents(ByteUtil.fromString(stemmer.stemAsRequired(term)));
   }
 
   public DiskExtentIterator getTermExtents(byte[] term) throws IOException {
@@ -61,7 +61,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
   }
 
   public DiskCountIterator getTermCounts(String term) throws IOException {
-    return getTermCounts(Utility.fromString(stemmer.stemAsRequired(term)));
+    return getTermCounts(ByteUtil.fromString(stemmer.stemAsRequired(term)));
   }
 
   public DiskCountIterator getTermCounts(byte[] term) throws IOException {
@@ -118,7 +118,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
       } catch (IOException ioe) {
       }
       StringBuilder sb = new StringBuilder();
-      sb.append(Utility.toString(getKey())).append(",");
+      sb.append(ByteUtil.toString(getKey())).append(",");
       sb.append("list of size: ");
       if (count > 0) {
         sb.append(count);
@@ -143,7 +143,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
 
     @Override
     public String getKeyString() throws IOException {
-      return Utility.toString(getKey());
+      return ByteUtil.toString(getKey());
     }
   }
 }

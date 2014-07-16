@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -38,7 +39,7 @@ public class FilteringIteratorTest {
 
   @After
   public void tearDown() throws Exception {
-    Utility.deleteDirectory(tempPath);
+    FSUtil.deleteDirectory(tempPath);
   }
 
   @Test

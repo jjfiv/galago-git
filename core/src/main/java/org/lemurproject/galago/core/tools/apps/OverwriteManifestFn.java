@@ -5,7 +5,7 @@ package org.lemurproject.galago.core.tools.apps;
 
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.StreamCreator;
+import org.lemurproject.galago.utility.StreamCreator;
 
 import java.io.PrintStream;
 import java.io.RandomAccessFile;

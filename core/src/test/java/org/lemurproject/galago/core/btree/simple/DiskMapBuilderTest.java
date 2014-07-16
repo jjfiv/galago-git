@@ -7,6 +7,8 @@ import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.FSUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,10 +88,10 @@ public class DiskMapBuilderTest {
           "--inputPath=" + inputFile.getAbsolutePath()});
 
       // stick a map in the middle
-      byte[] foo = Utility.fromString("foo space");
-      byte[] bar = Utility.fromString("bar");
-      byte[] baz = Utility.fromString("baz");
-      byte[] hmm = Utility.fromString("hmm");
+      byte[] foo = ByteUtil.fromString("foo space");
+      byte[] bar = ByteUtil.fromString("bar");
+      byte[] baz = ByteUtil.fromString("baz");
+      byte[] hmm = ByteUtil.fromString("hmm");
 
       Map<byte[], byte[]> data = new TreeMap<byte[], byte[]>(new Utility.ByteArrComparator());
       data.put(foo, bar);
@@ -103,16 +105,16 @@ public class DiskMapBuilderTest {
       DiskMapReader onDisk = DiskMapReader.fromMap((new File(indexPath, "myCustomFeature")).getAbsolutePath(), data);
 
       // make sure map works
-      assertTrue(onDisk.containsKey(Utility.fromString("foo space")));
-      assertTrue(onDisk.containsKey(Utility.fromString("bar")));
-      assertTrue(onDisk.containsKey(Utility.fromString("baz")));
-      assertTrue(onDisk.containsKey(Utility.fromString("hmm")));
+      assertTrue(onDisk.containsKey(ByteUtil.fromString("foo space")));
+      assertTrue(onDisk.containsKey(ByteUtil.fromString("bar")));
+      assertTrue(onDisk.containsKey(ByteUtil.fromString("baz")));
+      assertTrue(onDisk.containsKey(ByteUtil.fromString("hmm")));
 
       // make sure retrieval works
       LocalRetrieval ret = new LocalRetrieval(new DiskIndex(indexPath.getAbsolutePath()));
       assertNotNull(ret);
     } finally {
-      Utility.deleteDirectory(tmpDir);
+      FSUtil.deleteDirectory(tmpDir);
     }
 
   }

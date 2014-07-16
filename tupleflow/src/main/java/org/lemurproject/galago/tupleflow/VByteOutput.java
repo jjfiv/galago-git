@@ -1,6 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow;
 
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.compression.VByte;
+
 import java.io.DataOutput;
 import java.io.IOException;
 
@@ -35,7 +38,7 @@ public class VByteOutput implements DataOutput {
   }
 
   public void writeString(String string) throws IOException {
-    byte[] bytes = Utility.fromString(string);
+    byte[] bytes = ByteUtil.fromString(string);
     writeInt(bytes.length);
     write(bytes);
   }
@@ -49,7 +52,7 @@ public class VByteOutput implements DataOutput {
   }
 
   public void write(int i) throws IOException {
-    Utility.compressInt(output, i);
+    VByte.compressInt(output, i);
   }
 
   public void writeByte(int i) throws IOException {
@@ -77,7 +80,7 @@ public class VByteOutput implements DataOutput {
   }
 
   public void writeLong(long i) throws IOException {
-    Utility.compressLong(output, i);
+    VByte.compressLong(output, i);
   }
 
   public void writeDouble(double d) throws IOException {

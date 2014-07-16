@@ -17,6 +17,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.Utility.ByteArrComparator;
@@ -103,7 +104,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
   @Override
   public DiskScoreIterator getIterator(Node node) throws IOException {
     String stringKey = stemAsRequired(node.getDefaultParameter());
-    byte[] key = Utility.fromString(stringKey);
+    byte[] key = ByteUtil.fromString(stringKey);
     if (node.getOperator().equals("scores")) {
       return getNodeScores(key);
     }
@@ -276,7 +277,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
 
     @Override
     public String getKeyString() throws IOException {
-      return Utility.toString(currKey);
+      return ByteUtil.toString(currKey);
     }
 
     @Override
@@ -313,7 +314,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
       long count = -1;
       DiskScoreIterator it = getValueIterator();
       StringBuilder sb = new StringBuilder();
-      sb.append(Utility.toString(getKey())).append(",");
+      sb.append(ByteUtil.toString(getKey())).append(",");
       sb.append("entries:").append(it.totalEntries());
       return sb.toString();
     }

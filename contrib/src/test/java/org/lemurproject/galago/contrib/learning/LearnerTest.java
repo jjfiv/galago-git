@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.SourceIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -36,7 +37,7 @@ public class LearnerTest {
     try {
       File[] files = TestingUtils.make10DocIndex();
       assertTrue(files[0].delete());
-      Utility.deleteDirectory(files[1]); // corpus not required
+      FSUtil.deleteDirectory(files[1]); // corpus not required
       index = files[2]; // index is required
       qrels = FileUtility.createTemporary();
 
@@ -109,7 +110,7 @@ public class LearnerTest {
 
     } finally {
       if (index != null) {
-        Utility.deleteDirectory(index);
+        FSUtil.deleteDirectory(index);
       }
       if (qrels != null) {
         assertTrue(qrels.delete());

@@ -59,4 +59,31 @@ public class StreamUtil {
   public static String getResourceAsString(String path) throws IOException {
     return copyStreamToString(StreamUtil.class.getResourceAsStream(path));
   }
+
+  /**
+   * Copies the data from the InputStream to a file, then closes both when
+   * finished.
+   *
+   * @throws java.io.IOException
+   */
+  public static void copyStreamToFile(InputStream stream, File file) throws IOException {
+    DataOutputStream output = null;
+    try {
+      output = StreamCreator.openOutputStream(file);
+      final int oneMegabyte = 1 * 1024 * 1024;
+      byte[] data = new byte[oneMegabyte];
+
+      while (true) {
+        int bytesRead = stream.read(data);
+
+        if (bytesRead < 0) {
+          break;
+        }
+        output.write(data, 0, bytesRead);
+      }
+    } finally {
+      stream.close();
+      if(output != null) output.close();
+    }
+  }
 }

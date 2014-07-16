@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -143,10 +144,10 @@ public class GroupRetrievalTest {
         trecCorpusFile2.delete();
       }
       if (index1 != null) {
-        Utility.deleteDirectory(index1);
+        FSUtil.deleteDirectory(index1);
       }
       if (index2 != null) {
-        Utility.deleteDirectory(index2);
+        FSUtil.deleteDirectory(index2);
       }
     }
   }

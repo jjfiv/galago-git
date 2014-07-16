@@ -7,8 +7,8 @@ import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
 import java.util.Random;
@@ -33,7 +33,7 @@ public class IndexReaderSkipTest {
       parameters.set("skipResetDistance", 5);
       PositionIndexWriter writer = new PositionIndexWriter(new FakeParameters(parameters));
 
-      writer.processWord(Utility.fromString("key"));
+      writer.processWord(ByteUtil.fromString("key"));
       for (int doc = 0; doc < 1000; doc++) {
         writer.processDocument(doc);
         for (int begin = 0; begin < 100; begin++) {
@@ -70,7 +70,7 @@ public class IndexReaderSkipTest {
       parameters.set("skipResetDistance", 5);
       CountIndexWriter writer = new CountIndexWriter(new FakeParameters(parameters));
 
-      writer.processWord(Utility.fromString("key"));
+      writer.processWord(ByteUtil.fromString("key"));
       for (int doc = 0; doc < 1000; doc++) {
         writer.processDocument(doc);
         writer.processTuple(r.nextInt(128) + 128);
@@ -102,7 +102,7 @@ public class IndexReaderSkipTest {
       parameters.set("skipResetDistance", 5);
       WindowIndexWriter writer = new WindowIndexWriter(new FakeParameters(parameters));
 
-      writer.processExtentName(Utility.fromString("key"));
+      writer.processExtentName(ByteUtil.fromString("key"));
       for (int doc = 0; doc < 1000; doc++) {
         writer.processNumber(doc);
         for (int begin = 0; begin < 100; begin++) {

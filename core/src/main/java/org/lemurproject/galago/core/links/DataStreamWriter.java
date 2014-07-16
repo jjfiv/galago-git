@@ -6,6 +6,7 @@ package org.lemurproject.galago.core.links;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.utility.FSUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class DataStreamWriter implements Processor<Type> {
 
     File outFile = new File(folder, filename + "." + p.getInstanceId());
 
-    FileUtility.makeParentDirectories(outFile);
+    FSUtil.makeParentDirectories(outFile);
 
     Class<?> orderClass = Class.forName(p.getJSON().getString("order"));
     inputClass = orderClass.getEnclosingClass();

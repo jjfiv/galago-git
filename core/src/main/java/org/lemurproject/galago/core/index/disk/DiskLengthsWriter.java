@@ -7,7 +7,9 @@ import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.StreamCreator;
 
 import java.io.*;
 
@@ -58,7 +60,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
   public void process(FieldLengthData ld) throws IOException {
     if (fieldLengthData == null) {
       fieldLengthData = new LengthsList(ld.field);
-      fieldCounter = tupleFlowParameters.getCounter(Utility.toString(ld.field) + " count");
+      fieldCounter = tupleFlowParameters.getCounter(ByteUtil.toString(ld.field) + " count");
 
       if (newFields != null) {
         newFields.increment();
@@ -74,7 +76,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
         writer.add(fieldLengthData);
       }
 
-      fieldCounter = tupleFlowParameters.getCounter(Utility.toString(ld.field) + " count");
+      fieldCounter = tupleFlowParameters.getCounter(ByteUtil.toString(ld.field) + " count");
       fieldLengthData = new LengthsList(ld.field);
     }
 
@@ -191,7 +193,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     @Override
     public void write(OutputStream fileStream) throws IOException {
 
-      assert (totalDocumentCount > 0) : "Can not write an empty lengths file for field: " + Utility.toString(field);
+      assert (totalDocumentCount > 0) : "Can not write an empty lengths file for field: " + ByteUtil.toString(field);
 
       //  ensure the array of documents is at least totalDocumentCount long
       //(in case someone asks for the length of docId =totalDocumentCount)

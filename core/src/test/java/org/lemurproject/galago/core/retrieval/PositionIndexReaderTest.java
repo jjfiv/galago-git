@@ -21,8 +21,8 @@ import org.lemurproject.galago.core.retrieval.iterator.disk.DiskExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,7 +61,7 @@ public class PositionIndexReaderTest {
     PositionIndexWriter writer =
             new PositionIndexWriter(new org.lemurproject.galago.tupleflow.FakeParameters(p));
 
-    writer.processWord(Utility.fromString("a"));
+    writer.processWord(ByteUtil.fromString("a"));
 
     for (int[] doc : dataA) {
       writer.processDocument(doc[0]);
@@ -71,7 +71,7 @@ public class PositionIndexReaderTest {
       }
     }
 
-    writer.processWord(Utility.fromString("b"));
+    writer.processWord(ByteUtil.fromString("b"));
 
     for (int[] doc : dataB) {
       writer.processDocument(doc[0]);
@@ -159,7 +159,7 @@ public class PositionIndexReaderTest {
     PositionIndexWriter writer =
             new PositionIndexWriter(new org.lemurproject.galago.tupleflow.FakeParameters(p));
 
-    writer.processWord(Utility.fromString("a"));
+    writer.processWord(ByteUtil.fromString("a"));
     for (int docid = 1; docid < 5000; docid += 3) {
       writer.processDocument(docid);
       for (int pos = 1; pos < ((docid / 50) + 2); pos++) {

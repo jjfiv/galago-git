@@ -10,10 +10,10 @@ import org.lemurproject.galago.core.index.KeyValueWriter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 import org.lemurproject.galago.core.types.WordCount;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
+import org.lemurproject.galago.utility.compression.VByte;
 
 /**
  *
@@ -54,9 +54,9 @@ public class BackgroundStatsWriter extends KeyValueWriter<WordCount> {
     highestMaxDocumentFrequency = Math.max(wc.maxDocumentFrequency, highestMaxDocumentFrequency);
 
     bstream.reset();
-    Utility.compressLong(stream, wc.collectionFrequency);
-    Utility.compressLong(stream, wc.documentCount);
-    Utility.compressLong(stream, wc.maxDocumentFrequency);
+    VByte.compressLong(stream, wc.collectionFrequency);
+    VByte.compressLong(stream, wc.documentCount);
+    VByte.compressLong(stream, wc.maxDocumentFrequency);
     GenericElement element = new GenericElement(wc.word, bstream.toByteArray());
     return element;
   }

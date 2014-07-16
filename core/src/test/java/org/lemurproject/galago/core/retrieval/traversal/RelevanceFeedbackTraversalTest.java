@@ -12,8 +12,8 @@ import org.lemurproject.galago.core.retrieval.prf.RelevanceModel1;
 import org.lemurproject.galago.core.retrieval.prf.RelevanceModel3;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
 import java.util.List;
@@ -156,10 +156,10 @@ public class RelevanceFeedbackTraversalTest {
       trecCorpusFile.delete();
     }
     if (corpusFile != null) {
-      Utility.deleteDirectory(corpusFile);
+      FSUtil.deleteDirectory(corpusFile);
     }
     if (indexFile != null) {
-      Utility.deleteDirectory(indexFile);
+      FSUtil.deleteDirectory(indexFile);
     }
   }
 }

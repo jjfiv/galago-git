@@ -20,9 +20,9 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.InputClass;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 
 import java.io.File;
@@ -412,7 +412,7 @@ public class GeometricIndex implements DynamicIndex, Index {
 
         // now can delete the merged indexshard folders...
         for (String file : mergeBin.getBinPaths()) {
-          Utility.deleteDirectory(new File(file));
+          FSUtil.deleteDirectory(new File(file));
         }
 
         logger.info("Done merging.");

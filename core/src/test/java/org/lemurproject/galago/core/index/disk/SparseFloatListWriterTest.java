@@ -7,8 +7,8 @@ import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.SparseFloatListReader.KeyIterator;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
 
@@ -30,7 +30,7 @@ public class SparseFloatListWriterTest {
       int c = 1;
 
       // NORMAL TEST:
-      writer.processWord(Utility.fromString("test1"));
+      writer.processWord(ByteUtil.fromString("test1"));
       for (long doc = 0; doc < 2020; doc += 2) {
         writer.processNumber(doc);
         writer.processTuple(c + 0.1);
@@ -42,7 +42,7 @@ public class SparseFloatListWriterTest {
       long max = 8000000000L;
       long step = (max - min) / 1010;
       c = 1;
-      writer.processWord(Utility.fromString("test2"));
+      writer.processWord(ByteUtil.fromString("test2"));
       for (long doc = min; doc < max; doc += step) {
         writer.processNumber(doc);
         writer.processTuple(c + 0.1);

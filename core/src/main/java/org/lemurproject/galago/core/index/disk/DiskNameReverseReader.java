@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  * Reads a binary file of document names produced by DocumentNameWriter2
@@ -33,7 +34,7 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesRevers
   // gets the document id for some document name
   @Override
   public long getDocumentIdentifier(String documentName) throws IOException {
-    byte[] data = reader.getValueBytes(Utility.fromString(documentName));
+    byte[] data = reader.getValueBytes(ByteUtil.fromString(documentName));
     if (data == null) {
       return -1;
     }
@@ -65,11 +66,11 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesRevers
     }
 
     public boolean skipToKey(String name) throws IOException {
-      return findKey(Utility.fromString(name));
+      return findKey(ByteUtil.fromString(name));
     }
 
     public String getCurrentName() throws IOException {
-      return Utility.toString(getKey());
+      return ByteUtil.toString(getKey());
     }
 
     public long getCurrentIdentifier() throws IOException {
@@ -87,7 +88,7 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesRevers
 
     @Override
     public String getKeyString() {
-      return Utility.toString(getKey());
+      return ByteUtil.toString(getKey());
     }
 
     @Override

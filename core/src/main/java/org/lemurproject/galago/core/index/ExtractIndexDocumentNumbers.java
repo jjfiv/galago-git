@@ -10,8 +10,8 @@ import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  * <p> Numbers documents using an existing index.</p>
@@ -40,7 +40,7 @@ public class ExtractIndexDocumentNumbers extends StandardStep<Document, Document
     // it's possible that documents already have numbers - if so, leave them be.
     if (doc.identifier < 0) {
       try {
-        namesIterator.findKey(Utility.fromString(doc.name));
+        namesIterator.findKey(ByteUtil.fromString(doc.name));
         doc.identifier = namesIterator.getCurrentIdentifier();
       } catch (Exception e) {
         throw new IOException("Can not find document number for document: " + doc.name);

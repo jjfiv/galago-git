@@ -10,8 +10,8 @@ import org.lemurproject.galago.core.parse.UniversalParser;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.tools.apps.BuildStageTemplates;
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
 
 import java.io.File;
@@ -77,7 +77,7 @@ public class BuildFilteredCollection extends AppFunction {
 
     File out = (new File(outputParameters.getString("outputPath")));
     if (out.isDirectory()) {
-      Utility.deleteDirectory(out);
+      FSUtil.deleteDirectory(out);
     } else if (out.isFile()) {
       out.delete();
     }

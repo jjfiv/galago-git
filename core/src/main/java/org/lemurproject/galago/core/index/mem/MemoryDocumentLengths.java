@@ -18,6 +18,7 @@ import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.util.Bytes;
 import org.lemurproject.galago.core.util.IntArray;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -98,7 +99,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     public FieldStatistics stats() {
       FieldStatistics cs = new FieldStatistics();
-      cs.fieldName = Utility.toString(key());
+      cs.fieldName = ByteUtil.toString(key());
       cs.collectionLength = collectionLength;
       cs.documentCount = totalDocumentCount;
       cs.nonZeroLenDocCount = nonZeroDocumentCount;
@@ -117,7 +118,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   public MemoryDocumentLengths(Parameters params) {
     this.params = params;
     this.params.set("writerClass", "org.lemurproject.galago.core.index.DocumentLengthsWriter");
-    this.document = new Bytes(Utility.fromString("document"));
+    this.document = new Bytes(ByteUtil.fromString("document"));
 
     if (!lengths.containsKey(document)) {
       lengths.put(document, new FieldLengthList(document));
@@ -133,7 +134,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     TObjectIntHashMap<Bytes> currentFieldLengths = new TObjectIntHashMap(doc.tags.size());
     for (Tag tag : doc.tags) {
       int len = tag.end - tag.begin;
-      currentFieldLengths.adjustOrPutValue(new Bytes(Utility.fromString(tag.name)), len, len);
+      currentFieldLengths.adjustOrPutValue(new Bytes(ByteUtil.fromString(tag.name)), len, len);
     }
 
     for (Bytes field : currentFieldLengths.keySet()) {
@@ -210,7 +211,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   public DiskLengthsIterator getIterator(Node node) throws IOException {
     if (node.getOperator().equals("lengths")) {
       String fieldName = node.getNodeParameters().get("default", "document");
-      return this.getIterator(Utility.fromString(fieldName));
+      return this.getIterator(ByteUtil.fromString(fieldName));
     } else {
       throw new UnsupportedOperationException(
               "Index doesn't support operator: " + node.getOperator());
@@ -257,7 +258,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       fieldLengths = (DiskLengthsIterator) fields.getValueIterator();
       while (!fieldLengths.isDone()) {
         c.document = fieldLengths.currentCandidate();
-        ld = new FieldLengthData(Utility.fromString(fieldLengths.getKeyString()), fieldLengths.currentCandidate(), fieldLengths.length(c));
+        ld = new FieldLengthData(ByteUtil.fromString(fieldLengths.getKeyString()), fieldLengths.currentCandidate(), fieldLengths.length(c));
         writer.process(ld);
         fieldLengths.movePast(fieldLengths.currentCandidate());
       }
@@ -285,7 +286,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     @Override
     public String getKeyString() {
-      return Utility.toString(currField);
+      return ByteUtil.toString(currField);
     }
 
     @Override

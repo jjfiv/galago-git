@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
@@ -46,10 +47,10 @@ public class WindowProducerTest {
     bigramProducer.process(doc1);
 
     assert (catcher.data.size() == 15);    
-    assert (Utility.toString(catcher.data.get(0).data).equals("1~9"));
-    assert (Utility.toString(catcher.data.get(1).data).equals("1~2"));
-    assert (Utility.toString(catcher.data.get(2).data).equals("9~2"));
-    assert (Utility.toString(catcher.data.get(3).data).equals("9~8"));
+    assert (ByteUtil.toString(catcher.data.get(0).data).equals("1~9"));
+    assert (ByteUtil.toString(catcher.data.get(1).data).equals("1~2"));
+    assert (ByteUtil.toString(catcher.data.get(2).data).equals("9~2"));
+    assert (ByteUtil.toString(catcher.data.get(3).data).equals("9~8"));
 
     assertEquals(catcher.data.get(4).document, 10);
     assertEquals(catcher.data.get(5).document, 10);
@@ -92,10 +93,10 @@ public class WindowProducerTest {
     bigramProducer.process(doc);
 
     assertEquals(15, catcher.data.size());
-    assert (Utility.toString(catcher.data.get(0).data).equals("1~9"));
-    assert (Utility.toString(catcher.data.get(1).data).equals("1~2"));
-    assert (Utility.toString(catcher.data.get(2).data).equals("2~9"));
-    assert (Utility.toString(catcher.data.get(3).data).equals("8~9"));
+    assert (ByteUtil.toString(catcher.data.get(0).data).equals("1~9"));
+    assert (ByteUtil.toString(catcher.data.get(1).data).equals("1~2"));
+    assert (ByteUtil.toString(catcher.data.get(2).data).equals("2~9"));
+    assert (ByteUtil.toString(catcher.data.get(3).data).equals("8~9"));
 
     assertEquals(10, catcher.data.get(4).document);
     assertEquals(10, catcher.data.get(5).document);
@@ -131,10 +132,10 @@ public class WindowProducerTest {
     bigramProducer.process(doc1);
 
     assertEquals (catcher.data.size(), 5);
-    assert (Utility.toString(catcher.data.get(0).data).equals("1~9"));
-    assert (Utility.toString(catcher.data.get(1).data).equals("9~2"));
-    assert (Utility.toString(catcher.data.get(2).data).equals("2~8"));
-    assert (Utility.toString(catcher.data.get(3).data).equals("7~4"));
+    assert (ByteUtil.toString(catcher.data.get(0).data).equals("1~9"));
+    assert (ByteUtil.toString(catcher.data.get(1).data).equals("9~2"));
+    assert (ByteUtil.toString(catcher.data.get(2).data).equals("2~8"));
+    assert (ByteUtil.toString(catcher.data.get(3).data).equals("7~4"));
 
     assertEquals(catcher.data.get(3).document, 10);
     assertEquals(catcher.data.get(4).document, 10);
@@ -175,10 +176,10 @@ public class WindowProducerTest {
     //catcher.printAll();
 
     assert (catcher.data.size() == 6);
-    assert (Utility.toString(catcher.data.get(0).data).equals("1~9"));
-    assert (Utility.toString(catcher.data.get(1).data).equals("9~2"));
-    assert (Utility.toString(catcher.data.get(2).data).equals("2~8"));
-    assert (Utility.toString(catcher.data.get(3).data).equals("7~4"));
+    assert (ByteUtil.toString(catcher.data.get(0).data).equals("1~9"));
+    assert (ByteUtil.toString(catcher.data.get(1).data).equals("9~2"));
+    assert (ByteUtil.toString(catcher.data.get(2).data).equals("2~8"));
+    assert (ByteUtil.toString(catcher.data.get(3).data).equals("7~4"));
 
     assertEquals(catcher.data.get(4).document, 10);
     assertEquals(catcher.data.get(5).document, 10);

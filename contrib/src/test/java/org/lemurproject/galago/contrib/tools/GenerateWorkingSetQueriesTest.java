@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -59,7 +60,7 @@ public class GenerateWorkingSetQueriesTest {
   @After
   public void tearDown() throws IOException {
     if (dataFolder != null) {
-      Utility.deleteDirectory(dataFolder);
+      FSUtil.deleteDirectory(dataFolder);
     }
   }
 

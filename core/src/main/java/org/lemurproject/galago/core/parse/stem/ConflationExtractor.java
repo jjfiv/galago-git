@@ -8,6 +8,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  *
@@ -30,7 +31,7 @@ public class ConflationExtractor extends StandardStep<Document, KeyValuePair> {
       if (term != null) {
         String stem = stemmer.stem(term);
         if (stem != null) {
-          processor.process(new KeyValuePair(Utility.fromString(stem), Utility.fromString(term)));
+          processor.process(new KeyValuePair(ByteUtil.fromString(stem), ByteUtil.fromString(term)));
         }
       }
     }

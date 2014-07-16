@@ -3,6 +3,7 @@ package org.lemurproject.galago.core.btree.simple;
 
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.ReadOnlyMap;
@@ -51,7 +52,7 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> implements Closea
     if(o == null)
       return false;
     if(o instanceof String)
-      return containsKey(Utility.fromString((String) o));
+      return containsKey(ByteUtil.fromString((String) o));
     
     try {
       byte[] key = (byte[]) o;

@@ -14,6 +14,7 @@ import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  *
@@ -44,7 +45,7 @@ public class WordCounter extends StandardStep<Document, WordCount> {
       if (t != null) {
         if ((filterWords == null)
                 || (!filterWords.contains(t))) {
-          wordCounts.add(new WordCount(Utility.fromString(t), 1, 1, 1));
+          wordCounts.add(new WordCount(ByteUtil.fromString(t), 1, 1, 1));
         }
       }
     }

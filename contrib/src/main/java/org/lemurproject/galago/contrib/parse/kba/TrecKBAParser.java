@@ -7,8 +7,8 @@ import org.apache.thrift.transport.TTransportException;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.DocumentStreamParser;
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.*;
 import java.text.ParseException;
@@ -109,7 +109,7 @@ public class TrecKBAParser extends DocumentStreamParser {
           nerData = "";
         }
 
-        String srcMetadata = Utility.toString(item.source_metadata.array());
+        String srcMetadata = ByteUtil.toString(item.source_metadata.array());
         StringBuilder content = new StringBuilder();
         content.append("<kbadate>");
         content.append(Long.toString(date.getTime()));

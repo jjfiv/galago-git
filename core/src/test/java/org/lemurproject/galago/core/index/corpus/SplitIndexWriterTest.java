@@ -4,6 +4,8 @@ package org.lemurproject.galago.core.index.corpus;
 import org.junit.Test;
 import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
@@ -38,11 +40,11 @@ public class SplitIndexWriterTest{
       assertTrue(SplitBTreeReader.isBTree(temporary));
       SplitBTreeReader reader = new SplitBTreeReader(temporary);
 
-      assertEquals("value", reader.getValueString(Utility.fromString("key")));
+      assertEquals("value", reader.getValueString(ByteUtil.fromString("key")));
       reader.close();
     } finally {
       if (temporary != null) {
-        Utility.deleteDirectory(temporary);
+        FSUtil.deleteDirectory(temporary);
       }
     }
   }
@@ -75,16 +77,16 @@ public class SplitIndexWriterTest{
       // Skip to 'more'
       iterator.skipTo(new byte[]{(byte) 'm'});
       assertFalse(iterator.isDone());
-      assertEquals("more", Utility.toString(iterator.getKey()));
+      assertEquals("more", ByteUtil.toString(iterator.getKey()));
       assertEquals("value2", iterator.getValueString());
       assertFalse(iterator.nextKey());
 
       // Start at the beginning
       iterator = reader.getIterator();
       assertFalse(iterator.isDone());
-      assertEquals("key", Utility.toString(iterator.getKey()));
+      assertEquals("key", ByteUtil.toString(iterator.getKey()));
       assertTrue(iterator.nextKey());
-      assertEquals("more", Utility.toString(iterator.getKey()));
+      assertEquals("more", ByteUtil.toString(iterator.getKey()));
       assertFalse(iterator.nextKey());
 
       // Start after all keys
@@ -96,7 +98,7 @@ public class SplitIndexWriterTest{
       reader.close();
     } finally {
       if (temporary != null) {
-        Utility.deleteDirectory(temporary);
+        FSUtil.deleteDirectory(temporary);
       }
     }
   }
@@ -133,13 +135,13 @@ public class SplitIndexWriterTest{
         String key = String.format("%05d", i);
         String value = String.format("value%05d", i);
 
-        assertEquals(value, reader.getValueString(Utility.fromString(key)));
+        assertEquals(value, reader.getValueString(ByteUtil.fromString(key)));
       }
       reader.close();
 
     } finally {
       if (temporary != null) {
-        Utility.deleteDirectory(temporary);
+        FSUtil.deleteDirectory(temporary);
       }
     }
   }

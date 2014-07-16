@@ -4,8 +4,13 @@ import org.junit.Test;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.tools.apps.BuildIndex;
-import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
+import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.StreamCreator;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.*;
 
@@ -63,7 +68,7 @@ public class WebDocumentSerializerTest {
       assertEquals(7, document.terms.size());
       assertEquals("this", document.terms.get(0));
     } finally {
-      Utility.deleteDirectory(tmpDir);
+      FSUtil.deleteDirectory(tmpDir);
     }
   }
 
@@ -75,7 +80,7 @@ public class WebDocumentSerializerTest {
       tmp = FileUtility.createTemporary();
       // save to file
       ByteArrayInputStream bais = new ByteArrayInputStream(fakeData);
-      Utility.copyStreamToFile(bais, tmp);
+      StreamUtil.copyStreamToFile(bais, tmp);
 
       RandomAccessFile raf = StreamCreator.readFile(tmp.getCanonicalPath());
       BufferedFileDataStream bfds = new BufferedFileDataStream(raf, 0, raf.length());

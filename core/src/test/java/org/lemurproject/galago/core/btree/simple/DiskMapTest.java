@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.btree.simple;
 import org.junit.Test;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.ByteUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,10 +21,10 @@ import static org.junit.Assert.*;
 public class DiskMapTest {
 	@Test
   public void createMap() throws IOException {
-    byte[] foo = Utility.fromString("foo space");
-    byte[] bar = Utility.fromString("bar");
-    byte[] baz = Utility.fromString("baz");
-    byte[] hmm = Utility.fromString("hmm");
+    byte[] foo = ByteUtil.fromString("foo space");
+    byte[] bar = ByteUtil.fromString("bar");
+    byte[] baz = ByteUtil.fromString("baz");
+    byte[] hmm = ByteUtil.fromString("hmm");
 
     Map<byte[], byte[]> data = new TreeMap<byte[], byte[]>(new Utility.ByteArrComparator());
     data.put(foo, bar);
@@ -54,12 +55,12 @@ public class DiskMapTest {
       assertArrayEquals((byte[]) onDisk.get(key), (byte[]) data.get(key));
     }
 
-    assertFalse(onDisk.containsKey(Utility.fromString("Not in the map!")));
-    assertNull(onDisk.get(Utility.fromString("Still not in the map!")));
+    assertFalse(onDisk.containsKey(ByteUtil.fromString("Not in the map!")));
+    assertNull(onDisk.get(ByteUtil.fromString("Still not in the map!")));
 
     // test that different address byte arrays still work
-    assertTrue(onDisk.containsKey(Utility.fromString("foo space")));
-    assertNotNull(onDisk.get(Utility.fromString("foo space")));
+    assertTrue(onDisk.containsKey(ByteUtil.fromString("foo space")));
+    assertNotNull(onDisk.get(ByteUtil.fromString("foo space")));
   }
 	
 }

@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.zip.GZIPOutputStream;
 import org.lemurproject.galago.core.types.ExtractedLinkIndri;
-import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.InputClass;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
@@ -101,7 +101,7 @@ public class IndriHavestLinksWriter implements Processor<ExtractedLinkIndri> {
             if (outputPath.equals(filePath)) {
                 throw new IOException("Can not over write input data.");
             }
-            FileUtility.makeParentDirectories(outputPath);
+            FSUtil.makeParentDirectories(outputPath);
 
             // all output is compressed.
             writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(outputPath))));

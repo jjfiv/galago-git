@@ -4,7 +4,8 @@ package org.lemurproject.galago.core.index;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import org.lemurproject.galago.tupleflow.Utility;
+
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  *
@@ -20,13 +21,13 @@ public class GenericElement implements IndexElement {
     }
     
     public GenericElement(String key, byte[] data) {
-        this.key = Utility.fromString(key);
+        this.key = ByteUtil.fromString(key);
         this.data = data;
     }
     
     public GenericElement(String key, String value) {
-        this.key = Utility.fromString(key);
-        this.data = Utility.fromString(value);
+        this.key = ByteUtil.fromString(key);
+        this.data = ByteUtil.fromString(value);
     }
 
     @Override

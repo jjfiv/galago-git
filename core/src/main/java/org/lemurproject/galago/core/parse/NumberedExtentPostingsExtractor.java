@@ -6,8 +6,8 @@ import org.lemurproject.galago.core.types.FieldNumberWordPosition;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  *
@@ -23,7 +23,7 @@ public class NumberedExtentPostingsExtractor extends StandardStep<Document, Fiel
     for (Tag tag : object.tags) {
       String field = tag.name;
       for (int position = tag.begin; position < tag.end; position++) {
-        byte[] word = Utility.fromString(object.terms.get(position));
+        byte[] word = ByteUtil.fromString(object.terms.get(position));
         processor.process(new FieldNumberWordPosition(field, object.identifier, word, position));
       }
     }

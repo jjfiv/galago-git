@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskScoreIterator;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  * Retrieves lists of floating point numbers which can be used as document
@@ -33,7 +33,7 @@ public class SparseFloatListReader extends KeyListReader {
   }
 
   private DiskScoreIterator getScores(String term, double defaultScore) throws IOException {
-    BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
+    BTreeReader.BTreeIterator iterator = reader.getIterator(ByteUtil.fromString(term));
     return new DiskScoreIterator(new SparseFloatListSource(iterator, defaultScore));
   }
 
@@ -71,7 +71,7 @@ public class SparseFloatListReader extends KeyListReader {
       }
 
       StringBuilder sb = new StringBuilder();
-      sb.append(Utility.toString(iterator.getKey())).append(", List Value: size=");
+      sb.append(ByteUtil.toString(iterator.getKey())).append(", List Value: size=");
       if (count > 0) {
         sb.append(count);
       } else {
@@ -87,7 +87,7 @@ public class SparseFloatListReader extends KeyListReader {
 
     @Override
     public String getKeyString() throws IOException {
-      return Utility.toString(iterator.getKey());
+      return ByteUtil.toString(iterator.getKey());
     }
 
     public SparseFloatListSource getValueSource() throws IOException {

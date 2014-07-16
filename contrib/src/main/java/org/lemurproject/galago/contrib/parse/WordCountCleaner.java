@@ -6,6 +6,7 @@ package org.lemurproject.galago.contrib.parse;
 import org.lemurproject.galago.core.types.WordCount;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
@@ -42,7 +43,7 @@ public class WordCountCleaner extends StandardStep<WordCount, WordCount> {
 
   @Override
   public void process(WordCount wc) throws IOException {
-    String t = Utility.toString(wc.word);
+    String t = ByteUtil.toString(wc.word);
     if (lower) {
       t = t.toLowerCase();
     }
@@ -58,7 +59,7 @@ public class WordCountCleaner extends StandardStep<WordCount, WordCount> {
 
     // empty strings should be removed
     if (!t.isEmpty() || t.matches("~+")) {
-      wc.word = Utility.fromString(t);
+      wc.word = ByteUtil.fromString(t);
       processor.process(wc);
     }
   }

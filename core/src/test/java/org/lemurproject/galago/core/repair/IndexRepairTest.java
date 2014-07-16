@@ -8,7 +8,7 @@ import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
 import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
@@ -24,7 +24,7 @@ public class IndexRepairTest {
 
   @After
   public void tearDown() throws IOException {
-    Utility.deleteDirectory(tempPath);
+    FSUtil.deleteDirectory(tempPath);
   }
 
   @Test

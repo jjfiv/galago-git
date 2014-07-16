@@ -13,6 +13,7 @@ import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.ExNihiloSource;
 import org.lemurproject.galago.tupleflow.FileSource;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Linkage;
 import org.lemurproject.galago.tupleflow.OutputClass;
@@ -83,7 +84,7 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
 
       // Filter if we need to
       if (!inclusions.isEmpty() || !exclusions.isEmpty()) {
-        String s = Utility.toString(iterator.getKey());
+        String s = ByteUtil.toString(iterator.getKey());
         if (inclusions.contains(s) == false) {
           iterator.nextKey();
           if (skipCounter != null) {

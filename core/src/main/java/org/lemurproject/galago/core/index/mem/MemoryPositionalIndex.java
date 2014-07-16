@@ -20,6 +20,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.Utility.ByteArrComparator;
@@ -65,7 +66,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     for (String term : doc.terms) {
       String stem = stemAsRequired(term);
       if (stem != null) {
-        addPosting(Utility.fromString(stem), doc.identifier, position);
+        addPosting(ByteUtil.fromString(stem), doc.identifier, position);
         position += 1;
       }
     }
@@ -132,7 +133,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
   @Override
   public SourceIterator getIterator(Node node) throws IOException {
     String term = stemAsRequired(node.getDefaultParameter());
-    byte[] byteWord = Utility.fromString(term);
+    byte[] byteWord = ByteUtil.fromString(term);
     if (node.getOperator().equals("counts")) {
       return getTermCounts(byteWord);
     } else {
@@ -319,7 +320,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
 
     public NodeStatistics stats() {
       NodeStatistics stats = new NodeStatistics();
-      stats.node = Utility.toString(key);
+      stats.node = ByteUtil.toString(key);
       stats.nodeFrequency = termPostingsCount;
       stats.nodeDocumentCount = termDocumentCount;
       stats.maximumCount = maximumPostingsCount;
@@ -347,7 +348,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
 
     @Override
     public String getKeyString() throws IOException {
-      return Utility.toString(currKey);
+      return ByteUtil.toString(currKey);
     }
 
     @Override
@@ -384,7 +385,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
       DiskExtentIterator it = getValueIterator();
       long count = it.totalEntries();
       StringBuilder sb = new StringBuilder();
-      sb.append(Utility.toString(getKey())).append(",");
+      sb.append(ByteUtil.toString(getKey())).append(",");
       sb.append("list of size: ");
       if (count > 0) {
         sb.append(count);

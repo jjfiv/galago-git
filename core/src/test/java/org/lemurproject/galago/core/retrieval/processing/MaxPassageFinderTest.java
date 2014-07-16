@@ -18,6 +18,7 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -43,7 +44,7 @@ public class MaxPassageFinderTest {
             corpus.delete();
         }
         if (index != null) {
-            Utility.deleteDirectory(index);
+            FSUtil.deleteDirectory(index);
         }
     }
 

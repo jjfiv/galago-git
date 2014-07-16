@@ -10,6 +10,7 @@ import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -78,7 +79,7 @@ public class PullDocumentsTest {
   public void tearDown() throws IOException {
     retrieval.close();
     if(inputFile.exists()) inputFile.delete();
-    if(indexPath.exists()) Utility.deleteDirectory(indexPath);
+    if(indexPath.exists()) FSUtil.deleteDirectory(indexPath);
   }
 
 

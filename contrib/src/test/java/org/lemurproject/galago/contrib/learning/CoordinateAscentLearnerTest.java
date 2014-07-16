@@ -8,6 +8,7 @@ import org.lemurproject.galago.contrib.util.TestingUtils;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -29,7 +30,7 @@ public class CoordinateAscentLearnerTest {
     try {
       File[] files = TestingUtils.make10DocIndex();
       files[0].delete(); // trecCorpus not required
-      Utility.deleteDirectory(files[1]); // corpus not required
+      FSUtil.deleteDirectory(files[1]); // corpus not required
       index = files[2]; // index is required
       qrels = FileUtility.createTemporary();
 
@@ -75,7 +76,7 @@ public class CoordinateAscentLearnerTest {
 
     } finally {
       if (index != null) {
-        Utility.deleteDirectory(index);
+        FSUtil.deleteDirectory(index);
       }
       if (qrels != null) {
         qrels.delete();

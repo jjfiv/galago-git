@@ -1,6 +1,7 @@
 package org.lemurproject.galago.core.btree.simple;
 
 import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.ReadOnlyMap;
@@ -142,12 +143,12 @@ public class DiskMapWrapper<KT, VT> extends ReadOnlyMap<KT, VT> implements Close
   public static final class StringCodec implements Codec<String> {
     @Override
     public String fromBytes(byte[] in) {
-      return Utility.toString(in);
+      return ByteUtil.toString(in);
     }
 
     @Override
     public byte[] toBytes(String out) {
-      return Utility.fromString(out);
+      return ByteUtil.fromString(out);
     }
   }
   public static final class IntCodec implements Codec<Integer> {
@@ -165,7 +166,7 @@ public class DiskMapWrapper<KT, VT> extends ReadOnlyMap<KT, VT> implements Close
     @Override
     public Parameters fromBytes(byte[] in) {
       try {
-        return Parameters.parseString(Utility.toString(in));
+        return Parameters.parseString(ByteUtil.toString(in));
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -173,7 +174,7 @@ public class DiskMapWrapper<KT, VT> extends ReadOnlyMap<KT, VT> implements Close
 
     @Override
     public byte[] toBytes(Parameters out) {
-      return Utility.fromString(out.toString());
+      return ByteUtil.fromString(out.toString());
     }
   }
 

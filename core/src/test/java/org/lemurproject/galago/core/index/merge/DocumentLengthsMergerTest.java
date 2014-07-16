@@ -15,7 +15,8 @@ import org.lemurproject.galago.core.util.DocumentSplitFactory;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
@@ -35,7 +36,7 @@ public class DocumentLengthsMergerTest {
     p.set("filename", temp.getAbsolutePath());
     DiskLengthsWriter writer = new DiskLengthsWriter(new FakeParameters(p));
 
-    byte[] key = Utility.fromString("document");
+    byte[] key = ByteUtil.fromString("document");
     for (int i = firstDocNum; i < firstDocNum + 100; i++) {
       writer.process(new FieldLengthData(key, i, i + 1));
     }
@@ -101,10 +102,10 @@ public class DocumentLengthsMergerTest {
     } finally {
 
       if (folder1 != null) {
-        Utility.deleteDirectory(folder1);
+        FSUtil.deleteDirectory(folder1);
       }
       if (folder2 != null) {
-        Utility.deleteDirectory(folder2);
+        FSUtil.deleteDirectory(folder2);
       }
       if (output != null) {
         assertTrue(new File(output).delete());
@@ -158,10 +159,10 @@ public class DocumentLengthsMergerTest {
     } finally {
 
       if (indexFolder1 != null) {
-        Utility.deleteDirectory(indexFolder1);
+        FSUtil.deleteDirectory(indexFolder1);
       }
       if (indexFolder2 != null) {
-        Utility.deleteDirectory(indexFolder2);
+        FSUtil.deleteDirectory(indexFolder2);
       }
       if (output != null) {
         assertTrue(new File(output).delete());

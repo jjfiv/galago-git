@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.FSUtil;
 
 public class FlushToDisk {
 
@@ -29,7 +29,7 @@ public class FlushToDisk {
     }
 
     if (new File(outputFolder).isDirectory()) {
-      Utility.deleteDirectory(new File(outputFolder));
+      FSUtil.deleteDirectory(new File(outputFolder));
     }
     if (new File(outputFolder).isFile()) {
       new File(outputFolder).delete();

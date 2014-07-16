@@ -5,6 +5,7 @@ import gnu.trove.map.hash.TObjectIntHashMap;
 import org.junit.Test;
 import org.lemurproject.galago.core.types.TextFeature;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class WindowFeatureTest {
     featurer.setProcessor( catcher );
     
     for(int i =0 ; i < 1000 ; i++){
-      featurer.process( new Window( 0,i,1,2,3, Utility.fromString("word-"+i)) );
+      featurer.process( new Window( 0,i,1,2,3, ByteUtil.fromString("word-" + i)) );
     }
 
     TObjectIntHashMap<byte[]> collisions = new TObjectIntHashMap();

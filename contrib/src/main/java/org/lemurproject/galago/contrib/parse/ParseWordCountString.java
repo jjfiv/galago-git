@@ -12,8 +12,8 @@ import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  *
@@ -53,7 +53,7 @@ public class ParseWordCountString extends StandardStep<DocumentSplit, WordCount>
                     mxdf = Long.parseLong(parts[4]);
                 }
 
-                WordCount wc = new WordCount(Utility.fromString(t), cf, dc, mxdf);
+                WordCount wc = new WordCount(ByteUtil.fromString(t), cf, dc, mxdf);
                 processor.process(wc);
 
             }

@@ -9,8 +9,8 @@ import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  *
@@ -25,7 +25,7 @@ public class FieldLengthExtractor extends StandardStep<Document, FieldLengthData
 
   @Override
   public void process(Document doc) throws IOException {
-    processor.process(new FieldLengthData(Utility.fromString("document"), doc.identifier, doc.terms.size()));
+    processor.process(new FieldLengthData(ByteUtil.fromString("document"), doc.identifier, doc.terms.size()));
 
     fieldLengths.clear();
     for (Tag tag : doc.tags) {
@@ -34,7 +34,7 @@ public class FieldLengthExtractor extends StandardStep<Document, FieldLengthData
     }
 
     for (String field : fieldLengths.keySet()) {
-      processor.process(new FieldLengthData(Utility.fromString(field), doc.identifier, fieldLengths.get(field)));
+      processor.process(new FieldLengthData(ByteUtil.fromString(field), doc.identifier, fieldLengths.get(field)));
     }
   }
 }

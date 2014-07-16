@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.DataStream;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.ByteUtil;
 
 /** 
  * This index stores conflations produced by a stemmer.
@@ -63,9 +63,9 @@ public class ConflationIndexReader extends KeyValueReader {
           byte[] term = new byte[valueStream.readInt()];
           valueStream.readFully(term);
           if (i > 0) {
-            sb.append(",").append(Utility.toString(term));
+            sb.append(",").append(ByteUtil.toString(term));
           } else {
-            sb.append(Utility.toString(term));
+            sb.append(ByteUtil.toString(term));
           }
         }
         return sb.toString();
@@ -76,7 +76,7 @@ public class ConflationIndexReader extends KeyValueReader {
 
     @Override
     public String getKeyString() {
-      return Utility.toString(getKey());
+      return ByteUtil.toString(getKey());
     }
 
     @Override

@@ -13,6 +13,8 @@ import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
@@ -48,7 +50,7 @@ public class LocalRetrievalTest {
     TupleFlowParameters extParameters = new FakeParameters(extp);
 
     WindowIndexWriter ewriter = new WindowIndexWriter(extParameters);
-    ewriter.processExtentName(Utility.fromString("title"));
+    ewriter.processExtentName(ByteUtil.fromString("title"));
     ewriter.processNumber(1);
     ewriter.processBegin(1);
     ewriter.processTuple(3);
@@ -67,7 +69,7 @@ public class LocalRetrievalTest {
     params.set("tokenizer", tokenizer);
 
     FieldIndexWriter fwriter = new FieldIndexWriter(new FakeParameters(params));
-    fwriter.processFieldName(Utility.fromString("date"));
+    fwriter.processFieldName(ByteUtil.fromString("date"));
     DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
     try {
       fwriter.processNumber(1);
@@ -99,7 +101,7 @@ public class LocalRetrievalTest {
 
     PositionIndexWriter pwriter = new PositionIndexWriter(posParameters);
 
-    pwriter.processWord(Utility.fromString("a"));
+    pwriter.processWord(ByteUtil.fromString("a"));
     pwriter.processDocument(1);
     pwriter.processPosition(1);
     pwriter.processPosition(2);
@@ -111,7 +113,7 @@ public class LocalRetrievalTest {
     pwriter.processDocument(5);
     pwriter.processPosition(1);
 
-    pwriter.processWord(Utility.fromString("b"));
+    pwriter.processWord(ByteUtil.fromString("b"));
     pwriter.processDocument(1);
     pwriter.processPosition(2);
     pwriter.processPosition(4);
@@ -147,7 +149,7 @@ public class LocalRetrievalTest {
     lp.set("filename", tempPath + File.separator + "lengths");
     DiskLengthsWriter lWriter = new DiskLengthsWriter(new FakeParameters(lp));
 
-    byte[] d = Utility.fromString("document");
+    byte[] d = ByteUtil.fromString("document");
     for (int i = 0; i < 20; i++) {
       lWriter.process(new FieldLengthData(d, i, 100));
     }
@@ -203,7 +205,7 @@ public class LocalRetrievalTest {
 
   @After
   public void tearDown() throws IOException {
-    Utility.deleteDirectory(tempPath);
+    FSUtil.deleteDirectory(tempPath);
   }
 
   @Test

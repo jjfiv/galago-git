@@ -7,6 +7,7 @@ import org.lemurproject.galago.core.index.merge.DocumentNameMerger;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
@@ -49,7 +50,7 @@ public class DiskNameWriter implements Processor<NumberedDocumentData> {
 
     writer.add(new GenericElement(
             Utility.fromLong(ndd.number),
-            Utility.fromString(ndd.identifier)));
+            ByteUtil.fromString(ndd.identifier)));
 
     if (documentNamesWritten != null) {
       documentNamesWritten.increment();

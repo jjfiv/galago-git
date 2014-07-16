@@ -8,6 +8,7 @@ import org.lemurproject.galago.core.index.merge.DocumentNameReverseMerger;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
@@ -59,7 +60,7 @@ public class DiskNameReverseWriter implements Processor<NumberedDocumentData> {
     }
     
     writer.add(new GenericElement(
-            Utility.fromString(ndd.identifier),
+            ByteUtil.fromString(ndd.identifier),
             Utility.fromLong(ndd.number)));
 
     if (documentNamesWritten != null) {

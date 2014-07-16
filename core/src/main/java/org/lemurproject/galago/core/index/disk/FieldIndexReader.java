@@ -10,9 +10,11 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.DataStream;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
+import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.DataInput;
 import java.io.IOException;
@@ -63,7 +65,7 @@ public class FieldIndexReader extends KeyListReader {
 
   public ListIterator getField(String fieldname) throws IOException {
     BTreeReader.BTreeIterator iterator =
-            reader.getIterator(Utility.fromString(fieldname));
+            reader.getIterator(ByteUtil.fromString(fieldname));
     return new ListIterator(iterator, formatMap);
   }
 
@@ -101,7 +103,7 @@ public class FieldIndexReader extends KeyListReader {
         count = -1;
       }
       StringBuilder sb = new StringBuilder();
-      sb.append(Utility.toString(getKey())).append(",");
+      sb.append(ByteUtil.toString(getKey())).append(",");
       sb.append("list of size: ");
       if (count > 0) {
         sb.append(count);
@@ -118,7 +120,7 @@ public class FieldIndexReader extends KeyListReader {
 
     @Override
     public String getKeyString() throws IOException {
-      return Utility.toString(getKey());
+      return ByteUtil.toString(getKey());
     }
   }
 
@@ -193,7 +195,7 @@ public class FieldIndexReader extends KeyListReader {
 
       // Determine the current format map based on the key - allows for
       // crossing lists, even though I hate that.
-      format = formatMap.getString(Utility.toString(iterator.getKey()));
+      format = formatMap.getString(ByteUtil.toString(iterator.getKey()));
 
       loadValue();
     }
@@ -232,14 +234,14 @@ public class FieldIndexReader extends KeyListReader {
     }
 
     private void loadValue() throws IOException {
-      currentDocument += Utility.uncompressLong(dataStream);
+      currentDocument += VByte.uncompressLong(dataStream);
 
       // Need to figure out what to do here
       if (format.equals("string")) {
-        int len = Utility.uncompressInt(dataStream);
+        int len = VByte.uncompressInt(dataStream);
         byte[] bytes = new byte[len];
         dataStream.readFully(bytes);
-        strValue = Utility.toString(bytes);
+        strValue = ByteUtil.toString(bytes);
 
       } else if (format.equals("int")) {
         intValue = dataStream.readInt();

@@ -6,10 +6,17 @@ package org.lemurproject.galago.core.tools.apps;
 import org.junit.Test;
 import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.core.types.ExtractedLink;
-import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.tupleflow.OrderedCombiner;
+import org.lemurproject.galago.tupleflow.TypeReader;
+import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.StreamUtil;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.zip.GZIPInputStream;
 
@@ -56,7 +63,7 @@ public class HarvestLinksFnTest {
 
       // perhaps there ought to be a test for gzip in the Utility method
       GZIPInputStream gzis = new GZIPInputStream(new FileInputStream(outputFile));
-      String data = Utility.copyStreamToString(gzis);
+      String data = StreamUtil.copyStreamToString(gzis);
 
       String expectedPrefix = 
           "DOCNO=test-0\n"
@@ -135,7 +142,7 @@ public class HarvestLinksFnTest {
       assertEquals(count, 53);
 
     } finally {
-      Utility.deleteDirectory(tempDir);
+      FSUtil.deleteDirectory(tempDir);
     }
   }
 

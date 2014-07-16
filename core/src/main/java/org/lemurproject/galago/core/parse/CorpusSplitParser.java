@@ -6,8 +6,8 @@ import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.corpus.DocumentReader.DocumentIterator;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.IOException;
 
@@ -45,7 +45,7 @@ public class CorpusSplitParser extends DocumentStreamParser {
     byte[] keyBytes = iterator.getKey();
 
     // Don't go past the end of the split.
-    if (split.endKey != null && split.endKey.length > 0 && Utility.compare(keyBytes, split.endKey) >= 0) {
+    if (split.endKey != null && split.endKey.length > 0 && CmpUtil.compare(keyBytes, split.endKey) >= 0) {
       return null;
     }
 

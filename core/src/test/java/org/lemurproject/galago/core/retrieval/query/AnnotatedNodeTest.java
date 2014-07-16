@@ -10,8 +10,8 @@ import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
 import org.lemurproject.galago.core.retrieval.processing.RankedDocumentModel;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
 
@@ -28,7 +28,7 @@ public class AnnotatedNodeTest {
   public void testAnnotatedNodes() throws Exception {
     File[] files = LocalRetrievalTest.make10DocIndex();
     files[0].delete();
-    Utility.deleteDirectory(files[1]);
+    FSUtil.deleteDirectory(files[1]);
     File indexFile = files[2];
     try {
       LocalRetrieval r = (LocalRetrieval) RetrievalFactory.instance(indexFile.getAbsolutePath(), Parameters.instance());
@@ -53,7 +53,7 @@ public class AnnotatedNodeTest {
       }
     } finally {
       if (indexFile != null) {
-        Utility.deleteDirectory(indexFile);
+        FSUtil.deleteDirectory(indexFile);
       }
     }
   }

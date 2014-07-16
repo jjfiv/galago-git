@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -204,10 +205,10 @@ public class BuildWindowIndexTest {
 
     } finally {
       if (trecFolder != null) {
-        Utility.deleteDirectory(trecFolder);
+        FSUtil.deleteDirectory(trecFolder);
       }
       if (index != null) {
-        Utility.deleteDirectory(index);
+        FSUtil.deleteDirectory(index);
       }
     }
   }
@@ -391,10 +392,10 @@ public class BuildWindowIndexTest {
 
     } finally {
       if (trecFolder != null) {
-        Utility.deleteDirectory(trecFolder);
+        FSUtil.deleteDirectory(trecFolder);
       }
       if (index != null) {
-        Utility.deleteDirectory(index);
+        FSUtil.deleteDirectory(index);
       }
     }
   }

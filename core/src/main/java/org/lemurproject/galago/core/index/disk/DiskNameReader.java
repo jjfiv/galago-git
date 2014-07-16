@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.retrieval.iterator.disk.DiskDataIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.ByteUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -39,7 +40,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     if (data == null) {
       return null;
     }
-    return Utility.toString(data);
+    return ByteUtil.toString(data);
   }
 
   @Override
@@ -84,7 +85,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     }
 
     public String getCurrentName() throws IOException {
-      return Utility.toString(getValueBytes());
+      return ByteUtil.toString(getValueBytes());
     }
 
     public long getCurrentIdentifier() throws IOException {
@@ -94,7 +95,7 @@ public class DiskNameReader extends KeyValueReader implements NamesReader {
     @Override
     public String getValueString() {
       try {
-        return Utility.toString(getValueBytes());
+        return ByteUtil.toString(getValueBytes());
       } catch (IOException e) {
         return "Unknown";
       }

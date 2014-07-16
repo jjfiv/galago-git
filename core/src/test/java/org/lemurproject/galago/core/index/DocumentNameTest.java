@@ -9,8 +9,8 @@ import org.lemurproject.galago.core.index.disk.DiskNameWriter;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
 
@@ -49,7 +49,7 @@ public class DocumentNameTest {
 
     } finally {
       if (f != null) {
-        Utility.deleteDirectory(f);
+        FSUtil.deleteDirectory(f);
       }
     }
   }
@@ -81,7 +81,7 @@ public class DocumentNameTest {
       assertEquals(key, result2);
     } finally {
       if (f != null) {
-        Utility.deleteDirectory(f);
+        FSUtil.deleteDirectory(f);
       }
     }
   }

@@ -10,6 +10,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.FSUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -140,7 +141,7 @@ public class BuildSpecialPartTest {
                 queryFile.delete();
             }
             if (indexFile != null) {
-                Utility.deleteDirectory(indexFile);
+                FSUtil.deleteDirectory(indexFile);
             }
         }
     }
@@ -262,7 +263,7 @@ public class BuildSpecialPartTest {
                 queryFile.delete();
             }
             if (indexFile != null) {
-                Utility.deleteDirectory(indexFile);
+                FSUtil.deleteDirectory(indexFile);
             }
         }
     }

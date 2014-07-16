@@ -5,7 +5,7 @@ package org.lemurproject.galago.core.index;
 
 import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.VocabularyWriter;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -32,18 +32,18 @@ public class VocabularyWriterTest {
     DataInputStream input = new DataInputStream(new ByteArrayInputStream(output));
 
     byte[] buffer = new byte[5];
-    assertEquals(5, Utility.uncompressInt(input));
+    assertEquals(5, VByte.uncompressInt(input));
     input.read(buffer);
     assertTrue(Arrays.equals(first, buffer));
-    assertEquals(0, Utility.uncompressLong(input));
-    assertEquals(10, Utility.uncompressInt(input));
+    assertEquals(0, VByte.uncompressLong(input));
+    assertEquals(10, VByte.uncompressInt(input));
 
     buffer = new byte[6];
-    assertEquals(6, Utility.uncompressInt(input));
+    assertEquals(6, VByte.uncompressInt(input));
     input.read(buffer);
     assertTrue(Arrays.equals(second, buffer));
-    assertEquals(256, Utility.uncompressLong(input));
-    assertEquals(10, Utility.uncompressInt(input));
+    assertEquals(256, VByte.uncompressLong(input));
+    assertEquals(10, VByte.uncompressInt(input));
 
   }
 }

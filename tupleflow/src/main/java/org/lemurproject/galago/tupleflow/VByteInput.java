@@ -1,6 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow;
 
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.compression.VByte;
+
 import java.io.DataInput;
 import java.io.IOException;
 
@@ -16,8 +19,8 @@ public class VByteInput implements DataInput {
     }
 
     @Override
-    public void readFully(byte[] b, int i, int i0) throws IOException {
-        input.readFully(b, i, i0);
+    public void readFully(byte[] b, int offset, int length) throws IOException {
+        input.readFully(b, offset, length);
     }
 
     @Override
@@ -29,7 +32,7 @@ public class VByteInput implements DataInput {
         int length = readInt();
         byte[] data = new byte[length];
         input.readFully(data);
-        return Utility.toString(data);
+        return ByteUtil.toString(data);
     }
 
     @Override
@@ -40,13 +43,13 @@ public class VByteInput implements DataInput {
     @Override
     public int readUnsignedShort() throws IOException {
         int result = readInt();
-        return (int) (result & 0xffff);
+        return result & 0xffff;
     }
 
     @Override
     public boolean readBoolean() throws IOException {
         int result = readInt();
-        return result != 0 ? true : false;
+        return result != 0;
     }
 
     @Override
@@ -75,12 +78,12 @@ public class VByteInput implements DataInput {
 
     @Override
     public int readInt() throws IOException {
-      return Utility.uncompressInt(input);
+      return VByte.uncompressInt(input);
     }
 
     @Override
     public long readLong() throws IOException {
-      return Utility.uncompressLong(input);
+      return VByte.uncompressLong(input);
     }
 
     @Override

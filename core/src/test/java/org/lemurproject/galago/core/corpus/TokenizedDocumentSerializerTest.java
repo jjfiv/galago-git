@@ -6,6 +6,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.tools.apps.BuildIndex;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -76,7 +77,7 @@ public class TokenizedDocumentSerializerTest {
       assertEquals(7, document.terms.size());
       assertEquals("this", document.terms.get(0));
     } finally {
-      Utility.deleteDirectory(tmpDir);
+      FSUtil.deleteDirectory(tmpDir);
     }
   }
 }

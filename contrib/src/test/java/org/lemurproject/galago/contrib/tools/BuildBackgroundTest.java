@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.json.JSONUtil;
 
 import java.io.ByteArrayOutputStream;
@@ -133,10 +134,10 @@ public class BuildBackgroundTest  {
         queryFile.delete();
       }
       if (indexFile1 != null) {
-        Utility.deleteDirectory(indexFile1);
+        FSUtil.deleteDirectory(indexFile1);
       }
       if (backgroundIndex != null) {
-        Utility.deleteDirectory(backgroundIndex);
+        FSUtil.deleteDirectory(backgroundIndex);
       }
     }
   }

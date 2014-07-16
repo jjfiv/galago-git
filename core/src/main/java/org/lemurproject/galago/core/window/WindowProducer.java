@@ -15,8 +15,8 @@ import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  * <p> Produces windows consisting of n words. </p>
@@ -148,7 +148,7 @@ public class WindowProducer extends StandardStep<Document, Window> {
     for (int i = 1; i < windowData.size(); i++) {
       sb.append("~").append(windowData.get(i));
     }
-    return Utility.fromString(sb.toString());
+    return ByteUtil.fromString(sb.toString());
   }
   
   private List<Tag> collectNonOverlappingTags(Document doc) {

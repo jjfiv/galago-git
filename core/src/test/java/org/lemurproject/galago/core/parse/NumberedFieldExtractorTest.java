@@ -10,6 +10,7 @@ import org.lemurproject.galago.core.index.disk.FieldIndexReader.KeyIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -165,7 +166,7 @@ public class NumberedFieldExtractorTest {
 
     } finally {
       input.delete();
-      Utility.deleteDirectory(index);
+      FSUtil.deleteDirectory(index);
     }
 
   }

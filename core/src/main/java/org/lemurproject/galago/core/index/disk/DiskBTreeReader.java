@@ -5,6 +5,8 @@ import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.StreamCreator;
+import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -251,17 +253,17 @@ public class DiskBTreeReader extends BTreeReader {
 
           // first key
         } else if (this.cacheKeyCount == 0) {
-          int keyLength = Utility.uncompressInt(blockStream);
+          int keyLength = VByte.uncompressInt(blockStream);
           byte[] keyBytes = new byte[keyLength];
           blockStream.readFully(keyBytes);
           this.keyCache[0] = keyBytes;
-          this.endValueOffsetCache[0] = Utility.uncompressInt(blockStream);
+          this.endValueOffsetCache[0] = VByte.uncompressInt(blockStream);
           cacheKeyCount++;
 
           // second or later key
         } else {
-          int common = Utility.uncompressInt(blockStream);
-          int keyLength = Utility.uncompressInt(blockStream);
+          int common = VByte.uncompressInt(blockStream);
+          int keyLength = VByte.uncompressInt(blockStream);
           assert keyLength >= 0 : "Negative key length: " + keyLength + " " + cacheKeyCount;
           assert keyLength >= common : "key length too small: " + keyLength + " " + common + " " + cacheKeyCount;
           byte[] keyBytes = new byte[keyLength];
@@ -274,7 +276,7 @@ public class DiskBTreeReader extends BTreeReader {
             throw e;
           }
           this.keyCache[cacheKeyCount] = keyBytes;
-          this.endValueOffsetCache[cacheKeyCount] = Utility.uncompressInt(blockStream);
+          this.endValueOffsetCache[cacheKeyCount] = VByte.uncompressInt(blockStream);
           cacheKeyCount++;
         }
       }

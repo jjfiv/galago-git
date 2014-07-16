@@ -14,8 +14,8 @@ import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
@@ -46,7 +46,7 @@ public class FieldTraversalTest {
 
   @After
   public void tearDown() throws IOException {
-    Utility.deleteDirectory(indexPath);
+    FSUtil.deleteDirectory(indexPath);
   }
 
   @Test

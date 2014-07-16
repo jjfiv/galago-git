@@ -20,8 +20,10 @@ import org.lemurproject.galago.core.retrieval.iterator.LessThanIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -62,7 +64,7 @@ public class FieldIndexReaderTest {
             new FieldIndexWriter(new org.lemurproject.galago.tupleflow.FakeParameters(params));
 
     // Dates are... dates
-    writer.processFieldName(Utility.fromString("date"));
+    writer.processFieldName(ByteUtil.fromString("date"));
     DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
 
     writer.processNumber(15);
@@ -76,7 +78,7 @@ public class FieldIndexReaderTest {
     writer.processTuple(Utility.fromLong(df.parse("1/1/1663").getTime()));
 
     // Titles are strings
-    writer.processFieldName(Utility.fromString("title"));
+    writer.processFieldName(ByteUtil.fromString("title"));
 
     writer.processNumber(1);
     writer.processTuple(convertStringToBytes("doc1"));
@@ -88,7 +90,7 @@ public class FieldIndexReaderTest {
     writer.processTuple(convertStringToBytes("doc9"));
 
     // We consider versions to be ints
-    writer.processFieldName(Utility.fromString("version"));
+    writer.processFieldName(ByteUtil.fromString("version"));
 
     writer.processNumber(1);
     writer.processTuple(Utility.fromInt(1));
@@ -108,9 +110,9 @@ public class FieldIndexReaderTest {
   }
 
   protected byte[] convertStringToBytes(String s) throws Exception {
-    byte[] strBytes = Utility.fromString(s);
+    byte[] strBytes = ByteUtil.fromString(s);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    baos.write(Utility.compressInt(strBytes.length));
+    baos.write(VByte.compressInt(strBytes.length));
     baos.write(strBytes);
     return (baos.toByteArray());
   }

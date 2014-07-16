@@ -7,7 +7,7 @@ import org.lemurproject.galago.core.index.disk.VocabularyReader;
 import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.StreamCreator;
+import org.lemurproject.galago.utility.StreamCreator;
 
 import java.io.File;
 import java.io.IOException;

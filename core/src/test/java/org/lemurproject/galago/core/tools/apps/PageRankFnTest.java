@@ -5,6 +5,7 @@ package org.lemurproject.galago.core.tools.apps;
 
 import org.junit.Test;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -100,7 +101,7 @@ public class PageRankFnTest {
       checkOutput(data, exp);
 
     } finally {
-      Utility.deleteDirectory(tempDir);
+      FSUtil.deleteDirectory(tempDir);
 
     }
   }

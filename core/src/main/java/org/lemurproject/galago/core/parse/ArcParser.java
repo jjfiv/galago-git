@@ -4,8 +4,8 @@ package org.lemurproject.galago.core.parse;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Parses ARC files, like those produced by the Heretrix web crawler.
@@ -69,7 +69,7 @@ public class ArcParser extends DocumentStreamParser {
     stream.read(data);
     // get the training newline
     stream.read();
-    String fullText = Utility.toString(data);
+    String fullText = ByteUtil.toString(data);
     int headerEnd = findDoubleNewline(fullText);
 
     String serverHeader;

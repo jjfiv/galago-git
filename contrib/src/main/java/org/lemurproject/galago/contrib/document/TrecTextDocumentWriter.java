@@ -6,7 +6,9 @@ package org.lemurproject.galago.contrib.document;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.StreamCreator;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -50,12 +52,12 @@ public class TrecTextDocumentWriter implements Processor<Document> {
     }
 
     byte[] bytes =
-            Utility.fromString(String.format("<DOC>\n"
-            + "<DOCNO>%s</DOCNO>\n"
-            + "<TEXT>\n"
-            + "%s\n"
-            + "</TEXT>\n"
-            + "</DOC>\n", d.name, d.text));
+            ByteUtil.fromString(String.format("<DOC>\n"
+              + "<DOCNO>%s</DOCNO>\n"
+              + "<TEXT>\n"
+              + "%s\n"
+              + "</TEXT>\n"
+              + "</DOC>\n", d.name, d.text));
 
     currentWriter.write(bytes);
     currentFileSize += bytes.length;

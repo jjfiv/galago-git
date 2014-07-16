@@ -5,6 +5,7 @@ package org.lemurproject.galago.contrib.tools;
 
 import org.junit.Test;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -54,7 +55,7 @@ public class BuildFilteredCollectionTest {
     } finally {
       input.delete();
       filter.delete();
-      Utility.deleteDirectory(output);
+      FSUtil.deleteDirectory(output);
     }
   }
 

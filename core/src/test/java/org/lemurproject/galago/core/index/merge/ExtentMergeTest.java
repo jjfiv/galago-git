@@ -7,8 +7,9 @@ import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
 
@@ -24,7 +25,7 @@ public class ExtentMergeTest {
     WindowIndexWriter writer = new WindowIndexWriter(new FakeParameters(p));
 
     for(String word : new String[]{"word1","word2"}) {
-      writer.processExtentName(Utility.fromString(word));
+      writer.processExtentName(ByteUtil.fromString(word));
       for(int doc = offset ; doc < offset+50 ; doc+=10) { // 100, 110, 120...
         writer.processNumber(doc);
         for(int begin = offset+5 ; begin < offset+50 ; begin+=10){ //105, 115, 125...
@@ -83,16 +84,16 @@ public class ExtentMergeTest {
 
     } finally {
       if (index1 != null) {
-        Utility.deleteDirectory(index1);
+        FSUtil.deleteDirectory(index1);
       }
       if (index2 != null) {
-        Utility.deleteDirectory(index2);
+        FSUtil.deleteDirectory(index2);
       }
       if (index3 != null) {
-        Utility.deleteDirectory(index3);
+        FSUtil.deleteDirectory(index3);
       }
       if (output != null) {
-        Utility.deleteDirectory(output);
+        FSUtil.deleteDirectory(output);
       }
     }
   }

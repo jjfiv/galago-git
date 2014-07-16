@@ -14,8 +14,8 @@ import org.lemurproject.galago.core.parse.stem.NullStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
 import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.types.*;
-import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Order;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
@@ -619,7 +619,7 @@ public class BuildIndex extends AppFunction {
     String indexPath = new File(buildParameters.getString("indexPath")).getAbsolutePath();
     // ensure the index folder exists
     File buildManifest = new File(indexPath, "buildManifest.json");
-    FileUtility.makeParentDirectories(buildManifest);
+    FSUtil.makeParentDirectories(buildManifest);
     Utility.copyStringToFile(buildParameters.toPrettyString(), buildManifest);
 
     List<String> inputPaths = buildParameters.getAsList("inputPath", String.class);

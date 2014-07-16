@@ -11,9 +11,9 @@ import org.lemurproject.galago.core.util.DocumentSplitFactory;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verified;
-import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.*;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.utility.ZipUtil;
+import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -137,7 +137,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     // Now try to detect what kind of file this is:
     boolean isCompressed = StreamCreator.isCompressed(fp.getName());
     String fileType = forceFileType;
-    String extension = FileUtility.getExtension(fp);
+    String extension = FSUtil.getExtension(fp);
 
     // don't allow forcing of filetype on zip files;
     // expect that the "force" applies to the inside
@@ -198,7 +198,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         String fileType = forceFileType;
         if (fileType == null) {
           File inside = new File(name);
-          String extension = FileUtility.getExtension(inside);
+          String extension = FSUtil.getExtension(inside);
           if (DocumentStreamParser.hasParserForExtension(extension)) {
             fileType = extension;
           } else {
@@ -307,7 +307,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         String forceFileType = conf.get("filetype", (String) null);
         String fileType;
         // We'll try to detect by extension first, so we don't have to open the file
-        String extension = FileUtility.getExtension(file);
+        String extension = FSUtil.getExtension(file);
         if (forceFileType != null) {
           fileType = forceFileType;
         } else if (DocumentStreamParser.hasParserForExtension(extension)) {
@@ -320,7 +320,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         if (fileType != null) {
           DocumentSplit split = DocumentSplitFactory.file(file, fileType);
           split.startKey = ByteUtil.fromString("subcoll");
-          split.endKey = Utility.compressLong(splitsize);
+          split.endKey = VByte.compressLong(splitsize);
           splits.add(split);
         }
       }

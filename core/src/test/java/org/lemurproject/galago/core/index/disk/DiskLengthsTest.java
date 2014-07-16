@@ -10,8 +10,8 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +35,7 @@ public class DiskLengthsTest{
       p.set("filename", len.getAbsolutePath());
       DiskLengthsWriter writer = new DiskLengthsWriter(new FakeParameters(p));
 
-      byte[] key = Utility.fromString("document");
+      byte[] key = ByteUtil.fromString("document");
       for (int i = 10; i <= 100; i++) {
         writer.process(new FieldLengthData(key, i, i + 1));
       }
@@ -101,7 +101,7 @@ public class DiskLengthsTest{
       p.set("filename", len.getAbsolutePath());
       DiskLengthsWriter writer = new DiskLengthsWriter(new FakeParameters(p));
 
-      byte[] key = Utility.fromString("document");
+      byte[] key = ByteUtil.fromString("document");
 
       long min = 8000000000L;
       long max = 8000100000L;

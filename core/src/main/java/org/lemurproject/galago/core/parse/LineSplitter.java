@@ -9,8 +9,8 @@ import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  *
@@ -38,12 +38,12 @@ public class LineSplitter extends StandardStep<String, KeyValuePair> {
     if (parts.length == 2) {
       processor.process(
               new KeyValuePair(
-              Utility.fromString(parts[0]),
-              Utility.fromString(parts[1])));
+              ByteUtil.fromString(parts[0]),
+              ByteUtil.fromString(parts[1])));
     } else {
       processor.process(
               new KeyValuePair(
-              Utility.fromString(parts[0]),
+              ByteUtil.fromString(parts[0]),
               new byte[0]));
     }
   }

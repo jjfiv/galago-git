@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.FSUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -131,10 +132,10 @@ public class KrovetzStemmerTest {
         trecCorpusFile.delete();
       }
       if (indexFile1 != null) {
-        Utility.deleteDirectory(indexFile1);
+        FSUtil.deleteDirectory(indexFile1);
       }
       if (indexFile2 != null) {
-        Utility.deleteDirectory(indexFile2);
+        FSUtil.deleteDirectory(indexFile2);
       }
     }
   }

@@ -16,8 +16,8 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -135,7 +135,7 @@ public class MemoryIndexTest {
 
     } finally {
       if (output != null) {
-        Utility.deleteDirectory(output);
+        FSUtil.deleteDirectory(output);
       }
     }
   }

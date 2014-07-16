@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.lemurproject.galago.core.tools.apps.BuildIndex;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -113,7 +114,7 @@ public class BuildSketchIndexTest {
 
     } finally {
       Assert.assertTrue(corpus.delete());
-      Utility.deleteDirectory(index);
+      FSUtil.deleteDirectory(index);
     }
   }
 

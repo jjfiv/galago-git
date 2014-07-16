@@ -11,8 +11,8 @@ import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  *
@@ -50,7 +50,7 @@ public class DumpKeyValueFn extends AppFunction {
 
     KeyIterator iterator = reader.getIterator();
 
-    if (iterator.skipToKey(Utility.fromString(key))
+    if (iterator.skipToKey(ByteUtil.fromString(key))
             && key.equals(iterator.getKeyString())) {
       if (KeyListReader.class.isAssignableFrom(reader.getClass())) {
         BaseIterator vIter = iterator.getValueIterator();

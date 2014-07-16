@@ -6,6 +6,7 @@ package org.lemurproject.galago.core.tools;
 import org.junit.Test;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.FSUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -114,7 +115,7 @@ public class FieldRetrievalTest   {
         queryFile.delete();
       }
       if (indexFile != null) {
-        Utility.deleteDirectory(indexFile);
+        FSUtil.deleteDirectory(indexFile);
       }
     }
   }

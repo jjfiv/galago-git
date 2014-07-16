@@ -9,8 +9,8 @@ import org.lemurproject.galago.core.types.NumberKeyValue;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  *
@@ -27,7 +27,7 @@ public class IndicatorExtractor extends StandardStep<NumberKeyValue, DocumentInd
       processor.process(new DocumentIndicator(nkvp.number, true));
     } else {
       processor.process(new DocumentIndicator(nkvp.number,
-              Boolean.parseBoolean(Utility.toString(nkvp.value))));
+              Boolean.parseBoolean(ByteUtil.toString(nkvp.value))));
     }
   }
 }

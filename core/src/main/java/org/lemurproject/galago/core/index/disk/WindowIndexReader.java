@@ -14,8 +14,8 @@ import org.lemurproject.galago.core.retrieval.iterator.disk.DiskExtentIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.SourceIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Reads a simple positions-based index, where each inverted list in the index
@@ -50,7 +50,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
    */
   public DiskExtentIterator getTermExtents(String term) throws IOException {
     term = stemmer.stemAsRequired(term);
-    BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
+    BTreeReader.BTreeIterator iterator = reader.getIterator(ByteUtil.fromString(term));
     if (iterator != null) {
       return new DiskExtentIterator(new WindowIndexExtentSource(iterator));
     }
@@ -59,7 +59,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
 
   public DiskCountIterator getTermCounts(String term) throws IOException {
     term = stemmer.stemAsRequired(term);
-    BTreeReader.BTreeIterator iterator = reader.getIterator(Utility.fromString(term));
+    BTreeReader.BTreeIterator iterator = reader.getIterator(ByteUtil.fromString(term));
 
     if (iterator != null) {
       return new DiskCountIterator(new WindowIndexCountSource(iterator));
@@ -112,7 +112,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
       } catch (IOException ioe) {
       }
       StringBuilder sb = new StringBuilder();
-      sb.append(Utility.toString(getKey())).append(",");
+      sb.append(ByteUtil.toString(getKey())).append(",");
       sb.append("list of size: ");
       if (count > 0) {
         sb.append(count);
@@ -141,7 +141,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
 
     @Override
     public String getKeyString() throws IOException {
-      return Utility.toString(iterator.getKey());
+      return ByteUtil.toString(iterator.getKey());
     }
   }
 }

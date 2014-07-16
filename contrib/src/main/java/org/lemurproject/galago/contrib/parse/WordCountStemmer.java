@@ -10,8 +10,8 @@ import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  *
@@ -30,7 +30,7 @@ public class WordCountStemmer extends StandardStep<WordCount, WordCount> {
 
   @Override
   public void process(WordCount wc) throws IOException {
-    wc.word = Utility.fromString(stemmer.stem(Utility.toString(wc.word)));
+    wc.word = ByteUtil.fromString(stemmer.stem(ByteUtil.toString(wc.word)));
     processor.process(wc);
   }
 }

@@ -21,6 +21,7 @@ import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.Utility.ByteArrComparator;
@@ -69,7 +70,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
 
     for (String term : doc.terms) {
       String stem = stemAsRequired(term);
-      addPosting(Utility.fromString(stem), doc.identifier, 1);
+      addPosting(ByteUtil.fromString(stem), doc.identifier, 1);
     }
 
     collectionDocumentCount += 1;
@@ -132,7 +133,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
   @Override
   public DiskCountIterator getIterator(Node node) throws IOException {
     String term = stemAsRequired(node.getDefaultParameter());
-    byte[] byteWord = Utility.fromString(term);
+    byte[] byteWord = ByteUtil.fromString(term);
     if (node.getOperator().equals("counts")) {
       return getTermCounts(byteWord);
     }
@@ -289,7 +290,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
 
     public NodeStatistics stats() {
       NodeStatistics stats = new NodeStatistics();
-      stats.node = Utility.toString(key);
+      stats.node = ByteUtil.toString(key);
       stats.nodeFrequency = termPostingsCount;
       stats.nodeDocumentCount = termDocumentCount;
       stats.maximumCount = maximumPostingsCount;
@@ -317,7 +318,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
 
     @Override
     public String getKeyString() throws IOException {
-      return Utility.toString(currKey);
+      return ByteUtil.toString(currKey);
     }
 
     @Override
@@ -355,7 +356,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
       DiskCountIterator it = getValueIterator();
       count = it.totalEntries();
       StringBuilder sb = new StringBuilder();
-      sb.append(Utility.toString(getKey())).append(",");
+      sb.append(ByteUtil.toString(getKey())).append(",");
       sb.append("list of size: ");
       if (count > 0) {
         sb.append(count);

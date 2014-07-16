@@ -3,7 +3,7 @@
  */
 package org.lemurproject.galago.contrib.hash;
 
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.math.BigInteger;
@@ -153,7 +153,7 @@ public class UniversalStringHashFunction {
   }
 
   public long hash(String data) {
-    return hash(Utility.fromString(data));
+    return hash(ByteUtil.fromString(data));
   }
 
   public long hash(byte[] data) {
@@ -204,7 +204,7 @@ public class UniversalStringHashFunction {
 
     for (int item = 0; item < collectionLength; item++) {
       for (int r = 0; r < rows; r++) {
-        int hash_value = (int) hfs[r].hash(Utility.fromString(Integer.toString(item)));
+        int hash_value = (int) hfs[r].hash(ByteUtil.fromString(Integer.toString(item)));
         data[r][hash_value] += 1;
       }
     }
@@ -213,7 +213,7 @@ public class UniversalStringHashFunction {
       long est = collectionLength * 2;
       StringBuilder vals = new StringBuilder();
       for (int r = 0; r < rows; r++) {
-        int hash_value = (int) hfs[r].hash(Utility.fromString(Integer.toString(item)));
+        int hash_value = (int) hfs[r].hash(ByteUtil.fromString(Integer.toString(item)));
         est = Math.min(est, data[r][hash_value]);
         vals.append(" ").append(data[r][hash_value]);
       }

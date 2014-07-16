@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.retrieval.iterator.disk.DiskLengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.ByteUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -54,7 +54,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
   public void init() throws IOException {
     if (!reader.getManifest().get("emptyIndexFile", false)) {
-      doc = Utility.fromString("document");
+      doc = ByteUtil.fromString("document");
 //      documentLengths = reader.getValueMemoryMap(doc);
 //      documentLengthsIterator = new MemoryMapLengthsIterator(doc, documentLengths);
     }
@@ -95,7 +95,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
     // operator -> lengths
     if (node.getOperator().equals("lengths")) {
       String key = node.getNodeParameters().get("default", "document");
-      byte[] keyBytes = Utility.fromString(key);
+      byte[] keyBytes = ByteUtil.fromString(key);
       BTreeIterator i = reader.getIterator(keyBytes);
       return new DiskLengthsIterator(new DiskLengthSource(i));
     } else {
@@ -129,7 +129,7 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
 
     @Override
     public String getKeyString() throws IOException {
-      return Utility.toString(getKey());
+      return ByteUtil.toString(getKey());
     }
   }
 }

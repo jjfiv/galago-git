@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.index;
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  * This is the base type of most Iterators (previously KeyListReader.ListIterator)
@@ -23,7 +24,7 @@ public abstract class BTreeValueIterator implements BaseIterator {
   public abstract void reset(BTreeReader.BTreeIterator it) throws IOException;
 
   public String getKeyString() throws IOException {
-    return Utility.toString(key);
+    return ByteUtil.toString(key);
   }
 
   @Override

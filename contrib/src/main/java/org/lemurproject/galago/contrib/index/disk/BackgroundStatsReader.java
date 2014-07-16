@@ -13,8 +13,10 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.DataInput;
 import java.io.IOException;
@@ -63,8 +65,8 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
     if (node.getOperator().equals("counts")) {
       String stem = stemAsRequired(node.getDefaultParameter());
       KeyIterator ki = new KeyIterator(reader);
-      ki.findKey(Utility.fromString(stem));
-      if (Utility.compare(ki.getKey(), Utility.fromString(stem)) == 0) {
+      ki.findKey(ByteUtil.fromString(stem));
+      if (Utility.compare(ki.getKey(), ByteUtil.fromString(stem)) == 0) {
         return new BackgroundStatsIterator(ki);
       }
       return null;
@@ -104,9 +106,9 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
 
         NodeStatistics stats = new NodeStatistics();
         stats.node = getKeyString();
-        stats.nodeFrequency = Utility.uncompressLong(value);
-        stats.nodeDocumentCount = Utility.uncompressLong(value);
-        stats.maximumCount = Utility.uncompressLong(value);
+        stats.nodeFrequency = VByte.uncompressLong(value);
+        stats.nodeDocumentCount = VByte.uncompressLong(value);
+        stats.maximumCount = VByte.uncompressLong(value);
 
         return stats;
       } catch (IOException e) {
@@ -126,7 +128,7 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
 
     @Override
     public String getKeyString() throws IOException {
-      return Utility.toString(this.iterator.getKey());
+      return ByteUtil.toString(this.iterator.getKey());
     }
 
     @Override

@@ -2,10 +2,8 @@
 package org.lemurproject.galago.tupleflow;
 
 import org.lemurproject.galago.tupleflow.execution.Step;
-import org.lemurproject.galago.utility.ByteUtil;
-import org.lemurproject.galago.utility.CmpUtil;
-import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.utility.StreamUtil;
+import org.lemurproject.galago.utility.*;
+import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -41,7 +39,7 @@ public class Utility {
   }
 
   public static Step getSorter(Order sortOrder, Class<?> reducerClass, CompressionType c) {
-    Parameters p = Parameters.instance();
+    org.lemurproject.galago.utility.Parameters p = org.lemurproject.galago.utility.Parameters.instance();
     p.set("class", sortOrder.getOrderedClass().getName());
     p.set("order", Utility.join(sortOrder.getOrderSpec()));
     if (c != null) {
@@ -84,70 +82,12 @@ public class Utility {
     }
   }
 
-  public static String escape(String raw) {
-    StringBuilder builder = new StringBuilder();
-
-    for (int i = 0; i < raw.length(); i++) {
-      char c = raw.charAt(i);
-
-      if (c == '"') {
-        builder.append("&quot;");
-      } else if (c == '&') {
-        builder.append("&amp;");
-      } else if (c == '<') {
-        builder.append("&gt;");
-      } else if (c == '>') {
-        builder.append("&lt;");
-      } else if (c <= 127) {
-        builder.append(c);
-      } else {
-        int unsigned = ((int) c) & 0xFFFF;
-
-        builder.append("&#");
-        builder.append(unsigned);
-        builder.append(";");
-      }
-    }
-
-    return builder.toString();
-  }
-
   public static String strip(String source, String suffix) {
     if (source.endsWith(suffix)) {
       return source.substring(0, source.length() - suffix.length());
     }
 
     return null;
-  }
-
-  /**
-   * <p>Splits args into an array of flags and an array of parameters.</p>
-   *
-   * <p>This method assumes that args is an array of strings, where some of
-   * those strings are flags (they start with '-') and the others are non-flag
-   * arguments. This splits those into two arrays so they can be processed
-   * separately.</p>
-   *
-   * @return An array of length 2, where the first element is an array of flags
-   * and the second is an array of arguments.
-   */
-  public static String[][] filterFlags(String[] args) {
-    ArrayList<String> flags = new ArrayList<String>();
-    ArrayList<String> nonFlags = new ArrayList<String>();
-
-    for (String arg : args) {
-      if (arg.startsWith("-")) {
-        flags.add(arg);
-      } else {
-        nonFlags.add(arg);
-      }
-    }
-
-    String[][] twoArrays = new String[2][];
-    twoArrays[0] = flags.toArray(new String[flags.size()]);
-    twoArrays[1] = nonFlags.toArray(new String[nonFlags.size()]);
-
-    return twoArrays;
   }
 
   /**
@@ -252,6 +192,20 @@ public class Utility {
     return builder.toString();
   }
 
+  /** @deprecated see ByteUtil instead */
+  @Deprecated
+  public static String toString(byte[] word) {
+    return ByteUtil.toString(word);
+  }
+
+  public static byte[] fromString(String word) {
+    return ByteUtil.fromString(word);
+  }
+
+  public static String toString(byte[] buffer, int offset, int len) {
+    return ByteUtil.toString(buffer, offset, len);
+  }
+
   /** @deprecated see CmpUtil instead */
   @Deprecated
   public static int compare(int one, int two) {
@@ -292,7 +246,6 @@ public class Utility {
   /** @deprecated see CmpUtil instead */
   @Deprecated
   public static class ByteArrComparator implements Comparator<byte[]>, Serializable {
-
     @Override
     public int compare(byte[] a, byte[] b) {
       return Utility.compare(a, b);
@@ -339,22 +292,6 @@ public class Utility {
   @Deprecated
   public static int hash(byte[] bytes) {
     return CmpUtil.hash(bytes);
-  }
-
-  public static void deleteDirectory(File directory) throws IOException {
-    if (directory.isDirectory()) {
-      File[] files = directory.listFiles();
-      if(files != null) {
-        for (File sub : files) {
-          if (sub.isDirectory()) {
-            deleteDirectory(sub);
-          } else {
-            sub.delete();
-          }
-        }
-      }
-    }
-    directory.delete();
   }
 
   /**
@@ -405,26 +342,11 @@ public class Utility {
    * finished.
    *
    * @throws java.io.IOException
+   * @deprecated use StreamUtil version instead
    */
+  @Deprecated
   public static void copyStreamToFile(InputStream stream, File file) throws IOException {
-    DataOutputStream output = null;
-    try {
-      output = StreamCreator.openOutputStream(file);
-      final int oneMegabyte = 1 * 1024 * 1024;
-      byte[] data = new byte[oneMegabyte];
-
-      while (true) {
-        int bytesRead = stream.read(data);
-
-        if (bytesRead < 0) {
-          break;
-        }
-        output.write(data, 0, bytesRead);
-      }
-    } finally {
-      stream.close();
-      if(output != null) output.close();
-    }
+    StreamUtil.copyStreamToFile(stream, file);
   }
 
   /**
@@ -434,7 +356,7 @@ public class Utility {
   public static void copyStringToFile(String s, File file) throws IOException {
     DataOutputStream output = null;
     try {
-      FileUtility.makeParentDirectories(file);
+      FSUtil.makeParentDirectories(file);
       output = StreamCreator.openOutputStream(file);
       output.write(ByteUtil.fromString(s));
     } finally {
@@ -495,30 +417,6 @@ public class Utility {
     } finally {
       if(reader != null) reader.close();
     }
-  }
-
-  /*
-   * @deprecated use ByteUtil instead
-   */
-  @Deprecated
-  public static String toString(byte[] buffer, int offset, int len) {
-    return ByteUtil.toString(buffer, offset, len);
-  }
-
-  /**
-   * @deprecated use ByteUtil instead
-   */
-  @Deprecated
-  public static String toString(byte[] word) {
-    return ByteUtil.toString(word);
-  }
-
-  /**
-   * @deprecated use ByteUtil instead
-   */
-  @Deprecated
-  public static byte[] fromString(String word) {
-    return ByteUtil.fromString(word);
   }
 
   public static short toShort(byte[] key) {
@@ -633,139 +531,57 @@ public class Utility {
     return Utility.fromLong(l);
   }
 
-  public static byte[] compressInt(int i) throws IOException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    DataOutputStream dos = new DataOutputStream(baos);
-    compressInt(dos, i);
-    return baos.toByteArray();
-  }
-
-  public static byte[] compressLong(long l) throws IOException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    DataOutputStream dos = new DataOutputStream(baos);
-    compressLong(dos, l);
-    return baos.toByteArray();
-  }
-
-  public static void compressInt(DataOutput output, int i) throws IOException {
-    assert i >= 0;
-
-    if (i < 1 << 7) {
-      output.writeByte((i | 0x80));
-    } else if (i < 1 << 14) {
-      output.writeByte((i >> 0) & 0x7f);
-      output.writeByte(((i >> 7) & 0x7f) | 0x80);
-    } else if (i < 1 << 21) {
-      output.writeByte((i >> 0) & 0x7f);
-      output.writeByte((i >> 7) & 0x7f);
-      output.writeByte(((i >> 14) & 0x7f) | 0x80);
-    } else if (i < 1 << 28) {
-      output.writeByte((i >> 0) & 0x7f);
-      output.writeByte((i >> 7) & 0x7f);
-      output.writeByte((i >> 14) & 0x7f);
-      output.writeByte(((i >> 21) & 0x7f) | 0x80);
-    } else {
-      output.writeByte((i >> 0) & 0x7f);
-      output.writeByte((i >> 7) & 0x7f);
-      output.writeByte((i >> 14) & 0x7f);
-      output.writeByte((i >> 21) & 0x7f);
-      output.writeByte(((i >> 28) & 0x7f) | 0x80);
-    }
-  }
-
-  public static int uncompressInt(DataInput input) throws IOException {
-    int result = 0;
-    int b;
-
-    for (int position = 0; true; position++) {
-      assert position < 6;
-      b = input.readUnsignedByte();
-      if ((b & 0x80) == 0x80) {
-        result |= ((b & 0x7f) << (7 * position));
-        break;
-      } else {
-        result |= (b << (7 * position));
-      }
-    }
-
-    return result;
-  }
-
-  public static int uncompressInt(byte[] input, int offset) throws IOException {
-    int result = 0;
-    int b;
-
-    for (int position = 0; true; position++) {
-      assert input.length < 6;
-      b = input[position + offset];
-      if ((b & 0x80) == 0x80) {
-        result |= ((b & 0x7f) << (7 * position));
-        break;
-      } else {
-        result |= (b << (7 * position));
-      }
-    }
-
-    return result;
-  }
-
-  public static void compressLong(DataOutput output, long i) throws IOException {
-    assert i >= 0;
-
-    if (i < 1 << 7) {
-      output.writeByte((int) (i | 0x80));
-    } else if (i < 1 << 14) {
-      output.writeByte((int) (i >> 0) & 0x7f);
-      output.writeByte((int) ((i >> 7) & 0x7f) | 0x80);
-    } else if (i < 1 << 21) {
-      output.writeByte((int) (i >> 0) & 0x7f);
-      output.writeByte((int) (i >> 7) & 0x7f);
-      output.writeByte((int) ((i >> 14) & 0x7f) | 0x80);
-    } else {
-      while (i >= 1 << 7) {
-        output.writeByte((int) (i & 0x7f));
-        i >>= 7;
-      }
-
-      output.writeByte((int) (i | 0x80));
-    }
-  }
-
-  public static long uncompressLong(DataInput input) throws IOException {
-    long result = 0;
-    long b;
-
-    for (int position = 0; true; position++) {
-      assert position < 10;
-      b = input.readUnsignedByte();
-
-      if ((b & 0x80) == 0x80) {
-        result |= ((b & 0x7f) << (7 * position));
-        break;
-      } else {
-        result |= (b << (7 * position));
-      }
-    }
-
-    return result;
-  }
-
+  /** @deprecated see VByte */
+  @Deprecated
   public static long uncompressLong(byte[] input, int offset) throws IOException {
-    long result = 0;
-    long b;
+    return VByte.uncompressLong(input, offset);
+  }
 
-    for (int position = 0; true; position++) {
-      assert position < 10;
-      b = input[position + offset];
+  /** @deprecated see VByte */
+  @Deprecated
+  public static long uncompressLong(DataInput input) throws IOException {
+    return VByte.uncompressLong(input);
+  }
 
-      if ((b & 0x80) == 0x80) {
-        result |= ((b & 0x7f) << (7 * position));
-        break;
-      } else {
-        result |= (b << (7 * position));
-      }
-    }
+  /** @deprecated see VByte */
+  @Deprecated
+  public static byte[] compressInt(int i) throws IOException {
+    return VByte.compressInt(i);
+  }
 
-    return result;
+  /** @deprecated see VByte */
+  @Deprecated
+  public static byte[] compressLong(long l) throws IOException {
+    return VByte.compressLong(l);
+  }
+
+  /** @deprecated see VByte */
+  @Deprecated
+  public static void compressInt(DataOutput output, int i) throws IOException {
+    VByte.compressInt(output, i);
+  }
+
+  /** @deprecated see VByte */
+  @Deprecated
+  public static int uncompressInt(DataInput input) throws IOException {
+    return VByte.uncompressInt(input);
+  }
+
+  /** @deprecated see VByte */
+  @Deprecated
+  public static int uncompressInt(byte[] input, int offset) throws IOException {
+    return VByte.uncompressInt(input, offset);
+  }
+
+  /** @deprecated see VByte */
+  @Deprecated
+  public static void compressLong(DataOutput output, long i) throws IOException {
+    VByte.compressLong(output, i);
+  }
+
+  /** @deprecated see FSUtil instead */
+  @Deprecated
+  public static void deleteDirectory(File directory) throws IOException {
+    FSUtil.deleteDirectory(directory);
   }
 }

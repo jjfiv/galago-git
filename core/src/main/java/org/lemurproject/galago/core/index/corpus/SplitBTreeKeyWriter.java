@@ -7,13 +7,12 @@ import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.Counter;
-import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.utility.FSUtil;
 
 /**
  * Split index key writer
@@ -40,7 +39,7 @@ public class SplitBTreeKeyWriter implements Processor<KeyValuePair> {
 
   public SplitBTreeKeyWriter(TupleFlowParameters parameters) throws IOException {
     String file = parameters.getJSON().getString("filename") + File.separator + "split.keys";
-    FileUtility.makeParentDirectories(file);
+    FSUtil.makeParentDirectories(file);
     writer = new DiskBTreeWriter(file, parameters.getJSON());
     keyCounter = parameters.getCounter("Document Keys Written");
   }

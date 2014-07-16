@@ -7,9 +7,9 @@ import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.core.types.IndexLink;
+import org.lemurproject.galago.utility.ByteUtil;
 
 @Verified
 @InputClass(className = "org.lemurproject.galago.core.parse.Document")
@@ -29,7 +29,7 @@ public class IndexLinkGenerator extends StandardStep<Document, IndexLink> {
 	int srcpos = Integer.parseInt(document.metadata.get("pos"));
 	for (Tag tag : document.tags) {
 	    IndexLink indexLink = new IndexLink();
-	    indexLink.id = Utility.fromString(srcid);
+	    indexLink.id = ByteUtil.fromString(srcid);
 	    indexLink.srctype = srctype;
 	    indexLink.pos = srcpos;
 	    indexLink.targetid = tag.attributes.get("id");

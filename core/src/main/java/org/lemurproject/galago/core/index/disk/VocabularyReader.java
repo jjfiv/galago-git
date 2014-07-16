@@ -3,6 +3,7 @@ package org.lemurproject.galago.core.index.disk;
 
 import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,17 +51,17 @@ public class VocabularyReader {
 
     while (input.getPosition() < input.length()) {
       // read - length of block key
-      int length = Utility.uncompressInt(input);
+      int length = VByte.uncompressInt(input);
 
       // read - block key
       byte[] data = new byte[length];
       input.readFully(data);
       
       // read  - offset of block
-      long offset = Utility.uncompressLong(input);
+      long offset = VByte.uncompressLong(input);
       
       // read - length of block header 
-      int headerLength = Utility.uncompressInt(input);
+      int headerLength = VByte.uncompressInt(input);
 
       // save this info
       IndexBlockInfo slot = new IndexBlockInfo();

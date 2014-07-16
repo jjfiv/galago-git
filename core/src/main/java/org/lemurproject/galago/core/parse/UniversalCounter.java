@@ -15,8 +15,10 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.compression.VByte;
 
 /**
  * Determines the class type of the input split, either based on the "filetype"
@@ -96,7 +98,7 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
     long limit = Long.MAX_VALUE;
     if (split.startKey.length > 0) {
       if (Utility.compare(subCollCheck, split.startKey) == 0) {
-        limit = Utility.uncompressLong(split.endKey, 0);
+        limit = VByte.uncompressLong(split.endKey, 0);
       }
     }
 
@@ -129,7 +131,7 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
           parser.close();
         }
 
-        KeyValuePair kvp = new KeyValuePair(Utility.fromString(split.fileName), Utility.fromLong(count));
+        KeyValuePair kvp = new KeyValuePair(ByteUtil.fromString(split.fileName), Utility.fromLong(count));
         processor.process(kvp);
 
       } catch (Exception ex) {

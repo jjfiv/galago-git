@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,10 +24,10 @@ public class VocabularyWriter {
   }
 
   public void add(byte[] key, long offset, int headerLength) throws IOException {
-    Utility.compressInt(output, key.length);
+    VByte.compressInt(output, key.length);
     output.write(key);
-    Utility.compressLong(output, offset);
-    Utility.compressInt(output, headerLength);
+    VByte.compressLong(output, offset);
+    VByte.compressInt(output, headerLength);
   }
 
   public byte[] data() throws IOException {

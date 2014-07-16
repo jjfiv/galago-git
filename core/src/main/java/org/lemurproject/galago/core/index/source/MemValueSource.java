@@ -1,7 +1,8 @@
 package org.lemurproject.galago.core.index.source;
 
 import java.io.IOException;
-import org.lemurproject.galago.tupleflow.Utility;
+
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  *
@@ -26,6 +27,6 @@ public abstract class MemValueSource<T> implements DiskSource {
 
   @Override
   public String key() {
-    return Utility.toString(key);
+    return ByteUtil.toString(key);
   }
 }

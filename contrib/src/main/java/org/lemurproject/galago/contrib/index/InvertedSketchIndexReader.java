@@ -22,6 +22,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.*;
@@ -91,12 +92,12 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     }
 
     NodeParameters np = new NodeParameters();
-    np.set("default", Utility.toString(key));
+    np.set("default", ByteUtil.toString(key));
     return new MinCountIterator(np, rowIterators);
   }
 
   public MinCountIterator getTermCounts(String term) throws IOException {
-    return getTermCounts(Utility.fromString(stemmer.stemAsRequired(term)));
+    return getTermCounts(ByteUtil.fromString(stemmer.stemAsRequired(term)));
   }
 
   @Override
@@ -412,7 +413,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     @Override
     public NodeStatistics getStatistics() {
       NodeStatistics stats = new NodeStatistics();
-      stats.node = Utility.toString(this.key);
+      stats.node = ByteUtil.toString(this.key);
       stats.nodeFrequency = this.collectionCount;
       stats.nodeDocumentCount = this.documentCount;
       stats.maximumCount = this.maximumPositionCount;

@@ -12,9 +12,11 @@ import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import org.lemurproject.galago.core.types.NumberedField;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.compression.VByte;
 
 /**
  * Converts all tags from a document object into DocumentField tuples.
@@ -55,7 +57,7 @@ public class NumberedFieldExtractor extends StandardStep<Document, NumberedField
         }
 
         byte[] bytes = getByteData(tag.name, stringForm.trim());
-        processor.process(new NumberedField(Utility.fromString(tag.name),
+        processor.process(new NumberedField(ByteUtil.fromString(tag.name),
                 document.identifier, bytes));
       }
     }
@@ -65,8 +67,8 @@ public class NumberedFieldExtractor extends StandardStep<Document, NumberedField
     String format = trackedFields.get(tag);
     if (format.equals("string")) {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      byte[] strBytes = Utility.fromString(stringForm);
-      baos.write(Utility.compressInt(strBytes.length));
+      byte[] strBytes = ByteUtil.fromString(stringForm);
+      baos.write(VByte.compressInt(strBytes.length));
       baos.write(strBytes);
       return baos.toByteArray();
     } else if (format.equals("int")) {

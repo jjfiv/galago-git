@@ -9,8 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,8 +37,8 @@ public class PassageRetrievalTest {
   @After
   public void tearDown() throws IOException {
     trecCorpusFile.delete();
-    Utility.deleteDirectory(indexFile);
-    Utility.deleteDirectory(corpusFile);
+    FSUtil.deleteDirectory(indexFile);
+    FSUtil.deleteDirectory(corpusFile);
   }
 
   @Test

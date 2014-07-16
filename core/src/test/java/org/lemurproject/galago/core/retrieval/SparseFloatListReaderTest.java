@@ -17,6 +17,7 @@ import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
@@ -50,14 +51,14 @@ public class SparseFloatListReaderTest {
     TupleFlowParameters parameters = new FakeParameters(p);
     SparseFloatListWriter writer = new SparseFloatListWriter(parameters);
 
-    writer.processWord(Utility.fromString("a"));
+    writer.processWord(ByteUtil.fromString("a"));
 
     for (int i = 0; i < aDocs.length; i++) {
       writer.processNumber(aDocs[i]);
       writer.processTuple(aScores[i]);
     }
 
-    writer.processWord(Utility.fromString("b"));
+    writer.processWord(ByteUtil.fromString("b"));
 
     for (int i = 0; i < bDocs.length; i++) {
       writer.processNumber(bDocs[i]);

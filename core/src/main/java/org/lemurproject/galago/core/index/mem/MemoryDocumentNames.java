@@ -22,6 +22,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -257,7 +258,7 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
 
     @Override
     public byte[] getValueBytes() throws IOException {
-      return Utility.fromString(this.getCurrentName());
+      return ByteUtil.fromString(this.getCurrentName());
     }
 
     public DataStream getValueStream() throws IOException {

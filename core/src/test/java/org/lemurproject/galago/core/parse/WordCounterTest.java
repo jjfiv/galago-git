@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.parse;
 import org.junit.Test;
 import org.lemurproject.galago.core.types.WordCount;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
@@ -47,9 +48,9 @@ public class WordCounterTest{
 
     for (int i = 0; i < post.results.size(); ++i) {
       WordCount wc = post.results.get(i);
-      if (Utility.compare(wc.word, Utility.fromString("one")) == 0) {
+      if (Utility.compare(wc.word, ByteUtil.fromString("one")) == 0) {
         assertEquals(2, wc.collectionFrequency);
-      } else if (Utility.compare(wc.word, Utility.fromString("one")) == 0) {
+      } else if (Utility.compare(wc.word, ByteUtil.fromString("one")) == 0) {
         assertEquals(1, wc.collectionFrequency);
       }
     }
@@ -92,13 +93,13 @@ public class WordCounterTest{
 
     for (int i = 0; i < post.results.size(); ++i) {
       WordCount wc = post.results.get(i);
-      if (Utility.compare(wc.word, Utility.fromString("one")) == 0) {
+      if (Utility.compare(wc.word, ByteUtil.fromString("one")) == 0) {
         assertEquals(3, wc.collectionFrequency);
-      } else if (Utility.compare(wc.word, Utility.fromString("two")) == 0) {
+      } else if (Utility.compare(wc.word, ByteUtil.fromString("two")) == 0) {
         assertEquals(3, wc.collectionFrequency);
-      } else if (Utility.compare(wc.word, Utility.fromString("three")) == 0) {
+      } else if (Utility.compare(wc.word, ByteUtil.fromString("three")) == 0) {
         assertEquals(2, wc.collectionFrequency);
-      } else if (Utility.compare(wc.word, Utility.fromString("four")) == 0) {
+      } else if (Utility.compare(wc.word, ByteUtil.fromString("four")) == 0) {
         assertEquals(1, wc.collectionFrequency);
       }
     }
@@ -144,11 +145,11 @@ public class WordCounterTest{
 
     for (int i = 0; i < post.results.size(); ++i) {
       WordCount wc = post.results.get(i);
-      if (Utility.compare(wc.word, Utility.fromString("one")) == 0) {
+      if (Utility.compare(wc.word, ByteUtil.fromString("one")) == 0) {
         assertEquals(3, wc.collectionFrequency);
-      } else if (Utility.compare(wc.word, Utility.fromString("two")) == 0) {
+      } else if (Utility.compare(wc.word, ByteUtil.fromString("two")) == 0) {
         assertEquals(3, wc.collectionFrequency);
-      } else if (Utility.compare(wc.word, Utility.fromString("three")) == 0) {
+      } else if (Utility.compare(wc.word, ByteUtil.fromString("three")) == 0) {
         assertEquals(2, wc.collectionFrequency);
         //} else if (Utility.compare(wc.word, Utility.fromString("four")) == 0) {
         //  assertEquals(1, wc.count);

@@ -24,6 +24,7 @@ import org.lemurproject.galago.core.retrieval.iterator.disk.DiskExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.Utility.ByteArrComparator;
@@ -67,7 +68,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
     for (Tag tag : doc.tags) {
       assert tag.begin >= prevBegin;
       prevBegin = tag.begin;
-      addExtent(Utility.fromString(tag.name), doc.identifier, tag.begin, tag.end);
+      addExtent(ByteUtil.fromString(tag.name), doc.identifier, tag.begin, tag.end);
     }
 
     collectionDocumentCount += 1;
@@ -131,7 +132,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
   @Override
   public DiskExtentIterator getIterator(Node node) throws IOException {
     String term = stemAsRequired(node.getDefaultParameter());
-    byte[] byteWord = Utility.fromString(term);
+    byte[] byteWord = ByteUtil.fromString(term);
     return getTermExtents(byteWord);
   }
 
@@ -308,7 +309,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
 
     public NodeStatistics stats() {
       NodeStatistics stats = new NodeStatistics();
-      stats.node = Utility.toString(key);
+      stats.node = ByteUtil.toString(key);
       stats.nodeFrequency = termWindowCount;
       stats.nodeDocumentCount = termDocumentCount;
       stats.maximumCount = maximumPostingsCount;
@@ -336,7 +337,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
 
     @Override
     public String getKeyString() throws IOException {
-      return Utility.toString(currKey);
+      return ByteUtil.toString(currKey);
     }
 
     @Override
@@ -374,7 +375,7 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
       DiskExtentIterator it = getValueIterator();
       count = it.totalEntries();
       StringBuilder sb = new StringBuilder();
-      sb.append(Utility.toString(getKey())).append(",");
+      sb.append(ByteUtil.toString(getKey())).append(",");
       sb.append("list of size: ");
       if (count > 0) {
         sb.append(count);

@@ -18,8 +18,8 @@ import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
 
@@ -47,7 +47,7 @@ public class ExtentIndexReaderTest {
     WindowIndexWriter writer =
             new WindowIndexWriter(new org.lemurproject.galago.tupleflow.FakeParameters(p));
 
-    writer.processExtentName(Utility.fromString("title"));
+    writer.processExtentName(ByteUtil.fromString("title"));
     writer.processNumber(1);
     writer.processBegin(2);
     writer.processTuple(3);
@@ -58,7 +58,7 @@ public class ExtentIndexReaderTest {
     writer.processBegin(5);
     writer.processTuple(10);
 
-    writer.processExtentName(Utility.fromString("z"));
+    writer.processExtentName(ByteUtil.fromString("z"));
     writer.processNumber(15);
     writer.processBegin(9);
     writer.processTuple(11);
@@ -161,7 +161,7 @@ public class ExtentIndexReaderTest {
     WindowIndexWriter writer =
             new WindowIndexWriter(new org.lemurproject.galago.tupleflow.FakeParameters(p));
 
-    writer.processExtentName(Utility.fromString("skippy"));
+    writer.processExtentName(ByteUtil.fromString("skippy"));
     for (int docid = 1; docid < 1000; docid += 3) {
       writer.processNumber(docid);
       for (int begin = 5; begin < (20 + (docid / 5)); begin += 4) {

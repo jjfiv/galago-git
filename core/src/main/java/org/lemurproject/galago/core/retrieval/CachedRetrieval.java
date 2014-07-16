@@ -7,8 +7,8 @@ import org.lemurproject.galago.core.index.mem.*;
 import org.lemurproject.galago.core.index.stats.AggregateStatistic;
 import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,7 +66,7 @@ public class CachedRetrieval {
     if (cachedNodes.containsKey(nodeString)) {
       // new behaviour - check cache for this node.
       //logger.info("Getting cached iterator cache for node : " + nodeString);
-      return cacheParts.get(cachedNodes.get(nodeString)).getIterator(Utility.fromString(nodeString));
+      return cacheParts.get(cachedNodes.get(nodeString)).getIterator(ByteUtil.fromString(nodeString));
     } else {
       return null;
     }
@@ -93,7 +93,7 @@ public class CachedRetrieval {
         if (iterator instanceof ScoreIterator) {
           if (this.cacheScores) {
             cachedNodes.put(nodeString, "score");
-            cacheParts.get("score").addIteratorData(Utility.fromString(nodeString), (BaseIterator) iterator);
+            cacheParts.get("score").addIteratorData(ByteUtil.fromString(nodeString), (BaseIterator) iterator);
             // logger.info("Cached scoring node : " + nodeString);
           } else {
             // logger.info("Scoring node are not cachable : " + nodeString);
@@ -101,16 +101,16 @@ public class CachedRetrieval {
 
         } else if (iterator instanceof LengthsIterator) {
           cachedNodes.put(nodeString, "lengths");
-          cacheParts.get("lengths").addIteratorData(Utility.fromString(nodeString), (BaseIterator) iterator);
+          cacheParts.get("lengths").addIteratorData(ByteUtil.fromString(nodeString), (BaseIterator) iterator);
 
         } else if (iterator instanceof ExtentIterator) {
           cachedNodes.put(nodeString, "extent");
-          cacheParts.get("extent").addIteratorData(Utility.fromString(nodeString), (BaseIterator) iterator);
+          cacheParts.get("extent").addIteratorData(ByteUtil.fromString(nodeString), (BaseIterator) iterator);
           // logger.info("Cached extent node : " + nodeString);
 
         } else if (iterator instanceof CountIterator) {
           cachedNodes.put(nodeString, "count");
-          cacheParts.get("count").addIteratorData(Utility.fromString(nodeString), (BaseIterator) iterator);
+          cacheParts.get("count").addIteratorData(ByteUtil.fromString(nodeString), (BaseIterator) iterator);
           // logger.info("Cached count node : " + nodeString);
 
         } else {
@@ -127,20 +127,20 @@ public class CachedRetrieval {
     if (cachedNodes.containsKey(nodeString)) {
       if (cachedNodes.get(nodeString).equals("score")) {
         cachedNodes.remove(nodeString);
-        cacheParts.get("score").removeIteratorData(Utility.fromString(nodeString));
+        cacheParts.get("score").removeIteratorData(ByteUtil.fromString(nodeString));
         // logger.info("Deleted cached scoring node : " + nodeString);
       } else if (cachedNodes.get(nodeString).equals("count")) {
 //        NodeStatistics ns = super.getNodeStatistics(node);
 //        cachedStats.remove(nodeString);
         cachedNodes.remove(nodeString);
-        cacheParts.get("extent").removeIteratorData(Utility.fromString(nodeString));
+        cacheParts.get("extent").removeIteratorData(ByteUtil.fromString(nodeString));
         // logger.info("Deleted cached extent node : " + nodeString);
 
       } else if (cachedNodes.get(nodeString).equals("extent")) {
 //        NodeStatistics ns = super.getNodeStatistics(node);
 //        cachedStats.remove(nodeString);
         cachedNodes.remove(nodeString);
-        cacheParts.get("count").removeIteratorData(Utility.fromString(nodeString));
+        cacheParts.get("count").removeIteratorData(ByteUtil.fromString(nodeString));
         // logger.info("Deleted cached count node : " + nodeString);
 
       } else {

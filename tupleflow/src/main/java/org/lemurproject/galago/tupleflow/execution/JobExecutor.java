@@ -3,6 +3,7 @@ package org.lemurproject.galago.tupleflow.execution;
 
 import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.StageGroupDescription.DataPipeRegion;
@@ -1123,10 +1124,10 @@ public class JobExecutor {
     File stdout = new File(tempFolder + File.separator + "stdout");
     File stderr = new File(tempFolder + File.separator + "stderr");
     if (stdout.isDirectory()) {
-      Utility.deleteDirectory(stdout);
+      FSUtil.deleteDirectory(stdout);
     }
     if (stderr.isDirectory()) {
-      Utility.deleteDirectory(stderr);
+      FSUtil.deleteDirectory(stderr);
     }
 
     String mode = p.get("mode", "local");
@@ -1165,7 +1166,7 @@ public class JobExecutor {
     }
 
     if (p.get("deleteJobDir", true) && !store.hasStatements()) {
-      Utility.deleteDirectory(tempFolder);
+      FSUtil.deleteDirectory(tempFolder);
     }
 
     return !store.hasStatements();

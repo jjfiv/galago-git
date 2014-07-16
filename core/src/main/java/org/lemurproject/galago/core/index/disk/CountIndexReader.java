@@ -14,8 +14,8 @@ import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 /**
  * Reads a count based index structure mapping( term -> list(document-id),
@@ -58,7 +58,7 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
   }
 
   public DiskCountIterator getTermCounts(String term) throws IOException {
-    return getTermCounts(Utility.fromString(stemmer.stemAsRequired(term)));
+    return getTermCounts(ByteUtil.fromString(stemmer.stemAsRequired(term)));
   }
 
   @Override
@@ -107,7 +107,7 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
       }
 
       StringBuilder sb = new StringBuilder();
-      sb.append(Utility.toString(getKey())).append(",");
+      sb.append(ByteUtil.toString(getKey())).append(",");
       if (ns != null) {
         sb.append(ns.toString());
       } else {
@@ -127,7 +127,7 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
 
     @Override
     public String getKeyString() throws IOException {
-      return Utility.toString(iterator.getKey());
+      return ByteUtil.toString(iterator.getKey());
     }
   }
 }

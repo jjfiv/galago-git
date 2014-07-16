@@ -6,8 +6,8 @@ import org.lemurproject.galago.core.parse.DocumentNumberer;
 import org.lemurproject.galago.core.parse.UniversalParser;
 import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.core.types.*;
-import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Order;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
@@ -29,7 +29,7 @@ public class BuildStageTemplates {
 
   public static void writeManifest(String indexPath, Parameters jobP) throws IOException {
       File manifest = new File(indexPath, "buildManifest.json");
-      FileUtility.makeParentDirectories(manifest);
+      FSUtil.makeParentDirectories(manifest);
       Utility.copyStringToFile(jobP.toPrettyString(), manifest);
   }
 

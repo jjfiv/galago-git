@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -69,7 +70,7 @@ public class BuildSpecialCollBackgroundTest {
 
             Assert.assertTrue(docs.delete());
             Assert.assertTrue(back.delete());
-            Utility.deleteDirectory(index);
+            FSUtil.deleteDirectory(index);
         }
     }
 

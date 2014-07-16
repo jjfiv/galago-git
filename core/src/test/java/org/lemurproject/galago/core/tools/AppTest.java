@@ -7,6 +7,7 @@ import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -117,21 +118,21 @@ public class AppTest {
             deleted = corpusFile1.delete();
             if (!deleted) {
                 deleted = true; 
-                Utility.deleteDirectory(corpusFile1);
+                FSUtil.deleteDirectory(corpusFile1);
             }
             assertTrue(deleted);
             deleted = corpusFile2.delete();
             if (!deleted) {
                 deleted = true; 
-                Utility.deleteDirectory(corpusFile2);
+                FSUtil.deleteDirectory(corpusFile2);
             }
             assertTrue(deleted);
 
             if (indexFile1 != null) {
-                Utility.deleteDirectory(indexFile1);
+                FSUtil.deleteDirectory(indexFile1);
             }
             if (indexFile2 != null) {
-                Utility.deleteDirectory(indexFile2);
+                FSUtil.deleteDirectory(indexFile2);
             }
 
         }
@@ -301,10 +302,10 @@ public class AppTest {
                 Assert.assertTrue(trecCorpusFile.delete());
             }
             if (corpusFile != null) {
-                Utility.deleteDirectory(corpusFile);
+                FSUtil.deleteDirectory(corpusFile);
             }
             if (indexFile != null) {
-                Utility.deleteDirectory(indexFile);
+                FSUtil.deleteDirectory(indexFile);
             }
         }
     }
@@ -412,7 +413,7 @@ public class AppTest {
                 Assert.assertTrue(trecCorpusFile.delete());
             }
             if (indexFile != null) {       
-                Utility.deleteDirectory(indexFile);
+                FSUtil.deleteDirectory(indexFile);
             }
 
         }

@@ -14,10 +14,12 @@ import java.util.List;
 import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.tupleflow.Counter;
-import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.compression.VByte;
 
 /**
  * This class writes index files, which are used for most Galago indexes.
@@ -58,7 +60,7 @@ public class DiskBTreeWriter extends BTreeWriter {
    */
   public DiskBTreeWriter(String outputFilename, Parameters parameters)
           throws FileNotFoundException, IOException {
-    FileUtility.makeParentDirectories(outputFilename);
+    FSUtil.makeParentDirectories(outputFilename);
 
     // max sizes - each defaults to a max length of 2 bytes (short)
     blockSize = (int) parameters.get("blockSize", 16383);
@@ -103,10 +105,10 @@ public class DiskBTreeWriter extends BTreeWriter {
   @Override
   public void add(IndexElement list) throws IOException {
     if (prevKey.length > 0 && Utility.compare(prevKey, list.key()) > 0) {
-      throw new IOException(String.format("Key %s, %s are out of order.", Utility.toString(prevKey), Utility.toString(list.key())));
+      throw new IOException(String.format("Key %s, %s are out of order.", ByteUtil.toString(prevKey), ByteUtil.toString(list.key())));
     }
     if (list.key().length >= this.maxKeySize || list.key().length >= blockSize) {
-      throw new IOException(String.format("Key %s is too long.", Utility.toString(list.key())));
+      throw new IOException(String.format("Key %s is too long.", ByteUtil.toString(list.key())));
     }
 
     if (needsFlush(list)) {
@@ -340,25 +342,25 @@ public class DiskBTreeWriter extends BTreeWriter {
     assert word.length < this.maxKeySize;
 
     // this is the first word in the block
-    Utility.compressInt(vocabOutput, word.length);
+    VByte.compressInt(vocabOutput, word.length);
     vocabOutput.write(word, 0, word.length);
 
     invertedListBytes += listData.blockLists.get(0).dataLength();
     assert totalListData - invertedListBytes < this.blockSize;
     assert totalListData >= invertedListBytes;
-    Utility.compressInt(vocabOutput, (int) (totalListData - invertedListBytes));
+    VByte.compressInt(vocabOutput, (int) (totalListData - invertedListBytes));
 
     for (int j = 1; j < keys.size(); j++) {
       assert word.length < this.maxKeySize;
       word = listData.blockLists.get(j).key();
       int common = this.prefixOverlap(lastWord, word);
-      Utility.compressInt(vocabOutput, common);
-      Utility.compressInt(vocabOutput, word.length);
+      VByte.compressInt(vocabOutput, common);
+      VByte.compressInt(vocabOutput, word.length);
       vocabOutput.write(word, common, word.length - common);
       invertedListBytes += listData.blockLists.get(j).dataLength();
       assert totalListData - invertedListBytes < this.blockSize;
       assert totalListData >= invertedListBytes;
-      Utility.compressInt(vocabOutput, (int) (totalListData - invertedListBytes));
+      VByte.compressInt(vocabOutput, (int) (totalListData - invertedListBytes));
       lastWord = word;
     }
     vocabOutput.close();

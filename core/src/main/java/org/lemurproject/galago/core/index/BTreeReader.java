@@ -5,6 +5,7 @@ import org.lemurproject.galago.core.index.disk.VocabularyReader;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import org.lemurproject.galago.tupleflow.DataStream;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -123,7 +124,7 @@ public abstract class BTreeReader {
      */
     public String getValueString() throws IOException {
       byte[] data = getValueBytes();
-      return Utility.toString(data);
+      return ByteUtil.toString(data);
     }
 
     /**

@@ -13,7 +13,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.apps.BatchSearch;
-import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.*;
@@ -64,7 +64,7 @@ public abstract class Learner {
     if (p.isString("output")) {
       outputFolder = new File(p.getString("output"));
       if (!outputFolder.isDirectory()) {
-        FileUtility.makeParentDirectories(outputFolder);
+        FSUtil.makeParentDirectories(outputFolder);
         outputFolder.mkdirs();
       }
       outputPrintStream = new PrintStream(new File(outputFolder, name + ".out"), "UTF-8");

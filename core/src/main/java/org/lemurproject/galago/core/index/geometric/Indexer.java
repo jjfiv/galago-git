@@ -14,7 +14,7 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
@@ -69,7 +69,7 @@ public class Indexer {
     // a split is a file with some annotations
     DocumentSplit split = new DocumentSplit();
     split.fileName = filename;
-    split.fileType = FileUtility.getExtension(new File(filename));
+    split.fileType = FSUtil.getExtension(new File(filename));
     indexer.process(split);
   }
   

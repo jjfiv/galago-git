@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -101,13 +102,13 @@ public class MergeIndexTest {
         trecData2.delete();
       }
       if (index1 != null) {
-        Utility.deleteDirectory(index1);
+        FSUtil.deleteDirectory(index1);
       }
       if (index2 != null) {
-        Utility.deleteDirectory(index2);
+        FSUtil.deleteDirectory(index2);
       }
       if (indexmerged != null) {
-        Utility.deleteDirectory(indexmerged);
+        FSUtil.deleteDirectory(indexmerged);
       }
     }
   }
@@ -180,13 +181,13 @@ public class MergeIndexTest {
 
     } finally {
       if (index1 != null) {
-        Utility.deleteDirectory(index1);
+        FSUtil.deleteDirectory(index1);
       }
       if (index2 != null) {
-        Utility.deleteDirectory(index2);
+        FSUtil.deleteDirectory(index2);
       }
       if (indexmerged != null) {
-        Utility.deleteDirectory(indexmerged);
+        FSUtil.deleteDirectory(indexmerged);
       }
     }
   }

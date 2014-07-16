@@ -14,8 +14,9 @@ import java.util.Set;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseReader.KeyIterator;
 import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Job;
 
 /**
@@ -93,21 +94,21 @@ public class BuildPartialIndex extends AppFunction {
     Set<Long> ids = new HashSet();
     while ((line = input.readLine()) != null) {
       line = line.trim();
-      byte[] name = Utility.fromString(line);
+      byte[] name = ByteUtil.fromString(line);
       namesIterator.findKey(name);
       if (namesIterator.getCurrentName().equals(line)) {
         long id = namesIterator.getCurrentIdentifier();
         // round-robin distribution
         ids.add(id);
       } else {
-        System.err.println("Unable to determine document : " + Utility.toString(name) + " ignoring.");
+        System.err.println("Unable to determine document : " + ByteUtil.toString(name) + " ignoring.");
       }
     }
     input.close();
     
     // make a folder for these files
     if(documentIds.isDirectory()){
-      Utility.deleteDirectory(documentIds);
+      FSUtil.deleteDirectory(documentIds);
     }
     if(documentIds.isFile()){
       documentIds.delete();

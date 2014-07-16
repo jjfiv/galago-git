@@ -6,6 +6,11 @@ package org.lemurproject.galago.tupleflow;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
+import org.lemurproject.galago.utility.FSUtil;
+import org.lemurproject.galago.utility.StreamUtil;
+import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.*;
 
@@ -23,30 +28,10 @@ public class UtilityTest {
     ByteArrayInputStream input = new ByteArrayInputStream(data);
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-    Utility.copyStream(input, output);
+    StreamUtil.copyStream(input, output);
     byte[] result = output.toByteArray();
-    assertEquals(0, Utility.compare(data, result));
-  }
-
-  @Test
-  public void testFilterFlags() {
-    String[][] filtered;
-
-    filtered = Utility.filterFlags(new String[]{});
-    assertEquals(2, filtered.length);
-
-    filtered = Utility.filterFlags(new String[]{"--flag", "notflag", "--another"});
-    assertEquals(2, filtered.length);
-
-    String[] flags = filtered[0];
-    String[] nonFlags = filtered[1];
-
-    assertEquals(2, flags.length);
-    assertEquals("--flag", flags[0]);
-    assertEquals("--another", flags[1]);
-
-    assertEquals(1, nonFlags.length);
-    assertEquals("notflag", nonFlags[0]);
+    assertEquals(0, CmpUtil.compare(data, result));
+    assertTrue(CmpUtil.equals(data, result));
   }
 
   @Test
@@ -61,7 +46,7 @@ public class UtilityTest {
       String parent = f.getParent() + File.separator
               + Utility.join(new String[]{"bbb", "b", "c", "d"}, File.separator);
       String path = parent + File.separator + "e";
-      FileUtility.makeParentDirectories(path);
+      FSUtil.makeParentDirectories(path);
 
       // The parent directory should exist
       assertTrue(new File(parent).isDirectory());
@@ -72,7 +57,7 @@ public class UtilityTest {
       if (f != null) {
         Assert.assertTrue(f.delete());
       } if (bbb != null) {
-        Utility.deleteDirectory(bbb);
+        FSUtil.deleteDirectory(bbb);
       }
     }
   }
@@ -81,8 +66,8 @@ public class UtilityTest {
   public void testConverters() throws IOException {
     // String
     String testString = "I am a little teapot, short and stout";
-    byte[] buffer = Utility.fromString(testString);
-    String convString = Utility.toString(buffer);
+    byte[] buffer = ByteUtil.fromString(testString);
+    String convString = ByteUtil.toString(buffer);
     assertTrue(testString.equals(convString));
 
     // short
@@ -113,29 +98,29 @@ public class UtilityTest {
 
     // int on data streams
     testInt = 313;
-    Utility.compressInt(out, testInt);
+    VByte.compressInt(out, testInt);
     bin = new ByteArrayInputStream(bout.toByteArray());
     in = new DataInputStream(bin);
-    convInt = Utility.uncompressInt(in);
+    convInt = VByte.uncompressInt(in);
     assertEquals(testInt, convInt);
 
     // int uncompressed from byte array
     buffer = bout.toByteArray();
-    convInt = Utility.uncompressInt(buffer, 0);
+    convInt = VByte.uncompressInt(buffer, 0);
     assertEquals(testInt, convInt);
 
     // long on data streams
     bout.reset();
     testLong = 453279;
-    Utility.compressLong(out, testLong);
+    VByte.compressLong(out, testLong);
     bin = new ByteArrayInputStream(bout.toByteArray());
     in = new DataInputStream(bin);
-    convLong = Utility.uncompressLong(in);
+    convLong = VByte.uncompressLong(in);
     assertEquals(testLong, convLong);
 
     // long uncompressed from byte array
     buffer = bout.toByteArray();
-    convLong = Utility.uncompressLong(buffer, 0);
+    convLong = VByte.uncompressLong(buffer, 0);
     assertEquals(testLong, convLong);
   }
 }

@@ -19,6 +19,7 @@ import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  * Not the most efficient ever 
@@ -52,14 +53,14 @@ public class DistanceCalculator extends StandardStep<KeyValuePair, Adjacency> {
   public void process(KeyValuePair object) throws IOException {
     iterator.reset();
 
-    String source = Utility.toString(object.key);
+    String source = ByteUtil.toString(object.key);
     // Now move to the key indicated by the input
     if (iterator.skipToKey(object.key)) {
       int start = Utility.toInt(object.value);
       int index = start;
       while (iterator.nextKey()) {
         index++;
-        String target = Utility.toString(iterator.getKey());
+        String target = ByteUtil.toString(iterator.getKey());
         try {
           Double result = (Double) m.invoke(this, source, target);
           if (result <= maxdistance) {

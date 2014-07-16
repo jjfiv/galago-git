@@ -7,8 +7,8 @@ import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.CountIndexWriter;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -33,7 +33,7 @@ public class ManifestEditorTest {
       p.set("key-2", "init-value-2345");
 
       CountIndexWriter writer = new CountIndexWriter(new FakeParameters(p));
-      writer.processWord(Utility.fromString("the"));
+      writer.processWord(ByteUtil.fromString("the"));
       writer.processDocument(0);
       writer.processTuple(1);
       writer.processTuple(1);

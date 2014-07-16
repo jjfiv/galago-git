@@ -11,8 +11,8 @@ import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
 
@@ -30,7 +30,7 @@ public class WindowIndexTest {
       p.set("filename", index.getAbsolutePath());
       WindowIndexWriter writer = new WindowIndexWriter(new FakeParameters(p));
 
-      writer.processExtentName(Utility.fromString("word1"));
+      writer.processExtentName(ByteUtil.fromString("word1"));
       for (int doc = 0; doc < 10; doc += 2) {
         writer.processNumber(doc);
         for (int begin = 0; begin < 21; begin += 5) {
@@ -39,7 +39,7 @@ public class WindowIndexTest {
           writer.processTuple(begin + 2);
         }
       }
-      writer.processExtentName(Utility.fromString("word2"));
+      writer.processExtentName(ByteUtil.fromString("word2"));
       for (int doc = 0; doc < 10; doc += 2) {
         writer.processNumber(doc);
         for (int begin = 0; begin < 21; begin += 5) {

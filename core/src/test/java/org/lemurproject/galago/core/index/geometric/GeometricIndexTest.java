@@ -16,8 +16,8 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -127,7 +127,7 @@ public class GeometricIndexTest {
       index.close();
 
     } finally {
-      Utility.deleteDirectory(shards);
+      FSUtil.deleteDirectory(shards);
       System.setErr(oldErr);
     }
   }
@@ -165,7 +165,7 @@ public class GeometricIndexTest {
           }
       }
     } finally {
-      Utility.deleteDirectory(shards);
+      FSUtil.deleteDirectory(shards);
       //System.setErr(oldErr);
     }
   }

@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.parse;
 import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.util.*;
@@ -475,7 +476,7 @@ public class TagTokenizer extends Tokenizer {
     // we want to make sure the token is short enough that someone
     // might actually type it.  UTF-8 can expand one character to 6 bytes.
     if (token.length() > maxTokenLength / 6
-            && Utility.fromString(token).length >= maxTokenLength) {
+            && ByteUtil.fromString(token).length >= maxTokenLength) {
       return;
     }
     tokens.add(token);

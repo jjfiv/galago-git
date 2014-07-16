@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.FieldIndexReader.KeyIterator;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -32,7 +33,7 @@ public class FieldIndexWriterTest {
       t.getMap("formats").set("test2", "double");
       FieldIndexWriter writer = new FieldIndexWriter(new FakeParameters(p));
 
-      writer.processFieldName(Utility.fromString("test1"));
+      writer.processFieldName(ByteUtil.fromString("test1"));
 
       for (long d = 0; d < 100; d++) {
         writer.processNumber(d);
@@ -40,7 +41,7 @@ public class FieldIndexWriterTest {
       }
 
       // big numbers
-      writer.processFieldName(Utility.fromString("test2"));
+      writer.processFieldName(ByteUtil.fromString("test2"));
       for (long d = 8000000000L; d < 9000000000L; d += 100000000L) {
         writer.processNumber(d);
         writer.processTuple(Utility.fromDouble(d + 0.1));

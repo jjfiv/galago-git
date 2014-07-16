@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.tools.apps.BuildIndex;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.util.DocumentSplitFactory;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -144,8 +145,8 @@ public class UniversalParserTest {
             assertEquals(is1.vocabCount, is2.vocabCount);
 
         } finally {
-            Utility.deleteDirectory(index);
-            Utility.deleteDirectory(dataDir);
+            FSUtil.deleteDirectory(index);
+            FSUtil.deleteDirectory(dataDir);
         }
     }
 
@@ -188,8 +189,8 @@ public class UniversalParserTest {
             assertEquals(is1.vocabCount, is2.vocabCount);
 
         } finally {
-            Utility.deleteDirectory(index);
-            Utility.deleteDirectory(dataDir);
+            FSUtil.deleteDirectory(index);
+            FSUtil.deleteDirectory(dataDir);
         }
     }
 
@@ -225,11 +226,11 @@ public class UniversalParserTest {
 
     @Test
     public void testGetExtension() {
-        assertEquals("foo", FileUtility.getExtension(new File("something.foo.bz2")));
-        assertEquals("foo", FileUtility.getExtension(new File("something.foo.bz")));
-        assertEquals("foo", FileUtility.getExtension(new File("something.foo.xz")));
-        assertEquals("foo", FileUtility.getExtension(new File("something.foo.gz")));
-        assertEquals("", FileUtility.getExtension(new File("something.gz")));
+        assertEquals("foo", FSUtil.getExtension(new File("something.foo.bz2")));
+        assertEquals("foo", FSUtil.getExtension(new File("something.foo.bz")));
+        assertEquals("foo", FSUtil.getExtension(new File("something.foo.xz")));
+        assertEquals("foo", FSUtil.getExtension(new File("something.foo.gz")));
+        assertEquals("", FSUtil.getExtension(new File("something.gz")));
     }
 
     @Test
@@ -260,12 +261,12 @@ public class UniversalParserTest {
         assertEquals(1, splits.size());
         assertEquals(splits.get(0).fileType, "qqe");
 
-        assertEquals("qqe", FileUtility.getExtension(qqe_bz));
+        assertEquals("qqe", FSUtil.getExtension(qqe_bz));
         splits = DocumentSource.processFile(qqe_bz, conf);
         assertEquals(1, splits.size());
         assertEquals(splits.get(0).fileType, "qqe");
 
-        Utility.deleteDirectory(dataDir);
+        FSUtil.deleteDirectory(dataDir);
 
     }
 
@@ -313,8 +314,8 @@ public class UniversalParserTest {
             assertEquals(is1.vocabCount, is2.vocabCount);
 
         } finally {
-            Utility.deleteDirectory(index);
-            Utility.deleteDirectory(dataDir);
+            FSUtil.deleteDirectory(index);
+            FSUtil.deleteDirectory(dataDir);
         }
     }
 }

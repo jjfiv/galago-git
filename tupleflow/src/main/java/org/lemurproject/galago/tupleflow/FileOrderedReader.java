@@ -1,6 +1,8 @@
 // BSD License (http://lemurproject.org)
 package org.lemurproject.galago.tupleflow;
 
+import org.lemurproject.galago.utility.StreamCreator;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;

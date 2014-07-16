@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.btree.simple;
 
 import org.junit.Test;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.ByteUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,10 +21,10 @@ import static org.junit.Assert.*;
 public class DiskMapMergeTest {
 	@Test
   public void testMerge() throws IOException {
-    byte[] foo = Utility.fromString("foo");
-    byte[] bar = Utility.fromString("bar");
-    byte[] baz = Utility.fromString("baz");
-    byte[] hmm = Utility.fromString("hmm");
+    byte[] foo = ByteUtil.fromString("foo");
+    byte[] bar = ByteUtil.fromString("bar");
+    byte[] baz = ByteUtil.fromString("baz");
+    byte[] hmm = ByteUtil.fromString("hmm");
 
     HashMap<byte[], byte[]> dataA = new HashMap<byte[], byte[]>();
     dataA.put(foo, bar);

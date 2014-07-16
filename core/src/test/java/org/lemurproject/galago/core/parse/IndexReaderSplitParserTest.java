@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.index.corpus.SplitBTreeKeyWriter;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
@@ -27,7 +28,7 @@ public class IndexReaderSplitParserTest {
 
   @After
   public void tearDown() throws IOException {
-    Utility.deleteDirectory(new File(temporaryName));
+    FSUtil.deleteDirectory(new File(temporaryName));
   }
 
   @Test

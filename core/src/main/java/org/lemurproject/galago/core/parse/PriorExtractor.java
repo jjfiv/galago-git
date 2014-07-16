@@ -10,8 +10,8 @@ import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  * Vanilla implementation
@@ -38,7 +38,7 @@ public class PriorExtractor extends StandardStep<NumberKeyValue, DocumentFeature
   @Override
   public void process(NumberKeyValue nkvp) throws IOException {
     if (nkvp.value.length > 0) {
-      double val = Double.parseDouble(Utility.toString(nkvp.value));
+      double val = Double.parseDouble(ByteUtil.toString(nkvp.value));
       if (applylog) {
         val = Math.log(val);
       }

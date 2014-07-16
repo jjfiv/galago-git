@@ -14,6 +14,7 @@ import org.lemurproject.galago.tupleflow.execution.*;
 import org.lemurproject.galago.tupleflow.execution.Step;
 import org.lemurproject.galago.tupleflow.types.FileName;
 import org.lemurproject.galago.tupleflow.types.TupleflowLong;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
@@ -290,7 +291,7 @@ public class PageRankFn extends AppFunction {
             if (f.isFile()) {
               f.delete();
             } else if (f.isDirectory()) {
-              Utility.deleteDirectory(f);
+              FSUtil.deleteDirectory(f);
             }
           }
         }
