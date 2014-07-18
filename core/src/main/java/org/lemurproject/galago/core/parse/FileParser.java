@@ -1,11 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
+import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.utility.Parameters;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.utility.Parameters;
 
 /**
  * Reads data from a single text file of type HTML, XML or txt.
@@ -20,7 +21,7 @@ class FileParser extends DocumentStreamParser {
   public FileParser(DocumentSplit split, Parameters parameters) throws IOException {
     super(split, parameters);
 //          Parameters parameters, String fileName, BufferedReader bufferedReader) {
-    this.identifier = getIdentifier(parameters, split.fileName);
+    this.identifier = getIdentifier(parameters, getFileName(split));
     this.reader = getBufferedReader(split);
   }
 

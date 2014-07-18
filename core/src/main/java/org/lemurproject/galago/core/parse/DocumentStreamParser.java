@@ -152,4 +152,10 @@ public abstract class DocumentStreamParser {
       return split.fileName;
     return split.fileName+"!"+split.innerName;
   }
+
+  public static String getFileName(DocumentSplit split) {
+    if(split.innerName.isEmpty())
+      return split.fileName;
+    return split.innerName;
+  }
 }

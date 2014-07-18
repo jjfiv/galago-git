@@ -29,7 +29,7 @@ public class GetRMTermsFn extends AppFunction {
   public String getHelpString() {
     return "get-rm-terms\n" +
     "\t--query=?\n" +
-    "\t--num-terms=?\n" +
+    "\t--numTerms=?\n" +
     "\t--index=?\n\n";
   }
 
