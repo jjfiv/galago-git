@@ -12,11 +12,11 @@ public class CmpUtil {
   public static final double neg_epsilon = -1.0 * epsilon;
 
   public static int compare(int one, int two) {
-    return Integer.compare(one, two);
+    return one - two;
   }
 
   public static int compare(long one, long two) {
-    return Long.compare(one, two);
+    return (int) (one - two);
   }
 
   public static int compare(double one, double two) {

@@ -1,12 +1,10 @@
-package org.lemurproject.galago.core.index.disk;
+package org.lemurproject.galago.utility;
 
 import org.junit.Test;
-import org.lemurproject.galago.utility.ByteUtil;
-import org.lemurproject.galago.utility.CmpUtil;
 
 import static org.junit.Assert.assertTrue;
 
-public class DiskBTreeWriterTest {
+public class CmpUtilTest {
 
   @Test
   public void testUnicodeBug() {
