@@ -12,43 +12,19 @@ public class CmpUtil {
   public static final double neg_epsilon = -1.0 * epsilon;
 
   public static int compare(int one, int two) {
-    return one - two;
+    return Integer.compare(one, two);
   }
 
   public static int compare(long one, long two) {
-    long result = one - two;
-
-    if (result > 0) {
-      return 1;
-    }
-    if (result < 0) {
-      return -1;
-    }
-    return 0;
+    return Long.compare(one, two);
   }
 
   public static int compare(double one, double two) {
-    double result = one - two;
-
-    if (result > epsilon) {
-      return 1;
-    }
-    if (result < neg_epsilon) {
-      return -1;
-    }
-    return 0;
+    return Double.compare(one, two);
   }
 
   public static int compare(float one, float two) {
-    float result = one - two;
-
-    if (result > epsilon) {
-      return 1;
-    }
-    if (result < neg_epsilon) {
-      return -1;
-    }
-    return 0;
+    return Float.compare(one, two);
   }
 
   public static int compare(String one, String two) {
