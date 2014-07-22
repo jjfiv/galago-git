@@ -3,12 +3,13 @@
  */
 package org.lemurproject.galago.core.index.merge;
 
-import java.io.IOException;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.types.NumberWordPosition;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
+
+import java.io.IOException;
 
 /**
  *
@@ -28,8 +29,7 @@ public class PositionIndexMerger extends GenericExtentValueIndexMerger<NumberWor
   @Override
   public Processor<NumberWordPosition> createIndexWriter(TupleFlowParameters parameters) throws Exception {
     PositionIndexWriter w = new PositionIndexWriter(parameters);
-    NumberWordPosition.WordDocumentPositionOrder.TupleShredder shredder = new NumberWordPosition.WordDocumentPositionOrder.TupleShredder(w);
-    return shredder;
+    return new NumberWordPosition.WordDocumentPositionOrder.TupleShredder(w);
   }
 
   public void transformExtentArray(byte[] key, ExtentArray extentArray) throws IOException {

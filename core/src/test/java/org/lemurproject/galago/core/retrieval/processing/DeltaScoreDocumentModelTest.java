@@ -120,5 +120,6 @@ public class DeltaScoreDocumentModelTest {
     p.set("inputPath", corpus.getAbsolutePath());
     p.set("indexPath", index.getAbsolutePath());
     App.run("build", p, System.out);
+    System.out.println("build finished?");
   }
 }

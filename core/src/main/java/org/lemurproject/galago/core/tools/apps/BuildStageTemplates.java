@@ -98,7 +98,7 @@ public class BuildStageTemplates {
   public static Stage getWriteNamesStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
     p.setIfMissing("blockSize", 4096);
     return getGenericWriteStage(stageName, destination, inputPipeName,
-            DiskNameWriter.class, new NumberedDocumentData.NumberOrder(), p);
+            DiskNameWriter.class, new DocumentNameId.IdOrder(), p);
   }
   
   public static Stage getWriteNamesRevStage(String stageName, File destination, String inputPipeName) throws IOException {
@@ -108,7 +108,7 @@ public class BuildStageTemplates {
   public static Stage getWriteNamesRevStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
     p.setIfMissing("blockSize", 4096);
     return getGenericWriteStage(stageName, destination, inputPipeName,
-            DiskNameReverseWriter.class, new NumberedDocumentData.IdentifierOrder(), p);
+            DiskNameReverseWriter.class, new DocumentNameId.NameOrder(), p);
   }
 
   public static Stage getWriteExtentsStage(String stageName, File destination, String inputPipeName) throws IOException {

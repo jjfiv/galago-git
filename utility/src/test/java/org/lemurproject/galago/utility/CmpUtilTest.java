@@ -2,22 +2,27 @@ package org.lemurproject.galago.utility;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotEquals;
 
 public class CmpUtilTest {
 
   @Test
   public void testUnicodeBug() {
-    String firstBadName = "\uf48d\u81b7.html";
-    byte[] firstBytes = ByteUtil.fromString(firstBadName);
-    String secondBadName = ByteUtil.toString(new byte[]{-18, -128, -128, 0x2e, 0x68, 0x74, 0x6d, 0x6c});
-    byte[] secondBytes = ByteUtil.fromString(secondBadName);
+    String bb = ByteUtil.toString(new byte[] {
+      -16, -99, -124, -85
+    });
+    String allah = ByteUtil.toString(new byte[] {
+      -17, -73, -78
+    });
 
-    int cmp1 = CmpUtil.compare(firstBadName, secondBadName);
-    int cmp2 = CmpUtil.compare(firstBytes, secondBytes);
+    //double-flat symbol
+    byte[] bbB = ByteUtil.fromString(bb);
+    // allah in arabic
+    byte[] allahB = ByteUtil.fromString(allah);
 
-    assertTrue(cmp1 > 0);
-    assertTrue(cmp2 > 0);
+    // string compare should NOT be equivalent to byte compare for certain utf8 things.
+    assertNotEquals(CmpUtil.compare(bbB, allahB), CmpUtil.compare(bb, allah));
+    assertNotEquals(CmpUtil.compare(allahB, bbB), CmpUtil.compare(allah, bb));
   }
 
 }

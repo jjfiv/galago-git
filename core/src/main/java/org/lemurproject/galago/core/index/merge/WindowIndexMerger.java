@@ -4,12 +4,13 @@
 
 package org.lemurproject.galago.core.index.merge;
 
-import java.io.IOException;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.types.NumberedExtent;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
+
+import java.io.IOException;
 
 /**
  *
@@ -29,8 +30,7 @@ public class WindowIndexMerger extends GenericExtentValueIndexMerger<NumberedExt
   @Override
   public Processor<NumberedExtent> createIndexWriter(TupleFlowParameters parameters) throws Exception {
     WindowIndexWriter w = new WindowIndexWriter(parameters);
-    NumberedExtent.ExtentNameNumberBeginOrder.TupleShredder shredder = new NumberedExtent.ExtentNameNumberBeginOrder.TupleShredder( w );
-    return shredder;
+    return new NumberedExtent.ExtentNameNumberBeginOrder.TupleShredder(w);
   }
   
   public void transformExtentArray(byte[] key, ExtentArray extentArray)  throws IOException {

@@ -1,0 +1,9 @@
+package org.lemurproject.galago.core.types;
+
+type DocumentNameId {
+    bytes name;
+    long id;
+
+    order: +name;
+    order: +id;
+}

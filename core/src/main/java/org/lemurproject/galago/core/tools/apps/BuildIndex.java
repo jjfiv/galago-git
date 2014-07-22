@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools.apps;
 
+import org.lemurproject.galago.core.build.DocumentNameNumberExtractor;
 import org.lemurproject.galago.core.index.corpus.CorpusFolderWriter;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeKeyWriter;
@@ -39,8 +40,8 @@ public class BuildIndex extends AppFunction {
     Stage stage = new Stage("parsePostings")
             .addInput("splits", new DocumentSplit.FileIdOrder())
             .addOutput("fieldLengthData", new FieldLengthData.FieldDocumentOrder())
-            .addOutput("numberedDocumentDataNumbers", new NumberedDocumentData.NumberOrder())
-            .addOutput("numberedDocumentDataNames", new NumberedDocumentData.IdentifierOrder());
+            .addOutput("numberedDocumentDataNumbers", new DocumentNameId.IdOrder())
+            .addOutput("numberedDocumentDataNames", new DocumentNameId.NameOrder());
 
 //    if (buildParameters.getBoolean("links")) {
 //      stage.addInput("anchorText", new AdditionalDocumentText.IdentifierOrder());
@@ -93,11 +94,12 @@ public class BuildIndex extends AppFunction {
             FieldLengthExtractor.class,
             new FieldLengthData.FieldDocumentOrder())).addGroup("numberedDocumentData",
             BuildStageTemplates.getExtractionSteps("numberedDocumentDataNumbers",
-            NumberedDocumentDataExtractor.class,
-            new NumberedDocumentData.NumberOrder())).addGroup("numberedDocumentDataNames",
-            BuildStageTemplates.getExtractionSteps("numberedDocumentDataNames",
-            NumberedDocumentDataExtractor.class,
-            new NumberedDocumentData.IdentifierOrder()));
+            DocumentNameNumberExtractor.class,
+            new DocumentNameId.IdOrder())).addGroup("numberedDocumentDataNames",
+      BuildStageTemplates.getExtractionSteps("numberedDocumentDataNames",
+        DocumentNameNumberExtractor.class,
+        new DocumentNameId.NameOrder())
+    );
 
     // now [optional] forks
     if (buildParameters.getBoolean("corpus")) {

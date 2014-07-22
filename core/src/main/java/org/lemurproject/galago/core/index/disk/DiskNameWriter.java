@@ -1,29 +1,25 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.IOException;
 import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.core.index.merge.DocumentNameMerger;
-import org.lemurproject.galago.core.types.NumberedDocumentData;
-import org.lemurproject.galago.tupleflow.Counter;
-import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.utility.ByteUtil;
-import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.core.types.DocumentNameId;
+import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
+import org.lemurproject.galago.utility.Parameters;
+
+import java.io.IOException;
 
 /**
  * Writes a btree mapping from document names to document numbers
  *
  * @author sjh
  */
-@InputClass(className = "org.lemurproject.galago.core.types.NumberedDocumentData", order = {"+number"})
-public class DiskNameWriter implements Processor<NumberedDocumentData> {
+@InputClass(className = "org.lemurproject.galago.core.types.DocumentNameId", order = {"+id"})
+public class DiskNameWriter implements Processor<DocumentNameId> {
 
   DiskBTreeWriter writer;
-  NumberedDocumentData last = null;
+  DocumentNameId last = null;
   Counter documentNamesWritten = null;
 
   public DiskNameWriter(TupleFlowParameters parameters) throws IOException {
@@ -40,17 +36,15 @@ public class DiskNameWriter implements Processor<NumberedDocumentData> {
   }
 
   @Override
-  public void process(NumberedDocumentData ndd) throws IOException {
+  public void process(DocumentNameId ndd) throws IOException {
     if (last == null) {
       last = ndd;
     }
 
-    assert last.number <= ndd.number;
-    assert ndd.identifier != null;
+    assert last.id <= ndd.id;
+    assert ndd.name != null;
 
-    writer.add(new GenericElement(
-            Utility.fromLong(ndd.number),
-            ByteUtil.fromString(ndd.identifier)));
+    writer.add(new GenericElement(Utility.fromLong(ndd.id), ndd.name));
 
     if (documentNamesWritten != null) {
       documentNamesWritten.increment();

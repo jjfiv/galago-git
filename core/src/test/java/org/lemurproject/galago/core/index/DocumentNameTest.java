@@ -6,9 +6,10 @@ import org.lemurproject.galago.core.index.disk.DiskNameReader;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
 import org.lemurproject.galago.core.index.disk.DiskNameWriter;
-import org.lemurproject.galago.core.types.NumberedDocumentData;
+import org.lemurproject.galago.core.types.DocumentNameId;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 
@@ -34,8 +35,7 @@ public class DocumentNameTest {
 
       for (int key_val = 10; key_val < 35; key_val++) {
         String str_val = "document_name_key_is_" + key_val;
-        NumberedDocumentData ndd = new NumberedDocumentData(str_val, "", "", key_val, 0);
-        writer.process(ndd);
+        writer.process(new DocumentNameId(ByteUtil.fromString(str_val), key_val));
       }
       writer.close();
 
@@ -67,8 +67,7 @@ public class DocumentNameTest {
 
       for (int key_val = 10; key_val < 35; key_val++) {
         String str_val = "document_name_key_is_" + key_val;
-        NumberedDocumentData ndd = new NumberedDocumentData(str_val, "", "", key_val, 0);
-        writer.process(ndd);
+        writer.process(new DocumentNameId(ByteUtil.fromString(str_val), key_val));
       }
       writer.close();
 

@@ -3,11 +3,12 @@
  */
 package org.lemurproject.galago.core.index.merge;
 
-import java.io.IOException;
-import java.util.HashMap;
 import org.lemurproject.galago.core.types.DocumentMappingData;
 import org.lemurproject.galago.tupleflow.TypeReader;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * Maps a docid key (bytes) to a new docid key (bytes)
@@ -41,6 +42,6 @@ public class DocumentMappingReader {
 
   public byte[] map(int indexId, byte[] keyBytes) {
     // TODO stop casting document to int
-    return Utility.fromInt((int) (this.map(indexId, Utility.toLong(keyBytes))));
+    return Utility.fromLong(this.map(indexId, Utility.toLong(keyBytes)));
   }
 }

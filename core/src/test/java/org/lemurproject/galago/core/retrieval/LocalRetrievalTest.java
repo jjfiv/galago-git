@@ -10,8 +10,8 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
+import org.lemurproject.galago.core.types.DocumentNameId;
 import org.lemurproject.galago.core.types.FieldLengthData;
-import org.lemurproject.galago.core.types.NumberedDocumentData;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.FSUtil;
@@ -135,12 +135,12 @@ public class LocalRetrievalTest {
     Parameters dnrp = Parameters.instance();
     dnrp.set("filename", tempPath + File.separator + "names.reverse");
     DiskNameReverseWriter dnrWriter = new DiskNameReverseWriter(new FakeParameters(dnrp));
-    Sorter<NumberedDocumentData> dnrSorter = new Sorter<NumberedDocumentData>(new NumberedDocumentData.IdentifierOrder());
+    Sorter<DocumentNameId> dnrSorter = new Sorter<DocumentNameId>(new DocumentNameId.NameOrder());
     dnrSorter.setProcessor(dnrWriter);
 
     for (int i = 0; i < 20; i++) {
-      dnWriter.process(new NumberedDocumentData("DOC" + i, "", "", i, 100));
-      dnrSorter.process(new NumberedDocumentData("DOC" + i, "", "", i, 100));
+      dnWriter.process(new DocumentNameId(ByteUtil.fromString("DOC"+i), i));
+      dnrSorter.process(new DocumentNameId(ByteUtil.fromString("DOC"+i), i));
     }
     dnWriter.close();
     dnrSorter.close();

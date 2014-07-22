@@ -5,9 +5,10 @@ package org.lemurproject.galago.core.index.disk;
 
 import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskNameReader.KeyIterator;
-import org.lemurproject.galago.core.types.NumberedDocumentData;
+import org.lemurproject.galago.core.types.DocumentNameId;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
@@ -31,13 +32,13 @@ public class DiskNameWriterTest {
       // small numbers
       int count = 0;
       for (int i = 0; i < 100; i++) {
-        writer.process(new NumberedDocumentData("d-" + i, "document", "url", i, 1));
+        writer.process(new DocumentNameId(ByteUtil.fromString("d-" + i), i));
         count += 1;
       }
 
       // big numbers
       for (long i = 8000000000L; i < 9000000000L; i += 10000000L) {
-        writer.process(new NumberedDocumentData("d-" + i, "document", "url", i, 1));
+        writer.process(new DocumentNameId(ByteUtil.fromString("d-" + i), i));
         count += 1;
       }
 

@@ -1,16 +1,17 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.merge;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.PriorityQueue;
 import org.lemurproject.galago.core.index.disk.DiskLengthsWriter;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.CmpUtil;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.PriorityQueue;
 
 /**
  *
@@ -34,7 +35,7 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
 
   @Override
   public void performValueMerge(byte[] key, List<KeyIteratorWrapper> keyIterators) throws IOException {
-    PriorityQueue<LengthIteratorWrapper> lenQueue = new PriorityQueue();
+    PriorityQueue<LengthIteratorWrapper> lenQueue = new PriorityQueue<LengthIteratorWrapper>();
     for (KeyIteratorWrapper wrapper : keyIterators) {
       lenQueue.offer(new LengthIteratorWrapper(this.partIds.get(wrapper), (LengthsIterator) wrapper.getIterator().getValueIterator(), this.mappingReader));
     }
@@ -88,7 +89,7 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
 
     @Override
     public int compareTo(LengthIteratorWrapper other) {
-      return Utility.compare(currentDocument, other.currentDocument);
+      return CmpUtil.compare(currentDocument, other.currentDocument);
     }
   }
 }

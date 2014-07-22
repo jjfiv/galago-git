@@ -1,15 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.merge;
 
-import java.io.IOException;
-import java.util.List;
-
 import org.lemurproject.galago.core.index.corpus.CorpusFileWriter;
 import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  *

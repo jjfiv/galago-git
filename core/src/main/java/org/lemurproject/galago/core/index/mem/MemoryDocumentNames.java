@@ -1,30 +1,26 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.lemurproject.galago.core.index.disk.DiskNameWriter;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
+import org.lemurproject.galago.core.index.disk.DiskNameWriter;
 import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
-
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskDataIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.types.NumberedDocumentData;
+import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.NodeType;
+import org.lemurproject.galago.core.types.DocumentNameId;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.IOException;
+import java.util.*;
 
 public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
 
@@ -161,25 +157,24 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     p.set("filename", path);
     DiskNameWriter writer = new DiskNameWriter(new FakeParameters(p));
     KIterator iterator = new KIterator();
-    NumberedDocumentData d;
-    ArrayList<NumberedDocumentData> tempList = new ArrayList();
+    ArrayList<DocumentNameId> tempList = new ArrayList<DocumentNameId>();
     while (!iterator.isDone()) {
-      d = new NumberedDocumentData();
-      d.identifier = iterator.getCurrentName();
-      d.number = iterator.getCurrentIdentifier();
+      DocumentNameId d = new DocumentNameId();
+      d.name = ByteUtil.fromString(iterator.getCurrentName());
+      d.id = iterator.getCurrentIdentifier();
       writer.process(d);
       tempList.add(d);
       iterator.nextKey();
     }
     writer.close();
 
-    Collections.sort(tempList, new NumberedDocumentData.IdentifierOrder().lessThan());
+    Collections.sort(tempList, new DocumentNameId.NameOrder().lessThan());
 
     p = getManifest().clone();
     p.set("filename", path + ".reverse");
     DiskNameReverseWriter revWriter = new DiskNameReverseWriter(new FakeParameters(p));
 
-    for (NumberedDocumentData ndd : tempList) {
+    for (DocumentNameId ndd : tempList) {
       revWriter.process(ndd);
     }
     revWriter.close();

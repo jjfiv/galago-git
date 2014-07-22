@@ -3,11 +3,12 @@ package org.lemurproject.galago.core.repair;
 import org.lemurproject.galago.core.index.disk.DiskNameReader;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
 import org.lemurproject.galago.core.index.source.DataSource;
-import org.lemurproject.galago.core.types.NumberedDocumentData;
+import org.lemurproject.galago.core.types.DocumentNameId;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
-import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Sorter;
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
 
@@ -31,7 +32,7 @@ public class IndexRepair {
     DiskNameReverseWriter reverseWriter = new DiskNameReverseWriter(new FakeParameters(newP));
 
     // build a tupleflow pipeline to resort the data
-    Sorter<NumberedDocumentData> pipe = new Sorter<NumberedDocumentData>(new NumberedDocumentData.IdentifierOrder());
+    Sorter<DocumentNameId> pipe = new Sorter<DocumentNameId>(new DocumentNameId.NameOrder());
     pipe.setProcessor(reverseWriter);
 
     // iterate over the disknamesource
@@ -40,13 +41,7 @@ public class IndexRepair {
     while(!source.isDone()) {
       long identifier = source.currentCandidate();
       String name = source.data(identifier);
-      NumberedDocumentData ndd = new NumberedDocumentData();
-      ndd.fieldList = "";
-      ndd.url = "";
-      ndd.textLength = 0;
-      ndd.identifier = name;
-      ndd.number = identifier;
-      pipe.process(ndd);
+      pipe.process(new DocumentNameId(ByteUtil.fromString(name), identifier));
       if(count % flushSize == 0) {
         System.err.println("# converted: "+count+" names");
         pipe.flush();

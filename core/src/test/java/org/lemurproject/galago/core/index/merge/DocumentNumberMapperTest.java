@@ -6,11 +6,12 @@ package org.lemurproject.galago.core.index.merge;
 import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskNameWriter;
 import org.lemurproject.galago.core.types.DocumentMappingData;
-import org.lemurproject.galago.core.types.NumberedDocumentData;
+import org.lemurproject.galago.core.types.DocumentNameId;
 import org.lemurproject.galago.core.util.DocumentSplitFactory;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Processor;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 
@@ -32,7 +33,7 @@ public class DocumentNumberMapperTest {
     DiskNameWriter writer = new DiskNameWriter(new FakeParameters(p));
 
     for (int i = 0; i <= maxDocNum; i++) {
-      writer.process(new NumberedDocumentData("doc-"+i, "", "", i, 0));
+      writer.process(new DocumentNameId(ByteUtil.fromString("doc-"+i), i));
     }
 
     writer.close();

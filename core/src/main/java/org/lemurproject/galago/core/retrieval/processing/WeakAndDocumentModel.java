@@ -3,22 +3,22 @@
  */
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DisjunctionIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
-import static org.lemurproject.galago.core.retrieval.processing.ProcessingModel.toReversedArray;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
-import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.Parameters;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Implements Weak-And processing model (Broder et al. 2003)
@@ -56,7 +56,6 @@ public class WeakAndDocumentModel extends ProcessingModel {
     // step two: create an iterator for each node
     DeltaScoringIteratorWrapper[] sortedIterators = createScoringIterators(scoringNodes, retrieval);
     Arrays.sort(sortedIterators);
-    
     FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
     // NOTE that the min scores here are OVER-ESTIMATES of the actual minimum scores
@@ -70,13 +69,11 @@ public class WeakAndDocumentModel extends ProcessingModel {
     context.document = -1;
     double minDocScore = Double.NEGATIVE_INFINITY;
     int advancePosition;
-    
     while (true) {
       // if advance position is set, then an iterator has moved.
       advancePosition = -1;
       
       int pivotPosition = findPivot(sortedIterators, minimumPossibleScore, minDocScore);
-      
       if (pivotPosition == -1) {
         break;
       }
