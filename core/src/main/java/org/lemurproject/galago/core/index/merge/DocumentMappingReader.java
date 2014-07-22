@@ -25,7 +25,7 @@ public class DocumentMappingReader {
   }
   
   public DocumentMappingReader(TypeReader<DocumentMappingData> mappingDataStream) throws IOException {
-    indexIncrements = new HashMap();
+    indexIncrements = new HashMap<>();
     DocumentMappingData dat;
     while ((dat = mappingDataStream.read()) != null) {
       indexIncrements.put(dat.indexId, dat.docNumIncrement);

@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class WeakAndDocumentModel extends ProcessingModel {
     double factor = queryParams.get("weakandfactor", 1.0);
 
     // step one: find the set of deltaScoringNodes in the tree
-    List<Node> scoringNodes = new ArrayList();
+    List<Node> scoringNodes = new ArrayList<>();
     boolean canScore = findDeltaNodes(queryTree, scoringNodes, retrieval);
     if (!canScore) {
       throw new IllegalArgumentException("Query tree does not support delta scoring interface.\n" + queryTree.toPrettyString());
@@ -56,7 +56,7 @@ public class WeakAndDocumentModel extends ProcessingModel {
     // step two: create an iterator for each node
     DeltaScoringIteratorWrapper[] sortedIterators = createScoringIterators(scoringNodes, retrieval);
     Arrays.sort(sortedIterators);
-    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
+    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap<>(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
     // NOTE that the min scores here are OVER-ESTIMATES of the actual minimum scores
     double minimumPossibleScore = 0.0;
@@ -264,12 +264,10 @@ public class WeakAndDocumentModel extends ProcessingModel {
     
     public DeltaScoringIterator itr;
     public long currentCandidate;
-    private Node node;
     private long entries;
     
     private DeltaScoringIteratorWrapper(DeltaScoringIterator itr, Node node) throws IOException {
       this.itr = itr;
-      this.node = node;
 
       if (node.getNodeParameters().containsKey("nodeDocumentCount")) {
         this.entries = node.getNodeParameters().getLong("nodeDocumentCount");
@@ -287,7 +285,7 @@ public class WeakAndDocumentModel extends ProcessingModel {
     
     @Override
     public int compareTo(DeltaScoringIteratorWrapper t) {
-      return Utility.compare(currentCandidate, t.currentCandidate);
+      return CmpUtil.compare(currentCandidate, t.currentCandidate);
     }
     
     public void updateCC() {
