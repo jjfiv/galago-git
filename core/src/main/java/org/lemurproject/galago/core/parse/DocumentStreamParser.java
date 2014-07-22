@@ -2,15 +2,12 @@
 package org.lemurproject.galago.core.parse;
 
 import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.utility.StreamCreator;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.StreamCreator;
 import org.lemurproject.galago.utility.ZipUtil;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
@@ -22,7 +19,7 @@ import java.util.zip.ZipFile;
  *
  * @author trevor, sjh
  */
-public abstract class DocumentStreamParser {
+public abstract class DocumentStreamParser implements Closeable {
   private static Logger log = Logger.getLogger(DocumentStreamParser.class.getName());
 
   /* Static interface */
@@ -30,7 +27,7 @@ public abstract class DocumentStreamParser {
   // The built-in type map
   public static Map<String, Class> fileTypeMap;
   static {
-    fileTypeMap = new ConcurrentHashMap<String, Class>();
+    fileTypeMap = new ConcurrentHashMap<>();
     addExternalParsers(Parameters.instance());
   }
 
@@ -103,11 +100,7 @@ public abstract class DocumentStreamParser {
       if(formals[0].isAssignableFrom(DocumentSplit.class) && formals[1].isAssignableFrom(Parameters.class)) {
         try {
           return (DocumentStreamParser) cons.newInstance(split, parameters);
-        } catch (InstantiationException e) {
-          throw new IOException(e);
-        } catch (IllegalAccessException e) {
-          throw new IOException(e);
-        } catch (InvocationTargetException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
           throw new IOException(e);
         }
       }
@@ -125,6 +118,7 @@ public abstract class DocumentStreamParser {
 
   public abstract Document nextDocument() throws IOException;
 
+  @Override
   public abstract void close() throws IOException;
 
   /*** static functions for opening files ***/
