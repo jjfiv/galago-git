@@ -1,12 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
-import java.io.IOException;
 import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
-import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Source;
 import org.lemurproject.galago.tupleflow.Step;
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
+import org.lemurproject.galago.utility.Parameters;
+
+import java.io.Closeable;
+import java.io.IOException;
 
 /**
  * This class writes index files, which are used for most Galago indexes.
@@ -37,7 +39,7 @@ import org.lemurproject.galago.tupleflow.Step;
  * 
  * @author sjh
  */
-public abstract class BTreeWriter implements KeyValuePair.KeyValueOrder.ShreddedProcessor, Source<KeyValuePair> {
+public abstract class BTreeWriter implements KeyValuePair.KeyValueOrder.ShreddedProcessor, Source<KeyValuePair>, Closeable {
         
     /**
      * Returns the current copy of the manifest, which will be stored in
@@ -57,6 +59,7 @@ public abstract class BTreeWriter implements KeyValuePair.KeyValueOrder.Shredded
      * Closes the index writer
      *  - flushes all buffers and closes the file writers
      */
+    @Override
     public abstract void close() throws IOException;
 
 

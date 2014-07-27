@@ -2,12 +2,14 @@
 package org.lemurproject.galago.core.index;
 
 import org.lemurproject.galago.core.index.disk.VocabularyReader;
-import java.io.IOException;
-import java.nio.MappedByteBuffer;
 import org.lemurproject.galago.tupleflow.DataStream;
+import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.Closeable;
+import java.io.IOException;
+import java.nio.MappedByteBuffer;
 
 /**
  * <p>This implements the core functionality for all inverted list readers. It
@@ -37,7 +39,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  *
  * @author sjh
  */
-public abstract class BTreeReader {
+public abstract class BTreeReader implements Closeable {
 
   public abstract class BTreeIterator implements Comparable<BTreeIterator> {
 

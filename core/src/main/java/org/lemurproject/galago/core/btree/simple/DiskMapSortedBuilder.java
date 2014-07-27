@@ -52,6 +52,7 @@ public class DiskMapSortedBuilder implements Processor<KeyValuePair> {
   /** Call this when done adding keys!
    * @throws java.io.IOException
    */
+  @Override
   public void close() throws IOException {
     btree.close();
   }

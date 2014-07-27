@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.utility.Parameters;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,7 @@ import java.util.Map;
  * @author trevor
  * @author irmarc
  */
-public interface Retrieval {
+public interface Retrieval extends Closeable {
 
   /**
    * Should close the Retrieval and release any underlying resources.

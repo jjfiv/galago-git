@@ -80,8 +80,7 @@ toStringArgList(f) ::= <<
 processor() ::= <<
 public interface Processor extends Step, org.lemurproject.galago.tupleflow.Processor\<<typeName>\> {
     public void process(<typeName> object) throws IOException;
-    public void close() throws IOException;
-}                       
+}
 >>               
 
 source() ::= <<
@@ -212,11 +211,10 @@ public void setProcessor(Step processor) throws IncompatibleProcessorException {
 //               
 
 shreddedProcessor() ::= <<
-public interface ShreddedProcessor extends Step {
+public interface ShreddedProcessor extends Step, Closeable {
     <order.orderedFields:{f | public void process<f.capsName>(<f.type> <f.name>) throws IOException;}; separator="\n">
     public void processTuple(<order.unorderedFields:{ f | <f.type> <f.name>}; separator=", ">) throws IOException;
-    public void close() throws IOException;
-}   
+}
 >>     
 
 //
@@ -493,7 +491,8 @@ public static final class DuplicateEliminator implements ShreddedProcessor {
     public void processTuple(<order.unorderedFields:{f|<f.type> <f.name>}; separator=", ">) throws IOException {
         processor.processTuple(<order.unorderedFields:{f|<f.name>}; separator=", ">);
     } 
-    
+
+    @Override
     public void close() throws IOException {
         processor.close();
     }                    
@@ -547,7 +546,8 @@ public void process<f.capsName>(<f.type> <f.name>) throws IOException {
         <order.unorderedFields:{f|last.<f.name> = <f.name>;}; separator="\n">
         processor.process(clone(last));
     }               
-    
+
+    @Override
     public void close() throws IOException {
         processor.close();
     }
@@ -580,7 +580,8 @@ public static final class TupleShredder implements Processor {
     public Class\<<typeName>\> getInputClass() {
         return <typeName>.class;
     }
-    
+
+    @Override
     public void close() throws IOException {
         processor.close();
     }                     
@@ -760,7 +761,8 @@ public static final class ShreddedWriter implements ShreddedProcessor {
     public ShreddedWriter(ArrayOutput output) {
         this.output = output;
     }                        
-    
+
+    @Override
     public void close() throws IOException {
         flush();
     }
@@ -882,7 +884,8 @@ public static final class OrderedWriterClass extends OrderedWriter\< <typeName> 
        shreddedWriter.processTuple(<order.unorderedFields:{f|object.<f.name>}; separator=", ">);
        last = object;
     }           
-         
+
+    @Override
     public void close() throws IOException {
         shreddedWriter.close();
     }

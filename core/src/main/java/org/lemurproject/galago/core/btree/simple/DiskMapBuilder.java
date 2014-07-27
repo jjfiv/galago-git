@@ -2,16 +2,17 @@
 package org.lemurproject.galago.core.btree.simple;
 
 import org.lemurproject.galago.core.types.KeyValuePair;
+import org.lemurproject.galago.tupleflow.Sorter;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Sorter;
 
+import java.io.Closeable;
 import java.io.IOException;
 
 /**
  * @author jfoley.
  */
-public class DiskMapBuilder {
+public class DiskMapBuilder implements Closeable {
   public DiskMapSortedBuilder endPoint;
   public Sorter<KeyValuePair> sorter;
 

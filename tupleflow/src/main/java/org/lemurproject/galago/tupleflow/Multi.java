@@ -18,7 +18,7 @@ public class Multi<T> implements Processor<T> {
     }
 
     public Multi(List<Processor> processors) {
-        this((Processor[]) processors.toArray(new Processor[0]));
+        this(processors.toArray(new Processor[processors.size()]));
     }
 
     @SuppressWarnings("unchecked")
