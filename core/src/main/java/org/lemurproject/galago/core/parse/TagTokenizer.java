@@ -86,11 +86,11 @@ public class TagTokenizer extends Tokenizer {
     position = 0;
     lastSplit = -1;
 
-    tokens = new ArrayList<String>();
-    openTags = new HashMap<String, ArrayList<BeginTag>>();
-    closedTags = new ArrayList<ClosedTag>();
-    tokenPositions = new ArrayList<Pair>();
-    whitelist = new ArrayList<Pattern>();
+    tokens = new ArrayList<>();
+    openTags = new HashMap<>();
+    closedTags = new ArrayList<>();
+    tokenPositions = new ArrayList<>();
+    whitelist = new ArrayList<>();
   }
 
   protected static boolean[] buildSplits() {
@@ -122,7 +122,7 @@ public class TagTokenizer extends Tokenizer {
   }
 
   protected static HashSet<String> buildIgnoredTags() {
-    HashSet<String> tags = new HashSet<String>();
+    HashSet<String> tags = new HashSet<>();
     tags.add("style");
     tags.add("script");
     return tags;
@@ -645,7 +645,7 @@ public class TagTokenizer extends Tokenizer {
    * that are not matched by any patterns in the whitelist
    */
   protected ArrayList<Tag> coalesceTags() {
-    ArrayList<Tag> result = new ArrayList<Tag>();
+    ArrayList<Tag> result = new ArrayList<>();
 
     // close all open tags
     for (ArrayList<BeginTag> tagList : openTags.values()) {
@@ -734,7 +734,7 @@ public class TagTokenizer extends Tokenizer {
     if (ignoreUntil == null) {
       onSplit();
     }
-    document.terms = new ArrayList<String>(this.tokens);
+    document.terms = new ArrayList<>(this.tokens);
     for (Pair p : this.tokenPositions) {
       document.termCharBegin.add(p.start);
       document.termCharEnd.add(p.end);

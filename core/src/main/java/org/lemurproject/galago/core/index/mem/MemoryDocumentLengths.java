@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
+import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.LengthsReader;
@@ -16,7 +17,6 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.core.util.Bytes;
-import org.lemurproject.galago.core.util.IntArray;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.CmpUtil;
@@ -33,7 +33,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   public static class FieldLengthList {
 
     private Bytes fieldName;
-    private IntArray fieldLengths;
+    private TIntArrayList fieldLengths;
     private long totalDocumentCount = 0;
     private long nonZeroDocumentCount = 0;
     private long collectionLength = 0;
@@ -44,7 +44,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
     public FieldLengthList(Bytes fieldName) {
       this.fieldName = fieldName;
-      this.fieldLengths = new IntArray(256);
+      this.fieldLengths = new TIntArrayList(256);
     }
 
     public void add(long documentId, int fieldLength) throws IOException {
@@ -63,11 +63,11 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
       nonZeroDocumentCount += (fieldLength > 0) ? 1 : 0;
       collectionLength += fieldLength;
 
-      if (firstDocument + fieldLengths.getPosition() > documentId) {
+      if (firstDocument + fieldLengths.size() > documentId) {
         throw new IOException("Unable to add lengths data out of order.");
       }
 
-      while (firstDocument + fieldLengths.getPosition() < documentId) {
+      while (firstDocument + fieldLengths.size() < documentId) {
         fieldLengths.add(0);
       }
 
@@ -78,9 +78,9 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     public int getLength(long docNum) throws IOException {
       long arrayOffset = docNum - firstDocument;
       assert (arrayOffset < Integer.MAX_VALUE) : "Memory index can not store more than Integer.MAX_VALUE document ids.";
-      if (0 <= arrayOffset && arrayOffset < this.fieldLengths.getPosition()) {
+      if (0 <= arrayOffset && arrayOffset < this.fieldLengths.size()) {
         // TODO stop casting document to int
-        return fieldLengths.getBuffer()[(int) (docNum - firstDocument)];
+        return fieldLengths.toArray()[(int) (docNum - firstDocument)];
       }
       throw new IOException("Document identifier not found in this index.");
     }

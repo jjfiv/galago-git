@@ -25,7 +25,7 @@ public class WordLists {
 
   public static Set<String> getWordList(String name) throws IOException {
     if (wordLists == null) {
-      wordLists = new HashMap<String,Set<String>>();
+      wordLists = new HashMap<>();
     }
     if (!wordLists.containsKey(name)) {
       Set<String> list;
