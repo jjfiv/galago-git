@@ -1,21 +1,21 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
+import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.DiskSpillCompressedByteBuffer;
-import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.types.NumberedField;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.OutputClass;
+import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.utility.CmpUtil;
+import org.lemurproject.galago.utility.Parameters;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  *
@@ -25,23 +25,15 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
 @OutputClass(className = "org.lemurproject.galago.core.types.KeyValuePair", order = {"+key"})
 public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.ShreddedProcessor {
 
-  long minimumSkipListLength = 2048;
-  int skipByteLength = 128;
   byte[] lastWord;
-  long lastPosition = 0;
-  long lastDocument = 0;
   BTreeWriter writer;
   ContentList invertedList;
-  OutputStream output;
-  long filePosition;
   long documentCount = 0;
-  long collectionLength = 0;
   Parameters header;
   TupleFlowParameters stepParameters;
-  boolean parallel;
   String filename;
 
-  public FieldIndexWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
+  public FieldIndexWriter(TupleFlowParameters parameters) throws IOException {
     header = parameters.getJSON();
     stepParameters = parameters;
     header.set("readerClass", FieldIndexReader.class.getName());
@@ -63,7 +55,7 @@ public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.Shre
 
     invertedList = new ContentList(wordBytes);
 
-    assert lastWord == null || 0 != Utility.compare(lastWord, wordBytes) : "Duplicate word";
+    assert lastWord == null || !CmpUtil.equals(lastWord, wordBytes) : "Duplicate word";
     lastWord = wordBytes;
   }
 
@@ -98,7 +90,7 @@ public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.Shre
     Verification.requireWriteableFile(index, store);
   }
 
-  public class ContentList implements IndexElement {
+  public static class ContentList implements IndexElement {
 
     CompressedByteBuffer header;
     DiskSpillCompressedByteBuffer data;

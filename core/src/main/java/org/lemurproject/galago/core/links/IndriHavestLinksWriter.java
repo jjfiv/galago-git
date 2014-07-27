@@ -3,6 +3,16 @@
  */
 package org.lemurproject.galago.core.links;
 
+import org.lemurproject.galago.core.types.ExtractedLinkIndri;
+import org.lemurproject.galago.tupleflow.InputClass;
+import org.lemurproject.galago.tupleflow.Processor;
+import org.lemurproject.galago.tupleflow.TupleFlowParameters;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
+import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.FSUtil;
+import org.lemurproject.galago.utility.Parameters;
+
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,14 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.zip.GZIPOutputStream;
-import org.lemurproject.galago.core.types.ExtractedLinkIndri;
-import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.utility.FSUtil;
-import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.execution.ErrorStore;
-import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
  *
@@ -104,7 +106,7 @@ public class IndriHavestLinksWriter implements Processor<ExtractedLinkIndri> {
             FSUtil.makeParentDirectories(outputPath);
 
             // all output is compressed.
-            writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(outputPath))));
+            writer = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(outputPath)), ByteUtil.utf8));
             currentFilePath = filePath;
             currentDocName = "";
         }

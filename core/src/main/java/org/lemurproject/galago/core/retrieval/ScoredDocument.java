@@ -59,6 +59,11 @@ public class ScoredDocument extends Ranked implements Comparable<ScoredDocument>
   }
 
   @Override
+  public int hashCode() {
+    return (int) (this.source.hashCode() ^ this.documentName.hashCode() ^ rank ^ Double.doubleToLongBits(score) ^ this.document);
+  }
+
+  @Override
   public String toString() {
     return String.format("%s %d %s galago", documentName, rank, formatScore(score));
   }

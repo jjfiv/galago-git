@@ -93,7 +93,7 @@ public class CachedRetrieval {
         if (iterator instanceof ScoreIterator) {
           if (this.cacheScores) {
             cachedNodes.put(nodeString, "score");
-            cacheParts.get("score").addIteratorData(ByteUtil.fromString(nodeString), (BaseIterator) iterator);
+            cacheParts.get("score").addIteratorData(ByteUtil.fromString(nodeString), iterator);
             // logger.info("Cached scoring node : " + nodeString);
           } else {
             // logger.info("Scoring node are not cachable : " + nodeString);
@@ -101,16 +101,16 @@ public class CachedRetrieval {
 
         } else if (iterator instanceof LengthsIterator) {
           cachedNodes.put(nodeString, "lengths");
-          cacheParts.get("lengths").addIteratorData(ByteUtil.fromString(nodeString), (BaseIterator) iterator);
+          cacheParts.get("lengths").addIteratorData(ByteUtil.fromString(nodeString), iterator);
 
         } else if (iterator instanceof ExtentIterator) {
           cachedNodes.put(nodeString, "extent");
-          cacheParts.get("extent").addIteratorData(ByteUtil.fromString(nodeString), (BaseIterator) iterator);
+          cacheParts.get("extent").addIteratorData(ByteUtil.fromString(nodeString), iterator);
           // logger.info("Cached extent node : " + nodeString);
 
         } else if (iterator instanceof CountIterator) {
           cachedNodes.put(nodeString, "count");
-          cacheParts.get("count").addIteratorData(ByteUtil.fromString(nodeString), (BaseIterator) iterator);
+          cacheParts.get("count").addIteratorData(ByteUtil.fromString(nodeString), iterator);
           // logger.info("Cached count node : " + nodeString);
 
         } else {

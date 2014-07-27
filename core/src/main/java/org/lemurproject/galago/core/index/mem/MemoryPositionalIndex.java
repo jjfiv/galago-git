@@ -245,7 +245,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
   }
 
   // sub classes:
-  public class PositionalPostingList {
+  public static class PositionalPostingList {
 
     byte[] key;
     CompressedByteBuffer documents_cbb = new CompressedByteBuffer();

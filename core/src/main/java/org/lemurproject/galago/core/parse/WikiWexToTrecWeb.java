@@ -1,23 +1,16 @@
 package org.lemurproject.galago.core.parse;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 /**
  * Wikipedia WEX parser
@@ -306,13 +299,4 @@ public class WikiWexToTrecWeb {
     public String cleanTitle(String title){
         return title.replaceAll(" ", "_");
     }
-
-    public static void main(String[] args) throws FileNotFoundException, IOException {
-        File testFile = new File("/usr/aubury/scratch2/jdalton/aristotle.wex");
-        WikiWexToTrecWeb parser = new WikiWexToTrecWeb(new File("/usr/aubury/scratch2/jdalton/entity-linking/wiki-sample.trecweb"), new BufferedReader(new FileReader(testFile)));
-
-        parser.convert();
-    }
-
-
 }

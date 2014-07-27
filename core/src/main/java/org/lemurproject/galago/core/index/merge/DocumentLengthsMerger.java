@@ -35,7 +35,7 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
 
   @Override
   public void performValueMerge(byte[] key, List<KeyIteratorWrapper> keyIterators) throws IOException {
-    PriorityQueue<LengthIteratorWrapper> lenQueue = new PriorityQueue<LengthIteratorWrapper>();
+    PriorityQueue<LengthIteratorWrapper> lenQueue = new PriorityQueue<>();
     for (KeyIteratorWrapper wrapper : keyIterators) {
       lenQueue.offer(new LengthIteratorWrapper(this.partIds.get(wrapper), (LengthsIterator) wrapper.getIterator().getValueIterator(), this.mappingReader));
     }
@@ -49,7 +49,7 @@ public class DocumentLengthsMerger extends GenericIndexMerger<FieldLengthData> {
     }
   }
 
-  private class LengthIteratorWrapper implements Comparable<LengthIteratorWrapper> {
+  private static class LengthIteratorWrapper implements Comparable<LengthIteratorWrapper> {
 
     int indexId;
     ScoringContext sc;

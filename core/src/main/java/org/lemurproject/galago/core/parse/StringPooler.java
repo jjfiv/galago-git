@@ -2,7 +2,6 @@
 package org.lemurproject.galago.core.parse;
 
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 import java.util.WeakHashMap;
 
 /**
@@ -63,7 +62,7 @@ public class StringPooler {
 
       // otherwise the pool does not contain the term - gc or new term
       term = new String(term);
-      pool.put(term, new WeakReference(term));
+      pool.put(term, new WeakReference<String>(term));
       // still want to set the term to the newly cached term
       document.terms.set(i, term);
     }

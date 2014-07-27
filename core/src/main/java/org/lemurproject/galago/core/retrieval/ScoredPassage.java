@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 /**
@@ -64,7 +65,7 @@ public class ScoredPassage extends ScoredDocument {
     return String.format("%s Q0 %s %d %s galago", qid, documentName, rank, formatScore(score));
   }
 
-  public static class ScoredPassageComparator implements Comparator<ScoredPassage> {
+  public static class ScoredPassageComparator implements Comparator<ScoredPassage>, Serializable {
 
     @Override
     public int compare(ScoredPassage o1, ScoredPassage o2) {

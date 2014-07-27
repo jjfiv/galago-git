@@ -260,7 +260,7 @@ public class WeakAndDocumentModel extends ProcessingModel {
     return scoringIterators;
   }
   
-  public class DeltaScoringIteratorWrapper implements Comparable<DeltaScoringIteratorWrapper> {
+  public static class DeltaScoringIteratorWrapper implements Comparable<DeltaScoringIteratorWrapper> {
     
     public DeltaScoringIterator itr;
     public long currentCandidate;

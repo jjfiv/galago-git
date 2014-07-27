@@ -9,8 +9,6 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
 import org.lemurproject.galago.utility.Parameters;
 
-import java.util.List;
-
 /**
  * Performs straightforward document-at-a-time (daat) processing of a fully
  * annotated query, processing scores over documents.
@@ -21,7 +19,6 @@ public class RankedDocumentModel extends ProcessingModel {
 
   LocalRetrieval retrieval;
   Index index;
-  List<Integer> whitelist;
 
   public RankedDocumentModel(LocalRetrieval lr) {
     retrieval = lr;
@@ -38,7 +35,6 @@ public class RankedDocumentModel extends ProcessingModel {
     boolean annotate = queryParams.get("annotate", false);
 
     // Maintain a queue of candidates
-    //PriorityQueue<ScoredDocument> queue = new PriorityQueue<ScoredDocument>(requested);
     FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap<ScoredDocument>(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
     // construct the iterators -- we use tree processing

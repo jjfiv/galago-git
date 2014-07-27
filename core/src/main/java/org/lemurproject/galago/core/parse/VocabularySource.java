@@ -1,27 +1,19 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.List;
-import java.util.HashSet;
 import org.lemurproject.galago.core.index.BTreeFactory;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.tupleflow.Counter;
-import org.lemurproject.galago.tupleflow.ExNihiloSource;
-import org.lemurproject.galago.tupleflow.FileSource;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
+import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Linkage;
-import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.Step;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ErrorStore;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  *
@@ -33,7 +25,6 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
   Counter vocabCounter;
   Counter skipCounter;
   public Processor<KeyValuePair> processor;
-  TupleFlowParameters parameters;
   BTreeReader reader;
   BTreeReader.BTreeIterator iterator;
   HashSet<String> inclusions = null;
@@ -48,7 +39,7 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
 
     // Look for queries to base the extraction
     Parameters p = parameters.getJSON();
-    inclusions = new HashSet<String>();
+    inclusions = new HashSet<>();
     if (p.isString("includefile")) {
       File f = new File(p.getString("includefile"));
       if (f.exists()) {
@@ -56,13 +47,13 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
         inclusions = Utility.readFileToStringSet(f);
       }
     } else if (p.isList("include")) {
-      List<String> inc = p.getList("include");
+      List<String> inc = p.getList("include", String.class);
       for (String s : inc) {
         inclusions.add(s);
       }
     }
 
-    exclusions = new HashSet<String>();
+    exclusions = new HashSet<>();
     if (p.isString("excludefile")) {
       File f = new File(p.getString("excludefile"));
       if (f.exists()) {
@@ -70,7 +61,7 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
         exclusions = Utility.readFileToStringSet(f);
       }
     } else if (p.isList("exclude")) {
-      List<String> inc = p.getList("exclude");
+      List<String> inc = p.getList("exclude", String.class);
       for (String s : inc) {
         exclusions.add(s);
       }
@@ -85,7 +76,7 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
       // Filter if we need to
       if (!inclusions.isEmpty() || !exclusions.isEmpty()) {
         String s = ByteUtil.toString(iterator.getKey());
-        if (inclusions.contains(s) == false) {
+        if (!inclusions.contains(s)) {
           iterator.nextKey();
           if (skipCounter != null) {
             skipCounter.increment();
@@ -93,7 +84,7 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
           continue;
         }
 
-        if (exclusions.contains(s) == true) {
+        if (exclusions.contains(s)) {
           iterator.nextKey();
           if (skipCounter != null) {
             skipCounter.increment();

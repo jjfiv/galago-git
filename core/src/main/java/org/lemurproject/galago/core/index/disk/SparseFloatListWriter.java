@@ -1,14 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.DiskSpillCompressedByteBuffer;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.types.NumberWordProbability;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  *
@@ -23,7 +23,7 @@ public class SparseFloatListWriter implements
   /**
    * Creates a new instance of DoubleListWriter
    */
-  public SparseFloatListWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
+  public SparseFloatListWriter(TupleFlowParameters parameters) throws IOException {
     writer = new DiskBTreeWriter(parameters);
     writer.getManifest().set("readerClass", SparseFloatListReader.class.getName());
     writer.getManifest().set("writerClass", getClass().getName());
@@ -59,7 +59,7 @@ public class SparseFloatListWriter implements
     writer.close();
   }
 
-  public class DoubleInvertedList implements IndexElement {
+  public static class DoubleInvertedList implements IndexElement {
 
     DiskSpillCompressedByteBuffer data = new DiskSpillCompressedByteBuffer();
     CompressedByteBuffer header = new CompressedByteBuffer();

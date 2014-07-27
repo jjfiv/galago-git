@@ -19,8 +19,8 @@ import org.lemurproject.galago.core.util.Bytes;
 import org.lemurproject.galago.core.util.IntArray;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -30,7 +30,7 @@ import java.util.TreeMap;
 
 public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
-  public class FieldLengthList {
+  public static class FieldLengthList {
 
     private Bytes fieldName;
     private IntArray fieldLengths;
@@ -112,7 +112,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     }
   }
   private Parameters params;
-  protected TreeMap<Bytes, FieldLengthList> lengths = new TreeMap();
+  protected TreeMap<Bytes, FieldLengthList> lengths = new TreeMap<>();
   private Bytes document;
 
   public MemoryDocumentLengths(Parameters params) {
@@ -131,7 +131,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     lengths.get(document).add(doc.identifier, doc.terms.size());
 
     // now deal with fields:
-    TObjectIntHashMap<Bytes> currentFieldLengths = new TObjectIntHashMap(doc.tags.size());
+    TObjectIntHashMap<Bytes> currentFieldLengths = new TObjectIntHashMap<>(doc.tags.size());
     for (Tag tag : doc.tags) {
       int len = tag.end - tag.begin;
       currentFieldLengths.adjustOrPutValue(new Bytes(ByteUtil.fromString(tag.name)), len, len);
@@ -147,8 +147,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
   @Override
   public void addIteratorData(byte[] key, BaseIterator iterator) throws IOException {
-    byte[] fieldString = key;
-    Bytes field = new Bytes(fieldString);
+    Bytes field = new Bytes(key);
     FieldLengthList fieldLengths;
     if (lengths.containsKey(field)) {
       fieldLengths = lengths.get(field);
@@ -159,7 +158,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     ScoringContext c = new ScoringContext();
 
     while (!iterator.isDone()) {
-      c.document = ((LengthsIterator) iterator).currentCandidate();
+      c.document = iterator.currentCandidate();
       fieldLengths.add(c.document, ((LengthsIterator) iterator).length(c));
       iterator.movePast(c.document);
     }
@@ -182,7 +181,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
 
   @Override
   public Map<String, NodeType> getNodeTypes() {
-    HashMap<String, NodeType> types = new HashMap<String, NodeType>();
+    HashMap<String, NodeType> types = new HashMap<>();
     types.put("lengths", new NodeType(DiskLengthsIterator.class));
     return types;
   }
@@ -255,7 +254,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     ScoringContext c = new ScoringContext();
     FieldLengthData ld;
     while (!fields.isDone()) {
-      fieldLengths = (DiskLengthsIterator) fields.getValueIterator();
+      fieldLengths = fields.getValueIterator();
       while (!fieldLengths.isDone()) {
         c.document = fieldLengths.currentCandidate();
         ld = new FieldLengthData(ByteUtil.fromString(fieldLengths.getKeyString()), fieldLengths.currentCandidate(), fieldLengths.length(c));
@@ -334,7 +333,7 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
     @Override
     public int compareTo(KeyIterator t) {
       try {
-        return Utility.compare(this.getKey(), t.getKey());
+        return CmpUtil.compare(this.getKey(), t.getKey());
       } catch (IOException ex) {
         throw new RuntimeException(ex);
       }

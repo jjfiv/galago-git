@@ -1,30 +1,30 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
-import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.CompressedByteBuffer;
+import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.disk.CountIndexWriter;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.stem.Stemmer;
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.disk.DiskCountIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.Utility.ByteArrComparator;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
 
 /*
@@ -37,7 +37,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
 
   // this could be a bit big -- but we need random access here
   // should use a trie (but java doesn't have one?)
-  protected TreeMap<byte[], PostingList> postings = new TreeMap(new ByteArrComparator());
+  protected TreeMap<byte[], PostingList> postings = new TreeMap<>(new CmpUtil.ByteArrComparator());
   protected Parameters parameters;
   protected long collectionDocumentCount = 0;
   protected long collectionPostingsCount = 0;
@@ -161,7 +161,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
 
   @Override
   public Map<String, NodeType> getNodeTypes() {
-    HashMap<String, NodeType> types = new HashMap<String, NodeType>();
+    HashMap<String, NodeType> types = new HashMap<>();
     types.put("counts", new NodeType(DiskCountIterator.class));
     return types;
   }
@@ -196,7 +196,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     DiskCountIterator viterator;
     ScoringContext sc = new ScoringContext();
     while (!kiterator.isDone()) {
-      viterator = (DiskCountIterator) kiterator.getValueIterator();
+      viterator = kiterator.getValueIterator();
       writer.processWord(kiterator.getKey());
       while (!viterator.isDone()) {
         sc.document = viterator.currentCandidate();
@@ -229,7 +229,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
   }
 
   // sub classes:
-  public class PostingList {
+  public static class PostingList {
 
     byte[] key;
     CompressedByteBuffer documents_cbb = new CompressedByteBuffer();
@@ -352,7 +352,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
 
     @Override
     public String getValueString() throws IOException {
-      long count = -1;
+      long count;
       DiskCountIterator it = getValueIterator();
       count = it.totalEntries();
       StringBuilder sb = new StringBuilder();
@@ -379,7 +379,7 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
     @Override
     public int compareTo(KeyIterator t) {
       try {
-        return Utility.compare(this.getKey(), t.getKey());
+        return CmpUtil.compare(this.getKey(), t.getKey());
       } catch (IOException ex) {
         throw new RuntimeException(ex);
       }

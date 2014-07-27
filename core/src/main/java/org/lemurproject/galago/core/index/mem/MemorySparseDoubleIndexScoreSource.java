@@ -1,13 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
+import org.lemurproject.galago.core.index.source.MemValueSource;
+import org.lemurproject.galago.core.index.source.ScoreSource;
+import org.lemurproject.galago.tupleflow.VByteInput;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-import org.lemurproject.galago.core.index.source.MemValueSource;
-import org.lemurproject.galago.core.index.source.ScoreSource;
-import org.lemurproject.galago.core.index.stats.NodeStatistics;
-import org.lemurproject.galago.tupleflow.VByteInput;
 
 /**
  * @author sjh
@@ -23,7 +23,6 @@ public class MemorySparseDoubleIndexScoreSource extends MemValueSource implement
   boolean done;
   // stats
   private long postingCount;
-  private NodeStatistics stats;
   private double defaultScore;
   private double maxScore;
   private double minScore;

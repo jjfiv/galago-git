@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.IOException;
 import org.lemurproject.galago.core.types.FieldNumberWordPosition;
 import org.lemurproject.galago.core.types.NumberWordPosition;
 import org.lemurproject.galago.tupleflow.InputClass;
@@ -9,6 +8,8 @@ import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+
+import java.io.IOException;
 
 /**
  *
@@ -29,7 +30,7 @@ public class PositionFieldIndexWriter implements Processor<FieldNumberWordPositi
   }
 
   private void checkWriter(String fieldName) throws IOException {
-    if (prevField == null || prevField != fieldName) {
+    if (prevField == null || !prevField.equals(fieldName)) {
       if (shredder != null) {
         shredder.close();
       }

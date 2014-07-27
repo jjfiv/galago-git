@@ -1,6 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools.apps;
 
+import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.RetrievalFactory;
+import org.lemurproject.galago.core.retrieval.ScoredDocument;
+import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.Parameters;
+
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -11,13 +19,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.retrieval.RetrievalFactory;
-import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.utility.Parameters;
 
 /**
  *
@@ -69,7 +70,6 @@ public class ThreadedBatchSearch extends AppFunction {
 
   @Override
   public void run(Parameters parameters, PrintStream out) throws Exception {
-    ScoredDocument[] results = null;
 
     if (!(parameters.containsKey("query")
             || parameters.containsKey("queries"))) {
@@ -81,7 +81,7 @@ public class ThreadedBatchSearch extends AppFunction {
     if (parameters.isString("outputFile")) {
       boolean append = parameters.get("appendFile", false);
       out = new PrintStream(new BufferedOutputStream(
-              new FileOutputStream(parameters.getString("outputFile"), append)));
+              new FileOutputStream(parameters.getString("outputFile"), append)), true, "UTF-8");
     }
 
     // get queries
@@ -96,14 +96,14 @@ public class ThreadedBatchSearch extends AppFunction {
     CountDownLatch latch = new CountDownLatch(queries.size());
 
     // exception list
-    List<Exception> exceptions = new ArrayList();
+    List<Exception> exceptions = new ArrayList<>();
 
     // prepare thread pool
     int threadCount = (int) parameters.get("threadCount", Runtime.getRuntime().availableProcessors());
     ExecutorService threadPool = Executors.newFixedThreadPool(threadCount);
 
     // for each query, create a runner
-    List<QueryRunner> runners = new ArrayList();
+    List<QueryRunner> runners = new ArrayList<>();
     for (Parameters query : queries) {
 
       query.setBackoff(parameters);
@@ -131,7 +131,7 @@ public class ThreadedBatchSearch extends AppFunction {
     }
   }
 
-  public class QueryRunner extends Thread {
+  public static class QueryRunner extends Thread {
 
     private final Parameters query;
     private final Retrieval ret;

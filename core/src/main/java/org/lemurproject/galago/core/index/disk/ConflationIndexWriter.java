@@ -3,16 +3,17 @@
  */
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  *
@@ -60,7 +61,7 @@ public class ConflationIndexWriter implements KeyValuePair.KeyValueOrder.Shredde
 
   
   
-  private class ConflationList implements IndexElement {
+  private static class ConflationList implements IndexElement {
 
     byte[] key;
     int valueCount;

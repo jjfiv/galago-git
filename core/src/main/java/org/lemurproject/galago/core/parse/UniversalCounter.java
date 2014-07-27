@@ -1,24 +1,20 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
+import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.core.types.KeyValuePair;
+import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.compression.VByte;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
-import java.util.logging.Level;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lemurproject.galago.tupleflow.Counter;
-import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.StandardStep;
-import org.lemurproject.galago.tupleflow.execution.Verified;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.utility.ByteUtil;
-import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.utility.compression.VByte;
 
 /**
  * Determines the class type of the input split, either based on the "filetype"
@@ -59,7 +55,7 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
   private TupleFlowParameters tfParameters;
   private Parameters parameters;
   private Logger logger = Logger.getLogger(getClass().toString());
-  private byte[] subCollCheck = "subcoll".getBytes();
+  private byte[] subCollCheck = ByteUtil.fromString("subcoll");
 
   public UniversalCounter(TupleFlowParameters parameters) {
     this.documentCounter = parameters.getCounter("Documents Parsed");

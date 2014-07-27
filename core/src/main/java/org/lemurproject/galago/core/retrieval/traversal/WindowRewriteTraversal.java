@@ -1,16 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
+import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.utility.Parameters;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.utility.Parameters;
 
 /*
  * window operator
@@ -140,7 +140,7 @@ public class WindowRewriteTraversal extends Traversal {
       }
       // if all attributes match
       if (flag) {
-        String hValue = part.split(".")[3].replace("h", "");
+        String hValue = part.split("\\.")[3].replace("h", "");
         int h = Integer.parseInt(hValue);
         if (h <= currentThreshold) {
           currentThreshold = h;

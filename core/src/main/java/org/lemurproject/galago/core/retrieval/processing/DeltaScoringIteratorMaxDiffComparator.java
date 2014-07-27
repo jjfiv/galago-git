@@ -3,9 +3,11 @@
  */
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.util.Comparator;
 import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.CmpUtil;
+
+import java.io.Serializable;
+import java.util.Comparator;
 
 /**
  * Sorts iterators by the maximum change in score:
@@ -15,10 +17,10 @@ import org.lemurproject.galago.tupleflow.Utility;
  * 
  * @author sjh
  */
-public class DeltaScoringIteratorMaxDiffComparator implements Comparator<DeltaScoringIterator> {
+public class DeltaScoringIteratorMaxDiffComparator implements Comparator<DeltaScoringIterator>, Serializable {
 
   @Override
   public int compare(DeltaScoringIterator t1, DeltaScoringIterator t2) {
-    return Utility.compare(t2.maximumDifference(), t1.maximumDifference());
+    return CmpUtil.compare(t2.maximumDifference(), t1.maximumDifference());
   }
 }

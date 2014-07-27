@@ -26,7 +26,6 @@ import java.util.logging.Logger;
  */
 public class MergeIndex extends AppFunction {
 
-  private static PrintStream output;
   private String outputPath;
   private List<String> inputPaths;
 
@@ -80,8 +79,8 @@ public class MergeIndex extends AppFunction {
     Job job = new Job();
 
     this.outputPath = p.getString("indexPath");
-    this.inputPaths = new ArrayList();
-    for (String input : (List<String>) p.getAsList("inputPath")) {
+    this.inputPaths = new ArrayList<>();
+    for (String input : p.getAsList("inputPath", String.class)) {
       inputPaths.add((new File(input)).getAbsolutePath());
     }
 
@@ -89,10 +88,10 @@ public class MergeIndex extends AppFunction {
 
     // get a list of shared mergable parts - by set intersection.
     HashSet<String> sharedParts = null;
-    for (String index : (List<String>) p.getAsList("inputPath")) {
+    for (String index : p.getAsList("inputPath", String.class)) {
       DiskIndex i = new DiskIndex(index);
       Set<String> partNames = i.getPartNames();
-      HashSet<String> mergableParts = new HashSet();
+      HashSet<String> mergableParts = new HashSet<>();
       for (String part : partNames) {
         if (i.getIndexPart(part).getManifest().containsKey("mergerClass")) {
           mergableParts.add(part);
@@ -100,7 +99,7 @@ public class MergeIndex extends AppFunction {
       }
 
       if (sharedParts == null) {
-        sharedParts = new HashSet();
+        sharedParts = new HashSet<>();
         sharedParts.addAll(mergableParts);
       }
       sharedParts.retainAll(mergableParts);

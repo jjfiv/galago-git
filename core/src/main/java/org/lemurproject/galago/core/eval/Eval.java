@@ -169,8 +169,8 @@ public class Eval extends AppFunction {
 
     String formatString = "%1$-20s%2$-20s%3$10.4f\n";
 
-    List<String> metrics = eval.getList("_metrics");
-    List<String> comparisons = eval.getList("_comparisons");
+    List<String> metrics = eval.getList("_metrics", String.class);
+    List<String> comparisons = eval.getList("_comparisons", String.class);
 
     for (String metric : metrics) {
       for (String comparison : comparisons) {
@@ -186,10 +186,10 @@ public class Eval extends AppFunction {
 
     Parameters eval = setEvaluation(p, judgments);
 
-    List<String> runs = eval.getList("_runs");
-    List<String> metrics = eval.getList("_metrics");
-    List<String> comparisons = eval.getList("_comparisons");
-    List<String> qids = eval.getList("_qid");
+    List<String> runs = eval.getList("_runs", String.class);
+    List<String> metrics = eval.getList("_metrics", String.class);
+    List<String> comparisons = eval.getList("_comparisons", String.class);
+    List<String> qids = eval.getList("_qid", String.class);
 
     String sep = p.get("sep", " ");   // latex : " & "
     String ln = p.get("ln", " ");     // latex : " \\\\ \\hline"

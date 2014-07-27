@@ -1,10 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import gnu.trove.list.array.TByteArrayList;
 import gnu.trove.procedure.TByteProcedure;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Stores lists of integers in vbyte compressed form.  This
@@ -145,7 +146,7 @@ public class CompressedByteBuffer {
     writer.stream = null; //  don't want a dangling reference
   }
 
-  private class ByteWriterProcedure implements TByteProcedure {
+  private static class ByteWriterProcedure implements TByteProcedure {
 
     public OutputStream stream;
 
@@ -163,7 +164,7 @@ public class CompressedByteBuffer {
     }
   }
 
-  private class ByteCopierProcedure implements TByteProcedure {
+  private static class ByteCopierProcedure implements TByteProcedure {
 
     public CompressedByteBuffer target;
 

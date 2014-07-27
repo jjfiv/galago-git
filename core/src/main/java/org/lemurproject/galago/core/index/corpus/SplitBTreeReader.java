@@ -51,7 +51,6 @@ public class SplitBTreeReader extends BTreeReader {
     public Iterator(DiskBTreeReader.Iterator vocabIterator) {
       super(vocabIterator.reader);
       this.vocabIterator = vocabIterator;
-      assert (this.vocabIterator != null);
     }
 
     /**

@@ -67,7 +67,7 @@ public class BatchSearch extends AppFunction {
 
   @Override
   public void run(Parameters parameters, PrintStream out) throws Exception {
-    List<ScoredDocument> results = null;
+    List<ScoredDocument> results;
 
     if (!(parameters.containsKey("query")
             || parameters.containsKey("queries"))) {
@@ -79,7 +79,7 @@ public class BatchSearch extends AppFunction {
     if (parameters.isString("outputFile")) {
       boolean append = parameters.get("appendFile", false);
       out = new PrintStream(new BufferedOutputStream(
-              new FileOutputStream(parameters.getString("outputFile"), append)));
+              new FileOutputStream(parameters.getString("outputFile"), append)), true, "UTF-8");
     }
 
     // get queries
@@ -147,11 +147,11 @@ public class BatchSearch extends AppFunction {
    * if List(Map): [{"number":"id", "text":"query text"}, ...]
    */
   public static List<Parameters> collectQueries(Parameters parameters) throws IOException {
-    List<Parameters> queries = new ArrayList();
+    List<Parameters> queries = new ArrayList<>();
     int unnumbered = 0;
     if (parameters.isString("query") || parameters.isList("query", String.class)) {
       String id;
-      for (String q : (List<String>) parameters.getAsList("query")) {
+      for (String q : parameters.getAsList("query", String.class)) {
         id = "unk-" + unnumbered;
         unnumbered++;
         queries.add(Parameters.parseString(String.format("{\"number\":\"%s\", \"text\":\"%s\"}", id, q)));
@@ -159,17 +159,17 @@ public class BatchSearch extends AppFunction {
     }
     if (parameters.isString("queries") || parameters.isList("queries", String.class)) {
       String id;
-      for (String q : (List<String>) parameters.getAsList("query")) {
+      for (String q : parameters.getAsList("query", String.class)) {
         id = "unk-" + unnumbered;
         unnumbered++;
         queries.add(Parameters.parseString(String.format("{\"number\":\"%s\", \"text\":\"%s\"}", id, q)));
       }
     }
     if (parameters.isList("query", Parameters.class)) {
-      queries.addAll(parameters.getList("query"));
+      queries.addAll(parameters.getList("query", Parameters.class));
     }
     if (parameters.isList("queries", Parameters.class)) {
-      queries.addAll(parameters.getList("queries"));
+      queries.addAll(parameters.getList("queries", Parameters.class));
     }
     return queries;
   }

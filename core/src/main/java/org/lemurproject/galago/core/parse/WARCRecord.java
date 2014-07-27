@@ -45,12 +45,9 @@ DAMAGE.
  */
 package org.lemurproject.galago.core.parse;
 
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import org.lemurproject.galago.utility.ByteUtil;
+
+import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -65,22 +62,23 @@ import java.util.Set;
 public class WARCRecord {
 
   // public static final Log LOG = LogFactory.getLog(WarcRecord.class);
-  public static String WARC_VERSION = "WARC/";
-  public static String WARC_VERSION_LINE = "WARC/0.18\n";
+  public static final String WARC_VERSION = "WARC/";
   ////public static String WARC_VERSION = "WARC/1.0";
   //public static String WARC_VERSION = "WARC/0.18";
   ////public static String WARC_VERSION_LINE = "WARC/1.0\n";
   //public static String WARC_VERSION_LINE = "WARC/0.18\n";
-  private static String NEWLINE = "\n";
-  private static String CR_NEWLINE = "\r\n";
-  private static byte MASK_THREE_BYTE_CHAR = (byte) (0xE0);
-  private static byte MASK_TWO_BYTE_CHAR = (byte) (0xC0);
-  private static byte MASK_TOPMOST_BIT = (byte) (0x80);
-  private static byte MASK_BOTTOM_SIX_BITS = (byte) (0x1F);
-  private static byte MASK_BOTTOM_FIVE_BITS = (byte) (0x3F);
-  private static byte MASK_BOTTOM_FOUR_BITS = (byte) (0x0F);
+  private static final String NEWLINE = "\n";
+  private static final String CR_NEWLINE = "\r\n";
+  private static final byte MASK_THREE_BYTE_CHAR = (byte) (0xE0);
+  private static final byte MASK_TWO_BYTE_CHAR = (byte) (0xC0);
+  private static final byte MASK_TOPMOST_BIT = (byte) (0x80);
+  private static final byte MASK_BOTTOM_SIX_BITS = (byte) (0x1F);
+  private static final byte MASK_BOTTOM_FIVE_BITS = (byte) (0x3F);
+  private static final byte MASK_BOTTOM_FOUR_BITS = (byte) (0x0F);
+  private static final int MAX_CONTENT_LENGTH = 100 * 1024 * 1024; // 100 MB
+
   private static String LINE_ENDING = "\n";
-  private static int MAX_CONTENT_LENGTH = 100 * 1024 * 1024; // 100 MB
+  public static String WARC_VERSION_LINE = "WARC/0.18\n";
 
   private static String readLineFromInputStream(DataInputStream in) throws IOException {
     StringBuilder retString = new StringBuilder();
@@ -339,7 +337,7 @@ public class WARCRecord {
     return retRecord;
   }
 
-  public class WarcHeader {
+  public static class WarcHeader {
 
     public String contentType = "";
     public String UUID = "";
@@ -519,7 +517,7 @@ public class WARCRecord {
   }
 
   public void setContent(String content) {
-    setContent(content.getBytes());
+    setContent(ByteUtil.fromString(content));
   }
 
   public void setContentLength(int len) {
@@ -535,13 +533,7 @@ public class WARCRecord {
   }
 
   public String getContentUTF8() {
-    String retString = null;
-    try {
-      retString = new String(warcContent, "UTF-8");
-    } catch (UnsupportedEncodingException ex) {
-      retString = new String(warcContent);
-    }
-    return retString;
+    return ByteUtil.toString(warcContent);
   }
 
   public String getHeaderRecordType() {

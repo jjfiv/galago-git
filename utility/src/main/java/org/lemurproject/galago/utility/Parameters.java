@@ -456,6 +456,22 @@ public class Parameters implements Serializable, Map<String,Object> {
     return false;
   }
 
+  public <T> void extendList(String key, T obj) {
+    extendList(key, Collections.singleton(obj));
+  }
+
+  public <T> void extendList(String key, Collection<T> coll) {
+    Object forKey = get(key);
+    if(forKey == null) {
+      forKey = new ArrayList();
+    }
+    if(!(forKey instanceof List))
+      throw new IllegalArgumentException("Key '"+key+"' is not a list, can't add to it.");
+
+    List<T> kl = (List<T>) forKey;
+    kl.addAll(coll);
+  }
+
   public boolean isMap(String key) {
     return get(key) instanceof Parameters;
   }

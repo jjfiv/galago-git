@@ -216,7 +216,7 @@ public class GeometricIndex implements DynamicIndex, Index {
 
   @Override
   public BaseIterator getIterator(Node node) throws IOException {
-    List<BaseIterator> itrs = new ArrayList();
+    List<BaseIterator> itrs = new ArrayList<>();
     itrs.add(this.currentMemoryIndex.getIterator(node));
     for (DiskIndex di : this.geometricParts.getIndexes()) {
       BaseIterator vi = di.getIterator(node);
@@ -291,7 +291,7 @@ public class GeometricIndex implements DynamicIndex, Index {
 
   @Override
   public LengthsIterator getLengthsIterator() throws IOException {
-    List<LengthsIterator> itrs = new ArrayList();
+    List<LengthsIterator> itrs = new ArrayList<>();
     itrs.add(currentMemoryIndex.getLengthsIterator());
     for (DiskIndex di : this.geometricParts.getIndexes()) {
       itrs.add(di.getLengthsIterator());
@@ -301,7 +301,7 @@ public class GeometricIndex implements DynamicIndex, Index {
 
   @Override
   public DataIterator<String> getNamesIterator() throws IOException {
-    List<DataIterator<String>> itrs = new ArrayList();
+    List<DataIterator<String>> itrs = new ArrayList<>();
     itrs.add(currentMemoryIndex.getNamesIterator());
     for (DiskIndex di : this.geometricParts.getIndexes()) {
       itrs.add(di.getNamesIterator());
@@ -311,9 +311,9 @@ public class GeometricIndex implements DynamicIndex, Index {
 
   // private and internal functions
 
-  /*
+  /**
    * This function is called after each index flush
-   *  and after each index merge operation
+   *  and after each index merge operation.
    * 
    * It ensures the set of retrievals are updated to reflect the flush/merge op
    *  and the collection statistics used for retrieval are maintained correctly.
@@ -462,10 +462,10 @@ public class GeometricIndex implements DynamicIndex, Index {
   }
 
   // Subclasses
-  private class Bin {
+  private static class Bin {
 
     private int size;
-    private HashSet<String> binPaths = new HashSet<String>();
+    private HashSet<String> binPaths = new HashSet<>();
 
     public Bin(int size) {
       this.size = size;
@@ -499,8 +499,8 @@ public class GeometricIndex implements DynamicIndex, Index {
   private class GeometricPartitions {
 
     private int radix;
-    private TreeMap<Integer, Bin> radixBins = new TreeMap();
-    private TreeMap<String, DiskIndex> activeIndexes = new TreeMap();
+    private TreeMap<Integer, Bin> radixBins = new TreeMap<>();
+    private TreeMap<String, DiskIndex> activeIndexes = new TreeMap<>();
 
     public GeometricPartitions(int radix) {
       this.radix = radix;
@@ -555,8 +555,8 @@ public class GeometricIndex implements DynamicIndex, Index {
       Bin result = new Bin(0);
       result.add(shardDirectory);
       for (Integer i : radixBins.keySet()) {
-        if (i.intValue() > result.size) {
-          result.size = i.intValue();
+        if (i > result.size) {
+          result.size = i;
         }
         result.add(radixBins.get(i));
       }
