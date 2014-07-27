@@ -6,10 +6,10 @@ package org.lemurproject.galago.tupleflow.execution;
  * 
  * @author trevor
  */
-public class OutputStep extends Step {
+public class OutputStepInformation extends StepInformation {
     String id;
 
-    public OutputStep(String id) {
+    public OutputStepInformation(String id) {
       super(id);
         this.id = id;
     }

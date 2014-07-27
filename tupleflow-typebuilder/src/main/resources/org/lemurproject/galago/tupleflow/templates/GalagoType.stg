@@ -4,6 +4,8 @@ type(typeName, fields, orders) ::= <<
 package <package>;
 
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.protocol.*;
+import org.lemurproject.galago.tupleflow.error.*;
 import org.lemurproject.galago.utility.*;
 import java.io.*;
 import java.util.*;
@@ -110,8 +112,7 @@ public static final class <order.className> implements Order\<<typeName>\> {
     <getOrderSpec()>
                        
     <shreddedProcessor()> 
-    <shreddedSource()>
-    
+
     <shreddedWriter()>
     <shreddedBuffer()>
     <shreddedCombiner()>
@@ -217,15 +218,6 @@ public interface ShreddedProcessor extends Step {
     public void close() throws IOException;
 }   
 >>     
-
-//
-// ShreddedSource interface
-//                         
-
-shreddedSource() ::= <<
-public interface ShreddedSource extends Step {
-}                                              
->>
 
 //
 // ShreddedBuffer

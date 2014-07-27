@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.tokenize;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
@@ -58,7 +59,7 @@ public abstract class Tokenizer implements Source<Document>, Processor<Document>
   /**
    * Setup for Tupleflow running.
    * @param processor The next stage for Tupleflow, to pass the Document onward.
-   * @throws IncompatibleProcessorException 
+   * @throws org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException
    */
   @Override
   public void setProcessor(Step processor) throws IncompatibleProcessorException {

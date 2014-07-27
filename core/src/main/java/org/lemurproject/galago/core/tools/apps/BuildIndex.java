@@ -76,7 +76,7 @@ public class BuildIndex extends AppFunction {
     }
 
     // Steps
-    stage.add(new InputStep("splits"))
+    stage.add(new InputStepInformation("splits"))
             .add(BuildStageTemplates.getParserStep(buildParameters)).
             add(BuildStageTemplates.getTokenizerStep(buildParameters))
             .add(BuildStageTemplates.getNumberingStep(buildParameters));
@@ -86,7 +86,7 @@ public class BuildIndex extends AppFunction {
 //      stage.add(new Step(AdditionalTextCombiner.class, p));
 //    }
 
-    MultiStep processingFork = new MultiStep();
+    MultiStepInformation processingFork = new MultiStepInformation();
 
     // these forks are always executed
     processingFork.addGroup("fieldLengths",
@@ -104,9 +104,9 @@ public class BuildIndex extends AppFunction {
     // now [optional] forks
     if (buildParameters.getBoolean("corpus")) {
       Parameters corpusParameters = buildParameters.getMap("corpusParameters").clone();
-      processingFork.addGroup("corpus").addToGroup("corpus", new Step(CorpusFolderWriter.class, corpusParameters.clone()))
+      processingFork.addGroup("corpus").addToGroup("corpus", new StepInformation(CorpusFolderWriter.class, corpusParameters.clone()))
               .addToGroup("corpus", Utility.getSorter(new KeyValuePair.KeyOrder()))
-              .addToGroup("corpus", new OutputStep("corpusKeys"));
+              .addToGroup("corpus", new OutputStepInformation("corpusKeys"));
     }
     if (buildParameters.getBoolean("nonStemmedPostings")) {
       processingFork.addGroup("postings",
@@ -134,9 +134,9 @@ public class BuildIndex extends AppFunction {
         processingFork.addGroup(name).addToGroup(name,
                 BuildStageTemplates.getStemmerStep(Parameters.instance(),
                 Class.forName(buildParameters.getMap("stemmerClass").getString(stemmer))))
-                .addToGroup(name, new Step(NumberedPostingsPositionExtractor.class))
+                .addToGroup(name, new StepInformation(NumberedPostingsPositionExtractor.class))
                 .addToGroup(name, Utility.getSorter(new NumberWordPosition.WordDocumentPositionOrder()))
-                .addToGroup(name, new OutputStep("numberedStemmedPostings-" + stemmer));
+                .addToGroup(name, new OutputStepInformation("numberedStemmedPostings-" + stemmer));
       }
     }
 
@@ -154,9 +154,9 @@ public class BuildIndex extends AppFunction {
           processingFork.addGroup(name).addToGroup(name,
                   BuildStageTemplates.getStemmerStep(Parameters.instance(),
                   Class.forName(buildParameters.getMap("stemmerClass").getString(stemmer))))
-                  .addToGroup(name, new Step(NumberedExtentPostingsExtractor.class))
+                  .addToGroup(name, new StepInformation(NumberedExtentPostingsExtractor.class))
                   .addToGroup(name, Utility.getSorter(new FieldNumberWordPosition.FieldWordDocumentPositionOrder()))
-                  .addToGroup(name, new OutputStep("numberedExtentPostings-" + stemmer));
+                  .addToGroup(name, new OutputStepInformation("numberedExtentPostings-" + stemmer));
         }
       }
     }
@@ -216,8 +216,8 @@ public class BuildIndex extends AppFunction {
 
     Stage stage = new Stage(stageName);
     stage.addInput(inputName, inputOrder);
-    stage.add(new InputStep(inputName));
-    stage.add(new Step(indexWriter, p));
+    stage.add(new InputStepInformation(inputName));
+    stage.add(new StepInformation(indexWriter, p));
 
     return stage;
   }
@@ -226,8 +226,8 @@ public class BuildIndex extends AppFunction {
     Stage stage = new Stage(name);
 
     stage.addInput(input, new KeyValuePair.KeyOrder());
-    stage.add(new InputStep(input));
-    stage.add(new Step(SplitBTreeKeyWriter.class, indexParameters));
+    stage.add(new InputStepInformation(input));
+    stage.add(new StepInformation(SplitBTreeKeyWriter.class, indexParameters));
 
     return stage;
   }

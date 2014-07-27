@@ -1,35 +1,36 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow.execution;
 
-import java.io.Serializable;
 import org.lemurproject.galago.utility.Parameters;
+
+import java.io.Serializable;
 
 /**
  *
  * @author trevor
  */
-public class Step implements Serializable {
+public class StepInformation implements Serializable {
 
   private String className;
   private Parameters parameters;
 
   // Don't see why this constructor is here - maybe for Serializable?
-  public Step() {
+  public StepInformation() {
   }
 
-  public Step(Class c) {
+  public StepInformation(Class c) {
     this(c.getName(), Parameters.instance());
   }
 
-  public Step(String className) {
+  public StepInformation(String className) {
     this(className, Parameters.instance());
   }
 
-  public Step(Class c, Parameters parameters) {
+  public StepInformation(Class c, Parameters parameters) {
     this(c.getName(), parameters);
   }
 
-  public Step(String className, Parameters parameters) {
+  public StepInformation(String className, Parameters parameters) {
     this.className = className;
     this.parameters = parameters;
   }

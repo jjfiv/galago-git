@@ -1,6 +1,7 @@
 package org.lemurproject.galago.tupleflow;
 
 import org.junit.Test;
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.utility.Parameters;
 
 import static org.junit.Assert.assertEquals;

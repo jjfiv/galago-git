@@ -15,7 +15,7 @@ import org.lemurproject.galago.tupleflow.Order;
 public class Stage implements Serializable, Cloneable {
 
   public HashMap<String, StageConnectionPoint> connections = new HashMap<String, StageConnectionPoint>();
-  public ArrayList<Step> steps = new ArrayList<Step>();
+  public ArrayList<StepInformation> steps = new ArrayList<StepInformation>();
   public String name;
 
   // Why is this here?
@@ -26,7 +26,7 @@ public class Stage implements Serializable, Cloneable {
     this.name = name;
   }
 
-  public ArrayList<Step> getSteps() {
+  public ArrayList<StepInformation> getSteps() {
     return steps;
   }
 
@@ -55,7 +55,7 @@ public class Stage implements Serializable, Cloneable {
     try {
       result = (Stage) super.clone();
       result.name = name;
-      result.steps = new ArrayList<Step>(steps);
+      result.steps = new ArrayList<StepInformation>(steps);
       result.connections = new HashMap<String, StageConnectionPoint>(connections);
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException("Didn't expect clone to not be supported in superclass", e);
@@ -87,7 +87,7 @@ public class Stage implements Serializable, Cloneable {
     return this;
   }
 
-  public Stage add(Step step) {
+  public Stage add(StepInformation step) {
     steps.add(step);
     return this;
   }

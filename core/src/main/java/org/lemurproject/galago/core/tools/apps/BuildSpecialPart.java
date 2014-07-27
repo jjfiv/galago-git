@@ -19,11 +19,11 @@ import org.lemurproject.galago.core.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentFeature;
 import org.lemurproject.galago.core.types.DocumentIndicator;
 import org.lemurproject.galago.core.types.KeyValuePair;
+import org.lemurproject.galago.tupleflow.execution.StepInformation;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Job;
 import org.lemurproject.galago.tupleflow.execution.Stage;
-import org.lemurproject.galago.tupleflow.execution.Step;
 
 /**
  * Reads a file in a standard format Writes an indicator index from the data in
@@ -54,10 +54,10 @@ public class BuildSpecialPart extends AppFunction {
     indexParams.set("indexPath", p.getString("indexPath"));
 
     Stage stage = new Stage(jobName);
-    stage.add(new Step(FileLineParser.class, parserParams));
-    stage.add(new Step(LineSplitter.class, splitterParams));
+    stage.add(new StepInformation(FileLineParser.class, parserParams));
+    stage.add(new StepInformation(LineSplitter.class, splitterParams));
     stage.add(Utility.getSorter(new KeyValuePair.KeyOrder()));
-    stage.add(new Step(NumberKeyValuePairs.class, indexParams));
+    stage.add(new StepInformation(NumberKeyValuePairs.class, indexParams));
 
     return stage;
   }
@@ -71,13 +71,13 @@ public class BuildSpecialPart extends AppFunction {
     Stage stage = getSpecialJobStage("indicatorIndexer", p);
 
     // add final steps
-    stage.add(new Step(IndicatorExtractor.class, p));
+    stage.add(new StepInformation(IndicatorExtractor.class, p));
     stage.add(Utility.getSorter(new DocumentIndicator.DocumentOrder()));
 
     Parameters writerParams = Parameters.instance();
     writerParams.set("filename", indexPath + File.separator + p.getString("partName"));
     writerParams.set("default", p.get("default", false));
-    stage.add(new Step(DocumentIndicatorWriter.class, writerParams));
+    stage.add(new StepInformation(DocumentIndicatorWriter.class, writerParams));
 
     Job job = new Job();
     job.add(stage);
@@ -93,12 +93,12 @@ public class BuildSpecialPart extends AppFunction {
     // get all defaulty steps.
     Stage stage = getSpecialJobStage("priorIndexer", p);
 
-    stage.add(new Step(PriorExtractor.class, p));
+    stage.add(new StepInformation(PriorExtractor.class, p));
     stage.add(Utility.getSorter(new DocumentFeature.DocumentOrder()));
 
     Parameters writerParams = Parameters.instance();
     writerParams.set("filename", indexPath + File.separator + p.getString("partName"));
-    stage.add(new Step(DocumentPriorWriter.class, writerParams));
+    stage.add(new StepInformation(DocumentPriorWriter.class, writerParams));
 
     Job job = new Job();
     job.add(stage);

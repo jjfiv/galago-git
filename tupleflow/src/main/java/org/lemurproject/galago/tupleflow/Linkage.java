@@ -1,6 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow;
 
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
+import org.lemurproject.galago.tupleflow.protocol.ShreddedSource;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -57,7 +60,7 @@ public class Linkage {
                 }
               }
             }
-          } else if ((typeName = Utility.strip(interfaceName, "$ShreddedSource")) != null) {
+          } else if (ShreddedSource.class.isAssignableFrom(sourceInterfaceClass) || (typeName = Utility.strip(interfaceName, "$ShreddedSource")) != null) {
             Constructor[] constructors = Class.forName(typeName + "$TupleUnshredder").
                     getConstructors();
 

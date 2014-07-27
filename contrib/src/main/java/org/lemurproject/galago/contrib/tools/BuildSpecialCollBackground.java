@@ -36,7 +36,7 @@ public class BuildSpecialCollBackground extends AppFunction {
     stage.addInput(inputName, new DocumentSplit.FileIdOrder());
     stage.addOutput(outputName, new WordCount.WordOrder());
 
-    stage.add(new InputStep(inputName));
+    stage.add(new InputStepInformation(inputName));
 
     Parameters parseParams = Parameters.instance();
     parseParams.set("delim", p.get("delim", "\t"));
@@ -46,18 +46,18 @@ public class BuildSpecialCollBackground extends AppFunction {
     parseParams.getMap("replacements").set("_","~");
     parseParams.getMap("replacements").set(" ","~");
     
-    stage.add(new Step(ParseWordCountString.class, parseParams));
-    stage.add(new Step(WordCountCleaner.class, parseParams));
+    stage.add(new StepInformation(ParseWordCountString.class, parseParams));
+    stage.add(new StepInformation(WordCountCleaner.class, parseParams));
     
     if (p.containsKey("stemmer")) {
       Parameters stemParams = Parameters.instance();
       stemParams.set("stemmer", p.getString("stemmerClass"));
-      stage.add(new Step(WordCountStemmer.class, stemParams));
+      stage.add(new StepInformation(WordCountStemmer.class, stemParams));
     }
 
     stage.add(Utility.getSorter(new WordCount.WordOrder()));
-    stage.add(new Step(WordCountReducer.class));
-    stage.add(new OutputStep(outputName));
+    stage.add(new StepInformation(WordCountReducer.class));
+    stage.add(new OutputStepInformation(outputName));
 
     return stage;
   }
@@ -67,9 +67,9 @@ public class BuildSpecialCollBackground extends AppFunction {
 
     stage.addInput(inputName, new WordCount.WordOrder());
 
-    stage.add(new InputStep(inputName));
-    stage.add(new Step(WordCountReducer.class));
-    stage.add(new Step(BackgroundStatsWriter.class, writerParameters));
+    stage.add(new InputStepInformation(inputName));
+    stage.add(new StepInformation(WordCountReducer.class));
+    stage.add(new StepInformation(BackgroundStatsWriter.class, writerParameters));
 
     return stage;
   }

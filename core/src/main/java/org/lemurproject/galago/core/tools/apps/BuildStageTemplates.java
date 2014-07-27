@@ -39,8 +39,8 @@ public class BuildStageTemplates {
     stage.add(new StageConnectionPoint(ConnectionPointType.Input,
             inputPipeName, dataOrder));
     p.set("filename", destination.getCanonicalPath());
-    stage.add(new InputStep(inputPipeName));
-    stage.add(new Step(writer, p));
+    stage.add(new InputStepInformation(inputPipeName));
+    stage.add(new StepInformation(writer, p));
     return stage;
   }
 
@@ -53,24 +53,24 @@ public class BuildStageTemplates {
             inputs[i], orders[i]));
     }
     p.set("filename", destination.getCanonicalPath());
-    stage.add(new InputStep(inputs[0]));
-    stage.add(new Step(writer, p));
+    stage.add(new InputStepInformation(inputs[0]));
+    stage.add(new StepInformation(writer, p));
     return stage;
   }
 
-  public static ArrayList<Step> getExtractionSteps(String outputName, Class extractionClass, Order sortOrder) {
-    ArrayList<Step> steps = new ArrayList<Step>();
-    steps.add(new Step(extractionClass));
+  public static ArrayList<StepInformation> getExtractionSteps(String outputName, Class extractionClass, Order sortOrder) {
+    ArrayList<StepInformation> steps = new ArrayList<StepInformation>();
+    steps.add(new StepInformation(extractionClass));
     steps.add(Utility.getSorter(sortOrder));
-    steps.add(new OutputStep(outputName));
+    steps.add(new OutputStepInformation(outputName));
     return steps;
   }
 
-  public static ArrayList<Step> getExtractionSteps(String outputName, Class extractionClass, Parameters p, Order sortOrder) {
-    ArrayList<Step> steps = new ArrayList<Step>();
-    steps.add(new Step(extractionClass, p));
+  public static ArrayList<StepInformation> getExtractionSteps(String outputName, Class extractionClass, Parameters p, Order sortOrder) {
+    ArrayList<StepInformation> steps = new ArrayList<StepInformation>();
+    steps.add(new StepInformation(extractionClass, p));
     steps.add(Utility.getSorter(sortOrder));
-    steps.add(new OutputStep(outputName));
+    steps.add(new OutputStepInformation(outputName));
     return steps;
   }
 
@@ -160,43 +160,43 @@ public class BuildStageTemplates {
     p.set("filename", inputFiles);
     p.set("directory", inputDirectories);
 
-    stage.add(new Step(sourceClass, p));
+    stage.add(new StepInformation(sourceClass, p));
     stage.add(Utility.getSorter(order));
-    stage.add(new OutputStep("splits"));
+    stage.add(new OutputStepInformation("splits"));
     return stage;
   }
 
-  public static Step getNumberingStep(Parameters p) {
+  public static StepInformation getNumberingStep(Parameters p) {
       return getNumberingStep(p, DocumentNumberer.class);
   }
 
-  public static Step getNumberingStep(Parameters p, Class defaultClass) {
+  public static StepInformation getNumberingStep(Parameters p, Class defaultClass) {
     return getGenericStep("numberer", p, defaultClass);
   }
 
-  public static Step getParserStep(Parameters p) {
+  public static StepInformation getParserStep(Parameters p) {
     return getParserStep(p, UniversalParser.class);
   }
 
-  public static Step getParserStep(Parameters p, Class defaultClass) {
+  public static StepInformation getParserStep(Parameters p, Class defaultClass) {
     return getGenericStep("parser", p, defaultClass);
   }
 
-  public static Step getStemmerStep(Parameters p, Class defaultClass) {
+  public static StepInformation getStemmerStep(Parameters p, Class defaultClass) {
     return getGenericStep("stemmer", p, defaultClass);
   }
 
-  public static Step getTokenizerStep(Parameters p) {
+  public static StepInformation getTokenizerStep(Parameters p) {
     return getTokenizerStep(p, Tokenizer.getTokenizerClass(p));
   }
 
-  public static Step getTokenizerStep(Parameters p, Class defaultClass) {
+  public static StepInformation getTokenizerStep(Parameters p, Class defaultClass) {
     return getGenericStep("tokenizer", p, defaultClass);
   }
 
-  public static Step getGenericStep(String stepname, Parameters p, Class defaultClass) {
+  public static StepInformation getGenericStep(String stepname, Parameters p, Class defaultClass) {
     if (p == null || !p.isMap(stepname)) {
-      return new Step(defaultClass);
+      return new StepInformation(defaultClass);
     }
 
     Parameters stepParams = p.getMap(stepname);
@@ -217,6 +217,6 @@ public class BuildStageTemplates {
     // (this parameterizes defaults as well)
 
     // Return stepParams encapsulating the class and params
-    return new Step(stepClass, stepParams);
+    return new StepInformation(stepClass, stepParams);
   }
 }

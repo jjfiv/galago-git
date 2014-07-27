@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.util.DocumentSplitFactory;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.*;

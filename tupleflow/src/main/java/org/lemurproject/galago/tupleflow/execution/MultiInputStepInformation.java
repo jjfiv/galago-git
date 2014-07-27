@@ -11,11 +11,11 @@ package org.lemurproject.galago.tupleflow.execution;
  *
  * @author irmarc
  */
-public class MultiInputStep extends Step {
+public class MultiInputStepInformation extends StepInformation {
 
   String[] ids;
 
-  public MultiInputStep(String... inputs) {
+  public MultiInputStepInformation(String... inputs) {
     super("MultiInput");
     this.ids = inputs;
   }

@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow;
 
-import org.lemurproject.galago.tupleflow.execution.Step;
+import org.lemurproject.galago.tupleflow.execution.StepInformation;
 import org.lemurproject.galago.utility.*;
 import org.lemurproject.galago.utility.compression.VByte;
 
@@ -30,15 +30,15 @@ public class Utility {
    * @param sortOrder An order object representing how and what to sort.
    * @return a Step object that can be added to a TupleFlow Stage.
    */
-  public static Step getSorter(Order sortOrder) {
+  public static StepInformation getSorter(Order sortOrder) {
     return getSorter(sortOrder, null, CompressionType.VBYTE);
   }
 
-  public static Step getSorter(Order sortOrder, CompressionType c) {
+  public static StepInformation getSorter(Order sortOrder, CompressionType c) {
     return getSorter(sortOrder, null, c);
   }
 
-  public static Step getSorter(Order sortOrder, Class<?> reducerClass, CompressionType c) {
+  public static StepInformation getSorter(Order sortOrder, Class<?> reducerClass, CompressionType c) {
     org.lemurproject.galago.utility.Parameters p = org.lemurproject.galago.utility.Parameters.instance();
     p.set("class", sortOrder.getOrderedClass().getName());
     p.set("order", Utility.join(sortOrder.getOrderSpec()));
@@ -59,7 +59,7 @@ public class Utility {
       }
       p.set("reducer", reducerClass.getName());
     }
-    return new Step(Sorter.class, p);
+    return new StepInformation(Sorter.class, p);
   }
 
   /**

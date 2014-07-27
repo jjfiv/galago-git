@@ -6,11 +6,11 @@ package org.lemurproject.galago.tupleflow.execution;
  * 
  * @author trevor
  */
-public class InputStep extends Step {
+public class InputStepInformation extends StepInformation {
 
   String id;
 
-  public InputStep(String id) {
+  public InputStepInformation(String id) {
     super(id);
     this.id = id;
   }

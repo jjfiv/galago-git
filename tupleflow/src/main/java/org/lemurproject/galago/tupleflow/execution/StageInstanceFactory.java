@@ -2,6 +2,7 @@
 package org.lemurproject.galago.tupleflow.execution;
 
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.execution.StageInstanceDescription.PipeInput;
 import org.lemurproject.galago.tupleflow.execution.StageInstanceDescription.PipeOutput;
 import org.lemurproject.galago.utility.Parameters;
@@ -30,7 +31,7 @@ public class StageInstanceFactory {
     Parameters params;
     StageInstanceDescription instance;
 
-    public StepParameters(Step o, StageInstanceDescription instance) {
+    public StepParameters(StepInformation o, StageInstanceDescription instance) {
       this.params = o.getParameters();
       this.instance = instance;
     }
@@ -86,22 +87,22 @@ public class StageInstanceFactory {
 
   public org.lemurproject.galago.tupleflow.Step instantiate(
           StageInstanceDescription instance,
-          List<Step> steps)
+          List<StepInformation> steps)
           throws IncompatibleProcessorException, IOException {
     org.lemurproject.galago.tupleflow.Step previous = null;
     org.lemurproject.galago.tupleflow.Step first = null;
 
-    for (Step step : steps) {
+    for (StepInformation step : steps) {
       org.lemurproject.galago.tupleflow.Step current;
 
-      if (step instanceof MultiStep) {
+      if (step instanceof MultiStepInformation) {
         current = instantiateMulti(instance, step);
-      } else if (step instanceof InputStep) {
-        current = instantiateInput(instance, (InputStep) step);
-      } else if (step instanceof MultiInputStep) {
-        current = instantiateInput(instance, (MultiInputStep) step);
-      } else if (step instanceof OutputStep) {
-        current = instantiateOutput(instance, (OutputStep) step);
+      } else if (step instanceof InputStepInformation) {
+        current = instantiateInput(instance, (InputStepInformation) step);
+      } else if (step instanceof MultiInputStepInformation) {
+        current = instantiateInput(instance, (MultiInputStepInformation) step);
+      } else if (step instanceof OutputStepInformation) {
+        current = instantiateOutput(instance, (OutputStepInformation) step);
       } else {
         current = instantiateStep(instance, step);
       }
@@ -121,7 +122,7 @@ public class StageInstanceFactory {
 
   public org.lemurproject.galago.tupleflow.Step instantiateStep(
           StageInstanceDescription instance,
-          final Step step) throws IOException {
+          final StepInformation step) throws IOException {
     org.lemurproject.galago.tupleflow.Step object;
 
     try {
@@ -158,14 +159,14 @@ public class StageInstanceFactory {
 
   public org.lemurproject.galago.tupleflow.Step instantiateInput(
           StageInstanceDescription instance,
-          InputStep step) throws IOException {
+          InputStepInformation step) throws IOException {
     PipeOutput pipeOutput = instance.getReaders().get(step.getId());
     return getTypeReaderSource(pipeOutput);
   }
 
   public org.lemurproject.galago.tupleflow.Step instantiateInput(
           StageInstanceDescription instance,
-          MultiInputStep step) throws IOException {
+          MultiInputStepInformation step) throws IOException {
     String[] ids = step.getIds();
     PipeOutput[] pipes = new PipeOutput[ids.length];
     for (int i = 0; i < ids.length; i++) {
@@ -176,15 +177,15 @@ public class StageInstanceFactory {
 
   public org.lemurproject.galago.tupleflow.Step instantiateOutput(
           StageInstanceDescription instance,
-          final OutputStep step) throws IOException {
+          final OutputStepInformation step) throws IOException {
     PipeInput pipeInput = instance.getWriters().get(step.getId());
     return getTypeWriter(pipeInput);
   }
 
   private org.lemurproject.galago.tupleflow.Step instantiateMulti(
           StageInstanceDescription instance,
-          final Step step) throws IncompatibleProcessorException, IOException {
-    MultiStep multiStep = (MultiStep) step;
+          final StepInformation step) throws IncompatibleProcessorException, IOException {
+    MultiStepInformation multiStep = (MultiStepInformation) step;
     Processor[] processors = new Processor[multiStep.size()];
 
     int i = 0;

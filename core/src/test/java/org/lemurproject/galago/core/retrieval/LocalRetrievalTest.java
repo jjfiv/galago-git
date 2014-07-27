@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.core.types.DocumentNameId;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;

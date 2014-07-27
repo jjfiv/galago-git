@@ -136,28 +136,28 @@ public class HarvestLinksFn extends AppFunction {
     stage.addOutput("links", new ExtractedLinkIndri.DestUrlOrder(), CompressionType.GZIP);
 
     // parse and tokenize documents
-    stage.add(new InputStep("splits")).add(BuildStageTemplates.getParserStep(p));
+    stage.add(new InputStepInformation("splits")).add(BuildStageTemplates.getParserStep(p));
     stage.add(BuildStageTemplates.getTokenizerStep(p));
 
-    MultiStep processingFork = new MultiStep();
+    MultiStepInformation processingFork = new MultiStepInformation();
     processingFork.addGroup("urls");
     processingFork.addGroup("lns");
     stage.add(processingFork);
 
-    processingFork.addToGroup("urls", new Step(UrlExtractor.class));
+    processingFork.addToGroup("urls", new StepInformation(UrlExtractor.class));
     processingFork.addToGroup("urls", Utility.getSorter(new DocumentUrl.UrlOrder(), CompressionType.GZIP));
-    processingFork.addToGroup("urls", new OutputStep("docUrls"));
+    processingFork.addToGroup("urls", new OutputStepInformation("docUrls"));
 
-    processingFork.addToGroup("lns", new Step(LinkExtractor.class, p));
+    processingFork.addToGroup("lns", new StepInformation(LinkExtractor.class, p));
     processingFork.addToGroup("lns", Utility.getSorter(new ExtractedLinkIndri.DestUrlOrder(), CompressionType.GZIP));
-    processingFork.addToGroup("lns", new OutputStep("links"));
+    processingFork.addToGroup("lns", new OutputStepInformation("links"));
 
     if (p.getBoolean("galago")) {
       stage.addOutput("docNames", new DocumentUrl.IdentifierOrder());
       processingFork.addGroup("names");
-      processingFork.addToGroup("names", new Step(UrlExtractor.class));
+      processingFork.addToGroup("names", new StepInformation(UrlExtractor.class));
       processingFork.addToGroup("names", Utility.getSorter(new DocumentUrl.IdentifierOrder(), CompressionType.GZIP));
-      processingFork.addToGroup("names", new OutputStep("docNames"));
+      processingFork.addToGroup("names", new OutputStepInformation("docNames"));
     }
 
     return stage;
@@ -169,35 +169,35 @@ public class HarvestLinksFn extends AppFunction {
     stage.addInput("docUrls", new DocumentUrl.UrlOrder());
     stage.addInput("links", new ExtractedLinkIndri.DestUrlOrder());
 
-    stage.add(new InputStep("links"));
+    stage.add(new InputStepInformation("links"));
     Parameters namerParams = Parameters.instance();
     namerParams.set("destNameStream", "docUrls");
     namerParams.set("acceptExternalUrls", p.get("acceptExternalUrls", false));
-    stage.add(new Step(LinkDestNamer.class, namerParams));
+    stage.add(new StepInformation(LinkDestNamer.class, namerParams));
 
     // need several copies of the output - each in a different order
-    MultiStep processingFork = new MultiStep();
+    MultiStepInformation processingFork = new MultiStepInformation();
     stage.add(processingFork);
 
     if (p.getBoolean("indri")) {
       stage.addOutput("indriNamedLinks", new ExtractedLinkIndri.FilePathFileLocationOrder(), CompressionType.GZIP);
       processingFork.addGroup("indri");
       processingFork.addToGroup("indri", Utility.getSorter(new ExtractedLinkIndri.FilePathFileLocationOrder(), CompressionType.GZIP));
-      processingFork.addToGroup("indri", new OutputStep("indriNamedLinks"));
+      processingFork.addToGroup("indri", new OutputStepInformation("indriNamedLinks"));
     }
 
     if (p.getBoolean("galago")) {
       stage.addOutput("srcLinks", new ExtractedLink.SrcNameOrder(), CompressionType.GZIP);
       processingFork.addGroup("srcLns");
-      processingFork.addToGroup("srcLns", new Step(ELItoEL.class));
+      processingFork.addToGroup("srcLns", new StepInformation(ELItoEL.class));
       processingFork.addToGroup("srcLns", Utility.getSorter(new ExtractedLink.SrcNameOrder(), CompressionType.GZIP));
-      processingFork.addToGroup("srcLns", new OutputStep("srcLinks"));
+      processingFork.addToGroup("srcLns", new OutputStepInformation("srcLinks"));
 
       stage.addOutput("destLinks", new ExtractedLink.DestNameOrder(), CompressionType.GZIP);
       processingFork.addGroup("destLns");
-      processingFork.addToGroup("destLns", new Step(ELItoEL.class));
+      processingFork.addToGroup("destLns", new StepInformation(ELItoEL.class));
       processingFork.addToGroup("destLns", Utility.getSorter(new ExtractedLink.DestNameOrder(), CompressionType.GZIP));
-      processingFork.addToGroup("destLns", new OutputStep("destLinks"));
+      processingFork.addToGroup("destLns", new OutputStepInformation("destLinks"));
 
       //.addGroup("srcName");
       // processingFork.addToGroup("srcName", Utility.getSorter(new ExtractedLink.FilePathFileLocationOrder()));
@@ -216,8 +216,8 @@ public class HarvestLinksFn extends AppFunction {
     writerParams.set("filePrefix", p.getString("filePrefix"));
     writerParams.set("prefixReplacement", p.getString("prefixReplacement"));
 
-    stage.add(new InputStep("indriNamedLinks"));
-    stage.add(new Step(IndriHavestLinksWriter.class, writerParams));
+    stage.add(new InputStepInformation("indriNamedLinks"));
+    stage.add(new StepInformation(IndriHavestLinksWriter.class, writerParams));
 
     return stage;
   }
@@ -240,8 +240,8 @@ public class HarvestLinksFn extends AppFunction {
     writerParams.set("inputClass", type.getName());
     writerParams.set("compression", "GZIP");
 
-    stage.add(new InputStep(streamName));
-    stage.add(new Step(DataStreamWriter.class, writerParams));
+    stage.add(new InputStepInformation(streamName));
+    stage.add(new StepInformation(DataStreamWriter.class, writerParams));
 
     return stage;
   }

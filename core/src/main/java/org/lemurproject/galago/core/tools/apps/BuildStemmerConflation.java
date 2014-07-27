@@ -89,17 +89,17 @@ public class BuildStemmerConflation extends AppFunction {
     stage.addOutput("conflations", new KeyValuePair.KeyValueOrder());
 
     // Steps
-    stage.add(new InputStep("splits"));
+    stage.add(new InputStepInformation("splits"));
     stage.add(BuildStageTemplates.getParserStep(p));
     stage.add(BuildStageTemplates.getTokenizerStep(p));
 
     Parameters conflationParams = Parameters.instance();
     conflationParams.set("stemmerClass", getStemmerClass(p.getString("stemmer")));
 
-    stage.add(new Step(ConflationExtractor.class, conflationParams));
+    stage.add(new StepInformation(ConflationExtractor.class, conflationParams));
     stage.add(Utility.getSorter(new KeyValuePair.KeyValueOrder()));
-    stage.add(new Step(ConflationReducer.class));
-    stage.add(new OutputStep("conflations"));
+    stage.add(new StepInformation(ConflationReducer.class));
+    stage.add(new OutputStepInformation("conflations"));
 
     return stage;
   }
@@ -108,14 +108,14 @@ public class BuildStemmerConflation extends AppFunction {
     Stage stage = new Stage("writerStage");
 
     stage.addInput("conflations", new KeyValuePair.KeyValueOrder());
-    stage.add(new InputStep("conflations"));
+    stage.add(new InputStepInformation("conflations"));
 
     // repeat the discard step - over the newly combined data
-    stage.add(new Step(ConflationReducer.class));
+    stage.add(new StepInformation(ConflationReducer.class));
 
     Parameters writerParams = Parameters.instance();
     writerParams.set("filename", output.getAbsolutePath());
-    stage.add(new Step(ConflationIndexWriter.class, writerParams));
+    stage.add(new StepInformation(ConflationIndexWriter.class, writerParams));
 
     return stage;
   }

@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.parse;
 import org.junit.Test;
 import org.lemurproject.galago.core.types.WordCount;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 

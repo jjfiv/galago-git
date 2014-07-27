@@ -14,7 +14,7 @@ import org.lemurproject.galago.core.index.DiskSpillCompressedByteBuffer;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import org.lemurproject.galago.core.types.NumberWordCount;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Step;

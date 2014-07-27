@@ -5,6 +5,7 @@ package org.lemurproject.galago.tupleflow.execution;
 
 import org.junit.Test;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.types.TupleflowString;
 import org.lemurproject.galago.utility.Parameters;
 
@@ -84,14 +85,14 @@ public class ConnectionTest {
     Stage one = new Stage("one");
     one.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-1-2", new TupleflowString.ValueOrder()));
-    one.add(new Step(Generator.class, Parameters.parseString("{\"name\":\"one\", \"conn\":[\"conn-1-2\"]}")));
+    one.add(new StepInformation(Generator.class, Parameters.parseString("{\"name\":\"one\", \"conn\":[\"conn-1-2\"]}")));
     job.add(one);
 
     Stage two = new Stage("two");
     two.add(new StageConnectionPoint(ConnectionPointType.Input,
             "conn-1-2", new TupleflowString.ValueOrder()));
     // should recieve 10 items from one
-    two.add(new Step(Receiver.class, Parameters.parseString("{\"expectedCount\":10, \"connIn\" : [\"conn-1-2\"]}")));
+    two.add(new StepInformation(Receiver.class, Parameters.parseString("{\"expectedCount\":10, \"connIn\" : [\"conn-1-2\"]}")));
     job.add(two);
 
     job.connect("one", "two", ConnectionAssignmentType.Combined);
@@ -112,7 +113,7 @@ public class ConnectionTest {
     Stage one = new Stage("one");
     one.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-1-2", new TupleflowString.ValueOrder()));
-    one.add(new Step(NullSource.class));
+    one.add(new StepInformation(NullSource.class));
     job.add(one);
 
     Stage two = new Stage("two");
@@ -120,14 +121,14 @@ public class ConnectionTest {
             "conn-1-2", new TupleflowString.ValueOrder()));
     two.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-2-3", new TupleflowString.ValueOrder()));
-    two.add(new Step(Generator.class, Parameters.parseString("{\"name\":\"two\", \"conn\":[\"conn-2-3\"]}")));
+    two.add(new StepInformation(Generator.class, Parameters.parseString("{\"name\":\"two\", \"conn\":[\"conn-2-3\"]}")));
     job.add(two);
 
     Stage three = new Stage("three");
     three.add(new StageConnectionPoint(ConnectionPointType.Input,
             "conn-2-3", new TupleflowString.ValueOrder()));
     // should recieve 10 items from each instance of two (20 total)
-    three.add(new Step(Receiver.class, Parameters.parseString("{\"expectedCount\":20, \"connIn\" : [\"conn-2-3\"]}")));
+    three.add(new StepInformation(Receiver.class, Parameters.parseString("{\"expectedCount\":20, \"connIn\" : [\"conn-2-3\"]}")));
     job.add(three);
 
     job.connect("one", "two", ConnectionAssignmentType.Each);
@@ -149,7 +150,7 @@ public class ConnectionTest {
     Stage one = new Stage("one");
     one.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-1-2", new TupleflowString.ValueOrder()));
-    one.add(new Step(NullSource.class));
+    one.add(new StepInformation(NullSource.class));
     job.add(one);
 
     Stage two = new Stage("two");
@@ -157,7 +158,7 @@ public class ConnectionTest {
             "conn-1-2", new TupleflowString.ValueOrder()));
     two.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-2-3", new TupleflowString.ValueOrder()));
-    two.add(new Step(Generator.class, Parameters.parseString("{\"name\":\"two\", \"conn\":[\"conn-2-3\"]}")));
+    two.add(new StepInformation(Generator.class, Parameters.parseString("{\"name\":\"two\", \"conn\":[\"conn-2-3\"]}")));
     job.add(two);
 
     Stage three = new Stage("three");
@@ -165,14 +166,14 @@ public class ConnectionTest {
             "conn-2-3", new TupleflowString.ValueOrder()));
     three.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-3-4", new TupleflowString.ValueOrder()));
-    three.add(new Step(PassThrough.class, Parameters.parseString("{\"name\":\"three\", \"connIn\" : [\"conn-2-3\"], \"connOut\" : [\"conn-3-4\"]}")));
+    three.add(new StepInformation(PassThrough.class, Parameters.parseString("{\"name\":\"three\", \"connIn\" : [\"conn-2-3\"], \"connOut\" : [\"conn-3-4\"]}")));
     job.add(three);
 
     Stage four = new Stage("four");
     four.add(new StageConnectionPoint(ConnectionPointType.Input,
         "conn-3-4", new TupleflowString.ValueOrder()));
     // should recieve 10 items from each instance of two - they will be passed through three
-    four.add(new Step(Receiver.class, Parameters.parseString("{\"expectedCount\":20, \"connIn\" : [\"conn-3-4\"]}")));
+    four.add(new StepInformation(Receiver.class, Parameters.parseString("{\"expectedCount\":20, \"connIn\" : [\"conn-3-4\"]}")));
     job.add(four);
 
 
@@ -199,7 +200,7 @@ public class ConnectionTest {
             "conn-1-2", new TupleflowString.ValueOrder()));
     one.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-1-3", new TupleflowString.ValueOrder()));
-    one.add(new Step(NullSource.class));
+    one.add(new StepInformation(NullSource.class));
     job.add(one);
 
     Stage two = new Stage("two");
@@ -207,7 +208,7 @@ public class ConnectionTest {
             "conn-1-2", new TupleflowString.ValueOrder()));
     two.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-2-4", new TupleflowString.ValueOrder()));
-    two.add(new Step(Generator.class, Parameters.parseString("{\"name\":\"two\", \"conn\":[\"conn-2-4\"]}")));
+    two.add(new StepInformation(Generator.class, Parameters.parseString("{\"name\":\"two\", \"conn\":[\"conn-2-4\"]}")));
     job.add(two);
 
     Stage three = new Stage("three");
@@ -215,7 +216,7 @@ public class ConnectionTest {
             "conn-1-3", new TupleflowString.ValueOrder()));
     three.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-3-4", new TupleflowString.ValueOrder()));
-    three.add(new Step(Generator.class, Parameters.parseString("{\"name\":\"three\", \"conn\":[\"conn-3-4\"]}")));
+    three.add(new StepInformation(Generator.class, Parameters.parseString("{\"name\":\"three\", \"conn\":[\"conn-3-4\"]}")));
     job.add(three);
 
     Stage four = new Stage("four");
@@ -225,7 +226,7 @@ public class ConnectionTest {
             "conn-3-4", new TupleflowString.ValueOrder()));
     four.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-4-5", new TupleflowString.ValueOrder()));
-    four.add(new Step(Merge.class, Parameters.parseString("{\"name\":\"four\", \"connIn\" : [\"conn-2-4\",\"conn-3-4\"], \"connOut\" : \"conn-4-5\"}")));
+    four.add(new StepInformation(Merge.class, Parameters.parseString("{\"name\":\"four\", \"connIn\" : [\"conn-2-4\",\"conn-3-4\"], \"connOut\" : \"conn-4-5\"}")));
     job.add(four);
 
 
@@ -235,7 +236,7 @@ public class ConnectionTest {
     // two generates 10 items - all 10 should be passed to each instance of four (20)
     // three generates 10 items - they are distributed to instances of four
     // four passes all 30 to five
-    five.add(new Step(Receiver.class, Parameters.parseString("{\"expectedCount\":30, \"connIn\" : [\"conn-4-5\"]}")));
+    five.add(new StepInformation(Receiver.class, Parameters.parseString("{\"expectedCount\":30, \"connIn\" : [\"conn-4-5\"]}")));
     job.add(five);
 
 
@@ -264,7 +265,7 @@ public class ConnectionTest {
             "conn-1-2", new TupleflowString.ValueOrder()));
     one.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-1-3", new TupleflowString.ValueOrder()));
-    one.add(new Step(NullSource.class));
+    one.add(new StepInformation(NullSource.class));
     job.add(one);
 
     Stage two = new Stage("two");
@@ -272,7 +273,7 @@ public class ConnectionTest {
             "conn-1-2", new TupleflowString.ValueOrder()));
     two.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-2-4", new TupleflowString.ValueOrder()));
-    two.add(new Step(Generator.class, Parameters.parseString("{\"name\":\"two\", \"conn\":[\"conn-2-4\"]}")));
+    two.add(new StepInformation(Generator.class, Parameters.parseString("{\"name\":\"two\", \"conn\":[\"conn-2-4\"]}")));
     job.add(two);
 
     Stage three = new Stage("three");
@@ -280,7 +281,7 @@ public class ConnectionTest {
             "conn-1-3", new TupleflowString.ValueOrder()));
     three.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-3-4", new TupleflowString.ValueOrder()));
-    three.add(new Step(Generator.class, Parameters.parseString("{\"name\":\"three\", \"conn\":[\"conn-3-4\"]}")));
+    three.add(new StepInformation(Generator.class, Parameters.parseString("{\"name\":\"three\", \"conn\":[\"conn-3-4\"]}")));
     job.add(three);
 
     Stage four = new Stage("four");
@@ -290,7 +291,7 @@ public class ConnectionTest {
             "conn-3-4", new TupleflowString.ValueOrder()));
     four.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-4-5", new TupleflowString.ValueOrder()));
-    four.add(new Step(Merge.class, Parameters.parseString("{\"name\":\"four\", \"connIn\" : [\"conn-2-4\",\"conn-3-4\"], \"connOut\" : \"conn-4-5\"}")));
+    four.add(new StepInformation(Merge.class, Parameters.parseString("{\"name\":\"four\", \"connIn\" : [\"conn-2-4\",\"conn-3-4\"], \"connOut\" : \"conn-4-5\"}")));
     job.add(four);
 
 
@@ -300,7 +301,7 @@ public class ConnectionTest {
     // two generates 10 items - all 10 should be passed to each instance of four (20)
     // three generates 10 items per instance (20) - they are distributed to instances of four
     // four passes all 40 to five
-    five.add(new Step(Receiver.class, Parameters.parseString("{\"expectedCount\":40, \"connIn\" : [\"conn-4-5\"]}")));
+    five.add(new StepInformation(Receiver.class, Parameters.parseString("{\"expectedCount\":40, \"connIn\" : [\"conn-4-5\"]}")));
     job.add(five);
 
 
@@ -329,7 +330,7 @@ public class ConnectionTest {
             "conn-1-2", new TupleflowString.ValueOrder()));
     one.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-1-3", new TupleflowString.ValueOrder()));
-    one.add(new Step(NullSource.class));
+    one.add(new StepInformation(NullSource.class));
     job.add(one);
 
     Stage two = new Stage("two");
@@ -337,7 +338,7 @@ public class ConnectionTest {
             "conn-1-2", new TupleflowString.ValueOrder()));
     two.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-2-4", new TupleflowString.ValueOrder()));
-    two.add(new Step(Generator.class, Parameters.parseString("{\"name\":\"two\", \"conn\":[\"conn-2-4\"]}")));
+    two.add(new StepInformation(Generator.class, Parameters.parseString("{\"name\":\"two\", \"conn\":[\"conn-2-4\"]}")));
     job.add(two);
 
     Stage three = new Stage("three");
@@ -345,7 +346,7 @@ public class ConnectionTest {
             "conn-1-3", new TupleflowString.ValueOrder()));
     three.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-3-4", new TupleflowString.ValueOrder()));
-    three.add(new Step(Generator.class, Parameters.parseString("{\"name\":\"three\", \"conn\":[\"conn-3-4\"]}")));
+    three.add(new StepInformation(Generator.class, Parameters.parseString("{\"name\":\"three\", \"conn\":[\"conn-3-4\"]}")));
     job.add(three);
 
     Stage four = new Stage("four");
@@ -355,7 +356,7 @@ public class ConnectionTest {
             "conn-3-4", new TupleflowString.ValueOrder()));
     four.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-4-5", new TupleflowString.ValueOrder()));
-    four.add(new Step(Merge.class, Parameters.parseString("{\"name\":\"four\", \"connIn\" : [\"conn-2-4\",\"conn-3-4\"], \"connOut\" : \"conn-4-5\"}")));
+    four.add(new StepInformation(Merge.class, Parameters.parseString("{\"name\":\"four\", \"connIn\" : [\"conn-2-4\",\"conn-3-4\"], \"connOut\" : \"conn-4-5\"}")));
     job.add(four);
 
 
@@ -365,7 +366,7 @@ public class ConnectionTest {
     // two generates 10 items per instance (20) - all 20 are duplicated for each instance of four - creating 40 total
     // three generates 10 items per instance (20) - passed through four without duplication
     // should recieve 60 total
-    five.add(new Step(Receiver.class, Parameters.parseString("{\"expectedCount\":60, \"connIn\" : [\"conn-4-5\"]}")));
+    five.add(new StepInformation(Receiver.class, Parameters.parseString("{\"expectedCount\":60, \"connIn\" : [\"conn-4-5\"]}")));
     job.add(five);
 
 
@@ -392,7 +393,7 @@ public class ConnectionTest {
     Stage one = new Stage("one");
     one.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-1-2", new TupleflowString.ValueOrder()));
-    one.add(new Step(NullSource.class));
+    one.add(new StepInformation(NullSource.class));
     job.add(one);
 
     Stage two = new Stage("two");
@@ -400,7 +401,7 @@ public class ConnectionTest {
             "conn-1-2", new TupleflowString.ValueOrder()));
     two.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-2-x", new TupleflowString.ValueOrder()));
-    two.add(new Step(Generator.class, Parameters.parseString("{\"name\":\"two\", \"conn\":[\"conn-2-x\"]}")));
+    two.add(new StepInformation(Generator.class, Parameters.parseString("{\"name\":\"two\", \"conn\":[\"conn-2-x\"]}")));
     job.add(two);
 
     Stage three = new Stage("three");
@@ -408,7 +409,7 @@ public class ConnectionTest {
             "conn-2-x", new TupleflowString.ValueOrder()));
     three.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-3-5", new TupleflowString.ValueOrder()));
-    three.add(new Step(PassThrough.class, Parameters.parseString("{\"name\":\"three\", \"connIn\" : [\"conn-2-x\"], \"connOut\" : [\"conn-3-5\"]}")));
+    three.add(new StepInformation(PassThrough.class, Parameters.parseString("{\"name\":\"three\", \"connIn\" : [\"conn-2-x\"], \"connOut\" : [\"conn-3-5\"]}")));
     job.add(three);
 
     Stage four = new Stage("four");
@@ -416,7 +417,7 @@ public class ConnectionTest {
             "conn-2-x", new TupleflowString.ValueOrder()));
     four.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-4-5", new TupleflowString.ValueOrder()));
-    four.add(new Step(PassThrough.class, Parameters.parseString("{\"name\":\"four\", \"connIn\" : [\"conn-2-x\"], \"connOut\" : [\"conn-4-5\"]}")));
+    four.add(new StepInformation(PassThrough.class, Parameters.parseString("{\"name\":\"four\", \"connIn\" : [\"conn-2-x\"], \"connOut\" : [\"conn-4-5\"]}")));
     job.add(four);
 
 
@@ -430,7 +431,7 @@ public class ConnectionTest {
     // the items are sent to four (each - 10)
     // three and four send items to five
     // should recieve 20 total
-    five.add(new Step(Receiver.class, Parameters.parseString("{\"expectedCount\":20, \"connIn\" : [\"conn-3-5\",\"conn-4-5\"]}")));
+    five.add(new StepInformation(Receiver.class, Parameters.parseString("{\"expectedCount\":20, \"connIn\" : [\"conn-3-5\",\"conn-4-5\"]}")));
     job.add(five);
 
     job.connect("one", "two", ConnectionAssignmentType.Combined);
@@ -456,7 +457,7 @@ public class ConnectionTest {
     Stage one = new Stage("one");
     one.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-1-2", new TupleflowString.ValueOrder()));
-    one.add(new Step(NullSource.class));
+    one.add(new StepInformation(NullSource.class));
     job.add(one);
 
     Stage two = new Stage("two");
@@ -464,7 +465,7 @@ public class ConnectionTest {
             "conn-1-2", new TupleflowString.ValueOrder()));
     two.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-2-x", new TupleflowString.ValueOrder()));
-    two.add(new Step(Generator.class, Parameters.parseString("{\"name\":\"two\", \"conn\":[\"conn-2-x\"]}")));
+    two.add(new StepInformation(Generator.class, Parameters.parseString("{\"name\":\"two\", \"conn\":[\"conn-2-x\"]}")));
     job.add(two);
 
     Stage three = new Stage("three");
@@ -472,7 +473,7 @@ public class ConnectionTest {
             "conn-2-x", new TupleflowString.ValueOrder()));
     three.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-3-5", new TupleflowString.ValueOrder()));
-    three.add(new Step(PassThrough.class, Parameters.parseString("{\"name\":\"three\", \"connIn\" : [\"conn-2-x\"], \"connOut\" : [\"conn-3-5\"]}")));
+    three.add(new StepInformation(PassThrough.class, Parameters.parseString("{\"name\":\"three\", \"connIn\" : [\"conn-2-x\"], \"connOut\" : [\"conn-3-5\"]}")));
     job.add(three);
 
     Stage four = new Stage("four");
@@ -480,7 +481,7 @@ public class ConnectionTest {
             "conn-2-x", new TupleflowString.ValueOrder()));
     four.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-4-5", new TupleflowString.ValueOrder()));
-    four.add(new Step(PassThrough.class, Parameters.parseString("{\"name\":\"four\", \"connIn\" : [\"conn-2-x\"], \"connOut\" : [\"conn-4-5\"]}")));
+    four.add(new StepInformation(PassThrough.class, Parameters.parseString("{\"name\":\"four\", \"connIn\" : [\"conn-2-x\"], \"connOut\" : [\"conn-4-5\"]}")));
     job.add(four);
 
 
@@ -494,7 +495,7 @@ public class ConnectionTest {
     // the items are sent to four (each - 20)
     // three and four send their items to five
     // should recieve 40 total
-    five.add(new Step(Receiver.class, Parameters.parseString("{\"expectedCount\":40, \"connIn\" : [\"conn-3-5\",\"conn-4-5\"]}")));
+    five.add(new StepInformation(Receiver.class, Parameters.parseString("{\"expectedCount\":40, \"connIn\" : [\"conn-3-5\",\"conn-4-5\"]}")));
     job.add(five);
 
     job.connect("one", "two", ConnectionAssignmentType.Each);
@@ -519,13 +520,13 @@ public class ConnectionTest {
 
     Stage one = new Stage("one");
     one.addOutput("conn-1-2", new TupleflowString.ValueOrder(), CompressionType.GZIP);
-    one.add(new Step(Generator.class, Parameters.parseString("{\"name\":\"one\", \"conn\":[\"conn-1-2\"]}")));
+    one.add(new StepInformation(Generator.class, Parameters.parseString("{\"name\":\"one\", \"conn\":[\"conn-1-2\"]}")));
     job.add(one);
 
     Stage two = new Stage("two");
     two.addInput("conn-1-2", new TupleflowString.ValueOrder());
     // should recieve 10 items from one
-    two.add(new Step(Receiver.class, Parameters.parseString("{\"expectedCount\":10, \"connIn\" : [\"conn-1-2\"]}")));
+    two.add(new StepInformation(Receiver.class, Parameters.parseString("{\"expectedCount\":10, \"connIn\" : [\"conn-1-2\"]}")));
     job.add(two);
 
     job.connect("one", "two", ConnectionAssignmentType.Combined);
@@ -546,19 +547,19 @@ public class ConnectionTest {
     Stage one = new Stage("one");
 
     one.addOutput("conn-1-2", new TupleflowString.ValueOrder(), CompressionType.GZIP);
-    one.add(new Step(NullSource.class));
+    one.add(new StepInformation(NullSource.class));
     job.add(one);
 
     Stage two = new Stage("two");
     two.addInput("conn-1-2", new TupleflowString.ValueOrder());
     two.addOutput("conn-2-3", new TupleflowString.ValueOrder(), CompressionType.GZIP);
-    two.add(new Step(Generator.class, Parameters.parseString("{\"name\":\"two\", \"conn\":[\"conn-2-3\"]}")));
+    two.add(new StepInformation(Generator.class, Parameters.parseString("{\"name\":\"two\", \"conn\":[\"conn-2-3\"]}")));
     job.add(two);
 
     Stage three = new Stage("three");
     three.addInput("conn-2-3", new TupleflowString.ValueOrder());
     // should recieve 10 items from each instance of two (20 total)
-    three.add(new Step(Receiver.class, Parameters.parseString("{\"expectedCount\":20, \"connIn\" : [\"conn-2-3\"]}")));
+    three.add(new StepInformation(Receiver.class, Parameters.parseString("{\"expectedCount\":20, \"connIn\" : [\"conn-2-3\"]}")));
     job.add(three);
 
     job.connect("one", "two", ConnectionAssignmentType.Each);

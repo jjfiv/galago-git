@@ -2,6 +2,8 @@
 
 package org.lemurproject.galago.tupleflow;
 
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
+
 import java.io.IOException;
 
 /**

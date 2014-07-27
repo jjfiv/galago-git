@@ -28,16 +28,10 @@ import org.lemurproject.galago.core.window.WindowFilter;
 import org.lemurproject.galago.core.window.WindowProducer;
 import org.lemurproject.galago.core.window.WindowToNumberWordCount;
 import org.lemurproject.galago.core.window.WindowToNumberedExtent;
+import org.lemurproject.galago.tupleflow.execution.*;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
-import org.lemurproject.galago.tupleflow.execution.ConnectionPointType;
-import org.lemurproject.galago.tupleflow.execution.InputStep;
-import org.lemurproject.galago.tupleflow.execution.Job;
-import org.lemurproject.galago.tupleflow.execution.OutputStep;
-import org.lemurproject.galago.tupleflow.execution.Stage;
-import org.lemurproject.galago.tupleflow.execution.StageConnectionPoint;
-import org.lemurproject.galago.tupleflow.execution.Step;
+import org.lemurproject.galago.tupleflow.execution.StepInformation;
 
 /**
  *
@@ -78,7 +72,7 @@ public class BuildWindowIndex extends AppFunction {
             ConnectionPointType.Output,
             "featureData", new TextFeature.FeatureOrder()));
 
-    stage.add(new InputStep("splits"));
+    stage.add(new InputStepInformation("splits"));
     stage.add(BuildStageTemplates.getParserStep(buildParameters));
     stage.add(BuildStageTemplates.getTokenizerStep(buildParameters));
 
@@ -89,7 +83,7 @@ public class BuildWindowIndex extends AppFunction {
     // Document numbers don't really matter - they are dropped by the Featurer.
     Parameters p = Parameters.instance();
     p.set("indexPath", indexPath);
-    stage.add(new Step(ExtractIndexDocumentNumbers.class, p));
+    stage.add(new StepInformation(ExtractIndexDocumentNumbers.class, p));
 
     Parameters p2 = Parameters.instance();
     p2.set("n", n);
@@ -98,11 +92,11 @@ public class BuildWindowIndex extends AppFunction {
     if (buildParameters.isString("fields") || buildParameters.isList("fields", String.class)) {
       p2.set("fields", (List<String>) buildParameters.getAsList("fields"));
     }
-    stage.add(new Step(WindowProducer.class, p2));
+    stage.add(new StepInformation(WindowProducer.class, p2));
 
-    stage.add(new Step(WindowFeaturer.class));
+    stage.add(new StepInformation(WindowFeaturer.class));
     stage.add(Utility.getSorter(new TextFeature.FeatureOrder()));
-    stage.add(new OutputStep("featureData"));
+    stage.add(new OutputStepInformation("featureData"));
 
     return stage;
   }
@@ -116,18 +110,18 @@ public class BuildWindowIndex extends AppFunction {
             ConnectionPointType.Output,
             "filterData", new TextFeature.FileFilePositionOrder()));
 
-    stage.add(new InputStep("featureData"));
+    stage.add(new InputStepInformation("featureData"));
 
     Parameters p = Parameters.instance();
     p.set("threshold", threshold);
-    stage.add(new Step(TextFeatureThresholder.class, p));
+    stage.add(new StepInformation(TextFeatureThresholder.class, p));
 
     stage.add(Utility.getSorter(new TextFeature.FileFilePositionOrder()));
 
     // discards feature data - leaving only locations (data = byte[0]).
-    stage.add(new Step(ExtractLocations.class));
+    stage.add(new StepInformation(ExtractLocations.class));
 
-    stage.add(new OutputStep("filterData"));
+    stage.add(new OutputStepInformation("filterData"));
 
     return stage;
   }
@@ -156,7 +150,7 @@ public class BuildWindowIndex extends AppFunction {
               "filterData", new TextFeature.FileFilePositionOrder()));
     }
 
-    stage.add(new InputStep("splits"));
+    stage.add(new InputStepInformation("splits"));
     stage.add(BuildStageTemplates.getParserStep(buildParameters));
     stage.add(BuildStageTemplates.getTokenizerStep(buildParameters));
     if (stemming) {
@@ -166,7 +160,7 @@ public class BuildWindowIndex extends AppFunction {
 
     Parameters p = Parameters.instance();
     p.set("indexPath", indexPath);
-    stage.add(new Step(ExtractIndexDocumentNumbers.class, p));
+    stage.add(new StepInformation(ExtractIndexDocumentNumbers.class, p));
 
     Parameters p2 = Parameters.instance();
     p2.set("n", n);
@@ -175,24 +169,24 @@ public class BuildWindowIndex extends AppFunction {
     if (buildParameters.isString("fields") || buildParameters.isList("fields", String.class)) {
       p2.set("fields", (List<String>) buildParameters.getAsList("fields"));
     }
-    stage.add(new Step(WindowProducer.class, p2));
+    stage.add(new StepInformation(WindowProducer.class, p2));
 
     if (spaceEfficient) {
       Parameters p3 = Parameters.instance();
       p3.set("filterStream", "filterData");
-      stage.add(new Step(WindowFilter.class, p3));
+      stage.add(new StepInformation(WindowFilter.class, p3));
     }
 
     if (this.positionalIndex) {
-      stage.add(new Step(WindowToNumberedExtent.class));
+      stage.add(new StepInformation(WindowToNumberedExtent.class));
       stage.add(Utility.getSorter(new NumberedExtent.ExtentNameNumberBeginOrder()));
     } else {
-      stage.add(new Step(WindowToNumberWordCount.class));
+      stage.add(new StepInformation(WindowToNumberWordCount.class));
       stage.add(Utility.getSorter(new NumberWordCount.WordDocumentOrder()));
-      stage.add(new Step(ReduceNumberWordCount.class));
+      stage.add(new StepInformation(ReduceNumberWordCount.class));
     }
 
-    stage.add(new OutputStep("windows"));
+    stage.add(new OutputStepInformation("windows"));
     return stage;
   }
 
@@ -210,17 +204,17 @@ public class BuildWindowIndex extends AppFunction {
 
     }
 
-    stage.add(new InputStep(inputName));
+    stage.add(new InputStepInformation(inputName));
 
     Parameters p = Parameters.instance();
     p.set("threshold", threshold);
     p.set("threshdf", threshdf);
     if (threshold > 1) {
       if (positionalIndex) {
-        stage.add(new Step(NumberedExtentThresholder.class, p));
+        stage.add(new StepInformation(NumberedExtentThresholder.class, p));
       } else {
-        stage.add(new Step(ReduceNumberWordCount.class));
-        stage.add(new Step(NumberWordCountThresholder.class, p));
+        stage.add(new StepInformation(ReduceNumberWordCount.class));
+        stage.add(new StepInformation(NumberWordCountThresholder.class, p));
       }
     }
 
@@ -237,9 +231,9 @@ public class BuildWindowIndex extends AppFunction {
     }
 
     if (this.positionalIndex) {
-      stage.add(new Step(WindowIndexWriter.class, p2));
+      stage.add(new StepInformation(WindowIndexWriter.class, p2));
     } else {
-      stage.add(new Step(CountIndexWriter.class, p2));
+      stage.add(new StepInformation(CountIndexWriter.class, p2));
     }
     return stage;
   }

@@ -7,6 +7,7 @@ package org.lemurproject.galago.core.index.merge;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.util.DocumentSplitFactory;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 
 import java.io.IOException;

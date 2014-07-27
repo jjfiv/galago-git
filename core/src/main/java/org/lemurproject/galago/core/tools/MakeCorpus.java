@@ -17,14 +17,10 @@ import org.lemurproject.galago.core.index.corpus.KeyValuePairToDocument;
 import org.lemurproject.galago.core.parse.DocumentNumberer;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
+import org.lemurproject.galago.tupleflow.execution.*;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.ConnectionAssignmentType;
-import org.lemurproject.galago.tupleflow.execution.InputStep;
-import org.lemurproject.galago.tupleflow.execution.Job;
-import org.lemurproject.galago.tupleflow.execution.OutputStep;
-import org.lemurproject.galago.tupleflow.execution.Stage;
-import org.lemurproject.galago.tupleflow.execution.Step;
+import org.lemurproject.galago.tupleflow.execution.StepInformation;
 
 /*
  * @author sjh
@@ -59,14 +55,14 @@ public class MakeCorpus extends AppFunction {
       p.set("directory", inputDirectories);
     }
 
-    stage.add(new Step(DocumentSource.class, p));
+    stage.add(new StepInformation(DocumentSource.class, p));
     stage.add(BuildStageTemplates.getParserStep(corpusParameters));
     stage.add(BuildStageTemplates.getTokenizerStep(corpusParameters));
-    stage.add(new Step(DocumentNumberer.class));
+    stage.add(new StepInformation(DocumentNumberer.class));
 
-    stage.add(new Step(DocumentToKeyValuePair.class));
+    stage.add(new StepInformation(DocumentToKeyValuePair.class));
     stage.add(Utility.getSorter(new KeyValuePair.KeyOrder()));
-    stage.add(new Step(KeyValuePairToDocument.class));
+    stage.add(new StepInformation(KeyValuePairToDocument.class));
     p = Parameters.instance();
     p.set("filename", outputCorpus);
     if (corpusParameters.isLong("corpusBlockSize")) {
@@ -75,7 +71,7 @@ public class MakeCorpus extends AppFunction {
     if (p.isMap("corpusParameters")) {
       p.copyFrom(corpusParameters.getMap("corpusParameters"));
     }
-    stage.add(new Step(CorpusFileWriter.class, p));
+    stage.add(new StepInformation(CorpusFileWriter.class, p));
 
     job.add(stage);
     return job;
@@ -85,13 +81,13 @@ public class MakeCorpus extends AppFunction {
     Stage stage = new Stage("parserWriter");
     stage.addInput("splits", new DocumentSplit.FileIdOrder());
     stage.addOutput("indexData", new KeyValuePair.KeyOrder());
-    stage.add(new InputStep("splits"));
+    stage.add(new InputStepInformation("splits"));
     stage.add(BuildStageTemplates.getParserStep(corpusParameters));
     stage.add(BuildStageTemplates.getTokenizerStep(corpusParameters));
-    stage.add(new Step(DocumentNumberer.class));
-    stage.add(new Step(CorpusFolderWriter.class, corpusWriterParameters.clone()));
+    stage.add(new StepInformation(DocumentNumberer.class));
+    stage.add(new StepInformation(CorpusFolderWriter.class, corpusWriterParameters.clone()));
     stage.add(Utility.getSorter(new KeyValuePair.KeyOrder()));
-    stage.add(new OutputStep("indexData"));
+    stage.add(new OutputStepInformation("indexData"));
     return stage;
   }
 
@@ -99,8 +95,8 @@ public class MakeCorpus extends AppFunction {
     Stage stage = new Stage("indexWriter");
 
     stage.addInput("indexData", new KeyValuePair.KeyOrder());
-    stage.add(new InputStep("indexData"));
-    stage.add(new Step(SplitBTreeKeyWriter.class, corpusWriterParameters.clone()));
+    stage.add(new InputStepInformation("indexData"));
+    stage.add(new StepInformation(SplitBTreeKeyWriter.class, corpusWriterParameters.clone()));
 
     return stage;
   }

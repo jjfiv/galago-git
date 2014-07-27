@@ -20,10 +20,10 @@ public class Verification {
 
   private static class VerificationParameters implements TupleFlowParameters {
 
-    Step step;
+    StepInformation step;
     Stage stage;
 
-    public VerificationParameters(Stage stage, Step step) {
+    public VerificationParameters(Stage stage, StepInformation step) {
       this.stage = stage;
       this.step = step;
     }
@@ -295,14 +295,14 @@ public class Verification {
     }
   }
 
-  public static void verify(TypeState state, Stage stage, List<Step> steps, ErrorStore store) {
+  public static void verify(TypeState state, Stage stage, List<StepInformation> steps, ErrorStore store) {
     for (int i = 0; i < steps.size(); i++) {
-      Step step = steps.get(i);
+      StepInformation step = steps.get(i);
       boolean isLastStep = (i == (steps.size() - 1));
 
-      if (step instanceof InputStep) {
+      if (step instanceof InputStepInformation) {
         // This step was an <input> tag
-        InputStep input = (InputStep) step;
+        InputStepInformation input = (InputStepInformation) step;
         StageConnectionPoint point = stage.connections.get(input.getId());
 
         if (point == null) {
@@ -312,10 +312,10 @@ public class Verification {
         } else {
           state.update(point.getClassName(), point.getOrder());
         }
-      } else if (step instanceof MultiInputStep) {
+      } else if (step instanceof MultiInputStepInformation) {
         // This step was a <multiinput> tag
 
-        String[] points = ((MultiInputStep) step).getIds();
+        String[] points = ((MultiInputStepInformation) step).getIds();
         String className = null;
         String[] order = null;
         StageConnectionPoint actual = stage.connections.get(points[0]);
@@ -350,9 +350,9 @@ public class Verification {
         if (!erred) {
           state.update(className, order);
         }
-      } else if (step instanceof OutputStep) {
+      } else if (step instanceof OutputStepInformation) {
         // This step was an <output> tag
-        OutputStep output = (OutputStep) step;
+        OutputStepInformation output = (OutputStepInformation) step;
         StageConnectionPoint point = stage.connections.get(output.getId());
 
         if (point == null) {
@@ -372,10 +372,10 @@ public class Verification {
         }
 
         state.setDefined(false);
-      } else if (step instanceof MultiStep) {
+      } else if (step instanceof MultiStepInformation) {
         // This is a <multi> tag.  The MultiStep object contains
         // many different object groups.
-        MultiStep multiStep = (MultiStep) step;
+        MultiStepInformation multiStep = (MultiStepInformation) step;
 
 	for (String groupName : multiStep) {
 	    verify(new TypeState(state), stage, multiStep.getGroup(groupName), store);
@@ -402,7 +402,7 @@ public class Verification {
     }
   }
 
-  private static void verifyOutputClass(TypeState state, final Class clazz, final Step step, final ErrorStore store, final VerificationParameters vp) {
+  private static void verifyOutputClass(TypeState state, final Class clazz, final StepInformation step, final ErrorStore store, final VerificationParameters vp) {
     String[] outputOrder = new String[0];
     String outputClass = "java.lang.Object";
 
@@ -477,7 +477,7 @@ public class Verification {
     }
   }
 
-  private static void verifyStepClass(final Class clazz, final Step step, final ErrorStore store, final VerificationParameters vp) {
+  private static void verifyStepClass(final Class clazz, final StepInformation step, final ErrorStore store, final VerificationParameters vp) {
     try {
       Verified verifiedAnnotation = (Verified) clazz.getAnnotation(Verified.class);
 
@@ -534,7 +534,7 @@ public class Verification {
     return null;
   }
 
-  private static void verifyInputClass(TypeState state, final Step step, final Class clazz, final VerificationParameters vp, final ErrorStore store) {
+  private static void verifyInputClass(TypeState state, final StepInformation step, final Class clazz, final VerificationParameters vp, final ErrorStore store) {
     if (!state.isDefined()) {
       return;
     }

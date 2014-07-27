@@ -125,8 +125,8 @@ public class Job implements Serializable {
             className,
             typeOrder));
 
-    s.add(new InputStep(pointName));
-    s.add(new OutputStep(mergedPointName));
+    s.add(new InputStepInformation(pointName));
+    s.add(new OutputStepInformation(mergedPointName));
     this.add(s);
 
     String[] hash = null;
@@ -468,23 +468,23 @@ public class Job implements Serializable {
     return builder.toString();
   }
 
-  private void printSteps(final StringBuilder builder, final List<Step> steps, final String tag) {
+  private void printSteps(final StringBuilder builder, final List<StepInformation> steps, final String tag) {
     builder.append(String.format("            <%s>\n", tag));
-    for (Step step : steps) {
-      if (step instanceof InputStep) {
-        InputStep input = (InputStep) step;
+    for (StepInformation step : steps) {
+      if (step instanceof InputStepInformation) {
+        InputStepInformation input = (InputStepInformation) step;
         String line = String.format("                <input id=\"%s\" />\n", input.getId());
         builder.append(line);
-      } else if (step instanceof MultiInputStep) {
-        MultiInputStep input = (MultiInputStep) step;
+      } else if (step instanceof MultiInputStepInformation) {
+        MultiInputStepInformation input = (MultiInputStepInformation) step;
         String line = String.format("                <multiinput ids=\"%s\" />\n", Utility.join(input.getIds(), ","));
         builder.append(line);
-      } else if (step instanceof OutputStep) {
-        OutputStep output = (OutputStep) step;
+      } else if (step instanceof OutputStepInformation) {
+        OutputStepInformation output = (OutputStepInformation) step;
         String line = String.format("                <output id=\"%s\" />\n", output.getId());
         builder.append(line);
-      } else if (step instanceof MultiStep) {
-        MultiStep multi = (MultiStep) step;
+      } else if (step instanceof MultiStepInformation) {
+        MultiStepInformation multi = (MultiStepInformation) step;
         builder.append("                <multi>\n");
         for (String name : multi) {
           printSteps(builder, multi.getGroup(name), "group");

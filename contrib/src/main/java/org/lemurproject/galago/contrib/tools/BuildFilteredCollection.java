@@ -95,10 +95,10 @@ public class BuildFilteredCollection extends AppFunction {
     Stage stage = new Stage("writers");
     stage.addInput("splits", new DocumentSplit.FileNameStartKeyOrder());
 
-    stage.add(new InputStep("splits"));
-    stage.add(new Step(UniversalParser.class, buildParameters));
-    stage.add(new Step(DocumentFilter.class, filterParameters));
-    stage.add(new Step(TrecWebDocumentWriter.class, outputParameters));
+    stage.add(new InputStepInformation("splits"));
+    stage.add(new StepInformation(UniversalParser.class, buildParameters));
+    stage.add(new StepInformation(DocumentFilter.class, filterParameters));
+    stage.add(new StepInformation(TrecWebDocumentWriter.class, outputParameters));
     job.add(stage);
 
     // hook it up

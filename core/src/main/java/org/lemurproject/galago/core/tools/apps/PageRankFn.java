@@ -10,8 +10,9 @@ import org.lemurproject.galago.core.types.ExtractedLink;
 import org.lemurproject.galago.core.types.PageRankJumpScore;
 import org.lemurproject.galago.core.types.PageRankScore;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.execution.*;
-import org.lemurproject.galago.tupleflow.execution.Step;
+import org.lemurproject.galago.tupleflow.execution.StepInformation;
 import org.lemurproject.galago.tupleflow.types.FileName;
 import org.lemurproject.galago.tupleflow.types.TupleflowLong;
 import org.lemurproject.galago.utility.FSUtil;
@@ -153,11 +154,11 @@ public class PageRankFn extends AppFunction {
       Stage writer = new Stage("writer");
       writer.addInput("urls", new FileName.FilenameOrder());
 
-      writer.add(new InputStep("urls"));
+      writer.add(new InputStepInformation("urls"));
       Parameters readerParams = Parameters.instance();
       readerParams.set("order", Utility.join(new DocumentUrl.IdentifierOrder().getOrderSpec()));
       readerParams.set("outputClass", DocumentUrl.class.getCanonicalName());
-      writer.add(new Step(TypeFileReader.class, readerParams));
+      writer.add(new StepInformation(TypeFileReader.class, readerParams));
 
       Parameters writerParams = Parameters.instance();
       writerParams.set("outputFile", itrZeroprefix.getAbsolutePath()); // + i
@@ -173,8 +174,8 @@ public class PageRankFn extends AppFunction {
 
       writerParams.set("docCountFolder", docCountFolder.getAbsolutePath());
 
-      writer.add(new Step(UrlToInitialPagerankScore.class, writerParams));
-      writer.add(new Step(TypeFileWriter.class, writerParams));
+      writer.add(new StepInformation(UrlToInitialPagerankScore.class, writerParams));
+      writer.add(new StepInformation(TypeFileWriter.class, writerParams));
 
       job.add(writer);
       job.connect("splitUrls", "writer", ConnectionAssignmentType.Each);
@@ -188,17 +189,17 @@ public class PageRankFn extends AppFunction {
         counterStage.addInput("urls", new FileName.FilenameOrder());
         counterStage.addOutput("docCount", new TupleflowLong.ValueOrder());
 
-        counterStage.add(new InputStep("urls"));
+        counterStage.add(new InputStepInformation("urls"));
         Parameters counterParams1 = Parameters.instance();
         counterParams1.set("order", Utility.join(new DocumentUrl.IdentifierOrder().getOrderSpec()));
         counterParams1.set("outputClass", DocumentUrl.class.getCanonicalName());
-        counterStage.add(new Step(TypeFileReader.class, counterParams1));
+        counterStage.add(new StepInformation(TypeFileReader.class, counterParams1));
 
         Parameters counterParams2 = Parameters.instance();
         counterParams2.set("inputClass", DocumentUrl.class.getName());
-        counterStage.add(new Step(ObjectCounter.class, counterParams2));
+        counterStage.add(new StepInformation(ObjectCounter.class, counterParams2));
 
-        counterStage.add(new OutputStep("docCount"));
+        counterStage.add(new OutputStepInformation("docCount"));
 
         job.add(counterStage);
         job.connect("splitUrls", "counter", ConnectionAssignmentType.Each);
@@ -248,31 +249,31 @@ public class PageRankFn extends AppFunction {
     // collect files
     Parameters inParams = Parameters.instance();
     inParams.set("input", finalPageranks.getAbsolutePath());
-    stage.add(new Step(FileSource.class, inParams));
+    stage.add(new StepInformation(FileSource.class, inParams));
 
     // open reader
     Parameters readerParams = Parameters.instance();
     readerParams.set("order", Utility.join(new PageRankScore.DocNameOrder().getOrderSpec()));
     readerParams.set("outputClass", PageRankScore.class.getCanonicalName());
-    stage.add(new Step(TypeFileReader.class, readerParams));
+    stage.add(new StepInformation(TypeFileReader.class, readerParams));
 
 
     // split into two streams
-    MultiStep fork = new MultiStep();
+    MultiStepInformation fork = new MultiStepInformation();
     stage.add(fork);
 
     // fork 1 - write document-name ordered output
     fork.addGroup("docName");
     Parameters writerParams1 = Parameters.instance();
     writerParams1.set("output", docNameOutput.getAbsolutePath());
-    fork.addToGroup("docName", new Step(FinalPageRankScoreWriter.class, writerParams1));
+    fork.addToGroup("docName", new StepInformation(FinalPageRankScoreWriter.class, writerParams1));
 
     // fork 2 - write score ordered output
     fork.addGroup("scores");
     fork.addToGroup("scores", Utility.getSorter(new PageRankScore.DescScoreOrder()));
     Parameters writerParams2 = Parameters.instance();
     writerParams2.set("output", scoreOutput.getAbsolutePath());
-    fork.addToGroup("scores", new Step(FinalPageRankScoreWriter.class, writerParams2));
+    fork.addToGroup("scores", new StepInformation(FinalPageRankScoreWriter.class, writerParams2));
 
     job.add(stage);
 
@@ -377,9 +378,9 @@ public class PageRankFn extends AppFunction {
 
     Parameters inParams = Parameters.instance();
     inParams.set("input", folder.getAbsolutePath());
-    stage.add(new Step(FileSource.class, inParams));
+    stage.add(new StepInformation(FileSource.class, inParams));
     stage.add(Utility.getSorter(new FileName.FilenameOrder()));
-    stage.add(new OutputStep(outputName));
+    stage.add(new OutputStepInformation(outputName));
 
     return stage;
   }
@@ -390,14 +391,14 @@ public class PageRankFn extends AppFunction {
     stage.addInput(input, new FileName.FilenameOrder());
     stage.addOutput(output, order, c);
 
-    stage.add(new InputStep(input));
+    stage.add(new InputStepInformation(input));
 
     Parameters p = Parameters.instance();
     p.set("order", Utility.join(order.getOrderSpec()));
     p.set("outputClass", outputClass);
-    stage.add(new Step(TypeFileReader.class, p));
+    stage.add(new StepInformation(TypeFileReader.class, p));
     // this reader ensures correct order.
-    stage.add(new OutputStep(output));
+    stage.add(new OutputStepInformation(output));
 
     return stage;
   }
@@ -410,15 +411,15 @@ public class PageRankFn extends AppFunction {
     stage.addOutput("outputPartialScores", new PageRankScore.DocNameOrder(), CompressionType.GZIP);
     stage.addOutput("outputExtraJumps", new PageRankJumpScore.ScoreOrder(), CompressionType.GZIP);
 
-    stage.add(new InputStep("inputScores"));
+    stage.add(new InputStepInformation("inputScores"));
     Parameters rndWalk = Parameters.instance();
     rndWalk.set("linkStream", "inputLinks");
     rndWalk.set("jumpStream", "outputExtraJumps");
     rndWalk.set("lambda", p.getDouble("lambda"));
     rndWalk.set("docCount", p.getLong("docCount")); // extraJump needs to be divided evenly across all documents
-    stage.add(new Step(ComputeRandomWalk.class, rndWalk));
+    stage.add(new StepInformation(ComputeRandomWalk.class, rndWalk));
     stage.add(Utility.getSorter(new PageRankScore.DocNameOrder(), CompressionType.GZIP));
-    stage.add(new OutputStep("outputPartialScores"));
+    stage.add(new OutputStepInformation("outputPartialScores"));
 
     return stage;
   }
@@ -430,18 +431,18 @@ public class PageRankFn extends AppFunction {
     stage.addInput("outputExtraJumps", new PageRankJumpScore.ScoreOrder());
     stage.addOutput("outputCumulativeJump", new PageRankJumpScore.ScoreOrder(), CompressionType.GZIP);
 
-    stage.add(new InputStep("inputScores"));
+    stage.add(new InputStepInformation("inputScores"));
     // sum the scores, divide by count of pages, 
     // then emit single value that is the value of all random jumps to any given page.
     Parameters rndJumpParams = Parameters.instance();
     rndJumpParams.set("lambda", p.getDouble("lambda"));
     rndJumpParams.set("docCount", p.getLong("docCount"));
     rndJumpParams.set("extraJumpStream", "outputExtraJumps");
-    stage.add(new Step(ComputeRandomJump.class, rndJumpParams));
+    stage.add(new StepInformation(ComputeRandomJump.class, rndJumpParams));
 
     // should only emit one item, but still...
     stage.add(Utility.getSorter(new PageRankJumpScore.ScoreOrder(), CompressionType.GZIP));
-    stage.add(new OutputStep("outputCumulativeJump"));
+    stage.add(new OutputStepInformation("outputCumulativeJump"));
 
     return stage;
   }
@@ -454,15 +455,15 @@ public class PageRankFn extends AppFunction {
     stage.addInput("outputCumulativeJump", new PageRankJumpScore.ScoreOrder());
     stage.addOutput("outputScores", new PageRankScore.DocNameOrder(), CompressionType.GZIP);
 
-    stage.add(new InputStep("inputScores"));
+    stage.add(new InputStepInformation("inputScores"));
 
     Parameters combinerParams = Parameters.instance();
     combinerParams.set("jumpStream1", "outputCumulativeJump");
     combinerParams.set("scoreStream", "outputPartialScores");
-    stage.add(new Step(PageRankScoreCombiner.class, combinerParams));
+    stage.add(new StepInformation(PageRankScoreCombiner.class, combinerParams));
     stage.add(Utility.getSorter(new PageRankScore.DocNameOrder(), CompressionType.GZIP));
 
-    MultiStep processingFork = new MultiStep();
+    MultiStepInformation processingFork = new MultiStepInformation();
     processingFork.addGroup("writer");
     processingFork.addGroup("stream");
 
@@ -472,9 +473,9 @@ public class PageRankFn extends AppFunction {
     writerParams.set("order", Utility.join(new PageRankScore.DocNameOrder().getOrderSpec()));
     writerParams.set("compression", "GZIP");
 
-    processingFork.addToGroup("writer", new Step(TypeFileWriter.class, writerParams));
+    processingFork.addToGroup("writer", new StepInformation(TypeFileWriter.class, writerParams));
 
-    processingFork.addToGroup("stream", new OutputStep("outputScores"));
+    processingFork.addToGroup("stream", new OutputStepInformation("outputScores"));
 
     stage.add(processingFork);
 
@@ -493,7 +494,7 @@ public class PageRankFn extends AppFunction {
     convgParams.set("prevScoreStream", "inputScores");
     convgParams.set("currScoreStream", "outputScores");
     convgParams.set("delta", p.get("delta", 0.000001));
-    stage.add(new Step(ConvergenceTester.class, convgParams));
+    stage.add(new StepInformation(ConvergenceTester.class, convgParams));
     // if converged, a file is created in the output directory.
 
     return stage;

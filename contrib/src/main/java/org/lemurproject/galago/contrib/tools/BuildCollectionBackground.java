@@ -34,19 +34,19 @@ public class BuildCollectionBackground extends AppFunction {
     stage.addInput(inputName, new DocumentSplit.FileIdOrder());
     stage.addOutput(outputName, new WordCount.WordOrder());
 
-    stage.add(new InputStep(inputName));
+    stage.add(new InputStepInformation(inputName));
     stage.add(BuildStageTemplates.getParserStep(p));
     stage.add(BuildStageTemplates.getTokenizerStep(p));
 
     if (p.containsKey("stemmer")) {
       Class stemmerClass = Class.forName(p.getString("stemmerClass"));
-      stage.add(new Step(stemmerClass));
+      stage.add(new StepInformation(stemmerClass));
     }
 
-    stage.add(new Step(WordCounter.class));
+    stage.add(new StepInformation(WordCounter.class));
     stage.add(Utility.getSorter(new WordCount.WordOrder()));
-    stage.add(new Step(WordCountReducer.class));
-    stage.add(new OutputStep(outputName));
+    stage.add(new StepInformation(WordCountReducer.class));
+    stage.add(new OutputStepInformation(outputName));
 
     return stage;
   }
@@ -56,9 +56,9 @@ public class BuildCollectionBackground extends AppFunction {
 
     stage.addInput(inputName, new WordCount.WordOrder());
 
-    stage.add(new InputStep(inputName));
-    stage.add(new Step(WordCountReducer.class));
-    stage.add(new Step(BackgroundStatsWriter.class, writerParameters));
+    stage.add(new InputStepInformation(inputName));
+    stage.add(new StepInformation(WordCountReducer.class));
+    stage.add(new StepInformation(BackgroundStatsWriter.class, writerParameters));
 
     return stage;
   }

@@ -37,8 +37,8 @@ public class MergeIndex extends AppFunction {
 
     Parameters p = Parameters.instance();
     p.set("inputPath", inputPaths);
-    stage.add(new Step(IndexNumberer.class, p));
-    stage.add(new OutputStep("indexes"));
+    stage.add(new StepInformation(IndexNumberer.class, p));
+    stage.add(new OutputStepInformation("indexes"));
     return stage;
   }
 
@@ -48,13 +48,13 @@ public class MergeIndex extends AppFunction {
     stage.addInput("indexes", new DocumentSplit.FileIdOrder());
     stage.addOutput("documentMappingData", new DocumentMappingData.IndexIdOrder());
 
-    stage.add(new InputStep("indexes"));
+    stage.add(new InputStepInformation("indexes"));
     if (renumberDocuments) {
-      stage.add(new Step(DocumentNumberMapper.class));
+      stage.add(new StepInformation(DocumentNumberMapper.class));
     } else {
-      stage.add(new Step(IdentityDocumentNumberMapper.class));
+      stage.add(new StepInformation(IdentityDocumentNumberMapper.class));
     }
-    stage.add(new OutputStep("documentMappingData"));
+    stage.add(new OutputStepInformation("documentMappingData"));
 
     return stage;
   }
@@ -65,12 +65,12 @@ public class MergeIndex extends AppFunction {
     stage.addInput("indexes", new DocumentSplit.FileIdOrder());
     stage.addInput("documentMappingData", new DocumentMappingData.IndexIdOrder());
 
-    stage.add(new InputStep("indexes"));
+    stage.add(new InputStepInformation("indexes"));
     Parameters p = Parameters.instance();
     p.set("mappingDataStream", "documentMappingData");
     p.set("part", part);
     p.set("filename", outputFile);
-    stage.add(new Step(IndexPartMergeManager.class, p));
+    stage.add(new StepInformation(IndexPartMergeManager.class, p));
 
     return stage;
   }

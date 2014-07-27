@@ -84,15 +84,15 @@ public class JobExecutor {
     for (Stage stage : job.stages.values()) {
       // Output mapping
       if (stage.steps.size() > 0) {
-        Step lastStep = stage.steps.get(stage.steps.size() - 1);
-        if (lastStep instanceof OutputStep) {
-          OutputStep output = (OutputStep) lastStep;
+        StepInformation lastStep = stage.steps.get(stage.steps.size() - 1);
+        if (lastStep instanceof OutputStepInformation) {
+          OutputStepInformation output = (OutputStepInformation) lastStep;
           outputs.put(stage.name, output.getId());
         }
 
-        Step firstStep = stage.steps.get(0);
-        if (firstStep instanceof InputStep) {
-          InputStep input = (InputStep) firstStep;
+        StepInformation firstStep = stage.steps.get(0);
+        if (firstStep instanceof InputStepInformation) {
+          InputStepInformation input = (InputStepInformation) firstStep;
           inputs.put(stage.name, input.getId());
         }
       }
@@ -139,13 +139,13 @@ public class JobExecutor {
       // now we've verified that these stages can be combined together.
       Stage source = stages.get(connectionInput.getStageName());
 
-      MultiStep multi = new MultiStep();
+      MultiStepInformation multi = new MultiStepInformation();
 
       for (ConnectionEndPoint connectionOutput : connection.outputs) {
         Stage destination = stages.get(connectionOutput.getStageName());
         // getting ready: remove the first step, add on to the multi
         int length = destination.steps.size();
-        multi.addGroup(new ArrayList<Step>(destination.steps.subList(1, length)));
+        multi.addGroup(new ArrayList<StepInformation>(destination.steps.subList(1, length)));
 
         renameConnections(job, source, destination);
 

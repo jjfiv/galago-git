@@ -1,9 +1,10 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow;
 
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  *

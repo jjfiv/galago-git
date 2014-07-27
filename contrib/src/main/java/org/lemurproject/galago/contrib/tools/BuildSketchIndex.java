@@ -127,7 +127,7 @@ public class BuildSketchIndex extends AppFunction {
     stage.addInput("splits", new DocumentSplit.FileIdOrder());
     stage.addOutput("postings", new NumberWordCount.WordDocumentOrder());
 
-    stage.add(new InputStep("splits"));
+    stage.add(new InputStepInformation("splits"));
     stage.add(BuildStageTemplates.getParserStep(buildParameters));
     stage.add(BuildStageTemplates.getTokenizerStep(buildParameters));
 
@@ -138,7 +138,7 @@ public class BuildSketchIndex extends AppFunction {
 
     Parameters p = Parameters.instance();
     p.set("indexPath", buildParameters.getString("indexPath"));
-    stage.add(new Step(ExtractIndexDocumentNumbers.class, p));
+    stage.add(new StepInformation(ExtractIndexDocumentNumbers.class, p));
 
     Parameters p2 = Parameters.instance();
     p2.set("n", buildParameters.getLong("n"));
@@ -147,12 +147,12 @@ public class BuildSketchIndex extends AppFunction {
     if (buildParameters.isString("fields") || buildParameters.isList("fields", String.class)) {
       p2.set("fields", buildParameters.getAsList("fields", String.class));
     }
-    stage.add(new Step(WindowProducer.class, p2));
-    stage.add(new Step(WindowHasher.class, buildParameters));
+    stage.add(new StepInformation(WindowProducer.class, p2));
+    stage.add(new StepInformation(WindowHasher.class, buildParameters));
     stage.add(Utility.getSorter(new NumberWordCount.WordDocumentOrder()));
-    stage.add(new Step(ReduceNumberWordCount.class));
+    stage.add(new StepInformation(ReduceNumberWordCount.class));
 
-    stage.add(new OutputStep("postings"));
+    stage.add(new OutputStepInformation("postings"));
 
     return stage;
   }
@@ -162,8 +162,8 @@ public class BuildSketchIndex extends AppFunction {
 
     stage.addInput("postings", new NumberWordCount.WordDocumentOrder());
 
-    stage.add(new InputStep("postings"));
-    stage.add(new Step(InvertedSketchIndexWriter.class, buildParameters));
+    stage.add(new InputStepInformation("postings"));
+    stage.add(new StepInformation(InvertedSketchIndexWriter.class, buildParameters));
 
     return stage;
   }

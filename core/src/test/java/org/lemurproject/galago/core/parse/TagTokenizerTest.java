@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.parse;
 
 import org.junit.Test;
-import org.lemurproject.galago.tupleflow.IncompatibleProcessorException;
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.NullProcessor;
 
 import java.io.IOException;

@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
+
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**
@@ -19,23 +19,23 @@ import org.lemurproject.galago.tupleflow.Utility;
  * 
  * @author trevor, irmarc
  */
-public class MultiStep extends Step implements Iterable<String> {
+public class MultiStepInformation extends StepInformation implements Iterable<String> {
 
-  private Map<String, List<Step>> groups;
+  private Map<String, List<StepInformation>> groups;
   private String name;
 
   /**
    * Create a named MultiStep. The name is for descriptive purposes only.
    */
-  public MultiStep(String name) {
+  public MultiStepInformation(String name) {
     this.name = name;
-    groups = new HashMap<String, List<Step>>();
+    groups = new HashMap<String, List<StepInformation>>();
   }
 
   /**
    * Create an anonymous MultiStep.
    */
-  public MultiStep() {
+  public MultiStepInformation() {
     this("none");
   }
 
@@ -51,7 +51,7 @@ public class MultiStep extends Step implements Iterable<String> {
     return groups.size() == 1;
   }
 
-  public List<Step> singleton() {
+  public List<StepInformation> singleton() {
     assert (groups.size() == 1) : "Cannot call singleton if more than 1 inner pipeline exists.";
     String key = groups.keySet().toArray(new String[0])[0];
     return groups.get(key);
@@ -60,8 +60,8 @@ public class MultiStep extends Step implements Iterable<String> {
   /**
    * Add a new empty inner pipeline to the multi step.
    */
-  public MultiStep addGroup(String groupName) {
-    groups.put(groupName, new ArrayList<Step>());
+  public MultiStepInformation addGroup(String groupName) {
+    groups.put(groupName, new ArrayList<StepInformation>());
     return this;
   }
 
@@ -71,7 +71,7 @@ public class MultiStep extends Step implements Iterable<String> {
    * inner pipeline. Due to stage construction constraints, this is
    * guaranteed to be unique.
    */
-  public MultiStep addGroup(List<Step> steps) {
+  public MultiStepInformation addGroup(List<StepInformation> steps) {
     String groupName = "multiFork-" + groups.size();
     return addGroup(groupName, steps);
   }
@@ -79,19 +79,19 @@ public class MultiStep extends Step implements Iterable<String> {
   /**
    * Add a named existing inner pipeline to the multi step.
    */
-  public MultiStep addGroup(String groupName, List<Step> steps) {
+  public MultiStepInformation addGroup(String groupName, List<StepInformation> steps) {
     groups.put(groupName, steps);
     return this;
   }
 
-  public List<Step> getGroup(String name) {
+  public List<StepInformation> getGroup(String name) {
     return groups.get(name);
   }
 
   /**
    * Remove an inner pipeline.
    */
-  public MultiStep removeGroup(String groupName) {
+  public MultiStepInformation removeGroup(String groupName) {
     groups.remove(groupName);
     return this;
   }
@@ -99,7 +99,7 @@ public class MultiStep extends Step implements Iterable<String> {
   /**
    * Add a step to an existing inner pipeline.
    */
-  public MultiStep addToGroup(String name, Step s) {
+  public MultiStepInformation addToGroup(String name, StepInformation s) {
     groups.get(name).add(s);
     return this;
   }
@@ -112,7 +112,7 @@ public class MultiStep extends Step implements Iterable<String> {
     sb.append("multi: ").append(name).append("\n");
     for (String name : groups.keySet()) {
       sb.append(" ").append(name).append(": ");
-      sb.append(Utility.join(groups.get(name).toArray(new Step[0]), " -> ")).append("\n");
+      sb.append(Utility.join(groups.get(name).toArray(new StepInformation[0]), " -> ")).append("\n");
     }
     return sb.toString();
   }

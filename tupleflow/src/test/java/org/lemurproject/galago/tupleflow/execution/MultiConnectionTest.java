@@ -5,6 +5,7 @@ package org.lemurproject.galago.tupleflow.execution;
 
 import org.junit.Test;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.types.TupleflowString;
 import org.lemurproject.galago.tupleflow.types.XMLFragment;
 import org.lemurproject.galago.utility.Parameters;
@@ -28,7 +29,7 @@ public class MultiConnectionTest {
             "conn-a", new TupleflowString.ValueOrder()));
     one.add(new StageConnectionPoint(ConnectionPointType.Output,
             "conn-b", new XMLFragment.NodePathOrder()));
-    one.add(new Step(Generator.class));
+    one.add(new StepInformation(Generator.class));
     job.add(one);
 
     Stage two = new Stage("two");
@@ -36,7 +37,7 @@ public class MultiConnectionTest {
             "conn-a", new TupleflowString.ValueOrder()));
     two.add(new StageConnectionPoint(ConnectionPointType.Input,
             "conn-b", new XMLFragment.NodePathOrder()));
-    two.add(new Step(Receiver.class));
+    two.add(new StepInformation(Receiver.class));
     job.add(two);
 
     // this connect function should link BOTH out/in pairs
