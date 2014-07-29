@@ -1,8 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -90,7 +90,7 @@ public abstract class KeyValueReader implements IndexPartReader {
     @Override
     public int compareTo(KeyIterator other) {
       try {
-        return Utility.compare(getKey(), other.getKey());
+        return CmpUtil.compare(getKey(), other.getKey());
       } catch (IOException ioe) {
         throw new RuntimeException(ioe);
       }

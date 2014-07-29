@@ -35,7 +35,7 @@ public class RankedDocumentModel extends ProcessingModel {
     boolean annotate = queryParams.get("annotate", false);
 
     // Maintain a queue of candidates
-    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap<ScoredDocument>(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
+    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap<>(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
     // construct the iterators -- we use tree processing
     ScoreIterator iterator = (ScoreIterator) retrieval.createIterator(queryParams, queryTree);

@@ -211,7 +211,7 @@ public class DiskSpillCompressedByteBuffer extends OutputStream {
       }
     }
     if (values == null) {
-      values = new ArrayList<byte[]>();
+      values = new ArrayList<>();
     } else {
       values.clear();
     }

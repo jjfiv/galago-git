@@ -218,7 +218,7 @@ public class LocalRetrieval implements Retrieval {
   public BaseIterator createNodeMergedIterator(Node node,
           Map<String, BaseIterator> queryIteratorCache)
           throws Exception {
-    ArrayList<BaseIterator> internalIterators = new ArrayList<BaseIterator>();
+    ArrayList<BaseIterator> internalIterators = new ArrayList<>();
     BaseIterator iterator;
 
     // first check if this is a repeated node in this tree:

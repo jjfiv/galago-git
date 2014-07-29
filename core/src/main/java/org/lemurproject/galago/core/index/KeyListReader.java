@@ -1,7 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
@@ -13,7 +12,7 @@ import java.io.IOException;
  */
 public abstract class KeyListReader extends KeyValueReader {
 
-  public KeyListReader(String filename) throws FileNotFoundException, IOException {
+  public KeyListReader(String filename) throws IOException {
     super(filename);
   }
 

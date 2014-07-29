@@ -7,11 +7,13 @@ import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
-import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.*;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.utility.StreamCreator;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Writes the document lengths file, - stores the length data for each field,
@@ -66,7 +68,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
         newFields.increment();
       }
 
-    } else if (Utility.compare(fieldLengthData.field, ld.field) != 0) {
+    } else if (!CmpUtil.equals(fieldLengthData.field, ld.field)) {
 
       if (newFields != null) {
         newFields.increment();
@@ -215,7 +217,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
       fileStream.write(Utility.fromLong(prevDocument));
 
       // copy length data to index file
-      Utility.copyFileToStream(tempFile, fileStream);
+      StreamUtil.copyFileToStream(tempFile, fileStream);
 
       // delete temp data
       tempFile.delete();
