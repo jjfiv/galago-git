@@ -27,13 +27,14 @@
 package org.lemurproject.galago.core.index;
 
 import gnu.trove.list.array.TIntArrayList;
+import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.StreamUtil;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.FileOutputStream;
-import java.io.File;
 import java.util.ArrayList;
-import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Utility;
 
 public class DiskSpillCompressedByteBuffer extends OutputStream {
 
@@ -240,7 +241,7 @@ public class DiskSpillCompressedByteBuffer extends OutputStream {
     if (spillStream != null) {
       try {
         spillStream.close();
-        Utility.copyFileToStream(spillFile, stream);
+        StreamUtil.copyFileToStream(spillFile, stream);
         spillStream = new FileOutputStream(spillFile); // maybe use RandomAccess here to do it?
       } catch (IOException ioe) {
         throw new RuntimeException(ioe);
