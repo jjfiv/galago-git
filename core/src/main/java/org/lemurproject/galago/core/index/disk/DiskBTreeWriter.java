@@ -1,25 +1,21 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.lemurproject.galago.core.index.BTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.tupleflow.Counter;
-import org.lemurproject.galago.utility.ByteUtil;
-import org.lemurproject.galago.utility.FSUtil;
-import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
+import org.lemurproject.galago.utility.FSUtil;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.compression.VByte;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This class writes index files, which are used for most Galago indexes.
@@ -104,7 +100,7 @@ public class DiskBTreeWriter extends BTreeWriter {
    */
   @Override
   public void add(IndexElement list) throws IOException {
-    if (prevKey.length > 0 && Utility.compare(prevKey, list.key()) > 0) {
+    if (prevKey.length > 0 && CmpUtil.compare(prevKey, list.key()) > 0) {
       throw new IOException(String.format("Key %s, %s are out of order.", ByteUtil.toString(prevKey), ByteUtil.toString(list.key())));
     }
     if (list.key().length >= this.maxKeySize || list.key().length >= blockSize) {

@@ -109,7 +109,7 @@ public class FeatureFactory {
   public FeatureFactory(Parameters parameters,
           String[][] sOperatorLookup,
           String[] sTraversalList) {
-    operatorLookup = new HashMap<String, OperatorSpec>();
+    operatorLookup = new HashMap<>();
     this.parameters = parameters;
 
     for (String[] item : sOperatorLookup) {
@@ -119,9 +119,9 @@ public class FeatureFactory {
       operatorLookup.put(operatorName, operator);
     }
 
-    ArrayList<TraversalSpec> afterTraversals = new ArrayList<TraversalSpec>();
-    ArrayList<TraversalSpec> beforeTraversals = new ArrayList<TraversalSpec>();
-    ArrayList<TraversalSpec> insteadTraversals = new ArrayList<TraversalSpec>();
+    ArrayList<TraversalSpec> afterTraversals = new ArrayList<>();
+    ArrayList<TraversalSpec> beforeTraversals = new ArrayList<>();
+    ArrayList<TraversalSpec> insteadTraversals = new ArrayList<>();
 
     if (parameters.isMap("traversals") || parameters.isList("traversals", Parameters.class)) {
       List<Parameters> traversals = parameters.getAsList("traversals", Parameters.class);
@@ -132,14 +132,18 @@ public class FeatureFactory {
         TraversalSpec spec = new TraversalSpec();
         spec.className = className;
 
-        if (order.equals("before")) {
-          beforeTraversals.add(spec);
-        } else if (order.equals("after")) {
-          afterTraversals.add(spec);
-        } else if (order.equals("instead")) {
-          insteadTraversals.add(spec);
-        } else {
-          throw new RuntimeException("order must be one of {before,after,instead}");
+        switch (order) {
+          case "before":
+            beforeTraversals.add(spec);
+            break;
+          case "after":
+            afterTraversals.add(spec);
+            break;
+          case "instead":
+            insteadTraversals.add(spec);
+            break;
+          default:
+            throw new RuntimeException("order must be one of {before,after,instead}");
         }
       }
     }
@@ -154,7 +158,7 @@ public class FeatureFactory {
     }
 
 
-    traversals = new ArrayList<TraversalSpec>();
+    traversals = new ArrayList<>();
     traversals.addAll(beforeTraversals);
     traversals.addAll(insteadTraversals);
     traversals.addAll(afterTraversals);
@@ -241,8 +245,8 @@ public class FeatureFactory {
     // There better be only 1 constructor
     Constructor[] cons = c.getConstructors();
     Constructor constructor;
-    ArrayList<Object> arguments = new ArrayList<Object>();
-    LinkedList<Class> formals = new LinkedList<Class>();
+    ArrayList<Object> arguments = new ArrayList<>();
+    LinkedList<Class<?>> formals = new LinkedList<>();
     boolean fail = false;
     String failStr = "<unknown>";
     int ic = 0;
@@ -253,7 +257,7 @@ public class FeatureFactory {
       formals.clear();
 
       // Construct our argument list as we zip down the list of formal parameters
-      formals.addAll(Arrays.asList(constructor.getParameterTypes()));
+      formals.addAll(Arrays.<Class<?>>asList(constructor.getParameterTypes()));
       int childIdx = 0;
       while (formals.size() > 0) {
         if (formals.get(0) == NodeParameters.class) {
@@ -279,7 +283,7 @@ public class FeatureFactory {
         } else if (formals.get(0).isArray()) {
           // Only an array of structured iterators - all the same type
           // First check that all children match
-          Class ac = formals.get(0).getComponentType();
+          Class<?> ac = formals.get(0).getComponentType();
           for (int i = childIdx; i < childIterators.size(); i++) {
             if (!ac.isAssignableFrom(childIterators.get(i).getClass())) {
               fail = true;
@@ -304,19 +308,18 @@ public class FeatureFactory {
     }
 
     if (fail) {
-      StringBuilder msg = new StringBuilder();
-      msg.append(String.format("No valid constructor for node %s.\n", node.toString()));
-      msg.append("Allowable Iterator constructors allow for leading optional Parameters,");
-      msg.append(" followed by optional NodeParameters, and finally the list of child iterators.");
-      msg.append("FAILED AT: ").append(failStr);
-      throw new IllegalArgumentException(msg.toString());
+      throw new IllegalArgumentException(
+        String.format("No valid constructor for node %s.\n", node.toString()) +
+          "Allowable Iterator constructors allow for leading optional Parameters," +
+          " followed by optional NodeParameters, and finally the list of child iterators." +
+          "FAILED AT: " + failStr);
     }
 
-    return (BaseIterator) cons[ic].newInstance(arguments.toArray(new Object[0]));
+    return (BaseIterator) cons[ic].newInstance(arguments.toArray(new Object[arguments.size()]));
   }
 
   public List<String> getTraversalNames() {
-    ArrayList<String> result = new ArrayList<String>();
+    ArrayList<String> result = new ArrayList<>();
     for (TraversalSpec spec : traversals) {
       result.add(spec.className);
     }
@@ -326,7 +329,7 @@ public class FeatureFactory {
   public List<Traversal> getTraversals(Retrieval retrieval)
           throws ClassNotFoundException, NoSuchMethodException, InstantiationException,
           IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-    ArrayList<Traversal> result = new ArrayList<Traversal>();
+    ArrayList<Traversal> result = new ArrayList<>();
     
     for (TraversalSpec spec : traversals) {
       Class<? extends Traversal> traversalClass =
@@ -336,7 +339,7 @@ public class FeatureFactory {
       
       // try to construct a traversal with a retrieval
       for (Constructor c : constructors) {
-        Class[] argTypes = c.getParameterTypes();
+        Class<?>[] argTypes = c.getParameterTypes();
         if (argTypes.length == 1 && argTypes[0].isAssignableFrom(Retrieval.class)) {
           traversal = (Traversal) c.newInstance(retrieval);
           break;

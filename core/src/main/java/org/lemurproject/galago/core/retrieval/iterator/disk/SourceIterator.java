@@ -4,12 +4,13 @@
  */
 package org.lemurproject.galago.core.retrieval.iterator.disk;
 
-import java.io.IOException;
 import org.lemurproject.galago.core.index.source.DiskSource;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.CmpUtil;
+
+import java.io.IOException;
 
 /**
  * This is the base abstract implementation of an Iterator that
@@ -85,7 +86,7 @@ public abstract class SourceIterator implements BaseIterator {
     if (isDone() && other.isDone()) {
       return 0;
     }
-    return Utility.compare(currentCandidate(), other.currentCandidate());
+    return CmpUtil.compare(currentCandidate(), other.currentCandidate());
   }
 
   // This is not implemented here, because it needs to be customized for each SourceIterator

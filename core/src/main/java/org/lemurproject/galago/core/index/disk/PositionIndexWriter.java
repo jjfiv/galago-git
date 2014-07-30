@@ -1,23 +1,19 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
-import org.lemurproject.galago.core.index.BTreeValueIterator;
-import org.lemurproject.galago.core.index.BTreeWriter;
-import org.lemurproject.galago.core.index.CompressedByteBuffer;
-import org.lemurproject.galago.core.index.DiskSpillCompressedByteBuffer;
-import org.lemurproject.galago.core.index.IndexElement;
+import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.index.mem.MemoryPositionalIndex;
 import org.lemurproject.galago.core.index.merge.PositionIndexMerger;
 import org.lemurproject.galago.core.types.NumberWordPosition;
 import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.utility.Parameters;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * 12/14/2010 (irmarc): Adding a skip list to this structure. It's pretty basic
@@ -67,7 +63,7 @@ public class PositionIndexWriter implements
   /**
    * Creates a new instance of the PositionIndexWriter.
    */
-  public PositionIndexWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
+  public PositionIndexWriter(TupleFlowParameters parameters) throws IOException {
     actualParams = parameters.getJSON();
     actualParams.set("writerClass", getClass().getName());
     actualParams.set("readerClass", PositionIndexReader.class.getName());

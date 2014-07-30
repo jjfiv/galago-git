@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.btree.simple;
 
+import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.InputClass;
@@ -42,6 +43,10 @@ public class DiskMapSortedBuilder implements Processor<KeyValuePair> {
    */
   public void put(byte[] key, byte[] value) throws IOException {
     btree.add(new DiskMapElement(key, value));
+  }
+
+  public void putCustom(IndexElement element) throws IOException {
+    btree.add(element);
   }
 
   @Override
