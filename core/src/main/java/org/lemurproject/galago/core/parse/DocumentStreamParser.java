@@ -2,10 +2,7 @@
 package org.lemurproject.galago.core.parse;
 
 import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.utility.ByteUtil;
-import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.utility.StreamCreator;
-import org.lemurproject.galago.utility.ZipUtil;
+import org.lemurproject.galago.utility.*;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
@@ -151,5 +148,9 @@ public abstract class DocumentStreamParser implements Closeable {
     if(split.innerName.isEmpty())
       return split.fileName;
     return split.innerName;
+  }
+
+  public static String getExtension(DocumentSplit split) {
+    return FSUtil.getExtension(new File(getFileName(split)));
   }
 }

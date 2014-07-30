@@ -21,7 +21,7 @@ public class GalagoConf {
   private static final Parameters sorterOptions = Parameters.instance();
   
   public static List<File> findGalagoConfigFiles() {
-    ArrayList<File> files = new ArrayList<File>();
+    ArrayList<File> files = new ArrayList<>();
     
     File homePrefs = new File(System.getProperty("user.home"), ".galago.conf");
     if (homePrefs.exists()) {

@@ -1,28 +1,29 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.btree.simple;
 
+import org.lemurproject.galago.utility.CmpUtil;
+import org.lemurproject.galago.utility.Parameters;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 public class DiskMapMerger {
   public static DiskMapReader merge(String outputPath, List<String> inputPaths) throws IOException {
     DiskMapSortedBuilder mb = new DiskMapSortedBuilder(outputPath, Parameters.instance());
     
-    ArrayList<DiskMapReader> readers = new ArrayList();
+    ArrayList<DiskMapReader> readers = new ArrayList<>();
     for(String in : inputPaths) {
       readers.add(new DiskMapReader(in));
     }
     
-    ArrayList<byte[]> keys = new ArrayList();
+    ArrayList<byte[]> keys = new ArrayList<>();
     for(DiskMapReader rdr : readers) {
       keys.addAll(rdr.keySet());
     }
     
-    Collections.sort(keys, new Utility.ByteArrComparator());
+    Collections.sort(keys, new CmpUtil.ByteArrComparator());
     
     for(byte[] key : keys) {
       for(DiskMapReader rdr : readers) {
@@ -41,20 +42,20 @@ public class DiskMapMerger {
   public static DiskMapReader mergeWith(String outputPath, List<String> inputPaths, MergeStrategy mergeFn) throws IOException {
     DiskMapSortedBuilder mb = new DiskMapSortedBuilder(outputPath, Parameters.instance());
     
-    ArrayList<DiskMapReader> readers = new ArrayList();
+    ArrayList<DiskMapReader> readers = new ArrayList<>();
     for(String in : inputPaths) {
       readers.add(new DiskMapReader(in));
     }
     
-    ArrayList<byte[]> keys = new ArrayList();
+    ArrayList<byte[]> keys = new ArrayList<>();
     for(DiskMapReader rdr : readers) {
       keys.addAll(rdr.keySet());
     }
     
-    Collections.sort(keys, new Utility.ByteArrComparator());
+    Collections.sort(keys, new CmpUtil.ByteArrComparator());
     
     for(byte[] key : keys) {
-      ArrayList<byte[]> values = new ArrayList<byte[]>();
+      ArrayList<byte[]> values = new ArrayList<>();
       for(DiskMapReader rdr : readers) {
         byte[] value = rdr.get(key);
         if(value != null) {
