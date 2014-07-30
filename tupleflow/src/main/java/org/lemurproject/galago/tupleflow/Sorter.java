@@ -354,7 +354,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     runs.add(results);
     runsCount += results.size();
 
-    objects = new ArrayList<T>();
+    objects = new ArrayList<>();
   }
 
   /**
@@ -381,21 +381,21 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     forceFlush = false;
   }
 
-  private class RunWrapper<T> implements Comparable<RunWrapper<T>> {
+  private static class RunWrapper<U> implements Comparable<RunWrapper<U>> {
 
-    public Iterator<T> iterator;
-    public T top;
-    Comparator<T> lessThan;
+    public Iterator<U> iterator;
+    public U top;
+    Comparator<U> lessThan;
 
-    public RunWrapper(List<T> list, Comparator<T> lessThan) {
+    public RunWrapper(List<U> list, Comparator<U> lessThan) {
       iterator = list.iterator();
       this.lessThan = lessThan;
     }
 
     @Override
-    public int compareTo(RunWrapper<T> other) {
-      T one = top;
-      T two = other.top;
+    public int compareTo(RunWrapper<U> other) {
+      U one = top;
+      U two = other.top;
 
       int result = lessThan.compare(one, two);
       return result;
