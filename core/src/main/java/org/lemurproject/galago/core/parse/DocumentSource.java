@@ -57,17 +57,16 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
     //logger.log(Level.INFO, parameters.getJSON().toString());
 
-    if (conf.containsKey("directory")) {
-      List<String> directories = parameters.getJSON().getAsList("directory", String.class);
-      for (String directory : directories) {
-        File directoryFile = new File(directory);
-        splitBuffer.addAll(processDirectory(directoryFile, conf));
-      }
-    }
-    if (conf.containsKey("filename")) {
-      List<String> files = parameters.getJSON().getAsList("filename", String.class);
-      for (String file : files) {
-        splitBuffer.addAll(processFile(new File(file), conf));
+    List<String> paths = parameters.getJSON().getAsList("inputPath", String.class);
+    for (String input : paths) {
+      File inputFile = new File(input);
+
+      if (inputFile.isFile()) {
+        splitBuffer.addAll(processFile(inputFile, conf));
+      } else if (inputFile.isDirectory()) {
+        splitBuffer.addAll(processDirectory(inputFile, conf));
+      } else {
+        throw new IOException("Couldn't find file/directory: " + input);
       }
     }
 

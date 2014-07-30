@@ -2,7 +2,7 @@
 Building Galago
 
 Java Requirements:
-    Java JDK 1.5.0 or later (http://java.sun.com)
+    Java JDK 1.7.0 or later (http://java.sun.com)
     Maven 2.0 or later (http://maven.apache.org)
 
     In order to install the drmaa dependency run the scipt:

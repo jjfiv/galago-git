@@ -55,8 +55,8 @@ public class Stage implements Serializable, Cloneable {
     try {
       result = (Stage) super.clone();
       result.name = name;
-      result.steps = new ArrayList<StepInformation>(steps);
-      result.connections = new HashMap<String, StageConnectionPoint>(connections);
+      result.steps = new ArrayList<>(steps);
+      result.connections = new HashMap<>(connections);
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException("Didn't expect clone to not be supported in superclass", e);
     }
