@@ -344,7 +344,7 @@ public class JobExecutor {
    * ErrorStore.
    */
   public void findDanglingEndpoints(final Job job) {
-    TreeSet<EndPointName> endPointNames = new TreeSet();
+    TreeSet<EndPointName> endPointNames = new TreeSet<>();
 
     // First, make a list of all endpoints referenced in all stages.
     for (Stage stage : job.stages.values()) {

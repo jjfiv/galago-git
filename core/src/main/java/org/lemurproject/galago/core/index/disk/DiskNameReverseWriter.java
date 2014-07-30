@@ -6,6 +6,7 @@ import org.lemurproject.galago.core.index.merge.DocumentNameReverseMerger;
 import org.lemurproject.galago.core.types.DocumentNameId;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
+import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 
@@ -52,7 +53,7 @@ public class DiskNameReverseWriter implements Processor<DocumentNameId> {
       assert ndd.name != null: "DiskNameReverseWriter can not write a null identifier.";
       assert CmpUtil.compare(last.name, ndd.name) <= 0: "DiskNameReverseWriter wrong order.";
       if(CmpUtil.compare(last.name, ndd.name) == 0){
-        Logger.getLogger(this.getClass().getName()).info("WARNING: identical document names written to names.reverse index");
+        Logger.getLogger(this.getClass().getName()).info("WARNING: identical document names written to names.reverse index: last="+ ByteUtil.toString(last.name)+" cur="+ByteUtil.toString(ndd.name));
       }
     }
     

@@ -79,6 +79,8 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       if (inputCounter != null) {
         inputCounter.increment();
       }
+      if(split.fileType == null)
+        split.fileType = "";
       split.fileId = fileId;
       split.totalFileCount = totalFileCount;
       processor.process(split);

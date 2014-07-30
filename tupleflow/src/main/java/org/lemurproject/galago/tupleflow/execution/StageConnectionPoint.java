@@ -1,9 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow.execution;
 
-import java.io.Serializable;
 import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.tupleflow.Order;
+
+import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Represents an endpoint for a connection within a TupleFlow stage. This is
@@ -42,6 +44,11 @@ public class StageConnectionPoint implements Serializable {
     this.className = className;
     this.order = order;
     this.compression = CompressionType.UNSPECIFIED;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("(%s) %s.%s (%s) {%s} c[%s]", type, externalName, internalName, className, Arrays.asList(order), compression);
   }
 
   public String getExternalName() {
