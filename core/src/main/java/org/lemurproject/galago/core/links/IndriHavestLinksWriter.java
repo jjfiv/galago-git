@@ -45,7 +45,7 @@ public class IndriHavestLinksWriter implements Processor<ExtractedLinkIndri> {
         writer = null;
         currentFilePath = "";
         currentDocName = "";
-        currentLinks = new ArrayList();
+        currentLinks = new ArrayList<>();
     }
 
     @Override

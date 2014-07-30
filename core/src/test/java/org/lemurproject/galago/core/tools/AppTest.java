@@ -3,17 +3,21 @@ package org.lemurproject.galago.core.tools;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.lemurproject.galago.core.index.BTreeFactory;
+import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
+import org.lemurproject.galago.core.index.disk.VocabularyReader;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -162,6 +166,17 @@ public class AppTest {
 
             // make sure the corpus file exists
             assertTrue(corpusFile.exists());
+            assertTrue(corpusFile.isDirectory());
+            assertTrue(new File(corpusFile, "split.keys").isFile());
+            assertTrue(BTreeFactory.isBTree(new File(corpusFile, "split.keys")));
+
+            // open the corpus
+            BTreeReader reader = BTreeFactory.getBTreeReader(corpusFile);
+
+            // we will divide the corpus by vocab blocks
+            VocabularyReader vocabulary = reader.getVocabulary();
+            List<VocabularyReader.IndexBlockInfo> slots = vocabulary.getSlots();
+            assertNotEquals(0, slots.size());
 
             // now, try to build an index from that
             indexFile = FileUtility.createTemporaryDirectory();

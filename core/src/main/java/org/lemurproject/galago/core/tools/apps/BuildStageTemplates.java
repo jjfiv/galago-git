@@ -152,7 +152,7 @@ public class BuildStageTemplates {
         throw new IOException("Couldn't find file/directory: " + input);
       }
     }
-    p.set("inputPaths", inputPaths);
+    p.put("inputPath", inputPaths);
 
     stage.add(new StepInformation(sourceClass, p));
     stage.add(Utility.getSorter(order));

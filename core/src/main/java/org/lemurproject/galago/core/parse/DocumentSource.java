@@ -52,7 +52,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   @Override
   public void run() throws IOException {
     // splitBuffer stores the full list of documents to emit.
-    ArrayList<DocumentSplit> splitBuffer = new ArrayList<DocumentSplit>();
+    ArrayList<DocumentSplit> splitBuffer = new ArrayList<>();
     Parameters conf = parameters.getJSON();
 
     //logger.log(Level.INFO, parameters.getJSON().toString());
@@ -100,7 +100,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     }
 
     File[] subs = FileUtility.safeListFiles(root);
-    List<DocumentSplit> splits = new ArrayList<DocumentSplit>(subs.length);
+    List<DocumentSplit> splits = new ArrayList<>(subs.length);
     for (File file : subs) {
       if (file.isHidden()) {
         continue;
@@ -120,17 +120,18 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
     String forceFileType = conf.get("filetype", (String) null);
 
-    ArrayList<DocumentSplit> documents = new ArrayList<DocumentSplit>();
+    ArrayList<DocumentSplit> documents = new ArrayList<>();
 
     // First, make sure this file exists. If not, whine about it.
     if (!fp.exists()) {
-      if (inputPolicy.equals("require")) {
-        throw new IOException(String.format("File %s was not found. Exiting.\n", fp));
-      } else if (inputPolicy.equals("warn")) {
-        logger.warning(String.format("File %s was not found. Skipping.\n", fp));
-        return Collections.emptyList();
-      } else {
-        throw new IllegalArgumentException("No such inputPolicy="+inputPolicy);
+      switch (inputPolicy) {
+        case "require":
+          throw new IOException(String.format("File %s was not found. Exiting.\n", fp));
+        case "warn":
+          logger.warning(String.format("File %s was not found. Skipping.\n", fp));
+          return Collections.emptyList();
+        default:
+          throw new IllegalArgumentException("No such inputPolicy=" + inputPolicy);
       }
     }
 
@@ -189,10 +190,8 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   public static List<DocumentSplit> processZipFile(File fp, Parameters conf) throws IOException {
     String forceFileType = conf.get("filetype", (String) null);
 
-    ZipFile zipF = ZipUtil.open(fp);
-    ArrayList<DocumentSplit> splits = new ArrayList<DocumentSplit>();
-    try {
-
+    ArrayList<DocumentSplit> splits = new ArrayList<>();
+    try (ZipFile zipF = ZipUtil.open(fp)) {
       List<String> names = ZipUtil.listZipFile(zipF);
       for (String name : names) {
         String fileType = forceFileType;
@@ -210,8 +209,6 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         split.innerName = name;
         splits.add(split);
       }
-    } finally {
-      zipF.close();
     }
     return splits;
   }
@@ -224,7 +221,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
    * List file is either uncompressed or compressed using gzip ONLY.
    */
   private static List<DocumentSplit> processListFile(File file, Parameters conf) throws IOException {
-    ArrayList<DocumentSplit> splits = new ArrayList<DocumentSplit>();
+    ArrayList<DocumentSplit> splits = new ArrayList<>();
 
     BufferedReader br;
     if (file.getName().endsWith("gz")) {
@@ -266,7 +263,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     frac = 0.0;
     long splitsize;
 
-    List<DocumentSplit> splits = new ArrayList<DocumentSplit>();
+    List<DocumentSplit> splits = new ArrayList<>();
 
     // Favor the absolute # variable (second one)
     while (br.ready()) {
@@ -338,7 +335,11 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     // we will divide the corpus by vocab blocks
     VocabularyReader vocabulary = reader.getVocabulary();
     List<IndexBlockInfo> slots = vocabulary.getSlots();
-    ArrayList<byte[]> keys = new ArrayList<byte[]>();
+    ArrayList<byte[]> keys = new ArrayList<>();
+
+    if(slots.isEmpty()) {
+      throw new IllegalArgumentException("Input Corpus file: "+file+" has an empty vocabulary...");
+    }
 
     // look for a manually specified number of corpus pieces:
     int pieces = (int) conf.get("corpusPieces", 10);
@@ -374,7 +375,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
       keys.add(slots.get(slot).firstKey);
     }
 
-    List<DocumentSplit> splits = new ArrayList<DocumentSplit>(pieces);
+    List<DocumentSplit> splits = new ArrayList<>(pieces);
     for (int i = 0; i < pieces; ++i) {
       byte[] firstKey = ByteUtil.EmptyArr;
       byte[] lastKey = ByteUtil.EmptyArr;
@@ -386,7 +387,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
         lastKey = keys.get(i);
       }
 
-      if (Utility.compare(firstKey, lastKey) != 0) {
+      if (!CmpUtil.equals(firstKey, lastKey)) {
         DocumentSplit split = DocumentSplitFactory.file(file);
         split.fileType = "corpus";
         split.startKey = firstKey;

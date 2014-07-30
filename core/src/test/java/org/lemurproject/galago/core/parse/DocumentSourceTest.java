@@ -43,7 +43,7 @@ public class DocumentSourceTest {
   @Test
   public void testUnknownFile() throws Exception {
     Parameters p = Parameters.instance();
-    p.set("filename", "foo.c");
+    p.set("inputPath", "foo.c");
     DocumentSource source = new DocumentSource(new FakeParameters(p));
     FakeProcessor processor = new FakeProcessor();
     source.setProcessor(processor);
@@ -61,7 +61,7 @@ public class DocumentSourceTest {
   public void testUnknownExtension() throws Exception {
     File tempFile = FileUtility.createTemporary();
     Parameters p = Parameters.instance();
-    p.set("filename", tempFile.getAbsolutePath());
+    p.set("inputPath", tempFile.getAbsolutePath());
     DocumentSource source = new DocumentSource(new FakeParameters(p));
     FakeProcessor processor = new FakeProcessor();
     source.setProcessor(processor);

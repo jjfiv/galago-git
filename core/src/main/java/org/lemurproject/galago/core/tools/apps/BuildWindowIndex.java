@@ -1,10 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools.apps;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.List;
 import org.lemurproject.galago.core.index.ExtractIndexDocumentNumbers;
 import org.lemurproject.galago.core.index.disk.CountIndexWriter;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
@@ -18,20 +14,15 @@ import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.core.types.NumberedExtent;
 import org.lemurproject.galago.core.types.TextFeature;
-import org.lemurproject.galago.core.window.ExtractLocations;
-import org.lemurproject.galago.core.window.NumberWordCountThresholder;
-import org.lemurproject.galago.core.window.NumberedExtentThresholder;
-import org.lemurproject.galago.core.window.ReduceNumberWordCount;
-import org.lemurproject.galago.core.window.TextFeatureThresholder;
-import org.lemurproject.galago.core.window.WindowFeaturer;
-import org.lemurproject.galago.core.window.WindowFilter;
-import org.lemurproject.galago.core.window.WindowProducer;
-import org.lemurproject.galago.core.window.WindowToNumberWordCount;
-import org.lemurproject.galago.core.window.WindowToNumberedExtent;
+import org.lemurproject.galago.core.window.*;
+import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.StepInformation;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.List;
 
 /**
  *
@@ -244,7 +235,7 @@ public class BuildWindowIndex extends AppFunction {
     this.buildParameters = p;
 
     this.indexPath = new File(p.getString("indexPath")).getAbsolutePath(); // fail if no path.
-    List<String> inputPaths = p.getAsList("inputPath");
+    List<String> inputPaths = p.getAsList("inputPath", String.class);
 
     // application of defaulty values
     this.stemming = p.get("stemming", false);

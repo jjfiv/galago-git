@@ -1,26 +1,21 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
+import org.lemurproject.galago.core.index.corpus.*;
+import org.lemurproject.galago.core.parse.DocumentNumberer;
+import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.tools.apps.BuildStageTemplates;
+import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.core.types.KeyValuePair;
+import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.tupleflow.execution.*;
+import org.lemurproject.galago.utility.Parameters;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.core.index.corpus.CorpusReader;
-import org.lemurproject.galago.core.parse.DocumentSource;
-import org.lemurproject.galago.core.index.corpus.SplitBTreeKeyWriter;
-import org.lemurproject.galago.core.index.corpus.CorpusFolderWriter;
-import org.lemurproject.galago.core.index.corpus.DocumentToKeyValuePair;
-import org.lemurproject.galago.core.index.corpus.CorpusFileWriter;
-import org.lemurproject.galago.core.index.corpus.KeyValuePairToDocument;
-import org.lemurproject.galago.core.parse.DocumentNumberer;
-import org.lemurproject.galago.core.types.DocumentSplit;
-import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.tupleflow.execution.*;
-import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.execution.StepInformation;
 
 /*
  * @author sjh
@@ -39,21 +34,18 @@ public class MakeCorpus extends AppFunction {
     Stage stage = new Stage("make-corpus");
 
     Parameters p = Parameters.instance();
-    ArrayList<String> inputFiles = new ArrayList<String>();
-    ArrayList<String> inputDirectories = new ArrayList<String>();
+
+    List<String> goodPaths = new ArrayList<>();
     for (String input : inputs) {
       File inputFile = new File(input);
 
-      if (inputFile.isFile()) {
-        inputFiles.add(inputFile.getAbsolutePath());
-      } else if (inputFile.isDirectory()) {
-        inputDirectories.add(inputFile.getAbsolutePath());
+      if (inputFile.isFile() || inputFile.isDirectory()) {
+        goodPaths.add(inputFile.getAbsolutePath());
       } else {
         throw new IOException("Couldn't find file/directory: " + input);
       }
-      p.set("filename", inputFiles);
-      p.set("directory", inputDirectories);
     }
+    p.put("inputPath", goodPaths);
 
     stage.add(new StepInformation(DocumentSource.class, p));
     stage.add(BuildStageTemplates.getParserStep(corpusParameters));
@@ -103,7 +95,7 @@ public class MakeCorpus extends AppFunction {
 
   public Job getMakeCorpusJob(Parameters corpusParams) throws IOException {
 
-    List<String> inputPaths = corpusParams.getAsList("inputPath");
+    List<String> inputPaths = corpusParams.getAsList("inputPath", String.class);
     File corpus = new File(corpusParams.getString("corpusPath"));
 
     // check if we're creating a single file corpus
@@ -132,7 +124,7 @@ public class MakeCorpus extends AppFunction {
     Job job = new Job();
 
     Parameters splitParameters = Parameters.instance();
-    splitParameters.set("corpusPieces", corpusParams.get("distrib", 10));
+    splitParameters.put("corpusPieces", corpusParams.get("distrib", 10));
     job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
     job.add(getParseWriteDocumentsStage(corpusParams, corpusWriterParameters));
     job.add(getIndexWriterStage(corpusWriterParameters));
