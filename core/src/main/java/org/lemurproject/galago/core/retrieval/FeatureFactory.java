@@ -270,8 +270,9 @@ public class FeatureFactory {
             failStr = "NodeParameters must be the first argument, not the " + arguments.size() + "-th.";
             break;
           }
-        } else if (BaseIterator.class.isAssignableFrom(formals.get(0))) {
+        } else if (BaseIterator.class.isAssignableFrom(formals.get(0)) && childIterators.size() > childIdx) {
           // Some number of Iterator, can be different - just do the one at the front now
+          // only if we have a childIterator left to assign!
           if (formals.get(0).isAssignableFrom(childIterators.get(childIdx).getClass())) {
             arguments.add(childIterators.get(childIdx));
             childIdx++;

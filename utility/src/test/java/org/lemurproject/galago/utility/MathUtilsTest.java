@@ -44,4 +44,10 @@ public class MathUtilsTest {
         new double[] { Math.log(2), Math.log(3), Math.log(4) }),
       0.1);
   }
+
+  @Test
+  public void testClamp() {
+    assertEquals(2, MathUtils.clamp(7, 0, 2), 0.001);
+    assertEquals(0, MathUtils.clamp(-5, 0, 2), 0.001);
+  }
 }

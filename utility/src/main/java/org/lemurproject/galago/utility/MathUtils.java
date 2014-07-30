@@ -92,16 +92,28 @@ public class MathUtils {
     
     // find max value - this score will dominate the final score
     double max = Double.NEGATIVE_INFINITY;
-    for (int i = 0; i < scores.length; i++) {
-      max = Math.max(scores[i], max);
+    for (double score : scores) {
+      max = Math.max(score, max);
     }
 
     double sum = 0;
     for (int i = 0; i < scores.length; i++) {
-      sum += weights[i] * java.lang.Math.exp(scores[i] - max);
+      sum += weights[i] * Math.exp(scores[i] - max);
     }
-    sum = max + java.lang.Math.log(sum);
+    sum = max + Math.log(sum);
 
     return sum;
+  }
+
+  /** clamp input to be a probability, and then take the natural log */
+  public static double logprob(double input) {
+    return Math.log(MathUtils.clamp(input, CmpUtil.epsilon, 1.0));
+  }
+
+  public static double clamp(double input, double min, double max) {
+    return
+      (input < min) ? min :
+      (input > max) ? max :
+        input;
   }
 }
