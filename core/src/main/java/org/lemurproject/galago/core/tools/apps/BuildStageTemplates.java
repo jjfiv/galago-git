@@ -144,21 +144,15 @@ public class BuildStageTemplates {
     Stage stage = new Stage("inputSplit");
     stage.addOutput("splits", order);
 
-    List<String> inputFiles = new ArrayList<String>();
-    List<String> inputDirectories = new ArrayList<String>();
+    // check paths
     for (String input : inputPaths) {
       File inputFile = new File(input);
 
-      if (inputFile.isFile()) {
-        inputFiles.add(inputFile.getAbsolutePath());
-      } else if (inputFile.isDirectory()) {
-        inputDirectories.add(inputFile.getAbsolutePath());
-      } else {
+      if (!inputFile.isFile() && !inputFile.isDirectory()) {
         throw new IOException("Couldn't find file/directory: " + input);
       }
     }
-    p.set("filename", inputFiles);
-    p.set("directory", inputDirectories);
+    p.set("inputPaths", inputPaths);
 
     stage.add(new StepInformation(sourceClass, p));
     stage.add(Utility.getSorter(order));
