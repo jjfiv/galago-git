@@ -3,6 +3,7 @@ package org.lemurproject.galago.utility;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MathUtilsTest {
 
@@ -49,5 +50,14 @@ public class MathUtilsTest {
   public void testClamp() {
     assertEquals(2, MathUtils.clamp(7, 0, 2), 0.001);
     assertEquals(0, MathUtils.clamp(-5, 0, 2), 0.001);
+  }
+
+  @Test
+  public void testSigmoid() {
+    assertTrue(MathUtils.sigmoid(100.0) <= 1.0);
+    assertTrue(MathUtils.sigmoid(100.0) >= 0.0);
+    assertEquals(0.5, MathUtils.sigmoid(0.0), 0.001);
+    assertTrue(MathUtils.sigmoid(-100.0) >= 0.0);
+    assertTrue(MathUtils.sigmoid(-100.0) <= 1.0);
   }
 }

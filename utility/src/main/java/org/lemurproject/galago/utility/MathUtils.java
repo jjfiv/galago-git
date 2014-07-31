@@ -116,4 +116,12 @@ public class MathUtils {
       (input > max) ? max :
         input;
   }
+
+  /**
+   * Converts something on (-inf, +inf) to (0,1).
+   * http://en.wikipedia.org/wiki/Sigmoid_function
+   */
+  public static double sigmoid(double t) {
+    return 1.0 / (1.0 + Math.exp(-t));
+  }
 }
