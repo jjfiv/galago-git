@@ -35,7 +35,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     documentCounter = parameters.getCounter("Documents Parsed");
     this.parameters = parameters.getJSON();
 
-    DocumentStreamParser.addExternalParsers(this.parameters.get("parser", Parameters.instance()));
+    DocumentStreamParser.addExternalParsers(this.parameters);
   }
 
   @Override

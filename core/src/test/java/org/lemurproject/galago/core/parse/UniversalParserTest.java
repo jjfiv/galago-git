@@ -299,16 +299,16 @@ public class UniversalParserTest {
             Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.instance());
 
             FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
-            assertEquals(cs.collectionLength, 822);
+            assertEquals(cs.collectionLength, 622); // trecweb with trectext will be empty
             assertEquals(cs.documentCount, 41);
             assertEquals(cs.maxLength, 22);
             assertEquals(cs.minLength, 20);
 
             IndexPartStatistics is1 = ret.getIndexPartStatistics("postings");
-            assertEquals(is1.collectionLength, 822);
+            assertEquals(is1.collectionLength, 622);
 
             IndexPartStatistics is2 = ret.getIndexPartStatistics("postings.krovetz");
-            assertEquals(is2.collectionLength, 822);
+            assertEquals(is2.collectionLength, 622);
 
             // should have about the same vocabs
             assertEquals(is1.vocabCount, is2.vocabCount);
