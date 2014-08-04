@@ -2,6 +2,8 @@
 package org.lemurproject.galago.core.retrieval;
 
 import org.lemurproject.galago.core.retrieval.iterator.*;
+import org.lemurproject.galago.core.retrieval.iterator.counts.LogCountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.counts.CountsSumIterator;
 import org.lemurproject.galago.core.retrieval.iterator.scoring.*;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -29,13 +31,13 @@ public class FeatureFactory {
   protected List<TraversalSpec> traversals;
   protected Parameters parameters;
   static String[][] sOperatorLookup = {
-    {ThresholdIterator.class.getName(), "threshold"},
-    {ScoreCombinationIterator.class.getName(), "combine"},
-    {WeightedSumIterator.class.getName(), "wsum"},
+    // count iterators
+    {MinCountIterator.class.getName(), "mincount"},
+    {CountsSumIterator.class.getName(), "count-sum"},
+
+    // extent iterators
     {SynonymIterator.class.getName(), "syn"},
     {SynonymIterator.class.getName(), "synonym"},
-    {ExtentInsideIterator.class.getName(), "inside"},
-    {MinCountIterator.class.getName(), "mincount"},
     {OrderedWindowIterator.class.getName(), "ordered"},
     {OrderedWindowIterator.class.getName(), "od"},
     {BigramIterator.class.getName(), "bigram"},
@@ -44,24 +46,20 @@ public class FeatureFactory {
     {UnorderedWindowIterator.class.getName(), "uw"},
     {UnorderedWindowBigramIterator.class.getName(), "ubigram"},
     {UnorderedWindowIterator.class.getName(), "intersect"},
+    {NullExtentIterator.class.getName(), "null"},
+
+    // score iterators
+    {ScoreCombinationIterator.class.getName(), "combine"},
+    {WeightedSumIterator.class.getName(), "wsum"},
+    {ThresholdIterator.class.getName(), "threshold"}, // score -> indicator
     {ScaleIterator.class.getName(), "scale"},
     {ScoreCombinationIterator.class.getName(), "rm"},
     {ScoreCombinationIterator.class.getName(), "bm25rf"},
     {BM25FCombinationIterator.class.getName(), "bm25fcomb"},
     {BM25FCombinationIterator.class.getName(), "bm25fcomb"},
-    {UniversalIndicatorIterator.class.getName(), "all"},
-    {ExistentialIndicatorIterator.class.getName(), "any"},
-    {NullExtentIterator.class.getName(), "null"},
-    {RequireIterator.class.getName(), "require"},
-    {RejectIterator.class.getName(), "reject"},
-    {GreaterThanIterator.class.getName(), "greater"},
-    {LessThanIterator.class.getName(), "less"},
-    {InBetweenIterator.class.getName(), "between"},
-    {EqualityIterator.class.getName(), "equals"},
-    {PassageFilterIterator.class.getName(), "passagefilter"},
-    {PL2ScoringIterator.class.getName(), "pl2scorer"},
-    {PassageLengthIterator.class.getName(), "passagelengths"},
     {LogProbNotIterator.class.getName(), "logprobnot"},
+
+    // count -> score iterators
     // Scorers can be named directly as nodes
     {DirichletScoringIterator.class.getName(), "dirichlet"},
     {JelinekMercerScoringIterator.class.getName(), "linear"},
@@ -72,7 +70,29 @@ public class FeatureFactory {
     {LogarithmIterator.class.getName(), "log"},
     {PL2ScoringIterator.class.getName(), "pl2"},
     {InL2ScoringIterator.class.getName(), "inl2"},
-    {BiL2ScoringIterator.class.getName(), "bil2"}
+    {BiL2ScoringIterator.class.getName(), "bil2"},
+    {LogCountIterator.class.getName(), "log-count"},
+
+    // indicator iterators
+    {UniversalIndicatorIterator.class.getName(), "all"},
+    {ExistentialIndicatorIterator.class.getName(), "any"},
+
+    // generic iterators
+    {RequireIterator.class.getName(), "require"},
+    {RejectIterator.class.getName(), "reject"},
+
+    //field iterators
+    {ExtentInsideIterator.class.getName(), "inside"},
+    {GreaterThanIterator.class.getName(), "greater"},
+    {LessThanIterator.class.getName(), "less"},
+    {InBetweenIterator.class.getName(), "between"},
+    {EqualityIterator.class.getName(), "equals"},
+
+    //pasage iterators
+    {PassageFilterIterator.class.getName(), "passagefilter"},
+    {PL2ScoringIterator.class.getName(), "pl2scorer"},
+    {PassageLengthIterator.class.getName(), "passagelengths"},
+
   };
   static String[] sTraversalList = {
     RelevanceModelTraversal.class.getName(),

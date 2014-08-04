@@ -1,20 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import org.lemurproject.galago.core.index.BTreeFactory;
-import org.lemurproject.galago.core.index.BTreeReader;
-import org.lemurproject.galago.core.index.KeyToListIterator;
-import org.lemurproject.galago.core.index.KeyValueReader;
-import org.lemurproject.galago.core.index.NamesReverseReader;
+import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.ByteUtil;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Reads a binary file of document names produced by DocumentNameWriter2
@@ -48,8 +44,7 @@ public class DiskNameReverseReader extends KeyValueReader implements NamesRevers
 
   @Override
   public Map<String, NodeType> getNodeTypes() {
-    HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    return types;
+    return Collections.emptyMap();
   }
 
   @Override

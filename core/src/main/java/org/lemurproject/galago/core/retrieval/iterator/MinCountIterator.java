@@ -3,12 +3,13 @@
  */
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -33,7 +34,7 @@ public class MinCountIterator extends ConjunctionIterator implements CountIterat
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
     String returnValue = Integer.toString(count(c));
-    List<AnnotatedNode> children = new ArrayList();
+    List<AnnotatedNode> children = new ArrayList<>();
     for (BaseIterator child : this.iterators) {
       children.add(child.getAnnotatedNode(c));
     }

@@ -3,14 +3,15 @@
  */
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import java.lang.reflect.Constructor;
-import java.util.List;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.utility.Parameters;
+
+import java.lang.reflect.Constructor;
+import java.util.List;
 
 /**
  *
@@ -46,10 +47,10 @@ public class InsertLengthsTraversal extends Traversal {
     }
     
     Constructor cons = nt.getConstructor();
-    Class[] params = cons.getParameterTypes();
+    Class<?>[] params = cons.getParameterTypes();
 
-    for (int idx = 0; idx < params.length; idx++) {
-      if (LengthsIterator.class.isAssignableFrom(params[idx])) {
+    for (Class<?> param : params) {
+      if (LengthsIterator.class.isAssignableFrom(param)) {
         Node child = (childIdx < children.size()) ? children.get(childIdx) : null;
         NodeType cnt = (child != null) ? retrieval.getNodeType(child) : null;
 
@@ -68,9 +69,9 @@ public class InsertLengthsTraversal extends Traversal {
           node.addChild(lenNodeClone, childIdx);
           childIdx++;
         }
-      } else if (Parameters.class.isAssignableFrom(params[idx])) {
+      } else if (Parameters.class.isAssignableFrom(param)) {
         childIdx--;
-      } else if (NodeParameters.class.isAssignableFrom(params[idx])) {
+      } else if (NodeParameters.class.isAssignableFrom(param)) {
         childIdx--;
       }
       childIdx++;

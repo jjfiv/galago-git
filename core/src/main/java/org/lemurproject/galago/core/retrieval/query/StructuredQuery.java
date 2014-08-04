@@ -100,7 +100,7 @@ public class StructuredQuery {
 
   public static Node parseQuotedTerms(TokenStream tokens) {
     assert tokens.currentEquals("\"");
-    ArrayList<Node> children = new ArrayList<Node>();
+    ArrayList<Node> children = new ArrayList<>();
     int position = tokens.current().position;
     tokens.next();
 
@@ -133,13 +133,13 @@ public class StructuredQuery {
   }
 
   public static ArrayList<Node> parseFieldList(TokenStream tokens) {
-    ArrayList<Node> nodes = new ArrayList<Node>();
-    Node field = new Node("field", new NodeParameters(tokens.current().text), new ArrayList(), tokens.current().position);
+    ArrayList<Node> nodes = new ArrayList<>();
+    Node field = new Node("field", new NodeParameters(tokens.current().text), new ArrayList<Node>(), tokens.current().position);
     nodes.add(field);
     tokens.next();
     while (tokens.currentEquals(",")) {
       tokens.next();
-      field = new Node("field", new NodeParameters(tokens.current().text), new ArrayList(), tokens.current().position);
+      field = new Node("field", new NodeParameters(tokens.current().text), new ArrayList<Node>(), tokens.current().position);
       nodes.add(field);
       tokens.next();
     }
@@ -147,13 +147,13 @@ public class StructuredQuery {
   }
 
   public static Node nodeWithOptionalExtentOr(String operator, Node child, ArrayList<Node> orFields) {
-    Node second = null;
+    Node second;
     if (orFields.size() == 1) {
       second = orFields.get(0);
     } else {
       second = new Node("extentor", orFields);
     }
-    ArrayList<Node> children = new ArrayList<Node>();
+    ArrayList<Node> children = new ArrayList<>();
     children.add(child);
     children.add(second);
     return new Node(operator, children);
@@ -200,7 +200,7 @@ public class StructuredQuery {
   }
 
   public static ArrayList<Node> parseArgumentList(TokenStream tokens) {
-    ArrayList<Node> arguments = new ArrayList<Node>();
+    ArrayList<Node> arguments = new ArrayList<>();
     while (tokens.hasCurrent()) {
       if (tokens.current().text.equals(")")) {
         break;
@@ -233,14 +233,14 @@ public class StructuredQuery {
   }
 
   public static Set<String> findQueryTerms(Node queryTree) {
-    Set<String> operators = new HashSet();
+    Set<String> operators = new HashSet<>();
     operators.add("counts");
     operators.add("extents");
     return findQueryTerms(queryTree, operators);
   }
 
   public static Set<String> findQueryTerms(Node queryTree, Set<String> operators) {
-    HashSet<String> queryTerms = new HashSet<String>();
+    HashSet<String> queryTerms = new HashSet<>();
 
     if (operators.contains(queryTree.getOperator())) {
       queryTerms.add(queryTree.getNodeParameters().getString("default"));
