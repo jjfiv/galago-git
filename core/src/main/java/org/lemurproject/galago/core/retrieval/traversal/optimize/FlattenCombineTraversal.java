@@ -3,13 +3,14 @@
  */
 package org.lemurproject.galago.core.retrieval.traversal.optimize;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.utility.Parameters;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This traversal removes extraneous combines.
@@ -46,7 +47,7 @@ public class FlattenCombineTraversal extends Traversal {
         NodeParameters oldParameters = original.getNodeParameters();
 
         boolean nestedCombine = false;
-        ArrayList<Node> newChildren = new ArrayList();
+        ArrayList<Node> newChildren = new ArrayList<>();
         NodeParameters newParameters = new NodeParameters();
 
         assert (children.size() > 0) : "#combine operators must have more than one child.";

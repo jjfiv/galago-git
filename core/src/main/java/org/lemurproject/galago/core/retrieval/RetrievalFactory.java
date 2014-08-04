@@ -1,14 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
+import org.lemurproject.galago.utility.Parameters;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.lemurproject.galago.utility.Parameters;
+import java.util.*;
 
 /**
  * Class for creating retrieval objects based on provided parameters
@@ -38,20 +35,20 @@ public class RetrievalFactory {
 
       // if we have a list of index paths:
     } else if (parameters.isList("index")) {
-      List<String> indexes = (List<String>) parameters.getList("index");
+      List<String> indexes = parameters.getList("index", String.class);
       return instance(indexes, parameters);
 
       // if we have a mapping from groupName to list of index paths
     } else if (parameters.isMap("index")) {
       Parameters groups = parameters.getMap("index");
-      Map<String, Retrieval> indexGroups = new HashMap<String, Retrieval>();
+      Map<String, Retrieval> indexGroups = new HashMap<>();
       String defGroup = parameters.get("defaultGroup", groups.getKeys().iterator().next());
 
       for (String group : groups.getKeys()) {
         if (groups.isString(group)) {
           indexGroups.put(group, instance(groups.getString(group), parameters));
         } else if (groups.isList(group)) {
-          indexGroups.put(group, instance(groups.getList(group), parameters));
+          indexGroups.put(group, instance(groups.getList(group, String.class), parameters));
         }
       }
 
@@ -91,7 +88,7 @@ public class RetrievalFactory {
       return instance(indexes.get(0), parameters);
     }
 
-    ArrayList<Thread> openers = new ArrayList<Thread>();
+    ArrayList<Thread> openers = new ArrayList<>();
     final Parameters shardParameters = parameters;
     final List<Retrieval> retrievals = Collections.synchronizedList(new ArrayList<Retrieval>());
     final List<String> errors = Collections.synchronizedList(new ArrayList<String>());
@@ -123,6 +120,6 @@ public class RetrievalFactory {
       throw new RuntimeException("Failed to open one or more indexes.");
     }
 
-    return new MultiRetrieval(new ArrayList<Retrieval>(retrievals), parameters);
+    return new MultiRetrieval(new ArrayList<>(retrievals), parameters);
   }
 }

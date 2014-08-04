@@ -1,23 +1,17 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
-import org.lemurproject.galago.core.index.BTreeValueIterator;
-import org.lemurproject.galago.core.index.CompressedByteBuffer;
-import org.lemurproject.galago.core.index.DiskSpillCompressedByteBuffer;
-import org.lemurproject.galago.core.index.BTreeWriter;
-import org.lemurproject.galago.core.index.IndexElement;
+import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.types.NumberWordCount;
+import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Step;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.utility.CmpUtil;
+import org.lemurproject.galago.utility.Parameters;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Count Indexes are similar to a Position or Window Index Writer, except that
@@ -51,11 +45,11 @@ public class CountIndexWriter implements
   /**
    * Creates a new instance of CountIndexWriter
    */
-  public CountIndexWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
+  public CountIndexWriter(TupleFlowParameters parameters) throws IOException {
     this.actualParams = parameters.getJSON();
-    this.actualParams.set("writerClass", CountIndexWriter.class.getName());
-    this.actualParams.set("readerClass", CountIndexReader.class.getName());
-    this.actualParams.set("defaultOperator", "counts");
+    this.actualParams.setIfMissing("writerClass", CountIndexWriter.class.getName());
+    this.actualParams.setIfMissing("readerClass", CountIndexReader.class.getName());
+    this.actualParams.setIfMissing("defaultOperator", "counts");
 
     this.writer = new DiskBTreeWriter(parameters);
 
@@ -81,7 +75,7 @@ public class CountIndexWriter implements
 
     invertedList = new CountsList();
     invertedList.setWord(wordBytes);
-    assert lastWord == null || 0 != Utility.compare(lastWord, wordBytes) : "Duplicate word";
+    assert lastWord == null || !CmpUtil.equals(lastWord, wordBytes) : "Duplicate word";
     lastWord = wordBytes;
 
     vocabCount++;
@@ -302,6 +296,18 @@ public class CountIndexWriter implements
         }
         numSkips++;
       }
+    }
+  }
+
+  public static Processor<NumberWordCount> makeSortedPipeline(Parameters config) throws IOException {
+    try {
+      Sorter<NumberWordCount> sorter = new Sorter<>(new NumberWordCount.WordDocumentOrder());
+      CountIndexWriter writer = new CountIndexWriter(new FakeParameters(config));
+      // set up mini processor pipeline
+      sorter.setProcessor(new NumberWordCount.WordDocumentOrder.TupleShredder(writer));
+      return sorter;
+    } catch (IncompatibleProcessorException e) {
+      throw new RuntimeException(e);
     }
   }
 }

@@ -1,9 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
@@ -17,6 +14,10 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Reads a count based index structure mapping( term -> list(document-id),
  * list(document-freq) )
@@ -27,15 +28,18 @@ import org.lemurproject.galago.utility.Parameters;
  */
 public class CountIndexReader extends KeyListReader implements AggregateIndexPart {
 
+  public final String operation;
   Stemmer stemmer;
 
   public CountIndexReader(BTreeReader reader) throws Exception {
     super(reader);
+    operation = reader.getManifest().get("defaultOperator", "counts");
     stemmer = Stemmer.instance(reader.getManifest());
   }
 
   public CountIndexReader(String pathname) throws Exception {
     super(pathname);
+    operation = reader.getManifest().get("defaultOperator", "counts");
     stemmer = Stemmer.instance(reader.getManifest());
   }
 
@@ -64,13 +68,13 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
   @Override
   public Map<String, NodeType> getNodeTypes() {
     HashMap<String, NodeType> types = new HashMap<String, NodeType>();
-    types.put("counts", new NodeType(DiskCountIterator.class));
+    types.put(operation, new NodeType(DiskCountIterator.class));
     return types;
   }
 
   @Override
   public BaseIterator getIterator(Node node) throws IOException {
-    if (node.getOperator().equals("counts")) {
+    if (node.getOperator().equals(operation)) {
       return getTermCounts(node.getDefaultParameter());
     }
     return null;
