@@ -91,7 +91,7 @@ public class Node implements Serializable {
     this.nodeParameters = nodeParameters;
     this.parent = null;
 
-    this.internalNodes = new ArrayList<Node>();
+    this.internalNodes = new ArrayList<>();
     for (Node c : internalNodes) {
       addChild(c);
     }
@@ -403,9 +403,9 @@ public class Node implements Serializable {
     return hash;
   }
 
-  public static List<Node> cloneNodeList(List<Node> textNodes) {
+  public static List<Node> cloneNodeList(List<Node> nodeList) {
     ArrayList<Node> newNodes = new ArrayList<Node>();
-    for (Node n : textNodes) {
+    for (Node n : nodeList) {
       newNodes.add(n.clone());
     }
     return newNodes;

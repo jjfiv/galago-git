@@ -89,8 +89,8 @@ public class SequentialDependenceTraversal extends Traversal {
       boolean fast = np.get("fast", qp.get("fast", fasterOperators));
 
       // ordered and unordered can go at the same time
-      ArrayList<Node> ordered = new ArrayList<Node>();
-      ArrayList<Node> unordered = new ArrayList<Node>();
+      ArrayList<Node> ordered = new ArrayList<>();
+      ArrayList<Node> unordered = new ArrayList<>();
 
       for (int n = 2; n <= windowLimit; n++) {
         for (int i = 0; i < (children.size() - n + 1); i++) {
@@ -128,8 +128,7 @@ public class SequentialDependenceTraversal extends Traversal {
       immediateChildren.add(unorderedWindowNode);
 
       // Finally put them all inside a combine node w/ the weights
-      Node outerweight = new Node("combine", weights, immediateChildren, original.getPosition());
-      return outerweight;
+      return new Node("combine", weights, immediateChildren, original.getPosition());
     } else {
       return original;
     }

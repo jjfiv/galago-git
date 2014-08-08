@@ -56,6 +56,14 @@ public class FixedSizeMinHeap<T> {
     return data;
   }
 
+  public List<T> getUnsortedList() {
+    ArrayList<T> data = new ArrayList<>(_position);
+    for (int i = 0; i < _position; i++) {
+      data.add(_heap[i]);
+    }
+    return data;
+  }
+
   private void bubbleUp(int pos) {
     int parent = (pos - 1) / 2;
     if (_cmp.compare(_heap[pos], _heap[parent]) < 0) {

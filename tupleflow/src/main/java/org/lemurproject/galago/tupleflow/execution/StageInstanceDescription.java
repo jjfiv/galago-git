@@ -86,7 +86,7 @@ public class StageInstanceDescription implements Serializable {
     }
 
     public String[] getFileNames() {
-      ArrayList<String[]> allFilenames = new ArrayList();
+      ArrayList<String[]> allFilenames = new ArrayList<>();
       int totalNames = 0;
 
       for (int i = start; i < stop; i++) {

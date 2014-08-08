@@ -28,7 +28,7 @@ public class NodeParameters implements Serializable {
     STRING, LONG, DOUBLE, MAP, BOOLEAN, LIST
   }
 
-  private HashMap<String, Type> keyMapping = new HashMap();
+  private HashMap<String, Type> keyMapping = new HashMap<>();
   private HashMap<String, String> stringMap = null;
   private TObjectByteHashMap<String> boolMap = null;
   private TObjectLongHashMap<String> longMap = null;
@@ -67,36 +67,40 @@ public class NodeParameters implements Serializable {
     return this.keyMapping.containsKey(key);
   }
 
-  public void set(String key, boolean value) {
+  public NodeParameters set(String key, boolean value) {
     ensureKeyType(key, Type.BOOLEAN);
     if (boolMap == null) {
-      boolMap = new TObjectByteHashMap();
+      boolMap = new TObjectByteHashMap<>();
     }
     boolMap.put(key, (value ? (byte) 1 : (byte) 0));
+    return this;
   }
 
-  public void set(String key, long value) {
+  public NodeParameters set(String key, long value) {
     ensureKeyType(key, Type.LONG);
     if (longMap == null) {
-      longMap = new TObjectLongHashMap();
+      longMap = new TObjectLongHashMap<>();
     }
     longMap.put(key, value);
+    return this;
   }
 
-  public void set(String key, double value) {
+  public NodeParameters set(String key, double value) {
     ensureKeyType(key, Type.DOUBLE);
     if (doubleMap == null) {
-      doubleMap = new TObjectDoubleHashMap();
+      doubleMap = new TObjectDoubleHashMap<>();
     }
     doubleMap.put(key, value);
+    return this;
   }
 
-  public void set(String key, String value) {
+  public NodeParameters set(String key, String value) {
     ensureKeyType(key, Type.STRING);
     if (stringMap == null) {
-      stringMap = new HashMap();
+      stringMap = new HashMap<>();
     }
     stringMap.put(key, value);
+    return this;
   }
 
   public boolean getBoolean(String key) {
@@ -221,19 +225,19 @@ public class NodeParameters implements Serializable {
   public NodeParameters clone() {
     NodeParameters duplicate = new NodeParameters();
     if (keyMapping != null) {
-      duplicate.keyMapping = (HashMap<String, Type>) this.keyMapping.clone();
+      duplicate.keyMapping = new HashMap<>(this.keyMapping);
     }
     if (boolMap != null) {
-      duplicate.boolMap = new TObjectByteHashMap(boolMap);
+      duplicate.boolMap = new TObjectByteHashMap<>(boolMap);
     }
     if (longMap != null) {
-      duplicate.longMap = new TObjectLongHashMap(longMap);
+      duplicate.longMap = new TObjectLongHashMap<>(longMap);
     }
     if (doubleMap != null) {
-      duplicate.doubleMap = new TObjectDoubleHashMap(doubleMap);
+      duplicate.doubleMap = new TObjectDoubleHashMap<>(doubleMap);
     }
     if (stringMap != null) {
-      duplicate.stringMap = (HashMap<String, String>) this.stringMap.clone();
+      duplicate.stringMap = new HashMap<>(this.stringMap);
     }
     return duplicate;
   }
@@ -250,7 +254,7 @@ public class NodeParameters implements Serializable {
     }
 
     // sort remaining keys alphabetically.
-    ArrayList<String> keys = new ArrayList(keyMapping.keySet());
+    ArrayList<String> keys = new ArrayList<>(keyMapping.keySet());
     Collections.sort(keys);
     for (String key : keys) {
       // need to ensure "default" is not double written.
@@ -278,7 +282,7 @@ public class NodeParameters implements Serializable {
     }
 
     // sort remaining keys alphabetically.
-    ArrayList<String> keys = new ArrayList(keyMapping.keySet());
+    ArrayList<String> keys = new ArrayList<>(keyMapping.keySet());
     Collections.sort(keys);
     for (String key : keys) {
       // need to ensure "default" is not double written.
@@ -302,8 +306,8 @@ public class NodeParameters implements Serializable {
   }
 
   public ArrayList<String> collectCombineWeightList() {
-    ArrayList<String> combineWeightList = new ArrayList<String>();
-    ArrayList<String> keys = new ArrayList(keyMapping.keySet());
+    ArrayList<String> combineWeightList = new ArrayList<>();
+    ArrayList<String> keys = new ArrayList<>(keyMapping.keySet());
     //Collections.sort(keys);
     Collections.sort(keys, new Comparator<String>() {
 
