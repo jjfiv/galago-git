@@ -10,6 +10,7 @@ import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
 import java.io.DataInput;
+import java.io.EOFException;
 import java.io.IOException;
 
 /**
@@ -176,11 +177,17 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
     // Prep the extents
     extentArray.reset();
     extentsLoaded = false;
-    if (currentCount > inlineMinimum) {
-      extentsByteSize = positions.readInt();
-    } else {
-      // Load them aggressively since we can't skip them
-      loadExtents();
+    try {
+      if (currentCount > inlineMinimum) {
+        extentsByteSize = positions.readInt();
+      } else {
+        // Load them aggressively since we can't skip them
+        loadExtents();
+      }
+    } catch (EOFException eof) {
+      System.out.println(documentCount);
+      System.out.println(documentIndex);
+      throw new RuntimeException(eof);
     }
   }
   

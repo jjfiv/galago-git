@@ -50,7 +50,7 @@ public class GridSearchLearnerTest {
       learnParams.set("learner", "grid");
       learnParams.set("qrels", qrels.getAbsolutePath());
       // add two parameters
-      List<Parameters> learnableParams = new ArrayList<Parameters>();
+      List<Parameters> learnableParams = new ArrayList<>();
       learnableParams.add(Parameters.parseString("{\"name\":\"0\", \"max\":1.0, \"min\":-1.0}"));
       learnableParams.add(Parameters.parseString("{\"name\":\"1\", \"max\":1.0, \"min\":-1.0}"));
       learnParams.set("learnableParameters", learnableParams);

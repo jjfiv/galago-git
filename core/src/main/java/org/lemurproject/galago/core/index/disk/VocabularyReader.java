@@ -26,7 +26,7 @@ public class VocabularyReader {
   List<IndexBlockInfo> slots;
 
   public VocabularyReader(BufferedFileDataStream input, long valueDataEnd) throws IOException {
-    slots = new ArrayList<IndexBlockInfo>();
+    slots = new ArrayList<>();
     read(input, valueDataEnd);
   }
 

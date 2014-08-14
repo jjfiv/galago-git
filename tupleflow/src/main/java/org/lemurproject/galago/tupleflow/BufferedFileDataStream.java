@@ -1,51 +1,50 @@
-    // BSD License (http://lemurproject.org/galago-license)
+// BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow;
 
-    import java.io.EOFException;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 
-    /**
-     *
-     * @author trevor
-     */
+/**
+ *
+ * @author trevor
+ */
 public class BufferedFileDataStream extends DataStream {
-
   // the fileStream object must be used in a synchronous manner
   // as this class is used heavily by the IndexReader class
   final RandomAccessFile fileStream;
+  ByteBuffer bbCache;
   long stopPosition;
   long startPosition;
-  final static int cacheLength = 32768;
+  final static int cacheLength = 0x8000; //32768;
   long bufferStart;
-  int bufferPosition;
-  byte[] cacheBuffer;
+  //byte[] cacheBuffer;
 
   /** Creates a new instance of BufferedFileDataStream */
-  public BufferedFileDataStream(RandomAccessFile input, long start, long end) {
+  public BufferedFileDataStream(RandomAccessFile input, long start, long end) throws IOException {
     assert start <= end;
 
     this.fileStream = input;
     this.stopPosition = end;
-    this.cacheBuffer = new byte[0];
-    this.bufferPosition = 0;
+    this.bbCache = ByteBuffer.allocate(0);
+    //this.cacheBuffer = new byte[0];
     this.bufferStart = start;
     this.startPosition = start;
   }
 
   @Override
-  public BufferedFileDataStream subStream(long start, long length) {
+  public BufferedFileDataStream subStream(long start, long length) throws IOException {
     assert start < length();
     assert start + length <= length();
     return new BufferedFileDataStream(
-            fileStream, bufferStart + start,
-            bufferStart + start + length);
+        fileStream, bufferStart + start,
+        bufferStart + start + length);
   }
 
   @Override
   public boolean isDone() {
-    final long position = bufferStart + bufferPosition;
-    return position >= stopPosition;
+    return getAbsolutePosition() >= stopPosition;
   }
 
   @Override
@@ -55,11 +54,11 @@ public class BufferedFileDataStream extends DataStream {
 
   @Override
   public long getPosition() {
-    return getAbsolutePosition() - startPosition;
+    return (bufferStart-startPosition)+bbCache.position();
   }
 
   public long getAbsolutePosition() {
-    return bufferStart + bufferPosition;
+    return bufferStart+bbCache.position();
   }
 
   /**
@@ -77,32 +76,32 @@ public class BufferedFileDataStream extends DataStream {
    * seeks are not allowed).  The offset is relative to the start of the file.
    */
   private void seekAbsolute(long offset) {
-    assert bufferStart + bufferPosition <= offset;
+    assert bufferStart + bbCache.position() <= offset;
 
     // is any of this data cached?
-    if (offset - bufferStart < cacheBuffer.length) {
+    // int length = cacheBuffer.length;
+    int length = bbCache.limit();
+    if(offset - bufferStart < length) {
       // this cast is safe because we know it's smaller than cacheBuffer.length
-      bufferPosition = (int) (offset - bufferStart);
+      bbCache.position((int) (offset - bufferStart));
     } else {
       // this sets the fileStream position to the appropriate point,
       // and effectively invalidates the current cache contents.
-      bufferStart = offset - cacheBuffer.length;
-      bufferPosition = cacheBuffer.length;
+      bufferStart = offset - length;
+      bbCache.position(length);
     }
   }
 
   @Override
   public void readFully(byte[] buffer, int start, int length) throws IOException {
     cache(length);
-    System.arraycopy(cacheBuffer, bufferPosition, buffer, start, length);
-    update(length);
+    bbCache.get(buffer, start, length);
   }
 
   @Override
   public void readFully(byte[] buffer) throws IOException {
     cache(buffer.length);
-    System.arraycopy(cacheBuffer, bufferPosition, buffer, 0, buffer.length);
-    update(buffer.length);
+    bbCache.get(buffer);
   }
 
   @Override
@@ -170,19 +169,7 @@ public class BufferedFileDataStream extends DataStream {
   @Override
   public int readInt() throws IOException {
     cache(4);
-
-    int a = cacheByte(0);
-    int b = cacheByte(1);
-    int c = cacheByte(2);
-    int d = cacheByte(3);
-
-    int result = ((a & 0xff) << 24)
-            | ((b & 0xff) << 16)
-            | ((c & 0xff) << 8)
-            | (d & 0xff);
-
-    update(4);
-    return result;
+    return bbCache.getInt();
   }
 
   @Override
@@ -205,15 +192,16 @@ public class BufferedFileDataStream extends DataStream {
 
   @Override
   public String readUTF() throws IOException {
-    throw new IOException("readUTF is unimplemented");
+    throw new UnsupportedOperationException("readUTF is unimplemented");
   }
 
   // inlining here for performance
   @Override
   public int readUnsignedByte() throws IOException {
-    if (cacheBuffer.length - bufferPosition >= 1) {
-      int result = 0xff & (int) cacheBuffer[bufferPosition];
-      bufferPosition += 1;
+    //int length = cacheBuffer.length;
+    int length = bbCache.limit();
+    if (length - bbCache.position() >= 1) {
+      int result = 0xff & (int) bbCache.get();
       return result;
     } else {
       cache(1);
@@ -225,41 +213,45 @@ public class BufferedFileDataStream extends DataStream {
 
   private void cache(int length) throws IOException {
     assert length >= 0 : "Length can't be negative: " + length + " "
-            + bufferStart + " " + bufferPosition + " " + stopPosition;
+        + bufferStart + " " + stopPosition;
 
     // quick check to see if it's already buffered
-    if (cacheBuffer.length - bufferPosition >= length) {
-      return;        // if it's not buffered, is there enough room left in the
+    int bufLength = bbCache.limit();
+    if (bufLength - bbCache.position() >= length) {
+      return;
+      // if it's not buffered, is there enough room left in the
       // file to cache this much data?
     }
-    if (bufferStart + bufferPosition + length > stopPosition) {
+    if (bufferStart + bbCache.position() + length > stopPosition) {
       throw new EOFException("Tried to read off the end of the file.\n"+
-        "bufferStart: "+bufferStart+" bufferPos: "+bufferPosition+" length:"+length+" stopAt:"+stopPosition);
+          "bufferStart: "+bufferStart+" bufferPos: "+bbCache.position()+" length:"+length+" stopAt:"+stopPosition);
     }
-    long current = bufferStart + bufferPosition;
+
+    long current = bufferStart + bbCache.position();
     int readLength = (int) Math.min(stopPosition - current, cacheLength);
     readLength = Math.max(readLength, length);
 
-    if (readLength != cacheBuffer.length) {
-      cacheBuffer = new byte[readLength];
+    if(readLength != bbCache.capacity()) {
+      bbCache = ByteBuffer.allocate(readLength);
     }
-
-    // this is the only time this file accesses the fileStream
-    synchronized (fileStream) {
-      fileStream.seek(current);
-      fileStream.readFully(cacheBuffer);
-    }
-
+    bbCache.rewind();
+    fileStream.getChannel().read(bbCache, current);
+    bbCache.rewind();
     bufferStart = current;
-    bufferPosition = 0;
   }
 
-  private void update(int length) {
-    bufferPosition += length;
+  private void update(int length) throws IOException {
+    int nextPos = bbCache.position()+length;
+    if(nextPos > bbCache.limit()) {
+      bufferStart += nextPos;
+      bbCache = ByteBuffer.allocate(0);
+      return;
+    }
+    bbCache.position(nextPos);
   }
 
   private byte cacheByte(int i) {
-    return cacheBuffer[bufferPosition + i];
+    return bbCache.get(bbCache.position()+i);
   }
 
 }

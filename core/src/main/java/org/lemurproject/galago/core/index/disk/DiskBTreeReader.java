@@ -406,7 +406,7 @@ public class DiskBTreeReader extends BTreeReader {
   }
 
   @Override
-  public DataStream getSpecialStream(long startPosition, long length) {
+  public DataStream getSpecialStream(long startPosition, long length) throws IOException {
     long absoluteEnd = startPosition + length;
     absoluteEnd = (fileLength < absoluteEnd) ? fileLength : absoluteEnd;
 

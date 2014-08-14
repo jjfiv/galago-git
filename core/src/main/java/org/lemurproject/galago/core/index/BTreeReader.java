@@ -230,5 +230,5 @@ public abstract class BTreeReader implements Closeable {
     return iter.getValueMemoryMap();
   }
 
-  public abstract DataStream getSpecialStream(long startPosition, long length);
+  public abstract DataStream getSpecialStream(long startPosition, long length) throws IOException;
 }

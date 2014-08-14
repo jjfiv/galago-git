@@ -55,7 +55,7 @@ public class DiskBTreeWriter extends BTreeWriter {
    * Creates a new instance of DiskBTreeWriter
    */
   public DiskBTreeWriter(String outputFilename, Parameters parameters)
-          throws FileNotFoundException, IOException {
+          throws IOException {
     FSUtil.makeParentDirectories(outputFilename);
 
     // max sizes - each defaults to a max length of 2 bytes (short)
@@ -68,7 +68,7 @@ public class DiskBTreeWriter extends BTreeWriter {
     vocabulary = new VocabularyWriter();
     manifest = Parameters.instance();
     manifest.copyFrom(parameters);
-    lists = new ArrayList<IndexElement>();
+    lists = new ArrayList<>();
 
     manifest.set("blockSize", blockSize);
     manifest.set("maxKeySize", maxKeySize);
@@ -80,7 +80,7 @@ public class DiskBTreeWriter extends BTreeWriter {
     this(outputFilename, Parameters.instance());
   }
 
-  public DiskBTreeWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
+  public DiskBTreeWriter(TupleFlowParameters parameters) throws IOException {
     this(parameters.getJSON().getString("filename"), parameters.getJSON());
     blocksWritten = parameters.getCounter("Blocks Written");
     recordsWritten = parameters.getCounter("Records Written");

@@ -10,7 +10,7 @@ import java.io.InputStream;
  * @author trevor
  */
 public abstract class DataStream extends InputStream implements DataInput {
-    public abstract DataStream subStream(long start, long length);
+    public abstract DataStream subStream(long start, long length) throws IOException;
     public abstract long getPosition();
     public abstract boolean isDone();
     public abstract long length();

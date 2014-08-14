@@ -3,8 +3,8 @@ package org.lemurproject.galago.core.btree.simple;
 
 import org.junit.Test;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class DiskMapTest {
     byte[] baz = ByteUtil.fromString("baz");
     byte[] hmm = ByteUtil.fromString("hmm");
 
-    Map<byte[], byte[]> data = new TreeMap<byte[], byte[]>(new Utility.ByteArrComparator());
+    Map<byte[], byte[]> data = new TreeMap<>(new CmpUtil.ByteArrComparator());
     data.put(foo, bar);
     data.put(bar, baz);
     data.put(baz, hmm);
@@ -52,7 +52,7 @@ public class DiskMapTest {
       assertTrue(memKeys.contains(key));
       assertTrue(diskKeys.contains(key));
       assertTrue(onDisk.containsKey(key));
-      assertArrayEquals((byte[]) onDisk.get(key), (byte[]) data.get(key));
+      assertArrayEquals(onDisk.get(key), data.get(key));
     }
 
     assertFalse(onDisk.containsKey(ByteUtil.fromString("Not in the map!")));

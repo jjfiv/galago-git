@@ -3,9 +3,10 @@ package org.lemurproject.galago.core.btree.simple;
 
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
-import org.lemurproject.galago.utility.ByteUtil;
-import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.ReadOnlyMap;
 
 import java.io.Closeable;
@@ -67,7 +68,7 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> implements Closea
   
   @Override
   public Set<byte[]> keySet() {
-    Set<byte[]> keys = new TreeSet<byte[]>(new Utility.ByteArrComparator());
+    Set<byte[]> keys = new TreeSet<>(new CmpUtil.ByteArrComparator());
     try {
       BTreeReader.BTreeIterator iter = btree.getIterator();
       while(!iter.isDone()) {
@@ -110,7 +111,7 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> implements Closea
 
   @Override
   public Set<Entry<byte[], byte[]>> entrySet() {
-    HashSet<Entry<byte[], byte[]>> entries = new HashSet<Entry<byte[],byte[]>>();
+    HashSet<Entry<byte[], byte[]>> entries = new HashSet<>();
     for(byte[] key : keySet()) {
       entries.add(new DiskMapReaderEntry(this, key));
     }
@@ -122,8 +123,8 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> implements Closea
     
     DiskMapSortedBuilder mb = new DiskMapSortedBuilder(path, Parameters.instance());
     
-    ArrayList<byte[]> keys = new ArrayList<byte[]>(other.keySet());
-    Collections.sort(keys, new Utility.ByteArrComparator());
+    ArrayList<byte[]> keys = new ArrayList<>(other.keySet());
+    Collections.sort(keys, new CmpUtil.ByteArrComparator());
     
     for(byte[] key : keys) {
       mb.put(key, other.get(key));
