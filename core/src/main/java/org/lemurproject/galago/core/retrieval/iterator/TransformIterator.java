@@ -1,9 +1,10 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.CmpUtil;
+
+import java.io.IOException;
 
 /**
  *
@@ -73,6 +74,6 @@ public abstract class TransformIterator implements BaseIterator {
     if (isDone() && other.isDone()) {
       return 0;
     }
-    return Utility.compare(currentCandidate(), other.currentCandidate());
+    return CmpUtil.compare(currentCandidate(), other.currentCandidate());
   }
 }

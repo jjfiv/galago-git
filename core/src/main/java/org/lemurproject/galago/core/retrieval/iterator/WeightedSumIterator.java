@@ -3,14 +3,15 @@
  */
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import org.lemurproject.galago.core.retrieval.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.retrieval.RequiredParameters;
 import org.lemurproject.galago.utility.MathUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -30,6 +31,10 @@ public class WeightedSumIterator extends DisjunctionIterator implements ScoreIte
     super(childIterators);
     this.np = parameters;
     this.scoreIterators = childIterators;
+
+    if(childIterators.length == 0) {
+      throw new RuntimeException("bad construction!");
+    }
 
     weights = new double[childIterators.length];
     double weightSum = 0.0;

@@ -2,10 +2,12 @@
 package org.lemurproject.galago.utility.lists;
 
 import gnu.trove.list.array.TDoubleArrayList;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.MathUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -85,4 +87,11 @@ public abstract class Scored implements Serializable {
     }
     return results;
   }
+
+  public static Comparator<Scored> byScore = new Comparator<Scored>() {
+    @Override
+    public int compare(Scored lhs, Scored rhs) {
+      return CmpUtil.compare(lhs.score, rhs.score);
+    }
+  };
 }
