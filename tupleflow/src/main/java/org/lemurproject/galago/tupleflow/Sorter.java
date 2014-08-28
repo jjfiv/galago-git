@@ -10,7 +10,6 @@ import javax.management.Notification;
 import javax.management.NotificationEmitter;
 import javax.management.NotificationListener;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.management.*;
 import java.util.*;
@@ -93,9 +92,9 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     this.order = order;
     this.processor = processor;
     this.reducer = reducer;
-    this.objects = new ArrayList<T>();
-    this.runs = new ArrayList<List<T>>();
-    this.temporaryFiles = new ArrayList<File>();
+    this.objects = new ArrayList<>();
+    this.runs = new ArrayList<>();
+    this.temporaryFiles = new ArrayList<>();
     this.lessThanCompare = order.lessThan();
     this.compression = CompressionType.VBYTE;
     
@@ -127,9 +126,9 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     }
 
     this.processor = null;
-    this.objects = new ArrayList<T>();
-    this.runs = new ArrayList<List<T>>();
-    this.temporaryFiles = new ArrayList<File>();
+    this.objects = new ArrayList<>();
+    this.runs = new ArrayList<>();
+    this.temporaryFiles = new ArrayList<>();
     this.lessThanCompare = order.lessThan();
 
     this.filesWritten = parameters.getCounter("Sorter Files Written");
@@ -249,8 +248,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   }
 
   public static String[] getOutputOrder(TupleFlowParameters parameters) {
-    String[] orderSpec = parameters.getJSON().get("order", "").split(" ");
-    return orderSpec;
+    return parameters.getJSON().get("order", "").split(" ");
   }
 
   @Override
@@ -259,10 +257,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   }
 
   public boolean needsReduce() {
-    if (needsFlush() || this.forceFlush) {
-      return true;
-    }
-    return objects.size() > reduceInterval;
+    return needsFlush() || this.forceFlush || objects.size() > reduceInterval;
   }
 
   public boolean needsFlush() {
@@ -285,7 +280,6 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     flushIfNecessary();
   }
 
-  @Override
   /**
    * <p>Finishes sorting, then sends sorted output to later stages.</p>
    *
@@ -293,6 +287,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
    * to cause deadlock problems (since this method calls process on later
    * stages).</p>
    */
+  @Override
   public synchronized void close() throws IOException {
     // remove this object as quickly as possible from the alert queue
     // since we don't need to flush anymore
@@ -397,8 +392,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
       U one = top;
       U two = other.top;
 
-      int result = lessThan.compare(one, two);
-      return result;
+      return lessThan.compare(one, two);
     }
 
     public boolean next() {
@@ -417,12 +411,12 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
    * sorted list, which is processed by the processor called output.
    */
   private synchronized void combineRuns(Processor<T> output) throws IOException {
-    PriorityQueue<RunWrapper<T>> queue = new PriorityQueue<RunWrapper<T>>();
+    PriorityQueue<RunWrapper<T>> queue = new PriorityQueue<>();
 
     // make a run wrapper for each run we've got buffered,
     // put it in the priority queue
     for (List<T> run : runs) {
-      RunWrapper<T> wrapper = new RunWrapper<T>(run, lessThanCompare);
+      RunWrapper<T> wrapper = new RunWrapper<>(run, lessThanCompare);
       if (wrapper.next()) {
         queue.offer(wrapper);
       }
@@ -463,17 +457,10 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     runsCount = 0;
   }
 
-  private synchronized FileOrderedWriter<T> getTemporaryWriter(long fileSize) throws IOException, FileNotFoundException {
-    File temporary = FileUtility.createTemporary(fileSize * 4);
-    // default to VBYTE compression (but make this configurable later...
-    FileOrderedWriter<T> writer = new FileOrderedWriter<T>(temporary.getAbsolutePath(), order, compression);
-    temporaryFiles.add(temporary);
-    return writer;
-  }
-
-  private synchronized FileOrderedWriter<T> getTemporaryWriter() throws IOException, FileNotFoundException {
+  private synchronized FileOrderedWriter<T> getTemporaryWriter() throws IOException {
     File temporary = FileUtility.createTemporary();
-    FileOrderedWriter<T> writer = new FileOrderedWriter<T>(temporary.getAbsolutePath(), order, compression);
+    // default to VBYTE compression (but make this configurable later...
+    FileOrderedWriter<T> writer = new FileOrderedWriter<>(temporary.getAbsolutePath(), order, compression);
     temporaryFiles.add(temporary);
     return writer;
   }
@@ -504,21 +491,11 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
       });
 
       // pick a set of files to merge and remove them from the regular file set
-      ArrayList<File> temporaryFileSet = new ArrayList<File>(temporaryFiles.subList(0,
+      ArrayList<File> temporaryFileSet = new ArrayList<>(temporaryFiles.subList(0,
               fileLimit));
       temporaryFiles.subList(0, fileLimit).clear();
 
-      // calculate the total amount of space we'll need for this
-      long totalFileSize = 0;
-
-      for (File f : temporaryFileSet) {
-        totalFileSize += f.length();
-      }
-
-      // get a temporary writer that's big enough to handle all this data.
-      // this adds the File to the end of the list of temporary files
-      long oneGigabyte = 1024 * 1024 * 1024;
-      FileOrderedWriter<T> writer = getTemporaryWriter(totalFileSize * 2 + oneGigabyte);
+      FileOrderedWriter<T> writer = getTemporaryWriter();
 
       // do the actual combination work
       combineStep(temporaryFileSet, writer);
@@ -531,12 +508,12 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     temporaryFiles.clear();
   }
 
-  private synchronized void combineStep(List<File> files, Processor<T> output) throws FileNotFoundException, IOException {
+  private synchronized void combineStep(List<File> files, Processor<T> output) throws IOException {
     if (sorterCombineSteps != null) {
       sorterCombineSteps.increment();
     }
 
-    ArrayList<String> filenames = new ArrayList<String>();
+    ArrayList<String> filenames = new ArrayList<>();
 
     for (File f : files) {
       filenames.add(f.getPath());

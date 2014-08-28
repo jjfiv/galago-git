@@ -28,18 +28,18 @@ public class FileUtility {
     roots.add(path);
   }
 
-  public static String getBestTemporaryLocation(long requiredSpace) throws IOException {
+  /** Always choose the largest temporary disk as the "best" temporary location -- a greedy solution */
+  public static String getBestTemporaryLocation() throws IOException {
+    String maxRoot = null;
+    long maxFreeSpace = -1;
     for (String root : roots) {
       long freeSpace = FSUtil.getFreeSpace(root);
-
-      if (freeSpace >= requiredSpace) {
-        //String logString = String.format("Found %6.3fMB >= %6.3fMB left on %s",
-        //        freeSpace / 1048576.0, requiredSpace / 1048576.0, root);
-        //LOG.info(logString);
-        return root;
+      if(freeSpace > maxFreeSpace) {
+        maxRoot = root;
+        maxFreeSpace = freeSpace;
       }
     }
-    return null;
+    return maxRoot;
   }
 
   /**
@@ -61,7 +61,7 @@ public class FileUtility {
   // Note that we simply use the filename of the resource because, well, sometimes that's important when
   // poor coding is involved.
   public static File createResourceFile(Class requestingClass, String resourcePath) throws IOException {
-    String tmpPath = getBestTemporaryLocation(1024 * 1024 * 100);
+    String tmpPath = getBestTemporaryLocation();
     if (tmpPath == null) {
       tmpPath = "";
     }
@@ -108,12 +108,8 @@ public class FileUtility {
   }
 
   public static File createTemporary() throws IOException {
-    return createTemporary(1024 * 1024 * 1024);
-  }
-
-  public static File createTemporary(long requiredSpace) throws IOException {
     File temporary;
-    String root = getBestTemporaryLocation(requiredSpace);
+    String root = getBestTemporaryLocation();
     if (root != null) {
       temporary = File.createTempFile("tupleflow", "", new File(root));
     } else {
