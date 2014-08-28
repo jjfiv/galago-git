@@ -4,7 +4,6 @@ package org.lemurproject.galago.core.index;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
@@ -21,7 +20,7 @@ public abstract class KeyValueReader implements IndexPartReader {
 
   protected BTreeReader reader;
 
-  public KeyValueReader(String filename) throws FileNotFoundException, IOException {
+  public KeyValueReader(String filename) throws IOException {
     reader = BTreeFactory.getBTreeReader(filename);
   }
 

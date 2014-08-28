@@ -3,11 +3,11 @@
  */
 package org.lemurproject.galago.core.tools;
 
-import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Job;
 import org.lemurproject.galago.tupleflow.execution.JobExecutor;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.PrintStream;
 
@@ -64,6 +64,21 @@ public abstract class AppFunction {
 
     run(p, output);
   }
+
+  /** Simple help string builder */
+  public String makeHelpStr(String... kv) {
+    if(kv.length % 2 != 0) {
+      throw new IllegalArgumentException("Expected even number of key,value pairs!");
+    }
+    StringBuilder out = new StringBuilder();
+    out.append(this.getName()).append("\n\n");
+    for(int i=0; i<kv.length; i+=2) {
+      out.append("\t--").append(kv[i])
+        .append('=').append(kv[i+1]).append("\n");
+    }
+    return out.toString();
+  }
+
 
   /*
    * General helper functions for applications
