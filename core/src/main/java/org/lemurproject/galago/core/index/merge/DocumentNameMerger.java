@@ -18,24 +18,23 @@ import java.util.List;
  */
 public class DocumentNameMerger extends GenericIndexMerger<DocumentNameId> {
 
-  public DocumentNameMerger(TupleFlowParameters p) throws Exception {
-    super(p);
-  }
+    public DocumentNameMerger(TupleFlowParameters p) throws Exception {
+        super(p);
+    }
 
-  @Override
-  public boolean mappingKeys() {
-    return true;
-  }
-  
-  @Override
-  public Processor<DocumentNameId> createIndexWriter(TupleFlowParameters parameters) throws Exception {
-    return new DiskNameWriter(parameters);
-  }
+    @Override
+    public boolean mappingKeys() {
+        return true;
+    }
 
-  @Override
-  public void performValueMerge(byte[] key, List<KeyIteratorWrapper> keyIterators) throws IOException {
-    assert (keyIterators.size() == 1) : "Found two identical keys when merging names. Name data should never be combined.";
-    DiskNameReader.KeyIterator i = (DiskNameReader.KeyIterator) keyIterators.get(0).iterator;
-    this.writer.process(new DocumentNameId(ByteUtil.fromString(i.getCurrentName()), Utility.toLong(key)));
-  }
+    @Override
+    public Processor<DocumentNameId> createIndexWriter(TupleFlowParameters parameters) throws Exception {
+        return new DiskNameWriter(parameters);
+    }
+
+    @Override
+    public void performValueMerge(byte[] key, List<KeyIteratorWrapper> keyIterators) throws IOException {
+        DiskNameReader.KeyIterator i = (DiskNameReader.KeyIterator) keyIterators.get(0).iterator;
+        this.writer.process(new DocumentNameId(ByteUtil.fromString(i.getCurrentName()), Utility.toLong(key)));
+    }
 }
