@@ -166,7 +166,7 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> implements Closea
     
     @Override
     public int hashCode() {
-      return Utility.hash(key);
+      return CmpUtil.hash(key);
     }
 
     @Override

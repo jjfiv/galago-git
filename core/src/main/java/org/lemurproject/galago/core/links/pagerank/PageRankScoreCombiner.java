@@ -7,6 +7,7 @@ import org.lemurproject.galago.core.types.PageRankJumpScore;
 import org.lemurproject.galago.core.types.PageRankScore;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.CmpUtil;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -57,12 +58,12 @@ public class PageRankScoreCombiner extends StandardStep<PageRankScore, PageRankS
     PageRankScore newDocScore = new PageRankScore(docScore.docName, rndJump);
 
     // This should never happen -- but I want to be sure.
-    while (curr != null && Utility.compare(docScore.docName, curr.docName) > 0) {
+    while (curr != null && CmpUtil.compare(docScore.docName, curr.docName) > 0) {
       logger.log(Level.INFO, "Processing : {0}, IGNORED PARTIAL SCORE!!: {1}-{2}", new Object[]{docScore.docName, curr.docName, curr.score});
       curr = partialScores.read();
     }
 
-    while (curr != null && Utility.compare(docScore.docName, curr.docName) == 0) {
+    while (curr != null && docScore.docName.equals(curr.docName)) {
       
       totalWalk += curr.score;
       

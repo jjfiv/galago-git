@@ -5,6 +5,7 @@ import org.lemurproject.galago.core.index.disk.VocabularyReader;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.Closeable;
@@ -134,7 +135,7 @@ public abstract class BTreeReader implements Closeable {
      */
     @Override
     public int compareTo(BTreeReader.BTreeIterator i) {
-      return Utility.compare(this.getKey(), i.getKey());
+      return CmpUtil.compare(this.getKey(), i.getKey());
     }
   }
 

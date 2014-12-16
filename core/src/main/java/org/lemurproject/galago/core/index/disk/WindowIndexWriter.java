@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.merge.WindowIndexMerger;
 import org.lemurproject.galago.core.types.NumberedExtent;
 import org.lemurproject.galago.tupleflow.InputClass;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -97,7 +98,7 @@ public class WindowIndexWriter implements
 
     invertedList = new WindowList();
     invertedList.setWord(wordBytes);
-    assert lastWord == null || 0 != Utility.compare(lastWord, wordBytes) : "Duplicate word";
+    assert lastWord == null || !CmpUtil.equals(lastWord, wordBytes) : "Duplicate word";
     lastWord = wordBytes;
 
     vocabCount++;

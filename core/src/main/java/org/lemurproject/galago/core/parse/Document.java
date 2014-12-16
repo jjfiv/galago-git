@@ -95,21 +95,6 @@ public class Document implements Serializable {
     return sb.toString();
   }
 
-  @Deprecated
-  public static byte[] serialize(Document doc, Parameters conf) throws IOException {
-    return DocumentSerializer.instance(conf).toBytes(doc);
-  }
-
-  @Deprecated
-  public static Document deserialize(byte[] data, Parameters manifest, DocumentComponents selection) throws IOException {
-    return DocumentSerializer.instance(manifest).fromBytes(data, selection);
-  }
-
-  @Deprecated
-  public static Document deserialize(DataInputStream stream, Parameters manifest, DocumentComponents selection) throws IOException {
-    return DocumentSerializer.instance(manifest).fromStream(stream, selection);
-  }
-
   public TObjectIntHashMap<String> getBagOfWords() {
     TObjectIntHashMap<String> termCounts = new TObjectIntHashMap<String>();
     for(String term : terms) {

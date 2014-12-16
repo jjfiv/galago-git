@@ -14,6 +14,7 @@ import org.lemurproject.galago.tupleflow.TypeReader;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  *
@@ -47,11 +48,11 @@ public class LinkDestNamer extends StandardStep<ExtractedLinkIndri, ExtractedLin
   public void process(ExtractedLinkIndri link) throws IOException {
 
     // while current.url preceeds destUrl -- read on
-    while (current != null && Utility.compare(current.url, link.destUrl) < 0) {
+    while (current != null && CmpUtil.compare(current.url, link.destUrl) < 0) {
       current = documentUrls.read();
     }
 
-    if (current != null && Utility.compare(current.url, link.destUrl) == 0) {
+    if (current != null && current.url.equals(link.destUrl)) {
       link.destName = current.identifier;
       link.filePath = current.filePath;
       link.fileLocation = current.fileLocation;

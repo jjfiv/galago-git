@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.retrieval.query.QueryType;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -153,7 +154,7 @@ public class LocalRetrieval implements Retrieval {
 
       @Override
       public int compare(T o1, T o2) {
-        return Utility.compare(o1.document, o2.document);
+        return CmpUtil.compare(o1.document, o2.document);
       }
     });
 
@@ -448,7 +449,7 @@ public class LocalRetrieval implements Retrieval {
   }
 
   public List<Long> getDocumentIds(List<String> docnames) throws IOException {
-    List<Long> internalDocBuffer = new ArrayList<Long>();
+    List<Long> internalDocBuffer = new ArrayList<>();
 
     for (String name : docnames) {
       try {

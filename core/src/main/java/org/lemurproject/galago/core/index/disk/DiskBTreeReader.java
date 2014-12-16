@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.index.disk;
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.StreamCreator;
 import org.lemurproject.galago.utility.compression.VByte;
@@ -128,14 +129,14 @@ public class DiskBTreeReader extends BTreeReader {
     public void find(byte[] key) throws IOException {
 
       // if the key is not in this block:
-      if ((Utility.compare(this.blockInfo.firstKey, key) > 0)
-              || (Utility.compare(key, this.blockInfo.nextSlotKey) >= 0)) {
+      if ((CmpUtil.compare(this.blockInfo.firstKey, key) > 0)
+              || (CmpUtil.compare(key, this.blockInfo.nextSlotKey) >= 0)) {
         IndexBlockInfo newBlock = vocabulary.get(key);
         this.loadBlockHeader(newBlock);
       }
 
       // since we are 'finding' the key we can move backwards in the current block
-      if (Utility.compare(key, keyCache[keyIndex]) < 0) {
+      if (CmpUtil.compare(key, keyCache[keyIndex]) < 0) {
         this.keyIndex = 0;
       }
 
@@ -145,7 +146,7 @@ public class DiskBTreeReader extends BTreeReader {
           this.cacheKeys();
         }
 
-        if (Utility.compare(keyCache[keyIndex], key) >= 0) {
+        if (CmpUtil.compare(keyCache[keyIndex], key) >= 0) {
           // we have found or passed the desired key
           return;
         }
@@ -160,7 +161,7 @@ public class DiskBTreeReader extends BTreeReader {
     @Override
     public void skipTo(byte[] key) throws IOException {
       // if the key is not in this block:
-      if (Utility.compare(key, this.blockInfo.nextSlotKey) >= 0) {
+      if (CmpUtil.compare(key, this.blockInfo.nextSlotKey) >= 0) {
         // restrict the vocab search to only search forward from the current block
         IndexBlockInfo newBlock = vocabulary.get(key, this.blockInfo.slotId);
         this.loadBlockHeader(newBlock);
@@ -171,7 +172,7 @@ public class DiskBTreeReader extends BTreeReader {
         while (keyIndex >= cacheKeyCount) {
           this.cacheKeys();
         }
-        if (Utility.compare(keyCache[keyIndex], key) >= 0) {
+        if (CmpUtil.compare(keyCache[keyIndex], key) >= 0) {
           // we have found or passed the desired key
           return;
         }
@@ -389,7 +390,7 @@ public class DiskBTreeReader extends BTreeReader {
     }
     Iterator i = new Iterator(this, slot);
     i.find(key);
-    if (Utility.compare(key, i.getKey()) == 0) {
+    if (CmpUtil.equals(key, i.getKey())) {
       return i;
     }
     return null;

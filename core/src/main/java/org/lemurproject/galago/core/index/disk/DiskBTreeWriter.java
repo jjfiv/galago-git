@@ -75,8 +75,7 @@ public class DiskBTreeWriter extends BTreeWriter {
     //manifest.set("maxKeyOverlap", keyOverlap);
   }
 
-  public DiskBTreeWriter(String outputFilename)
-          throws FileNotFoundException, IOException {
+  public DiskBTreeWriter(String outputFilename) throws IOException {
     this(outputFilename, Parameters.instance());
   }
 
@@ -231,7 +230,7 @@ public class DiskBTreeWriter extends BTreeWriter {
     writeBlock(lists, bufferedSize());
 
     // remove all of the current data
-    lists = new ArrayList<IndexElement>();
+    lists = new ArrayList<>();
     listBytes = 0;
   }
 
@@ -263,7 +262,7 @@ public class DiskBTreeWriter extends BTreeWriter {
     } else {
       newData = Arrays.copyOf(key, key.length + 1);
     }
-    assert (Utility.compare(key, newData) < 0);
+    assert (CmpUtil.compare(key, newData) < 0);
     return newData;
   }
 
@@ -290,14 +289,12 @@ public class DiskBTreeWriter extends BTreeWriter {
   /**
    * Returns true if the lists are sorted in ascending order by
    * key.
-   * 
-   * @param blockLists
    */
   private boolean wordsInOrder(List<IndexElement> blockLists) {
     for (int i = 0; i < blockLists.size() - 1; i++) {
       boolean result = lessThanOrEqualTo(blockLists.get(i).key(),
               blockLists.get(i + 1).key());
-      if (result == false) {
+      if (!result) {
         return false;
       }
     }
@@ -319,12 +316,11 @@ public class DiskBTreeWriter extends BTreeWriter {
   private byte[] getBlockHeader(List<IndexElement> blockLists) throws IOException {
     ListData listData;
     ArrayList<byte[]> keys;
-    short[] ends;
     ByteArrayOutputStream wordByteStream = new ByteArrayOutputStream();
     DataOutputStream vocabOutput = new DataOutputStream(wordByteStream);
 
     listData = new ListData(blockLists);
-    keys = new ArrayList<byte[]>();
+    keys = new ArrayList<>();
     for (IndexElement list : blockLists) {
       keys.add(list.key());
     }

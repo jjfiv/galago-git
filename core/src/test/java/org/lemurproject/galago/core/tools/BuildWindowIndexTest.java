@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -155,10 +156,10 @@ public class BuildWindowIndexTest {
               || !posits_NSE_ki.isDone()
               || !posits__SE_ki.isDone()) {
         byte[] key = counts_NSE_ki.getKey();
-        assert Utility.compare(key, counts_NSE_ki.getKey()) == 0;
-        assert Utility.compare(key, counts__SE_ki.getKey()) == 0;
-        assert Utility.compare(key, posits_NSE_ki.getKey()) == 0;
-        assert Utility.compare(key, posits__SE_ki.getKey()) == 0;
+        assert CmpUtil.compare(key, counts_NSE_ki.getKey()) == 0;
+        assert CmpUtil.compare(key, counts__SE_ki.getKey()) == 0;
+        assert CmpUtil.compare(key, posits_NSE_ki.getKey()) == 0;
+        assert CmpUtil.compare(key, posits__SE_ki.getKey()) == 0;
 
         CountIterator counts_NSE_ci = (CountIterator) counts_NSE_ki.getValueIterator();
         CountIterator counts__SE_ci = (CountIterator) counts__SE_ki.getValueIterator();
@@ -342,10 +343,10 @@ public class BuildWindowIndexTest {
               || !posits_NSE_ki.isDone()
               || !posits__SE_ki.isDone()) {
         byte[] key = counts_NSE_ki.getKey();
-        assert Utility.compare(key, counts_NSE_ki.getKey()) == 0;
-        assert Utility.compare(key, counts__SE_ki.getKey()) == 0;
-        assert Utility.compare(key, posits_NSE_ki.getKey()) == 0;
-        assert Utility.compare(key, posits__SE_ki.getKey()) == 0;
+        assert CmpUtil.compare(key, counts_NSE_ki.getKey()) == 0;
+        assert CmpUtil.compare(key, counts__SE_ki.getKey()) == 0;
+        assert CmpUtil.compare(key, posits_NSE_ki.getKey()) == 0;
+        assert CmpUtil.compare(key, posits__SE_ki.getKey()) == 0;
 
         CountIterator counts_NSE_ci = (CountIterator) counts_NSE_ki.getValueIterator();
         CountIterator counts__SE_ci = (CountIterator) counts__SE_ki.getValueIterator();

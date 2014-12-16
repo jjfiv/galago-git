@@ -15,6 +15,7 @@ import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  *
@@ -57,7 +58,7 @@ public class WordCounter extends StandardStep<Document, WordCount> {
     for (WordCount wc : wordCounts) {
       if (last == null) {
         last = wc;
-      } else if (Utility.compare(wc.word, last.word) == 0) {
+      } else if (CmpUtil.equals(wc.word, last.word)) {
         last.collectionFrequency += wc.collectionFrequency;
         last.maxDocumentFrequency += wc.maxDocumentFrequency;
       } else {

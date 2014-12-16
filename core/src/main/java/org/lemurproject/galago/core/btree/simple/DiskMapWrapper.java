@@ -2,6 +2,7 @@ package org.lemurproject.galago.core.btree.simple;
 
 import org.lemurproject.galago.core.index.BTreeReader;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.ReadOnlyMap;
@@ -111,14 +112,14 @@ public class DiskMapWrapper<KT, VT> extends ReadOnlyMap<KT, VT> implements Close
     }
     Map<KT,VT> output = new HashMap<KT,VT>(rawKeys.size());
 
-    Collections.sort(rawKeys, new Utility.ByteArrComparator());
+    Collections.sort(rawKeys, new CmpUtil.ByteArrComparator());
     try {
       BTreeReader.BTreeIterator iterator = reader.btree.getIterator();
       for (byte[] query : rawKeys) {
         iterator.skipTo(query);
 
         byte[] actual = iterator.getKey();
-        if (actual == null || Utility.compare(actual, query) != 0) {
+        if (actual == null || !CmpUtil.equals(actual, query)) {
           continue;
         }
         KT key = keyCodec.fromBytes(actual);

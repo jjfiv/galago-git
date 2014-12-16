@@ -14,6 +14,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.util.FixedSizeMinHeap;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -315,7 +316,7 @@ public class NodeShareWeakAndDocumentModel extends ProcessingModel {
 
     @Override
     public int compareTo(DeltaScoringIteratorWrapper t) {
-      return Utility.compare(currentCandidate, t.currentCandidate);
+      return CmpUtil.compare(currentCandidate, t.currentCandidate);
     }
 
     public void updateCC() {

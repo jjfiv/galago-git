@@ -10,6 +10,7 @@ import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
@@ -99,7 +100,7 @@ public class PositionIndexWriter implements
     closeList();
 
     invertedList = new PositionsList(wordBytes);
-    assert lastWord == null || 0 != Utility.compare(lastWord, wordBytes) : "Duplicate word";
+    assert lastWord == null || !CmpUtil.equals(lastWord, wordBytes) : "Duplicate word";
     lastWord = wordBytes;
     vocabCount++;
   }
@@ -258,7 +259,6 @@ public class PositionIndexWriter implements
      * The length of the posting list. This is the sum of the docid, count, and
      * position buffers plus the skip buffers (if they exist).
      *
-     * @return
      */
     @Override
     public long dataLength() {
@@ -279,7 +279,6 @@ public class PositionIndexWriter implements
     /**
      * Write this PositionsList to the provided OutputStream object.
      *
-     * @param output
      * @throws IOException
      */
     @Override
@@ -308,7 +307,6 @@ public class PositionIndexWriter implements
      * Return the key for this PositionsList. This will be the set of bytes used
      * to access this posting list after the index is completed.
      *
-     * @return
      */
     @Override
     public byte[] key() {
@@ -319,7 +317,6 @@ public class PositionIndexWriter implements
      * Add a new document id to the PositionsList. Assumes there will be at
      * least one position added afterwards (otherwise why add the docid?).
      *
-     * @param documentID
      * @throws IOException
      */
     public void addDocument(long documentID) throws IOException {
@@ -347,7 +344,6 @@ public class PositionIndexWriter implements
      * Adds a single position for the latest document added in the
      * PositionsList.
      *
-     * @param position
      * @throws IOException
      */
     public void addPosition(int position) throws IOException {

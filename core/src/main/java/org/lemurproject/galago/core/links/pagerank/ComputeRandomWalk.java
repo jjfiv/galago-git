@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.types.PageRankJumpScore;
 import org.lemurproject.galago.core.types.PageRankScore;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.CmpUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,16 +61,16 @@ public class ComputeRandomWalk extends StandardStep<PageRankScore, PageRankScore
       documents.increment();
     }
 
-    List<String> linkedDocuments = new ArrayList();
+    List<String> linkedDocuments = new ArrayList<>();
 
-    while (currentLink != null && Utility.compare(docScore.docName, currentLink.srcName) > 0.0) {
+    while (currentLink != null && CmpUtil.compare(docScore.docName, currentLink.srcName) > 0.0) {
       // This shouldn't happen....
       logger.log(Level.INFO, "Processing : {0}, IGNORED LINK: {1}-{2}", new Object[]{docScore.docName, currentLink.srcName, currentLink.destName});
       currentLink = linkReader.read();
     }
 
     // collect all out-going links
-    while (currentLink != null && Utility.compare(docScore.docName, currentLink.srcName) == 0.0) {
+    while (currentLink != null && docScore.docName.equals(currentLink.srcName)) {
       // docuemnts are NOT allowed to link to themselves.
       if (!docScore.docName.equals(currentLink.destName)) {
         linkedDocuments.add(currentLink.destName);

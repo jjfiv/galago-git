@@ -8,6 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  * Uses mapping data to map the keys of a KeyIterator
@@ -43,7 +44,7 @@ public class KeyIteratorWrapper implements Comparable<KeyIteratorWrapper> {
 
   public int compareTo(KeyIteratorWrapper o) {
     try {
-      return Utility.compare(getKeyBytes(), o.getKeyBytes());
+      return CmpUtil.compare(getKeyBytes(), o.getKeyBytes());
     } catch (IOException ex) {
       Logger.getLogger(KeyIteratorWrapper.class.getName()).log(Level.SEVERE, "There is a problem comparing mapped keys.", ex);
       throw new RuntimeException (ex);

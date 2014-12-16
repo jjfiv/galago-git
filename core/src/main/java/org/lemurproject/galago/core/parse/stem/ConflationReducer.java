@@ -7,6 +7,7 @@ import java.io.IOException;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  *
@@ -23,8 +24,7 @@ public class ConflationReducer extends StandardStep<KeyValuePair, KeyValuePair> 
   public void process(KeyValuePair kvp) throws IOException {
     if (previous == null){
       processor.process(kvp);
-    } else if( Utility.compare(previous.key, kvp.key) == 0 
-            && Utility.compare(previous.value, kvp.value) == 0){
+    } else if( CmpUtil.equals(previous.key, kvp.key)  && CmpUtil.equals(previous.value, kvp.value)){
       // identical conflations - already processed previous - so do nothing
     } else {
       // otherwise different conflations - process kvp

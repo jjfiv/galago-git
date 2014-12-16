@@ -15,6 +15,7 @@ import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 
@@ -261,7 +262,7 @@ public class LocalRetrievalTest {
       double score = sd.score;
       double expected = realScores.get(sd.document);
       String expname = realNames.get(sd.document);
-      assertTrue(Utility.compare(lastScore, sd.score) >= 0);
+      assertTrue(CmpUtil.compare(lastScore, sd.score) >= 0);
       assertEquals(expname, sd.documentName);
       assertEquals(expected, score, 0.0001);
 

@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.util;
 
 import java.util.Arrays;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  * Boxing a byte[] object to ensure proper operation
@@ -47,6 +48,6 @@ public class Bytes implements Comparable<Bytes> {
 
   @Override
   public int compareTo(Bytes that) {
-    return Utility.compare(this.bytes, that.bytes);
+    return CmpUtil.compare(this.bytes, that.bytes);
   }
 }

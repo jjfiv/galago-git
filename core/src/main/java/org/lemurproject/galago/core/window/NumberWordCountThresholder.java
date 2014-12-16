@@ -16,6 +16,7 @@ import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  * Discards NumberWordPosition items that contain words that occur less than
@@ -61,7 +62,7 @@ public class NumberWordCountThresholder extends StandardStep<NumberWordCount, Nu
       currentBuffer.offerLast(nwc);
       // no point emitting here - threshold should be > 1
 
-    } else if (Utility.compare(nwc.word, currentFeature) == 0) {
+    } else if (CmpUtil.equals(nwc.word, currentFeature)) {
       currentBuffer.offerLast(nwc);
       emitExtents();
 
@@ -85,7 +86,7 @@ public class NumberWordCountThresholder extends StandardStep<NumberWordCount, Nu
 
     // if we have more than threshold df
     if (threshdf) {
-      HashSet<Long> docs = new HashSet();
+      HashSet<Long> docs = new HashSet<>();
       for (NumberWordCount e : currentBuffer) {
         docs.add(e.document);
       }

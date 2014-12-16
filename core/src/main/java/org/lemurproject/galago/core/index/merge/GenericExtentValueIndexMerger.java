@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  *
@@ -56,7 +57,7 @@ public abstract class GenericExtentValueIndexMerger<S> extends GenericIndexMerge
     }
 
     public int compareTo(ExtentValueIteratorWrapper other) {
-      return Utility.compare(currentDocument, other.currentDocument);
+      return CmpUtil.compare(currentDocument, other.currentDocument);
     }
   }
 
@@ -67,7 +68,7 @@ public abstract class GenericExtentValueIndexMerger<S> extends GenericIndexMerge
 
   @Override
   public void performValueMerge(byte[] key, List<KeyIteratorWrapper> keyIterators) throws IOException {
-    PriorityQueue<ExtentValueIteratorWrapper> extentQueue = new PriorityQueue();
+    PriorityQueue<ExtentValueIteratorWrapper> extentQueue = new PriorityQueue<>();
     for (KeyIteratorWrapper w : keyIterators) {
       ExtentIterator extentIterator = (ExtentIterator) w.iterator.getValueIterator();
       extentQueue.add(new ExtentValueIteratorWrapper(this.partIds.get(w), extentIterator, this.mappingReader));

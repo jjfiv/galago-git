@@ -14,6 +14,7 @@ import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  * Discards NumberWordPosition items that contain words that
@@ -59,7 +60,7 @@ public class NumberedExtentThresholder extends StandardStep<NumberedExtent, Numb
       currentBuffer.offerLast(ne);
       // no point emitting here - threshold should be > 1
 
-    } else if (Utility.compare(ne.extentName, currentFeature) == 0) {
+    } else if (CmpUtil.equals(ne.extentName, currentFeature)) {
       currentBuffer.offerLast(ne);
       emitExtents();
 

@@ -5,6 +5,8 @@
 
 package org.lemurproject.galago.tupleflow;
 
+import org.lemurproject.galago.utility.CmpUtil;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Comparator;
@@ -29,7 +31,7 @@ public class FakeType implements Type {
       public Comparator<FakeType> lessThan() {
         return new Comparator<FakeType>() {
           public int compare(FakeType one, FakeType two) {
-            return Utility.compare(one.value, two.value);
+            return CmpUtil.compare(one.value, two.value);
           }
         };
       }
@@ -37,7 +39,7 @@ public class FakeType implements Type {
       public Comparator<FakeType> greaterThan() {
         return new Comparator<FakeType>() {
           public int compare(FakeType one, FakeType two) {
-            return -Utility.compare(one.value, two.value);
+            return -CmpUtil.compare(one.value, two.value);
           }
         };
       }

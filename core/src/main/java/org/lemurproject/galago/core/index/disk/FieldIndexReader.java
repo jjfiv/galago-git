@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.DataStream;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.VByteInput;
@@ -169,7 +170,7 @@ public class FieldIndexReader extends KeyListReader {
 
     public boolean skipTo(byte[] key) throws IOException {
       iterator.skipTo(key);
-      if (Utility.compare(key, iterator.getKey()) == 0) {
+      if (CmpUtil.equals(key, iterator.getKey())) {
         reset();
         return true;
       }

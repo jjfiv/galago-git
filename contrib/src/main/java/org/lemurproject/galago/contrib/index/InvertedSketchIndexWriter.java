@@ -16,6 +16,7 @@ import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Step;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
@@ -88,7 +89,7 @@ public class InvertedSketchIndexWriter implements
 
     invertedList = new CountsList();
     invertedList.setWord(wordBytes);
-    assert lastWord == null || 0 != Utility.compare(lastWord, wordBytes) : "Duplicate word";
+    assert lastWord == null || 0 != CmpUtil.compare(lastWord, wordBytes) : "Duplicate word";
     lastWord = wordBytes;
 
     vocabCount++;

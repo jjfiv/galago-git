@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -79,7 +80,7 @@ public class RankedPassageModelTest {
       assertEquals(results[i].end, 10);
       assertEquals(results[i].rank, i + 1);
       if (i > 0) {
-        assert (Utility.compare(results[i].score, results[i - 1].score) == 0);
+        assert (CmpUtil.compare(results[i].score, results[i - 1].score) == 0);
       }
     }
 

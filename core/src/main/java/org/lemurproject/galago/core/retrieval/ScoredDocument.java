@@ -108,7 +108,7 @@ public class ScoredDocument extends Ranked implements Comparable<ScoredDocument>
   public static class RankComparator implements Comparator<ScoredDocument>, Serializable {
     @Override
     public int compare(ScoredDocument o1, ScoredDocument o2) {
-      return Utility.compare(o1.rank, o2.rank);
+      return CmpUtil.compare(o1.rank, o2.rank);
     }
   }
 }

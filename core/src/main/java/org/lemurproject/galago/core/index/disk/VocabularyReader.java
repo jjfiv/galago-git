@@ -3,6 +3,7 @@ package org.lemurproject.galago.core.index.disk;
 
 import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.IOException;
@@ -111,7 +112,7 @@ public class VocabularyReader {
       int middle = small + (big - small) / 2;
       byte[] middleKey = slots.get(middle).firstKey;
 
-      if (Utility.compare(middleKey, key) <= 0) {
+      if (CmpUtil.compare(middleKey, key) <= 0) {
         small = middle;
       } else {
         big = middle;
@@ -121,7 +122,7 @@ public class VocabularyReader {
     IndexBlockInfo one = slots.get(small);
     IndexBlockInfo two = slots.get(big);
 
-    if (Utility.compare(two.firstKey, key) <= 0) {
+    if (CmpUtil.compare(two.firstKey, key) <= 0) {
       return two;
     } else {
       return one;

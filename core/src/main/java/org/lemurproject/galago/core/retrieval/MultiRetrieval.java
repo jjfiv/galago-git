@@ -33,8 +33,8 @@ public class MultiRetrieval implements Retrieval {
   protected List<Traversal> defaultTraversals;
   protected Parameters globalParameters;
   protected Parameters retrievalParts;
-  protected HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
-  protected HashSet<String> knownIndexOperators = new HashSet<String>();
+  protected HashMap<String, String> defaultIndexOperators = new HashMap<>();
+  protected HashSet<String> knownIndexOperators = new HashSet<>();
 
   public MultiRetrieval(ArrayList<Retrieval> indexes, Parameters p) throws Exception {
     this.retrievals = indexes;
@@ -108,13 +108,16 @@ public class MultiRetrieval implements Retrieval {
   // Based on the root of the tree, that dictates how we execute.
   @Override
   public Results executeQuery(Node queryTree, Parameters p) throws Exception {
-    return executeRankedQuery(queryTree, p);
+    ScoredDocument[] rankedList = runRankedQuery(queryTree, p);
+    Results results = new Results();
+    results.inputQuery = queryTree;
+    results.scoredDocuments = Arrays.asList(rankedList);
+    return results;
   }
 
-  @Deprecated
   private ScoredDocument[] runRankedQuery(Node root, Parameters parameters) throws Exception {
     // Asynchronously run retrieval
-    ArrayList<Thread> threads = new ArrayList<Thread>();
+    ArrayList<Thread> threads = new ArrayList<>();
     final List<ScoredDocument> queryResultCollector = Collections.synchronizedList(new ArrayList<ScoredDocument>());
     final List<String> errorCollector = Collections.synchronizedList(new ArrayList<String>());
     final Node queryTree = root;
@@ -172,18 +175,6 @@ public class MultiRetrieval implements Retrieval {
     return results;
   }
 
-  /**
-   * This function will be modified to provide the same functionality as in
-   * runRankedQuery.
-   */
-  private Results executeRankedQuery(Node root, Parameters parameters) throws Exception {
-    ScoredDocument[] rankedList = runRankedQuery(root, parameters);
-    Results results = new Results();
-    results.inputQuery = root;
-    results.scoredDocuments = Arrays.asList(rankedList);
-    return results;
-  }
-
   @Override
   public Node transformQuery(Node root, Parameters qp) throws Exception {
     return transformQuery(defaultTraversals, root, qp);
@@ -213,10 +204,10 @@ public class MultiRetrieval implements Retrieval {
   // iteratorClass that implements it is the same across all constituents under a given part.
   private Parameters mergeParts(List<Parameters> ps) {
     Parameters unifiedParts = Parameters.instance();
-    HashSet<String> operators = new HashSet<String>();
+    HashSet<String> operators = new HashSet<>();
 
     // Get *all* parts
-    HashSet<String> allParts = new HashSet<String>();
+    HashSet<String> allParts = new HashSet<>();
     for (Parameters j : ps) {
       //System.out.println("*** Printing parameters: " + j.toPrettyString());
       allParts.addAll(j.getKeys());

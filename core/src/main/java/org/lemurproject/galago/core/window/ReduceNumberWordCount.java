@@ -11,6 +11,7 @@ import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  *
@@ -29,8 +30,7 @@ public class ReduceNumberWordCount extends StandardStep<NumberWordCount, NumberW
     if (last == null) {
       last = current;
 
-    } else if ((Utility.compare(last.word, current.word) == 0)
-            && (Utility.compare(last.document, current.document) == 0)) {
+    } else if (CmpUtil.equals(last.word, current.word) && last.document == current.document) {
       last.count += current.count;
 
     } else {
