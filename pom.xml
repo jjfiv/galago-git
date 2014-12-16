@@ -4,7 +4,7 @@
   <groupId>org.lemurproject</groupId>
   <artifactId>galago</artifactId>
   <packaging>pom</packaging>
-  <version>3.7-SNAPSHOT</version>
+  <version>3.8-SNAPSHOT</version>
   <name>galago</name>
   <url>http://lemurproject.org/galago.php</url>
   <description>
