@@ -7,10 +7,10 @@
     <version>3.8-SNAPSHOT</version>
   </parent>
   <groupId>org.lemurproject.galago</groupId>
-  <artifactId>core</artifactId>
+  <artifactId>snowball-stemmers</artifactId>
   <packaging>jar</packaging>
   <version>3.8-SNAPSHOT</version>
-  <name>core</name>
+  <name>snowball-stemmers</name>
   <url>http://lemurproject.org/galago/php</url>
   <description>Galago is a toolkit for experimenting with search engines and text processing.</description>
   <licenses>
@@ -55,36 +55,6 @@
   </reporting>
   <dependencies>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>tupleflow</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>snowball-stemmers</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>info.bliki.wiki</groupId>
-      <artifactId>bliki-core</artifactId>
-      <version>3.0.19</version>
-    </dependency>
-    <dependency>
-      <groupId>xmlenc</groupId>
-      <artifactId>xmlenc</artifactId>
-      <version>0.52</version>
-    </dependency>
-    <dependency>
-      <groupId>org.xerial.snappy</groupId>
-      <artifactId>snappy-java</artifactId>
-      <version>1.0.5-M4</version>
-    </dependency>
-    <dependency>
-      <groupId>org.reflections</groupId>
-      <artifactId>reflections</artifactId>
-      <version>0.9.8</version>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
@@ -101,66 +71,12 @@
         </configuration>
       </plugin>
       <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.3.1</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>org.lemurproject.galago.core.tools.App</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-      <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>
         <configuration>
           <!--<compilerArgument>-Xlint:unchecked</compilerArgument>-->
           <source>1.7</source>
           <target>1.7</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <version>1.1</version>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>appassembler-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>assemble</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <programs>
-            <program>
-              <mainClass>org.lemurproject.galago.core.tools.App</mainClass>
-              <name>galago</name>
-            </program>
-          </programs>
-          <extraJvmArguments>-Xms1500m -Xmx1900m -Dfile.encoding=UTF-8</extraJvmArguments>
-          <repositoryName>lib</repositoryName>
-          <repositoryLayout>flat</repositoryLayout>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.lemurproject.galago</groupId>
-        <artifactId>tupleflow-typebuilder</artifactId>
-        <version>${project.version}</version>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>typebuilder</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-release-plugin</artifactId>
-        <configuration>
-          <goals>appassemble:assemble</goals>
         </configuration>
       </plugin>
     </plugins>

@@ -72,9 +72,9 @@ public class UniversalStringHashFunction {
     // p2 must be larger than p1 (and universe, and width)
     BigInteger p2 = p1.multiply(BigInteger.valueOf(3)).nextProbablePrime();
 
-    BigInteger a1 = BigInteger.ZERO;
-    BigInteger a2 = BigInteger.ZERO;
-    BigInteger b2 = BigInteger.ZERO;
+    BigInteger a1;
+    BigInteger a2;
+    BigInteger b2;
 
     a1 = new BigInteger(p1.bitLength(), rnd);
     while (a1.compareTo(BigInteger.ZERO) <= 0 || a1.compareTo(p1) >= 0) {
