@@ -24,6 +24,7 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.buffer.DataStream;
 
 import java.io.*;
 import java.util.Collections;
@@ -53,7 +54,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
 
   private void init() throws Exception {
     Parameters manifest = this.getManifest();
-    stemmer = Stemmer.instance(reader.getManifest());
+    stemmer = Stemmer.create(reader.getManifest());
 
     Parameters hfnParams = manifest.getMap("hashFns");
     depth = (int) manifest.getLong("depth");

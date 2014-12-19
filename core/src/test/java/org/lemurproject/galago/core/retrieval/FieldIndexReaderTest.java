@@ -47,8 +47,8 @@ public class FieldIndexReaderTest {
     // make a spot for the index
     tempPath = FileUtility.createTemporary();
 
-    Parameters tokenizer = Parameters.instance();
-    Parameters formats = Parameters.instance();
+    Parameters tokenizer = Parameters.create();
+    Parameters formats = Parameters.create();
     formats.set("title", "string");
     formats.set("date", "date");
     formats.set("version", "int");
@@ -56,7 +56,7 @@ public class FieldIndexReaderTest {
     String[] fields = {"title", "date", "version"};
     tokenizer.set("fields", Arrays.asList(fields));
 
-    Parameters params = Parameters.instance();
+    Parameters params = Parameters.create();
     params.set("filename", tempPath.toString());
     params.set("tokenizer", tokenizer);
 

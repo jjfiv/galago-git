@@ -23,7 +23,7 @@ import java.util.Map;
 public class DiskNameReader extends KeyValueReader implements NamesReader {
 
   /**
-   * Creates a new instance of DiskNameReader
+   * Creates a new create of DiskNameReader
    */
   public DiskNameReader(String fileName) throws IOException {
     super(BTreeFactory.getBTreeReader(fileName));

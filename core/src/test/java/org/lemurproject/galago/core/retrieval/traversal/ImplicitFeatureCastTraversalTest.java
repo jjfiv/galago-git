@@ -40,18 +40,18 @@ public class ImplicitFeatureCastTraversalTest {
   @Test
   public void testTextRewriteTraversal() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
-    LocalRetrieval retrieval = new LocalRetrieval(index, Parameters.instance());
+    LocalRetrieval retrieval = new LocalRetrieval(index, Parameters.create());
 
     ImplicitFeatureCastTraversal traversal = new ImplicitFeatureCastTraversal(retrieval);
     TextFieldRewriteTraversal precedes = new TextFieldRewriteTraversal(retrieval);
     Node tree = StructuredQuery.parse("#combine( cat dog.title)");
-    tree = precedes.traverse(tree, Parameters.instance()); // converts #text to #extents...
+    tree = precedes.traverse(tree, Parameters.create()); // converts #text to #extents...
     StringBuilder transformed = new StringBuilder();
     transformed.append("#combine( ");
     transformed.append("#dirichlet( #extents:cat:part=postings() ) ");
     transformed.append("#dirichlet( #inside( #extents:dog:part=postings() ");
     transformed.append("#extents:title:part=extents() ) ) )");
-    Node result = traversal.traverse(tree, Parameters.instance());
+    Node result = traversal.traverse(tree, Parameters.create());
     System.err.println(transformed.toString());
     System.err.println(result.toString());
     assertEquals(transformed.toString(), result.toString());
@@ -60,12 +60,12 @@ public class ImplicitFeatureCastTraversalTest {
   @Test
   public void testFieldComparisonRewriteTraversal() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
 
     ImplicitFeatureCastTraversal traversal = new ImplicitFeatureCastTraversal(retrieval);
     Node tree = StructuredQuery.parse("#combine( #between( #field:title() abba zztop )");
-    Node result = traversal.traverse(tree, Parameters.instance());
+    Node result = traversal.traverse(tree, Parameters.create());
     assertEquals("#combine( #between:0=abba:1=zztop( #field:title() ) )", result.toString());
   }
 }

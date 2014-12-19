@@ -11,7 +11,7 @@ import java.util.List;
 
 public class DiskMapMerger {
   public static DiskMapReader merge(String outputPath, List<String> inputPaths) throws IOException {
-    DiskMapSortedBuilder mb = new DiskMapSortedBuilder(outputPath, Parameters.instance());
+    DiskMapSortedBuilder mb = new DiskMapSortedBuilder(outputPath, Parameters.create());
     
     ArrayList<DiskMapReader> readers = new ArrayList<>();
     for(String in : inputPaths) {
@@ -40,7 +40,7 @@ public class DiskMapMerger {
   }
   
   public static DiskMapReader mergeWith(String outputPath, List<String> inputPaths, MergeStrategy mergeFn) throws IOException {
-    DiskMapSortedBuilder mb = new DiskMapSortedBuilder(outputPath, Parameters.instance());
+    DiskMapSortedBuilder mb = new DiskMapSortedBuilder(outputPath, Parameters.create());
     
     ArrayList<DiskMapReader> readers = new ArrayList<>();
     for(String in : inputPaths) {

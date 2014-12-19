@@ -7,7 +7,7 @@ import org.lemurproject.galago.core.btree.format.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.index.source.BTreeValueSource;
 import org.lemurproject.galago.core.index.source.CountSource;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
-import org.lemurproject.galago.tupleflow.DataStream;
+import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
 /**

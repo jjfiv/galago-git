@@ -35,7 +35,7 @@ public class IndexRepairTest {
 
     try {
       tempPart = FileUtility.createTemporary();
-      IndexRepair.createNamesReverseFromNames(namesPart, tempPart.getAbsolutePath(), Parameters.instance());
+      IndexRepair.createNamesReverseFromNames(namesPart, tempPart.getAbsolutePath(), Parameters.create());
 
       DiskNameReverseReader original = new DiskNameReverseReader(originalRNames);
       DiskNameReverseReader recreated = new DiskNameReverseReader(tempPart.getAbsolutePath());

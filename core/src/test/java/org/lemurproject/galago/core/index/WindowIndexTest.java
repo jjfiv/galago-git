@@ -26,7 +26,7 @@ public class WindowIndexTest {
   public void testWindowIndex() throws Exception {
     File index = FileUtility.createTemporary();
     try {
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("filename", index.getAbsolutePath());
       WindowIndexWriter writer = new WindowIndexWriter(new FakeParameters(p));
 

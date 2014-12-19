@@ -36,10 +36,10 @@ public class ComputeRandomWalk extends StandardStep<PageRankScore, PageRankScore
   double rndJumpScore = 0.0;
   double totalWalk = 0.0;
   Counter documents;
-//  String instance;
+//  String create;
 
   public ComputeRandomWalk(TupleFlowParameters p) throws IOException {
-//    instance = "walker-" + p.getInstanceId();
+//    create = "walker-" + p.getInstanceId();
 
     // open streams:
     String linkStream = p.getJSON().getString("linkStream");
@@ -100,9 +100,9 @@ public class ComputeRandomWalk extends StandardStep<PageRankScore, PageRankScore
   @Override
   public void close() throws IOException {
 
-//    System.err.println(instance + " TOTAL PAGERANK JUMP-2: " + (rndJumpScore) + " docs " + docCount);
-//    System.err.println(instance + " instance PAGERANK JUMP-2: " + (rndJumpScore / docCount));
-//    System.err.println(instance + " TOTAL PAGERANK WALK: " + totalWalk);
+//    System.err.println(create + " TOTAL PAGERANK JUMP-2: " + (rndJumpScore) + " docs " + docCount);
+//    System.err.println(create + " create PAGERANK JUMP-2: " + (rndJumpScore / docCount));
+//    System.err.println(create + " TOTAL PAGERANK WALK: " + totalWalk);
 
     jumpWriter.process(new PageRankJumpScore(rndJumpScore / docCount));
     jumpWriter.close();

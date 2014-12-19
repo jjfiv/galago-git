@@ -34,7 +34,7 @@ public class BuildFilteredCollectionTest {
       String docs = "doc-1\ndoc-2\ndoc-88\ndoc-99\ndoc-100";
       Utility.copyStringToFile(docs, filter);
 
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("inputPath", input.getAbsolutePath());
       p.set("outputPath", output.getAbsolutePath());
       p.set("filter", filter.getAbsolutePath());

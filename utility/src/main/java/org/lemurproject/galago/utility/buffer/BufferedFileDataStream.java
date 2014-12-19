@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.tupleflow;
+package org.lemurproject.galago.utility.buffer;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class BufferedFileDataStream extends DataStream {
   long bufferStart;
   //byte[] cacheBuffer;
 
-  /** Creates a new instance of BufferedFileDataStream */
+  /** Creates a new create of BufferedFileDataStream */
   public BufferedFileDataStream(RandomAccessFile input, long start, long end) throws IOException {
     assert start <= end;
 

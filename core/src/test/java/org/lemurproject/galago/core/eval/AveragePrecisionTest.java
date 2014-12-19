@@ -21,11 +21,11 @@ import static org.junit.Assert.assertTrue;
 public class AveragePrecisionTest {
   @Test
   public void fromFactory() {
-    Parameters empty = Parameters.instance();
-    assertTrue(QueryEvaluatorFactory.instance("MAP", empty) instanceof AveragePrecision);
-    assertTrue(QueryEvaluatorFactory.instance("map", empty) instanceof AveragePrecision);
-    assertTrue(QueryEvaluatorFactory.instance("ap", empty) instanceof AveragePrecision);
-    assertTrue(QueryEvaluatorFactory.instance("AveragePrecision", empty) instanceof AveragePrecision);
+    Parameters empty = Parameters.create();
+    assertTrue(QueryEvaluatorFactory.create("MAP", empty) instanceof AveragePrecision);
+    assertTrue(QueryEvaluatorFactory.create("map", empty) instanceof AveragePrecision);
+    assertTrue(QueryEvaluatorFactory.create("ap", empty) instanceof AveragePrecision);
+    assertTrue(QueryEvaluatorFactory.create("AveragePrecision", empty) instanceof AveragePrecision);
   }
 
   @Test

@@ -44,7 +44,7 @@ public class DiskIndex implements Index, Closeable {
 
   private static final Logger logger = Logger.getLogger("DiskIndex");
   protected File location;
-  protected Parameters manifest = Parameters.instance();
+  protected Parameters manifest = Parameters.create();
   protected LengthsReader lengthsReader = null;
   protected NamesReader namesReader = null;
   protected NamesReverseReader namesReverseReader = null;

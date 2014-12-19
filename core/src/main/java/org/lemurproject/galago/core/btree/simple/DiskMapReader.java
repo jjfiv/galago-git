@@ -120,7 +120,7 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> implements Closea
   public static DiskMapReader fromMap(String path, Map<byte[], byte[]> other) throws IOException {
     LOG.log(Level.INFO, "Creating DiskMap at {0}", path);
     
-    DiskMapSortedBuilder mb = new DiskMapSortedBuilder(path, Parameters.instance());
+    DiskMapSortedBuilder mb = new DiskMapSortedBuilder(path, Parameters.create());
     
     ArrayList<byte[]> keys = new ArrayList<>(other.keySet());
     Collections.sort(keys, new CmpUtil.ByteArrComparator());

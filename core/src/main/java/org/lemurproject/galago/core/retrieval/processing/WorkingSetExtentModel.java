@@ -93,7 +93,7 @@ public class WorkingSetExtentModel extends ProcessingModel {
     // get the extent iterator
     String extent = queryParams.getString("extent");
     ExtentIterator extentIterator =
-            (ExtentIterator) retrieval.createIterator(Parameters.instance(),
+            (ExtentIterator) retrieval.createIterator(Parameters.create(),
             StructuredQuery.parse("#extents:" + extent + ":part=extents()"));
 
     if (extentIterator.isDone()) {

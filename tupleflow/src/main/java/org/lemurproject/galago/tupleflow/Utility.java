@@ -3,7 +3,6 @@ package org.lemurproject.galago.tupleflow;
 
 import org.lemurproject.galago.tupleflow.execution.StepInformation;
 import org.lemurproject.galago.utility.*;
-import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -35,7 +34,7 @@ public class Utility {
   }
 
   public static StepInformation getSorter(Order sortOrder, Class<?> reducerClass, CompressionType c) {
-    org.lemurproject.galago.utility.Parameters p = org.lemurproject.galago.utility.Parameters.instance();
+    org.lemurproject.galago.utility.Parameters p = org.lemurproject.galago.utility.Parameters.create();
     p.set("class", sortOrder.getOrderedClass().getName());
     p.set("order", Utility.join(sortOrder.getOrderSpec()));
     if (c != null) {
@@ -189,18 +188,11 @@ public class Utility {
   }
 
   /**
-   * Copies the data from the string s to the file.
-   * @throws java.io.IOException
+   * @deprecated use StreamUtil instead.
    */
+  @Deprecated
   public static void copyStringToFile(String s, File file) throws IOException {
-    DataOutputStream output = null;
-    try {
-      FSUtil.makeParentDirectories(file);
-      output = StreamCreator.openOutputStream(file);
-      output.write(ByteUtil.fromString(s));
-    } finally {
-      if(output != null) output.close();
-    }
+    StreamUtil.copyStringToFile(s, file);
   }
 
   public static BufferedReader utf8Reader(String file) throws IOException {

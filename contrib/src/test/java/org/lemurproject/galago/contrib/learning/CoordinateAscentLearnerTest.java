@@ -57,7 +57,7 @@ public class CoordinateAscentLearnerTest {
       learnableParams.add(Parameters.parseString("{\"name\":\"1\",\"min\":0.0,\"max\":1.0}"));
       learnParams.set("learnableParameters", learnableParams);
       // add sum rule to ensure sums to 1
-      Parameters normalRule = Parameters.instance();
+      Parameters normalRule = Parameters.create();
       normalRule.set("mode", "sum");
       normalRule.set("params", Arrays.asList(new String[]{"0", "1"}));
       normalRule.set("value", 1.0);

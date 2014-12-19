@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 public class WikiWexParser extends DocumentStreamParser {
 
   BufferedReader reader;
-  /** Creates a new instance of TrecTextParser */
+  /** Creates a new create of TrecTextParser */
   public WikiWexParser(DocumentSplit split, Parameters p) throws IOException {
     super(split, p);
     this.reader = getBufferedReader(split);

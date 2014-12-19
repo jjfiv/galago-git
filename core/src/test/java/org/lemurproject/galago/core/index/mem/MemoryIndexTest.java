@@ -33,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 public class MemoryIndexTest {
   @Test
   public void testProcessDocuments() throws Exception {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
 
     MemoryIndex index = new MemoryIndex(new FakeParameters(p));
 
@@ -85,7 +85,7 @@ public class MemoryIndexTest {
   public void testDocumentOffset() throws Exception {
     File output = null;
     try {
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("documentNumberOffset", 101);
       MemoryIndex index = new MemoryIndex(new FakeParameters(p));
 
@@ -112,7 +112,7 @@ public class MemoryIndexTest {
       output = FileUtility.createTemporaryDirectory();
       (new FlushToDisk()).flushMemoryIndex(index, output.getAbsolutePath(), false);
 
-      Retrieval r = RetrievalFactory.instance(output.getAbsolutePath(), Parameters.instance());
+      Retrieval r = RetrievalFactory.instance(output.getAbsolutePath(), Parameters.create());
       FieldStatistics collStats = r.getCollectionStatistics("#lengths:part=lengths()");
       assertEquals(collStats.collectionLength, 1000);
       assertEquals(collStats.documentCount, 200);

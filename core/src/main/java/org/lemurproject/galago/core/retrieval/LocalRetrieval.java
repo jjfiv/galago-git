@@ -16,7 +16,6 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.IOException;
 import java.util.*;
@@ -50,11 +49,11 @@ public class LocalRetrieval implements Retrieval {
    * feature factory.
    */
   public LocalRetrieval(Index index) throws Exception {
-    this(index, Parameters.instance());
+    this(index, Parameters.create());
   }
 
   public LocalRetrieval(String filename) throws Exception {
-    this(filename, Parameters.instance());
+    this(filename, Parameters.create());
   }
 
   public LocalRetrieval(String filename, Parameters parameters) throws Exception {
@@ -105,9 +104,9 @@ public class LocalRetrieval implements Retrieval {
    */
   @Override
   public Parameters getAvailableParts() throws IOException {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     for (String partName : index.getPartNames()) {
-      Parameters inner = Parameters.instance();
+      Parameters inner = Parameters.create();
       Map<String, NodeType> nodeTypes = index.getPartNodeTypes(partName);
       for (String nodeName : nodeTypes.keySet()) {
         inner.set(nodeName, nodeTypes.get(nodeName).getIteratorClass().getName());
@@ -180,7 +179,7 @@ public class LocalRetrieval implements Retrieval {
 
   @Override
   public Results executeQuery(Node queryTree) throws Exception {
-    return executeQuery(queryTree, Parameters.instance());
+    return executeQuery(queryTree, Parameters.create());
   }
 
   // Based on the root of the tree, that dictates how we execute.
@@ -190,7 +189,7 @@ public class LocalRetrieval implements Retrieval {
     if (globalParameters.containsKey("processingModel")) {
       queryParams.set("processingModel", globalParameters.getString("processingModel"));
     }
-    ProcessingModel pm = ProcessingModel.instance(this, queryTree, queryParams);
+    ProcessingModel pm = ProcessingModel.create(this, queryTree, queryParams);
 
     // get some results
     results = pm.execute(queryTree, queryParams);
@@ -292,7 +291,7 @@ public class LocalRetrieval implements Retrieval {
     // if you want passage statistics, you'll need a manual solution for now.
     ScoringContext sc = new ScoringContext();
 
-    BaseIterator structIterator = createIterator(Parameters.instance(), root);
+    BaseIterator structIterator = createIterator(Parameters.create(), root);
 
     // first check if this iterator is an aggregate iterator (has direct access to stats)
     if (CollectionAggregateIterator.class.isInstance(structIterator)) {
@@ -354,7 +353,7 @@ public class LocalRetrieval implements Retrieval {
     // if you want passage statistics, you'll need a manual solution for now.
     ScoringContext sc = new ScoringContext();
 
-    BaseIterator structIterator = createIterator(Parameters.instance(), root);
+    BaseIterator structIterator = createIterator(Parameters.create(), root);
 
     if (NodeAggregateIterator.class.isInstance(structIterator)) {
       s = ((NodeAggregateIterator) structIterator).getStatistics();
@@ -465,7 +464,7 @@ public class LocalRetrieval implements Retrieval {
   @Override
   public void addNodeToCache(Node node) throws Exception {
     if (cache != null) {
-      cache.addToCache(node, this.createIterator(Parameters.instance(), node));
+      cache.addToCache(node, this.createIterator(Parameters.create(), node));
     }
   }
 
@@ -477,7 +476,7 @@ public class LocalRetrieval implements Retrieval {
         addAllNodesToCache(child);
       }
 
-      cache.addToCache(node, this.createIterator(Parameters.instance(), node));
+      cache.addToCache(node, this.createIterator(Parameters.create(), node));
     }
   }
 

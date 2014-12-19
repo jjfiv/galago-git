@@ -10,7 +10,7 @@ import org.lemurproject.galago.utility.Parameters;
  * <p>A NodeType describes the class type and input types of an iterator.</p>
  * 
  * <p>Traversals that modify a tree may want to know what type of iterator will be generated
- * when a Node is converted into a Iterator.  For instance, a Node with a
+ * when a Node is converted into a Iterator.  For create, a Node with a
  * "counts" operator will turn into a CountIterator.  This is important to know because
  * a ScoreCombinationIterator can't take a CountIterator as an argument; it needs an
  * iterator between them to convert extents into scores.  A Traversal can check the types

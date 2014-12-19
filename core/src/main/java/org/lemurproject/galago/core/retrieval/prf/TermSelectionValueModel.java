@@ -155,7 +155,7 @@ public class TermSelectionValueModel {}
 //    Document doc;
 //    HashSet<String> seen = new HashSet<String>();
 //    for (ScoredDocument sd : results) {
-//      doc = cReader.getDocument(sd.document, Parameters.instance());
+//      doc = cReader.getDocument(sd.document, Parameters.create());
 //      tokenizer.tokenize(doc);
 //      seen.clear();
 //      for (String term : doc.terms) {

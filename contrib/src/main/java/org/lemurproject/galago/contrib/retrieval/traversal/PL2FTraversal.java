@@ -59,9 +59,9 @@ public class PL2FTraversal extends Traversal {
     this.retrieval = retrieval;
     levels = 0;
     Parameters globals = retrieval.getGlobalParameters();
-    params = globals.get("pl2f", Parameters.instance());
-    weights = params.get("weights", Parameters.instance());
-    smoothing = params.get("smoothing", Parameters.instance());
+    params = globals.get("pl2f", Parameters.create());
+    weights = params.get("weights", Parameters.create());
+    smoothing = params.get("smoothing", Parameters.create());
     fieldList = globals.getAsList("fields", String.class);
     qTermCounts = new TObjectIntHashMap<String>();
     try {

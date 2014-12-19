@@ -140,7 +140,7 @@ public class UniversalStringHashFunction {
   }
 
   public Parameters toParameters() {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("errorCount", errorCount);
     p.set("p1", p1.toString());
     p.set("p2", p2.toString());

@@ -32,12 +32,12 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
 
   public PositionIndexReader(BTreeReader reader) throws Exception {
     super(reader);
-    stemmer = Stemmer.instance(reader.getManifest());
+    stemmer = Stemmer.create(reader.getManifest());
   }
 
   public PositionIndexReader(String pathname) throws Exception {
     super(pathname);
-    stemmer = Stemmer.instance(reader.getManifest());
+    stemmer = Stemmer.create(reader.getManifest());
   }
 
   @Override

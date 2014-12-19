@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 public class SorterTest {
   @Test
   public void testGetInputClass() {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("class", FakeType.class.toString());
     String expResult = FakeType.class.toString();
     String result = Sorter.getInputClass(new FakeParameters(p));
@@ -22,7 +22,7 @@ public class SorterTest {
 
   @Test
   public void testGetOutputClass() {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("class", FakeType.class.toString());
     String expResult = FakeType.class.toString();
     String result = Sorter.getOutputClass(new FakeParameters(p));

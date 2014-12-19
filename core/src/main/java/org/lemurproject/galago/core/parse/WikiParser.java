@@ -31,7 +31,7 @@ public class WikiParser extends DocumentStreamParser {
   WikiModel wikiParser;
 
   /**
-   * Creates a new instance of TrecWebParser
+   * Creates a new create of TrecWebParser
    */
   public WikiParser(DocumentSplit split, Parameters p) throws IOException {
     super(split, p);

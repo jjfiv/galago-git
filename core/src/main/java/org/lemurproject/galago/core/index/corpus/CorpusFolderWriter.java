@@ -37,7 +37,7 @@ public class CorpusFolderWriter implements Processor<Document>, Source<KeyValueP
     corpusParams.set("readerClass", CorpusReader.class.getName());
     corpusParams.set("mergerClass", CorpusMerger.class.getName());
     writer = new SplitBTreeValueWriter(parameters);
-    serializer = DocumentSerializer.instance(corpusParams);
+    serializer = DocumentSerializer.create(corpusParams);
     corpusParams.set("documentSerializerClass", serializer.getClass().getName());
   }
 

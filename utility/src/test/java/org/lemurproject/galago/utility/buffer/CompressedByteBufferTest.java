@@ -1,7 +1,7 @@
 /*
  *  BSD License (http://lemurproject.org/galago-license)
  */
-package org.lemurproject.galago.core.index;
+package org.lemurproject.galago.utility.buffer;
 
 import org.junit.Test;
 import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;

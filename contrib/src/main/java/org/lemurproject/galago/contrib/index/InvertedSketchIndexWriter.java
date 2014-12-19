@@ -50,7 +50,7 @@ public class InvertedSketchIndexWriter implements
   int skipResetDistance;
 
   /**
-   * Creates a new instance of CountIndexWriter
+   * Creates a new create of CountIndexWriter
    */
   public InvertedSketchIndexWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
     this.actualParams = parameters.getJSON();

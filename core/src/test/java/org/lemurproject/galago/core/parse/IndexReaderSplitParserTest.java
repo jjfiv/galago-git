@@ -48,7 +48,7 @@ public class IndexReaderSplitParserTest {
     document.metadata.put("Key", "Value");
     document.metadata.put("Something", "Else");
 
-    Parameters corpusWriterParameters = Parameters.instance();
+    Parameters corpusWriterParameters = Parameters.create();
     corpusWriterParameters.set("readerClass", CorpusReader.class.getName());
     corpusWriterParameters.set("writerClass", CorpusFolderWriter.class.getName());
     corpusWriterParameters.set("filename", temporary.getAbsolutePath());
@@ -77,7 +77,7 @@ public class IndexReaderSplitParserTest {
     split.endKey = new byte[0];
 
     // Open up the file:
-    CorpusSplitParser parser = new CorpusSplitParser(split, Parameters.instance());
+    CorpusSplitParser parser = new CorpusSplitParser(split, Parameters.create());
 
     // Check the document:
     Document actual = parser.nextDocument();
@@ -105,7 +105,7 @@ public class IndexReaderSplitParserTest {
     split.endKey = new byte[0];
 
     // Open up the file:
-    CorpusSplitParser parser = new CorpusSplitParser(split, Parameters.instance());
+    CorpusSplitParser parser = new CorpusSplitParser(split, Parameters.create());
     assertNull(parser.nextDocument());
   }
 
@@ -120,7 +120,7 @@ public class IndexReaderSplitParserTest {
     split.endKey = Utility.fromLong(9);
 
     // Open up the file:
-    CorpusSplitParser parser = new CorpusSplitParser(split, Parameters.instance());
+    CorpusSplitParser parser = new CorpusSplitParser(split, Parameters.create());
     assertNull(parser.nextDocument());
   }
 }

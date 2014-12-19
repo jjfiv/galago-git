@@ -75,7 +75,7 @@ public class BuildSketchIndex extends AppFunction {
     buildParameters.set("indexPath", indexPath);
 
     List<String> inputPaths = buildParameters.getAsList("inputPath", String.class);
-    Parameters splitParameters = buildParameters.get("parser", Parameters.instance());
+    Parameters splitParameters = buildParameters.get("parser", Parameters.create());
     splitParameters.set("corpusPieces", buildParameters.get("distrib", 10));
     if (buildParameters.isMap("parser")) {
       splitParameters.set("parser", buildParameters.getMap("parser"));
@@ -102,7 +102,7 @@ public class BuildSketchIndex extends AppFunction {
     int depth = (int) buildParameters.getLong("depth");
     double error = buildParameters.getDouble("error");
 
-    Parameters hashFns = Parameters.instance();
+    Parameters hashFns = Parameters.create();
     hashFns.set("depth", depth);
     hashFns.set("error", error);
     for (int i = 0; i < depth; i++) {
@@ -133,14 +133,14 @@ public class BuildSketchIndex extends AppFunction {
 
     if (buildParameters.containsKey("stemmer")) {
       Class stemmer = Class.forName(buildParameters.getString("stemmer"));
-      stage.add(BuildStageTemplates.getStemmerStep(Parameters.instance(), stemmer));
+      stage.add(BuildStageTemplates.getStemmerStep(Parameters.create(), stemmer));
     }
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("indexPath", buildParameters.getString("indexPath"));
     stage.add(new StepInformation(ExtractIndexDocumentNumbers.class, p));
 
-    Parameters p2 = Parameters.instance();
+    Parameters p2 = Parameters.create();
     p2.set("n", buildParameters.getLong("n"));
     p2.set("width", buildParameters.getLong("width"));
     p2.set("ordered", buildParameters.getBoolean("ordered"));

@@ -19,7 +19,7 @@ import java.util.TreeMap;
  */
 public class QueryJudgments extends WrappedMap<String, Integer> {
 
-  // each instance of QueryJudgments correspond to some query
+  // each create of QueryJudgments correspond to some query
   private String queryName;
 
   /**

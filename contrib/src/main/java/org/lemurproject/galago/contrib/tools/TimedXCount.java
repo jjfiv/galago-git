@@ -50,7 +50,7 @@ public class TimedXCount extends AppFunction {
     List<Parameters> exprs = prepareExpressions(parameters.getString("inputs"), parameters.getString("op"), parameters.getString("part"));
 
     // open index
-    Retrieval retrieval = RetrievalFactory.instance(parameters);
+    Retrieval retrieval = RetrievalFactory.create(parameters);
 
     // Repeats
     int repeats = (int) parameters.get("repeats", 5);
@@ -122,7 +122,7 @@ public class TimedXCount extends AppFunction {
     while ((l = r.readLine()) != null) {
       String[] terms = l.split(" ");
 
-      Parameters expr = Parameters.instance();
+      Parameters expr = Parameters.create();
 
       StringBuilder node = new StringBuilder();
       node.append(op).append("(");

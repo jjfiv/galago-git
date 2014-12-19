@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  * input methods it has available (i.e. an inputstream or a buffered reader over
  * the input data. Additionally, any TSP may have TupleFlowParameters in its
  * formal argument list, and the parameters provided to the UniversalParser will
- * be forwarded to the TSP instance.
+ * be forwarded to the TSP create.
  *
  * @author trevor, sjh, irmarc
  */

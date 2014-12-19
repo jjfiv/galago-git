@@ -114,15 +114,25 @@ public abstract class Tokenizer implements Source<Document>, Processor<Document>
     return TagTokenizer.class;
   }
   
-    
+  /** @deprecated use create instead */
+  @Deprecated
   public static Tokenizer instance(Parameters p) {
-    return instance(new FakeParameters(p));
+    return create(p);
+  }
+  /** @deprecated use create instead */
+  @Deprecated
+  public static Tokenizer instance(TupleFlowParameters p) {
+    return create(p);
   }
 
-  public static Tokenizer instance(TupleFlowParameters tp) {
+  public static Tokenizer create(Parameters p) {
+    return create(new FakeParameters(p));
+  }
+
+  public static Tokenizer create(TupleFlowParameters tp) {
     Tokenizer tokenizer = null;
     Parameters inputParms = tp.getJSON();
-    Parameters tokenizerParms = Parameters.instance();
+    Parameters tokenizerParms = Parameters.create();
 
     //--- pull out tokenizer options if available
     if(inputParms.isMap("tokenizer")) {

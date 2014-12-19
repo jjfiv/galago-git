@@ -52,8 +52,12 @@ public abstract class ProcessingModel {
     return items;
   }
 
-  public static ProcessingModel instance(LocalRetrieval r, Node root, Parameters p)
-          throws Exception {
+  /** @deprecated use create instead! */
+  @Deprecated
+  public static ProcessingModel instance(LocalRetrieval r, Node root, Parameters p) throws Exception {
+    return create(r, root, p);
+  }
+  public static ProcessingModel create(LocalRetrieval r, Node root, Parameters p) throws Exception {
     // If we can be being specific about the processing model:
 
     if (p.containsKey("processingModel")) {

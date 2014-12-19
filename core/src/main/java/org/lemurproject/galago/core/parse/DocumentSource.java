@@ -47,7 +47,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   public DocumentSource(TupleFlowParameters parameters) {
     this.parameters = parameters;
     this.inputCounter = parameters.getCounter("Inputs Processed");
-    DocumentStreamParser.addExternalParsers(parameters.getJSON().get("parser", Parameters.instance()));
+    DocumentStreamParser.addExternalParsers(parameters.getJSON().get("parser", Parameters.create()));
   }
 
   @Override

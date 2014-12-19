@@ -120,14 +120,14 @@ public class UniversalParserTest {
             createTrecWebDoc(dataDir, "d4.trecweb"); // 10 docs
             createTwitterDoc(dataDir, "d5.twitter"); // 10 docs
 
-            Parameters p = Parameters.instance();
+            Parameters p = Parameters.create();
             p.set("inputPath", Collections.singletonList(dataDir.getAbsolutePath()));
             p.set("indexPath", index.getAbsolutePath());
 
             BuildIndex bi = new BuildIndex();
             bi.run(p, System.err);
 
-            Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.instance());
+            Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.create());
 
             FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
             assertEquals(cs.collectionLength, 553);
@@ -163,7 +163,7 @@ public class UniversalParserTest {
             createTxtDoc(dataDir, "d5"); // 1 doc
             createXMLDoc(dataDir, "d6"); // 1 doc
 
-            Parameters p = Parameters.instance();
+            Parameters p = Parameters.create();
             p.set("inputPath", Collections.singletonList(dataDir.getAbsolutePath()));
             p.set("indexPath", index.getAbsolutePath());
             p.set("filetype", "txt");
@@ -171,7 +171,7 @@ public class UniversalParserTest {
             BuildIndex bi = new BuildIndex();
             bi.run(p, System.err);
 
-            Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.instance());
+            Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.create());
 
             FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
             assertEquals(cs.collectionLength, 129);
@@ -198,8 +198,8 @@ public class UniversalParserTest {
     public void testExtensions() throws IOException {
         File tmp = FileUtility.createTemporary();
 
-        Parameters p = Parameters.instance();
-        p.set("parser", Parameters.instance());
+        Parameters p = Parameters.create();
+        p.set("parser", Parameters.create());
 
         List<Parameters> kinds = new ArrayList<Parameters>();
         kinds.add(Parameters.parseArray("filetype", "qqe",
@@ -218,7 +218,7 @@ public class UniversalParserTest {
         assertTrue(DocumentStreamParser.hasParserForExtension("trecweb"));
 
         DocumentSplit split = DocumentSplitFactory.file(tmp, "qwe");
-        DocumentStreamParser parser = DocumentStreamParser.instance(split, Parameters.instance());
+        DocumentStreamParser parser = DocumentStreamParser.create(split, Parameters.create());
         assertTrue(parser instanceof TrecWebParser);
 
         tmp.delete();
@@ -235,8 +235,8 @@ public class UniversalParserTest {
 
     @Test
     public void testDocumentSourceLogic() throws IOException {
-        Parameters conf = Parameters.instance();
-        conf.set("parser", Parameters.instance());
+        Parameters conf = Parameters.create();
+        conf.set("parser", Parameters.create());
 
         List<Parameters> kinds = new ArrayList<Parameters>();
         kinds.add(Parameters.parseArray("filetype", "qqe",
@@ -282,10 +282,10 @@ public class UniversalParserTest {
             createTrecWebDoc(dataDir, "d4.trecweb"); // 10 docs - trectext
             createTxtDoc(dataDir, "d5.txt"); // 1 docs - txt
 
-            Parameters p = Parameters.instance();
+            Parameters p = Parameters.create();
             p.set("inputPath", Collections.singletonList(dataDir.getAbsolutePath()));
             p.set("indexPath", index.getAbsolutePath());
-            p.set("parser", Parameters.instance());
+            p.set("parser", Parameters.create());
 
             List<Parameters> kinds = new ArrayList<Parameters>();
             kinds.add(Parameters.parseString("{\"filetype\" : \"qqe\", \"class\" :\"" + TrecTextParser.class.getName() + "\"}"));
@@ -296,7 +296,7 @@ public class UniversalParserTest {
             BuildIndex bi = new BuildIndex();
             bi.run(p, System.err);
 
-            Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.instance());
+            Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.create());
 
             FieldStatistics cs = ret.getCollectionStatistics("#lengths:part=lengths()");
             assertEquals(cs.collectionLength, 622); // trecweb with trectext will be empty

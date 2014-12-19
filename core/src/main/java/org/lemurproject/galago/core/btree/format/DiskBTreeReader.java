@@ -2,10 +2,11 @@
 package org.lemurproject.galago.core.btree.format;
 
 import org.lemurproject.galago.core.btree.format.VocabularyReader.IndexBlockInfo;
-import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.StreamCreator;
+import org.lemurproject.galago.utility.buffer.BufferedFileDataStream;
+import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.File;

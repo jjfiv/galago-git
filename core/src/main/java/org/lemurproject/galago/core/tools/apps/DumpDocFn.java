@@ -46,7 +46,7 @@ public class DumpDocFn extends AppFunction {
     
     DocumentComponents dc = new DocumentComponents(p);
     
-    Retrieval r = RetrievalFactory.instance(indexPath, Parameters.instance());
+    Retrieval r = RetrievalFactory.instance(indexPath, Parameters.create());
     assert r.getAvailableParts().containsKey("corpus") : "Index does not contain a corpus part.";
     Document document = r.getDocument(identifier, dc);
     if (document != null) {

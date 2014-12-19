@@ -31,12 +31,12 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
 
   public WindowIndexReader(BTreeReader reader) throws Exception {
     super(reader);
-    stemmer = Stemmer.instance(reader.getManifest());
+    stemmer = Stemmer.create(reader.getManifest());
   }
 
   public WindowIndexReader(String pathname) throws Exception {
     super(pathname);
-    stemmer = Stemmer.instance(reader.getManifest());
+    stemmer = Stemmer.create(reader.getManifest());
   }
 
   @Override

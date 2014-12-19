@@ -27,7 +27,7 @@ public class NewlineTokenizerTest {
   @Test
   public void testFromParameters() throws IOException {
     Parameters tokenizerParms = Parameters.parseString("{\"tokenizer\": { \"tokenizerClass\": \""+NewlineTokenizer.class.getCanonicalName()+"\" } }");
-    Tokenizer tok = Tokenizer.instance(tokenizerParms);
+    Tokenizer tok = Tokenizer.create(tokenizerParms);
     assertTrue(tok instanceof NewlineTokenizer);
   }
 }

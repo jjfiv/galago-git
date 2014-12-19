@@ -123,7 +123,7 @@ public class StatsFnTest {
     }
     Utility.copyStringToFile(corpus.toString(), input);
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("inputPath", input.getAbsolutePath());
     p.set("indexPath", index.getAbsolutePath());
     p.set("stemmer", Arrays.asList(new String[]{"krovetz", "porter"}));

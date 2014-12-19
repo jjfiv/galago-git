@@ -80,12 +80,12 @@ public class FilteringIteratorTest {
   @Test
   public void testRequireOperator() throws Exception {
     DiskIndex index = new DiskIndex(tempPath.getAbsolutePath());
-    LocalRetrieval retrieval = new LocalRetrieval(index, Parameters.instance());
+    LocalRetrieval retrieval = new LocalRetrieval(index, Parameters.create());
 
     // Let's try requiring a greater than
     Node tree = StructuredQuery.parse("#combine ( #require( #greater( date 1/7/1920 ) a ) #require( #greater( date 1/7/1920 ) b ) ) ");
 
-    Parameters qp = Parameters.instance();
+    Parameters qp = Parameters.create();
     tree = retrieval.transformQuery(tree, qp);
     
     List<ScoredDocument> results = retrieval.executeQuery(tree, qp).scoredDocuments;
@@ -106,11 +106,11 @@ public class FilteringIteratorTest {
   @Test
   public void testRejectOperator() throws Exception {
     DiskIndex index = new DiskIndex(tempPath.getAbsolutePath());
-    LocalRetrieval retrieval = new LocalRetrieval(index, Parameters.instance());
+    LocalRetrieval retrieval = new LocalRetrieval(index, Parameters.create());
 
     // Let's try requiring a greater than
     Node tree = StructuredQuery.parse("#combine( #reject( #between( date 1/1/0100 1/1/1900 ) b ) #reject( #between( date 1/1/0100 1/1/1900)a ) )");
-    Parameters qp = Parameters.instance();
+    Parameters qp = Parameters.create();
     tree = retrieval.transformQuery(tree, qp);
 
     List<ScoredDocument> results = retrieval.executeQuery(tree, qp).scoredDocuments;

@@ -68,15 +68,15 @@ public class BuildWindowIndex extends AppFunction {
     stage.add(BuildStageTemplates.getTokenizerStep(buildParameters));
 
     if (stemming) {
-      stage.add(BuildStageTemplates.getStemmerStep(Parameters.instance(), stemmerClass));
+      stage.add(BuildStageTemplates.getStemmerStep(Parameters.create(), stemmerClass));
     }
 
     // Document numbers don't really matter - they are dropped by the Featurer.
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("indexPath", indexPath);
     stage.add(new StepInformation(ExtractIndexDocumentNumbers.class, p));
 
-    Parameters p2 = Parameters.instance();
+    Parameters p2 = Parameters.create();
     p2.set("n", n);
     p2.set("width", width);
     p2.set("ordered", ordered);
@@ -103,7 +103,7 @@ public class BuildWindowIndex extends AppFunction {
 
     stage.add(new InputStepInformation("featureData"));
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("threshold", threshold);
     stage.add(new StepInformation(TextFeatureThresholder.class, p));
 
@@ -146,14 +146,14 @@ public class BuildWindowIndex extends AppFunction {
     stage.add(BuildStageTemplates.getTokenizerStep(buildParameters));
     if (stemming) {
       Class stemmer = stemmerClass;
-      stage.add(BuildStageTemplates.getStemmerStep(Parameters.instance(), stemmer));
+      stage.add(BuildStageTemplates.getStemmerStep(Parameters.create(), stemmer));
     }
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("indexPath", indexPath);
     stage.add(new StepInformation(ExtractIndexDocumentNumbers.class, p));
 
-    Parameters p2 = Parameters.instance();
+    Parameters p2 = Parameters.create();
     p2.set("n", n);
     p2.set("width", width);
     p2.set("ordered", ordered);
@@ -163,7 +163,7 @@ public class BuildWindowIndex extends AppFunction {
     stage.add(new StepInformation(WindowProducer.class, p2));
 
     if (spaceEfficient) {
-      Parameters p3 = Parameters.instance();
+      Parameters p3 = Parameters.create();
       p3.set("filterStream", "filterData");
       stage.add(new StepInformation(WindowFilter.class, p3));
     }
@@ -197,7 +197,7 @@ public class BuildWindowIndex extends AppFunction {
 
     stage.add(new InputStepInformation(inputName));
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("threshold", threshold);
     p.set("threshdf", threshdf);
     if (threshold > 1) {
@@ -209,7 +209,7 @@ public class BuildWindowIndex extends AppFunction {
       }
     }
 
-    Parameters p2 = Parameters.instance();
+    Parameters p2 = Parameters.create();
     p2.set("filename", indexPath + File.separator + indexName);
     p2.set("n", this.n);
     p2.set("width", this.width);
@@ -280,7 +280,7 @@ public class BuildWindowIndex extends AppFunction {
 
     // tokenizer - fields
     if (buildParameters.isList("fields", String.class) || buildParameters.isString("fields")) {
-      buildParameters.set("tokenizer", Parameters.instance());
+      buildParameters.set("tokenizer", Parameters.create());
       buildParameters.getMap("tokenizer").set("fields", buildParameters.getAsList("fields"));
     }
 
@@ -314,7 +314,7 @@ public class BuildWindowIndex extends AppFunction {
 
 
 
-    Parameters splitParameters = Parameters.instance();
+    Parameters splitParameters = Parameters.create();
     splitParameters.set("corpusPieces", p.get("distrib", 10));
     job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
     job.add(getParsePostingsStage());

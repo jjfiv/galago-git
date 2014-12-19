@@ -40,7 +40,7 @@ public class SequentialDependenceTraversalTest {
   @Test
   public void testTraversal() throws Exception {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     LocalRetrieval retrieval = new LocalRetrieval(index, p);
     SequentialDependenceTraversal traversal = new SequentialDependenceTraversal(retrieval);
     Node tree = StructuredQuery.parse("#sdm( cat dog rat )");
@@ -54,7 +54,7 @@ public class SequentialDependenceTraversalTest {
     assertEquals(transformed.toString(), result.toString());
 
     // now change weights
-    p = Parameters.instance();
+    p = Parameters.create();
     p.set("uniw", 0.75);
     p.set("odw", 0.10);
     p.set("uww", 0.15);
@@ -82,7 +82,7 @@ public class SequentialDependenceTraversalTest {
     assertEquals(transformed.toString(), result.toString());
 
     // now change the window size param
-    p = Parameters.instance();
+    p = Parameters.create();
     p.set("uniw", 0.75);
     p.set("odw", 0.10);
     p.set("uww", 0.15);

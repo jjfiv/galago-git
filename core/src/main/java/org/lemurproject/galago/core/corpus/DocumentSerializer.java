@@ -1,7 +1,7 @@
 package org.lemurproject.galago.core.corpus;
 
 import org.lemurproject.galago.core.parse.Document;
-import org.lemurproject.galago.tupleflow.DataStream;
+import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.ByteArrayInputStream;
@@ -48,13 +48,19 @@ public abstract class DocumentSerializer {
     return fromStream(new DataInputStream(stream), selection);
   }
 
+  /** @deprecated use create instead! */
+  @Deprecated
+  public static DocumentSerializer instance(Parameters opts) throws IOException {
+    return create(opts);
+  }
+
   /**
    * Construct a DocumentSerializer based upon the manifest or build parameters.
    * @param opts the manifest
    * @return a new DocumentSerializer
    * @throws IOException
    */
-  public static DocumentSerializer instance(Parameters opts) throws IOException {
+  public static DocumentSerializer create(Parameters opts) throws IOException {
     String serializerClass = opts.get("documentSerializerClass", WebDocumentSerializer.class.getName());
 
     try {

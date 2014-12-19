@@ -1,5 +1,5 @@
 // BSD License (http://www.galagosearch.org/license)
-package org.lemurproject.galago.tupleflow;
+package org.lemurproject.galago.utility.buffer;
 
 import java.io.DataInput;
 import java.io.IOException;

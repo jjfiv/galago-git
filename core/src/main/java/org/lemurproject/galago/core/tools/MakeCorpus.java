@@ -34,7 +34,7 @@ public class MakeCorpus extends AppFunction {
 
     Stage stage = new Stage("make-corpus");
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
 
     List<String> goodPaths = new ArrayList<>();
     for (String input : inputs) {
@@ -56,7 +56,7 @@ public class MakeCorpus extends AppFunction {
     stage.add(new StepInformation(DocumentToKeyValuePair.class));
     stage.add(Utility.getSorter(new KeyValuePair.KeyOrder()));
     stage.add(new StepInformation(KeyValuePairToDocument.class));
-    p = Parameters.instance();
+    p = Parameters.create();
     p.set("filename", outputCorpus);
     if (corpusParameters.isLong("corpusBlockSize")) {
       p.set("blockSize", corpusParameters.getLong("corpusBlockSize"));
@@ -112,7 +112,7 @@ public class MakeCorpus extends AppFunction {
       }
     }
 
-    Parameters corpusWriterParameters = Parameters.instance();
+    Parameters corpusWriterParameters = Parameters.create();
     corpusWriterParameters.set("readerClass", CorpusReader.class.getName());
     corpusWriterParameters.set("writerClass", CorpusFolderWriter.class.getName());
     corpusWriterParameters.set("filename", corpus.getAbsolutePath());
@@ -124,7 +124,7 @@ public class MakeCorpus extends AppFunction {
 
     Job job = new Job();
 
-    Parameters splitParameters = Parameters.instance();
+    Parameters splitParameters = Parameters.create();
     splitParameters.put("corpusPieces", corpusParams.get("distrib", 10));
     job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
     job.add(getParseWriteDocumentsStage(corpusParams, corpusWriterParameters));

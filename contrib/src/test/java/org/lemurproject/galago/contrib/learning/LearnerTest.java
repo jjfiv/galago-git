@@ -62,7 +62,7 @@ public class LearnerTest {
       learnableParams.add(Parameters.parseString("{\"name\":\"uww\", \"max\":1.0, \"min\":-1.0}"));
       learnParams.set("learnableParameters", learnableParams);
       // add sum rule to ensure sums to 1
-      Parameters normalRule = Parameters.instance();
+      Parameters normalRule = Parameters.create();
       normalRule.set("mode", "sum");
       normalRule.set("params", Arrays.asList(new String[]{"0", "1"}));
       normalRule.set("value", 1D);
@@ -94,13 +94,13 @@ public class LearnerTest {
         // System.out.println(root.toPrettyString());
 
         // node is an SDM - root, children, and sub-children are not cached, nodes below that level are cached
-        BaseIterator i = r.createIterator(Parameters.instance(), root);
+        BaseIterator i = r.createIterator(Parameters.create(), root);
         assertFalse(i instanceof SourceIterator); // not disk level
         for (Node child : root.getInternalNodes()) {
-          i = r.createIterator(Parameters.instance(), child);
+          i = r.createIterator(Parameters.create(), child);
           assertFalse(i instanceof SourceIterator); // not disk level
           for (Node subchild : child.getInternalNodes()) {
-            i = r.createIterator(Parameters.instance(), subchild);
+            i = r.createIterator(Parameters.create(), subchild);
             SourceIterator si = (SourceIterator) i;
             assertTrue(si.getSource().getClass().getName().contains(".mem.")); // uses a memory source in iterator.
           }

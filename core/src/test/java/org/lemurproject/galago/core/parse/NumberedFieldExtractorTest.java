@@ -67,14 +67,14 @@ public class NumberedFieldExtractorTest {
     File index = FileUtility.createTemporaryDirectory();
     try {
       Utility.copyStringToFile(sb.toString(), input);
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("indexPath", index.getAbsolutePath());
       p.set("inputPath", input.getAbsolutePath());
       p.set("corpus", false);
-      p.set("tokenizer", Parameters.instance());
+      p.set("tokenizer", Parameters.create());
       p.getMap("tokenizer").set("fields", Arrays.asList("intfield", "longfield", "floatfield", "doublefield", "datefield"));
 
-      p.getMap("tokenizer").set("formats", Parameters.instance());
+      p.getMap("tokenizer").set("formats", Parameters.create());
       p.getMap("tokenizer").getMap("formats").set("intfield", "int");
       p.getMap("tokenizer").getMap("formats").set("longfield", "long");
       p.getMap("tokenizer").getMap("formats").set("floatfield", "float");
@@ -82,7 +82,7 @@ public class NumberedFieldExtractorTest {
       p.getMap("tokenizer").getMap("formats").set("datefield", "date");
 
       App.run("build", p, System.err);
-      // Retrieval r = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.instance());
+      // Retrieval r = RetrievalFactory.create(index.getAbsolutePath(), Parameters.create());
 
       FieldIndexReader fieldReader = (FieldIndexReader) DiskIndex.openIndexComponent(new File(index, "fields").getAbsolutePath());
 

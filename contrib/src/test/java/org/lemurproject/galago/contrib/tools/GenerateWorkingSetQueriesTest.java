@@ -50,7 +50,7 @@ public class GenerateWorkingSetQueriesTest {
     }
     Utility.copyStringToFile(c.toString(), corpus);
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("inputPath", corpus.getAbsolutePath());
     p.set("indexPath", index.getAbsolutePath());
     p.set("distrib", 1);
@@ -69,7 +69,7 @@ public class GenerateWorkingSetQueriesTest {
 
     File out = new File(dataFolder, "out1");
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("index", index.getAbsolutePath());
     p.set("topK", 10);
     p.set("output", out.getAbsolutePath());

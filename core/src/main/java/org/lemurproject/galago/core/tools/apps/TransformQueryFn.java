@@ -33,7 +33,7 @@ public class TransformQueryFn extends AppFunction {
 
   @Override
   public void run(Parameters p, PrintStream output) throws Exception {
-    Retrieval r = RetrievalFactory.instance(p);
+    Retrieval r = RetrievalFactory.create(p);
     List<Parameters> queries = BatchSearch.collectQueries(p);
 
     String printMode = p.get("format", "pretty");

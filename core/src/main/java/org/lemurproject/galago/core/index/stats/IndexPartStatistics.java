@@ -37,7 +37,7 @@ public class IndexPartStatistics implements AggregateStatistic {
   }
 
   public Parameters toParameters() {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("partName", partName);
     p.set("statistics/collectionLength", collectionLength);
     p.set("statistics/vocabCount", vocabCount);

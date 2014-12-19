@@ -38,7 +38,7 @@ public class CorpusFileWriter implements Processor<Document> {
     corpusParams.set("mergerClass", CorpusMerger.class.getName());
     writer = new DiskBTreeWriter(parameters.getJSON().getString("filename"), corpusParams);
     documentsWritten = parameters.getCounter("Documents Written");
-    serializer = DocumentSerializer.instance(corpusParams);
+    serializer = DocumentSerializer.create(corpusParams);
     corpusParams.set("documentSerializerClass", serializer.getClass().getName());
   }
 

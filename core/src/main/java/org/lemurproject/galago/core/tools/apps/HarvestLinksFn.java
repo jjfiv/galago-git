@@ -74,7 +74,7 @@ public class HarvestLinksFn extends AppFunction {
 
     // ensure we can extract links from tag: 'a'
     // sjh -- parameterize this to allow different link tags?
-    p.set("tokenizer", Parameters.instance());
+    p.set("tokenizer", Parameters.create());
     p.getMap("tokenizer").set("fields", Arrays.asList("a", "base"));
 
     // check indri
@@ -84,7 +84,7 @@ public class HarvestLinksFn extends AppFunction {
 
     // stage 1: split files
 
-    Parameters splitParameters = p.isMap("parser")? p.getMap("parser") : Parameters.instance();
+    Parameters splitParameters = p.isMap("parser")? p.getMap("parser") : Parameters.create();
     splitParameters.set("corpusPieces", p.get("distrib", 10));
 
     if (p.isString("filetype")) {
@@ -170,7 +170,7 @@ public class HarvestLinksFn extends AppFunction {
     stage.addInput("links", new ExtractedLinkIndri.DestUrlOrder());
 
     stage.add(new InputStepInformation("links"));
-    Parameters namerParams = Parameters.instance();
+    Parameters namerParams = Parameters.create();
     namerParams.set("destNameStream", "docUrls");
     namerParams.set("acceptExternalUrls", p.get("acceptExternalUrls", false));
     stage.add(new StepInformation(LinkDestNamer.class, namerParams));
@@ -212,7 +212,7 @@ public class HarvestLinksFn extends AppFunction {
     stage.addInput("indriNamedLinks", new ExtractedLinkIndri.FilePathFileLocationOrder());
 
     // I'm doing this manually to ensure the existence of these parameters early.
-    Parameters writerParams = Parameters.instance();
+    Parameters writerParams = Parameters.create();
     writerParams.set("filePrefix", p.getString("filePrefix"));
     writerParams.set("prefixReplacement", p.getString("prefixReplacement"));
 
@@ -233,7 +233,7 @@ public class HarvestLinksFn extends AppFunction {
     stage.addInput(streamName, order.getConstructor().newInstance());
 
     // I'm doing this manually to ensure the existence of these parameters early.
-    Parameters writerParams = Parameters.instance();
+    Parameters writerParams = Parameters.create();
     writerParams.set("outputFolder", outputFolder);
     writerParams.set("outputFile", outputPrefix);
     writerParams.set("order", order.getName());

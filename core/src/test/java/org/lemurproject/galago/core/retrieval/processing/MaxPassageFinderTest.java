@@ -51,7 +51,7 @@ public class MaxPassageFinderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testMissingPassageQuery() throws Exception {
-        Parameters badParms = Parameters.instance();
+        Parameters badParms = Parameters.create();
         badParms.set("requested", 100);
         badParms.set("passageSize", 10);
         badParms.set("passageShift", 5);
@@ -65,11 +65,11 @@ public class MaxPassageFinderTest {
 
     @Test
     public void testEntireCollection() throws Exception {
-        Parameters globals = Parameters.instance();
+        Parameters globals = Parameters.create();
         globals.set("passageQuery", true);
         LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), globals);
 
-        Parameters queryParams = Parameters.instance();
+        Parameters queryParams = Parameters.create();
 
         queryParams.set("passageQuery", true);
         queryParams.set("passageSize", 10);
@@ -81,7 +81,7 @@ public class MaxPassageFinderTest {
         queryParams.set("working", docs);
         Node query = StructuredQuery.parse("#combine( test text 0 1 )");
         query = ret.transformQuery(query, queryParams);
-        // List<ScoredDocument> results = ret.executeQuery(query, Parameters.instance()).scoredDocuments;
+        // List<ScoredDocument> results = ret.executeQuery(query, Parameters.create()).scoredDocuments;
 
         MaxPassageFinder model = new MaxPassageFinder(ret);
 
@@ -135,7 +135,7 @@ public class MaxPassageFinderTest {
         }
         Utility.copyStringToFile(c.toString(), corpus);
 
-        Parameters p = Parameters.instance();
+        Parameters p = Parameters.create();
         p.set("inputPath", corpus.getAbsolutePath());
         p.set("indexPath", index.getAbsolutePath());
         p.set("corpus", false);

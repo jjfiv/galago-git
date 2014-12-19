@@ -40,7 +40,7 @@ public class NetworkedCounter implements Counter {
     }
 
     try {
-      String fullUrl = String.format("%s/setcounter?counterName=%s&stageName=%s&instance=%s&value=%d",
+      String fullUrl = String.format("%s/setcounter?counterName=%s&stageName=%s&create=%s&value=%d",
               url, URLEncoder.encode(counterName, "UTF-8"),
               URLEncoder.encode(stageName, "UTF-8"),
               URLEncoder.encode(instance, "UTF-8"), count);

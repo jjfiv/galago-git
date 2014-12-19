@@ -81,7 +81,7 @@ public class TagTokenizer extends Tokenizer {
   }
 
   public TagTokenizer() {
-    super(new FakeParameters(Parameters.instance()));
+    super(new FakeParameters(Parameters.create()));
     text = null;
     position = 0;
     lastSplit = -1;

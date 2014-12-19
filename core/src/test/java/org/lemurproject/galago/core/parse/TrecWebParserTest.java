@@ -27,7 +27,7 @@ public class TrecWebParserTest {
 
     try {
       DocumentSplit split = DocumentSplitFactory.file(f);
-      TrecWebParser parser = new TrecWebParser(split, Parameters.instance());
+      TrecWebParser parser = new TrecWebParser(split, Parameters.create());
 
       Document document = parser.nextDocument();
       assertNull(document);
@@ -52,7 +52,7 @@ public class TrecWebParserTest {
 
       Utility.copyStringToFile(fileText, f);
       DocumentSplit split = DocumentSplitFactory.file(f);
-      TrecWebParser parser = new TrecWebParser(split, Parameters.instance());
+      TrecWebParser parser = new TrecWebParser(split, Parameters.create());
 
       Document document = parser.nextDocument();
       assertNotNull(document);

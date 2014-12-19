@@ -46,7 +46,7 @@ public class MultiConnectionTest {
     ErrorStore store = new ErrorStore();
     Verification.verify(job, store);
     
-    JobExecutor.runLocally(job, store, Parameters.instance());
+    JobExecutor.runLocally(job, store, Parameters.create());
     if (store.hasStatements()) {
       throw new RuntimeException(store.toString());
     }

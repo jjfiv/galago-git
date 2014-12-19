@@ -31,7 +31,7 @@ public class DiskMapSortedBuilder implements Processor<KeyValuePair> {
   }
   
   public DiskMapSortedBuilder(String path) throws IOException {
-    this(path, Parameters.instance());
+    this(path, Parameters.create());
   }
   
   /**

@@ -67,7 +67,7 @@ public class PullDocumentsTest {
 
     AppTest.verifyIndexStructures(indexPath);
 
-    this.retrieval = new LocalRetrieval(indexPath.getAbsolutePath(), Parameters.instance());
+    this.retrieval = new LocalRetrieval(indexPath.getAbsolutePath(), Parameters.create());
   }
 
   @Before

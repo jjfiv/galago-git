@@ -51,7 +51,7 @@ public class DiskBTreeWriter extends BTreeWriter {
   Counter blocksWritten = NullCounter.instance;
 
   /**
-   * Creates a new instance of DiskBTreeWriter
+   * Creates a new create of DiskBTreeWriter
    */
   public DiskBTreeWriter(String outputFilename, Parameters parameters)
           throws IOException {
@@ -65,7 +65,7 @@ public class DiskBTreeWriter extends BTreeWriter {
     output = new DataOutputStream(new BufferedOutputStream(
             new FileOutputStream(outputFilename)));
     vocabulary = new VocabularyWriter();
-    manifest = Parameters.instance();
+    manifest = Parameters.create();
     manifest.copyFrom(parameters);
     lists = new ArrayList<>();
 
@@ -75,7 +75,7 @@ public class DiskBTreeWriter extends BTreeWriter {
   }
 
   public DiskBTreeWriter(String outputFilename) throws IOException {
-    this(outputFilename, Parameters.instance());
+    this(outputFilename, Parameters.create());
   }
 
   public DiskBTreeWriter(TupleFlowParameters parameters) throws IOException {

@@ -43,7 +43,7 @@ public class StatsFn extends AppFunction {
       return;
     }
 
-    Retrieval r = RetrievalFactory.instance(p);
+    Retrieval r = RetrievalFactory.create(p);
 
     // TODO: this should be in the retrieval interface...
     if (!p.containsKey("part")
@@ -90,7 +90,7 @@ public class StatsFn extends AppFunction {
 
       Node n = StructuredQuery.parse(field);
       // It would be nice to make the traversals deal with this corrently.
-      //n = r.transformQuery(n, Parameters.instance());
+      //n = r.transformQuery(n, Parameters.create());
 
       // however, currently - I'm only willing to fix one type of lengths node:
       if(n.getOperator().equals("text")){
@@ -112,7 +112,7 @@ public class StatsFn extends AppFunction {
 
       Node n = StructuredQuery.parse(node);
       n.getNodeParameters().set("queryType", "count");
-      n = r.transformQuery(n, Parameters.instance());
+      n = r.transformQuery(n, Parameters.create());
 
       output.println("  \"" + node + "\" : ");
       try {

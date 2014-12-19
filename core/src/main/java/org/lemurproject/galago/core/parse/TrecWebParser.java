@@ -16,7 +16,7 @@ public class TrecWebParser extends DocumentStreamParser {
   BufferedReader reader;
 
   /**
-   * Creates a new instance of TrecWebParser
+   * Creates a new create of TrecWebParser
    */
   public TrecWebParser(DocumentSplit split, Parameters p) throws IOException {
     super(split, p);

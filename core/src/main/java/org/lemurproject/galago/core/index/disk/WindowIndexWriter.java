@@ -65,7 +65,7 @@ public class WindowIndexWriter implements
   int currentBegin;
 
   /**
-   * Creates a new instance of PositionIndexWriter
+   * Creates a new create of PositionIndexWriter
    */
   public WindowIndexWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
     actualParams = parameters.getJSON();

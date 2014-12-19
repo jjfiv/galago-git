@@ -72,7 +72,7 @@ public class MergeIndexTest {
 
             indexmerged = FileUtility.createTemporaryDirectory();
 
-            Parameters mergeParams = Parameters.instance();
+            Parameters mergeParams = Parameters.create();
             mergeParams.set("indexPath", indexmerged.getAbsolutePath());
             ArrayList<String> inputs = new ArrayList<String>();
             inputs.add(index1.getAbsolutePath());
@@ -143,7 +143,7 @@ public class MergeIndexTest {
 
             indexmerged = FileUtility.createTemporaryDirectory();
 
-            Parameters mergeParams = Parameters.instance();
+            Parameters mergeParams = Parameters.create();
             mergeParams.set("indexPath", indexmerged.getAbsolutePath());
             ArrayList<String> inputs = new ArrayList<String>();
             inputs.add(index1.getAbsolutePath());
@@ -207,7 +207,7 @@ public class MergeIndexTest {
             MemoryIndex mi1 = new MemoryIndex(new FakeParameters(p1));
             MemoryIndex mi2 = new MemoryIndex(new FakeParameters(p2));
 
-            Tokenizer tok = Tokenizer.instance(p1);
+            Tokenizer tok = Tokenizer.create(p1);
             for (int i = 0; i < 100; i++) {
                 Document d1 = new Document("DOCS1-" + i, "this is sample document " + i);
                 Document d2 = new Document("DOCS2-" + i, "this is a different document " + i);
@@ -228,7 +228,7 @@ public class MergeIndexTest {
 
             indexmerged = FileUtility.createTemporaryDirectory();
 
-            Parameters mergeParams = Parameters.instance();
+            Parameters mergeParams = Parameters.create();
             mergeParams.set("indexPath", indexmerged.getAbsolutePath());
             ArrayList<String> inputs = new ArrayList<String>();
             inputs.add(index1.getAbsolutePath());

@@ -21,7 +21,7 @@ public class ReplaceOperatorTraversalTest {
       "--opRepls/dummy2+test2", 
       "--opRepls/dummy2+test3"});
     
-    ReplaceOperatorTraversal traversal = new ReplaceOperatorTraversal(Parameters.instance());
+    ReplaceOperatorTraversal traversal = new ReplaceOperatorTraversal(Parameters.create());
     
     Node t1 = traversal.afterNode(new Node("dummy1"), repls);
     Node t2 = traversal.afterNode(new Node("dummy2"), repls);

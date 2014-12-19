@@ -78,7 +78,7 @@ public class BuildStageTemplates {
    * Writes document lengths to a document lengths file.
    */
   public static Stage getWriteLengthsStage(String stageName, File destination, String inputPipeName) throws IOException {
-    return getWriteLengthsStage(stageName, destination, inputPipeName, Parameters.instance());
+    return getWriteLengthsStage(stageName, destination, inputPipeName, Parameters.create());
   }
 
   public static Stage getWriteLengthsStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
@@ -92,7 +92,7 @@ public class BuildStageTemplates {
    * Writes document names to a document names file.
    */
   public static Stage getWriteNamesStage(String stageName, File destination, String inputPipeName) throws IOException {
-    return getWriteNamesStage(stageName, destination, inputPipeName, Parameters.instance());
+    return getWriteNamesStage(stageName, destination, inputPipeName, Parameters.create());
   }
 
   public static Stage getWriteNamesStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
@@ -102,7 +102,7 @@ public class BuildStageTemplates {
   }
   
   public static Stage getWriteNamesRevStage(String stageName, File destination, String inputPipeName) throws IOException {
-    return getWriteNamesRevStage(stageName, destination, inputPipeName, Parameters.instance());
+    return getWriteNamesRevStage(stageName, destination, inputPipeName, Parameters.create());
   }
 
   public static Stage getWriteNamesRevStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
@@ -113,7 +113,7 @@ public class BuildStageTemplates {
 
   public static Stage getWriteExtentsStage(String stageName, File destination, String inputPipeName) throws IOException {
     return getGenericWriteStage(stageName, destination, inputPipeName,
-            WindowIndexWriter.class, new NumberedExtent.ExtentNameNumberBeginOrder(), Parameters.instance());
+            WindowIndexWriter.class, new NumberedExtent.ExtentNameNumberBeginOrder(), Parameters.create());
   }
 
   public static Stage getWriteExtentsStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
@@ -123,7 +123,7 @@ public class BuildStageTemplates {
 
   public static Stage getWriteFieldsStage(String stageName, File destination, String inputPipeName) throws IOException {
     return getGenericWriteStage(stageName, destination, inputPipeName,
-            FieldIndexWriter.class, new NumberedField.FieldNameNumberOrder(), Parameters.instance());
+            FieldIndexWriter.class, new NumberedField.FieldNameNumberOrder(), Parameters.create());
   }
 
   public static Stage getWriteFieldsStage(String stageName, File destination, String inputPipeName, Parameters p) throws IOException {
@@ -132,7 +132,7 @@ public class BuildStageTemplates {
   }
 
   public static Stage getSplitStage(List<String> inputPaths, Class sourceClass) throws IOException {
-    return getSplitStage(inputPaths, sourceClass, new DocumentSplit.FileIdOrder(), Parameters.instance());
+    return getSplitStage(inputPaths, sourceClass, new DocumentSplit.FileIdOrder(), Parameters.create());
   }
 
   public static Stage getSplitStage(List<String> inputPaths, Class sourceClass, Parameters p) throws IOException {

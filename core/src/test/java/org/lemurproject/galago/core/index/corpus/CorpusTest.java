@@ -48,9 +48,9 @@ public class CorpusTest {
       corpus = FileUtility.createTemporary();
 
       // test defaulty behaviour:
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("filename", corpus.getAbsolutePath());
-      p.set("tokenizer", Parameters.instance());
+      p.set("tokenizer", Parameters.create());
       p.getMap("tokenizer").set("fields", new ArrayList());
       p.getMap("tokenizer").getList("fields", String.class).add("tag");
       CorpusFileWriter writer = new CorpusFileWriter(new FakeParameters(p));
@@ -81,7 +81,7 @@ public class CorpusTest {
       reader.close();
 
       // test <text> only
-      p = Parameters.instance();
+      p = Parameters.create();
       p.set("filename", corpus.getAbsolutePath());
       writer = new CorpusFileWriter(new FakeParameters(p));
       for (Document d : docs) {

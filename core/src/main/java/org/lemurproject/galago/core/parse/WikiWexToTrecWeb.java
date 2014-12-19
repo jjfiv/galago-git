@@ -25,7 +25,7 @@ public class WikiWexToTrecWeb {
     int m_curDoc = 0;
     private PrintWriter m_outputWriter;
 
-    /** Creates a new instance of TrecTextParser */
+    /** Creates a new create of TrecTextParser */
     public WikiWexToTrecWeb(File m_outputFile, BufferedReader reader) throws FileNotFoundException, IOException {
         this.reader = reader;
         m_outputWriter = new PrintWriter(m_outputFile);

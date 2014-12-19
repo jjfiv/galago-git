@@ -13,7 +13,7 @@ public class Unique<T> implements Processor<T> {
     T last;
     Processor<T> processor;
 
-    /** Creates a new instance of Unique */
+    /** Creates a new create of Unique */
     public Unique(Comparator<T> sameObject, Processor<T> processor) {
         this.sameObject = sameObject;
         this.last = null;

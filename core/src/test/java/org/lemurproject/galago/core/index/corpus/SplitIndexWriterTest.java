@@ -31,7 +31,7 @@ public class SplitIndexWriterTest{
       assertTrue(temporary.delete());
       assertTrue(temporary.mkdir());
 
-      Parameters parameters = Parameters.instance();
+      Parameters parameters = Parameters.create();
       parameters.set("blockSize", 64);
       parameters.set("filename", temporary.getAbsolutePath());
       parameters.set("parallel", true);
@@ -62,7 +62,7 @@ public class SplitIndexWriterTest{
       assertTrue(temporary.delete());
       assertTrue(temporary.mkdir());
 
-      Parameters parameters = Parameters.instance();
+      Parameters parameters = Parameters.create();
       parameters.set("blockSize", 64);
       parameters.set("filename", temporary.getAbsolutePath());
       parameters.set("parallel", "true");
@@ -116,7 +116,7 @@ public class SplitIndexWriterTest{
       assertTrue(temporary.delete());
       assertTrue(temporary.mkdir());
 
-      Parameters parameters = Parameters.instance();
+      Parameters parameters = Parameters.create();
       parameters.set("blockSize", 128);
       parameters.set("filename", temporary.getAbsolutePath());
       parameters.set("parallel", true);

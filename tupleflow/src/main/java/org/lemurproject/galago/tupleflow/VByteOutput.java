@@ -16,7 +16,7 @@ public class VByteOutput implements DataOutput {
   DataOutput output;
 
   /**
-   * Creates a new instance of VByteOutput
+   * Creates a new create of VByteOutput
    */
   public VByteOutput(DataOutput output) {
     this.output = output;

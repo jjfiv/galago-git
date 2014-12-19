@@ -163,7 +163,7 @@ public class LocalStageExecutor implements StageExecutor {
       errorFile.delete();
     }
 
-    logger.info("Stage instance " + descriptionFile + " initialized. Executing.");
+    logger.info("Stage create " + descriptionFile + " initialized. Executing.");
 
     // now. run this job.
     result = new SequentialExecutionContext(stage.getName(),

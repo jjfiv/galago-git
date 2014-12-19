@@ -86,7 +86,7 @@ public class BatchSearch extends AppFunction {
     List<Parameters> queries = collectQueries(parameters);
 
     // open index
-    Retrieval retrieval = RetrievalFactory.instance(parameters);
+    Retrieval retrieval = RetrievalFactory.create(parameters);
 
     // record results requested
     int requested = (int) parameters.get("requested", 1000);

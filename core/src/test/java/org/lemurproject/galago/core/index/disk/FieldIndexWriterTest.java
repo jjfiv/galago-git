@@ -24,11 +24,11 @@ public class FieldIndexWriterTest {
   public void testFieldIndex() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("filename", tmp.getAbsolutePath());
-      p.set("tokenizer", Parameters.instance());
+      p.set("tokenizer", Parameters.create());
       Parameters t = p.getMap("tokenizer");
-      t.set("formats", Parameters.instance());
+      t.set("formats", Parameters.create());
       t.getMap("formats").set("test1", "double");
       t.getMap("formats").set("test2", "double");
       FieldIndexWriter writer = new FieldIndexWriter(new FakeParameters(p));

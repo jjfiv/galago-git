@@ -35,7 +35,7 @@ public class FieldRelevanceModelTraversal extends Traversal {
   public FieldRelevanceModelTraversal(Retrieval retrieval) {
     this.retrieval = retrieval;
     Parameters globals = retrieval.getGlobalParameters();
-    p = globals.get("fieldrm", Parameters.instance());
+    p = globals.get("fieldrm", Parameters.create());
     queryTerms = new ArrayList<String>();
     try {
       availableFields = retrieval.getAvailableParts();

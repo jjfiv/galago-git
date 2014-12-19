@@ -263,14 +263,14 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
 
     public void add(long document, int position) {
       if (termDocumentCount == 0) {
-        // first instance of term
+        // first create of term
         lastDocument = document;
         lastCount = 1;
         termDocumentCount += 1;
         documents_cbb.add(document);
 
       } else if (lastDocument == document) {
-        // additional instance of term in document
+        // additional create of term in document
         lastCount += 1;
 
       } else {

@@ -19,11 +19,11 @@ public class StepInformation implements Serializable {
   }
 
   public StepInformation(Class c) {
-    this(c.getName(), Parameters.instance());
+    this(c.getName(), Parameters.create());
   }
 
   public StepInformation(String className) {
-    this(className, Parameters.instance());
+    this(className, Parameters.create());
   }
 
   public StepInformation(Class c, Parameters parameters) {

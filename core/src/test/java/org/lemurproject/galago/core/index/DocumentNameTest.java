@@ -26,7 +26,7 @@ public class DocumentNameTest {
   public void testDocumentNameStore() throws Exception {
     File f = null;
     try {
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       f = FileUtility.createTemporaryDirectory();
       File names = new File(f.getAbsolutePath() + File.separator + "names");
       p.set("filename", names.getAbsolutePath());
@@ -58,7 +58,7 @@ public class DocumentNameTest {
   public void testDocumentNameReverseStore() throws Exception {
     File f = null;
     try {
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       f = FileUtility.createTemporaryDirectory();
       File names = new File(f.getAbsolutePath() + File.separator + "names.reverse");
       p.set("filename", names.getAbsolutePath());

@@ -23,7 +23,7 @@ import org.lemurproject.galago.tupleflow.execution.ErrorStore;
  */
 public abstract class Stemmer implements Source<Document>, Processor<Document> {
 
-  // each instance of Stemmer should have it's own lock
+  // each create of Stemmer should have it's own lock
   final Object lock = new Object();
   
   long cacheLimit = 50000;
@@ -114,8 +114,15 @@ public abstract class Stemmer implements Source<Document>, Processor<Document> {
     }
     return window.toString();
   }
-  
+
+  /**
+   * @deprecated use create instead.
+   */
+  @Deprecated
   public static Stemmer instance(Parameters p) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+    return create(p);
+  }
+  public static Stemmer create(Parameters p) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
     if(p.containsKey("stemmer")) {
       return (Stemmer) Class.forName(p.getString("stemmer")).newInstance();
     }

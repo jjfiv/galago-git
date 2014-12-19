@@ -34,13 +34,13 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
   public CountIndexReader(BTreeReader reader) throws Exception {
     super(reader);
     operation = reader.getManifest().get("defaultOperator", "counts");
-    stemmer = Stemmer.instance(reader.getManifest());
+    stemmer = Stemmer.create(reader.getManifest());
   }
 
   public CountIndexReader(String pathname) throws Exception {
     super(pathname);
     operation = reader.getManifest().get("defaultOperator", "counts");
-    stemmer = Stemmer.instance(reader.getManifest());
+    stemmer = Stemmer.create(reader.getManifest());
   }
 
   @Override

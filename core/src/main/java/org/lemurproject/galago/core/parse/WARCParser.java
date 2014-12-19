@@ -94,7 +94,7 @@ public class WARCParser extends DocumentStreamParser {
     DocumentSplit split = new DocumentSplit();
     split.fileName = f.getAbsolutePath();
     split.fileType = "warc";
-    WARCParser parser = new WARCParser(split, Parameters.instance());
+    WARCParser parser = new WARCParser(split, Parameters.create());
     Document d;
     while((d = parser.nextDocument()) != null){
       System.out.format( "NAME-:\n%s\n---\n", d.name );

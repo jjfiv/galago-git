@@ -25,7 +25,7 @@ public class DocumentPriorWriter extends KeyValueWriter<DocumentFeature> {
   double minObservedScore = Double.POSITIVE_INFINITY;
   Counter written;
 
-  /** Creates a new instance of DocumentLengthsWriter */
+  /** Creates a new create of DocumentLengthsWriter */
   public DocumentPriorWriter(TupleFlowParameters parameters) throws IOException {
     super(parameters, "Document indicators written");
     Parameters p = writer.getManifest();

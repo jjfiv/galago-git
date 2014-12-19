@@ -1,7 +1,9 @@
-package org.lemurproject.galago.tupleflow;
+package org.lemurproject.galago.utility.buffer;
 
 import org.junit.Test;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.StreamUtil;
+import org.lemurproject.galago.utility.buffer.BufferedFileDataStream;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +17,7 @@ public class BufferedFileDataStreamTest {
   @Test
   public void directlyTestThisDumbClass() throws IOException {
     File tmp = File.createTempFile("foo", ".bin");
-    Utility.copyStringToFile("abcdefgh", tmp);
+    StreamUtil.copyStringToFile("abcdefgh", tmp);
     BufferedFileDataStream bfds = new BufferedFileDataStream(new RandomAccessFile(tmp, "r"), 0, 8);
     assertEquals(0, bfds.getPosition());
     assertEquals(8, bfds.length());
@@ -35,7 +37,7 @@ public class BufferedFileDataStreamTest {
   @Test
   public void directlyTestReadUnsignedByte() throws IOException {
     File tmp = File.createTempFile("foo", ".bin");
-    Utility.copyStringToFile("abcdefgh", tmp);
+    StreamUtil.copyStringToFile("abcdefgh", tmp);
     BufferedFileDataStream bfds = new BufferedFileDataStream(new RandomAccessFile(tmp, "r"), 3, 8);
     assertEquals(0, bfds.getPosition());
     assertEquals('d', bfds.readUnsignedByte());

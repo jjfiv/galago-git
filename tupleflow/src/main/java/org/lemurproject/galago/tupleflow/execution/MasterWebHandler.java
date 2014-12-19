@@ -80,7 +80,7 @@ public class MasterWebHandler implements WebHandler {
       return total;
     }
 
-    /// Updates the counter value for a particular instance.
+    /// Updates the counter value for a particular create.
     public synchronized void setValue(String instance, long value) {
       long oldValue = 0;
       if (instances.containsKey(instance)) {
@@ -136,7 +136,7 @@ public class MasterWebHandler implements WebHandler {
           HttpServletRequest request,
           HttpServletResponse response) throws IOException {
     try {
-      String instance = request.getParameter("instance");
+      String instance = request.getParameter("create");
       String name = request.getParameter("counterName");
       String stageName = request.getParameter("stageName");
       String stringValue = request.getParameter("value");

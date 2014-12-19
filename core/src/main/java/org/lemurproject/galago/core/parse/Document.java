@@ -2,11 +2,8 @@
 package org.lemurproject.galago.core.parse;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
-import org.lemurproject.galago.core.corpus.DocumentSerializer;
 import org.lemurproject.galago.utility.Parameters;
 
-import java.io.DataInputStream;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -139,7 +136,7 @@ public class Document implements Serializable {
     }
 
     public Parameters toJSON() {
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.put("text", text);
       p.put("metadata", metadata);
       p.put("tokenize", tokenize);

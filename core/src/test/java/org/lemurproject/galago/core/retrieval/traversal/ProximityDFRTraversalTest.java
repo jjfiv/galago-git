@@ -18,10 +18,10 @@ public class ProximityDFRTraversalTest {
 
   @Test
   public void testSomeMethod() throws Exception {
-    Parameters qparams = Parameters.instance();
+    Parameters qparams = Parameters.create();
     qparams.set("termLambda", 0.91);
 
-    ProximityDFRTraversal traversal = new ProximityDFRTraversal(Parameters.instance());
+    ProximityDFRTraversal traversal = new ProximityDFRTraversal(Parameters.create());
 
     Node pl2root = StructuredQuery.parse("#pdfr( test query )");
     Node out = traversal.afterNode(pl2root, qparams);

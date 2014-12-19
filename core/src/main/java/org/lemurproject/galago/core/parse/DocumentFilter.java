@@ -20,7 +20,7 @@ import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 public class DocumentFilter extends StandardStep<Document, Document> {
     HashSet<String> docnos = new HashSet();
     
-    /** Creates a new instance of DocumentFilter */
+    /** Creates a new create of DocumentFilter */
     public DocumentFilter(TupleFlowParameters parameters) {
         Parameters p = parameters.getJSON();
         docnos.addAll(p.getList("identifier"));

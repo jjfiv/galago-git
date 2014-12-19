@@ -55,7 +55,7 @@ public class PositionIndexReaderTest {
     skipPath = FileUtility.createTemporary();
     skipPath.delete();
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("filename", tempPath.toString());
 
     PositionIndexWriter writer =
@@ -150,7 +150,7 @@ public class PositionIndexReaderTest {
   @Test
   public void testSkipLists() throws Exception {
     // internally fill the skip file
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("filename", skipPath.toString());
     p.set("skipping", true);
     p.set("skipDistance", 20);

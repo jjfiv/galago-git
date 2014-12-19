@@ -1,11 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.btree.format;
 
-import org.lemurproject.galago.core.btree.format.BTreeReader;
-import org.lemurproject.galago.core.btree.format.DiskBTreeReader;
-import org.lemurproject.galago.core.btree.format.VocabularyReader;
-import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
-import org.lemurproject.galago.tupleflow.DataStream;
+import org.lemurproject.galago.utility.buffer.BufferedFileDataStream;
+import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.StreamCreator;
 

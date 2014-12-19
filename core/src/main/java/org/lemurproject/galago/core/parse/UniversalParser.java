@@ -51,7 +51,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
       }
     }
 
-    DocumentStreamParser parser = DocumentStreamParser.instance(split, parameters);
+    DocumentStreamParser parser = DocumentStreamParser.create(split, parameters);
 
     LOG.info("Processing split: "+split.fileName+ " with: "+parser.getClass().getName());
 

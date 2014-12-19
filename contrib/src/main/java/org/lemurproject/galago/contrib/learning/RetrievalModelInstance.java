@@ -24,7 +24,7 @@ public class RetrievalModelInstance {
   public RetrievalModelInstance(RetrievalModelParameters params, Parameters settings) {
     this.params = params;
     this.settings = new TObjectDoubleHashMap<String>();
-    this.outParams = Parameters.instance();
+    this.outParams = Parameters.create();
 
     for (String p : params.getParams()) {
       unsafeSet(p, settings.getDouble(p));

@@ -34,7 +34,7 @@ public class JSONParser {
      * Creates a new parameter object by inserting data from the reader
      */
     public Parameters parse() throws IOException {
-        return parse(Parameters.instance());
+        return parse(Parameters.create());
     }
 
   /**
@@ -184,7 +184,7 @@ public class JSONParser {
         return parseList();
       case '{':
         valueType = Type.MAP;
-        return parseParameters(Parameters.instance());
+        return parseParameters(Parameters.create());
       case 't':
         valueType = Type.BOOLEAN;
         return parseTrue();

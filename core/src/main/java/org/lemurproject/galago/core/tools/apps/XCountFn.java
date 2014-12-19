@@ -38,13 +38,13 @@ public class XCountFn extends AppFunction {
       return;
     }
 
-    Retrieval r = RetrievalFactory.instance(p);
+    Retrieval r = RetrievalFactory.create(p);
 
     long count;
     for (String query : (List<String>) p.getAsList("x")) {
       Node parsed = StructuredQuery.parse(query);
       parsed.getNodeParameters().set("queryType", "count");
-      Node transformed = r.transformQuery(parsed, Parameters.instance());
+      Node transformed = r.transformQuery(parsed, Parameters.create());
 
       if (p.get("printTransformation", false)) {
         System.err.println(query);

@@ -300,14 +300,14 @@ public class Eval extends AppFunction {
 
     QuerySetEvaluator[] setEvaluators = createSetEvaluators(metrics, p);
 
-    Parameters recorded = Parameters.instance();
+    Parameters recorded = Parameters.create();
     recorded.set("_metrics", new ArrayList(Arrays.asList(metrics)));
 
     Parameters qRecord;
     if (p.get("details", false)) {
       List<String> qids = new ArrayList();
       for (String query : results.getQueryIterator()) {
-        qRecord = Parameters.instance();
+        qRecord = Parameters.create();
         for (QuerySetEvaluator setEvaluator : setEvaluators) {
           qRecord.set(setEvaluator.getMetric(), setEvaluator.evaluate(results.get(query), judgments.get(query)));
         }
@@ -318,7 +318,7 @@ public class Eval extends AppFunction {
     }
 
     if (p.get("summary", true)) {
-      qRecord = Parameters.instance();
+      qRecord = Parameters.create();
       for (QuerySetEvaluator setEvaluator : setEvaluators) {
         qRecord.set(setEvaluator.getMetric(), setEvaluator.evaluate(results, judgments));
       }
@@ -357,7 +357,7 @@ public class Eval extends AppFunction {
 
     QuerySetEvaluator[] setEvaluators = createSetEvaluators(metrics, p);
     QuerySetComparator[] setComparators = createSetComparators(tests);
-    Parameters recorded = Parameters.instance();
+    Parameters recorded = Parameters.create();
 
     recorded.set("_metrics", new ArrayList(Arrays.asList(metrics)));
     recorded.set("_comparisons", new ArrayList(Arrays.asList(tests)));
@@ -366,7 +366,7 @@ public class Eval extends AppFunction {
       String metricString = evaluator.getMetric();
       QuerySetEvaluation baseResults = evaluator.evaluateSet(baseline, judgments);
       QuerySetEvaluation treatResults = evaluator.evaluateSet(treatment, judgments);
-      Parameters mRecord = Parameters.instance();
+      Parameters mRecord = Parameters.create();
 
       for (QuerySetComparator comparator : setComparators) {
         mRecord.set(comparator.getTestName(), comparator.evaluate(baseResults, treatResults));
@@ -421,7 +421,7 @@ public class Eval extends AppFunction {
     QuerySetEvaluator[] setEvaluators = createSetEvaluators(metrics, p);
     QuerySetComparator[] setComparators = createSetComparators(tests);
 
-    Parameters recorded = Parameters.instance();
+    Parameters recorded = Parameters.create();
     recorded.set("_runs", runIds);
     recorded.set("_metrics", new ArrayList(Arrays.asList(metrics)));
     recorded.set("_comparisons", Arrays.asList(tests));
@@ -430,11 +430,11 @@ public class Eval extends AppFunction {
     Parameters qRecord, qrRecord;
     if (p.get("details", false)) {
       for (String qid : qids) {
-        qRecord = Parameters.instance();
+        qRecord = Parameters.create();
 
         for (QuerySetResults run : runs) {
           String runName = run.getName();
-          qrRecord = Parameters.instance();
+          qrRecord = Parameters.create();
 
           for (QuerySetEvaluator setEvaluator : setEvaluators) {
             qrRecord.set(setEvaluator.getMetric(), setEvaluator.evaluate(run.get(qid), judgments.get(qid)));
@@ -446,11 +446,11 @@ public class Eval extends AppFunction {
     }
 
     if (p.get("summary", true)) {
-      Parameters all = Parameters.instance();
+      Parameters all = Parameters.create();
       QuerySetResults baseline = runs.get(0);
 
       for (QuerySetResults run : runs) {
-        qRecord = Parameters.instance();
+        qRecord = Parameters.create();
         for (QuerySetEvaluator setEvaluator : setEvaluators) {
           qRecord.set(setEvaluator.getMetric(), setEvaluator.evaluate(run, judgments));
 
@@ -481,7 +481,7 @@ public class Eval extends AppFunction {
   private static QuerySetEvaluator[] createSetEvaluators(String[] metrics, Parameters p) {
     QuerySetEvaluator[] setEvaluators = new QuerySetEvaluator[metrics.length];
     for (int i = 0; i < metrics.length; i++) {
-      setEvaluators[i] = QuerySetEvaluatorFactory.instance(metrics[i], p);
+      setEvaluators[i] = QuerySetEvaluatorFactory.create(metrics[i], p);
     }
     return setEvaluators;
   }
@@ -489,7 +489,7 @@ public class Eval extends AppFunction {
   private static QuerySetComparator[] createSetComparators(String[] comparasionMetrics) {
     QuerySetComparator[] setComparators = new QuerySetComparator[comparasionMetrics.length];
     for (int i = 0; i < comparasionMetrics.length; i++) {
-      setComparators[i] = QuerySetComparatorFactory.instance(comparasionMetrics[i]);
+      setComparators[i] = QuerySetComparatorFactory.create(comparasionMetrics[i]);
     }
     return setComparators;
   }

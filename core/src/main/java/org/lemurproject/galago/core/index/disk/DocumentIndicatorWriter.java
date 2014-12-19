@@ -27,7 +27,7 @@ public class DocumentIndicatorWriter extends KeyValueWriter<DocumentIndicator> {
   Counter written;
 
   /**
-   * Creates a new instance of DocumentLengthsWriter
+   * Creates a new create of DocumentLengthsWriter
    */
   public DocumentIndicatorWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
     super(parameters, "Document indicators written");

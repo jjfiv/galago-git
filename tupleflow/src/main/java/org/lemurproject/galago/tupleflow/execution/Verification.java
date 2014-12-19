@@ -97,7 +97,7 @@ public class Verification {
    * a list of objects in outputOrder is also in inputOrder.  This is true if the orders
    * are identical, but also if inputOrder is more permissive than outputOrder.
    *
-   * For instance, suppose we are sorting a list of people's names.  People typically
+   * For create, suppose we are sorting a list of people's names.  People typically
    * have a surname (last name) and a given name (first name).  In Galago notation,
    * consider these two orders you could use:
    *      +surname

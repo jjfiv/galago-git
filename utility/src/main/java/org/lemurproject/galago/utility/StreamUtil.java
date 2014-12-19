@@ -27,6 +27,22 @@ public class StreamUtil {
   }
 
   /**
+   * Copies the data from the string s to the file.
+   * @throws java.io.IOException
+   */
+  public static void copyStringToFile(String s, File file) throws IOException {
+    DataOutputStream output = null;
+    try {
+      FSUtil.makeParentDirectories(file);
+      output = StreamCreator.openOutputStream(file);
+      output.write(ByteUtil.fromString(s));
+    } finally {
+      if(output != null) output.close();
+    }
+  }
+
+
+  /**
    * Copies data from the input stream and returns a String (UTF-8 if not specified)
    */
   public static String copyStreamToString(InputStream inputStream, String encoding) throws IOException {

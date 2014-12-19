@@ -21,7 +21,7 @@ public class FileSource implements ExNihiloSource<FileName> {
   public Processor<FileName> processor;
 
   /**
-   * Creates a new instance of FileSource
+   * Creates a new create of FileSource
    */
   public FileSource(TupleFlowParameters parameters) {
     this.parameters = parameters;

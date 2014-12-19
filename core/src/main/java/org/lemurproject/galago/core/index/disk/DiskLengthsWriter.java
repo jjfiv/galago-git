@@ -47,7 +47,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
   private TupleFlowParameters tupleFlowParameters;
 
   /**
-   * Creates a new instance of DiskLengthsWriter
+   * Creates a new create of DiskLengthsWriter
    */
   public DiskLengthsWriter(TupleFlowParameters parameters) throws IOException {
     writer = new DiskBTreeWriter(parameters);

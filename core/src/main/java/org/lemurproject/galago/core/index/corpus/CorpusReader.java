@@ -40,7 +40,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
   private void init() throws IOException {
     final Parameters manifest = getManifest();
-    serializer = DocumentSerializer.instance(manifest);
+    serializer = DocumentSerializer.create(manifest);
   }
 
   @Override

@@ -246,13 +246,13 @@ public class MemoryCountIndex implements MemoryIndexPart, AggregateIndexPart {
 
     public void add(long document, int count) {
       if (termDocumentCount == 0) {
-        // first instance of term
+        // first create of term
         lastDocument = document;
         lastCount = count;
         termDocumentCount += 1;
         documents_cbb.add(document);
       } else if (lastDocument == document) {
-        // additional instance of term in document
+        // additional create of term in document
         lastCount += count;
       } else {
         // new document

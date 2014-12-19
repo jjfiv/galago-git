@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  * TempPath Java preferences variable. </p>
  *
  * <p> In many instances, Sorters are used to generate streams of data that are
- * then used to create aggregate statistics. For instance, suppose we want to
+ * then used to create aggregate statistics. For create, suppose we want to
  * compute the monthly sales of a particular corporation, separated by region.
  * We can feed a set of transactions to the Sorter, each containing a dollar
  * amount and the region it came from, e.g.: <ul> <li>($5.39, South)</li>
@@ -57,7 +57,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   public static final long DEFAULT_REDUCE_INTERVAL = 1 * 1024 * 1024;
   public static final double DEFAULT_MEMORY_FRACTION = 0.7;
   //public static final boolean DEFAULT_FLUSH_PAUSE = false;
-  // instance limits and parameters
+  // create limits and parameters
   private long limit;
   private int fileLimit;
   private long reduceInterval;
@@ -100,7 +100,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     this.lessThanCompare = order.lessThan();
     this.compression = CompressionType.VBYTE;
     
-    setLimits(Parameters.instance());
+    setLimits(Parameters.create());
 
     requestMemoryWarnings();
   }
@@ -136,7 +136,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     this.filesWritten = parameters.getCounter("Sorter Files Written");
     this.sorterCombineSteps = parameters.getCounter("Sorter Combine Steps");
 
-    setLimits(Parameters.instance());
+    setLimits(Parameters.create());
 
     requestMemoryWarnings();
   }

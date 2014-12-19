@@ -16,9 +16,9 @@ import java.util.logging.Logger;
 public class GalagoConf {
   private static final Logger LOG = Logger.getLogger(GalagoConf.class.getName());
  
-  private static final Parameters preferences = Parameters.instance();
-  private static final Parameters drmaaOptions = Parameters.instance();
-  private static final Parameters sorterOptions = Parameters.instance();
+  private static final Parameters preferences = Parameters.create();
+  private static final Parameters drmaaOptions = Parameters.create();
+  private static final Parameters sorterOptions = Parameters.create();
   
   public static List<File> findGalagoConfigFiles() {
     ArrayList<File> files = new ArrayList<>();

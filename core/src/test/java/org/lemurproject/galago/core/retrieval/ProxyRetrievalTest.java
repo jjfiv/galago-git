@@ -40,7 +40,7 @@ public class ProxyRetrievalTest {
 
     try {
       index = makeIndex(docCount, docLen, vocab);
-      final Parameters retParams = Parameters.instance();
+      final Parameters retParams = Parameters.create();
       retParams.set("index", index.getAbsolutePath());
       retParams.set("port", port);
 
@@ -91,9 +91,9 @@ public class ProxyRetrievalTest {
         throw new RuntimeException("FAILED! could not find local proxy...");
       }
 
-      Parameters proxyParams = Parameters.instance();
+      Parameters proxyParams = Parameters.create();
       proxyParams.set("index", url);
-      Retrieval instance = RetrievalFactory.instance(proxyParams);
+      Retrieval instance = RetrievalFactory.create(proxyParams);
       // test proxied functions:
 
       try {
@@ -121,9 +121,9 @@ public class ProxyRetrievalTest {
         instance.getNodeStatistics("#counts:@/1/:part=postings()");
         instance.getNodeType(StructuredQuery.parse("#counts:@/1/:part=postings()"));
         instance.getQueryType(StructuredQuery.parse("#counts:@/1/:part=postings()"));
-        Node trans = instance.transformQuery(StructuredQuery.parse("#combine(1 2 3)"), Parameters.instance());
+        Node trans = instance.transformQuery(StructuredQuery.parse("#combine(1 2 3)"), Parameters.create());
         instance.executeQuery(trans);
-        instance.executeQuery(trans, Parameters.instance());
+        instance.executeQuery(trans, Parameters.create());
 
 
 
@@ -170,7 +170,7 @@ public class ProxyRetrievalTest {
     }
     writer.close();
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("inputPath", trecFile.getAbsolutePath());
     p.set("indexPath", indexFolder.getAbsolutePath());
     p.set("corpus", true);

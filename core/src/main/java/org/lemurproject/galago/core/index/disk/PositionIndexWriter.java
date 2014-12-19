@@ -64,7 +64,7 @@ public class PositionIndexWriter implements
   int skipResetDistance;
 
   /**
-   * Creates a new instance of the PositionIndexWriter.
+   * Creates a new create of the PositionIndexWriter.
    */
   public PositionIndexWriter(TupleFlowParameters parameters) throws IOException {
     actualParams = parameters.getJSON();

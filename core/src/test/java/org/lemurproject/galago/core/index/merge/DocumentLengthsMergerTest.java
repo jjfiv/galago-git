@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
 public class DocumentLengthsMergerTest {
   private static String makeLengthsIndex(int firstDocNum, File folder) throws Exception {
     File temp = new File(folder + File.separator + "lengths");
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("filename", temp.getAbsolutePath());
     DiskLengthsWriter writer = new DiskLengthsWriter(new FakeParameters(p));
 
@@ -73,7 +73,7 @@ public class DocumentLengthsMergerTest {
       String writerClassName = reader1.getManifest().getString("writerClass");
       String mergeClassName = reader1.getManifest().getString("mergerClass");
 
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("writerClass", writerClassName);
       p.set("filename", output);
 
@@ -132,7 +132,7 @@ public class DocumentLengthsMergerTest {
 
       output = FileUtility.createTemporary().getAbsolutePath();
 
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("part", "lengths");
       p.set("filename", output);
       IndexPartMergeManager manager = new IndexPartMergeManager(new FakeParameters(p));

@@ -18,7 +18,7 @@ import org.lemurproject.galago.tupleflow.types.SerializedParameters;
 @OutputClass(className = "org.lemurproject.galago.tupleflow.types.SerializedParameters", order={"+parameters"})
 public class MergeCollectionStats extends StandardStep<SerializedParameters, SerializedParameters> {
 
-  Parameters stats = Parameters.instance();
+  Parameters stats = Parameters.create();
 
   @Override
   public void process(SerializedParameters serial) throws IOException {

@@ -22,7 +22,7 @@ public class WindowIndexWriterTest {
   public void testSomeMethod() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("filename", tmp.getAbsolutePath());
       WindowIndexWriter writer = new WindowIndexWriter(new FakeParameters(p));
 

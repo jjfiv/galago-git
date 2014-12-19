@@ -61,12 +61,12 @@ public class RetrievalModelParameters {
 
       if (param.get("rangeLimiting", false)) {
         //  generate new rules based on this range:
-        Parameters maxRule = Parameters.instance();
+        Parameters maxRule = Parameters.create();
         maxRule.set("mode", "max");
         maxRule.set("value", max);
         maxRule.set("params", Collections.singletonList(name));
 
-        Parameters minRule = Parameters.instance();
+        Parameters minRule = Parameters.create();
         minRule.set("mode", "min");
         minRule.set("value", min);
         minRule.set("params", Collections.singletonList(name));

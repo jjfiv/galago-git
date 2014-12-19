@@ -27,7 +27,7 @@ public class ManifestEditorTest {
     File indexFile = null;
     try {
       indexFile = FileUtility.createTemporary();
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("filename", indexFile.getAbsolutePath());
       p.set("key-1", "init-value-1234");
       p.set("key-2", "init-value-2345");
@@ -50,7 +50,7 @@ public class ManifestEditorTest {
       assertEquals(dumpped.getString("key-1"), "init-value-1234");
       assertEquals(dumpped.getString("key-2"), "init-value-2345");
 
-      Parameters dump = Parameters.instance();
+      Parameters dump = Parameters.create();
       dump.set("indexPath", indexFile.getAbsolutePath());
       dump.set("key-1", "mod-value-1234");
       dump.set("key-2", "mod-value-2345");

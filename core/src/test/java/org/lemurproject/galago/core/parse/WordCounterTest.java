@@ -34,7 +34,7 @@ public class WordCounterTest{
 
   @Test
   public void testCountUnigrams() throws IOException, IncompatibleProcessorException {
-    WordCounter counter = new WordCounter(new FakeParameters(Parameters.instance()));
+    WordCounter counter = new WordCounter(new FakeParameters(Parameters.create()));
     Document document = new Document();
     PostStep post = new PostStep();
 
@@ -60,7 +60,7 @@ public class WordCounterTest{
 
   @Test
   public void testCountReducer() throws IOException, IncompatibleProcessorException {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     WordCounter counter = new WordCounter(new FakeParameters(p));
     Sorter sorter = new Sorter<WordCount>(new WordCount.WordOrder());
     WordCountReducer reducer = new WordCountReducer();
@@ -109,7 +109,7 @@ public class WordCounterTest{
 
   @Test
   public void testCountFilter() throws IOException, IncompatibleProcessorException {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("minThreshold", 2);
     WordCounter counter = new WordCounter(new FakeParameters(p));
     Sorter sorter = new Sorter<WordCount>(new WordCount.WordOrder());

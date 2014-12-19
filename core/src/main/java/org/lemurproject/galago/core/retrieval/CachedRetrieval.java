@@ -53,11 +53,11 @@ public class CachedRetrieval {
     this.cachedStats = new ConcurrentHashMap();
     this.cacheParts = new ConcurrentHashMap();
 
-    this.cacheParts.put("score", new MemorySparseDoubleIndex(Parameters.instance()));
-    this.cacheParts.put("extent", new MemoryWindowIndex(Parameters.instance()));
-    this.cacheParts.put("count", new MemoryCountIndex(Parameters.instance()));
-    // this.cacheParts.put("names", new MemoryDocumentNames(Parameters.instance()));
-    this.cacheParts.put("lengths", new MemoryDocumentLengths(Parameters.instance()));
+    this.cacheParts.put("score", new MemorySparseDoubleIndex(Parameters.create()));
+    this.cacheParts.put("extent", new MemoryWindowIndex(Parameters.create()));
+    this.cacheParts.put("count", new MemoryCountIndex(Parameters.create()));
+    // this.cacheParts.put("names", new MemoryDocumentNames(Parameters.create()));
+    this.cacheParts.put("lengths", new MemoryDocumentLengths(Parameters.create()));
 
   }
 

@@ -52,11 +52,11 @@ public class RankedPassageModelTest {
 
   @Test
   public void testEntireCollection() throws Exception {
-    Parameters globals = Parameters.instance();
+    Parameters globals = Parameters.create();
     globals.set("passageQuery", true);
     LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), globals);
 
-    Parameters queryParams = Parameters.instance();
+    Parameters queryParams = Parameters.create();
     int req = 10;
     queryParams.set("requested", req);
     queryParams.set("passageQuery", true);
@@ -122,7 +122,7 @@ public class RankedPassageModelTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testMissingPassageQuery() throws Exception {
-    Parameters badParms = Parameters.instance();
+    Parameters badParms = Parameters.create();
     badParms.set("requested", 100);
     badParms.set("passageSize", 10);
     badParms.set("passageShift", 5);
@@ -133,7 +133,7 @@ public class RankedPassageModelTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testMissingPassageSize() throws Exception {
-    Parameters badParms = Parameters.instance();
+    Parameters badParms = Parameters.create();
     badParms.set("passageQuery", true);
     badParms.set("passageShift", 5);
     badParms.set("working",
@@ -143,7 +143,7 @@ public class RankedPassageModelTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testMissingPassageShift() throws Exception {
-    Parameters badParms = Parameters.instance();
+    Parameters badParms = Parameters.create();
     badParms.set("passageQuery", true);
     badParms.set("passageSize", 10);
     badParms.set("working",
@@ -153,7 +153,7 @@ public class RankedPassageModelTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testMissingWorkingSet() throws Exception {
-    Parameters badParms = Parameters.instance();
+    Parameters badParms = Parameters.create();
     badParms.set("passageQuery", true);
     badParms.set("passageSize", 10);
     badParms.set("passageShift", 5);
@@ -162,11 +162,11 @@ public class RankedPassageModelTest {
 
   @Test
   public void testWhiteList() throws Exception {
-    Parameters globals = Parameters.instance();
+    Parameters globals = Parameters.create();
     globals.set("passageQuery", true);
     LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), globals);
 
-    Parameters queryParams = Parameters.instance();
+    Parameters queryParams = Parameters.create();
     queryParams.set("requested", 100);
     queryParams.set("passageQuery", true);
     queryParams.set("passageSize", 10);
@@ -244,7 +244,7 @@ public class RankedPassageModelTest {
     }
     Utility.copyStringToFile(c.toString(), corpus);
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("inputPath", corpus.getAbsolutePath());
     p.set("indexPath", index.getAbsolutePath());
     p.set("corpus", false);

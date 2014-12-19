@@ -253,7 +253,7 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
   }
 
   /**
-   * <p>Creates a new instance of DRMAAExecutor.</p>
+   * <p>Creates a new create of DRMAAExecutor.</p>
    *
    * @param arguments     An array; if it contains anything, the first
    *                      element is used as the command when submitting

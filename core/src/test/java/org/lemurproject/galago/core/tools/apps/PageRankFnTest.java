@@ -30,7 +30,7 @@ public class PageRankFnTest {
       File jobTmp = new File(tempDir, "jobTmp");
 
       // run harvest links
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("inputPath", input.getAbsolutePath());
       p.set("indri", false);
       p.set("galago", true);
@@ -47,7 +47,7 @@ public class PageRankFnTest {
       File pagerank = new File(tempDir, "pagerank");
       File jobTmp2 = new File(tempDir, "jobTmp2");
 
-      Parameters p2 = Parameters.instance();
+      Parameters p2 = Parameters.create();
       p2.set("linkdata", galago.getAbsolutePath());
       p2.set("outputFolder", pagerank.getAbsolutePath());
       p2.set("lambda", 0.5);

@@ -39,7 +39,7 @@ public class GeometricIndexTest {
 
     File shards = FileUtility.createTemporaryDirectory();
     try {
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("indexBlockSize", 50);
       p.set("shardDirectory", shards.getAbsolutePath());
       GeometricIndex index = new GeometricIndex(new FakeParameters(p));
@@ -138,7 +138,7 @@ public class GeometricIndexTest {
 
     Random rnd = new Random();
     try {
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("indexBlockSize", 50);
       p.set("shardDirectory", shards.getAbsolutePath());
       p.set("requested", 10);

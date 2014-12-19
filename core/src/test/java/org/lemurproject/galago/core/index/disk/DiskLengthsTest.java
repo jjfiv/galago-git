@@ -31,7 +31,7 @@ public class DiskLengthsTest{
 
       len = FileUtility.createTemporary();
 
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("filename", len.getAbsolutePath());
       DiskLengthsWriter writer = new DiskLengthsWriter(new FakeParameters(p));
 
@@ -97,7 +97,7 @@ public class DiskLengthsTest{
     File len = FileUtility.createTemporary();
     try {
 
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("filename", len.getAbsolutePath());
       DiskLengthsWriter writer = new DiskLengthsWriter(new FakeParameters(p));
 

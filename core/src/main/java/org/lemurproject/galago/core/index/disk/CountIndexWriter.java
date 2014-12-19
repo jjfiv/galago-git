@@ -46,7 +46,7 @@ public class CountIndexWriter implements
   int skipResetDistance;
 
   /**
-   * Creates a new instance of CountIndexWriter
+   * Creates a new create of CountIndexWriter
    */
   public CountIndexWriter(TupleFlowParameters parameters) throws IOException {
     this.actualParams = parameters.getJSON();

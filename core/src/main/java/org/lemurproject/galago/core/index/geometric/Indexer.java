@@ -45,11 +45,11 @@ public class Indexer {
     //   a number is assigned
     //   a fully formed document is the given to the index
     
-    indexer = new UniversalParser(new FakeParameters(Parameters.instance()));
-    Tokenizer p2 = Tokenizer.instance(Parameters.instance());
+    indexer = new UniversalParser(new FakeParameters(Parameters.create()));
+    Tokenizer p2 = Tokenizer.create(Parameters.create());
     SequentialDocumentNumberer p3 = new SequentialDocumentNumberer();
 
-    Parameters indexParams = Parameters.instance();
+    Parameters indexParams = Parameters.create();
     indexParams.set("shardDirectory", "/path/to/store/output/");
     indexParams.set("indexBlockSize", 100);
     indexParams.set("radix", 2);
@@ -81,7 +81,7 @@ public class Indexer {
     
     Node parsed = StructuredQuery.parse(query);
     
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("count", 10);
     Node transformed = retrieval.transformQuery(parsed, p);
 

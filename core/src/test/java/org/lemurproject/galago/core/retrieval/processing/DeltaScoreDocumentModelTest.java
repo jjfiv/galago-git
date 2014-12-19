@@ -32,10 +32,10 @@ public class DeltaScoreDocumentModelTest {
     try {
       makeIndex(corpus, index);
 
-      Parameters globals = Parameters.instance();
+      Parameters globals = Parameters.create();
       LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), globals);
 
-      Parameters queryParams = Parameters.instance();
+      Parameters queryParams = Parameters.create();
       queryParams.set("requested", 10);
 
       Node query = StructuredQuery.parse("#combine( test text 0 1 2 3 4 )");
@@ -79,10 +79,10 @@ public class DeltaScoreDocumentModelTest {
     try {
       makeIndex(corpus, index);
 
-      Parameters globals = Parameters.instance();
+      Parameters globals = Parameters.create();
       LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), globals);
 
-      Parameters queryParams = Parameters.instance();
+      Parameters queryParams = Parameters.create();
       queryParams.set("requested", 10);
 
       Node query = StructuredQuery.parse("#combine( test text 0 1 2 3 4 90 )");
@@ -116,7 +116,7 @@ public class DeltaScoreDocumentModelTest {
     }
     Utility.copyStringToFile(c.toString(), corpus);
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("inputPath", corpus.getAbsolutePath());
     p.set("indexPath", index.getAbsolutePath());
     App.run("build", p, System.out);

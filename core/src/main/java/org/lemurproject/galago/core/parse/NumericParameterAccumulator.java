@@ -32,7 +32,7 @@ public class NumericParameterAccumulator {
   }
 
   public static Parameters accumulateParameters(List<Parameters> params) {
-    Parameters accumulation = Parameters.instance();
+    Parameters accumulation = Parameters.create();
     for(Parameters p : params){
       for(String key : p.getKeys()){
         if(p.isLong(key)){
@@ -42,7 +42,7 @@ public class NumericParameterAccumulator {
         } else if (p.isMap(key)){
           Parameters[] mapPair = new Parameters[2];
           mapPair[0] = p.getMap(key);
-          mapPair[1] = (accumulation.isMap(key)) ? accumulation.getMap(key) : Parameters.instance();
+          mapPair[1] = (accumulation.isMap(key)) ? accumulation.getMap(key) : Parameters.create();
           accumulation.set(key, accumulateParameters(Arrays.asList(mapPair)));
         } else {
           throw new RuntimeException("Failed to accumulate parameters: key " + key + " is not numeric, nor a Map object");

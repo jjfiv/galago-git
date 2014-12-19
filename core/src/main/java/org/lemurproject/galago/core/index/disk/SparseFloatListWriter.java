@@ -22,7 +22,7 @@ public class SparseFloatListWriter implements
   DoubleInvertedList list;
 
   /**
-   * Creates a new instance of DoubleListWriter
+   * Creates a new create of DoubleListWriter
    */
   public SparseFloatListWriter(TupleFlowParameters parameters) throws IOException {
     writer = new DiskBTreeWriter(parameters);

@@ -80,14 +80,14 @@ public class IndicatorIteratorTest {
   @Test
   public void testExistentialIndicator() throws Exception {
     // Create a retrieval object for use by the traversal
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("retrievalGroup", "all");
     p.set("index", indexFile.getAbsolutePath());
-    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
+    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.create(p);
 
     Node parsedTree = StructuredQuery.parse("#any( #counts:cat:part=postings() #counts:program:part=postings() )");
 
-    ExistentialIndicatorIterator eii = (ExistentialIndicatorIterator) retrieval.createIterator(Parameters.instance(), parsedTree);
+    ExistentialIndicatorIterator eii = (ExistentialIndicatorIterator) retrieval.createIterator(Parameters.create(), parsedTree);
 
     ScoringContext sc = new ScoringContext();
 
@@ -111,13 +111,13 @@ public class IndicatorIteratorTest {
   @Test
   public void testUniversalIndicator() throws Exception {
     // Create a retrieval object for use by the traversal
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("retrievalGroup", "all");
     p.set("index", indexFile.getAbsolutePath());
-    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
+    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.create(p);
 
     Node parsedTree = StructuredQuery.parse("#all( #counts:document:part=postings() #counts:sample:part=postings() )");
-    UniversalIndicatorIterator uii = (UniversalIndicatorIterator) retrieval.createIterator(Parameters.instance(), parsedTree);
+    UniversalIndicatorIterator uii = (UniversalIndicatorIterator) retrieval.createIterator(Parameters.create(), parsedTree);
 
     ScoringContext sc = new ScoringContext();
 
@@ -145,17 +145,17 @@ public class IndicatorIteratorTest {
   @Test
   public void testIteratorPair() throws Exception {
     // Create a retrieval object for use by the traversal
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("retrievalGroup", "all");
     p.set("index", indexFile.getAbsolutePath());
-    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
+    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.create(p);
 
     Node existTree = StructuredQuery.parse("#any( #counts:document:part=postings() )");
     ScoringContext sc = new ScoringContext();
-    ExistentialIndicatorIterator eii = (ExistentialIndicatorIterator) retrieval.createIterator(Parameters.instance(), existTree);
+    ExistentialIndicatorIterator eii = (ExistentialIndicatorIterator) retrieval.createIterator(Parameters.create(), existTree);
 
     Node universeTree = StructuredQuery.parse("#all( #counts:document:part=postings() )");
-    UniversalIndicatorIterator uii = (UniversalIndicatorIterator) retrieval.createIterator(Parameters.instance(), universeTree);
+    UniversalIndicatorIterator uii = (UniversalIndicatorIterator) retrieval.createIterator(Parameters.create(), universeTree);
 
     // Initialization
     assertFalse(eii.isDone());
@@ -197,15 +197,15 @@ public class IndicatorIteratorTest {
   @Test
   public void testComplexIterator() throws Exception {
     // Create a retrieval object for use by the traversal
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("index", indexFile.getAbsolutePath());
-    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
+    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.create(p);
 
     Node root = StructuredQuery.parse("#require(#all( #counts:document:part=postings() ) #counts:document:part=postings() )");
     root = retrieval.transformQuery(root, p);
 
     ScoringContext dc1 = new ScoringContext();
-    RequireIterator mi = (RequireIterator) retrieval.createIterator(Parameters.instance(), root);
+    RequireIterator mi = (RequireIterator) retrieval.createIterator(Parameters.create(), root);
 
     assertEquals(0, mi.currentCandidate());
     dc1.document = 0;

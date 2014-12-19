@@ -41,7 +41,7 @@ public class ExtentIndexReaderTest {
     tempPath = FileUtility.createTemporary();
     tempPath.delete();
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("filename", tempPath.toString());
 
     WindowIndexWriter writer =
@@ -154,7 +154,7 @@ public class ExtentIndexReaderTest {
 
   @Test
   public void testSkipList() throws Exception {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("filename", tempPath.toString());
     p.set("skipDistance", 10);
 

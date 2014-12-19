@@ -16,7 +16,7 @@ public class TrecTextParser extends DocumentStreamParser {
   BufferedReader reader;
 
   /**
-   * Creates a new instance of TrecTextParser
+   * Creates a new create of TrecTextParser
    */
   public TrecTextParser(DocumentSplit split, Parameters p) throws IOException {
     super(split, p);

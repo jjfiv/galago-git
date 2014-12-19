@@ -53,7 +53,7 @@ public class NetworkedCounterTest {
   public void testFlush() {
     MockCounter counter = new MockCounter("b", "c", "d", "a");
     counter.flush();
-    assertEquals("a/setcounter?counterName=b&stageName=c&instance=d&value=0",
+    assertEquals("a/setcounter?counterName=b&stageName=c&create=d&value=0",
         counter.connectedUrl);
     counter.connectedUrl = null;
     counter.flush();
@@ -61,11 +61,11 @@ public class NetworkedCounterTest {
     assertEquals(null, counter.connectedUrl);
     counter.increment();
     counter.flush();
-    assertEquals("a/setcounter?counterName=b&stageName=c&instance=d&value=1",
+    assertEquals("a/setcounter?counterName=b&stageName=c&create=d&value=1",
         counter.connectedUrl);
     counter.incrementBy(6);
     counter.flush();
-    assertEquals("a/setcounter?counterName=b&stageName=c&instance=d&value=7",
+    assertEquals("a/setcounter?counterName=b&stageName=c&create=d&value=7",
         counter.connectedUrl);
     counter.connectedUrl = null;
     counter.flush();

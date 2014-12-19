@@ -38,7 +38,7 @@ public class AppTest {
         // Check main path
         assertTrue(indexPath.isDirectory());
         // Time to check standard parts
-        Retrieval ret = RetrievalFactory.instance(indexPath.getAbsolutePath(), Parameters.instance());
+        Retrieval ret = RetrievalFactory.instance(indexPath.getAbsolutePath(), Parameters.create());
         Parameters availableParts = ret.getAvailableParts();
         assertNotNull(availableParts);
 
