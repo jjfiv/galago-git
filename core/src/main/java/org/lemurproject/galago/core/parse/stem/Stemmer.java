@@ -27,7 +27,7 @@ public abstract class Stemmer implements Source<Document>, Processor<Document> {
   final Object lock = new Object();
   
   long cacheLimit = 50000;
-  HashMap<String, String> cache = new HashMap();
+  HashMap<String, String> cache = new HashMap<>();
   public Processor<Document> processor;
 
   @Override

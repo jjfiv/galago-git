@@ -38,7 +38,7 @@ SUCH DAMAGE.
  * Java version by Sergio Guzman-Lara.
  * CIIR-UMass Amherst http://ciir.cs.umass.edu
  */
-package org.lemurproject.galago.core.parse.stem;
+package org.lemurproject.galago.krovetz;
 
 /** A list of words used by Kstem
  */
