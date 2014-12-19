@@ -8,7 +8,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.util.PriorityQueue;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
-import org.lemurproject.galago.core.util.FixedSizeMinHeap;
+import org.lemurproject.galago.utility.FixedSizeMinHeap;
 
 /**
  * An interface that defines the contract for processing a query. There's one

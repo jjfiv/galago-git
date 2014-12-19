@@ -1,7 +1,7 @@
 /*
  *  BSD License (http://lemurproject.org/galago-license)
  */
-package org.lemurproject.galago.core.util;
+package org.lemurproject.galago.utility;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -61,9 +61,8 @@ public class FixedSizeSortedArray<T> {
   }
 
   public T[] getSortedArray() {
-    T[] data = (T[]) Arrays.copyOf(_arr, _position);
     // Arrays.sort(data, _cmp);
-    return data;
+    return Arrays.copyOf(_arr, _position);
   }
 
   private void bubbleUp(int pos) {

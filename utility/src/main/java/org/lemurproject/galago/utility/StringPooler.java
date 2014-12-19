@@ -1,7 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.parse;
+package org.lemurproject.galago.utility;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 import java.util.WeakHashMap;
 
 /**
@@ -32,15 +33,15 @@ public class StringPooler {
    *
    * String pool is weakly referenced - it can be garbage collected
    *
-   * @param document
+   * @param terms
    */
-  public void transform(Document document) {
+  public void transform(List<String> terms) {
     if (maxActive > 0 && pool.size() > maxActive) {
       pool.clear();
     }
 
-    for (int i = 0; i < document.terms.size(); i++) {
-      String term = document.terms.get(i);
+    for (int i = 0; i < terms.size(); i++) {
+      String term = terms.get(i);
 
       if (term == null) {
         continue;
@@ -55,7 +56,7 @@ public class StringPooler {
           // term was cached!
           term = cached;
           // now replace the doc reference to the cached string
-          document.terms.set(i, term);
+          terms.set(i, term);
           continue;
         }
       }
@@ -64,7 +65,7 @@ public class StringPooler {
       term = new String(term);
       pool.put(term, new WeakReference<String>(term));
       // still want to set the term to the newly cached term
-      document.terms.set(i, term);
+      terms.set(i, term);
     }
   }
 }

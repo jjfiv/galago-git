@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.retrieval.ScoredPassage;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.util.FixedSizeMinHeap;
+import org.lemurproject.galago.utility.FixedSizeMinHeap;
 import org.lemurproject.galago.utility.Parameters;
 
 /**

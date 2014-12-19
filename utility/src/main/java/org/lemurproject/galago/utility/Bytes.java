@@ -1,10 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 
-package org.lemurproject.galago.core.util;
+package org.lemurproject.galago.utility;
 
 import java.util.Arrays;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  * Boxing a byte[] object to ensure proper operation

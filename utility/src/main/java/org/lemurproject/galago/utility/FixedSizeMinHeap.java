@@ -1,7 +1,7 @@
 /*
  *  BSD License (http://lemurproject.org/galago-license)
  */
-package org.lemurproject.galago.core.util;
+package org.lemurproject.galago.utility;
 
 import java.lang.reflect.Array;
 import java.util.*;
