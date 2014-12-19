@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.index.disk;
+package org.lemurproject.galago.core.btree.format;
 
 import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
 import org.lemurproject.galago.tupleflow.Utility;

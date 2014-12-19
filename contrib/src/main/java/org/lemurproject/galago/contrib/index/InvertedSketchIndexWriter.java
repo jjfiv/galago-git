@@ -8,11 +8,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.lemurproject.galago.core.index.BTreeValueIterator;
-import org.lemurproject.galago.core.index.BTreeWriter;
-import org.lemurproject.galago.core.index.CompressedByteBuffer;
+import org.lemurproject.galago.core.btree.format.BTreeWriter;
+import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.DiskSpillCompressedByteBuffer;
 import org.lemurproject.galago.core.index.IndexElement;
-import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;
@@ -20,7 +20,6 @@ import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Step;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 

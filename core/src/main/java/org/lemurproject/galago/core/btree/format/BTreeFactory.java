@@ -1,12 +1,10 @@
 /*
  *  BSD License (http://www.galagosearch.org/license)
  */
-package org.lemurproject.galago.core.index;
+package org.lemurproject.galago.core.btree.format;
 
 import java.io.File;
 import java.io.IOException;
-import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
-import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
 
 /**
  *

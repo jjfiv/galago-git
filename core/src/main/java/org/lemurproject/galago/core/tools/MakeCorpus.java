@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools;
 
+import org.lemurproject.galago.core.btree.format.SplitBTreeKeyWriter;
 import org.lemurproject.galago.core.index.corpus.*;
 import org.lemurproject.galago.core.parse.DocumentNumberer;
 import org.lemurproject.galago.core.parse.DocumentSource;

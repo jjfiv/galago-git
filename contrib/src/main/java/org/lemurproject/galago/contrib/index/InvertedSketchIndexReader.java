@@ -4,8 +4,8 @@
 package org.lemurproject.galago.contrib.index;
 
 import org.lemurproject.galago.contrib.hash.UniversalStringHashFunction;
-import org.lemurproject.galago.core.index.BTreeReader;
-import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
+import org.lemurproject.galago.core.btree.format.BTreeReader;
+import org.lemurproject.galago.core.btree.format.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;

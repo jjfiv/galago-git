@@ -6,6 +6,9 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
+
+import org.lemurproject.galago.core.btree.format.BTreeFactory;
+import org.lemurproject.galago.core.btree.format.BTreeReader;
 import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;

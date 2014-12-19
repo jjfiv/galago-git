@@ -1,6 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
+import org.lemurproject.galago.core.btree.format.BTreeReader;
+
 import java.io.IOException;
 
 /**

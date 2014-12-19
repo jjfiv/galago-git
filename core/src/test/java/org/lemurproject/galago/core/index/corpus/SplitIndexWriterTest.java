@@ -2,6 +2,9 @@
 package org.lemurproject.galago.core.index.corpus;
 
 import org.junit.Test;
+import org.lemurproject.galago.core.btree.format.SplitBTreeKeyWriter;
+import org.lemurproject.galago.core.btree.format.SplitBTreeReader;
+import org.lemurproject.galago.core.btree.format.SplitBTreeValueWriter;
 import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;

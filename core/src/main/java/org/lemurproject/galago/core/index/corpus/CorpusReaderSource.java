@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.index.corpus;
 
 import org.lemurproject.galago.core.corpus.DocumentSerializer;
-import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.core.btree.format.BTreeReader;
 import org.lemurproject.galago.core.index.source.BTreeKeySource;
 import org.lemurproject.galago.core.index.source.DataSource;
 import org.lemurproject.galago.core.parse.Document;

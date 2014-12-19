@@ -10,7 +10,7 @@ package org.lemurproject.galago.core.retrieval;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
+import org.lemurproject.galago.core.btree.format.DiskBTreeReader;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;

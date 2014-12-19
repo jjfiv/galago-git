@@ -29,6 +29,7 @@ package org.lemurproject.galago.core.index;
 import gnu.trove.list.array.TIntArrayList;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.StreamUtil;
+import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
 
 import java.io.File;
 import java.io.FileOutputStream;

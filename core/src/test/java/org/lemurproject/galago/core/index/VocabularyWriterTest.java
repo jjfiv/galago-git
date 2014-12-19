@@ -4,7 +4,7 @@
 package org.lemurproject.galago.core.index;
 
 import org.junit.Test;
-import org.lemurproject.galago.core.index.disk.VocabularyWriter;
+import org.lemurproject.galago.core.btree.format.VocabularyWriter;
 import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.ByteArrayInputStream;

@@ -1,7 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.index.CompressedByteBuffer;
+import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
+import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.DiskSpillCompressedByteBuffer;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.types.NumberWordProbability;

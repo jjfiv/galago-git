@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.core.index.merge.DocumentNameReverseMerger;
 import org.lemurproject.galago.core.types.DocumentNameId;

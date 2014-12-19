@@ -1,8 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import org.lemurproject.galago.core.index.BTreeFactory;
-import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.core.btree.format.BTreeFactory;
+import org.lemurproject.galago.core.btree.format.BTreeReader;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;

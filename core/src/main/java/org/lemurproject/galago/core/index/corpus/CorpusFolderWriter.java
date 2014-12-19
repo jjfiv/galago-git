@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.corpus;
 
+import org.lemurproject.galago.core.btree.format.SplitBTreeValueWriter;
 import org.lemurproject.galago.core.corpus.DocumentSerializer;
 import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.core.index.merge.CorpusMerger;

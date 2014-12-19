@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.index;
+package org.lemurproject.galago.utility.buffer;
 
 import gnu.trove.list.array.TByteArrayList;
 import gnu.trove.procedure.TByteProcedure;
@@ -12,9 +12,8 @@ import java.io.OutputStream;
  * is useful for buffering data that will be stored
  * compressed on disk.
  * 
- * [sjh: all removed code has been commented out - nothing was deleted]
- *
  * (12/03/2010, irmarc): Switched the ArrayList of boxed bytes to TByteArrayList from trove. LHF.
+ * (12/19/2014, jfoley): Move copier instances to local functions to make this class threadsafe.
  *
  * @author trevor + modified by sjh
  * @author irmarc
@@ -22,9 +21,7 @@ import java.io.OutputStream;
  */
 public class CompressedByteBuffer {
 
-  TByteArrayList values;
-  ByteWriterProcedure writer = new ByteWriterProcedure();
-  ByteCopierProcedure copier = new ByteCopierProcedure();
+  public TByteArrayList values;
 
   public CompressedByteBuffer() {
     clear();
@@ -107,6 +104,7 @@ public class CompressedByteBuffer {
    * @param other The buffer to copy.
    */
   public void add(CompressedByteBuffer other) {
+    ByteCopierProcedure copier = new ByteCopierProcedure();
     copier.target = this;
     other.values.forEach(copier);
     copier.target = null; // no danglers
@@ -141,6 +139,7 @@ public class CompressedByteBuffer {
    * Writes the contents of this buffer to a stream.
    */
   public void write(OutputStream stream) throws IOException {
+    ByteWriterProcedure writer = new ByteWriterProcedure();
     writer.stream = stream;
     values.forEach(writer);
     writer.stream = null; //  don't want a dangling reference

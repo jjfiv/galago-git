@@ -5,7 +5,7 @@ import org.junit.After;
 import org.junit.Test;
 import org.lemurproject.galago.core.index.corpus.CorpusFolderWriter;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
-import org.lemurproject.galago.core.index.corpus.SplitBTreeKeyWriter;
+import org.lemurproject.galago.core.btree.format.SplitBTreeKeyWriter;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.*;

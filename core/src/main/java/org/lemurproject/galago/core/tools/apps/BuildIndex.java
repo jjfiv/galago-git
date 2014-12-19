@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.tools.apps;
 import org.lemurproject.galago.core.build.DocumentNameNumberExtractor;
 import org.lemurproject.galago.core.index.corpus.CorpusFolderWriter;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
-import org.lemurproject.galago.core.index.corpus.SplitBTreeKeyWriter;
+import org.lemurproject.galago.core.btree.format.SplitBTreeKeyWriter;
 import org.lemurproject.galago.core.index.disk.DiskNameReader;
 import org.lemurproject.galago.core.index.disk.PositionFieldIndexWriter;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;

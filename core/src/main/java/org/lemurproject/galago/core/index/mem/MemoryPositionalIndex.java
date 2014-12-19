@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
-import org.lemurproject.galago.core.index.CompressedByteBuffer;
+import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;

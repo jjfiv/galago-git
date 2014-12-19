@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.btree.simple;
 
 import org.lemurproject.galago.core.index.IndexElement;
-import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.utility.Parameters;
@@ -14,7 +14,7 @@ import java.io.IOException;
  * So if you use this class as a Tupleflow processor, you'd better give us KeyValuePairs in sorted order. This is exactly the magic that happens in DiskMapBuilder. This class is also a pretty thin layer around DiskBTreeWriter.
  *
  * @see DiskMapBuilder
- * @see org.lemurproject.galago.core.index.disk.DiskBTreeWriter
+ * @see org.lemurproject.galago.core.btree.format.DiskBTreeWriter
  * @author jfoley
  */
 @InputClass(className = "org.lemurproject.galago.core.types.KeyValuePair", order = {"+key"})

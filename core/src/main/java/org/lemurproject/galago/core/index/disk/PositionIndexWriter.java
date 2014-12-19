@@ -1,17 +1,19 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.core.btree.format.BTreeWriter;
+import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.index.mem.MemoryPositionalIndex;
 import org.lemurproject.galago.core.index.merge.PositionIndexMerger;
 import org.lemurproject.galago.core.types.NumberWordPosition;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
 
 import java.io.IOException;
 import java.io.OutputStream;

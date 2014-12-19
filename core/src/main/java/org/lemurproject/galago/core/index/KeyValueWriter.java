@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
-import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.lemurproject.galago.tupleflow.Counter;

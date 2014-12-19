@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  */
 public class FileUtility {
   private static final Logger LOG = Logger.getLogger(FileUtility.class.getName());
-  private static final List<String> roots = new ArrayList<String>();
+  private static final List<String> roots = new ArrayList<>();
 
   // dynamically add to the set of roots
   public static void addTemporaryDirectory(String path) {
