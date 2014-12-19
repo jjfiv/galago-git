@@ -1,6 +1,6 @@
 package org.lemurproject.galago.tupleflow.execution;
 
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.IOException;
 import java.net.MalformedURLException;

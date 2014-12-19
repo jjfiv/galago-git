@@ -5,13 +5,12 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import org.lemurproject.galago.core.types.TextFeature;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.CmpUtil;
 
@@ -41,7 +40,7 @@ public class TextFeatureThresholder extends StandardStep<TextFeature, TextFeatur
   public TextFeatureThresholder(TupleFlowParameters parameters) throws IOException, NoSuchAlgorithmException {
     threshold = (int) parameters.getJSON().getLong("threshold");
     currentFeature = null;
-    currentBuffer = new LinkedList();
+    currentBuffer = new LinkedList<>();
     currentPassesThreshold = false;
 
     passing = parameters.getCounter("Passed Features");
@@ -63,9 +62,7 @@ public class TextFeatureThresholder extends StandardStep<TextFeature, TextFeatur
       emitExtents();
 
     } else {
-      if (notPassing != null) {
-        notPassing.incrementBy(currentBuffer.size());
-      }
+      notPassing.incrementBy(currentBuffer.size());
       currentBuffer.clear();
 
       // now prepare for the next feature
@@ -94,9 +91,7 @@ public class TextFeatureThresholder extends StandardStep<TextFeature, TextFeatur
         // zero out the feature.
         tf.feature = new byte[0];
         processor.process(tf);
-        if (passing != null) {
-          passing.increment();
-        }
+        passing.increment();
       }
     }
   }

@@ -4,6 +4,8 @@ package org.lemurproject.galago.tupleflow;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.debug.Counter;
+import org.lemurproject.galago.utility.debug.NullCounter;
 
 import javax.management.ListenerNotFoundException;
 import javax.management.Notification;
@@ -73,8 +75,8 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   private volatile boolean forceFlush;
   // statistics + logging
   private long runsCount = 0;
-  private Counter filesWritten = null;
-  private Counter sorterCombineSteps = null;
+  private Counter filesWritten = NullCounter.instance;
+  private Counter sorterCombineSteps = NullCounter.instance;
   private static final Logger logger = Logger.getLogger(Sorter.class.toString());
   // counters to assign a better combineBufferSize
   private long minFlushSize = Sorter.DEFAULT_OBJECT_LIMIT;
@@ -369,9 +371,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     FileOrderedWriter<T> writer = getTemporaryWriter();
     combineRuns(writer);
     writer.close();
-    if (filesWritten != null) {
-      filesWritten.increment();
-    }
+    filesWritten.increment();
 
     forceFlush = false;
   }
@@ -509,9 +509,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   }
 
   private synchronized void combineStep(List<File> files, Processor<T> output) throws IOException {
-    if (sorterCombineSteps != null) {
-      sorterCombineSteps.increment();
-    }
+    sorterCombineSteps.increment();
 
     ArrayList<String> filenames = new ArrayList<>();
 

@@ -2,13 +2,14 @@
 package org.lemurproject.galago.core.btree.format;
 
 import org.lemurproject.galago.core.index.IndexElement;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.compression.VByte;
+import org.lemurproject.galago.utility.debug.NullCounter;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -46,8 +47,8 @@ public class DiskBTreeWriter extends BTreeWriter {
   private int blockCount = 0;
   private byte[] prevKey = new byte[0];
   private byte[] lastKey = new byte[0];
-  Counter recordsWritten = null;
-  Counter blocksWritten = null;
+  Counter recordsWritten = NullCounter.instance;
+  Counter blocksWritten = NullCounter.instance;
 
   /**
    * Creates a new instance of DiskBTreeWriter
@@ -109,9 +110,7 @@ public class DiskBTreeWriter extends BTreeWriter {
     }
     lists.add(list);
     updateBufferedSize(list);
-    if (recordsWritten != null) {
-      recordsWritten.increment();
-    }
+    recordsWritten.increment();
 
     keyCount++;
     prevKey = list.key();
@@ -187,9 +186,7 @@ public class DiskBTreeWriter extends BTreeWriter {
     assert endPosition - startPosition <= blockSize || blockLists.size() == 1;
 
     blockCount++;
-    if (blocksWritten != null) {
-      blocksWritten.increment();
-    }
+    blocksWritten.increment();
   }
 
   /**

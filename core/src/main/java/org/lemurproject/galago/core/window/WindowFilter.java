@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.window;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.types.TextFeature;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
@@ -63,11 +63,11 @@ public class WindowFilter extends StandardStep<Window, Window> {
         (filterHead.file == w.file) &&
         (filterHead.filePosition == w.filePosition)){
       processor.process( w );
-      if (passed != null) passed.increment();
+      passed.increment();
     } else {
       // otherwise ignore it
       dropCount++;
-      if(dropped != null) dropped.increment();
+      dropped.increment();
     }
   }
   

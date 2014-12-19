@@ -7,6 +7,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,7 +31,7 @@ public class DocumentFilter extends StandardStep<Document, Document> {
     passingDocuments = tp.getCounter("Retained Documents");
     
     Parameters p = tp.getJSON();
-    filter = new HashSet<String>();
+    filter = new HashSet<>();
     for (String f : p.getAsList("filter", String.class)) {
       BufferedReader reader = Utility.utf8Reader(new File(f));
       String line;
@@ -48,9 +49,7 @@ public class DocumentFilter extends StandardStep<Document, Document> {
   public void process(Document doc) throws IOException {
     // ~xor : (require && filter.contains) || !require && !filter.contains)
     if (!(require ^ filter.contains(doc.name))) {
-      if (passingDocuments != null) {
-        passingDocuments.increment();
-      }
+      passingDocuments.increment();
       processor.process(doc);
     }
   }

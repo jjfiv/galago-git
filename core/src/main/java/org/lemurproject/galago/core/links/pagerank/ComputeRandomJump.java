@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.links.pagerank;
 import java.io.IOException;
 import org.lemurproject.galago.core.types.PageRankJumpScore;
 import org.lemurproject.galago.core.types.PageRankScore;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
@@ -51,9 +51,7 @@ public class ComputeRandomJump extends StandardStep<PageRankScore, PageRankJumpS
   @Override
   public void process(PageRankScore score) throws IOException {
     scoreSum += score.score;
-    if (documents != null) {
-      documents.increment();
-    }
+    documents.increment();
   }
 
   @Override

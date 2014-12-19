@@ -5,7 +5,7 @@ package org.lemurproject.galago.core.parse;
 import java.io.IOException;
 import org.lemurproject.galago.core.types.AdditionalDocumentText;
 import org.lemurproject.galago.core.types.ExtractedLink;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
@@ -41,6 +41,6 @@ public class AnchorTextCreator extends StandardStep<DocumentLinkData, Additional
         additional.text = extraText.toString();
 
         processor.process(additional);
-        if (counter != null) counter.increment();
+        counter.increment();
     }
 }

@@ -5,10 +5,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import org.lemurproject.galago.core.btree.format.BTreeWriter;
+
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.utility.FSUtil;
@@ -99,9 +99,7 @@ public class SplitBTreeValueWriter extends BTreeWriter
       keyStream.writeLong(valueLength); // value length
       keyStream.close();
       processor.process(new KeyValuePair(lastKey, keyArray.toByteArray()));
-      if (docCounter != null) {
-        docCounter.increment();
-      }
+      docCounter.increment();
     }
     lastKey = key;
     keyArray = new ByteArrayOutputStream();

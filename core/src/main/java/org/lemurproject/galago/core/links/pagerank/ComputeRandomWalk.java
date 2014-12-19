@@ -10,6 +10,7 @@ import org.lemurproject.galago.core.types.PageRankScore;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.CmpUtil;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,9 +58,7 @@ public class ComputeRandomWalk extends StandardStep<PageRankScore, PageRankScore
 
   @Override
   public void process(PageRankScore docScore) throws IOException {
-    if (documents != null) {
-      documents.increment();
-    }
+    documents.increment();
 
     List<String> linkedDocuments = new ArrayList<>();
 

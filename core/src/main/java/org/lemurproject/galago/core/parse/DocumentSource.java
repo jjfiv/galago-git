@@ -15,6 +15,7 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.*;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.compression.VByte;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -76,9 +77,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
     // now process each file
     for (DocumentSplit split : splitBuffer) {
-      if (inputCounter != null) {
-        inputCounter.increment();
-      }
+      inputCounter.increment();
       if(split.fileType == null)
         split.fileType = "";
       split.fileId = fileId;

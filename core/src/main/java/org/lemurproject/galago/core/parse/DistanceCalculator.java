@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.types.Adjacency;
 import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
@@ -69,9 +69,7 @@ public class DistanceCalculator extends StandardStep<KeyValuePair, Adjacency> {
             a.destination = iterator.getKey();
             a.weight = result;
             processor.process(a);
-            if (counter != null) {
-              counter.increment();
-            }
+            counter.increment();
           }
 
           if (!isSymmetric) {
@@ -84,9 +82,7 @@ public class DistanceCalculator extends StandardStep<KeyValuePair, Adjacency> {
             a.destination = object.key;
             a.weight = result;
             processor.process(a);
-            if (counter != null) {
-              counter.increment();
-            }
+            counter.increment();
           }
         } catch (Exception e) {
           throw new RuntimeException(e);

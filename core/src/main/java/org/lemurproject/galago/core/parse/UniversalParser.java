@@ -7,6 +7,7 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.compression.VByte;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -67,9 +68,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
         document.fileId = split.fileId;
         document.totalFileCount = split.totalFileCount;
         processor.process(document);
-        if (documentCounter != null) {
-          documentCounter.increment();
-        }
+        documentCounter.increment();
         count++;
 
         // Enforces limitations imposed by the endKey subcollection specifier.

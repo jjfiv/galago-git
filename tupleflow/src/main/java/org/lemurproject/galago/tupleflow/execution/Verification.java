@@ -3,6 +3,8 @@ package org.lemurproject.galago.tupleflow.execution;
 
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.debug.Counter;
+import org.lemurproject.galago.utility.debug.NullCounter;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +32,7 @@ public class Verification {
 
     @Override
     public Counter getCounter(String name) {
-      return null;
+      return NullCounter.instance;
     }
 
     @Override

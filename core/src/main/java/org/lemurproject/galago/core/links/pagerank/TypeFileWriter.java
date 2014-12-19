@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.links.pagerank;
 import java.io.File;
 import java.io.IOException;
 import org.lemurproject.galago.tupleflow.CompressionType;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.FileOrderedWriter;
 import org.lemurproject.galago.tupleflow.Order;
 import org.lemurproject.galago.utility.Parameters;
@@ -48,9 +48,7 @@ public class TypeFileWriter<T> implements Processor<T> {
   public void process(T t) throws IOException {
     writer.process(t);
     count += 1;
-    if (counter != null) {
-      counter.increment();
-    }
+    counter.increment();
   }
 
   @Override

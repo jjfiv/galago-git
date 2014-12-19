@@ -6,16 +6,14 @@ package org.lemurproject.galago.core.parse;
 import java.io.File;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
-import org.lemurproject.galago.core.index.disk.DiskNameReader;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.core.types.NumberKeyValue;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.CmpUtil;
 
@@ -42,9 +40,7 @@ public class NumberKeyValuePairs extends StandardStep<KeyValuePair, NumberKeyVal
     if (!namesIterator.isDone()) {
       if (namesIterator.skipToKey(kvp.key)) {
         if (CmpUtil.equals(namesIterator.getKey(), kvp.key)) {
-          if (numbered != null) {
-            numbered.increment();
-          }
+          numbered.increment();
           processor.process(new NumberKeyValue(namesIterator.getCurrentIdentifier(), kvp.key, kvp.value));
         }
       }

@@ -7,6 +7,7 @@ import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 import org.lemurproject.galago.utility.FSUtil;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class DataStreamWriter implements Processor<Type> {
     inputClass = orderClass.getEnclosingClass();
     Order<Type> order = (Order<Type>) orderClass.getConstructor().newInstance();
 
-    writer = new FileOrderedWriter<Type>(outFile.getAbsolutePath(), order, c);
+    writer = new FileOrderedWriter<>(outFile.getAbsolutePath(), order, c);
 
     written = p.getCounter(filename);
   }
@@ -42,9 +43,7 @@ public class DataStreamWriter implements Processor<Type> {
   @Override
   public void process(Type object) throws IOException {
     writer.process(object);
-    if (written != null) {
-      written.increment();
-    }
+    written.increment();
   }
 
   @Override

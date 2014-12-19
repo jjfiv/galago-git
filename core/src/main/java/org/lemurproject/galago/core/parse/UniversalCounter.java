@@ -9,6 +9,7 @@ import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.compression.VByte;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -110,9 +111,7 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
           document.fileId = split.fileId;
           document.totalFileCount = split.totalFileCount;
 
-          if (documentCounter != null) {
-            documentCounter.increment();
-          }
+          documentCounter.increment();
 
           count++;
 

@@ -4,9 +4,8 @@ package org.lemurproject.galago.core.btree.format;
 import java.io.File;
 import java.io.IOException;
 import org.lemurproject.galago.core.index.GenericElement;
-import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
@@ -47,9 +46,7 @@ public class SplitBTreeKeyWriter implements Processor<KeyValuePair> {
   @Override
   public void process(KeyValuePair object) throws IOException {
     writer.add(new GenericElement(object.key, object.value));
-    if (keyCounter != null) {
-      keyCounter.increment();
-    }
+    keyCounter.increment();
   }
 
   @Override

@@ -10,6 +10,7 @@ import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.IOException;
 
@@ -49,9 +50,7 @@ public class CorpusFileWriter implements Processor<Document> {
   @Override
   public void process(Document document) throws IOException {
     writer.add(new GenericElement(Utility.fromLong(document.identifier), serializer.toBytes(document)));
-    if (documentsWritten != null) {
-      documentsWritten.increment();
-    }
+    documentsWritten.increment();
   }
 
   public static void verify(TupleFlowParameters parameters, ErrorStore store) {
