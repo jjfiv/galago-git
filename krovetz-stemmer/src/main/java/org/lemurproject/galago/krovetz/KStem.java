@@ -281,114 +281,114 @@ public class KStem {
    return;
   }
 
-  dict_ht = new HashMap();
-  for (int i = 0; i < exceptionWords.length; i++) {
-   if (!dict_ht.containsKey(exceptionWords[i])) {
-    entry = new DictEntry(exceptionWords[i], true);
-    dict_ht.put(exceptionWords[i], entry);
-   } else {
-    System.out.println("Warning: Entry [" + exceptionWords[i]
-        + "] already in dictionary 1");
+  dict_ht = new HashMap<>();
+   for (String exceptionWord : exceptionWords) {
+     if (!dict_ht.containsKey(exceptionWord)) {
+       entry = new DictEntry(exceptionWord, true);
+       dict_ht.put(exceptionWord, entry);
+     } else {
+       System.out.println("Warning: Entry [" + exceptionWord
+           + "] already in dictionary 1");
+     }
    }
-  }
 
-  for (int i = 0; i < directConflations.length; i++) {
-   if (!dict_ht.containsKey(directConflations[i][0])) {
-    entry = new DictEntry(directConflations[i][1], false);
-    dict_ht.put(directConflations[i][0], entry);
-   } else {
-    System.out.println("Warning: Entry [" + directConflations[i][0]
-        + "] already in dictionary 2");
+   for (String[] directConflation : directConflations) {
+     if (!dict_ht.containsKey(directConflation[0])) {
+       entry = new DictEntry(directConflation[1], false);
+       dict_ht.put(directConflation[0], entry);
+     } else {
+       System.out.println("Warning: Entry [" + directConflation[0]
+           + "] already in dictionary 2");
+     }
    }
-  }
 
-  for (int i = 0; i < countryNationality.length; i++) {
-   if (!dict_ht.containsKey(countryNationality[i][0])) {
-    entry = new DictEntry(countryNationality[i][1], false);
-    dict_ht.put(countryNationality[i][0], entry);
-   } else {
-    System.out.println("Warning: Entry ["
-        + countryNationality[i][0]
-        + "] already in dictionary 3");
+   for (String[] aCountryNationality : countryNationality) {
+     if (!dict_ht.containsKey(aCountryNationality[0])) {
+       entry = new DictEntry(aCountryNationality[1], false);
+       dict_ht.put(aCountryNationality[0], entry);
+     } else {
+       System.out.println("Warning: Entry ["
+           + aCountryNationality[0]
+           + "] already in dictionary 3");
+     }
    }
-  }
 
   defaultEntry = new DictEntry(null, false);
 
   String[] array;
   array = KStemData1.data;
 
-  for (int i = 0; i < array.length; i++) {
-   if (!dict_ht.containsKey(array[i])) {
-    dict_ht.put(array[i], defaultEntry);
-   } else {
-    System.out.println("Warning: Entry [" + array[i]
-        + "] already in dictionary 4");
+   for (String anArray1 : array) {
+     if (!dict_ht.containsKey(anArray1)) {
+       dict_ht.put(anArray1, defaultEntry);
+     } else {
+       System.out.println("Warning: Entry [" + anArray1
+           + "] already in dictionary 4");
+     }
    }
-  }
 
 
   array = KStemData2.data;
-  for (int i = 0; i < array.length; i++) {
-   if (!dict_ht.containsKey(array[i])) {
-    dict_ht.put(array[i], defaultEntry);
-   } else {
-    System.out.println("Warning: Entry [" + array[i]
-        + "] already in dictionary 4");
+   for (String anArray : array) {
+     if (!dict_ht.containsKey(anArray)) {
+       dict_ht.put(anArray, defaultEntry);
+     } else {
+       System.out.println("Warning: Entry [" + anArray
+           + "] already in dictionary 4");
+     }
    }
-  }
 
   array = KStemData3.data;
-  for (int i = 0; i < array.length; i++) {
-   if (!dict_ht.containsKey(array[i])) {
-    dict_ht.put(array[i], defaultEntry);
-   } else {
-    System.out.println("Warning: Entry [" + array[i]
-        + "] already in dictionary 4");
+   for (String anArray : array) {
+     if (!dict_ht.containsKey(anArray)) {
+       dict_ht.put(anArray, defaultEntry);
+     } else {
+       System.out.println("Warning: Entry [" + anArray
+           + "] already in dictionary 4");
+     }
    }
-  }
 
   array = KStemData4.data;
-  for (int i = 0; i < array.length; i++) {
-   if (!dict_ht.containsKey(array[i])) {
-    dict_ht.put(array[i], defaultEntry);
-   } else {
-    System.out.println("Warning: Entry [" + array[i]
-        + "] already in dictionary 4");
+   for (String anArray : array) {
+     if (!dict_ht.containsKey(anArray)) {
+       dict_ht.put(anArray, defaultEntry);
+     } else {
+       System.out.println("Warning: Entry [" + anArray
+           + "] already in dictionary 4");
+     }
    }
-  }
 
 
   array = KStemData5.data;
-  for (int i = 0; i < array.length; i++) {
-   if (!dict_ht.containsKey(array[i])) {
-    dict_ht.put(array[i], defaultEntry);
-   } else {
-    System.out.println("Warning: Entry [" + array[i]
-        + "] already in dictionary 4");
+   for (String anArray : array) {
+     if (!dict_ht.containsKey(anArray)) {
+       dict_ht.put(anArray, defaultEntry);
+     } else {
+       System.out.println("Warning: Entry [" + anArray
+           + "] already in dictionary 4");
+     }
    }
-  }
 
 
   array = KStemData6.data;
-  for (int i = 0; i < array.length; i++) {
-   if (!dict_ht.containsKey(array[i])) {
-    dict_ht.put(array[i], defaultEntry);
-   } else {
-    System.out.println("Warning: Entry [" + array[i]
-        + "] already in dictionary 4");
+   for (String anArray : array) {
+     if (!dict_ht.containsKey(anArray)) {
+       dict_ht.put(anArray, defaultEntry);
+     } else {
+       System.out.println("Warning: Entry [" + anArray
+           + "] already in dictionary 4");
+     }
    }
-  }
 
   array = KStemData7.data;
-  for (int i = 0; i < array.length; i++) {
-   if (!dict_ht.containsKey(array[i])) {
-    dict_ht.put(array[i], defaultEntry);
-   } else {
-    System.out.println("Warning: Entry [" + array[i]
-        + "] already in dictionary 4");
+   for (String anArray : array) {
+     if (!dict_ht.containsKey(anArray)) {
+       dict_ht.put(anArray, defaultEntry);
+     } else {
+       System.out.println("Warning: Entry [" + anArray
+           + "] already in dictionary 4");
+     }
    }
-  }
 
   for (int i = 0; i < KStemData8.data.length; i++) {
    if (!dict_ht.containsKey(KStemData8.data[i])) {
@@ -399,25 +399,25 @@ public class KStem {
    }
   }
 
-  for (int i = 0; i < supplementDict.length; i++) {
-   if (!dict_ht.containsKey(supplementDict[i])) {
-    dict_ht.put(supplementDict[i], defaultEntry);
-   } else {
-    System.out.println("Warning: Entry ["
-        + supplementDict[i]
-        + "] already in dictionary 5");
+   for (String aSupplementDict : supplementDict) {
+     if (!dict_ht.containsKey(aSupplementDict)) {
+       dict_ht.put(aSupplementDict, defaultEntry);
+     } else {
+       System.out.println("Warning: Entry ["
+           + aSupplementDict
+           + "] already in dictionary 5");
+     }
    }
-  }
 
-  for (int i = 0; i < properNouns.length; i++) {
-   if (!dict_ht.containsKey(properNouns[i])) {
-    dict_ht.put(properNouns[i], defaultEntry);
-   } else {
-    System.out.println("Warning: Entry ["
-        + properNouns[i]
-        + "] already in dictionary 6");
+   for (String properNoun : properNouns) {
+     if (!dict_ht.containsKey(properNoun)) {
+       dict_ht.put(properNoun, defaultEntry);
+     } else {
+       System.out.println("Warning: Entry ["
+           + properNoun
+           + "] already in dictionary 6");
+     }
    }
-  }
  }
 
  private boolean isAlpha(char ch) {
@@ -461,7 +461,7 @@ public class KStem {
 
  private DictEntry wordInDict() {
   String s = word.toString();
-  return (DictEntry) dict_ht.get(s);
+  return dict_ht.get(s);
  }
 
 
@@ -533,11 +533,7 @@ public class KStem {
 
  /* Returns true if s is found in the dictionary */
  private boolean lookup(String s) {
-  if (dict_ht.containsKey(s)) {
-   return true;
-  } else {
-   return false;
-  }
+   return dict_ht.containsKey(s);
  }
 
  /* convert past tense (-ed) to present, and `-ied' to `y' */
