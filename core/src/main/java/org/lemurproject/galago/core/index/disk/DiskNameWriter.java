@@ -1,12 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.core.index.merge.DocumentNameMerger;
 import org.lemurproject.galago.core.types.DocumentNameId;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.IOException;
 
@@ -20,7 +22,7 @@ public class DiskNameWriter implements Processor<DocumentNameId> {
 
   DiskBTreeWriter writer;
   DocumentNameId last = null;
-  Counter documentNamesWritten = null;
+  Counter documentNamesWritten;
 
   public DiskNameWriter(TupleFlowParameters parameters) throws IOException {
     documentNamesWritten = parameters.getCounter("Document Names Written");
@@ -45,10 +47,7 @@ public class DiskNameWriter implements Processor<DocumentNameId> {
     assert ndd.name != null;
 
     writer.add(new GenericElement(Utility.fromLong(ndd.id), ndd.name));
-
-    if (documentNamesWritten != null) {
-      documentNamesWritten.increment();
-    }
+    documentNamesWritten.increment();
   }
 
   @Override

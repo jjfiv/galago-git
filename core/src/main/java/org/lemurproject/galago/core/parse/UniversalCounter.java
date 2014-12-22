@@ -6,8 +6,10 @@ import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.compression.VByte;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -28,7 +30,7 @@ import java.util.logging.Logger;
  * input methods it has available (i.e. an inputstream or a buffered reader over
  * the input data. Additionally, any TSP may have TupleFlowParameters in its
  * formal argument list, and the parameters provided to the UniversalParser will
- * be forwarded to the TSP instance.
+ * be forwarded to the TSP create.
  *
  * @author trevor, sjh, irmarc
  */
@@ -73,8 +75,7 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
 
       // Look for external mapping definitions
       if (parameters.containsKey("externalParsers")) {
-        List<Parameters> externalParsers =
-                (List<Parameters>) parameters.getAsList("externalParsers");
+        List<Parameters> externalParsers = parameters.getAsList("externalParsers", Parameters.class);
         for (Parameters extP : externalParsers) {
           documentStreamParser.put(extP.getString("filetype"),
                   Class.forName(extP.getString("class")));
@@ -93,7 +94,7 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
   public void process(DocumentSplit split) throws IOException {
     long limit = Long.MAX_VALUE;
     if (split.startKey.length > 0) {
-      if (Utility.compare(subCollCheck, split.startKey) == 0) {
+      if (CmpUtil.equals(subCollCheck, split.startKey)) {
         limit = VByte.uncompressLong(split.endKey, 0);
       }
     }
@@ -110,9 +111,7 @@ public class UniversalCounter extends StandardStep<DocumentSplit, KeyValuePair> 
           document.fileId = split.fileId;
           document.totalFileCount = split.totalFileCount;
 
-          if (documentCounter != null) {
-            documentCounter.increment();
-          }
+          documentCounter.increment();
 
           count++;
 

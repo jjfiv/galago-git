@@ -9,6 +9,7 @@ import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class FileLineParser implements ExNihiloSource<String> {
       reader = DocumentStreamParser.getBufferedReader( split );
       String line;
       while (null != (line = reader.readLine())) {
-        if(lines != null) lines.increment();
+        lines.increment();
 
         if (line.startsWith("#")) {
           continue;

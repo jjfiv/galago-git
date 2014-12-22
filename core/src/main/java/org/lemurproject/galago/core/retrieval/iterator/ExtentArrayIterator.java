@@ -3,6 +3,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  * Special class to allow iterator over an array of extents
@@ -52,7 +53,7 @@ public class ExtentArrayIterator implements Comparable<ExtentArrayIterator> {
 
   @Override
   public int compareTo(ExtentArrayIterator iterator) {
-    int result = Utility.compare(array.getDocument(), iterator.array.getDocument());
+    int result = CmpUtil.compare(array.getDocument(), iterator.array.getDocument());
 
     if (result != 0) {
       return result;

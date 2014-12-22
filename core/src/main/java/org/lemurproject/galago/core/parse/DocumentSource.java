@@ -1,11 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import org.lemurproject.galago.core.index.BTreeFactory;
-import org.lemurproject.galago.core.index.BTreeReader;
-import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
-import org.lemurproject.galago.core.index.disk.VocabularyReader;
-import org.lemurproject.galago.core.index.disk.VocabularyReader.IndexBlockInfo;
+import org.lemurproject.galago.core.btree.format.BTreeFactory;
+import org.lemurproject.galago.core.btree.format.BTreeReader;
+import org.lemurproject.galago.core.btree.format.SplitBTreeReader;
+import org.lemurproject.galago.core.btree.format.VocabularyReader;
+import org.lemurproject.galago.core.btree.format.VocabularyReader.IndexBlockInfo;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.util.DocumentSplitFactory;
 import org.lemurproject.galago.tupleflow.*;
@@ -15,6 +15,7 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.*;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.compression.VByte;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   public DocumentSource(TupleFlowParameters parameters) {
     this.parameters = parameters;
     this.inputCounter = parameters.getCounter("Inputs Processed");
-    DocumentStreamParser.addExternalParsers(parameters.getJSON().get("parser", Parameters.instance()));
+    DocumentStreamParser.addExternalParsers(parameters.getJSON().get("parser", Parameters.create()));
   }
 
   @Override
@@ -76,9 +77,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
 
     // now process each file
     for (DocumentSplit split : splitBuffer) {
-      if (inputCounter != null) {
-        inputCounter.increment();
-      }
+      inputCounter.increment();
       if(split.fileType == null)
         split.fileType = "";
       split.fileId = fileId;

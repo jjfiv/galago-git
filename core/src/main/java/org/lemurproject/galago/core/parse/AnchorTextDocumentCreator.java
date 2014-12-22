@@ -28,7 +28,7 @@ public class AnchorTextDocumentCreator extends StandardStep<IdentifiedLink, Docu
     String lastDocument = null;
     
     public AnchorTextDocumentCreator(TupleFlowParameters tp) {
-      tokenizer = Tokenizer.instance(tp.getJSON());
+      tokenizer = Tokenizer.create(tp.getJSON());
     }
     
     /**

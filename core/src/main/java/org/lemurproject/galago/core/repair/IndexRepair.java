@@ -21,7 +21,7 @@ public class IndexRepair {
     DiskNameReader namesReader = new DiskNameReader(names);
 
     Parameters oldP = namesReader.getManifest();
-    Parameters newP = Parameters.instance();
+    Parameters newP = Parameters.create();
     newP.put("filename", outputName);
 
     if(opts.get("keepBlockSize", true)) {

@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  */
 public class FileUtility {
   private static final Logger LOG = Logger.getLogger(FileUtility.class.getName());
-  private static final List<String> roots = new ArrayList<String>();
+  private static final List<String> roots = new ArrayList<>();
 
   // dynamically add to the set of roots
   public static void addTemporaryDirectory(String path) {
@@ -143,39 +143,5 @@ public class FileUtility {
 
   public static List<String> getRoots() {
     return roots;
-  }
-
-  /**
-   * <p>If the parent directories for this file don't exist, this function
-   * creates them.</p>
-   *
-   * <p>Often we want to create a file, but we don't yet know if the parent path
-   * has been created yet. Call this function immediately before opening a file
-   * for writing to make sure those directories have been created.</p>
-   *
-   * @param filename A filename that will soon be opened for writing.
-   * @deprecated see FSUtil instead
-   */
-  @Deprecated
-  public static void makeParentDirectories(File filename) {
-    FSUtil.makeParentDirectories(filename);
-  }
-
-  /** @deprecated see FSUtil instead */
-  @Deprecated
-  public static void makeParentDirectories(String filename) {
-    FSUtil.makeParentDirectories(new File(filename));
-  }
-
-  /** @deprecated see FSUtil instead */
-  @Deprecated
-  public static String getExtension(File file) {
-    return FSUtil.getExtension(file);
-  }
-
-  /** @deprecated see FSUtil instead */
-  @Deprecated
-  public static long getFreeSpace(String pathname) throws IOException {
-    return FSUtil.getFreeSpace(pathname);
   }
 }

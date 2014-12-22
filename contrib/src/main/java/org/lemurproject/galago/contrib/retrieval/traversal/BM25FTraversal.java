@@ -48,7 +48,7 @@ public class BM25FTraversal extends Traversal {
     levels = 0;
     this.retrieval = retrieval;
     Parameters globals = retrieval.getGlobalParameters();
-    weights = globals.containsKey("bm25f") ? globals.getMap("bm25f") : Parameters.instance();
+    weights = globals.containsKey("bm25f") ? globals.getMap("bm25f") : Parameters.create();
     fieldList = globals.getAsList("fields", String.class);
     try {
       availableFields = retrieval.getAvailableParts();
@@ -67,8 +67,8 @@ public class BM25FTraversal extends Traversal {
       // Create the replacing root
       NodeParameters rootP = new NodeParameters();
       rootP.set("K", weights.get("K", 0.5));
-      Parameters cumulativeWeights = weights.get("weights", Parameters.instance());
-      Parameters smoothing = weights.get("smoothing", Parameters.instance());
+      Parameters cumulativeWeights = weights.get("weights", Parameters.create());
+      Parameters smoothing = weights.get("smoothing", Parameters.create());
       Node newRoot = new Node("bm25fcomb", rootP);
       newRoot.getNodeParameters().set("norm", false);
       // Now generate the field-based subtrees for all extent/count nodes
@@ -96,7 +96,7 @@ public class BM25FTraversal extends Traversal {
 
     // get the number of documents this term occurs in:
     termNode.getNodeParameters().set("queryType", "count");
-    termNode = retrieval.transformQuery(termNode, Parameters.instance());
+    termNode = retrieval.transformQuery(termNode, Parameters.create());
     NodeStatistics ns = retrieval.getNodeStatistics(termNode.toString());
     long df = ns.nodeDocumentCount;
 

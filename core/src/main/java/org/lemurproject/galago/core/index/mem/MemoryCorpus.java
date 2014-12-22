@@ -13,9 +13,9 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.FakeParameters;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.Utility.ByteArrComparator;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
   public MemoryCorpus(Parameters params) throws IOException {
     this.params = params;
-    this.corpusData = new TreeMap<byte[], Document>(new ByteArrComparator());
+    this.corpusData = new TreeMap<>(new CmpUtil.ByteArrComparator());
   }
 
   @Override
@@ -156,14 +156,14 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
     public boolean skipToKey(byte[] key) throws IOException {
       keyIterator = corpusData.tailMap(key).keySet().iterator();
       nextKey();
-      return (Utility.compare(key, currKey) == 0);
+      return CmpUtil.equals(key, currKey);
     }
 
     @Override
     public boolean findKey(byte[] key) throws IOException {
       keyIterator = corpusData.tailMap(key).keySet().iterator();
       nextKey();
-      return (Utility.compare(key, currKey) == 0);
+      return CmpUtil.equals(key, currKey);
     }
 
     @Override
@@ -211,7 +211,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
     @Override
     public int compareTo(KeyIterator t) {
       try {
-        return Utility.compare(this.getKey(), t.getKey());
+        return CmpUtil.compare(this.getKey(), t.getKey());
       } catch (IOException ex) {
         throw new RuntimeException("Failed to compare mem-corpus keys");
       }
@@ -219,7 +219,7 @@ public class MemoryCorpus implements DocumentReader, MemoryIndexPart {
 
     @Override
     public DiskDataIterator<Document> getValueIterator() throws IOException {
-      return new DiskDataIterator<Document>(new MemoryCorpusSource(corpusData));
+      return new DiskDataIterator<>(new MemoryCorpusSource(corpusData));
     }
 
     @Override

@@ -54,7 +54,7 @@ public class CoordinateAscentLearner extends Learner {
 
     this.MAX_STEPS = p.get("maxSteps", this.MAX_STEPS);
 
-    Parameters specialMinStepSizes = Parameters.instance();
+    Parameters specialMinStepSizes = Parameters.create();
     if (p.isMap("specialMinStepSize")) {
       specialMinStepSizes = p.getMap("specialMinStepSize");
     }

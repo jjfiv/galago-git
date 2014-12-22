@@ -79,7 +79,7 @@ public class BuildCollectionBackground extends AppFunction {
       p.set("stemmerClass", KrovetzStemmer.class.getName());
     }
 
-    Parameters writerParams = Parameters.instance();
+    Parameters writerParams = Parameters.create();
     writerParams.set("filename", output.getAbsolutePath());
     if (p.containsKey("stemmer")) {
       writerParams.set("stemmer", p.getString("stemmerClass"));
@@ -87,7 +87,7 @@ public class BuildCollectionBackground extends AppFunction {
 
     Job job = new Job();
 
-    Parameters splitParameters = Parameters.instance();
+    Parameters splitParameters = Parameters.create();
     splitParameters.set("corpusPieces", p.get("distrib", 10));
     job.add(BuildStageTemplates.getSplitStage(inputs, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
 

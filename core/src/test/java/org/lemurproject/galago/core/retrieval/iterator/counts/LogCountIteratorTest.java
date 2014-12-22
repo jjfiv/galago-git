@@ -16,7 +16,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class LogCountIteratorTest {
-  static Tokenizer tok = Tokenizer.instance(Parameters.instance());
+  static Tokenizer tok = Tokenizer.create(Parameters.create());
   public static Document makeDocument(String name, String text) {
     Document doc = new Document();
     doc.name = name;
@@ -41,7 +41,7 @@ public class LogCountIteratorTest {
 
     LocalRetrieval ret = new LocalRetrieval(memIndex);
 
-    Parameters qp = Parameters.instance();
+    Parameters qp = Parameters.create();
     Node xq = ret.transformQuery(StructuredQuery.parse("#log-count(#count-sum( the cat ))"), qp);
     List<ScoredDocument> docs = ret.executeQuery(xq).scoredDocuments;
 

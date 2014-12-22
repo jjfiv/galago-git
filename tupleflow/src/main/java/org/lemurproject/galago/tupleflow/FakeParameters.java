@@ -2,6 +2,8 @@
 package org.lemurproject.galago.tupleflow;
 
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.debug.Counter;
+import org.lemurproject.galago.utility.debug.NullCounter;
 
 import java.io.IOException;
 
@@ -25,7 +27,7 @@ public class FakeParameters implements TupleFlowParameters {
     }
     
     public Counter getCounter(String name) {
-        return null;
+        return NullCounter.instance;
     }
 
     public TypeReader getTypeReader(String specification) throws IOException {

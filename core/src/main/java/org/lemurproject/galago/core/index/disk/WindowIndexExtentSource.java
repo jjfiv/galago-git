@@ -3,12 +3,12 @@ package org.lemurproject.galago.core.index.disk;
 
 import java.io.DataInput;
 import java.io.IOException;
-import org.lemurproject.galago.core.index.BTreeReader.BTreeIterator;
+import org.lemurproject.galago.core.btree.format.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.index.source.BTreeValueSource;
 import org.lemurproject.galago.core.index.source.ExtentSource;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.util.ExtentArray;
-import org.lemurproject.galago.tupleflow.DataStream;
+import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.tupleflow.VByteInput;
 
 /**

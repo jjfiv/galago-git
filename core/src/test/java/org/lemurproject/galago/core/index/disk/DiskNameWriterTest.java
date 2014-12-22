@@ -25,7 +25,7 @@ public class DiskNameWriterTest {
   public void testNamesWriter() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("filename", tmp.getAbsolutePath());
       DiskNameWriter writer = new DiskNameWriter(new FakeParameters(p));
 

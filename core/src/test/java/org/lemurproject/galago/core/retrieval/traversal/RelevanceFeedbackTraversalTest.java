@@ -53,17 +53,17 @@ public class RelevanceFeedbackTraversalTest {
   @Test
   public void testRelevanceModel1Traversal() throws Exception {
     // Create a retrieval object for use by the traversal
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("index", indexFile.getAbsolutePath());
     p.set("stemmedPostings", false);
     p.set("fbOrigWeight", 0.5);
     p.set("relevanceModel", RelevanceModel1.class.getName());
     p.set("rmwhitelist", "sentiwordlist.txt");
-    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
+    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.create(p);
     RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval);
 
     Node parsedTree = StructuredQuery.parse("#rm:fbDocs=10:fbTerms=4( #dirichlet( #extents:jumped:part=postings() ) )");
-    Node transformed = traversal.traverse(parsedTree, Parameters.instance());
+    Node transformed = traversal.traverse(parsedTree, Parameters.create());
     // truth data
     StringBuilder correct = new StringBuilder();
     /* No sentiwordlist.txt
@@ -88,17 +88,17 @@ public class RelevanceFeedbackTraversalTest {
   @Test
   public void testRelevanceModel3Traversal() throws Exception {
     // Create a retrieval object for use by the traversal
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("index", indexFile.getAbsolutePath());
     p.set("stemmedPostings", false);
     p.set("fbOrigWeight", 0.9);
     p.set("relevanceModel", RelevanceModel3.class.getName());
     p.set("rmwhitelist", "sentiwordlist.txt");
-    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
+    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.create(p);
     RelevanceModelTraversal traversal = new RelevanceModelTraversal(retrieval);
 
     Node parsedTree = StructuredQuery.parse("#rm:fbDocs=10:fbTerms=4( #dirichlet( #extents:jumped:part=postings() ) )");
-    Node transformed = traversal.traverse(parsedTree, Parameters.instance());
+    Node transformed = traversal.traverse(parsedTree, Parameters.create());
     // truth data
     StringBuilder correct = new StringBuilder();
 
@@ -116,13 +116,13 @@ public class RelevanceFeedbackTraversalTest {
   @Test
   public void testRelevanceModelEmptyTraversal() throws Exception {
     // Create a retrieval object for use by the traversal
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("index", indexFile.getAbsolutePath());
     p.set("stemmedPostings", false);
     p.set("fbOrigWeight", 0.9);
     p.set("relevanceModel", RelevanceModel3.class.getName());
     p.set("rmwhitelist", "sentiwordlist.txt");
-    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.instance(p);
+    LocalRetrieval retrieval = (LocalRetrieval) RetrievalFactory.create(p);
     
     Node parsedTree = StructuredQuery.parse("#rm:fbDocs=10:fbTerms=4( neverawordinedgewise )");
     Node transformed = retrieval.transformQuery(parsedTree, p);

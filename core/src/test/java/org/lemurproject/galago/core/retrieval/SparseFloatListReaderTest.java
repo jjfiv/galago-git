@@ -45,7 +45,7 @@ public class SparseFloatListReaderTest {
     // make a spot for the index
     tempPath = FileUtility.createTemporary();
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("filename", tempPath.toString());
 
     TupleFlowParameters parameters = new FakeParameters(p);

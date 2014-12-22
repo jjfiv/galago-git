@@ -54,13 +54,13 @@ public class MultiRetrievalTest {
       App.main(new String[]{"build", "--indexPath=" + index2.getAbsolutePath(),
                 "--inputPath=" + trecCorpusFile2.getAbsolutePath()});
 
-      Parameters params = Parameters.instance();
+      Parameters params = Parameters.create();
       String[] indexes = {index1.getAbsolutePath(), index2.getAbsolutePath()};
       params.set("index", Arrays.asList(indexes));
-      MultiRetrieval mr = (MultiRetrieval) RetrievalFactory.instance(params);
+      MultiRetrieval mr = (MultiRetrieval) RetrievalFactory.create(params);
       String query = "#combine( sample document )";
       Node parsedQuery = StructuredQuery.parse(query);
-      Parameters qp = Parameters.instance();
+      Parameters qp = Parameters.create();
       Node queryTree = mr.transformQuery(parsedQuery, qp);
 
       String expected = "#combine:w=1.0("

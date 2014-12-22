@@ -12,8 +12,13 @@ import org.lemurproject.galago.utility.Parameters;
  */
 public class QueryEvaluatorFactory {
 
-  // static functions allow the creation of QueryEvaluators based on strings
+  /** @deprecated use create instead! */
+  @Deprecated
   public static QueryEvaluator instance(String metric, Parameters p) {
+    return create(metric, p);
+  }
+  /** Static functions allow the creation of QueryEvaluators based on strings. */
+  public static QueryEvaluator create(String metric, Parameters p) {
 
     String lowerMetric = metric.toLowerCase();
 

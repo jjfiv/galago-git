@@ -34,7 +34,7 @@ public class FieldConflater extends StandardStep<Document, Document> {
     if (parameters.getJSON().isMap("tokenizer/conflations")) {
       conflations = parameters.getJSON().getMap("tokenizer/conflations");
     } else {
-      conflations = Parameters.instance();
+      conflations = Parameters.create();
     }
   }
 

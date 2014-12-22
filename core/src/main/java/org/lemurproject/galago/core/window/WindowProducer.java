@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
@@ -74,7 +74,7 @@ public class WindowProducer extends StandardStep<Document, Window> {
       filePosition = 0; // incremented each time an ngram is processed
     }
     
-    window = new LinkedList();
+    window = new LinkedList<>();
     currentDocument = doc.identifier;
     
     List<Tag> tagList = collectNonOverlappingTags(doc);
@@ -101,9 +101,7 @@ public class WindowProducer extends StandardStep<Document, Window> {
     // print(window);
     if (window.size() == n) {
       processor.process(new Window(file, filePosition, currentDocument, windowBegin, currentEnd + 1, ConvertToBytes(window)));
-      if (windows != null) {
-        windows.increment();
-      }
+      windows.increment();
       filePosition++;
       
     } else {
@@ -125,10 +123,7 @@ public class WindowProducer extends StandardStep<Document, Window> {
       Collections.sort(sortedWindow);
       
       processor.process(new Window(file, filePosition, currentDocument, windowBegin, currentEnd + 1, ConvertToBytes(sortedWindow)));
-      if (windows != null) {
-        windows.increment();
-        
-      }
+      windows.increment();
       filePosition++;
       
     } else {

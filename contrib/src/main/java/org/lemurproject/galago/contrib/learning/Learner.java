@@ -101,7 +101,7 @@ public abstract class Learner {
     boolean binaryJudgments = p.get("binary", false);
     boolean positiveJudgments = p.get("postive", true);
     qrels = new QuerySetJudgments(p.getString("qrels"), binaryJudgments, positiveJudgments);
-    evalFunction = QuerySetEvaluatorFactory.instance(p.get("metric", "map"), p);
+    evalFunction = QuerySetEvaluatorFactory.create(p.get("metric", "map"), p);
 
     threading = p.get("threading", false);
     threadCount = (int) (p.isLong("threadCount") ? p.getLong("threadCount") : Runtime.getRuntime().availableProcessors());
@@ -155,7 +155,7 @@ public abstract class Learner {
    * generateRandomInitalValues
    */
   protected RetrievalModelInstance generateRandomInitalValues() {
-    Parameters init = Parameters.instance();
+    Parameters init = Parameters.create();
     for (String p : this.learnableParameters.getParams()) {
       double val = random.nextDouble();
       val *= this.learnableParameters.getRange(p);

@@ -4,7 +4,7 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.core.btree.format.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
@@ -31,12 +31,12 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
 
   public WindowIndexReader(BTreeReader reader) throws Exception {
     super(reader);
-    stemmer = Stemmer.instance(reader.getManifest());
+    stemmer = Stemmer.create(reader.getManifest());
   }
 
   public WindowIndexReader(String pathname) throws Exception {
     super(pathname);
-    stemmer = Stemmer.instance(reader.getManifest());
+    stemmer = Stemmer.create(reader.getManifest());
   }
 
   @Override

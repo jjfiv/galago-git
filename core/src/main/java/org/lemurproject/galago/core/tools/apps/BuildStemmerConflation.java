@@ -69,7 +69,7 @@ public class BuildStemmerConflation extends AppFunction {
     List<String> inputPaths = p.getAsList("inputPath");
     File output = new File(p.getString("outputPath"));
 
-    Parameters splitParameters = Parameters.instance();
+    Parameters splitParameters = Parameters.create();
     splitParameters.set("corpusPieces", p.get("distrib", 10));
     job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));
     job.add(getParserStage(p));
@@ -93,7 +93,7 @@ public class BuildStemmerConflation extends AppFunction {
     stage.add(BuildStageTemplates.getParserStep(p));
     stage.add(BuildStageTemplates.getTokenizerStep(p));
 
-    Parameters conflationParams = Parameters.instance();
+    Parameters conflationParams = Parameters.create();
     conflationParams.set("stemmerClass", getStemmerClass(p.getString("stemmer")));
 
     stage.add(new StepInformation(ConflationExtractor.class, conflationParams));
@@ -113,7 +113,7 @@ public class BuildStemmerConflation extends AppFunction {
     // repeat the discard step - over the newly combined data
     stage.add(new StepInformation(ConflationReducer.class));
 
-    Parameters writerParams = Parameters.instance();
+    Parameters writerParams = Parameters.create();
     writerParams.set("filename", output.getAbsolutePath());
     stage.add(new StepInformation(ConflationIndexWriter.class, writerParams));
 

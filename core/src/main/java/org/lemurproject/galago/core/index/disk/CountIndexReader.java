@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.core.btree.format.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
@@ -34,13 +34,13 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
   public CountIndexReader(BTreeReader reader) throws Exception {
     super(reader);
     operation = reader.getManifest().get("defaultOperator", "counts");
-    stemmer = Stemmer.instance(reader.getManifest());
+    stemmer = Stemmer.create(reader.getManifest());
   }
 
   public CountIndexReader(String pathname) throws Exception {
     super(pathname);
     operation = reader.getManifest().get("defaultOperator", "counts");
-    stemmer = Stemmer.instance(reader.getManifest());
+    stemmer = Stemmer.create(reader.getManifest());
   }
 
   @Override

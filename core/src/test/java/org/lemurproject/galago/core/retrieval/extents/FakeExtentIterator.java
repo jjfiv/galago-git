@@ -11,6 +11,7 @@ import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  *
@@ -113,7 +114,7 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
     if (isDone() && other.isDone()) {
       return 0;
     }
-    return Utility.compare(currentCandidate(), other.currentCandidate());
+    return CmpUtil.compare(currentCandidate(), other.currentCandidate());
   }
 
   @Override

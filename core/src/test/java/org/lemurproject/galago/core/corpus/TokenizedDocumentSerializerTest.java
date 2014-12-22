@@ -19,7 +19,7 @@ public class TokenizedDocumentSerializerTest {
   @Test
   public void testSerializeDocument() throws IOException {
     TagTokenizer tagTokenizer = new TagTokenizer();
-    DocumentSerializer tds = new TokenizedDocumentSerializer(Parameters.instance());
+    DocumentSerializer tds = new TokenizedDocumentSerializer(Parameters.create());
 
     Document doc = new Document();
     doc.metadata.put("meta-key", "value");

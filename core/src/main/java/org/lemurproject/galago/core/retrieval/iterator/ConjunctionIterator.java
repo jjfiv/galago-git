@@ -7,6 +7,7 @@ import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  *
@@ -143,6 +144,6 @@ public abstract class ConjunctionIterator implements BaseIterator {
     if (isDone() && other.isDone()) {
       return 0;
     }
-    return Utility.compare(currentCandidate(), other.currentCandidate());
+    return CmpUtil.compare(currentCandidate(), other.currentCandidate());
   }
 }

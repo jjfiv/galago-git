@@ -5,6 +5,7 @@ package org.lemurproject.galago.core.index;
 
 import org.junit.Test;
 import org.lemurproject.galago.tupleflow.VByteInput;
+import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

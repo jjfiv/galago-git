@@ -32,7 +32,7 @@ public class BackgroundStatsWriter extends KeyValueWriter<WordCount> {
   long vocabCount = 0;
 
   /**
-   * Creates a new instance of DocumentLengthsWriter
+   * Creates a new create of DocumentLengthsWriter
    */
   public BackgroundStatsWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
     super(parameters, "Term Counts written");

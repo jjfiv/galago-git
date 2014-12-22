@@ -74,7 +74,7 @@ public class BuildPartialIndex extends AppFunction {
     p.set("indexPath", outputIndex.getAbsolutePath());
 
     if (!p.isMap("parser")) {
-      p.set("parser", Parameters.instance());
+      p.set("parser", Parameters.create());
     }
     p.getMap("parser").set("corpus", corpus.getAbsolutePath());
 

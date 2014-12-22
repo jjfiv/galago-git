@@ -8,6 +8,7 @@ import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.FSUtil;
 
 import java.io.File;
@@ -93,7 +94,7 @@ public class DiskMapBuilderTest {
       byte[] baz = ByteUtil.fromString("baz");
       byte[] hmm = ByteUtil.fromString("hmm");
 
-      Map<byte[], byte[]> data = new TreeMap<byte[], byte[]>(new Utility.ByteArrComparator());
+      Map<byte[], byte[]> data = new TreeMap<>(new CmpUtil.ByteArrComparator());
       data.put(foo, bar);
       data.put(bar, baz);
       data.put(baz, hmm);

@@ -20,7 +20,7 @@ public class WebDocumentSerializer extends DocumentSerializer {
 
   public WebDocumentSerializer(Parameters opts) {
     super(opts);
-    tokenizer = Tokenizer.instance(opts);
+    tokenizer = Tokenizer.create(opts);
   }
 
   @Override

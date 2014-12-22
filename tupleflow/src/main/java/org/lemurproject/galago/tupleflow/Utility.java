@@ -3,7 +3,6 @@ package org.lemurproject.galago.tupleflow;
 
 import org.lemurproject.galago.tupleflow.execution.StepInformation;
 import org.lemurproject.galago.utility.*;
-import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -19,10 +18,6 @@ public class Utility {
   public static final double log2 = Math.log(2);
   public static final double loge_base2 = Math.log(Math.E) / log2;
   public static final double tinyLogProbScore = Math.log(Math.pow(10, -10));
-  @Deprecated
-  public static final double epsilon = CmpUtil.epsilon;
-  @Deprecated
-  public static final double neg_epsilon = CmpUtil.neg_epsilon;
 
   /**
    * Builds a simple Sorter step that can be added to a TupleFlow stage.
@@ -39,7 +34,7 @@ public class Utility {
   }
 
   public static StepInformation getSorter(Order sortOrder, Class<?> reducerClass, CompressionType c) {
-    org.lemurproject.galago.utility.Parameters p = org.lemurproject.galago.utility.Parameters.instance();
+    org.lemurproject.galago.utility.Parameters p = org.lemurproject.galago.utility.Parameters.create();
     p.set("class", sortOrder.getOrderedClass().getName());
     p.set("order", Utility.join(sortOrder.getOrderSpec()));
     if (c != null) {
@@ -192,176 +187,12 @@ public class Utility {
     return builder.toString();
   }
 
-  /** @deprecated see ByteUtil instead */
-  @Deprecated
-  public static String toString(byte[] word) {
-    return ByteUtil.toString(word);
-  }
-
-  public static byte[] fromString(String word) {
-    return ByteUtil.fromString(word);
-  }
-
-  public static String toString(byte[] buffer, int offset, int len) {
-    return ByteUtil.toString(buffer, offset, len);
-  }
-
-  /** @deprecated see CmpUtil instead */
-  @Deprecated
-  public static int compare(int one, int two) {
-    return CmpUtil.compare(one, two);
-  }
-
-  /** @deprecated see CmpUtil instead */
-  @Deprecated
-  public static int compare(long one, long two) {
-    return CmpUtil.compare(one, two);
-  }
-
-  /** @deprecated see CmpUtil instead */
-  @Deprecated
-  public static int compare(double one, double two) {
-    return CmpUtil.compare(one, two);
-  }
-
-  /** @deprecated see CmpUtil instead */
-  @Deprecated
-  public static int compare(float one, float two) {
-    return CmpUtil.compare(one, two);
-  }
-
-  /** @deprecated see CmpUtil instead */
-  @Deprecated
-  public static int compare(String one, String two) {
-    return CmpUtil.compare(one, two);
-  }
-
-  /** @deprecated see CmpUtil instead */
-  @Deprecated
-  public static int compare(byte[] one, byte[] two) {
-    return CmpUtil.compare(one, two);
-  }
-
-  // comparator for byte arrays
-  /** @deprecated see CmpUtil instead */
-  @Deprecated
-  public static class ByteArrComparator implements Comparator<byte[]>, Serializable {
-    @Override
-    public int compare(byte[] a, byte[] b) {
-      return Utility.compare(a, b);
-    }
-  }
-
-  /** @deprecated see CmpUtil instead */
-  @Deprecated
-  public static int hash(byte b) {
-    return CmpUtil.hash(b);
-  }
-
-  /** @deprecated see CmpUtil instead */
-  @Deprecated
-  public static int hash(int i) {
-    return CmpUtil.hash(i);
-  }
-
-  /** @deprecated see CmpUtil instead */
-  @Deprecated
-  public static int hash(long l) {
-    return CmpUtil.hash(l);
-  }
-
-  /** @deprecated see CmpUtil instead */
-  @Deprecated
-  public static int hash(double d) {
-    return CmpUtil.hash(d);
-  }
-
-  /** @deprecated see CmpUtil instead */
-  @Deprecated
-  public static int hash(float f) {
-    return CmpUtil.hash(f);
-  }
-
-  /** @deprecated see CmpUtil instead */
-  @Deprecated
-  public static int hash(String s) {
-    return CmpUtil.hash(s);
-  }
-
-  /** @deprecated see CmpUtil instead */
-  @Deprecated
-  public static int hash(byte[] bytes) {
-    return CmpUtil.hash(bytes);
-  }
-
   /**
-   * Copies data from the input stream to the output stream.
-   *
-   * @param input The input stream.
-   * @param output The output stream.
-   * @throws java.io.IOException
-   * @deprecated use StreamUtil version instead
+   * @deprecated use StreamUtil instead.
    */
   @Deprecated
-  public static void copyStream(InputStream input, OutputStream output) throws IOException {
-    StreamUtil.copyStream(input, output);
-  }
-
-  /**
-   * Copies data from the input stream and returns a String (UTF-8 if not
-   * specified)
-   * @deprecated use StreamUtil version instead
-   */
-  @Deprecated
-  public static String copyStreamToString(InputStream input, String encoding) throws IOException {
-    return StreamUtil.copyStreamToString(input, encoding);
-  }
-
-  /**
-   * @deprecated use StreamUtil version instead
-   */
-  @Deprecated
-  public static String copyStreamToString(InputStream input) throws IOException {
-    return StreamUtil.copyStreamToString(input, "UTF-8");
-  }
-
-  /**
-   * Copies the data from file into the stream. Note that this method does not
-   * close the stream (in case you want to put more in it).
-   *
-   * @throws java.io.IOException
-   * @deprecated use StreamUtil version instead
-   */
-  @Deprecated
-  public static void copyFileToStream(File file, OutputStream stream) throws IOException {
-    StreamUtil.copyFileToStream(file, stream);
-  }
-
-  /**
-   * Copies the data from the InputStream to a file, then closes both when
-   * finished.
-   *
-   * @throws java.io.IOException
-   * @deprecated use StreamUtil version instead
-   */
-  @Deprecated
-  public static void copyStreamToFile(InputStream stream, File file) throws IOException {
-    StreamUtil.copyStreamToFile(stream, file);
-  }
-
-  /**
-   * Copies the data from the string s to the file.
-   * @throws java.io.IOException
-   */
   public static void copyStringToFile(String s, File file) throws IOException {
-    DataOutputStream output = null;
-    try {
-      FSUtil.makeParentDirectories(file);
-      output = StreamCreator.openOutputStream(file);
-      output.write(ByteUtil.fromString(s));
-    } finally {
-      if(output != null) output.close();
-    }
+    StreamUtil.copyStringToFile(s, file);
   }
 
   public static BufferedReader utf8Reader(String file) throws IOException {
@@ -378,7 +209,7 @@ public class Utility {
 
   public static HashSet<String> readStreamToStringSet(InputStream stream) throws IOException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
-    HashSet<String> set = new HashSet<String>();
+    HashSet<String> set = new HashSet<>();
     String line;
 
     while ((line = reader.readLine()) != null) {
@@ -391,7 +222,7 @@ public class Utility {
 
   public static HashSet<String> readFileToStringSet(File file) throws IOException {
     BufferedReader reader = utf8Reader(file);
-    HashSet<String> set = new HashSet<String>();
+    HashSet<String> set = new HashSet<>();
     String line;
 
     while ((line = reader.readLine()) != null) {
@@ -531,57 +362,4 @@ public class Utility {
     return Utility.fromLong(l);
   }
 
-  /** @deprecated see VByte */
-  @Deprecated
-  public static long uncompressLong(byte[] input, int offset) throws IOException {
-    return VByte.uncompressLong(input, offset);
-  }
-
-  /** @deprecated see VByte */
-  @Deprecated
-  public static long uncompressLong(DataInput input) throws IOException {
-    return VByte.uncompressLong(input);
-  }
-
-  /** @deprecated see VByte */
-  @Deprecated
-  public static byte[] compressInt(int i) throws IOException {
-    return VByte.compressInt(i);
-  }
-
-  /** @deprecated see VByte */
-  @Deprecated
-  public static byte[] compressLong(long l) throws IOException {
-    return VByte.compressLong(l);
-  }
-
-  /** @deprecated see VByte */
-  @Deprecated
-  public static void compressInt(DataOutput output, int i) throws IOException {
-    VByte.compressInt(output, i);
-  }
-
-  /** @deprecated see VByte */
-  @Deprecated
-  public static int uncompressInt(DataInput input) throws IOException {
-    return VByte.uncompressInt(input);
-  }
-
-  /** @deprecated see VByte */
-  @Deprecated
-  public static int uncompressInt(byte[] input, int offset) throws IOException {
-    return VByte.uncompressInt(input, offset);
-  }
-
-  /** @deprecated see VByte */
-  @Deprecated
-  public static void compressLong(DataOutput output, long i) throws IOException {
-    VByte.compressLong(output, i);
-  }
-
-  /** @deprecated see FSUtil instead */
-  @Deprecated
-  public static void deleteDirectory(File directory) throws IOException {
-    FSUtil.deleteDirectory(directory);
-  }
 }

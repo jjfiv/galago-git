@@ -10,7 +10,7 @@ package org.lemurproject.galago.core.retrieval;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
+import org.lemurproject.galago.core.btree.format.DiskBTreeReader;
 import org.lemurproject.galago.core.index.disk.FieldIndexReader;
 import org.lemurproject.galago.core.index.disk.FieldIndexWriter;
 import org.lemurproject.galago.core.retrieval.iterator.EqualityIterator;
@@ -47,8 +47,8 @@ public class FieldIndexReaderTest {
     // make a spot for the index
     tempPath = FileUtility.createTemporary();
 
-    Parameters tokenizer = Parameters.instance();
-    Parameters formats = Parameters.instance();
+    Parameters tokenizer = Parameters.create();
+    Parameters formats = Parameters.create();
     formats.set("title", "string");
     formats.set("date", "date");
     formats.set("version", "int");
@@ -56,7 +56,7 @@ public class FieldIndexReaderTest {
     String[] fields = {"title", "date", "version"};
     tokenizer.set("fields", Arrays.asList(fields));
 
-    Parameters params = Parameters.instance();
+    Parameters params = Parameters.create();
     params.set("filename", tempPath.toString());
     params.set("tokenizer", tokenizer);
 

@@ -7,13 +7,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 
 import org.lemurproject.galago.core.types.NumberedExtent;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  * Discards NumberWordPosition items that contain words that
@@ -41,7 +41,7 @@ public class NumberedExtentThresholder extends StandardStep<NumberedExtent, Numb
   public NumberedExtentThresholder(TupleFlowParameters parameters) throws IOException, NoSuchAlgorithmException {
     threshold = (int) parameters.getJSON().getLong("threshold");
     threshdf = parameters.getJSON().getBoolean("threshdf");
-    currentBuffer = new LinkedList();
+    currentBuffer = new LinkedList<>();
     currentFeature = null;
     docs = new TLongHashSet();
 
@@ -59,15 +59,13 @@ public class NumberedExtentThresholder extends StandardStep<NumberedExtent, Numb
       currentBuffer.offerLast(ne);
       // no point emitting here - threshold should be > 1
 
-    } else if (Utility.compare(ne.extentName, currentFeature) == 0) {
+    } else if (CmpUtil.equals(ne.extentName, currentFeature)) {
       currentBuffer.offerLast(ne);
       emitExtents();
 
     } else {
       emitExtents();
-      if (discards != null) {
-        discards.incrementBy(currentBuffer.size());
-      }
+      discards.incrementBy(currentBuffer.size());
       currentBuffer.clear();
 
       // now prepare for the next feature
@@ -99,9 +97,7 @@ public class NumberedExtentThresholder extends StandardStep<NumberedExtent, Numb
       while (currentBuffer.size() > 0) {
         processor.process(currentBuffer.pollFirst());
         debug_pass_count++;
-        if (passing != null) {
-          passing.increment();
-        }
+        passing.increment();
       }
     }
   }

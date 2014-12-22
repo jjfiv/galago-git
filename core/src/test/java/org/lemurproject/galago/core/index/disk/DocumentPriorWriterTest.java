@@ -25,7 +25,7 @@ public class DocumentPriorWriterTest {
   public void testSomeMethod() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("filename", tmp.getAbsolutePath());
       DocumentPriorWriter writer = new DocumentPriorWriter(new FakeParameters(p));
 

@@ -17,7 +17,7 @@ public class NewlineTokenizer extends Tokenizer {
     super(tfp);
   }
   public NewlineTokenizer() {
-    super(new FakeParameters(Parameters.instance()));
+    super(new FakeParameters(Parameters.create()));
   }
 
   @Override

@@ -51,11 +51,11 @@ public class WorkingSetTest {
 
   @Test
   public void testWhiteList() throws Exception {
-    Parameters globals = Parameters.instance();
+    Parameters globals = Parameters.create();
     globals.set("passageQuery", true);
     LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), globals);
     
-    Parameters queryParams = Parameters.instance();
+    Parameters queryParams = Parameters.create();
     queryParams.set("requested", 100);
     queryParams.set("extentQuery", true);
     queryParams.set("extent", "sent");
@@ -147,11 +147,11 @@ public class WorkingSetTest {
     }
     Utility.copyStringToFile(c.toString(), corpus);
     
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("inputPath", corpus.getAbsolutePath());
     p.set("indexPath", index.getAbsolutePath());
     p.set("corpus", true);
-    p.set("tokenizer", Parameters.instance());
+    p.set("tokenizer", Parameters.create());
     p.getMap("tokenizer").set("fields", Arrays.asList(new String[]{"sent"}));
     App.run("build", p, System.out);
   }

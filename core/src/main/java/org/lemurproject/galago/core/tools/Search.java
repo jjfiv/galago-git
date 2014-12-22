@@ -30,7 +30,7 @@ public class Search {
 
   public Search(Parameters params) throws Exception {
     //this.store = getDocumentStore(params.getAsList("corpus"));
-    this.retrieval = RetrievalFactory.instance(params);
+    this.retrieval = RetrievalFactory.create(params);
     generator = new SnippetGenerator();
   }
 

@@ -28,7 +28,7 @@ public class LearnQueryParameters extends AppFunction {
   @Override
   public void run(Parameters p, PrintStream output) throws Exception {
     // should check parameters here.
-    Retrieval retrieval = RetrievalFactory.instance(p);
+    Retrieval retrieval = RetrievalFactory.create(p);
     Learner learner = LearnerFactory.instance(p, retrieval);
     try {
       RetrievalModelInstance tunedParameters = learner.learn();

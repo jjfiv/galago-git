@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.links.pagerank;
 import java.io.IOException;
 import org.lemurproject.galago.core.types.PageRankJumpScore;
 import org.lemurproject.galago.core.types.PageRankScore;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
@@ -26,13 +26,13 @@ public class ComputeRandomJump extends StandardStep<PageRankScore, PageRankJumpS
   private final double lambda;
   private final long docCount;
 
-//  String instance;
+//  String create;
   double scoreSum = 0.0;
   Counter documents;
   double extraRndJump;
 
   public ComputeRandomJump(TupleFlowParameters p) throws IOException {
-//    instance = "jumper-"+p.getInstanceId();
+//    create = "jumper-"+p.getInstanceId();
     lambda = p.getJSON().getDouble("lambda");
     documents = p.getCounter("Documents");
     docCount = p.getJSON().getLong("docCount");
@@ -51,18 +51,16 @@ public class ComputeRandomJump extends StandardStep<PageRankScore, PageRankJumpS
   @Override
   public void process(PageRankScore score) throws IOException {
     scoreSum += score.score;
-    if (documents != null) {
-      documents.increment();
-    }
+    documents.increment();
   }
 
   @Override
   public void close() throws IOException {
 
-//    System.err.println(instance+" TOTAL PAGERANK SCORE: " + scoreSum);
-//    System.err.println(instance+" TOTAL PAGERANK JUMP-1: " + (scoreSum * lambda) + " docs = " + docCount );
-//    System.err.println(instance+" instance PAGERANK JUMP: " + (scoreSum * lambda) / docCount);
-//    System.err.println("instance extra PAGERANK JUMP: " + extraRndJump );
+//    System.err.println(create+" TOTAL PAGERANK SCORE: " + scoreSum);
+//    System.err.println(create+" TOTAL PAGERANK JUMP-1: " + (scoreSum * lambda) + " docs = " + docCount );
+//    System.err.println(create+" create PAGERANK JUMP: " + (scoreSum * lambda) / docCount);
+//    System.err.println("create extra PAGERANK JUMP: " + extraRndJump );
 
     scoreSum = scoreSum * lambda;
     double jump = scoreSum / docCount;

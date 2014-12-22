@@ -2,6 +2,9 @@
 package org.lemurproject.galago.core.index.corpus;
 
 import org.junit.Test;
+import org.lemurproject.galago.core.btree.format.SplitBTreeKeyWriter;
+import org.lemurproject.galago.core.btree.format.SplitBTreeReader;
+import org.lemurproject.galago.core.btree.format.SplitBTreeValueWriter;
 import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
@@ -28,7 +31,7 @@ public class SplitIndexWriterTest{
       assertTrue(temporary.delete());
       assertTrue(temporary.mkdir());
 
-      Parameters parameters = Parameters.instance();
+      Parameters parameters = Parameters.create();
       parameters.set("blockSize", 64);
       parameters.set("filename", temporary.getAbsolutePath());
       parameters.set("parallel", true);
@@ -59,7 +62,7 @@ public class SplitIndexWriterTest{
       assertTrue(temporary.delete());
       assertTrue(temporary.mkdir());
 
-      Parameters parameters = Parameters.instance();
+      Parameters parameters = Parameters.create();
       parameters.set("blockSize", 64);
       parameters.set("filename", temporary.getAbsolutePath());
       parameters.set("parallel", "true");
@@ -113,7 +116,7 @@ public class SplitIndexWriterTest{
       assertTrue(temporary.delete());
       assertTrue(temporary.mkdir());
 
-      Parameters parameters = Parameters.instance();
+      Parameters parameters = Parameters.create();
       parameters.set("blockSize", 128);
       parameters.set("filename", temporary.getAbsolutePath());
       parameters.set("parallel", true);

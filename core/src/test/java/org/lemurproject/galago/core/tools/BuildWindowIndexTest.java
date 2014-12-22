@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -49,17 +50,17 @@ public class BuildWindowIndexTest {
       Utility.copyStringToFile(trecDocument("d2", "<f>b a c a c b b a a c a a c b a c a a</f> z z z"), new File(trecFolder, "two.trectext"));
       Utility.copyStringToFile(trecDocument("d3", "<f>a c b b a a c a a c b a c a a b a a</f> z z z"), new File(trecFolder, "three.trectext"));
 
-      Parameters indexParams = Parameters.instance();
+      Parameters indexParams = Parameters.create();
       indexParams.set("inputPath", Collections.singletonList(trecFolder.getAbsolutePath()));
       indexParams.set("indexPath", index.getAbsolutePath());
       indexParams.set("stemmedPostings", false);
       indexParams.set("server", false);
-      indexParams.set("tokenizer", Parameters.instance());
+      indexParams.set("tokenizer", Parameters.create());
       indexParams.set("fieldIndex", false);
       indexParams.getMap("tokenizer").set("fields", Collections.singletonList("f"));
       App.run("build", indexParams, System.out);
 
-      Parameters windowParams_count_NSE = Parameters.instance();
+      Parameters windowParams_count_NSE = Parameters.create();
       windowParams_count_NSE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_count_NSE.set("indexPath", index.getAbsolutePath());
       windowParams_count_NSE.set("stemming", false);
@@ -72,7 +73,7 @@ public class BuildWindowIndexTest {
       windowParams_count_NSE.set("fields", Collections.singleton("f"));
       App.run("build-window", windowParams_count_NSE, System.out);
 
-      Parameters windowParams_count_SE = Parameters.instance();
+      Parameters windowParams_count_SE = Parameters.create();
       windowParams_count_SE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_count_SE.set("indexPath", index.getAbsolutePath());
       windowParams_count_SE.set("stemming", false);
@@ -85,7 +86,7 @@ public class BuildWindowIndexTest {
       windowParams_count_SE.set("fields", Collections.singleton("f"));
       App.run("build-window", windowParams_count_SE, System.out);
 
-      Parameters windowParams_posit_NSE = Parameters.instance();
+      Parameters windowParams_posit_NSE = Parameters.create();
       windowParams_posit_NSE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_posit_NSE.set("indexPath", index.getAbsolutePath());
       windowParams_posit_NSE.set("stemming", false);
@@ -98,7 +99,7 @@ public class BuildWindowIndexTest {
       windowParams_posit_NSE.set("fields", Collections.singleton("f"));
       App.run("build-window", windowParams_posit_NSE, System.out);
 
-      Parameters windowParams_posit_SE = Parameters.instance();
+      Parameters windowParams_posit_SE = Parameters.create();
       windowParams_posit_SE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_posit_SE.set("indexPath", index.getAbsolutePath());
       windowParams_posit_SE.set("stemming", false);
@@ -155,10 +156,10 @@ public class BuildWindowIndexTest {
               || !posits_NSE_ki.isDone()
               || !posits__SE_ki.isDone()) {
         byte[] key = counts_NSE_ki.getKey();
-        assert Utility.compare(key, counts_NSE_ki.getKey()) == 0;
-        assert Utility.compare(key, counts__SE_ki.getKey()) == 0;
-        assert Utility.compare(key, posits_NSE_ki.getKey()) == 0;
-        assert Utility.compare(key, posits__SE_ki.getKey()) == 0;
+        assert CmpUtil.compare(key, counts_NSE_ki.getKey()) == 0;
+        assert CmpUtil.compare(key, counts__SE_ki.getKey()) == 0;
+        assert CmpUtil.compare(key, posits_NSE_ki.getKey()) == 0;
+        assert CmpUtil.compare(key, posits__SE_ki.getKey()) == 0;
 
         CountIterator counts_NSE_ci = (CountIterator) counts_NSE_ki.getValueIterator();
         CountIterator counts__SE_ci = (CountIterator) counts__SE_ki.getValueIterator();
@@ -229,17 +230,17 @@ public class BuildWindowIndexTest {
       Utility.copyStringToFile(trecDocument("d2", "<f>b a c a c b b a a c a a c b a c a a</f> z z z"), new File(trecFolder, "two.trectext"));
       Utility.copyStringToFile(trecDocument("d3", "<f>a c b b a a c a a c b a c a a b a a</f> z z z"), new File(trecFolder, "three.trectext"));
 
-      Parameters indexParams = Parameters.instance();
+      Parameters indexParams = Parameters.create();
       indexParams.set("inputPath", Collections.singletonList(trecFolder.getAbsolutePath()));
       indexParams.set("indexPath", index.getAbsolutePath());
       indexParams.set("stemmedPostings", false);
       indexParams.set("server", false);
-      indexParams.set("tokenizer", Parameters.instance());
+      indexParams.set("tokenizer", Parameters.create());
       indexParams.set("fieldIndex", false);
       indexParams.getMap("tokenizer").set("fields", Collections.singletonList("f"));
       App.run("build", indexParams, System.out);
 
-      Parameters windowParams_count_NSE = Parameters.instance();
+      Parameters windowParams_count_NSE = Parameters.create();
       windowParams_count_NSE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_count_NSE.set("indexPath", index.getAbsolutePath());
       windowParams_count_NSE.set("stemming", false);
@@ -254,7 +255,7 @@ public class BuildWindowIndexTest {
       windowParams_count_NSE.set("fields", Collections.singleton("f"));
       App.run("build-window", windowParams_count_NSE, System.out);
 
-      Parameters windowParams_count_SE = Parameters.instance();
+      Parameters windowParams_count_SE = Parameters.create();
       windowParams_count_SE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_count_SE.set("indexPath", index.getAbsolutePath());
       windowParams_count_SE.set("stemming", false);
@@ -269,7 +270,7 @@ public class BuildWindowIndexTest {
       windowParams_count_SE.set("fields", Collections.singleton("f"));
       App.run("build-window", windowParams_count_SE, System.out);
 
-      Parameters windowParams_posit_NSE = Parameters.instance();
+      Parameters windowParams_posit_NSE = Parameters.create();
       windowParams_posit_NSE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_posit_NSE.set("indexPath", index.getAbsolutePath());
       windowParams_posit_NSE.set("stemming", false);
@@ -284,7 +285,7 @@ public class BuildWindowIndexTest {
       windowParams_posit_NSE.set("fields", Collections.singleton("f"));
       App.run("build-window", windowParams_posit_NSE, System.out);
 
-      Parameters windowParams_posit_SE = Parameters.instance();
+      Parameters windowParams_posit_SE = Parameters.create();
       windowParams_posit_SE.set("inputPath", trecFolder.getAbsolutePath());
       windowParams_posit_SE.set("indexPath", index.getAbsolutePath());
       windowParams_posit_SE.set("stemming", false);
@@ -342,10 +343,10 @@ public class BuildWindowIndexTest {
               || !posits_NSE_ki.isDone()
               || !posits__SE_ki.isDone()) {
         byte[] key = counts_NSE_ki.getKey();
-        assert Utility.compare(key, counts_NSE_ki.getKey()) == 0;
-        assert Utility.compare(key, counts__SE_ki.getKey()) == 0;
-        assert Utility.compare(key, posits_NSE_ki.getKey()) == 0;
-        assert Utility.compare(key, posits__SE_ki.getKey()) == 0;
+        assert CmpUtil.compare(key, counts_NSE_ki.getKey()) == 0;
+        assert CmpUtil.compare(key, counts__SE_ki.getKey()) == 0;
+        assert CmpUtil.compare(key, posits_NSE_ki.getKey()) == 0;
+        assert CmpUtil.compare(key, posits__SE_ki.getKey()) == 0;
 
         CountIterator counts_NSE_ci = (CountIterator) counts_NSE_ki.getValueIterator();
         CountIterator counts__SE_ci = (CountIterator) counts__SE_ki.getValueIterator();

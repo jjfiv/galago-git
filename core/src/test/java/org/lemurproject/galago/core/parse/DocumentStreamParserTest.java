@@ -61,14 +61,14 @@ public class DocumentStreamParserTest {
             assertEquals(4, entries.size());
             zipFile.close();
 
-            List<DocumentSplit> splits = DocumentSource.processZipFile(tmp, Parameters.instance());
+            List<DocumentSplit> splits = DocumentSource.processZipFile(tmp, Parameters.create());
             assertEquals(4, splits.size());
             assertEquals("txt", splits.get(0).fileType);
             assertEquals("txt", splits.get(1).fileType);
             assertEquals("trecweb", splits.get(2).fileType);
             assertEquals("trecweb", splits.get(3).fileType);
 
-            DocumentStreamParser parser = DocumentStreamParser.instance(splits.get(2), Parameters.instance());
+            DocumentStreamParser parser = DocumentStreamParser.create(splits.get(2), Parameters.create());
             Document d = parser.nextDocument();
             assertNotNull(d);
             assertNull(parser.nextDocument());

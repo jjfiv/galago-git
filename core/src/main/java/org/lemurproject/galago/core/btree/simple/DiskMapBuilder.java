@@ -30,7 +30,7 @@ public class DiskMapBuilder implements Closeable {
   }
 
   public DiskMapBuilder(String path) throws IOException {
-    this(path, Parameters.instance());
+    this(path, Parameters.create());
   }
 
   public void put(byte[] key, byte[] value) throws IOException {

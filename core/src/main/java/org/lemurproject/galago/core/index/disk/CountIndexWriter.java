@@ -1,6 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.core.btree.format.BTreeWriter;
+import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.tupleflow.*;
@@ -9,6 +11,7 @@ import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -43,7 +46,7 @@ public class CountIndexWriter implements
   int skipResetDistance;
 
   /**
-   * Creates a new instance of CountIndexWriter
+   * Creates a new create of CountIndexWriter
    */
   public CountIndexWriter(TupleFlowParameters parameters) throws IOException {
     this.actualParams = parameters.getJSON();

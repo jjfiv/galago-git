@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.core.index.KeyValueWriter;
 import org.lemurproject.galago.core.types.DocumentIndicator;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
@@ -27,7 +27,7 @@ public class DocumentIndicatorWriter extends KeyValueWriter<DocumentIndicator> {
   Counter written;
 
   /**
-   * Creates a new instance of DocumentLengthsWriter
+   * Creates a new create of DocumentLengthsWriter
    */
   public DocumentIndicatorWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
     super(parameters, "Document indicators written");
@@ -46,10 +46,7 @@ public class DocumentIndicatorWriter extends KeyValueWriter<DocumentIndicator> {
     GenericElement element =
             new GenericElement(Utility.fromLong(di.document),
             Utility.fromBoolean(di.indicator));
-
-    if (written != null) {
-      written.increment();
-    }
+    written.increment();
     return element;
   }
 

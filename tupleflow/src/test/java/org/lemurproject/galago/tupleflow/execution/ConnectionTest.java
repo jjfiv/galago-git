@@ -127,7 +127,7 @@ public class ConnectionTest {
     Stage three = new Stage("three");
     three.add(new StageConnectionPoint(ConnectionPointType.Input,
             "conn-2-3", new TupleflowString.ValueOrder()));
-    // should recieve 10 items from each instance of two (20 total)
+    // should recieve 10 items from each create of two (20 total)
     three.add(new StepInformation(Receiver.class, Parameters.parseString("{\"expectedCount\":20, \"connIn\" : [\"conn-2-3\"]}")));
     job.add(three);
 
@@ -172,7 +172,7 @@ public class ConnectionTest {
     Stage four = new Stage("four");
     four.add(new StageConnectionPoint(ConnectionPointType.Input,
         "conn-3-4", new TupleflowString.ValueOrder()));
-    // should recieve 10 items from each instance of two - they will be passed through three
+    // should recieve 10 items from each create of two - they will be passed through three
     four.add(new StepInformation(Receiver.class, Parameters.parseString("{\"expectedCount\":20, \"connIn\" : [\"conn-3-4\"]}")));
     job.add(four);
 
@@ -233,7 +233,7 @@ public class ConnectionTest {
     Stage five = new Stage("five");
     five.add(new StageConnectionPoint(ConnectionPointType.Input,
             "conn-4-5", new TupleflowString.ValueOrder()));
-    // two generates 10 items - all 10 should be passed to each instance of four (20)
+    // two generates 10 items - all 10 should be passed to each create of four (20)
     // three generates 10 items - they are distributed to instances of four
     // four passes all 30 to five
     five.add(new StepInformation(Receiver.class, Parameters.parseString("{\"expectedCount\":30, \"connIn\" : [\"conn-4-5\"]}")));
@@ -298,8 +298,8 @@ public class ConnectionTest {
     Stage five = new Stage("five");
     five.add(new StageConnectionPoint(ConnectionPointType.Input,
             "conn-4-5", new TupleflowString.ValueOrder()));
-    // two generates 10 items - all 10 should be passed to each instance of four (20)
-    // three generates 10 items per instance (20) - they are distributed to instances of four
+    // two generates 10 items - all 10 should be passed to each create of four (20)
+    // three generates 10 items per create (20) - they are distributed to instances of four
     // four passes all 40 to five
     five.add(new StepInformation(Receiver.class, Parameters.parseString("{\"expectedCount\":40, \"connIn\" : [\"conn-4-5\"]}")));
     job.add(five);
@@ -363,8 +363,8 @@ public class ConnectionTest {
     Stage five = new Stage("five");
     five.add(new StageConnectionPoint(ConnectionPointType.Input,
             "conn-4-5", new TupleflowString.ValueOrder()));
-    // two generates 10 items per instance (20) - all 20 are duplicated for each instance of four - creating 40 total
-    // three generates 10 items per instance (20) - passed through four without duplication
+    // two generates 10 items per create (20) - all 20 are duplicated for each create of four - creating 40 total
+    // three generates 10 items per create (20) - passed through four without duplication
     // should recieve 60 total
     five.add(new StepInformation(Receiver.class, Parameters.parseString("{\"expectedCount\":60, \"connIn\" : [\"conn-4-5\"]}")));
     job.add(five);
@@ -490,7 +490,7 @@ public class ConnectionTest {
             "conn-3-5", new TupleflowString.ValueOrder()));
     five.add(new StageConnectionPoint(ConnectionPointType.Input,
             "conn-4-5", new TupleflowString.ValueOrder()));
-    // two generates 10 items per instance (20)
+    // two generates 10 items per create (20)
     // the items are sent to three (combined - 20)
     // the items are sent to four (each - 20)
     // three and four send their items to five
@@ -558,7 +558,7 @@ public class ConnectionTest {
 
     Stage three = new Stage("three");
     three.addInput("conn-2-3", new TupleflowString.ValueOrder());
-    // should recieve 10 items from each instance of two (20 total)
+    // should recieve 10 items from each create of two (20 total)
     three.add(new StepInformation(Receiver.class, Parameters.parseString("{\"expectedCount\":20, \"connIn\" : [\"conn-2-3\"]}")));
     job.add(three);
 

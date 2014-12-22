@@ -20,7 +20,7 @@ import java.io.File;
 public class ExtentMergeTest {
   private static void makeExtentsIndex(int offset, File folder) throws Exception {
     File temp = new File(folder + File.separator + "extents");
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("filename", temp.getAbsolutePath());
     WindowIndexWriter writer = new WindowIndexWriter(new FakeParameters(p));
 
@@ -57,7 +57,7 @@ public class ExtentMergeTest {
       makeExtentsIndex(200, index2);
       makeExtentsIndex(300, index3);
 
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("filename", output.getAbsolutePath());
       p.set("writerClass", WindowIndexWriter.class.getName());
       /*ExtentIndexMerger merger = new ExtentIndexMerger(new FakeParameters(p));

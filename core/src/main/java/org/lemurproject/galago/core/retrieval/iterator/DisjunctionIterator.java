@@ -6,6 +6,7 @@ package org.lemurproject.galago.core.retrieval.iterator;
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  *
@@ -137,6 +138,6 @@ public abstract class DisjunctionIterator implements BaseIterator {
     if (isDone() && other.isDone()) {
       return 0;
     }
-    return Utility.compare(currentCandidate(), other.currentCandidate());
+    return CmpUtil.compare(currentCandidate(), other.currentCandidate());
   }
 }

@@ -40,7 +40,7 @@ public class HarvestLinksFnTest {
       File jobTmp = new File(tempDir, "jobTmp");
 
       // run harvest links
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("inputPath", input.getAbsolutePath());
       p.set("indri", true);
       p.set("filePrefix", tempDir.getAbsolutePath());

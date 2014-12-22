@@ -11,7 +11,7 @@ public class Multi<T> implements Processor<T> {
     Processor[] processors;
 
     /**
-     * Creates a new instance of Multi
+     * Creates a new create of Multi
      */
     public Multi(Processor[] processors) {
         this.processors = processors;

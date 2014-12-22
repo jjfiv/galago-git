@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.links.pagerank;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Order;
 import org.lemurproject.galago.tupleflow.OrderedCombiner;
@@ -50,9 +50,7 @@ public class TypeFileReader<T> extends StandardStep<FileName, T> {
     TypeReader<T> reader = OrderedCombiner.combineFromFiles(files, order);
     T t = reader.read();
     while (t != null) {
-      if (counter != null) {
-        counter.increment();
-      }
+      counter.increment();
       processor.process(t);
       t = reader.read();
     }

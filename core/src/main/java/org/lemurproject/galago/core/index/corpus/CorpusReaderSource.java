@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.index.corpus;
 
 import org.lemurproject.galago.core.corpus.DocumentSerializer;
-import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.core.btree.format.BTreeReader;
 import org.lemurproject.galago.core.index.source.BTreeKeySource;
 import org.lemurproject.galago.core.index.source.DataSource;
 import org.lemurproject.galago.core.parse.Document;
@@ -26,14 +26,14 @@ public class CorpusReaderSource extends BTreeKeySource implements DataSource<Doc
     super(rdr);
     docParams = new DocumentComponents();
     final Parameters manifest = btreeReader.getManifest();
-    serializer = DocumentSerializer.instance(manifest);
+    serializer = DocumentSerializer.create(manifest);
   }
 
   public CorpusReaderSource(BTreeReader rdr, DocumentComponents opts) throws IOException {
     super(rdr);
     this.docParams = opts;
     final Parameters manifest = btreeReader.getManifest();
-    serializer = DocumentSerializer.instance(manifest);
+    serializer = DocumentSerializer.create(manifest);
   }
 
   @Override

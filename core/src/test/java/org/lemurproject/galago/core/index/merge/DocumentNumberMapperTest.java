@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 public class DocumentNumberMapperTest {
   private static void makeNamesIndex(int maxDocNum, File folder) throws Exception {
     File temp = new File(folder + File.separator + "names");
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("filename", temp.getAbsolutePath());
     DiskNameWriter writer = new DiskNameWriter(new FakeParameters(p));
 

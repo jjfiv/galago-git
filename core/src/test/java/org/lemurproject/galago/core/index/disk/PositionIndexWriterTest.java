@@ -24,7 +24,7 @@ public class PositionIndexWriterTest {
   public void testCountIndex() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("filename", tmp.getAbsolutePath());
       PositionIndexWriter writer = new PositionIndexWriter(new FakeParameters(p));
       

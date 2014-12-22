@@ -34,11 +34,11 @@ public class ThreadingTest {
 
     try {
       index = makeIndex(docCount, docLen, vocab);
-      final Parameters retParams = Parameters.instance();
+      final Parameters retParams = Parameters.create();
       retParams.set("index", index.getAbsolutePath());
 
 
-      final LocalRetrieval ret = (LocalRetrieval) RetrievalFactory.instance(retParams);
+      final LocalRetrieval ret = (LocalRetrieval) RetrievalFactory.create(retParams);
       final List<Exception> exceptions = Collections.synchronizedList(new ArrayList());
 
       // query generator:
@@ -124,7 +124,7 @@ public class ThreadingTest {
     }
     writer.close();
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("inputPath", trecFile.getAbsolutePath());
     p.set("indexPath", indexFolder.getAbsolutePath());
     p.set("stemmedPostings", false); // we just have numbers - no need to stem.

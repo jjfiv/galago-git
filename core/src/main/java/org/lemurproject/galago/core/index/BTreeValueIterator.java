@@ -2,9 +2,11 @@
 package org.lemurproject.galago.core.index;
 
 import java.io.IOException;
+
+import org.lemurproject.galago.core.btree.format.BTreeReader;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  * This is the base type of most Iterators (previously KeyListReader.ListIterator)
@@ -38,7 +40,7 @@ public abstract class BTreeValueIterator implements BaseIterator {
     if (isDone() && other.isDone()) {
       return 0;
     }
-    return Utility.compare(currentCandidate(), other.currentCandidate());
+    return CmpUtil.compare(currentCandidate(), other.currentCandidate());
   }
   
 }

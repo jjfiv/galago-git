@@ -63,7 +63,7 @@ public class GenerateWorkingSetQueries extends AppFunction {
       return;
     }
 
-    Retrieval retrieval = RetrievalFactory.instance(parameters);
+    Retrieval retrieval = RetrievalFactory.create(parameters);
 
     List<Parameters> wsQueries = new ArrayList<Parameters>();
     int topK = (int) parameters.get("topK", 10000);
@@ -154,7 +154,7 @@ public class GenerateWorkingSetQueries extends AppFunction {
       }
     }
 
-    Parameters wsParameters = Parameters.instance();
+    Parameters wsParameters = Parameters.create();
     wsParameters.set("queries", wsQueries);
 
     if (parameters.isString("output")) {

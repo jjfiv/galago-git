@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.core.index.IndexElement;
 import org.lemurproject.galago.core.index.merge.DocumentLengthsMerger;
 import org.lemurproject.galago.core.types.FieldLengthData;
@@ -9,6 +10,8 @@ import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 import org.lemurproject.galago.utility.*;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.debug.Counter;
+import org.lemurproject.galago.utility.debug.NullCounter;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -44,7 +47,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
   private TupleFlowParameters tupleFlowParameters;
 
   /**
-   * Creates a new instance of DiskLengthsWriter
+   * Creates a new create of DiskLengthsWriter
    */
   public DiskLengthsWriter(TupleFlowParameters parameters) throws IOException {
     writer = new DiskBTreeWriter(parameters);
@@ -55,6 +58,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     recordsWritten = parameters.getCounter("records written");
     newFields = parameters.getCounter("new Fields");
     tupleFlowParameters = parameters;
+    fieldCounter = NullCounter.instance;
     fieldLengthData = null;
   }
 
@@ -83,12 +87,8 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
     }
 
     fieldLengthData.add(ld.document, ld.length);
-    if (recordsWritten != null) {
-      recordsWritten.increment();
-    }
-    if (fieldCounter != null) {
-      fieldCounter.increment();
-    }
+    recordsWritten.increment();
+    fieldCounter.increment();
   }
 
   @Override

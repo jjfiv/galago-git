@@ -22,13 +22,13 @@ import static org.junit.Assert.*;
 public class ParametersTest {
   @Test
   public void testCreation() {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     assertNotNull(p);
   }
 
   @Test
   public void testAddSimpleData() {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
 
     // add boolean data
     p.set("testa", false);
@@ -69,7 +69,7 @@ public class ParametersTest {
     a.add("woot");
     a.add("yeah");
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("list", a);
     assertTrue(p.isList("list"));
     assertTrue(p.isList("list", String.class));
@@ -85,7 +85,7 @@ public class ParametersTest {
 
   @Test
   public void testAddParameters() throws Exception {
-    Parameters inner = Parameters.instance();
+    Parameters inner = Parameters.create();
 
     inner.set("ib", true);
     inner.set("ii", 5L);
@@ -93,7 +93,7 @@ public class ParametersTest {
     assertEquals(true, inner.getBoolean("ib"));
     assertEquals(5L, inner.getLong("ii"));
 
-    Parameters outer = Parameters.instance();
+    Parameters outer = Parameters.create();
     outer.set("inside", inner);
 
     assertTrue(outer.isMap("inside"));
@@ -106,8 +106,8 @@ public class ParametersTest {
   public void testWritingAndReading() throws IOException {
     File tempPath = null;
     try {
-      Parameters tokenizer = Parameters.instance();
-      Parameters formats = Parameters.instance();
+      Parameters tokenizer = Parameters.create();
+      Parameters formats = Parameters.create();
       formats.set("title", "string");
       formats.set("date", "date");
       formats.set("version", "int");
@@ -115,7 +115,7 @@ public class ParametersTest {
       String[] fields = {"title", "date", "version"};
       tokenizer.set("fields", Arrays.asList(fields));
 
-      Parameters params = Parameters.instance();
+      Parameters params = Parameters.create();
       // MCZ 3/21/2014 - made platform independent
       params.set("filename", "fictional" + File.separatorChar + "path");
       params.set("tokenizer", tokenizer);
@@ -205,8 +205,8 @@ public class ParametersTest {
 
   @Test
   public void testPrettyPrinter() throws Exception {
-    Parameters tokenizer = Parameters.instance();
-    Parameters formats = Parameters.instance();
+    Parameters tokenizer = Parameters.create();
+    Parameters formats = Parameters.create();
     formats.set("title", "string");
     formats.set("date", "date");
     formats.set("version", "int");
@@ -217,7 +217,7 @@ public class ParametersTest {
     pList.add(Parameters.parseString("{\"text\":\"query text one\", \"number\":\"10\"}"));
     pList.add(Parameters.parseString("{\"text\":\"query text two\", \"number\":\"11\"}"));
 
-    Parameters params = Parameters.instance();
+    Parameters params = Parameters.create();
     params.set("filename", "fictional/path");
     params.set("tokenizer", tokenizer);
     params.set("paramList", pList);
@@ -264,7 +264,7 @@ public class ParametersTest {
   @Test
   public void testCopyTo() throws IOException {
     Parameters truth = complicated();
-    Parameters newP = Parameters.instance();
+    Parameters newP = Parameters.create();
     truth.copyTo(newP);
     assertEquals(truth.toString(), newP.toString());
     assertEquals(truth, newP);
@@ -272,7 +272,7 @@ public class ParametersTest {
 
   @Test
   public void testEscaping() throws IOException {
-    Parameters truth = Parameters.instance();
+    Parameters truth = Parameters.create();
     truth.set("withAQuote!", "here it comes \" to wreck the day...");
     truth.set("withANewline!", "here it comes \n to wreck the day...");
     truth.set("withABackslash!", "here it comes \\ to wreck the day...");
@@ -288,7 +288,7 @@ public class ParametersTest {
   @Test
   public void testBackoff() {
     Parameters theBack = complicated();
-    Parameters theFront = Parameters.instance();
+    Parameters theFront = Parameters.create();
     theFront.setBackoff(theBack);
 
     assertEquals(theBack.toString(), theFront.toString());
@@ -326,7 +326,7 @@ public class ParametersTest {
     String testLong = "I stole this guy from wikipedia: \ud83d\ude02"; // emoji "face with tears of joy"
     assertEquals("I stole this guy from wikipedia: \\ud83d\\ude02", JSONUtil.escape(testLong));
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("short", testShort);
     p.set("long", testLong);
     Parameters p2 = Parameters.parseString(p.toString());
@@ -336,7 +336,7 @@ public class ParametersTest {
   }
 
   public static Parameters complicated() {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("bool-t", true);
     p.set("bool-f", false);
     p.set("long-a", 120L);
@@ -346,7 +346,7 @@ public class ParametersTest {
     p.set("list-a", Arrays.asList(true, false, "bar", "foo", Math.PI, -Math.exp(1), p.clone()));
     p.set("list-b", Collections.EMPTY_LIST);
     p.set("map-a", p.clone());
-    p.set("map-b", Parameters.instance());
+    p.set("map-b", Parameters.create());
 
     return p;
   }

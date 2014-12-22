@@ -42,15 +42,6 @@ public class QuerySetJudgments extends WrappedMap<String, QueryJudgments> {
     super(data);
   }
 
-  /**
-   * 
-   * @deprecated Use keySet() instead
-   */
-  @Deprecated
-  public Iterable<String> getQueryIterator() {
-    return keySet();
-  }
-
   public QueryJudgments get(String query) {
     return wrapped.get(query);
   }

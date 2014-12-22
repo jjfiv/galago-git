@@ -4,6 +4,8 @@ package org.lemurproject.galago.tupleflow;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.debug.Counter;
+import org.lemurproject.galago.utility.debug.NullCounter;
 
 import javax.management.ListenerNotFoundException;
 import javax.management.Notification;
@@ -26,7 +28,7 @@ import java.util.logging.Logger;
  * TempPath Java preferences variable. </p>
  *
  * <p> In many instances, Sorters are used to generate streams of data that are
- * then used to create aggregate statistics. For instance, suppose we want to
+ * then used to create aggregate statistics. For create, suppose we want to
  * compute the monthly sales of a particular corporation, separated by region.
  * We can feed a set of transactions to the Sorter, each containing a dollar
  * amount and the region it came from, e.g.: <ul> <li>($5.39, South)</li>
@@ -55,7 +57,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   public static final long DEFAULT_REDUCE_INTERVAL = 1 * 1024 * 1024;
   public static final double DEFAULT_MEMORY_FRACTION = 0.7;
   //public static final boolean DEFAULT_FLUSH_PAUSE = false;
-  // instance limits and parameters
+  // create limits and parameters
   private long limit;
   private int fileLimit;
   private long reduceInterval;
@@ -73,8 +75,8 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   private volatile boolean forceFlush;
   // statistics + logging
   private long runsCount = 0;
-  private Counter filesWritten = null;
-  private Counter sorterCombineSteps = null;
+  private Counter filesWritten = NullCounter.instance;
+  private Counter sorterCombineSteps = NullCounter.instance;
   private static final Logger logger = Logger.getLogger(Sorter.class.toString());
   // counters to assign a better combineBufferSize
   private long minFlushSize = Sorter.DEFAULT_OBJECT_LIMIT;
@@ -98,7 +100,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     this.lessThanCompare = order.lessThan();
     this.compression = CompressionType.VBYTE;
     
-    setLimits(Parameters.instance());
+    setLimits(Parameters.create());
 
     requestMemoryWarnings();
   }
@@ -134,7 +136,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     this.filesWritten = parameters.getCounter("Sorter Files Written");
     this.sorterCombineSteps = parameters.getCounter("Sorter Combine Steps");
 
-    setLimits(Parameters.instance());
+    setLimits(Parameters.create());
 
     requestMemoryWarnings();
   }
@@ -369,9 +371,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
     FileOrderedWriter<T> writer = getTemporaryWriter();
     combineRuns(writer);
     writer.close();
-    if (filesWritten != null) {
-      filesWritten.increment();
-    }
+    filesWritten.increment();
 
     forceFlush = false;
   }
@@ -509,9 +509,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
   }
 
   private synchronized void combineStep(List<File> files, Processor<T> output) throws IOException {
-    if (sorterCombineSteps != null) {
-      sorterCombineSteps.increment();
-    }
+    sorterCombineSteps.increment();
 
     ArrayList<String> filenames = new ArrayList<>();
 

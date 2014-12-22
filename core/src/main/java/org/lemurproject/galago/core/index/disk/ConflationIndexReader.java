@@ -6,11 +6,14 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
+
+import org.lemurproject.galago.core.btree.format.BTreeFactory;
+import org.lemurproject.galago.core.btree.format.BTreeReader;
 import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.tupleflow.DataStream;
+import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.ByteUtil;
 
 /** 
@@ -21,7 +24,7 @@ import org.lemurproject.galago.utility.ByteUtil;
 public class ConflationIndexReader extends KeyValueReader {
 
   /**
-   * Creates a new instance of DiskNameReader
+   * Creates a new create of DiskNameReader
    */
   public ConflationIndexReader(String fileName) throws IOException {
     super(BTreeFactory.getBTreeReader(fileName));

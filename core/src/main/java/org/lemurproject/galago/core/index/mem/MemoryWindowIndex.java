@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
-import org.lemurproject.galago.core.index.CompressedByteBuffer;
+import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
@@ -255,13 +255,13 @@ public class MemoryWindowIndex implements MemoryIndexPart, AggregateIndexPart {
 
     public void add(long document, int begin, int end) {
       if (termDocumentCount == 0) {
-        // first instance of term
+        // first create of term
         lastDocument = document;
         lastCount = 1;
         termDocumentCount += 1;
         documents_cbb.add(document);
       } else if (lastDocument == document) {
-        // additional instance of term in document
+        // additional create of term in document
         lastCount += 1;
       } else {
         // new document

@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.tools.apps.BuildIndex;
-import org.lemurproject.galago.tupleflow.BufferedFileDataStream;
+import org.lemurproject.galago.utility.buffer.BufferedFileDataStream;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.FSUtil;
@@ -20,7 +20,7 @@ public class WebDocumentSerializerTest {
 
     @Test
     public void testSerializeDocument() throws IOException {
-        WebDocumentSerializer wds = new WebDocumentSerializer(Parameters.instance());
+        WebDocumentSerializer wds = new WebDocumentSerializer(Parameters.create());
 
         Document doc = new Document();
         doc.metadata.put("meta-key", "value");
@@ -118,7 +118,7 @@ public class WebDocumentSerializerTest {
 
     @Test
     public void testDefaultSerializer() throws IOException {
-        DocumentSerializer ds = DocumentSerializer.instance(Parameters.instance());
+        DocumentSerializer ds = DocumentSerializer.create(Parameters.create());
         assertTrue(ds instanceof WebDocumentSerializer);
     }
 

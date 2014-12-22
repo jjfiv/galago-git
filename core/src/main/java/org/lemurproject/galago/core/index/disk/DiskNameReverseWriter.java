@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.core.index.GenericElement;
 import org.lemurproject.galago.core.index.merge.DocumentNameReverseMerger;
 import org.lemurproject.galago.core.types.DocumentNameId;
@@ -9,6 +10,7 @@ import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -29,7 +31,7 @@ public class DiskNameReverseWriter implements Processor<DocumentNameId> {
 
   DiskBTreeWriter writer;
   DocumentNameId last = null;
-  Counter documentNamesWritten = null;
+  Counter documentNamesWritten;
 
   public DiskNameReverseWriter(TupleFlowParameters parameters) throws IOException {
     documentNamesWritten = parameters.getCounter("Document Names Written");
@@ -52,16 +54,13 @@ public class DiskNameReverseWriter implements Processor<DocumentNameId> {
       // ensure that we have an ident
       assert ndd.name != null: "DiskNameReverseWriter can not write a null identifier.";
       assert CmpUtil.compare(last.name, ndd.name) <= 0: "DiskNameReverseWriter wrong order.";
-      if(CmpUtil.compare(last.name, ndd.name) == 0){
-        Logger.getLogger(this.getClass().getName()).info("WARNING: identical document names written to names.reverse index: last="+ ByteUtil.toString(last.name)+" cur="+ByteUtil.toString(ndd.name));
+      if(CmpUtil.equals(last.name, ndd.name)) {
+        Logger.getLogger(this.getClass().getName()).warning("identical document names written to names.reverse index: last="+ ByteUtil.toString(last.name)+" cur="+ByteUtil.toString(ndd.name));
       }
     }
     
     writer.add(new GenericElement(ndd.name, Utility.fromLong(ndd.id)));
-
-    if (documentNamesWritten != null) {
-      documentNamesWritten.increment();
-    }
+    documentNamesWritten.increment();
   }
 
   @Override

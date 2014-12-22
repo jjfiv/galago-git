@@ -41,16 +41,16 @@ public class BuildSpecialPart extends AppFunction {
 
   public Stage getSpecialJobStage(String jobName, Parameters p) {
 
-    Parameters parserParams = Parameters.instance();
+    Parameters parserParams = Parameters.create();
     parserParams.set("inputPath", new ArrayList());
     for (String filePath : (List<String>) p.getAsList("inputPath")) {
       parserParams.getList("inputPath").add(new File(filePath).getAbsolutePath());
     }
 
-    Parameters splitterParams = Parameters.instance();
+    Parameters splitterParams = Parameters.create();
     splitterParams.set("split", p.get("split", "\t"));
 
-    Parameters indexParams = Parameters.instance();
+    Parameters indexParams = Parameters.create();
     indexParams.set("indexPath", p.getString("indexPath"));
 
     Stage stage = new Stage(jobName);
@@ -74,7 +74,7 @@ public class BuildSpecialPart extends AppFunction {
     stage.add(new StepInformation(IndicatorExtractor.class, p));
     stage.add(Utility.getSorter(new DocumentIndicator.DocumentOrder()));
 
-    Parameters writerParams = Parameters.instance();
+    Parameters writerParams = Parameters.create();
     writerParams.set("filename", indexPath + File.separator + p.getString("partName"));
     writerParams.set("default", p.get("default", false));
     stage.add(new StepInformation(DocumentIndicatorWriter.class, writerParams));
@@ -96,7 +96,7 @@ public class BuildSpecialPart extends AppFunction {
     stage.add(new StepInformation(PriorExtractor.class, p));
     stage.add(Utility.getSorter(new DocumentFeature.DocumentOrder()));
 
-    Parameters writerParams = Parameters.instance();
+    Parameters writerParams = Parameters.create();
     writerParams.set("filename", indexPath + File.separator + p.getString("partName"));
     stage.add(new StepInformation(DocumentPriorWriter.class, writerParams));
 

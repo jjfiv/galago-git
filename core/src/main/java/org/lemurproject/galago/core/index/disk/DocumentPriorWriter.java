@@ -8,6 +8,7 @@ import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.IOException;
 
@@ -24,7 +25,7 @@ public class DocumentPriorWriter extends KeyValueWriter<DocumentFeature> {
   double minObservedScore = Double.POSITIVE_INFINITY;
   Counter written;
 
-  /** Creates a new instance of DocumentLengthsWriter */
+  /** Creates a new create of DocumentLengthsWriter */
   public DocumentPriorWriter(TupleFlowParameters parameters) throws IOException {
     super(parameters, "Document indicators written");
     Parameters p = writer.getManifest();
@@ -43,9 +44,7 @@ public class DocumentPriorWriter extends KeyValueWriter<DocumentFeature> {
     minObservedScore = Math.min(minObservedScore, docfeat.value);
     GenericElement element = new GenericElement(Utility.fromLong(docfeat.document), Utility.fromDouble(docfeat.value));
 
-    if (written != null) {
-      written.increment();
-    }
+    written.increment();
     return element;
   }
 

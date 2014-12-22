@@ -50,7 +50,7 @@ public abstract class AppFunction {
    * methods.
    */
   public void run(String[] args, PrintStream output) throws Exception {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
 
     if (args.length == 1) {
       if(!allowsZeroParameters()) {

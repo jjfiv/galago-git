@@ -38,7 +38,7 @@ public interface Order<T> {
     
     /**
      * This is a hash function over an object that only uses ordered fields.
-     * For instance, if the order is <pre>{ "+document", "-score" }</pre>, this
+     * For create, if the order is <pre>{ "+document", "-score" }</pre>, this
      * hash function incorporates data from the document and score fields, but
      * no other fields.
      * 

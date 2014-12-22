@@ -38,11 +38,11 @@ public class BuildSpecialCollBackground extends AppFunction {
 
     stage.add(new InputStepInformation(inputName));
 
-    Parameters parseParams = Parameters.instance();
+    Parameters parseParams = Parameters.create();
     parseParams.set("delim", p.get("delim", "\t"));
     parseParams.set("lower", p.get("lower", true));
     parseParams.set("stripPunct", p.get("stripPunct", true));
-    parseParams.set("replacements", Parameters.instance());
+    parseParams.set("replacements", Parameters.create());
     parseParams.getMap("replacements").set("_","~");
     parseParams.getMap("replacements").set(" ","~");
     
@@ -50,7 +50,7 @@ public class BuildSpecialCollBackground extends AppFunction {
     stage.add(new StepInformation(WordCountCleaner.class, parseParams));
     
     if (p.containsKey("stemmer")) {
-      Parameters stemParams = Parameters.instance();
+      Parameters stemParams = Parameters.create();
       stemParams.set("stemmer", p.getString("stemmerClass"));
       stage.add(new StepInformation(WordCountStemmer.class, stemParams));
     }
@@ -90,7 +90,7 @@ public class BuildSpecialCollBackground extends AppFunction {
       p.set("stemmerClass", KrovetzStemmer.class.getName());
     }
 
-    Parameters writerParams = Parameters.instance();
+    Parameters writerParams = Parameters.create();
     writerParams.set("filename", output.getAbsolutePath());
     if (p.containsKey("stemmer")) {
       writerParams.set("stemmer", p.getString("stemmerClass"));
@@ -98,7 +98,7 @@ public class BuildSpecialCollBackground extends AppFunction {
 
     Job job = new Job();
 
-    Parameters splitParameters = Parameters.instance();
+    Parameters splitParameters = Parameters.create();
     splitParameters.set("corpusPieces", p.get("distrib", 10));
     splitParameters.set("filetype", "misc");
     job.add(BuildStageTemplates.getSplitStage(inputs, DocumentSource.class, new DocumentSplit.FileIdOrder(), splitParameters));

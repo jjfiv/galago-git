@@ -4,8 +4,10 @@ package org.lemurproject.galago.core.parse;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.compression.VByte;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -44,12 +46,12 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
     long count = 0;
     long limit = Long.MAX_VALUE;
     if (split.startKey.length > 0) {
-      if (Utility.compare(subCollCheck, split.startKey) == 0) {
+      if (CmpUtil.compare(subCollCheck, split.startKey) == 0) {
         limit = VByte.uncompressLong(split.endKey, 0);
       }
     }
 
-    DocumentStreamParser parser = DocumentStreamParser.instance(split, parameters);
+    DocumentStreamParser parser = DocumentStreamParser.create(split, parameters);
 
     LOG.info("Processing split: "+split.fileName+ " with: "+parser.getClass().getName());
 
@@ -66,9 +68,7 @@ public class UniversalParser extends StandardStep<DocumentSplit, Document> {
         document.fileId = split.fileId;
         document.totalFileCount = split.totalFileCount;
         processor.process(document);
-        if (documentCounter != null) {
-          documentCounter.increment();
-        }
+        documentCounter.increment();
         count++;
 
         // Enforces limitations imposed by the endKey subcollection specifier.

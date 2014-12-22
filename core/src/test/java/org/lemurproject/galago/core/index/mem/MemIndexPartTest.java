@@ -43,7 +43,7 @@ public class MemIndexPartTest {
     Random r = new Random();
     File diskCounts = FileUtility.createTemporary();
     try {
-      MemoryCountIndex memcounts1 = new MemoryCountIndex(Parameters.instance());
+      MemoryCountIndex memcounts1 = new MemoryCountIndex(Parameters.create());
       CountIndexWriter diskcounts = new CountIndexWriter(new FakeParameters(Parameters.parseString("{\"filename\":\"" + JSONUtil.escape(diskCounts.getAbsolutePath()) + "\"}")));
       ReduceNumberWordCount reducer = new ReduceNumberWordCount();
       Sorter<NumberWordCount> sorter = new Sorter<NumberWordCount>(new NumberWordCount.WordDocumentOrder());
@@ -124,7 +124,7 @@ public class MemIndexPartTest {
       // compare it to the SparseFloatDiskIndex
       // - the memoryindex test does not test this part.
 
-      MemorySparseDoubleIndex memScores = new MemorySparseDoubleIndex(Parameters.instance());
+      MemorySparseDoubleIndex memScores = new MemorySparseDoubleIndex(Parameters.create());
 
       int[] docs = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 52};
       double[] scores = {0.2, 1.1, 73, 0.01, -2, 7, 0, 0.01, 0.02, -1, -2};

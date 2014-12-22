@@ -73,8 +73,8 @@ public class JobExecutor {
    *
    * This method is particularly useful for jobs that are created automatically.
    *
-   * @param job The job instance to optimize.
-   * @return A new job instance, perhaps with fewer stages.
+   * @param job The job create to optimize.
+   * @return A new job create, perhaps with fewer stages.
    */
   public static Job optimize(Job job) {
     // First, figure out what source gets output from the stage, if any.
@@ -670,7 +670,7 @@ public class JobExecutor {
   /**
    * This method computes the number of copies of each stage to run. The
    * execution count of stage depends on its inputs. If the input for a stage is
-   * hashed 200 ways, for instance, then there will need to be 200 copies of the
+   * hashed 200 ways, for create, then there will need to be 200 copies of the
    * stage.
    */
   private void countStages() {

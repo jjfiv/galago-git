@@ -23,27 +23,28 @@ public class Parameters implements Serializable, Map<String,Object> {
     @Override public String toString() { return "null"; }
   }
 
-
   private static final long serialVersionUID = 4553653651892088435L;
 
   private HashMap<String,Object> _data;
 
   private Parameters _backoff;
 
-  /** Constructor - we always start empty, and add to it. Most of these are constructed statically.
-   *  @deprecated use Parameters.instance() instead.
-   */
-  @Deprecated
-  public Parameters() {
+  /** Constructor - we always start empty, and add to it. Most of these are constructed statically. */
+  private Parameters() {
     clear();
   }
 
-  public static Parameters instance() {
+  public static Parameters create() {
     return new Parameters();
+  }
+  /** @deprecated use create instead! */
+  @Deprecated
+  public static Parameters instance() {
+    return create();
   }
 
   public static Parameters parseMap(Map<String,String> map) {
-    Parameters self = Parameters.instance();
+    Parameters self = Parameters.create();
     
     for (String key : map.keySet()) {
       self.put(key, JSONUtil.parseString(map.get(key)));
@@ -53,7 +54,7 @@ public class Parameters implements Serializable, Map<String,Object> {
   }
   
   public static Parameters parseArgs(String[] args) throws IOException {
-    Parameters self = Parameters.instance();
+    Parameters self = Parameters.create();
     
     for (String arg : args) {
       if (arg.startsWith("--")) {
@@ -101,7 +102,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     if(args.length % 2 == 1) {
       throw new IllegalArgumentException("Uneven number of parameters in vararg constructor.");
     }
-    Parameters result = Parameters.instance();
+    Parameters result = Parameters.create();
     for(int i=0; i<args.length; i+=2) {
       Object key = args[i];
       Object value = args[i+1];
@@ -178,7 +179,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     if(input == null) {
       throw new IllegalArgumentException("null given to copyValue()");
     } else if(input instanceof List) {
-      ArrayList<Object> newl = new ArrayList<Object>();
+      ArrayList<Object> newl = new ArrayList<>();
       for(Object o : (List) input) {
         newl.add(copyValue(o));
       }
@@ -195,7 +196,7 @@ public class Parameters implements Serializable, Map<String,Object> {
   
   @Override
   public Parameters clone() {
-    Parameters copy = Parameters.instance();
+    Parameters copy = Parameters.create();
     // use secret keySet to not copy backoff keys
     for(String key : _data.keySet()) {
       if(isLong(key)) {
@@ -380,13 +381,13 @@ public class Parameters implements Serializable, Map<String,Object> {
     if (List.class.isAssignableFrom(value.getClass())) {
       put(key, value);
     } else {
-      put(key, new ArrayList<T>(value));
+      put(key, new ArrayList<>(value));
     }
   }
 
   public void set(String key, Object[] value) {
     // using ArrayList copy to ensure mutability
-    put(key, new ArrayList<Object>(Arrays.asList(value)));
+    put(key, new ArrayList<>(Arrays.asList(value)));
   }
 
   public void set(String key, String value) {
@@ -511,7 +512,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     StringBuilder builder = new StringBuilder();
     builder.append("{ ");
     try {
-      List<String> keys = new ArrayList<String>(getKeys());
+      List<String> keys = new ArrayList<>(getKeys());
       Collections.sort(keys);
       for (int i = 0; i < keys.size(); i++) {
         String key = keys.get(i);
@@ -604,7 +605,7 @@ public class Parameters implements Serializable, Map<String,Object> {
 
       String internalPrefix = prefix + "  ";
 
-      List<String> keys = new ArrayList<String>(p.getKeys());
+      List<String> keys = new ArrayList<>(p.getKeys());
       Collections.sort(keys);
       for (int i = 0; i < keys.size(); i++) {
         String key = keys.get(i);
@@ -684,7 +685,7 @@ public class Parameters implements Serializable, Map<String,Object> {
       } else {
         String mapKey = pattern.substring(0, smallest);
         if (!map.isMap(mapKey)) {
-          map.set(mapKey, Parameters.instance());
+          map.set(mapKey, Parameters.create());
         }
         tokenizeComplexValue(map.getMap(mapKey), pattern.substring(smallest + 1, pattern.length()));
       }

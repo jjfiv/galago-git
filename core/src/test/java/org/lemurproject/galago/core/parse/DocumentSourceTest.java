@@ -42,7 +42,7 @@ public class DocumentSourceTest {
 
   @Test
   public void testUnknownFile() throws Exception {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("inputPath", "foo.c");
     DocumentSource source = new DocumentSource(new FakeParameters(p));
     FakeProcessor processor = new FakeProcessor();
@@ -60,7 +60,7 @@ public class DocumentSourceTest {
   @Test
   public void testUnknownExtension() throws Exception {
     File tempFile = FileUtility.createTemporary();
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("inputPath", tempFile.getAbsolutePath());
     DocumentSource source = new DocumentSource(new FakeParameters(p));
     FakeProcessor processor = new FakeProcessor();
@@ -151,7 +151,7 @@ public class DocumentSourceTest {
       assertEquals(4, entries.size());
       zipFile.close();
 
-      List<DocumentSplit> splits = DocumentSource.processZipFile(tmp, Parameters.instance());
+      List<DocumentSplit> splits = DocumentSource.processZipFile(tmp, Parameters.create());
       assertEquals(4, splits.size());
       assertEquals("txt", splits.get(0).fileType);
       assertEquals("txt", splits.get(1).fileType);

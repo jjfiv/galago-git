@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  *
@@ -110,7 +111,7 @@ public class FakeScoreIterator implements ScoreIterator {
     if (isDone() && other.isDone()) {
       return 0;
     }
-    return Utility.compare(currentCandidate(), other.currentCandidate());
+    return CmpUtil.compare(currentCandidate(), other.currentCandidate());
   }
 
   @Override
@@ -131,7 +132,7 @@ public class FakeScoreIterator implements ScoreIterator {
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
     String returnValue = Double.toString(score(c));
-    List<AnnotatedNode> children = Collections.EMPTY_LIST;
+    List<AnnotatedNode> children = Collections.emptyList();
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }

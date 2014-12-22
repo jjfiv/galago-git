@@ -5,15 +5,15 @@ import java.io.IOException;
 import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.core.types.ExtractedLink;
 import org.lemurproject.galago.core.types.ExtractedLinkIndri;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.TypeReader;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  *
@@ -47,11 +47,11 @@ public class LinkDestNamer extends StandardStep<ExtractedLinkIndri, ExtractedLin
   public void process(ExtractedLinkIndri link) throws IOException {
 
     // while current.url preceeds destUrl -- read on
-    while (current != null && Utility.compare(current.url, link.destUrl) < 0) {
+    while (current != null && CmpUtil.compare(current.url, link.destUrl) < 0) {
       current = documentUrls.read();
     }
 
-    if (current != null && Utility.compare(current.url, link.destUrl) == 0) {
+    if (current != null && current.url.equals(link.destUrl)) {
       link.destName = current.identifier;
       link.filePath = current.filePath;
       link.fileLocation = current.fileLocation;
@@ -59,13 +59,9 @@ public class LinkDestNamer extends StandardStep<ExtractedLinkIndri, ExtractedLin
 
     if (acceptExternalUrls && link.destName.isEmpty()) {
       link.destName = EXTERNAL_PREFIX + link.destUrl;
-      if (externalLinks != null) {
-        externalLinks.increment();
-      }
+      externalLinks.increment();
     } else {
-      if (internalLinks != null) {
-        internalLinks.increment();
-      }
+      internalLinks.increment();
     }
 
     // only named destinations can be emited.

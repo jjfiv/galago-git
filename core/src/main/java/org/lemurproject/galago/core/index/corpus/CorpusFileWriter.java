@@ -3,13 +3,14 @@ package org.lemurproject.galago.core.index.corpus;
 
 import org.lemurproject.galago.core.corpus.DocumentSerializer;
 import org.lemurproject.galago.core.index.GenericElement;
-import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.core.index.merge.CorpusMerger;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.IOException;
 
@@ -37,7 +38,7 @@ public class CorpusFileWriter implements Processor<Document> {
     corpusParams.set("mergerClass", CorpusMerger.class.getName());
     writer = new DiskBTreeWriter(parameters.getJSON().getString("filename"), corpusParams);
     documentsWritten = parameters.getCounter("Documents Written");
-    serializer = DocumentSerializer.instance(corpusParams);
+    serializer = DocumentSerializer.create(corpusParams);
     corpusParams.set("documentSerializerClass", serializer.getClass().getName());
   }
 
@@ -49,9 +50,7 @@ public class CorpusFileWriter implements Processor<Document> {
   @Override
   public void process(Document document) throws IOException {
     writer.add(new GenericElement(Utility.fromLong(document.identifier), serializer.toBytes(document)));
-    if (documentsWritten != null) {
-      documentsWritten.increment();
-    }
+    documentsWritten.increment();
   }
 
   public static void verify(TupleFlowParameters parameters, ErrorStore store) {

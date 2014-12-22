@@ -38,7 +38,7 @@ public class WindowProducerTest {
     Catcher<Window> catcher = new Catcher();
 
     // first try bi-grams ~(#od:2(a b))
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("n", 2);
     p.set("width", 2);
     p.set("ordered", true);
@@ -84,7 +84,7 @@ public class WindowProducerTest {
     Catcher<Window> catcher = new Catcher();
 
     // first try bi-grams ~(#uw:3(a b))
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("n", 2);
     p.set("width", 3);
     p.set("ordered", false);
@@ -122,7 +122,7 @@ public class WindowProducerTest {
     Catcher<Window> catcher = new Catcher();
 
     // first try bi-grams ~(#od:2(a b))
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("n", 2);
     p.set("width", 1);
     p.set("ordered", true);
@@ -164,7 +164,7 @@ public class WindowProducerTest {
     Catcher<Window> catcher = new Catcher();
 
     // first try bi-grams ~(#od:2(a b))
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("n", 2);
     p.set("width", 1);
     p.set("ordered", true);

@@ -6,6 +6,7 @@ import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.StringPooler;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -81,7 +82,7 @@ public class TagTokenizer extends Tokenizer {
   }
 
   public TagTokenizer() {
-    super(new FakeParameters(Parameters.instance()));
+    super(new FakeParameters(Parameters.create()));
     text = null;
     position = 0;
     lastSplit = -1;
@@ -734,13 +735,13 @@ public class TagTokenizer extends Tokenizer {
     if (ignoreUntil == null) {
       onSplit();
     }
+    pooler.transform(this.tokens);
     document.terms = new ArrayList<>(this.tokens);
     for (Pair p : this.tokenPositions) {
       document.termCharBegin.add(p.start);
       document.termCharEnd.add(p.end);
     }
     document.tags = coalesceTags();
-    pooler.transform(document);
   }
 
   public ArrayList<Pair> getTokenPositions() {

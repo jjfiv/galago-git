@@ -1,10 +1,10 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
-import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import org.lemurproject.galago.tupleflow.Counter;
+import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
@@ -56,9 +56,7 @@ public abstract class KeyValueWriter<T> implements Processor<T> {
     GenericElement e = prepare(i);
     if (e != null) {
       writer.add(e);
-      if (elementsWritten != null) {
-        elementsWritten.increment();
-      }
+      elementsWritten.increment();
     }
   }
 }

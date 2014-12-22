@@ -1,9 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.core.btree.format.BTreeFactory;
+import org.lemurproject.galago.core.btree.format.BTreeReader;
 import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
-import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
+import org.lemurproject.galago.core.btree.format.SplitBTreeReader;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
@@ -42,7 +44,7 @@ public class DiskIndex implements Index, Closeable {
 
   private static final Logger logger = Logger.getLogger("DiskIndex");
   protected File location;
-  protected Parameters manifest = Parameters.instance();
+  protected Parameters manifest = Parameters.create();
   protected LengthsReader lengthsReader = null;
   protected NamesReader namesReader = null;
   protected NamesReverseReader namesReverseReader = null;

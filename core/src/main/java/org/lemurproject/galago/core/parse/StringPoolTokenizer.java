@@ -7,6 +7,7 @@ import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.StringPooler;
 
 /**
  * A small class to echo the Document as is down the pipeline.
@@ -25,7 +26,7 @@ public class StringPoolTokenizer extends StandardStep<Document, Document> {
 
   @Override
   public void process(Document document) throws IOException {
-    pooler.transform(document);
+    pooler.transform(document.terms);
     processor.process(document);
   }
 }

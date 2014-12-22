@@ -28,7 +28,13 @@ public class RetrievalFactory {
   private RetrievalFactory() {
   }
 
+  /** @deprecated use create instead! */
+  @Deprecated
   public static Retrieval instance(Parameters parameters) throws Exception {
+    return create(parameters);
+  }
+
+  public static Retrieval create(Parameters parameters) throws Exception {
     // if we have a single index:
     if (parameters.isString("index")) {
       return instance(parameters.getString("index"), parameters);
@@ -79,7 +85,7 @@ public class RetrievalFactory {
   }
 	
 	public static Retrieval instance(String path) throws Exception {
-		return instance(path, Parameters.instance());
+		return instance(path, Parameters.create());
 	}
 
   public static Retrieval instance(List<String> indexes, Parameters parameters) throws Exception {

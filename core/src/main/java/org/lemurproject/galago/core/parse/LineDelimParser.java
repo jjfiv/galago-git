@@ -44,7 +44,7 @@ public class LineDelimParser extends DocumentStreamParser {
                 p = parserP;
             }
         }
-        if(p == null) p = Parameters.instance();
+        if(p == null) p = Parameters.create();
         this.linedelim = p.get("linedelim", "----------");
         this.docIdPrefix = p.get("docIdPrefix", "");
         this.textBeginLine = p.get("textBeginLine","");

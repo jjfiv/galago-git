@@ -121,7 +121,7 @@ public class XFoldLearner extends Learner {
       }
 
       // take an average value across fold instances
-      Parameters settings = Parameters.instance();
+      Parameters settings = Parameters.create();
       for (String param : this.learnableParameters.getParams()) {
         double setting = 0.0;
         for (RetrievalModelInstance foldOpt : learntParams) {

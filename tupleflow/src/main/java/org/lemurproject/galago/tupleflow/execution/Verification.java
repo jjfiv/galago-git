@@ -3,6 +3,8 @@ package org.lemurproject.galago.tupleflow.execution;
 
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.debug.Counter;
+import org.lemurproject.galago.utility.debug.NullCounter;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +32,7 @@ public class Verification {
 
     @Override
     public Counter getCounter(String name) {
-      return null;
+      return NullCounter.instance;
     }
 
     @Override
@@ -95,7 +97,7 @@ public class Verification {
    * a list of objects in outputOrder is also in inputOrder.  This is true if the orders
    * are identical, but also if inputOrder is more permissive than outputOrder.
    *
-   * For instance, suppose we are sorting a list of people's names.  People typically
+   * For create, suppose we are sorting a list of people's names.  People typically
    * have a surname (last name) and a given name (first name).  In Galago notation,
    * consider these two orders you could use:
    *      +surname

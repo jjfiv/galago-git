@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
-import org.lemurproject.galago.core.index.CompressedByteBuffer;
+import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
@@ -21,9 +21,8 @@ import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.Utility.ByteArrComparator;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -42,7 +41,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
 
   // this could be a bit big -- but we need random access here
   // perhaps we should use a trie (but java doesn't have one?)
-  protected TreeMap<byte[], PositionalPostingList> postings = new TreeMap<byte[], PositionalPostingList>(new ByteArrComparator());
+  protected TreeMap<byte[], PositionalPostingList> postings = new TreeMap<>(new CmpUtil.ByteArrComparator());
   protected Parameters parameters;
   protected long collectionDocumentCount = 0;
   protected long collectionPostingsCount = 0;
@@ -170,7 +169,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
 
   @Override
   public Map<String, NodeType> getNodeTypes() {
-    HashMap<String, NodeType> types = new HashMap<String, NodeType>();
+    HashMap<String, NodeType> types = new HashMap<>();
     types.put("counts", new NodeType(DiskCountIterator.class));
     types.put("extents", new NodeType(DiskExtentIterator.class));
     return types;
@@ -264,14 +263,14 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
 
     public void add(long document, int position) {
       if (termDocumentCount == 0) {
-        // first instance of term
+        // first create of term
         lastDocument = document;
         lastCount = 1;
         termDocumentCount += 1;
         documents_cbb.add(document);
 
       } else if (lastDocument == document) {
-        // additional instance of term in document
+        // additional create of term in document
         lastCount += 1;
 
       } else {
@@ -408,7 +407,7 @@ public class MemoryPositionalIndex implements MemoryIndexPart, AggregateIndexPar
     @Override
     public int compareTo(KeyIterator t) {
       try {
-        return Utility.compare(this.getKey(), t.getKey());
+        return CmpUtil.compare(this.getKey(), t.getKey());
       } catch (IOException ex) {
         throw new RuntimeException(ex);
       }

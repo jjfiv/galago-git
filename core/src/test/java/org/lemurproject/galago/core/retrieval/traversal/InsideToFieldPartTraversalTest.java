@@ -46,19 +46,19 @@ public class InsideToFieldPartTraversalTest {
     DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
     LocalRetrieval retrieval = new LocalRetrieval(index);
     TextFieldRewriteTraversal rewriter = new TextFieldRewriteTraversal(retrieval);
-    Parameters inner1 = Parameters.instance();
+    Parameters inner1 = Parameters.create();
     inner1.set("extents", DiskExtentIterator.class.getName());
     inner1.set("counts", DiskCountIterator.class.getName());
     
     InsideToFieldPartTraversal traversal = new InsideToFieldPartTraversal(retrieval);
-    Parameters inner2 = Parameters.instance();
+    Parameters inner2 = Parameters.create();
     inner2.set("extents", DiskExtentIterator.class.getName());
     inner2.set("counts", DiskCountIterator.class.getName());
     traversal.availableParts.set("field.subject", inner2);
     
     Node q1 = StructuredQuery.parse("#combine( cat dog.title donkey.subject absolute.subject)");
-    Node q2 = rewriter.traverse(q1, Parameters.instance()); // converts #text to #extents...
-    Node q3 = traversal.traverse(q2, Parameters.instance()); // converts #inside to #extents...
+    Node q2 = rewriter.traverse(q1, Parameters.create()); // converts #text to #extents...
+    Node q3 = traversal.traverse(q2, Parameters.create()); // converts #inside to #extents...
 
     StringBuilder transformed = new StringBuilder();
 

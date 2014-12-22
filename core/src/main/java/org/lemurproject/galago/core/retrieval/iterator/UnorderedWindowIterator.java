@@ -16,7 +16,7 @@ public class UnorderedWindowIterator extends ExtentConjunctionIterator {
   private ScoringContext cachedContext = null;
 
   /**
-   * Creates a new instance of UnorderedWindowIterator
+   * Creates a new create of UnorderedWindowIterator
    */
   public UnorderedWindowIterator(NodeParameters parameters, ExtentIterator[] evIterators) throws IOException {
     super(parameters, evIterators);

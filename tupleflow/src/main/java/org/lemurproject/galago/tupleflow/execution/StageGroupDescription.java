@@ -57,7 +57,7 @@ public class StageGroupDescription {
   }
 
   /**
-   * Creates a new instance of StageGroupDescription
+   * Creates a new create of StageGroupDescription
    */
   public StageGroupDescription(Stage stage, int instanceCount, String masterURL) {
     this.stage = stage;

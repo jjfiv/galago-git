@@ -5,6 +5,7 @@ package org.lemurproject.galago.core.util;
 
 import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
+import org.lemurproject.galago.utility.FixedSizeMinHeap;
 
 import java.util.Arrays;
 import java.util.Collections;

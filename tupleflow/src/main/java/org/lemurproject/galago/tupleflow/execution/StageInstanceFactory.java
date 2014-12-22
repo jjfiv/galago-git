@@ -6,6 +6,8 @@ import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.execution.StageInstanceDescription.PipeInput;
 import org.lemurproject.galago.tupleflow.execution.StageInstanceDescription.PipeOutput;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.debug.Counter;
+import org.lemurproject.galago.utility.debug.NullCounter;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +41,7 @@ public class StageInstanceFactory {
     @Override
     public Counter getCounter(String name) {
       if (instance.getMasterURL() == null) {
-        return null;
+        return NullCounter.instance;
       } else {
         return counterManager.newCounter(
                 name, instance.getName(),

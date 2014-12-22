@@ -21,7 +21,7 @@ public class TextWriterTest {
     File tempPath = null;
     try {
       tempPath = FileUtility.createTemporary();
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("class", FileName.class.getName());
       p.set("filename", tempPath.getAbsolutePath());
       TextWriter<FileName> writer = new TextWriter<FileName>(new FakeParameters(p));

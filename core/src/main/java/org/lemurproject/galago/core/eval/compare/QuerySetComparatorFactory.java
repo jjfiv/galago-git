@@ -10,7 +10,12 @@ package org.lemurproject.galago.core.eval.compare;
  */
 public class QuerySetComparatorFactory {
 
+  /** @deprecated use create instead! */
+  @Deprecated
   public static QuerySetComparator instance(String testName) {
+    return create(testName);
+  }
+  public static QuerySetComparator create(String testName) {
 
     // sum metrics:
     if (testName.equals("baseline")) {

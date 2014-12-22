@@ -46,7 +46,7 @@ public class FieldStatistics implements AggregateStatistic {
   }
 
   public Parameters toParameters() {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("fieldName", this.fieldName);
     p.set("collectionLength", this.collectionLength);
     p.set("documentCount", this.documentCount);

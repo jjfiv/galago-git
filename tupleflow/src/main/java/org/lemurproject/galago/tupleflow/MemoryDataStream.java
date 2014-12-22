@@ -5,6 +5,8 @@
 
 package org.lemurproject.galago.tupleflow;
 
+import org.lemurproject.galago.utility.buffer.DataStream;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;

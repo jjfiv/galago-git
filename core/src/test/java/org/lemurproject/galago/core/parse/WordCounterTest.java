@@ -6,6 +6,7 @@ import org.lemurproject.galago.core.types.WordCount;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
@@ -33,13 +34,13 @@ public class WordCounterTest{
 
   @Test
   public void testCountUnigrams() throws IOException, IncompatibleProcessorException {
-    WordCounter counter = new WordCounter(new FakeParameters(Parameters.instance()));
+    WordCounter counter = new WordCounter(new FakeParameters(Parameters.create()));
     Document document = new Document();
     PostStep post = new PostStep();
 
     counter.setProcessor(post);
 
-    document.terms = new ArrayList<String>();
+    document.terms = new ArrayList<>();
     document.terms.add("one");
     document.terms.add("two");
     document.terms.add("one");
@@ -49,9 +50,9 @@ public class WordCounterTest{
 
     for (int i = 0; i < post.results.size(); ++i) {
       WordCount wc = post.results.get(i);
-      if (Utility.compare(wc.word, ByteUtil.fromString("one")) == 0) {
+      if (CmpUtil.equals(wc.word, ByteUtil.fromString("one"))) {
         assertEquals(2, wc.collectionFrequency);
-      } else if (Utility.compare(wc.word, ByteUtil.fromString("one")) == 0) {
+      } else if (CmpUtil.equals(wc.word, ByteUtil.fromString("one"))) {
         assertEquals(1, wc.collectionFrequency);
       }
     }
@@ -59,7 +60,7 @@ public class WordCounterTest{
 
   @Test
   public void testCountReducer() throws IOException, IncompatibleProcessorException {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     WordCounter counter = new WordCounter(new FakeParameters(p));
     Sorter sorter = new Sorter<WordCount>(new WordCount.WordOrder());
     WordCountReducer reducer = new WordCountReducer();
@@ -94,13 +95,13 @@ public class WordCounterTest{
 
     for (int i = 0; i < post.results.size(); ++i) {
       WordCount wc = post.results.get(i);
-      if (Utility.compare(wc.word, ByteUtil.fromString("one")) == 0) {
+      if (CmpUtil.compare(wc.word, ByteUtil.fromString("one")) == 0) {
         assertEquals(3, wc.collectionFrequency);
-      } else if (Utility.compare(wc.word, ByteUtil.fromString("two")) == 0) {
+      } else if (CmpUtil.compare(wc.word, ByteUtil.fromString("two")) == 0) {
         assertEquals(3, wc.collectionFrequency);
-      } else if (Utility.compare(wc.word, ByteUtil.fromString("three")) == 0) {
+      } else if (CmpUtil.compare(wc.word, ByteUtil.fromString("three")) == 0) {
         assertEquals(2, wc.collectionFrequency);
-      } else if (Utility.compare(wc.word, ByteUtil.fromString("four")) == 0) {
+      } else if (CmpUtil.compare(wc.word, ByteUtil.fromString("four")) == 0) {
         assertEquals(1, wc.collectionFrequency);
       }
     }
@@ -108,7 +109,7 @@ public class WordCounterTest{
 
   @Test
   public void testCountFilter() throws IOException, IncompatibleProcessorException {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("minThreshold", 2);
     WordCounter counter = new WordCounter(new FakeParameters(p));
     Sorter sorter = new Sorter<WordCount>(new WordCount.WordOrder());
@@ -146,11 +147,11 @@ public class WordCounterTest{
 
     for (int i = 0; i < post.results.size(); ++i) {
       WordCount wc = post.results.get(i);
-      if (Utility.compare(wc.word, ByteUtil.fromString("one")) == 0) {
+      if (CmpUtil.compare(wc.word, ByteUtil.fromString("one")) == 0) {
         assertEquals(3, wc.collectionFrequency);
-      } else if (Utility.compare(wc.word, ByteUtil.fromString("two")) == 0) {
+      } else if (CmpUtil.compare(wc.word, ByteUtil.fromString("two")) == 0) {
         assertEquals(3, wc.collectionFrequency);
-      } else if (Utility.compare(wc.word, ByteUtil.fromString("three")) == 0) {
+      } else if (CmpUtil.compare(wc.word, ByteUtil.fromString("three")) == 0) {
         assertEquals(2, wc.collectionFrequency);
         //} else if (Utility.compare(wc.word, Utility.fromString("four")) == 0) {
         //  assertEquals(1, wc.count);

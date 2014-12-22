@@ -35,7 +35,7 @@ public class MergeIndex extends AppFunction {
 
     stage.addOutput("indexes", new DocumentSplit.FileIdOrder());
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("inputPath", inputPaths);
     stage.add(new StepInformation(IndexNumberer.class, p));
     stage.add(new OutputStepInformation("indexes"));
@@ -66,7 +66,7 @@ public class MergeIndex extends AppFunction {
     stage.addInput("documentMappingData", new DocumentMappingData.IndexIdOrder());
 
     stage.add(new InputStepInformation("indexes"));
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("mappingDataStream", "documentMappingData");
     p.set("part", part);
     p.set("filename", outputFile);

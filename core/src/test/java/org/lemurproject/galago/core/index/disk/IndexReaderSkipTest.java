@@ -27,7 +27,7 @@ public class IndexReaderSkipTest {
     File temp = FileUtility.createTemporary();
 
     try {
-      Parameters parameters = Parameters.instance();
+      Parameters parameters = Parameters.create();
       parameters.set("filename", temp.getAbsolutePath());
       parameters.set("skipDistance", 10);
       parameters.set("skipResetDistance", 5);
@@ -64,7 +64,7 @@ public class IndexReaderSkipTest {
     File temp = FileUtility.createTemporary();
 
     try {
-      Parameters parameters = Parameters.instance();
+      Parameters parameters = Parameters.create();
       parameters.set("filename", temp.getAbsolutePath());
       parameters.set("skipDistance", 10);
       parameters.set("skipResetDistance", 5);
@@ -96,7 +96,7 @@ public class IndexReaderSkipTest {
     File temp = FileUtility.createTemporary();
 
     try {
-      Parameters parameters = Parameters.instance();
+      Parameters parameters = Parameters.create();
       parameters.set("filename", temp.getAbsolutePath());
       parameters.set("skipDistance", 10);
       parameters.set("skipResetDistance", 5);

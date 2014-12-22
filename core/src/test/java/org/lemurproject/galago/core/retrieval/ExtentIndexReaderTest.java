@@ -10,7 +10,7 @@ package org.lemurproject.galago.core.retrieval;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
+import org.lemurproject.galago.core.btree.format.DiskBTreeReader;
 import org.lemurproject.galago.core.index.disk.WindowIndexReader;
 import org.lemurproject.galago.core.index.disk.WindowIndexWriter;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentArrayIterator;
@@ -41,7 +41,7 @@ public class ExtentIndexReaderTest {
     tempPath = FileUtility.createTemporary();
     tempPath.delete();
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("filename", tempPath.toString());
 
     WindowIndexWriter writer =
@@ -154,7 +154,7 @@ public class ExtentIndexReaderTest {
 
   @Test
   public void testSkipList() throws Exception {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("filename", tempPath.toString());
     p.set("skipDistance", 10);
 

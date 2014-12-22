@@ -43,9 +43,9 @@ public class CachedRetrievalTest {
       corpusFile = files[1];
       indexFile = files[2];
 
-      LocalRetrieval nonCacheRet = (LocalRetrieval) RetrievalFactory.instance(indexFile.getAbsolutePath(), Parameters.instance());
+      LocalRetrieval nonCacheRet = (LocalRetrieval) RetrievalFactory.instance(indexFile.getAbsolutePath(), Parameters.create());
 
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("cache", true);
       p.set("cacheScores", true);
       p.set("cacheStats", true);
@@ -58,8 +58,8 @@ public class CachedRetrievalTest {
 
       ScoringContext sc = new ScoringContext();
 
-      ScoreIterator diskScoreIterator = (ScoreIterator) nonCacheRet.createIterator(Parameters.instance(), score);
-      ScoreIterator cachedScoreIterator = (ScoreIterator) cacheRet.createIterator(Parameters.instance(), score);
+      ScoreIterator diskScoreIterator = (ScoreIterator) nonCacheRet.createIterator(Parameters.create(), score);
+      ScoreIterator cachedScoreIterator = (ScoreIterator) cacheRet.createIterator(Parameters.create(), score);
       assert (((DiskScoreIterator) cachedScoreIterator).getSource() instanceof MemorySparseDoubleIndexScoreSource);
 
       while (!diskScoreIterator.isDone() && !cachedScoreIterator.isDone()) {
@@ -84,8 +84,8 @@ public class CachedRetrievalTest {
       assertEquals(diskNS.nodeDocumentCount, cachedNS2.nodeDocumentCount);
       assertEquals(diskNS.nodeFrequency, cachedNS2.nodeFrequency);
 
-      CountIterator diskCountIterator = (CountIterator) nonCacheRet.createIterator(Parameters.instance(), count);
-      CountIterator cachedCountIterator = (CountIterator) cacheRet.createIterator(Parameters.instance(), count);
+      CountIterator diskCountIterator = (CountIterator) nonCacheRet.createIterator(Parameters.create(), count);
+      CountIterator cachedCountIterator = (CountIterator) cacheRet.createIterator(Parameters.create(), count);
       assert (((DiskCountIterator) cachedCountIterator).getSource() instanceof MemoryCountIndexCountSource);
 
       while (!diskCountIterator.isDone() && !cachedCountIterator.isDone()) {
@@ -106,8 +106,8 @@ public class CachedRetrievalTest {
       assertEquals(diskNS.nodeDocumentCount, cachedNS.nodeDocumentCount);
       assertEquals(diskNS.nodeFrequency, cachedNS.nodeFrequency);
 
-      ExtentIterator diskExtentIterator = (ExtentIterator) nonCacheRet.createIterator(Parameters.instance(), extent);
-      ExtentIterator cachedExtentIterator = (ExtentIterator) cacheRet.createIterator(Parameters.instance(), extent);
+      ExtentIterator diskExtentIterator = (ExtentIterator) nonCacheRet.createIterator(Parameters.create(), extent);
+      ExtentIterator cachedExtentIterator = (ExtentIterator) cacheRet.createIterator(Parameters.create(), extent);
       assert (((DiskExtentIterator) cachedExtentIterator).getSource() instanceof MemoryWindowIndexExtentSource);
 
       while (!diskExtentIterator.isDone() && !cachedExtentIterator.isDone()) {
@@ -124,7 +124,7 @@ public class CachedRetrievalTest {
       }
 
       // check leaf node caching
-      Parameters p2 = Parameters.instance();
+      Parameters p2 = Parameters.create();
       p2.set("cache", true);
       p2.set("cacheScores", true);
       p2.set("cacheLeafNodes", false);
@@ -136,10 +136,10 @@ public class CachedRetrievalTest {
       Node extent2 = StructuredQuery.parse("#unordered:8( #extents:sample:part=postings() #extents:document:part=postings() )");
       cacheRet2.addNodeToCache(extent2);
 
-      cachedExtentIterator = (ExtentIterator) cacheRet2.createIterator(Parameters.instance(), extent);
+      cachedExtentIterator = (ExtentIterator) cacheRet2.createIterator(Parameters.create(), extent);
       assertFalse(((DiskExtentIterator) cachedExtentIterator).getSource() instanceof MemoryWindowIndexExtentSource);
 
-      cachedExtentIterator = (ExtentIterator) cacheRet2.createIterator(Parameters.instance(), extent2);
+      cachedExtentIterator = (ExtentIterator) cacheRet2.createIterator(Parameters.create(), extent2);
       System.err.println(((DiskExtentIterator) cachedExtentIterator).getSource().getClass().toString());
       assertTrue(((DiskExtentIterator) cachedExtentIterator).getSource() instanceof MemoryWindowIndexExtentSource);
 

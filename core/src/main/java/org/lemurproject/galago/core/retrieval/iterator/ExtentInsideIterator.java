@@ -21,7 +21,7 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
   private ScoringContext cachedContext = null;
 
   /**
-   * <p>Constructs an #inside instance. For <tt>#inside(a b)</tt>, this produces
+   * <p>Constructs an #inside create. For <tt>#inside(a b)</tt>, this produces
    * an extent whenever <tt>a</tt> is found inside <tt>b</tt>.</p>
    *
    * <p>For example, in the expression <tt>#inside(#1(white house)

@@ -15,7 +15,14 @@ import org.lemurproject.galago.utility.Parameters;
  */
 public class QuerySetEvaluatorFactory {
 
+
+  @Deprecated
+  /** @deprecated use create instead! */
   public static QuerySetEvaluator instance(String metric, Parameters p) {
+    return create(metric, p);
+  }
+
+  public static QuerySetEvaluator create(String metric, Parameters p) {
 
     String lowerMetric = metric.toLowerCase();
     // sum metrics:
@@ -23,7 +30,7 @@ public class QuerySetEvaluatorFactory {
             || lowerMetric.equals("num_rel")
             || lowerMetric.startsWith("num_rel_ret")
             || lowerMetric.startsWith("num_unjug_ret")) {
-      QueryEvaluator evalFn = QueryEvaluatorFactory.instance(metric, p);
+      QueryEvaluator evalFn = QueryEvaluatorFactory.create(metric, p);
       return new Sum(metric, evalFn);
 
       // mean metrics
@@ -40,12 +47,12 @@ public class QuerySetEvaluatorFactory {
             || lowerMetric.startsWith("p")
             || lowerMetric.startsWith("r")
             || lowerMetric.startsWith("mdfa")) {
-      QueryEvaluator evalFn = QueryEvaluatorFactory.instance(metric, p);
+      QueryEvaluator evalFn = QueryEvaluatorFactory.create(metric, p);
       return new Mean(metric, evalFn);
 
       // geometric mean metrics
     } else if (lowerMetric.equals("gmap")) {
-      QueryEvaluator evalFn = QueryEvaluatorFactory.instance("ap", p);
+      QueryEvaluator evalFn = QueryEvaluatorFactory.create(metric, p);
       return new GeometricMean(metric, evalFn);
 
       // otherwise unknown

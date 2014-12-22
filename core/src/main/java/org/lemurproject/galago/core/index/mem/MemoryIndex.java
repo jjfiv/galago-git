@@ -59,7 +59,7 @@ public class MemoryIndex implements DynamicIndex, Index {
 
     // Load all parts
     parts = new HashMap<String, MemoryIndexPart>();
-    Parameters partParams = Parameters.instance();
+    Parameters partParams = Parameters.create();
     partParams.set("documentNumberOffset", documentNumberOffset);
     parts.put("names", new MemoryDocumentNames(partParams.clone()));
     parts.put("lengths", new MemoryDocumentLengths(partParams.clone()));
@@ -87,7 +87,7 @@ public class MemoryIndex implements DynamicIndex, Index {
   }
 
   public MemoryIndex() throws Exception {
-    this(Parameters.instance());
+    this(Parameters.create());
   }
 
   public MemoryIndex(TupleFlowParameters tfp) throws Exception {

@@ -24,7 +24,7 @@ public class NodeStatistics implements AggregateStatistic {
   }
 
   public Parameters toParameters() {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("node", this.node);
     p.set("nodeFrequency", this.nodeFrequency);
     p.set("maximumCount", this.maximumCount);

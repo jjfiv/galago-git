@@ -26,7 +26,7 @@ public class TrecTextParserTest {
         f.createNewFile();
         try {
             DocumentSplit split = DocumentSplitFactory.file(f, "trectext");
-            TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
+            TrecTextParser parser = new TrecTextParser(split, Parameters.create());
 
             Document document = parser.nextDocument();
             assertNull(document);
@@ -43,7 +43,7 @@ public class TrecTextParserTest {
         try {
             Utility.copyStringToFile(fileText, f);
             DocumentSplit split = DocumentSplitFactory.file(f, "trectext");
-            TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
+            TrecTextParser parser = new TrecTextParser(split, Parameters.create());
 
             Document document = parser.nextDocument();
             assertNotNull(document);
@@ -65,7 +65,7 @@ public class TrecTextParserTest {
         try {
             Utility.copyStringToFile(fileText, f);
             DocumentSplit split = DocumentSplitFactory.file(f, "trectext");
-            DocumentStreamParser parser = DocumentStreamParser.instance(split, Parameters.instance());
+            DocumentStreamParser parser = DocumentStreamParser.create(split, Parameters.create());
 
             Document document = parser.nextDocument();
             assertNotNull(document);
@@ -92,7 +92,7 @@ public class TrecTextParserTest {
         try {
             Utility.copyStringToFile(fileText, f);
             DocumentSplit split = DocumentSplitFactory.file(f);
-            TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
+            TrecTextParser parser = new TrecTextParser(split, Parameters.create());
 
             Document document = parser.nextDocument();
             assertNotNull(document);
@@ -125,7 +125,7 @@ public class TrecTextParserTest {
         try {
             Utility.copyStringToFile(fileText, f);
             DocumentSplit split = DocumentSplitFactory.file(f);
-            TrecTextParser parser = new TrecTextParser(split, Parameters.instance());
+            TrecTextParser parser = new TrecTextParser(split, Parameters.create());
 
             Document document = parser.nextDocument();
             assertNotNull(document);

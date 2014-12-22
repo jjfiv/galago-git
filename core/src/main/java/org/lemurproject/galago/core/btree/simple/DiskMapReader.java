@@ -1,9 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.btree.simple;
 
-import org.lemurproject.galago.core.index.BTreeReader;
-import org.lemurproject.galago.core.index.disk.DiskBTreeReader;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.core.btree.format.BTreeReader;
+import org.lemurproject.galago.core.btree.format.DiskBTreeReader;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
@@ -121,7 +120,7 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> implements Closea
   public static DiskMapReader fromMap(String path, Map<byte[], byte[]> other) throws IOException {
     LOG.log(Level.INFO, "Creating DiskMap at {0}", path);
     
-    DiskMapSortedBuilder mb = new DiskMapSortedBuilder(path, Parameters.instance());
+    DiskMapSortedBuilder mb = new DiskMapSortedBuilder(path, Parameters.create());
     
     ArrayList<byte[]> keys = new ArrayList<>(other.keySet());
     Collections.sort(keys, new CmpUtil.ByteArrComparator());
@@ -166,7 +165,7 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> implements Closea
     
     @Override
     public int hashCode() {
-      return Utility.hash(key);
+      return CmpUtil.hash(key);
     }
 
     @Override

@@ -3,10 +3,10 @@ package org.lemurproject.galago.core.tools;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.lemurproject.galago.core.index.BTreeFactory;
-import org.lemurproject.galago.core.index.BTreeReader;
-import org.lemurproject.galago.core.index.corpus.SplitBTreeReader;
-import org.lemurproject.galago.core.index.disk.VocabularyReader;
+import org.lemurproject.galago.core.btree.format.BTreeFactory;
+import org.lemurproject.galago.core.btree.format.BTreeReader;
+import org.lemurproject.galago.core.btree.format.SplitBTreeReader;
+import org.lemurproject.galago.core.btree.format.VocabularyReader;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.tupleflow.FileUtility;
@@ -38,7 +38,7 @@ public class AppTest {
         // Check main path
         assertTrue(indexPath.isDirectory());
         // Time to check standard parts
-        Retrieval ret = RetrievalFactory.instance(indexPath.getAbsolutePath(), Parameters.instance());
+        Retrieval ret = RetrievalFactory.instance(indexPath.getAbsolutePath(), Parameters.create());
         Parameters availableParts = ret.getAvailableParts();
         assertNotNull(availableParts);
 

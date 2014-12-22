@@ -27,12 +27,12 @@ public class BuildSketchIndexTest {
     try {
       makeCorpus(corpus);
 
-      Parameters idxParams = Parameters.instance();
+      Parameters idxParams = Parameters.create();
       idxParams.set("inputPath", corpus.getAbsolutePath());
       idxParams.set("indexPath", index.getAbsolutePath());
       (new BuildIndex()).run(idxParams, System.out);
 
-      Parameters sketchParams = Parameters.instance();
+      Parameters sketchParams = Parameters.create();
       sketchParams.set("inputPath", corpus.getAbsolutePath());
       sketchParams.set("indexPath", index.getAbsolutePath());
       sketchParams.set("sketchIndexName", "sketch-od1-e1-d2");
@@ -43,7 +43,7 @@ public class BuildSketchIndexTest {
       sketchParams.set("depth", 2);
       (new BuildSketchIndex()).run(sketchParams, System.out);
 
-//      LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), Parameters.instance());
+//      LocalRetrieval ret = new LocalRetrieval(index.getAbsolutePath(), Parameters.create());
 //      InvertedSketchIndexReader sketchIdx =
 //              (InvertedSketchIndexReader) ret.getIndex().getIndexPart("sketch-od1-e1-d2");
 //
@@ -71,7 +71,7 @@ public class BuildSketchIndexTest {
 //
 //      ret.close();
 
-      sketchParams = Parameters.instance();
+      sketchParams = Parameters.create();
       sketchParams.set("inputPath", corpus.getAbsolutePath());
       sketchParams.set("indexPath", index.getAbsolutePath());
       sketchParams.set("sketchIndexName", "sketch-od1-e100-d2");
@@ -82,7 +82,7 @@ public class BuildSketchIndexTest {
       sketchParams.set("depth", 2);
       (new BuildSketchIndex()).run(sketchParams, System.out);
 
-//      ret = new LocalRetrieval(index.getAbsolutePath(), Parameters.instance());
+//      ret = new LocalRetrieval(index.getAbsolutePath(), Parameters.create());
 //      sketchIdx =
 //              (InvertedSketchIndexReader) ret.getIndex().getIndexPart("sketch-od1-e100-d2");
 //

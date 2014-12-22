@@ -26,7 +26,7 @@ import java.util.Map.Entry;
  * <p>Handles web search requests against a Galago index. Also handles XML
  * requests for documents, snippets and search results.</p>
  *
- * <p>This class is set up to work with an embedded Jetty instance, but it
+ * <p>This class is set up to work with an embedded Jetty create, but it
  * should be fairly easy to wrap into a Servlet for use with something else
  * (Tomcat, Glassfish, etc.)</p>
  *
@@ -366,7 +366,7 @@ public class SearchWebHandler implements WebHandler {
     String retrievalGroup = request.getParameter("retrievalGroup");
     Node root = StructuredQuery.parse(nodeString);
     try {
-      Node transformed = search.retrieval.transformQuery(root, Parameters.instance());
+      Node transformed = search.retrieval.transformQuery(root, Parameters.create());
       PrintWriter writer = response.getWriter();
       XMLOutputter outputter = new XMLOutputter(writer, "UTF-8");
       response.setContentType("text/xml");
@@ -494,7 +494,7 @@ public class SearchWebHandler implements WebHandler {
     int startAt = (startAtString == null) ? 0 : Integer.parseInt(startAtString);
     int resultCount = (countString == null) ? 10 : Integer.parseInt(countString);
 
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("indexId", id);
     p.set("queryType", qtype);
     p.set("requested", startAt + resultCount);

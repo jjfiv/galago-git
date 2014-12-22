@@ -25,7 +25,7 @@ public abstract class DocumentStreamParser implements Closeable {
   public static Map<String, Class> fileTypeMap;
   static {
     fileTypeMap = new ConcurrentHashMap<>();
-    addExternalParsers(Parameters.instance());
+    addExternalParsers(Parameters.create());
   }
 
   // isParsable
@@ -59,8 +59,13 @@ public abstract class DocumentStreamParser implements Closeable {
     }
   }
 
-  // create a parser
+  /** @deprecated use create instead */
+  @Deprecated
   public static DocumentStreamParser instance(DocumentSplit split, Parameters parameters) throws IOException {
+    return create(split, parameters);
+  }
+  // create a parser
+  public static DocumentStreamParser create(DocumentSplit split, Parameters parameters) throws IOException {
     // Determine the file type either from the parameters
     // or from the guess in the splits
     String fileType;

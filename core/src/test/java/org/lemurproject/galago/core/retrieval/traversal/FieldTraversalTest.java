@@ -54,7 +54,7 @@ public class FieldTraversalTest {
     LocalRetrieval retrieval = new LocalRetrieval(indexPath.getAbsolutePath(), Parameters.parseArray("fields", Arrays.asList("title", "anchor", "author")));
 
     Node raw = StructuredQuery.parse("cat dog donkey");
-    Node prepared = retrieval.transformQuery(raw, Parameters.instance());
+    Node prepared = retrieval.transformQuery(raw, Parameters.create());
 
     System.out.println(raw);
 
@@ -76,11 +76,11 @@ public class FieldTraversalTest {
 
     // set fields
     String[] fields = {"title", "author", "anchor"};
-    Parameters global = Parameters.instance();
+    Parameters global = Parameters.create();
     global.set("fields", Arrays.asList(fields));
 
     LocalRetrieval retrieval = new LocalRetrieval(index, global);
-    Parameters qp = Parameters.instance();
+    Parameters qp = Parameters.create();
     PRMS2Traversal traversal = new PRMS2Traversal(retrieval);
     Node q1 = StructuredQuery.parse("#prms2(#text:cat() #text:dog() #text:donkey())");
     Node q2 = traversal.traverse(q1, qp);
@@ -111,7 +111,7 @@ public class FieldTraversalTest {
 
     // set fields
     String[] fields = {"title", "author", "anchor"};
-    Parameters global = Parameters.instance();
+    Parameters global = Parameters.create();
     global.set("fields", Arrays.asList(fields));
 
     String query = "#prms2(cat dog donkey)";
@@ -141,10 +141,10 @@ public class FieldTraversalTest {
 
     // set fields
     String[] fields = {"title", "author", "anchor"};
-    Parameters global = Parameters.instance();
+    Parameters global = Parameters.create();
 
     LocalRetrieval retrieval = new LocalRetrieval(index, global);
-    Parameters qp = Parameters.instance();
+    Parameters qp = Parameters.create();
     qp.set("fields", Arrays.asList(fields));
     String query = "#prms2(cat dog donkey)";
     Node raw = StructuredQuery.parse(query);
@@ -197,10 +197,10 @@ public class FieldTraversalTest {
     File tempPath = FileUtility.createTemporaryDirectory();
 
     // put in a generic manifest
-    Parameters.instance().write(tempPath + File.separator + "manifest");
+    Parameters.create().write(tempPath + File.separator + "manifest");
 
     // build the title index
-    Parameters extp = Parameters.instance();
+    Parameters extp = Parameters.create();
     extp.set("statistics/collectionLength", 500);
     extp.set("statistics/documentCount", 5);
     extp.set("statistics/vocabCount", 3);
@@ -215,7 +215,7 @@ public class FieldTraversalTest {
     writer.close();
 
     // build the author index
-    extp = Parameters.instance();
+    extp = Parameters.create();
     extp.set("statistics/collectionLength", 500);
     extp.set("statistics/documentCount", 5);
     extp.set("statistics/vocabCount", 3);
@@ -231,7 +231,7 @@ public class FieldTraversalTest {
     writer.close();
 
     // build the anchor index
-    extp = Parameters.instance();
+    extp = Parameters.create();
     extp.set("statistics/collectionLength", 500);
     extp.set("statistics/documentCount", 5);
     extp.set("statistics/vocabCount", 3);
@@ -258,7 +258,7 @@ public class FieldTraversalTest {
     writer.close();
 
     // add some document names
-    Parameters dnp = Parameters.instance();
+    Parameters dnp = Parameters.create();
     dnp.set("filename", tempPath + File.separator + "names");
 
     DiskNameWriter dnWriter = new DiskNameWriter(new FakeParameters(dnp));
@@ -268,13 +268,13 @@ public class FieldTraversalTest {
     dnWriter.close();
 
     // build an extent index for field lengths
-    extp = Parameters.instance();
+    extp = Parameters.create();
     extp.set("filename", tempPath + File.separator + "extents");
     extParameters = new FakeParameters(extp);
 
     WindowIndexWriter ewriter = new WindowIndexWriter(extParameters);
     
-    Parameters lp = Parameters.instance();
+    Parameters lp = Parameters.create();
     lp.set("filename", tempPath + File.separator + "lengths");
     DiskLengthsWriter lwriter = new DiskLengthsWriter(new FakeParameters(lp));
 

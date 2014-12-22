@@ -31,7 +31,7 @@ public class ReplaceOperatorTraversal extends Traversal {
   }
   
   public ReplaceOperatorTraversal(Parameters p) {
-    operators = p.isMap("opRepls") ? p.getMap("opRepls") : Parameters.instance();
+    operators = p.isMap("opRepls") ? p.getMap("opRepls") : Parameters.create();
   }
 
   @Override

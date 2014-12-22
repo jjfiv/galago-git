@@ -23,7 +23,7 @@ public class DiskNameReverseWriterTest {
   public void testNamesWriter() throws Exception {
     File tmp = FileUtility.createTemporary();
     try {
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("filename", tmp.getAbsolutePath());
       p.setIfMissing("blockSize", 4096);
       DiskNameReverseWriter writer = new DiskNameReverseWriter(new FakeParameters(p));

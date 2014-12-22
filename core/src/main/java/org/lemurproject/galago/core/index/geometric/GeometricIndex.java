@@ -434,11 +434,11 @@ public class GeometricIndex implements DynamicIndex, Index {
   // should also contain the last document name that was written to disk
   // (copied from the last flush)
   private Parameters createCheckpoint() {
-    Parameters checkpoint = Parameters.instance();
+    Parameters checkpoint = Parameters.create();
     checkpoint.set("lastDoc/identifier", this.lastAddedDocumentIdentifier);
     checkpoint.set("lastDoc/number", this.lastAddedDocumentNumber);
     checkpoint.set("indexBlockCount", this.indexBlockCount);
-    Parameters shards = Parameters.instance();
+    Parameters shards = Parameters.create();
     for (Bin b : this.geometricParts.radixBins.values()) {
       for (String indexPath : b.getBinPaths()) {
         shards.set(indexPath, b.size);

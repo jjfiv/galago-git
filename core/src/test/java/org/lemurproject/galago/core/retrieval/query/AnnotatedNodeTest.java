@@ -31,13 +31,13 @@ public class AnnotatedNodeTest {
     FSUtil.deleteDirectory(files[1]);
     File indexFile = files[2];
     try {
-      LocalRetrieval r = (LocalRetrieval) RetrievalFactory.instance(indexFile.getAbsolutePath(), Parameters.instance());
+      LocalRetrieval r = (LocalRetrieval) RetrievalFactory.instance(indexFile.getAbsolutePath(), Parameters.create());
 
       String qtext = "#combine( sample document )";
       Node qnode = StructuredQuery.parse(qtext);
-      qnode = r.transformQuery(qnode, Parameters.instance());
+      qnode = r.transformQuery(qnode, Parameters.create());
       ProcessingModel proc = new RankedDocumentModel(r);
-      Parameters p = Parameters.instance();
+      Parameters p = Parameters.create();
       p.set("requested", 100);
       p.set("annotate", true);
       ScoredDocument[] results = proc.execute(qnode, p);

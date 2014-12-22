@@ -31,7 +31,7 @@ public class RelevanceModelTraversal extends Traversal {
   public RelevanceModelTraversal(Retrieval retrieval) throws Exception {
     this.retrieval = retrieval;
     
-    defaultExpander = ExpansionModelFactory.instance(retrieval.getGlobalParameters(), retrieval);
+    defaultExpander = ExpansionModelFactory.create(retrieval.getGlobalParameters(), retrieval);
   }
 
   @Override
@@ -43,7 +43,7 @@ public class RelevanceModelTraversal extends Traversal {
     
     ExpansionModel em = defaultExpander;
     if(queryParams.containsKey("relevanceModel")){
-      em = ExpansionModelFactory.instance(queryParams, retrieval);
+      em = ExpansionModelFactory.create(queryParams, retrieval);
     }
     
     // strip the #rm operator

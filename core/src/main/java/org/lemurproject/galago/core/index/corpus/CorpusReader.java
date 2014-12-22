@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.index.corpus;
 
 import org.lemurproject.galago.core.corpus.DocumentSerializer;
-import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.core.btree.format.BTreeReader;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
@@ -40,7 +40,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
 
   private void init() throws IOException {
     final Parameters manifest = getManifest();
-    serializer = DocumentSerializer.instance(manifest);
+    serializer = DocumentSerializer.create(manifest);
   }
 
   @Override

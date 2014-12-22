@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.index;
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  * Iterates over the a KeyIterator as if it were a Value iterator. Useful for
@@ -64,6 +65,6 @@ public abstract class KeyToListIterator implements BaseIterator {
     if (isDone() && other.isDone()) {
       return 0;
     }
-    return Utility.compare(currentCandidate(), other.currentCandidate());
+    return CmpUtil.compare(currentCandidate(), other.currentCandidate());
   }
 }

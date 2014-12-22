@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.contrib.index.disk;
 
-import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.core.btree.format.BTreeReader;
 import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
@@ -14,8 +14,8 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.DataInput;
@@ -66,7 +66,7 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
       String stem = stemAsRequired(node.getDefaultParameter());
       KeyIterator ki = new KeyIterator(reader);
       ki.findKey(ByteUtil.fromString(stem));
-      if (Utility.compare(ki.getKey(), ByteUtil.fromString(stem)) == 0) {
+      if (CmpUtil.compare(ki.getKey(), ByteUtil.fromString(stem)) == 0) {
         return new BackgroundStatsIterator(ki);
       }
       return null;

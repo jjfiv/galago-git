@@ -9,6 +9,8 @@ import org.lemurproject.galago.core.types.PageRankJumpScore;
 import org.lemurproject.galago.core.types.PageRankScore;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.CmpUtil;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,10 +36,10 @@ public class ComputeRandomWalk extends StandardStep<PageRankScore, PageRankScore
   double rndJumpScore = 0.0;
   double totalWalk = 0.0;
   Counter documents;
-//  String instance;
+//  String create;
 
   public ComputeRandomWalk(TupleFlowParameters p) throws IOException {
-//    instance = "walker-" + p.getInstanceId();
+//    create = "walker-" + p.getInstanceId();
 
     // open streams:
     String linkStream = p.getJSON().getString("linkStream");
@@ -56,20 +58,18 @@ public class ComputeRandomWalk extends StandardStep<PageRankScore, PageRankScore
 
   @Override
   public void process(PageRankScore docScore) throws IOException {
-    if (documents != null) {
-      documents.increment();
-    }
+    documents.increment();
 
-    List<String> linkedDocuments = new ArrayList();
+    List<String> linkedDocuments = new ArrayList<>();
 
-    while (currentLink != null && Utility.compare(docScore.docName, currentLink.srcName) > 0.0) {
+    while (currentLink != null && CmpUtil.compare(docScore.docName, currentLink.srcName) > 0.0) {
       // This shouldn't happen....
       logger.log(Level.INFO, "Processing : {0}, IGNORED LINK: {1}-{2}", new Object[]{docScore.docName, currentLink.srcName, currentLink.destName});
       currentLink = linkReader.read();
     }
 
     // collect all out-going links
-    while (currentLink != null && Utility.compare(docScore.docName, currentLink.srcName) == 0.0) {
+    while (currentLink != null && docScore.docName.equals(currentLink.srcName)) {
       // docuemnts are NOT allowed to link to themselves.
       if (!docScore.docName.equals(currentLink.destName)) {
         linkedDocuments.add(currentLink.destName);
@@ -100,9 +100,9 @@ public class ComputeRandomWalk extends StandardStep<PageRankScore, PageRankScore
   @Override
   public void close() throws IOException {
 
-//    System.err.println(instance + " TOTAL PAGERANK JUMP-2: " + (rndJumpScore) + " docs " + docCount);
-//    System.err.println(instance + " instance PAGERANK JUMP-2: " + (rndJumpScore / docCount));
-//    System.err.println(instance + " TOTAL PAGERANK WALK: " + totalWalk);
+//    System.err.println(create + " TOTAL PAGERANK JUMP-2: " + (rndJumpScore) + " docs " + docCount);
+//    System.err.println(create + " create PAGERANK JUMP-2: " + (rndJumpScore / docCount));
+//    System.err.println(create + " TOTAL PAGERANK WALK: " + totalWalk);
 
     jumpWriter.process(new PageRankJumpScore(rndJumpScore / docCount));
     jumpWriter.close();

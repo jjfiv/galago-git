@@ -43,7 +43,7 @@ public class PassageRetrievalTest {
 
   @Test
   public void testPassageRetrieval() throws Exception {
-    Parameters p = Parameters.instance();
+    Parameters p = Parameters.create();
     p.set("passageSize", 4);
     p.set("passageShift", 2);
     p.set("passageQuery", true);

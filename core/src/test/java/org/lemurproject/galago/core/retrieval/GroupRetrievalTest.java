@@ -56,14 +56,14 @@ public class GroupRetrievalTest {
                 "--inputPath=" + trecCorpusFile2.getAbsolutePath()});
       AppTest.verifyIndexStructures(index2.getAbsoluteFile());
 
-      Parameters params = Parameters.instance();
+      Parameters params = Parameters.create();
       params.set("defaultGroup", "group1");
-      params.set("index", Parameters.instance());
+      params.set("index", Parameters.create());
       String[] indexes = {index1.getAbsolutePath(), index2.getAbsolutePath()};
       params.getMap("index").set("group1", index1.getAbsolutePath());
       params.getMap("index").set("group2", Arrays.asList(indexes));
 
-      GroupRetrieval gr = (GroupRetrieval) RetrievalFactory.instance(params);
+      GroupRetrieval gr = (GroupRetrieval) RetrievalFactory.create(params);
 
       String query = "#combine( sample document )";
       Node parsedQuery = StructuredQuery.parse(query);

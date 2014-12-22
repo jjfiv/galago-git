@@ -23,7 +23,7 @@ public class FeatureFactoryTest {
    */
   @Test
   public void testGetClassName() throws Exception {
-    FeatureFactory f = new FeatureFactory(Parameters.instance());
+    FeatureFactory f = new FeatureFactory(Parameters.create());
     String actual = f.getClassName(new Node("syn", "fakeargument"));
     assertEquals(SynonymIterator.class.getName(), actual);
   }
@@ -33,7 +33,7 @@ public class FeatureFactoryTest {
    */
   @Test
   public void testGetClass() throws Exception {
-    FeatureFactory f = new FeatureFactory(Parameters.instance());
+    FeatureFactory f = new FeatureFactory(Parameters.create());
     Class c = f.getClass(new Node("combine", ""));
     assertEquals(ScoreCombinationIterator.class.getName(), c.getName());
   }
@@ -43,7 +43,7 @@ public class FeatureFactoryTest {
    */
   @Test
   public void testGetNodeType() throws Exception {
-    FeatureFactory f = new FeatureFactory(Parameters.instance());
+    FeatureFactory f = new FeatureFactory(Parameters.create());
     NodeType type = f.getNodeType(new Node("combine", ""));
     Class c = type.getIteratorClass();
     assertEquals(ScoreCombinationIterator.class.getName(), c.getName());
@@ -54,7 +54,7 @@ public class FeatureFactoryTest {
    */
   @Test
   public void testGetIterator() throws Exception {
-    FeatureFactory f = new FeatureFactory(Parameters.instance());
+    FeatureFactory f = new FeatureFactory(Parameters.create());
     ArrayList<BaseIterator> iterators = new ArrayList<BaseIterator>();
     iterators.add(new NullExtentIterator());
 

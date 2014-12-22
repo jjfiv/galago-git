@@ -13,7 +13,7 @@ public class UnorderedWindowBigramIterator extends ExtentConjunctionIterator {
   private ScoringContext cachedContext = null;
 
   /**
-   * Creates a new instance of UnorderedWindowIterator
+   * Creates a new create of UnorderedWindowIterator
    */
   public UnorderedWindowBigramIterator(NodeParameters parameters, ExtentIterator[] evIterators) throws IOException {
     super(parameters, evIterators);

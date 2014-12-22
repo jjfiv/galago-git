@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
-import org.lemurproject.galago.core.index.CompressedByteBuffer;
+import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.disk.SparseFloatListWriter;
 import org.lemurproject.galago.core.parse.Document;
@@ -14,8 +14,8 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.Utility.ByteArrComparator;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
@@ -35,7 +35,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
 
   // this could be a bit big -- but we need random access here
   // should use a trie (but java doesn't have one?)
-  protected TreeMap<byte[], PostingList> postings = new TreeMap(new ByteArrComparator());
+  protected TreeMap<byte[], PostingList> postings = new TreeMap<>(new CmpUtil.ByteArrComparator());
   protected Parameters parameters;
   protected long collectionDocumentCount = 0;
   protected long collectionPostingsCount = 0;
@@ -313,12 +313,8 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
 
     @Override
     public String getValueString() throws IOException {
-      long count = -1;
       DiskScoreIterator it = getValueIterator();
-      StringBuilder sb = new StringBuilder();
-      sb.append(ByteUtil.toString(getKey())).append(",");
-      sb.append("entries:").append(it.totalEntries());
-      return sb.toString();
+      return ByteUtil.toString(getKey()) + "," + "entries:" + it.totalEntries();
     }
 
     @Override
@@ -334,7 +330,7 @@ public class MemorySparseDoubleIndex implements MemoryIndexPart {
     @Override
     public int compareTo(KeyIterator t) {
       try {
-        return Utility.compare(this.getKey(), t.getKey());
+        return CmpUtil.compare(this.getKey(), t.getKey());
       } catch (IOException ex) {
         throw new RuntimeException(ex);
       }

@@ -1,14 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import org.lemurproject.galago.core.index.BTreeFactory;
-import org.lemurproject.galago.core.index.BTreeReader;
+import org.lemurproject.galago.core.btree.format.BTreeFactory;
+import org.lemurproject.galago.core.btree.format.BTreeReader;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.debug.Counter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -79,17 +80,13 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
         String s = ByteUtil.toString(iterator.getKey());
         if (!inclusions.contains(s)) {
           iterator.nextKey();
-          if (skipCounter != null) {
-            skipCounter.increment();
-          }
+          skipCounter.increment();
           continue;
         }
 
         if (exclusions.contains(s)) {
           iterator.nextKey();
-          if (skipCounter != null) {
-            skipCounter.increment();
-          }
+          skipCounter.increment();
           continue;
         }
       }
@@ -98,9 +95,7 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
       kvp.key = iterator.getKey();
       kvp.value = Utility.fromInt(number);
       processor.process(kvp);
-      if (vocabCounter != null) {
-        vocabCounter.increment();
-      }
+      vocabCounter.increment();
       number++;
       iterator.nextKey();
     }

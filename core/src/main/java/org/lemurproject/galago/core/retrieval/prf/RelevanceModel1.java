@@ -78,7 +78,7 @@ public class RelevanceModel1 implements ExpansionModel {
     }
 
     // transform query to ensure it will run
-    Parameters fbParams = Parameters.instance();
+    Parameters fbParams = Parameters.create();
     fbParams.set("requested", fbDocs);
     // first pass is asserted to be document level
     fbParams.set("passageQuery", false);

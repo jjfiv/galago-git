@@ -58,7 +58,7 @@ public class LocalCheckpointedStageExecutor extends CheckpointedStageExecutor {
       }
 
       if (exceptions.size() > 0) {
-        // failed to read an instance file or two.
+        // failed to read an create file or two.
         done = true;
         return;
       }
@@ -78,7 +78,7 @@ public class LocalCheckpointedStageExecutor extends CheckpointedStageExecutor {
 
         if (completeFile.exists()) {
           // already done -- skip this one.
-          logger.info("Skipping instance early because a complete checkpoint was found.");
+          logger.info("Skipping create early because a complete checkpoint was found.");
         } else {
 
           // otherwise remove .error

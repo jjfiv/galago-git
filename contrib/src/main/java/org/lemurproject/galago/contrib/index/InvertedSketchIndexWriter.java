@@ -8,18 +8,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.lemurproject.galago.core.index.BTreeValueIterator;
-import org.lemurproject.galago.core.index.BTreeWriter;
-import org.lemurproject.galago.core.index.CompressedByteBuffer;
+import org.lemurproject.galago.core.btree.format.BTreeWriter;
+import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
 import org.lemurproject.galago.core.index.DiskSpillCompressedByteBuffer;
 import org.lemurproject.galago.core.index.IndexElement;
-import org.lemurproject.galago.core.index.disk.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Step;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
@@ -50,7 +50,7 @@ public class InvertedSketchIndexWriter implements
   int skipResetDistance;
 
   /**
-   * Creates a new instance of CountIndexWriter
+   * Creates a new create of CountIndexWriter
    */
   public InvertedSketchIndexWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
     this.actualParams = parameters.getJSON();
@@ -88,7 +88,7 @@ public class InvertedSketchIndexWriter implements
 
     invertedList = new CountsList();
     invertedList.setWord(wordBytes);
-    assert lastWord == null || 0 != Utility.compare(lastWord, wordBytes) : "Duplicate word";
+    assert lastWord == null || 0 != CmpUtil.compare(lastWord, wordBytes) : "Duplicate word";
     lastWord = wordBytes;
 
     vocabCount++;

@@ -8,6 +8,7 @@ import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
@@ -56,7 +57,7 @@ public class ConvergenceTester implements ExNihiloSource<PageRankScore> {
       } else {
         // MAJOR PROBLEM -- misaligned document lists... we dropped one.
         System.err.println("DOCUMENT MISSING...: " + prev.docName + " - " + curr.docName + "\nAttempting to recover.");
-        if (Utility.compare(prev.docName, curr.docName) < 0) {
+        if (CmpUtil.compare(prev.docName, curr.docName) < 0) {
           prev = prevReader.read();
         } else {
           curr = currReader.read();
