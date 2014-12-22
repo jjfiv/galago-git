@@ -37,7 +37,7 @@ public class AnnotateCollectionStatistics extends Traversal {
     this.globalParameters = retrieval.getGlobalParameters();
     this.retrieval = retrieval;
 
-    this.availableStatistics = new HashSet<String>();
+    this.availableStatistics = new HashSet<>();
     // field or document region statistics
     this.availableStatistics.add("collectionLength");
     this.availableStatistics.add("documentCount");
@@ -57,7 +57,7 @@ public class AnnotateCollectionStatistics extends Traversal {
 
   @Override
   public Node afterNode(Node node, Parameters qp) throws Exception {
-    
+
     // need to get list of required statistics
     NodeType nt = retrieval.getNodeType(node);
     if(nt == null){
@@ -70,7 +70,7 @@ public class AnnotateCollectionStatistics extends Traversal {
     // then annotate the node with any of:
     // -- nodeFreq, nodeDocCount, collLen, docCount, collProb
     if (required != null) {
-      HashSet<String> reqStats = new HashSet<String>();
+      HashSet<String> reqStats = new HashSet<>();
       for (String stat : required.statistics()) {
         if (availableStatistics.contains(stat)) {
           reqStats.add(stat);

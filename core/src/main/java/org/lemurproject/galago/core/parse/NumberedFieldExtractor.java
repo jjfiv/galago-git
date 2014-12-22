@@ -43,10 +43,12 @@ public class NumberedFieldExtractor extends StandardStep<Document, NumberedField
 
   @Override
   public void process(Document document) throws IOException {
-    for (Tag tag : document.tags) {
+    java.util.List<Tag> tags = document.tags;
+    for (int i1 = 0, tagsSize = tags.size(); i1 < tagsSize; i1++) {
+      Tag tag = tags.get(i1);
       if (trackedFields.containsKey(tag.name)) {
         String stringForm;
-        if(tag.charBegin < 0){
+        if (tag.charBegin < 0) {
           StringBuilder sb = new StringBuilder();
           for (int i = tag.begin; i < tag.end; i++) {
             sb.append(document.terms.get(i)).append(" ");
@@ -58,7 +60,7 @@ public class NumberedFieldExtractor extends StandardStep<Document, NumberedField
 
         byte[] bytes = getByteData(tag.name, stringForm.trim());
         processor.process(new NumberedField(ByteUtil.fromString(tag.name),
-                document.identifier, bytes));
+          document.identifier, bytes));
       }
     }
   }

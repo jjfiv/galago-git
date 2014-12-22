@@ -1,12 +1,13 @@
 // BSD License (http://lemurproject.org/galago-galago-license)
 package org.lemurproject.galago.tupleflow.typebuilder;
 
-import java.io.File;
-import java.io.IOException;
 import org.antlr.runtime.RecognitionException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * This is the Maven plugin that generates Type objects from galagotype specification
@@ -46,6 +47,8 @@ public class TypeBuilderMojo extends AbstractMojo {
     for (String component : packagePathComponents) {
       packageStringPath += File.separator + component;
     }
+
+
     // Create the filename:
     return packageStringPath + File.separator + typeName + ".java";
   }
@@ -65,8 +68,8 @@ public class TypeBuilderMojo extends AbstractMojo {
 
     for (File f : files) {
       if (f.isFile() && f.getName().endsWith("galagotype")) {
-        TypeSpecification spec = null;
-        java.io.FileWriter writer = null;
+        TypeSpecification spec;
+        java.io.FileWriter writer;
 
         try {
           spec = ParserDriver.getTypeSpecification(f.getAbsolutePath());

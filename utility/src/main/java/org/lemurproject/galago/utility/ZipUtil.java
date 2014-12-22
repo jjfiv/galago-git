@@ -14,7 +14,7 @@ import java.util.zip.ZipOutputStream;
  */
 public class ZipUtil {
   public static List<String> listZipFile(ZipFile zipFile) throws IOException {
-    ArrayList<String> results = new ArrayList<String>();
+    ArrayList<String> results = new ArrayList<>();
 
     Enumeration<? extends ZipEntry> entries = zipFile.entries();
     while (entries.hasMoreElements()) {

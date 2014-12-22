@@ -45,7 +45,7 @@ public class QuerySetEvaluatorFactory {
 
       // geometric mean metrics
     } else if (lowerMetric.equals("gmap")) {
-      QueryEvaluator evalFn = QueryEvaluatorFactory.instance(metric, p);
+      QueryEvaluator evalFn = QueryEvaluatorFactory.instance("ap", p);
       return new GeometricMean(metric, evalFn);
 
       // otherwise unknown

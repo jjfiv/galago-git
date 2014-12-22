@@ -18,7 +18,7 @@ public class DiskMapBuilder implements Closeable {
 
   public DiskMapBuilder(String path, Parameters opts) throws IOException {
     this.endPoint = new DiskMapSortedBuilder(path, opts);
-    this.sorter = new Sorter<KeyValuePair>(new KeyValuePair.KeyOrder());
+    this.sorter = new Sorter<>(new KeyValuePair.KeyOrder());
     try {
       this.sorter.setProcessor(endPoint);
     } catch (IncompatibleProcessorException e) {
