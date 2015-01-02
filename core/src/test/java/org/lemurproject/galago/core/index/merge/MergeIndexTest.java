@@ -218,10 +218,10 @@ public class MergeIndexTest {
             }
 
             index1 = FileUtility.createTemporaryDirectory();
-            (new FlushToDisk()).flushMemoryIndex(mi1, index1.getAbsolutePath());
+            FlushToDisk.flushMemoryIndex(mi1, index1.getAbsolutePath());
 
             index2 = FileUtility.createTemporaryDirectory();
-            (new FlushToDisk()).flushMemoryIndex(mi2, index2.getAbsolutePath());
+            FlushToDisk.flushMemoryIndex(mi2, index2.getAbsolutePath());
 
             AppTest.verifyIndexStructures(index1);
             AppTest.verifyIndexStructures(index2);

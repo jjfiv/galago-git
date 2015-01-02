@@ -1,26 +1,23 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
+import org.lemurproject.galago.utility.FSUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import org.lemurproject.galago.utility.FSUtil;
-
 public class FlushToDisk {
 
-  private Logger logger = Logger.getLogger(FlushToDisk.class.toString());
-  private MemoryIndex index;
-  private String outputFolder;
+  private static Logger logger = Logger.getLogger(FlushToDisk.class.toString());
 
-  public void flushMemoryIndex(MemoryIndex index, String folder) throws IOException {
+  public static void flushMemoryIndex(MemoryIndex index, String folder) throws IOException {
     flushMemoryIndex(index, folder, true);
   }
 
-  public void flushMemoryIndex(MemoryIndex index, String folder, boolean threaded) throws IOException {
-    this.index = index;
-    this.outputFolder = folder;
+  public static void flushMemoryIndex(MemoryIndex index, String folder, boolean threaded) throws IOException {
+    String outputFolder = folder;
 
     // first verify that there is at least one document
     //   and one term in the index
@@ -36,13 +33,13 @@ public class FlushToDisk {
     }
 
     if (threaded) {
-      flushThreaded(outputFolder);
+      flushThreaded(index, outputFolder);
     } else {
-      flushLocal(outputFolder);
+      flushLocal(index, outputFolder);
     }
   }
 
-  private void flushLocal(String outputFolder) throws IOException {
+  private static void flushLocal(MemoryIndex index, String outputFolder) throws IOException {
     for (String partName : index.getPartNames()) {
       MemoryIndexPart part = index.getIndexPart(partName);
       try {
@@ -55,8 +52,8 @@ public class FlushToDisk {
     }
   }
 
-  private void flushThreaded(final String outputFolder) throws IOException {
-    ArrayList<Thread> threads = new ArrayList();
+  private static void flushThreaded(MemoryIndex index, final String outputFolder) throws IOException {
+    ArrayList<Thread> threads = new ArrayList<>();
     for (final String partName : index.getPartNames()) {
       final MemoryIndexPart part = index.getIndexPart(partName);
       Thread t = new Thread() {

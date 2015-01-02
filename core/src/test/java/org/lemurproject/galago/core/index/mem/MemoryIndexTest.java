@@ -94,8 +94,8 @@ public class MemoryIndexTest {
         d.name = "DOC-" + i;
         d.text = "this is sample document " + i;
         d.terms = Arrays.asList(d.text.split(" "));
-        d.tags = new ArrayList();
-        d.metadata = new HashMap();
+        d.tags = new ArrayList<>();
+        d.metadata = new HashMap<>();
 
         index.process(d);
       }
@@ -110,7 +110,7 @@ public class MemoryIndexTest {
       assertEquals(iterator.currentCandidate(), 101);
 
       output = FileUtility.createTemporaryDirectory();
-      (new FlushToDisk()).flushMemoryIndex(index, output.getAbsolutePath(), false);
+      FlushToDisk.flushMemoryIndex(index, output.getAbsolutePath(), false);
 
       Retrieval r = RetrievalFactory.instance(output.getAbsolutePath(), Parameters.create());
       FieldStatistics collStats = r.getCollectionStatistics("#lengths:part=lengths()");

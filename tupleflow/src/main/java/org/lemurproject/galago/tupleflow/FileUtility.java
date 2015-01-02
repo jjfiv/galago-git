@@ -31,7 +31,7 @@ public class FileUtility {
   /** Always choose the largest temporary disk as the "best" temporary location -- a greedy solution */
   public static String getBestTemporaryLocation() throws IOException {
     String maxRoot = null;
-    long maxFreeSpace = -1;
+    long maxFreeSpace = 0;
     for (String root : roots) {
       long freeSpace = FSUtil.getFreeSpace(root);
       if(freeSpace > maxFreeSpace) {

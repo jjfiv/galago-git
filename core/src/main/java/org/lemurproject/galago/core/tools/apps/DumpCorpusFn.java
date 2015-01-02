@@ -46,6 +46,7 @@ public class DumpCorpusFn extends AppFunction {
     while (!iterator.isDone()) {
       output.println("#IDENTIFIER: " + iterator.getKeyString());
       Document document = iterator.getDocument(dc);
+      output.println("#NAME: " + document.name);
       output.println("#METADATA");
       for (Map.Entry<String, String> entry : document.metadata.entrySet()) {
         output.println(entry.getKey() + "," + entry.getValue());
