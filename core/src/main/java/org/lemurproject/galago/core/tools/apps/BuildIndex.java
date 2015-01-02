@@ -13,9 +13,10 @@ import org.lemurproject.galago.core.parse.*;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.NullStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
-import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.core.types.*;
 import org.lemurproject.galago.tupleflow.Order;
+import org.lemurproject.galago.tupleflow.TupleflowAppUtil;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -748,7 +749,7 @@ public class BuildIndex extends AppFunction {
             + "  --tokenizer/fields+{field-name}:   \n"
             + "                           Selects field parts to index.\n"
             + "                           [omitted]\n\n"
-            + getTupleFlowParameterString();
+            + TupleflowAppUtil.getTupleFlowParameterString();
     //TODO: need to design parameters for field indexes + stemming for field indexes
   }
 
@@ -756,7 +757,7 @@ public class BuildIndex extends AppFunction {
     Job job = getIndexJob(p);
 
     if (job != null) {
-      runTupleFlowJob(job, p, output);
+      TupleflowAppUtil.runTupleFlowJob(job, p, output);
     }
 
     output.println("Done Indexing.");

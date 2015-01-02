@@ -13,7 +13,8 @@ import java.util.HashSet;
 import java.util.Set;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseReader.KeyIterator;
-import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.tools.AppFunction;
+import org.lemurproject.galago.tupleflow.TupleflowAppUtil;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
@@ -40,7 +41,7 @@ public class BuildPartialIndex extends AppFunction {
             + "\t--documentNameList=</path/to/file>\n"
             + "\t--index=/path/to/input/index/\n"
             + "\t--partialIndex=/path/to/output/index/\n"
-            + getTupleFlowParameterString();
+            + TupleflowAppUtil.getTupleFlowParameterString();
   }
 
   @Override
@@ -80,7 +81,7 @@ public class BuildPartialIndex extends AppFunction {
 
     Job job = new BuildIndex().getIndexJob(p);
 
-    AppFunction.runTupleFlowJob(job, p, output);
+    TupleflowAppUtil.runTupleFlowJob(job, p, output);
   }
 
   private static void collectIds(File documentNames, File index, File documentIds, int distrib) throws Exception {

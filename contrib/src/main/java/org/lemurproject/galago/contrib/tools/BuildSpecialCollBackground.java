@@ -11,10 +11,11 @@ import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.parse.WordCountReducer;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
-import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.core.tools.apps.BuildStageTemplates;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.WordCount;
+import org.lemurproject.galago.tupleflow.TupleflowAppUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
@@ -134,7 +135,7 @@ public class BuildSpecialCollBackground extends AppFunction {
             + "                            Selects a stemmer class for the index part.\n"
             + "                            [default=krovetz]\n"
             + "\n"
-            + getTupleFlowParameterString();
+            + TupleflowAppUtil.getTupleFlowParameterString();
   }
 
   @Override
@@ -146,7 +147,7 @@ public class BuildSpecialCollBackground extends AppFunction {
 
     Job job = getBuildJob(p);
     if (job != null) {
-      runTupleFlowJob(job, p, output);
+      TupleflowAppUtil.runTupleFlowJob(job, p, output);
     }
   }
 

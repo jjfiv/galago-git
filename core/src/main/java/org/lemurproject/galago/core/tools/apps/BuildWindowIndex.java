@@ -9,12 +9,13 @@ import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.NullStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
-import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.core.types.NumberedExtent;
 import org.lemurproject.galago.core.types.TextFeature;
 import org.lemurproject.galago.core.window.*;
+import org.lemurproject.galago.tupleflow.TupleflowAppUtil;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
 import org.lemurproject.galago.utility.Parameters;
@@ -381,7 +382,7 @@ public class BuildWindowIndex extends AppFunction {
             + "  --positionalIndex={true|false}: Selects whether to write positional data to the index file.\n"
             + "                           (The benefit is a large decrease in space usage).\n"
             + "                           [default=true]\n\n"
-            + getTupleFlowParameterString();
+            + TupleflowAppUtil.getTupleFlowParameterString();
   }
 
   @Override
@@ -396,6 +397,6 @@ public class BuildWindowIndex extends AppFunction {
     BuildWindowIndex build = new BuildWindowIndex();
     job = build.getIndexJob(p);
 
-    runTupleFlowJob(job, p, output);
+    TupleflowAppUtil.runTupleFlowJob(job, p, output);
   }
 }

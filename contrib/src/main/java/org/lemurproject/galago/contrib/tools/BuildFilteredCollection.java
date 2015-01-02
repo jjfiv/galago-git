@@ -7,9 +7,10 @@ import org.lemurproject.galago.contrib.document.DocumentFilter;
 import org.lemurproject.galago.contrib.document.TrecWebDocumentWriter;
 import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.parse.UniversalParser;
-import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.core.tools.apps.BuildStageTemplates;
 import org.lemurproject.galago.core.types.DocumentSplit;
+import org.lemurproject.galago.tupleflow.TupleflowAppUtil;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.execution.*;
@@ -40,7 +41,7 @@ public class BuildFilteredCollection extends AppFunction {
             + "\t--filter+/path/to/filterfile\n"
             + "\t--compress=true\n"
             + "\n"
-            + getTupleFlowParameterString();
+            + TupleflowAppUtil.getTupleFlowParameterString();
   }
 
   @Override
@@ -55,7 +56,7 @@ public class BuildFilteredCollection extends AppFunction {
 
     Job job = getIndexJob(p);
 
-    runTupleFlowJob(job, p, output);
+    TupleflowAppUtil.runTupleFlowJob(job, p, output);
   }
 
   private static Job getIndexJob(Parameters buildParameters) throws Exception {

@@ -3,7 +3,7 @@ package org.lemurproject.galago.contrib.tools;
 import java.io.PrintStream;
 //import org.lemurproject.galago.core.parse.LinkCombiner;
 //import org.lemurproject.galago.core.parse.LinkExtractor;
-import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.utility.Parameters;
 
 //

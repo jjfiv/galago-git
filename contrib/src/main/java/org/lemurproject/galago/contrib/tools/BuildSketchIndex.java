@@ -11,12 +11,13 @@ import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
-import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.core.tools.apps.BuildStageTemplates;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.core.window.ReduceNumberWordCount;
 import org.lemurproject.galago.core.window.WindowProducer;
+import org.lemurproject.galago.tupleflow.TupleflowAppUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
@@ -46,7 +47,7 @@ public class BuildSketchIndex extends AppFunction {
             + "\t--depth=int [2]\n"
             + "\t--stemming=[boolean]\n"
             + "\t--stemmer=[org.lemurproject.galago.core.parse.stem.KrovetzStemmer]\n"
-            + getTupleFlowParameterString();
+            + TupleflowAppUtil.getTupleFlowParameterString();
   }
 
   @Override
@@ -60,7 +61,7 @@ public class BuildSketchIndex extends AppFunction {
     Job job = getIndexJob(p);
 
     if (job != null) {
-      runTupleFlowJob(job, p, output);
+      TupleflowAppUtil.runTupleFlowJob(job, p, output);
     }
 
     output.println("Done Indexing.");

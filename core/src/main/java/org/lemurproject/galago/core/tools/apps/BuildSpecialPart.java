@@ -15,10 +15,11 @@ import org.lemurproject.galago.core.parse.IndicatorExtractor;
 import org.lemurproject.galago.core.parse.NumberKeyValuePairs;
 import org.lemurproject.galago.core.parse.LineSplitter;
 import org.lemurproject.galago.core.parse.PriorExtractor;
-import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentFeature;
 import org.lemurproject.galago.core.types.DocumentIndicator;
 import org.lemurproject.galago.core.types.KeyValuePair;
+import org.lemurproject.galago.tupleflow.TupleflowAppUtil;
 import org.lemurproject.galago.tupleflow.execution.StepInformation;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -136,7 +137,7 @@ public class BuildSpecialPart extends AppFunction {
             + "                     prior: [default=-inf\n\n"
             + "  --priorType={raw|prob|logprob}: Sets the type of prior to read. (Only for prior parts)\n"
             + "                            [default=raw]\n\n"
-            + getTupleFlowParameterString();
+            + TupleflowAppUtil.getTupleFlowParameterString();
   }
 
   @Override
@@ -155,6 +156,6 @@ public class BuildSpecialPart extends AppFunction {
       job = build.getPriorJob(p);
     }
 
-    runTupleFlowJob(job, p, output);
+    TupleflowAppUtil.runTupleFlowJob(job, p, output);
   }
 }

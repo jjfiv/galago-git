@@ -5,7 +5,7 @@ package org.lemurproject.galago.core.tools.apps;
 
 import java.io.PrintStream;
 import java.util.Arrays;
-import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.tupleflow.FileOrderedReader;
 import org.lemurproject.galago.tupleflow.OrderedCombiner;
 import org.lemurproject.galago.utility.Parameters;

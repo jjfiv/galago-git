@@ -5,13 +5,14 @@ package org.lemurproject.galago.core.tools.apps;
 
 import org.lemurproject.galago.core.links.*;
 import org.lemurproject.galago.core.parse.DocumentSource;
-import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.core.types.ExtractedLink;
 import org.lemurproject.galago.core.types.ExtractedLinkIndri;
 import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.tupleflow.Order;
+import org.lemurproject.galago.tupleflow.TupleflowAppUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
@@ -49,7 +50,7 @@ public class HarvestLinksFn extends AppFunction {
             + "\t--galagoDist : 5  [number of output shards]\n"
             + "\t--outputFolder : /path/to/galago/output/folder \t\t [only for 'galago']\n"
             + "\n"
-            + getTupleFlowParameterString();
+            + TupleflowAppUtil.getTupleFlowParameterString();
   }
 
   @Override
@@ -63,7 +64,7 @@ public class HarvestLinksFn extends AppFunction {
     Job job = getHarvestLinksJob(p);
 
     if (job != null) {
-      runTupleFlowJob(job, p, output);
+      TupleflowAppUtil.runTupleFlowJob(job, p, output);
     }
 
     output.println("Done harvesting link.");

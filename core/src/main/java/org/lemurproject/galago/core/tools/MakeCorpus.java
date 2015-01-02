@@ -8,9 +8,11 @@ import org.lemurproject.galago.core.parse.DocumentSource;
 import org.lemurproject.galago.core.tools.apps.BuildStageTemplates;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
+import org.lemurproject.galago.tupleflow.TupleflowAppUtil;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.tools.AppFunction;
 
 import java.io.File;
 import java.io.IOException;
@@ -161,7 +163,7 @@ public class MakeCorpus extends AppFunction {
             + "                           File is a single file corpus. Folder is a folder of data files with an index.\n"
             + "                           The folder structure can be produce in a parallel manner.\n"
             + "                           [default=folder]\n\n"
-            + getTupleFlowParameterString();
+            + TupleflowAppUtil.getTupleFlowParameterString();
   }
 
   @Override
@@ -172,6 +174,6 @@ public class MakeCorpus extends AppFunction {
     }
     MakeCorpus mc = new MakeCorpus();
     Job job = mc.getMakeCorpusJob(p);
-    runTupleFlowJob(job, p, output);
+    TupleflowAppUtil.runTupleFlowJob(job, p, output);
   }
 }

@@ -1,6 +1,6 @@
-package org.lemurproject.galago.core.tools.apps;
+package org.lemurproject.galago.tupleflow.tools;
 
-import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.GalagoConf;
 import org.lemurproject.galago.utility.Parameters;

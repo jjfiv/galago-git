@@ -13,9 +13,10 @@ import org.lemurproject.galago.core.parse.stem.ConflationExtractor;
 import org.lemurproject.galago.core.parse.stem.ConflationReducer;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
-import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.types.KeyValuePair;
+import org.lemurproject.galago.tupleflow.TupleflowAppUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
@@ -43,7 +44,7 @@ public class BuildStemmerConflation extends AppFunction {
             + "          Files may be gzip compressed (.gz|.bz).\n"
             + "<outputPath>:  The path of the index part to produce.\n"
             + "<stemmer>: Name of a stemmer; [porter, krovetz, ...]\n\n"
-            + getTupleFlowParameterString();
+            + TupleflowAppUtil.getTupleFlowParameterString();
     //TODO: need to design parameters for field indexes + stemming for field indexes
   }
 
@@ -58,7 +59,7 @@ public class BuildStemmerConflation extends AppFunction {
     job = getIndexJob(p);
 
     if (job != null) {
-      runTupleFlowJob(job, p, output);
+      TupleflowAppUtil.runTupleFlowJob(job, p, output);
     }
 
   }

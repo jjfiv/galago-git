@@ -3,13 +3,14 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
+import org.lemurproject.galago.core.tools.App;
+import org.lemurproject.galago.utility.tools.AppFunction;
+import org.lemurproject.galago.utility.Parameters;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
-import org.lemurproject.galago.core.tools.App;
-import org.lemurproject.galago.core.tools.AppFunction;
-import org.lemurproject.galago.utility.Parameters;
 
 /**
  *
@@ -36,7 +37,7 @@ public class ChainFns extends AppFunction {
   @Override
   public void run(Parameters jobs, PrintStream output) throws Exception {
     if (jobs.isList("jobs")) {
-      List<Parameters> serialJobs = (List<Parameters>) jobs.getAsList("jobs");
+      List<Parameters> serialJobs = jobs.getAsList("jobs", Parameters.class);
       for (Parameters jobStep : serialJobs) {
         if (jobStep.get("active", true)) {
           Parameters stepParameters = findJobParameters(jobStep);

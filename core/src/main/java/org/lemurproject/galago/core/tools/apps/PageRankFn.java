@@ -4,7 +4,7 @@
 package org.lemurproject.galago.core.tools.apps;
 
 import org.lemurproject.galago.core.links.pagerank.*;
-import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.core.types.ExtractedLink;
 import org.lemurproject.galago.core.types.PageRankJumpScore;
@@ -48,7 +48,7 @@ public class PageRankFn extends AppFunction {
             + "\tdefaultScore=1/||D|| \n"
             + "\tdeleteIntData=false \n"
             + "\n"
-            + getTupleFlowParameterString();
+            + TupleflowAppUtil.getTupleFlowParameterString();
   }
 
   @Override

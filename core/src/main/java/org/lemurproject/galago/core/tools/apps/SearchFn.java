@@ -3,7 +3,7 @@
  */
 package org.lemurproject.galago.core.tools.apps;
 
-import org.lemurproject.galago.core.tools.AppFunction;
+import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.core.tools.Search;
 import org.lemurproject.galago.core.tools.SearchWebHandler;
 import org.lemurproject.galago.core.tools.StreamContextHandler;
