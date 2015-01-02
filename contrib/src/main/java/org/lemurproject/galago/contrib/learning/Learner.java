@@ -3,12 +3,13 @@
  */
 package org.lemurproject.galago.contrib.learning;
 
+import com.google.common.collect.Lists;
+import org.lemurproject.galago.core.eval.EvalDoc;
 import org.lemurproject.galago.core.eval.QuerySetJudgments;
 import org.lemurproject.galago.core.eval.QuerySetResults;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluator;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluatorFactory;
 import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -16,7 +17,8 @@ import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.queries.JSONQueryFormat;
 
-import java.io.*;
+import java.io.File;
+import java.io.PrintStream;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -180,7 +182,7 @@ public abstract class Learner {
       return testedParameters.get(settingString);
     }
 
-    HashMap<String,  List<ScoredDocument>> resMap = new HashMap<String, List<ScoredDocument>>();
+    HashMap<String,  List<EvalDoc>> resMap = new HashMap<>();
 
     // get the parameter settigns
     Parameters settings = instance.toParameters();
@@ -198,13 +200,13 @@ public abstract class Learner {
       root = this.retrieval.transformQuery(root, settings);
 
       //  need to add queryProcessing params some extra stuff to 'settings'
-      List<ScoredDocument> scoredDocs = this.retrieval.executeQuery(root, settings).scoredDocuments;
+      List<? extends EvalDoc> scoredDocs = this.retrieval.executeQuery(root, settings).scoredDocuments;
       
       // now unset the backoff (next query will have different backoffs)
       settings.setBackoff(null);
 
       if (scoredDocs != null) {
-        resMap.put(number, scoredDocs);
+        resMap.put(number, Lists.newArrayList(scoredDocs));
       }
     }
     long end = System.currentTimeMillis();
@@ -268,7 +270,7 @@ public abstract class Learner {
 
       root2 = this.ensureSettings(root2, settings2);
       root2 = this.retrieval.transformQuery(root2, settings2);
-      Set<String> cachableNodes2 = new HashSet<String>();
+      Set<String> cachableNodes2 = new HashSet<>();
       collectCachableNodes(root2, cachableNodes2);
 
       // intersect these sets

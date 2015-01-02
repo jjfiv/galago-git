@@ -142,10 +142,10 @@ public class Eval extends AppFunction {
 
     String formatString = "%2$-16s%1$3s %3$10.5f\n";
 
-    List<String> metrics = eval.getList("_metrics");
+    List<String> metrics = eval.getList("_metrics", String.class);
 
     if (p.get("details", false)) {
-      List<String> qids = new ArrayList(eval.getList("_qids"));
+      List<String> qids = new ArrayList<>(eval.getList("_qids", String.class));
       for (String qid : qids) {
         for (String metric : metrics) {
           output.format(formatString, qid, metric, eval.getMap(qid).getDouble(metric));
@@ -301,11 +301,11 @@ public class Eval extends AppFunction {
     QuerySetEvaluator[] setEvaluators = createSetEvaluators(metrics, p);
 
     Parameters recorded = Parameters.create();
-    recorded.set("_metrics", new ArrayList(Arrays.asList(metrics)));
+    recorded.set("_metrics", new ArrayList<>(Arrays.asList(metrics)));
 
     Parameters qRecord;
     if (p.get("details", false)) {
-      List<String> qids = new ArrayList();
+      List<String> qids = new ArrayList<>();
       for (String query : results.getQueryIterator()) {
         qRecord = Parameters.create();
         for (QuerySetEvaluator setEvaluator : setEvaluators) {
@@ -359,8 +359,8 @@ public class Eval extends AppFunction {
     QuerySetComparator[] setComparators = createSetComparators(tests);
     Parameters recorded = Parameters.create();
 
-    recorded.set("_metrics", new ArrayList(Arrays.asList(metrics)));
-    recorded.set("_comparisons", new ArrayList(Arrays.asList(tests)));
+    recorded.set("_metrics", new ArrayList<>(Arrays.asList(metrics)));
+    recorded.set("_comparisons", new ArrayList<>(Arrays.asList(tests)));
 
     for (QuerySetEvaluator evaluator : setEvaluators) {
       String metricString = evaluator.getMetric();
@@ -381,9 +381,9 @@ public class Eval extends AppFunction {
     // this ensure that queries that return no documents are represented in the ranking
     List<Parameters> queries = JSONQueryFormat.collectQueries(p);
 
-    List<String> runFiles = p.getAsList("runs");
-    List<QuerySetResults> runs = new ArrayList();
-    List<String> runIds = new ArrayList();
+    List<String> runFiles = p.getAsList("runs", String.class);
+    List<QuerySetResults> runs = new ArrayList<>();
+    List<String> runIds = new ArrayList<>();
     for (String runFile : runFiles) {
       QuerySetResults res = new QuerySetResults(runFile);
       if (!queries.isEmpty()) {
@@ -413,7 +413,7 @@ public class Eval extends AppFunction {
     }
     // get the test used
 
-    List<String> qids = new ArrayList();
+    List<String> qids = new ArrayList<>();
     for (String qid : runs.get(0).getQueryIterator()) {
       qids.add(qid);
     }
@@ -423,7 +423,7 @@ public class Eval extends AppFunction {
 
     Parameters recorded = Parameters.create();
     recorded.set("_runs", runIds);
-    recorded.set("_metrics", new ArrayList(Arrays.asList(metrics)));
+    recorded.set("_metrics", new ArrayList<>(Arrays.asList(metrics)));
     recorded.set("_comparisons", Arrays.asList(tests));
     recorded.set("_qid", qids);
 

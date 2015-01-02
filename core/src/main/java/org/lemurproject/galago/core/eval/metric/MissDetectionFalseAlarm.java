@@ -1,8 +1,8 @@
 package org.lemurproject.galago.core.eval.metric;
 
+import org.lemurproject.galago.core.eval.EvalDoc;
 import org.lemurproject.galago.core.eval.QueryJudgments;
 import org.lemurproject.galago.core.eval.QueryResults;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
 
 /**
  * Computes miss detection at a given false alarm rate.
@@ -42,8 +42,8 @@ public class MissDetectionFalseAlarm extends QueryEvaluator {
         int nonRelevantRetrieved = 0;
         int relevantRetrieved = 0;
 
-        for (ScoredDocument doc : resultList.getIterator()) {
-            if (judgments.isRelevant(doc.documentName)) {
+        for (EvalDoc doc : resultList.getIterator()) {
+            if (judgments.isRelevant(doc.getName())) {
                 relevantRetrieved++;
             } else {
                 nonRelevantRetrieved++;

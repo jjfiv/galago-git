@@ -3,9 +3,9 @@
  */
 package org.lemurproject.galago.core.eval.metric;
 
+import org.lemurproject.galago.core.eval.EvalDoc;
 import org.lemurproject.galago.core.eval.QueryJudgments;
 import org.lemurproject.galago.core.eval.QueryResults;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
 
 /**
  * returns the total number of unjudged documents in the result list
@@ -44,12 +44,12 @@ public class CountUnjudged extends QueryEvaluator {
    */
   private int relevantRetrieved(QueryResults resultList, QueryJudgments judgments) {
     int count = 0;
-    for (ScoredDocument doc : resultList.getIterator()) {
+    for (EvalDoc doc : resultList.getIterator()) {
       // assumes that documents iterate in increasing rank order.
-      if (doc.rank > documentsRetrieved) {
+      if (doc.getRank() > documentsRetrieved) {
         return count;
       }
-      if (!judgments.isJudged(doc.documentName)) {
+      if (!judgments.isJudged(doc.getName())) {
         count++;
       }
     }

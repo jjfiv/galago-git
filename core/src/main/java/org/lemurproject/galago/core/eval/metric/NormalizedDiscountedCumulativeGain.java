@@ -3,9 +3,9 @@
  */
 package org.lemurproject.galago.core.eval.metric;
 
+import org.lemurproject.galago.core.eval.EvalDoc;
 import org.lemurproject.galago.core.eval.QueryJudgments;
 import org.lemurproject.galago.core.eval.QueryResults;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
 
 import java.util.Arrays;
 
@@ -48,11 +48,11 @@ public class NormalizedDiscountedCumulativeGain extends QueryEvaluator {
     // compute dcg:
     double[] documentJudgments = new double[resultList.size()];
     int index = 0;
-    for (ScoredDocument doc : resultList.getIterator()) {
+    for (EvalDoc doc : resultList.getIterator()) {
       // document judgments must be positive
       documentJudgments[index] = 0;
-      if (judgments.get(doc.documentName) > 0) {
-        documentJudgments[index] = judgments.get(doc.documentName);
+      if (judgments.get(doc.getName()) > 0) {
+        documentJudgments[index] = judgments.get(doc.getName());
       }
       index++;
     }

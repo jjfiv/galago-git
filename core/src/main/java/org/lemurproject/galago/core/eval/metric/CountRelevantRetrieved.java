@@ -3,9 +3,9 @@
  */
 package org.lemurproject.galago.core.eval.metric;
 
+import org.lemurproject.galago.core.eval.EvalDoc;
 import org.lemurproject.galago.core.eval.QueryJudgments;
 import org.lemurproject.galago.core.eval.QueryResults;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
 
 /**
  * Returns the number of relevant documents retrieved.
@@ -43,11 +43,11 @@ public class CountRelevantRetrieved extends QueryEvaluator {
    */
   private int relevantRetrieved(QueryResults resultList, QueryJudgments judgments) {
     int count = 0;
-    for (ScoredDocument doc : resultList.getIterator()) {
-      if (doc.rank > documentsRetrieved) {
+    for (EvalDoc doc : resultList.getIterator()) {
+      if (doc.getRank() > documentsRetrieved) {
         return count;
       }
-      if (judgments.isRelevant(doc.documentName)) {
+      if (judgments.isRelevant(doc.getName())) {
         count++;
       }
     }

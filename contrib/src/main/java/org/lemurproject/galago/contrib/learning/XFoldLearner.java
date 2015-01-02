@@ -3,12 +3,13 @@
  */
 package org.lemurproject.galago.contrib.learning;
 
+import com.google.common.collect.Lists;
+import org.lemurproject.galago.core.eval.EvalDoc;
 import org.lemurproject.galago.core.eval.QuerySetResults;
 import org.lemurproject.galago.core.retrieval.Retrieval;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
 import java.util.*;
@@ -40,11 +41,11 @@ public class XFoldLearner extends Learner {
 
     // create one set of parameters (and learner) for each xfold.
     xfoldCount = (int) p.getLong("xfolds");
-    trainQueryFolds = new HashMap<Integer,List<String>>(xfoldCount);
-    testQueryFolds = new HashMap<Integer,List<String>>(xfoldCount);
-    foldTrainParameters = new HashMap<Integer,Parameters>(xfoldCount);
-    foldTestParameters = new HashMap<Integer,Parameters>(xfoldCount);
-    foldLearners = new HashMap<Integer,Learner>(xfoldCount);
+    trainQueryFolds = new HashMap<>(xfoldCount);
+    testQueryFolds = new HashMap<>(xfoldCount);
+    foldTrainParameters = new HashMap<>(xfoldCount);
+    foldTestParameters = new HashMap<>(xfoldCount);
+    foldLearners = new HashMap<>(xfoldCount);
 
     // randomize order of queries
     queryNumbers = new ArrayList<String>(this.queries.queryIdentifiers);
@@ -148,7 +149,7 @@ public class XFoldLearner extends Learner {
     long start = 0;
     long end = 0;
 
-    HashMap<String, List<ScoredDocument>> resMap = new HashMap<String,List<ScoredDocument>>();
+    HashMap<String, List<EvalDoc>> resMap = new HashMap<>();
 
     // ensure the global parameters contain the current settings.
     Parameters settings = instance.toParameters();
@@ -162,11 +163,11 @@ public class XFoldLearner extends Learner {
 
       //  need to add queryProcessing params some extra stuff to 'settings'
       start = System.currentTimeMillis();
-      List<ScoredDocument> scoredDocs = this.retrieval.executeQuery(root, settings).scoredDocuments;
+      List<? extends EvalDoc> scoredDocs = this.retrieval.executeQuery(root, settings).scoredDocuments;
       end = System.currentTimeMillis();
 
       if (scoredDocs != null) {
-        resMap.put(number, scoredDocs);
+        resMap.put(number, Lists.newArrayList(scoredDocs));
       }
     }
 

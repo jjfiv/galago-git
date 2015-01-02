@@ -3,11 +3,12 @@
  */
 package org.lemurproject.galago.core.eval.metric;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.lemurproject.galago.core.eval.EvalDoc;
 import org.lemurproject.galago.core.eval.QueryJudgments;
 import org.lemurproject.galago.core.eval.QueryResults;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>The binary preference measure, as presented in Buckley, Voorhees
@@ -38,14 +39,14 @@ public class BinaryPreference extends QueryEvaluator {
     if (totalRelevant == 0) {
       return 0;
     }
-    List<ScoredDocument> relevantRetrieved = getRelevantRetrieved(resultList, judgments);
+    List<EvalDoc> relevantRetrieved = getRelevantRetrieved(resultList, judgments);
 
     int i = 0;
     int j = 0;
     // 2006 bug fix...
     int nonRelevantCount = Math.min(totalRelevant, judgments.getNonRelevantJudgmentCount());
-    List<ScoredDocument> judgedIrrelevantRetrieved = getIrrelevantRetrieved(resultList, judgments);
-    List<ScoredDocument> irrelevant = judgedIrrelevantRetrieved.subList(0, Math.min(totalRelevant, judgedIrrelevantRetrieved.size()));
+    List<EvalDoc> judgedIrrelevantRetrieved = getIrrelevantRetrieved(resultList, judgments);
+    List<EvalDoc> irrelevant = judgedIrrelevantRetrieved.subList(0, Math.min(totalRelevant, judgedIrrelevantRetrieved.size()));
 
     double sum = 0;
     // if no negative judgments, num_rel_ret/num_rel (trec_eval 8).
@@ -54,10 +55,10 @@ public class BinaryPreference extends QueryEvaluator {
     }
 
     while (i < relevantRetrieved.size() && j < irrelevant.size()) {
-      ScoredDocument rel = relevantRetrieved.get(i);
-      ScoredDocument irr = irrelevant.get(j);
+      EvalDoc rel = relevantRetrieved.get(i);
+      EvalDoc irr = irrelevant.get(j);
 
-      if (rel.rank < irr.rank) {
+      if (rel.getRank() < irr.getRank()) {
         // we've just seen a relevant document;
         // how many of the irrelevant set are ahead of us?
         assert j <= totalRelevant;
@@ -71,20 +72,20 @@ public class BinaryPreference extends QueryEvaluator {
     return sum / (double) totalRelevant;
   }
 
-  private List<ScoredDocument> getRelevantRetrieved(QueryResults resultList, QueryJudgments judgments) {
-    ArrayList<ScoredDocument> relevantRetrieved = new ArrayList();
-    for (ScoredDocument doc : resultList.getIterator()) {
-      if (judgments.isRelevant(doc.documentName)) {
+  private List<EvalDoc> getRelevantRetrieved(QueryResults resultList, QueryJudgments judgments) {
+    ArrayList<EvalDoc> relevantRetrieved = new ArrayList<>();
+    for (EvalDoc doc : resultList.getIterator()) {
+      if (judgments.isRelevant(doc.getName())) {
         relevantRetrieved.add(doc);
       }
     }
     return relevantRetrieved;
   }
 
-  private List<ScoredDocument> getIrrelevantRetrieved(QueryResults resultList, QueryJudgments judgments) {
-    ArrayList<ScoredDocument> irrelevantRetrieved = new ArrayList();
-    for (ScoredDocument doc : resultList.getIterator()) {
-      if (judgments.isNonRelevant(doc.documentName)) {
+  private List<EvalDoc> getIrrelevantRetrieved(QueryResults resultList, QueryJudgments judgments) {
+    ArrayList<EvalDoc> irrelevantRetrieved = new ArrayList<>();
+    for (EvalDoc doc : resultList.getIterator()) {
+      if (judgments.isNonRelevant(doc.getName())) {
         irrelevantRetrieved.add(doc);
       }
     }

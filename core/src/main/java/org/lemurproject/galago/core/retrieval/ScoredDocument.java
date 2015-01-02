@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
+import org.lemurproject.galago.core.eval.EvalDoc;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.lists.Ranked;
@@ -14,7 +15,7 @@ import java.util.Comparator;
  *
  * @author trevor, irmarc, sjh
  */
-public class ScoredDocument extends Ranked implements Comparable<ScoredDocument>, Serializable {
+public class ScoredDocument extends Ranked implements EvalDoc, Comparable<ScoredDocument>, Serializable {
 
   public String documentName;
   public String source; // lets us know where this scored doc came from
@@ -94,6 +95,21 @@ public class ScoredDocument extends Ranked implements Comparable<ScoredDocument>
     doc.source = this.source;
     doc.annotation = this.annotation;
     return doc;
+  }
+
+  @Override
+  public int getRank() {
+    return rank;
+  }
+
+  @Override
+  public double getScore() {
+    return score;
+  }
+
+  @Override
+  public String getName() {
+    return documentName;
   }
 
   public static class ScoredDocumentComparator implements Comparator<ScoredDocument>, Serializable {

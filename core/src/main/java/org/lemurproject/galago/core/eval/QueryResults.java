@@ -4,7 +4,6 @@
 package org.lemurproject.galago.core.eval;
 
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
 
 /**
  * Stores a list of returned ScoredDocuments for a query.
@@ -14,14 +13,14 @@ import org.lemurproject.galago.core.retrieval.ScoredDocument;
 public class QueryResults {
 
   private String query;
-  private List<ScoredDocument> rankedList;
+  private List<EvalDoc> rankedList;
 
-  public QueryResults(String query, List<ScoredDocument> rankedList) {
+  public QueryResults(String query, List<EvalDoc> rankedList) {
     this.query = query;
     this.rankedList = rankedList;
   }
 
-  public Iterable<ScoredDocument> getIterator() {
+  public Iterable<EvalDoc> getIterator() {
     return rankedList;
   }
 

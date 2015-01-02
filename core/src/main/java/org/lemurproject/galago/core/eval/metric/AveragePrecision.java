@@ -3,9 +3,9 @@
  */
 package org.lemurproject.galago.core.eval.metric;
 
+import org.lemurproject.galago.core.eval.EvalDoc;
 import org.lemurproject.galago.core.eval.QueryJudgments;
 import org.lemurproject.galago.core.eval.QueryResults;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
 
 /**
  * Returns the average precision of the query.
@@ -28,10 +28,10 @@ public class AveragePrecision extends QueryEvaluator {
     double sumPrecision = 0.0;
     int relevantCount = 0;
     
-    for (ScoredDocument doc : resultList.getIterator()) {
-      if (judgments.isRelevant(doc.documentName)) {
+    for (EvalDoc doc : resultList.getIterator()) {
+      if (judgments.isRelevant(doc.getName())) {
         relevantCount++;
-        sumPrecision += relevantCount / (double) doc.rank;
+        sumPrecision += relevantCount / (double) doc.getRank();
       }
     }
 

@@ -4,9 +4,7 @@
 package org.lemurproject.galago.core.eval;
 
 import org.lemurproject.galago.core.eval.stat.NaturalOrderComparator;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.utility.lists.Ranked;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -24,16 +22,16 @@ import java.util.*;
 public class QuerySetResults {
 
     private String name;
-    private Map<String, QueryResults> querySetResults = new TreeMap<String, QueryResults>(new NaturalOrderComparator());
+    private Map<String, QueryResults> querySetResults = new TreeMap<>(new NaturalOrderComparator());
 
-    public QuerySetResults(Map<String, List<ScoredDocument>> results) {
+    public QuerySetResults(Map<String, List<EvalDoc>> results) {
         name = "results";
         for (String query : results.keySet()) {
             // There is a possibility that an immutable list could be 
             // passed in so we make a copy of the List so it can be sorted.
-            ArrayList rankedList = new ArrayList<ScoredDocument>(results.get(query));
+            ArrayList<EvalDoc> rankedList = new ArrayList<>(results.get(query));
             check(rankedList);
-            Collections.sort(rankedList, Ranked.byAscendingRank);
+            Collections.sort(rankedList, SimpleEvalDoc.byAscendingRank);
             querySetResults.put(query, new QueryResults(query, rankedList));
         }
     }
@@ -64,31 +62,31 @@ public class QuerySetResults {
         // open file
         BufferedReader in = new BufferedReader(new FileReader(filename), 256 * 1024);
         String line;
-        TreeMap<String, List<ScoredDocument>> ranking = new TreeMap<String, List<ScoredDocument>>();
+        TreeMap<String, List<EvalDoc>> ranking = new TreeMap<>();
 
         while ((line = in.readLine()) != null) {
-            int[] splits = splits(line, 6);
-
             // 1 Q0 WSJ880711-0086 39 -3.05948 Exp
-            String queryNumber = line.substring(splits[0], splits[1]);
-            String unused = line.substring(splits[2], splits[3]);
-            String docno = line.substring(splits[4], splits[5]);
-            String rank = line.substring(splits[6], splits[7]);
-            String score = line.substring(splits[8], splits[9]);
-            String runtag = line.substring(splits[10]);
+            String[] cols = line.split("\\s+");
 
-            ScoredDocument document = new ScoredDocument(docno, Integer.parseInt(rank), Double.parseDouble(score));
+            String queryNumber = cols[0];
+            //String unused = cols[1];
+            String docno = cols[2];
+            String rank = cols[3];
+            String score = cols[4];
+            //String runtag = cols[5];
+
+            EvalDoc document = new SimpleEvalDoc(docno, Integer.parseInt(rank), Double.parseDouble(score));
 
             if (!ranking.containsKey(queryNumber)) {
-                ranking.put(queryNumber, new ArrayList<ScoredDocument>());
+                ranking.put(queryNumber, new ArrayList<EvalDoc>());
             }
             ranking.get(queryNumber).add(document);
         }
 
         // ensure sorted order by rank
         for (String query : ranking.keySet()) {
-            List<ScoredDocument> documents = ranking.get(query);
-            Collections.sort(documents, Ranked.byAscendingRank);
+            List<EvalDoc> documents = ranking.get(query);
+            Collections.sort(documents, SimpleEvalDoc.byAscendingRank);
             querySetResults.put(query, new QueryResults(query, documents));
         }
 
@@ -104,41 +102,15 @@ public class QuerySetResults {
             if (query.isString("number")) {
                 String num = query.getString("number");
                 if (!querySetResults.containsKey(num)) {
-                    querySetResults.put(num, new QueryResults(num, new ArrayList<ScoredDocument>()));
+                    querySetResults.put(num, new QueryResults(num, new ArrayList<EvalDoc>()));
                 }
             }
         }
     }
 
-    /**
-     * Finds characters to split a line of a ranking file or a judgment file
-     */
-    private int[] splits(String s, int columns) {
-        int[] result = new int[2 * columns];
-        boolean lastWs = true;
-        int column = 0;
-        result[0] = 0;
-
-        for (int i = 0; i < s.length() && column < columns; i++) {
-            char c = s.charAt(i);
-            boolean isWs = (c == ' ') || (c == '\t');
-
-            if (!isWs && lastWs) {
-                result[2 * column] = i;
-            } else if (isWs && !lastWs) {
-                result[2 * column + 1] = i;
-                column++;
-            }
-
-            lastWs = isWs;
-        }
-
-        return result;
-    }
-
-    private void check(ArrayList<ScoredDocument> rankedList) {
-        for (ScoredDocument sdoc : rankedList) {
-            assert (sdoc.rank != 0) : "Ranked list contains a document with zero rank. Ranked lists must start from 1.";
+    private void check(ArrayList<EvalDoc> rankedList) {
+        for (EvalDoc sdoc : rankedList) {
+            assert (sdoc.getRank() != 0) : "Ranked list contains a document with zero rank. Ranked lists must start from 1.";
         }
     }
 }

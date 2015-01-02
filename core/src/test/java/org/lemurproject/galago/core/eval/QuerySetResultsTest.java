@@ -5,19 +5,19 @@
  */
 package org.lemurproject.galago.core.eval;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -25,8 +25,8 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class QuerySetResultsTest {
 
-    List<ScoredDocument> docs1 = new ArrayList<ScoredDocument>();
-    List<ScoredDocument> docs2 = new ArrayList<ScoredDocument>();
+    List<EvalDoc> docs1 = new ArrayList<>();
+    List<EvalDoc> docs2 = new ArrayList<>();
 
     public QuerySetResultsTest() {
     }
@@ -48,17 +48,18 @@ public class QuerySetResultsTest {
     @Test
     public void testConstructor() throws IOException {
 
-        List<ScoredDocument> unmodifiable1 = Collections.unmodifiableList(docs1);
-        List<ScoredDocument> unmodifiable2 = Collections.unmodifiableList(docs2);
+        List<EvalDoc> unmodifiable1 = Collections.unmodifiableList(docs1);
+        List<EvalDoc> unmodifiable2 = Collections.unmodifiableList(docs2);
 
         // The constructor does a sort, the old version of the code would fail
         // on the sort if an immutable list was passed in with an  UnsupportedOperationException.
-        Map<String, List<ScoredDocument>> results = new HashMap<String, List<ScoredDocument>>();
+        Map<String, List<EvalDoc>> results = new HashMap<>();
 
         results.put("docs1", unmodifiable1);
         results.put("docs2", unmodifiable2);
 
         QuerySetResults rs = new QuerySetResults(results);
+        assertNotNull(rs);
 
         File tmp = FileUtility.createTemporary();
         try {
@@ -67,8 +68,9 @@ public class QuerySetResultsTest {
                     = "1 Q0 WSJ880711-0086 39 -3.05948 Exp\n"
                     + "2 Q0 WSJ880711-0087 40 -3.15948 Exp\n";
 
-            Utility.copyStringToFile(qrels, tmp);
+            StreamUtil.copyStringToFile(qrels, tmp);
             QuerySetResults rs2 = new QuerySetResults(tmp.getAbsolutePath());
+            assertNotNull(rs2);
 
         } finally {
             tmp.delete();
@@ -82,22 +84,22 @@ public class QuerySetResultsTest {
     public void testGet() {
 
         // make a copy of the docs and shuffle them
-        ArrayList<ScoredDocument> newDocs = new ArrayList<ScoredDocument>();
-        for (ScoredDocument d : docs1) {
-            newDocs.add(d.clone(d.score));
+        ArrayList<EvalDoc> newDocs = new ArrayList<>();
+        for (EvalDoc d : docs1) {
+            newDocs.add(new ScoredDocument(d.getName(), d.getRank(), d.getScore()));
         }
 
         // shuffle the new docs
         Collections.shuffle(newDocs);
 
-        Map<String, List<ScoredDocument>> results = new HashMap<String, List<ScoredDocument>>();
+        Map<String, List<EvalDoc>> results = new HashMap<>();
 
         results.put("query docs1", newDocs);
         QuerySetResults rs = new QuerySetResults(results);
         QueryResults newResults = rs.get("query docs1");
 
         int i = 0;
-        for (ScoredDocument sd : newResults.getIterator()) {
+        for (EvalDoc sd : newResults.getIterator()) {
             assertTrue(sd.equals(docs1.get(i++)));
         }
 
@@ -109,7 +111,7 @@ public class QuerySetResultsTest {
     @Test
     public void testGetName() {
 
-        Map<String, List<ScoredDocument>> results = new HashMap<String, List<ScoredDocument>>();
+        Map<String, List<EvalDoc>> results = new HashMap<>();
 
         results.put("query docs1", docs1);
         results.put("query docs2", docs2);
