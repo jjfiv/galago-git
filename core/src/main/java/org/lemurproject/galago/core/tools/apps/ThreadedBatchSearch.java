@@ -6,6 +6,7 @@ import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.utility.queries.JSONQueryFormat;
 import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.utility.Parameters;
 
@@ -85,7 +86,7 @@ public class ThreadedBatchSearch extends AppFunction {
     }
 
     // get queries
-    List<Parameters> queries = BatchSearch.collectQueries(parameters);
+    List<Parameters> queries = JSONQueryFormat.collectQueries(parameters);
 
     // open index
     Retrieval retrieval = RetrievalFactory.create(parameters);

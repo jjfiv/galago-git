@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.utility.queries.JSONQueryFormat;
 import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.utility.Parameters;
 
@@ -34,7 +35,7 @@ public class TransformQueryFn extends AppFunction {
   @Override
   public void run(Parameters p, PrintStream output) throws Exception {
     Retrieval r = RetrievalFactory.create(p);
-    List<Parameters> queries = BatchSearch.collectQueries(p);
+    List<Parameters> queries = JSONQueryFormat.collectQueries(p);
 
     String printMode = p.get("format", "pretty");
 

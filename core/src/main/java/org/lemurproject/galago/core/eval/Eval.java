@@ -5,8 +5,8 @@ import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluator;
 import org.lemurproject.galago.core.eval.aggregate.QuerySetEvaluatorFactory;
 import org.lemurproject.galago.core.eval.compare.QuerySetComparator;
 import org.lemurproject.galago.core.eval.compare.QuerySetComparatorFactory;
+import org.lemurproject.galago.utility.queries.JSONQueryFormat;
 import org.lemurproject.galago.utility.tools.AppFunction;
-import org.lemurproject.galago.core.tools.apps.BatchSearch;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
@@ -284,7 +284,7 @@ public class Eval extends AppFunction {
 
     QuerySetResults results = new QuerySetResults(p.getString("baseline"));
     // this ensure that queries that return no documents are represented in the ranking
-    List<Parameters> queries = BatchSearch.collectQueries(p);
+    List<Parameters> queries = JSONQueryFormat.collectQueries(p);
     if (!queries.isEmpty()) {
       results.ensureQuerySet(queries);
     }
@@ -333,7 +333,7 @@ public class Eval extends AppFunction {
     QuerySetResults treatment = new QuerySetResults(p.getString("treatment"));
 
     // this ensure that queries that return no documents are represented in the ranking
-    List<Parameters> queries = BatchSearch.collectQueries(p);
+    List<Parameters> queries = JSONQueryFormat.collectQueries(p);
     if (!queries.isEmpty()) {
       baseline.ensureQuerySet(queries);
       treatment.ensureQuerySet(queries);
@@ -379,7 +379,7 @@ public class Eval extends AppFunction {
 
   public static Parameters setEvaluation(Parameters p, QuerySetJudgments judgments) throws IOException {
     // this ensure that queries that return no documents are represented in the ranking
-    List<Parameters> queries = BatchSearch.collectQueries(p);
+    List<Parameters> queries = JSONQueryFormat.collectQueries(p);
 
     List<String> runFiles = p.getAsList("runs");
     List<QuerySetResults> runs = new ArrayList();

@@ -11,8 +11,8 @@ import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.utility.queries.JSONQueryFormat;
 import org.lemurproject.galago.utility.tools.AppFunction;
-import org.lemurproject.galago.core.tools.apps.BatchSearch;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -56,7 +56,7 @@ public class GenerateWorkingSetQueries extends AppFunction {
 
   @Override
   public void run(Parameters parameters, PrintStream output) throws Exception {
-    List<Parameters> queries = BatchSearch.collectQueries(parameters);
+    List<Parameters> queries = JSONQueryFormat.collectQueries(parameters);
 
     if (!parameters.containsKey("index") || queries.isEmpty()) {
       output.println(getHelpString());

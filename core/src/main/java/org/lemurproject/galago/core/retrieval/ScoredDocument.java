@@ -2,7 +2,6 @@
 package org.lemurproject.galago.core.retrieval;
 
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.lists.Ranked;
 

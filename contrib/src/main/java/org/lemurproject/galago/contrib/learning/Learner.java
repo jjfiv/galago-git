@@ -12,9 +12,9 @@ import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.tools.apps.BatchSearch;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.queries.JSONQueryFormat;
 
 import java.io.*;
 import java.util.*;
@@ -95,7 +95,7 @@ public abstract class Learner {
     assert (p.isList("learnableParameters", Parameters.class)) : this.getClass().getName() + " requires `learnableParameters' parameter, of type List<Map>.";
     assert (!p.containsKey("normalization") || (p.isMap("normalization") || p.isList("normalization", Parameters.class))) : this.getClass().getName() + " requires `normalization' parameter to be of type List<Map>.";
 
-    queries = new QuerySet(BatchSearch.collectQueries(p), p);
+    queries = new QuerySet(JSONQueryFormat.collectQueries(p), p);
     assert !queries.isEmpty() : this.getClass().getName() + " requires `queries' parameter, of type List(Parameters): see Batch-Search for an example.";
 
     boolean binaryJudgments = p.get("binary", false);
