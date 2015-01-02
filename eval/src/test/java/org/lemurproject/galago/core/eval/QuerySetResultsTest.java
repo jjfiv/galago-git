@@ -5,19 +5,14 @@
  */
 package org.lemurproject.galago.core.eval;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
-import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -34,15 +29,15 @@ public class QuerySetResultsTest {
     @Before
     public void setUp() {
 
-        docs1.add(new ScoredDocument("doc1-1", 1, -1.5));
-        docs1.add(new ScoredDocument("doc1-2", 2, -1.6));
-        docs1.add(new ScoredDocument("doc1-3", 3, -1.7));
-        docs1.add(new ScoredDocument("doc1-4", 4, -1.8));
+        docs1.add(new SimpleEvalDoc("doc1-1", 1, -1.5));
+        docs1.add(new SimpleEvalDoc("doc1-2", 2, -1.6));
+        docs1.add(new SimpleEvalDoc("doc1-3", 3, -1.7));
+        docs1.add(new SimpleEvalDoc("doc1-4", 4, -1.8));
 
-        docs2.add(new ScoredDocument("doc2-1", 1, -2.5));
-        docs2.add(new ScoredDocument("doc2-2", 2, -2.6));
-        docs2.add(new ScoredDocument("doc2-3", 3, -2.7));
-        docs2.add(new ScoredDocument("doc2-4", 4, -2.8));
+        docs2.add(new SimpleEvalDoc("doc2-1", 1, -2.5));
+        docs2.add(new SimpleEvalDoc("doc2-2", 2, -2.6));
+        docs2.add(new SimpleEvalDoc("doc2-3", 3, -2.7));
+        docs2.add(new SimpleEvalDoc("doc2-4", 4, -2.8));
     }
 
     @Test
@@ -59,9 +54,9 @@ public class QuerySetResultsTest {
         results.put("docs2", unmodifiable2);
 
         QuerySetResults rs = new QuerySetResults(results);
-        assertNotNull(rs);
+        Assert.assertNotNull(rs);
 
-        File tmp = FileUtility.createTemporary();
+        File tmp = File.createTempFile("foo", "qrel");
         try {
             // create a TREC ranking file
             String qrels
@@ -70,7 +65,7 @@ public class QuerySetResultsTest {
 
             StreamUtil.copyStringToFile(qrels, tmp);
             QuerySetResults rs2 = new QuerySetResults(tmp.getAbsolutePath());
-            assertNotNull(rs2);
+            Assert.assertNotNull(rs2);
 
         } finally {
             tmp.delete();
@@ -86,7 +81,7 @@ public class QuerySetResultsTest {
         // make a copy of the docs and shuffle them
         ArrayList<EvalDoc> newDocs = new ArrayList<>();
         for (EvalDoc d : docs1) {
-            newDocs.add(new ScoredDocument(d.getName(), d.getRank(), d.getScore()));
+            newDocs.add(new SimpleEvalDoc(d.getName(), d.getRank(), d.getScore()));
         }
 
         // shuffle the new docs
@@ -100,7 +95,7 @@ public class QuerySetResultsTest {
 
         int i = 0;
         for (EvalDoc sd : newResults.getIterator()) {
-            assertTrue(sd.equals(docs1.get(i++)));
+            Assert.assertTrue(sd.equals(docs1.get(i++)));
         }
 
     }
@@ -117,7 +112,7 @@ public class QuerySetResultsTest {
         results.put("query docs2", docs2);
         QuerySetResults rs = new QuerySetResults(results);
 
-        assertEquals("results", rs.getName());
+        Assert.assertEquals("results", rs.getName());
 
     }
 

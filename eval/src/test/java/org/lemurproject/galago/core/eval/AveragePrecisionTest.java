@@ -4,9 +4,8 @@ package org.lemurproject.galago.core.eval;
 import org.junit.Test;
 import org.lemurproject.galago.core.eval.metric.AveragePrecision;
 import org.lemurproject.galago.core.eval.metric.QueryEvaluatorFactory;
-import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,8 +29,8 @@ public class AveragePrecisionTest {
 
   @Test
   public void calculatePrecision() throws IOException {
-    File tmpQ = FileUtility.createTemporary();
-    File tmpR = FileUtility.createTemporary();
+    File tmpQ = File.createTempFile("tmpQ", "");
+    File tmpR = File.createTempFile("tmpR", "");
 
     try{
       //there are 10 documents total
@@ -75,7 +74,7 @@ public class AveragePrecisionTest {
               "4 0 doc7 0\n" +
               "4 0 doc8 1\n" +
               "4 0 doc9 1\n";
-      Utility.copyStringToFile(qrels, tmpQ);
+      StreamUtil.copyStringToFile(qrels, tmpQ);
       QuerySetJudgments qsj = new QuerySetJudgments(tmpQ.getAbsolutePath(), true, true);
       String results =
           "1 Q0 doc0 1 -10.08 galago\n" +
@@ -118,13 +117,13 @@ public class AveragePrecisionTest {
               "4 Q0 doc7 8 -13.08 galago\n" +
               "4 Q0 doc8 9 -13.55 galago\n" +
               "4 Q0 doc9 10 -13.85 galago\n";
-      Utility.copyStringToFile(results, tmpR);
+      StreamUtil.copyStringToFile(results, tmpR);
       QuerySetResults qsr = new QuerySetResults(tmpR.getAbsolutePath());
       AveragePrecision ap = new AveragePrecision("");
-      assertEquals(1.000, ap.evaluate(qsr.get("1"), qsj.get("1")),.001);
-      assertEquals(0.354, ap.evaluate(qsr.get("2"), qsj.get("2")),.001);
-      assertEquals(1.000, ap.evaluate(qsr.get("3"), qsj.get("3")),.001);
-      assertEquals(0.737, ap.evaluate(qsr.get("4"), qsj.get("4")),.0001);
+      assertEquals(1.000, ap.evaluate(qsr.get("1"), qsj.get("1")), .001);
+      assertEquals(0.354, ap.evaluate(qsr.get("2"), qsj.get("2")), .001);
+      assertEquals(1.000, ap.evaluate(qsr.get("3"), qsj.get("3")), .001);
+      assertEquals(0.737, ap.evaluate(qsr.get("4"), qsj.get("4")), .0001);
     } finally{
       tmpQ.delete();
       tmpR.delete();

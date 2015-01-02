@@ -35,10 +35,6 @@
         </configuration>
       </plugin>
       <plugin>
-        <artifactId>maven-jxr-plugin</artifactId>
-        <version>2.3</version>
-      </plugin>
-      <plugin>
         <version>2.16</version>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
@@ -57,6 +53,11 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>tupleflow</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>eval</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

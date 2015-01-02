@@ -54,6 +54,7 @@
     <module>core</module>
     <module>tupleflow</module>
     <module>tupleflow-typebuilder</module>
+    <module>eval</module>
     <module>krovetz-stemmer</module>
     <module>snowball-stemmers</module>
     <module>utility</module>

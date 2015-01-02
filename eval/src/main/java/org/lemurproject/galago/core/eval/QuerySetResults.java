@@ -3,7 +3,7 @@
  */
 package org.lemurproject.galago.core.eval;
 
-import org.lemurproject.galago.core.eval.stat.NaturalOrderComparator;
+import org.lemurproject.galago.utility.compare.NaturalOrderComparator;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.BufferedReader;

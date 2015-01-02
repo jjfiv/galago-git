@@ -1,6 +1,7 @@
-package org.lemurproject.galago.core.eval.stat;
+package org.lemurproject.galago.utility.compare;
 
 import org.junit.Test;
+import org.lemurproject.galago.utility.compare.NaturalOrderComparator;
 
 import java.util.Arrays;
 import java.util.Collections;

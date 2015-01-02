@@ -21,7 +21,7 @@ appreciated but is not required.
 misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
  */
-package org.lemurproject.galago.core.eval.stat;
+package org.lemurproject.galago.utility.compare;
 
 import java.io.Serializable;
 import java.util.Comparator;

@@ -1,15 +1,13 @@
 
 package org.lemurproject.galago.core.eval;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.lemurproject.galago.core.eval.metric.Recall;
-import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Test the Recall class
@@ -18,8 +16,8 @@ import static org.junit.Assert.assertEquals;
 public class RecallTest {
     @Test
     public void calculatePrecision() throws IOException {
-        File tmpQ = FileUtility.createTemporary();
-        File tmpR = FileUtility.createTemporary();
+        File tmpQ = File.createTempFile("tmpQ", "");
+        File tmpR = File.createTempFile("tmpR", "");
 
         try{
             //there are 10 documents total
@@ -62,7 +60,7 @@ public class RecallTest {
                             "4 0 doc7 0\n" +
                             "4 0 doc8 1\n" +
                             "4 0 doc9 1\n";
-            Utility.copyStringToFile(qrels, tmpQ);
+            StreamUtil.copyStringToFile(qrels, tmpQ);
             QuerySetJudgments qsj = new QuerySetJudgments(tmpQ.getAbsolutePath(), true, true);
             String results =
                     "1 Q0 doc0 1 -10.08 galago\n" +
@@ -105,18 +103,18 @@ public class RecallTest {
                             "4 Q0 doc7 8 -13.08 galago\n" +
                             "4 Q0 doc8 9 -13.55 galago\n" +
                             "4 Q0 doc9 10 -13.85 galago\n";
-            Utility.copyStringToFile(results, tmpR);
+            StreamUtil.copyStringToFile(results, tmpR);
             QuerySetResults qsr = new QuerySetResults(tmpR.getAbsolutePath());
             Recall rFive = new Recall(5);
             Recall rTen = new Recall(10);
-            assertEquals(1.000, rFive.evaluate(qsr.get("1"), qsj.get("1")),.0001);
-            assertEquals(0.000, rFive.evaluate(qsr.get("2"), qsj.get("2")),.0001);
-            assertEquals(1.000, rFive.evaluate(qsr.get("3"), qsj.get("3")),.0001);
-            assertEquals(0.500, rFive.evaluate(qsr.get("4"), qsj.get("4")),.0001);
-            assertEquals(1.000, rTen.evaluate(qsr.get("1"), qsj.get("1")),.0001);
-            assertEquals(1.000, rTen.evaluate(qsr.get("2"), qsj.get("2")),.0001);
-            assertEquals(1.000, rTen.evaluate(qsr.get("3"), qsj.get("3")),.0001);
-            assertEquals(1.000, rTen.evaluate(qsr.get("4"), qsj.get("4")),.0001);
+            Assert.assertEquals(1.000, rFive.evaluate(qsr.get("1"), qsj.get("1")), .0001);
+            Assert.assertEquals(0.000, rFive.evaluate(qsr.get("2"), qsj.get("2")), .0001);
+            Assert.assertEquals(1.000, rFive.evaluate(qsr.get("3"), qsj.get("3")), .0001);
+            Assert.assertEquals(0.500, rFive.evaluate(qsr.get("4"), qsj.get("4")), .0001);
+            Assert.assertEquals(1.000, rTen.evaluate(qsr.get("1"), qsj.get("1")), .0001);
+            Assert.assertEquals(1.000, rTen.evaluate(qsr.get("2"), qsj.get("2")), .0001);
+            Assert.assertEquals(1.000, rTen.evaluate(qsr.get("3"), qsj.get("3")), .0001);
+            Assert.assertEquals(1.000, rTen.evaluate(qsr.get("4"), qsj.get("4")), .0001);
         }
         finally{
             tmpQ.delete();
