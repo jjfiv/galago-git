@@ -1,12 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.btree.simple;
 
-import org.lemurproject.galago.utility.btree.IndexElement;
 import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;
+import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.btree.GenericElement;
+import org.lemurproject.galago.utility.btree.IndexElement;
 
 import java.io.IOException;
 
@@ -19,7 +20,7 @@ import java.io.IOException;
  */
 @InputClass(className = "org.lemurproject.galago.core.types.KeyValuePair", order = {"+key"})
 public class DiskMapSortedBuilder implements Processor<KeyValuePair> {
-	DiskBTreeWriter btree;
+  DiskBTreeWriter btree;
   Parameters opts;
   public DiskMapSortedBuilder(String path, Parameters opts) throws IOException {
     // note that it's okay not to have a readerClass
@@ -42,7 +43,7 @@ public class DiskMapSortedBuilder implements Processor<KeyValuePair> {
    * @see DiskBTreeWriter
    */
   public void put(byte[] key, byte[] value) throws IOException {
-    btree.add(new DiskMapElement(key, value));
+    putCustom(new GenericElement(key, value));
   }
 
   public void putCustom(IndexElement element) throws IOException {
