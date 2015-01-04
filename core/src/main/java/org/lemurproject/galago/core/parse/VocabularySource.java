@@ -2,6 +2,7 @@
 package org.lemurproject.galago.core.parse;
 
 import org.lemurproject.galago.core.btree.format.BTreeFactory;
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.*;
@@ -28,7 +29,7 @@ public class VocabularySource implements ExNihiloSource<KeyValuePair> {
   Counter skipCounter;
   public Processor<KeyValuePair> processor;
   BTreeReader reader;
-  BTreeReader.BTreeIterator iterator;
+  BTreeIterator iterator;
   HashSet<String> inclusions = null;
   HashSet<String> exclusions = null;
 

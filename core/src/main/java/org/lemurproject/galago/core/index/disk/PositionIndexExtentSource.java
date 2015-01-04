@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.utility.btree.BTreeReader;
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.core.index.source.BTreeValueSource;
 import org.lemurproject.galago.core.index.source.ExtentSource;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
@@ -62,7 +62,7 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
   private int extentsByteSize;
   
   
-  public PositionIndexExtentSource(BTreeReader.BTreeIterator iter) throws IOException {
+  public PositionIndexExtentSource(BTreeIterator iter) throws IOException {
     super(iter);
     startPosition = btreeIter.getValueStart();
     endPosition = btreeIter.getValueEnd();
@@ -70,7 +70,7 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
     reset();
   }
 
-  public PositionIndexExtentSource(BTreeReader.BTreeIterator iter, String dispKey) throws IOException {
+  public PositionIndexExtentSource(BTreeIterator iter, String dispKey) throws IOException {
     super(iter, dispKey);
     startPosition = btreeIter.getValueStart();
     endPosition = btreeIter.getValueEnd();

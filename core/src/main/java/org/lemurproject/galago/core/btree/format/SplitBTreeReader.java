@@ -1,9 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.btree.format;
 
-import org.lemurproject.galago.utility.btree.BTreeReader;
-import org.lemurproject.galago.utility.btree.DiskBTreeReader;
-import org.lemurproject.galago.utility.btree.VocabularyReader;
+import org.lemurproject.galago.utility.btree.*;
 import org.lemurproject.galago.utility.buffer.BufferedFileDataStream;
 import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.Parameters;
@@ -40,15 +38,15 @@ public class SplitBTreeReader extends BTreeReader {
   String indexFolder;
   int hashMod;
 
-  public class Iterator extends BTreeReader.BTreeIterator {
+  public class Iterator extends BTreeIterator {
 
-    DiskBTreeReader.DiskBTreeIterator vocabIterator;
+    DiskBTreeIterator vocabIterator;
     boolean valueLoaded = false;
     int file;
     long valueOffset;
     long valueLength;
 
-    public Iterator(DiskBTreeReader.DiskBTreeIterator vocabIterator) {
+    public Iterator(DiskBTreeIterator vocabIterator) {
       super(vocabIterator.reader);
       this.vocabIterator = vocabIterator;
     }
@@ -258,7 +256,7 @@ public class SplitBTreeReader extends BTreeReader {
    */
   @Override
   public Iterator getIterator(byte[] key) throws IOException {
-    DiskBTreeReader.DiskBTreeIterator i = vocabIndex.getIterator(key);
+    DiskBTreeIterator i = vocabIndex.getIterator(key);
     if (i == null) {
       return null;
     } else {

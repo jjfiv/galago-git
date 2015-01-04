@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.index;
 
 import java.io.IOException;
 
-import org.lemurproject.galago.utility.btree.BTreeReader;
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.CmpUtil;
@@ -23,7 +23,7 @@ public abstract class BTreeValueIterator implements BaseIterator {
     this.key = key;
   }
 
-  public abstract void reset(BTreeReader.BTreeIterator it) throws IOException;
+  public abstract void reset(BTreeIterator it) throws IOException;
 
   public String getKeyString() throws IOException {
     return ByteUtil.toString(key);

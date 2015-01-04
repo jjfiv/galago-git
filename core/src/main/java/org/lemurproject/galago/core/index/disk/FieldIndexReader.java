@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
@@ -65,7 +66,7 @@ public class FieldIndexReader extends KeyListReader {
   }
 
   public ListIterator getField(String fieldname) throws IOException {
-    BTreeReader.BTreeIterator iterator =
+    BTreeIterator iterator =
             reader.getIterator(ByteUtil.fromString(fieldname));
     return new ListIterator(iterator, formatMap);
   }
@@ -129,7 +130,7 @@ public class FieldIndexReader extends KeyListReader {
           implements BaseIterator {
 
     Parameters formatMap;
-    BTreeReader.BTreeIterator iterator;
+    BTreeIterator iterator;
     //VByteInput data;
     long startPosition, endPosition;
     DataStream dataStream;
@@ -145,7 +146,7 @@ public class FieldIndexReader extends KeyListReader {
     long dateValue;
     byte[] dateBytes = new byte[8];
 
-    public ListIterator(BTreeReader.BTreeIterator iterator, Parameters formatMap) throws IOException {
+    public ListIterator(BTreeIterator iterator, Parameters formatMap) throws IOException {
       super(iterator.getKey());
       this.formatMap = formatMap;
       reset(iterator);
@@ -160,7 +161,7 @@ public class FieldIndexReader extends KeyListReader {
     }
 
     @Override
-    public void reset(BTreeReader.BTreeIterator i) throws IOException {
+    public void reset(BTreeIterator i) throws IOException {
       iterator = i;
       key = iterator.getKey();
       startPosition = iterator.getValueStart();

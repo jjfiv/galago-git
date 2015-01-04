@@ -6,6 +6,7 @@ package org.lemurproject.galago.core.index;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.lemurproject.galago.utility.btree.DiskBTreeIterator;
 import org.lemurproject.galago.utility.btree.DiskBTreeReader;
 import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.tupleflow.FileUtility;
@@ -90,7 +91,7 @@ public class IndexWriterTest {
 
     assertTrue(DiskBTreeReader.isBTree(temporary));
     DiskBTreeReader reader = new DiskBTreeReader(temporary.getAbsolutePath());
-    DiskBTreeReader.DiskBTreeIterator iterator = reader.getIterator();
+    DiskBTreeIterator iterator = reader.getIterator();
 
     // Skip to 'more'
     iterator.skipTo(new byte[]{(byte) 'm'});

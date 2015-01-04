@@ -1,6 +1,6 @@
 package org.lemurproject.galago.core.btree.simple;
 
-import org.lemurproject.galago.utility.btree.BTreeReader;
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
@@ -93,7 +93,7 @@ public class DiskMapWrapper<KT, VT> extends ReadOnlyMap<KT, VT> implements Close
 
   public void forEach(IAction<KT, VT> action) {
     try {
-      BTreeReader.BTreeIterator iterator = reader.btree.getIterator();
+      BTreeIterator iterator = reader.btree.getIterator();
       while(!iterator.isDone()) {
         KT key = keyCodec.fromBytes(iterator.getKey());
         VT value = valCodec.fromBytes(iterator.getValueBytes());
@@ -114,7 +114,7 @@ public class DiskMapWrapper<KT, VT> extends ReadOnlyMap<KT, VT> implements Close
 
     Collections.sort(rawKeys, new CmpUtil.ByteArrComparator());
     try {
-      BTreeReader.BTreeIterator iterator = reader.btree.getIterator();
+      BTreeIterator iterator = reader.btree.getIterator();
       for (byte[] query : rawKeys) {
         iterator.skipTo(query);
 

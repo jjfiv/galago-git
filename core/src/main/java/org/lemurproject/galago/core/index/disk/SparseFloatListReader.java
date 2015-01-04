@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
+
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -33,7 +35,7 @@ public class SparseFloatListReader extends KeyListReader {
   }
 
   private DiskScoreIterator getScores(String term, double defaultScore) throws IOException {
-    BTreeReader.BTreeIterator iterator = reader.getIterator(ByteUtil.fromString(term));
+    BTreeIterator iterator = reader.getIterator(ByteUtil.fromString(term));
     return new DiskScoreIterator(new SparseFloatListSource(iterator, defaultScore));
   }
 

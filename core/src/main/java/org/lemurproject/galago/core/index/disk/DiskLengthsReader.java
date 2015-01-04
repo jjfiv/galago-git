@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.index.disk;
 
 import org.lemurproject.galago.utility.btree.BTreeReader;
-import org.lemurproject.galago.utility.btree.BTreeReader.BTreeIterator;
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.LengthsReader;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;

@@ -96,10 +96,16 @@ public class VocabularyReader {
     assert valueDataEnd >= last;
   }
 
+  /**
+   * Binary search for a key.
+   */
   public IndexBlockInfo get(byte[] key) {
     return get(key, 0);
   }
 
+  /**
+   * Binary search for a key, with a minimum block id.
+   */
   public IndexBlockInfo get(byte[] key, int minBlock) {
     if (slots.isEmpty()) {
       return null;

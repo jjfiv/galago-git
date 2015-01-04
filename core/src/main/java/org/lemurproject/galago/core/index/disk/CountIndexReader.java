@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
@@ -53,7 +54,7 @@ public class CountIndexReader extends KeyListReader implements AggregateIndexPar
    * doesn't exist in the inverted file.
    */
   public DiskCountIterator getTermCounts(byte[] key) throws IOException {
-    BTreeReader.BTreeIterator iterator = reader.getIterator(key);
+    BTreeIterator iterator = reader.getIterator(key);
 
     if (iterator != null) {
       return new DiskCountIterator(new CountIndexCountSource(iterator));

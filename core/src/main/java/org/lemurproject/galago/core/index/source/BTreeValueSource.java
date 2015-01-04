@@ -1,7 +1,8 @@
 package org.lemurproject.galago.core.index.source;
 
 import java.io.IOException;
-import org.lemurproject.galago.utility.btree.BTreeReader;
+
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.ByteUtil;
 
 /**
@@ -14,15 +15,15 @@ public abstract class BTreeValueSource implements DiskSource {
   public static final int HAS_MAXTF = 0x02;
   public static final int HAS_INLINING = 0x04;
   
-  final protected BTreeReader.BTreeIterator btreeIter;
+  final protected BTreeIterator btreeIter;
   final protected String key;
   
-  public BTreeValueSource(BTreeReader.BTreeIterator it) throws IOException {
+  public BTreeValueSource(BTreeIterator it) throws IOException {
     this.key = ByteUtil.toString(it.getKey());
     this.btreeIter = it;
   }
 
-  public BTreeValueSource(BTreeReader.BTreeIterator it, String displayKey) throws IOException {
+  public BTreeValueSource(BTreeIterator it, String displayKey) throws IOException {
     this.key = displayKey;
     this.btreeIter = it;
   }

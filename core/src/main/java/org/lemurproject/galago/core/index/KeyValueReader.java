@@ -2,6 +2,7 @@
 package org.lemurproject.galago.core.index;
 
 import org.lemurproject.galago.core.btree.format.BTreeFactory;
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
@@ -42,7 +43,7 @@ public abstract class KeyValueReader implements IndexPartReader {
 
   public static abstract class KeyValueIterator implements KeyIterator {
 
-    public BTreeReader.BTreeIterator iterator;
+    public BTreeIterator iterator;
     public BTreeReader reader;
 
     public KeyValueIterator(BTreeReader reader) throws IOException {

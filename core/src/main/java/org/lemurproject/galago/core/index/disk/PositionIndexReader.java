@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
@@ -54,7 +55,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
   }
 
   public DiskExtentIterator getTermExtents(byte[] term) throws IOException {
-    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
+    BTreeIterator iterator = reader.getIterator(term);
     if (iterator != null) {
       return new DiskExtentIterator(new PositionIndexExtentSource(iterator));
     }
@@ -66,7 +67,7 @@ public class PositionIndexReader extends KeyListReader implements AggregateIndex
   }
 
   public DiskCountIterator getTermCounts(byte[] term) throws IOException {
-    BTreeReader.BTreeIterator iterator = reader.getIterator(term);
+    BTreeIterator iterator = reader.getIterator(term);
     if (iterator != null) {
       return new DiskCountIterator(new PositionIndexCountSource(iterator));
     }

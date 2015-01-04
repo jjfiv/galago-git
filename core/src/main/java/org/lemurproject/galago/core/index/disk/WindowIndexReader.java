@@ -4,6 +4,8 @@ package org.lemurproject.galago.core.index.disk;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
@@ -50,7 +52,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
    */
   public DiskExtentIterator getTermExtents(String term) throws IOException {
     term = stemmer.stemAsRequired(term);
-    BTreeReader.BTreeIterator iterator = reader.getIterator(ByteUtil.fromString(term));
+    BTreeIterator iterator = reader.getIterator(ByteUtil.fromString(term));
     if (iterator != null) {
       return new DiskExtentIterator(new WindowIndexExtentSource(iterator));
     }
@@ -59,7 +61,7 @@ public class WindowIndexReader extends KeyListReader implements AggregateIndexPa
 
   public DiskCountIterator getTermCounts(String term) throws IOException {
     term = stemmer.stemAsRequired(term);
-    BTreeReader.BTreeIterator iterator = reader.getIterator(ByteUtil.fromString(term));
+    BTreeIterator iterator = reader.getIterator(ByteUtil.fromString(term));
 
     if (iterator != null) {
       return new DiskCountIterator(new WindowIndexCountSource(iterator));

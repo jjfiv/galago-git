@@ -2,7 +2,8 @@
 package org.lemurproject.galago.core.index.disk;
 
 import java.io.IOException;
-import org.lemurproject.galago.utility.btree.BTreeReader;
+
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.core.index.source.BTreeValueSource;
 import org.lemurproject.galago.core.index.source.LengthSource;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
@@ -31,7 +32,7 @@ final public class DiskLengthSource extends BTreeValueSource implements LengthSo
   long lengthsDataOffset;
   boolean done;
 
-  public DiskLengthSource(BTreeReader.BTreeIterator iter) throws IOException {
+  public DiskLengthSource(BTreeIterator iter) throws IOException {
     super(iter);
     reset();
   }

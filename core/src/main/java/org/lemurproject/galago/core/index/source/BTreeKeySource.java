@@ -2,6 +2,8 @@
 package org.lemurproject.galago.core.index.source;
 
 import java.io.IOException;
+
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.tupleflow.Utility;
 
@@ -20,7 +22,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public abstract class BTreeKeySource implements DiskSource {
 
-  protected BTreeReader.BTreeIterator btreeIter;
+  protected BTreeIterator btreeIter;
   protected BTreeReader btreeReader;
   public final long keyCount;
 

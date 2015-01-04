@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.btree.simple;
 
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.utility.btree.DiskBTreeReader;
 import org.lemurproject.galago.utility.ByteUtil;
@@ -39,7 +40,7 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> implements Closea
     return size() == 0;
   }
   
-  private BTreeReader.BTreeIterator getIter(byte[] key) {
+  private BTreeIterator getIter(byte[] key) {
     try {
       return btree.getIterator(key);
     } catch (IOException ex) {
@@ -56,7 +57,7 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> implements Closea
     
     try {
       byte[] key = (byte[]) o;
-      BTreeReader.BTreeIterator iter = getIter(key);
+      BTreeIterator iter = getIter(key);
       if(iter == null || iter.getKey() == null)
         return false;
       return Arrays.equals(key, iter.getKey());
@@ -69,7 +70,7 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> implements Closea
   public Set<byte[]> keySet() {
     Set<byte[]> keys = new TreeSet<>(new CmpUtil.ByteArrComparator());
     try {
-      BTreeReader.BTreeIterator iter = btree.getIterator();
+      BTreeIterator iter = btree.getIterator();
       while(!iter.isDone()) {
         keys.add(iter.getKey());
         iter.nextKey();
@@ -86,7 +87,7 @@ public class DiskMapReader extends ReadOnlyMap<byte[], byte[]> implements Closea
       return null;
     try {
       byte[] key = (byte[]) o;
-      BTreeReader.BTreeIterator iter = getIter(key);
+      BTreeIterator iter = getIter(key);
       if(iter != null && Arrays.equals(key, iter.getKey())) {
         return iter.getValueBytes();
       }

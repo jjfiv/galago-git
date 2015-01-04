@@ -3,7 +3,8 @@ package org.lemurproject.galago.core.index.disk;
 
 import java.io.DataInput;
 import java.io.IOException;
-import org.lemurproject.galago.utility.btree.BTreeReader;
+
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.core.index.source.BTreeValueSource;
 import org.lemurproject.galago.core.index.source.CountSource;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
@@ -41,7 +42,7 @@ public class CountIndexCountSource extends BTreeValueSource implements CountSour
   long documentsByteFloor;
   long countsByteFloor;
 
-  public CountIndexCountSource(BTreeReader.BTreeIterator iterator) throws IOException {
+  public CountIndexCountSource(BTreeIterator iterator) throws IOException {
     super(iterator);
     startPosition = btreeIter.getValueStart();
     endPosition = btreeIter.getValueEnd();

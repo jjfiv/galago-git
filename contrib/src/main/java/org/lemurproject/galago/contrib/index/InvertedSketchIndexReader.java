@@ -5,7 +5,7 @@ package org.lemurproject.galago.contrib.index;
 
 import org.lemurproject.galago.contrib.hash.UniversalStringHashFunction;
 import org.lemurproject.galago.utility.btree.BTreeReader;
-import org.lemurproject.galago.utility.btree.BTreeReader.BTreeIterator;
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
@@ -166,7 +166,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
   public static class TermCountIterator extends BTreeValueIterator
           implements NodeAggregateIterator, CountIterator {
 
-    BTreeReader.BTreeIterator iterator;
+    BTreeIterator iterator;
     int documentCount;
     int collectionCount;
     int maximumPositionCount;
@@ -192,7 +192,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     long documentsByteFloor;
     long countsByteFloor;
 
-    public TermCountIterator(BTreeReader.BTreeIterator iterator) throws IOException {
+    public TermCountIterator(BTreeIterator iterator) throws IOException {
       super(iterator.getKey());
       reset(iterator);
     }
@@ -281,7 +281,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     }
 
     @Override
-    public void reset(BTreeReader.BTreeIterator i) throws IOException {
+    public void reset(BTreeIterator i) throws IOException {
       iterator = i;
       startPosition = iterator.getValueStart();
       endPosition = iterator.getValueEnd();
