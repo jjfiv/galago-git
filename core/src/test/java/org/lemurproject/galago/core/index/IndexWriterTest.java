@@ -6,7 +6,7 @@ package org.lemurproject.galago.core.index;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.lemurproject.galago.core.btree.format.DiskBTreeReader;
+import org.lemurproject.galago.utility.btree.DiskBTreeReader;
 import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.ByteUtil;

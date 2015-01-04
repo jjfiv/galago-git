@@ -2,6 +2,7 @@
 package org.lemurproject.galago.core.btree.format;
 
 import org.lemurproject.galago.core.index.IndexElement;
+import org.lemurproject.galago.utility.btree.DiskBTreeFormat;
 import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.utility.ByteUtil;
@@ -33,7 +34,6 @@ import java.util.List;
  */
 public class DiskBTreeWriter extends BTreeWriter {
 
-  public static final long MAGIC_NUMBER = 0x1a2b3c4d5e6f7a8dL;
   private DataOutputStream output;
   private VocabularyWriter vocabulary;
   private Parameters manifest;
@@ -146,7 +146,7 @@ public class DiskBTreeWriter extends BTreeWriter {
     output.writeLong(vocabularyOffset);
     output.writeLong(manifestOffset);
     output.writeInt(blockSize);
-    output.writeLong(MAGIC_NUMBER);
+    output.writeLong(DiskBTreeFormat.MAGIC_NUMBER);
 
     output.close();
   }

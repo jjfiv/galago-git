@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.btree.format;
+package org.lemurproject.galago.utility.btree;
 
-import org.lemurproject.galago.core.btree.format.VocabularyReader.IndexBlockInfo;
+import org.lemurproject.galago.utility.btree.VocabularyReader.IndexBlockInfo;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.StreamCreator;
@@ -310,7 +310,7 @@ public class DiskBTreeReader extends BTreeReader {
       long manifestOffset = input.readLong();
       int blockSize = input.readInt();
       long magicNumber = input.readLong();
-      if (magicNumber != DiskBTreeWriter.MAGIC_NUMBER) {
+      if (magicNumber != DiskBTreeFormat.MAGIC_NUMBER) {
         throw new IOException("This does not appear to be an index file (wrong magic number)");
       }
 
@@ -418,10 +418,6 @@ public class DiskBTreeReader extends BTreeReader {
   }
 
   /**
-   * ***********
-   */
-  // local functions
-  /**
    * Returns true if the file specified by this pathname was probably written by
    * DiskBTreeWriter. If this method returns false, the file is definitely not
    * readable by DiskBTreeReader.
@@ -440,7 +436,7 @@ public class DiskBTreeReader extends BTreeReader {
         f.seek(length - Long.SIZE / 8);
         magicNumber = f.readLong();
       }
-      result = (magicNumber == DiskBTreeWriter.MAGIC_NUMBER);
+      result = (magicNumber == DiskBTreeFormat.MAGIC_NUMBER);
     } finally {
       if(f != null) {
         f.close();

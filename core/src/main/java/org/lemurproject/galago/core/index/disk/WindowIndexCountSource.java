@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.index.disk;
 
 import java.io.DataInput;
 import java.io.IOException;
-import org.lemurproject.galago.core.btree.format.BTreeReader.BTreeIterator;
+import org.lemurproject.galago.utility.btree.BTreeReader.BTreeIterator;
 import org.lemurproject.galago.core.index.source.BTreeValueSource;
 import org.lemurproject.galago.core.index.source.CountSource;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;

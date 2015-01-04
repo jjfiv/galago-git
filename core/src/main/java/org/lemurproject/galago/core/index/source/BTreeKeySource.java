@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.index.source;
 
 import java.io.IOException;
-import org.lemurproject.galago.core.btree.format.BTreeReader;
+import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.tupleflow.Utility;
 
 /**

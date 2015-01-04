@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.btree.format;
+package org.lemurproject.galago.utility.btree;
 
 import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.ByteUtil;
@@ -40,7 +40,7 @@ import java.nio.MappedByteBuffer;
  */
 public abstract class BTreeReader implements Closeable {
 
-  public abstract class BTreeIterator implements Comparable<BTreeIterator> {
+  public static abstract class BTreeIterator implements Comparable<BTreeIterator> {
 
     public BTreeReader reader;
 

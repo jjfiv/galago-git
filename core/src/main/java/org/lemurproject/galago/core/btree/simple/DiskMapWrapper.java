@@ -1,6 +1,6 @@
 package org.lemurproject.galago.core.btree.simple;
 
-import org.lemurproject.galago.core.btree.format.BTreeReader;
+import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
