@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.index.corpus;
 
 import org.lemurproject.galago.core.corpus.DocumentSerializer;
-import org.lemurproject.galago.core.index.GenericElement;
+import org.lemurproject.galago.utility.btree.GenericElement;
 import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.core.index.merge.CorpusMerger;
 import org.lemurproject.galago.core.parse.Document;

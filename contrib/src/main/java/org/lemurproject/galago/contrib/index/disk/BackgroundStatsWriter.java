@@ -5,7 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import org.lemurproject.galago.core.index.GenericElement;
+import org.lemurproject.galago.utility.btree.GenericElement;
 import org.lemurproject.galago.core.index.KeyValueWriter;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.utility.Parameters;

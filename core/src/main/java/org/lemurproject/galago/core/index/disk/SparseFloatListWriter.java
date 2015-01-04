@@ -3,8 +3,8 @@ package org.lemurproject.galago.core.index.disk;
 
 import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
-import org.lemurproject.galago.core.index.DiskSpillCompressedByteBuffer;
-import org.lemurproject.galago.core.index.IndexElement;
+import org.lemurproject.galago.tupleflow.buffer.DiskSpillCompressedByteBuffer;
+import org.lemurproject.galago.utility.btree.IndexElement;
 import org.lemurproject.galago.core.types.NumberWordProbability;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 

@@ -1,8 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.btree.format;
 
-import org.lemurproject.galago.core.index.IndexElement;
+import org.lemurproject.galago.utility.btree.IndexElement;
 import org.lemurproject.galago.utility.btree.DiskBTreeFormat;
+import org.lemurproject.galago.utility.btree.VocabularyWriter;
 import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.utility.ByteUtil;

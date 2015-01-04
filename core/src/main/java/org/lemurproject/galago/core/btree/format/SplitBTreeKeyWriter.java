@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.btree.format;
 
 import java.io.File;
 import java.io.IOException;
-import org.lemurproject.galago.core.index.GenericElement;
+import org.lemurproject.galago.utility.btree.GenericElement;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.InputClass;

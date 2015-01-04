@@ -2,7 +2,7 @@
 package org.lemurproject.galago.core.index.disk;
 
 import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
-import org.lemurproject.galago.core.index.IndexElement;
+import org.lemurproject.galago.utility.btree.IndexElement;
 import org.lemurproject.galago.core.index.merge.DocumentLengthsMerger;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.*;

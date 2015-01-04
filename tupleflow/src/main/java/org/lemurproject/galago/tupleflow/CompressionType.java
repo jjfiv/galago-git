@@ -11,7 +11,7 @@ package org.lemurproject.galago.tupleflow;
  */
 public enum CompressionType {
 
-  UNSPECIFIED, NONE, VBYTE, GZIP, Utility;
+  UNSPECIFIED, NONE, VBYTE, GZIP;
 
   public static byte toByte(CompressionType c) {
     switch (c) {

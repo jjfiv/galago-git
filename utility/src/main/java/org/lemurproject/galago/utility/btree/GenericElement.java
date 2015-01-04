@@ -1,11 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 
-package org.lemurproject.galago.core.index;
+package org.lemurproject.galago.utility.btree;
+
+import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.btree.IndexElement;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
-import org.lemurproject.galago.utility.ByteUtil;
 
 /**
  *

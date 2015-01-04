@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.index.disk;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import org.lemurproject.galago.core.index.GenericElement;
+import org.lemurproject.galago.utility.btree.GenericElement;
 import org.lemurproject.galago.core.index.KeyValueWriter;
 import org.lemurproject.galago.core.types.DocumentIndicator;
 import org.lemurproject.galago.utility.debug.Counter;

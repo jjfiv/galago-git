@@ -6,7 +6,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 
-import org.lemurproject.galago.core.index.IndexElement;
+import org.lemurproject.galago.utility.btree.IndexElement;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;

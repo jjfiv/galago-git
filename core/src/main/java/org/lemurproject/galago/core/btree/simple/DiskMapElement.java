@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.btree.simple;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import org.lemurproject.galago.core.index.IndexElement;
+import org.lemurproject.galago.utility.btree.IndexElement;
 
 /**
  *

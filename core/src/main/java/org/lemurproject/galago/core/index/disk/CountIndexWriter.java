@@ -11,7 +11,9 @@ import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.btree.IndexElement;
 import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
+import org.lemurproject.galago.tupleflow.buffer.DiskSpillCompressedByteBuffer;
 
 import java.io.IOException;
 import java.io.OutputStream;

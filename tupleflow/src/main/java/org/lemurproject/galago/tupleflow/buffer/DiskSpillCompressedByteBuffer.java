@@ -24,7 +24,7 @@
  * @author sjh
  * @author irmarc
  */
-package org.lemurproject.galago.core.index;
+package org.lemurproject.galago.tupleflow.buffer;
 
 import gnu.trove.list.array.TIntArrayList;
 import org.lemurproject.galago.tupleflow.FileUtility;

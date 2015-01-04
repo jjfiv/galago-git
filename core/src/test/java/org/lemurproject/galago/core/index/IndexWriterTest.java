@@ -12,6 +12,7 @@ import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.btree.GenericElement;
 
 import java.io.File;
 import java.io.IOException;
