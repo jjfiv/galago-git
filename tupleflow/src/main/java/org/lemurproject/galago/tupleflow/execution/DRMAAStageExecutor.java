@@ -1,18 +1,19 @@
 //BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow.execution;
 
-import java.io.File;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
-import org.lemurproject.galago.utility.Parameters;
 import org.ggf.drmaa.DrmaaException;
 import org.ggf.drmaa.JobTemplate;
 import org.ggf.drmaa.Session;
 import org.ggf.drmaa.SessionFactory;
 import org.lemurproject.galago.tupleflow.GalagoConf;
+import org.lemurproject.galago.utility.Parameters;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * DRMAAExecutor
@@ -31,6 +32,8 @@ import org.lemurproject.galago.tupleflow.GalagoConf;
  * @author trevor, sjh, schiu, irmarc
  */
 public class DRMAAStageExecutor extends CheckpointedStageExecutor {
+
+  private static final Logger logger = Logger.getLogger(DRMAAStageExecutor.class.getName());
 
   Session session;
   // Flag to set the verbose mode (either on or off)
@@ -78,9 +81,9 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
       this.jobs = jobs;
       this.jobCheckpoints = jobCheckpoints;
       this.startTimes = starts;
-      this.stopTimes = new HashMap<String, Long>();
+      this.stopTimes = new HashMap<>();
       this.stageName = n;
-      this.exceptions = new ArrayList<Exception>();
+      this.exceptions = new ArrayList<>();
       if (e != null) {
         this.exceptions.add(e);
       }
@@ -110,8 +113,9 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
               }
               try {
                 Thread.sleep(1000); // wait 1 second
-              } catch (Exception e) {
-              } // Don't care about interruption errors
+              } catch (InterruptedException ignored) {
+                // Don't care about interruption errors
+              }
             } while (count++ < 60); // 1 min timeout
 
             // if the job finished over a minute ago, and the checkpoint still doesn't exist - it probably errored.
@@ -205,7 +209,7 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
 
     @Override
     public synchronized List<Double> getRunTimes() {
-      ArrayList<Double> times = new ArrayList();
+      ArrayList<Double> times = new ArrayList<>();
       long current;
       if (startTimes != null) {
         for (String jobid : startTimes.keySet()) {
@@ -223,6 +227,7 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
             double diff = (current - start + 0.0) / 1000.0;
             times.add(diff);
           } catch (DrmaaException e) {
+            logger.log(Level.WARNING, e.getMessage(), e);
           }
         }
       }
@@ -255,9 +260,9 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
   /**
    * <p>Creates a new create of DRMAAExecutor.</p>
    *
-   * @param arguments     An array; if it contains anything, the first
-   *                      element is used as the command when submitting
-   *                      jobs to DRMAA.
+   * @param args     An array; if it contains anything, the first
+   *                 element is used as the command when submitting
+   *                 jobs to DRMAA.
    */
   public DRMAAStageExecutor(String[] args) {
 
@@ -267,15 +272,6 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
     verbose = false;
     nativeSpecification_each = "-w n";
     nativeSpecification_combined = "-w n";
-    // CIIR specific parameters
-    // First get the hostname
-    String hostname;
-    try {
-      InetAddress local = InetAddress.getLocalHost();
-      hostname = local.getHostName();
-    } catch (UnknownHostException ex) {
-      hostname = "localhost";
-    }
 
     Parameters defaults = GalagoConf.getDrmaaOptions();
     if (defaults.containsKey("mem")) {
@@ -295,21 +291,22 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
 
     // customize based upon arguments
 
-    for (int i = 0; i < args.length; i++) {
-      if (args[i].startsWith("Xmx")) {
-        memory_x = "-" + args[i];
-      } else if (args[i].startsWith("Xms")) {
-        memory_s = "-" + args[i];
-      } else if (args[i].startsWith("-t=")) {
-        nodeTempDir = args[i].replace("-t=", "");
-      } else if (args[i].startsWith("-v")) {
+    for (String arg : args) {
+      if (arg.startsWith("Xmx")) {
+        memory_x = "-" + arg;
+      } else if (arg.startsWith("Xms")) {
+        memory_s = "-" + arg;
+      } else if (arg.startsWith("-t=")) {
+        nodeTempDir = arg.replace("-t=", "");
+      } else if (arg.startsWith("-v")) {
         verbose = true;
-      } else if (args[i].startsWith("-ns=")) {
-        String ns = args[i].replaceAll("^-ns=", "");
-        ns.replaceAll("(^\")|(\"$)", "");
+      } else if (arg.startsWith("-ns=")) {
+        String ns = arg.replaceAll("^-ns=", "");
+        // TODO(jfoley) find out what this does and if someone meant to catch the return value.
+        // ns.replaceAll("(^\")|(\"$)", "");
         setNativeSpecification(ns);
       } else {
-        System.out.println("Ignoring unknown argument: " + args[i]);
+        System.out.println("Ignoring unknown argument: " + arg);
       }
     }
 
@@ -317,17 +314,8 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
       session = SessionFactory.getFactory().getSession();
       session.init("");
     } catch (DrmaaException e) {
+      logger.log(Level.WARNING, e.getMessage(), e);
     }
-  }
-
-  // dont need these function anymore....
-  /**
-   * <p>Sets the verbose mode.</p>
-   *
-   * @param verbose   The verbose mode.
-   */
-  public void setVerbose(boolean verbose) {
-    this.verbose = verbose;
   }
 
   /**
@@ -353,21 +341,12 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
     this.memory_s = memory_s;
   }
 
-  /**
-   * <p>Sets the temporary directory to use for scratch space on each of the
-   * nodes.</p>
-   *
-   * @param nodeTempDir   The path to the temporary directory.
-   */
-  public void setNodeTempDir(String nodeTempDir) {
-    this.nodeTempDir = nodeTempDir;
-  }
-
   @Override
   public void shutdown() {
     try {
       session.exit();
     } catch (DrmaaException e) {
+      logger.log(Level.WARNING, e.getMessage(), e);
     }
   }
 
@@ -384,9 +363,9 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
   @Override
   public StageExecutionStatus submit(String stageName, ArrayList<String> jobPaths,
           String temporary) {
-    ArrayList<String> jobs = new ArrayList<String>();
-    HashMap<String, File> jobCheckpoints = new HashMap<String, File>();
-    HashMap<String, Long> startTimes = new HashMap<String, Long>();
+    ArrayList<String> jobs = new ArrayList<>();
+    HashMap<String, File> jobCheckpoints = new HashMap<>();
+    HashMap<String, Long> startTimes = new HashMap<>();
     try {
       // Cycle through each of the jobs for the given stage.
       for (int i = 0; i < jobPaths.size(); i++) {
@@ -429,8 +408,8 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
         // job files.) We should probably have a switch for this...
         if (verbose) {
           System.err.print("Running: " + command);
-          for (int index = 0; index < arguments.length; index++) {
-            System.err.print(" " + arguments[index]);
+          for (String argument : arguments) {
+            System.err.print(" " + argument);
           }
         }
 
