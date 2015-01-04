@@ -25,12 +25,9 @@ import java.util.List;
  * compression to save space.  The structure is designed for fast random access on disk.
  * 
  * For indexes, we assume that the data in each value is already compressed, so DiskBTreeWriter
- * does no additional compression.  However, if the isCompressed flag is set, DiskBTreeWriter
- * will compress the value data.  This is convenient for storing documents in an index.
- * 
- * Keys cannot be longer than 256 bytes, and they must be added in sorted order.
- * 
- * @author trevor
+ * does no additional compression.
+ *
+ * @author trevor, sjh, irmarc, jfoley
  */
 public class DiskBTreeWriter extends BTreeWriter {
 
@@ -45,8 +42,8 @@ public class DiskBTreeWriter extends BTreeWriter {
   private long listBytes = 0;
   private long keyCount = 0;
   private int blockCount = 0;
-  private byte[] prevKey = new byte[0];
-  private byte[] lastKey = new byte[0];
+  private byte[] prevKey = ByteUtil.EmptyArr;
+  private byte[] lastKey = ByteUtil.EmptyArr;
   Counter recordsWritten = NullCounter.instance;
   Counter blocksWritten = NullCounter.instance;
 
@@ -246,7 +243,7 @@ public class DiskBTreeWriter extends BTreeWriter {
    *      - this is necessary to ensure the 'final key
    *      - it may increase the length of the key
    */
-  private byte[] increment(byte[] key) {
+  private static byte[] increment(byte[] key) {
     byte[] newData = Arrays.copyOf(key, key.length);
     int i = newData.length - 1;
     while (i >= 0 && newData[i] == Byte.MAX_VALUE) {
@@ -261,34 +258,13 @@ public class DiskBTreeWriter extends BTreeWriter {
     return newData;
   }
 
-  private boolean lessThanOrEqualTo(byte[] one, byte[] two) {
-    boolean isOneShorterOrEqualLength = (one.length <= two.length);
-    int commonLength = Math.min(one.length, two.length);
-
-    for (int i = 0; i < commonLength; i++) {
-      int a = one[i];
-      int b = two[i];
-      a &= 0xFF;
-      b &= 0xFF;
-      if (a < b) {
-        return true;
-      }
-      if (b < a) {
-        return false;
-      }
-    }
-
-    return isOneShorterOrEqualLength;
-  }
-
   /**
    * Returns true if the lists are sorted in ascending order by
    * key.
    */
-  private boolean wordsInOrder(List<IndexElement> blockLists) {
+  private static boolean wordsInOrder(List<IndexElement> blockLists) {
     for (int i = 0; i < blockLists.size() - 1; i++) {
-      boolean result = lessThanOrEqualTo(blockLists.get(i).key(),
-              blockLists.get(i + 1).key());
+      boolean result = CmpUtil.compare(blockLists.get(i).key(), blockLists.get(i + 1).key()) <= 0;
       if (!result) {
         return false;
       }
