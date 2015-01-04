@@ -3,6 +3,7 @@ package org.lemurproject.galago.tupleflow;
 
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.tupleflow.runtime.FileOrderedWriter;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.utility.debug.NullCounter;

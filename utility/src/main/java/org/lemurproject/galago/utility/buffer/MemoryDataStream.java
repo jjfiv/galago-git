@@ -3,9 +3,7 @@
  * and open the template in the editor.
  */
 
-package org.lemurproject.galago.tupleflow;
-
-import org.lemurproject.galago.utility.buffer.DataStream;
+package org.lemurproject.galago.utility.buffer;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;

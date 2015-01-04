@@ -4,6 +4,8 @@
 package org.lemurproject.galago.tupleflow;
 
 import org.junit.Test;
+import org.lemurproject.galago.tupleflow.runtime.FileOrderedReader;
+import org.lemurproject.galago.tupleflow.runtime.FileOrderedWriter;
 import org.lemurproject.galago.tupleflow.types.TupleflowString;
 
 import java.io.File;

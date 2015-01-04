@@ -2,6 +2,7 @@
 package org.lemurproject.galago.core.parse;
 
 import org.lemurproject.galago.core.btree.format.BTreeFactory;
+import org.lemurproject.galago.tupleflow.runtime.FileSource;
 import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.core.btree.format.SplitBTreeReader;
 import org.lemurproject.galago.utility.btree.VocabularyReader;

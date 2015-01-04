@@ -8,7 +8,7 @@ import org.lemurproject.galago.core.index.source.BTreeValueSource;
 import org.lemurproject.galago.core.index.source.CountSource;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.utility.buffer.DataStream;
-import org.lemurproject.galago.tupleflow.VByteInput;
+import org.lemurproject.galago.utility.buffer.VByteInput;
 
 /**
  * Reads a simple positions-based index, where each inverted list in the index

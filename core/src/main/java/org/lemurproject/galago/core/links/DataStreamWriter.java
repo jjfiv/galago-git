@@ -6,6 +6,7 @@ package org.lemurproject.galago.core.links;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.tupleflow.runtime.FileOrderedWriter;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.debug.Counter;
 

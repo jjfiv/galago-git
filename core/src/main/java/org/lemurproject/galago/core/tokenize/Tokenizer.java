@@ -5,6 +5,7 @@ import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
+import org.lemurproject.galago.tupleflow.runtime.NullProcessor;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;

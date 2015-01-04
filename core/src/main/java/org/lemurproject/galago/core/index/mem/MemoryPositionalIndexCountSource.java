@@ -8,7 +8,7 @@ import org.lemurproject.galago.core.index.mem.MemoryPositionalIndex.PositionalPo
 import org.lemurproject.galago.core.index.source.CountSource;
 import org.lemurproject.galago.core.index.source.MemValueSource;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
-import org.lemurproject.galago.tupleflow.VByteInput;
+import org.lemurproject.galago.utility.buffer.VByteInput;
 
 /**
  * @author sjh

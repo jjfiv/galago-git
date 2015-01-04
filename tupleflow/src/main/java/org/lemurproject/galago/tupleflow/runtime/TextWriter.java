@@ -1,13 +1,17 @@
 // BSD License (http://lemurproject.org/galago-license)
 
-package org.lemurproject.galago.tupleflow;
+package org.lemurproject.galago.tupleflow.runtime;
+
+import org.lemurproject.galago.tupleflow.Processor;
+import org.lemurproject.galago.tupleflow.TupleFlowParameters;
+import org.lemurproject.galago.tupleflow.Type;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
+import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import org.lemurproject.galago.tupleflow.execution.ErrorStore;
-import org.lemurproject.galago.tupleflow.execution.Verification;
-import org.lemurproject.galago.utility.Parameters;
 
 /**
  * Writes a stream of objects to a text file.  Useful for debugging or as

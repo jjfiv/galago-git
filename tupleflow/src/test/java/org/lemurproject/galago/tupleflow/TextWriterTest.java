@@ -2,6 +2,7 @@ package org.lemurproject.galago.tupleflow;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.lemurproject.galago.tupleflow.runtime.TextWriter;
 import org.lemurproject.galago.tupleflow.types.FileName;
 import org.lemurproject.galago.utility.Parameters;
 

@@ -2,6 +2,7 @@
 package org.lemurproject.galago.tupleflow;
 
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
+import org.lemurproject.galago.tupleflow.runtime.FileOrderedReader;
 
 import java.io.File;
 import java.io.IOException;

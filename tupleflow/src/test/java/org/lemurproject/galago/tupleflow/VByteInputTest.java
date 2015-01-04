@@ -5,6 +5,8 @@
 package org.lemurproject.galago.tupleflow;
 
 import org.junit.Test;
+import org.lemurproject.galago.utility.buffer.VByteInput;
+import org.lemurproject.galago.utility.buffer.VByteOutput;
 
 import java.io.*;
 

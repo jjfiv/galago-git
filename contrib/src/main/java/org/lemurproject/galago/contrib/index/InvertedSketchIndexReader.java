@@ -21,10 +21,11 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
-import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.buffer.DataStream;
+import org.lemurproject.galago.utility.buffer.VByteInput;
+import org.lemurproject.galago.utility.buffer.VByteOutput;
 
 import java.io.*;
 import java.util.Collections;

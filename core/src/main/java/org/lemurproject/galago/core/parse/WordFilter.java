@@ -9,7 +9,7 @@ import java.util.Set;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Linkage;
-import org.lemurproject.galago.tupleflow.NullProcessor;
+import org.lemurproject.galago.tupleflow.runtime.NullProcessor;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.tupleflow.Source;

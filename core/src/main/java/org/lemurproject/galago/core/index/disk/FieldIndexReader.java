@@ -15,7 +15,7 @@ import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.tupleflow.VByteInput;
+import org.lemurproject.galago.utility.buffer.VByteInput;
 import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.DataInput;

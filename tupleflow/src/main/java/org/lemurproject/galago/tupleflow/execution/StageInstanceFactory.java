@@ -5,6 +5,8 @@ import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.execution.StageInstanceDescription.PipeInput;
 import org.lemurproject.galago.tupleflow.execution.StageInstanceDescription.PipeOutput;
+import org.lemurproject.galago.tupleflow.runtime.FileOrderedReader;
+import org.lemurproject.galago.tupleflow.runtime.FileOrderedWriter;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.utility.debug.NullCounter;

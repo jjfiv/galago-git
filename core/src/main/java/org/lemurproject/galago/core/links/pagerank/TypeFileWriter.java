@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import org.lemurproject.galago.tupleflow.CompressionType;
 import org.lemurproject.galago.utility.debug.Counter;
-import org.lemurproject.galago.tupleflow.FileOrderedWriter;
+import org.lemurproject.galago.tupleflow.runtime.FileOrderedWriter;
 import org.lemurproject.galago.tupleflow.Order;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Processor;

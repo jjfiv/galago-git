@@ -13,7 +13,7 @@ import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.VByteOutput;
+import org.lemurproject.galago.utility.buffer.VByteOutput;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 
 /**

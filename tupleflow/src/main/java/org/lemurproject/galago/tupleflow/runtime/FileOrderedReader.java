@@ -1,8 +1,10 @@
 // BSD License (http://lemurproject.org)
-package org.lemurproject.galago.tupleflow;
+package org.lemurproject.galago.tupleflow.runtime;
 
+import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.utility.StreamCreator;
+import org.lemurproject.galago.utility.buffer.VByteInput;
 
 import java.io.DataInputStream;
 import java.io.IOException;

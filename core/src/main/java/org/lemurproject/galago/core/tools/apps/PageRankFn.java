@@ -4,6 +4,7 @@
 package org.lemurproject.galago.core.tools.apps;
 
 import org.lemurproject.galago.core.links.pagerank.*;
+import org.lemurproject.galago.tupleflow.runtime.FileSource;
 import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.core.types.DocumentUrl;
 import org.lemurproject.galago.core.types.ExtractedLink;

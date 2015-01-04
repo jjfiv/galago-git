@@ -1,7 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 
-package org.lemurproject.galago.tupleflow;
+package org.lemurproject.galago.tupleflow.runtime;
 
+import org.lemurproject.galago.tupleflow.Processor;
+import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verification;
 
