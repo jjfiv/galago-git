@@ -90,7 +90,7 @@ public class IndexWriterTest {
 
     assertTrue(DiskBTreeReader.isBTree(temporary));
     DiskBTreeReader reader = new DiskBTreeReader(temporary.getAbsolutePath());
-    DiskBTreeReader.Iterator iterator = reader.getIterator();
+    DiskBTreeReader.DiskBTreeIterator iterator = reader.getIterator();
 
     // Skip to 'more'
     iterator.skipTo(new byte[]{(byte) 'm'});

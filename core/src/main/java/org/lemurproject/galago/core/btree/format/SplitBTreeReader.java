@@ -42,13 +42,13 @@ public class SplitBTreeReader extends BTreeReader {
 
   public class Iterator extends BTreeReader.BTreeIterator {
 
-    DiskBTreeReader.Iterator vocabIterator;
+    DiskBTreeReader.DiskBTreeIterator vocabIterator;
     boolean valueLoaded = false;
     int file;
     long valueOffset;
     long valueLength;
 
-    public Iterator(DiskBTreeReader.Iterator vocabIterator) {
+    public Iterator(DiskBTreeReader.DiskBTreeIterator vocabIterator) {
       super(vocabIterator.reader);
       this.vocabIterator = vocabIterator;
     }
@@ -258,7 +258,7 @@ public class SplitBTreeReader extends BTreeReader {
    */
   @Override
   public Iterator getIterator(byte[] key) throws IOException {
-    DiskBTreeReader.Iterator i = vocabIndex.getIterator(key);
+    DiskBTreeReader.DiskBTreeIterator i = vocabIndex.getIterator(key);
     if (i == null) {
       return null;
     } else {

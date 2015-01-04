@@ -53,7 +53,12 @@ public class DiskBTreeReader extends BTreeReader {
   private int cacheGroupSize = 5;
   private long fileLength;
 
-  public class Iterator extends BTreeReader.BTreeIterator {
+  public static class DiskBTreeIterator extends BTreeReader.BTreeIterator {
+
+    private final RandomAccessFile input;
+    private final VocabularyReader vocabulary;
+    private final long fileLength;
+    private final int cacheGroupSize;
 
     private IndexBlockInfo blockInfo;
     // key block data
@@ -69,8 +74,12 @@ public class DiskBTreeReader extends BTreeReader {
     private DataStream blockStream;
     private int cacheKeyCount;
 
-    public Iterator(BTreeReader reader, IndexBlockInfo blockInfo) throws IOException {
+    public DiskBTreeIterator(DiskBTreeReader reader, IndexBlockInfo blockInfo) throws IOException {
       super(reader);
+      input = reader.input;
+      vocabulary = reader.vocabulary;
+      fileLength = reader.fileLength;
+      cacheGroupSize = reader.cacheGroupSize;
       this.loadBlockHeader(blockInfo);
     }
 
@@ -366,14 +375,14 @@ public class DiskBTreeReader extends BTreeReader {
    * document retrieval.
    */
   @Override
-  public DiskBTreeReader.Iterator getIterator() throws IOException {
+  public DiskBTreeIterator getIterator() throws IOException {
     // if we have an empty file - there is nothing to iterate over.
     if (manifest.get("emptyIndexFile", false)) {
       return null;
     }
 
     // otherwise there is some data.
-    return new Iterator(this, vocabulary.getSlot(0));
+    return new DiskBTreeIterator(this, vocabulary.getSlot(0));
   }
 
   /**
@@ -381,14 +390,14 @@ public class DiskBTreeReader extends BTreeReader {
    * not found in the index.
    */
   @Override
-  public DiskBTreeReader.Iterator getIterator(byte[] key) throws IOException {
+  public DiskBTreeIterator getIterator(byte[] key) throws IOException {
     // read from offset to offset in the vocab structure (right?)
     VocabularyReader.IndexBlockInfo slot = vocabulary.get(key);
 
     if (slot == null) {
       return null;
     }
-    Iterator i = new Iterator(this, slot);
+    DiskBTreeIterator i = new DiskBTreeIterator(this, slot);
     i.find(key);
     if (CmpUtil.equals(key, i.getKey())) {
       return i;
