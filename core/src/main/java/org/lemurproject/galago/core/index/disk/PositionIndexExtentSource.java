@@ -30,10 +30,7 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
   private boolean done;
   // final here to prevent reallocation of this during scoring
   final private ExtentArray extentArray;
-  // to support resets
-  final protected long startPosition;
-  final protected long endPosition;
-  
+
   private DataStream documentsStream;
   private DataStream countsStream;
   private DataStream positionsStream;
@@ -64,16 +61,12 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
   
   public PositionIndexExtentSource(BTreeIterator iter) throws IOException {
     super(iter);
-    startPosition = btreeIter.getValueStart();
-    endPosition = btreeIter.getValueEnd();
     extentArray = new ExtentArray();
     reset();
   }
 
   public PositionIndexExtentSource(BTreeIterator iter, String dispKey) throws IOException {
     super(iter, dispKey);
-    startPosition = btreeIter.getValueStart();
-    endPosition = btreeIter.getValueEnd();
     extentArray = new ExtentArray();
     reset();
   }
@@ -138,7 +131,7 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
       long skipsStart = positionsStart + positionsByteLength;
       long skipPositionsStart = skipsStart + skipsByteLength;
       long skipPositionsEnd = skipPositionsStart + skipPositionsByteLength;
-      assert skipPositionsEnd == endPosition - startPosition;
+      assert skipPositionsEnd == btreeIter.getValueLength();
       skip.data = new VByteInput(btreeIter.getSubValueStream(skipsStart, skipsByteLength));
       skip.positionsStream = btreeIter.getSubValueStream(skipPositionsStart, skipPositionsByteLength);
       skip.positions = new VByteInput(skip.positionsStream);
@@ -148,7 +141,7 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
       skip.countsByteFloor = 0;
       skip.positionsByteFloor = 0;
     } else {
-      assert positionsEnd == endPosition - startPosition;
+      assert positionsEnd == btreeIter.getValueLength();
       skip = null;
     }
     documentIndex = 0;

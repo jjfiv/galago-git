@@ -1,15 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.DataInput;
-import java.io.IOException;
-import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.core.index.source.BTreeValueSource;
 import org.lemurproject.galago.core.index.source.ExtentSource;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.util.ExtentArray;
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.buffer.VByteInput;
+
+import java.io.DataInput;
+import java.io.IOException;
 
 /**
  *
@@ -29,8 +30,6 @@ public final class WindowIndexExtentSource extends BTreeValueSource implements E
   private int currentCount;
   private boolean done;
   private ExtentArray extentArray;
-  // to support resets
-  private long startPosition, endPosition;
   // to support skipping
   private VByteInput skips;
   private VByteInput skipPositions;
@@ -58,8 +57,6 @@ public final class WindowIndexExtentSource extends BTreeValueSource implements E
 
   @Override
   public void reset() throws IOException {
-    startPosition = btreeIter.getValueStart();
-    endPosition = btreeIter.getValueEnd();
     currentDocument = 0;
     currentCount = 0;
     done = false;
@@ -126,7 +123,7 @@ public final class WindowIndexExtentSource extends BTreeValueSource implements E
       long skipPositionsStart = skipsStart + skipsByteLength;
       long skipPositionsEnd = skipPositionsStart + skipPositionsByteLength;
 
-      assert skipPositionsEnd == endPosition - startPosition;
+      assert skipPositionsEnd == btreeIter.getValueLength();
 
       skips = new VByteInput(btreeIter.getSubValueStream(skipsStart, skipsByteLength));
       skipPositionsStream = btreeIter.getSubValueStream(skipPositionsStart, skipPositionsByteLength);
@@ -139,7 +136,7 @@ public final class WindowIndexExtentSource extends BTreeValueSource implements E
       beginsByteFloor = 0;
       endsByteFloor = 0;
     } else {
-      assert endsEnd == endPosition - startPosition;
+      assert endsEnd == btreeIter.getValueLength();
       skips = null;
       skipPositions = null;
     }

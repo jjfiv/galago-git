@@ -1,15 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.DataInput;
-import java.io.IOException;
-
-import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.core.index.source.BTreeValueSource;
 import org.lemurproject.galago.core.index.source.CountSource;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.buffer.VByteInput;
+
+import java.io.DataInput;
+import java.io.IOException;
 
 /**
  * This iterator simply ignores the positions information - faster b/c when
@@ -19,7 +19,6 @@ import org.lemurproject.galago.utility.buffer.VByteInput;
  * @author irmarc
  * @author jfoley
  * @see PositionIndexReader
- * @see StreamExtentSource
  */
 final public class PositionIndexCountSource extends BTreeValueSource implements CountSource {
 
@@ -32,9 +31,6 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
   long currentDocument;
   int currentCount;
   boolean done;
-  // Support for resets
-  long startPosition;
-  long endPosition;
   // to support skipping
   VByteInput skips;
   VByteInput skipPositions;
@@ -62,8 +58,6 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
 
   @Override
   public void reset() throws IOException {
-    startPosition = btreeIter.getValueStart();
-    endPosition = btreeIter.getValueEnd();
     currentDocument = 0;
     currentCount = 0;
     done = false;
@@ -129,7 +123,7 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
       long skipsStart = positionsStart + positionsByteLength;
       long skipPositionsStart = skipsStart + skipsByteLength;
       long skipPositionsEnd = skipPositionsStart + skipPositionsByteLength;
-      assert skipPositionsEnd == endPosition - startPosition;
+      assert skipPositionsEnd == btreeIter.getValueLength();
       skips = new VByteInput(btreeIter.getSubValueStream(skipsStart, skipsByteLength));
       skipPositionsStream = btreeIter.getSubValueStream(skipPositionsStart, skipPositionsByteLength);
       skipPositions = new VByteInput(skipPositionsStream);
@@ -138,11 +132,7 @@ final public class PositionIndexCountSource extends BTreeValueSource implements 
       documentsByteFloor = 0;
       countsByteFloor = 0;
     } else {
-      // if we failed - give me a breakpoint.
-      if (positionsEnd != (endPosition - startPosition)) {
-        int i = 0;
-      }
-      assert positionsEnd == endPosition - startPosition;
+      assert positionsEnd == btreeIter.getValueLength();
       skips = null;
       skipPositions = null;
     }

@@ -1,15 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.DataInput;
-import java.io.IOException;
-
-import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.core.index.source.BTreeValueSource;
 import org.lemurproject.galago.core.index.source.CountSource;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.buffer.VByteInput;
+
+import java.io.DataInput;
+import java.io.IOException;
 
 /**
  * @author sjh, jfoley
@@ -25,8 +25,6 @@ public class CountIndexCountSource extends BTreeValueSource implements CountSour
   long currentDocument;
   int currentCount;
   boolean done;
-  // Support for resets
-  final long startPosition, endPosition;
   // to support skipping
   VByteInput skips;
   VByteInput skipPositions;
@@ -44,8 +42,6 @@ public class CountIndexCountSource extends BTreeValueSource implements CountSour
 
   public CountIndexCountSource(BTreeIterator iterator) throws IOException {
     super(iterator);
-    startPosition = btreeIter.getValueStart();
-    endPosition = btreeIter.getValueEnd();
     reset();
   }
 
@@ -108,7 +104,7 @@ public class CountIndexCountSource extends BTreeValueSource implements CountSour
       long skipPositionsStart = skipsStart + skipsByteLength;
       long skipPositionsEnd = skipPositionsStart + skipPositionsByteLength;
 
-      assert skipPositionsEnd == endPosition - startPosition;
+      assert skipPositionsEnd == btreeIter.getValueLength();
 
       skips = new VByteInput(btreeIter.getSubValueStream(skipsStart, skipsByteLength));
       skipPositionsStream = btreeIter.getSubValueStream(skipPositionsStart, skipPositionsByteLength);
@@ -119,7 +115,7 @@ public class CountIndexCountSource extends BTreeValueSource implements CountSour
       documentsByteFloor = 0;
       countsByteFloor = 0;
     } else {
-      assert countsEnd == endPosition - startPosition;
+      assert countsEnd == btreeIter.getValueLength();
       skips = null;
       skipPositions = null;
     }

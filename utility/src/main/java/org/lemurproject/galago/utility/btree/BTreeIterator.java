@@ -59,16 +59,23 @@ public abstract class BTreeIterator implements Comparable<BTreeIterator> {
   public abstract DataStream getSubValueStream(long offset, long length) throws IOException;
 
   /**
+   * Returns a data stream for a subset of the value stream
+   */
+  public DataStream getSubValueStream(long offset) throws IOException {
+    return getSubValueStream(offset, getValueLength());
+  }
+
+  /**
    * Returns the byte offset of the beginning of the current value - note that
    * the corresponding file is returned by
    */
-  public abstract long getValueStart() throws IOException;
+  protected abstract long getValueStart() throws IOException;
 
   /**
    * Returns the byte offset of the end of the current value, relative to the
    * start of the whole inverted file.
    */
-  public abstract long getValueEnd() throws IOException;
+  protected abstract long getValueEnd() throws IOException;
 
   /**
    * Returns the value as a string.

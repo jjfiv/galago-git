@@ -176,8 +176,6 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     int documentIndex;
     int currentDocument;
     int currentCount;
-    // Support for resets
-    long startPosition, endPosition;
     // to support skipping
     VByteInput skips;
     VByteInput skipPositions;
@@ -250,7 +248,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
         long skipPositionsStart = skipsStart + skipsByteLength;
         long skipPositionsEnd = skipPositionsStart + skipPositionsByteLength;
 
-        assert skipPositionsEnd == endPosition - startPosition;
+        assert skipPositionsEnd == iterator.getValueLength();
 
         skips = new VByteInput(iterator.getSubValueStream(skipsStart, skipsByteLength));
         skipPositionsStream = iterator.getSubValueStream(skipPositionsStart, skipPositionsByteLength);
@@ -261,7 +259,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
         documentsByteFloor = 0;
         countsByteFloor = 0;
       } else {
-        assert countsEnd == endPosition - startPosition;
+        assert countsEnd == iterator.getValueLength();
         skips = null;
         skipPositions = null;
       }
@@ -284,8 +282,6 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     @Override
     public void reset(BTreeIterator i) throws IOException {
       iterator = i;
-      startPosition = iterator.getValueStart();
-      endPosition = iterator.getValueEnd();
       key = iterator.getKey();
       initialize();
     }

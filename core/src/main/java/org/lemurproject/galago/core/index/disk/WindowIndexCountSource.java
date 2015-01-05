@@ -1,14 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.DataInput;
-import java.io.IOException;
-import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.core.index.source.BTreeValueSource;
 import org.lemurproject.galago.core.index.source.CountSource;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.buffer.VByteInput;
+
+import java.io.DataInput;
+import java.io.IOException;
 
 /**
  * Reads a simple positions-based index, where each inverted list in the index
@@ -29,8 +30,6 @@ public final class WindowIndexCountSource extends BTreeValueSource implements Co
   int currentCount;
   boolean done;
   long maximumPositionCount;
-  // Support for resets
-  long startPosition, endPosition;
   // to support skipping
   VByteInput skips;
   VByteInput skipPositions;
@@ -59,10 +58,6 @@ public final class WindowIndexCountSource extends BTreeValueSource implements Co
    */
   @Override
   public void reset() throws IOException {
-
-    startPosition = btreeIter.getValueStart();
-    endPosition = btreeIter.getValueEnd();
-
     // need to read at most (15 + 90) bytes //
     DataStream valueStream = btreeIter.getSubValueStream(0, 120);
     DataInput stream = new VByteInput(valueStream);
@@ -116,7 +111,7 @@ public final class WindowIndexCountSource extends BTreeValueSource implements Co
       long skipPositionsStart = skipsStart + skipsByteLength;
       long skipPositionsEnd = skipPositionsStart + skipPositionsByteLength;
 
-      assert skipPositionsEnd == endPosition - startPosition;
+      assert skipPositionsEnd == btreeIter.getValueLength();
 
       skips = new VByteInput(btreeIter.getSubValueStream(skipsStart, skipsByteLength));
       skipPositionsStream = btreeIter.getSubValueStream(skipPositionsStart, skipPositionsByteLength);
@@ -127,7 +122,7 @@ public final class WindowIndexCountSource extends BTreeValueSource implements Co
       documentsByteFloor = 0;
       countsByteFloor = 0;
     } else {
-      assert endsEnd == endPosition - startPosition;
+      assert endsEnd == btreeIter.getValueLength();
       skips = null;
       skipPositions = null;
     }

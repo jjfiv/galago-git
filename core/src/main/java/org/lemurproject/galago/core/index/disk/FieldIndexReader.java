@@ -131,8 +131,6 @@ public class FieldIndexReader extends KeyListReader {
 
     Parameters formatMap;
     BTreeIterator iterator;
-    //VByteInput data;
-    long startPosition, endPosition;
     DataStream dataStream;
     long documentCount;
     long currentDocument;
@@ -164,8 +162,6 @@ public class FieldIndexReader extends KeyListReader {
     public void reset(BTreeIterator i) throws IOException {
       iterator = i;
       key = iterator.getKey();
-      startPosition = iterator.getValueStart();
-      endPosition = iterator.getValueEnd();
       reset();
     }
 
@@ -192,7 +188,7 @@ public class FieldIndexReader extends KeyListReader {
       documentIndex = 0;
 
       // Load data stream
-      dataStream = iterator.getSubValueStream(valueStream.getPosition(), endPosition);
+      dataStream = iterator.getSubValueStream(valueStream.getPosition());
       //data = new VByteInput(dataStream);
 
       // Determine the current format map based on the key - allows for
