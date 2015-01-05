@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.utility.btree;
+package org.lemurproject.galago.utility.btree.disk;
 
 import org.lemurproject.galago.utility.buffer.BufferedFileDataStream;
 import org.lemurproject.galago.utility.CmpUtil;

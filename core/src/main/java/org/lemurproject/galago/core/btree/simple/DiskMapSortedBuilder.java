@@ -6,7 +6,7 @@ import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.Processor;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.btree.BTreeWriter;
-import org.lemurproject.galago.utility.btree.DiskBTreeWriter;
+import org.lemurproject.galago.utility.btree.disk.DiskBTreeWriter;
 import org.lemurproject.galago.utility.btree.GenericElement;
 import org.lemurproject.galago.utility.btree.IndexElement;
 

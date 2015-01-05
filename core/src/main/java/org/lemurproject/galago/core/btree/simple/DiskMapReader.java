@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.btree.simple;
 
 import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.btree.BTreeReader;
-import org.lemurproject.galago.utility.btree.DiskBTreeReader;
+import org.lemurproject.galago.utility.btree.disk.DiskBTreeReader;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;

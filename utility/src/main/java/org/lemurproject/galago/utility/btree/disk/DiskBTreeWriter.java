@@ -1,9 +1,11 @@
-package org.lemurproject.galago.utility.btree;
+package org.lemurproject.galago.utility.btree.disk;
 
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.btree.BTreeWriter;
+import org.lemurproject.galago.utility.btree.IndexElement;
 import org.lemurproject.galago.utility.compression.VByte;
 import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.utility.debug.NullCounter;

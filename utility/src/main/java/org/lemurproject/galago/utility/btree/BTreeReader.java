@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.utility.btree;
 
+import org.lemurproject.galago.utility.btree.disk.VocabularyReader;
 import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.Parameters;
 

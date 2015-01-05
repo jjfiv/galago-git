@@ -2,22 +2,13 @@
 package org.lemurproject.galago.core.btree.format;
 
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.utility.ByteUtil;
-import org.lemurproject.galago.utility.CmpUtil;
-import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.utility.btree.DiskBTreeFormat;
-import org.lemurproject.galago.utility.btree.DiskBTreeWriter;
+import org.lemurproject.galago.utility.btree.disk.DiskBTreeWriter;
 import org.lemurproject.galago.utility.btree.IndexElement;
-import org.lemurproject.galago.utility.btree.VocabularyWriter;
-import org.lemurproject.galago.utility.compression.VByte;
 import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.utility.debug.NullCounter;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * This class writes index files, which are used for most Galago indexes.

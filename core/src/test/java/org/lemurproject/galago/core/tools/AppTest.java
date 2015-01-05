@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.btree.format.BTreeFactory;
 import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.core.btree.format.SplitBTreeReader;
-import org.lemurproject.galago.utility.btree.VocabularyReader;
+import org.lemurproject.galago.utility.btree.disk.VocabularyReader;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.tupleflow.FileUtility;

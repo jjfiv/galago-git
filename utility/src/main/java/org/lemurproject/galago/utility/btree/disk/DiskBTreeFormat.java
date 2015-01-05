@@ -1,4 +1,4 @@
-package org.lemurproject.galago.utility.btree;
+package org.lemurproject.galago.utility.btree.disk;
 
 /**
  * @author jfoley.

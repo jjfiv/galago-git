@@ -1,6 +1,7 @@
-package org.lemurproject.galago.utility.btree;
+package org.lemurproject.galago.utility.btree.disk;
 
 import org.lemurproject.galago.utility.CmpUtil;
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.buffer.BufferedFileDataStream;
 import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.compression.VByte;

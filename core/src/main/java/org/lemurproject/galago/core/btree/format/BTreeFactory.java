@@ -4,7 +4,7 @@
 package org.lemurproject.galago.core.btree.format;
 
 import org.lemurproject.galago.utility.btree.BTreeReader;
-import org.lemurproject.galago.utility.btree.DiskBTreeReader;
+import org.lemurproject.galago.utility.btree.disk.DiskBTreeReader;
 
 import java.io.File;
 import java.io.IOException;

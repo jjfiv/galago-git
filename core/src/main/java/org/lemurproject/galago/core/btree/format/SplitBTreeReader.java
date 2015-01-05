@@ -2,6 +2,9 @@
 package org.lemurproject.galago.core.btree.format;
 
 import org.lemurproject.galago.utility.btree.*;
+import org.lemurproject.galago.utility.btree.disk.DiskBTreeIterator;
+import org.lemurproject.galago.utility.btree.disk.DiskBTreeReader;
+import org.lemurproject.galago.utility.btree.disk.VocabularyReader;
 import org.lemurproject.galago.utility.buffer.BufferedFileDataStream;
 import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.Parameters;
