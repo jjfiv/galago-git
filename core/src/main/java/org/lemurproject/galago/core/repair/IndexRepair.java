@@ -5,17 +5,21 @@ import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
 import org.lemurproject.galago.core.index.source.DataSource;
 import org.lemurproject.galago.core.types.DocumentNameId;
 import org.lemurproject.galago.tupleflow.FakeParameters;
-import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.Sorter;
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author jfoley.
  */
 public class IndexRepair {
+  private static final Logger logger = Logger.getLogger(IndexRepair.class.getName());
+
   public static void createNamesReverseFromNames(String names, String outputName, Parameters opts) throws IOException, IncompatibleProcessorException {
     // input
     DiskNameReader namesReader = new DiskNameReader(names);
@@ -43,7 +47,7 @@ public class IndexRepair {
       String name = source.data(identifier);
       pipe.process(new DocumentNameId(ByteUtil.fromString(name), identifier));
       if(count % flushSize == 0) {
-        System.err.println("# converted: "+count+" names");
+        logger.log(Level.INFO, "converted: "+count+" names");
         pipe.flush();
       }
       count++;

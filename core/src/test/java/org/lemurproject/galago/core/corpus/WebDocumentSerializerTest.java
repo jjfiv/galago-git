@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.tools.apps.BuildIndex;
-import org.lemurproject.galago.utility.buffer.BufferedFileDataStream;
+import org.lemurproject.galago.utility.buffer.CachedBufferDataStream;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.FSUtil;
@@ -83,7 +83,7 @@ public class WebDocumentSerializerTest {
             StreamUtil.copyStreamToFile(bais, tmp);
 
             RandomAccessFile raf = StreamCreator.readFile(tmp.getCanonicalPath());
-            BufferedFileDataStream bfds = new BufferedFileDataStream(raf, 0, raf.length());
+            CachedBufferDataStream bfds = new CachedBufferDataStream(raf, 0, raf.length());
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             while (true) {
@@ -98,12 +98,12 @@ public class WebDocumentSerializerTest {
             assertArrayEquals(fakeData, data);
 
             byte[] data2 = new byte[fakeData.length];
-            bfds = new BufferedFileDataStream(raf, 0, raf.length());
+            bfds = new CachedBufferDataStream(raf, 0, raf.length());
             int amt = bfds.read(data2, 0, (int) raf.length());
             assertEquals(fakeData.length, amt);
             assertArrayEquals(fakeData, data2);
 
-            bfds = new BufferedFileDataStream(raf, 1, 5);
+            bfds = new CachedBufferDataStream(raf, 1, 5);
             byte[] data3 = new byte[4];
             amt = bfds.read(data3, 0, 4);
             assertEquals(4, amt);

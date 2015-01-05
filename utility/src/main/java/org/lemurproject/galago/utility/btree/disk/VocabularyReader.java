@@ -1,8 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.utility.btree.disk;
 
-import org.lemurproject.galago.utility.buffer.BufferedFileDataStream;
 import org.lemurproject.galago.utility.CmpUtil;
+import org.lemurproject.galago.utility.buffer.CachedBufferDataStream;
 import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class VocabularyReader {
   }
   List<IndexBlockInfo> slots;
 
-  public VocabularyReader(BufferedFileDataStream input, long valueDataEnd) throws IOException {
+  public VocabularyReader(CachedBufferDataStream input, long valueDataEnd) throws IOException {
     slots = new ArrayList<>();
     read(input, valueDataEnd);
   }
@@ -42,7 +42,7 @@ public class VocabularyReader {
     return slots;
   }
 
-  private void read(BufferedFileDataStream input, long valueDataEnd) throws IOException {
+  private void read(CachedBufferDataStream input, long valueDataEnd) throws IOException {
     long last = 0;
 
     int finalKeyLength = input.readInt();

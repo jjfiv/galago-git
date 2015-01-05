@@ -1,9 +1,6 @@
 package org.lemurproject.galago.utility.btree.disk;
 
-import org.lemurproject.galago.utility.ByteUtil;
-import org.lemurproject.galago.utility.CmpUtil;
-import org.lemurproject.galago.utility.FSUtil;
-import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.*;
 import org.lemurproject.galago.utility.btree.BTreeWriter;
 import org.lemurproject.galago.utility.btree.IndexElement;
 import org.lemurproject.galago.utility.compression.VByte;
@@ -36,18 +33,22 @@ public class DiskBTreeWriter implements BTreeWriter {
   Counter blocksWritten = NullCounter.instance;
 
   /**
-   * Creates a new create of DiskBTreeWriter
+   * Creates a new DiskBTreeWriter for a file.
    */
   public DiskBTreeWriter(String outputFilename, Parameters parameters) throws IOException {
-    FSUtil.makeParentDirectories(outputFilename);
+    this(StreamCreator.openOutputStream(outputFilename), parameters);
+  }
 
+  /**
+   * Creates a new DiskBTreeWriter with an output stream.
+   */
+  public DiskBTreeWriter(DataOutputStream output, Parameters parameters) throws IOException {
+    this.output = output;
     // max sizes - each defaults to a max length of 2 bytes (short)
     blockSize = (int) parameters.get("blockSize", 16383);
     maxKeySize = (int) parameters.get("keySize", Math.min(blockSize, 16383));
     keyOverlap = maxKeySize;
 
-    output = new DataOutputStream(new BufferedOutputStream(
-      new FileOutputStream(outputFilename)));
     vocabulary = new VocabularyWriter();
     manifest = Parameters.create();
     manifest.copyFrom(parameters);

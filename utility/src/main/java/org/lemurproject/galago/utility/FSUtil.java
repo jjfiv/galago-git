@@ -17,15 +17,17 @@ public class FSUtil {
    *
    * @param filename A filename that will soon be opened for writing.
    */
-  public static void makeParentDirectories(File filename) {
+  public static File makeParentDirectories(File filename) {
     File parent = filename.getParentFile();
     if (parent != null) {
       parent.mkdirs();
     }
+    return filename;
   }
 
-  public static void makeParentDirectories(String filename) {
+  public static String makeParentDirectories(String filename) {
     makeParentDirectories(new File(filename));
+    return filename;
   }
 
   public static String getExtension(File file) {

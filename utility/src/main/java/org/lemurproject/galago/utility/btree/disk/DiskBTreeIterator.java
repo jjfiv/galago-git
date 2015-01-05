@@ -2,12 +2,12 @@ package org.lemurproject.galago.utility.btree.disk;
 
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.btree.BTreeIterator;
-import org.lemurproject.galago.utility.buffer.BufferedFileDataStream;
+import org.lemurproject.galago.utility.buffer.CachedBufferDataStream;
 import org.lemurproject.galago.utility.buffer.DataStream;
+import org.lemurproject.galago.utility.buffer.ReadableBuffer;
 import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 
 /**
@@ -15,14 +15,12 @@ import java.nio.MappedByteBuffer;
 */
 public class DiskBTreeIterator extends BTreeIterator {
 
-  private final RandomAccessFile input;
+  private final ReadableBuffer input;
   private final VocabularyReader vocabulary;
   private final long fileLength;
   private final int cacheGroupSize;
 
   private VocabularyReader.IndexBlockInfo blockInfo;
-  // key block data
-  private long startFileOffset; // start of block
   private long startValueFileOffset; // start of value data
   private long endValueFileOffset; // end of value data / block
   private long[] endValueOffsetCache; // ends of each value data
@@ -45,17 +43,17 @@ public class DiskBTreeIterator extends BTreeIterator {
 
   private void loadBlockHeader(VocabularyReader.IndexBlockInfo info) throws IOException {
     this.blockInfo = info;
-    this.startFileOffset = this.blockInfo.begin;
+    long startFileOffset = this.blockInfo.begin;
 
     // read in a block of data here
-    blockStream = new BufferedFileDataStream(input, startFileOffset, blockInfo.headerLength + startFileOffset);
+    blockStream = new CachedBufferDataStream(input, startFileOffset, blockInfo.headerLength + startFileOffset);
 
     // now we decode everything from the stream
     this.endValueFileOffset = startFileOffset + blockInfo.length;
     this.keyCount = (int) blockStream.readLong();
     this.keyCache = new byte[this.keyCount][];
     this.endValueOffsetCache = new long[this.keyCount];
-    this.startValueFileOffset = this.startFileOffset + this.blockInfo.headerLength;
+    this.startValueFileOffset = startFileOffset + this.blockInfo.headerLength;
     this.keyIndex = 0;
     this.done = false;
 
@@ -180,7 +178,7 @@ public class DiskBTreeIterator extends BTreeIterator {
 
   @Override
   public DataStream getValueStream() throws IOException {
-    return new BufferedFileDataStream(input, getValueStart(), getValueEnd());
+    return new CachedBufferDataStream(input, getValueStart(), getValueEnd());
   }
 
   @Override
@@ -194,7 +192,7 @@ public class DiskBTreeIterator extends BTreeIterator {
     assert absoluteStart <= absoluteEnd;
 
     // the end of the sub value is the min of fileLength, valueEnd, or (offset+length);
-    return new BufferedFileDataStream(input, absoluteStart, absoluteEnd);
+    return new CachedBufferDataStream(input, absoluteStart, absoluteEnd);
   }
 
   @Override

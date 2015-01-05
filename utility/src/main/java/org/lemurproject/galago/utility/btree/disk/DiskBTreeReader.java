@@ -3,15 +3,17 @@ package org.lemurproject.galago.utility.btree.disk;
 
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.utility.StreamCreator;
 import org.lemurproject.galago.utility.btree.BTreeReader;
-import org.lemurproject.galago.utility.buffer.BufferedFileDataStream;
+import org.lemurproject.galago.utility.buffer.CachedBufferDataStream;
 import org.lemurproject.galago.utility.buffer.DataStream;
+import org.lemurproject.galago.utility.buffer.FileReadableBuffer;
+import org.lemurproject.galago.utility.buffer.ReadableBuffer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 
 /**
  * <p>This implements the core functionality for all inverted list readers. It
@@ -44,22 +46,25 @@ import java.io.RandomAccessFile;
 public class DiskBTreeReader extends BTreeReader {
 
   // this input reader needs to be accesed in a synchronous manner.
-  final RandomAccessFile input;
+  final ReadableBuffer input;
+
   // other variables do not
   VocabularyReader vocabulary;
   private Parameters manifest;
   int cacheGroupSize = 5;
   long fileLength;
 
+
   /**
-   * Opens an index found in the at pathname.
+   * Opens an index found in the buffer.
    *
-   * @param pathname Filename of the index to open.
-   * @throws FileNotFoundException
+   * @param buffer  The buffer containing the BTree.
    * @throws IOException
    */
-  public DiskBTreeReader(String pathname) throws IOException {
-    input = StreamCreator.readFile(pathname);
+  public DiskBTreeReader(ReadableBuffer buffer) throws IOException {
+    input = buffer;
+
+    CachedBufferDataStream inputStream = new CachedBufferDataStream(buffer);
 
     // Seek to the end of the file
     fileLength = input.length();
@@ -70,30 +75,37 @@ public class DiskBTreeReader extends BTreeReader {
      * can use this object before it's creation... However, I'm wrapping *all*
      * usage.
      */
-    synchronized (input) {
-      input.seek(footerOffset);
-      // Now, read metadata values:
-      long vocabularyOffset = input.readLong();
-      long manifestOffset = input.readLong();
-      int blockSize = input.readInt();
-      long magicNumber = input.readLong();
-      if (magicNumber != DiskBTreeFormat.MAGIC_NUMBER) {
-        throw new IOException("This does not appear to be an index file (wrong magic number)");
-      }
-
-      long invertedListLength = vocabularyOffset;
-      long vocabularyLength = manifestOffset - vocabularyOffset;
-
-      //input.seek(vocabularyOffset);
-      vocabulary = new VocabularyReader(new BufferedFileDataStream(input, vocabularyOffset, vocabularyOffset + vocabularyLength), invertedListLength);
-
-      byte[] manifestData = new byte[(int) (footerOffset - manifestOffset)];
-      input.seek(manifestOffset);
-      input.readFully(manifestData);
-      manifest = Parameters.parseBytes(manifestData);
+    inputStream.seek(footerOffset);
+    // Now, read metadata values:
+    long vocabularyOffset = inputStream.readLong();
+    long manifestOffset = inputStream.readLong();
+    int blockSize = inputStream.readInt();
+    long magicNumber = inputStream.readLong();
+    if (magicNumber != DiskBTreeFormat.MAGIC_NUMBER) {
+      throw new IOException("This does not appear to be an index file (wrong magic number)");
     }
 
+    long vocabularyLength = manifestOffset - vocabularyOffset;
+
+    //input.seek(vocabularyOffset);
+    vocabulary = new VocabularyReader(new CachedBufferDataStream(input, vocabularyOffset, vocabularyOffset + vocabularyLength), vocabularyOffset);
+
+    ByteBuffer manifestData = ByteBuffer.allocate((int) (footerOffset - manifestOffset));
+    input.read(manifestData, manifestOffset);
+    manifest = Parameters.parseBytes(manifestData.array());
+
     this.cacheGroupSize = (int) manifest.get("cacheGroupSize", 1);
+  }
+
+  /**
+   * Opens an index found in the at pathname.
+   *
+   * @param pathname Filename of the index to open.
+   * @throws FileNotFoundException
+   * @throws IOException
+   */
+  public DiskBTreeReader(String pathname) throws IOException {
+    this(new FileReadableBuffer(pathname));
   }
 
   /**
@@ -168,9 +180,7 @@ public class DiskBTreeReader extends BTreeReader {
    */
   @Override
   public void close() throws IOException {
-    //synchronized (input) {
     input.close();
-    //}
   }
 
   @Override
@@ -181,7 +191,7 @@ public class DiskBTreeReader extends BTreeReader {
     assert startPosition <= absoluteEnd;
 
     // the end of the sub value is the min of fileLength, valueEnd, or (offset+length);
-    return new BufferedFileDataStream(input, startPosition, absoluteEnd);
+    return new CachedBufferDataStream(input, startPosition, absoluteEnd);
   }
 
   /**

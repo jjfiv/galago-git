@@ -5,7 +5,7 @@ import org.lemurproject.galago.utility.btree.*;
 import org.lemurproject.galago.utility.btree.disk.DiskBTreeIterator;
 import org.lemurproject.galago.utility.btree.disk.DiskBTreeReader;
 import org.lemurproject.galago.utility.btree.disk.VocabularyReader;
-import org.lemurproject.galago.utility.buffer.BufferedFileDataStream;
+import org.lemurproject.galago.utility.buffer.CachedBufferDataStream;
 import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.StreamCreator;
@@ -128,7 +128,7 @@ public class SplitBTreeReader extends BTreeReader {
         loadValue();
       }
 
-      return new BufferedFileDataStream(dataFiles[file], getValueStart(), getValueEnd());
+      return new CachedBufferDataStream(dataFiles[file], getValueStart(), getValueEnd());
     }
 
     @Override
@@ -155,7 +155,7 @@ public class SplitBTreeReader extends BTreeReader {
 
       assert absoluteStart <= absoluteEnd;
 
-      return new BufferedFileDataStream(dataFiles[file], absoluteStart, absoluteEnd);
+      return new CachedBufferDataStream(dataFiles[file], absoluteStart, absoluteEnd);
     }
 
     /**

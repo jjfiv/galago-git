@@ -7,13 +7,12 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 /**
- *
+ * This is a forward-only view of a ReadableBuffer as a DataStream.
+ * seek is *only* relative, etc.
  * @author trevor
  */
-public class BufferedFileDataStream extends DataStream {
-  // the fileStream object must be used in a synchronous manner
-  // as this class is used heavily by the IndexReader class
-  final RandomAccessFile fileStream;
+public class CachedBufferDataStream extends DataStream {
+  final ReadableBuffer fileStream;
   ByteBuffer bbCache;
   long stopPosition;
   long startPosition;
@@ -22,10 +21,13 @@ public class BufferedFileDataStream extends DataStream {
   //byte[] cacheBuffer;
 
   /** Creates a new create of BufferedFileDataStream */
-  public BufferedFileDataStream(RandomAccessFile input, long start, long end) throws IOException {
-    assert start <= end;
+  public CachedBufferDataStream(RandomAccessFile input, long start, long end) {
+    this(new FileReadableBuffer(input), start, end);
+  }
 
-    this.fileStream = input;
+  public CachedBufferDataStream(ReadableBuffer buffer, long start, long end) {
+    assert start <= end;
+    this.fileStream = buffer;
     this.stopPosition = end;
     this.bbCache = ByteBuffer.allocate(0);
     //this.cacheBuffer = new byte[0];
@@ -33,11 +35,19 @@ public class BufferedFileDataStream extends DataStream {
     this.startPosition = start;
   }
 
+  public CachedBufferDataStream(RandomAccessFile randomAccessFile) throws IOException {
+    this(new FileReadableBuffer(randomAccessFile));
+  }
+
+  public CachedBufferDataStream(ReadableBuffer buffer) throws IOException {
+    this(buffer, 0, buffer.length());
+  }
+
   @Override
-  public BufferedFileDataStream subStream(long start, long length) throws IOException {
+  public CachedBufferDataStream subStream(long start, long length) throws IOException {
     assert start < length();
     assert start + length <= length();
-    return new BufferedFileDataStream(
+    return new CachedBufferDataStream(
         fileStream, bufferStart + start,
         bufferStart + start + length);
   }
@@ -72,10 +82,11 @@ public class BufferedFileDataStream extends DataStream {
   }
 
   /**
-   * Seeks forward into the fileStream to a particular byte offset (reverse
-   * seeks are not allowed).  The offset is relative to the start of the file.
+   * Seeks forward into the fileStream to a particular byte offset.
+   * The offset is relative to the start of the file.
    */
   private void seekAbsolute(long offset) {
+    // Only allow forward-seeking.
     assert bufferStart + bbCache.position() <= offset;
 
     // is any of this data cached?
@@ -235,7 +246,20 @@ public class BufferedFileDataStream extends DataStream {
       bbCache = ByteBuffer.allocate(readLength);
     }
     bbCache.rewind();
-    fileStream.getChannel().read(bbCache, current);
+    int amountRead = fileStream.read(bbCache, current);
+    /*
+      System.out.println("#");
+      System.out.println("readLength:"+readLength);
+      System.out.println("capacity: "+bbCache.capacity());
+      System.out.println("amountRead: "+amountRead);
+      System.out.println("bufferStart: "+bufferStart);
+      System.out.println("startPosition: "+startPosition);
+      System.out.println("stopPosition: "+stopPosition);
+      System.out.println("position: "+bbCache.position());
+      System.out.println("current: "+current);
+      System.out.println("length: "+length());
+    */
+    assert(amountRead >= readLength);
     bbCache.rewind();
     bufferStart = current;
   }

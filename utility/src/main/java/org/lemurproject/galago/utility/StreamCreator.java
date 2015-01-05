@@ -54,6 +54,8 @@ public class StreamCreator {
   }
 
   public static DataOutputStream openOutputStream(String filename) throws IOException {
+    FSUtil.makeParentDirectories(filename);
+
     if (filename.endsWith(".gz")) {
       return new DataOutputStream(new GZIPOutputStream(new FileOutputStream(filename)));
     } else if (filename.endsWith(".bz") || filename.endsWith(".bz2")) {
