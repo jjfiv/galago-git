@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 /**
  * 
@@ -23,7 +23,7 @@ public class CheckPointHandler {
   }
   
   public void saveCheckpoint(Parameters checkpoint) throws IOException {
-    Utility.copyStringToFile( checkpoint.toString() , new File(path) );
+    StreamUtil.copyStringToFile(checkpoint.toString(), new File(path));
   }
   
   public Parameters getRestore() throws IOException {

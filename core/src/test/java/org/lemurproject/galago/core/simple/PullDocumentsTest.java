@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class PullDocumentsTest {
     }
 
     inputFile = FileUtility.createTemporary();
-    Utility.copyStringToFile(trecCorpus.toString(), inputFile);
+    StreamUtil.copyStringToFile(trecCorpus.toString(), inputFile);
 
     assertTrue(inputFile.exists());
 

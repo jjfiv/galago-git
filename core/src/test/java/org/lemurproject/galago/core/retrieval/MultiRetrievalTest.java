@@ -11,7 +11,7 @@ import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.util.Arrays;
@@ -37,7 +37,7 @@ public class MultiRetrievalTest {
               + AppTest.trecDocument("i1-59", "sample document two");
 
       trecCorpusFile1 = FileUtility.createTemporary();
-      Utility.copyStringToFile(trecCorpus, trecCorpusFile1);
+      StreamUtil.copyStringToFile(trecCorpus, trecCorpusFile1);
 
       index1 = FileUtility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + index1.getAbsolutePath(),
@@ -48,7 +48,7 @@ public class MultiRetrievalTest {
               + AppTest.trecDocument("i2-59", "sample document four long");
 
       trecCorpusFile2 = FileUtility.createTemporary();
-      Utility.copyStringToFile(trecCorpus, trecCorpusFile2);
+      StreamUtil.copyStringToFile(trecCorpus, trecCorpusFile2);
 
       index2 = FileUtility.createTemporaryDirectory();
       App.main(new String[]{"build", "--indexPath=" + index2.getAbsolutePath(),

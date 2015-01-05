@@ -9,7 +9,7 @@ import org.lemurproject.galago.core.tools.apps.BuildIndex;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 
@@ -127,6 +127,6 @@ public class BuildSketchIndexTest {
       }
       corpus.append(trecDocument("doc-" + i, text.toString()));
     }
-    Utility.copyStringToFile(corpus.toString(), corpusFile);
+    StreamUtil.copyStringToFile(corpus.toString(), corpusFile);
   }
 }

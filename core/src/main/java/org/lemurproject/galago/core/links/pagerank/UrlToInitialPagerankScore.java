@@ -13,9 +13,9 @@ import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.TypeReader;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.tupleflow.types.TupleflowLong;
+import org.lemurproject.galago.utility.StreamUtil;
 
 /**
  *
@@ -65,7 +65,7 @@ public class UrlToInitialPagerankScore extends StandardStep<DocumentUrl, PageRan
   public void close() throws IOException {
 
     // ensure the docCount is written to a file.
-    Utility.copyStringToFile("" + trueDocCount, docCountFile);
+    StreamUtil.copyStringToFile("" + trueDocCount, docCountFile);
 
     processor.close();
   }

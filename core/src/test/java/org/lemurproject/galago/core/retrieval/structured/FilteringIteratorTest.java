@@ -14,7 +14,7 @@ import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -53,7 +53,7 @@ public class FilteringIteratorTest {
       String queries = "{ \"x\" : [\"" + q + "\"]}";
 
       queryFile1 = FileUtility.createTemporary();
-      Utility.copyStringToFile(queries, queryFile1);
+      StreamUtil.copyStringToFile(queries, queryFile1);
 
 
       // Smoke test with batch search

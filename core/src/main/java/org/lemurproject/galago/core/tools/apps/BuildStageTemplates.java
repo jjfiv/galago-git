@@ -11,6 +11,7 @@ import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class BuildStageTemplates {
   public static void writeManifest(String indexPath, Parameters jobP) throws IOException {
       File manifest = new File(indexPath, "buildManifest.json");
       FSUtil.makeParentDirectories(manifest);
-      Utility.copyStringToFile(jobP.toPrettyString(), manifest);
+      StreamUtil.copyStringToFile(jobP.toPrettyString(), manifest);
   }
 
   public static Stage getGenericWriteStage(String stageName, File destination, String inputPipeName,

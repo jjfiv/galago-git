@@ -12,7 +12,7 @@ import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.util.Arrays;
@@ -66,7 +66,7 @@ public class NumberedFieldExtractorTest {
     File input = FileUtility.createTemporary();
     File index = FileUtility.createTemporaryDirectory();
     try {
-      Utility.copyStringToFile(sb.toString(), input);
+      StreamUtil.copyStringToFile(sb.toString(), input);
       Parameters p = Parameters.create();
       p.set("indexPath", index.getAbsolutePath());
       p.set("inputPath", input.getAbsolutePath());

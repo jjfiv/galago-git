@@ -5,8 +5,8 @@ package org.lemurproject.galago.core.tools;
 
 import org.junit.Test;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.FSUtil;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -34,7 +34,7 @@ public class FieldRetrievalTest   {
       String trecCorpus = AppTest.trecDocument("55", "<title>sampled sample</title> <other>This is a sample document</other>")
               + AppTest.trecDocument("59", "<title>another sample</title> <other>This is another document</other>");
       trecCorpusFile = FileUtility.createTemporary();
-      Utility.copyStringToFile(trecCorpus, trecCorpusFile);
+      StreamUtil.copyStringToFile(trecCorpus, trecCorpusFile);
 
       indexFile = FileUtility.createTemporaryDirectory();
       // now, try to build an index from that
@@ -69,15 +69,15 @@ public class FieldRetrievalTest   {
               +"]}" + newLine;
               
       queryFile = FileUtility.createTemporary();
-      Utility.copyStringToFile(queries, queryFile);
+      StreamUtil.copyStringToFile(queries, queryFile);
 
       // Smoke test with batch search
       ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
       PrintStream printStream = new PrintStream(byteArrayStream);
 
-      new App().run(new String[]{"batch-search",
-                "--index=" + indexFile.getAbsolutePath(),
-                queryFile.getAbsolutePath()}, printStream);
+      App.run(new String[]{"batch-search",
+        "--index=" + indexFile.getAbsolutePath(),
+        queryFile.getAbsolutePath()}, printStream);
 
       // Now, verify that some stuff exists
       String output = byteArrayStream.toString();

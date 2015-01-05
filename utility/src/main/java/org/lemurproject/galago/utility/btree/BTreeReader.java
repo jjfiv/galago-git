@@ -1,13 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.utility.btree;
 
-import org.lemurproject.galago.utility.btree.disk.VocabularyReader;
-import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.buffer.DataStream;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.MappedByteBuffer;
 
 /**
  * <p>This implements the core functionality for all inverted list readers. It
@@ -47,12 +45,6 @@ public abstract class BTreeReader implements Closeable {
    * collection.
    */
   public abstract Parameters getManifest();
-
-  /**
-   * Returns the vocabulary structure for this DiskBTreeReader. - Note that the
-   * vocabulary contains only the first key in each block.
-   */
-  public abstract VocabularyReader getVocabulary();
 
   /**
    * Returns an iterator pointing to the very first key in the index. This is
@@ -114,22 +106,4 @@ public abstract class BTreeReader implements Closeable {
     }
     return iter.getValueStream();
   }
-
-  /**
-   * Gets the value stored in the index associated with this key.
-   *
-   * @param key
-   * @return The index value for this key, or null if there is no such value.
-   * @throws java.io.IOException
-   */
-  public MappedByteBuffer getValueMemoryMap(byte[] key) throws IOException {
-    BTreeIterator iter = getIterator(key);
-
-    if (iter == null) {
-      return null;
-    }
-    return iter.getValueMemoryMap();
-  }
-
-  public abstract DataStream getSpecialStream(long startPosition, long length) throws IOException;
 }

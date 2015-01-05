@@ -8,8 +8,8 @@ import org.lemurproject.galago.core.eval.EvalDoc;
 import org.lemurproject.galago.core.eval.QuerySetResults;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.util.*;
@@ -73,7 +73,7 @@ public class XFoldLearner extends Learner {
         copy.remove("query");
         copy.remove("queries");
         copy.set("queries", queries.getParametersSubset(xfoldQueryNumbers)); // overwrite //
-        Utility.copyStringToFile(copy.toPrettyString(), new File(outputFolder, name + "-test-fold-" + foldId + ".json"));
+        StreamUtil.copyStringToFile(copy.toPrettyString(), new File(outputFolder, name + "-test-fold-" + foldId + ".json"));
       }
 
       // write the train queries for the fold
@@ -84,7 +84,7 @@ public class XFoldLearner extends Learner {
       foldTrainParameters.put(foldId, copy);
 
       if (outputFolder != null) {
-        Utility.copyStringToFile(copy.toPrettyString(), new File(outputFolder, name + "-train-fold-" + foldId + ".json"));
+        StreamUtil.copyStringToFile(copy.toPrettyString(), new File(outputFolder, name + "-train-fold-" + foldId + ".json"));
       }
 
       foldLearners.put(foldId, LearnerFactory.instance(copy, retrieval));

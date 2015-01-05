@@ -10,6 +10,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.FSUtil;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,7 +81,7 @@ public class DiskMapBuilderTest {
       }
       File inputFile = new File(tmpDir, "input.trectext");
       File indexPath = new File(tmpDir, "index");
-      Utility.copyStringToFile(trecCorpus.toString(), inputFile);
+      StreamUtil.copyStringToFile(trecCorpus.toString(), inputFile);
 
       App.main(new String[]{"build",
           "--stemmedPostings=false",

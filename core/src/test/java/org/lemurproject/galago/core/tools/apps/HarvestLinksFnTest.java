@@ -9,7 +9,6 @@ import org.lemurproject.galago.core.types.ExtractedLink;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.OrderedCombiner;
 import org.lemurproject.galago.tupleflow.TypeReader;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.StreamUtil;
@@ -327,6 +326,6 @@ public class HarvestLinksFnTest {
             + "</html>\n"
             + "</DOC>\n";
 
-    Utility.copyStringToFile(data, input);
+    StreamUtil.copyStringToFile(data, input);
   }
 }

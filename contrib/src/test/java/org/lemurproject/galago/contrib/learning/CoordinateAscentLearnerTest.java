@@ -10,7 +10,7 @@ import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class CoordinateAscentLearnerTest {
               + "q1 x 8 1\n"
               + "q2 x 3 1\n"
               + "q2 x 7 1\n";
-      Utility.copyStringToFile(qrelData, qrels);
+      StreamUtil.copyStringToFile(qrelData, qrels);
 
       // init learn params with queries
       Parameters learnParams = Parameters.parseString("{\"queries\": ["
@@ -52,7 +52,7 @@ public class CoordinateAscentLearnerTest {
       learnParams.set("learner", "coord");
       learnParams.set("qrels", qrels.getAbsolutePath());
       // add two parameters
-      List<Parameters> learnableParams = new ArrayList();
+      List<Parameters> learnableParams = new ArrayList<>();
       learnableParams.add(Parameters.parseString("{\"name\":\"0\",\"min\":0.0,\"max\":1.0}"));
       learnableParams.add(Parameters.parseString("{\"name\":\"1\",\"min\":0.0,\"max\":1.0}"));
       learnParams.set("learnableParameters", learnableParams);

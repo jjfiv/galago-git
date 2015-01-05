@@ -2,19 +2,18 @@
 package org.lemurproject.galago.core.parse;
 
 import org.lemurproject.galago.core.btree.format.BTreeFactory;
-import org.lemurproject.galago.tupleflow.runtime.FileSource;
-import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.core.btree.format.SplitBTreeReader;
-import org.lemurproject.galago.utility.btree.disk.VocabularyReader;
-import org.lemurproject.galago.utility.btree.disk.VocabularyReader.IndexBlockInfo;
 import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.util.DocumentSplitFactory;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.tupleflow.runtime.FileSource;
 import org.lemurproject.galago.utility.*;
-import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.btree.disk.GalagoBTreeReader;
+import org.lemurproject.galago.utility.btree.disk.VocabularyReader;
+import org.lemurproject.galago.utility.btree.disk.VocabularyReader.IndexBlockInfo;
 import org.lemurproject.galago.utility.compression.VByte;
 import org.lemurproject.galago.utility.debug.Counter;
 
@@ -332,7 +331,7 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   private static List<DocumentSplit> processCorpusFile(File file, Parameters conf) throws IOException {
 
     // open the corpus
-    BTreeReader reader = BTreeFactory.getBTreeReader(file);
+    GalagoBTreeReader reader = BTreeFactory.getBTreeReader(file);
 
     // we will divide the corpus by vocab blocks
     VocabularyReader vocabulary = reader.getVocabulary();

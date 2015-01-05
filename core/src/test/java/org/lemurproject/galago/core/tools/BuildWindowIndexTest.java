@@ -16,7 +16,7 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.util.Collections;
@@ -46,9 +46,9 @@ public class BuildWindowIndexTest {
       index.delete();
       index.mkdir();
 
-      Utility.copyStringToFile(trecDocument("d1", "<f>a b b b a c a c b b a a c a a c b a</f> z z z"), new File(trecFolder, "one.trectext"));
-      Utility.copyStringToFile(trecDocument("d2", "<f>b a c a c b b a a c a a c b a c a a</f> z z z"), new File(trecFolder, "two.trectext"));
-      Utility.copyStringToFile(trecDocument("d3", "<f>a c b b a a c a a c b a c a a b a a</f> z z z"), new File(trecFolder, "three.trectext"));
+      StreamUtil.copyStringToFile(trecDocument("d1", "<f>a b b b a c a c b b a a c a a c b a</f> z z z"), new File(trecFolder, "one.trectext"));
+      StreamUtil.copyStringToFile(trecDocument("d2", "<f>b a c a c b b a a c a a c b a c a a</f> z z z"), new File(trecFolder, "two.trectext"));
+      StreamUtil.copyStringToFile(trecDocument("d3", "<f>a c b b a a c a a c b a c a a b a a</f> z z z"), new File(trecFolder, "three.trectext"));
 
       Parameters indexParams = Parameters.create();
       indexParams.set("inputPath", Collections.singletonList(trecFolder.getAbsolutePath()));
@@ -226,9 +226,9 @@ public class BuildWindowIndexTest {
       index.delete();
       index.mkdir();
 
-      Utility.copyStringToFile(trecDocument("d1", "<f>a b b b a c a c b b a a c a a c b a</f> z z z"), new File(trecFolder, "one.trectext"));
-      Utility.copyStringToFile(trecDocument("d2", "<f>b a c a c b b a a c a a c b a c a a</f> z z z"), new File(trecFolder, "two.trectext"));
-      Utility.copyStringToFile(trecDocument("d3", "<f>a c b b a a c a a c b a c a a b a a</f> z z z"), new File(trecFolder, "three.trectext"));
+      StreamUtil.copyStringToFile(trecDocument("d1", "<f>a b b b a c a c b b a a c a a c b a</f> z z z"), new File(trecFolder, "one.trectext"));
+      StreamUtil.copyStringToFile(trecDocument("d2", "<f>b a c a c b b a a c a a c b a c a a</f> z z z"), new File(trecFolder, "two.trectext"));
+      StreamUtil.copyStringToFile(trecDocument("d3", "<f>a c b b a a c a a c b a c a a b a a</f> z z z"), new File(trecFolder, "three.trectext"));
 
       Parameters indexParams = Parameters.create();
       indexParams.set("inputPath", Collections.singletonList(trecFolder.getAbsolutePath()));

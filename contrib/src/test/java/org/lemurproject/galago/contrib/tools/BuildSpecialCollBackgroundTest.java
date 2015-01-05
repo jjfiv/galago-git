@@ -13,7 +13,7 @@ import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.util.Random;
@@ -41,12 +41,12 @@ public class BuildSpecialCollBackgroundTest {
             p.set("corpus", false);
             App.run("build", p, System.out);
 
-            Utility.copyStringToFile(
-                    "1\t1\n"
-                    + "2\t2\n"
-                    + "3\t3\n"
-                    + "4\t4\n"
-                    + "4\t4\n", back);
+            StreamUtil.copyStringToFile(
+              "1\t1\n"
+                + "2\t2\n"
+                + "3\t3\n"
+                + "4\t4\n"
+                + "4\t4\n", back);
 
             Parameters p2 = Parameters.create();
             p2.set("inputPath", back.getAbsolutePath());
@@ -84,7 +84,7 @@ public class BuildSpecialCollBackgroundTest {
             }
             corpus.append(trecDocument("doc-" + i, text.toString()));
         }
-        Utility.copyStringToFile(corpus.toString(), input);
+        StreamUtil.copyStringToFile(corpus.toString(), input);
 
     }
 }

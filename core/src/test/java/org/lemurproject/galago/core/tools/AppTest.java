@@ -4,15 +4,16 @@ package org.lemurproject.galago.core.tools;
 import org.junit.Assert;
 import org.junit.Test;
 import org.lemurproject.galago.core.btree.format.BTreeFactory;
-import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.core.btree.format.SplitBTreeReader;
-import org.lemurproject.galago.utility.btree.disk.VocabularyReader;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.StreamUtil;
+import org.lemurproject.galago.utility.btree.disk.GalagoBTreeReader;
+import org.lemurproject.galago.utility.btree.disk.VocabularyReader;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -71,7 +72,7 @@ public class AppTest {
             String trecCorpus = trecDocument("55", "This is a sample document")
                     + trecDocument("59", "sample document two");
             trecCorpusFile = FileUtility.createTemporary();
-            Utility.copyStringToFile(trecCorpus, trecCorpusFile);
+            StreamUtil.copyStringToFile(trecCorpus, trecCorpusFile);
 
             // now, attempt to make a corpus folder from that.
             corpusFile1 = FileUtility.createTemporary();
@@ -157,7 +158,7 @@ public class AppTest {
             String trecCorpus = trecDocument("55", "This is a sample document")
                     + trecDocument("59", "sample document two");
             trecCorpusFile = FileUtility.createTemporary();
-            Utility.copyStringToFile(trecCorpus, trecCorpusFile);
+            StreamUtil.copyStringToFile(trecCorpus, trecCorpusFile);
 
             // now, attempt to make a corpus file from that.
             corpusFile = FileUtility.createTemporaryDirectory();
@@ -171,7 +172,7 @@ public class AppTest {
             assertTrue(BTreeFactory.isBTree(new File(corpusFile, "split.keys")));
 
             // open the corpus
-            BTreeReader reader = BTreeFactory.getBTreeReader(corpusFile);
+            GalagoBTreeReader reader = BTreeFactory.getBTreeReader(corpusFile);
 
             // we will divide the corpus by vocab blocks
             VocabularyReader vocabulary = reader.getVocabulary();
@@ -200,7 +201,7 @@ public class AppTest {
                     + "{ \"number\" :\"25\", \"text\" : \"#combine( sample two document )\"}\n"
                     + "]}\n";
             queryFile1 = FileUtility.createTemporary();
-            Utility.copyStringToFile(queries, queryFile1);
+            StreamUtil.copyStringToFile(queries, queryFile1);
 
             // Smoke test with batch search
             ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
@@ -267,9 +268,9 @@ public class AppTest {
             printStream = new PrintStream(byteArrayStream);
 
             scoresFile = FileUtility.createTemporary();
-            Utility.copyStringToFile(expectedScores, scoresFile);
+            StreamUtil.copyStringToFile(expectedScores, scoresFile);
             relsFile = FileUtility.createTemporary();
-            Utility.copyStringToFile("9 Q0 55 1" + newLine, relsFile);
+            StreamUtil.copyStringToFile("9 Q0 55 1" + newLine, relsFile);
 
             // for now this is just a smoke test.
             App.run(new String[]{"eval",
@@ -283,7 +284,7 @@ public class AppTest {
                     + "\"#counts:a:part=postings.krovetz()\"" + newLine
                     + "]}" + newLine;
             queryFile2 = FileUtility.createTemporary();
-            Utility.copyStringToFile(queries, queryFile2);
+            StreamUtil.copyStringToFile(queries, queryFile2);
 
             byteArrayStream = new ByteArrayOutputStream();
             printStream = new PrintStream(byteArrayStream);
@@ -336,7 +337,7 @@ public class AppTest {
             String trecCorpus = trecDocument("55", "This is a sample document")
                     + trecDocument("59", "sample document two");
             trecCorpusFile = FileUtility.createTemporary();
-            Utility.copyStringToFile(trecCorpus, trecCorpusFile);
+            StreamUtil.copyStringToFile(trecCorpus, trecCorpusFile);
 
             // now, try to build an index from that
             indexFile = FileUtility.createTemporaryDirectory();
@@ -360,7 +361,7 @@ public class AppTest {
                     + "{ \"number\" :\"25\", \"text\" : \"#combine( sample two document )\"}\n"
                     + "]}\n";
             queryFile = FileUtility.createTemporary();
-            Utility.copyStringToFile(queries, queryFile);
+            StreamUtil.copyStringToFile(queries, queryFile);
 
             // Smoke test with batch search
             ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();

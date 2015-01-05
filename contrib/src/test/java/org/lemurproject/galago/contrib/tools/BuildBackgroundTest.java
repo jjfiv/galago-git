@@ -5,8 +5,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.FSUtil;
+import org.lemurproject.galago.utility.StreamUtil;
 import org.lemurproject.galago.utility.json.JSONUtil;
 
 import java.io.ByteArrayOutputStream;
@@ -47,8 +47,8 @@ public class BuildBackgroundTest  {
 
       trecCorpusFile1 = FileUtility.createTemporary();
       trecCorpusFile2 = FileUtility.createTemporary();
-      Utility.copyStringToFile(trecCorpus1, trecCorpusFile1);
-      Utility.copyStringToFile(trecCorpus2, trecCorpusFile2);
+      StreamUtil.copyStringToFile(trecCorpus1, trecCorpusFile1);
+      StreamUtil.copyStringToFile(trecCorpus2, trecCorpusFile2);
 
       assertTrue(trecCorpusFile1.exists());
       assertTrue(trecCorpusFile2.exists());
@@ -79,7 +79,7 @@ public class BuildBackgroundTest  {
 //              + "], \"printTransformation\":true}";
 
       queryFile = FileUtility.createTemporary();
-      Utility.copyStringToFile(queries_reg, queryFile);
+      StreamUtil.copyStringToFile(queries_reg, queryFile);
       String expected_reg =
               "2 Q0 59 1 -1.73087481 galago" + newLine
               + "2 Q0 55 2 -1.73486418 galago" + newLine
@@ -109,7 +109,7 @@ public class BuildBackgroundTest  {
               + "],"
               + "\"backgroundIndex\" : \"back\"}";
 
-      Utility.copyStringToFile(queries_back2, queryFile);
+      StreamUtil.copyStringToFile(queries_back2, queryFile);
 
       String expected_back =
               "2 Q0 59 1 -1.60833350 galago" + newLine

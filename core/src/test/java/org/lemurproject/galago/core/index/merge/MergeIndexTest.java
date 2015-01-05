@@ -15,11 +15,13 @@ import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.util.ArrayList;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  *
@@ -54,8 +56,8 @@ public class MergeIndexTest {
             }
             trecData1 = FileUtility.createTemporary();
             trecData2 = FileUtility.createTemporary();
-            Utility.copyStringToFile(docs1.toString(), trecData1);
-            Utility.copyStringToFile(docs2.toString(), trecData2);
+            StreamUtil.copyStringToFile(docs1.toString(), trecData1);
+            StreamUtil.copyStringToFile(docs2.toString(), trecData2);
 
             index1 = FileUtility.createTemporaryDirectory();
             App.main(new String[]{"build", "--inputPath=" + trecData1.getAbsolutePath(),
@@ -125,8 +127,8 @@ public class MergeIndexTest {
             }
             trecData1 = FileUtility.createTemporary();
             trecData2 = FileUtility.createTemporary();
-            Utility.copyStringToFile(docs1.toString(), trecData1);
-            Utility.copyStringToFile(docs2.toString(), trecData2);
+            StreamUtil.copyStringToFile(docs1.toString(), trecData1);
+            StreamUtil.copyStringToFile(docs2.toString(), trecData2);
 
             index1 = FileUtility.createTemporaryDirectory();
             App.main(new String[]{"build", "--inputPath=" + trecData1.getAbsolutePath(),

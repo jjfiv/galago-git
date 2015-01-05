@@ -11,11 +11,11 @@ import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.utility.StreamUtil;
 import org.lemurproject.galago.utility.queries.JSONQueryFormat;
 import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
 
 import java.io.File;
 import java.io.IOException;
@@ -160,7 +160,7 @@ public class GenerateWorkingSetQueries extends AppFunction {
     if (parameters.isString("output")) {
       File o = new File(parameters.getString("output"));
       FSUtil.makeParentDirectories(o);
-      Utility.copyStringToFile(wsParameters.toPrettyString(), o);
+      StreamUtil.copyStringToFile(wsParameters.toPrettyString(), o);
     } else {
       output.println(wsParameters.toPrettyString());
     }

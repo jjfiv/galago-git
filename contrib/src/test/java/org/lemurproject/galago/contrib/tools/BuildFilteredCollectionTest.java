@@ -8,6 +8,7 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -32,7 +33,7 @@ public class BuildFilteredCollectionTest {
       makeTrecDocs(input);
 
       String docs = "doc-1\ndoc-2\ndoc-88\ndoc-99\ndoc-100";
-      Utility.copyStringToFile(docs, filter);
+      StreamUtil.copyStringToFile(docs, filter);
 
       Parameters p = Parameters.create();
       p.set("inputPath", input.getAbsolutePath());
@@ -70,7 +71,7 @@ public class BuildFilteredCollectionTest {
       }
       corpus.append(trecDocument("doc-" + i, text.toString()));
     }
-    Utility.copyStringToFile(corpus.toString(), input);
+    StreamUtil.copyStringToFile(corpus.toString(), input);
   }
 
   public static int countDocuments(File f) throws IOException {

@@ -3,8 +3,8 @@
  */
 package org.lemurproject.galago.core.btree.format;
 
-import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.utility.btree.disk.DiskBTreeReader;
+import org.lemurproject.galago.utility.btree.disk.GalagoBTreeReader;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,11 +18,11 @@ public class BTreeFactory {
   /*
    * Static functions to open an index file or folder
    */
-  public static BTreeReader getBTreeReader(String filePath) throws IOException {
+  public static GalagoBTreeReader getBTreeReader(String filePath) throws IOException {
     return getBTreeReader(new File(filePath));
   }
 
-  public static BTreeReader getBTreeReader(File f) throws IOException {
+  public static GalagoBTreeReader getBTreeReader(File f) throws IOException {
     if (SplitBTreeReader.isBTree(f)) {
       return new SplitBTreeReader(f);
     } else if (DiskBTreeReader.isBTree(f)) {

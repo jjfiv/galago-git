@@ -3,9 +3,7 @@ package org.lemurproject.galago.utility.btree.disk;
 
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.utility.btree.BTreeReader;
 import org.lemurproject.galago.utility.buffer.CachedBufferDataStream;
-import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.buffer.FileReadableBuffer;
 import org.lemurproject.galago.utility.buffer.ReadableBuffer;
 
@@ -43,7 +41,7 @@ import java.nio.ByteBuffer;
  * @author trevor
  * @author irmarc
  */
-public class DiskBTreeReader extends BTreeReader {
+public class DiskBTreeReader extends GalagoBTreeReader {
 
   // this input reader needs to be accesed in a synchronous manner.
   final ReadableBuffer input;
@@ -181,17 +179,6 @@ public class DiskBTreeReader extends BTreeReader {
   @Override
   public void close() throws IOException {
     input.close();
-  }
-
-  @Override
-  public DataStream getSpecialStream(long startPosition, long length) throws IOException {
-    long absoluteEnd = startPosition + length;
-    absoluteEnd = (fileLength < absoluteEnd) ? fileLength : absoluteEnd;
-
-    assert startPosition <= absoluteEnd;
-
-    // the end of the sub value is the min of fileLength, valueEnd, or (offset+length);
-    return new CachedBufferDataStream(input, startPosition, absoluteEnd);
   }
 
   /**

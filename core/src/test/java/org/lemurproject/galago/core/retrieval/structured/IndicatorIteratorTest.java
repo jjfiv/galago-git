@@ -17,7 +17,7 @@ import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 
@@ -47,7 +47,7 @@ public class IndicatorIteratorTest {
     trecCorpus.append(AppTest.trecDocument("3", "To be trusted is a greater compliment than to be loved"));
     trecCorpus.append(AppTest.trecDocument("4", "Though a sample program be but three lines long, someday it will have to be maintained via document."));
     trecCorpusFile = FileUtility.createTemporary();
-    Utility.copyStringToFile(trecCorpus.toString(), trecCorpusFile);
+    StreamUtil.copyStringToFile(trecCorpus.toString(), trecCorpusFile);
 
     // now, try to build an index from that
     indexFile = FileUtility.createTemporary();

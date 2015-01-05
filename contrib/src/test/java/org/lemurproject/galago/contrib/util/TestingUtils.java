@@ -6,7 +6,7 @@ package org.lemurproject.galago.contrib.util;
 import org.junit.Assert;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 
@@ -37,7 +37,7 @@ public class TestingUtils {
     trecCorpus.append(trecDocument("9", "document document document document"));
     trecCorpus.append(trecDocument("10", "program fits"));
     trecCorpusFile = FileUtility.createTemporary();
-    Utility.copyStringToFile(trecCorpus.toString(), trecCorpusFile);
+    StreamUtil.copyStringToFile(trecCorpus.toString(), trecCorpusFile);
 
     // now, attempt to make a corpus file from that.
     corpusFile = FileUtility.createTemporaryDirectory();

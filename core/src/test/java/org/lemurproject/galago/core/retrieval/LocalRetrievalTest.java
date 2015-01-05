@@ -14,10 +14,7 @@ import org.lemurproject.galago.core.types.DocumentNameId;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
-import org.lemurproject.galago.utility.ByteUtil;
-import org.lemurproject.galago.utility.CmpUtil;
-import org.lemurproject.galago.utility.FSUtil;
-import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -165,8 +162,8 @@ public class LocalRetrievalTest {
 
     // create a simple doc file, trec format:
     trecCorpusFile = FileUtility.createTemporary();
-    Utility.copyStringToFile(
-        AppTest.trecDocument("1", "This is a sample document") +
+    StreamUtil.copyStringToFile(
+      AppTest.trecDocument("1", "This is a sample document") +
         AppTest.trecDocument("2", "The cat jumped over the moon") +
         AppTest.trecDocument("3", "If the shoe fits, it's ugly") +
         AppTest.trecDocument("4", "Though a program be but three lines long, someday it will have to be maintained.") +

@@ -14,7 +14,7 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public class LearnerTest {
               + "q1 x 8 1\n"
               + "q2 x 3 1\n"
               + "q2 x 7 1\n";
-      Utility.copyStringToFile(qrelData, qrels);
+      StreamUtil.copyStringToFile(qrelData, qrels);
 
       // init learn params with queries
       Parameters learnParams = Parameters.parseString("{\"queries\": [{\"number\":\"q1\",\"text\":\"#sdm( jump moon )\"}, {\"number\":\"q2\",\"text\":\"#sdm( everything shoe )\"}]}");

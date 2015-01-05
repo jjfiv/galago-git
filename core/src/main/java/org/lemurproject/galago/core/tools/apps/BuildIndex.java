@@ -13,6 +13,7 @@ import org.lemurproject.galago.core.parse.*;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.NullStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
+import org.lemurproject.galago.utility.StreamUtil;
 import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.core.types.*;
 import org.lemurproject.galago.tupleflow.Order;
@@ -623,7 +624,7 @@ public class BuildIndex extends AppFunction {
     // ensure the index folder exists
     File buildManifest = new File(indexPath, "buildManifest.json");
     FSUtil.makeParentDirectories(buildManifest);
-    Utility.copyStringToFile(buildParameters.toPrettyString(), buildManifest);
+    StreamUtil.copyStringToFile(buildParameters.toPrettyString(), buildManifest);
 
     List<String> inputPaths = buildParameters.getAsList("inputPath", String.class);
 

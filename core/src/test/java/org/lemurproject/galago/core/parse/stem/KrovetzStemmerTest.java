@@ -12,8 +12,8 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.FSUtil;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -97,7 +97,7 @@ public class KrovetzStemmerTest {
       // create a simple doc file, trec format:
       String trecCorpus = AppTest.trecDocument("1", text);
       trecCorpusFile = FileUtility.createTemporary();
-      Utility.copyStringToFile(trecCorpus, trecCorpusFile);
+      StreamUtil.copyStringToFile(trecCorpus, trecCorpusFile);
 
       // now, try to build an index from that
       indexFile1 = FileUtility.createTemporaryDirectory();

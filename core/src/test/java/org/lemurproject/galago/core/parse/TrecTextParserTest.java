@@ -7,7 +7,7 @@ import org.lemurproject.galago.core.types.DocumentSplit;
 import org.lemurproject.galago.core.util.DocumentSplitFactory;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class TrecTextParserTest {
 
         File f = FileUtility.createTemporary();
         try {
-            Utility.copyStringToFile(fileText, f);
+            StreamUtil.copyStringToFile(fileText, f);
             DocumentSplit split = DocumentSplitFactory.file(f, "trectext");
             TrecTextParser parser = new TrecTextParser(split, Parameters.create());
 
@@ -63,7 +63,7 @@ public class TrecTextParserTest {
 
         File f = FileUtility.createTemporary();
         try {
-            Utility.copyStringToFile(fileText, f);
+            StreamUtil.copyStringToFile(fileText, f);
             DocumentSplit split = DocumentSplitFactory.file(f, "trectext");
             DocumentStreamParser parser = DocumentStreamParser.create(split, Parameters.create());
 
@@ -90,7 +90,7 @@ public class TrecTextParserTest {
                 + "</DOC>\n";
         File f = FileUtility.createTemporary();
         try {
-            Utility.copyStringToFile(fileText, f);
+            StreamUtil.copyStringToFile(fileText, f);
             DocumentSplit split = DocumentSplitFactory.file(f);
             TrecTextParser parser = new TrecTextParser(split, Parameters.create());
 
@@ -123,7 +123,7 @@ public class TrecTextParserTest {
                 + "</DOC>\n";
         File f = FileUtility.createTemporary();
         try {
-            Utility.copyStringToFile(fileText, f);
+            StreamUtil.copyStringToFile(fileText, f);
             DocumentSplit split = DocumentSplitFactory.file(f);
             TrecTextParser parser = new TrecTextParser(split, Parameters.create());
 

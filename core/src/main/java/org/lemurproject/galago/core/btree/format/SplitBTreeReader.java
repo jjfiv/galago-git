@@ -1,14 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.btree.format;
 
-import org.lemurproject.galago.utility.btree.*;
+import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.StreamCreator;
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.btree.disk.DiskBTreeIterator;
 import org.lemurproject.galago.utility.btree.disk.DiskBTreeReader;
+import org.lemurproject.galago.utility.btree.disk.GalagoBTreeReader;
 import org.lemurproject.galago.utility.btree.disk.VocabularyReader;
 import org.lemurproject.galago.utility.buffer.CachedBufferDataStream;
 import org.lemurproject.galago.utility.buffer.DataStream;
-import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.utility.StreamCreator;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +34,7 @@ import java.nio.channels.FileChannel;
  *
  * @author sjh
  */
-public class SplitBTreeReader extends BTreeReader {
+public class SplitBTreeReader extends GalagoBTreeReader {
 
   public static final long VALUE_FILE_MAGIC_NUMBER = 0x2b3c4d5e6f7a8b9cL;
   RandomAccessFile[] dataFiles;
@@ -277,13 +278,6 @@ public class SplitBTreeReader extends BTreeReader {
     }
   }
 
-  @Override
-  public DataStream getSpecialStream(long startPosition, long length){
-    throw new RuntimeException("Impossible request for a split-b-tree -- don't know which value-file to open.");
-  }
-
-  //*********************//
-  // static functions
   public static boolean isBTree(File f) throws IOException {
     assert f.exists() : "Path not found: " + f.getAbsolutePath();
 

@@ -15,7 +15,7 @@ import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -145,7 +145,7 @@ public class WorkingSetTest {
       data.append("\n");
       c.append(AppTest.trecDocument("d-" + i, "Test text" + data.toString()));
     }
-    Utility.copyStringToFile(c.toString(), corpus);
+    StreamUtil.copyStringToFile(c.toString(), corpus);
     
     Parameters p = Parameters.create();
     p.set("inputPath", corpus.getAbsolutePath());

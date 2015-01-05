@@ -9,8 +9,8 @@ import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.FSUtil;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -49,7 +49,7 @@ public class BuildSpecialPartTest {
                     + trecDocument("59", "sample document two")
                     + trecDocument("73", "sample document three");
             trecCorpusFile = FileUtility.createTemporary();
-            Utility.copyStringToFile(trecCorpus, trecCorpusFile);
+            StreamUtil.copyStringToFile(trecCorpus, trecCorpusFile);
 
             // now build an index from that
             indexFile = FileUtility.createTemporaryDirectory();
@@ -64,7 +64,7 @@ public class BuildSpecialPartTest {
                     + "d10" + newLine;
 
             indicatorFile = FileUtility.createTemporary();
-            Utility.copyStringToFile(indicators, indicatorFile);
+            StreamUtil.copyStringToFile(indicators, indicatorFile);
 
             App.main(new String[]{"build-special", "--indexPath=" + indexFile.getAbsolutePath(),
                 "--inputPath=" + indicatorFile.getAbsolutePath(), "--type=indicator",
@@ -107,7 +107,7 @@ public class BuildSpecialPartTest {
                     + "]}" + newLine;
 
             queryFile = FileUtility.createTemporary();
-            Utility.copyStringToFile(queries, queryFile);
+            StreamUtil.copyStringToFile(queries, queryFile);
 
             // test with batch search
             ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
@@ -161,7 +161,7 @@ public class BuildSpecialPartTest {
                     + trecDocument("59", "sample document two")
                     + trecDocument("73", "sample document three");
             trecCorpusFile = FileUtility.createTemporary();
-            Utility.copyStringToFile(trecCorpus, trecCorpusFile);
+            StreamUtil.copyStringToFile(trecCorpus, trecCorpusFile);
 
             String priors
                     = "d10\t-23.0259" + newLine
@@ -170,7 +170,7 @@ public class BuildSpecialPartTest {
                     + "d73\t-6.0" + newLine;
 
             priorFile = FileUtility.createTemporary();
-            Utility.copyStringToFile(priors, priorFile);
+            StreamUtil.copyStringToFile(priors, priorFile);
 
             // now, try to build an index from that
             indexFile = FileUtility.createTemporary();
@@ -224,7 +224,7 @@ public class BuildSpecialPartTest {
                     + "]}" + newLine;
 
             queryFile = FileUtility.createTemporary();
-            Utility.copyStringToFile(queries, queryFile);
+            StreamUtil.copyStringToFile(queries, queryFile);
 
             // test with batch search
             ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();

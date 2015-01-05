@@ -8,7 +8,7 @@ import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -121,7 +121,7 @@ public class StatsFnTest {
       }
       corpus.append(AppTest.trecDocument("doc-" + i, text.toString()));
     }
-    Utility.copyStringToFile(corpus.toString(), input);
+    StreamUtil.copyStringToFile(corpus.toString(), input);
 
     Parameters p = Parameters.create();
     p.set("inputPath", input.getAbsolutePath());

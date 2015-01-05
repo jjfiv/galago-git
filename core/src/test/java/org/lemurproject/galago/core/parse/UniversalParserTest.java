@@ -14,7 +14,7 @@ import org.lemurproject.galago.core.util.DocumentSplitFactory;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +42,7 @@ public class UniversalParserTest {
             sb.append(i).append(" ").append(r.nextInt(100)).append("\n");
         }
 
-        Utility.copyStringToFile(sb.toString(), new File(folder, fn));
+        StreamUtil.copyStringToFile(sb.toString(), new File(folder, fn));
 
         return new File(folder, fn);
     }
@@ -58,7 +58,7 @@ public class UniversalParserTest {
         }
         sb.append("</document>\n");
 
-        Utility.copyStringToFile(sb.toString(), new File(folder, fn));
+        StreamUtil.copyStringToFile(sb.toString(), new File(folder, fn));
     }
 
     public static void createTrecTextDoc(File folder, String fn) throws IOException {
@@ -74,7 +74,7 @@ public class UniversalParserTest {
             sb.append("</TEXT>\n</DOC>\n");
 
         }
-        Utility.copyStringToFile(sb.toString(), new File(folder, fn));
+        StreamUtil.copyStringToFile(sb.toString(), new File(folder, fn));
     }
 
     public static void createTrecWebDoc(File folder, String fn) throws IOException {
@@ -90,7 +90,7 @@ public class UniversalParserTest {
             }
             sb.append("</DOC>\n");
         }
-        Utility.copyStringToFile(sb.toString(), new File(folder, fn));
+        StreamUtil.copyStringToFile(sb.toString(), new File(folder, fn));
     }
 
     public static void createTwitterDoc(File folder, String fn) throws IOException {
@@ -105,7 +105,7 @@ public class UniversalParserTest {
             sb.append("\tfaked\n");
         }
 
-        Utility.copyStringToFile(sb.toString(), new File(folder, fn));
+        StreamUtil.copyStringToFile(sb.toString(), new File(folder, fn));
     }
 
     @Test

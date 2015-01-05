@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.lemurproject.galago.tupleflow.ExNihiloSource;
-import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.StreamUtil;
 
 /**
  * This executor has no practical use at all. It's only here to make it easy to
@@ -108,7 +108,7 @@ public class ThreadedCheckpointedStageExecutor extends CheckpointedStageExecutor
           if(this.exception == null){
             completeFile.createNewFile();
           } else {
-            Utility.copyStringToFile(this.exception.toString(), errorFile);
+            StreamUtil.copyStringToFile(this.exception.toString(), errorFile);
           }
         } catch(IOException e){
           System.err.println(e.toString() + "\nFailed to write complete/error file");
