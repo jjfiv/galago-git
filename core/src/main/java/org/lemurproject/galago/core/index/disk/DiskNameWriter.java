@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowDiskBTreeWriter;
 import org.lemurproject.galago.utility.btree.GenericElement;
 import org.lemurproject.galago.core.index.merge.DocumentNameMerger;
 import org.lemurproject.galago.core.types.DocumentNameId;
@@ -20,7 +20,7 @@ import java.io.IOException;
 @InputClass(className = "org.lemurproject.galago.core.types.DocumentNameId", order = {"+id"})
 public class DiskNameWriter implements Processor<DocumentNameId> {
 
-  DiskBTreeWriter writer;
+  TupleflowDiskBTreeWriter writer;
   DocumentNameId last = null;
   Counter documentNamesWritten;
 
@@ -34,7 +34,7 @@ public class DiskNameWriter implements Processor<DocumentNameId> {
     p.set("mergerClass", DocumentNameMerger.class.getName());
     p.set("readerClass", DiskNameReader.class.getName());
 
-    writer = new DiskBTreeWriter(filename, p);
+    writer = new TupleflowDiskBTreeWriter(filename, p);
   }
 
   @Override

@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.index.corpus;
 
 import org.lemurproject.galago.core.corpus.DocumentSerializer;
 import org.lemurproject.galago.utility.btree.GenericElement;
-import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowDiskBTreeWriter;
 import org.lemurproject.galago.core.index.merge.CorpusMerger;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.tupleflow.*;
@@ -27,7 +27,7 @@ public class CorpusFileWriter implements Processor<Document> {
 
   final DocumentSerializer serializer;
   final Parameters corpusParams;
-  final DiskBTreeWriter writer;
+  final TupleflowDiskBTreeWriter writer;
   final Counter documentsWritten;
 
   public CorpusFileWriter(TupleFlowParameters parameters) throws IOException {
@@ -36,7 +36,7 @@ public class CorpusFileWriter implements Processor<Document> {
     corpusParams.set("writerClass", getClass().getName());
     corpusParams.set("readerClass", CorpusReader.class.getName());
     corpusParams.set("mergerClass", CorpusMerger.class.getName());
-    writer = new DiskBTreeWriter(parameters.getJSON().getString("filename"), corpusParams);
+    writer = new TupleflowDiskBTreeWriter(parameters.getJSON().getString("filename"), corpusParams);
     documentsWritten = parameters.getCounter("Documents Written");
     serializer = DocumentSerializer.create(corpusParams);
     corpusParams.set("documentSerializerClass", serializer.getClass().getName());

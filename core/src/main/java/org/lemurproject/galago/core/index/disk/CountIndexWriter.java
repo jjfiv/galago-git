@@ -1,8 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.btree.format.BTreeWriter;
-import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowBTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowDiskBTreeWriter;
 import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.tupleflow.*;
@@ -34,7 +34,7 @@ public class CountIndexWriter implements
 
   // writer variables //
   Parameters actualParams;
-  BTreeWriter writer;
+  TupleflowBTreeWriter writer;
   CountsList invertedList;
   // statistics //
   byte[] lastWord;
@@ -56,7 +56,7 @@ public class CountIndexWriter implements
     this.actualParams.setIfMissing("readerClass", CountIndexReader.class.getName());
     this.actualParams.setIfMissing("defaultOperator", "counts");
 
-    this.writer = new DiskBTreeWriter(parameters);
+    this.writer = new TupleflowDiskBTreeWriter(parameters);
 
     // look for skips
     boolean skip = parameters.getJSON().get("skipping", true);

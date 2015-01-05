@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
-import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowDiskBTreeWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -24,7 +24,7 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  */
 public abstract class KeyValueWriter<T> implements Processor<T> {
 
-  protected DiskBTreeWriter writer;
+  protected TupleflowDiskBTreeWriter writer;
   protected Counter elementsWritten;
 
   public KeyValueWriter(TupleFlowParameters parameters) throws FileNotFoundException, IOException {
@@ -32,7 +32,7 @@ public abstract class KeyValueWriter<T> implements Processor<T> {
   }
 
   public KeyValueWriter(TupleFlowParameters parameters, String text) throws FileNotFoundException, IOException {
-    writer = new DiskBTreeWriter(parameters);
+    writer = new TupleflowDiskBTreeWriter(parameters);
     elementsWritten = parameters.getCounter(text);
   }
 

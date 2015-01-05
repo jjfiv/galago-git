@@ -1,16 +1,11 @@
-// BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.btree.format;
+package org.lemurproject.galago.utility.btree;
 
-import org.lemurproject.galago.utility.btree.IndexElement;
-import org.lemurproject.galago.utility.btree.DiskBTreeFormat;
-import org.lemurproject.galago.utility.btree.VocabularyWriter;
-import org.lemurproject.galago.utility.debug.Counter;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.compression.VByte;
+import org.lemurproject.galago.utility.debug.Counter;
 import org.lemurproject.galago.utility.debug.NullCounter;
 
 import java.io.*;
@@ -19,19 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * This class writes index files, which are used for most Galago indexes.
- * 
- * An index is a mapping between a key and a value, much like a TreeMap.  The keys are
- * sorted to allow iteration over the whole file.  Keys are stored using prefix
- * compression to save space.  The structure is designed for fast random access on disk.
- * 
- * For indexes, we assume that the data in each value is already compressed, so DiskBTreeWriter
- * does no additional compression.
- *
- * @author trevor, sjh, irmarc, jfoley
+ * @author jfoley.
  */
-public class DiskBTreeWriter extends BTreeWriter {
-
+public class DiskBTreeWriter implements BTreeWriter {
   private DataOutputStream output;
   private VocabularyWriter vocabulary;
   private Parameters manifest;
@@ -51,8 +36,7 @@ public class DiskBTreeWriter extends BTreeWriter {
   /**
    * Creates a new create of DiskBTreeWriter
    */
-  public DiskBTreeWriter(String outputFilename, Parameters parameters)
-          throws IOException {
+  public DiskBTreeWriter(String outputFilename, Parameters parameters) throws IOException {
     FSUtil.makeParentDirectories(outputFilename);
 
     // max sizes - each defaults to a max length of 2 bytes (short)
@@ -61,7 +45,7 @@ public class DiskBTreeWriter extends BTreeWriter {
     keyOverlap = maxKeySize;
 
     output = new DataOutputStream(new BufferedOutputStream(
-            new FileOutputStream(outputFilename)));
+      new FileOutputStream(outputFilename)));
     vocabulary = new VocabularyWriter();
     manifest = Parameters.create();
     manifest.copyFrom(parameters);
@@ -74,12 +58,6 @@ public class DiskBTreeWriter extends BTreeWriter {
 
   public DiskBTreeWriter(String outputFilename) throws IOException {
     this(outputFilename, Parameters.create());
-  }
-
-  public DiskBTreeWriter(TupleFlowParameters parameters) throws IOException {
-    this(parameters.getJSON().getString("filename"), parameters.getJSON());
-    blocksWritten = parameters.getCounter("Blocks Written");
-    recordsWritten = parameters.getCounter("Records Written");
   }
 
   /**
@@ -130,8 +108,8 @@ public class DiskBTreeWriter extends BTreeWriter {
     byte[] xmlData = manifest.toString().getBytes("UTF-8");
     long vocabularyOffset = filePosition;
     long manifestOffset = filePosition
-            + 4 + lastKey.length // final key - part of vocab
-            + vocabularyData.length;
+      + 4 + lastKey.length // final key - part of vocab
+      + vocabularyData.length;
 
     // need to write an int here - key could be very large.
     //  - we are using compression in other places
@@ -229,12 +207,12 @@ public class DiskBTreeWriter extends BTreeWriter {
 
   private boolean needsFlush(IndexElement list) {
     long listExtra =
-            2 + // byte for key length
-            2;  // byte for overlap with previous key
+      2 + // byte for key length
+        2;  // byte for overlap with previous key
 
     long bufferedBytes = bufferedSize()
-            + invertedListLength(list)
-            + listExtra;
+      + invertedListLength(list)
+      + listExtra;
 
     return bufferedBytes >= blockSize;
   }

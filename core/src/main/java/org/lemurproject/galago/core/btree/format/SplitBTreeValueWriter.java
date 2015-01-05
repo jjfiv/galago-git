@@ -42,7 +42,7 @@ import org.lemurproject.galago.tupleflow.execution.Verification;
  */
 @InputClass(className = "org.lemurproject.galago.core.types.KeyValuePair")
 @OutputClass(className = "org.lemurproject.galago.core.types.KeyValuePair")
-public class SplitBTreeValueWriter extends BTreeWriter
+public class SplitBTreeValueWriter extends TupleflowBTreeWriter
         implements KeyValuePair.KeyValueOrder.ShreddedProcessor {
 
   public static final long MAGIC_NUMBER = 0x2b3c4d5e6f7a8b9cL;

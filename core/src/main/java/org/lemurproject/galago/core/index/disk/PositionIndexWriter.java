@@ -1,8 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.btree.format.BTreeWriter;
-import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowBTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowDiskBTreeWriter;
 import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.index.mem.MemoryPositionalIndex;
 import org.lemurproject.galago.core.index.merge.PositionIndexMerger;
@@ -52,7 +52,7 @@ public class PositionIndexWriter implements
   static final int MARKER_MINIMUM = 2;
   // writer variables //
   Parameters actualParams;
-  BTreeWriter writer;
+  TupleflowBTreeWriter writer;
   PositionsList invertedList;
   // statistics //
   byte[] lastWord;
@@ -76,7 +76,7 @@ public class PositionIndexWriter implements
     actualParams.set("memoryClass", MemoryPositionalIndex.class.getName());
     actualParams.set("defaultOperator", "counts");
 
-    writer = new DiskBTreeWriter(parameters);
+    writer = new TupleflowDiskBTreeWriter(parameters);
 
     // look for skips
     boolean skip = parameters.getJSON().get("skipping", true);

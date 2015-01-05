@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.btree.format;
 
+import org.lemurproject.galago.utility.btree.BTreeWriter;
 import org.lemurproject.galago.utility.btree.IndexElement;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.Source;
@@ -21,10 +22,6 @@ import java.io.IOException;
  * For indexes, we assume that the data in each value is already compressed, so IndexWriter
  * does no additional compression.
  *
- * An IndexWriter is a special case, it can compress the data if isCompressed is set.
- * 
- * Keys cannot be longer than 256 bytes, and they must be added in sorted order.
- *
  * There are two ways of adding data to an index:
  *
  *  - add
@@ -40,12 +37,13 @@ import java.io.IOException;
  * 
  * @author sjh
  */
-public abstract class BTreeWriter implements KeyValuePair.KeyValueOrder.ShreddedProcessor, Source<KeyValuePair>, Closeable {
+public abstract class TupleflowBTreeWriter implements KeyValuePair.KeyValueOrder.ShreddedProcessor, Source<KeyValuePair>, Closeable, BTreeWriter {
         
     /**
      * Returns the current copy of the manifest, which will be stored in
      * the completed index file.  This data is not written until close() is called.
      */
+    @Override
     public abstract Parameters getManifest();
 
     /**
@@ -53,6 +51,7 @@ public abstract class BTreeWriter implements KeyValuePair.KeyValueOrder.Shredded
      *  - when in this form neither the key nor the bytes need to fit into availiable RAM
      *  - this allows multi-gigabyte values to be written to the index
      */
+    @Override
     public abstract void add(IndexElement list) throws IOException ;
 
 
@@ -62,14 +61,6 @@ public abstract class BTreeWriter implements KeyValuePair.KeyValueOrder.Shredded
      */
     @Override
     public abstract void close() throws IOException;
-
-
-    /**************/
-    // block based index functions
-    //  - these avoid buffering long posting lists to disk
-    //  - sjh - i made these optional so as not to clutter up the IndexWriter
-    //        - TODO: ParallelIndexValueWriter does implement them (needs more work)
-
 
     /**
      * Adds a key to the index

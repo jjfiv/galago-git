@@ -3,7 +3,7 @@
  */
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowDiskBTreeWriter;
 import org.lemurproject.galago.utility.btree.IndexElement;
 import org.lemurproject.galago.core.types.KeyValuePair;
 import org.lemurproject.galago.tupleflow.InputClass;
@@ -24,11 +24,11 @@ import java.io.OutputStream;
 @InputClass(className = "org.lemurproject.galago.core.types.KeyValuePair", order = {"+key", "+value"})
 public class ConflationIndexWriter implements KeyValuePair.KeyValueOrder.ShreddedProcessor {
 
-  private DiskBTreeWriter writer;
+  private TupleflowDiskBTreeWriter writer;
   private ConflationList current = null;
 
   public ConflationIndexWriter(TupleFlowParameters parameters) throws IOException {
-    writer = new DiskBTreeWriter(parameters);
+    writer = new TupleflowDiskBTreeWriter(parameters);
     writer.getManifest().set("readerClass", ConflationIndexReader.class.getName());
     writer.getManifest().set("writerClass", getClass().getName());
   }

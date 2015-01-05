@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowDiskBTreeWriter;
 import org.lemurproject.galago.utility.btree.IndexElement;
 import org.lemurproject.galago.core.index.merge.DocumentLengthsMerger;
 import org.lemurproject.galago.core.types.FieldLengthData;
@@ -39,7 +39,7 @@ import java.io.OutputStream;
 @InputClass(className = "org.lemurproject.galago.core.types.FieldLengthData", order = {"+field", "+document"})
 public class DiskLengthsWriter implements Processor<FieldLengthData> {
 
-  private DiskBTreeWriter writer;
+  private TupleflowDiskBTreeWriter writer;
   private LengthsList fieldLengthData;
   private Counter recordsWritten;
   private Counter newFields;
@@ -50,7 +50,7 @@ public class DiskLengthsWriter implements Processor<FieldLengthData> {
    * Creates a new create of DiskLengthsWriter
    */
   public DiskLengthsWriter(TupleFlowParameters parameters) throws IOException {
-    writer = new DiskBTreeWriter(parameters);
+    writer = new TupleflowDiskBTreeWriter(parameters);
     Parameters p = this.writer.getManifest();
     p.set("writerClass", DiskLengthsWriter.class.getName());
     p.set("mergerClass", DocumentLengthsMerger.class.getName());

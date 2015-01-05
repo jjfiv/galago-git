@@ -1,8 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
-import org.lemurproject.galago.core.btree.format.BTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowDiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowBTreeWriter;
 import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
 import org.lemurproject.galago.tupleflow.buffer.DiskSpillCompressedByteBuffer;
 import org.lemurproject.galago.utility.btree.IndexElement;
@@ -27,7 +27,7 @@ import java.io.OutputStream;
 public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.ShreddedProcessor {
 
   byte[] lastWord;
-  BTreeWriter writer;
+  TupleflowBTreeWriter writer;
   ContentList invertedList;
   long documentCount = 0;
   Parameters header;
@@ -45,7 +45,7 @@ public class FieldIndexWriter implements NumberedField.FieldNameNumberOrder.Shre
   @Override
   public void processFieldName(byte[] wordBytes) throws IOException {
     if (writer == null) {
-      writer = new DiskBTreeWriter(stepParameters);
+      writer = new TupleflowDiskBTreeWriter(stepParameters);
     }
 
     if (invertedList != null) {

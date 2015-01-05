@@ -8,11 +8,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.lemurproject.galago.core.index.BTreeValueIterator;
-import org.lemurproject.galago.core.btree.format.BTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowBTreeWriter;
 import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
 import org.lemurproject.galago.tupleflow.buffer.DiskSpillCompressedByteBuffer;
 import org.lemurproject.galago.utility.btree.IndexElement;
-import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowDiskBTreeWriter;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.InputClass;
@@ -36,7 +36,7 @@ public class InvertedSketchIndexWriter implements
 
   // writer variables //
   Parameters actualParams;
-  BTreeWriter writer;
+  TupleflowBTreeWriter writer;
   CountsList invertedList;
   // statistics //
   byte[] lastWord;
@@ -63,7 +63,7 @@ public class InvertedSketchIndexWriter implements
     assert this.actualParams.isLong("depth");
     assert this.actualParams.isMap("hashFns");
     
-    this.writer = new DiskBTreeWriter(parameters);
+    this.writer = new TupleflowDiskBTreeWriter(parameters);
 
     // look for skips
     boolean skip = parameters.getJSON().get("skipping", true);

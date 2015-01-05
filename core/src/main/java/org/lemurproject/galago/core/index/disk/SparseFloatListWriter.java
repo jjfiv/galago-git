@@ -1,7 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowDiskBTreeWriter;
 import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
 import org.lemurproject.galago.tupleflow.buffer.DiskSpillCompressedByteBuffer;
 import org.lemurproject.galago.utility.btree.IndexElement;
@@ -18,14 +18,14 @@ import java.io.OutputStream;
 public class SparseFloatListWriter implements
         NumberWordProbability.NumberWordOrder.ShreddedProcessor {
 
-  DiskBTreeWriter writer;
+  TupleflowDiskBTreeWriter writer;
   DoubleInvertedList list;
 
   /**
    * Creates a new create of DoubleListWriter
    */
   public SparseFloatListWriter(TupleFlowParameters parameters) throws IOException {
-    writer = new DiskBTreeWriter(parameters);
+    writer = new TupleflowDiskBTreeWriter(parameters);
     writer.getManifest().set("readerClass", SparseFloatListReader.class.getName());
     writer.getManifest().set("writerClass", getClass().getName());
   }

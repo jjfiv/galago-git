@@ -5,11 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowDiskBTreeWriter;
 import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
 import org.lemurproject.galago.tupleflow.buffer.DiskSpillCompressedByteBuffer;
-import org.lemurproject.galago.core.btree.format.BTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowBTreeWriter;
 import org.lemurproject.galago.utility.btree.IndexElement;
 import org.lemurproject.galago.core.index.merge.WindowIndexMerger;
 import org.lemurproject.galago.core.types.NumberedExtent;
@@ -49,7 +49,7 @@ public class WindowIndexWriter implements
 
   // writer variables //
   Parameters actualParams;
-  BTreeWriter writer;
+  TupleflowBTreeWriter writer;
   WindowList invertedList;
   // statistics //
   byte[] lastWord;
@@ -74,7 +74,7 @@ public class WindowIndexWriter implements
     actualParams.set("readerClass", WindowIndexReader.class.getName());
     actualParams.set("defaultOperator", "counts");
 
-    writer = new DiskBTreeWriter(parameters);
+    writer = new TupleflowDiskBTreeWriter(parameters);
 
     // look for skips
     boolean skip = parameters.getJSON().get("skipping", true);

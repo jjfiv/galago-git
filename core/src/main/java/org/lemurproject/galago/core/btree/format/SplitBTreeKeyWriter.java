@@ -33,13 +33,13 @@ import org.lemurproject.galago.utility.FSUtil;
 @InputClass(className = "org.lemurproject.galago.core.types.KeyValuePair", order = {"+key"})
 public class SplitBTreeKeyWriter implements Processor<KeyValuePair> {
 
-  DiskBTreeWriter writer;
+  TupleflowDiskBTreeWriter writer;
   private Counter keyCounter;
 
   public SplitBTreeKeyWriter(TupleFlowParameters parameters) throws IOException {
     String file = parameters.getJSON().getString("filename") + File.separator + "split.keys";
     FSUtil.makeParentDirectories(file);
-    writer = new DiskBTreeWriter(file, parameters.getJSON());
+    writer = new TupleflowDiskBTreeWriter(file, parameters.getJSON());
     keyCounter = parameters.getCounter("Document Keys Written");
   }
 

@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.lemurproject.galago.utility.btree.DiskBTreeIterator;
 import org.lemurproject.galago.utility.btree.DiskBTreeReader;
-import org.lemurproject.galago.core.btree.format.DiskBTreeWriter;
+import org.lemurproject.galago.core.btree.format.TupleflowDiskBTreeWriter;
 import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
@@ -46,7 +46,7 @@ public class IndexWriterTest {
     Parameters parameters = Parameters.create();
     parameters.set("blockSize", 64);
     temporary = FileUtility.createTemporary();
-    DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
+    TupleflowDiskBTreeWriter writer = new TupleflowDiskBTreeWriter(temporary.getAbsolutePath(), parameters);
     writer.add(new GenericElement("key", "value"));
     writer.close();
 
@@ -69,7 +69,7 @@ public class IndexWriterTest {
         
     temporary = FileUtility.createTemporary();
     
-    DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), Parameters.create());
+    TupleflowDiskBTreeWriter writer = new TupleflowDiskBTreeWriter(temporary.getAbsolutePath(), Parameters.create());
     writer.add(new GenericElement(key, "value"));
     writer.close();
 
@@ -85,7 +85,7 @@ public class IndexWriterTest {
     Parameters parameters = Parameters.create();
     parameters.set("blockSize", 64);
     temporary = FileUtility.createTemporary();
-    DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
+    TupleflowDiskBTreeWriter writer = new TupleflowDiskBTreeWriter(temporary.getAbsolutePath(), parameters);
     writer.add(new GenericElement("key", "value"));
     writer.add(new GenericElement("more", "value2"));
     writer.close();
@@ -124,7 +124,7 @@ public class IndexWriterTest {
     parameters.set("blockSize", 64);
     parameters.set("isCompressed", true);
     temporary = FileUtility.createTemporary();
-    DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
+    TupleflowDiskBTreeWriter writer = new TupleflowDiskBTreeWriter(temporary.getAbsolutePath(), parameters);
     writer.add(new GenericElement("key", "value"));
     writer.close();
 
@@ -140,7 +140,7 @@ public class IndexWriterTest {
     Parameters parameters = Parameters.create();
     parameters.set("blockSize", 64);
     temporary = FileUtility.createTemporary();
-    DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
+    TupleflowDiskBTreeWriter writer = new TupleflowDiskBTreeWriter(temporary.getAbsolutePath(), parameters);
 
     for (int i = 0; i < 1000; ++i) {
       String key = String.format("%05d", i);
@@ -167,7 +167,7 @@ public class IndexWriterTest {
     parameters.set("blockSize", 64);
     parameters.set("isCompressed", true);
     temporary = FileUtility.createTemporary();
-    DiskBTreeWriter writer = new DiskBTreeWriter(temporary.getAbsolutePath(), parameters);
+    TupleflowDiskBTreeWriter writer = new TupleflowDiskBTreeWriter(temporary.getAbsolutePath(), parameters);
 
     for (int i = 0; i < 1000; ++i) {
       String key = String.format("%05d", i);
