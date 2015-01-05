@@ -212,8 +212,7 @@ public class CachedBufferDataStream extends DataStream {
     //int length = cacheBuffer.length;
     int length = bbCache.limit();
     if (length - bbCache.position() >= 1) {
-      int result = 0xff & (int) bbCache.get();
-      return result;
+      return 0xff & (int) bbCache.get();
     } else {
       cache(1);
       int b = cacheByte(0);

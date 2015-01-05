@@ -5,7 +5,6 @@ import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.buffer.DataStream;
 
 import java.io.IOException;
-import java.nio.MappedByteBuffer;
 
 /**
 * @author jfoley.
@@ -71,14 +70,6 @@ public abstract class BTreeIterator implements Comparable<BTreeIterator> {
    */
   public abstract long getValueEnd() throws IOException;
 
-  /**
-   * Returns a memory mapped buffer for the current value - warning using this
-   * function may incur a very large memory requirement
-   */
-  public abstract MappedByteBuffer getValueMemoryMap() throws IOException;
-
-  //**********************//
-  // Implemented Functions
   /**
    * Returns the value as a string.
    */

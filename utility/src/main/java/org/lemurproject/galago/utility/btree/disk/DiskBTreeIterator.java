@@ -8,7 +8,6 @@ import org.lemurproject.galago.utility.buffer.ReadableBuffer;
 import org.lemurproject.galago.utility.compression.VByte;
 
 import java.io.IOException;
-import java.nio.MappedByteBuffer;
 
 /**
 * @author jfoley.
@@ -193,24 +192,6 @@ public class DiskBTreeIterator extends BTreeIterator {
 
     // the end of the sub value is the min of fileLength, valueEnd, or (offset+length);
     return new CachedBufferDataStream(input, absoluteStart, absoluteEnd);
-  }
-
-  @Override
-  public MappedByteBuffer getValueMemoryMap() throws IOException {
-    return null;
-//      MappedByteBuffer buffer;
-//      synchronized (input) {
-//        long start = getValueStart();
-//        long end = getValueEnd();
-//        if(true) return null;
-//        try {
-//          buffer = input.getChannel().map(MapMode.READ_ONLY, start, end);
-//        } catch (IOException e) {
-//          System.out.println("Failed to open MemoryMap over key-value" + e.getMessage());
-//          throw e;
-//        }
-//      }
-//      return buffer;
   }
 
   private void cacheKeys() throws IOException {

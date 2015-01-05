@@ -1,26 +1,20 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.btree.format;
 
-import java.io.ByteArrayOutputStream;
+import org.lemurproject.galago.core.types.KeyValuePair;
+import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
+import org.lemurproject.galago.tupleflow.execution.ErrorStore;
+import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.utility.FSUtil;
+import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.StreamCreator;
+import org.lemurproject.galago.utility.btree.IndexElement;
+import org.lemurproject.galago.utility.debug.Counter;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-
-import org.lemurproject.galago.utility.btree.IndexElement;
-import org.lemurproject.galago.core.types.KeyValuePair;
-import org.lemurproject.galago.utility.debug.Counter;
-import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.utility.FSUtil;
-import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.Linkage;
-import org.lemurproject.galago.tupleflow.OutputClass;
-import org.lemurproject.galago.tupleflow.Processor;
-import org.lemurproject.galago.tupleflow.Step;
-import org.lemurproject.galago.utility.StreamCreator;
-import org.lemurproject.galago.tupleflow.TupleFlowParameters;
-import org.lemurproject.galago.tupleflow.execution.ErrorStore;
-import org.lemurproject.galago.tupleflow.execution.Verification;
 
 /**
  *
@@ -48,11 +42,11 @@ public class SplitBTreeValueWriter extends TupleflowBTreeWriter
   public static final long MAGIC_NUMBER = 0x2b3c4d5e6f7a8b9cL;
   public Processor<KeyValuePair> processor;
   public Parameters manifest;
-  private final int valueOutputId;
   private final DataOutputStream valueOutput;
   private byte[] lastKey = null;
-  private ByteArrayOutputStream keyArray;
-  private DataOutputStream keyStream;
+
+  SplitBTreeKeyInfo infoForKey = new SplitBTreeKeyInfo();
+  private final int valueOutputId;
   private long valueOffset;
   private long valueLength;
   private final short valueBlockSize;
@@ -93,21 +87,20 @@ public class SplitBTreeValueWriter extends TupleflowBTreeWriter
     return manifest.get("valueBlockSize", valueBlockSize);
   }
 
-  @Override
-  public void processKey(byte[] key) throws IOException {
+  private void flush() throws IOException {
     if (lastKey != null) {
-      keyStream.writeLong(valueLength); // value length
-      keyStream.close();
-      processor.process(new KeyValuePair(lastKey, keyArray.toByteArray()));
+      infoForKey.valueLength = valueLength;
+      processor.process(new KeyValuePair(lastKey, infoForKey.toBytes()));
       docCounter.increment();
     }
+  }
+
+  @Override
+  public void processKey(byte[] key) throws IOException {
+    flush();
+    infoForKey.valueOutputId = valueOutputId;
+    infoForKey.valueOffset = valueOffset;
     lastKey = key;
-    keyArray = new ByteArrayOutputStream();
-    keyStream = new DataOutputStream(keyArray);
-
-    keyStream.writeInt(valueOutputId); // file
-    keyStream.writeLong(valueOffset); //valueOffset
-
     valueLength = 0;
   }
 
@@ -129,11 +122,7 @@ public class SplitBTreeValueWriter extends TupleflowBTreeWriter
 
   @Override
   public void close() throws IOException {
-    if (lastKey != null) {
-      keyStream.writeLong(valueLength); // value length
-      keyStream.close();
-      processor.process(new KeyValuePair(lastKey, keyArray.toByteArray()));
-    }
+    flush();
 
     // write the value block size
     valueOutput.writeShort(valueBlockSize);

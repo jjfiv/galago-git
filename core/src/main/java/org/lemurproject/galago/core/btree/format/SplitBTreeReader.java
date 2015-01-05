@@ -46,13 +46,15 @@ public class SplitBTreeReader extends GalagoBTreeReader {
 
     DiskBTreeIterator vocabIterator;
     boolean valueLoaded = false;
-    int file;
-    long valueOffset;
-    long valueLength;
+    SplitBTreeKeyInfo info;
 
     public Iterator(DiskBTreeIterator vocabIterator) {
       super(vocabIterator.reader);
       this.vocabIterator = vocabIterator;
+    }
+
+    RandomAccessFile getFile() {
+      return dataFiles[info.valueOutputId];
     }
 
     /**
@@ -99,16 +101,6 @@ public class SplitBTreeReader extends GalagoBTreeReader {
     }
 
     /**
-     * Returns the byte offset of the end of this block.
-     */
-    public long getFilePosition() throws IOException {
-      if (!valueLoaded) {
-        loadValue();
-      }
-      return valueOffset;
-    }
-
-    /**
      * Returns the length of the value, in bytes.
      */
     @Override
@@ -117,7 +109,7 @@ public class SplitBTreeReader extends GalagoBTreeReader {
         loadValue();
       }
 
-      return valueLength;
+      return info.valueLength;
     }
 
     /**
@@ -129,17 +121,10 @@ public class SplitBTreeReader extends GalagoBTreeReader {
         loadValue();
       }
 
-      return new CachedBufferDataStream(dataFiles[file], getValueStart(), getValueEnd());
+      return new CachedBufferDataStream(getFile(), getValueStart(), getValueEnd());
     }
 
-    @Override
-    public MappedByteBuffer getValueMemoryMap() throws IOException{
-      MappedByteBuffer buffer;
-      synchronized(dataFiles[file]){
-        buffer = dataFiles[file].getChannel().map(FileChannel.MapMode.READ_ONLY, getValueStart(), getValueEnd());
-      }
-      return buffer;
-    }
+
 
     /**
      * Returns the value as a buffered stream.
@@ -152,11 +137,11 @@ public class SplitBTreeReader extends GalagoBTreeReader {
 
       long absoluteStart = getValueStart() + offset;
       long absoluteEnd = absoluteStart + length;
-      absoluteEnd = Math.min(absoluteEnd, Math.min(getValueEnd(), dataFiles[file].length()));
+      absoluteEnd = Math.min(absoluteEnd, Math.min(getValueEnd(), getFile().length()));
 
       assert absoluteStart <= absoluteEnd;
 
-      return new CachedBufferDataStream(dataFiles[file], absoluteStart, absoluteEnd);
+      return new CachedBufferDataStream(getFile(), absoluteStart, absoluteEnd);
     }
 
     /**
@@ -169,7 +154,7 @@ public class SplitBTreeReader extends GalagoBTreeReader {
       if (!valueLoaded) {
         loadValue();
       }
-      return valueOffset;
+      return info.valueOffset;
     }
 
     /**
@@ -182,7 +167,7 @@ public class SplitBTreeReader extends GalagoBTreeReader {
       if (!valueLoaded) {
         loadValue();
       }
-      return valueOffset + valueLength;
+      return info.valueOffset + info.valueLength;
     }
 
     //**********************//
@@ -194,14 +179,11 @@ public class SplitBTreeReader extends GalagoBTreeReader {
      */
     private void loadValue() throws IOException {
       valueLoaded = true;
-      DataStream stream = vocabIterator.getValueStream();
 
-      file = stream.readInt();
-      valueOffset = stream.readLong();
-      valueLength = stream.readLong();
+      info = SplitBTreeKeyInfo.codec.fromBytes(vocabIterator.getValueBytes());
 
-      if (dataFiles[file] == null) {
-        dataFiles[file] = StreamCreator.readFile(indexFolder + File.separator + file);
+      if (getFile() == null) {
+        dataFiles[info.valueOutputId] = StreamCreator.readFile(indexFolder + File.separator + info.valueOutputId);
       }
     }
   }
@@ -212,7 +194,6 @@ public class SplitBTreeReader extends GalagoBTreeReader {
   public SplitBTreeReader(File f) throws IOException {
     if (f.isDirectory()) {
       f = new File(f.getAbsolutePath() + File.separator + "split.keys");
-    } else {
     }
     vocabIndex = new DiskBTreeReader(f);
 
@@ -281,8 +262,8 @@ public class SplitBTreeReader extends GalagoBTreeReader {
   public static boolean isBTree(File f) throws IOException {
     assert f.exists() : "Path not found: " + f.getAbsolutePath();
 
-    File keys = null;
-    File data = null;
+    File keys;
+    File data;
 
     if (f.isDirectory()) {
       keys = new File(f, "split.keys");
