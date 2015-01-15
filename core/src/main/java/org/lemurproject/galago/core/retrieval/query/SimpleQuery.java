@@ -1,30 +1,33 @@
 // BSD License (http://lemurproject.org/galago-license)
-
 package org.lemurproject.galago.core.retrieval.query;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>SimpleQuery parses the kind of queries you might expect for a end-user search engine.
- * The format is also meant to be similar to Lucene's query format.</p>
- * 
+ * <p>
+ * SimpleQuery parses the kind of queries you might expect for a end-user search
+ * engine. The format is also meant to be similar to Lucene's query format.</p>
+ *
  * Queries can be single terms:<br/>
- *    <tt>white house</tt><br/>
+ * <tt>white house</tt><br/>
  * or phrases:<br/>
- *    <tt>"white house"</tt><br/>
+ * <tt>"white house"</tt><br/>
  * and have fields:
- *    <tt>title:"white house"</tt><br/>
+ * <tt>title:"white house"</tt><br/>
  * or weights:<br/>
- *    <tt>white^4 house^2</tt><br/>
- * 
- * <p>A query can be parsed into a list of QueryTerms or translated into a tree of Nodes
- * which can be used with the StructuredRetrieval code.</p>
- * 
+ * <tt>white^4 house^2</tt><br/>
+ *
+ * <p>
+ * A query can be parsed into a list of QueryTerms or translated into a tree of
+ * Nodes which can be used with the StructuredRetrieval code.</p>
+ *
  * @author trevor
  */
 public class SimpleQuery {
+
     public static class QueryTerm {
+
         public QueryTerm(String text) {
             this.weight = 1.0;
             this.field = null;
@@ -39,13 +42,14 @@ public class SimpleQuery {
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof QueryTerm))
+            if (!(o instanceof QueryTerm)) {
                 return false;
+            }
 
             QueryTerm other = (QueryTerm) o;
-            return text.equals(other.text) &&
-                    ((field != null) ? field.equals(other.field) : other.field == null) &&
-                    weight == other.weight;
+            return text.equals(other.text)
+                    && ((field != null) ? field.equals(other.field) : other.field == null)
+                    && weight == other.weight;
         }
 
         @Override
@@ -65,8 +69,8 @@ public class SimpleQuery {
             // if this is a multi-word query, enclose it in quotes
             if (term.contains(" ")) {
                 term = "\"" + term + "\"";            // use the minimum amount of syntax necessary to
-            // express the query.  If everything is specified, 
-            // the format is field:term^weight.
+                // express the query.  If everything is specified, 
+                // the format is field:term^weight.
             }
             if (field != null && weight != 1.0) {
                 return String.format("%s:%s^%f", field, term, weight);
@@ -84,10 +88,10 @@ public class SimpleQuery {
         public double weight;
     }
 
-    /** 
-     * The format of the query term is <tt>field:term^weight</tt>.
-     * Both the field and the weight are optional, and the term may
-     * be enclosed in quotes.
+    /**
+     * The format of the query term is <tt>field:term^weight</tt>. Both the
+     * field and the weight are optional, and the term may be enclosed in
+     * quotes.
      *
      * @return A QueryTerm object describing the query term.
      */
@@ -204,12 +208,14 @@ public class SimpleQuery {
             nodes.add(termNode);
         }
 
-        if (nodes.size() < 1)
+        if (nodes.size() < 1) {
             return null;
-        
-        if (nodes.size() == 1)
-            return nodes.get(0);
+        }
 
+        // MCZ: there is a bug (https://sourceforge.net/p/lemur/bugs/245/) where
+        // these queries will fail, working around by wrapping in a combine.
+//        if (nodes.size() == 1)
+//            return nodes.get(0);
         return new Node("combine", nodes);
     }
 }
