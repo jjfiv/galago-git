@@ -3,6 +3,7 @@
  */
 package org.lemurproject.galago.core.eval;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,9 +13,18 @@ import java.util.List;
  */
 public class QueryResults {
 
+  @Deprecated
   private String query;
   private List<EvalDoc> rankedList;
 
+  public QueryResults(List<? extends EvalDoc> rankedList) {
+    this.query = "N/A";
+    // handle extensions better.
+    this.rankedList = new ArrayList<>(rankedList.size());
+    this.rankedList.addAll(rankedList);
+  }
+
+  @Deprecated
   public QueryResults(String query, List<EvalDoc> rankedList) {
     this.query = query;
     this.rankedList = rankedList;
