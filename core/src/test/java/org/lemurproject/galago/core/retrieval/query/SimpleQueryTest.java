@@ -43,6 +43,14 @@ public class SimpleQueryTest {
 
     @Test
     public void testComplex() {
+        Node result = SimpleQuery.parseTree("fi:\"a c\"");
+        assertEquals(
+                "#combine( #inside( #ordered:1( #text:a() #text:c() ) #field:fi() ) )",
+                result.toString());
+    }
+
+    @Test
+    public void testComplex2() {
         Node result = SimpleQuery.parseTree("fi:\"a c\"^7");
         assertEquals(
                 "#combine( #scale:7.0( #inside( #ordered:1( #text:a() #text:c() ) #field:fi() ) ) )",
