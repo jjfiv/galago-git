@@ -20,7 +20,7 @@ import java.util.TreeMap;
 public class QueryJudgments extends WrappedMap<String, Integer> {
 
   // each create of QueryJudgments correspond to some query
-  private String queryName;
+  public String queryName;
 
   /**
    * Initialize as a builder, with no prior Map

@@ -39,6 +39,9 @@ public class Recall extends QueryEvaluator {
 
   @Override
   public double evaluate(QueryResults resultList, QueryJudgments judgments) {
+    if(judgments.getRelevantJudgmentCount() == 0) {
+      throw new RuntimeException("No judgments for " +judgments.queryName);
+    }
     return relevantRetrieved.evaluate(resultList, judgments) / judgments.getRelevantJudgmentCount();
   }
 }

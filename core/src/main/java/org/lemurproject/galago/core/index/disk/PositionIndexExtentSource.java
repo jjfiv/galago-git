@@ -12,10 +12,11 @@ import org.lemurproject.galago.utility.buffer.VByteInput;
 import java.io.DataInput;
 import java.io.EOFException;
 import java.io.IOException;
+import java.util.AbstractCollection;
 
 /**
  *
- * @author jfoley
+ * @author trevor, irmarc, sjh, jfoley
  */
 final public class PositionIndexExtentSource extends BTreeValueSource implements ExtentSource {
   public long documentCount;
@@ -158,6 +159,8 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
       currentDocument = Long.MAX_VALUE;
       return;
     }
+    // We're at the previous document. If we didn't load extents for it,
+    // we must move past it, either by jumping or by loading them.
     if (!extentsLoaded) {
       if (currentCount > inlineMinimum) {
         positions.skipBytes(extentsByteSize);
@@ -165,12 +168,17 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
         loadExtents();
       }
     }
+
+    // Read the next document delta, and increment currentDocument
     currentDocument += documents.readLong();
+    // Read the number of positions from the counts stream.
     currentCount = counts.readInt();
+
     // Prep the extents
     extentArray.reset();
     extentsLoaded = false;
     try {
+      // Get prepared to read from current document, lazily if it's too big, if it's small enough, just load it immediately.
       if (currentCount > inlineMinimum) {
         extentsByteSize = positions.readInt();
       } else {
@@ -189,6 +197,7 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
    * load that needs to be done when moving forward one in the posting list.
    */
   private void loadExtents() throws IOException {
+    // Do nothing if we've already loaded (e.g. it was small, so we'd read anyway to move past it later
     if (!extentsLoaded) {
       extentArray.setDocument(currentDocument);
       int position = 0;
