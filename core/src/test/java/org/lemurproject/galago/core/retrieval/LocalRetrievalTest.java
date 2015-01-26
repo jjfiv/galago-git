@@ -34,321 +34,403 @@ import static org.junit.Assert.assertTrue;
  */
 public class LocalRetrievalTest {
 
-  File tempPath;
+    File tempPath;
 
-  public static File makeIndex() throws IOException, IncompatibleProcessorException {
-    // make a spot for the index
-    File tempPath = FileUtility.createTemporaryDirectory();
+    public static File makeIndex() throws IOException, IncompatibleProcessorException {
+        // make a spot for the index
+        File tempPath = FileUtility.createTemporaryDirectory();
 
-    // put in a generic manifest
-    Parameters.create().write(tempPath + File.separator + "manifest");
+        // put in a generic manifest
+        Parameters.create().write(tempPath + File.separator + "manifest");
 
-    // build an empty extent index
-    Parameters extp = Parameters.create();
-    extp.set("filename", tempPath + File.separator + "extents");
-    TupleFlowParameters extParameters = new FakeParameters(extp);
+        // build an empty extent index
+        Parameters extp = Parameters.create();
+        extp.set("filename", tempPath + File.separator + "extents");
+        TupleFlowParameters extParameters = new FakeParameters(extp);
 
-    WindowIndexWriter ewriter = new WindowIndexWriter(extParameters);
-    ewriter.processExtentName(ByteUtil.fromString("title"));
-    ewriter.processNumber(1);
-    ewriter.processBegin(1);
-    ewriter.processTuple(3);
-    ewriter.close();
+        WindowIndexWriter ewriter = new WindowIndexWriter(extParameters);
+        ewriter.processExtentName(ByteUtil.fromString("title"));
+        ewriter.processNumber(1);
+        ewriter.processBegin(1);
+        ewriter.processTuple(3);
+        ewriter.close();
 
-    // build an empty field index
+        // build an empty field index
+        Parameters formats = Parameters.create();
+        formats.set("date", "date");
+        Parameters tokenizer = Parameters.create();
+        tokenizer.set("formats", formats);
+        String[] fields = {"date"};
+        tokenizer.set("fields", Arrays.asList(fields));
+        Parameters params = Parameters.create();
+        params.set("filename", tempPath + File.separator + "fields");
+        params.set("tokenizer", tokenizer);
 
-    Parameters formats = Parameters.create();
-    formats.set("date", "date");
-    Parameters tokenizer = Parameters.create();
-    tokenizer.set("formats", formats);
-    String[] fields = {"date"};
-    tokenizer.set("fields", Arrays.asList(fields));
-    Parameters params = Parameters.create();
-    params.set("filename", tempPath + File.separator + "fields");
-    params.set("tokenizer", tokenizer);
+        FieldIndexWriter fwriter = new FieldIndexWriter(new FakeParameters(params));
+        fwriter.processFieldName(ByteUtil.fromString("date"));
+        DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
+        try {
+            fwriter.processNumber(1);
+            fwriter.processTuple(Utility.fromLong(df.parse("1/2/1975").getTime()));
 
-    FieldIndexWriter fwriter = new FieldIndexWriter(new FakeParameters(params));
-    fwriter.processFieldName(ByteUtil.fromString("date"));
-    DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
-    try {
-      fwriter.processNumber(1);
-      fwriter.processTuple(Utility.fromLong(df.parse("1/2/1975").getTime()));
+            fwriter.processNumber(2);
+            fwriter.processTuple(Utility.fromLong(df.parse("4/19/1982").getTime()));
 
-      fwriter.processNumber(2);
-      fwriter.processTuple(Utility.fromLong(df.parse("4/19/1982").getTime()));
+            fwriter.processNumber(3);
+            fwriter.processTuple(Utility.fromLong(df.parse("2/20/1649").getTime()));
 
-      fwriter.processNumber(3);
-      fwriter.processTuple(Utility.fromLong(df.parse("2/20/1649").getTime()));
+            fwriter.processNumber(5);
+            fwriter.processTuple(Utility.fromLong(df.parse("3/11/2012").getTime()));
 
-      fwriter.processNumber(5);
-      fwriter.processTuple(Utility.fromLong(df.parse("3/11/2012").getTime()));
+            fwriter.processNumber(18);
+            fwriter.processTuple(Utility.fromLong(df.parse("12/25/0975").getTime()));
+        } catch (ParseException pe) {
+            throw new IOException(pe);
+        }
+        fwriter.close();
 
-      fwriter.processNumber(18);
-      fwriter.processTuple(Utility.fromLong(df.parse("12/25/0975").getTime()));
-    } catch (ParseException pe) {
-      throw new IOException(pe);
+        // write positions!
+        Parameters pp = Parameters.create();
+        pp.set("filename", tempPath + File.separator + "postings");
+        pp.set("statistics/collectionLength", 10000);
+        pp.set("statistics/documentCount", 100);
+        pp.set("statistics/vocabCount", 20);
+        TupleFlowParameters posParameters = new FakeParameters(pp);
+
+        PositionIndexWriter pwriter = new PositionIndexWriter(posParameters);
+
+        pwriter.processWord(ByteUtil.fromString("a"));
+        pwriter.processDocument(1);
+        pwriter.processPosition(1);
+        pwriter.processPosition(2);
+        pwriter.processPosition(3);
+
+        pwriter.processDocument(3);
+        pwriter.processPosition(1);
+
+        pwriter.processDocument(5);
+        pwriter.processPosition(1);
+
+        pwriter.processWord(ByteUtil.fromString("b"));
+        pwriter.processDocument(1);
+        pwriter.processPosition(2);
+        pwriter.processPosition(4);
+
+        pwriter.processDocument(2);
+        pwriter.processPosition(1);
+
+        pwriter.processDocument(3);
+        pwriter.processPosition(4);
+
+        pwriter.processDocument(18);
+        pwriter.processPosition(9);
+        pwriter.close();
+
+        // add some document names
+        Parameters dnp = Parameters.create();
+        dnp.set("filename", tempPath + File.separator + "names");
+        DiskNameWriter dnWriter = new DiskNameWriter(new FakeParameters(dnp));
+        Parameters dnrp = Parameters.create();
+        dnrp.set("filename", tempPath + File.separator + "names.reverse");
+        DiskNameReverseWriter dnrWriter = new DiskNameReverseWriter(new FakeParameters(dnrp));
+        Sorter<DocumentNameId> dnrSorter = new Sorter<DocumentNameId>(new DocumentNameId.NameOrder());
+        dnrSorter.setProcessor(dnrWriter);
+
+        for (int i = 0; i < 20; i++) {
+            dnWriter.process(new DocumentNameId(ByteUtil.fromString("DOC" + i), i));
+            dnrSorter.process(new DocumentNameId(ByteUtil.fromString("DOC" + i), i));
+        }
+        dnWriter.close();
+        dnrSorter.close();
+
+        Parameters lp = Parameters.create();
+        lp.set("filename", tempPath + File.separator + "lengths");
+        DiskLengthsWriter lWriter = new DiskLengthsWriter(new FakeParameters(lp));
+
+        byte[] d = ByteUtil.fromString("document");
+        for (int i = 0; i < 20; i++) {
+            lWriter.process(new FieldLengthData(d, i, 100));
+        }
+        lWriter.close();
+
+        return tempPath;
     }
-    fwriter.close();
 
-    // write positions!
-    Parameters pp = Parameters.create();
-    pp.set("filename", tempPath + File.separator + "postings");
-    pp.set("statistics/collectionLength", 10000);
-    pp.set("statistics/documentCount", 100);
-    pp.set("statistics/vocabCount", 20);
-    TupleFlowParameters posParameters = new FakeParameters(pp);
+    public static File[] make10DocIndex() throws Exception {
+        File trecCorpusFile, corpusFile, indexFile;
 
-    PositionIndexWriter pwriter = new PositionIndexWriter(posParameters);
+        // create a simple doc file, trec format:
+        trecCorpusFile = FileUtility.createTemporary();
+        StreamUtil.copyStringToFile(
+                AppTest.trecDocument("1", "This is a sample document")
+                + AppTest.trecDocument("2", "The cat jumped over the moon")
+                + AppTest.trecDocument("3", "If the shoe fits, it's ugly")
+                + AppTest.trecDocument("4", "Though a program be but three lines long, someday it will have to be maintained.")
+                + AppTest.trecDocument("5", "To be trusted is a greater compliment than to be loved")
+                + AppTest.trecDocument("6", "Just because everything is different doesn't mean anything has changed.")
+                + AppTest.trecDocument("7", "everything everything jumped sample ugly")
+                + AppTest.trecDocument("8", "though cat moon cat cat cat")
+                + AppTest.trecDocument("9", "document document document document")
+                + AppTest.trecDocument("10", "program fits"),
+                trecCorpusFile);
 
-    pwriter.processWord(ByteUtil.fromString("a"));
-    pwriter.processDocument(1);
-    pwriter.processPosition(1);
-    pwriter.processPosition(2);
-    pwriter.processPosition(3);
+        // now, attempt to make a corpus file from that.
+        corpusFile = FileUtility.createTemporaryDirectory();
+        App.main(new String[]{"make-corpus", "--corpusPath=" + corpusFile.getAbsolutePath(),
+            "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--distrib=2"});
 
-    pwriter.processDocument(3);
-    pwriter.processPosition(1);
+        // make sure the corpus file exists
+        assertTrue(corpusFile.exists());
 
-    pwriter.processDocument(5);
-    pwriter.processPosition(1);
+        // now, try to build an index from that
+        indexFile = FileUtility.createTemporaryDirectory();
+        App.main(new String[]{"build", "--stemmedPostings=false", "--indexPath=" + indexFile.getAbsolutePath(),
+            "--inputPath=" + corpusFile.getAbsolutePath()});
 
-    pwriter.processWord(ByteUtil.fromString("b"));
-    pwriter.processDocument(1);
-    pwriter.processPosition(2);
-    pwriter.processPosition(4);
+        AppTest.verifyIndexStructures(indexFile);
 
-    pwriter.processDocument(2);
-    pwriter.processPosition(1);
-
-    pwriter.processDocument(3);
-    pwriter.processPosition(4);
-
-    pwriter.processDocument(18);
-    pwriter.processPosition(9);
-    pwriter.close();
-
-    // add some document names
-    Parameters dnp = Parameters.create();
-    dnp.set("filename", tempPath + File.separator + "names");
-    DiskNameWriter dnWriter = new DiskNameWriter(new FakeParameters(dnp));
-    Parameters dnrp = Parameters.create();
-    dnrp.set("filename", tempPath + File.separator + "names.reverse");
-    DiskNameReverseWriter dnrWriter = new DiskNameReverseWriter(new FakeParameters(dnrp));
-    Sorter<DocumentNameId> dnrSorter = new Sorter<DocumentNameId>(new DocumentNameId.NameOrder());
-    dnrSorter.setProcessor(dnrWriter);
-
-    for (int i = 0; i < 20; i++) {
-      dnWriter.process(new DocumentNameId(ByteUtil.fromString("DOC"+i), i));
-      dnrSorter.process(new DocumentNameId(ByteUtil.fromString("DOC"+i), i));
+        File[] files = new File[3];
+        files[0] = trecCorpusFile;
+        files[1] = corpusFile;
+        files[2] = indexFile;
+        return files;
     }
-    dnWriter.close();
-    dnrSorter.close();
 
-    Parameters lp = Parameters.create();
-    lp.set("filename", tempPath + File.separator + "lengths");
-    DiskLengthsWriter lWriter = new DiskLengthsWriter(new FakeParameters(lp));
+    public static File make10DocIndexWithFields() throws Exception {
+        File trecCorpusFile, corpusFile, indexFile;
 
-    byte[] d = ByteUtil.fromString("document");
-    for (int i = 0; i < 20; i++) {
-      lWriter.process(new FieldLengthData(d, i, 100));
+        // create a simple doc file, trec format:
+        trecCorpusFile = FileUtility.createTemporary();
+        StreamUtil.copyStringToFile(
+                AppTest.trecDocument("1", "<title>document one</title><author>Max D Cat</author>This is a sample document")
+                + AppTest.trecDocument("2", "<title>document two</title><author>Max D Cat</author>The cat jumped over the moon")
+                + AppTest.trecDocument("3", "<title>document three</title><author>Bill Shakespeare</author>If the shoe fits, it's ugly")
+                + AppTest.trecDocument("4", "<title>document four</title>Though a program be but three lines long, someday it will have to be maintained.")
+                + AppTest.trecDocument("5", "<title>document five</title>To be trusted is a greater compliment than to be loved")
+                + AppTest.trecDocument("6", "<title>document six</title> Just because everything is different doesn't mean anything has changed.")
+                + AppTest.trecDocument("7", "<title>document seven</title> everything everything jumped sample ugly")
+                + AppTest.trecDocument("8", "<title>document eight</title> though cat moon cat cat cat")
+                + AppTest.trecDocument("9", "<title>document nine</title> document document document document")
+                + AppTest.trecDocument("10", "<title>document ten</title> program fits"),
+                trecCorpusFile);
+
+        indexFile = FileUtility.createTemporaryDirectory();
+        App.main(new String[]{"build", "--indexPath=" + indexFile.getAbsolutePath(),
+            "--inputPath=" + trecCorpusFile.getAbsolutePath(),
+            "--tokenizer/fields+title", "--tokenizer/fields+author"});
+
+        AppTest.verifyIndexStructures(indexFile);
+
+        return indexFile;
     }
-    lWriter.close();
 
-    return tempPath;
-  }
-
-  public static File[] make10DocIndex() throws Exception {
-    File trecCorpusFile, corpusFile, indexFile;
-
-    // create a simple doc file, trec format:
-    trecCorpusFile = FileUtility.createTemporary();
-    StreamUtil.copyStringToFile(
-      AppTest.trecDocument("1", "This is a sample document") +
-        AppTest.trecDocument("2", "The cat jumped over the moon") +
-        AppTest.trecDocument("3", "If the shoe fits, it's ugly") +
-        AppTest.trecDocument("4", "Though a program be but three lines long, someday it will have to be maintained.") +
-        AppTest.trecDocument("5", "To be trusted is a greater compliment than to be loved") +
-        AppTest.trecDocument("6", "Just because everything is different doesn't mean anything has changed.") +
-        AppTest.trecDocument("7", "everything everything jumped sample ugly") +
-        AppTest.trecDocument("8", "though cat moon cat cat cat") +
-        AppTest.trecDocument("9", "document document document document") +
-        AppTest.trecDocument("10", "program fits"),
-      trecCorpusFile);
-
-    // now, attempt to make a corpus file from that.
-    corpusFile = FileUtility.createTemporaryDirectory();
-    App.main(new String[]{"make-corpus", "--corpusPath=" + corpusFile.getAbsolutePath(),
-              "--inputPath=" + trecCorpusFile.getAbsolutePath(), "--distrib=2"});
-
-    // make sure the corpus file exists
-    assertTrue(corpusFile.exists());
-
-    // now, try to build an index from that
-    indexFile = FileUtility.createTemporaryDirectory();
-    App.main(new String[]{"build", "--stemmedPostings=false", "--indexPath=" + indexFile.getAbsolutePath(),
-              "--inputPath=" + corpusFile.getAbsolutePath()});
-
-    AppTest.verifyIndexStructures(indexFile);
-    
-    File[] files = new File[3];
-    files[0] = trecCorpusFile;
-    files[1] = corpusFile;
-    files[2] = indexFile;
-    return files;
-  }
-
-  @Before
-  public void setUp() throws IOException, IncompatibleProcessorException {
-    this.tempPath = makeIndex();
-  }
-
-  @After
-  public void tearDown() throws IOException {
-    FSUtil.deleteDirectory(tempPath);
-  }
-
-  @Test
-  public void testSimple() throws Exception {
-    LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), Parameters.create());
-
-    Node aTerm = new Node("counts", "a");
-    ArrayList<Node> aChild = new ArrayList<Node>();
-    aChild.add(aTerm);
-    NodeParameters a = new NodeParameters();
-    a.set("mu", 1500);
-    Node aFeature = new Node("dirichlet", a, aChild, 0);
-
-    Node bTerm = new Node("counts", "b");
-    ArrayList<Node> bChild = new ArrayList<Node>();
-    NodeParameters b = new NodeParameters();
-    b.set("mu", 1500);
-    bChild.add(bTerm);
-    Node bFeature = new Node("dirichlet", b, bChild, 0);
-
-    ArrayList<Node> children = new ArrayList<Node>();
-    children.add(aFeature);
-    children.add(bFeature);
-    Node root = new Node("combine", children);
-
-    Parameters p = Parameters.create();
-    p.set("requested", 5);
-    root = retrieval.transformQuery(root, p);
-    List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
-    assertEquals(results.size(), 5);
-    
-   
-    HashMap<Long, Double> realScores = new HashMap<Long, Double>();
-
-    realScores.put(1l, -5.548387728381024);
-    realScores.put(3l, -5.819614290181323);
-    realScores.put(5l, -5.937808679213438);
-    realScores.put(18l, -5.937808679213438);
-    realScores.put(2l, -5.937808679213438);
-
-    HashMap<Long, String> realNames = new HashMap<Long,String>();
-    realNames.put(1l, "DOC1");
-    realNames.put(2l, "DOC2");
-    realNames.put(3l, "DOC3");
-    realNames.put(5l, "DOC5");
-    realNames.put(18l, "DOC18");
-
-    // make sure the results are sorted
-    double lastScore = Double.MAX_VALUE;
-    
-    for (ScoredDocument sd : results) {
-      double score = sd.score;
-      double expected = realScores.get(sd.document);
-      String expname = realNames.get(sd.document);
-      assertTrue(CmpUtil.compare(lastScore, sd.score) >= 0);
-      assertEquals(expname, sd.documentName);
-      assertEquals(expected, score, 0.0001);
-
-      lastScore = score;
+    @Before
+    public void setUp() throws IOException, IncompatibleProcessorException {
+        this.tempPath = makeIndex();
     }
-  }
 
-  @Test
-  public void testWorkingSet() throws Exception {
-    LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), Parameters.create());
-    Node root = StructuredQuery.parse("#combine( #dirichlet:mu=1500( #counts:a() ) #dirichlet:mu=1500( #counts:b() ) )");
-    Parameters p = Parameters.create();
-    p.set("requested", 5);
-
-    root = retrieval.transformQuery(root, p);
-
-    List<String> ids = new ArrayList<String>();
-    ids.add("DOC1");
-    ids.add("DOC2");
-    ids.add("DOC5");
-    p.set("working", ids);
-    List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
-          
-    assertEquals(3, results.size());
-    assertEquals(1, results.get(0).document);
-    assert ((results.get(1).document == 2 && results.get(2).document == 5)
-            || (results.get(1).document == 5 && results.get(2).document == 2));
-
-    HashMap<Long, Double> realScores = new HashMap<Long, Double>();
-
-    realScores.put(1l, -5.548387728381024);
-    realScores.put(5l, -5.937808679213438);
-    realScores.put(2l, -5.937808679213438);
-
-    HashMap<Long, String> realNames = new HashMap<Long,String>();
-    realNames.put(1l, "DOC1");
-    realNames.put(2l, "DOC2");
-    realNames.put(5l, "DOC5");
-
-    // make sure the results are sorted
-    double lastScore = Double.MAX_VALUE;
-
-    for (ScoredDocument sd : results) {
-      double score = sd.score;
-      double expected = realScores.get(sd.document);
-      String expname = realNames.get(sd.document);
-      assertTrue(lastScore >= sd.score);
-      assertEquals(expname, sd.documentName);
-      assertEquals(expected, score, 0.0001);
-      lastScore = score;
+    @After
+    public void tearDown() throws IOException {
+        FSUtil.deleteDirectory(tempPath);
     }
-  }
 
-  @Test
-  public void testWindow() throws Exception {
-    LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), Parameters.create());
+    @Test
+    public void testSimple() throws Exception {
+        LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), Parameters.create());
 
-    String query = "#combine( #dirichlet:mu=1500( #uw:5( #extents:a:part=postings() #extents:b:part=postings() ) ) )";
-    Node root = StructuredQuery.parse(query);
-    Parameters p = Parameters.create();
-    p.set("requested", 5);
-    root = retrieval.transformQuery(root, p);
-    List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
-    
+        Node aTerm = new Node("counts", "a");
+        ArrayList<Node> aChild = new ArrayList<Node>();
+        aChild.add(aTerm);
+        NodeParameters a = new NodeParameters();
+        a.set("mu", 1500);
+        Node aFeature = new Node("dirichlet", a, aChild, 0);
 
-    assertEquals(2, results.size());
+        Node bTerm = new Node("counts", "b");
+        ArrayList<Node> bChild = new ArrayList<Node>();
+        NodeParameters b = new NodeParameters();
+        b.set("mu", 1500);
+        bChild.add(bTerm);
+        Node bFeature = new Node("dirichlet", b, bChild, 0);
 
-    HashMap<Long, Double> realScores = new HashMap<Long, Double>();
+        ArrayList<Node> children = new ArrayList<Node>();
+        children.add(aFeature);
+        children.add(bFeature);
+        Node root = new Node("combine", children);
 
-    realScores.put(1l, -5.585999438999818);
-    realScores.put(3l, -5.991464547107982);
+        Parameters p = Parameters.create();
+        p.set("requested", 5);
+        root = retrieval.transformQuery(root, p);
+        List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
+        assertEquals(results.size(), 5);
 
-    HashMap<Long, String> realNames = new HashMap<Long,String>();
-    realNames.put(1l, "DOC1");
-    realNames.put(3l, "DOC3");
+        HashMap<Long, Double> realScores = new HashMap<Long, Double>();
 
-    // make sure the results are sorted
-    double lastScore = Double.MAX_VALUE;
+        realScores.put(1l, -5.548387728381024);
+        realScores.put(3l, -5.819614290181323);
+        realScores.put(5l, -5.937808679213438);
+        realScores.put(18l, -5.937808679213438);
+        realScores.put(2l, -5.937808679213438);
 
-    for (ScoredDocument sd : results) {
-      double score = sd.score;
-      double expected = realScores.get(sd.document);
-      String expname = realNames.get(sd.document);
-      assertTrue(lastScore >= sd.score);
-      assertEquals(expname, sd.documentName);
-      assertEquals(expected, score, 0.0001);
+        HashMap<Long, String> realNames = new HashMap<Long, String>();
+        realNames.put(1l, "DOC1");
+        realNames.put(2l, "DOC2");
+        realNames.put(3l, "DOC3");
+        realNames.put(5l, "DOC5");
+        realNames.put(18l, "DOC18");
 
-      lastScore = score;
+        // make sure the results are sorted
+        double lastScore = Double.MAX_VALUE;
+
+        for (ScoredDocument sd : results) {
+            double score = sd.score;
+            double expected = realScores.get(sd.document);
+            String expname = realNames.get(sd.document);
+            assertTrue(CmpUtil.compare(lastScore, sd.score) >= 0);
+            assertEquals(expname, sd.documentName);
+            assertEquals(expected, score, 0.0001);
+
+            lastScore = score;
+        }
     }
-    retrieval.close();
-  }
+
+    @Test
+    public void testWorkingSet() throws Exception {
+        LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), Parameters.create());
+        Node root = StructuredQuery.parse("#combine( #dirichlet:mu=1500( #counts:a() ) #dirichlet:mu=1500( #counts:b() ) )");
+        Parameters p = Parameters.create();
+        p.set("requested", 5);
+
+        root = retrieval.transformQuery(root, p);
+
+        List<String> ids = new ArrayList<String>();
+        ids.add("DOC1");
+        ids.add("DOC2");
+        ids.add("DOC5");
+        p.set("working", ids);
+        List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
+
+        assertEquals(3, results.size());
+        assertEquals(1, results.get(0).document);
+        assert ((results.get(1).document == 2 && results.get(2).document == 5)
+                || (results.get(1).document == 5 && results.get(2).document == 2));
+
+        HashMap<Long, Double> realScores = new HashMap<Long, Double>();
+
+        realScores.put(1l, -5.548387728381024);
+        realScores.put(5l, -5.937808679213438);
+        realScores.put(2l, -5.937808679213438);
+
+        HashMap<Long, String> realNames = new HashMap<Long, String>();
+        realNames.put(1l, "DOC1");
+        realNames.put(2l, "DOC2");
+        realNames.put(5l, "DOC5");
+
+        // make sure the results are sorted
+        double lastScore = Double.MAX_VALUE;
+
+        for (ScoredDocument sd : results) {
+            double score = sd.score;
+            double expected = realScores.get(sd.document);
+            String expname = realNames.get(sd.document);
+            assertTrue(lastScore >= sd.score);
+            assertEquals(expname, sd.documentName);
+            assertEquals(expected, score, 0.0001);
+            lastScore = score;
+        }
+    }
+
+    @Test
+    public void testWindow() throws Exception {
+        LocalRetrieval retrieval = new LocalRetrieval(tempPath.toString(), Parameters.create());
+
+        String query = "#combine( #dirichlet:mu=1500( #uw:5( #extents:a:part=postings() #extents:b:part=postings() ) ) )";
+        Node root = StructuredQuery.parse(query);
+        Parameters p = Parameters.create();
+        p.set("requested", 5);
+        root = retrieval.transformQuery(root, p);
+        List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
+
+        assertEquals(2, results.size());
+
+        HashMap<Long, Double> realScores = new HashMap<Long, Double>();
+
+        realScores.put(1l, -5.585999438999818);
+        realScores.put(3l, -5.991464547107982);
+
+        HashMap<Long, String> realNames = new HashMap<Long, String>();
+        realNames.put(1l, "DOC1");
+        realNames.put(3l, "DOC3");
+
+        // make sure the results are sorted
+        double lastScore = Double.MAX_VALUE;
+
+        for (ScoredDocument sd : results) {
+            double score = sd.score;
+            double expected = realScores.get(sd.document);
+            String expname = realNames.get(sd.document);
+            assertTrue(lastScore >= sd.score);
+            assertEquals(expname, sd.documentName);
+            assertEquals(expected, score, 0.0001);
+
+            lastScore = score;
+        }
+        retrieval.close();
+    }
+
+    @Test
+    public void testFields() throws Exception {
+
+        File indexFile = make10DocIndexWithFields();
+
+        Parameters p = Parameters.create();
+
+        LocalRetrieval retrieval = new LocalRetrieval(indexFile.toString(), p);
+
+        // test ordered window
+        String query = "#combine( #ordered:1( moon cat ) )";
+        Node root = StructuredQuery.parse(query);
+        root = retrieval.transformQuery(root, p);
+
+        p.set("requested", 10);
+        List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
+
+        assertEquals(1, results.size());
+        assertEquals("8", results.get(0).documentName);
+
+        // odered window in a field
+        query = "#combine( #inside( #ordered:1( #text:max() #text:d() #text:cat() ) #field:author() ) )";
+        root = StructuredQuery.parse(query);
+        root = retrieval.transformQuery(root, p);
+
+        results = retrieval.executeQuery(root, p).scoredDocuments;
+
+        assertEquals(2, results.size());
+        assertEquals("1", results.get(0).documentName);
+        assertEquals("2", results.get(1).documentName);
+
+        // odered window in a field where the query terms don't exist
+        query = "#combine( #inside( #ordered:1( #text:max() #text:d() #text:cat() ) #field:title() ) )";
+        root = StructuredQuery.parse(query);
+        root = retrieval.transformQuery(root, p);
+
+        results = retrieval.executeQuery(root, p).scoredDocuments;
+
+        assertEquals(0, results.size());
+
+        // term in a field that occurs in text
+        query = "#combine( #inside( #text:cat() #field:author() ) )";
+        root = StructuredQuery.parse(query);
+        root = retrieval.transformQuery(root, p);
+
+        results = retrieval.executeQuery(root, p).scoredDocuments;
+
+        assertEquals(2, results.size());
+        assertEquals("1", results.get(0).documentName);
+        assertEquals("2", results.get(1).documentName);
+
+        // clean up
+        FSUtil.deleteDirectory(indexFile);
+
+    }
+
 }
