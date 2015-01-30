@@ -87,7 +87,7 @@ public class Search {
         return generator.getSnippet(document.text, query);
     }
 
-    public static Node parseQuery(String query, Parameters parameters) {
+    public static Node parseQuery(String query, Parameters parameters) throws IOException {
         String queryType = parameters.get("queryType", "complex");
 
         if (queryType.equals("simple")) {

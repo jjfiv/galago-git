@@ -1,8 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.query;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.TagTokenizer;
 
 /**
  * <p>
@@ -159,9 +162,6 @@ public class SimpleQuery {
     }
 
     public static List<QueryTerm> parse(String query) {
-        ArrayList<QueryTerm> results = new ArrayList<QueryTerm>();
-        int position = 0;
-        String term = null;
 
         List<String> textTerms = textQueryTerms(query);
         ArrayList<QueryTerm> parsedTerms = new ArrayList<QueryTerm>();
@@ -173,22 +173,44 @@ public class SimpleQuery {
         return parsedTerms;
     }
 
-    public static Node parseTree(String query) {
+    public static Node parseTree(String query) throws IOException {
         List<QueryTerm> terms = parse(query);
         ArrayList<Node> nodes = new ArrayList<Node>();
 
         for (QueryTerm term : terms) {
             Node termNode = new Node("text", term.text);
-            // if this is a phrase, put the terms in a ordered window
-            if (term.text.contains(" ")) {
-                String[] phraseTerms = term.text.split(" ");
-                ArrayList<Node> children = new ArrayList<Node>();
-                for (String phraseTerm : phraseTerms) {
-                    children.add(new Node("text", phraseTerm));
+
+            // MCZ -  check if we need to parse a field or phrase.
+            // With phrases, we can have issues if a search is
+            // something like author:"W. Bruce Croft", the "W." won't match
+            // any terms. So we'll tokenize it just like we did when indexing.
+            // TODO: make sure we use the same tokenizer as we did when indexing.
+            // BUT - this doesn't work for things like emails cuz they can be specified as:
+            // email:"michaelz@cs.umass.edu" - which doesn't contain any spaces,
+            // so we'll also tokenize ANY query that has a field.
+            if (term.field != null || term.text.contains(" ")) {
+
+                TagTokenizer tokenizer = new TagTokenizer();
+                Document document = new Document();
+                document.text = term.text;
+                tokenizer.process(document);
+                String[] phraseTerms = document.terms.toArray(new String[0]);
+
+                // Since we get into this logic any time there is a field, it's
+                // possible that they could search for something that's not a phrase like:
+                //      title:awesome
+                // So check if it's a single term so we don't incur the overhead of an ordered window
+                if (phraseTerms.length > 1) {
+                    ArrayList<Node> children = new ArrayList<Node>();
+                    for (String phraseTerm : phraseTerms) {
+                        children.add(new Node("text", phraseTerm));
+                    }
+                    NodeParameters np = new NodeParameters();
+                    np.set("default", 1);
+                    termNode = new Node("ordered", np, children, 0);
+                } else {
+                    termNode = new Node("text", phraseTerms[0]);
                 }
-                NodeParameters np = new NodeParameters();
-                np.set("default", 1);
-                termNode = new Node("ordered", np, children, 0);
             }
             // if this is in a field, add the field restriction
             if (term.field != null) {
