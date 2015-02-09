@@ -7,6 +7,7 @@ package org.lemurproject.galago.utility;
 import org.junit.Assert;
 import org.junit.Test;
 import org.lemurproject.galago.utility.json.JSONUtil;
+import org.lemurproject.galago.utility.tools.Arguments;
 
 import java.io.File;
 import java.io.IOException;
@@ -184,7 +185,7 @@ public class ParametersTest {
     args[8] = "--mapKey/isTrue";
     args[9] = "--mapKey/innerMap/wayInnerMap/buriedKey=absolutely";
 
-    Parameters p = Parameters.parseArgs(args);
+    Parameters p = Arguments.parse(args);
     System.err.flush();
     List<String> list = p.getList("arrayKey", String.class);
     assertEquals("val1", list.get(0));
