@@ -6,16 +6,63 @@ import org.lemurproject.galago.utility.json.JSONUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author jfoley, irmarc, sjh, trevor
  */
 public class Arguments {
+	static char OpObjectEquals = '=';
+	static char OpListPlus = '+';
+	static char OpMapAccess = '/';
+
+	static boolean looksLikeKey(String x) {
+		return x.startsWith("--");
+	}
+	/** This function returns true iff the argument ends with equals or +, this allows the use of tab-complete.
+	 *
+	 * --file= /next/arg/is/the/path.something
+	 * --input+ /first/input.trec
+	 *
+	 * @param arg the command-line argument
+	 */
+	static boolean endsWithJoinOperator(String arg) {
+		if(arg.isEmpty()) return false;
+		char c = arg.charAt(arg.length()-1);
+		return c == OpObjectEquals || c == OpListPlus;
+	}
+
+	/** This function combines adjacent arguments if the first one ends with an operator and the next one does not start with "--"
+	 *
+	 * --file= /next/arg/is/the/path.something
+	 * --input+ /first/input.trec
+	 *
+	 * @param args the command-line arguments
+	 */
+	static List<String> combineAdjacentIfReasonable(String[] args) {
+		List<String> joinedArgs = new ArrayList<>();
+		for (int i = 0; i < args.length; i++) {
+			String arg = args[i];
+			// if this one is a dangling key, and the next one is not a key, join them.
+			if (looksLikeKey(arg) && endsWithJoinOperator(arg)&& i+1 < args.length && !looksLikeKey(args[i+1])) {
+				joinedArgs.add(args[i]+args[i+1]);
+				i++;
+			} else {
+				joinedArgs.add(args[i]);
+			}
+		}
+		return joinedArgs;
+	}
+
 	public static Parameters parse(String[] args) throws IOException {
 		Parameters self = Parameters.create();
 
-		for (String arg : args) {
-			if (arg.startsWith("--")) {
+		List<String> reasonableArgs = combineAdjacentIfReasonable(args);
+
+		for (String arg : reasonableArgs) {
+			if (looksLikeKey(arg)) {
 				String pattern = arg.substring(2);
 				tokenizeComplexValue(self, pattern);
 			} else {
@@ -28,12 +75,18 @@ public class Arguments {
 		return self;
 	}
 
-	protected static void tokenizeComplexValue(Parameters map, String pattern) throws IOException {
-		int eqPos = pattern.indexOf('=') == -1 ? Integer.MAX_VALUE : pattern.indexOf('=');
-		int arPos = pattern.indexOf('/') == -1 ? Integer.MAX_VALUE : pattern.indexOf('/');
-		int plPos = pattern.indexOf('+') == -1 ? Integer.MAX_VALUE : pattern.indexOf('+');
+	static int indexOrMax(String x, char c) {
+		int pos = x.indexOf(c);
+		if(pos == -1) return Integer.MAX_VALUE;
+		return pos;
+	}
 
-		int smallest = (eqPos < arPos) ? (eqPos < plPos ? eqPos : plPos) : (arPos < plPos ? arPos : plPos);
+	static void tokenizeComplexValue(Parameters map, String pattern) throws IOException {
+		int eqPos = indexOrMax(pattern, OpObjectEquals);
+		int arPos = indexOrMax(pattern, OpMapAccess);
+		int plPos = indexOrMax(pattern, OpListPlus);
+
+		int smallest = Collections.min(Arrays.asList(eqPos, arPos, plPos));
 		if (smallest == Integer.MAX_VALUE) {
 			// Assume they meant 'true' for the key
 			map.set(pattern, true);
@@ -52,7 +105,7 @@ public class Arguments {
 		}
 	}
 
-	private static void tokenizeSimpleValue(Parameters map, String key, String value, boolean isArray) throws IOException {
+	static void tokenizeSimpleValue(Parameters map, String key, String value, boolean isArray) throws IOException {
 		Object v = JSONUtil.parseString(value);
 
 		if(v instanceof String) {

@@ -7,7 +7,6 @@ package org.lemurproject.galago.utility;
 import org.junit.Assert;
 import org.junit.Test;
 import org.lemurproject.galago.utility.json.JSONUtil;
-import org.lemurproject.galago.utility.tools.Arguments;
 
 import java.io.File;
 import java.io.IOException;
@@ -168,40 +167,6 @@ public class ParametersTest {
 
     Parameters clone = p.clone();
     assertEquals(p.toString(), clone.toString());
-  }
-
-  @Test
-  public void testCommandLineArgs() throws Exception {
-    String[] args = new String[10];
-    args[0] = "--arrayKey+val1";
-    args[1] = "--arrayKey+val2";
-    args[2] = "--arrayKey+val3";
-
-    args[3] = "--intKey=4";
-    args[4] = "--mapKey/list+7";
-    args[5] = "--mapKey/list+8";
-    args[6] = "--mapKey/list+9";
-    args[7] = "--mapKey/innerVal=bob";
-    args[8] = "--mapKey/isTrue";
-    args[9] = "--mapKey/innerMap/wayInnerMap/buriedKey=absolutely";
-
-    Parameters p = Arguments.parse(args);
-    System.err.flush();
-    List<String> list = p.getList("arrayKey", String.class);
-    assertEquals("val1", list.get(0));
-    assertEquals("val2", list.get(1));
-    assertEquals("val3", list.get(2));
-    assertEquals(4L, p.getLong("intKey"));
-    Parameters inner = p.getMap("mapKey");
-    List<Long> ints = inner.getList("list", Long.class);
-    assertEquals(7L, ints.get(0).longValue());
-    assertEquals(8L, ints.get(1).longValue());
-    assertEquals(9L, ints.get(2).longValue());
-    assertEquals("bob", inner.getString("innerVal"));
-    assertTrue(inner.getBoolean("isTrue"));
-    Parameters innerAgain = inner.getMap("innerMap");
-    Parameters innerOnceMore = innerAgain.getMap("wayInnerMap");
-    assertEquals("absolutely", innerOnceMore.getString("buriedKey"));
   }
 
   @Test
