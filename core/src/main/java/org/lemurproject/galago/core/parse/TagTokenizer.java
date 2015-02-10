@@ -8,6 +8,7 @@ import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.StringPooler;
+import org.lemurproject.galago.core.parse.tagtok.TagTokenizerUtil;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -33,6 +34,7 @@ public class TagTokenizer extends Tokenizer {
 
   protected String ignoreUntil;
   protected List<Pattern> whitelist;
+	protected int maxTokenLength;
 
   protected String text;
   protected int position;
@@ -43,29 +45,42 @@ public class TagTokenizer extends Tokenizer {
   ArrayList<IntSpan> tokenPositions;
   private boolean tokenizeTagContent = true;
 
+	public TagTokenizer() {
+		this(Parameters.create());
+	}
+	public TagTokenizer(Parameters tokenizerParameters) {
+		this(new FakeParameters(tokenizerParameters));
+	}
 	public TagTokenizer(TupleFlowParameters parameters) {
-    this();
-    Parameters tokenizerParams = parameters.getJSON();
-    if (tokenizerParams.isList("fields") || tokenizerParams.isString("fields")) {
-      for (String value : tokenizerParams.getAsList("fields", String.class)) {
+		super(parameters);
+		init(parameters.getJSON());
+  }
+
+	private void init(Parameters argp) {
+		// Max token length is now customizable.
+		maxTokenLength = (int) argp.get("maxTokenLength", 100);
+
+		text = null;
+		position = 0;
+		lastSplit = -1;
+
+		tokens = new ArrayList<>();
+		openTags = new HashMap<>();
+		closedTags = new ArrayList<>();
+		tokenPositions = new ArrayList<>();
+		whitelist = new ArrayList<>();
+
+		// This has to come after we initialize whitelist.
+		if (argp.isList("fields") || argp.isString("fields")) {
+			for (String value : argp.getAsList("fields", String.class)) {
+				assert(whitelist != null);
 				addField(value);
-      }
-    }
-  }
+			}
+		}
+	}
 
-  public TagTokenizer() {
-    super(new FakeParameters(Parameters.create()));
-    text = null;
-    position = 0;
-    lastSplit = -1;
 
-    tokens = new ArrayList<>();
-    openTags = new HashMap<>();
-    closedTags = new ArrayList<>();
-    tokenPositions = new ArrayList<>();
-    whitelist = new ArrayList<>();
-  }
-
+	/** Register the fields that should be parsed and collected */
 	public void addField(String f) {
     whitelist.add(Pattern.compile(f));
   }
@@ -88,6 +103,7 @@ public class TagTokenizer extends Tokenizer {
     }
   }
 
+	/** Skip an HTML comment */
   protected void skipComment() {
     if (text.substring(position).startsWith("<!--")) {
       position = text.indexOf("-->", position + 1);
@@ -160,63 +176,7 @@ public class TagTokenizer extends Tokenizer {
 
   }
 
-  protected int indexOfNonSpace(int start) {
-    if (start < 0) {
-      return Integer.MIN_VALUE;
-    }
-    for (int i = start; i < text.length(); i++) {
-      char c = text.charAt(i);
-      if (!Character.isSpaceChar(c)) {
-        return i;
-      }
-    }
-
-    return Integer.MIN_VALUE;
-  }
-
-  protected int indexOfEndAttribute(int start, int tagEnd) {
-    if (start < 0) {
-      return Integer.MIN_VALUE;        // attribute ends at the first non-quoted space, or
-      // the first '>'.
-    }
-    boolean inQuote = false;
-    boolean lastEscape = false;
-
-    for (int i = start; i <= tagEnd; i++) {
-      char c = text.charAt(i);
-
-      if ((c == '\"' || c == '\'') && !lastEscape) {
-        inQuote = !inQuote;
-        if (!inQuote) {
-          return i;
-        }
-      } else if (!inQuote && (Character.isSpaceChar(c) || c == '>')) {
-        return i;
-      } else if (c == '\\' && !lastEscape) {
-        lastEscape = true;
-      } else {
-        lastEscape = false;
-      }
-    }
-
-    return Integer.MIN_VALUE;
-  }
-
-  protected int indexOfEquals(int start, int end) {
-    if (start < 0) {
-      return Integer.MIN_VALUE;
-    }
-    for (int i = start; i < end; i++) {
-      char c = text.charAt(i);
-      if (c == '=') {
-        return i;
-      }
-    }
-
-    return Integer.MIN_VALUE;
-  }
-
-  protected void parseBeginTag() {
+	protected void parseBeginTag() {
     // 1. read the name, skipping the '<'
     int i;
 
@@ -230,14 +190,14 @@ public class TagTokenizer extends Tokenizer {
     String tagName = text.substring(position + 1, i).toLowerCase();
 
     // 2. read attr pairs
-    i = indexOfNonSpace(i);
+    i = TagTokenizerUtil.indexOfNonSpace(text, i);
     int tagEnd = text.indexOf(">", i + 1);
     boolean closeIt = false;
 
     HashMap<String, String> attributes = new HashMap<>();
     while (i < tagEnd && i >= 0 && tagEnd >= 0) {
       // scan ahead for non space
-      int start = indexOfNonSpace(i);
+      int start = TagTokenizerUtil.indexOfNonSpace(text, i);
 
       if (start > 0) {
         if (text.charAt(start) == '>') {
@@ -252,8 +212,8 @@ public class TagTokenizer extends Tokenizer {
         }
       }
 
-      int end = indexOfEndAttribute(start, tagEnd);
-      int equals = indexOfEquals(start, end);
+      int end = TagTokenizerUtil.indexOfEndAttribute(text, start, tagEnd);
+      int equals = TagTokenizerUtil.indexOfEquals(text, start, end);
 
       // try to find an equals sign
       if (equals < 0 || equals == start || end == equals) {
@@ -334,15 +294,15 @@ public class TagTokenizer extends Tokenizer {
     if (position - lastSplit > 1) {
       int start = lastSplit + 1;
       String token = text.substring(start, position);
-      StringStatus status = checkTokenStatus(token);
+      StringStatus status = TagTokenizerUtil.checkTokenStatus(token);
 
       switch (status) {
         case NeedsSimpleFix:
-          token = tokenSimpleFix(token);
+          token = TagTokenizerUtil.normalizeSimple(token);
           break;
 
         case NeedsComplexFix:
-          token = tokenComplexFix(token);
+          token = TagTokenizerUtil.normalizeComplex(token);
           break;
 
         case NeedsAcronymProcessing:
@@ -371,13 +331,16 @@ public class TagTokenizer extends Tokenizer {
    * @param end    The ending byte offset of the token in the document text.
    */
   protected void addToken(final String token, int start, int end) {
-    final int maxTokenLength = 100;
     // zero length tokens aren't interesting
     if (token.length() <= 0) {
       return;
     }
     // we want to make sure the token is short enough that someone
     // might actually type it.  UTF-8 can expand one character to 6 bytes.
+
+		// TODO(jfoley) This is a memory "waster" ...
+		// we probably don't need this level of accuracy on the heuristic maxTokenLength,
+		// but I'm hesitant to change *the* TagTokenizer... also we probably want OR here?
     if (token.length() > maxTokenLength / 6
             && ByteUtil.fromString(token).length >= maxTokenLength) {
       return;
@@ -386,14 +349,7 @@ public class TagTokenizer extends Tokenizer {
     tokenPositions.add(new IntSpan(start, end));
   }
 
-  protected static String tokenComplexFix(String token) {
-    token = tokenSimpleFix(token);
-    token = token.toLowerCase();
-
-    return token;
-  }
-
-  /**
+	/**
    * This method does three kinds of processing:
    * <ul>
    *  <li>If the token contains periods at the beginning or the end,
@@ -407,7 +363,7 @@ public class TagTokenizer extends Tokenizer {
    * </ul>
    */
   protected void tokenAcronymProcessing(String token, int start, int end) {
-    token = tokenComplexFix(token);
+    token = TagTokenizerUtil.normalizeComplex(token);
 
     // remove start and ending periods
     while (token.startsWith(".")) {
@@ -456,73 +412,7 @@ public class TagTokenizer extends Tokenizer {
     }
   }
 
-  /**
-   * Scans through the token, removing apostrophes and converting
-   * uppercase to lowercase letters.
-   */
-  protected static String tokenSimpleFix(String token) {
-    char[] chars = token.toCharArray();
-    int j = 0;
-
-    for (int i = 0; i < chars.length; i++) {
-      char c = chars[i];
-      boolean isAsciiUppercase = (c >= 'A' && c <= 'Z');
-      boolean isApostrophe = (c == '\'');
-
-      if (isAsciiUppercase) {
-        chars[j] = (char) (chars[i] + 'a' - 'A');
-      } else if (isApostrophe) {
-        // it's an apostrophe, skip it
-        j--;
-      } else {
-        chars[j] = chars[i];
-      }
-
-      j++;
-    }
-
-    token = new String(chars, 0, j);
-    return token;
-  }
-
-  /**
-   * This method scans the token, looking for uppercase characters and
-   * special characters.  If the token contains only numbers and lowercase
-   * letters, it needs no further processing, and it returns Clean.
-   * If it also contains uppercase letters or apostrophes, it returns
-   * NeedsSimpleFix.  If it contains special characters (especially Unicode
-   * characters), it returns NeedsComplexFix.  Finally, if any periods are
-   * present, this returns NeedsAcronymProcessing.
-   */
-  protected StringStatus checkTokenStatus(final String token) {
-    StringStatus status = StringStatus.Clean;
-    char[] chars = token.toCharArray();
-
-    for (char c : chars) {
-      boolean isAsciiLowercase = (c >= 'a' && c <= 'z');
-      boolean isAsciiNumber = (c >= '0' && c <= '9');
-
-      if (isAsciiLowercase || isAsciiNumber) {
-        continue;
-      }
-      boolean isAsciiUppercase = (c >= 'A' && c <= 'Z');
-      boolean isPeriod = (c == '.');
-      boolean isApostrophe = (c == '\'');
-
-      if ((isAsciiUppercase || isApostrophe) && status == StringStatus.Clean) {
-        status = StringStatus.NeedsSimpleFix;
-      } else if (!isPeriod) {
-        status = StringStatus.NeedsComplexFix;
-      } else {
-        status = StringStatus.NeedsAcronymProcessing;
-        break;
-      }
-    }
-
-    return status;
-  }
-
-  protected void onStartBracket() {
+	protected void onStartBracket() {
     if (position + 1 < text.length()) {
       char c = text.charAt(position + 1);
 
@@ -547,11 +437,11 @@ public class TagTokenizer extends Tokenizer {
    * Tag type. Uses the whitelist in the tokenizer to omit tags
    * that are not matched by any patterns in the whitelist
    */
-  protected ArrayList<Tag> coalesceTags() {
+  protected static ArrayList<Tag> coalesceTags(Map<String, ArrayList<BeginTag>> openTags, Collection<ClosedTag> closedTags, List<Pattern> whitelist) {
     ArrayList<Tag> result = new ArrayList<>();
 
     // close all open tags
-    for (ArrayList<BeginTag> tagList : openTags.values()) {
+    for (List<BeginTag> tagList : openTags.values()) {
       for (BeginTag tag : tagList) {
         for (Pattern p : whitelist) {
           if (p.matcher(tag.name).matches()) {
@@ -643,7 +533,7 @@ public class TagTokenizer extends Tokenizer {
       document.termCharBegin.add(p.start);
       document.termCharEnd.add(p.end);
     }
-    document.tags = coalesceTags();
+    document.tags = coalesceTags(openTags, closedTags, whitelist);
   }
 
   public ArrayList<IntSpan> getTokenPositions() {

@@ -26,10 +26,12 @@ public class Tag implements Comparable<Tag>, Serializable {
   /**
    * Constructs a tag.
    *
-   * @param tagName The tagName of the tag.
+   * @param name The tagName of the tag.
    * @param attributes Attributes of the tag.
-   * @param begin Location of the start tag within the document, in tokens.
-   * @param end, int charBegin, int charEnd Location of the end tag within the document, in tokens.
+   * @param termBegin Location of the start tag within the document, in tokens.
+   * @param termEnd, Location of the end tag within the document, in tokens.
+	 * @param charBegin Location of the start tag within the document, in characters.
+	 * @param charEnd, Location of the end tag within the document, in characters.
    */
   public Tag(String name, Map<String, String> attributes, int termBegin, int termEnd, int charBegin, int charEnd) {
     this.name = name;

@@ -1,7 +1,8 @@
 package org.lemurproject.galago.core.parse.tagtok;
 
 /**
- * @author jfoley.
+ * @author trevor.
+ * @see org.lemurproject.galago.core.parse.TagTokenizer
  */
 public class TagPunctuation {
 
