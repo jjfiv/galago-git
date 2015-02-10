@@ -312,6 +312,7 @@ public final class TagTokenizerParser implements DocumentBuilder {
 		position = text.length();
 	}
 
+	/** Determine that this current position is a stopping point, and there is a word from [lastSplit+1,position] if that span is nonzero. */
 	public void onSplit() {
 		if (position - lastSplit > 1) {
 			int start = lastSplit + 1;
@@ -342,8 +343,9 @@ public final class TagTokenizerParser implements DocumentBuilder {
 		lastSplit = position;
 	}
 
+	/** Ampersand was found within HTML, not inside script or style tags */
 	public void onAmpersand() {
-		onSplit();
+		onSplit(); // make a word from what came before if possible.
 
 		for (int i = position + 1; i < text.length(); i++) {
 			char c = text.charAt(i);
@@ -363,7 +365,7 @@ public final class TagTokenizerParser implements DocumentBuilder {
 	}
 
 	/**
-	 * This 'main' loop is looking for tags, split characters, and XML escapes, which start with ampersands.  All other characters are assumed to be word characters.  The onSplit() method takes care of extracting word state.text and storing it in the terms array.  The onStartBracket method parses tags. ignoreUntil is used to ignore comments and script data.
+	 * This 'main' loop is looking for tags, split characters, and XML escapes, which start with ampersands.  All other characters are assumed to be word characters. The onSplit() method takes care of extracting word text and storing it in the terms array.  The onStartBracket method parses tags. ignoreUntil is used to ignore comments and script data.
 	 */
 	public void parse() {
 		// main parsing loop.
