@@ -56,7 +56,7 @@ public class KrovetzStemmerTest {
     Stemmer stemmer = new KrovetzStemmer();
     test = stemmer.stem(test);
 
-    List<String> stemmedTerms = new ArrayList(test.terms);
+    List<String> stemmedTerms = new ArrayList<>(test.terms);
 
     List<String> idealStemmedTerms = Arrays.asList(("call me ishmael some years ago never mind how "
             + "long precisely have little or no money in my "
