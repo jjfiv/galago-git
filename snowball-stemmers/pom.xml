@@ -35,10 +35,6 @@
         </configuration>
       </plugin>
       <plugin>
-        <artifactId>maven-jxr-plugin</artifactId>
-        <version>2.3</version>
-      </plugin>
-      <plugin>
         <version>2.16</version>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>

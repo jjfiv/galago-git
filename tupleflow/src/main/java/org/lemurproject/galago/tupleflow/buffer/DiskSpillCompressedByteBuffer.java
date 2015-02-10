@@ -31,13 +31,10 @@ import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.utility.StreamUtil;
 import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 
-public class DiskSpillCompressedByteBuffer extends OutputStream {
+public class DiskSpillCompressedByteBuffer extends OutputStream implements Closeable {
 
   ArrayList<byte[]> values = null;
   TIntArrayList sizes = null;
@@ -284,4 +281,16 @@ public class DiskSpillCompressedByteBuffer extends OutputStream {
       throw new RuntimeException(ioe);
     }
   }
+
+	@Override
+	public void close() throws IOException {
+		super.close();
+		if(spillStream != null) {
+			spillStream.close();
+		}
+		if(spillFile != null) {
+			boolean status = spillFile.delete();
+			if(!status) throw new IOException("Couldn't delete spillFile in DiskSpillCompressedByteBuffer");
+		}
+	}
 }

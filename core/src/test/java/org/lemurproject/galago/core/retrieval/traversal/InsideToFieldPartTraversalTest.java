@@ -29,46 +29,55 @@ import static org.junit.Assert.assertEquals;
  */
 public class InsideToFieldPartTraversalTest {
 
-  private File indexPath;
+    private File indexPath;
 
-  @Before
-  public void setUp() throws FileNotFoundException, IOException, IncompatibleProcessorException {
-    indexPath = LocalRetrievalTest.makeIndex();
-  }
+    @Before
+    public void setUp() throws FileNotFoundException, IOException, IncompatibleProcessorException {
+        indexPath = LocalRetrievalTest.makeIndex();
+    }
 
-  @After
-  public void tearDown() throws IOException {
-    FSUtil.deleteDirectory(indexPath);
-  }
+    @After
+    public void tearDown() throws IOException {
+        FSUtil.deleteDirectory(indexPath);
+    }
 
-  @Test
-  public void testTraversal() throws Exception {
-    DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
-    LocalRetrieval retrieval = new LocalRetrieval(index);
-    TextFieldRewriteTraversal rewriter = new TextFieldRewriteTraversal(retrieval);
-    Parameters inner1 = Parameters.create();
-    inner1.set("extents", DiskExtentIterator.class.getName());
-    inner1.set("counts", DiskCountIterator.class.getName());
-    
-    InsideToFieldPartTraversal traversal = new InsideToFieldPartTraversal(retrieval);
-    Parameters inner2 = Parameters.create();
-    inner2.set("extents", DiskExtentIterator.class.getName());
-    inner2.set("counts", DiskCountIterator.class.getName());
-    traversal.availableParts.set("field.subject", inner2);
-    
-    Node q1 = StructuredQuery.parse("#combine( cat dog.title donkey.subject absolute.subject)");
-    Node q2 = rewriter.traverse(q1, Parameters.create()); // converts #text to #extents...
-    Node q3 = traversal.traverse(q2, Parameters.create()); // converts #inside to #extents...
+    @Test
+    public void testTraversal() throws Exception {
+        DiskIndex index = new DiskIndex(indexPath.getAbsolutePath());
+        LocalRetrieval retrieval = new LocalRetrieval(index);
+        TextFieldRewriteTraversal rewriter = new TextFieldRewriteTraversal(retrieval);
+        Parameters inner1 = Parameters.create();
+        inner1.set("extents", DiskExtentIterator.class.getName());
+        inner1.set("counts", DiskCountIterator.class.getName());
 
-    StringBuilder transformed = new StringBuilder();
+        InsideToFieldPartTraversal traversal = new InsideToFieldPartTraversal(retrieval);
+        Parameters inner2 = Parameters.create();
+        inner2.set("extents", DiskExtentIterator.class.getName());
+        inner2.set("counts", DiskCountIterator.class.getName());
+        traversal.availableParts.set("field.subject", inner2);
 
-    transformed.append("#combine( ");
-    transformed.append("#extents:cat:part=postings() ");
-    transformed.append("#inside( #extents:dog:part=postings() ");
-    transformed.append("#extents:title:part=extents() ) ");
-    transformed.append("#extents:donkey:part=field.subject() ");
-    transformed.append("#extents:absolute:part=field.subject() )");
+        Node q1 = StructuredQuery.parse("#combine( cat dog.title donkey.subject absolute.subject)");
+        Node q2 = rewriter.traverse(q1, Parameters.create()); // converts #text to #extents...
+        Node q3 = traversal.traverse(q2, Parameters.create()); // converts #inside to #extents...
 
-    assertEquals(transformed.toString(), q3.toString());
-  }
+        StringBuilder transformed = new StringBuilder();
+
+        transformed.append("#combine( ");
+        transformed.append("#extents:cat:part=postings() ");
+        transformed.append("#inside( #extents:dog:part=postings() ");
+        transformed.append("#extents:title:part=extents() ) ");
+        transformed.append("#extents:donkey:part=field.subject() ");
+        transformed.append("#extents:absolute:part=field.subject() )");
+
+        assertEquals(transformed.toString(), q3.toString());
+
+        Node q4 = StructuredQuery.parse("#inside( #ordered:1( #text:james() #text:allan() ) #field:author() )");
+        Node q5 = rewriter.traverse(q4, Parameters.create()); // converts #text to #extents...
+        assertEquals("#inside( #ordered:1( #extents:james:part=postings() #extents:allan:part=postings() ) #extents:author:part=extents() )", q5.toString());
+        Node q6 = traversal.traverse(q5, Parameters.create()); // converts #inside to #extents...
+
+        // shouldn't change with the last traversal
+        assertEquals(q5.toString(), q6.toString());
+
+    }
 }

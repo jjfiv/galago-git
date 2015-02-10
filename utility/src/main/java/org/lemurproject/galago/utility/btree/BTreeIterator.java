@@ -2,6 +2,7 @@ package org.lemurproject.galago.utility.btree;
 
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.CmpUtil;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.buffer.DataStream;
 
 import java.io.IOException;
@@ -103,4 +104,11 @@ public abstract class BTreeIterator implements Comparable<BTreeIterator> {
   public int compareTo(BTreeIterator i) {
     return CmpUtil.compare(this.getKey(), i.getKey());
   }
+
+	/**
+	 * Peek into parent's manifest:
+	 */
+	public Parameters getManifest() {
+		return reader.getManifest();
+	}
 }

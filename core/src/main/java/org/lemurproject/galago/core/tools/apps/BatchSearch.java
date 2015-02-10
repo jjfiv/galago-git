@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.utility.queries.JSONQueryFormat;
 import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.tools.Arguments;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -25,7 +26,7 @@ public class BatchSearch extends AppFunction {
   public static final Logger logger = Logger.getLogger("BatchSearch");
 
   public static void main(String[] args) throws Exception {
-    (new BatchSearch()).run(Parameters.parseArgs(args), System.out);
+    (new BatchSearch()).run(Arguments.parse(args), System.out);
   }
 
   @Override

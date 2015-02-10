@@ -32,7 +32,7 @@ public class QuerySetResults {
             ArrayList<EvalDoc> rankedList = new ArrayList<>(results.get(query));
             check(rankedList);
             Collections.sort(rankedList, SimpleEvalDoc.byAscendingRank);
-            querySetResults.put(query, new QueryResults(rankedList));
+            querySetResults.put(query, new QueryResults(query, rankedList));
         }
     }
 
@@ -87,7 +87,7 @@ public class QuerySetResults {
         for (String query : ranking.keySet()) {
             List<EvalDoc> documents = ranking.get(query);
             Collections.sort(documents, SimpleEvalDoc.byAscendingRank);
-            querySetResults.put(query, new QueryResults(documents));
+            querySetResults.put(query, new QueryResults(query, documents));
         }
 
         in.close();
@@ -102,7 +102,7 @@ public class QuerySetResults {
             if (query.isString("number")) {
                 String num = query.getString("number");
                 if (!querySetResults.containsKey(num)) {
-                    querySetResults.put(num, new QueryResults(new ArrayList<EvalDoc>()));
+                    querySetResults.put(num, new QueryResults(num, new ArrayList<EvalDoc>()));
                 }
             }
         }

@@ -3,9 +3,8 @@ package org.lemurproject.galago.utility;
 
 import org.lemurproject.galago.utility.json.JSONParser;
 import org.lemurproject.galago.utility.json.JSONUtil;
+import org.lemurproject.galago.utility.tools.Arguments;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -52,25 +51,8 @@ public class Parameters implements Serializable, Map<String,Object> {
     
     return self;
   }
-  
-  public static Parameters parseArgs(String[] args) throws IOException {
-    Parameters self = Parameters.create();
-    
-    for (String arg : args) {
-      if (arg.startsWith("--")) {
-        String pattern = arg.substring(2);
-        tokenizeComplexValue(self, pattern);
-      } else {
-        // We assume that the input is a file of JSON parameters
-        Parameters other = Parameters.parseFile(new File(arg));
-        self.copyFrom(other);
-      }
-    }
-    
-    return self;
-  }
-  
-  public static Parameters parseFile(File f) throws IOException {
+
+	public static Parameters parseFile(File f) throws IOException {
     JSONParser jp = new JSONParser(new FileReader(f), f.getPath());
     return jp.parse();
   }
@@ -194,7 +176,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     }
   }
   
-  @Override
+	@Override
   public Parameters clone() {
     Parameters copy = Parameters.create();
     // use secret keySet to not copy backoff keys
@@ -219,14 +201,13 @@ public class Parameters implements Serializable, Map<String,Object> {
   public Set<String> getKeys() {
     if (_backoff != null) {
       // have to duplicate this list to get an AddAll function (immutable set)
-      Set<String> keys = new HashSet<String>(this._backoff.getKeys());
+      Set<String> keys = new HashSet<>(this._backoff.getKeys());
       keys.addAll(_data.keySet());
       return keys;
     }
     return _data.keySet();
   }
 
-  @SuppressWarnings("unchecked")
   public <T> List<T> getList(String key, Class<T> klazz) {
     assert(klazz != null);
     return (List<T>) getList(key);
@@ -252,8 +233,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public <T> List<T> getAsList(String key, Class<T> klazz) {
+  public <T> List<T> getAsList(String key, Class<T> ignored) {
     return (List<T>) getAsList(key);
   }
 
@@ -417,7 +397,9 @@ public class Parameters implements Serializable, Map<String,Object> {
   /**
    * Set the deepest backoff level possible... this seems like a terrible idea.
    * @param backoff the parameters to insert deep in the tree.
+   * @deprecated nobody seems to be using this.
    */
+	@Deprecated
   public void setFinalBackoff(Parameters backoff) {
     if (_backoff == null) {
       this._backoff = backoff;
@@ -465,7 +447,6 @@ public class Parameters implements Serializable, Map<String,Object> {
     Object forKey = get(key);
     if(forKey == null) {
       forKey = new ArrayList();
-      put(key, forKey);
     }
     if(!(forKey instanceof List))
       throw new IllegalArgumentException("Key '"+key+"' is not a list, can't add to it.");
@@ -543,29 +524,6 @@ public class Parameters implements Serializable, Map<String,Object> {
     return builder.toString();
   }
   
-  public String toXML() throws IOException {
-    StringWriter sw = new StringWriter();
-    
-    try {
-      XMLStreamWriter xml = JSONUtil.xmlOutputFactory.createXMLStreamWriter(sw);
-
-      xml.writeStartDocument();
-      xml.writeStartElement("parameters");
-      JSONUtil.writeXML(this, xml);
-      xml.writeEndElement();
-      xml.writeEndDocument();
-      xml.flush();
-      xml.close();
-    } catch (XMLStreamException ex) {
-      throw new RuntimeException(ex);
-    } finally {
-      sw.flush();
-      sw.close();
-    }
-    
-    return sw.toString();
-  }
-
   public String toPrettyString() {
     return toPrettyString(this, "", true);
   }
@@ -669,51 +627,11 @@ public class Parameters implements Serializable, Map<String,Object> {
     }
   }
 
-  protected static void tokenizeComplexValue(Parameters map, String pattern) throws IOException {
-    int eqPos = pattern.indexOf('=') == -1 ? Integer.MAX_VALUE : pattern.indexOf('=');
-    int arPos = pattern.indexOf('/') == -1 ? Integer.MAX_VALUE : pattern.indexOf('/');
-    int plPos = pattern.indexOf('+') == -1 ? Integer.MAX_VALUE : pattern.indexOf('+');
+	public static Parameters parseArgs(String[] args) throws IOException {
+		return Arguments.parse(args);
+	}
 
-    int smallest = (eqPos < arPos) ? (eqPos < plPos ? eqPos : plPos) : (arPos < plPos ? arPos : plPos);
-    if (smallest == Integer.MAX_VALUE) {
-      // Assume they meant 'true' for the key
-      map.set(pattern, true);
-    } else {
-      if (eqPos == smallest) {
-        tokenizeSimpleValue(map, pattern.substring(0, smallest), pattern.substring(smallest + 1, pattern.length()), false);
-      } else if (plPos == smallest) {
-        tokenizeSimpleValue(map, pattern.substring(0, smallest), pattern.substring(smallest + 1, pattern.length()), true);
-      } else {
-        String mapKey = pattern.substring(0, smallest);
-        if (!map.isMap(mapKey)) {
-          map.set(mapKey, Parameters.create());
-        }
-        tokenizeComplexValue(map.getMap(mapKey), pattern.substring(smallest + 1, pattern.length()));
-      }
-    }
-  }
-
-  private static void tokenizeSimpleValue(Parameters map, String key, String value, boolean isArray) throws IOException {
-    Object v = JSONUtil.parseString(value);
-
-    if(v instanceof String) {
-      // attempt to clean a string: 'string'
-      if (value.startsWith("'") && value.endsWith("'") && value.length() > 1) {
-        v = JSONUtil.parseString(value.substring(1, value.length() - 1));
-      }
-    }
-
-    if (isArray) {
-      if (!map.isList(key)) {
-        map.put(key, new ArrayList());
-      }
-      map.getList(key, Object.class).add(v);
-    } else {
-      map.put(key, v);
-    }
-  }
-  
-  @Override
+	@Override
   public int size() {
     return _data.size();
   }
@@ -782,14 +700,14 @@ public class Parameters implements Serializable, Map<String,Object> {
 
   @Override
   public void clear() {
-    _data = new HashMap<String, Object>();
+    _data = new HashMap<>();
     _backoff = null;
   }
 
   @Override
   public Set<String> keySet() {
     if (_backoff != null) {
-      HashSet<String> all = new HashSet<String>();
+      HashSet<String> all = new HashSet<>();
       all.addAll(_backoff.keySet());
       all.addAll(_data.keySet());
       return all;
@@ -800,7 +718,7 @@ public class Parameters implements Serializable, Map<String,Object> {
 
   @Override
   public Collection<Object> values() {
-    ArrayList<Object> vals = new ArrayList<Object>();
+    ArrayList<Object> vals = new ArrayList<>();
     for(String key : keySet()) {
       vals.add(get(key));
     }
@@ -809,9 +727,9 @@ public class Parameters implements Serializable, Map<String,Object> {
 
   @Override
   public Set<Entry<String, Object>> entrySet() {
-    HashSet<Entry<String,Object>> entries = new HashSet<Entry<String,Object>>();
+    HashSet<Entry<String,Object>> entries = new HashSet<>();
     for(String key : keySet()) {
-      entries.add(new AbstractMap.SimpleImmutableEntry<String,Object>(key, get(key)));
+      entries.add(new AbstractMap.SimpleImmutableEntry<>(key, get(key)));
     }
     return entries;
   }

@@ -124,10 +124,4 @@ public class QuerySetJudgments extends WrappedMap<String, QueryJudgments> {
       if(out != null) out.close();
     }
   }
-
-  /** Simpler interface while generating Qrels programmatically */
-  public void add(String qid, Map<String, Integer> docJudgments) {
-    this.put(qid, new QueryJudgments(qid, docJudgments));
-  }
-
 }

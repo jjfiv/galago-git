@@ -18,6 +18,7 @@ import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.utility.queries.JSONQueryFormat;
 import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.tools.Arguments;
 
 /**
  *
@@ -28,7 +29,7 @@ public class TimedBatchSearch extends AppFunction {
   public static final Logger logger = Logger.getLogger("BatchSearch");
 
   public static void main(String[] args) throws Exception {
-    (new BatchSearch()).run(Parameters.parseArgs(args), System.out);
+    (new BatchSearch()).run(Arguments.parse(args), System.out);
   }
 
   public String getName() {

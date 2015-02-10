@@ -8,6 +8,7 @@ import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.tools.Arguments;
 
 /**
  *
@@ -41,7 +42,7 @@ public class LearnQueryParameters extends AppFunction {
   }
 
   public static void main(String[] args) throws Exception {
-    Parameters p = Parameters.parseArgs(args);
+    Parameters p = Arguments.parse(args);
     new LearnQueryParameters().run(p, System.out);
   }
 }

@@ -55,7 +55,7 @@ public abstract class AppFunction {
         return;
       }
     } else if (args.length > 1) {
-      p = Parameters.parseArgs(Arrays.copyOfRange(args, 1, args.length));
+      p = Arguments.parse(Arrays.copyOfRange(args, 1, args.length));
       // don't want to wipe an existing parameter:
     }
 

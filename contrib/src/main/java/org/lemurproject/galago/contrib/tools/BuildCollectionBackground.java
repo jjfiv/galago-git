@@ -17,6 +17,7 @@ import org.lemurproject.galago.tupleflow.TupleflowAppUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
+import org.lemurproject.galago.utility.tools.Arguments;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -139,6 +140,6 @@ public class BuildCollectionBackground extends AppFunction {
   }
 
   public static void main(String[] args) throws Exception {
-    new BuildCollectionBackground().run(Parameters.parseArgs(args), System.out);
+    new BuildCollectionBackground().run(Arguments.parse(args), System.out);
   }
 }

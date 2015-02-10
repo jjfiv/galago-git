@@ -6,6 +6,7 @@ package org.lemurproject.galago.core.retrieval.traversal;
 import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.tools.Arguments;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,10 +17,10 @@ import static org.junit.Assert.assertEquals;
 public class ReplaceOperatorTraversalTest {
   @Test
   public void testOpRepls() throws Exception {
-    Parameters repls = Parameters.parseArgs(new String[]{
-      "--opRepls/dummy1=test1", 
-      "--opRepls/dummy2+test2", 
-      "--opRepls/dummy2+test3"});
+    Parameters repls = Arguments.parse(new String[]{
+			"--opRepls/dummy1=test1",
+			"--opRepls/dummy2+test2",
+			"--opRepls/dummy2+test3"});
     
     ReplaceOperatorTraversal traversal = new ReplaceOperatorTraversal(Parameters.create());
     

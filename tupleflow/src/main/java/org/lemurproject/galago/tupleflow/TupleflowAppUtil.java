@@ -29,7 +29,7 @@ public class TupleflowAppUtil {
             + "  --distrib={int > 1}:     Selects the number of simultaneous jobs to create\n"
             + "                           [default = 10]\n"
             + "  --server={true|false}:   Selects to use a server to show the progress of a tupleflow execution.\n"
-            + "                           [default = true]\n";
+            + "                           [default = false]\n";
   }
 
   public static boolean runTupleFlowJob(Job job, Parameters p, PrintStream output) throws Exception {
