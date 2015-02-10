@@ -1,6 +1,10 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
+import org.lemurproject.galago.core.parse.tagtok.BeginTag;
+import org.lemurproject.galago.core.parse.tagtok.ClosedTag;
+import org.lemurproject.galago.core.parse.tagtok.IntSpan;
+import org.lemurproject.galago.core.parse.tagtok.StringStatus;
 import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
@@ -31,7 +35,6 @@ public class TagTokenizer extends Tokenizer {
   
   protected static final boolean[] splits;
   protected static HashSet<String> ignoredTags;
-  protected StringPooler pooler = new StringPooler();
   protected String ignoreUntil;
   protected List<Pattern> whitelist;
 
@@ -45,33 +48,10 @@ public class TagTokenizer extends Tokenizer {
   ArrayList<String> tokens;
   HashMap<String, ArrayList<BeginTag>> openTags;
   ArrayList<ClosedTag> closedTags;
-  ArrayList<Pair> tokenPositions;
+  ArrayList<IntSpan> tokenPositions;
   private boolean tokenizeTagContent = true;
 
-  public static final class Pair {
-
-    public Pair(int start, int end) {
-      this.start = start;
-      this.end = end;
-    }
-    public int start;
-    public int end;
-
-    @Override
-    public String toString() {
-      return String.format("%d,%d", start, end);
-    }
-  }
-
-  protected enum StringStatus {
-
-    Clean,
-    NeedsSimpleFix,
-    NeedsComplexFix,
-    NeedsAcronymProcessing
-  }
-
-  public TagTokenizer(TupleFlowParameters parameters) {
+	public TagTokenizer(TupleFlowParameters parameters) {
     this();
     Parameters tokenizerParams = parameters.getJSON();
     if (tokenizerParams.isList("fields") || tokenizerParams.isString("fields")) {
@@ -129,42 +109,7 @@ public class TagTokenizer extends Tokenizer {
     return tags;
   }
 
-  static final class ClosedTag {
-
-    public ClosedTag(BeginTag begin, int start, int end) {
-      this.name = begin.name;
-      this.attributes = begin.attributes;
-
-      this.byteStart = begin.bytePosition;
-      this.termStart = begin.termPosition;
-
-      this.byteEnd = start;
-      this.termEnd = end;
-    }
-    String name;
-    Map<String, String> attributes;
-    int byteStart;
-    int termStart;
-    int byteEnd;
-    int termEnd;
-  }
-
-  static final class BeginTag {
-
-    public BeginTag(String name, Map<String, String> attributes, int bytePosition, int end) {
-      this.name = name;
-      this.attributes = attributes;
-
-      this.bytePosition = bytePosition;
-      this.termPosition = end;
-    }
-    String name;
-    Map<String, String> attributes;
-    int bytePosition;
-    int termPosition;
-  }
-
-  /**
+	/**
    * Resets parsing in preparation for the next document.
    */
   public void reset() {
@@ -328,7 +273,7 @@ public class TagTokenizer extends Tokenizer {
     int tagEnd = text.indexOf(">", i + 1);
     boolean closeIt = false;
 
-    HashMap<String, String> attributes = new HashMap<String, String>();
+    HashMap<String, String> attributes = new HashMap<>();
     while (i < tagEnd && i >= 0 && tagEnd >= 0) {
       // scan ahead for non space
       int start = indexOfNonSpace(i);
@@ -399,7 +344,7 @@ public class TagTokenizer extends Tokenizer {
       BeginTag tag = new BeginTag(tagName, attributes, position + 1, tokens.size());
 
       if (!openTags.containsKey(tagName)) {
-        ArrayList<BeginTag> tagList = new ArrayList<BeginTag>();
+        ArrayList<BeginTag> tagList = new ArrayList<>();
         tagList.add(tag);
         openTags.put(tagName, tagList);
       } else {
@@ -422,10 +367,6 @@ public class TagTokenizer extends Tokenizer {
 
   protected void endParsing() {
     position = text.length();
-  }
-
-  public static String processToken(String t) {
-    return tokenComplexFix(t);
   }
 
   protected void onSplit() {
@@ -481,7 +422,7 @@ public class TagTokenizer extends Tokenizer {
       return;
     }
     tokens.add(token);
-    tokenPositions.add(new Pair(start, end));
+    tokenPositions.add(new IntSpan(start, end));
   }
 
   protected static String tokenComplexFix(String token) {
@@ -735,16 +676,16 @@ public class TagTokenizer extends Tokenizer {
     if (ignoreUntil == null) {
       onSplit();
     }
-    pooler.transform(this.tokens);
+    StringPooler.getInstance().transform(this.tokens);
     document.terms = new ArrayList<>(this.tokens);
-    for (Pair p : this.tokenPositions) {
+    for (IntSpan p : this.tokenPositions) {
       document.termCharBegin.add(p.start);
       document.termCharEnd.add(p.end);
     }
     document.tags = coalesceTags();
   }
 
-  public ArrayList<Pair> getTokenPositions() {
+  public ArrayList<IntSpan> getTokenPositions() {
     return this.tokenPositions;
   }
 }

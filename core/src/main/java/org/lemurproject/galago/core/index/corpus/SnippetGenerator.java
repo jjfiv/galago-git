@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.tagtok.IntSpan;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 
@@ -217,7 +218,7 @@ public class SnippetGenerator {
     this.stemming = stemming;
   }
 
-  private Document parseAsDocument(String text, ArrayList<TagTokenizer.Pair> positions) throws IOException {
+  private Document parseAsDocument(String text, ArrayList<IntSpan> positions) throws IOException {
     Document document = new Document();
     document.text = text;
 
@@ -240,7 +241,7 @@ public class SnippetGenerator {
    * for highlighting query terms in document titles.</p>
    */
   public String highlight(String documentText, Set<String> queryTerms) throws IOException {
-    ArrayList<TagTokenizer.Pair> positions = new ArrayList<TagTokenizer.Pair>();
+    ArrayList<IntSpan> positions = new ArrayList<IntSpan>();
     Document document = parseAsDocument(documentText, positions);
 
     SnippetRegion merged = findSingleRegion(document, queryTerms);
@@ -259,14 +260,14 @@ public class SnippetGenerator {
    * highlighted. The result is an HTML string.</p>
    */
   public String getSnippet(String documentText, Set<String> queryTerms) throws IOException {
-    ArrayList<TagTokenizer.Pair> positions = new ArrayList<TagTokenizer.Pair>();
+    ArrayList<IntSpan> positions = new ArrayList<IntSpan>();
     Document document = parseAsDocument(documentText, positions);
     return generateSnippet(document, positions, queryTerms);
   }
 
   private String generateSnippet(
           final Document document,
-          final ArrayList<TagTokenizer.Pair> positions,
+          final ArrayList<IntSpan> positions,
           final Set<String> queryTerms) {
     ArrayList<SnippetRegion> regions = findMatches(document, queryTerms);
     ArrayList<SnippetRegion> finalRegions = combineRegions(regions);
@@ -304,7 +305,7 @@ public class SnippetGenerator {
     return regions;
   }
 
-  public String buildHtmlString(Snippet best, Document document, ArrayList<TagTokenizer.Pair> positions) {
+  public String buildHtmlString(Snippet best, Document document, ArrayList<IntSpan> positions) {
     StringBuilder builder = new StringBuilder();
 
     for (SnippetRegion region : best.regions) {

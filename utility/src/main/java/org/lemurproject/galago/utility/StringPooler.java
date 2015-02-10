@@ -17,7 +17,12 @@ public class StringPooler {
   private static long DEFAULT_ACTIVE = 100000;
 
   long maxActive;
-  WeakHashMap<String, WeakReference<String>> pool = new WeakHashMap<String, WeakReference<String>>();
+  WeakHashMap<String, WeakReference<String>> pool = new WeakHashMap<>();
+
+	static StringPooler _instance = new StringPooler();
+	public static StringPooler getInstance() {
+		return _instance;
+	}
 
   public StringPooler() {
     this(DEFAULT_ACTIVE);
@@ -33,7 +38,7 @@ public class StringPooler {
    *
    * String pool is weakly referenced - it can be garbage collected
    *
-   * @param terms
+   * @param terms are the list of terms, probably from the document.
    */
   public void transform(List<String> terms) {
     if (maxActive > 0 && pool.size() > maxActive) {
