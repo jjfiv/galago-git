@@ -15,7 +15,7 @@ import java.io.IOException;
 
 /**
  *
- * @author jfoley
+ * @author trevor, irmarc, sjh, jfoley
  */
 final public class PositionIndexExtentSource extends BTreeValueSource implements ExtentSource {
 
@@ -159,6 +159,8 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
             currentDocument = Long.MAX_VALUE;
             return;
         }
+        // We're at the previous document, if we didn't yet load its extents,
+        // we must move past it, either by skipping or by loading them.
         if (!extentsLoaded) {
             if (currentCount > inlineMinimum) {
                 positions.skipBytes(extentsByteSize);
@@ -166,12 +168,16 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
                 loadExtents();
             }
         }
+
+        // Read next document delta and number of positions
         currentDocument += documents.readLong();
         currentCount = counts.readInt();
+
         // Prep the extents
         extentArray.reset();
         extentsLoaded = false;
         try {
+            // Get prepared to read information for the current document, and just read it if it's small enough.
             if (currentCount > inlineMinimum) {
                 extentsByteSize = positions.readInt();
             } else {
@@ -190,6 +196,7 @@ final public class PositionIndexExtentSource extends BTreeValueSource implements
      * that needs to be done when moving forward one in the posting list.
      */
     private void loadExtents() throws IOException {
+        // Do nothing if we've already loaded for this document.
         if (!extentsLoaded) {
             extentArray.setDocument(currentDocument);
             int position = 0;
