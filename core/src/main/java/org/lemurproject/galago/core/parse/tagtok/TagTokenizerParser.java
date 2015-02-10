@@ -1,16 +1,22 @@
 package org.lemurproject.galago.core.parse.tagtok;
 
+import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.parse.Tag;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
-* @author jfoley.
+ * This class deals with the pain of parsing HTML/XML/SGML and splitting words into terms. All Normalization of terms is done in a separate class.
+ * @author trevor, hacked in two by jfoley.
 */
-public final class TagTokenizerParser {
+public final class TagTokenizerParser implements DocumentBuilder {
 	private final int maxTokenLength;
 	public String ignoreUntil;
 	public String text;
@@ -21,6 +27,7 @@ public final class TagTokenizerParser {
 	public HashMap<String, ArrayList<BeginTag>> openTags;
 	public ArrayList<ClosedTag> closedTags;
 	public ArrayList<IntSpan> tokenPositions;
+	TagTokenizerNormalization normalizer;
 
 	public TagTokenizerParser(Parameters argp) {
 		// Max token length is now customizable.
@@ -29,6 +36,7 @@ public final class TagTokenizerParser {
 		openTags = new HashMap<>();
 		closedTags = new ArrayList<>();
 		tokenPositions = new ArrayList<>();
+		normalizer = new TagTokenizerNormalization(this);
 
 		reset();
 	}
@@ -50,9 +58,10 @@ public final class TagTokenizerParser {
 	 * longer than 100 bytes long right now.
 	 *
 	 * @param token  The token to add.
-	 * @param start  The starting byte offset of the token in the document state.text.
-	 * @param end    The ending byte offset of the token in the document state.text.
+	 * @param start  The starting byte offset of the token in the document text.
+	 * @param end    The ending byte offset of the token in the document text.
 	 */
+	@Override
 	public void addToken(final String token, int start, int end) {
 		// zero length tokens aren't interesting
 		if (token.length() <= 0) {
@@ -71,6 +80,50 @@ public final class TagTokenizerParser {
 		tokens.add(token);
 		tokenPositions.add(new IntSpan(start, end));
 	}
+
+	@Override
+	public void finishDocument(Document document, List<Pattern> tagWhitelist) {
+		document.terms = new ArrayList<>(tokens);
+		for (IntSpan p : tokenPositions) {
+			document.termCharBegin.add(p.start);
+			document.termCharEnd.add(p.end);
+		}
+		document.tags = coalesceTags(tagWhitelist);
+	}
+
+	/**
+	 * Translates tags from the internal ClosedTag format to the
+	 * Tag type. Uses the whitelist in the tokenizer to omit tags
+	 * that are not matched by any patterns in the whitelist
+	 */
+	protected ArrayList<Tag> coalesceTags(List<Pattern> whitelist) {
+		ArrayList<Tag> result = new ArrayList<>();
+
+		// close all open tags
+		for (List<BeginTag> tagList : openTags.values()) {
+			for (BeginTag tag : tagList) {
+				for (Pattern p : whitelist) {
+					if (p.matcher(tag.name).matches()) {
+						result.add(new Tag(tag.name, tag.attributes, tag.termPosition, tag.termPosition, tag.bytePosition, tag.bytePosition));
+						break;
+					}
+				}
+			}
+		}
+
+		for (ClosedTag tag : closedTags) {
+			for (Pattern p : whitelist) {
+				if (p.matcher(tag.name).matches()) {
+					result.add(new Tag(tag.name, tag.attributes, tag.termStart, tag.termEnd, tag.byteStart, tag.byteEnd));
+					break;
+				}
+			}
+		}
+
+		Collections.sort(result);
+		return result;
+	}
+
 
 	/** Skip an HTML comment */
 	protected void skipComment() {
@@ -259,33 +312,11 @@ public final class TagTokenizerParser {
 		position = text.length();
 	}
 
-	public void onSplit(TagTokenizer tagTokenizer) {
+	public void onSplit() {
 		if (position - lastSplit > 1) {
 			int start = lastSplit + 1;
 			String token = text.substring(start, position);
-			StringStatus status = TagTokenizerUtil.checkTokenStatus(token);
-
-			switch (status) {
-				case NeedsSimpleFix:
-					token = TagTokenizerUtil.normalizeSimple(token);
-					break;
-
-				case NeedsComplexFix:
-					token = TagTokenizerUtil.normalizeComplex(token);
-					break;
-
-				case NeedsAcronymProcessing:
-					tagTokenizer.tokenAcronymProcessing(token, start, position);
-					break;
-
-				case Clean:
-					// do nothing
-					break;
-			}
-
-			if (status != StringStatus.NeedsAcronymProcessing) {
-				addToken(token, start, position);
-			}
+			normalizer.processAndAddToken(token, start, position);
 		}
 
 		lastSplit = position;
@@ -311,8 +342,8 @@ public final class TagTokenizerParser {
 		lastSplit = position;
 	}
 
-	public void onAmpersand(TagTokenizer tagTokenizer) {
-		onSplit(tagTokenizer);
+	public void onAmpersand() {
+		onSplit();
 
 		for (int i = position + 1; i < text.length(); i++) {
 			char c = text.charAt(i);
@@ -330,4 +361,32 @@ public final class TagTokenizerParser {
 			break;
 		}
 	}
+
+	/**
+	 * This 'main' loop is looking for tags, split characters, and XML escapes, which start with ampersands.  All other characters are assumed to be word characters.  The onSplit() method takes care of extracting word state.text and storing it in the terms array.  The onStartBracket method parses tags. ignoreUntil is used to ignore comments and script data.
+	 */
+	public void parse() {
+		// main parsing loop.
+		for (; position >= 0 && position < text.length(); position++) {
+			char c = text.charAt(position);
+
+			if (c == '<') {
+				if (ignoreUntil == null) {
+					onSplit();
+				}
+				onStartBracket();
+			} else if (ignoreUntil != null) {
+				continue;
+			} else if (c == '&') {
+				onAmpersand();
+			} else if (c < 256 && TagPunctuation.splits[c] && tokenizeTagContent) {
+				onSplit();
+			}
+		}
+
+		if (ignoreUntil == null) {
+			onSplit();
+		}
+	}
+
 }
