@@ -1,10 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.parse;
 
-import org.lemurproject.galago.core.parse.tagtok.BeginTag;
-import org.lemurproject.galago.core.parse.tagtok.ClosedTag;
-import org.lemurproject.galago.core.parse.tagtok.IntSpan;
-import org.lemurproject.galago.core.parse.tagtok.StringStatus;
+import org.lemurproject.galago.core.parse.tagtok.*;
 import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.tupleflow.*;
 import org.lemurproject.galago.tupleflow.execution.Verified;
@@ -32,16 +29,11 @@ import java.util.regex.Pattern;
 @OutputClass(className = "org.lemurproject.galago.core.parse.Document")
 public class TagTokenizer extends Tokenizer {
   public static final Logger log = Logger.getLogger(TagTokenizer.class.getName());
-  
-  protected static final boolean[] splits;
-  protected static HashSet<String> ignoredTags;
+	protected static HashSet<String> ignoredTags = new HashSet<>(Arrays.asList("script", "style"));
+
   protected String ignoreUntil;
   protected List<Pattern> whitelist;
 
-  static {
-    splits = buildSplits();
-    ignoredTags = buildIgnoredTags();
-  }
   protected String text;
   protected int position;
   protected int lastSplit;
@@ -74,39 +66,8 @@ public class TagTokenizer extends Tokenizer {
     whitelist = new ArrayList<>();
   }
 
-  protected static boolean[] buildSplits() {
-    boolean[] localSplits = new boolean[257];
-
-    for (int i = 0; i < localSplits.length; i++) {
-      localSplits[i] = false;
-    }
-    char[] splitChars = {' ', '\t', '\n', '\r', // spaces
-      ';', '\"', '&', '/', ':', '!', '#',
-      '?', '$', '%', '(', ')', '@', '^',
-      '*', '+', '-', ',', '=', '>', '<', '[',
-      ']', '{', '}', '|', '`', '~', '_'
-    };
-
-    for (char c : splitChars) {
-      localSplits[(byte) c] = true;
-    }
-
-    for (byte c = 0; c <= 32; c++) {
-      localSplits[c] = true;
-    }
-
-    return localSplits;
-  }
-
-  public void addField(String f) {
+	public void addField(String f) {
     whitelist.add(Pattern.compile(f));
-  }
-
-  protected static HashSet<String> buildIgnoredTags() {
-    HashSet<String> tags = new HashSet<>();
-    tags.add("style");
-    tags.add("script");
-    return tags;
   }
 
 	/**
@@ -665,7 +626,7 @@ public class TagTokenizer extends Tokenizer {
           continue;
         } else if (c == '&') {
           onAmpersand();
-        } else if (c < 256 && splits[c] && tokenizeTagContent) {
+        } else if (c < 256 && TagPunctuation.splits[c] && tokenizeTagContent) {
           onSplit();
         }
       }
