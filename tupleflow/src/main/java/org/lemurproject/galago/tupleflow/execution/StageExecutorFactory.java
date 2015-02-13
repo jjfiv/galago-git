@@ -3,6 +3,10 @@
 package org.lemurproject.galago.tupleflow.execution;
 
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.reflection.ReflectUtil;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 /**
@@ -12,6 +16,9 @@ import java.util.Arrays;
  * @author trevor,sjh
  */
 public class StageExecutorFactory {
+    /** lazyily-init reference to GridEngine executor if it exists on classpath */
+    protected static Constructor<? extends StageExecutor> drmaaExecutor = null;
+
     public static StageExecutor newInstance(String name, String... args) {
         if (name == null) {
             name = "local";
@@ -36,7 +43,20 @@ public class StageExecutorFactory {
         } else if (name.equals("remotedebug")) {
             return new LocalCheckpointedStageExecutor();
         } else if (name.startsWith("drmaa")) {
-            return new DRMAAStageExecutor(args);
+            // Cache this constructor statically for further calls.
+            if(drmaaExecutor == null) {
+                try {
+                    drmaaExecutor = ReflectUtil.getConstructor("org.lemurproject.galago.tupleflow.execution.DRMAAStageExecutor", String[].class);
+                } catch (ReflectiveOperationException e) {
+                    throw new IllegalArgumentException("Sorry, you need tupleflow-gridengine on the class path to use mode=drmaa.", e);
+                }
+            }
+            // Instantiate via reflection or die.
+            try {
+                return drmaaExecutor.newInstance(args);
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException("Couldn't instantiate DRMAAStageExecutor with args="+ Arrays.toString(args), e);
+            }
         } else {
             return new LocalCheckpointedStageExecutor();
         }

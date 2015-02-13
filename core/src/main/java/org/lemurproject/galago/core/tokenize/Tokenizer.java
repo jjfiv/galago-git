@@ -152,7 +152,7 @@ public abstract class Tokenizer implements Source<Document>, Processor<Document>
           break;
         }
       }
-    } catch (Exception ex) {
+    } catch (ReflectiveOperationException ex) {
       Logger.getLogger(Tokenizer.class.getName()).log(Level.SEVERE, null, ex);
     }
 

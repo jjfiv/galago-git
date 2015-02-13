@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -7,16 +6,16 @@
     <version>3.8-SNAPSHOT</version>
   </parent>
   <groupId>org.lemurproject.galago</groupId>
-  <artifactId>krovetz-stemmer</artifactId>
+  <artifactId>tupleflow-gridengine</artifactId>
   <packaging>jar</packaging>
   <version>3.8-SNAPSHOT</version>
-  <name>krovetz-stemmer</name>
-  <url>http://lemurproject.org/galago/php</url>
-  <description>Galago is a toolkit for experimenting with search engines and text processing.</description>
+  <name>tupleflow-gridengine</name>
+  <url>http://lemurproject.org/galago.php</url>
+  <description>TupleFlow is the distributed computation layer of Galago.</description>
   <licenses>
     <license>
       <name>BSD license</name>
-      <url>http://www.lemurproject.org/galago-license.html</url>
+      <url>http://lemurproject.org/galago-license.html</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -25,15 +24,29 @@
     <developerConnection>scm:hg:ssh://USERNAME@lemur.hg.sourceforge.net/hgroot/lemur/galago</developerConnection>
     <url>http://lemur.hg.sourceforge.net/hgweb/lemur/galago/</url>
   </scm>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.ggf.drmaa</groupId>
+      <artifactId>drmaa</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>tupleflow</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
   <reporting>
     <plugins>
       <plugin>
-        <version>2.16</version>
         <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <forkMode>once</forkMode>
-          <argLine>-Xms1500m -Xmx1900m -Dfile.encoding=UTF-8</argLine>
-        </configuration>
+        <version>2.16</version>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -42,23 +55,9 @@
       </plugin>
     </plugins>
   </reporting>
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+
   <build>
     <plugins>
-      <plugin>
-        <version>2.7.1</version>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <forkMode>once</forkMode>
-          <argLine>-Xms1500m -Xmx1900m -Dfile.encoding=UTF-8</argLine>
-        </configuration>
-      </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.1</version>

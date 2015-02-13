@@ -15,6 +15,7 @@ import org.lemurproject.galago.tupleflow.Source;
 import org.lemurproject.galago.tupleflow.Step;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.execution.ErrorStore;
+import org.lemurproject.galago.utility.reflection.ReflectUtil;
 
 /**
  * 
@@ -119,12 +120,12 @@ public abstract class Stemmer implements Source<Document>, Processor<Document> {
    * @deprecated use create instead.
    */
   @Deprecated
-  public static Stemmer instance(Parameters p) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+  public static Stemmer instance(Parameters p) throws ReflectiveOperationException {
     return create(p);
   }
-  public static Stemmer create(Parameters p) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+  public static Stemmer create(Parameters p) throws ReflectiveOperationException {
     if(p.containsKey("stemmer")) {
-      return (Stemmer) Class.forName(p.getString("stemmer")).newInstance();
+      return ReflectUtil.instantiate(p.getString("stemmer"));
     }
     return new NullStemmer();
   }
