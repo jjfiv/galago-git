@@ -61,11 +61,24 @@ public class ParametersTest {
     assertTrue(p.isString("str"));
     assertFalse(p.isLong("str"));
     assertEquals("TestString", p.getString("str"));
+
+  }
+
+  @Test
+  public void testPutIfNotNull() {
+    Parameters p = Parameters.create();
+    p.putIfNotNull("abcd", null);
+    assertEquals(0, p.size());
+    assertFalse(p.containsKey("abcd"));
+    p.putIfNotNull(null, "foo");
+    assertEquals(0, p.size());
+    p.putIfNotNull("foo", "bar");
+    assertEquals("bar", p.getString("foo"));
   }
 
   @Test
   public void testAddLists() throws Exception {
-    ArrayList<String> a = new ArrayList<String>();
+    ArrayList<String> a = new ArrayList<>();
     a.add("woot");
     a.add("yeah");
 
@@ -179,7 +192,7 @@ public class ParametersTest {
     tokenizer.set("formats", formats);
     String[] fields = {"title", "date", "version"};
     tokenizer.set("fields", Arrays.asList(fields));
-    ArrayList<Parameters> pList = new ArrayList<Parameters>();
+    ArrayList<Parameters> pList = new ArrayList<>();
     pList.add(Parameters.parseString("{\"text\":\"query text one\", \"number\":\"10\"}"));
     pList.add(Parameters.parseString("{\"text\":\"query text two\", \"number\":\"11\"}"));
 
@@ -203,7 +216,7 @@ public class ParametersTest {
 
   @Test
   public void testParseMap() {
-    Map<String,String> data = new HashMap<String,String>();
+    Map<String,String> data = new HashMap<>();
     data.put("keyA", "0");
     data.put("keyB", "1");
     Parameters test = Parameters.parseMap(data);

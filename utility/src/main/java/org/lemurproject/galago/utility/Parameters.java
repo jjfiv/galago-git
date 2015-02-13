@@ -24,7 +24,7 @@ public class Parameters implements Serializable, Map<String,Object> {
 
   private static final long serialVersionUID = 4553653651892088435L;
 
-  private HashMap<String,Object> _data;
+  private Map<String,Object> _data;
 
   private Parameters _backoff;
 
@@ -664,6 +664,13 @@ public class Parameters implements Serializable, Map<String,Object> {
     } else {
       throw new IllegalArgumentException("No key '"+key+"' present in Parameters object.");
     }
+  }
+
+  /** Put only if key and value are not null */
+  public void putIfNotNull(String k, Object v) {
+    if(v == null) return;
+    if(k == null) return;
+    this.put(k,v);
   }
 
   @Override
