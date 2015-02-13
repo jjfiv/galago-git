@@ -53,8 +53,14 @@ public class StageExecutorFactory {
             }
             // Instantiate via reflection or die.
             try {
-                return drmaaExecutor.newInstance(args);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+              Object[] argsAsObject = new Object[]{args};
+              return drmaaExecutor.newInstance(argsAsObject);
+            } catch (InvocationTargetException e) {
+              if(e.getCause() instanceof UnsatisfiedLinkError) {
+                throw new IllegalArgumentException("Sorry, in order to use mode=drmaa, you need to be on a GridEngine machine!");
+              }
+              throw new RuntimeException("Couldn't instantiate DRMAAStageExecutor with args="+ Arrays.toString(args), e);
+            } catch (ReflectiveOperationException e) {
                 throw new RuntimeException("Couldn't instantiate DRMAAStageExecutor with args="+ Arrays.toString(args), e);
             }
         } else {

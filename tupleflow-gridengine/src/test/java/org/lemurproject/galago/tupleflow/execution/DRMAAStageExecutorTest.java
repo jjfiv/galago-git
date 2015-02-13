@@ -15,4 +15,14 @@ public class DRMAAStageExecutorTest {
       assertEquals("no drmaa in java.library.path", e.getMessage());
     }
   }
+
+  @Test
+  public void smokeTest2() {
+    try {
+      assertNotNull(StageExecutorFactory.newInstance("drmaa"));
+    } catch (IllegalArgumentException e) {
+      // This is the error you get when not running on GridEngine!
+      assertEquals("Sorry, in order to use mode=drmaa, you need to be on a GridEngine machine!", e.getMessage());
+    }
+  }
 }
