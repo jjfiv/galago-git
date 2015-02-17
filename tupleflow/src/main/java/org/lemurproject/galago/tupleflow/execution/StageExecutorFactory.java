@@ -56,7 +56,7 @@ public class StageExecutorFactory {
               Object[] argsAsObject = new Object[]{args};
               return drmaaExecutor.newInstance(argsAsObject);
             } catch (InvocationTargetException e) {
-              if(e.getCause() instanceof UnsatisfiedLinkError) {
+              if(e.getCause() instanceof UnsatisfiedLinkError || e.getCause() instanceof NoClassDefFoundError) {
                 throw new IllegalArgumentException("Sorry, in order to use mode=drmaa, you need to be on a GridEngine machine!");
               }
               throw new RuntimeException("Couldn't instantiate DRMAAStageExecutor with args="+ Arrays.toString(args), e);
