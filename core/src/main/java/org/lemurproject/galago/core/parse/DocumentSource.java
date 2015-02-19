@@ -183,6 +183,8 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
     if (fileType != null) {
       DocumentSplit split = DocumentSplitFactory.file(fp, fileType);
       return Collections.singletonList(split);
+    }else {
+        logger.warning(String.format("No parser found for file extension: %s.\n", extension));
     }
 
     return Collections.emptyList();
