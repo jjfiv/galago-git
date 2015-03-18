@@ -88,11 +88,11 @@ public class VByte {
 
   public static int uncompressInt(DataInput input) throws IOException {
     int result = 0;
-    int b;
 
     for (int position = 0; true; position++) {
       assert position < 6;
-      b = input.readUnsignedByte();
+      int b = input.readUnsignedByte();
+      //System.out.printf("Vbyte: %02x\n",b);
       if ((b & 0x80) == 0x80) {
         result |= ((b & 0x7f) << (7 * position));
         break;
@@ -106,11 +106,10 @@ public class VByte {
 
   public static int uncompressInt(byte[] input, int offset) throws IOException {
     int result = 0;
-    int b;
 
     for (int position = 0; true; position++) {
       assert input.length < 6;
-      b = input[position + offset];
+      int b = input[position + offset];
       if ((b & 0x80) == 0x80) {
         result |= ((b & 0x7f) << (7 * position));
         break;

@@ -14,7 +14,7 @@ import java.io.IOException;
 */
 public class DiskBTreeIterator extends BTreeIterator {
 
-  private final ReadableBuffer input;
+  public final ReadableBuffer input;
   private final VocabularyReader vocabulary;
   private final long fileLength;
   private final int cacheGroupSize;
