@@ -1,6 +1,7 @@
 
 package org.lemurproject.galago.tupleflow;
 
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.StreamUtil;
 
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -17,7 +19,7 @@ import java.util.logging.Logger;
  */
 public class FileUtility {
   private static final Logger LOG = Logger.getLogger(FileUtility.class.getName());
-  private static final List<String> roots = new ArrayList<>();
+  private static final Set<String> roots = new ConcurrentHashSet<>();
 
   // dynamically add to the set of roots
   public static void addTemporaryDirectory(String path) {
@@ -109,10 +111,12 @@ public class FileUtility {
 
   public static File createTemporary() throws IOException {
     File temporary;
+    // looks for the biggest "tmpdir" pref
     String root = getBestTemporaryLocation();
     if (root != null) {
       temporary = File.createTempFile("tupleflow", "", new File(root));
     } else {
+      // OS Default: /tmp/
       temporary = File.createTempFile("tupleflow", "");
     }
 
@@ -142,6 +146,6 @@ public class FileUtility {
   }
 
   public static List<String> getRoots() {
-    return roots;
+    return new ArrayList<>(roots);
   }
 }
