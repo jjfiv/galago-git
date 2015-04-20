@@ -1,20 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow.execution;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.UnsupportedEncodingException;
+import org.lemurproject.galago.tupleflow.ExNihiloSource;
+import org.lemurproject.galago.tupleflow.GalagoConf;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
-import javax.xml.parsers.ParserConfigurationException;
-import org.lemurproject.galago.tupleflow.ExNihiloSource;
-import org.xml.sax.SAXException;
 
 /**
  *
@@ -212,6 +208,10 @@ public class LocalStageExecutor implements StageExecutor {
 
     logger.info(
             "Initializing: " + stageDescriptionFile);
+
+    // This should also trigger the static initializer on GalagoConf which will load the parameters if need be.
+    // It also nicely dumps them to a log so you should be able to tell if its using the file you think you're using.
+    logger.info(".galago.conf: "+GalagoConf.getAllOptions().toString());
 
     // Need this to deal with slow lustre filesystem on swarm...
     int count = 0;
