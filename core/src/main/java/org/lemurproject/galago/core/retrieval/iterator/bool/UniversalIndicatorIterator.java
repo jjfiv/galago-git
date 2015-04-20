@@ -1,12 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.core.retrieval.iterator;
+package org.lemurproject.galago.core.retrieval.iterator.bool;
+
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ConjunctionIterator;
+import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
  * Implements the #all indicator operator.

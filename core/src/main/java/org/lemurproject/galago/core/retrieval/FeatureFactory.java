@@ -2,6 +2,8 @@
 package org.lemurproject.galago.core.retrieval;
 
 import org.lemurproject.galago.core.retrieval.iterator.*;
+import org.lemurproject.galago.core.retrieval.iterator.bool.ExistentialIndicatorIterator;
+import org.lemurproject.galago.core.retrieval.iterator.bool.UniversalIndicatorIterator;
 import org.lemurproject.galago.core.retrieval.iterator.counts.LogCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.counts.CountsSumIterator;
 import org.lemurproject.galago.core.retrieval.iterator.scoring.*;
