@@ -88,7 +88,7 @@ public abstract class Scored implements Serializable {
     return results;
   }
 
-  public static Comparator<Scored> byScore = new Comparator<Scored>() {
+  public static Comparator<? super Scored> byScore = new Comparator<Scored>() {
     @Override
     public int compare(Scored lhs, Scored rhs) {
       return CmpUtil.compare(lhs.score, rhs.score);

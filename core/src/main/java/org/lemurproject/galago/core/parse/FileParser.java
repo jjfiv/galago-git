@@ -54,18 +54,22 @@ class FileParser extends DocumentStreamParser {
   }
 
   /**
-   * finds the first <title> in the string
+   * finds the first &lt;title&gt; in the string
    */
   public String getTitle(String text) {
-    int start = text.indexOf("<title>");
-    if (start < 0) {
+    try {
+      int start = text.indexOf("<title>");
+      if (start < 0) {
+        return "";
+      }
+      int end = text.indexOf("</title>", start);
+      if (end < 0) {
+        return "";
+      }
+      return new String(text.substring(start + "<title>".length(), end));
+    } catch (StringIndexOutOfBoundsException ex) {
       return "";
     }
-    int end = text.indexOf("</title>");
-    if (end < 0) {
-      return "";
-    }
-    return new String(text.substring(start + "<title>".length(), end));
   }
 
   @Override

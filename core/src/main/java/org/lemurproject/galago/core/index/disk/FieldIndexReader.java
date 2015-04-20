@@ -124,7 +124,7 @@ public class FieldIndexReader extends KeyListReader {
     public String getKeyString() throws IOException {
       return ByteUtil.toString(getKey());
     }
-  }
+	}
 
   public static class ListIterator extends BTreeValueIterator
           implements BaseIterator {

@@ -21,7 +21,7 @@ import java.io.IOException;
  */
 public abstract class KeyValueReader implements IndexPartReader {
 
-  protected BTreeReader reader;
+  public BTreeReader reader;
 
   public KeyValueReader(String filename) throws IOException {
     reader = BTreeFactory.getBTreeReader(filename);

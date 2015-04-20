@@ -1,8 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
-import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+
+import java.io.IOException;
 
 /**
  * Each iterator from an index has an extra two methods,
