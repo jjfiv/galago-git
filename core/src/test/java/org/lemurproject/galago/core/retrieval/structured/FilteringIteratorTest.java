@@ -114,7 +114,7 @@ public class FilteringIteratorTest {
     tree = retrieval.transformQuery(tree, qp);
 
     List<ScoredDocument> results = retrieval.executeQuery(tree, qp).scoredDocuments;
-    assertEquals(5, results.size());
+    assertEquals(3, results.size());
 
     // Check each doc - don't really care about order
     int i = 0;
@@ -122,8 +122,13 @@ public class FilteringIteratorTest {
     res.add(1l);
     res.add(2l);
     res.add(5l);
-    res.add(3l); // rejected with tinyScore
-    res.add(18l); // rejected with tinyScore
+
+    // jfoley hg commit 1176,1177
+    // These are no longer added to the result set when rejected
+    // This gives a more true "boolean" output.
+
+    //res.add(3l); // rejected with tinyScore
+    //res.add(18l); // rejected with tinyScore
     for (ScoredDocument sd : results) {
       assertTrue(res.get(i++) == sd.document);
     }

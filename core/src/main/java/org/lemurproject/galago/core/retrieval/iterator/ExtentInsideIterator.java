@@ -62,9 +62,8 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
     @Override
     public void loadExtentsCommon(ScoringContext c) {
 
-        if (innerIterator.isDone() || !innerIterator.hasMatch(c)
-                || outerIterator.isDone() || !outerIterator.hasMatch(c)) {
-            // then we can't have any extentCache for this document
+        if (innerIterator.isDone() || !innerIterator.hasMatch(c) || outerIterator.isDone() || !outerIterator.hasMatch(c)) {
+        // then we can't have any extentCache for this document
             return;
         }
 

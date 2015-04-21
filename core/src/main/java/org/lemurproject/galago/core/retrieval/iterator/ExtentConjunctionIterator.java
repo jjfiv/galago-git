@@ -55,24 +55,6 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
         return extents(c).size();
     }
 
-    public void loadExtents(long document) {
-        ScoringContext c = new ScoringContext();
-        c.document = document;
-        c.cachable = false; // TODO: not sure if this should be true or false
-
-        // reset the extentCache
-        extentCache.reset();
-        extentCache.setDocument(c.document);
-
-        // if we're done - quit now 
-        //  -- (leaving extentCache object empty just in cast someone asks for them.)
-        if (isDone()) {
-            return;
-        }
-
-        loadExtentsCommon(c);
-    }
-
     public void loadExtents(ScoringContext c) {
 
         if (c.equals(cachedContext)) {
@@ -124,11 +106,8 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
 
     @Override
     public boolean hasMatch(ScoringContext context) {
-
         if (super.hasMatch(context)) {
-
             loadExtents(context);
-
             return (extentCache.getDocument() == context.document && extentCache.size() > 0);
         }
         return false;

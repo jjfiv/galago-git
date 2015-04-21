@@ -16,7 +16,7 @@ import java.util.List;
  *
  * This iterator considers all documents, but only has a "match" if the condition is false.
  *
- * @author irmarc
+ * @author irmarc, jfoley
  */
 public class RejectIterator extends TransformIterator implements ScoreIterator, CountIterator, ExtentIterator {
   private final BaseIterator dataIter;
@@ -62,7 +62,7 @@ public class RejectIterator extends TransformIterator implements ScoreIterator, 
 
   @Override
   public boolean hasMatch(ScoringContext sc) {
-    return condition(sc);
+    return dataIter.hasMatch(sc) && condition(sc);
   }
 
   @Override
