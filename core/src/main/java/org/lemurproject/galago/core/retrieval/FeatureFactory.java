@@ -3,7 +3,7 @@ package org.lemurproject.galago.core.retrieval;
 
 import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.iterator.bool.BinaryCountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.bool.BinaryScoreIterator;
+import org.lemurproject.galago.core.retrieval.iterator.bool.BooleanScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.bool.ExistentialIndicatorIterator;
 import org.lemurproject.galago.core.retrieval.iterator.bool.UniversalIndicatorIterator;
 import org.lemurproject.galago.core.retrieval.iterator.counts.CountsSumIterator;
@@ -86,7 +86,7 @@ public class FeatureFactory {
     // indicator -> count iterators
     {BinaryCountIterator.class.getName(), "bool-to-count"},
     // indicator -> score iterators
-    {BinaryScoreIterator.class.getName(), "bool"},
+    {BooleanScoreIterator.class.getName(), "bool"},
 
     // generic iterators
     {RequireIterator.class.getName(), "require"},
@@ -347,7 +347,11 @@ public class FeatureFactory {
           "FAILED AT: " + failStr);
     }
 
-    return (BaseIterator) cons[ic].newInstance(arguments.toArray(new Object[arguments.size()]));
+    try {
+      return (BaseIterator) cons[ic].newInstance(arguments.toArray(new Object[arguments.size()]));
+    } catch (Exception ex) {
+      throw new RuntimeException("Couldn't instantiate class: "+c.getName(), ex);
+    }
   }
 
   public List<String> getTraversalNames() {

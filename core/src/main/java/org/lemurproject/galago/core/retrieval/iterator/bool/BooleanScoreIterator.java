@@ -5,15 +5,17 @@ import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.iterator.TransformIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 import java.io.IOException;
 
 /**
+ * #bool()
  * Converts a boolean query into a "scoring" query so that Galago can output a set rather than a ranked list.
  * @author jfoley.
  */
-public class BinaryScoreIterator extends TransformIterator implements ScoreIterator {
-	public BinaryScoreIterator(IndicatorIterator iterator) {
+public class BooleanScoreIterator extends TransformIterator implements ScoreIterator {
+	public BooleanScoreIterator(NodeParameters np, IndicatorIterator iterator) {
 		super(iterator);
 	}
 
