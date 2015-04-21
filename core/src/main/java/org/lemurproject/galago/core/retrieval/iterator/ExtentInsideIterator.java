@@ -1,9 +1,10 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+
+import java.io.IOException;
 
 /**
  * <p>
@@ -61,8 +62,8 @@ public class ExtentInsideIterator extends ExtentConjunctionIterator {
     @Override
     public void loadExtentsCommon(ScoringContext c) {
 
-        if (innerIterator.isDone() || !innerIterator.hasMatch(c.document)
-                || outerIterator.isDone() || !outerIterator.hasMatch(c.document)) {
+        if (innerIterator.isDone() || !innerIterator.hasMatch(c)
+                || outerIterator.isDone() || !outerIterator.hasMatch(c)) {
             // then we can't have any extentCache for this document
             return;
         }

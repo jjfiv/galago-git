@@ -97,7 +97,7 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Sco
     String className = this.getClass().getSimpleName();
     String parameters = np.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = new ArrayList<>();
     for (BaseIterator child : this.iterators) {

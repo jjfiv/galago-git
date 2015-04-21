@@ -4,14 +4,14 @@
  */
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.util.ArrayList;
-
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.utility.Parameters;
+
+import java.util.ArrayList;
 
 /**
  * Implements standard boolean processing model. Results are not ranked, just
@@ -44,10 +44,11 @@ public class SetModel extends ProcessingModel {
       // ensure we are at the document we wish to score
       // -- this function will move ALL iterators, 
       //     not just the ones that do not have all candidates
-      iterator.syncTo(iterator.currentCandidate());
+      context.document = iterator.currentCandidate();
+      iterator.syncTo(context.document);
 
-      if (iterator.hasMatch(iterator.currentCandidate())) {
-        list.add(new ScoredDocument(iterator.currentCandidate(), 1.0));
+      if (iterator.hasMatch(context)) {
+        list.add(new ScoredDocument(context.document, 1.0));
       }
       iterator.movePast(iterator.currentCandidate());
     }

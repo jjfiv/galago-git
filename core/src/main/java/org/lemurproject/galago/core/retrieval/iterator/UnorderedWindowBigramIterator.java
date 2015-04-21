@@ -27,7 +27,7 @@ public class UnorderedWindowBigramIterator extends ExtentConjunctionIterator {
     public void loadExtentsCommon(ScoringContext c) {
 
         // we can not load any extentCache if the iterator is done - or is at the wrong document.
-        if (iterators[0].isDone() || iterators[1].isDone() || !iterators[0].hasMatch(c.document) || !iterators[1].hasMatch(c.document)) {
+        if (iterators[0].isDone() || iterators[1].isDone() || !iterators[0].hasMatch(c) || !iterators[1].hasMatch(c)) {
             return;
         }
 

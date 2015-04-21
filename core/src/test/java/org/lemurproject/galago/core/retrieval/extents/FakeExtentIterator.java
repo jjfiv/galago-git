@@ -78,11 +78,11 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
   }
 
   @Override
-  public boolean hasMatch(long identifier) {
+  public boolean hasMatch(ScoringContext context) {
     if (isDone()) {
       return false;
     } else {
-      return (currentCandidate() == identifier);
+      return (currentCandidate() == context.document);
     }
   }
 
@@ -133,9 +133,9 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = extents(c).toString();
-    List<AnnotatedNode> children = Collections.EMPTY_LIST;
+    List<AnnotatedNode> children = Collections.emptyList();
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }

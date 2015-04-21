@@ -5,7 +5,6 @@ package org.lemurproject.galago.core.index.geometric;
 
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.CmpUtil;
 
 import java.io.IOException;
@@ -39,8 +38,8 @@ public abstract class DisjointIndexesIterator implements BaseIterator {
   }
 
   @Override
-  public boolean hasMatch(long identifier) {
-    return (head.currentCandidate() == identifier);
+  public boolean hasMatch(ScoringContext context) {
+    return (head.currentCandidate() == context.document);
   }
 
   @Override

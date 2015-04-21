@@ -177,7 +177,7 @@ public class ExtentIndexReaderTest {
 
     assertFalse(extents.isDone());
     extents.syncTo(453);
-    assertFalse(extents.hasMatch(453));
+    assertFalse(extents.hasMatch(new ScoringContext(453)));
     assertEquals(454, extents.currentCandidate());
     extents.movePast(extents.currentCandidate());
     assertEquals(457, extents.currentCandidate());
@@ -193,7 +193,7 @@ public class ExtentIndexReaderTest {
       eait.next();
     }
     extents.syncTo(1299);
-    assertFalse(extents.hasMatch(1299));
+    assertFalse(extents.hasMatch(new ScoringContext(1299)));
     extents.movePast(2100);
     assertTrue(extents.isDone());
     reader.close();

@@ -1,9 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator.disk;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import org.lemurproject.galago.core.index.disk.DiskLengthSource;
 import org.lemurproject.galago.core.index.source.LengthSource;
 import org.lemurproject.galago.core.index.stats.CollectionAggregateIterator;
@@ -11,6 +8,10 @@ import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * DiskLengthsIterator wraps the disk-based DiskLengthSource
@@ -39,9 +40,9 @@ public class DiskLengthsIterator extends SourceIterator
     String className = this.getClass().getSimpleName();
     String parameters = getKeyString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = Integer.toString(length(c));
-    List<AnnotatedNode> children = Collections.EMPTY_LIST;
+    List<AnnotatedNode> children = Collections.emptyList();
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 

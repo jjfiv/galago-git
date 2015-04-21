@@ -47,7 +47,7 @@ public class RankedDocumentModel extends ProcessingModel {
       // This context is shared among all scorers
       context.document = document;
       iterator.syncTo(document);
-      if (iterator.hasMatch(document)) {
+      if (iterator.hasMatch(context)) {
         double score = iterator.score(context);
         if (requested < 0 || queue.size() < requested || queue.peek().score < score) {
           ScoredDocument scoredDocument = new ScoredDocument(document, score);

@@ -3,13 +3,13 @@
  */
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Performs a log-space probablistic not operation
@@ -40,7 +40,7 @@ public class LogProbNotIterator extends TransformIterator implements ScoreIterat
   }
 
   @Override
-  public boolean hasMatch(long identifier) {
+  public boolean hasMatch(ScoringContext context) {
     return true;
   }
 
@@ -76,7 +76,7 @@ public class LogProbNotIterator extends TransformIterator implements ScoreIterat
     String className = this.getClass().getSimpleName();
     String parameters = np.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
 

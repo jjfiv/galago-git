@@ -76,7 +76,7 @@ public class RankedPassageModel extends ProcessingModel {
             boolean lastIteration = false;
             // short-circut the while loop if there is no match. Don't do
             // it in the while condtion check - no need to re-evaluate every time.
-            if (!iterator.hasMatch(document)) {
+            if (!iterator.hasMatch(context)) {
                 lastIteration = true;
             }
 

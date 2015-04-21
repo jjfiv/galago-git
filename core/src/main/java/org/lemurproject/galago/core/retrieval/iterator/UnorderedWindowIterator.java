@@ -35,8 +35,7 @@ public class UnorderedWindowIterator extends ExtentConjunctionIterator {
         arrayIterators = new ExtentArrayIterator[iterators.length];
 
         for (int i = 0; i < iterators.length; i++) {
-            if (iterators[i].isDone()
-                    || !iterators[i].hasMatch(c.document)) {
+            if (iterators[i].isDone() || !iterators[i].hasMatch(c)) {
                 // we can not load any extentCache if the iterator is done - or is at the wrong document.
                 return;
             }

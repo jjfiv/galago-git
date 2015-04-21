@@ -317,7 +317,7 @@ public class LocalRetrieval implements Retrieval {
 
             while (!iterator.isDone()) {
                 sc.document = iterator.currentCandidate();
-                if (iterator.hasMatch(iterator.currentCandidate())) {
+                if (iterator.hasMatch(sc)) {
                     int len = iterator.length(sc);
                     s.collectionLength += len;
                     s.documentCount += 1;
@@ -382,7 +382,7 @@ public class LocalRetrieval implements Retrieval {
 
             while (!iterator.isDone()) {
                 sc.document = iterator.currentCandidate();
-                if (iterator.hasMatch(iterator.currentCandidate())) {
+                if (iterator.hasMatch(sc)) {
                     int c = iterator.count(sc);
                     s.nodeFrequency += iterator.count(sc);
                     s.maximumCount = Math.max(iterator.count(sc), s.maximumCount);

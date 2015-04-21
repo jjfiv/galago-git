@@ -94,9 +94,9 @@ public class WeightedSumIterator extends DisjunctionIterator implements ScoreIte
     String className = this.getClass().getSimpleName();
     String parameters = np.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = Double.toString(score(c));
-    List<AnnotatedNode> children = new ArrayList();
+    List<AnnotatedNode> children = new ArrayList<>();
     for (BaseIterator child : this.iterators) {
       children.add(child.getAnnotatedNode(c));
     }

@@ -5,7 +5,6 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.CmpUtil;
 
 /**
@@ -83,7 +82,7 @@ public abstract class DisjunctionIterator implements BaseIterator {
   }
 
   @Override
-  public boolean hasMatch(long candidate) {
+  public boolean hasMatch(ScoringContext candidate) {
     for (BaseIterator iterator : drivingIterators) {
       if (iterator.hasMatch(candidate)) {
         return true;

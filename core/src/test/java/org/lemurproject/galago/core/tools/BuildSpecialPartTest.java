@@ -88,9 +88,9 @@ public class BuildSpecialPartTest {
             // Test it as a value iterator
             IndicatorIterator vIt = reader.getIterator(StructuredQuery.parse("#indicator:part=testingIndicators()"));
             assertFalse(vIt.isDone());
-            assertTrue(vIt.hasMatch(0));
+            assertTrue(vIt.hasMatch(new ScoringContext(0)));
             vIt.movePast(0);
-            assertTrue(vIt.hasMatch(2));
+            assertTrue(vIt.hasMatch(new ScoringContext(2)));
             vIt.movePast(2);
             assertFalse(vIt.isDone());
             //assertFalse(vIt.hasMatch(3));  // jfoley - has a match, but the value is false

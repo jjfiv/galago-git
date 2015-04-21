@@ -25,6 +25,12 @@ public class BooleanScoreIterator extends TransformIterator implements ScoreIter
 	}
 
 	@Override
+	public boolean hasMatch(ScoringContext c) {
+		IndicatorIterator iter = (IndicatorIterator) iterator;
+		return iter.hasMatch(c) && iter.indicator(c);
+	}
+
+	@Override
 	public double maximumScore() {
 		return 1.0;
 	}

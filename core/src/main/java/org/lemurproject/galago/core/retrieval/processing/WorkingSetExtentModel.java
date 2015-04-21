@@ -133,7 +133,7 @@ public class WorkingSetExtentModel extends ProcessingModel {
           context.end = extents.end(e + extentSetSize - 1);
         }
 
-        if (iterator.hasMatch(document)) {
+        if (iterator.hasMatch(context)) {
 
           double score = iterator.score(context);
           if (requested < 0 || queue.size() < requested || queue.peek().score < score) {

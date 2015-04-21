@@ -1,13 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator.disk;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import org.lemurproject.galago.core.index.source.ScoreSource;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -33,7 +34,7 @@ public class DiskScoreIterator extends SourceIterator implements ScoreIterator {
     String className = this.getClass().getSimpleName();
     String parameters = this.getKeyString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
 

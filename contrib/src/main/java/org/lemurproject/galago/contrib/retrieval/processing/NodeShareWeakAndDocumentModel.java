@@ -127,7 +127,7 @@ public class NodeShareWeakAndDocumentModel extends ProcessingModel {
   private boolean hasMatch(DeltaScoringIteratorWrapper[] s, long doc) {
     for (DeltaScoringIteratorWrapper value : s) {
       if (value.currentCandidate <= doc) {
-        if (value.itr.hasMatch(doc)) {
+        if (value.itr.hasMatch(new ScoringContext(doc))) {
           return true;
         }
       } else {

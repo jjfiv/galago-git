@@ -32,7 +32,7 @@ public class MinCountIterator extends ConjunctionIterator implements CountIterat
     String className = this.getClass().getSimpleName();
     String parameters = nodeParams.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = Integer.toString(count(c));
     List<AnnotatedNode> children = new ArrayList<>();
     for (BaseIterator child : this.iterators) {

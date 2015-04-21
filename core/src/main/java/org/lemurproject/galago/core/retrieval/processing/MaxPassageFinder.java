@@ -83,7 +83,7 @@ public class MaxPassageFinder extends ProcessingModel {
 
             // short-circut the while loop if there is no match. Don't do
             // it in the while condtion check - no need to re-evaluate every time.
-            if (!iterator.hasMatch(docId)) {
+            if (!iterator.hasMatch(context)) {
                 lastIteration = true;
             }
             while (context.begin < length && !lastIteration) {

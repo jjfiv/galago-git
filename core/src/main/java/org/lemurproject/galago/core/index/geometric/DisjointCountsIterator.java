@@ -33,9 +33,9 @@ public class DisjointCountsIterator extends DisjointIndexesIterator implements C
     String type = "counts";
     String className = this.getClass().getSimpleName();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = Integer.toString(count(c));
-    List<AnnotatedNode> children = new ArrayList<AnnotatedNode>();
+    List<AnnotatedNode> children = new ArrayList<>();
     for (BaseIterator child : this.allIterators) {
       children.add(child.getAnnotatedNode(c));
     }

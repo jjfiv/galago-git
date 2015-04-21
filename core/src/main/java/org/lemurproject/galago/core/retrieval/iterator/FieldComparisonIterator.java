@@ -4,15 +4,16 @@
  */
 package org.lemurproject.galago.core.retrieval.iterator;
 
+import org.lemurproject.galago.core.index.disk.FieldIndexReader;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
-import org.lemurproject.galago.core.index.disk.FieldIndexReader;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
-import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
 /**
  * Abstract superclass for comparing fields to values given.
@@ -71,7 +72,7 @@ public abstract class FieldComparisonIterator extends TransformIterator implemen
     String className = this.getClass().getSimpleName();
     String parameters = p.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = Boolean.toString(indicator(c));
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
 

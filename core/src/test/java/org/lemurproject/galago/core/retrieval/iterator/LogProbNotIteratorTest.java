@@ -40,7 +40,7 @@ public class LogProbNotIteratorTest {
     int i = 0;
     while (!scorer.isDone()) {
       sc.document = scorer.currentCandidate();
-      assertTrue(scorer.hasMatch(sc.document));
+      assertTrue(scorer.hasMatch(sc));
       assertEquals(scorer.score(sc), expected[i], 0.00001);
       scorer.movePast(sc.document);
       i += 1;
@@ -112,8 +112,8 @@ public class LogProbNotIteratorTest {
     }
 
     @Override
-    public boolean hasMatch(long identifier) {
-      return !done && docs[index] == identifier;
+    public boolean hasMatch(ScoringContext context) {
+      return !done && docs[index] == context.document;
     }
 
     @Override

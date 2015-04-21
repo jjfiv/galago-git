@@ -95,7 +95,7 @@ public class IndicatorIteratorTest {
     assertEquals(2, eii.currentCandidate());
     sc.document = 2;
     assertTrue(eii.indicator(sc));
-    assertEquals(true, eii.hasMatch(eii.currentCandidate()));
+    assertEquals(true, eii.hasMatch(sc));
 
     eii.syncTo(3);
     assertEquals(4, eii.currentCandidate());
@@ -125,13 +125,13 @@ public class IndicatorIteratorTest {
     assertEquals(0, uii.currentCandidate());
     sc.document = 0;
     assertEquals(true, uii.indicator(sc));
-    assertEquals(true, uii.hasMatch(uii.currentCandidate()));
+    assertEquals(true, uii.hasMatch(sc));
 
     uii.syncTo(1);
     assertEquals(2, uii.currentCandidate());
     sc.document = 2;
     assertEquals(true, uii.indicator(sc));
-    assertEquals(true, uii.hasMatch(uii.currentCandidate()));
+    assertEquals(true, uii.hasMatch(sc));
 
     uii.movePast(uii.currentCandidate());
     assertEquals(4, uii.currentCandidate());
@@ -161,8 +161,8 @@ public class IndicatorIteratorTest {
     assertFalse(eii.isDone());
     assertFalse(uii.isDone());
     assertEquals(eii.currentCandidate(), uii.currentCandidate());
-    assertEquals(true, eii.hasMatch(eii.currentCandidate()));
-    assertEquals(true, uii.hasMatch(uii.currentCandidate()));
+    assertEquals(true, eii.hasMatch(sc));
+    assertEquals(true, uii.hasMatch(sc));
     sc.document = uii.currentCandidate();
     assertEquals(true, eii.indicator(sc));
     assertEquals(true, uii.indicator(sc));
@@ -170,8 +170,8 @@ public class IndicatorIteratorTest {
     // First step to doc 2
     uii.movePast(uii.currentCandidate());
     eii.movePast(eii.currentCandidate());
-    assertEquals(true, eii.hasMatch(eii.currentCandidate()));
-    assertEquals(true, uii.hasMatch(uii.currentCandidate()));
+    assertEquals(true, eii.hasMatch(new ScoringContext(eii.currentCandidate())));
+    assertEquals(true, uii.hasMatch(new ScoringContext(uii.currentCandidate())));
     assertEquals(eii.currentCandidate(), uii.currentCandidate());
     sc.document = uii.currentCandidate();
     assertEquals(true, eii.indicator(sc));
@@ -180,8 +180,8 @@ public class IndicatorIteratorTest {
     // Now on the doc 4
     uii.movePast(uii.currentCandidate());
     eii.movePast(eii.currentCandidate());
-    assertEquals(true, eii.hasMatch(eii.currentCandidate()));
-    assertEquals(true, uii.hasMatch(uii.currentCandidate()));
+    assertEquals(true, eii.hasMatch(new ScoringContext(eii.currentCandidate())));
+    assertEquals(true, uii.hasMatch(new ScoringContext(uii.currentCandidate())));
     assertEquals(eii.currentCandidate(), uii.currentCandidate());
     sc.document = uii.currentCandidate();
     assertEquals(true, eii.indicator(sc));

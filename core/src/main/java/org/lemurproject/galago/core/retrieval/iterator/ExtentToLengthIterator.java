@@ -1,12 +1,13 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Wraps an extent iterator to act as a lengths iterator ** overlapping extents
@@ -31,7 +32,7 @@ public class ExtentToLengthIterator extends TransformIterator implements Lengths
     String className = this.getClass().getSimpleName();
     String parameters = this.np.toString();
     long document = currentCandidate();
-    boolean hasMatch = hasMatch(c.document);
+    boolean hasMatch = hasMatch(c);
     String returnValue = Integer.toString(this.length(c));
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
 

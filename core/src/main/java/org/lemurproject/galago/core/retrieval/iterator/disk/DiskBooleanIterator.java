@@ -1,13 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator.disk;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import org.lemurproject.galago.core.index.source.BooleanSource;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -33,9 +34,9 @@ public class DiskBooleanIterator extends SourceIterator implements IndicatorIter
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = Boolean.toString(indicator(c));
-    List<AnnotatedNode> children = Collections.EMPTY_LIST;
+    List<AnnotatedNode> children = Collections.emptyList();
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }

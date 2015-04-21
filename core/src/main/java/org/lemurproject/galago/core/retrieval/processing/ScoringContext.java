@@ -39,6 +39,11 @@ public class ScoringContext {
     return getClass().getSimpleName()+"("+document+")";
   }
 
+  @Override
+  public ScoringContext clone() {
+    return getPrototype();
+  }
+
   public ScoringContext getPrototype() {
     ScoringContext context = new ScoringContext();
     context.document = this.document;

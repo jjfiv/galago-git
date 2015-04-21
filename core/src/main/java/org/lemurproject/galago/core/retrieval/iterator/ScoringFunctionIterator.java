@@ -57,7 +57,7 @@ public abstract class ScoringFunctionIterator extends TransformIterator implemen
     String className = this.getClass().getSimpleName();
     String parameters = np.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = new ArrayList<AnnotatedNode>();
     children.add(this.lengthsIterator.getAnnotatedNode(c));

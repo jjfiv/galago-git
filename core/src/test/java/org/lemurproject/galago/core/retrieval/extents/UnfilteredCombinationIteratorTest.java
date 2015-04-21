@@ -52,9 +52,9 @@ public class UnfilteredCombinationIteratorTest {
     ScoreCombinationIterator instance = new ScoreCombinationIterator(new NodeParameters(),
             iterators);
 
-    assertFalse(instance.hasMatch(1));
-    assertTrue(instance.hasMatch(2));
-    assertFalse(instance.hasMatch(3));
+    assertFalse(instance.hasMatch(new ScoringContext(1)));
+    assertTrue(instance.hasMatch(new ScoringContext(2)));
+    assertFalse(instance.hasMatch(new ScoringContext(3)));
   }
 
   @Test
@@ -72,8 +72,8 @@ public class UnfilteredCombinationIteratorTest {
     Arrays.fill(lengths, 100);
     for (int i = 0; i < 12; i++) {
       assertFalse(instance.isDone());
-      assertTrue(instance.hasMatch(docsTogether[i]));
       context.document = docsTogether[i];
+      assertTrue(instance.hasMatch(context));
       assertEquals(scoresTogether[i], instance.score(context), 0.0000001);
 
       instance.movePast(docsTogether[i]);

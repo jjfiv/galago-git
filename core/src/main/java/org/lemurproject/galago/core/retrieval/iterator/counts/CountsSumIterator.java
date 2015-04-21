@@ -45,7 +45,7 @@ public class CountsSumIterator extends DisjunctionIterator implements CountItera
     String className = this.getClass().getSimpleName();
     String parameters = nodeParams.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(sc.document);
+    boolean atCandidate = hasMatch(sc);
     String returnValue = Integer.toString(count(sc));
     List<AnnotatedNode> children = new ArrayList<>();
     for (BaseIterator child : this.iterators) {

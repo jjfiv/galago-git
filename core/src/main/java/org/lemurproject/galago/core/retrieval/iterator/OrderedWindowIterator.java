@@ -3,9 +3,10 @@
  */
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+
+import java.io.IOException;
 
 /**
  *
@@ -27,8 +28,7 @@ public class OrderedWindowIterator extends ExtentConjunctionIterator {
         ExtentArrayIterator[] arrayIterators;
         arrayIterators = new ExtentArrayIterator[iterators.length];
         for (int i = 0; i < iterators.length; i++) {
-            if (iterators[i].isDone()
-                    || !iterators[i].hasMatch(c.document)) {
+            if (iterators[i].isDone() || !iterators[i].hasMatch(c)) {
                 // we can not load any extentCache if the iterator is done - or is at the wrong document.
                 return;
             }

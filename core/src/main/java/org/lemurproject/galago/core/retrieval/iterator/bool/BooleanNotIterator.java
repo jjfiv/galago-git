@@ -24,23 +24,13 @@ public class BooleanNotIterator extends TransformIterator implements IndicatorIt
 	}
 
 	@Override
-	public boolean hasMatch(long document) {
-		if(!iter.hasMatch(document)) {
-			return true;
-		}
-		//TODO: return indicator(c);
-		return false;
+	public boolean hasMatch(ScoringContext context) {
+		return indicator(context);
 	}
 
 	@Override
 	public boolean indicator(ScoringContext c) {
-		try {
-			iter.syncTo(c.document);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		if(iter.hasMatch(c.document)) {
-			System.err.printf("HasMatch: %d, hit=%s", c.document, iter.indicator(c));
+		if(iter.hasMatch(c)) {
 			return !iter.indicator(c);
 		}
 		return true;

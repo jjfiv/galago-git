@@ -76,7 +76,7 @@ public class ScoringFunctionIteratorTest {
     iterator.movePast(44);
     context.document = iterator.currentCandidate();
     iterator.syncTo(context.document);
-    assertTrue(iterator.hasMatch(110));
+    assertTrue(iterator.hasMatch(new ScoringContext(110)));
     context.document = iterator.currentCandidate();
     assertEquals(44.0, iterator.score(context), 0.001);
 
@@ -114,7 +114,7 @@ public class ScoringFunctionIteratorTest {
 
     iterator.movePast(44);
     context.document = iterator.currentCandidate();
-    assertTrue(iterator.hasMatch(110));
+    assertTrue(iterator.hasMatch(new ScoringContext(110)));
     assertEquals(1.11315, iterator.score(context), 0.0001);
 
     iterator.syncTo(120);

@@ -43,7 +43,7 @@ public class DiskDataIterator<DataType> extends SourceIterator implements DataIt
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = getValueString(c);
     String extraInfo = data(c).toString();
     List<AnnotatedNode> children = Collections.emptyList();

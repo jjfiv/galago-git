@@ -1,15 +1,15 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.extents;
 
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+import org.lemurproject.galago.utility.CmpUtil;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
-import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  *
@@ -45,11 +45,11 @@ public class FakeScoreIterator implements ScoreIterator {
   }
 
   @Override
-  public boolean hasMatch(long document) {
+  public boolean hasMatch(ScoringContext context) {
     if (isDone()) {
       return false;
     } else {
-      return document == docs[index];
+      return context.document == docs[index];
     }
   }
 
@@ -130,7 +130,7 @@ public class FakeScoreIterator implements ScoreIterator {
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = Collections.emptyList();
 

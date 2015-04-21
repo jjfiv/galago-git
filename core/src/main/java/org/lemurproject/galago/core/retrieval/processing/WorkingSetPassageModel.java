@@ -1,9 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.processing;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
@@ -13,6 +10,10 @@ import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.utility.FixedSizeMinHeap;
 import org.lemurproject.galago.utility.Parameters;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Performs passage-level retrieval scoring. Passage windows are currently
@@ -110,7 +111,7 @@ public class WorkingSetPassageModel extends ProcessingModel {
           lastIteration = true;
         }
 
-        if (iterator.hasMatch(document)) {
+        if (iterator.hasMatch(context)) {
           double score = iterator.score(context);
           if (requested < 0 || queue.size() < requested || queue.peek().score < score) {
             ScoredPassage scored = new ScoredPassage(document, score, context.begin, context.end);

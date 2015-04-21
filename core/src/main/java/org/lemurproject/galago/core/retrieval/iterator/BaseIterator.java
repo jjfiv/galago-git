@@ -87,8 +87,9 @@ public interface BaseIterator extends Comparable<BaseIterator> {
    *  return !isDone() && currentCandidate() == identifier;
    * 
    * @see DiskIterator
+   * @param context
    */
-  public boolean hasMatch(long identifier);
+  public boolean hasMatch(ScoringContext context);
 
   /**
    * returns true if the iterator has data for ALL candidates

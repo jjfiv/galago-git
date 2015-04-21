@@ -89,7 +89,7 @@ public class PassageFilterIterator extends TransformIterator implements ExtentIt
         String className = this.getClass().getSimpleName();
         String parameters = "";
         long document = currentCandidate();
-        boolean atCandidate = hasMatch(c.document);
+        boolean atCandidate = hasMatch(c);
         String returnValue = extents(c).toString();
         List<AnnotatedNode> children = Collections.singletonList(extentIterator.getAnnotatedNode(c));
 

@@ -319,8 +319,8 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
     }
 
     @Override
-    public boolean hasMatch(long identifier) {
-      return !isDone() && currentCandidate() == identifier;
+    public boolean hasMatch(ScoringContext context) {
+      return !isDone() && currentCandidate() == context.document;
     }
 
     @Override
@@ -424,7 +424,7 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
       String className = this.getClass().getSimpleName();
       String parameters = "";
       long document = currentCandidate();
-      boolean atCandidate = hasMatch(c.document);
+      boolean atCandidate = hasMatch(c);
       String returnValue = Integer.toString(count(c));
       List<AnnotatedNode> children = Collections.emptyList();
 

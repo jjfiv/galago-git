@@ -66,7 +66,7 @@ public class NullExtentIterator implements ExtentIterator, CountIterator {
   }
 
   @Override
-  public boolean hasMatch(long id) {
+  public boolean hasMatch(ScoringContext id) {
     return false;
   }
 
@@ -99,9 +99,9 @@ public class NullExtentIterator implements ExtentIterator, CountIterator {
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = array.toString();
-    List<AnnotatedNode> children = Collections.EMPTY_LIST;
+    List<AnnotatedNode> children = Collections.emptyList();
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
 

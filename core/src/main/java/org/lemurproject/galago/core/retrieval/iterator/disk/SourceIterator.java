@@ -61,8 +61,8 @@ public abstract class SourceIterator implements BaseIterator {
   }
 
   @Override
-  public boolean hasMatch(long identifier) {
-    return source.hasMatch(identifier);
+  public boolean hasMatch(ScoringContext context) {
+    return source.hasMatch(context.document);
   }
 
   @Override

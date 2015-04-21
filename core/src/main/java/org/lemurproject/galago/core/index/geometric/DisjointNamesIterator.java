@@ -3,14 +3,15 @@
  */
 package org.lemurproject.galago.core.index.geometric;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  *
@@ -37,9 +38,9 @@ public class DisjointNamesIterator extends DisjointIndexesIterator implements Da
     String className = this.getClass().getSimpleName();
     String parameters = this.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = data(c);
-    List<AnnotatedNode> children = new ArrayList<AnnotatedNode>();
+    List<AnnotatedNode> children = new ArrayList<>();
     for (BaseIterator child : this.allIterators) {
       children.add(child.getAnnotatedNode(c));
     }

@@ -181,11 +181,11 @@ public class PositionIndexReaderTest {
     assertEquals(1, termExtents.count(sc));
 
     termExtents.syncTo(7);
-    assertTrue(termExtents.hasMatch(7));
+    assertTrue(termExtents.hasMatch(new ScoringContext(7)));
 
     // Now move to a doc, but not one we have
     termExtents.syncTo(90);
-    assertFalse(termExtents.hasMatch(90));
+    assertFalse(termExtents.hasMatch(new ScoringContext(90)));
 
     // Now move forward one
     termExtents.movePast(93);
@@ -205,7 +205,7 @@ public class PositionIndexReaderTest {
       assertEquals(i + 1, ea.begin(i));
     }
     termExtents.syncTo(10005);
-    assertFalse(termExtents.hasMatch(10005));
+    assertFalse(termExtents.hasMatch(new ScoringContext(10005)));
     assertTrue(termExtents.isDone());
 
     skipPath.delete();

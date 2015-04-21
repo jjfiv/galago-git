@@ -118,8 +118,8 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
-    List<AnnotatedNode> children = new ArrayList();
+    boolean atCandidate = hasMatch(c);
+    List<AnnotatedNode> children = new ArrayList<>();
     children.add(indicatorItr.getAnnotatedNode(c));
     children.add(mover.getAnnotatedNode(c));
 

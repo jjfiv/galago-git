@@ -118,7 +118,7 @@ public class HeuristicMaxScoreDocumentModel extends ProcessingModel {
       // properly before scoring.
       boolean match = false;
       for (ScoreIterator si : scoringIterators) {
-        match |= si.hasMatch(candidate);
+        match |= si.hasMatch(context);
       }
 
       if (match) {

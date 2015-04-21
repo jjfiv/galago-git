@@ -95,7 +95,7 @@ public class NodeTypeTest {
     }
 
     @Override
-    public boolean hasMatch(long identifier) {
+    public boolean hasMatch(ScoringContext context) {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 

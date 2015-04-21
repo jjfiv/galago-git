@@ -3,9 +3,8 @@
  */
 package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import org.lemurproject.galago.core.retrieval.RequiredParameters;
+import org.lemurproject.galago.core.retrieval.RequiredStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoreIterator;
@@ -13,9 +12,11 @@ import org.lemurproject.galago.core.retrieval.iterator.TransformIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
-import org.lemurproject.galago.core.retrieval.RequiredParameters;
-import org.lemurproject.galago.core.retrieval.RequiredStatistics;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implements InL2 retrieval model from the DFR framework.
@@ -86,9 +87,9 @@ public class InL2ScoringIterator extends TransformIterator implements ScoreItera
     String className = this.getClass().getSimpleName();
     String parameters = np.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = Double.toString(score(c));
-    List<AnnotatedNode> children = new ArrayList();
+    List<AnnotatedNode> children = new ArrayList<>();
     children.add(this.lengths.getAnnotatedNode(c));
     children.add(this.counts.getAnnotatedNode(c));
 

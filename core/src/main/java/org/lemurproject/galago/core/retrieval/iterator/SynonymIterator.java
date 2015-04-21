@@ -1,10 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
-import java.util.PriorityQueue;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+
+import java.io.IOException;
+import java.util.PriorityQueue;
 
 /**
  *
@@ -42,7 +43,7 @@ public class SynonymIterator extends ExtentDisjunctionIterator {
     // make a priority queue of extent array iterators
     PriorityQueue<ExtentArrayIterator> arrayIterators = new PriorityQueue<ExtentArrayIterator>();
     for (ExtentIterator iterator : this.extentIterators) {
-      if (!iterator.isDone() && iterator.hasMatch(document)) {
+      if (!iterator.isDone() && iterator.hasMatch(c)) {
         arrayIterators.offer(new ExtentArrayIterator(iterator.extents(c)));
       }
     }

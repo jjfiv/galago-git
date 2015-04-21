@@ -113,7 +113,7 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
         String className = this.getClass().getSimpleName();
         String parameters = "";
         long document = currentCandidate();
-        boolean atCandidate = hasMatch(c.document);
+        boolean atCandidate = hasMatch(c);
         String returnValue = extents(c).toString();
         List<AnnotatedNode> children = new ArrayList<AnnotatedNode>();
         for (BaseIterator child : this.iterators) {
@@ -123,13 +123,13 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
     }
 
     @Override
-    public boolean hasMatch(long identifier) {
+    public boolean hasMatch(ScoringContext context) {
 
-        if (super.hasMatch(identifier)) {
+        if (super.hasMatch(context)) {
 
-            loadExtents(identifier);
+            loadExtents(context);
 
-            return (extentCache.getDocument() == identifier && extentCache.size() > 0);
+            return (extentCache.getDocument() == context.document && extentCache.size() > 0);
         }
         return false;
     }

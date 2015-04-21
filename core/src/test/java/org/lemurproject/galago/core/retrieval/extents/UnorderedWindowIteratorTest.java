@@ -134,21 +134,21 @@ public class UnorderedWindowIteratorTest {
     context.document = instance.currentCandidate();
 
     assertFalse(instance.isDone());
-    assertFalse(instance.hasMatch(2));
+    assertFalse(instance.hasMatch(new ScoringContext(2)));
 
     // move to 4
     instance.movePast(instance.currentCandidate());
     context.document = instance.currentCandidate();
 
     assertFalse(instance.isDone());
-    assertFalse(instance.hasMatch(4));
+    assertFalse(instance.hasMatch(new ScoringContext(4)));
 
     // move to 5
     instance.movePast(instance.currentCandidate());
     context.document = instance.currentCandidate();
 
     assertFalse(instance.isDone());
-    assertTrue(instance.hasMatch(5));
+    assertTrue(instance.hasMatch(new ScoringContext(5)));
 
     array = instance.extents(context);
     assertEquals(array.size(), 1);

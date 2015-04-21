@@ -39,8 +39,8 @@ public abstract class TransformIterator implements BaseIterator {
   }
 
   @Override
-  public boolean hasMatch(long identifier) {
-    return iterator.hasMatch(identifier);
+  public boolean hasMatch(ScoringContext context) {
+    return iterator.hasMatch(context);
   }
 
   @Override

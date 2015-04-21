@@ -61,9 +61,9 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = extents(c).toString();
-    List<AnnotatedNode> children = new ArrayList();
+    List<AnnotatedNode> children = new ArrayList<>();
     for (BaseIterator child : this.iterators) {
       children.add(child.getAnnotatedNode(c));
     }

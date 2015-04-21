@@ -1,12 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The internal iterator is expected to be an indicator iterator. This performs
@@ -28,8 +29,7 @@ public class BoostingIterator extends TransformIterator implements ScoreIterator
 
   @Override
   public double score(ScoringContext c) {
-    if (hasMatch(c.document)
-            && ((IndicatorIterator) iterator).indicator(c)) {
+    if (hasMatch(c) && ((IndicatorIterator) iterator).indicator(c)) {
       return beta;
     } else {
       return 0.0;
@@ -52,7 +52,7 @@ public class BoostingIterator extends TransformIterator implements ScoreIterator
     String className = this.getClass().getSimpleName();
     String parameters = p.toString();
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = Double.toString(score(c));
     List<AnnotatedNode> children = Collections.singletonList(this.iterator.getAnnotatedNode(c));
 

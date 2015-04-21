@@ -29,7 +29,7 @@ public class BigramIterator extends ExtentConjunctionIterator {
         final ExtentIterator leftTerm = (ExtentIterator) iterators[0];
         final ExtentIterator rightTerm = (ExtentIterator) iterators[1];
 
-        if (leftTerm.isDone() || rightTerm.isDone() || !leftTerm.hasMatch(c.document) || !rightTerm.hasMatch(c.document)) {
+        if (leftTerm.isDone() || rightTerm.isDone() || !leftTerm.hasMatch(c) || !rightTerm.hasMatch(c)) {
             return;
         }
 

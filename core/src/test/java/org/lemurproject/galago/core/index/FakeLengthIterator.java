@@ -4,13 +4,14 @@
  */
 package org.lemurproject.galago.core.index;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -43,8 +44,8 @@ public class FakeLengthIterator implements LengthsIterator {
   }
 
   @Override
-  public boolean hasMatch(long identifier) {
-    return (ids[position] == identifier);
+  public boolean hasMatch(ScoringContext context) {
+    return (ids[position] == context.document);
   }
 
   @Override
@@ -95,9 +96,9 @@ public class FakeLengthIterator implements LengthsIterator {
     String className = this.getClass().getSimpleName();
     String parameters = "";
     long document = currentCandidate();
-    boolean atCandidate = hasMatch(c.document);
+    boolean atCandidate = hasMatch(c);
     String returnValue = Integer.toString(length(c));
-    List<AnnotatedNode> children = Collections.EMPTY_LIST;
+    List<AnnotatedNode> children = Collections.emptyList();
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }

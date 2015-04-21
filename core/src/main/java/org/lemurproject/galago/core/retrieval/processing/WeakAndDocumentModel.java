@@ -54,7 +54,7 @@ public class WeakAndDocumentModel extends ProcessingModel {
     }
 
     // step two: create an iterator for each node
-    DeltaScoringIteratorWrapper[] sortedIterators = createScoringIterators(scoringNodes, retrieval);
+    DeltaScoringIteratorWrapper[] sortedIterators = createScoringIterators(context, scoringNodes, retrieval);
     Arrays.sort(sortedIterators);
     FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap<>(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
@@ -248,26 +248,28 @@ public class WeakAndDocumentModel extends ProcessingModel {
     }
   }
   
-  private DeltaScoringIteratorWrapper[] createScoringIterators(List<Node> scoringNodes, LocalRetrieval ret) throws Exception {
+  private DeltaScoringIteratorWrapper[] createScoringIterators(ScoringContext context, List<Node> scoringNodes, LocalRetrieval ret) throws Exception {
     DeltaScoringIteratorWrapper[] scoringIterators = new DeltaScoringIteratorWrapper[scoringNodes.size()];
 
     // NO Node sharing is permitted.
     for (int i = 0; i < scoringNodes.size(); i++) {
       DeltaScoringIterator scorer = (DeltaScoringIterator) ret.createNodeMergedIterator(scoringNodes.get(i), null);
-      scoringIterators[i] = new DeltaScoringIteratorWrapper(scorer, scoringNodes.get(i));
+      scoringIterators[i] = new DeltaScoringIteratorWrapper(context, scorer, scoringNodes.get(i));
     }
     
     return scoringIterators;
   }
   
   public static class DeltaScoringIteratorWrapper implements Comparable<DeltaScoringIteratorWrapper> {
-    
+
+    private final ScoringContext ctx;
     public DeltaScoringIterator itr;
     public long currentCandidate;
     private long entries;
     
-    private DeltaScoringIteratorWrapper(DeltaScoringIterator itr, Node node) throws IOException {
+    private DeltaScoringIteratorWrapper(ScoringContext context, DeltaScoringIterator itr, Node node) throws IOException {
       this.itr = itr;
+      this.ctx = context.getPrototype();
 
       if (node.getNodeParameters().containsKey("nodeDocumentCount")) {
         this.entries = node.getNodeParameters().getLong("nodeDocumentCount");
@@ -296,7 +298,8 @@ public class WeakAndDocumentModel extends ProcessingModel {
       do {
         itr.movePast(currentCandidate);
         currentCandidate = itr.currentCandidate();
-      } while (!itr.isDone() && !itr.hasMatch(currentCandidate));
+        ctx.document = currentCandidate;
+      } while (!itr.isDone() && !itr.hasMatch(ctx));
     }
     
     public void next(long doc) throws IOException {

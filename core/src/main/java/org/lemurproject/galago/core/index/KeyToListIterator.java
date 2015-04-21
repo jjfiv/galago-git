@@ -1,10 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
-import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.CmpUtil;
+
+import java.io.IOException;
 
 /**
  * Iterates over the a KeyIterator as if it were a Value iterator. Useful for
@@ -50,8 +52,8 @@ public abstract class KeyToListIterator implements BaseIterator {
   }
 
   @Override
-  public boolean hasMatch(long identifier) {
-    return (!isDone() && currentCandidate() == identifier);
+  public boolean hasMatch(ScoringContext context) {
+    return (!isDone() && currentCandidate() == context.document);
   }
 
   @Override
