@@ -1,13 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -102,5 +103,10 @@ public class NullExtentIterator implements ExtentIterator, CountIterator {
     String returnValue = array.toString();
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+  }
+
+  @Override
+  public boolean indicator(ScoringContext c) {
+    return false;
   }
 }

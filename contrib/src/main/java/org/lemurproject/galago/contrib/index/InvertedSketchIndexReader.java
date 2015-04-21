@@ -430,5 +430,10 @@ public class InvertedSketchIndexReader extends KeyListReader implements Aggregat
 
       return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
     }
+
+    @Override
+    public boolean indicator(ScoringContext c) {
+      return count(c) > 0;
+    }
   }
 }

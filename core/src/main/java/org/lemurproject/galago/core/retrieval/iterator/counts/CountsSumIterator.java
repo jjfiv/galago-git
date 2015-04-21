@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Functions as count "or" if need be.
  * @author jfoley
  */
 public class CountsSumIterator extends DisjunctionIterator implements CountIterator {
@@ -52,5 +53,13 @@ public class CountsSumIterator extends DisjunctionIterator implements CountItera
     }
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+  }
+
+  @Override
+  public boolean indicator(ScoringContext c) {
+    for (CountIterator child : countIterators) {
+      if(child.count(c) > 0) return true;
+    }
+    return false;
   }
 }

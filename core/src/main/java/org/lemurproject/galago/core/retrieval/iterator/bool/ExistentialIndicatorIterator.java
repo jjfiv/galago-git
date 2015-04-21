@@ -1,10 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator.bool;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DisjunctionIterator;
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
@@ -12,20 +8,25 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Implements the #any indicator operator.
+ * Implements the #any, #bor indicator operator.
  * @author irmarc
  */
 public class ExistentialIndicatorIterator extends DisjunctionIterator implements IndicatorIterator {
 
-  public ExistentialIndicatorIterator(NodeParameters p, BaseIterator[] children) {
+  public ExistentialIndicatorIterator(NodeParameters p, IndicatorIterator[] children) {
     super(children);
   }
 
   @Override
   public boolean indicator(ScoringContext c) {
-    for (BaseIterator i : this.iterators) {
-      if (!i.isDone() && i.hasMatch(c.document)) {
+    for (BaseIterator it : this.iterators) {
+      IndicatorIterator iter = (IndicatorIterator) it;
+      if (iter.indicator(c)) {
         return true;
       }
     }
@@ -45,7 +46,7 @@ public class ExistentialIndicatorIterator extends DisjunctionIterator implements
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
     String returnValue = Boolean.toString(indicator(c));
-    List<AnnotatedNode> children = new ArrayList();
+    List<AnnotatedNode> children = new ArrayList<>();
     for (BaseIterator child : this.iterators) {
       children.add(child.getAnnotatedNode(c));
     }

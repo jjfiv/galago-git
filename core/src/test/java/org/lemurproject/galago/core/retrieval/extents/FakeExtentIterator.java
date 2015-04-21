@@ -1,17 +1,17 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.extents;
 
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.util.ExtentArray;
+import org.lemurproject.galago.utility.CmpUtil;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
-import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
-import org.lemurproject.galago.tupleflow.Utility;
-import org.lemurproject.galago.utility.CmpUtil;
 
 /**
  *
@@ -138,5 +138,10 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
     List<AnnotatedNode> children = Collections.EMPTY_LIST;
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+  }
+
+  @Override
+  public boolean indicator(ScoringContext c) {
+    return count(c) > 0;
   }
 }

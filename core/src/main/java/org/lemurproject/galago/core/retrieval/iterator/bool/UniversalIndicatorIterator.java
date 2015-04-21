@@ -13,19 +13,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implements the #all indicator operator.
+ * Implements the #all, #band indicator operator.
  * @author irmarc
  */
 public class UniversalIndicatorIterator extends ConjunctionIterator implements IndicatorIterator {
 
-  public UniversalIndicatorIterator(NodeParameters p, BaseIterator[] children) {
+  public UniversalIndicatorIterator(NodeParameters p, IndicatorIterator[] children) {
     super(p, children);
   }
 
   @Override
   public boolean indicator(ScoringContext c) {
-    for (BaseIterator i : this.iterators) {
-      if (!i.hasMatch(c.document)) {
+    for (BaseIterator it : this.iterators) {
+      IndicatorIterator iter = (IndicatorIterator) it;
+      if (!iter.indicator(c)) {
         return false;
       }
     }
@@ -45,7 +46,7 @@ public class UniversalIndicatorIterator extends ConjunctionIterator implements I
     long document = currentCandidate();
     boolean atCandidate = hasMatch(c.document);
     String returnValue = Boolean.toString(this.indicator(c));
-    List<AnnotatedNode> children = new ArrayList();
+    List<AnnotatedNode> children = new ArrayList<>();
     for (BaseIterator child : this.iterators) {
       children.add(child.getAnnotatedNode(c));
     }

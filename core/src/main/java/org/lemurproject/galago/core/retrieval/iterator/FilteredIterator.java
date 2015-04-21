@@ -140,4 +140,10 @@ public abstract class FilteredIterator extends ConjunctionIterator implements Co
 
   // This function returns true if the filter should accept the value (see require/reject iterator)
   protected abstract boolean indication(ScoringContext context);
+
+  @Override
+  public boolean indicator(ScoringContext c) {
+    return indication(c) && count(c) > 0;
+  }
+
 }

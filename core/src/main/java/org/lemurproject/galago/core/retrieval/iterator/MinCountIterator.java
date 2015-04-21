@@ -56,4 +56,9 @@ public class MinCountIterator extends ConjunctionIterator implements CountIterat
   public String getValueString(ScoringContext c) throws IOException {
     throw new UnsupportedOperationException("Not supported yet.");
   }
+
+  @Override
+  public boolean indicator(ScoringContext c) {
+    return count(c) > 0;
+  }
 }

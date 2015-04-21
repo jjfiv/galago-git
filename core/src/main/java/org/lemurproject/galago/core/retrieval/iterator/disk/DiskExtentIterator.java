@@ -1,8 +1,6 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator.disk;
 
-import java.io.IOException;
-import java.util.Collections;
 import org.lemurproject.galago.core.index.source.ExtentSource;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
@@ -10,6 +8,9 @@ import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.util.ExtentArray;
+
+import java.io.IOException;
+import java.util.Collections;
 
 /**
  *
@@ -67,5 +68,10 @@ public class DiskExtentIterator extends SourceIterator implements NodeAggregateI
   @Override
   public ExtentArray data(ScoringContext c) {
     return extents(c);
+  }
+
+  @Override
+  public boolean indicator(ScoringContext c) {
+    return count(c) > 0;
   }
 }

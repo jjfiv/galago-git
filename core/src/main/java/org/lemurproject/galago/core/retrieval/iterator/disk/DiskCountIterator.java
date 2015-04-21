@@ -1,15 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator.disk;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import org.lemurproject.galago.core.index.source.CountSource;
 import org.lemurproject.galago.core.index.stats.NodeAggregateIterator;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -50,5 +51,10 @@ public class DiskCountIterator extends SourceIterator
   @Override
   public int count(ScoringContext c) {
     return countSrc.count(c.document);
+  }
+
+  @Override
+  public boolean indicator(ScoringContext c) {
+    return count(c) > 0;
   }
 }

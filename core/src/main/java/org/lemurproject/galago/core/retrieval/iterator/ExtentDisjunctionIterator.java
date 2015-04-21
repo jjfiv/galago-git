@@ -3,13 +3,14 @@
  */
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.tupleflow.Utility;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -68,4 +69,10 @@ public abstract class ExtentDisjunctionIterator extends DisjunctionIterator impl
     }
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
   }
+
+  @Override
+  public boolean indicator(ScoringContext c) {
+    return count(c) > 0;
+  }
+
 }

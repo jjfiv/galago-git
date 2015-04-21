@@ -8,7 +8,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
  *
  * @author trevor, irmarc, sjh
  */
-public interface CountIterator extends BaseIterator {
+public interface CountIterator extends BaseIterator, IndicatorIterator {
     /**
      * Returns the number of occurrences of this iterator's term in
      * the current identifier.

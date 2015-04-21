@@ -133,4 +133,9 @@ public abstract class ExtentConjunctionIterator extends ConjunctionIterator impl
         }
         return false;
     }
+
+    @Override
+    public boolean indicator(ScoringContext c) {
+        return count(c) > 0;
+    }
 }

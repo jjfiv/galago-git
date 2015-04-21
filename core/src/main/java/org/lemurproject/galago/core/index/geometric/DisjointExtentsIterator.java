@@ -3,16 +3,17 @@
  */
 package org.lemurproject.galago.core.index.geometric;
 
+import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
+import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+import org.lemurproject.galago.core.util.ExtentArray;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
-import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
-import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
-import org.lemurproject.galago.core.util.ExtentArray;
 
 /**
  *
@@ -53,5 +54,10 @@ public class DisjointExtentsIterator extends DisjointIndexesIterator implements 
     }
 
     return new AnnotatedNode(type, className, parameters, document, atCandidate, returnValue, children);
+  }
+
+  @Override
+  public boolean indicator(ScoringContext c) {
+    return count(c) > 0;
   }
 }
