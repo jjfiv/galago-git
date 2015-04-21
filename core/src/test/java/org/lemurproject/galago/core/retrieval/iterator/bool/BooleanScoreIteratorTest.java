@@ -5,6 +5,8 @@ import org.lemurproject.galago.core.index.mem.MemoryIndex;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
+import org.lemurproject.galago.core.retrieval.Results;
+import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tokenize.Tokenizer;
@@ -74,7 +76,7 @@ public class BooleanScoreIteratorTest {
 		assertEquals(Collections.<String>emptySet(), matchingDocuments(ret, "#bool(#bor(z x))"));
 	}
 
-	@Test // Test currently fails!
+	@Test
 	public void testBooleanNot() throws Exception {
 		MemoryIndex index = new MemoryIndex();
 		index.process(makeBooleanDocument("1", "a", "b", "c"));
@@ -87,5 +89,29 @@ public class BooleanScoreIteratorTest {
 		assertEquals(Collections.emptySet(), matchingDocuments(ret, "#bool(#bnot(c))"));
 		assertEquals(mkSet("1"), matchingDocuments(ret, "#bool(#bnot(d))"));
 		assertEquals(mkSet("1", "2"), matchingDocuments(ret, "#bool(#bnot(e))"));
+	}
+
+	@Test
+	public void testBooleanRequire() throws Exception {
+		MemoryIndex index = new MemoryIndex();
+		index.process(makeBooleanDocument("1", "a", "b", "c", "z"));
+		index.process(makeBooleanDocument("2",      "b", "c", "d", "z", "z"));
+		index.process(makeBooleanDocument("3",           "c", "d", "e", "z"));
+
+		LocalRetrieval ret = new LocalRetrieval(index);
+		Results results = ret.transformAndExecuteQuery(StructuredQuery.parse("#require(#band(b c) #combine(z))"));
+		System.out.println(results.scoredDocuments);
+
+		assertEquals(2, results.scoredDocuments.size());
+		ScoredDocument rank1 = results.scoredDocuments.get(0);
+		ScoredDocument rank2 = results.scoredDocuments.get(1);
+
+		assertEquals(1, rank1.rank);
+		assertEquals("2", rank1.documentName);
+		assertEquals(-1.1776, rank1.score, 0.0001);
+
+		assertEquals(2, rank2.rank);
+		assertEquals("1", rank2.documentName);
+		assertEquals(-1.1791, rank2.score, 0.0001);
 	}
 }
