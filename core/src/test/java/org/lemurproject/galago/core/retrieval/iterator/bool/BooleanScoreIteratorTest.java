@@ -95,12 +95,11 @@ public class BooleanScoreIteratorTest {
 	public void testBooleanRequire() throws Exception {
 		MemoryIndex index = new MemoryIndex();
 		index.process(makeBooleanDocument("1", "a", "b", "c", "z"));
-		index.process(makeBooleanDocument("2",      "b", "c", "d", "z", "z"));
-		index.process(makeBooleanDocument("3",           "c", "d", "e", "z"));
+		index.process(makeBooleanDocument("2", "b", "c", "d", "z", "z"));
+		index.process(makeBooleanDocument("3", "c", "d", "e", "z"));
 
 		LocalRetrieval ret = new LocalRetrieval(index);
 		Results results = ret.transformAndExecuteQuery(StructuredQuery.parse("#require(#band(b c) #combine(z))"));
-		System.out.println(results.scoredDocuments);
 
 		assertEquals(2, results.scoredDocuments.size());
 		ScoredDocument rank1 = results.scoredDocuments.get(0);
@@ -113,5 +112,24 @@ public class BooleanScoreIteratorTest {
 		assertEquals(2, rank2.rank);
 		assertEquals("1", rank2.documentName);
 		assertEquals(-1.1791, rank2.score, 0.0001);
+	}
+
+	@Test
+	public void testBooleanReject() throws Exception {
+		MemoryIndex index = new MemoryIndex();
+		index.process(makeBooleanDocument("1", "a", "b", "c", "z"));
+		index.process(makeBooleanDocument("2", "b", "c", "d", "z", "z"));
+		index.process(makeBooleanDocument("3", "c", "d", "e", "z"));
+
+		LocalRetrieval ret = new LocalRetrieval(index);
+		Results results = ret.transformAndExecuteQuery(StructuredQuery.parse("#reject(#band(b c) #combine(z))"));
+
+		assertEquals(1, results.scoredDocuments.size());
+		ScoredDocument rank1 = results.scoredDocuments.get(0);
+
+		assertEquals(1, rank1.rank);
+		assertEquals("3", rank1.documentName);
+		assertEquals(-1.1791, rank1.score, 0.0001);
+
 	}
 }

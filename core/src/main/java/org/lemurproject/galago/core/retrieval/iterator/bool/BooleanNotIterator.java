@@ -2,7 +2,6 @@ package org.lemurproject.galago.core.retrieval.iterator.bool;
 
 import org.lemurproject.galago.core.retrieval.iterator.IndicatorIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
-import org.lemurproject.galago.core.retrieval.iterator.TransformIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -14,13 +13,10 @@ import java.io.IOException;
  * NOT(sparse term) = A lot of documents to think about!
  * @author jfoley.
  */
-public class BooleanNotIterator extends TransformIterator implements IndicatorIterator {
-	private final IndicatorIterator iter;
-
+public class BooleanNotIterator extends NegativeTransformIterator<IndicatorIterator> implements IndicatorIterator {
 	public BooleanNotIterator(NodeParameters np, IndicatorIterator iterator, LengthsIterator lengths) {
 		// This is a terrible hack that uses the fact that the LengthsIterator will always have a hit for every document...
-		super(lengths);
-		this.iter = iterator;
+		super(iterator, lengths);
 	}
 
 	@Override
@@ -30,13 +26,8 @@ public class BooleanNotIterator extends TransformIterator implements IndicatorIt
 
 	@Override
 	public boolean indicator(ScoringContext c) {
-		try {
-			iter.syncTo(c.document);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		if(iter.hasMatch(c)) {
-			return !iter.indicator(c);
+		if(inner.hasMatch(c)) {
+			return !inner.indicator(c);
 		}
 		return true;
 	}
