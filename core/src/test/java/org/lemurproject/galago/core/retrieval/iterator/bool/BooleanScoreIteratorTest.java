@@ -1,6 +1,5 @@
 package org.lemurproject.galago.core.retrieval.iterator.bool;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.lemurproject.galago.core.index.mem.MemoryIndex;
 import org.lemurproject.galago.core.parse.Document;
@@ -75,13 +74,12 @@ public class BooleanScoreIteratorTest {
 		assertEquals(Collections.<String>emptySet(), matchingDocuments(ret, "#bool(#bor(z x))"));
 	}
 
-	@Ignore
 	@Test // Test currently fails!
 	public void testBooleanNot() throws Exception {
 		MemoryIndex index = new MemoryIndex();
 		index.process(makeBooleanDocument("1", "a", "b", "c"));
-		index.process(makeBooleanDocument("2", "b", "c", "d"));
-		index.process(makeBooleanDocument("3", "c", "d", "e"));
+		index.process(makeBooleanDocument("2",      "b", "c", "d"));
+		index.process(makeBooleanDocument("3",           "c", "d", "e"));
 
 		LocalRetrieval ret = new LocalRetrieval(index);
 		assertEquals(mkSet("2", "3"), matchingDocuments(ret, "#bool(#bnot(a))"));

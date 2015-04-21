@@ -30,6 +30,11 @@ public class BooleanNotIterator extends TransformIterator implements IndicatorIt
 
 	@Override
 	public boolean indicator(ScoringContext c) {
+		try {
+			iter.syncTo(c.document);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		if(iter.hasMatch(c)) {
 			return !iter.indicator(c);
 		}
