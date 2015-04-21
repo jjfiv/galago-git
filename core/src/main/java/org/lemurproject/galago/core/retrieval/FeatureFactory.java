@@ -81,7 +81,7 @@ public class FeatureFactory {
     {UniversalIndicatorIterator.class.getName(), "all"},
     {UniversalIndicatorIterator.class.getName(), "band"},
     {ExistentialIndicatorIterator.class.getName(), "any"},
-    {UniversalIndicatorIterator.class.getName(), "bor"},
+    {ExistentialIndicatorIterator.class.getName(), "bor"},
 
     // indicator -> count iterators
     {BinaryCountIterator.class.getName(), "bool-to-count"},

@@ -49,12 +49,28 @@ public class BooleanScoreIteratorTest {
 		MemoryIndex index = new MemoryIndex();
 		index.process(makeBooleanDocument("1", "a", "b", "c"));
 		index.process(makeBooleanDocument("2",      "b", "c", "d"));
-		index.process(makeBooleanDocument("3", "c", "d", "e"));
+		index.process(makeBooleanDocument("3",           "c", "d", "e"));
 
 		LocalRetrieval ret = new LocalRetrieval(index);
 		assertEquals(mkSet("1", "2"), matchingDocuments(ret, "#bool(#band(b c))"));
 		assertEquals(mkSet("2", "3"), matchingDocuments(ret, "#bool(#band(c d))"));
 		assertEquals(mkSet("3"), matchingDocuments(ret, "#bool(#band(c d e))"));
 		assertEquals(Collections.<String>emptySet(), matchingDocuments(ret, "#bool(#band(a d))"));
+	}
+
+	@Test
+	public void testBooleanOr() throws Exception {
+		MemoryIndex index = new MemoryIndex();
+		index.process(makeBooleanDocument("1", "a", "b", "c"));
+		index.process(makeBooleanDocument("2",      "b", "c", "d"));
+		index.process(makeBooleanDocument("3",           "c", "d", "e"));
+
+		LocalRetrieval ret = new LocalRetrieval(index);
+		assertEquals(mkSet("1", "2", "3"), matchingDocuments(ret, "#bool(#bor(b c))"));
+		assertEquals(mkSet("1", "2", "3"), matchingDocuments(ret, "#bool(#bor(c d))"));
+		assertEquals(mkSet("1", "3"), matchingDocuments(ret, "#bool(#bor(a e))"));
+		assertEquals(mkSet("2", "3"), matchingDocuments(ret, "#bool(#bor(d e))"));
+		assertEquals(mkSet("1", "2"), matchingDocuments(ret, "#bool(#bor(a b))"));
+		assertEquals(Collections.<String>emptySet(), matchingDocuments(ret, "#bool(#bor(z x))"));
 	}
 }
