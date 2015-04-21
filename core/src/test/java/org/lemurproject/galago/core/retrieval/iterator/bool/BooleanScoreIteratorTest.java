@@ -1,5 +1,6 @@
 package org.lemurproject.galago.core.retrieval.iterator.bool;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.lemurproject.galago.core.index.mem.MemoryIndex;
 import org.lemurproject.galago.core.parse.Document;
@@ -72,5 +73,21 @@ public class BooleanScoreIteratorTest {
 		assertEquals(mkSet("2", "3"), matchingDocuments(ret, "#bool(#bor(d e))"));
 		assertEquals(mkSet("1", "2"), matchingDocuments(ret, "#bool(#bor(a b))"));
 		assertEquals(Collections.<String>emptySet(), matchingDocuments(ret, "#bool(#bor(z x))"));
+	}
+
+	@Ignore
+	@Test // Test currently fails!
+	public void testBooleanNot() throws Exception {
+		MemoryIndex index = new MemoryIndex();
+		index.process(makeBooleanDocument("1", "a", "b", "c"));
+		index.process(makeBooleanDocument("2", "b", "c", "d"));
+		index.process(makeBooleanDocument("3", "c", "d", "e"));
+
+		LocalRetrieval ret = new LocalRetrieval(index);
+		assertEquals(mkSet("2", "3"), matchingDocuments(ret, "#bool(#bnot(a))"));
+		assertEquals(mkSet("3"), matchingDocuments(ret, "#bool(#bnot(b))"));
+		assertEquals(Collections.emptySet(), matchingDocuments(ret, "#bool(#bnot(c))"));
+		assertEquals(mkSet("1"), matchingDocuments(ret, "#bool(#bnot(d))"));
+		assertEquals(mkSet("1", "2"), matchingDocuments(ret, "#bool(#bnot(e))"));
 	}
 }

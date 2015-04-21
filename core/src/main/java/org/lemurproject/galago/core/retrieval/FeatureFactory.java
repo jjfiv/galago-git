@@ -2,10 +2,7 @@
 package org.lemurproject.galago.core.retrieval;
 
 import org.lemurproject.galago.core.retrieval.iterator.*;
-import org.lemurproject.galago.core.retrieval.iterator.bool.BinaryCountIterator;
-import org.lemurproject.galago.core.retrieval.iterator.bool.BooleanScoreIterator;
-import org.lemurproject.galago.core.retrieval.iterator.bool.ExistentialIndicatorIterator;
-import org.lemurproject.galago.core.retrieval.iterator.bool.UniversalIndicatorIterator;
+import org.lemurproject.galago.core.retrieval.iterator.bool.*;
 import org.lemurproject.galago.core.retrieval.iterator.counts.CountsSumIterator;
 import org.lemurproject.galago.core.retrieval.iterator.counts.LogCountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.scoring.*;
@@ -82,6 +79,7 @@ public class FeatureFactory {
     {UniversalIndicatorIterator.class.getName(), "band"},
     {ExistentialIndicatorIterator.class.getName(), "any"},
     {ExistentialIndicatorIterator.class.getName(), "bor"},
+    {BooleanNotIterator.class.getName(), "bnot"},
 
     // indicator -> count iterators
     {BinaryCountIterator.class.getName(), "bool-to-count"},
