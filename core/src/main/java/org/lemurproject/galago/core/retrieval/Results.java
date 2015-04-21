@@ -8,7 +8,9 @@ import org.lemurproject.galago.core.retrieval.query.Node;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Base results class Wrapper for a list of results, and provides some utility
@@ -24,12 +26,12 @@ public class Results implements Serializable {
 
   // empty construction -- a
   public Results() {
-    this.scoredDocuments = new ArrayList<ScoredDocument>();
+    this.scoredDocuments = new ArrayList<>();
   }
 
   public Results(Node query) {
     this.inputQuery = query;
-    this.scoredDocuments = new ArrayList<ScoredDocument>();
+    this.scoredDocuments = new ArrayList<>();
   }
 
   public Results(Node query, List<ScoredDocument> scoredDocuments) {
@@ -42,7 +44,7 @@ public class Results implements Serializable {
    * @return a list of results, cast to ScoredPassages.
    */
   public List<ScoredPassage> asPassages() {
-    ArrayList<ScoredPassage> passages = new ArrayList<ScoredPassage>();
+    ArrayList<ScoredPassage> passages = new ArrayList<>();
     for(ScoredDocument doc : scoredDocuments) {
       assert(doc instanceof ScoredPassage);
       passages.add((ScoredPassage) doc);
@@ -50,8 +52,12 @@ public class Results implements Serializable {
     return passages;
   }
 
-  public void addBest(List<Results> results, int requested) {
-    // TODO create new results, and merge in sorted order
-    throw new UnsupportedOperationException();
+  /** Return the set of all retrieved document names. */
+  public Set<String> resultSet() {
+    HashSet<String> names = new HashSet<>();
+    for (ScoredDocument sdoc : scoredDocuments) {
+      names.add(sdoc.documentName);
+    }
+    return names;
   }
 }

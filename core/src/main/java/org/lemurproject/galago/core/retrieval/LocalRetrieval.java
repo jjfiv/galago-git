@@ -182,6 +182,18 @@ public class LocalRetrieval implements Retrieval {
         return executeQuery(queryTree, Parameters.create());
     }
 
+    /**
+     * Simple method to avoid boilerplate.
+     */
+    public Results transformAndExecuteQuery(Node queryTree) {
+        try {
+            Parameters qp = Parameters.create();
+            return executeQuery(transformQuery(queryTree, qp), qp);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     // Based on the root of the tree, that dictates how we execute.
     @Override
     public Results executeQuery(Node queryTree, Parameters queryParams) throws Exception {

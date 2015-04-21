@@ -5,8 +5,6 @@ import org.lemurproject.galago.core.index.mem.MemoryIndex;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.TagTokenizer;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
-import org.lemurproject.galago.core.retrieval.Results;
-import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tokenize.Tokenizer;
@@ -37,16 +35,9 @@ public class BooleanScoreIteratorTest {
 	}
 
 	static Set<String> matchingDocuments(LocalRetrieval ret, String query) throws Exception {
-		Parameters qp = Parameters.create();
 		Node sq = StructuredQuery.parse(query);
 		System.err.println(sq);
-		Node xq = ret.transformQuery(sq, qp);
-		Results res = ret.executeQuery(xq, qp);
-		HashSet<String> names = new HashSet<>();
-		for (ScoredDocument sdoc : res.scoredDocuments) {
-			names.add(sdoc.documentName);
-		}
-		return names;
+		return ret.transformAndExecuteQuery(sq).resultSet();
 	}
 
 	static Set<String> mkSet(String... data) {
