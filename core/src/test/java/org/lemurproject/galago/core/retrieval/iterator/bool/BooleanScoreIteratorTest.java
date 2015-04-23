@@ -50,8 +50,8 @@ public class BooleanScoreIteratorTest {
 	public void testBooleanAnd() throws Exception {
 		MemoryIndex index = new MemoryIndex();
 		index.process(makeBooleanDocument("1", "a", "b", "c"));
-		index.process(makeBooleanDocument("2",      "b", "c", "d"));
-		index.process(makeBooleanDocument("3",           "c", "d", "e"));
+		index.process(makeBooleanDocument("2", "b", "c", "d"));
+		index.process(makeBooleanDocument("3", "c", "d", "e"));
 
 		LocalRetrieval ret = new LocalRetrieval(index);
 		assertEquals(mkSet("1", "2"), matchingDocuments(ret, "#bool(#band(b c))"));
@@ -132,4 +132,16 @@ public class BooleanScoreIteratorTest {
 		assertEquals(-1.1791, rank1.score, 0.0001);
 
 	}
+
+	@Test
+	public void testBooleanAndNot() throws Exception {
+		MemoryIndex index = new MemoryIndex();
+		index.process(makeBooleanDocument("1", "a", "b", "c"));
+		index.process(makeBooleanDocument("2",      "b", "c", "d"));
+		index.process(makeBooleanDocument("3",           "c", "d", "e"));
+
+		LocalRetrieval ret = new LocalRetrieval(index);
+		assertEquals(mkSet("1"), matchingDocuments(ret, "#bool(#band(b c #bnot(d)))"));
+	}
+
 }
