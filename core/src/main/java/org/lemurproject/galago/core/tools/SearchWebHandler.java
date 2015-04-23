@@ -97,7 +97,7 @@ public class SearchWebHandler implements WebHandler {
     public void handleSnippet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String identifier = request.getParameter("identifier");
         String[] terms = request.getParameterValues("term");
-        Set<String> queryTerms = new HashSet<String>(Arrays.asList(terms));
+        Set<String> queryTerms = new HashSet<>(Arrays.asList(terms));
 
         DocumentComponents p = new DocumentComponents(true, true, false);
         Document document = search.getDocument(identifier, p);
@@ -198,6 +198,9 @@ public class SearchWebHandler implements WebHandler {
         writer.append("</div>");
 
         for (SearchResultItem item : result.items) {
+            if(item.displayTitle.trim().isEmpty()) {
+                item.displayTitle = "<document link>";
+            }
             writer.append("<div id=\"result\">\n");
             writer.append(String.format("<a href=\"document?identifier=%s\">%s</a><br/>"
                     + "<div id=\"summary\">%s</div>\n"
