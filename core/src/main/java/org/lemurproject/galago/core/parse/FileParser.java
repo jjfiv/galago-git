@@ -36,14 +36,14 @@ class FileParser extends DocumentStreamParser {
     }
   }
 
-  public String stripExtension(String name, String extension) {
+  public static String stripExtension(String name, String extension) {
     if (name.endsWith(extension)) {
       name = name.substring(0, name.length() - extension.length());
     }
     return name;
   }
 
-  public String stripExtensions(String name) {
+  public static String stripExtensions(String name) {
     name = stripExtension(name, ".bz");
     name = stripExtension(name, ".bz2");
     name = stripExtension(name, ".gz");
@@ -56,7 +56,7 @@ class FileParser extends DocumentStreamParser {
   /**
    * finds the first &lt;title&gt; in the string
    */
-  public String getTitle(String text) {
+  public static String getTitle(String text) {
     try {
       int start = text.indexOf("<title>");
       if (start < 0) {

@@ -107,6 +107,6 @@ public class DirichletScoringIterator extends ScoringFunctionIterator
   private double dirichletScore(double count, double length) {
     double numerator = count + (mu * background);
     double denominator = length + mu;
-    return Math.log(numerator / denominator);
+    return Math.log(numerator) - Math.log(denominator);
   }
 }
