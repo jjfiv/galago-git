@@ -73,15 +73,16 @@ public class RelevanceFeedbackTraversalTest {
     correct.append("#text:cat() ");
     correct.append("#text:moon() )");
   */
-    correct.append("#combine:0=0.05001660577881102:1=0.04165282851765748( ");
-    correct.append("#text:ugly() ");
-    correct.append("#text:moon() )");
+    assertEquals(transformed.getNodeParameters().get("0", -1.0), 0.05001, 0.00001);
+    assertEquals(transformed.getNodeParameters().get("1", -1.0), 0.04165, 0.00001);
+    assertEquals("text", transformed.getChild(0).getOperator());
+    assertEquals("ugly", transformed.getChild(0).getDefaultParameter());
+    assertEquals("text", transformed.getChild(1).getOperator());
+    assertEquals("moon", transformed.getChild(1).getDefaultParameter());
+    //correct.append("#combine:0=0.05001660577881102:1=0.04165282851765748( ");
+    //correct.append("#text:ugly() ");
+    //correct.append("#text:moon() )");
 
- //  System.err.println(transformed.toString());
- //   System.err.println(correct.toString());
-    
-    assertEquals(correct.toString(), transformed.toString());
-    
     retrieval.close();
   }
 
@@ -102,13 +103,29 @@ public class RelevanceFeedbackTraversalTest {
     // truth data
     StringBuilder correct = new StringBuilder();
 
-    correct.append("#combine:0=0.9:1=0.09999999999999998( #combine:fbDocs=10:fbTerms=4( #dirichlet( #extents:jumped:part=postings() ) ) ");
-    correct.append("#combine:0=0.05001660577881102:1=0.04165282851765748( #text:ugly() #text:moon() ) )");
+    assertEquals("combine", transformed.getChild(0).getOperator());
+    assertEquals("dirichlet", transformed.getChild(0).getChild(0).getOperator());
+
+    // top level 0.9 original, 0.1 new
+    assertEquals(transformed.getNodeParameters().get("0", -1.0), 0.9, 0.00001);
+    assertEquals(transformed.getNodeParameters().get("1", -1.0), 0.1, 0.00001);
+
+    // inside new:
+    assertEquals(transformed.getChild(1).getNodeParameters().get("0", -1.0), 0.05001, 0.00001);
+    assertEquals(transformed.getChild(1).getNodeParameters().get("1", -1.0), 0.04165, 0.00001);
+
+    assertEquals("text", transformed.getChild(1).getChild(0).getOperator());
+    assertEquals("ugly", transformed.getChild(1).getChild(0).getDefaultParameter());
+    assertEquals("text", transformed.getChild(1).getChild(1).getOperator());
+    assertEquals("moon", transformed.getChild(1).getChild(1).getDefaultParameter());
+
+    //correct.append("#combine:0=0.9:1=0.09999999999999998( #combine:fbDocs=10:fbTerms=4( #dirichlet( #extents:jumped:part=postings() ) ) ");
+    //correct.append("#combine:0=0.05001660577881102:1=0.04165282851765748( #text:ugly() #text:moon() ) )");
     
     //System.err.println(transformed.toString());
     //System.err.println(correct.toString());
 
-    assertEquals(correct.toString(), transformed.toString());
+    //assertEquals(correct.toString(), transformed.toString());
  
     retrieval.close();
   }
