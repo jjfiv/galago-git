@@ -145,7 +145,8 @@ public class RelevanceFeedbackTraversalTest {
     Node transformed = retrieval.transformQuery(parsedTree, p);
     // truth data
     StringBuilder correct = new StringBuilder();
-    correct.append("#combine:fbDocs=10:fbTerms=4:w=1.0( #dirichlet:avgLength=7.0:collectionLength=70:documentCount=10:maximumCount=0:nodeFrequency=0:w=1.0( #lengths:document:part=lengths() #counts:neverawordinedgewise:part=postings() ) )");
+    correct.append("#combine:fbDocs=10:fbTerms=4:w=1.0( ")
+           .append("#dirichlet:collectionLength=70:maximumCount=0:nodeFrequency=0:w=1.0( #lengths:document:part=lengths() #counts:neverawordinedgewise:part=postings() ) )");
         
     System.err.println(transformed.toString());
     System.err.println(correct.toString());

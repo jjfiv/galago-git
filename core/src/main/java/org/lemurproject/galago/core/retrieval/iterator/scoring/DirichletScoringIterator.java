@@ -18,7 +18,7 @@ import java.io.IOException;
  *
  * @author sjh
  */
-@RequiredStatistics(statistics = {"collectionLength", "documentCount", "nodeFrequency", "maximumCount", "avgLength"})
+@RequiredStatistics(statistics = {"collectionLength", "nodeFrequency", "maximumCount"})
 @RequiredParameters(parameters = {"mu"})
 public class DirichletScoringIterator extends ScoringFunctionIterator
         implements DeltaScoringIterator {

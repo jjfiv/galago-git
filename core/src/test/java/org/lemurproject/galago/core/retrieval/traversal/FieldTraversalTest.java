@@ -62,7 +62,7 @@ public class FieldTraversalTest {
     Node fielded = fieldSetter.traverse(prepared, Parameters.parseArray("setField", "title", "stemmer", ""));
 
     // make sure we've switched the parts appropriately
-    assertEquals("#combine:w=1.0( #dirichlet:avgLength=200.0:collectionLength=1000:documentCount=5:maximumCount=5:nodeFrequency=13:w=0.3333333333333333( #lengths:title:part=lengths() #counts:cat:part=field.title() ) #dirichlet:avgLength=200.0:collectionLength=1000:documentCount=5:maximumCount=4:nodeFrequency=11:w=0.3333333333333333( #lengths:title:part=lengths() #counts:dog:part=field.title() ) #dirichlet:avgLength=200.0:collectionLength=1000:documentCount=5:maximumCount=5:nodeFrequency=12:w=0.3333333333333333( #lengths:title:part=lengths() #counts:donkey:part=field.title() ) )", fielded.toString());
+    assertEquals("#combine:w=1.0( #dirichlet:collectionLength=1000:maximumCount=5:nodeFrequency=13:w=0.3333333333333333( #lengths:title:part=lengths() #counts:cat:part=field.title() ) #dirichlet:collectionLength=1000:maximumCount=4:nodeFrequency=11:w=0.3333333333333333( #lengths:title:part=lengths() #counts:dog:part=field.title() ) #dirichlet:collectionLength=1000:maximumCount=5:nodeFrequency=12:w=0.3333333333333333( #lengths:title:part=lengths() #counts:donkey:part=field.title() ) )", fielded.toString());
 
     List<ScoredDocument> docs = retrieval.executeQuery(fielded).scoredDocuments;
     assertFalse(docs.isEmpty());
