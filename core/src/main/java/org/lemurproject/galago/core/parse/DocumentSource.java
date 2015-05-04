@@ -117,11 +117,17 @@ public class DocumentSource implements ExNihiloSource<DocumentSplit> {
   }
 
   public static List<DocumentSplit> processFile(File fp, Parameters conf) throws IOException {
+    // Be smart here, so we delegate to processDirectory as needed.
+    if(fp.isDirectory()) {
+      return processDirectory(fp, conf);
+    }
+
     String inputPolicy = conf.get("inputPolicy", "require");
 
     String forceFileType = conf.get("filetype", (String) null);
 
     ArrayList<DocumentSplit> documents = new ArrayList<>();
+
 
     // First, make sure this file exists. If not, whine about it.
     if (!fp.exists()) {

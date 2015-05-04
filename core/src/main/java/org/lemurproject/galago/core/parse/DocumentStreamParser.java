@@ -13,7 +13,11 @@ import java.util.logging.Logger;
 import java.util.zip.ZipFile;
 
 /**
+ * This is the interface to Galago's abstract parser system.
+ * All parsers inherit from this abstract class and are created here via reflection.
  *
+ * @see org.lemurproject.galago.core.parse.DocumentSource
+ * @see org.lemurproject.galago.core.util.DocumentSplitFactory
  * @author trevor, sjh
  */
 public abstract class DocumentStreamParser implements Closeable {
