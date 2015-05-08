@@ -69,7 +69,7 @@ public class GeometricIndex implements DynamicIndex, Index {
   private int indexBlockSize; // measured in documents
   // indexing dynamics
   private MemoryIndex currentMemoryIndex;
-  private GeometricPartitions geometricParts;
+  private final GeometricPartitions geometricParts;
   private int indexBlockCount;
   public long globalDocumentCount;
   // checkpoint data
@@ -225,14 +225,15 @@ public class GeometricIndex implements DynamicIndex, Index {
       }
     }
     if (itrs.size() > 0) {
-      if (node.getOperator().equals("counts")) {
-        return new DisjointCountsIterator((Collection) itrs);
-      } else if (node.getOperator().equals("extents")) {
-        return new DisjointLengthsIterator((Collection) itrs);
-      } else if (node.getOperator().equals("lengths")) {
-        return new DisjointLengthsIterator((Collection) itrs);
-      } else if (node.getOperator().equals("names")) {
-        return new DisjointNamesIterator((Collection) itrs);
+      switch (node.getOperator()) {
+        case "counts":
+          return new DisjointCountsIterator((Collection) itrs);
+        case "extents":
+          return new DisjointLengthsIterator((Collection) itrs);
+        case "lengths":
+          return new DisjointLengthsIterator((Collection) itrs);
+        case "names":
+          return new DisjointNamesIterator((Collection) itrs);
       }
       // TODO: add other supported iterator classes as required.
     }
@@ -325,7 +326,7 @@ public class GeometricIndex implements DynamicIndex, Index {
     // maintain the document store (corpus) - if there is one
     if (currentMemoryIndex.containsPart("corpus")) {
       // get all corpora + shove into document store
-      ArrayList<DocumentReader> readers = new ArrayList<DocumentReader>();
+      ArrayList<DocumentReader> readers = new ArrayList<>();
       readers.add((DocumentReader) currentMemoryIndex.getIndexPart("corpus"));
       for (String path : geometricParts.getAllShards().getBinPaths()) {
         String corpus = path + File.separator + "corpus";
@@ -353,7 +354,6 @@ public class GeometricIndex implements DynamicIndex, Index {
 
     logger.info("Flushing current memory Index. id = " + indexBlockCount);
 
-    final GeometricIndex g = this;
     final MemoryIndex flushingMemoryIndex = currentMemoryIndex;
     final File shardFolder = getNextIndexShardFolder(1);
 
@@ -367,7 +367,7 @@ public class GeometricIndex implements DynamicIndex, Index {
 
     try {
       // first flush the index to disk
-      (new FlushToDisk()).flushMemoryIndex(flushingMemoryIndex, shardFolder.getAbsolutePath(), false);
+      FlushToDisk.flushMemoryIndex(flushingMemoryIndex, shardFolder.getAbsolutePath(), false);
 
       // indicate that the flushing part of this thread is done
       synchronized (geometricParts) {
@@ -386,7 +386,7 @@ public class GeometricIndex implements DynamicIndex, Index {
   private void maintainMergeLocal() {
     logger.info("Maintaining Merge Local");
     try {
-      Bin mergeBin = null;
+      Bin mergeBin;
       synchronized (geometricParts) {
         mergeBin = geometricParts.findMergeCandidates();
       }
@@ -400,7 +400,7 @@ public class GeometricIndex implements DynamicIndex, Index {
         Parameters p = this.globalParameters.clone();
         // override each of these particular parameters
         p.set("indexPath", indexShard.getAbsolutePath());
-        p.set("inputPath", new ArrayList(mergeBin.getBinPaths()));
+        p.set("inputPath", new ArrayList<>(mergeBin.getBinPaths()));
         p.set("renumberDocuments", false);
 
         App.run("merge-index", p, System.out);
