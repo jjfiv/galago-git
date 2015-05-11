@@ -199,7 +199,7 @@ public class SearchWebHandler implements WebHandler {
 
         for (SearchResultItem item : result.items) {
             if(item.displayTitle.trim().isEmpty()) {
-                item.displayTitle = "<document link>";
+                item.displayTitle = "&lt;document link&gt;";
             }
             writer.append("<div id=\"result\">\n");
             writer.append(String.format("<a href=\"document?identifier=%s\">%s</a><br/>"

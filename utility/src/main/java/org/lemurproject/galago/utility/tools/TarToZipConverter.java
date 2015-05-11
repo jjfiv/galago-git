@@ -3,9 +3,9 @@ package org.lemurproject.galago.utility.tools;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.StreamCreator;
 import org.lemurproject.galago.utility.StreamUtil;
 
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.zip.ZipEntry;
@@ -30,7 +30,7 @@ public class TarToZipConverter extends AppFunction {
 
   @Override
   public void run(Parameters p, PrintStream output) throws Exception {
-    TarArchiveInputStream tais = new TarArchiveInputStream(new FileInputStream(p.getString("input")));
+    TarArchiveInputStream tais = new TarArchiveInputStream(StreamCreator.openInputStream(p.getString("input")));
     ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(p.getString("output")));
     boolean quiet = p.get("quiet", false);
 
