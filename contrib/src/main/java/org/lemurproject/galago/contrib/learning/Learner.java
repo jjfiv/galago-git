@@ -109,7 +109,7 @@ public abstract class Learner {
     threadCount = (int) (p.isLong("threadCount") ? p.getLong("threadCount") : Runtime.getRuntime().availableProcessors());
 
     List<Parameters> params = p.getList("learnableParameters", Parameters.class);
-    List<Parameters> normalizationRules = new ArrayList<Parameters>();
+    List<Parameters> normalizationRules = new ArrayList<>();
     if (p.isList("normalization", Parameters.class)
             || p.isMap("normalization")) {
       normalizationRules.addAll(p.getAsList("normalization", Parameters.class));
@@ -118,7 +118,7 @@ public abstract class Learner {
     learnableParameters = new RetrievalModelParameters(params, normalizationRules);
 
     restarts = (int) p.get("restarts", 1);
-    initialSettings = new ArrayList<RetrievalModelInstance>(restarts);
+    initialSettings = new ArrayList<>(restarts);
     if (p.isList("initialParameters", Parameters.class)) {
       List<Parameters> inits = p.getAsList("initialParameters", Parameters.class);
       for (Parameters init : inits) {
@@ -127,7 +127,7 @@ public abstract class Learner {
       }
     }
 
-    testedParameters = new HashMap<String,Double>();
+    testedParameters = new HashMap<>();
 
     // caching system
     if (retrieval.getGlobalParameters().get("cache", false)) {
@@ -186,6 +186,7 @@ public abstract class Learner {
 
     // get the parameter settigns
     Parameters settings = instance.toParameters();
+    System.err.println("New settings: "+settings.toString());
 
     long start = System.currentTimeMillis();
     double count = 0;
@@ -260,7 +261,7 @@ public abstract class Learner {
 
       root1 = this.ensureSettings(root1, settings1);
       root1 = this.retrieval.transformQuery(root1, settings1);
-      Set<String> cachableNodes1 = new HashSet<String>();
+      Set<String> cachableNodes1 = new HashSet<>();
       collectCachableNodes(root1, cachableNodes1);
 
       Node root2 = this.queries.getNode(number).clone();

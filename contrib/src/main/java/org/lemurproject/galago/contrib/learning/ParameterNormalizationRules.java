@@ -3,9 +3,10 @@
  */
 package org.lemurproject.galago.contrib.learning;
 
+import org.lemurproject.galago.utility.Parameters;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.lemurproject.galago.utility.Parameters;
 
 /**
  *
@@ -28,9 +29,9 @@ public class ParameterNormalizationRules {
   private List<Rule> rules;
 
   public ParameterNormalizationRules(List<Parameters> rules) {
-    this.rules = new ArrayList();
+    this.rules = new ArrayList<>();
     for (Parameters rule : rules) {
-      this.rules.add(new Rule(rule.getString("mode"), (List<String>) rule.getList("params"), rule.getDouble("value")));
+      this.rules.add(new Rule(rule.getString("mode"), rule.getList("params", String.class), rule.getDouble("value")));
     }
   }
 

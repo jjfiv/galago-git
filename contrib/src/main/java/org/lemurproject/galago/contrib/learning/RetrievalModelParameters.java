@@ -25,11 +25,11 @@ public class RetrievalModelParameters {
   private TObjectDoubleHashMap<String> ranges;
 
   public RetrievalModelParameters(List<Parameters> learnableParameters, List<Parameters> rules) {
-    this.names = new TreeSet<String>();
-    this.parameterSpecifics = new HashMap<String,Parameters>();
-    this.maxValues = new TObjectDoubleHashMap<String>();
-    this.minValues = new TObjectDoubleHashMap<String>();
-    this.ranges = new TObjectDoubleHashMap<String>();
+    this.names = new TreeSet<>();
+    this.parameterSpecifics = new HashMap<>();
+    this.maxValues = new TObjectDoubleHashMap<>();
+    this.minValues = new TObjectDoubleHashMap<>();
+    this.ranges = new TObjectDoubleHashMap<>();
 
     for (Parameters param : learnableParameters) {
       String name = param.getString("name");

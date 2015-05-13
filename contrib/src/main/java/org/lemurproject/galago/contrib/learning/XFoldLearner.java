@@ -48,14 +48,14 @@ public class XFoldLearner extends Learner {
     foldLearners = new HashMap<>(xfoldCount);
 
     // randomize order of queries
-    queryNumbers = new ArrayList<String>(this.queries.queryIdentifiers);
+    queryNumbers = new ArrayList<>(this.queries.queryIdentifiers);
     Collections.shuffle(queryNumbers, random);
 
     // split queries into folds
     int foldSize = (int) Math.ceil((double) queryNumbers.size() / (double) xfoldCount);
     for (int foldId = 0; foldId < xfoldCount; foldId++) {
-      List<String> xfoldQueryNumbers = queryNumbers.subList(foldId * foldSize, (foldId + 1) * foldSize);
-      List<String> xfoldQueryNumbersInverse = new ArrayList<String>(queryNumbers);
+      List<String> xfoldQueryNumbers = queryNumbers.subList(foldId * foldSize, Math.min(queryNumbers.size(), (foldId + 1) * foldSize));
+      List<String> xfoldQueryNumbersInverse = new ArrayList<>(queryNumbers);
       xfoldQueryNumbersInverse.removeAll(xfoldQueryNumbers);
 
       outputTraceStream.println(String.format("%s - Fold: %d contains %d + %d = %d queries", name, foldId, xfoldQueryNumbers.size(), xfoldQueryNumbersInverse.size(), this.queries.queryIdentifiers.size()));
@@ -106,7 +106,7 @@ public class XFoldLearner extends Learner {
   @Override
   public RetrievalModelInstance learn() throws Exception {
     if (execute) {
-      final List<RetrievalModelInstance> learntParams = new ArrayList<RetrievalModelInstance>();
+      final List<RetrievalModelInstance> learntParams = new ArrayList<>();
 
       // one set of results per fold.
       for (int foldId : foldLearners.keySet()) {

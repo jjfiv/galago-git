@@ -19,9 +19,11 @@ import org.lemurproject.galago.utility.StreamUtil;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -41,7 +43,10 @@ public class LearnerTest {
       index = files[2]; // index is required
       qrels = FileUtility.createTemporary();
 
-      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.parseString("{\"cache\" : true, \"flattenCombine\" : true, \"cacheScores\": true}"));
+      Retrieval ret = RetrievalFactory.instance(index.getAbsolutePath(), Parameters.parseArray(
+          "cache", true,
+          "flattenCombine", true,
+          "cacheScores", true));
 
       String qrelData =
               "q1 x 2 1\n"
@@ -56,17 +61,17 @@ public class LearnerTest {
       learnParams.set("learner", "grid");
       learnParams.set("qrels", qrels.getAbsolutePath());
       // add two parameters
-      List<Parameters> learnableParams = new ArrayList<Parameters>();
-      learnableParams.add(Parameters.parseString("{\"name\":\"uniw\", \"max\":1.0, \"min\":-1.0}"));
-      learnableParams.add(Parameters.parseString("{\"name\":\"odw\", \"max\":1.0, \"min\":-1.0}"));
-      learnableParams.add(Parameters.parseString("{\"name\":\"uww\", \"max\":1.0, \"min\":-1.0}"));
+      List<Parameters> learnableParams = new ArrayList<>();
+      learnableParams.add(Parameters.parseArray("name", "uniw", "max", 1.0, "min", -1.0));
+      learnableParams.add(Parameters.parseArray("name", "odw", "max", 1.0, "min", -1.0));
+      learnableParams.add(Parameters.parseArray("name", "uww", "max", 1.0, "min", -1.0));
       learnParams.set("learnableParameters", learnableParams);
       // add sum rule to ensure sums to 1
       Parameters normalRule = Parameters.create();
       normalRule.set("mode", "sum");
       normalRule.set("params", Arrays.asList(new String[]{"0", "1"}));
       normalRule.set("value", 1D);
-      learnParams.set("normalization", Arrays.asList(normalRule));
+      learnParams.set("normalization", Collections.singletonList(normalRule));
 
       learnParams.set("gridSize", 3);
       learnParams.set("restarts", 1);
@@ -78,6 +83,7 @@ public class LearnerTest {
       //  System.err.println(p);
       // }
 
+      assertNotNull(learner);
       LocalRetrieval r = (LocalRetrieval) learner.retrieval;
 
       // generate some new random parameters
