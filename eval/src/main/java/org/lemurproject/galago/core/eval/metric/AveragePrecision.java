@@ -36,7 +36,7 @@ public class AveragePrecision extends QueryEvaluator {
     }
 
     if (judgments.getRelevantJudgmentCount() > 0) {
-      return (double) sumPrecision / judgments.getRelevantJudgmentCount();
+      return sumPrecision / (double) judgments.getRelevantJudgmentCount();
     }
     // if there are no relevant documents, 
     // the average is artificially defined as zero, to mimic trec_eval

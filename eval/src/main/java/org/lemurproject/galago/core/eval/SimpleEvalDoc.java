@@ -17,6 +17,10 @@ public class SimpleEvalDoc extends Ranked implements EvalDoc {
     this.name = name;
   }
 
+  public SimpleEvalDoc(EvalDoc evalDoc) {
+    this(evalDoc.getName(), evalDoc.getRank(), evalDoc.getScore());
+  }
+
   @Override
   public int getRank() {
     return rank;

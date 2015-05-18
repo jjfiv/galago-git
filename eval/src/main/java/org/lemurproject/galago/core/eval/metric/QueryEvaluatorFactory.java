@@ -28,6 +28,8 @@ public class QueryEvaluatorFactory {
         return new CountRetrieved(metric);
       case "num_rel":
         return new CountRelevant(metric);
+      case "jmap":
+        return new JudgedAveragePrecision(metric);
       case "map":
       case "ap":
       case "averageprecision":
