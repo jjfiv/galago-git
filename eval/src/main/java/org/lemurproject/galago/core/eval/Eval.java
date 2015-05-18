@@ -276,6 +276,15 @@ public class Eval extends AppFunction {
     }
   }
 
+
+  public static String[] DefaultMetrics = new String[] {
+      "num_ret", "num_rel", "num_rel_ret", "num_unjug_ret@20",
+      "map", "R-prec", "bpref", "recip_rank",
+      "ndcg", "ndcg5", "ndcg10", "ndcg20",
+      "ERR", "ERR10", "ERR20",
+      "P5", "P10", "P15", "P20", "P30", "P100", "P200", "P500", "P1000"
+  };
+
   /**
    * These two methods allow for programmatic ways to receive test results without having to read it off
    * a print stream.
@@ -289,9 +298,7 @@ public class Eval extends AppFunction {
       results.ensureQuerySet(queries);
     }
 
-    String[] metrics = new String[]{"num_ret", "num_rel", "num_rel_ret", "map",
-      "R-prec", "bpref", "recip_rank", "ndcg", "ndcg5", "ndcg10", "ndcg20", "ERR", "ERR10", "ERR20",
-      "P5", "P10", "P15", "P20", "P30", "P100", "P200", "P500", "P1000"};
+    String[] metrics = DefaultMetrics;
 
     // override default list if specified:
     if (p.containsKey("metrics")) {
@@ -328,6 +335,13 @@ public class Eval extends AppFunction {
     return recorded;
   }
 
+
+  public static String[] DefaultComparisonMetrics = new String[] {
+      "map", "R-prec", "bpref",
+      "ndcg", "ndcg5", "ndcg10", "ndcg20",
+      "P5", "P10", "P20"
+  };
+
   public static Parameters comparisonEvaluation(Parameters p, QuerySetJudgments judgments) throws IOException {
     QuerySetResults baseline = new QuerySetResults(p.getString("baseline"));
     QuerySetResults treatment = new QuerySetResults(p.getString("treatment"));
@@ -340,7 +354,7 @@ public class Eval extends AppFunction {
     }
 
 
-    String[] metrics = {"map", "R-prec", "bpref", "ndcg", "ndcg5", "ndcg10", "ndcg20", "P5", "P10", "P20"};
+    String[] metrics = DefaultComparisonMetrics;
     // override default list if specified:
     if (p.containsKey("metrics")) {
       metrics = (String[]) p.getAsList("metrics").toArray(new String[0]);
