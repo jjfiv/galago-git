@@ -140,7 +140,7 @@ public class Eval extends AppFunction {
 
     Parameters eval = singleEvaluation(p, judgments);
 
-    String formatString = "%2$-16s%1$3s %3$10.5f\n";
+    String formatString = "%2$-32s%1$3s %3$10.5f\n";
 
     List<String> metrics = eval.getList("_metrics", String.class);
 
@@ -167,7 +167,7 @@ public class Eval extends AppFunction {
 
     Parameters eval = comparisonEvaluation(p, judgments);
 
-    String formatString = "%1$-20s%2$-20s%3$10.4f\n";
+    String formatString = "%1$-32s%2$-20s%3$10.4f\n";
 
     List<String> metrics = eval.getList("_metrics", String.class);
     List<String> comparisons = eval.getList("_comparisons", String.class);
@@ -397,7 +397,7 @@ public class Eval extends AppFunction {
 
     // override default list if specified:
     if (p.containsKey("metrics")) {
-      metrics = (String[]) p.getAsList("metrics").toArray(new String[0]);
+      metrics = p.getAsList("metrics", String.class).toArray(new String[0]);
     }
 
     String[] tests = new String[]{"randomized"};

@@ -29,11 +29,12 @@ public class App {
     // init function -- allows internal use of app function library
     static {
         log = Logger.getLogger("Galago-App");
-        appFunctions = new HashMap<String, AppFunction>();
+        appFunctions = new HashMap<>();
 
         // list of classpaths to scan
         List<String> cps = new ArrayList<String>();
         cps.add("org.lemurproject.galago");
+        cps.add("org.lemurproject.galago.eval");
 
         Parameters p = GalagoConf.getAllOptions();
         if (p.isString("appclasspath") || p.isList("appclasspath", String.class)) {
