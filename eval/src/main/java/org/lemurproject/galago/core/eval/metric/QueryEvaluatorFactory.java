@@ -71,7 +71,8 @@ public class QueryEvaluatorFactory {
       return new CountUnjudged(metric);
     } else if (lowerMetric.startsWith("frac_unjug_ret")) {
       return new FractionUnjudged(metric);
-
+    } else if (lowerMetric.startsWith("muap")) {
+      return UnjudgedAveragePrecision.create(lowerMetric);
     } else if (lowerMetric.startsWith("mdfa")) {
         int falseAlarmRate = Integer.parseInt(lowerMetric.replace("mdfa", ""));
         double rate = falseAlarmRate / (double) 100;

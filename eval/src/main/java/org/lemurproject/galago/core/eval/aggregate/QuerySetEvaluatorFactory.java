@@ -37,6 +37,7 @@ public class QuerySetEvaluatorFactory {
     } else if (
             lowerMetric.startsWith("frac_unjug_ret")
             || lowerMetric.equals("map")
+            || lowerMetric.startsWith("muap")
             || lowerMetric.equals("averagePrecision")
             || lowerMetric.equals("bpref")
             || lowerMetric.equals("r-prec")
