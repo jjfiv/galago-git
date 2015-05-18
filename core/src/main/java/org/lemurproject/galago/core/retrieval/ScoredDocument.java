@@ -69,11 +69,15 @@ public class ScoredDocument extends Ranked implements EvalDoc, Comparable<Scored
   }
 
   public String toString(String qid) {
-    return String.format("%s Q0 %s %d %s galago", qid, documentName, rank, formatScore(score));
+    return toTRECformat(qid);
   }
 
   public String toTRECformat(String qid) {
-    return String.format("%s Q0 %s %d %s galago", qid, documentName, rank, formatScore(score));
+    return toTRECformat(qid, "galago");
+  }
+
+  public String toTRECformat(String qid, String systemName) {
+    return String.format("%s Q0 %s %d %s %s", qid, documentName, rank, formatScore(score), systemName);
   }
 
   protected static String formatScore(double score) {

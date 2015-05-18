@@ -55,7 +55,7 @@ public abstract class Tokenizer implements Source<Document>, Processor<Document>
   /**
    * Tupleflow-specific information.
    */
-  public Processor<Document> processor = new NullProcessor(Document.class);
+  public Processor<Document> processor = new NullProcessor<>(Document.class);
 
   /**
    * Setup for Tupleflow running.

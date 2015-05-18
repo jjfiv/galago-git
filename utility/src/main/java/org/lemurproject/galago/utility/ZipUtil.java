@@ -43,6 +43,9 @@ public class ZipUtil {
     return false;
   }
 
+  public static void write(ZipOutputStream zos, String name, String data) throws IOException {
+    write(zos, name, ByteUtil.fromString(data));
+  }
   public static void write(ZipOutputStream zos, String name, byte[] data) throws IOException {
     ZipEntry forData = new ZipEntry(name);
     forData.setSize(data.length);
