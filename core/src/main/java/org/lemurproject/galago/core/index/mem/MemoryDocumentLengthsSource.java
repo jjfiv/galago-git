@@ -3,13 +3,14 @@
  */
 package org.lemurproject.galago.core.index.mem;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.index.mem.MemoryDocumentLengths.FieldLengthList;
 import org.lemurproject.galago.core.index.source.LengthSource;
 import org.lemurproject.galago.core.index.source.MemValueSource;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
+
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -68,7 +69,7 @@ public class MemoryDocumentLengthsSource extends MemValueSource implements Lengt
   @Override
   public void syncTo(long id) throws IOException {
     // check is not really required, but there's a preference not to jump around the list.
-    if (id > currDocument) {
+    if (id >= currDocument) {
       currDocument = id;
     }
     if (currDocument > lastDocument) {

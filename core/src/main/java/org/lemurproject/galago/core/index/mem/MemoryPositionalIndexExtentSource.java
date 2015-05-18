@@ -1,15 +1,16 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 import org.lemurproject.galago.core.index.mem.MemoryPositionalIndex.PositionalPostingList;
 import org.lemurproject.galago.core.index.source.ExtentSource;
 import org.lemurproject.galago.core.index.source.MemValueSource;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.util.ExtentArray;
 import org.lemurproject.galago.utility.buffer.VByteInput;
+
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 
 /**
  * @author sjh
@@ -58,6 +59,7 @@ public class MemoryPositionalIndexExtentSource extends MemValueSource implements
     iteratedDocs = 0;
     currDocument = 0;
     currCount = 0;
+    done = false;
     extents = new ExtentArray();
     emptyExtents = new ExtentArray();
 
