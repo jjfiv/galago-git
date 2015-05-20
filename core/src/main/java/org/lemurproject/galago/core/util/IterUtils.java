@@ -30,10 +30,10 @@ public class IterUtils {
    * @param traversalClass the traversal to register
    */
   public static void addToParameters(Parameters argp, Class<? extends Traversal> traversalClass) {
-    List<Parameters> traversals = argp.getList("traversals", Parameters.class);
-    if(traversals == null) {
-      traversals = new ArrayList<>();
+    if(!argp.isList("traversals")) {
+      argp.put("traversals", new ArrayList<>());
     }
+    List<Parameters> traversals = argp.getList("traversals", Parameters.class);
     traversals.add(Parameters.parseArray(
       "name", traversalClass.getName(),
       "order", "before"

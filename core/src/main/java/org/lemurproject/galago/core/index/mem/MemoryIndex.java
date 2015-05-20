@@ -58,7 +58,7 @@ public class MemoryIndex implements DynamicIndex, Index {
     documentCount = documentNumberOffset;
 
     // Load all parts
-    parts = new HashMap<String, MemoryIndexPart>();
+    parts = new HashMap<>();
     Parameters partParams = Parameters.create();
     partParams.set("documentNumberOffset", documentNumberOffset);
     parts.put("names", new MemoryDocumentNames(partParams.clone()));

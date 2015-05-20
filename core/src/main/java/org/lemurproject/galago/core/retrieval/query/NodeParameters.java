@@ -243,6 +243,23 @@ public class NodeParameters implements Serializable {
   }
 
   @Override
+  public boolean equals(Object o) {
+    if(this == o) {
+      return true;
+    }
+    if(!(o instanceof NodeParameters)) {
+      return false;
+    }
+    NodeParameters other =  (NodeParameters) o;
+
+    return Objects.equals(this.keyMapping, other.keyMapping) &&
+        Objects.equals(this.boolMap, other.boolMap) &&
+        Objects.equals(this.longMap, other.longMap) &&
+        Objects.equals(this.stringMap, other.stringMap) &&
+        Objects.equals(this.doubleMap, other.doubleMap);
+  }
+
+  @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
 

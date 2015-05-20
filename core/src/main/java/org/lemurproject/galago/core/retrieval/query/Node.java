@@ -3,12 +3,7 @@ package org.lemurproject.galago.core.retrieval.query;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * <p>Node represents a single node in a query parse tree.</p>
@@ -25,7 +20,7 @@ public class Node implements Serializable {
   private static final Set<String> defaultOmissionSet;
 
   static {
-    defaultOmissionSet = new HashSet<String>();
+    defaultOmissionSet = new HashSet<>();
     defaultOmissionSet.add("lengths");
     defaultOmissionSet.add("passagelengths");
     defaultOmissionSet.add("passagefilter");
@@ -365,34 +360,9 @@ public class Node implements Serializable {
     }
     Node other = (Node) o;
 
-    if ((operator == null) != (other.getOperator() == null)) {
-      return false;
-    }
-    if (operator != null && !other.getOperator().equals(operator)) {
-      return false;
-    }
-
-    String thisDefault = this.nodeParameters.getAsString("default");
-    String thatDefault = other.nodeParameters.getAsString("default");
-
-    if ((thisDefault == null && thatDefault != null)
-            || (thisDefault != null && thatDefault == null)) {
-      return false;
-    }
-    if (thisDefault != null && !thisDefault.equals(thatDefault)) {
-      return false;
-    }
-
-    if (internalNodes.size() != other.getInternalNodes().size()) {
-      return false;
-    }
-    for (int i = 0; i < internalNodes.size(); i++) {
-      if (!internalNodes.get(i).equals(other.getInternalNodes().get(i))) {
-        return false;
-      }
-    }
-
-    return true;
+    return Objects.equals(operator, other.getOperator()) &&
+           Objects.equals(this.getNodeParameters(), other.getNodeParameters()) &&
+           this.internalNodes.equals(other.internalNodes);
   }
 
   @Override
@@ -404,7 +374,7 @@ public class Node implements Serializable {
   }
 
   public static List<Node> cloneNodeList(List<Node> nodeList) {
-    ArrayList<Node> newNodes = new ArrayList<Node>();
+    ArrayList<Node> newNodes = new ArrayList<>();
     for (Node n : nodeList) {
       newNodes.add(n.clone());
     }
