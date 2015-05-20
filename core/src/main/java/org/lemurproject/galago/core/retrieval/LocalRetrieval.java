@@ -168,9 +168,8 @@ public class LocalRetrieval implements Retrieval {
                 doc.documentName = namesIterator.data(sc);
 
             } else {
-                System.err.println("NAMES ITERATOR FAILED TO FIND DOCUMENT " + doc.document);
-                // now throw an error.
-                doc.documentName = index.getName(doc.document);
+                logger.warning("NAMES ITERATOR FAILED TO FIND DOCUMENT " + doc.document);
+                doc.documentName = null;
             }
         }
 
