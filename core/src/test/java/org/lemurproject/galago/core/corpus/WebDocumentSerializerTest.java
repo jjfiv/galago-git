@@ -26,7 +26,7 @@ public class WebDocumentSerializerTest {
         doc.metadata.put("null-meta-key", null);
         doc.name = "doc-name";
         doc.text = "doc text goes here\nand <tag>continues. This is weird</tag>";
-        wds.tokenizer.tokenize(doc);
+        wds.getTokenizer().tokenize(doc);
 
         byte[] docBytes = wds.toBytes(doc);
         assertNotNull(docBytes);
