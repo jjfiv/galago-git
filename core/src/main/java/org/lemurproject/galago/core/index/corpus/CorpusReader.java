@@ -83,7 +83,7 @@ public class CorpusReader extends KeyValueReader implements DocumentReader {
   @Override
   public DiskDataIterator<Document> getIterator(Node node) throws IOException {
     if (node.getOperator().equals("corpus")) {
-      return new DiskDataIterator<Document>(getSource());
+      return new DiskDataIterator<>(getSource());
     } else {
       throw new UnsupportedOperationException(
               "Index doesn't support operator: " + node.getOperator());

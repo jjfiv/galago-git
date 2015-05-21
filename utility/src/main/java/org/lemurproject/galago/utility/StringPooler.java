@@ -68,7 +68,7 @@ public class StringPooler {
 
       // otherwise the pool does not contain the term - gc or new term
       term = new String(term);
-      pool.put(term, new WeakReference<String>(term));
+      pool.put(term, new WeakReference<>(term));
       // still want to set the term to the newly cached term
       terms.set(i, term);
     }

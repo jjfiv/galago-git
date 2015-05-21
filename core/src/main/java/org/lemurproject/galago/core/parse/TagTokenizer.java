@@ -22,7 +22,9 @@ import java.util.regex.Pattern;
  * <p>The text is assumed to contain some HTML/XML tags.  The tokenizer tries
  * to extract as much data as possible from each document, even if it is not
  * well formed (e.g. there are start tags with no ending tags).  The resulting
- * document object contains an array of terms and an array of tags.</p> 
+ * document object contains an array of terms and an array of tags.</p>
+ *
+ * This class is <strong>NOT</strong> threadsafe.
  * 
  * @author trevor
  */
@@ -93,6 +95,7 @@ public class TagTokenizer extends Tokenizer {
       log.log(Level.WARNING, "Parse failure: " + document.name, e);
     }
 
+		assert(document.terms != null);
 		StringPooler.getInstance().transform(document.terms);
   }
 

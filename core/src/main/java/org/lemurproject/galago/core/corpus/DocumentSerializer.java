@@ -1,6 +1,7 @@
 package org.lemurproject.galago.core.corpus;
 
 import org.lemurproject.galago.core.parse.Document;
+import org.lemurproject.galago.core.tokenize.Tokenizer;
 import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.utility.Parameters;
 
@@ -19,6 +20,14 @@ public abstract class DocumentSerializer {
   }
 
   /**
+   * Get a new Tokenizer based on the parameter settings. Since Tokenizer is not assumed to be threadsafe,
+   * we expect to allocate one for each request.
+   * @return Tokenizer instance.
+   */
+  public Tokenizer getTokenizer() {
+    return Tokenizer.create(opts);
+  }
+  /**
    * Convert a Document to an array of byte[] for serializing to a file.
    * @param input a galago Document object
    * @return a byte array representing the document
@@ -28,6 +37,10 @@ public abstract class DocumentSerializer {
 
   /**
    * Convert an input stream into a Document, this is the lowest level call, to be implemented by serialization methods.
+   * @param stream inputStream to read the document.
+   * @param components An object that describes what to load from the serialized document.
+   * @return the Galago Document object.
+   * @throws IOException
    */
   public abstract Document fromStream(DataInputStream stream, Document.DocumentComponents components) throws IOException;
 

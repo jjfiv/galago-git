@@ -16,11 +16,9 @@ import java.io.IOException;
  * @author jfoley.
  */
 public class WebDocumentSerializer extends DocumentSerializer {
-  final Tokenizer tokenizer;
 
   public WebDocumentSerializer(Parameters opts) {
     super(opts);
-    tokenizer = Tokenizer.create(opts);
   }
 
   @Override
@@ -80,6 +78,8 @@ public class WebDocumentSerializer extends DocumentSerializer {
 
     // give back terms & tags
     if(selection.tokenize) {
+      // Tokenizer is *not* threadsafe, so we must make a copy of it for each use in case of threads.
+      Tokenizer tokenizer = getTokenizer();
       tokenizer.tokenize(d);
     }
 
