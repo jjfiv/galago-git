@@ -10,17 +10,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This is Galago's document class. It represents a sequence of tokens that have begin and end offsets back into
+ * original text. It also supports SGML/HTML/XML-like tags which surround tokens and can therefore be mapped back into
+ * the original text.
+ *
+ * Traditionally the document has an internal numeric identifier, and an external human-readable name. The identifier is
+ * assigned automatically during Galago's build process.
+ *
+ * The document also has a Map&lt;String,String&gt; of metadata.
+ */
 public class Document implements Serializable {
 
-  // document id - this value is serialized
+  /** document id - this value is serialized */
   public long identifier = -1;
-  // document data - these values are serialized
+  /** document data - these values are serialized */
   public String name;
   public Map<String, String> metadata;
   public String text;
   public List<String> terms;
-  public List<Integer> termCharBegin = new ArrayList<Integer>();
-  public List<Integer> termCharEnd = new ArrayList<Integer>();
+  public List<Integer> termCharBegin = new ArrayList<>();
+  public List<Integer> termCharEnd = new ArrayList<>();
   public List<Tag> tags;
   // other data - used to generate an identifier; these values can not be serialized!
   public int fileId = -1;
@@ -29,7 +39,7 @@ public class Document implements Serializable {
   public long fileLocation = -1;
 
   public Document() {
-    metadata = new HashMap<String,String>();
+    metadata = new HashMap<>();
   }
 
   public Document(String externalIdentifier, String text) {
@@ -41,12 +51,12 @@ public class Document implements Serializable {
   public Document(Document d) {
     this.identifier = d.identifier;
     this.name = d.name;
-    this.metadata = new HashMap<String,String>(d.metadata);
+    this.metadata = new HashMap<>(d.metadata);
     this.text = d.text;
-    this.terms = new ArrayList<String>(d.terms);
-    this.termCharBegin = new ArrayList<Integer>(d.termCharBegin);
-    this.termCharEnd = new ArrayList<Integer>(d.termCharEnd);
-    this.tags = new ArrayList<Tag>(d.tags);
+    this.terms = new ArrayList<>(d.terms);
+    this.termCharBegin = new ArrayList<>(d.termCharBegin);
+    this.termCharEnd = new ArrayList<>(d.termCharEnd);
+    this.tags = new ArrayList<>(d.tags);
     this.fileId = d.fileId;
     this.totalFileCount = d.totalFileCount;
   }
@@ -93,7 +103,7 @@ public class Document implements Serializable {
   }
 
   public TObjectIntHashMap<String> getBagOfWords() {
-    TObjectIntHashMap<String> termCounts = new TObjectIntHashMap<String>();
+    TObjectIntHashMap<String> termCounts = new TObjectIntHashMap<>();
     for(String term : terms) {
       termCounts.adjustOrPutValue(term, 1, 1);
     }
