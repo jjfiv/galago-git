@@ -2,7 +2,13 @@
 package org.lemurproject.galago.core.retrieval.iterator.scoring;
 
 import org.junit.Test;
+import org.lemurproject.galago.core.retrieval.LocalRetrieval;
+import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
+import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.utility.Parameters;
+
+import java.io.File;
 
 import static org.junit.Assert.assertEquals;
 
@@ -47,5 +53,13 @@ public class BM25ScorerTest {
     assertEquals(50.0, scorer.avgDocLength, 0.001);
     assertEquals(1.58474, scorer.idf, 0.0001);
     assertEquals(3.79327, scorer.score(15, 200), 0.0001);
+  }
+
+  @Test
+  public void testQueryTransforms() throws Exception {
+    File index = LocalRetrievalTest.makeIndex();
+    LocalRetrieval loc = new LocalRetrieval(index.getAbsolutePath());
+    Parameters qp = Parameters.create();
+    System.err.println(loc.transformQuery(StructuredQuery.parse("#bm25(the dog is dumb)"), qp));
   }
 }
