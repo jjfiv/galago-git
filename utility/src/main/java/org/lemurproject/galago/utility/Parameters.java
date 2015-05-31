@@ -303,11 +303,33 @@ public class Parameters implements Serializable, Map<String,Object> {
     }
   }
 
+  public int getInt(String key) {
+    Object val = getOrThrow(key);
+    if(val instanceof Long) {
+      long x = (Long) val;
+      if(x > Integer.MAX_VALUE || x < Integer.MIN_VALUE) {
+        throw new IllegalArgumentException("Couldn't get "+key+"="+x+" as an integer, it's too big!");
+      }
+      return (int) x;
+    } else if(val instanceof Integer) {
+      return (Integer) val;
+    } else {
+      throw new IllegalArgumentException("Key " + key + " does not exist as an integer in parameters object, instead found " + val);
+    }
+  }
+
   public long get(String key, long def) {
     Object val = get(key);
     if(val == null)
       return def;
     return getLong(key);
+  }
+
+  public int get(String key, int def) {
+    Object val = get(key);
+    if(val == null)
+      return def;
+    return getInt(key);
   }
 
   public double getDouble(String key) {
