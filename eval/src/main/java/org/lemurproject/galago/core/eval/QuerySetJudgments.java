@@ -1,6 +1,7 @@
 //  BSD License (http://www.galagosearch.org/license)
 package org.lemurproject.galago.core.eval;
 
+import org.lemurproject.galago.utility.StreamCreator;
 import org.lemurproject.galago.utility.WrappedMap;
 
 import java.io.*;
@@ -57,20 +58,18 @@ public class QuerySetJudgments extends WrappedMap<String, QueryJudgments> {
    * @throws java.io.IOException file issues
    */
   public static Map<String, QueryJudgments> loadJudgments(String filename, boolean makeBinary, boolean makePositive) throws IOException {
-    BufferedReader in = null;
-    Map<String, QueryJudgments> judgments = new TreeMap<String,QueryJudgments>();
+    Map<String, QueryJudgments> judgments = new TreeMap<>();
 
-    try {
-      in = new BufferedReader(new FileReader(filename));
-
-      while (true) {
+    try (BufferedReader in = new BufferedReader(new InputStreamReader(StreamCreator.openInputStream(filename), "UTF-8"))) {
+      while(true)
+      {
         String line = in.readLine();
         if (line == null) {
           break;
         }
-        
+
         String[] cols = line.split("\\s+");
-        assert(cols.length == 4);
+        assert (cols.length == 4);
 
         String queryNumber = cols[0];
         String unused = cols[1];
@@ -90,10 +89,6 @@ public class QuerySetJudgments extends WrappedMap<String, QueryJudgments> {
           j = (j > 0) ? j : 0;
         }
         judgments.get(queryNumber).add(docno, j);
-      }
-    } finally {
-      if (in != null) {
-        in.close();
       }
     }
 
