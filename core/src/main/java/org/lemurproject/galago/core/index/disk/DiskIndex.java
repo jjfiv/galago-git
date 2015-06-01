@@ -2,10 +2,9 @@
 package org.lemurproject.galago.core.index.disk;
 
 import org.lemurproject.galago.core.btree.format.BTreeFactory;
-import org.lemurproject.galago.utility.btree.BTreeReader;
+import org.lemurproject.galago.core.btree.format.SplitBTreeReader;
 import org.lemurproject.galago.core.index.*;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
-import org.lemurproject.galago.core.btree.format.SplitBTreeReader;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
@@ -14,11 +13,13 @@ import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
+import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.FileUtility;
-import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.btree.BTreeReader;
 
 import java.io.Closeable;
 import java.io.File;
@@ -273,6 +274,20 @@ public class DiskIndex implements Index, Closeable {
       }
     }
     return result;
+  }
+
+  public List<String> getAllNames() throws IOException {
+    List<String> output = new ArrayList<>();
+    ScoringContext ctx = new ScoringContext();
+    DataIterator<String> iter = getNamesIterator();
+    while(!iter.isDone()) {
+      long doc = iter.currentCandidate();
+      ctx.document = doc;
+      String name = iter.data(ctx);
+      output.add(name);
+      iter.movePast(doc);
+    }
+    return output;
   }
 
   @Override
