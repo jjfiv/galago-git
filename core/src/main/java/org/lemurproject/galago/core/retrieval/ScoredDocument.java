@@ -77,6 +77,7 @@ public class ScoredDocument extends Ranked implements EvalDoc, Comparable<Scored
   }
 
   public String toTRECformat(String qid, String systemName) {
+    assert(documentName != null);
     return String.format("%s Q0 %s %d %s %s", qid, documentName, rank, formatScore(score), systemName);
   }
 

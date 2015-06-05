@@ -45,8 +45,8 @@ public class DiskBTreeWriter implements BTreeWriter {
   public DiskBTreeWriter(DataOutputStream output, Parameters parameters) throws IOException {
     this.output = output;
     // max sizes - each defaults to a max length of 2 bytes (short)
-    blockSize = (int) parameters.get("blockSize", 16383);
-    maxKeySize = (int) parameters.get("keySize", Math.min(blockSize, 16383));
+    blockSize = parameters.get("blockSize", 16383);
+    maxKeySize = parameters.get("keySize", Math.min(blockSize, 16383));
     keyOverlap = maxKeySize;
 
     vocabulary = new VocabularyWriter();

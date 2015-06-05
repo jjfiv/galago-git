@@ -310,6 +310,7 @@ public class Sorter<T> extends StandardStep<T, T> implements NotificationListene
       combineRuns(processor);
     }
     processor.close();
+    processor = null;
   }
 
   /**

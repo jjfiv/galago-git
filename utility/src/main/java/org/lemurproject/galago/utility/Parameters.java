@@ -32,6 +32,10 @@ public class Parameters implements Serializable, Map<String,Object> {
   private Parameters() {
     clear();
   }
+  private Parameters(Map<String, Object> data) {
+    _data = data;
+    _backoff = null;
+  }
 
   public static Parameters create() {
     return new Parameters();
@@ -50,6 +54,10 @@ public class Parameters implements Serializable, Map<String,Object> {
     }
     
     return self;
+  }
+
+  public static <T> Parameters wrap(Map<String, T> data) {
+    return new Parameters((Map<String, Object>) data);
   }
 
 	public static Parameters parseFile(File f) throws IOException {

@@ -71,7 +71,7 @@ public class WorkingSetDocumentModel extends ProcessingModel {
     // construct the query iterators
     ScoreIterator iterator =
             (ScoreIterator) retrieval.createIterator(queryParams, queryTree);
-    int requested = (int) queryParams.get("requested", 1000);
+    int requested = queryParams.get("requested", 1000);
     boolean annotate = queryParams.get("annotate", false);
 
     // now there should be an iterator at the root of this tree
