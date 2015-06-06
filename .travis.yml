@@ -1,0 +1,6 @@
+before_install: ./scripts/installlib.sh
+language: java
+jdk:
+  - oraclejdk7
+  - oraclejdk8
+  - openjdk7
