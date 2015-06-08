@@ -60,4 +60,14 @@ public class Results implements Serializable {
     }
     return names;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if(this == o) return true;
+    if(o instanceof Results) {
+      Results other = (Results) o;
+      return this.scoredDocuments.equals(other.scoredDocuments);
+    }
+    return false;
+  }
 }

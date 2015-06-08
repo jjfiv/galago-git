@@ -1,14 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.processing;
 
+import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.utility.Parameters;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.util.PriorityQueue;
-import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.utility.FixedSizeMinHeap;
+import org.lemurproject.galago.utility.Parameters;
+
+import java.lang.reflect.Constructor;
 
 /**
  * An interface that defines the contract for processing a query. There's one
@@ -21,21 +20,6 @@ import org.lemurproject.galago.utility.FixedSizeMinHeap;
 public abstract class ProcessingModel {
 
   public abstract ScoredDocument[] execute(Node queryTree, Parameters queryParams) throws Exception;
-
-  public static <T extends ScoredDocument> T[] toReversedArray(PriorityQueue<T> queue) {
-    if (queue.size() == 0) {
-      return null;
-    }
-
-    T[] items = (T[]) Array.newInstance(queue.peek().getClass(), queue.size());
-    for (int i = queue.size() - 1; queue.isEmpty() == false; i--) {
-      items[i] = queue.poll();
-
-      // set rank attributes here
-      items[i].rank = i + 1;
-    }
-    return items;
-  }
 
   public static <T extends ScoredDocument> T[] toReversedArray(FixedSizeMinHeap<T> queue) {
     if (queue.size() == 0) {
@@ -63,24 +47,18 @@ public abstract class ProcessingModel {
     if (p.containsKey("processingModel")) {
       String modelName = p.getString("processingModel");
       // these are short hand methods of getting some desired proc models:
-      if (modelName.equals("rankeddocument")) {
-        return new RankedDocumentModel(r);
-      
-      } else if (modelName.equals("rankedpassage")) {
-        return new RankedPassageModel(r);
-      
-      } else if (modelName.equals("maxscore")) {
-        return new MaxScoreDocumentModel(r);
-
+      switch (modelName) {
+        case "rankeddocument": return new RankedDocumentModel(r);
+        case "rankedpassage": return new RankedPassageModel(r);
+        case "maxscore": return new MaxScoreDocumentModel(r);
         // CURRENTLY BROKEN DO NOT USE
 //      } else if (modelName.equals("wand")) {
 //        return new WANDScoreDocumentModel(r);
-
-      } else {
-        // generally it's better to use the full class
-        Class clazz = Class.forName(modelName);
-        Constructor<ProcessingModel> cons = clazz.getConstructor(LocalRetrieval.class);
-        return cons.newInstance(r);
+        default:
+          // generally it's better to use the full class
+          Class<?> clazz = Class.forName(modelName);
+          Constructor<?> cons = clazz.getConstructor(LocalRetrieval.class);
+          return (ProcessingModel) cons.newInstance(r);
       }
     }
 
