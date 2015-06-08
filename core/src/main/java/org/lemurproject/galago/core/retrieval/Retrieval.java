@@ -34,13 +34,13 @@ public interface Retrieval extends Closeable {
    *
    * @throws IOException
    */
-  public void close() throws IOException;
+  void close() throws IOException;
 
   /**
    * Returns the Parameters object that parameterize the retrieval object, if
    * one exists.
    */
-  public Parameters getGlobalParameters();
+  Parameters getGlobalParameters();
 
   /**
    * Returns the index parts available under this retrieval. The parts are
@@ -49,7 +49,7 @@ public interface Retrieval extends Closeable {
    *
    * @throws IOException
    */
-  public Parameters getAvailableParts() throws IOException;
+  Parameters getAvailableParts() throws IOException;
 
   /**
    * Returns the requested Document, if found.
@@ -58,7 +58,7 @@ public interface Retrieval extends Closeable {
    * @return If found, the Document object. Null otherwise.
    * @throws IOException
    */
-  public Document getDocument(String identifier, DocumentComponents p) throws IOException;
+  Document getDocument(String identifier, DocumentComponents p) throws IOException;
 
   /**
    * Returns the requested Document Id, if found.
@@ -67,7 +67,7 @@ public interface Retrieval extends Closeable {
    * @return If found, the Document identifier, null otherwise.
    * @throws IOException
    */
-  public Long getDocumentId(String docname) throws IOException;
+  Long getDocumentId(String docname) throws IOException;
 
   /**
    * Returns a Map of Document objects that have been found, given the list of
@@ -75,14 +75,14 @@ public interface Retrieval extends Closeable {
    *
    * @throws IOException
    */
-  public Map<String, Document> getDocuments(List<String> identifier, DocumentComponents p) throws IOException;
+  Map<String, Document> getDocuments(List<String> identifier, DocumentComponents p) throws IOException;
 
   /**
    * Attempts to return a NodeType object for the supplied Node.
    *
    * @throws Exception
    */
-  public NodeType getNodeType(Node node) throws Exception;
+  NodeType getNodeType(Node node) throws Exception;
 
   /**
    * Attempts to return a QueryType object for the supplied Node. This is
@@ -90,7 +90,7 @@ public interface Retrieval extends Closeable {
    *
    * @throws Exception
    */
-  public QueryType getQueryType(Node node) throws Exception;
+  QueryType getQueryType(Node node) throws Exception;
 
   /**
    * Performs any additional transformations necessary to prepare the query for
@@ -100,7 +100,7 @@ public interface Retrieval extends Closeable {
    * transformations applied
    * @throws Exception
    */
-  public Node transformQuery(Node root, Parameters queryParams) throws Exception;
+  Node transformQuery(Node root, Parameters queryParams) throws Exception;
 
   /**
    * Runs the query against the retrieval. Assumes the query has been properly
@@ -109,7 +109,7 @@ public interface Retrieval extends Closeable {
    * @return Results (contains a list of scored documents)
    * @throws Exception
    */
-  public Results executeQuery(Node root) throws Exception;
+  Results executeQuery(Node root) throws Exception;
 
   /**
    * Runs the query against the retrieval. Assumes the query has been properly
@@ -121,7 +121,7 @@ public interface Retrieval extends Closeable {
    * @return Results (contains a list of scored documents)
    * @throws Exception
    */
-  public Results executeQuery(Node root, Parameters parameters) throws Exception;
+  Results executeQuery(Node root, Parameters parameters) throws Exception;
 
   
   /**
@@ -133,7 +133,7 @@ public interface Retrieval extends Closeable {
    * @return IndexPartStatistics
    * @throws IOException
    */
-  public IndexPartStatistics getIndexPartStatistics(String partName) throws IOException;
+  IndexPartStatistics getIndexPartStatistics(String partName) throws IOException;
 
   /**
    * Returns statistics for a string representation of a lengths node.
@@ -145,7 +145,7 @@ public interface Retrieval extends Closeable {
    * @return FieldStatistics
    * @throws Exception
    */
-  public FieldStatistics getCollectionStatistics(String nodeString) throws Exception;
+  FieldStatistics getCollectionStatistics(String nodeString) throws Exception;
 
   /**
    * Returns statistics for a lengths node. This data is commonly used
@@ -161,7 +161,7 @@ public interface Retrieval extends Closeable {
    * @return FieldStatistics
    * @throws Exception
    */
-  public FieldStatistics getCollectionStatistics(Node node) throws Exception;
+  FieldStatistics getCollectionStatistics(Node node) throws Exception;
 
   /**
    * Returns collection statistics for a count node. This data is commonly used
@@ -175,7 +175,7 @@ public interface Retrieval extends Closeable {
    * @return NodeStatistics
    * @throws Exception
    */
-  public NodeStatistics getNodeStatistics(String nodeString) throws Exception;
+  NodeStatistics getNodeStatistics(String nodeString) throws Exception;
 
   /**
    * Returns collection statistics for a count node. This data is commonly used
@@ -190,7 +190,7 @@ public interface Retrieval extends Closeable {
    * @return NodeStatistics
    * @throws Exception
    */
-  public NodeStatistics getNodeStatistics(Node node) throws Exception;
+  NodeStatistics getNodeStatistics(Node node) throws Exception;
 
   /**
    * Returns the length of a particular document. Where docid
@@ -199,7 +199,7 @@ public interface Retrieval extends Closeable {
    * @return document length
    * @throws IOException
    */
-  public Integer getDocumentLength(Integer docid) throws IOException;
+  Integer getDocumentLength(Integer docid) throws IOException;
 
   /**
    * Returns the length of a particular document. Where docname
@@ -208,7 +208,7 @@ public interface Retrieval extends Closeable {
    * @return document length
    * @throws IOException
    */
-  public Integer getDocumentLength(String docname) throws IOException;
+  Integer getDocumentLength(String docname) throws IOException;
 
   /**
    * Returns the internally stored name of a particular document. 
@@ -217,14 +217,14 @@ public interface Retrieval extends Closeable {
    * @return document length
    * @throws IOException
    */
-  public String getDocumentName(Integer docid) throws IOException;
+  String getDocumentName(Integer docid) throws IOException;
 
   /**
    * adds a node to the cache
    *  -- can improve efficiency for repeated queries
    *  -- if no cache is present, function does nothing
    */
-  public void addNodeToCache(Node node) throws Exception;
+  void addNodeToCache(Node node) throws Exception;
 
   /**
    * recursively adds nodes to the cache
@@ -232,5 +232,5 @@ public interface Retrieval extends Closeable {
    *  -- can improve efficiency for repeated queries
    *  -- if no cache is present, function does nothing
    */
-  public void addAllNodesToCache(Node node) throws Exception;
+  void addAllNodesToCache(Node node) throws Exception;
 }

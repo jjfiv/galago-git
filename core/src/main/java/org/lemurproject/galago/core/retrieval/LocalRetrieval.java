@@ -48,30 +48,34 @@ public class LocalRetrieval implements Retrieval {
      * Additionally, the supplied parameters will be passed forward to the
      * chosen feature factory.
      */
-    public LocalRetrieval(Index index) throws Exception {
+    public LocalRetrieval(Index index) {
         this(index, Parameters.create());
     }
 
-    public LocalRetrieval(String filename) throws Exception {
+    public LocalRetrieval(String filename) throws IOException {
         this(filename, Parameters.create());
     }
 
-    public LocalRetrieval(String filename, Parameters parameters) throws Exception {
+    public LocalRetrieval(String filename, Parameters parameters) throws IOException {
         this(new DiskIndex(filename), parameters);
     }
 
-    public LocalRetrieval(Index index, Parameters parameters) throws Exception {
+    public LocalRetrieval(Index index, Parameters parameters) {
         this.globalParameters = parameters;
         setIndex(index);
     }
 
-    protected void setIndex(Index indx) throws Exception {
-        this.index = indx;
-        features = new FeatureFactory(globalParameters);
-        defaultTraversals = features.getTraversals(this);
-        cache = null;
-        if (this.globalParameters.get("cache", false)) {
-            cache = new CachedRetrieval(this.globalParameters);
+    protected void setIndex(Index indx) {
+        try {
+            this.index = indx;
+            features = new FeatureFactory(globalParameters);
+            defaultTraversals = features.getTraversals(this);
+            cache = null;
+            if (this.globalParameters.get("cache", false)) {
+                cache = new CachedRetrieval(this.globalParameters);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

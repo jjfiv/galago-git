@@ -1,9 +1,10 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+
+import java.io.IOException;
 
 /**
  * This is an interface that represents any kind of
@@ -41,7 +42,7 @@ public interface BaseIterator extends Comparable<BaseIterator> {
   /**
    * returns the iterator to the first candidate
    */
-  public void reset() throws IOException;
+  void reset() throws IOException;
 
   /**
    * returns the current document id as a candidate
@@ -50,12 +51,12 @@ public interface BaseIterator extends Comparable<BaseIterator> {
    *  if isDone() == true 
    *   return Long.MAX_VALUE
    */
-  public long currentCandidate();
+  long currentCandidate();
 
   /**
    * return true if the iterator has no more candidates
    */
-  public boolean isDone();
+  boolean isDone();
 
   /**
    * Moves to the next candidate
@@ -69,7 +70,7 @@ public interface BaseIterator extends Comparable<BaseIterator> {
    * this avoids making small (unnecessary) jumps for iterators that have all candidates
    * 
    */
-  public void movePast(long identifier) throws IOException;
+  void movePast(long identifier) throws IOException;
 
   /**
    * Moves the iterator to the specified candidate
@@ -77,7 +78,7 @@ public interface BaseIterator extends Comparable<BaseIterator> {
    * Unlike the 'movePast' function this should move all iterators.
    * Even where 'hasAllCandidates' is true.
    */
-  public void syncTo(long identifier) throws IOException;
+  void syncTo(long identifier) throws IOException;
   
   /**
    * returns true if the iterator is at this candidate,
@@ -86,10 +87,9 @@ public interface BaseIterator extends Comparable<BaseIterator> {
    * Often implemented:
    *  return !isDone() && currentCandidate() == identifier;
    * 
-   * @see DiskIterator
    * @param context
    */
-  public boolean hasMatch(ScoringContext context);
+  boolean hasMatch(ScoringContext context);
 
   /**
    * returns true if the iterator has data for ALL candidates
@@ -100,22 +100,22 @@ public interface BaseIterator extends Comparable<BaseIterator> {
    *  guide the tree's iteration (e.g. by stopping at every document).
    *  
    */
-  public boolean hasAllCandidates();
+  boolean hasAllCandidates();
 
   /**
    * Returns an over estimate of the total entries in the iterator
    */
-  public long totalEntries();
+  long totalEntries();
 
   /**
    * Returns a string representation of the current candidate + value
    *  Useful for dump index/iterator functions
    */
-  public String getValueString(ScoringContext sc) throws IOException;
+  String getValueString(ScoringContext sc) throws IOException;
 
   /**
    * Returns an AnnotatedNode representation of the current state of this iterator
    *  Useful for debugging a query model
    */
-  public AnnotatedNode getAnnotatedNode(ScoringContext sc) throws IOException;
+  AnnotatedNode getAnnotatedNode(ScoringContext sc) throws IOException;
 }

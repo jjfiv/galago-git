@@ -49,9 +49,9 @@ public class DiskIndex implements Index, Closeable {
   protected LengthsReader lengthsReader = null;
   protected NamesReader namesReader = null;
   protected NamesReverseReader namesReverseReader = null;
-  protected Map<String, IndexPartReader> parts = new HashMap<String, IndexPartReader>();
-  protected HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
-  protected HashSet<String> knownIndexOperators = new HashSet<String>();
+  protected Map<String, IndexPartReader> parts = new HashMap<>();
+  protected HashMap<String, String> defaultIndexOperators = new HashMap<>();
+  protected HashSet<String> knownIndexOperators = new HashSet<>();
 
   // useful to assemble an index from odd pieces
   public DiskIndex(Collection<String> indexParts) throws IOException {
@@ -364,9 +364,9 @@ public class DiskIndex implements Index, Closeable {
 
   @Override
   public Map<String, Document> getDocuments(List<String> documents, DocumentComponents p) throws IOException {
-    HashMap<String, Document> results = new HashMap<String,Document>();
+    HashMap<String, Document> results = new HashMap<>();
 		
-		ArrayList<Long> docIds = new ArrayList<Long>();
+		ArrayList<Long> docIds = new ArrayList<>();
     // should get a names iterator + sort requested documents
     for (String name : documents) {
 			docIds.add(getIdentifier(name));

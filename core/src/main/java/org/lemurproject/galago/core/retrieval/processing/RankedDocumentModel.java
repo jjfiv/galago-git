@@ -31,7 +31,7 @@ public class RankedDocumentModel extends ProcessingModel {
     ScoringContext context = new ScoringContext();
 
     // Number of documents requested.
-    int requested = (int) queryParams.get("requested", 1000);
+    int requested = queryParams.get("requested", 1000);
     boolean annotate = queryParams.get("annotate", false);
 
     // Maintain a queue of candidates
@@ -49,7 +49,7 @@ public class RankedDocumentModel extends ProcessingModel {
       iterator.syncTo(document);
       if (iterator.hasMatch(context)) {
         double score = iterator.score(context);
-        if (requested < 0 || queue.size() < requested || queue.peek().score < score) {
+        if (queue.size() < requested || queue.peek().score < score) {
           ScoredDocument scoredDocument = new ScoredDocument(document, score);
           if (annotate) {
             scoredDocument.annotation = iterator.getAnnotatedNode(context);
