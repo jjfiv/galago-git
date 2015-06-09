@@ -3,14 +3,15 @@
  */
 package org.lemurproject.galago.contrib.learning;
 
+import org.lemurproject.galago.core.retrieval.query.Node;
+import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.utility.Parameters;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.logging.Logger;
-import org.lemurproject.galago.core.retrieval.query.Node;
-import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.utility.Parameters;
 
 /** 
  * Data class contains information about a set of queries
@@ -26,10 +27,10 @@ public class QuerySet {
   protected TreeMap<String, Parameters> queryParams;
 
   public QuerySet(List<Parameters> queries, Parameters globalBackoff) {
-    queryIdentifiers = new TreeSet<String>();
-    queryTexts = new TreeMap<String, String>();
-    queryNodes = new TreeMap<String, Node>();
-    queryParams = new TreeMap<String, Parameters>();
+    queryIdentifiers = new TreeSet<>();
+    queryTexts = new TreeMap<>();
+    queryNodes = new TreeMap<>();
+    queryParams = new TreeMap<>();
 
     logger = Logger.getLogger(this.getClass().getName());
 
@@ -82,7 +83,7 @@ public class QuerySet {
   }
 
   public List<Parameters> getParametersSubset(List<String> numbers) {
-    ArrayList<Parameters> sublist = new ArrayList();
+    ArrayList<Parameters> sublist = new ArrayList<>();
     for (String request : numbers) {
       sublist.add(this.queryParams.get(request).clone());
     }
@@ -90,7 +91,7 @@ public class QuerySet {
   }
 
   public List<Parameters> getQueryParameters() {
-    ArrayList<Parameters> list = new ArrayList();
+    ArrayList<Parameters> list = new ArrayList<>();
     for (String num : this.queryIdentifiers) {
       list.add(this.queryParams.get(num));
     }

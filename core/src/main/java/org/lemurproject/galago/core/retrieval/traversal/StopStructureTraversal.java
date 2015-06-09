@@ -28,7 +28,7 @@ public class StopStructureTraversal extends Traversal {
       // default to 'stopStructure' list
       String stopstructurelist = retrieval.getGlobalParameters().get("stopstructurelist", "stopStructure");
       Set<String> ss_set = WordLists.getWordList(stopstructurelist);
-      Set<String> stopstr = new TreeSet<String>();
+      Set<String> stopstr = new TreeSet<>();
       for (String ss : ss_set) {
         // need to ensure that each ss ends with a space (ensures terms are not cutoff)
         stopstr.add(ss.trim() + " ");
@@ -57,7 +57,7 @@ public class StopStructureTraversal extends Traversal {
 
         if (queryParameters.isString("stopstructurelist")) {
           Set<String> ss_set = WordLists.getWordList(queryParameters.getString("stopstructurelist"));
-          stopstructures = new TreeSet();
+          stopstructures = new TreeSet<>();
           for (String ss : ss_set) {
             // need to ensure that each ss ends with a space (ensures terms are not cutoff)
             stopstructures.add(ss.trim() + " ");
@@ -101,8 +101,8 @@ public class StopStructureTraversal extends Traversal {
       String[] queryItems = queryString.split(" ");
       parent.clearChildren();
 
-      for (int i = 0; i < queryItems.length; i++) {
-        Node Child = new Node("text", queryItems[i]);
+      for (String queryItem : queryItems) {
+        Node Child = new Node("text", queryItem);
         parent.addChild(Child);
       }
     }

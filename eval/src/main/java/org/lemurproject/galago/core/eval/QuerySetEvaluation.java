@@ -15,7 +15,7 @@ public class QuerySetEvaluation {
   private Map<String, Double> querySetEvaluation;
   
   public QuerySetEvaluation(){
-    this.querySetEvaluation = new TreeMap();
+    this.querySetEvaluation = new TreeMap<>();
   }
   
   public void add(String query, double evaluation){

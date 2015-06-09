@@ -22,7 +22,7 @@ public class WindowFeatureTest {
   @Test
   public void testOrderedWindowFeaturer() throws IOException, NoSuchAlgorithmException, IncompatibleProcessorException {
 
-    ArrayListTupleflowSink<TextFeature> catcher = new ArrayListTupleflowSink();
+    ArrayListTupleflowSink<TextFeature> catcher = new ArrayListTupleflowSink<>();
 
     // first try bi-grams ~(#od:1(a b))
     WindowFeaturer featurer = new WindowFeaturer(new FakeParameters(Parameters.create()));
@@ -32,7 +32,7 @@ public class WindowFeatureTest {
       featurer.process( new Window( 0,i,1,2,3, ByteUtil.fromString("word-" + i)) );
     }
 
-    TObjectIntHashMap<byte[]> collisions = new TObjectIntHashMap();
+    TObjectIntHashMap<byte[]> collisions = new TObjectIntHashMap<>();
     for( TextFeature t : catcher.data ){
       collisions.adjustOrPutValue(t.feature, 1, 1);
     }
@@ -49,10 +49,10 @@ public class WindowFeatureTest {
 
   public static class ArrayListTupleflowSink<T> implements Processor<T> {
 
-    ArrayList<T> data = new ArrayList();
+    ArrayList<T> data = new ArrayList<>();
 
     public void reset(){
-      data = new ArrayList();
+      data = new ArrayList<>();
     }
 
     public void process(T object) throws IOException {
