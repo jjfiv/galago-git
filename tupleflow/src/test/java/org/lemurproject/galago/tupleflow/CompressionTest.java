@@ -26,9 +26,9 @@ public class CompressionTest {
       // write a series of strings to these files.
       Order<TupleflowString> o = new TupleflowString.ValueOrder();
 
-      FileOrderedWriter<TupleflowString> w1 = new FileOrderedWriter<TupleflowString>(f1.getAbsolutePath(), o, CompressionType.NONE);
-      FileOrderedWriter<TupleflowString> w2 = new FileOrderedWriter<TupleflowString>(f2.getAbsolutePath(), o, CompressionType.VBYTE);
-      FileOrderedWriter<TupleflowString> w3 = new FileOrderedWriter<TupleflowString>(f3.getAbsolutePath(), o, CompressionType.GZIP);
+      FileOrderedWriter<TupleflowString> w1 = new FileOrderedWriter<>(f1.getAbsolutePath(), o, CompressionType.NONE);
+      FileOrderedWriter<TupleflowString> w2 = new FileOrderedWriter<>(f2.getAbsolutePath(), o, CompressionType.VBYTE);
+      FileOrderedWriter<TupleflowString> w3 = new FileOrderedWriter<>(f3.getAbsolutePath(), o, CompressionType.GZIP);
       for (int i = 0; i < 100; i++) {
         String s = "i=" + i;
         w1.process(new TupleflowString(s));
@@ -39,9 +39,9 @@ public class CompressionTest {
       w2.close();
       w3.close();
 
-      FileOrderedReader<TupleflowString> r1 = new FileOrderedReader<TupleflowString>(f1.getAbsolutePath());
-      FileOrderedReader<TupleflowString> r2 = new FileOrderedReader<TupleflowString>(f2.getAbsolutePath());
-      FileOrderedReader<TupleflowString> r3 = new FileOrderedReader<TupleflowString>(f3.getAbsolutePath());
+      FileOrderedReader<TupleflowString> r1 = new FileOrderedReader<>(f1.getAbsolutePath());
+      FileOrderedReader<TupleflowString> r2 = new FileOrderedReader<>(f2.getAbsolutePath());
+      FileOrderedReader<TupleflowString> r3 = new FileOrderedReader<>(f3.getAbsolutePath());
 
       assert (r1.getCompression().equals(CompressionType.NONE));
       assert (r2.getCompression().equals(CompressionType.VBYTE));
