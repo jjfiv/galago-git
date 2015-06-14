@@ -4,7 +4,6 @@ package org.lemurproject.galago.tupleflow;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
 import org.lemurproject.galago.tupleflow.runtime.FileOrderedWriter;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
@@ -57,24 +56,6 @@ public class Splitter<T> implements Processor<T> {
 //    }
 
     return new Splitter<S>(processors, hashOrder);
-  }
-
-  @SuppressWarnings("unchecked")
-  public static <S> Splitter splitToFiles(String prefix, Order<S> order, int count, CompressionType c) throws IOException, FileNotFoundException, IncompatibleProcessorException {
-    assert order != null;
-
-    Processor[] processors = new Processor[count];
-
-    for (int i = 0; i < count; i++) {
-      String filename = prefix + i;
-      FileOrderedWriter<S> writer = new FileOrderedWriter<S>(filename, order, c);
-//            Sorter<S> sorter = new Sorter<S>(order);
-//            sorter.setProcessor(writer);
-//            processors[i] = sorter;
-      processors[i] = writer;
-    }
-
-    return new Splitter<S>(processors, order);
   }
 
   @Override

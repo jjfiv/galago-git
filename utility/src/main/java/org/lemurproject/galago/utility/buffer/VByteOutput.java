@@ -4,21 +4,23 @@ package org.lemurproject.galago.utility.buffer;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.compression.VByte;
 
+import java.io.Closeable;
 import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
  *
  * @author trevor
  */
-public class VByteOutput implements DataOutput {
+public class VByteOutput implements DataOutput, Closeable {
 
-  DataOutput output;
+  DataOutputStream output;
 
   /**
    * Creates a new create of VByteOutput
    */
-  public VByteOutput(DataOutput output) {
+  public VByteOutput(DataOutputStream output) {
     this.output = output;
   }
 
@@ -89,5 +91,10 @@ public class VByteOutput implements DataOutput {
 
   public void writeFloat(float f) throws IOException {
     output.writeInt(Float.floatToRawIntBits(f));
+  }
+
+  @Override
+  public void close() throws IOException {
+    output.close();
   }
 }
