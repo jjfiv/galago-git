@@ -23,7 +23,7 @@ public class VByteOutputTest {
   public void testWriteString() throws IOException {
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
     VByteOutput output = new VByteOutput(new DataOutputStream(stream));
-    stream.close();
+    output.close();
 
     output.writeString("\u2297");
     final byte[] outBytes = stream.toByteArray();

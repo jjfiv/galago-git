@@ -39,7 +39,7 @@ public class FileOrderedReader<T> implements ReaderSource<T> {
     // reading into the XML region (which no longer exists, but BufferedFileDataStream also buffers for us)
     switch (c) {
       case VBYTE:
-        stream = new ArrayInput(new VByteInput(new DataInputStream(dataStream)));
+        stream = new ArrayInput(new VByteInput(new DataInputStream(new GZIPInputStream(dataStream))));
         break;
       case GZIP:
         stream = new ArrayInput(new DataInputStream(new GZIPInputStream(dataStream)));

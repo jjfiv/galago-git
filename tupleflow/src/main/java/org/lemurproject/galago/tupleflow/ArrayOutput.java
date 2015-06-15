@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow;
 
+import java.io.Closeable;
 import java.io.DataOutput;
 import java.io.IOException;
 
@@ -8,7 +9,7 @@ import java.io.IOException;
  *
  * @author trevor
  */
-public class ArrayOutput {
+public class ArrayOutput implements Closeable {
 
   DataOutput output;
 
@@ -26,8 +27,8 @@ public class ArrayOutput {
 
   public void writeInts(int[] out) throws IOException {
     output.writeInt(out.length);
-    for (int i = 0; i < out.length; i++) {
-      output.writeInt(out[i]);
+    for (int anOut : out) {
+      output.writeInt(anOut);
     }
   }
 
@@ -37,8 +38,8 @@ public class ArrayOutput {
 
   public void writeLongs(long[] out) throws IOException {
     output.writeInt(out.length);
-    for (int i = 0; i < out.length; i++) {
-      output.writeLong(out[i]);
+    for (long anOut : out) {
+      output.writeLong(anOut);
     }
   }
 
@@ -48,8 +49,8 @@ public class ArrayOutput {
 
   public void writeChars(char[] out) throws IOException {
     output.writeInt(out.length);
-    for (int i = 0; i < out.length; i++) {
-      output.writeChar(out[i]);
+    for (char anOut : out) {
+      output.writeChar(anOut);
     }
   }
 
@@ -73,8 +74,8 @@ public class ArrayOutput {
 
   public void writeShorts(short[] out) throws IOException {
     output.writeInt(out.length);
-    for (int i = 0; i < out.length; i++) {
-      output.writeShort(out[i]);
+    for (short anOut : out) {
+      output.writeShort(anOut);
     }
   }
 
@@ -84,8 +85,8 @@ public class ArrayOutput {
 
   public void writeDoubles(double[] out) throws IOException {
     output.writeInt(out.length);
-    for (int i = 0; i < out.length; i++) {
-      output.writeDouble(out[i]);
+    for (double anOut : out) {
+      output.writeDouble(anOut);
     }
   }
 
@@ -95,8 +96,8 @@ public class ArrayOutput {
 
   public void writeFloats(float[] out) throws IOException {
     output.writeInt(out.length);
-    for (int i = 0; i < out.length; i++) {
-      output.writeFloat(out[i]);
+    for (float anOut : out) {
+      output.writeFloat(anOut);
     }
   }
 
@@ -119,8 +120,14 @@ public class ArrayOutput {
 
   public void writeStrings(String[] out) throws IOException {
     output.writeInt(out.length);
-    for (int i = 0; i < out.length; i++) {
-      writeString(out[i]);
+    for (String anOut : out) {
+      writeString(anOut);
+    }
+  }
+
+  public void close() throws IOException {
+    if(output instanceof Closeable) {
+      ((Closeable) output).close();
     }
   }
 }
