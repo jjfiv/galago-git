@@ -611,38 +611,39 @@ public class BuildIndex extends AppFunction {
     }
   }
 
-  public static Job getIndexJob(Parameters buildParameters) throws Exception {
+  public static Job getIndexJob(Parameters buildParameters) {
 
-    buildParameters = checkBuildIndexParameters(buildParameters);
-    if (buildParameters == null) {
-      return null;
-    }
+    try {
+      buildParameters = checkBuildIndexParameters(buildParameters);
+      if (buildParameters == null) {
+        return null;
+      }
 
-    Job job = new Job();
+      Job job = new Job();
 
-    String indexPath = new File(buildParameters.getString("indexPath")).getAbsolutePath();
-    // ensure the index folder exists
-    File buildManifest = new File(indexPath, "buildManifest.json");
-    FSUtil.makeParentDirectories(buildManifest);
-    StreamUtil.copyStringToFile(buildParameters.toPrettyString(), buildManifest);
+      String indexPath = new File(buildParameters.getString("indexPath")).getAbsolutePath();
+      // ensure the index folder exists
+      File buildManifest = new File(indexPath, "buildManifest.json");
+      FSUtil.makeParentDirectories(buildManifest);
+      StreamUtil.copyStringToFile(buildParameters.toPrettyString(), buildManifest);
 
-    List<String> inputPaths = buildParameters.getAsList("inputPath", String.class);
+      List<String> inputPaths = buildParameters.getAsList("inputPath", String.class);
 
-    // common steps + connections
+      // common steps + connections
 
-    buildParameters.put("corpusPieces", buildParameters.get("distrib", 10));
+      buildParameters.put("corpusPieces", buildParameters.get("distrib", 10));
 
-    job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), buildParameters));
+      job.add(BuildStageTemplates.getSplitStage(inputPaths, DocumentSource.class, new DocumentSplit.FileIdOrder(), buildParameters));
 
-    job.add(getParsePostingsStage(buildParameters));
-    job.add(BuildStageTemplates.getWriteNamesStage("writeNames", new File(indexPath, "names"), "numberedDocumentDataNumbers"));
-    job.add(BuildStageTemplates.getWriteNamesRevStage("writeNamesRev", new File(indexPath, "names.reverse"), "numberedDocumentDataNames"));
-    job.add(BuildStageTemplates.getWriteLengthsStage("writeLengths", new File(indexPath, "lengths"), "fieldLengthData"));
+      job.add(getParsePostingsStage(buildParameters));
+      job.add(BuildStageTemplates.getWriteNamesStage("writeNames", new File(indexPath, "names"), "numberedDocumentDataNumbers"));
+      job.add(BuildStageTemplates.getWriteNamesRevStage("writeNamesRev", new File(indexPath, "names.reverse"), "numberedDocumentDataNames"));
+      job.add(BuildStageTemplates.getWriteLengthsStage("writeLengths", new File(indexPath, "lengths"), "fieldLengthData"));
 
-    job.connect("inputSplit", "parsePostings", ConnectionAssignmentType.Each);
-    job.connect("parsePostings", "writeLengths", ConnectionAssignmentType.Combined);
-    job.connect("parsePostings", "writeNames", ConnectionAssignmentType.Combined);
-    job.connect("parsePostings", "writeNamesRev", ConnectionAssignmentType.Combined);
+      job.connect("inputSplit", "parsePostings", ConnectionAssignmentType.Each);
+      job.connect("parsePostings", "writeLengths", ConnectionAssignmentType.Combined);
+      job.connect("parsePostings", "writeNames", ConnectionAssignmentType.Combined);
+      job.connect("parsePostings", "writeNamesRev", ConnectionAssignmentType.Combined);
 
 //    // if extracting links
 //    if (buildParameters.getBoolean("links")) {
@@ -654,68 +655,79 @@ public class BuildIndex extends AppFunction {
 //      job.connect("linkCombine", "parsePostings", ConnectionAssignmentType.Combined);
 //    }
 
-    // corpus key data
-    if (buildParameters.getBoolean("corpus")) {
-      job.add(getParallelIndexKeyWriterStage("writeCorpusKeys", "corpusKeys", buildParameters.getMap("corpusParameters")));
-      job.connect("parsePostings", "writeCorpusKeys", ConnectionAssignmentType.Combined);
-    }
-
-    // nonstemmedpostings
-    if (buildParameters.getBoolean("nonStemmedPostings")) {
-      job.add(getWritePostingsStage(buildParameters, "writePostings", "numberedPostings",
-              new NumberWordPosition.WordDocumentPositionOrder(), "postings",
-              PositionIndexWriter.class, null));
-
-      job.connect("parsePostings", "writePostings", ConnectionAssignmentType.Combined);
-    }
-
-    // stemmedpostings
-    if (buildParameters.getBoolean("stemmedPostings")) {
-      for (String stemmer : buildParameters.getList("stemmer", String.class)) {
-        job.add(getWritePostingsStage(buildParameters, "writePostings-" + stemmer,
-                "numberedStemmedPostings-" + stemmer,
-                new NumberWordPosition.WordDocumentPositionOrder(),
-                "postings." + stemmer, PositionIndexWriter.class, stemmer));
-        job.connect("parsePostings", "writePostings-" + stemmer, ConnectionAssignmentType.Combined);
+      // corpus key data
+      if (buildParameters.getBoolean("corpus")) {
+        job.add(getParallelIndexKeyWriterStage("writeCorpusKeys", "corpusKeys", buildParameters.getMap("corpusParameters")));
+        job.connect("parsePostings", "writeCorpusKeys", ConnectionAssignmentType.Combined);
       }
-    }
 
-    // if we have at least one field - write extents
-    if (!buildParameters.getMap("tokenizer").getList("fields").isEmpty()) {
-      job.add(BuildStageTemplates.getWriteExtentsStage("writeExtents", new File(indexPath, "extents"), "numberedExtents"));
+      // nonstemmedpostings
+      if (buildParameters.getBoolean("nonStemmedPostings")) {
+        job.add(getWritePostingsStage(buildParameters, "writePostings", "numberedPostings",
+            new NumberWordPosition.WordDocumentPositionOrder(), "postings",
+            PositionIndexWriter.class, null));
 
-      job.connect("parsePostings", "writeExtents", ConnectionAssignmentType.Combined);
-    }
-
-    // if we have at least one field format - write fields
-    if (!buildParameters.getMap("tokenizer").getMap("formats").isEmpty()) {
-      Parameters p = Parameters.create();
-      p.set("tokenizer", buildParameters.getMap("tokenizer"));
-      job.add(BuildStageTemplates.getWriteFieldsStage("writeFields", new File(indexPath, "fields"), "numberedFields", p));
-
-      job.connect("parsePostings", "writeFields", ConnectionAssignmentType.Combined);
-    }
-
-    // field indexes - one for each stemmer
-    if (buildParameters.getBoolean("fieldIndex")) {
-      if (buildParameters.getMap("fieldIndexParameters").getBoolean("nonStemmedPostings")) {
-        // create one writer for each stemmer + one for nonstemmed
-        job.add(getWritePostingsStage(buildParameters, "writeExtentPostings", "numberedExtentPostings",
-                new FieldNumberWordPosition.FieldWordDocumentPositionOrder(), "field.", PositionFieldIndexWriter.class, null));
-
-        job.connect("parsePostings", "writeExtentPostings", ConnectionAssignmentType.Combined);
+        job.connect("parsePostings", "writePostings", ConnectionAssignmentType.Combined);
       }
-      if (buildParameters.getMap("fieldIndexParameters").getBoolean("stemmedPostings")) {
-        for (String stemmer : buildParameters.getMap("fieldIndexParameters").getList("stemmer", String.class)) {
-          job.add(getWritePostingsStage(buildParameters, "writeExtentPostings-" + stemmer, "numberedExtentPostings-" + stemmer,
-                  new FieldNumberWordPosition.FieldWordDocumentPositionOrder(), "field." + stemmer + ".", PositionFieldIndexWriter.class, stemmer));
 
-          job.connect("parsePostings", "writeExtentPostings-" + stemmer, ConnectionAssignmentType.Combined);
+      // stemmedpostings
+      if (buildParameters.getBoolean("stemmedPostings")) {
+        for (String stemmer : buildParameters.getList("stemmer", String.class)) {
+          job.add(getWritePostingsStage(buildParameters, "writePostings-" + stemmer,
+              "numberedStemmedPostings-" + stemmer,
+              new NumberWordPosition.WordDocumentPositionOrder(),
+              "postings." + stemmer, PositionIndexWriter.class, stemmer));
+          job.connect("parsePostings", "writePostings-" + stemmer, ConnectionAssignmentType.Combined);
         }
       }
-    }
 
-    return job;
+      // if we have at least one field - write extents
+      if (!buildParameters.getMap("tokenizer").getList("fields").isEmpty()) {
+        job.add(BuildStageTemplates.getWriteExtentsStage("writeExtents", new File(indexPath, "extents"), "numberedExtents"));
+
+        job.connect("parsePostings", "writeExtents", ConnectionAssignmentType.Combined);
+      }
+
+      // if we have at least one field format - write fields
+      if (!buildParameters.getMap("tokenizer").getMap("formats").isEmpty()) {
+        Parameters p = Parameters.create();
+        p.set("tokenizer", buildParameters.getMap("tokenizer"));
+        job.add(BuildStageTemplates.getWriteFieldsStage("writeFields", new File(indexPath, "fields"), "numberedFields", p));
+
+        job.connect("parsePostings", "writeFields", ConnectionAssignmentType.Combined);
+      }
+
+      // field indexes - one for each stemmer
+      if (buildParameters.getBoolean("fieldIndex")) {
+        if (buildParameters.getMap("fieldIndexParameters").getBoolean("nonStemmedPostings")) {
+          // create one writer for each stemmer + one for nonstemmed
+          job.add(getWritePostingsStage(buildParameters, "writeExtentPostings", "numberedExtentPostings",
+              new FieldNumberWordPosition.FieldWordDocumentPositionOrder(), "field.", PositionFieldIndexWriter.class, null));
+
+          job.connect("parsePostings", "writeExtentPostings", ConnectionAssignmentType.Combined);
+        }
+        if (buildParameters.getMap("fieldIndexParameters").getBoolean("stemmedPostings")) {
+          for (String stemmer : buildParameters.getMap("fieldIndexParameters").getList("stemmer", String.class)) {
+            job.add(getWritePostingsStage(buildParameters, "writeExtentPostings-" + stemmer, "numberedExtentPostings-" + stemmer,
+                new FieldNumberWordPosition.FieldWordDocumentPositionOrder(), "field." + stemmer + ".", PositionFieldIndexWriter.class, stemmer));
+
+            job.connect("parsePostings", "writeExtentPostings-" + stemmer, ConnectionAssignmentType.Combined);
+          }
+        }
+      }
+
+      return job;
+    } catch (Exception e) {
+      // If there's an exception, delete the output directory, and exit with an error:
+      String indexPath = new File(buildParameters.getString("indexPath")).getAbsolutePath();
+      // ensure the index folder exists
+      File buildManifest = new File(indexPath, "buildManifest.json");
+      if(!buildManifest.delete()) {
+        System.err.println("Couldn't delete buildManifest.json");
+      }
+      FSUtil.deleteDirectory(new File(indexPath));
+      throw new RuntimeException(e);
+    }
   }
 
   @Override

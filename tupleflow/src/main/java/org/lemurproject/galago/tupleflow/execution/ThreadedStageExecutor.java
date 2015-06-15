@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
  */
 public class ThreadedStageExecutor implements StageExecutor {
 
-  public class InstanceRunnable implements Runnable {
+  public static class InstanceRunnable implements Runnable {
 
     StageInstanceDescription description;
     Exception exception;

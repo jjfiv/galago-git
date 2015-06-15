@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertNotNull;
+
 /**
  *
  * @author sjh
@@ -62,16 +64,18 @@ public class CoordinateAscentLearnerTest {
       normalRule.set("params", Arrays.asList(new String[]{"0", "1"}));
       normalRule.set("value", 1.0);
       learnParams.set("normalization", new ArrayList());
-      learnParams.getList("normalization").add(normalRule);
+      learnParams.getList("normalization", Parameters.class).add(normalRule);
       
 
       learnParams.set("restarts", 1);
       learnParams.set("initialParameters", new ArrayList());
       learnParams.set("limitRange", true);
-      learnParams.getList("initialParameters").add(Parameters.parseString("{\"0\":0.9,\"1\":0.2}"));
+      learnParams.getList("initialParameters", Parameters.class).add(Parameters.parseString("{\"0\":0.9,\"1\":0.2}"));
       
       Learner learner = LearnerFactory.instance(learnParams, ret);
+      assertNotNull(learner);
       RetrievalModelInstance res = learner.learn();
+      assertNotNull(res);
       //System.err.println(res.toParameters().toString());
 
     } finally {

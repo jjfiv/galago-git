@@ -58,9 +58,7 @@ public class FixedSizeMinHeap<T> {
 
   public List<T> getUnsortedList() {
     ArrayList<T> data = new ArrayList<>(_position);
-    for (int i = 0; i < _position; i++) {
-      data.add(_heap[i]);
-    }
+    data.addAll(Arrays.asList(_heap).subList(0, _position));
     return data;
   }
 

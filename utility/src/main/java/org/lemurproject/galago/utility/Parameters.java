@@ -56,6 +56,7 @@ public class Parameters implements Serializable, Map<String,Object> {
     return self;
   }
 
+  @SuppressWarnings("unchecked")
   public static <T> Parameters wrap(Map<String, T> data) {
     return new Parameters((Map<String, Object>) data);
   }
