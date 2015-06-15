@@ -24,6 +24,7 @@ import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.tupleflow.execution.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -725,7 +726,11 @@ public class BuildIndex extends AppFunction {
       if(!buildManifest.delete()) {
         System.err.println("Couldn't delete buildManifest.json");
       }
-      FSUtil.deleteDirectory(new File(indexPath));
+      try {
+        FSUtil.deleteDirectory(new File(indexPath));
+      } catch (IOException e1) {
+        System.err.println("Couldn't delete index directory");
+      }
       throw new RuntimeException(e);
     }
   }
