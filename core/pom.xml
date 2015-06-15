@@ -150,7 +150,7 @@
               <name>galago</name>
             </program>
           </programs>
-          <extraJvmArguments>-Xms1500m -Xmx1900m -Dfile.encoding=UTF-8</extraJvmArguments>
+          <extraJvmArguments>-ea -Dfile.encoding=UTF-8</extraJvmArguments>
           <repositoryName>lib</repositoryName>
           <repositoryLayout>flat</repositoryLayout>
         </configuration>
