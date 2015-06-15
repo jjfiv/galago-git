@@ -1,6 +1,9 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.tupleflow.execution;
 
+import org.lemurproject.galago.tupleflow.ExNihiloSource;
+import org.lemurproject.galago.utility.StreamUtil;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,18 +14,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.lemurproject.galago.tupleflow.ExNihiloSource;
-import org.lemurproject.galago.utility.StreamUtil;
 
 /**
- * This executor has no practical use at all. It's only here to make it easy to
- * test the RemoteExecutor base class.
- *
- * This executor is essentially the same as the LocalStageExecutor in that it
- * runs everything in a single thread, but it serializes the job information and
- * then reads it again.
- *
- * @author trevor
+ * @author trevor, irmarc, sjh
  */
 public class ThreadedCheckpointedStageExecutor extends CheckpointedStageExecutor {
 
