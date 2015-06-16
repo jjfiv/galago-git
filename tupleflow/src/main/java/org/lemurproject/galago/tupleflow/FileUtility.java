@@ -129,13 +129,13 @@ public class FileUtility {
     final String psa = "Galago's ls is having getting no results... If you're not on a distributed file system, this just means your directory is empty.";
 
     File[] subs = root.listFiles();
-    int count = 0;
-    while (subs == null && count < 100) {
+    int timeout = 0;
+    while (subs == null && timeout < 100) {
       try {
         Thread.sleep(1000);
       } catch (InterruptedException e) { }
       LOG.warning(psa);
-      count++;
+      timeout++;
       subs = root.listFiles();
     }
 
@@ -143,6 +143,23 @@ public class FileUtility {
       throw new IllegalStateException(psa);
     }
     return subs;
+  }
+
+  public static void waitUntilFileExists(String input) {
+    waitUntilFileExists(new File(input));
+  }
+  public static void waitUntilFileExists(File input) {
+    int count = 0;
+
+    do {
+      if (input.exists() && input.canRead()) {
+        break;
+      }
+      try {
+        Thread.sleep(1000); // wait 1 second
+      } catch (InterruptedException ignored) {
+      } // Don't care about interruption errors
+    } while (count++ < 60000); // 1000 min timeout
   }
 
   public static List<String> getRoots() {
