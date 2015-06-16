@@ -66,7 +66,6 @@ public class TupleflowDiskBTreeWriter extends TupleflowBTreeWriter {
 
   @Override
   public void close() throws IOException {
-    System.err.println("calling close!");
     inner.close();
   }
 }
