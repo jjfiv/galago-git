@@ -2,6 +2,7 @@
 package org.lemurproject.galago.tupleflow.execution;
 
 import org.lemurproject.galago.tupleflow.ExNihiloSource;
+import org.lemurproject.galago.tupleflow.FileUtility;
 import org.lemurproject.galago.tupleflow.GalagoConf;
 import org.xml.sax.SAXException;
 
@@ -22,7 +23,7 @@ public class LocalStageExecutor implements StageExecutor {
 
     String name;
     List<StageInstanceDescription> instances;
-    ArrayList<Exception> exceptions = new ArrayList();
+    ArrayList<Exception> exceptions = new ArrayList<>();
     int queuedInstances = 0;
     int runningInstances = 0;
     int completedInstances = 0;
@@ -108,8 +109,8 @@ public class LocalStageExecutor implements StageExecutor {
 
     @Override
     public synchronized List<Double> getRunTimes() {
-      ArrayList<Double> times = new ArrayList();
-      // do something
+      ArrayList<Double> times = new ArrayList<>();
+      //TODO do something
       return times;
     }
 
@@ -162,32 +163,22 @@ public class LocalStageExecutor implements StageExecutor {
     logger.info("Stage create " + descriptionFile + " initialized. Executing.");
 
     // now. run this job.
-    result = new SequentialExecutionContext(stage.getName(),
-            Collections.singletonList(stage));
+    result = new SequentialExecutionContext(stage.getName(), Collections.singletonList(stage));
 
     result.run();
 
     try {
       if (result.getExceptions().size() > 0) {
-        Throwable e = result.getExceptions().get(0);
-        BufferedWriter writer = new BufferedWriter(new FileWriter(errorFile));
-        writer.write(e.toString());
-        writer.close();
-      } else {
-
-        // ensure the .complete file exists before terminating -- to avoid spurious errors from slow file systems.
-        completeFile.createNewFile();
-        int count = 0;
-        do {
-          if (completeFile.exists()) {
-            break;
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(errorFile))) {
+          for (Exception exception : result.getExceptions()) {
+            writer.write(exception.toString());
           }
-          try {
-            Thread.sleep(1000); // wait 1 second
-          } catch (Exception e) {
-          } // Don't care about interruption errors
-        } while (count++ < 60); // 1 min timeout
-
+        }
+      } else {
+        // ensure the .complete file exists before terminating -- to avoid spurious errors from slow file systems.
+        if(completeFile.createNewFile()) {
+          FileUtility.waitUntilFileExists(completeFile);
+        } else throw new IOException("Couldn't create .complete file!?");
       }
     } catch (IOException e) {
       logger.warning("Trouble writing completion/error files: " + errorFile.toString());
@@ -200,7 +191,7 @@ public class LocalStageExecutor implements StageExecutor {
   public void shutdown() {
   }
 
-  public static void main(String[] args) throws UnsupportedEncodingException, ParserConfigurationException, SAXException, IOException, ClassNotFoundException {
+  public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, ClassNotFoundException {
     Logger logger = Logger.getLogger(JobExecutor.class
             .toString());
 
@@ -214,25 +205,15 @@ public class LocalStageExecutor implements StageExecutor {
     logger.info(".galago.conf: "+GalagoConf.getAllOptions().toString());
 
     // Need this to deal with slow lustre filesystem on swarm...
-    int count = 0;
-
-
-    do {
-      File descFile = new File(stageDescriptionFile);
-      if (descFile.canRead()) {
-        break;
-      }
-      try {
-        Thread.sleep(1000); // wait 1 second
-      } catch (Exception e) {
-      } // Don't care about interruption errors
-    } while (count++ < 60000); // 1 min timeout
+    FileUtility.waitUntilFileExists(stageDescriptionFile);
 
     StageExecutionStatus context = new LocalStageExecutor().execute(stageDescriptionFile);
 
     if (context.getExceptions()
             .size() > 0) {
-      logger.severe("Exception thrown: " + context.getExceptions().get(0).toString());
+      for (Exception exception : context.getExceptions()) {
+        logger.severe("Exception thrown: " + exception.toString());
+      }
       System.exit(1); // force quit on any remaining threads (particularly: NetworkCounter)
     } else {
       logger.info("Local Stage complete");

@@ -89,15 +89,15 @@ public class StageInstanceFactory {
     return (ExNihiloSource) instantiate(instance, instance.getStage().getSteps());
   }
 
-  public org.lemurproject.galago.tupleflow.Step instantiate(
+  public Step instantiate(
           StageInstanceDescription instance,
           List<StepInformation> steps)
           throws IncompatibleProcessorException, IOException {
-    org.lemurproject.galago.tupleflow.Step previous = null;
-    org.lemurproject.galago.tupleflow.Step first = null;
+    Step previous = null;
+    Step first = null;
 
     for (StepInformation step : steps) {
-      org.lemurproject.galago.tupleflow.Step current;
+      Step current;
 
       if (step instanceof MultiStepInformation) {
         current = instantiateMulti(instance, step);
@@ -124,10 +124,10 @@ public class StageInstanceFactory {
     return first;
   }
 
-  public org.lemurproject.galago.tupleflow.Step instantiateStep(
+  public Step instantiateStep(
           StageInstanceDescription instance,
           final StepInformation step) throws IOException {
-    org.lemurproject.galago.tupleflow.Step object;
+    Step object;
 
     try {
       Class objectClass = Class.forName(step.getClassName());
@@ -145,10 +145,10 @@ public class StageInstanceFactory {
       }
 
       if (parameterArgumentConstructor != null) {
-        object = (org.lemurproject.galago.tupleflow.Step) parameterArgumentConstructor.newInstance(
+        object = (Step) parameterArgumentConstructor.newInstance(
                 new StepParameters(step, instance));
       } else if (noArgumentConstructor != null) {
-        object = (org.lemurproject.galago.tupleflow.Step) noArgumentConstructor.newInstance();
+        object = (Step) noArgumentConstructor.newInstance();
       } else {
         throw new IncompatibleProcessorException(
                 "Couldn't instantiate this class because "
@@ -161,14 +161,14 @@ public class StageInstanceFactory {
     return object;
   }
 
-  public org.lemurproject.galago.tupleflow.Step instantiateInput(
+  public Step instantiateInput(
           StageInstanceDescription instance,
           InputStepInformation step) throws IOException {
     PipeOutput pipeOutput = instance.getReaders().get(step.getId());
     return getTypeReaderSource(pipeOutput);
   }
 
-  public org.lemurproject.galago.tupleflow.Step instantiateInput(
+  public Step instantiateInput(
           StageInstanceDescription instance,
           MultiInputStepInformation step) throws IOException {
     String[] ids = step.getIds();
@@ -179,14 +179,14 @@ public class StageInstanceFactory {
     return getTypeReaderSource(pipes);
   }
 
-  public org.lemurproject.galago.tupleflow.Step instantiateOutput(
+  public Step instantiateOutput(
           StageInstanceDescription instance,
           final OutputStepInformation step) throws IOException {
     PipeInput pipeInput = instance.getWriters().get(step.getId());
     return getTypeWriter(pipeInput);
   }
 
-  private org.lemurproject.galago.tupleflow.Step instantiateMulti(
+  private Step instantiateMulti(
           StageInstanceDescription instance,
           final StepInformation step) throws IncompatibleProcessorException, IOException {
     MultiStepInformation multiStep = (MultiStepInformation) step;

@@ -236,24 +236,7 @@ public class DRMAAStageExecutor extends CheckpointedStageExecutor {
 
     @Override
     public boolean isDone() {
-      try {
-        for (String job : jobs) {
-          int status = session.getJobProgramStatus(job);
-
-          //if( status == session.FAILED )
-          //System.err.println( "[" + job + "] failed." );
-
-          if (status == Session.DONE || status == Session.FAILED) {
-            continue;
-          }
-
-          return false;
-        }
-      } catch (DrmaaException e) {
-        return false;
-      }
-
-      return true;
+      return getCompletedInstances() == jobs.size();
     }
   }
 
