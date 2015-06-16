@@ -774,11 +774,21 @@ public class BuildIndex extends AppFunction {
   public static void execute(Parameters p, PrintStream output) throws Exception {
     Job job = getIndexJob(p);
 
+    long startJobTime = System.currentTimeMillis();
     if (job != null) {
       TupleflowAppUtil.runTupleFlowJob(job, p, output);
     }
+    long endJobTime = System.currentTimeMillis();
+
+    double timeInMillis = (endJobTime-startJobTime);
+    double timeInSeconds = timeInMillis / 1000.0;
+    double timeInMinutes = timeInSeconds / 60.0;
+    double timeInHours = timeInMinutes / 60.0;
 
     output.println("Done Indexing.");
+    output.printf("  - %.2f Hours\n", timeInHours);
+    output.printf("  - %.2f Minutes\n", timeInMinutes);
+    output.printf("  - %.2f Seconds\n", timeInSeconds);
 
     // sanity check - get the number of documents out of ./names
     DiskNameReader names = new DiskNameReader(p.getString("indexPath") + File.separator + "names");
