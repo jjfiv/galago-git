@@ -3,18 +3,18 @@ package org.lemurproject.galago.core.index.disk;
 
 import org.lemurproject.galago.core.btree.format.TupleflowBTreeWriter;
 import org.lemurproject.galago.core.btree.format.TupleflowDiskBTreeWriter;
-import org.lemurproject.galago.core.index.*;
+import org.lemurproject.galago.core.index.BTreeValueIterator;
 import org.lemurproject.galago.core.types.NumberWordCount;
 import org.lemurproject.galago.tupleflow.*;
+import org.lemurproject.galago.tupleflow.buffer.DiskSpillCompressedByteBuffer;
 import org.lemurproject.galago.tupleflow.error.IncompatibleProcessorException;
-import org.lemurproject.galago.tupleflow.execution.ErrorStore;
-import org.lemurproject.galago.tupleflow.execution.Verification;
+import org.lemurproject.galago.tupleflow.execution.*;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.btree.IndexElement;
 import org.lemurproject.galago.utility.buffer.CompressedByteBuffer;
-import org.lemurproject.galago.tupleflow.buffer.DiskSpillCompressedByteBuffer;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -314,5 +314,22 @@ public class CountIndexWriter implements
     } catch (IncompatibleProcessorException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static Stage getStage(Parameters buildParameters, String stageName, String inputName, String indexName, String stemmerName) {
+    Parameters p = Parameters.create();
+    p.set("filename", buildParameters.getString("indexPath") + File.separator + indexName);
+    p.set("skipping", buildParameters.getBoolean("skipping"));
+    p.set("skipDistance", buildParameters.getLong("skipDistance"));
+    if (stemmerName != null) {
+      p.set("stemmer", buildParameters.getMap("stemmerClass").getString(stemmerName));
+    }
+
+    Stage stage = new Stage(stageName);
+    stage.addInput(inputName, new NumberWordCount.WordDocumentOrder());
+    stage.add(new InputStepInformation(inputName));
+    stage.add(new StepInformation(CountIndexWriter.class, p));
+
+    return stage;
   }
 }

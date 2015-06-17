@@ -5,6 +5,7 @@ import org.lemurproject.galago.core.build.DocumentNameNumberExtractor;
 import org.lemurproject.galago.core.index.corpus.CorpusFolderWriter;
 import org.lemurproject.galago.core.index.corpus.CorpusReader;
 import org.lemurproject.galago.core.btree.format.SplitBTreeKeyWriter;
+import org.lemurproject.galago.core.index.disk.CountIndexWriter;
 import org.lemurproject.galago.core.index.disk.DiskNameReader;
 import org.lemurproject.galago.core.index.disk.PositionFieldIndexWriter;
 import org.lemurproject.galago.core.index.disk.PositionIndexWriter;
@@ -13,6 +14,7 @@ import org.lemurproject.galago.core.parse.*;
 import org.lemurproject.galago.core.parse.stem.KrovetzStemmer;
 import org.lemurproject.galago.core.parse.stem.NullStemmer;
 import org.lemurproject.galago.core.parse.stem.Porter2Stemmer;
+import org.lemurproject.galago.core.window.ReduceNumberWordCount;
 import org.lemurproject.galago.utility.StreamUtil;
 import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.core.types.*;
@@ -131,11 +133,25 @@ public class BuildIndex extends AppFunction {
               new NumberedField.FieldNameNumberOrder()));
     }
 
+    if(buildParameters.getBoolean("stemmedCounts")) {
+      for (String stemmer : buildParameters.getList("stemmer", String.class)) {
+        String name = "counts-" + stemmer;
+        processingFork.addGroup(name).addToGroup(name,
+            BuildStageTemplates.getStemmerStep(Parameters.create(),
+                Class.forName(buildParameters.getMap("stemmerClass").getString(stemmer))))
+            .addToGroup(name, new StepInformation(UnigramCountExtractor.class))
+            .addToGroup(name, Utility.getSorter(new NumberWordCount.WordDocumentOrder()))
+            .addToGroup(name, new StepInformation(ReduceNumberWordCount.class))
+            .addToGroup(name, new OutputStepInformation("numberedStemmedCounts-" + stemmer));
+        stage.addOutput("numberedStemmedCounts-" + stemmer, new NumberWordCount.WordDocumentOrder());
+      }
+    }
+
     if (buildParameters.getBoolean("stemmedPostings")) {
       for (String stemmer : buildParameters.getList("stemmer", String.class)) {
         String name = "postings-" + stemmer;
         processingFork.addGroup(name).addToGroup(name,
-                BuildStageTemplates.getStemmerStep(Parameters.create(),
+            BuildStageTemplates.getStemmerStep(Parameters.create(),
                 Class.forName(buildParameters.getMap("stemmerClass").getString(stemmer))))
                 .addToGroup(name, new StepInformation(NumberedPostingsPositionExtractor.class))
                 .addToGroup(name, Utility.getSorter(new NumberWordPosition.WordDocumentPositionOrder()))
@@ -236,12 +252,12 @@ public class BuildIndex extends AppFunction {
   }
   
   public static Parameters checkBuildIndexParameters(Parameters globalParameters) throws Exception {
-    ArrayList<String> errorLog = new ArrayList<String>();
+    ArrayList<String> errorLog = new ArrayList<>();
 
     // inputPath may be a string, or a list of strings -- required
     try {
       List<String> inputPath = globalParameters.getAsList("inputPath", String.class);
-      ArrayList<String> absolutePaths = new ArrayList<String>();
+      ArrayList<String> absolutePaths = new ArrayList<>();
       for (String path : inputPath) {
         absolutePaths.add((new File(path)).getAbsolutePath());
       }
@@ -355,6 +371,17 @@ public class BuildIndex extends AppFunction {
       globalParameters.set("stemmedPostings", true);
     }
 
+    // stemmedCounts may be a boolean [optional parameter]
+    // defaults to true
+    if (globalParameters.containsKey("stemmedCounts")) {
+      try {
+        boolean nsp = globalParameters.getBoolean("stemmedCounts");
+      } catch (Exception e) {
+        errorLog.add("Parameter 'stemmedCounts' should be a boolean. Defaults to false.");
+      }
+    } else {
+      globalParameters.set("stemmedCounts", false);
+    }
 
     // stemmer must be a list of stemmers [optional parameter]
     //   possible values { null | porter | krovetz | <class> }
@@ -376,8 +403,8 @@ public class BuildIndex extends AppFunction {
         globalParameters.set("stemmer", new ArrayList());
       }
     } else {
-      if (globalParameters.getBoolean("stemmedPostings")) {
-        ArrayList<String> stemmers = new ArrayList<String>();
+      if (globalParameters.getBoolean("stemmedPostings") || globalParameters.getBoolean("stemmedCounts")) {
+        ArrayList<String> stemmers = new ArrayList<>();
         // try to find the stemmerClass parameters
         if (globalParameters.containsKey("stemmerClass")
                 && globalParameters.isMap("stemmerClass")) {
@@ -402,7 +429,7 @@ public class BuildIndex extends AppFunction {
         globalParameters.set("stemmerClass", Parameters.create());
       }
       Parameters stemmerClasses = globalParameters.getMap("stemmerClass");
-      if (globalParameters.getBoolean("stemmedPostings")
+      if ((globalParameters.getBoolean("stemmedPostings") || globalParameters.getBoolean("stemmedCounts"))
               && globalParameters.isList("stemmer")) {
         // this is safe - thanks to previous checks
         List<String> stemmer = globalParameters.getList("stemmer", String.class);
@@ -449,7 +476,7 @@ public class BuildIndex extends AppFunction {
       globalParameters.set("tokenizer", Parameters.create());
     }
 
-    HashSet<String> fieldNames = new HashSet<String>();
+    HashSet<String> fieldNames = new HashSet<>();
     Parameters tokenizerParams = globalParameters.getMap("tokenizer");
     if (tokenizerParams.containsKey("fields")) {
       try {
@@ -471,7 +498,7 @@ public class BuildIndex extends AppFunction {
     //  each type needs to be indexable {string,int,long,float,double,date}
     if (tokenizerParams.containsKey("formats")) {
       try {
-        HashSet<String> possibleFormats = new HashSet<String>();
+        HashSet<String> possibleFormats = new HashSet<>();
         possibleFormats.add("string");
         possibleFormats.add("int");
         possibleFormats.add("long");
@@ -535,12 +562,6 @@ public class BuildIndex extends AppFunction {
         fieldIndexParameters.set("stemmedPostings", globalParameters.getBoolean("stemmedPostings"));
       }
 
-      // assert that either stemmedpostings or nonstemmedpostings will be created.
-      if (!fieldIndexParameters.getBoolean("nonStemmedPostings")
-              && !fieldIndexParameters.getBoolean("stemmedPostings")) {
-        errorLog.add("FieldIndexParameters: either nonstemmedpostings or stemmedpostings must be created.");
-      }
-
       // if nonstemmedpostings is required - make sure we have a full nonstemmedpostings index
       if (!globalParameters.getBoolean("nonStemmedPostings")
               && fieldIndexParameters.getBoolean("nonStemmedPostings")) {
@@ -556,8 +577,8 @@ public class BuildIndex extends AppFunction {
       // if we are stemming - check the stemmers match the global stemmers
       if (fieldIndexParameters.getBoolean("stemmedPostings")) {
         if (fieldIndexParameters.containsKey("stemmer")) {
-          HashSet<String> stemmerList = new HashSet(globalParameters.getList("stemmer"));
-          for (String stemmer : (List<String>) fieldIndexParameters.getList("stemmer")) {
+          HashSet<String> stemmerList = new HashSet<>(globalParameters.getList("stemmer", String.class));
+          for (String stemmer : fieldIndexParameters.getList("stemmer", String.class)) {
             if (!stemmerList.contains(stemmer)) {
               errorLog.add("FieldIndexParameters: stemmers must be in the global 'stemmer' list.");
             }
@@ -598,8 +619,10 @@ public class BuildIndex extends AppFunction {
 //
 
     if (!globalParameters.getBoolean("nonStemmedPostings")
-            && !globalParameters.getBoolean("stemmedPostings")) {
-      errorLog.add("Either parameter 'nonStemmedPostings' or 'stemmedPostings' must be true.");
+            && !globalParameters.getBoolean("stemmedPostings")
+            && !globalParameters.getBoolean("stemmedCounts")
+        ) {
+      errorLog.add("One of ['nonStemmedPostings', 'stemmedPostings', 'stemmedCounts'] must be true.");
     }
 
     if (errorLog.isEmpty()) {
@@ -669,6 +692,19 @@ public class BuildIndex extends AppFunction {
             PositionIndexWriter.class, null));
 
         job.connect("parsePostings", "writePostings", ConnectionAssignmentType.Combined);
+      }
+
+      if(buildParameters.getBoolean("stemmedCounts")) {
+        for (String stemmer : buildParameters.getList("stemmer", String.class)) {
+          String stageName = "writeCounts-"+stemmer;
+          job.add(CountIndexWriter.getStage(
+              buildParameters, stageName,
+              "numberedStemmedCounts-" + stemmer,
+              "counts." + stemmer,
+              stemmer
+          ));
+          job.connect("parsePostings", stageName, ConnectionAssignmentType.Combined);
+        }
       }
 
       // stemmedpostings

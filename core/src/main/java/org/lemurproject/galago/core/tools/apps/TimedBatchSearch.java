@@ -1,24 +1,21 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.tools.apps;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.TreeMap;
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
-import org.lemurproject.galago.core.retrieval.RetrievalFactory;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.queries.JSONQueryFormat;
 import org.lemurproject.galago.utility.tools.AppFunction;
-import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.tools.Arguments;
+
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  *
@@ -107,8 +104,8 @@ public class TimedBatchSearch extends AppFunction {
     long querystarttime, querymidtime, queryendtime;
     long[] batchTimes = new long[repeats];
     // keys should be in sorted order for ordered printing
-    Map<String, long[]> queryTimes = new TreeMap();
-    Map<String, long[]> queryExecTimes = new TreeMap();
+    Map<String, long[]> queryTimes = new TreeMap<>();
+    Map<String, long[]> queryExecTimes = new TreeMap<>();
 
 
     Random rnd = null;
