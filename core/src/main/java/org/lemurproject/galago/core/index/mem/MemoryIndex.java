@@ -40,15 +40,15 @@ public class MemoryIndex implements DynamicIndex, Index {
   protected LengthsReader lengthsReader = null;
   protected NamesReader namesReader = null;
   // haven't got any of these at the moment
-  HashMap<String, String> defaultIndexOperators = new HashMap<String, String>();
-  HashSet<String> knownIndexOperators = new HashSet<String>();
+  HashMap<String, String> defaultIndexOperators = new HashMap<>();
+  HashSet<String> knownIndexOperators = new HashSet<>();
 
   public MemoryIndex(Parameters parameters) throws Exception {
     manifest = parameters;
     // determine which parts are to be created:
     stemming = manifest.get("stemming", true);
     nonstemming = manifest.get("nonstemming", true);
-    makecorpus = manifest.get("makecorpus", false);
+    makecorpus = manifest.get("corpus", manifest.get("makecorpus", false));
 
     // we should have either a stemmed or non-stemmed posting list
     assert stemming || nonstemming;
@@ -232,10 +232,10 @@ public class MemoryIndex implements DynamicIndex, Index {
 
   /**
    * WARNING: this function returns a static picture of the collection stats.
-   * You should NEVER cache this object.
+   * You should NEVER cache this object, as you will miss any new documents that come through.
    *
-   * @param part
-   * @return
+   * @param part the index part to query statistics.
+   * @return a temporary view of the index-part statistics.
    */
   @Override
   public IndexPartStatistics getIndexPartStatistics(String part) {
@@ -297,7 +297,7 @@ public class MemoryIndex implements DynamicIndex, Index {
 
   @Override
   public Map<String, Document> getDocuments(List<String> documents, DocumentComponents p) throws IOException {
-    HashMap<String, Document> results = new HashMap();
+    HashMap<String, Document> results = new HashMap<>();
 
     // should get a names iterator + sort requested documents
     for (String name : documents) {
