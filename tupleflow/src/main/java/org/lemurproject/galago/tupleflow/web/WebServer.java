@@ -3,14 +3,18 @@ package org.lemurproject.galago.tupleflow.web;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.Utility;
+import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.json.JSONUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 /**
  * Consolidating some common Jetty stuff.
@@ -70,7 +74,7 @@ public class WebServer {
   }
 
   public static WebServer start(Parameters p, WebHandler handler) throws WebServerException {
-    int port = (int) p.get("port", 0);
+    int port = p.get("port", 0);
     if (port == 0) {
       try {
         port = Utility.getFreePort();
@@ -97,5 +101,21 @@ public class WebServer {
         response.sendError(501, e.getMessage());
       }
     }
+  }
+
+  public static Parameters parseGetParameters(HttpServletRequest req) {
+    Parameters request = Parameters.create();
+
+    Enumeration args = req.getParameterNames();
+    while(args.hasMoreElements()) {
+      String arg = (String) args.nextElement();
+      List<Object> vals = new ArrayList<>();
+      for (String x : req.getParameterValues(arg)) {
+        vals.add(JSONUtil.parseString(x));
+      }
+      request.put(arg, vals.size() == 1 ? vals.get(0) : vals);
+    }
+
+    return request;
   }
 }
