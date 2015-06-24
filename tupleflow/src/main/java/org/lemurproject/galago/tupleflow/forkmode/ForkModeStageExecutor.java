@@ -56,6 +56,7 @@ public class ForkModeStageExecutor extends CheckpointedStageExecutor {
    *                 jobs to DRMAA.
    */
   public ForkModeStageExecutor(String[] args) {
+    assert(System.getenv("JAVA_HOME") != null);
 
     // Set the defaults for each job.
     setMemoryUsage(MEMORY_X, MEMORY_S);

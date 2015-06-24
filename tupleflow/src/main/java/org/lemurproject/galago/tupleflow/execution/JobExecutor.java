@@ -878,14 +878,14 @@ public class JobExecutor {
 
       @Override
       public synchronized List<Double> getRunTimes() {
-        ArrayList<Double> times = new ArrayList();
+        ArrayList<Double> times = new ArrayList<>();
         // actually, don't do anything here. Nothing's running.
         return times;
       }
 
       @Override
       public List<Exception> getExceptions() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
       }
     }
 
@@ -894,7 +894,7 @@ public class JobExecutor {
     }
 
     public synchronized Map<String, StageExecutionStatus> getStageStatus() {
-      Map<String, StageExecutionStatus> result = new TreeMap();
+      Map<String, StageExecutionStatus> result = new TreeMap<>();
 
       for (String stageName : stages.keySet()) {
         int instanceCount = stages.get(stageName).getInstanceCount();

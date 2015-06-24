@@ -212,7 +212,7 @@ public class StageInstanceFactory {
 
     try {
       Class typeClass = Class.forName(className);
-      org.lemurproject.galago.tupleflow.Type type = (org.lemurproject.galago.tupleflow.Type) typeClass.getConstructor().newInstance();
+      Type type = (Type) typeClass.getConstructor().newInstance();
       order = type.getOrder(orderSpec);
     } catch (Exception e) {
       throw new IOException("Couldn't create an order object for type: " + className, e);
