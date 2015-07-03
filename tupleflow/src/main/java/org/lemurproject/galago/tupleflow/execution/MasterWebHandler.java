@@ -4,6 +4,7 @@ package org.lemurproject.galago.tupleflow.execution;
 import org.lemurproject.galago.tupleflow.execution.JobExecutor.JobExecutionStatus;
 import org.lemurproject.galago.tupleflow.web.WebHandler;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -46,7 +47,7 @@ public class MasterWebHandler implements WebHandler {
     }
 
     @Override
-    public int compareTo(CounterName other) {
+    public int compareTo(@Nonnull CounterName other) {
       int result = stageName.compareTo(other.stageName);
       if (result != 0) {
         return result;
@@ -73,7 +74,7 @@ public class MasterWebHandler implements WebHandler {
    * An aggregate counter holds counter data from lots of instances and
    * returns the sum.
    */
-  class AggregateCounter {
+  static class AggregateCounter {
     /// Returns the total counter value from all instances.
 
     public synchronized long getValue() {
@@ -306,6 +307,7 @@ public class MasterWebHandler implements WebHandler {
   @Override
   public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
     if (request.getPathInfo().equals("/setcounter")) {
+      System.err.println("/setcounter");
       handleSetCounter(request, response);
     } else {
       handleStatus(request, response);

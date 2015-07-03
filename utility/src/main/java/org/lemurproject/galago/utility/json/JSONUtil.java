@@ -93,8 +93,7 @@ public class JSONUtil {
       char ch = input.charAt(i);
       int chx = (int) ch;
 
-      // let's not put any nulls in our strings
-      assert(chx != 0);
+      assert(chx < 0x10000) : "Java stores as u16, so it should never give us a character that's bigger than 2 bytes. It literally can't.";
 
       if(ch == '\n') {
         output.append("\\n");
@@ -110,9 +109,7 @@ public class JSONUtil {
         output.append("\\b");
       } else if(ch == '\f') {
         output.append("\\f");
-      } else if(chx >= 0x10000) {
-        assert false : "Java stores as u16, so it should never give us a character that's bigger than 2 bytes. It literally can't.";
-      } else if(chx > 127) {
+      } else if(chx > 127 || chx == 0) { // handle non-ascii and nulls here, gracefully
         output.append(String.format("\\u%04x", chx));
       } else {
         output.append(ch);

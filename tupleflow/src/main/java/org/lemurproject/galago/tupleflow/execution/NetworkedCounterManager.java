@@ -11,7 +11,7 @@ import java.util.HashMap;
  */
 public class NetworkedCounterManager implements Runnable {
 
-  HashMap<String, NetworkedCounter> counters = new HashMap<String, NetworkedCounter>();
+  HashMap<String, NetworkedCounter> counters = new HashMap<>();
   boolean stop = false;
   int sleepInterval = 1000;
   Thread thread;

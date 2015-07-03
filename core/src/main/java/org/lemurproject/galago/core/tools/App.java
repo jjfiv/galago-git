@@ -34,7 +34,7 @@ public class App {
         // list of classpaths to scan
         List<String> cps = new ArrayList<String>();
         cps.add("org.lemurproject.galago");
-        cps.add("org.lemurproject.galago.eval");
+        cps.add("org.lemurproject.galago.core.eval");
 
         Parameters p = GalagoConf.getAllOptions();
         if (p.isString("appclasspath") || p.isList("appclasspath", String.class)) {
