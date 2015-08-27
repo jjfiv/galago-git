@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Reads a binary file of document names produced by DocumentNameWriter2
+ * Reads a binary file of document names produced by DiskNameWriter
  *
  * @author sjh
  */
