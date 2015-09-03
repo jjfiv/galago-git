@@ -13,7 +13,7 @@ import org.lemurproject.galago.utility.debug.Counter;
 import java.io.IOException;
 
 /**
- * Writes a btree mapping from document names to document numbers
+ * Writes a btree mapping from document numbers to document names
  *
  * @author sjh
  */

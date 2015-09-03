@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * Reads a binary file of document names produced by DocumentNameWriter2
+ * Reads a binary file of document names produced by DiskNameReverseWriter
  * 
  * @author sjh
  */
