@@ -3,12 +3,13 @@
  */
 package org.lemurproject.galago.core.eval;
 
-import org.lemurproject.galago.utility.compare.NaturalOrderComparator;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.StreamCreator;
+import org.lemurproject.galago.utility.compare.NaturalOrderComparator;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 /**
@@ -60,7 +61,8 @@ public class QuerySetResults {
      */
     private void loadRanking(String filename) throws IOException {
         // open file
-        BufferedReader in = new BufferedReader(new FileReader(filename), 256 * 1024);
+        BufferedReader in = new BufferedReader(new InputStreamReader(StreamCreator.openInputStream(filename), "UTF-8"), 256 * 1024);
+
         String line;
         TreeMap<String, List<EvalDoc>> ranking = new TreeMap<>();
 
