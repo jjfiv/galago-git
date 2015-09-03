@@ -134,12 +134,12 @@ public class JSONParser {
         return container;
     }
 
-    private List parseList() throws IOException {
+    private List<?> parseList() throws IOException {
         // Have to move past the opening '['
         delimiter = (char) getc();
         // skip any whitespace
         skipWhitespace();
-        ArrayList<Object> container = new ArrayList<Object>();
+        ArrayList<Object> container = new ArrayList<>();
         while (delimiter != ']') {
             skipWhitespace();
             container.add(parseValue());

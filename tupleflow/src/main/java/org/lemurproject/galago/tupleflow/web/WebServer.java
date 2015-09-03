@@ -98,7 +98,9 @@ public class WebServer {
       try {
         handler.handle(request, response);
       } catch (Exception e) {
-        response.sendError(501, e.getMessage());
+        if(response.isCommitted()) {
+          response.sendError(501, e.getMessage());
+        }
       }
     }
   }

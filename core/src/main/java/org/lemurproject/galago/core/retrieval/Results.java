@@ -7,10 +7,7 @@ import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
 import org.lemurproject.galago.core.retrieval.query.Node;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Base results class Wrapper for a list of results, and provides some utility
@@ -59,6 +56,17 @@ public class Results implements Serializable {
       names.add(sdoc.documentName);
     }
     return names;
+  }
+
+  /**
+   * @return a mapping between document names and their computed scores.
+   */
+  public Map<String, Double> asDocFeatures() {
+    HashMap<String, Double> scores = new HashMap<>(scoredDocuments.size());
+    for (ScoredDocument sdoc : scoredDocuments) {
+      scores.put(sdoc.documentName, sdoc.score);
+    }
+    return scores;
   }
 
   @Override

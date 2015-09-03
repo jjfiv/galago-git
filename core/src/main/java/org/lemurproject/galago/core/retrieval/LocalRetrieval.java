@@ -279,7 +279,7 @@ public class LocalRetrieval implements Retrieval {
         return transformQuery(defaultTraversals, queryTree, queryParams);
     }
 
-    private Node transformQuery(List<Traversal> traversals, Node queryTree, Parameters queryParams) throws Exception {
+    private synchronized Node transformQuery(List<Traversal> traversals, Node queryTree, Parameters queryParams) throws Exception {
         for (Traversal traversal : traversals) {
       //System.out.println("Before:"+traversal.getClass());
             //System.out.println("Before:"+queryTree);
