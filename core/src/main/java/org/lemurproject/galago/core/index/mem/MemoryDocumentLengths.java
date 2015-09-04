@@ -247,23 +247,24 @@ public class MemoryDocumentLengths implements MemoryIndexPart, LengthsReader {
   public void flushToDisk(String path) throws IOException {
     Parameters p = getManifest();
     p.set("filename", path);
-    DiskLengthsWriter writer = new DiskLengthsWriter(new FakeParameters(p));
+    try (DiskLengthsWriter writer = new DiskLengthsWriter(new FakeParameters(p))) {
 
-    FieldIterator fields = new FieldIterator(); // key iterator
-    DiskLengthsIterator fieldLengths;
-    ScoringContext c = new ScoringContext();
-    FieldLengthData ld;
-    while (!fields.isDone()) {
-      fieldLengths = fields.getValueIterator();
-      while (!fieldLengths.isDone()) {
-        c.document = fieldLengths.currentCandidate();
-        ld = new FieldLengthData(ByteUtil.fromString(fieldLengths.getKeyString()), fieldLengths.currentCandidate(), fieldLengths.length(c));
-        writer.process(ld);
-        fieldLengths.movePast(fieldLengths.currentCandidate());
+      FieldIterator fields = new FieldIterator(); // key iterator
+      DiskLengthsIterator fieldLengths;
+      ScoringContext c = new ScoringContext();
+      FieldLengthData ld;
+      while (!fields.isDone()) {
+        fieldLengths = fields.getValueIterator();
+        //System.err.println("Flushing lengths: " + fieldLengths.getKeyString()+" to path="+path);
+        while (!fieldLengths.isDone()) {
+          c.document = fieldLengths.currentCandidate();
+          ld = new FieldLengthData(ByteUtil.fromString(fieldLengths.getKeyString()), fieldLengths.currentCandidate(), fieldLengths.length(c));
+          writer.process(ld);
+          fieldLengths.movePast(fieldLengths.currentCandidate());
+        }
+        fields.nextKey();
       }
-      fields.nextKey();
     }
-    writer.close();
   }
 
   public class FieldIterator implements KeyIterator {
