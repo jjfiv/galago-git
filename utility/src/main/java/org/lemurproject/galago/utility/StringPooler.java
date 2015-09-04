@@ -40,7 +40,7 @@ public class StringPooler {
    *
    * @param terms are the list of terms, probably from the document.
    */
-  public void transform(List<String> terms) {
+  public synchronized void transform(List<String> terms) {
     if (maxActive > 0 && pool.size() > maxActive) {
       pool.clear();
     }
