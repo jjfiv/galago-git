@@ -75,7 +75,7 @@ public class WorkingSetDocumentModel extends ProcessingModel {
     boolean annotate = queryParams.get("annotate", false);
 
     // now there should be an iterator at the root of this tree
-    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap<ScoredDocument>(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
+    FixedSizeMinHeap<ScoredDocument> queue = new FixedSizeMinHeap<>(ScoredDocument.class, requested, new ScoredDocument.ScoredDocumentComparator());
 
     for (long document : whitelist) {
       if (document < 0) {
