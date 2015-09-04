@@ -141,6 +141,7 @@ public class LocalRetrieval implements Retrieval {
     protected <T extends ScoredDocument> T[] getArrayResults(T[] results, String indexId) throws IOException {
         assert (results != null); // unfortunately, we can't make an array of type T in java
 
+        // If there were no results, we're done.
         if (results.length == 0) {
             return results;
         }
@@ -148,6 +149,11 @@ public class LocalRetrieval implements Retrieval {
         for (int i = 0; i < results.length; i++) {
             results[i].source = indexId;
             results[i].rank = i + 1;
+        }
+
+        // Some processing models assign names as they go; so we can avoid a double-lookup.
+        if(results[0].documentName != null) {
+            return results;
         }
 
         // this is to assign proper document names
