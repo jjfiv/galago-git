@@ -21,6 +21,20 @@ public abstract class DataStream extends InputStream implements DataInput {
       return readUnsignedByte();
     }
 
+    @Override
+    public int read(byte[] b) throws IOException {
+        return read(b, 0, b.length);
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        int read;
+        for(read=0; read<len && !isDone(); read++) {
+            b[off+read] = (byte) readUnsignedByte();
+        }
+        return read;
+    }
+
     /**
      * Seeks forward into the stream to a particular byte offset (reverse
      * seeks are not allowed).  The offset is relative to the start position of
