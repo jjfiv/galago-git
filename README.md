@@ -4,7 +4,7 @@ There is a quick start guide on the wiki: [Quick Guide for New Users](https://so
 
 ## Is this the Galago from the Text Book I have?
 
-No, that version is older and preserved here: [The Book Version](http://code.google.com/p/galagosearch/)
+No, that version is older and preserved here: [The Book Version](http://ciir.cs.umass.edu/downloads/SearchEnginesGalagoCode/)
 
 ## License
 Galago is distributed under the BSD license.  See the LICENSE file for details.
