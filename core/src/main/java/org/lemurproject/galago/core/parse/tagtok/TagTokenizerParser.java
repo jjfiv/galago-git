@@ -88,6 +88,10 @@ public final class TagTokenizerParser implements DocumentBuilder {
 			document.termCharBegin.add(p.start);
 			document.termCharEnd.add(p.end);
 		}
+		if(openTags.isEmpty()) {
+			document.tags = Collections.emptyList();
+			return;
+		}
 		document.tags = coalesceTags(tagWhitelist);
 	}
 

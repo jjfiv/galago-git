@@ -24,6 +24,13 @@ public class StringPooler {
 		return _instance;
 	}
 
+  /** Disable string pooling; probably not needed unless you're in a huge drmaa job. */
+  public static void disable() {
+    _instance = new StringPooler() {
+      @Override public void transform(List<String> terms) { }
+    };
+  }
+
   public StringPooler() {
     this(DEFAULT_ACTIVE);
   }
@@ -40,7 +47,7 @@ public class StringPooler {
    *
    * @param terms are the list of terms, probably from the document.
    */
-  public synchronized void transform(List<String> terms) {
+  public void transform(List<String> terms) {
     if (maxActive > 0 && pool.size() > maxActive) {
       pool.clear();
     }
