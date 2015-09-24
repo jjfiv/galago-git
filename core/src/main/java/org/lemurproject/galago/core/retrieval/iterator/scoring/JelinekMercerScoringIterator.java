@@ -89,8 +89,7 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
   public double deltaScore(ScoringContext c) {
     int count = ((CountIterator) iterator).count(c);
     int length = this.lengthsIterator.length(c);
-    double diff = weight * (max - score(count, length));
-    return diff;
+    return weight * (max - score(count, length));
   }
 
   @Override
@@ -101,7 +100,7 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
   }
 
   public double score(double count, double length) {
-    double foreground = (double) count / (double) length;
+    double foreground = count / length;
     return Math.log((lambda * foreground) + ((1 - lambda) * background));
   }
 }
