@@ -64,6 +64,7 @@ public class ScoreCombinationIterator extends DisjunctionIterator implements Sco
     for (int i = 0; i < scoreIterators.length; i++) {
       double score = scoreIterators[i].score(c);
       total += weights[i] * score;
+      //System.out.println("combine["+i+"]="+total);
     }
     return total;
   }
