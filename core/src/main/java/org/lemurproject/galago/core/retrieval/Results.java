@@ -59,15 +59,17 @@ public class Results implements Serializable {
   }
 
   /**
-   * @return a mapping between document names and their computed scores.
+   * Treat this retrieval as a feature in another model; i.e. turn this ranked list into a map of (DocId -> Score).
+   * @return Map of {@link ScoredDocument#documentName} to {@link ScoredDocument#score}
    */
-  public Map<String, Double> asDocFeatures() {
+  public Map<String,Double> asDocumentFeatures() {
     HashMap<String, Double> scores = new HashMap<>(scoredDocuments.size());
     for (ScoredDocument sdoc : scoredDocuments) {
       scores.put(sdoc.documentName, sdoc.score);
     }
     return scores;
   }
+
 
   @Override
   public boolean equals(Object o) {
