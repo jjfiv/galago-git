@@ -15,7 +15,7 @@ import java.util.*;
  *
  * @author trevor, sjh
  */
-public class Node implements Serializable {
+public class Node extends AbstractList<Node> implements Serializable {
 
   private static final Set<String> defaultOmissionSet;
 
@@ -42,6 +42,16 @@ public class Node implements Serializable {
 
   public Node() {
     this("", new NodeParameters(), new ArrayList<Node>(), 0);
+  }
+
+  @Override
+  public int size() {
+    return this.internalNodes.size();
+  }
+
+  @Override
+  public Node get(int index) {
+    return this.internalNodes.get(index);
   }
 
   public Node(String operator) {

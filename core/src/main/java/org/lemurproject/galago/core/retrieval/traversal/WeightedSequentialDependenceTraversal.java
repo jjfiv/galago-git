@@ -44,7 +44,6 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
   private static final Logger logger = Logger.getLogger("WSDM");
   private Retrieval retrieval;
   private GroupRetrieval gRetrieval;
-  private Parameters globalParams;
   private boolean defCombNorm;
   private boolean verbose;
   private List<WSDMFeature> uniFeatures;
@@ -57,17 +56,17 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     }
     this.retrieval = retrieval;
 
-    this.globalParams = retrieval.getGlobalParameters();
+    Parameters globalParams = retrieval.getGlobalParameters();
 
     verbose = globalParams.get("verboseWSDM", false);
     defCombNorm = globalParams.get("norm", false);
 
-    uniFeatures = new ArrayList();
-    biFeatures = new ArrayList();
-    triFeatures = new ArrayList();
+    uniFeatures = new ArrayList<>();
+    biFeatures = new ArrayList<>();
+    triFeatures = new ArrayList<>();
 
     if (globalParams.isList("wsdmFeatures", Parameters.class)) {
-      for (Parameters f : (List<Parameters>) globalParams.getList("wsdmFeatures")) {
+      for (Parameters f : globalParams.getList("wsdmFeatures", Parameters.class)) {
         WSDMFeature wf = new WSDMFeature(f);
         if (wf.unigram) {
           uniFeatures.add(wf);
@@ -105,13 +104,13 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
       // First check format - should only contain text node children
       List<Node> children = original.getInternalNodes();
       for (Node child : children) {
-        if (child.getOperator().equals("text") == false) {
+        if (!child.getOperator().equals("text")) {
           throw new MalformedQueryException("wsdm operator requires text-only children");
         }
       }
 
       // formatting is ok - now reassemble
-      ArrayList<Node> newChildren = new ArrayList();
+      ArrayList<Node> newChildren = new ArrayList<>();
       NodeParameters newWeights = new NodeParameters();
       // i don't want normalization -- even though michael used some.
       newWeights.set("norm", defCombNorm);
@@ -127,7 +126,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
       if (!biFeatures.isEmpty()) {
         for (int i = 0; i < (children.size() - 1); i++) {
-          ArrayList<Node> pair = new ArrayList();
+          ArrayList<Node> pair = new ArrayList<>();
           pair.add(new Node("extents", children.get(i).getDefaultParameter()));
           pair.add(new Node("extents", children.get(i + 1).getDefaultParameter()));
 
@@ -143,7 +142,7 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
 
       if (!triFeatures.isEmpty()) {
         for (int i = 0; i < (children.size() - 2); i++) {
-          ArrayList<Node> triple = new ArrayList();
+          ArrayList<Node> triple = new ArrayList<>();
           triple.add(new Node("extents", children.get(i).getDefaultParameter()));
           triple.add(new Node("extents", children.get(i + 1).getDefaultParameter()));
           triple.add(new Node("extents", children.get(i + 2).getDefaultParameter()));
@@ -177,10 +176,10 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     t = TextPartAssigner.assignPart(t, queryParams, retrieval.getAvailableParts());
 
     // feature value store
-    Map<WSDMFeature, Double> featureValues = new HashMap();
+    Map<WSDMFeature, Double> featureValues = new HashMap<>();
 
     // tf/df comes from the same object - can be used  twice
-    Map<String, AggregateStatistic> localCache = new HashMap();
+    Map<String, AggregateStatistic> localCache = new HashMap<>();
 
     // NOW : collect some feature values
     Node node;
@@ -288,10 +287,10 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     od1.addChild(t2);
 
     // feature value store
-    Map<WSDMFeature, Double> featureValues = new HashMap();
+    Map<WSDMFeature, Double> featureValues = new HashMap<>();
 
     // tf/df comes from the same object - can be used  twice
-    Map<String, AggregateStatistic> localCache = new HashMap();
+    Map<String, AggregateStatistic> localCache = new HashMap<>();
 
     // NOW : collect some feature values
     Node node;
@@ -437,10 +436,10 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     od1.addChild(t3);
 
     // feature value store
-    Map<WSDMFeature, Double> featureValues = new HashMap();
+    Map<WSDMFeature, Double> featureValues = new HashMap<>();
 
     // tf/df comes from the same object - can be used twice
-    Map<String, AggregateStatistic> localCache = new HashMap();
+    Map<String, AggregateStatistic> localCache = new HashMap<>();
 
     // NOW : collect some feature values
     Node node;
@@ -570,9 +569,8 @@ public class WeightedSequentialDependenceTraversal extends Traversal {
     return weight;
   }
 
-  public static enum WSDMFeatureType {
-
-    LOGTF, LOGDF, CONST, LOGNGRAMTF;
+  public enum WSDMFeatureType {
+    LOGTF, LOGDF, CONST, LOGNGRAMTF
   }
 
   /*
