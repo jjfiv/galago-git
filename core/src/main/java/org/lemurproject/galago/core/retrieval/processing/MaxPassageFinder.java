@@ -81,11 +81,6 @@ public class MaxPassageFinder extends ProcessingModel {
             ScoredPassage documentBest = null;
             boolean lastIteration = false;
 
-            // short-circut the while loop if there is no match. Don't do
-            // it in the while condtion check - no need to re-evaluate every time.
-            if (!iterator.hasMatch(context)) {
-                lastIteration = true;
-            }
             while (context.begin < length && !lastIteration) {
                 if (context.end >= length) {
                     lastIteration = true;

@@ -100,19 +100,20 @@ public class MaxPassageFinderTest {
             }
         }
 
-        // search for something that doesn't exist
+        // search for something that doesn't exist - this is a test for
+        // https://sourceforge.net/p/lemur/feature-requests/115/
+        // which used to crash if the query was not found in the document(s)
         query = StructuredQuery.parse("michael zarozinski");
         query = ret.transformQuery(query, queryParams);
         results = (ScoredPassage[]) model.execute(query, queryParams);
-        assertEquals(results.length, 0);
 
         // only look in 3 documents, so we should only get 3 results. 
         // If we were doing RankedPassageModel retrieval we would get
-        // up to as manay as we specify in the "requested" parameter.  
+        // up to as many as we specify in the "requested" parameter.
         queryParams.set("working",
                 Arrays.asList(new String[]{"d-1", "d-98", "d-99"}));
         //there is one doc with the term '108' so that doc (99)
-        // should have the hightest ranking.
+        // should have the highest ranking.
 
         query = StructuredQuery.parse("#combine( test text 108 )");
         query = ret.transformQuery(query, queryParams);
