@@ -7,7 +7,6 @@ import org.lemurproject.galago.utility.*;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.zip.ZipFile;
@@ -26,7 +25,7 @@ public abstract class DocumentStreamParser implements Closeable {
   /* Static interface */
 
   // The built-in type map
-  public static Map<String, Class> fileTypeMap;
+  public static ConcurrentHashMap<String, Class> fileTypeMap;
   static {
     fileTypeMap = new ConcurrentHashMap<>();
     addExternalParsers(Parameters.create());

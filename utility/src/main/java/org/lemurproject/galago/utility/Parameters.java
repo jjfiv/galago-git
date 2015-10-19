@@ -62,7 +62,7 @@ public class Parameters implements Serializable, Map<String,Object> {
   }
 
 	public static Parameters parseFile(File f) throws IOException {
-    JSONParser jp = new JSONParser(new FileReader(f), f.getPath());
+    JSONParser jp = new JSONParser(new InputStreamReader(StreamCreator.openInputStream(f)), f.getPath());
     return jp.parse();
   }
   

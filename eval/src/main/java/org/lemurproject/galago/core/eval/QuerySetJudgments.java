@@ -82,7 +82,7 @@ public class QuerySetJudgments extends WrappedMap<String, QueryJudgments> {
         }
 
         // add this judgment to the query
-        int j = Integer.parseInt(judgment);
+        int j = (int) Math.rint(Double.parseDouble(judgment));
         if (makeBinary) {
           j = (j > 0) ? 1 : 0;
         } else if (makePositive) {

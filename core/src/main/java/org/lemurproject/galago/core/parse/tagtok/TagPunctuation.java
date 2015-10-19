@@ -36,4 +36,15 @@ public class TagPunctuation {
 
 		return localSplits;
 	}
+
+	public static String clean(String input) {
+		StringBuilder output = new StringBuilder();
+		for (char c : input.toCharArray()) {
+			if(c < splits.length && splits[c]) {
+				continue;
+			}
+			output.append(Character.toLowerCase(c));
+		}
+		return output.toString();
+	}
 }
