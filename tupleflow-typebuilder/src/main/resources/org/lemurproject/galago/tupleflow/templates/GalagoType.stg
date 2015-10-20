@@ -14,7 +14,7 @@ import gnu.trove.list.array.*;
 /**
  * Tupleflow-Typebuilder automatically-generated class: <typeName>.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused","unchecked"})
 public final class <typeName> implements Type\<<typeName>\> {
     <fields:{public <it.type> <it.name>;}; separator="\n"> 
     
