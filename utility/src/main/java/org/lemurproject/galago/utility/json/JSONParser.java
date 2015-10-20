@@ -134,7 +134,7 @@ public class JSONParser {
         return container;
     }
 
-    private List<?> parseList() throws IOException {
+    public List<?> parseList() throws IOException {
         // Have to move past the opening '['
         delimiter = (char) getc();
         // skip any whitespace

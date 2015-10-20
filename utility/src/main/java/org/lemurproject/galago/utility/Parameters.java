@@ -631,7 +631,9 @@ public class Parameters implements Serializable, Map<String,Object> {
   }
 
   private static String emitComplex(Object val) throws IOException {
-    assert(val != null);
+    if(val == null) {
+      return "null";
+    }
     if (List.class.isAssignableFrom(val.getClass())) {
       StringBuilder builder = new StringBuilder();
       builder.append("[ ");
