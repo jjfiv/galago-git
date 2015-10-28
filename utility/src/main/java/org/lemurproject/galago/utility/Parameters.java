@@ -491,7 +491,7 @@ public class Parameters implements Serializable, Map<String,Object> {
   }
 
   public boolean isDouble(String key) {
-    return get(key) instanceof Double;
+    return get(key) instanceof Double || get(key) instanceof Float;
   }
 
   public boolean isLong(String key) {
@@ -544,7 +544,7 @@ public class Parameters implements Serializable, Map<String,Object> {
         } else if(isString(key) || isMap(key) || isList(key)) {
           builder.append(emitComplex(get(key)));
         } else {
-          throw new IllegalArgumentException("Unknown object kind: {"+key+": "+get(key)+"}");
+          throw new IllegalArgumentException("Unknown object kind: "+get(key).getClass()+" {"+key+": "+get(key)+"}");
         }
       }
     } catch (IOException ioe) {

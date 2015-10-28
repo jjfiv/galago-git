@@ -19,6 +19,7 @@ import org.lemurproject.galago.utility.MathUtils;
 import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.lists.Scored;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -264,9 +265,9 @@ public class RelevanceModel1 implements ExpansionModel {
 
     // The secondary sort is to have defined behavior for statistically tied samples.
     @Override
-    public int compareTo(WeightedTerm other) {
+    public int compareTo(@Nonnull WeightedTerm other) {
       WeightedUnigram that = (WeightedUnigram) other;
-      int result = this.score > that.score ? -1 : (this.score < that.score ? 1 : 0);
+      int result = -Double.compare(this.score, that.score);
       if (result != 0) {
         return result;
       }
