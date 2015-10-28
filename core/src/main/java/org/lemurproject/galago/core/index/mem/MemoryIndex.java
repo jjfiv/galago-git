@@ -1,8 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
-import org.lemurproject.galago.core.index.*;
-import org.lemurproject.galago.core.index.corpus.CorpusReader;
+import org.lemurproject.galago.core.index.DynamicIndex;
+import org.lemurproject.galago.core.index.Index;
+import org.lemurproject.galago.core.index.IndexPartReader;
+import org.lemurproject.galago.core.index.LengthsReader;
+import org.lemurproject.galago.core.index.corpus.DocumentReader;
 import org.lemurproject.galago.core.index.stats.AggregateIndexPart;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
@@ -15,13 +18,15 @@ import org.lemurproject.galago.core.retrieval.iterator.NullExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.tupleflow.InputClass;
-import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.tupleflow.TupleFlowParameters;
 import org.lemurproject.galago.tupleflow.execution.Verified;
+import org.lemurproject.galago.utility.Parameters;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /*
  * Memory Index
@@ -32,13 +37,14 @@ import java.util.Map.Entry;
 @Verified
 @InputClass(className = "org.lemurproject.galago.core.parse.Document")
 public class MemoryIndex implements DynamicIndex, Index {
+  public static final Logger logger = Logger.getLogger(MemoryIndex.class.getName());
 
   public boolean stemming, nonstemming, makecorpus, dirty;
   protected int documentNumberOffset, documentCount;
   protected Parameters manifest;
   protected HashMap<String, MemoryIndexPart> parts;
   protected LengthsReader lengthsReader = null;
-  protected NamesReader namesReader = null;
+  protected MemoryDocumentNames namesReader = null;
   // haven't got any of these at the moment
   HashMap<String, String> defaultIndexOperators = new HashMap<>();
   HashSet<String> knownIndexOperators = new HashSet<>();
@@ -80,7 +86,7 @@ public class MemoryIndex implements DynamicIndex, Index {
 
     // get a pointer to some special parts:
     lengthsReader = (LengthsReader) parts.get("lengths");
-    namesReader = (NamesReader) parts.get("names");
+    namesReader = (MemoryDocumentNames) parts.get("names");
 
     initializeIndexOperators();
     dirty = false;
@@ -278,18 +284,18 @@ public class MemoryIndex implements DynamicIndex, Index {
 
   @Override
   public long getIdentifier(String document) throws IOException {
-    throw new UnsupportedOperationException("Memory index does not currently support getIdentifier function.");
+    return namesReader.getDocumentId(document);
   }
 
   @Override
   public Document getDocument(String document, DocumentComponents p) throws IOException {
     if (parts.containsKey("corpus")) {
       try {
-        CorpusReader corpus = (CorpusReader) parts.get("corpus");
+        DocumentReader corpus = (MemoryCorpus) parts.get("corpus");
         long docId = getIdentifier(document);
         corpus.getDocument(docId, p);
       } catch (Exception e) {
-        // ignore the exception
+        logger.log(Level.WARNING, "error pulling document", e);
       }
     }
     return null;

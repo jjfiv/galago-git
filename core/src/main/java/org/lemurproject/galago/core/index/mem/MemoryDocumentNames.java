@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.mem;
 
+import gnu.trove.map.hash.TObjectLongHashMap;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.NamesReader;
 import org.lemurproject.galago.core.index.disk.DiskNameReverseWriter;
@@ -13,19 +14,20 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.core.types.DocumentNameId;
-import org.lemurproject.galago.utility.buffer.DataStream;
 import org.lemurproject.galago.tupleflow.FakeParameters;
 import org.lemurproject.galago.tupleflow.Utility;
 import org.lemurproject.galago.utility.ByteUtil;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.buffer.DataStream;
 
 import java.io.IOException;
 import java.util.*;
 
 public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
 
-  private List<String> names = new ArrayList<String>(256);
+  private List<String> names = new ArrayList<>(256);
+  private TObjectLongHashMap<String> namesRev = new TObjectLongHashMap<>();
   private long offset;
   private Parameters params;
   private long docCount;
@@ -50,6 +52,15 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
     docCount += 1;
     termCount += doc.terms.size();
     names.add(doc.name);
+    namesRev.put(doc.name, doc.identifier);
+  }
+
+  public long getDocumentId(String name) {
+    long id = namesRev.get(name);
+    if(id == namesRev.getNoEntryValue()) {
+      return -1;
+    }
+    return id;
   }
 
   @Override

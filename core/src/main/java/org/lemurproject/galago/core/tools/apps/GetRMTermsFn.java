@@ -35,7 +35,7 @@ public class GetRMTermsFn extends AppFunction {
 
   @Override
   public void run(Parameters p, PrintStream output) throws Exception {
-    int numTerms = (int) p.get("numTerms", 10);
+    int numTerms = p.get("numTerms", 10);
     Node query = StructuredQuery.parse(p.getString("query"));
     Retrieval ret = RetrievalFactory.create(p);
     Stemmer stemmer = RelevanceModel1.getStemmer(p, ret);

@@ -49,9 +49,9 @@ public class CachedRetrieval {
     this.cacheLeafNodes = this.parameters.get("cacheLeafNodes", true);
     this.cacheStats = this.parameters.get("cacheStats", false); // useful when we just need lots of stats, no real iterators
 
-    this.cachedNodes = new ConcurrentHashMap();
-    this.cachedStats = new ConcurrentHashMap();
-    this.cacheParts = new ConcurrentHashMap();
+    this.cachedNodes = new ConcurrentHashMap<>();
+    this.cachedStats = new ConcurrentHashMap<>();
+    this.cacheParts = new ConcurrentHashMap<>();
 
     this.cacheParts.put("score", new MemorySparseDoubleIndex(Parameters.create()));
     this.cacheParts.put("extent", new MemoryWindowIndex(Parameters.create()));
