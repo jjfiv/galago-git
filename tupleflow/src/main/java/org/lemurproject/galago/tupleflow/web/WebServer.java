@@ -11,6 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -45,12 +46,12 @@ public class WebServer {
   }
 
   public int getPort() {
-    return server.getConnectors()[0].getPort();
+    return server.getURI().getPort();
   }
 
   public static String getHostName() {
     try {
-      return java.net.InetAddress.getLocalHost().getHostAddress();
+      return InetAddress.getLocalHost().getHostAddress();
     } catch (UnknownHostException e) {
       e.printStackTrace();
       return "localhost";
@@ -58,7 +59,7 @@ public class WebServer {
   }
 
   public String getURL() {
-    return String.format("http://%s:%d", getHostName(), getPort());
+    return server.getURI().toString();
   }
 
   public static WebServer start(int port, WebHandler handler) throws WebServerException {
