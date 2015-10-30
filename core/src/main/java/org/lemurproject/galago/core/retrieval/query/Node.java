@@ -54,6 +54,11 @@ public class Node extends AbstractList<Node> implements Serializable {
     return this.internalNodes.get(index);
   }
 
+  @Override
+  public boolean add(Node n) {
+    this.addChild(n); return true;
+  }
+
   public Node(String operator) {
     this(operator, new NodeParameters(), new ArrayList<Node>(), 0);
   }
