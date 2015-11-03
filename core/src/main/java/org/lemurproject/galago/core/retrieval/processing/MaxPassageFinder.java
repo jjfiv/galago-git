@@ -80,14 +80,21 @@ public class MaxPassageFinder extends ProcessingModel {
 
             ScoredPassage documentBest = null;
             boolean lastIteration = false;
+            boolean bFoundMatch = false;
 
             while (context.begin < length && !lastIteration) {
                 if (context.end >= length) {
                     lastIteration = true;
                 }
 
+                // hasMatch() does not take background probabilities into account
+                // so we'll only get true matches.
+                if (iterator.hasMatch(context)) {
+                    bFoundMatch = true;
+                }
+
                 double score = iterator.score(context);
-                if (documentBest == null || documentBest.score < score) {
+                if (bFoundMatch && (documentBest == null || documentBest.score < score)) {
                     documentBest = new ScoredPassage(docId, score, context.begin, context.end);
                     if (annotate) {
                         documentBest.annotation = iterator.getAnnotatedNode(context);
