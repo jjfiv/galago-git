@@ -1,13 +1,14 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index.disk;
 
-import java.io.IOException;
-
-import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.core.index.source.BTreeValueSource;
 import org.lemurproject.galago.core.index.source.LengthSource;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
+import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.buffer.DataStream;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
 
 /**
  *
@@ -32,7 +33,7 @@ final public class DiskLengthSource extends BTreeValueSource implements LengthSo
   long lengthsDataOffset;
   boolean done;
 
-  public DiskLengthSource(BTreeIterator iter) throws IOException {
+  public DiskLengthSource(@Nonnull BTreeIterator iter) throws IOException {
     super(iter);
     reset();
   }
