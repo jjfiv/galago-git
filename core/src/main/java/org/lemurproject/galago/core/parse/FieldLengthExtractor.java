@@ -4,13 +4,14 @@
 package org.lemurproject.galago.core.parse;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
-import java.io.IOException;
 import org.lemurproject.galago.core.types.FieldLengthData;
 import org.lemurproject.galago.tupleflow.InputClass;
 import org.lemurproject.galago.tupleflow.OutputClass;
 import org.lemurproject.galago.tupleflow.StandardStep;
 import org.lemurproject.galago.tupleflow.execution.Verified;
 import org.lemurproject.galago.utility.ByteUtil;
+
+import java.io.IOException;
 
 /**
  *
@@ -21,13 +22,12 @@ import org.lemurproject.galago.utility.ByteUtil;
 @OutputClass(className = "org.lemurproject.galago.core.types.FieldLengthData")
 public class FieldLengthExtractor extends StandardStep<Document, FieldLengthData> {
 
-  TObjectIntHashMap<String> fieldLengths = new TObjectIntHashMap();
 
   @Override
   public void process(Document doc) throws IOException {
     processor.process(new FieldLengthData(ByteUtil.fromString("document"), doc.identifier, doc.terms.size()));
 
-    fieldLengths.clear();
+    TObjectIntHashMap<String> fieldLengths = new TObjectIntHashMap<>();
     for (Tag tag : doc.tags) {
       int len = tag.end - tag.begin;
       fieldLengths.adjustOrPutValue(tag.name, len, len);

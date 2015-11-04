@@ -60,7 +60,12 @@ public class App {
                 String name = fn.getName();
 
                 // if we have a duplicated function - use the first one.
-                if (appFunctions.containsKey(fn.getName())) {
+                if (appFunctions.containsKey(name)) {
+                    AppFunction previousByName = appFunctions.get(name);
+                    if(previousByName.getClass().equals(c)) {
+                        // if it's the same class, don't log anything.
+                        continue;
+                    }
                     log.info("Found duplicated function name: " + c.getName() + ". Arbitrarily using: " + appFunctions.get(name).getClass().getName());
                 } else {
                     appFunctions.put(fn.getName(), fn);

@@ -97,6 +97,9 @@ public class DiskLengthsReader extends KeyListReader implements LengthsReader {
       String key = node.getNodeParameters().get("default", "document");
       byte[] keyBytes = ByteUtil.fromString(key);
       BTreeIterator i = reader.getIterator(keyBytes);
+      if(i == null) {
+        throw new RuntimeException("Couldn't find lengths for field="+key);
+      }
       return new DiskLengthsIterator(new DiskLengthSource(i));
     } else {
       throw new UnsupportedOperationException("Index doesn't support operator: " + node.getOperator());

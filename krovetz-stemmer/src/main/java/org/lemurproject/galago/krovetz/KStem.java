@@ -50,7 +50,7 @@ import java.util.HashMap;
 /**
  This class implements the Kstem algorithm
  */
-public class KStem {
+public final class KStem {
 
  /** Default size of the cache that stores <code>(word,stem)</code> pairs.
   <p>This speeds up processing since Kstem works by
@@ -1332,7 +1332,7 @@ public class KStem {
   *  @param term The word to be stemmed.
   *  @return The stem form of the term.
   */
- public String stemTerm(String term) {
+ public final String stemTerm(String term) {
   boolean stemIt;
   String result;
   String original;

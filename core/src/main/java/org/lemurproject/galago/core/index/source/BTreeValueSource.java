@@ -1,9 +1,10 @@
 package org.lemurproject.galago.core.index.source;
 
-import java.io.IOException;
-
-import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.utility.ByteUtil;
+import org.lemurproject.galago.utility.btree.BTreeIterator;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
 
 /**
  *
@@ -18,7 +19,7 @@ public abstract class BTreeValueSource implements DiskSource {
   final protected BTreeIterator btreeIter;
   final protected String key;
   
-  public BTreeValueSource(BTreeIterator it) throws IOException {
+  public BTreeValueSource(@Nonnull BTreeIterator it) throws IOException {
     this.key = ByteUtil.toString(it.getKey());
     this.btreeIter = it;
   }

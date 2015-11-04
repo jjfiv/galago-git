@@ -96,6 +96,10 @@ public class JelinekMercerScoringIterator extends ScoringFunctionIterator
   public double score(ScoringContext c) {
     int count = ((CountIterator) iterator).count(c);
     int length = this.lengthsIterator.length(c);
+    // Make safe for scoring missing documents:
+    if(length == 0) {
+      return Math.log((1-lambda) * background);
+    }
     return score(count, length);
   }
 
