@@ -106,15 +106,17 @@ public class MaxPassageFinderTest {
         query = StructuredQuery.parse("michael zarozinski");
         query = ret.transformQuery(query, queryParams);
         results = (ScoredPassage[]) model.execute(query, queryParams);
+        // should return zero documents
+        assertEquals(0, results.length);
 
-        // only look in 3 documents, so we should only get 3 results. 
+        // only look in 3 documents, so we should only get 3 results.
         // If we were doing RankedPassageModel retrieval we would get
         // up to as many as we specify in the "requested" parameter.
         queryParams.set("working",
-                Arrays.asList(new String[]{"d-1", "d-98", "d-99"}));
+             Arrays.asList(new String[]{"d-1", "d-98", "d-99"}));
+
         //there is one doc with the term '108' so that doc (99)
         // should have the highest ranking.
-
         query = StructuredQuery.parse("#combine( test text 108 )");
         query = ret.transformQuery(query, queryParams);
 
