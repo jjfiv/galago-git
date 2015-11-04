@@ -2,6 +2,7 @@
 package org.lemurproject.galago.core.index;
 
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
+import org.lemurproject.galago.utility.ByteUtil;
 
 import java.io.IOException;
 
@@ -20,6 +21,10 @@ public interface KeyIterator extends Comparable<KeyIterator> {
 
   // moves iterator to some particular key
   public boolean findKey(byte[] key) throws IOException;
+
+  default boolean findKey(String key) throws IOException {
+    return findKey(ByteUtil.fromString(key));
+  }
   
   // moves iterator to a particular key (forward direction only)
   public boolean skipToKey(byte[] key) throws IOException;
