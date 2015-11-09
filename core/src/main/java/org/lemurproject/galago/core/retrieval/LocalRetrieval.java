@@ -19,6 +19,7 @@ import org.lemurproject.galago.core.retrieval.traversal.Traversal;
 import org.lemurproject.galago.utility.CmpUtil;
 import org.lemurproject.galago.utility.Parameters;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -44,7 +45,10 @@ public class LocalRetrieval implements Retrieval {
     protected CachedRetrieval cache;
     protected List<Traversal> defaultTraversals;
 
-    Cache<Node, NodeStatistics> nodeStatisticsCache;
+    @Nullable
+    protected Cache<Long, String> nameCache;
+    @Nullable
+    protected Cache<Node, NodeStatistics> nodeStatisticsCache;
 
 
     /**
@@ -68,9 +72,18 @@ public class LocalRetrieval implements Retrieval {
     public LocalRetrieval(Index index, Parameters parameters) {
         this.globalParameters = parameters;
         setIndex(index);
-        nodeStatisticsCache = Caffeine.newBuilder()
-            .maximumSize(globalParameters.get("nodeStatisticsCacheSize", 100_000L))
-            .build();
+        long namesCacheSize = globalParameters.get("namesCacheSize", 0L);
+        if(namesCacheSize > 0) {
+            nameCache = Caffeine.newBuilder()
+                .maximumSize(namesCacheSize)
+                .build();
+        }
+        long nodeStatsCacheSize = globalParameters.get("nodeStatisticsCacheSize", 100_000L);
+        if(nodeStatsCacheSize > 0) {
+            nodeStatisticsCache = Caffeine.newBuilder()
+                .maximumSize(nodeStatsCacheSize)
+                .build();
+        }
     }
 
     protected void setIndex(Index indx) {
@@ -78,6 +91,8 @@ public class LocalRetrieval implements Retrieval {
             this.index = indx;
             features = new FeatureFactory(globalParameters);
             defaultTraversals = features.getTraversals(this);
+            if(nodeStatisticsCache != null) nodeStatisticsCache.invalidateAll();
+            if(nameCache != null) nameCache.invalidateAll();
             cache = null;
             if (this.globalParameters.get("cache", false)) {
                 cache = new CachedRetrieval(this.globalParameters);
@@ -173,11 +188,21 @@ public class LocalRetrieval implements Retrieval {
         ScoringContext sc = new ScoringContext();
 
         for (T doc : byID) {
+            if(nameCache != null) {
+                String name = nameCache.getIfPresent(doc.document);
+                if(name != null) {
+                    doc.documentName = name;
+                    continue;
+                }
+            }
             namesIterator.syncTo(doc.document);
             sc.document = doc.document;
 
             if (doc.document == namesIterator.currentCandidate()) {
                 doc.documentName = namesIterator.data(sc);
+                if(nameCache != null) {
+                    nameCache.put(doc.document, doc.documentName);
+                }
 
             } else {
                 logger.warning("NAMES ITERATOR FAILED TO FIND DOCUMENT " + doc.document);
@@ -378,6 +403,10 @@ public class LocalRetrieval implements Retrieval {
             throw new IllegalArgumentException("Node " + root.toString() + " is not a count iterator.");
         }
 
+        if(nodeStatisticsCache == null) {
+            CountIterator iterator = (CountIterator) structIterator;
+            return iterator.getOrCalculateStatistics();
+        }
         return nodeStatisticsCache.get(root, (missing) -> {
             try {
                 CountIterator iterator = (CountIterator) structIterator;
