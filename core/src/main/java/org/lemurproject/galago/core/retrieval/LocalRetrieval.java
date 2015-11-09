@@ -1,6 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.lemurproject.galago.core.index.Index;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.index.stats.*;
@@ -42,6 +44,9 @@ public class LocalRetrieval implements Retrieval {
     protected CachedRetrieval cache;
     protected List<Traversal> defaultTraversals;
 
+    Cache<Node, NodeStatistics> nodeStatisticsCache;
+
+
     /**
      * One retrieval interacts with one index. Parameters dictate the behavior
      * during retrieval time, and selection of the appropriate feature factory.
@@ -63,6 +68,10 @@ public class LocalRetrieval implements Retrieval {
     public LocalRetrieval(Index index, Parameters parameters) {
         this.globalParameters = parameters;
         setIndex(index);
+        nodeStatisticsCache = Caffeine.newBuilder()
+            .weigher((Node x, NodeStatistics y) -> (int) Math.min(Integer.MAX_VALUE, y.computationCost))
+            .maximumSize(globalParameters.get("nodeStatisticsCacheSize", 100_000L))
+            .build();
     }
 
     protected void setIndex(Index indx) {
@@ -366,57 +375,24 @@ public class LocalRetrieval implements Retrieval {
 
     @Override
     public NodeStatistics getNodeStatistics(Node root) throws Exception {
-
-        String rootString = root.toString();
-        if (cache != null && cache.cacheStats) {
-            AggregateStatistic stat = cache.getCachedStatistic(rootString);
-            if (stat != null && stat instanceof NodeStatistics) {
-                return (NodeStatistics) stat;
-            }
-        }
-
-        NodeStatistics s;
         // if you want passage statistics, you'll need a manual solution for now.
-        ScoringContext sc = new ScoringContext();
-
         BaseIterator structIterator = createIterator(Parameters.create(), root);
 
-        if (NodeAggregateIterator.class.isInstance(structIterator)) {
-            s = ((NodeAggregateIterator) structIterator).getStatistics();
-
-        } else if (structIterator instanceof CountIterator) {
-
-            s = new NodeStatistics();
-            // set up initial values
-            s.node = root.toString();
-            s.nodeDocumentCount = 0;
-            s.nodeFrequency = 0;
-            s.maximumCount = 0;
-
-            CountIterator iterator = (CountIterator) structIterator;
-
-            while (!iterator.isDone()) {
-                sc.document = iterator.currentCandidate();
-                if (iterator.hasMatch(sc)) {
-                    int c = iterator.count(sc);
-                    s.nodeFrequency += iterator.count(sc);
-                    s.maximumCount = Math.max(iterator.count(sc), s.maximumCount);
-                    s.nodeDocumentCount += (c > 0) ? 1 : 0; // positive counting
-                }
-                iterator.movePast(iterator.currentCandidate());
-            }
-
-            return s;
-        } else {
-            // otherwise :
+        if (!(structIterator instanceof CountIterator)) {
             throw new IllegalArgumentException("Node " + root.toString() + " is not a count iterator.");
         }
-
-        if (cache != null && cache.cacheStats) {
-            cache.addToCache(rootString, s);
+        if (NodeAggregateIterator.class.isInstance(structIterator)) {
+            return ((NodeAggregateIterator) structIterator).getStatistics();
         }
 
-        return s;
+        return nodeStatisticsCache.get(root, (missing) -> {
+            try {
+                CountIterator iterator = (CountIterator) structIterator;
+                return iterator.getOrCalculateStatistics();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @Override
