@@ -167,13 +167,7 @@ public class LocalRetrieval implements Retrieval {
         // this is to assign proper document names
         T[] byID = Arrays.copyOf(results, results.length);
 
-        Arrays.sort(byID, new Comparator<T>() {
-
-            @Override
-            public int compare(T o1, T o2) {
-                return CmpUtil.compare(o1.document, o2.document);
-            }
-        });
+        Arrays.sort(byID, (o1, o2) -> CmpUtil.compare(o1.document, o2.document));
 
         DataIterator<String> namesIterator = index.getNamesIterator();
         ScoringContext sc = new ScoringContext();
@@ -245,7 +239,7 @@ public class LocalRetrieval implements Retrieval {
 
     public BaseIterator createIterator(Parameters queryParameters, Node node) throws Exception {
         if (queryParameters.get("shareNodes", globalParameters.get("shareNodes", true))) {
-            return createNodeMergedIterator(node, new HashMap<String, BaseIterator>());
+            return createNodeMergedIterator(node, new HashMap<>());
         }
         return createNodeMergedIterator(node, null);
     }
@@ -377,11 +371,11 @@ public class LocalRetrieval implements Retrieval {
         // if you want passage statistics, you'll need a manual solution for now.
         BaseIterator structIterator = createIterator(Parameters.create(), root);
 
-        if (!(structIterator instanceof CountIterator)) {
-            throw new IllegalArgumentException("Node " + root.toString() + " is not a count iterator.");
-        }
         if (NodeAggregateIterator.class.isInstance(structIterator)) {
             return ((NodeAggregateIterator) structIterator).getStatistics();
+        }
+        if (!(structIterator instanceof CountIterator)) {
+            throw new IllegalArgumentException("Node " + root.toString() + " is not a count iterator.");
         }
 
         return nodeStatisticsCache.get(root, (missing) -> {
