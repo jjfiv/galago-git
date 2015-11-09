@@ -5,6 +5,7 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 /**
  * This is an interface that represents any kind of
@@ -118,4 +119,20 @@ public interface BaseIterator extends Comparable<BaseIterator> {
    *  Useful for debugging a query model
    */
   AnnotatedNode getAnnotatedNode(ScoringContext sc) throws IOException;
+
+  /**
+   * Higher order function to traverse all matches for this iterator.
+   * @param onEachDocument a function that is called with the scoring context on each match.
+   * @throws IOException
+   */
+  default void forEach(Consumer<ScoringContext> onEachDocument) throws IOException {
+    ScoringContext ctx = new ScoringContext();
+    while(!this.isDone()) {
+      ctx.document = this.currentCandidate();
+      if(this.hasMatch(ctx)) {
+        onEachDocument.accept(ctx);
+      }
+      this.movePast(ctx.document);
+    }
+  }
 }
