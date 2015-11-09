@@ -69,7 +69,7 @@ public class LocalRetrieval implements Retrieval {
         this.globalParameters = parameters;
         setIndex(index);
         nodeStatisticsCache = Caffeine.newBuilder()
-            .weigher((Node x, NodeStatistics y) -> (int) Math.min(Integer.MAX_VALUE, y.computationCost))
+            //.weigher((Node x, NodeStatistics y) -> (int) Math.min(Integer.MAX_VALUE, y.computationCost))
             .maximumSize(globalParameters.get("nodeStatisticsCacheSize", 100_000L))
             .build();
     }
