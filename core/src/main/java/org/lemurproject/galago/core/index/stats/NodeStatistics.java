@@ -16,7 +16,6 @@ public class NodeStatistics implements AggregateStatistic {
   public long nodeFrequency = 0;
   public long nodeDocumentCount = 0;
   public long maximumCount = 0;
-  public long computationCost = 0;
 
   public void add(NodeStatistics other) {
     nodeFrequency += other.nodeFrequency;

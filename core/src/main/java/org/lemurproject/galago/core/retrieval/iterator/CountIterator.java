@@ -27,7 +27,6 @@ public interface CountIterator extends BaseIterator, IndicatorIterator {
     }
 
     default NodeStatistics calculateStatistics() throws IOException {
-        long startTime = System.currentTimeMillis();
         NodeStatistics s = new NodeStatistics();
         // set up initial values
         s.nodeDocumentCount = 0;
@@ -43,9 +42,6 @@ public interface CountIterator extends BaseIterator, IndicatorIterator {
         });
         this.reset();
         long endTime = System.currentTimeMillis();
-
-        // weigh these statistics in cache by how long they took to compute.
-        s.computationCost = endTime - startTime;
 
         return s;
     }
