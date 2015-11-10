@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.retrieval.iterator.scoring;
 import org.lemurproject.galago.core.retrieval.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.RequiredStatistics;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
+import org.lemurproject.galago.core.retrieval.iterator.DeltaScoringIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ScoringFunctionIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
@@ -17,9 +18,7 @@ import java.io.IOException;
  */
 @RequiredStatistics(statistics = {"collectionLength", "documentCount", "nodeFrequency", "nodeDocumentCount", "maximumCount"})
 @RequiredParameters(parameters = {"b", "k"})
-public class BM25ScoringIterator extends ScoringFunctionIterator
-        // implements DeltaScoringIterator // Sourceforge Bug #263
-{
+public class BM25ScoringIterator extends ScoringFunctionIterator implements DeltaScoringIterator {
 
   // delta
   private final double weight;
@@ -76,9 +75,6 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
     return max;
   }
 
-  /*
-  // Sourceforge Bug #263 -- this doesn't return the same results with MaxScore; unclear why.
-  // Commenting it out for now, @jfoley
   @Override
   public double getWeight() {
     return weight;
@@ -104,7 +100,6 @@ public class BM25ScoringIterator extends ScoringFunctionIterator
     double diff = weight * (max - score(c));
     return diff;
   }
-  */
 
   /**
    * Scoring function interface (allows direct scoring)
