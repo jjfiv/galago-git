@@ -49,16 +49,15 @@ public class PassageRestrictionTraversal extends Traversal {
 
   @Override
   public Node afterNode(Node original, Parameters queryParameters) throws Exception {
- 
     boolean passageQuery = queryParameters.get("passageQuery", false) || queryParameters.get("extentQuery", false);
+    if (!passageQuery) {
+      return original;
+    }
     // if a field index is being used, it might be important to ignore this wrapper.
     boolean wrapLengths = queryParameters.get("wrapPassageLengths", true);
     // if some special index is being used, it might be important to ignore this wrapper.
     boolean wrapExtents = queryParameters.get("wrapPassageLengths", true);
     
-    if (!passageQuery) {
-      return original;
-    }
     // check if the node returns extents or lengths
     NodeType nodeType = retrieval.getNodeType(original);
 

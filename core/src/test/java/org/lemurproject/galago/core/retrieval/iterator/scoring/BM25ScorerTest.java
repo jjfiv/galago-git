@@ -4,11 +4,18 @@ package org.lemurproject.galago.core.retrieval.iterator.scoring;
 import org.junit.Test;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.LocalRetrievalTest;
+import org.lemurproject.galago.core.retrieval.Results;
+import org.lemurproject.galago.core.retrieval.processing.MaxScoreDocumentModel;
+import org.lemurproject.galago.core.retrieval.processing.RankedDocumentModel;
+import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -55,11 +62,52 @@ public class BM25ScorerTest {
     assertEquals(3.79327, scorer.score(15, 200), 0.0001);
   }
 
+  /**
+   * This test tests bm25 scores against past performance under both ranked document and maxscore models.
+   * @throws Exception
+   */
   @Test
-  public void testQueryTransforms() throws Exception {
-    File index = LocalRetrievalTest.makeIndex();
-    LocalRetrieval loc = new LocalRetrieval(index.getAbsolutePath());
-    Parameters qp = Parameters.create();
-    System.err.println(loc.transformQuery(StructuredQuery.parse("#bm25(the dog is dumb)"), qp));
+  public void testActualScoring() throws Exception {
+    File[] files = LocalRetrievalTest.make10DocIndex();
+    File trecCorpusFile = files[0];
+    File indexFile = files[2];
+
+    for (String processingModel : Arrays.asList("rankeddocument", "maxscore")) {
+      LocalRetrieval loc = new LocalRetrieval(indexFile.getAbsolutePath());
+      Parameters qp = Parameters.create();
+      qp.put("scorer", "bm25");
+      qp.put("processingModel", processingModel);
+      Node xbm25 = loc.transformQuery(StructuredQuery.parse("#combine(the dog is dumb)"), qp);
+
+      assertEquals("#combine:w=1.0( " +
+              "#bm25:collectionLength=70:documentCount=10:maximumCount=2:nodeDocumentCount=2:nodeFrequency=3:w=0.25( #lengths:document:part=lengths() #counts:the:part=postings() ) " +
+              "#bm25:collectionLength=70:documentCount=10:maximumCount=0:nodeDocumentCount=0:nodeFrequency=0:w=0.25( #lengths:document:part=lengths() #counts:dog:part=postings() ) " +
+              "#bm25:collectionLength=70:documentCount=10:maximumCount=1:nodeDocumentCount=3:nodeFrequency=3:w=0.25( #lengths:document:part=lengths() #counts:is:part=postings() ) " +
+              "#bm25:collectionLength=70:documentCount=10:maximumCount=0:nodeDocumentCount=0:nodeFrequency=0:w=0.25( #lengths:document:part=lengths() #counts:dumb:part=postings() )" +
+              " )",
+          xbm25.toString());
+
+      Results results = loc.executeQuery(xbm25, qp);
+      switch (processingModel) {
+        case "rankeddocument":
+          assertEquals(RankedDocumentModel.class, results.processingModel);
+          break;
+        case "maxscore":
+          assertEquals(MaxScoreDocumentModel.class, results.processingModel);
+          break;
+        default: throw new AssertionError("Bad processing model:"+processingModel);
+      }
+      Map<String, Double> actualScores = results.asDocumentFeatures();
+
+      // Scores valid as of Nov. 10, 2015
+      assertEquals(0.29719, actualScores.get("1"), 0.0001);
+      assertEquals(0.49649, actualScores.get("2"), 0.0001);
+      assertEquals(0.36809, actualScores.get("3"), 0.0001);
+      assertEquals(0.21273, actualScores.get("5"), 0.0001);
+      assertEquals(0.22330, actualScores.get("6"), 0.0001);
+    }
+
+    trecCorpusFile.delete();
+    FSUtil.deleteDirectory(indexFile);
   }
 }
