@@ -66,7 +66,9 @@ public class SearchFn extends AppFunction {
     WebServer server = WebServer.start(p, new WebHandler() {
       @Override
       public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        if(request.getPathInfo().equals("/stream")) {
+        if(request.getPathInfo().equals("/ready")) {
+          response.setStatus(200);
+        } else if(request.getPathInfo().equals("/stream")) {
           streamHandler.handle(request, response);
         } else {
           searchHandler.handle(request, response);

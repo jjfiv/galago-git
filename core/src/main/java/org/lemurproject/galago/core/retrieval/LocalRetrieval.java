@@ -255,7 +255,7 @@ public class LocalRetrieval implements Retrieval {
         String indexId = this.globalParameters.get("indexId", "0");
         List<ScoredDocument> rankedList = Arrays.asList(getArrayResults(results, indexId));
 
-        Results r = new Results();
+        Results r = new Results(this);
         r.inputQuery = queryTree;
         r.processingModel = pm.getClass();
         r.scoredDocuments = rankedList;

@@ -7,6 +7,8 @@ import org.junit.Test;
 import org.lemurproject.galago.core.index.disk.DiskIndex;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.retrieval.LocalRetrieval;
+import org.lemurproject.galago.core.retrieval.Results;
+import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
@@ -16,10 +18,7 @@ import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -110,8 +109,21 @@ public class PullDocumentsTest {
       Document pulled = fromCorpus.get(name);
       assertTrue(documents.contains(name));
       String withoutTextTags = pulled.text.replace("<TEXT>", "").replace("</TEXT>", "").trim();
-      System.out.println(withoutTextTags);
       assertEquals(data.get(name), withoutTextTags);
     }
+  }
+
+  @Test
+  public void testGetDocumentsFromSearch() throws IOException {
+    Results results = retrieval.transformAndExecuteQuery(StructuredQuery.parse("#combine(#od:1(sample document))"), Parameters.create());
+    assertEquals(1, results.asDocumentFeatures().size());
+    assertEquals(1, results.resultSet().size());
+
+    Map<String, Document> docs = results.pullDocuments(Document.DocumentComponents.All);
+    assertEquals(Collections.singleton("1"), docs.keySet());
+    Document doc1 = docs.get("1");
+
+    String withoutTextTags = doc1.text.replace("<TEXT>", "").replace("</TEXT>", "").trim();
+    assertEquals(data.get("1"), withoutTextTags);
   }
 }
