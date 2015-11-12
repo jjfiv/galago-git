@@ -20,10 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -260,7 +257,9 @@ public class LocalRetrievalTest {
         Parameters p = Parameters.create();
         p.set("requested", 5);
         root = retrieval.transformQuery(root, p);
-        List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
+
+        Results rObj = retrieval.executeQuery(root, p);
+        List<ScoredDocument> results = rObj.scoredDocuments;
         assertEquals(results.size(), 5);
 
         HashMap<Long, Double> realScores = new HashMap<Long, Double>();
@@ -277,6 +276,8 @@ public class LocalRetrievalTest {
         realNames.put(3l, "DOC3");
         realNames.put(5l, "DOC5");
         realNames.put(18l, "DOC18");
+
+        assertEquals(rObj.resultSet(), new HashSet<>(realNames.values()));
 
         // make sure the results are sorted
         double lastScore = Double.MAX_VALUE;

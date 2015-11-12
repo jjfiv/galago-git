@@ -109,7 +109,7 @@ public class MultiRetrieval implements Retrieval {
   @Override
   public Results executeQuery(Node queryTree, Parameters p) throws Exception {
     ScoredDocument[] rankedList = runRankedQuery(queryTree, p);
-    Results results = new Results();
+    Results results = new Results(this);
     results.inputQuery = queryTree;
     results.scoredDocuments = Arrays.asList(rankedList);
     return results;

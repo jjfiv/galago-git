@@ -22,6 +22,11 @@ import java.net.URL;
 public class ProxyRetrieval implements InvocationHandler {
 
   String indexUrl;
+  /**
+   * Notice that this class doesn't actually implement Retrieval. This is because it uses the JVM's proxy stuff.
+   * This handle is set by RetrievalFactory so that we can touch its faked "Retrieval" interface object.
+   */
+  private Retrieval thisAsRetrieval;
 
   public ProxyRetrieval(String url, Parameters parameters) throws IOException {
     this.indexUrl = url + "/stream";
@@ -81,6 +86,15 @@ public class ProxyRetrieval implements InvocationHandler {
     // Do we want to keep reconnecting and disconnecting?
     // Maybe a persistent connection is worth it?
     connection.disconnect();
+
+    // hack any result objects back in:
+    if(response instanceof Results) {
+      ((Results) response).retrieval = thisAsRetrieval;
+    }
     return response;
+  }
+
+  public void setRetrieval(Retrieval retrieval) {
+    this.thisAsRetrieval = retrieval;
   }
 }

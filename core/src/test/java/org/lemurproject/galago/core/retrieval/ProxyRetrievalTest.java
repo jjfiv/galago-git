@@ -3,6 +3,11 @@
  */
 package org.lemurproject.galago.core.retrieval;
 
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.HttpHostConnectException;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.Test;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Document.DocumentComponents;
@@ -11,15 +16,16 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.core.tools.AppTest;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.tupleflow.web.WebServer;
 import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
-import org.lemurproject.galago.tupleflow.web.WebServer;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
 
@@ -28,6 +34,19 @@ import static org.junit.Assert.*;
  * @author sjh
  */
 public class ProxyRetrievalTest {
+
+  public static boolean checkReadyURL(String url) throws IOException {
+    try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
+      HttpPost post = new HttpPost(url + "/ready");
+      try (CloseableHttpResponse response = client.execute(post)) {
+        int code = response.getStatusLine().getStatusCode();
+        return code == 200;
+      } catch (HttpHostConnectException refused) {
+        // Thrown if the URL or host does not yet exist!
+        return false;
+      }
+    }
+  }
 
   @Test
   public void testProxyRet() throws Exception {
@@ -38,6 +57,7 @@ public class ProxyRetrievalTest {
 
     File index = null;
 
+    AtomicBoolean started = new AtomicBoolean(false);
     try {
       index = makeIndex(docCount, docLen, vocab);
       final Parameters retParams = Parameters.create();
@@ -45,16 +65,14 @@ public class ProxyRetrievalTest {
       retParams.set("port", port);
 
       final List<Exception> exceptions = Collections.synchronizedList(new ArrayList<Exception>());
-      final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-      final PrintStream stream = new PrintStream(byteStream);
 
-      Thread remoteRetThread = new Thread() {
-
+      Thread remoteRetThread = new Thread(new Runnable() {
         @Override
         public void run() {
           try {
             System.out.println("remoteRetThread.start()");
-            App.run("search", retParams, stream);
+            started.set(true);
+            App.run("search", retParams, System.err);
 
           } catch (InterruptedException i) {
             System.err.println("INTERRUPTED!");
@@ -63,27 +81,24 @@ public class ProxyRetrievalTest {
             exceptions.add(e);
           }
         }
-      };
+      });
 
       remoteRetThread.start();
+
+      while(!started.get()) {
+        Thread.sleep(20);
+      }
 
       // look through output of server startup to ensure it contains this url
       String url = "http://"+WebServer.getHostName()+":" + port;
       boolean success = false;
-      int i = 0;
-      while (i < 10) {
-        stream.flush();
-        String s = byteStream.toString();
-        System.out.println(s);
-        if (s.contains(url)) {
+      // 30 tries, ~3 seconds worth of trying.
+      for (int i = 0; i < 30; i++) {
+        if(checkReadyURL(url)) {
           success = true;
-          break;
         }
-
-        Thread.sleep(100); // 100 milliseconds * 10 ~= 1 second
-        i += 1;
+        Thread.sleep(100);
       }
-
 
       if (!success) {
         // try to kill the thread...
@@ -142,7 +157,6 @@ public class ProxyRetrievalTest {
       }
 
       if (!exceptions.isEmpty()) {
-        System.err.println(byteStream.toString());
         throw new RuntimeException("FAILED THREADING TEST.");
       }
 
