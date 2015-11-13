@@ -293,7 +293,7 @@ public class MemoryIndex implements DynamicIndex, Index {
       try {
         DocumentReader corpus = (MemoryCorpus) parts.get("corpus");
         long docId = getIdentifier(document);
-        corpus.getDocument(docId, p);
+        return corpus.getDocument(docId, p);
       } catch (Exception e) {
         logger.log(Level.WARNING, "error pulling document", e);
       }
