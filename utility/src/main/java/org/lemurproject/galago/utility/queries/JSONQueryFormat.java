@@ -1,8 +1,12 @@
 package org.lemurproject.galago.utility.queries;
 
 import org.lemurproject.galago.utility.Parameters;
+import org.lemurproject.galago.utility.StreamCreator;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +30,7 @@ public class JSONQueryFormat {
       for (String q : parameters.getAsList("query", String.class)) {
         id = "unk-" + unnumbered;
         unnumbered++;
-        queries.add(Parameters.parseString(String.format("{\"number\":\"%s\", \"text\":\"%s\"}", id, q)));
+        queries.add(Parameters.parseArray("number", id, "text", q));
       }
     }
     if (parameters.isString("queries") || parameters.isList("queries", String.class)) {
@@ -34,7 +38,7 @@ public class JSONQueryFormat {
       for (String q : parameters.getAsList("query", String.class)) {
         id = "unk-" + unnumbered;
         unnumbered++;
-        queries.add(Parameters.parseString(String.format("{\"number\":\"%s\", \"text\":\"%s\"}", id, q)));
+        queries.add(Parameters.parseArray("number", id, "text", q));
       }
     }
     if (parameters.isList("query", Parameters.class)) {
@@ -44,5 +48,26 @@ public class JSONQueryFormat {
       queries.addAll(parameters.getList("queries", Parameters.class));
     }
     return queries;
+  }
+
+  public static List<Parameters> loadTSV(File input) throws IOException {
+    ArrayList<Parameters> queries = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(StreamCreator.openInputStream(input), "UTF-8"))) {
+      reader.lines().forEach((line) -> {
+        if(line.trim().isEmpty()) return;
+        String[] col = line.split("\t");
+        assert(col.length == 2);
+        queries.add(Parameters.parseArray("number", col[0], "text", col[1]));
+      });
+    }
+    return queries;
+  }
+
+  public static List<Parameters> collectTSVQueries(Parameters parameters) throws IOException {
+    if(parameters.isString("query")) {
+      return loadTSV(new File(parameters.getString("query")));
+    } else {
+      return loadTSV(new File(parameters.getString("queries")));
+    }
   }
 }

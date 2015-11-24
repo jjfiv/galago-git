@@ -69,8 +69,7 @@ public class BatchSearch extends AppFunction {
   public void run(Parameters parameters, PrintStream out) throws Exception {
     List<ScoredDocument> results;
 
-    if (!(parameters.containsKey("query")
-            || parameters.containsKey("queries"))) {
+    if (!(parameters.containsKey("query") || parameters.containsKey("queries"))) {
       out.println(this.getHelpString());
       return;
     }
@@ -83,7 +82,18 @@ public class BatchSearch extends AppFunction {
     }
 
     // get queries
-    List<Parameters> queries = JSONQueryFormat.collectQueries(parameters);
+    List<Parameters> queries;
+    String queryFormat = parameters.get("queryFormat", "json").toLowerCase();
+    switch (queryFormat)
+    {
+      case "json":
+        queries = JSONQueryFormat.collectQueries(parameters);
+        break;
+      case "tsv":
+        queries = JSONQueryFormat.collectTSVQueries(parameters);
+        break;
+      default: throw new IllegalArgumentException("Unknown queryFormat: "+queryFormat+" try one of JSON, TSV");
+    }
 
     // open index
     Retrieval retrieval = RetrievalFactory.create(parameters);
@@ -112,6 +122,17 @@ public class BatchSearch extends AppFunction {
 
       // parse and transform query into runnable form
       Node root = StructuredQuery.parse(queryText);
+
+      // --operatorWrap=sdm will now #sdm(...text... here)
+      if(parameters.isString("operatorWrap")) {
+        if(root.getOperator().equals("root")) {
+          root.setOperator(parameters.getString("operatorWrap"));
+        } else {
+          Node oldRoot = root;
+          root = new Node(parameters.getString("operatorWrap"));
+          root.add(oldRoot);
+        }
+      }
       Node transformed = retrieval.transformQuery(root, query);
 
       if (parameters.get("verbose", false)) {
@@ -120,7 +141,7 @@ public class BatchSearch extends AppFunction {
 
       // run query
       results = retrieval.executeQuery(transformed, query).scoredDocuments;
-      
+
 
       // if we have some results -- print in to output stream
       if (!results.isEmpty()) {
