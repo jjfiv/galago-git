@@ -7,8 +7,10 @@ import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.IndexPartStatistics;
 import org.lemurproject.galago.core.parse.Document;
 import org.lemurproject.galago.core.parse.Tag;
+import org.lemurproject.galago.core.retrieval.LocalRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.RetrievalFactory;
+import org.lemurproject.galago.core.retrieval.ScoredDocument;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -20,11 +22,16 @@ import org.lemurproject.galago.utility.FSUtil;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  *
@@ -139,4 +146,164 @@ public class MemoryIndexTest {
       }
     }
   }
+
+  @Test
+  public void testDocRetrievalNoCorpus() throws Exception {
+    Parameters p = Parameters.create();
+
+    MemoryIndex index = new MemoryIndex();
+
+    for (Integer i = 0; i < 10; i++) {
+      Document d = new Document();
+      d.name = "DOC-" + i;
+      d.text = "this is sample document" + i;
+      d.terms = Arrays.asList(d.text.split(" "));
+      d.tags = new ArrayList<Tag>();
+      d.metadata = new HashMap<String, String>();
+      d.metadata.put("internal-doc-id", i.toString());
+
+      index.process(d);
+    }
+
+    // getIdentifier test
+    for (Integer i = 0; i < 10; i++) {
+      assertEquals(i.longValue(), index.getIdentifier("DOC-" + i));
+    }
+
+    // test getDocument() - 2nd param doesn't matter because these should all return NULL
+
+    Document doc = index.getDocument("DOC-0", null);
+    // no doc to return if there is no corpus
+    assertNull(doc);
+
+    // non-existent doc
+    doc = index.getDocument("I-DO-NOT-EXIST", null);
+    assertNull(doc);
+
+    // test getDocuments
+    List<String> docList = new ArrayList<>();
+    docList.add("DOC-0");
+    docList.add("DOC-3");
+    docList.add("DOC-ZX");
+
+    Map<String, Document> docs = index.getDocuments(docList, null);
+    assertEquals(3, docs.size());
+    assertNull(docs.get("DOC-0"));
+    assertNull(docs.get("DOC-3"));
+    assertNull(docs.get("DOC-ZX"));
+
+    // test retrieval
+
+    p.set("requested", 10);
+
+    LocalRetrieval retrieval = new LocalRetrieval(index);
+
+    String query = "document5";
+    Node root = StructuredQuery.parse(query);
+    root = retrieval.transformQuery(root, p);
+
+    List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
+    assertEquals(1, results.size());
+
+    query = "document0";
+    root = StructuredQuery.parse(query);
+    root = retrieval.transformQuery(root, p);
+
+    results = retrieval.executeQuery(root, p).scoredDocuments;
+    assertEquals(1, results.size());
+
+  }
+
+  @Test
+  public void testDocRetrievalWithCorpus() throws Exception {
+    Parameters p = Parameters.create();
+    p.put("makecorpus", true);
+    MemoryIndex index = new MemoryIndex(p);
+
+    for (Integer i = 0; i < 10; i++) {
+      Document d = new Document();
+      d.name = "DOC-" + i;
+      d.text = "this is sample document" + i;
+      d.terms = Arrays.asList(d.text.split(" "));
+      d.tags = new ArrayList<Tag>();
+      d.metadata = new HashMap<String, String>();
+      d.metadata.put("internal-doc-id", i.toString());
+
+      index.process(d);
+    }
+
+    // getIdentifier test
+    for (Integer i = 0; i < 10; i++) {
+      assertEquals(i.longValue(), index.getIdentifier("DOC-" + i));
+    }
+
+    // test getDocument()
+
+    // get the first document
+    Document doc = index.getDocument("DOC-0", Document.DocumentComponents.All);
+    assertNotNull(doc);
+
+    // get another document
+    doc = index.getDocument("DOC-5", Document.DocumentComponents.All);
+    //System.out.println(doc.toString());
+    assertNotNull(doc);
+
+    // test DocumentComponents parameter. Currently (11/2015) they are
+    // ignored so all documents should be the same.
+    Document refDoc = index.getDocument("DOC-5", Document.DocumentComponents.All);
+    //System.out.println(refDoc.toString());
+    assertNotNull(refDoc);
+    doc = index.getDocument("DOC-5", Document.DocumentComponents.JustMetadata);
+    //System.out.println(doc.toString());
+    assertNotNull(doc);
+    assertEquals(refDoc, doc);
+
+    doc = index.getDocument("DOC-5", Document.DocumentComponents.JustTerms);
+    //System.out.println(doc.toString());
+    assertNotNull(doc);
+    assertEquals(refDoc, doc);
+
+    doc = index.getDocument("DOC-5", Document.DocumentComponents.JustText);
+    //System.out.println(doc.toString());
+    assertNotNull(doc);
+    assertEquals(refDoc, doc);
+
+    // non-existent doc
+    doc = index.getDocument("I-DO-NOT-EXIST", null);
+    assertNull(doc);
+
+    // test getDocuments
+    List<String> docList = new ArrayList<>();
+    docList.add("DOC-0");
+    docList.add("DOC-3");
+    docList.add("DOC-ZX");
+
+    Map<String, Document> docs = index.getDocuments(docList, null);
+    assertEquals(3, docs.size());
+    assertNotNull(docs.get("DOC-0"));
+    assertNotNull(docs.get("DOC-3"));
+    assertNull(docs.get("DOC-ZX"));
+
+    // test retrieval
+
+    p.set("requested", 10);
+
+    LocalRetrieval retrieval = new LocalRetrieval(index);
+
+    String query = "document5";
+    Node root = StructuredQuery.parse(query);
+    root = retrieval.transformQuery(root, p);
+
+    List<ScoredDocument> results = retrieval.executeQuery(root, p).scoredDocuments;
+    assertEquals(1, results.size());
+
+    query = "document0";
+    root = StructuredQuery.parse(query);
+    root = retrieval.transformQuery(root, p);
+
+    results = retrieval.executeQuery(root, p).scoredDocuments;
+    assertEquals(1, results.size());
+
+  }
+
 }

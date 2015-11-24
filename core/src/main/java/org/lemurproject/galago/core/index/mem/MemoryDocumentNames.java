@@ -56,12 +56,13 @@ public class MemoryDocumentNames implements MemoryIndexPart, NamesReader {
   }
 
   public long getDocumentId(String name) {
-    long id = namesRev.get(name);
-    if(id == namesRev.getNoEntryValue()) {
-      return -1;
+
+    if (namesRev.containsKey(name)){
+      return namesRev.get(name);
     }
-    return id;
-  }
+
+    return -1;
+}
 
   @Override
   public void addIteratorData(byte[] key, BaseIterator iterator) throws IOException {
