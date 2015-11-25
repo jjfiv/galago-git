@@ -3,6 +3,8 @@
  */
 package org.lemurproject.galago.core.eval;
 
+import javax.annotation.Nonnull;
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,24 +13,31 @@ import java.util.List;
  *
  * @author sjh
  */
-public class QueryResults {
+public class QueryResults extends AbstractList<EvalDoc> {
 
   private String query;
   private List<EvalDoc> rankedList;
 
-  public QueryResults(List<? extends EvalDoc> rankedList) {
+  public QueryResults(@Nonnull List<? extends EvalDoc> rankedList) {
     this("unknown-id", rankedList);
   }
-  public QueryResults(String query, List<? extends EvalDoc> rankedList) {
+  public QueryResults(String query, @Nonnull List<? extends EvalDoc> rankedList) {
     this.query = query;
     this.rankedList = new ArrayList<>(rankedList);
   }
 
+  @Nonnull
   public Iterable<EvalDoc> getIterator() {
     return rankedList;
   }
 
+  @Override
   public int size() {
     return rankedList.size();
+  }
+
+  @Override
+  public EvalDoc get(int index) {
+    return rankedList.get(index);
   }
 }
