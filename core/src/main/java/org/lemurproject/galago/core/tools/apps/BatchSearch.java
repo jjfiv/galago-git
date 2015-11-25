@@ -45,6 +45,8 @@ public class BatchSearch extends AppFunction {
             + "  Args:\n"
             + "     --index=path_to_your_index\n"
             + "     --requested : Number of results to return for each query, default=1000\n"
+            + "     --operatorWrap=operator  : Wrap query text in the specified operator.\n"
+            + "     --queryFormat=json|tsv   : Accept query file in JSON or TSV format.  default=json\n"
             + "     /path/to/query/file.json : Input file in xml parameters format (see below).\n\n"
             + "  Query file format:\n"
             + "    The query file is an JSON file containing a set of queries.  Each query\n"
