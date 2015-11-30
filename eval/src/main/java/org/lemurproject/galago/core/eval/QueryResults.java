@@ -4,6 +4,7 @@
 package org.lemurproject.galago.core.eval;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,5 +40,30 @@ public class QueryResults extends AbstractList<EvalDoc> {
   @Override
   public EvalDoc get(int index) {
     return rankedList.get(index);
+  }
+
+  @Nullable
+  public EvalDoc find(String docId) {
+    for (EvalDoc evalDoc : this) {
+      if(evalDoc.getName().equals(docId)) {
+        return evalDoc;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Returns the score for the given document id or a default value.
+   * @param docId
+   * @param backup
+   * @return
+   */
+  public double findScore(String docId, double backup) {
+    for (EvalDoc evalDoc : this) {
+      if(evalDoc.getName().equals(docId)) {
+        return evalDoc.getScore();
+      }
+    }
+    return backup;
   }
 }
