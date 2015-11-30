@@ -1,6 +1,7 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.query;
 
+import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -57,6 +58,14 @@ public class Node extends AbstractList<Node> implements Serializable {
   @Override
   public boolean add(Node n) {
     this.addChild(n); return true;
+  }
+
+  @Override
+  public boolean addAll(@Nonnull Collection<? extends Node> nchildren) {
+    for (Node nchild : nchildren) {
+      this.addChild(nchild);
+    }
+    return true;
   }
 
   public Node(String operator) {
@@ -394,6 +403,12 @@ public class Node extends AbstractList<Node> implements Serializable {
       newNodes.add(n.clone());
     }
     return newNodes;
+  }
+
+  public void addTerms(List<String> terms) {
+    for (String term : terms) {
+      addChild(Node.Text(term));
+    }
   }
 
   /** Build a text node at the first position */

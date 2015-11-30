@@ -22,9 +22,9 @@ public class QuerySetComparatorFactory {
       return new Mean(testName, true);
     } else if (testName.equals("treatment")) {
       return new Mean(testName, false);
-    } else if (testName.equals("baseBetter")) {
+    } else if (testName.equalsIgnoreCase("baseBetter")) {
       return new CountBetter(testName, true);
-    } else if (testName.equals("treatBetter")) {
+    } else if (testName.equalsIgnoreCase("treatBetter")) {
       return new CountBetter(testName, false);
     } else if (testName.equals("equal")) {
       return new CountEqual(testName);
@@ -40,7 +40,7 @@ public class QuerySetComparatorFactory {
       assert(parts.length == 3): "Expecting QuerySetComparator named: h-<test>-<pvalue>";
       return new SupportHypothesis(testName, parts[1], Double.parseDouble(parts[2]));
     } else {
-      throw new RuntimeException("Evaluation metric " + testName + " is unknown to QuerySetComparator.");
+      throw new RuntimeException("Evaluation metric " + testName + " is unknown to QuerySetComparatorFactory.");
     }
   }
 
@@ -54,7 +54,7 @@ public class QuerySetComparatorFactory {
     } else if (testName.compareToIgnoreCase("randomized") == 0) {
       return new RandomizedTest(testName, boost);
     } else {
-      throw new RuntimeException("Evaluation metric " + testName + " is unknown to QuerySetComparator.");
+      throw new RuntimeException("Evaluation metric " + testName + " is unknown to QuerySetComparatorFactory.");
     }
   }
 }
