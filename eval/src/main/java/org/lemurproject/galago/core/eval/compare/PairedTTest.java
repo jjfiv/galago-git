@@ -3,7 +3,9 @@
  */
 package org.lemurproject.galago.core.eval.compare;
 
-import org.lemurproject.galago.core.eval.stat.Stat;
+//import org.lemurproject.galago.core.eval.stat.Stat;
+import org.apache.commons.math3.stat.inference.TTest;
+
 
 /**
  *
@@ -27,6 +29,8 @@ public class PairedTTest extends QuerySetComparator {
   public double evaluate(double[] baseline, double[] treatment) {
 
     double[] boostedBaseline = multiply(baseline, boost);
+
+    /*
     double sampleSum = 0;
     double sampleSumSquares = 0;
     int n = boostedBaseline.length;
@@ -45,5 +49,12 @@ public class PairedTTest extends QuerySetComparator {
     double t = sampleMean / meanDeviation;
 
     return 1.0 - Stat.studentTProb(t, n - 1);
+    */
+
+    //- Use Apache Commons Math3 directly for t-test p-value calculation
+    TTest tt = new TTest();
+    double pval = tt.tTest (boostedBaseline, treatment);
+
+    return 1.0 - pval;
   }
 }
