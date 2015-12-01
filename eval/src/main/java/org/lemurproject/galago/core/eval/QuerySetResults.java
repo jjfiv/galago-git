@@ -61,48 +61,47 @@ public class QuerySetResults {
      */
     private void loadRanking(String filename) throws IOException {
         // open file
-        BufferedReader in = new BufferedReader(new InputStreamReader(StreamCreator.openInputStream(filename), "UTF-8"), 256 * 1024);
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(StreamCreator.openInputStream(filename), "UTF-8"), 256 * 1024)) {
 
-        int index = 1;
-        String line;
-        TreeMap<String, List<EvalDoc>> ranking = new TreeMap<>();
+            int index = 1;
+            String line;
+            TreeMap<String, List<EvalDoc>> ranking = new TreeMap<>();
 
-        for( ; ; index++) {
-            line = in.readLine();
-            if(line == null) {
-                break;
-            }
-
-            try {
-                // 1 Q0 WSJ880711-0086 39 -3.05948 Exp
-                String[] cols = line.split("\\s+");
-
-                String queryNumber = cols[0];
-                //String unused = cols[1];
-                String docno = cols[2];
-                String rank = cols[3];
-                String score = cols[4];
-                //String runtag = cols[5];
-
-                EvalDoc document = new SimpleEvalDoc(docno, Integer.parseInt(rank), Double.parseDouble(score));
-
-                if (!ranking.containsKey(queryNumber)) {
-                    ranking.put(queryNumber, new ArrayList<EvalDoc>());
+            for (; ; index++) {
+                line = in.readLine();
+                if (line == null) {
+                    break;
                 }
-                ranking.get(queryNumber).add(document);
-            } catch (Exception err) {
-                throw new IllegalArgumentException("Failed to parse qrels "+filename+":"+index, err);
+
+                try {
+                    // 1 Q0 WSJ880711-0086 39 -3.05948 Exp
+                    String[] cols = line.split("\\s+");
+
+                    String queryNumber = cols[0];
+                    //String unused = cols[1];
+                    String docno = cols[2];
+                    String rank = cols[3];
+                    String score = cols[4];
+                    //String runtag = cols[5];
+
+                    EvalDoc document = new SimpleEvalDoc(docno, Integer.parseInt(rank), Double.parseDouble(score));
+
+                    if (!ranking.containsKey(queryNumber)) {
+                        ranking.put(queryNumber, new ArrayList<EvalDoc>());
+                    }
+                    ranking.get(queryNumber).add(document);
+                } catch (Exception err) {
+                    throw new IllegalArgumentException("Failed to parse qrels " + filename + ":" + index, err);
+                }
+            }
+
+            // ensure sorted order by rank
+            for (String query : ranking.keySet()) {
+                List<EvalDoc> documents = ranking.get(query);
+                Collections.sort(documents, SimpleEvalDoc.byAscendingRank);
+                querySetResults.put(query, new QueryResults(query, documents));
             }
         }
-
-        // ensure sorted order by rank
-        for (String query : ranking.keySet()) {
-            List<EvalDoc> documents = ranking.get(query);
-            Collections.sort(documents, SimpleEvalDoc.byAscendingRank);
-            querySetResults.put(query, new QueryResults(query, documents));
-        }
-
-        in.close();
     }
 
     /**
