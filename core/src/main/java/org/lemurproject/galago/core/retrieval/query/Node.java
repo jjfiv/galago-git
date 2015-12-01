@@ -392,7 +392,9 @@ public class Node extends AbstractList<Node> implements Serializable {
   @Override
   public int hashCode() {
     int hash = 7;
+    String defp = this.getNodeParameters().getAsString("default");
     hash = 67 * hash + (this.operator != null ? this.operator.hashCode() : 0);
+    hash = 67 * hash + (defp != null ? defp.hashCode() : 0);
     hash = 67 * hash + (this.internalNodes != null ? this.internalNodes.hashCode() : 0);
     return hash;
   }

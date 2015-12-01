@@ -8,8 +8,7 @@ import org.lemurproject.galago.core.retrieval.processing.ProcessingModel;
 import org.lemurproject.galago.core.retrieval.query.Node;
 
 import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -100,5 +99,20 @@ public class Results implements Serializable {
   @Nonnull
   public Map<String, Document> pullDocuments(@Nonnull Document.DocumentComponents what) throws IOException {
     return retrieval.getDocuments(new ArrayList<>(this.resultSet()), what);
+  }
+
+  public void printToTrecrun(PrintStream trecrun, String qid, String system) {
+    try {
+      printToTrecrun(new PrintWriter(new OutputStreamWriter(trecrun, "UTF-8")), qid, system);
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public void printToTrecrun(PrintWriter trecrun, String qid, String system) {
+    for (ScoredDocument scoredDocument : this.scoredDocuments) {
+      trecrun.println(scoredDocument.toTRECformat(qid, system));
+    }
+    trecrun.flush();
   }
 }

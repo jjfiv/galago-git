@@ -397,10 +397,9 @@ public class NodeParameters implements Serializable {
               || text.equals(Boolean.toString(false))) {
         return true;
       }
-      try {
-        Double.parseDouble(text);
+
+      if(text.contains("-") || text.contains(".") || text.contains("e")) {
         return true;
-      } catch (Exception e) {
       }
     }
     // A parameter value needs to be escaped if it contains: ':' '=' '('

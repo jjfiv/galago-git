@@ -10,7 +10,6 @@ import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.NodeType;
 import org.lemurproject.galago.utility.Parameters;
 
-import java.lang.reflect.Constructor;
 import java.util.List;
 
 /**
@@ -45,9 +44,8 @@ public class InsertLengthsTraversal extends Traversal {
     if(nt == null){
       return node;
     }
-    
-    Constructor cons = nt.getConstructor();
-    Class<?>[] params = cons.getParameterTypes();
+
+    Class<?>[] params = nt.getInputs();
 
     for (Class<?> param : params) {
       if (LengthsIterator.class.isAssignableFrom(param)) {

@@ -1,10 +1,12 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.query;
 
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.utility.Parameters;
+
+import javax.annotation.Nullable;
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
 
 /**
  * <p>A NodeType describes the class type and input types of an iterator.</p>
@@ -33,18 +35,16 @@ public class NodeType implements Serializable {
     return nodeClass;
   }
 
-  public Class[] getInputs() throws Exception {
-    Constructor constructor = null;
-    try {
-      constructor = getConstructor();
-    } catch (Exception e) {
+  public Class<?>[] getInputs() {
+    Constructor constructor = getConstructor();
+    if(constructor == null) {
       return new Class[0];
     }
     return constructor.getParameterTypes();
   }
 
-  public Class[] getParameterTypes(int length) throws Exception {
-    Class[] inputs = getInputs();
+  public Class<?>[] getParameterTypes(int length) {
+    Class<?>[] inputs = getInputs();
     if (inputs == null || inputs.length == 0) {
       return new Class[0];
     }
@@ -97,7 +97,8 @@ public class NodeType implements Serializable {
     return false;
   }
 
-  public Constructor getConstructor() throws Exception {
+  @Nullable
+  Constructor getConstructor() {
     for (Constructor constructor : nodeClass.getConstructors()) {
       Class[] types = constructor.getParameterTypes();
 
@@ -130,7 +131,8 @@ public class NodeType implements Serializable {
       }
     }
 
-    throw new Exception("No reasonable constructors were found for " + nodeClass.toString());
+    //throw new Exception("No reasonable constructors were found for " + nodeClass.toString());
+    return null;
   }
 
   public String toString() {
