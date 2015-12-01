@@ -3,7 +3,10 @@
  */
 package org.lemurproject.galago.core.eval.compare;
 
-import org.lemurproject.galago.core.eval.stat.Stat;
+//import org.lemurproject.galago.core.eval.stat.Stat;
+import org.apache.commons.math3.stat.inference.AlternativeHypothesis;
+import org.apache.commons.math3.stat.inference.BinomialTest;
+
 
 /**
  *
@@ -38,7 +41,16 @@ class SignTest extends QuerySetComparator {
       }
     }
 
-    double pvalue = Stat.binomialProb(0.5, different, treatmentIsBetter);
+    double pvalue;
+    //pvalue = Stat.binomialProb(0.5, different, treatmentIsBetter);
+
+    //- Use Apache Commons Math3 Binomial (Sign) Test directly.  Assume
+    //  generic, two-sided test.  For one-sided test, change to
+    //  AlternativeHypothesis GREATER_THAN (right-sided) or
+    //  LESS_THAN (left-sided) tests.
+    BinomialTest bt = new BinomialTest ();
+    pvalue = bt.binomialTest (different, treatmentIsBetter, 0.5,
+			      AlternativeHypothesis.TWO_SIDED);
     return pvalue;
   }
 }
