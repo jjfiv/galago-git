@@ -3,7 +3,6 @@
  */
 package org.lemurproject.galago.core.retrieval.traversal.optimize;
 
-import java.lang.reflect.Constructor;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -43,8 +42,7 @@ public class ExtentsToCountLeafTraversal extends Traversal {
         return node;
       }
       
-      Constructor cons = nt.getConstructor();
-      Class[] params = cons.getParameterTypes();
+      Class<?>[] params = nt.getInputs();
 
       boolean requiresExtents = false;
       for (int idx = 0; idx < params.length; idx++) {
