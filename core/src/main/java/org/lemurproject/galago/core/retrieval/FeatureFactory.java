@@ -1,6 +1,8 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.iterator.bool.*;
 import org.lemurproject.galago.core.retrieval.iterator.counts.CountsSumIterator;
@@ -227,13 +229,20 @@ public class FeatureFactory {
     return operatorType.className;
   }
 
+  Cache<String, Class<?>> classForNameCache = Caffeine.newBuilder().maximumSize(200).build();
+
   @SuppressWarnings("unchecked")
   public Class<BaseIterator> getClass(Node node) throws Exception {
     String className = getClassName(node);
     if (className == null) {
       return null;
     }
-    Class c = Class.forName(className);
+
+    Class<?> c = classForNameCache.get(className, missing -> {
+      try {
+        return Class.forName(missing);
+      } catch (ClassNotFoundException e) { throw new RuntimeException(e); }
+    });
 
     if (BaseIterator.class.isAssignableFrom(c)) {
       return (Class<BaseIterator>) c;
