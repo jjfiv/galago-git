@@ -4,7 +4,6 @@
  */
 package org.lemurproject.galago.core.index;
 
-import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
@@ -83,11 +82,6 @@ public class FakeLengthIterator implements LengthsIterator {
   @Override
   public long totalEntries() {
     return ids.length;
-  }
-
-  @Override
-  public int compareTo(BaseIterator t) {
-    throw new UnsupportedOperationException("Not supported yet.");
   }
 
   @Override

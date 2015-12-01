@@ -118,10 +118,5 @@ public class NodeTypeTest {
     public AnnotatedNode getAnnotatedNode(ScoringContext c) throws IOException {
       throw new UnsupportedOperationException("Not supported yet.");
     }
-
-    @Override
-    public int compareTo(BaseIterator t) {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
   }
 }

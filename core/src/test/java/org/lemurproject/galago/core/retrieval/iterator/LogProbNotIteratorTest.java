@@ -136,9 +136,5 @@ public class LogProbNotIteratorTest {
       throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
-    public int compareTo(BaseIterator t) {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
   }
 }

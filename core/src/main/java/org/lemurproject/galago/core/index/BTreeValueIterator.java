@@ -1,12 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.index;
 
-import java.io.IOException;
-
-import org.lemurproject.galago.utility.btree.BTreeIterator;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.utility.ByteUtil;
-import org.lemurproject.galago.utility.CmpUtil;
+import org.lemurproject.galago.utility.btree.BTreeIterator;
+
+import java.io.IOException;
 
 /**
  * This is the base type of most Iterators (previously KeyListReader.ListIterator)
@@ -28,19 +27,4 @@ public abstract class BTreeValueIterator implements BaseIterator {
   public String getKeyString() throws IOException {
     return ByteUtil.toString(key);
   }
-
-  @Override
-  public int compareTo(BaseIterator other) {
-    if (isDone() && !other.isDone()) {
-      return 1;
-    }
-    if (other.isDone() && !isDone()) {
-      return -1;
-    }
-    if (isDone() && other.isDone()) {
-      return 0;
-    }
-    return CmpUtil.compare(currentCandidate(), other.currentCandidate());
-  }
-  
 }

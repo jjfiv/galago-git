@@ -3,7 +3,9 @@ package org.lemurproject.galago.core.retrieval.iterator;
 
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
+import org.lemurproject.galago.utility.CmpUtil;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.function.Consumer;
 
@@ -135,4 +137,19 @@ public interface BaseIterator extends Comparable<BaseIterator> {
       this.movePast(ctx.document);
     }
   }
+
+  @Override
+  default int compareTo(@Nonnull BaseIterator other) {
+    if (isDone() && !other.isDone()) {
+      return 1;
+    }
+    if (other.isDone() && !isDone()) {
+      return -1;
+    }
+    if (isDone() && other.isDone()) {
+      return 0;
+    }
+    return CmpUtil.compare(currentCandidate(), other.currentCandidate());
+  }
+
 }
