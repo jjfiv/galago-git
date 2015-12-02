@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Currently the parameters that are attached to query Nodes are not quite the
@@ -389,6 +390,10 @@ public class NodeParameters implements Serializable {
     }
   }
 
+  // Exception-free double-check from: http://stackoverflow.com/questions/3681242
+  // Since Double.parseDouble throws on an error.
+  public static final Pattern looksLikeDouble = Pattern.compile("[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
+
   // escaping functions - used in toString()
   public boolean needsToBeEscaped(String text, boolean typeProtection) {
     // if the text is a string -- we may need to quote it:
@@ -398,7 +403,7 @@ public class NodeParameters implements Serializable {
         return true;
       }
 
-      if(text.contains("-") || text.contains(".") || text.contains("e")) {
+      if(looksLikeDouble.matcher(text).matches()) {
         return true;
       }
     }
