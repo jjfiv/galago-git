@@ -8,7 +8,6 @@ import org.lemurproject.galago.core.index.source.DiskSource;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
-import org.lemurproject.galago.utility.CmpUtil;
 
 import java.io.IOException;
 
@@ -20,7 +19,7 @@ import java.io.IOException;
  */
 public abstract class SourceIterator implements BaseIterator {
 
-  protected DiskSource source = null;
+  protected final DiskSource source;
 
   public SourceIterator(DiskSource src) {
     source = src;
@@ -36,57 +35,43 @@ public abstract class SourceIterator implements BaseIterator {
   }
 
   @Override
-  public void reset() throws IOException {
+  public final void reset() throws IOException {
     source.reset();
   }
 
   @Override
-  public boolean isDone() {
+  public final boolean isDone() {
     return source.isDone();
   }
 
   @Override
-  public long currentCandidate() {
+  public final long currentCandidate() {
     return source.currentCandidate();
   }
 
   @Override
-  public void movePast(long identifier) throws IOException {
+  public final void movePast(long identifier) throws IOException {
     source.movePast(identifier);
   }
 
   @Override
-  public void syncTo(long identifier) throws IOException {
+  public final void syncTo(long identifier) throws IOException {
     source.syncTo(identifier);
   }
 
   @Override
-  public boolean hasMatch(ScoringContext context) {
+  public final boolean hasMatch(ScoringContext context) {
     return source.hasMatch(context.document);
   }
 
   @Override
-  public boolean hasAllCandidates() {
+  public final boolean hasAllCandidates() {
     return source.hasAllCandidates();
   }
 
   @Override
-  public long totalEntries() {
+  public final long totalEntries() {
     return source.totalEntries();
-  }
-
-  @Override
-  public int compareTo(BaseIterator other) {
-    if (isDone() && !other.isDone()) {
-      return 1;
-    }
-    if (other.isDone() && !isDone()) {
-      return -1;
-    }
-    if (isDone() && other.isDone()) {
-      return 0;
-    }
-    return CmpUtil.compare(currentCandidate(), other.currentCandidate());
   }
 
   // This is not implemented here, because it needs to be customized for each SourceIterator

@@ -3,9 +3,9 @@
  */
 package org.lemurproject.galago.core.retrieval.iterator;
 
-import java.io.IOException;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.utility.CmpUtil;
+
+import java.io.IOException;
 
 /**
  *
@@ -124,19 +124,5 @@ public abstract class DisjunctionIterator implements BaseIterator {
       }
     }
     return total;
-  }
-
-  @Override
-  public int compareTo(BaseIterator other) {
-    if (isDone() && !other.isDone()) {
-      return 1;
-    }
-    if (other.isDone() && !isDone()) {
-      return -1;
-    }
-    if (isDone() && other.isDone()) {
-      return 0;
-    }
-    return CmpUtil.compare(currentCandidate(), other.currentCandidate());
   }
 }

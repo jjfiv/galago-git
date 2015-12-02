@@ -6,6 +6,7 @@ import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.util.ExtentArray;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -84,7 +85,8 @@ public class NullExtentIterator implements ExtentIterator, CountIterator {
   }
 
   @Override
-  public int compareTo(BaseIterator t) {
+  public int compareTo(@Nonnull BaseIterator t) {
+    // hacked to always be shifted to the end.
     return 1;
   }
 

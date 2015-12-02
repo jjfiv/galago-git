@@ -2,7 +2,6 @@
 package org.lemurproject.galago.core.retrieval.iterator;
 
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.utility.CmpUtil;
 
 import java.io.IOException;
 
@@ -12,7 +11,7 @@ import java.io.IOException;
  */
 public abstract class TransformIterator implements BaseIterator {
 
-  public BaseIterator iterator;
+  public final BaseIterator iterator;
 
   public TransformIterator(BaseIterator iterator) {
     this.iterator = iterator;
@@ -24,7 +23,7 @@ public abstract class TransformIterator implements BaseIterator {
   }
 
   @Override
-  public boolean isDone() {
+  public final boolean isDone() {
     return iterator.isDone();
   }
 
@@ -34,7 +33,7 @@ public abstract class TransformIterator implements BaseIterator {
   }
 
   @Override
-  public long currentCandidate() {
+  public final long currentCandidate() {
     return iterator.currentCandidate();
   }
 
@@ -59,21 +58,7 @@ public abstract class TransformIterator implements BaseIterator {
   }
 
   @Override
-  public long totalEntries() {
+  public final long totalEntries() {
     return iterator.totalEntries();
-  }
-
-  @Override
-  public int compareTo(BaseIterator other) {
-    if (isDone() && !other.isDone()) {
-      return 1;
-    }
-    if (other.isDone() && !isDone()) {
-      return -1;
-    }
-    if (isDone() && other.isDone()) {
-      return 0;
-    }
-    return CmpUtil.compare(currentCandidate(), other.currentCandidate());
   }
 }

@@ -196,11 +196,6 @@ public class BackgroundStatsReader extends KeyValueReader implements AggregateIn
     }
 
     @Override
-    public int compareTo(BaseIterator o) {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public long totalEntries() {
       throw new UnsupportedOperationException("Not supported yet.");
     }

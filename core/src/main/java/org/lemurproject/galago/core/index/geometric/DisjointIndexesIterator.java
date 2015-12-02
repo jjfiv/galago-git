@@ -5,7 +5,6 @@ package org.lemurproject.galago.core.index.geometric;
 
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
-import org.lemurproject.galago.utility.CmpUtil;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -106,10 +105,5 @@ public abstract class DisjointIndexesIterator implements BaseIterator {
       flag &= i.hasAllCandidates();
     }
     return flag;
-  }
-
-  @Override
-  public int compareTo(BaseIterator o) {
-    return CmpUtil.compare(this.currentCandidate(), o.currentCandidate());
   }
 }

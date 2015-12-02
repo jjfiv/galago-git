@@ -1,13 +1,11 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.extents;
 
-import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.core.retrieval.iterator.CountIterator;
 import org.lemurproject.galago.core.retrieval.iterator.ExtentIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.util.ExtentArray;
-import org.lemurproject.galago.utility.CmpUtil;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -101,20 +99,6 @@ public class FakeExtentIterator implements ExtentIterator, CountIterator {
   @Override
   public long totalEntries() {
     return data.length;
-  }
-
-  @Override
-  public int compareTo(BaseIterator other) {
-    if (isDone() && !other.isDone()) {
-      return 1;
-    }
-    if (other.isDone() && !isDone()) {
-      return -1;
-    }
-    if (isDone() && other.isDone()) {
-      return 0;
-    }
-    return CmpUtil.compare(currentCandidate(), other.currentCandidate());
   }
 
   @Override
