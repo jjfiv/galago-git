@@ -41,6 +41,12 @@ class SignTest extends QuerySetComparator {
       }
     }
 
+    //- A sign test is pointless if there are no difference between
+    //  test pairs.  Just bail out here
+    if (different == 0) {
+	return 0.0;
+    }
+
     double pvalue;
     //pvalue = Stat.binomialProb(0.5, different, treatmentIsBetter);
 
