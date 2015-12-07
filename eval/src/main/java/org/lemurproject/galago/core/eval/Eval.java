@@ -33,26 +33,29 @@ public class Eval extends AppFunction {
   public String getHelpString() {
     return "galago eval <parameters>+: \n"
             + "Parameters:\n"
-            + "  --judgments={filename} : [Required]  Relevance judgments for the set of queries.\n"
-            + "  --baseline={filename}  : [Optional]  Retrieved ranked lists from a set of queries.\n"
-            + "                              If specified -> single or comparion evaluation - see below.\n"
-            + "  --treatment={filename} : [Optional]  Retrieved ranked lists from a set of queries.\n"
-            + "                              If specified -> comparion evaluation - see below.\n"
-            + "                              If NOT specified -> single evaluation - see below.\n"
-            + "  --runs+{filename}  : [Optional]  A list of retrieved ranked lists from a particular set of queries.\n"
-            + "                              If specified -> set evaluation - see below.\n"
-            + "  --summary={true|false} : [Optional]  Chooses to print a summary of results - query number = \"all\"\n"
-            + "                           [default=true]\n"
-            + "  --details={true|false} : [Optional]  Chooses to print a detailed set of results - one set for each query.\n"
-            + "                              [default=false]\n"
+            + "  --judgments={filename}  : [Required]  Relevance judgments for the set of queries.\n"
+            + "  --baseline={filename}   : [Optional]  Retrieved ranked lists from a set of queries.\n"
+            + "                               If specified -> single or comparion evaluation - see below.\n"
+            + "  --treatment={filename}  : [Optional]  Retrieved ranked lists from a set of queries.\n"
+            + "                               If specified -> comparion evaluation - see below.\n"
+            + "                               If NOT specified -> single evaluation - see below.\n"
+            + "  --runs+{filename}       : [Optional]  A list of retrieved ranked lists from a particular set of queries.\n"
+            + "                               If specified -> set evaluation - see below.\n"
+            + "  --summary={true|false}  : [Optional]  Chooses to print a summary of results - query number = \"all\"\n"
+            + "                               [default=true]\n"
+            + "  --details={true|false}  : [Optional]  Chooses to print a detailed set of results - one set for each query.\n"
+            + "                               [default=false]\n"
+            + "  --boosting={true|false} : [Optional]  Controls inclusion the boosted hypothesis tests.\n"
+            + "                               [default=false]\n"
             + "  --metrics+<metric-name> : [Optional]  Chooses the set of metrics to evaluate over.\n"
-            + "                              May be specified several times to produce a list of metrics.\n"
-            + "                              Only used where the 'treatment' parameter is NOT set.\n"
-            + "                              [defaults to a standard set]\n"
+            + "                               May be specified several times to produce a list of metrics.\n"
+            + "                               Only used where the 'treatment' parameter is NOT set.\n"
+            + "                               [defaults to a standard set]\n"
             + "  --comparisons+<comparison-name> : [Optional]  Chooses the set of statistical comparison methods to apply\n"
-            + "                              May be specified several times to produce a list of comparisons.\n"
-            + "                              Only used where the 'treatment' parameter is set.\n"
-            + "                              [defaults to a standard set]\n"
+            + "                               May be specified several times to produce a list of comparisons.\n"
+            + "                               Only used where the 'treatment' parameter is set.\n"
+            + "                               NOTE: comparison test entries override boosting settings.\n"
+            + "                               [defaults to a standard set, which does not include boosted hypothesis tests]\n"
             + "\n\n"
             + "Single evaluation:\n"
             + "   The first column is the query number, or 'all' for a mean of the metric over all queries.\n"
@@ -80,9 +83,10 @@ public class Eval extends AppFunction {
             + "       ttest          P-value of a paired t-test.\n"
             + "       signtest       P-value of the Fisher sign test.                                       \n"
             + "       randomized      P-value of a randomized test.                                          \n"
-            + "   The second column also includes difference tests.  In these tests, the null hypothesis is \n"
-            + "     that the mean of the treatment is at least k times the mean of the baseline.  We run the\n"
-            + "     same tests as before, but we artificially improve the baseline values by a factor of k. \n"
+            + "   The second column also includes difference (boosting) tests.  In these tests, the \n"
+            + "     null hypothesis is that the mean of the treatment is at least k times the mean of the \n"
+            + "     baseline.  We run the same tests as before, but we artificially improve the baseline values \n"
+            + "     by a factor of k. \n"
             + "       h-ttest-0.05    Largest value of k such that the ttest has a p-value of less than 0.5. \n"
             + "       h-signtest-0.05 Largest value of k such that the sign test has a p-value of less than 0.5. \n"
             + "       h-randomized-0.05 Largest value of k such that the randomized test has a p-value of less than 0.5. \n"
@@ -112,6 +116,7 @@ public class Eval extends AppFunction {
     assert (!p.containsKey("queries") || p.isList("queries", Parameters.class)) : "eval parameter 'queries' must be a list.";
     assert (!p.containsKey("summary") || p.isBoolean("summary")) : "eval parameter 'summary' must be a boolean.";
     assert (!p.containsKey("details") || p.isBoolean("details")) : "eval parameter 'details' must be a boolean.";
+    assert (!p.containsKey("boosting") || p.isBoolean("boosting")) : "eval parameter 'boosting' must be a boolean.";
     assert (!p.containsKey("metrics") || p.isList("metrics", String.class)) : "eval parameter 'metrics' must be a list of strings.";
     assert (p.get("summary", true) || p.get("details", false)) : "eval requires either 'summary' or 'details' to be set true.";
     assert (!p.containsKey("comparisons") || p.isList("comparisons", String.class) || p.isBoolean("comparisons")) : "eval parameter 'comparisons' must be a list of strings, or a boolean to turn it off (set only)";
@@ -360,9 +365,19 @@ public class Eval extends AppFunction {
       metrics = (String[]) p.getAsList("metrics").toArray(new String[0]);
     }
 
+    String[] defaultTests = new String[]{"baseline", "treatment", "baseBetter", "treatBetter", "equal", "ttest", "signtest", "randomized"};
+    String[] tests = defaultTests;
 
-    String[] tests = new String[]{"baseline", "treatment", "baseBetter", "treatBetter", "equal", "ttest", "signtest", "randomized",
-      "h-ttest-0.05", "h-signtest-0.05", "h-randomized-0.05", "h-ttest-0.01", "h-signtest-0.01", "h-randomized-0.01"};
+    //- Let's not bother with boosted hypothesis tests unless someone really wants them
+    if (p.containsKey ("boosting")) {
+      if (p.get("boosting", false)) {
+        String[] boostTests = new String[]{"h-ttest-0.05", "h-signtest-0.05", "h-randomized-0.05",
+                "h-ttest-0.01", "h-signtest-0.01", "h-randomized-0.01"};
+        tests = new String[defaultTests.length + boostTests.length];
+        System.arraycopy(defaultTests, 0, tests, 0, defaultTests.length);
+        System.arraycopy(boostTests, 0, tests, defaultTests.length, boostTests.length);
+      }
+    }
 
     // override default list if specified:
     if (p.containsKey("comparisons")) {
