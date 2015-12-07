@@ -5,6 +5,7 @@ import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
 import org.lemurproject.galago.utility.ByteUtil;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 /**
  * Each iterator from an index has an extra two methods,
@@ -41,6 +42,13 @@ public interface KeyIterator extends Comparable<KeyIterator> {
   // Access to key data
   public byte[] getKey() throws IOException;
   public String getKeyString() throws IOException;
+
+  default void forAllKeyStrings(Consumer<String> onStringKey) throws IOException {
+    while(!isDone()) {
+      onStringKey.accept(getKeyString());
+      if(!nextKey()) continue;
+    }
+  }
 
   // Access to the key's value. (Not all may be implemented)
   public byte[] getValueBytes() throws IOException;

@@ -1,12 +1,13 @@
 // BSD License (http://lemurproject.org/galago-license)
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.utility.Parameters;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Transforms a #fulldep operator into a full expansion of the sequential
@@ -70,10 +71,10 @@ public class FullDependenceTraversal extends Traversal {
       }
 
       // ordered and unordered can go at the same time
-      List<Node> ordered = new ArrayList<Node>();
-      List<Node> unordered = new ArrayList<Node>();
+      List<Node> ordered = new ArrayList<>();
+      List<Node> unordered = new ArrayList<>();
 
-      List<List<Node>> nodePowerSet = powerSet(new ArrayList(children), windowLimit);
+      List<List<Node>> nodePowerSet = powerSet(new ArrayList<>(children), windowLimit);
 
       for (List<Node> set : nodePowerSet) {
         if ((windowLimit < 2) || (windowLimit >= set.size())) {
@@ -95,7 +96,7 @@ public class FullDependenceTraversal extends Traversal {
       double uww = parameters.get("uww", unorderedW);
 
       NodeParameters weights = new NodeParameters();
-      ArrayList<Node> immediateChildren = new ArrayList<Node>();
+      ArrayList<Node> immediateChildren = new ArrayList<>();
 
       // unigrams - 0.80
       weights.set("0", uni);
@@ -110,8 +111,7 @@ public class FullDependenceTraversal extends Traversal {
       immediateChildren.add(unorderedWindowNode);
 
       // Finally put them all inside a comine node w/ the weights
-      Node outerweight = new Node("combine", weights, immediateChildren, original.getPosition());
-      return outerweight;
+      return new Node("combine", weights, immediateChildren, original.getPosition());
     } else {
       return original;
     }
@@ -119,17 +119,17 @@ public class FullDependenceTraversal extends Traversal {
 
   private List<List<Node>> powerSet(List<Node> children, int windowLimit) {
     // base case
-    List<List<Node>> ps = new ArrayList();
+    List<List<Node>> ps = new ArrayList<>();
 
     if (children.isEmpty()) {
-      ps.add(new ArrayList());
+      ps.add(new ArrayList<>());
     } else {
       Node n = children.remove(0);
       List<List<Node>> subps = powerSet(children, windowLimit);
       for (List<Node> set : subps) {
         if (windowLimit < 2 || set.size() < windowLimit) {
           // add a clone of the original
-          ps.add(new ArrayList(set));
+          ps.add(new ArrayList<>(set));
           // add the original + node n
           set.add(0, n);
           ps.add(set);
