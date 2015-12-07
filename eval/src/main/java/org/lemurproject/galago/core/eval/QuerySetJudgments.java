@@ -37,7 +37,7 @@ public class QuerySetJudgments extends WrappedMap<String, QueryJudgments> {
   /**
    * Creates a galago evaluation object from your home-grown judgments.
    *
-   * @param data something like a Map<String,Map<String,Int>>
+   * @param data something like a Map&lt;String,Map&lt;String,Int&gt;&gt;
    */
   public QuerySetJudgments(Map<String, QueryJudgments> data) {
     super(data);
@@ -60,6 +60,7 @@ public class QuerySetJudgments extends WrappedMap<String, QueryJudgments> {
   public static Map<String, QueryJudgments> loadJudgments(String filename, boolean makeBinary, boolean makePositive) throws IOException {
     Map<String, QueryJudgments> judgments = new TreeMap<>();
 
+    int lineNumber = 1;
     try (BufferedReader in = new BufferedReader(new InputStreamReader(StreamCreator.openInputStream(filename), "UTF-8"))) {
       while(true)
       {
@@ -69,7 +70,9 @@ public class QuerySetJudgments extends WrappedMap<String, QueryJudgments> {
         }
 
         String[] cols = line.split("\\s+");
-        assert (cols.length == 4);
+        if(cols.length != 4) {
+          throw new RuntimeException("Bad number of columns at line "+lineNumber+" in "+filename+": "+ line);
+        }
 
         String queryNumber = cols[0];
         String unused = cols[1];
@@ -89,6 +92,7 @@ public class QuerySetJudgments extends WrappedMap<String, QueryJudgments> {
           j = (j > 0) ? j : 0;
         }
         judgments.get(queryNumber).add(docno, j);
+        lineNumber++;
       }
     }
 
