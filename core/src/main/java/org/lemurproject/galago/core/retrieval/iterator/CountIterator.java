@@ -41,7 +41,6 @@ public interface CountIterator extends BaseIterator, IndicatorIterator {
             s.nodeDocumentCount += (c > 0) ? 1 : 0; // positive counting
         });
         this.reset();
-        long endTime = System.currentTimeMillis();
 
         return s;
     }
