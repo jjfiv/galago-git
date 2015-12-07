@@ -44,7 +44,7 @@ class SignTest extends QuerySetComparator {
     //- A sign test is pointless if there are no difference between
     //  test pairs.  Just bail out here
     if (different == 0) {
-	return 0.0;
+	return 1.0;
     }
 
     double pvalue;
