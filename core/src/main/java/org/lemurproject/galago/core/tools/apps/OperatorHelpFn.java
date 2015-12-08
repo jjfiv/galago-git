@@ -4,6 +4,7 @@ import org.apache.commons.math3.util.Pair;
 import org.lemurproject.galago.core.retrieval.FeatureFactory;
 import org.lemurproject.galago.core.retrieval.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.RequiredStatistics;
+import org.lemurproject.galago.core.retrieval.ann.ImplementsOperator;
 import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -141,6 +142,18 @@ public class OperatorHelpFn extends AppFunction {
           output.println("\tUses statistics: " + Arrays.toString(reqstat.statistics()));
         }
       }
+
+      output.println();
+    });
+
+    factory.getTraversalNames().forEach(className -> {
+      Class<?> clazz = factory.getClassForName(className);
+
+      ImplementsOperator opImpl = clazz.getAnnotation(ImplementsOperator.class);
+      if(opImpl == null) return;
+
+      output.println("#"+opImpl.operator());
+      output.println("\tDefined by class: "+clazz.getCanonicalName());
 
       output.println();
     });

@@ -5,6 +5,7 @@ import org.lemurproject.galago.core.index.stats.AggregateStatistic;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.ann.ImplementsOperator;
 import org.lemurproject.galago.core.retrieval.query.MalformedQueryException;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -39,6 +40,7 @@ import java.util.logging.Logger;
  *
  * @author sjh
  */
+@ImplementsOperator(operator = "wsdm")
 public class WeightedSequentialDependenceTraversal extends Traversal {
 
   private static final Logger logger = Logger.getLogger("WSDM");

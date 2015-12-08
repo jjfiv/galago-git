@@ -111,7 +111,6 @@ public class FeatureFactory {
     StopStructureTraversal.class.getName(),
     StopWordTraversal.class.getName(),
     WeightedSequentialDependenceTraversal.class.getName(),
-    WeightedSequentialDependenceTraversal.class.getName(),
     SequentialDependenceTraversal.class.getName(),
     FullDependenceTraversal.class.getName(),
     ProximityDFRTraversal.class.getName(),
@@ -239,7 +238,7 @@ public class FeatureFactory {
     return operatorType.className;
   }
 
-  Class<?> getClassForName(String name) {
+  public Class<?> getClassForName(String name) {
     return classForNameCache.get(name, missing -> {
       try {
         return Class.forName(missing);
