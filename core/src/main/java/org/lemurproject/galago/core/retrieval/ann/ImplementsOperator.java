@@ -8,5 +8,5 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ImplementsOperator {
-  String operator();
+  String value();
 }

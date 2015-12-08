@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author sjh
  */
-@ImplementsOperator(operator = "pdfr")
+@ImplementsOperator(value = "pdfr")
 public class ProximityDFRTraversal extends Traversal {
 
   private int windowSizeDefault;

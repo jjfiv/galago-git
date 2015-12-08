@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  *
  * @author jykim, irmarc, sjh
  */
-@ImplementsOperator(operator="prms")
+@ImplementsOperator(value ="prms")
 public class PRMS2Traversal extends Traversal {
 
   private Retrieval retrieval;

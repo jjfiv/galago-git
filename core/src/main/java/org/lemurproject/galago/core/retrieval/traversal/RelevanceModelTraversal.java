@@ -24,7 +24,7 @@ import org.lemurproject.galago.utility.Parameters;
  *
  * @author irmarc, sjh, dietz
  */
-@ImplementsOperator(operator="rm")
+@ImplementsOperator(value ="rm")
 public class RelevanceModelTraversal extends Traversal {
 
   private final Retrieval retrieval;

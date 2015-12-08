@@ -57,6 +57,11 @@ public class OperatorHelpFn extends AppFunction {
     }
   }
 
+  @Override
+  public boolean allowsZeroParameters() {
+    return true;
+  }
+
   public static void main(String[] args) throws Exception {
     OperatorHelpFn helpfn = new OperatorHelpFn();
     helpfn.run(Parameters.parseArgs(args), System.out);
@@ -152,7 +157,7 @@ public class OperatorHelpFn extends AppFunction {
       ImplementsOperator opImpl = clazz.getAnnotation(ImplementsOperator.class);
       if(opImpl == null) return;
 
-      output.println("#"+opImpl.operator());
+      output.println("#"+opImpl.value());
       output.println("\tDefined by class: "+clazz.getCanonicalName());
 
       output.println();

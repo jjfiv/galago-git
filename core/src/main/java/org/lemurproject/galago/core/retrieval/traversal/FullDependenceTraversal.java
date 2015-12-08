@@ -25,7 +25,7 @@ import java.util.List;
  *
  * @author sjh
  */
-@ImplementsOperator(operator = "fdm")
+@ImplementsOperator(value = "fdm")
 public class FullDependenceTraversal extends Traversal {
 
   private int defaultWindowLimit;

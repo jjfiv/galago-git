@@ -40,7 +40,7 @@ import java.util.logging.Logger;
  *
  * @author sjh
  */
-@ImplementsOperator(operator = "wsdm")
+@ImplementsOperator(value = "wsdm")
 public class WeightedSequentialDependenceTraversal extends Traversal {
 
   private static final Logger logger = Logger.getLogger("WSDM");

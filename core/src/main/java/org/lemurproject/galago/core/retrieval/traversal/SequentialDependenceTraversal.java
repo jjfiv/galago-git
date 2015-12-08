@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @author irmarc
  */
-@ImplementsOperator(operator = "sdm")
+@ImplementsOperator(value = "sdm")
 public class SequentialDependenceTraversal extends Traversal {
 
   private final int windowLimitDefault;
