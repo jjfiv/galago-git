@@ -216,6 +216,16 @@ public class FeatureFactory {
     public String className;
   }
 
+  public Map<Class<?>, List<String>> getOperators() {
+    Map<Class<?>, List<String>> operatorClassToNames = new HashMap<>();
+    for (Map.Entry<String, OperatorSpec> kv : this.operatorLookup.entrySet()) {
+      String name = kv.getKey();
+      Class<?> c = getClassForName(kv.getValue().className);
+      operatorClassToNames.computeIfAbsent(c, (missing) -> new ArrayList<>()).add(name);
+    }
+    return operatorClassToNames;
+  }
+
   public String getClassName(Node node) throws Exception {
     String operator = node.getOperator();
 
@@ -229,6 +239,14 @@ public class FeatureFactory {
     return operatorType.className;
   }
 
+  Class<?> getClassForName(String name) {
+    return classForNameCache.get(name, missing -> {
+      try {
+        return Class.forName(missing);
+      } catch (ClassNotFoundException e) { throw new RuntimeException(e); }
+    });
+  }
+
   Cache<String, Class<?>> classForNameCache = Caffeine.newBuilder().maximumSize(200).build();
 
   @SuppressWarnings("unchecked")
@@ -238,11 +256,7 @@ public class FeatureFactory {
       return null;
     }
 
-    Class<?> c = classForNameCache.get(className, missing -> {
-      try {
-        return Class.forName(missing);
-      } catch (ClassNotFoundException e) { throw new RuntimeException(e); }
-    });
+    Class<?> c = getClassForName(className);
 
     if (BaseIterator.class.isAssignableFrom(c)) {
       return (Class<BaseIterator>) c;
