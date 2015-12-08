@@ -3,16 +3,19 @@
  */
 package org.lemurproject.galago.core.retrieval.traversal;
 
-import java.util.List;
 import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.ann.ImplementsOperator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
 import org.lemurproject.galago.utility.Parameters;
+
+import java.util.List;
 
 /**
  *
  * @author sjh
  */
+@ImplementsOperator(value = "pdfr")
 public class ProximityDFRTraversal extends Traversal {
 
   private int windowSizeDefault;

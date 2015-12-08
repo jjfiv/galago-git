@@ -4,6 +4,7 @@ package org.lemurproject.galago.contrib.retrieval.traversal;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.ann.ImplementsOperator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
@@ -37,6 +38,7 @@ import java.util.List;
  *
  * @author irmarc
  */
+@ImplementsOperator("bm25f")
 public class BM25FTraversal extends Traversal {
 
   private int levels;

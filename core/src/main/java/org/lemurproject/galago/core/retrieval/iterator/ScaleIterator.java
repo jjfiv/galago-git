@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author trevor
  */
-public class ScaleIterator extends TransformIterator {
+public class ScaleIterator extends TransformIterator implements ScoreIterator {
 
   NodeParameters np;
   double weight;

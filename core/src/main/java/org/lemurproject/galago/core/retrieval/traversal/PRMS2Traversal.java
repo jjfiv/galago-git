@@ -4,6 +4,7 @@ package org.lemurproject.galago.core.retrieval.traversal;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.ann.ImplementsOperator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -33,6 +34,7 @@ import java.util.logging.Logger;
  *
  * @author jykim, irmarc, sjh
  */
+@ImplementsOperator(value ="prms")
 public class PRMS2Traversal extends Traversal {
 
   private Retrieval retrieval;
@@ -46,7 +48,7 @@ public class PRMS2Traversal extends Traversal {
 
     // get field list
     if (globals.isList("fields", String.class)) {
-      this.defaultFields = (List<String>) globals.getAsList("fields");
+      this.defaultFields = globals.getAsList("fields", String.class);
     } else {
       this.defaultFields = null;
     }
@@ -75,8 +77,8 @@ public class PRMS2Traversal extends Traversal {
       List<String> terms = getTextTerms(original.getInternalNodes());
 
       // collect some information about fields
-      Map<String, FieldStatistics> fieldStats = new HashMap();
-      Map<String, Node> fieldLenNodes = new HashMap();
+      Map<String, FieldStatistics> fieldStats = new HashMap<>();
+      Map<String, Node> fieldLenNodes = new HashMap<>();
 
       for (String field : fields) {
         Node fieldLen = StructuredQuery.parse("#lengths:" + field + ":part=lengths()");
@@ -103,13 +105,13 @@ public class PRMS2Traversal extends Traversal {
             NodeParameters par1 = new NodeParameters();
             par1.set("default", term);
             par1.set("part", "field." + field);
-            termFieldCounts = new Node("counts", par1, new ArrayList());
+            termFieldCounts = new Node("counts", par1, new ArrayList<>());
 
           } else {
             // otherwise use an #inside op
             NodeParameters par1 = new NodeParameters();
             par1.set("default", term);
-            termExtents = new Node("extents", par1, new ArrayList());
+            termExtents = new Node("extents", par1, new ArrayList<>());
             termExtents = TextPartAssigner.assignPart(termExtents, globals, this.retrieval.getAvailableParts());
 
             termFieldCounts = new Node("inside");
