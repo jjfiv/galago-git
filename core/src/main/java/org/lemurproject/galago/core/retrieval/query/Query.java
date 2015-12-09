@@ -14,6 +14,7 @@ import org.lemurproject.galago.utility.Parameters;
  * @author sjh
  */
 public class Query implements Serializable {
+  private static final long serialVersionUID = -8980110109622890397L;
   // query string, as input by user
   String rawInputQuery;
 

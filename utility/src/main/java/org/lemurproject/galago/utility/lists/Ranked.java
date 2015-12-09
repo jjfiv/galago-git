@@ -12,6 +12,7 @@ import java.util.List;
  * @author jfoley
  */
 public abstract class Ranked extends Scored implements Serializable {
+  private static final long serialVersionUID = -6063499164129611150L;
   public int rank;
   public Ranked(int rank, double score) {
     super(score);

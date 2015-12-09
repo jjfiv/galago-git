@@ -25,6 +25,7 @@ import java.lang.reflect.Constructor;
  */
 public class NodeType implements Serializable {
 
+  private static final long serialVersionUID = 3367825044334639464L;
   private Class<? extends BaseIterator> nodeClass;
 
   public NodeType(Class<? extends BaseIterator> nodeClass) {
