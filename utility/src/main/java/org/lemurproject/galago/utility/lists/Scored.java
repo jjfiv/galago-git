@@ -14,6 +14,7 @@ import java.util.List;
  * @author jfoley
  */
 public abstract class Scored implements Serializable {
+  private static final long serialVersionUID = 6409234463374497634L;
   public double score;
 
   public Scored(double score) {

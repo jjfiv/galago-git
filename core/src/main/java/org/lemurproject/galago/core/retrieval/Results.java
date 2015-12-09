@@ -19,6 +19,7 @@ import java.util.*;
  */
 public class Results implements Serializable {
 
+  private static final long serialVersionUID = -2623727015828693626L;
   public transient Retrieval retrieval;
   public Node inputQuery;
   public List<ScoredDocument> scoredDocuments;

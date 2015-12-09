@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class AnnotatedNode implements Serializable {
 
+  private static final long serialVersionUID = 7684494262194438451L;
   public String type;
   public String className;
   public String parameters;

@@ -14,6 +14,7 @@ import org.lemurproject.galago.tupleflow.CompressionType;
 
 public class DataPipe implements Serializable {
 
+  private static final long serialVersionUID = -8854508341932448115L;
   public String root;
   public String pipeName;
   private int inputCount;

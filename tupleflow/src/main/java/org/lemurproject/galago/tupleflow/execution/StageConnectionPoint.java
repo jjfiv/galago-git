@@ -17,6 +17,7 @@ import java.util.Arrays;
  */
 public class StageConnectionPoint implements Serializable {
 
+  private static final long serialVersionUID = -429999457112309740L;
   public CompressionType compression;
   public ConnectionPointType type;
   public String externalName;
