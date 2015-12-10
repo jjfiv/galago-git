@@ -56,7 +56,7 @@ public class JSONQueryFormat {
       reader.lines().forEach((line) -> {
         if(line.trim().isEmpty()) return;
         String[] col = line.split("\t");
-        assert(col.length == 2);
+        assert(col.length == 2) : "Bad line: "+line;
         queries.add(Parameters.parseArray("number", col[0], "text", col[1]));
       });
     }
