@@ -14,6 +14,7 @@ import org.lemurproject.galago.tupleflow.Order;
  */
 public class Stage implements Serializable, Cloneable {
 
+  private static final long serialVersionUID = -4876017486078922298L;
   public HashMap<String, StageConnectionPoint> connections = new HashMap<String, StageConnectionPoint>();
   public ArrayList<StepInformation> steps = new ArrayList<StepInformation>();
   public String name;

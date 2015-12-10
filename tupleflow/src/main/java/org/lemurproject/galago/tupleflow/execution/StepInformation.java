@@ -11,6 +11,7 @@ import java.io.Serializable;
  */
 public class StepInformation implements Serializable {
 
+  private static final long serialVersionUID = -2002021272247696195L;
   private String className;
   private Parameters parameters;
 

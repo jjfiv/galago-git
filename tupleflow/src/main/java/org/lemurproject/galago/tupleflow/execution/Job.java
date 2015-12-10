@@ -26,6 +26,7 @@ import org.lemurproject.galago.tupleflow.Utility;
  */
 public class Job implements Serializable {
 
+  private static final long serialVersionUID = 6973306134349823772L;
   public TreeMap<String, Stage> stages = new TreeMap<String, Stage>();
   public ArrayList<Connection> connections = new ArrayList<Connection>();
   public HashMap<String, ConnectionEndPoint> exports = new HashMap<String, ConnectionEndPoint>();

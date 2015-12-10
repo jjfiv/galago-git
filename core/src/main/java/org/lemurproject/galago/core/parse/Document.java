@@ -22,6 +22,7 @@ import java.util.Map;
  */
 public class Document implements Serializable {
 
+  private static final long serialVersionUID = -5471082990007800961L;
   /** document id - this value is serialized */
   public long identifier = -1;
   /** document data - these values are serialized */
@@ -102,7 +103,7 @@ public class Document implements Serializable {
     return sb.toString();
   }
 
-  public TObjectIntHashMap<String> getBagOfWords() {
+    public TObjectIntHashMap<String> getBagOfWords() {
     TObjectIntHashMap<String> termCounts = new TObjectIntHashMap<>();
     for(String term : terms) {
       termCounts.adjustOrPutValue(term, 1, 1);
@@ -114,6 +115,7 @@ public class Document implements Serializable {
    * This class allows the selection of parts of the document to serialize or deserialize.
    */
   public static class DocumentComponents implements Serializable {
+    private static final long serialVersionUID = -5134430303276805133L;
     public static DocumentComponents All = new DocumentComponents(true, true, true);
     public static DocumentComponents JustMetadata = new DocumentComponents(false, true, false);
     public static DocumentComponents JustText = new DocumentComponents(true, false, false);
