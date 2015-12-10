@@ -3,10 +3,11 @@
  */
 package org.lemurproject.galago.core.retrieval.prf;
 
-import java.util.logging.Logger;
 import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.utility.Parameters;
+
+import java.util.logging.Logger;
 
 /**
  *
@@ -23,7 +24,7 @@ public class RelevanceModel3 implements ExpansionModel {
   public RelevanceModel3(Retrieval r) throws Exception {
       
     this.rm1 = new RelevanceModel1(r);
-    defaultFbOrigWeight = r.getGlobalParameters().get("fbOrigWeight", 0.85);
+    defaultFbOrigWeight = r.getGlobalParameters().get("fbOrigWeight", 0.25);
   }
 
   @Override
