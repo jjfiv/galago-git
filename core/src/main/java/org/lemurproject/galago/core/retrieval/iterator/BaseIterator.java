@@ -131,7 +131,8 @@ public interface BaseIterator extends Comparable<BaseIterator> {
     ScoringContext ctx = new ScoringContext();
     while(!this.isDone()) {
       ctx.document = this.currentCandidate();
-      if(this.hasMatch(ctx)) {
+      if(hasMatch(ctx)) {
+        syncTo(ctx.document);
         onEachDocument.accept(ctx);
       }
       this.movePast(ctx.document);
