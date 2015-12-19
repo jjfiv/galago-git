@@ -5,6 +5,8 @@ package org.lemurproject.galago.core.util;
 
 import org.lemurproject.galago.tupleflow.Utility;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.*;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,6 +25,7 @@ public class WordLists {
 
   private static Map<String, Set<String>> wordLists;
 
+  @Nullable
   public static Set<String> getWordList(String name) throws IOException {
     if (wordLists == null) {
       wordLists = new HashMap<>();
@@ -54,5 +57,18 @@ public class WordLists {
 
     // otherwise we've already read this list.
     return wordLists.get(name);
+  }
+
+  @Nonnull
+  public static Set<String> getWordListOrDie(String name) {
+    try {
+      Set<String> list = getWordList(name);
+      if(list == null) {
+        throw new IllegalArgumentException("Couldn't find wordlist: "+name);
+      }
+      return list;
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Couldn't find wordlist: "+name, e);
+    }
   }
 }

@@ -40,8 +40,8 @@ public class RelevanceModel1 implements ExpansionModel {
 
   public RelevanceModel1(Retrieval r) throws Exception {
     this.retrieval = r;
-    defaultFbDocs = (int) Math.round(r.getGlobalParameters().get("fbDocs", 10.0));
-    defaultFbTerms = (int) Math.round(r.getGlobalParameters().get("fbTerm", 5.0));
+    defaultFbDocs = (int) Math.round(r.getGlobalParameters().get("fbDocs", 20.0));
+    defaultFbTerms = (int) Math.round(r.getGlobalParameters().get("fbTerm", 100.0));
     exclusionTerms = WordLists.getWordList(r.getGlobalParameters().get("rmstopwords", "rmstop"));
     inclusionTerms = null;
     Parameters gblParms = r.getGlobalParameters();
