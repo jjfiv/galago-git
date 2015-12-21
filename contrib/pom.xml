@@ -4,12 +4,12 @@
   <parent>
     <groupId>org.lemurproject</groupId>
     <artifactId>galago</artifactId>
-    <version>3.9</version>
+    <version>3.10</version>
   </parent>
   <groupId>org.lemurproject.galago</groupId>
   <artifactId>contrib</artifactId>
   <packaging>jar</packaging>
-  <version>3.9</version>
+  <version>3.10</version>
   <name>contrib</name>
   <url>http://lemurproject.org/galago/php</url>
   <description>Galago is a toolkit for experimenting with search engines and text processing.</description>
