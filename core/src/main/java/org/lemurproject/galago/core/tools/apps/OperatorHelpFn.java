@@ -16,6 +16,8 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
 
 /**
  * Dump all the operators registered in FeatureFactory, with as much automatically-collected information as possible.
@@ -90,8 +92,22 @@ public class OperatorHelpFn extends AppFunction {
     boolean showClass = p.get("class", true);
     boolean showStats = p.get("stats", false);
     boolean showParams = p.get("parameters", true);
+    
+    List<String> operatorList = null;
 
-    factory.getOperators().forEach((clazz, names) -> {
+    if (p.containsKey("operator")) {
+      //- Just return information on the operators in the operator list
+      operatorList = p.getList("operator");
+    }
+    
+    final Map<Class<?>, List<String>> operatorsMap = factory.getOperators();
+    
+    //factory.getOperators().forEach((clazz, names) -> {
+    operatorsMap.forEach ((clazz, names) -> {
+      
+    //  if (operatorList != null && operatorList.size() > 0) {
+    //    names.retainAll (operatorList);
+    //  }
       output.println("#"+Utility.join(names, ", #"));
 
       output.println("\tOutput Type: "+typeNameForIteratorClass(clazz));
