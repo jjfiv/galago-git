@@ -12,6 +12,9 @@ import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -28,7 +31,8 @@ public class DumpTermStatisticsFn extends AppFunction {
     public String getHelpString() {
         return "galago dump-term-stats <index-part> \n\n"
                 + "  Dumps <term> <frequency> <document count> statsistics from the"
-                + " the specified index part.\n";
+                + " the specified index part.\n"
+                + " Multiple index parts can be separated by commas.\n";
     }
 
     @Override
@@ -40,25 +44,42 @@ public class DumpTermStatisticsFn extends AppFunction {
             return;
         }
 
-        ScoringContext sc = new ScoringContext();
-        IndexPartReader reader = DiskIndex.openIndexPart(args[1]);
-        KeyIterator iterator = reader.getIterator();
-        while (!iterator.isDone()) {
-            CountIterator mci = (CountIterator) iterator.getValueIterator();
-            long frequency = 0;
-            long documentCount = 0;
-            while (!mci.isDone()) {
-                sc.document = mci.currentCandidate();
-                if (mci.hasMatch(sc)) {
-                    frequency += mci.count(sc);
-                    documentCount++;
+        String[] paths = args[1].split(",");
+        Map<String, Long> freq = new HashMap<>();
+        Map<String, Long> docCount = new HashMap<>();
+
+        for (String path : paths) {
+            ScoringContext sc = new ScoringContext();
+            IndexPartReader reader = DiskIndex.openIndexPart(path);
+            KeyIterator iterator = reader.getIterator();
+            while (!iterator.isDone()) {
+                CountIterator mci = (CountIterator) iterator.getValueIterator();
+                long frequency = 0;
+                long documentCount = 0;
+                while (!mci.isDone()) {
+                    sc.document = mci.currentCandidate();
+                    if (mci.hasMatch(sc)) {
+                        frequency += mci.count(sc);
+                        documentCount++;
+                    }
+                    mci.movePast(mci.currentCandidate());
                 }
-                mci.movePast(mci.currentCandidate());
+                //        output.printf("%s\t%d\t%d\n", iterator.getKeyString(), frequency, documentCount);
+                String key = iterator.getKeyString();
+                if (freq.containsKey(key)){
+                    freq.put(key, freq.get(key) + frequency);
+                    docCount.put(key, docCount.get(key) + documentCount);
+                } else {
+                    freq.put(key,   frequency);
+                    docCount.put(key,  documentCount);
+                }
+                iterator.nextKey();
             }
-            output.printf("%s\t%d\t%d\n", iterator.getKeyString(), frequency, documentCount);
-            iterator.nextKey();
+            reader.close();
         }
-        reader.close();
+        for(String key : freq.keySet()){
+            output.printf("%s\t%d\t%d\n", key, freq.get(key), docCount.get(key));
+        }   
     }
 
     @Override
