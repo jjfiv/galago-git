@@ -5,6 +5,7 @@ package org.lemurproject.galago.core.eval;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.PrintWriter;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.List;
  *
  * @author sjh
  */
-public class QueryResults extends AbstractList<EvalDoc> {
+public class QueryResults extends AbstractList<EvalDoc> implements Comparable<QueryResults> {
 
   private String query;
   private List<EvalDoc> rankedList;
@@ -66,4 +67,23 @@ public class QueryResults extends AbstractList<EvalDoc> {
     }
     return backup;
   }
+
+  @Override
+  public int compareTo(QueryResults o) {
+    return this.query.compareTo(o.query);
+  }
+
+  public void outputTrecrun(PrintWriter train, String systemName) {
+    for (EvalDoc d : this) {
+      train.printf("%s Q0 %s %d %10.8f %s\n", query, d.getName(), d.getRank(), d.getScore(), systemName);
+    }
+  }
+
+  /**
+   * @return the qid of these results, if available.
+   */
+  public String getQuery() {
+    return query;
+  }
+
 }

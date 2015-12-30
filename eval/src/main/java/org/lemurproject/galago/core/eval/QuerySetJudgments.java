@@ -33,7 +33,16 @@ public class QuerySetJudgments extends WrappedMap<String, QueryJudgments> {
   public QuerySetJudgments(String filename, boolean makeBinary, boolean makePositive) throws IOException {
     this(loadJudgments(filename, makeBinary, makePositive));
   }
-  
+
+  /**
+   * Loads a TREC judgments file; coercing judgments into useful values and binarizing them, if multi-value. If this does the wrong thing, you'll want to pre-process your qrel some other way.
+   * @param filename input.qrel
+   * @throws IOException
+   */
+  public QuerySetJudgments(String filename) throws IOException {
+    this(loadJudgments(filename, true, true));
+  }
+
   /**
    * Creates a galago evaluation object from your home-grown judgments.
    *

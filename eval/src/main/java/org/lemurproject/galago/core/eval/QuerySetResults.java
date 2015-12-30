@@ -42,6 +42,10 @@ public class QuerySetResults {
         loadRanking(filename);
     }
 
+    public Map<String, QueryResults> toMap() {
+        return querySetResults;
+    }
+
     public Iterable<String> getQueryIterator() {
         return querySetResults.keySet();
     }
@@ -91,7 +95,7 @@ public class QuerySetResults {
                     }
                     ranking.get(queryNumber).add(document);
                 } catch (Exception err) {
-                    throw new IllegalArgumentException("Failed to parse qrels " + filename + ":" + index, err);
+                    throw new IllegalArgumentException("Failed to parse trecrun " + filename + ":" + index, err);
                 }
             }
 
