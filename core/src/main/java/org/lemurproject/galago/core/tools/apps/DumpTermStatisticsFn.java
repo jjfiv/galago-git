@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
- * @author sjh, michaelz (added thread support)
+ * @author sjh, michaelz (added thread & min TF/DF support)
  */
 public class DumpTermStatisticsFn extends AppFunction {
 
@@ -50,14 +50,19 @@ public class DumpTermStatisticsFn extends AppFunction {
     @Override
     public void run(String[] args, PrintStream output) throws Exception {
 
-        if (args.length <= 1) {
+        if (args.length <= 1 || args.length > 2) {
             output.println(getHelpString());
             return;
         }
 
+        execute(args[1], 0, 0, output);
+    }
+
+    protected void execute(String partsPaths, Integer minTF, Integer minDF, PrintStream output) throws Exception {
+
         ArrayList<Thread> threads = new ArrayList<>();
 
-        String[] paths = args[1].split(",");
+        String[] paths = partsPaths.split(",");
         ConcurrentHashMap<String, Counts> freq = new ConcurrentHashMap<>();
 
         for (String path : paths) {
@@ -89,7 +94,11 @@ public class DumpTermStatisticsFn extends AppFunction {
                             if (c != null){
                                 final Long tmpFrequency = frequency;
                                 final Long tmpDocumentCount = documentCount;
-                                freq.compute(key,  (k, v) -> {v.docCount += tmpDocumentCount; v.freq += tmpFrequency; return v;});
+                                freq.compute(key, (k, v) -> {
+                                    v.docCount += tmpDocumentCount;
+                                    v.freq += tmpFrequency;
+                                    return v;
+                                });
                             }
                             iterator.nextKey();
                         }
@@ -108,14 +117,19 @@ public class DumpTermStatisticsFn extends AppFunction {
             t.join();
         }
 
-        for(String key : freq.keySet()){
-            output.printf("%s\t%d\t%d\n", key, freq.get(key).freq, freq.get(key).docCount);
-        }
+        freq.forEach((k, v) -> {
+            // the majority of run time - for large indexes - is spent
+            // on the output, so we'll allow them to limit what is
+            // displayed using dump-term-stats-ext
+            if (v.freq >= minTF && v.docCount >= minDF) {
+                output.printf("%s\t%d\t%d\n", k, v.freq, v.docCount);
+            }
+        });
+
     }
 
     @Override
     public void run(Parameters p, PrintStream output) throws Exception {
-        String indexPath = p.getString("indexPath");
-        run(new String[]{"", indexPath}, output);
+        throw new Exception("Not implemented.");
     }
 }
