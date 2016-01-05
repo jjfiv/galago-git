@@ -5,8 +5,7 @@ import org.lemurproject.galago.utility.StreamCreator;
 import org.lemurproject.galago.utility.WrappedMap;
 
 import java.io.*;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * This class store a relevance judgments for a set of queries
@@ -33,7 +32,16 @@ public class QuerySetJudgments extends WrappedMap<String, QueryJudgments> {
   public QuerySetJudgments(String filename, boolean makeBinary, boolean makePositive) throws IOException {
     this(loadJudgments(filename, makeBinary, makePositive));
   }
-  
+
+  /**
+   * Loads a TREC judgments file; coercing judgments into useful values and binarizing them, if multi-value. If this does the wrong thing, you'll want to pre-process your qrel some other way.
+   * @param filename input.qrel
+   * @throws IOException
+   */
+  public QuerySetJudgments(String filename) throws IOException {
+    this(loadJudgments(filename, true, true));
+  }
+
   /**
    * Creates a galago evaluation object from your home-grown judgments.
    *
@@ -122,5 +130,24 @@ public class QuerySetJudgments extends WrappedMap<String, QueryJudgments> {
     } finally {
       if(out != null) out.close();
     }
+  }
+
+  /**
+   * If the restriction set is not empty, limit the qids present in this loaded run.
+   * @param limitQueryIdentifiers the allowed query ids.
+   */
+  public void restrict(List<String> limitQueryIdentifiers) {
+    if(limitQueryIdentifiers.isEmpty()) return;
+
+    HashSet<String> allowed = new HashSet<>(limitQueryIdentifiers);
+    ArrayList<String> toDelete = new ArrayList<>();
+    for (String qid : this.keySet()) {
+      if(allowed.contains(qid)) continue;
+      toDelete.add(qid);
+    }
+    for (String qid : toDelete) {
+      this.remove(qid);
+    }
+
   }
 }

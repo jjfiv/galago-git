@@ -8,4 +8,4 @@ nb-configuration.xml
 *.iml
 .idea
 *.prj
-./ECIR2013
+*.trecrun
