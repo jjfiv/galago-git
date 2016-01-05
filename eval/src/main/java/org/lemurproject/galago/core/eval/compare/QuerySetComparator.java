@@ -27,6 +27,7 @@ public abstract class QuerySetComparator {
   }
 
   public double evaluate(QuerySetEvaluation baseline, QuerySetEvaluation treatment) {
+    
     // create aligned baseline and treatment arrays
     assert (baseline.size() == treatment.size());
 

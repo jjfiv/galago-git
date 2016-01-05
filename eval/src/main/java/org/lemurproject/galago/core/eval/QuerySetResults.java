@@ -117,7 +117,7 @@ public class QuerySetResults {
             if (query.isString("number")) {
                 String num = query.getString("number");
                 if (!querySetResults.containsKey(num)) {
-                    querySetResults.put(num, new QueryResults(num, new ArrayList<EvalDoc>()));
+                    querySetResults.put(num, new QueryResults(num, Collections.emptyList()));
                 }
             }
         }
@@ -126,6 +126,28 @@ public class QuerySetResults {
     private void check(ArrayList<EvalDoc> rankedList) {
         for (EvalDoc sdoc : rankedList) {
             assert (sdoc.getRank() != 0) : "Ranked list contains a document with zero rank. Ranked lists must start from 1.";
+        }
+    }
+
+    public void dropQuery(String qid) {
+        this.querySetResults.remove(qid);
+    }
+
+  /**
+   * If the restriction set is not empty, limit the qids present in this loaded run.
+   * @param qids the allowed query ids.
+   */
+  public void restrictQueries(List<String> qids) {
+        if(qids.isEmpty()) return;
+
+        HashSet<String> allowed = new HashSet<>(qids);
+        List<String> toDelete = new ArrayList<>();
+        for (String qid : this.querySetResults.keySet()) {
+            if(allowed.contains(qid)) continue;
+            toDelete.add(qid);
+        }
+        for (String qid : toDelete) {
+            dropQuery(qid);
         }
     }
 }

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -23,6 +24,8 @@ import java.util.List;
  * @author trevor, sjh, jdalton
  */
 public class Eval extends AppFunction {
+
+  private List<String> limitQueryIdentifiers;
 
   @Override
   public String getName() {
@@ -39,6 +42,8 @@ public class Eval extends AppFunction {
             + "  --treatment={filename}  : [Optional]  Retrieved ranked lists from a set of queries.\n"
             + "                               If specified -> comparion evaluation - see below.\n"
             + "                               If NOT specified -> single evaluation - see below.\n"
+            + "  --limit+{qid}         : [Optional]  A list of query identifiers. Runs will be subset to\n"
+            + "                                        these queries before comparisons or calculations."
             + "  --runs+{filename}       : [Optional]  A list of retrieved ranked lists from a particular set of queries.\n"
             + "                               If specified -> set evaluation - see below.\n"
             + "  --summary={true|false}  : [Optional]  Chooses to print a summary of results - query number = \"all\"\n"
@@ -126,6 +131,16 @@ public class Eval extends AppFunction {
 
     QuerySetJudgments judgments = new QuerySetJudgments(p.getString("judgments"), binaryJudgments, positiveJudgments);
 
+    this.limitQueryIdentifiers = Collections.emptyList();
+    if(p.containsKey("limit")) {
+      this.limitQueryIdentifiers = new ArrayList<>();
+      for (Object limit : p.getAsList("limit", Object.class)) {
+        limitQueryIdentifiers.add(limit.toString());
+      }
+      output.println("Limit to Queries: "+limitQueryIdentifiers);
+    }
+
+    judgments.restrict(limitQueryIdentifiers);
 
     if (p.containsKey("runs")) {
       setEvaluation(p, judgments, output);
@@ -143,7 +158,7 @@ public class Eval extends AppFunction {
    */
   public void singleEvaluation(Parameters p, QuerySetJudgments judgments, PrintStream output) throws IOException {
 
-    Parameters eval = singleEvaluation(p, judgments);
+    Parameters eval = singleEvaluation(p, judgments, limitQueryIdentifiers);
 
     String formatString = "%2$-32s%1$3s %3$10.5f\n";
 
@@ -170,7 +185,7 @@ public class Eval extends AppFunction {
    */
   public void comparisonEvaluation(Parameters p, QuerySetJudgments judgments, PrintStream output) throws IOException {
 
-    Parameters eval = comparisonEvaluation(p, judgments);
+    Parameters eval = comparisonEvaluation(p, judgments, limitQueryIdentifiers);
 
     String formatString = "%1$-32s%2$-20s%3$10.4f\n";
 
@@ -189,7 +204,7 @@ public class Eval extends AppFunction {
    */
   public void setEvaluation(Parameters p, QuerySetJudgments judgments, PrintStream output) throws IOException {
 
-    Parameters eval = setEvaluation(p, judgments);
+    Parameters eval = setEvaluation(p, judgments, limitQueryIdentifiers);
 
     List<String> runs = eval.getList("_runs", String.class);
     List<String> metrics = eval.getList("_metrics", String.class);
@@ -294,9 +309,11 @@ public class Eval extends AppFunction {
    * These two methods allow for programmatic ways to receive test results without having to read it off
    * a print stream.
    */
-  public static Parameters singleEvaluation(Parameters p, QuerySetJudgments judgments) throws IOException {
+  public static Parameters singleEvaluation(Parameters p, QuerySetJudgments judgments, List<String> limitQueryIdentifiers) throws IOException {
 
     QuerySetResults results = new QuerySetResults(p.getString("baseline"));
+    results.restrictQueries(limitQueryIdentifiers);
+
     // this ensure that queries that return no documents are represented in the ranking
     List<Parameters> queries = JSONQueryFormat.collectQueries(p);
     if (!queries.isEmpty()) {
@@ -347,9 +364,11 @@ public class Eval extends AppFunction {
       "P5", "P10", "P20"
   };
 
-  public static Parameters comparisonEvaluation(Parameters p, QuerySetJudgments judgments) throws IOException {
+  public static Parameters comparisonEvaluation(Parameters p, QuerySetJudgments judgments, List<String> limitQueryIdentifiers) throws IOException {
     QuerySetResults baseline = new QuerySetResults(p.getString("baseline"));
+    baseline.restrictQueries(limitQueryIdentifiers);
     QuerySetResults treatment = new QuerySetResults(p.getString("treatment"));
+    treatment.restrictQueries(limitQueryIdentifiers);
 
     // this ensure that queries that return no documents are represented in the ranking
     List<Parameters> queries = JSONQueryFormat.collectQueries(p);
@@ -406,7 +425,7 @@ public class Eval extends AppFunction {
     return recorded;
   }
 
-  public static Parameters setEvaluation(Parameters p, QuerySetJudgments judgments) throws IOException {
+  public static Parameters setEvaluation(Parameters p, QuerySetJudgments judgments, List<String> limitQueryIdentifiers) throws IOException {
     // this ensure that queries that return no documents are represented in the ranking
     List<Parameters> queries = JSONQueryFormat.collectQueries(p);
 
@@ -415,6 +434,7 @@ public class Eval extends AppFunction {
     List<String> runIds = new ArrayList<>();
     for (String runFile : runFiles) {
       QuerySetResults res = new QuerySetResults(runFile);
+      res.restrictQueries(limitQueryIdentifiers);
       if (!queries.isEmpty()) {
         res.ensureQuerySet(queries);
       }

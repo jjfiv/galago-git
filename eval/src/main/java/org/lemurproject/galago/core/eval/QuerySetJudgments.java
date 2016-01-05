@@ -5,8 +5,7 @@ import org.lemurproject.galago.utility.StreamCreator;
 import org.lemurproject.galago.utility.WrappedMap;
 
 import java.io.*;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * This class store a relevance judgments for a set of queries
@@ -131,5 +130,24 @@ public class QuerySetJudgments extends WrappedMap<String, QueryJudgments> {
     } finally {
       if(out != null) out.close();
     }
+  }
+
+  /**
+   * If the restriction set is not empty, limit the qids present in this loaded run.
+   * @param limitQueryIdentifiers the allowed query ids.
+   */
+  public void restrict(List<String> limitQueryIdentifiers) {
+    if(limitQueryIdentifiers.isEmpty()) return;
+
+    HashSet<String> allowed = new HashSet<>(limitQueryIdentifiers);
+    ArrayList<String> toDelete = new ArrayList<>();
+    for (String qid : this.keySet()) {
+      if(allowed.contains(qid)) continue;
+      toDelete.add(qid);
+    }
+    for (String qid : toDelete) {
+      this.remove(qid);
+    }
+
   }
 }
