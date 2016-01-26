@@ -269,16 +269,20 @@ public class DumpDocTermsFn extends AppFunction {
 
     ipr.close ();
 
-    // Dump the info we've accumulated
+    // Dump the info we've accumulated.
     for (Map.Entry<Long, String> entry : iid2eidTM.entrySet()) {
       iid = entry.getKey();
       eid = entry.getValue();
 
+      // If a provided IID had no corresponding EID, the IID is what was provided and the
+      // EID is null.
       if (iid < 0) {
-        output.println ("Doc: --- [" + eid + "] \t Doc ID does not exist");
+        output.println ("Doc: ---\t[" + eid + "]\tDoc ID does not exist");
       }
+      // If the IID was < 0, then the provided EID did not exist so print out the provided
+      // IID only.
       else if (eid == null) {
-        output.println ("Doc: " + iid + "[ --- ] \t Doc ID does not exist");
+        output.println ("Doc: " + iid + "\t[ --- ]\tDoc ID does not exist");
       }
       else {
         int termCount = iid2tcHM.get (iid);
