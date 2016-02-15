@@ -113,8 +113,30 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <!-- Define galago build timestamp for use in version.properties -->
+  <properties>
+    <timestamp>${maven.build.timestamp}</timestamp>
+    <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+  </properties>
+
   <build>
+   <!-- Version properties file location.  This may need definition in contrib as well. -->
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
     <plugins>
+      <!-- Support filtering for galago version and build date properties -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.7</version>
+      </plugin>
+
       <plugin>
         <version>2.7.1</version>
         <artifactId>maven-surefire-plugin</artifactId>
