@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import org.lemurproject.galago.utility.VersionInfo;
+
 /**
  *
  * Builds an index using a faster method (it requires one less sort of the
@@ -40,6 +42,7 @@ import java.util.List;
  * @author sjh
  */
 public class BuildIndex extends AppFunction {
+
 
   public static Stage getParsePostingsStage(Parameters buildParameters) throws ClassNotFoundException {
     Stage stage = new Stage("parsePostings")
@@ -643,12 +646,23 @@ public class BuildIndex extends AppFunction {
         return null;
       }
 
+      //- Add galago version, version build datetime and index build datetime
+      //  to the build Parameters.
+      //- Get Galago version, build and index datetime info
+      VersionInfo.setGalagoVersionBuildAndIndexDateTime();
+      buildParameters.set ("galagoVersion", VersionInfo.getGalagoVersion());
+      buildParameters.set ("galagoVersionBuildDateTime", VersionInfo.getGalagoVersionBuildDateTime());
+      buildParameters.set ("actionBuildDateTime", VersionInfo.getGalagoActionDateTime());
+
       Job job = new Job();
 
       String indexPath = new File(buildParameters.getString("indexPath")).getAbsolutePath();
+
       // ensure the index folder exists
       File buildManifest = new File(indexPath, "buildManifest.json");
       FSUtil.makeParentDirectories(buildManifest);
+
+      //- Add version information to the buildParameters
       StreamUtil.copyStringToFile(buildParameters.toPrettyString(), buildManifest);
 
       List<String> inputPaths = buildParameters.getAsList("inputPath", String.class);
@@ -841,6 +855,7 @@ public class BuildIndex extends AppFunction {
       return;
     }
 
+    //setGalagoVersionBuildAndIndexDateTime ();
     execute(p, output);
   }
 }
