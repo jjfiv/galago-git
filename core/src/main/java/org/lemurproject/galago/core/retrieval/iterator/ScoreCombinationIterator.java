@@ -6,16 +6,27 @@ import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.core.retrieval.query.AnnotatedNode;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 
+import org.lemurproject.galago.core.retrieval.ann.OperatorDescription;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
 /**
  *
  * @author trevor, sjh, irmarc
  */
+
+@OperatorDescription (description = "Combine Operator\n" +
+                      "\t\tThis operator is a normailization operator (a sort of average) that weights\n" +
+                      "\t\tits arguments (terms or other operations) equally based on the number of parts.\n" +
+                      "\t\ttOne may explicitly define weights to be used in the combination.\n" +
+                      "\t\t#combine (term1 term2 term3) --> \n\n" +
+                      "\t\t#combine (0.3333 term1 0.3333 term2 0.3333 term3)\n")
+
 @RequiredParameters(parameters = {"norm"})
 public class ScoreCombinationIterator extends DisjunctionIterator implements ScoreIterator {
 
