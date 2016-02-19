@@ -5,6 +5,7 @@ import org.lemurproject.galago.core.retrieval.FeatureFactory;
 import org.lemurproject.galago.core.retrieval.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.RequiredStatistics;
 import org.lemurproject.galago.core.retrieval.ann.ImplementsOperator;
+import org.lemurproject.galago.core.retrieval.ann.OperatorDescription;
 import org.lemurproject.galago.core.retrieval.iterator.*;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.tupleflow.Utility;
@@ -92,6 +93,7 @@ public class OperatorHelpFn extends AppFunction {
     boolean showClass = p.get("class", true);
     boolean showStats = p.get("stats", false);
     boolean showParams = p.get("parameters", true);
+    boolean showDescriptions = p.get("descriptions", true);
     
     List<String> operatorList = null;
 
@@ -165,6 +167,16 @@ public class OperatorHelpFn extends AppFunction {
       }
 
       output.println();
+
+      if (showDescriptions) {
+        OperatorDescription opDescript = clazz.getAnnotation (OperatorDescription.class);
+        if (opDescript != null) {
+          //output.println ("\tOperator Description: " + clazz.getArrays.toString(reqstat.statistics()));
+          output.println ("\tDescription: " + opDescript.description ());
+        }
+      }
+
+      output.println();
     });
 
     factory.getTraversalNames().forEach(className -> {
@@ -175,6 +187,14 @@ public class OperatorHelpFn extends AppFunction {
 
       output.println("#"+opImpl.value());
       output.println("\tDefined by class: "+clazz.getCanonicalName());
+
+      if (showDescriptions) {
+        OperatorDescription opDescript = clazz.getAnnotation (OperatorDescription.class);
+        if (opDescript != null) {
+          //output.println ("\tOperator Description: " + clazz.getArrays.toString(reqstat.statistics()));
+          output.println ("\tDescription: " + opDescript.description ());
+        }
+      }
 
       output.println();
     });
