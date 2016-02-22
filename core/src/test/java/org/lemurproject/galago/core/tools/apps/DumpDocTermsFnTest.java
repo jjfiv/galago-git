@@ -16,9 +16,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+
+import java.lang.System;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -38,7 +37,7 @@ public class DumpDocTermsFnTest {
   public void setUp() throws Exception {
 
 
-    String trecCorpus = AppTest.trecDocument ("AP890101-0001", "First doc.\n<HEAD>60s films are here</HEAD>\n"
+    String trecCorpus = AppTest.trecDocument ("AP890101-0001", "First doc.\n<HEAD>60s films are here</HEAD>"
                                             + " The celluloid torch has been passed to a new generation:"
                                             + " filmmakers who grew up in the 1960s.")
 
@@ -97,7 +96,7 @@ public class DumpDocTermsFnTest {
 			   "--iidList=1," }, printStream);
 
     String output = byteArrayStream.toString ();
-    String[] outputLines = output.split("\n");
+    String[] outputLines = output.split(System.lineSeparator());
 
     /*
     //- What's the output  
@@ -137,9 +136,11 @@ public class DumpDocTermsFnTest {
 
     int i = 0;
     for (String line : expectedLines) {
-	assertTrue ("Output line [" + i + "] doesn't match expected",
-		    expectedLines[i].equals (outputLines[i]));
-	i++;
+      String expectedL = line.trim();
+      String outputL = outputLines[i].trim();
+	   assertTrue ("Output line [" + i + "] doesn't match expected",
+		            expectedL.equals (outputL));
+	   i++;
     }
 
   }  //- end testSingleIID
@@ -158,7 +159,7 @@ public class DumpDocTermsFnTest {
 
     //printStream.println ("PrintStream Output: " + byteArrayStream.toString());
     String output = byteArrayStream.toString ();
-    String[] outputLines = output.split("\n");
+    String[] outputLines = output.split(System.lineSeparator());
 
     // Expecting 22 lines.
     assertTrue ("Output should contain " + outputLines.length, outputLines.length == 22);
@@ -190,9 +191,11 @@ public class DumpDocTermsFnTest {
 
     int i = 0;
     for (String line : expectedLines) {
-	assertTrue ("Output line [" + i + "] doesn't match expected",
-		    expectedLines[i].equals (outputLines[i]));
-	i++;
+      String outputL = outputLines[i].trim();
+      String expectedL = line.trim();
+	   assertTrue ("Output line [" + i + "] doesn't match expected",
+		            expectedL.equals (outputL));
+	   i++;
     }
 
   }  //- end testSingleEID
@@ -210,14 +213,14 @@ public class DumpDocTermsFnTest {
 			   "--iidList=0,2" }, printStream);
 
     String output = byteArrayStream.toString ();
-    String[] outputLines = output.split("\n");
+    String[] outputLines = output.split(System.lineSeparator());
 
-    // Check that output and expected line counts agree.  Should be 46 lines.
-    assertTrue ("Expected 46 output lines but got " + outputLines.length, outputLines.length == 46);
+    // Check that output and expected line counts agree.  Should be 45 lines.
+    assertTrue ("Expected 45 output lines but got " + outputLines.length, outputLines.length == 45);
 
     // Expected lines
     String[] expectedLines = { "Doc: 0 [AP890101-0001]\tTerm Count: 22\tTotal Words: 23\tMax TF: 2",
-			       "\t1960s,0,22",
+			                      "\t1960s,0,22",
                                "\t60s,0,2",
                                "\ta,0,13",
                                "\tare,0,4",
@@ -239,7 +242,6 @@ public class DumpDocTermsFnTest {
                                "\ttorch,0,8",
                                "\tup,0,19",
                                "\twho,0,17",
-                               "",
                                "",
                                "Doc: 2 [AP890104-0235]\tTerm Count: 20\tTotal Words: 25\tMax TF: 2",
                                "\t10,2,7,20",
@@ -266,8 +268,11 @@ public class DumpDocTermsFnTest {
 
     int i = 0;
     for (String line : expectedLines) {
-        assertEquals (expectedLines[i], outputLines[i]);
-	i++;
+      String expectedL = line.trim();
+      String outputL = outputLines[i].trim();
+      assertEquals (expectedL, outputL);
+      //assertEquals (expectedLines[i], outputLines[i].trim());
+	   i++;
     }
 
   }  //- end testTwoIIDs
@@ -285,14 +290,14 @@ public class DumpDocTermsFnTest {
 			   "--eidList=AP890101-0001,AP890104-0235" }, printStream);
 
     String output = byteArrayStream.toString ();
-    String[] outputLines = output.split("\n");
+    String[] outputLines = output.split(System.lineSeparator());
 
-    // Output should be have 46 lines.
-    assertTrue ("Output should contain " + outputLines.length, outputLines.length == 46);
+    // Output should be have 45 lines.
+    assertTrue ("Output should contain " + outputLines.length, outputLines.length == 45);
 
     // Expected lines
     String[] expectedLines = { "Doc: 0 [AP890101-0001]\tTerm Count: 22\tTotal Words: 23\tMax TF: 2",
-			       "\t1960s,0,22",
+			                      "\t1960s,0,22",
                                "\t60s,0,2",
                                "\ta,0,13",
                                "\tare,0,4",
@@ -314,7 +319,6 @@ public class DumpDocTermsFnTest {
                                "\ttorch,0,8",
                                "\tup,0,19",
                                "\twho,0,17",
-                               "",
                                "",
                                "Doc: 2 [AP890104-0235]\tTerm Count: 20\tTotal Words: 25\tMax TF: 2",
                                "\t10,2,7,20",
@@ -341,11 +345,13 @@ public class DumpDocTermsFnTest {
 
     int i = 0;
     for (String line : expectedLines) {
-        assertEquals (expectedLines[i], outputLines[i]);
-	i++;
+      String expectedL = line.trim();
+      String outputL = outputLines[i].trim();
+      assertEquals (expectedL, outputL);
+	   i++;
     }
 
-  }  //- end testTwoIDs
+  }  //- end testTwoEIDs
 
 
   @Test
@@ -370,9 +376,11 @@ public class DumpDocTermsFnTest {
 
     int i = 0;
     for (String line : expectedLines) {
-	assertTrue ("Output line [" + i + "] doesn't match expected",
-		    expectedLines[i].equals (outputLines[i]));
-	i++;
+      String expectedL = line.trim();
+      String outputL = outputLines[i].trim();
+	   assertTrue ("Output line [" + i + "] doesn't match expected",
+		            expectedL.equals (outputL));
+	   i++;
     }
 
   }  //- end testUndefIID
@@ -400,9 +408,11 @@ public class DumpDocTermsFnTest {
 
     int i = 0;
     for (String line : expectedLines) {
-	assertTrue ("Output line [" + i + "] doesn't match expected",
-		    expectedLines[i].equals (outputLines[i]));
-	i++;
+      String expectedL = line.trim();
+      String outputL = outputLines[i].trim();
+      assertTrue ("Output line [" + i + "] doesn't match expected",
+		            expectedL.equals (outputL));
+	   i++;
     }
 
   }  //- end testUndefEID
@@ -421,7 +431,7 @@ public class DumpDocTermsFnTest {
 			   "--eidList=AP890104-0235,AP890101-0002" }, printStream);
 
     String output = byteArrayStream.toString ();
-    String[] outputLines = output.split("\n");
+    String[] outputLines = output.split(System.lineSeparator());
 
     /*
     //- What's the output  
@@ -431,8 +441,8 @@ public class DumpDocTermsFnTest {
     }
     */
 
-    // Output should be 70 lines containing three docs.  One of the docs is listed twice as IID and EID.
-    assertTrue ("Output should contain " + outputLines.length, outputLines.length == 70);
+    // Output should be 68 lines containing three docs.  One of the docs is listed twice as IID and EID.
+    assertTrue ("Output should contain " + outputLines.length, outputLines.length == 68);
 
     // Expected lines
     String[] expectedLines = { "Doc: 0 [AP890101-0001]\tTerm Count: 22\tTotal Words: 23\tMax TF: 2",
@@ -459,7 +469,6 @@ public class DumpDocTermsFnTest {
                                "\tup,0,19",
                                "\twho,0,17",
                                "",
-                               "",
                                "Doc: 1 [AP890101-0002]\tTerm Count: 21\tTotal Words: 29\tMax TF: 3",
                                "\ta,1,4,13",
                                "\tamerican,1,25",
@@ -482,7 +491,6 @@ public class DumpDocTermsFnTest {
                                "\tthe,1,7,17,22",
                                "\tuniversity,1,2,18",
                                "\tworking,1,11",
-                               "",
                                "",
                                "Doc: 2 [AP890104-0235]\tTerm Count: 20\tTotal Words: 25\tMax TF: 2",
                                "\t10,2,7,20",
@@ -509,8 +517,10 @@ public class DumpDocTermsFnTest {
 
     int i = 0;
     for (String line : expectedLines) {
-        assertEquals (expectedLines[i], outputLines[i]);
-	i++;
+      String expectedL = line.trim();
+      String outputL = outputLines[i].trim();
+      assertEquals (expectedL, outputL);
+  	   i++;
     }
 
   }  //- end testIIDandEIDwithOverlap
