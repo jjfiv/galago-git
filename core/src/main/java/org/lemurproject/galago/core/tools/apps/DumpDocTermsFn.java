@@ -9,10 +9,7 @@ import org.lemurproject.galago.core.index.disk.DiskNameReverseReader;
 import org.lemurproject.galago.core.index.IndexPartReader;
 import org.lemurproject.galago.core.index.KeyIterator;
 import org.lemurproject.galago.core.index.KeyListReader;
-//import org.lemurproject.galago.core.index.KeyValueReader;
 import org.lemurproject.galago.core.retrieval.iterator.BaseIterator;
-//import org.lemurproject.galago.core.retrieval.iterator.DataIterator;
-//import org.lemurproject.galago.core.retrieval.iterator.LengthsIterator;
 import org.lemurproject.galago.core.retrieval.processing.ScoringContext;
 import org.lemurproject.galago.utility.tools.AppFunction;
 import org.lemurproject.galago.utility.Parameters;
@@ -30,6 +27,7 @@ import java.util.HashMap;
 import java.io.PrintStream;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
+import java.io.File;
 
 import java.util.logging.Logger;
 
@@ -97,7 +95,7 @@ public class DumpDocTermsFn extends AppFunction {
     String index = p.getString ("index");
 
     // But for getting internal and external doc IDs, we need the index root
-    int lastSlash = index.lastIndexOf ('/');
+    int lastSlash = index.lastIndexOf (File.separator);
     String indexRoot = index.substring (0, lastSlash);
 
     Map<Long, String> iid2eidTM = new TreeMap<>();
@@ -110,7 +108,7 @@ public class DumpDocTermsFn extends AppFunction {
       int len = toks.length;
 
       if (len > 0) {
-        DiskNameReader dnr = new DiskNameReader (indexRoot + "/names");
+        DiskNameReader dnr = new DiskNameReader (indexRoot + File.separator +"names");
 
         for (String id : toks) {
           iid = Long.parseLong (id);
@@ -135,7 +133,7 @@ public class DumpDocTermsFn extends AppFunction {
       int len = toks.length;
 
       if (len > 0) {
-        DiskNameReverseReader dnrr = new DiskNameReverseReader (indexRoot + "/names.reverse");
+        DiskNameReverseReader dnrr = new DiskNameReverseReader (indexRoot + File.separator + "names.reverse");
   
         for (String eidStr : toks) {
           iid = dnrr.getDocumentIdentifier (eidStr);
@@ -300,7 +298,7 @@ public class DumpDocTermsFn extends AppFunction {
           output.println ("\t" + statsStr);
         }
 
-        output.println ("\n");
+        output.println ("");
       }
     }
   }  //- end run
