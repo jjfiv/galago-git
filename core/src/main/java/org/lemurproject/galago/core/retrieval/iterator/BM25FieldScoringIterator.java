@@ -1,5 +1,5 @@
 // BSD License (http://lemurproject.org/galago-license)
-package org.lemurproject.galago.contrib.retrieval.iterator;
+package org.lemurproject.galago.core.retrieval.iterator;
 
 import org.lemurproject.galago.core.retrieval.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.RequiredStatistics;

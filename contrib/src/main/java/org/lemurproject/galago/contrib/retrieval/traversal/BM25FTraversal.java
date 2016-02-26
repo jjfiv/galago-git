@@ -41,13 +41,11 @@ import java.util.List;
 @ImplementsOperator("bm25f")
 public class BM25FTraversal extends Traversal {
 
-  private int levels;
   List<String> fieldList;
   Parameters availableFields, weights;
   Retrieval retrieval;
 
   public BM25FTraversal(Retrieval retrieval) {
-    levels = 0;
     this.retrieval = retrieval;
     Parameters globals = retrieval.getGlobalParameters();
     weights = globals.containsKey("bm25f") ? globals.getMap("bm25f") : Parameters.create();
@@ -60,12 +58,10 @@ public class BM25FTraversal extends Traversal {
   }
 
   public void beforeNode(Node original, Parameters queryParams) throws Exception {
-    levels++;
   }
 
   public Node afterNode(Node original, Parameters queryParams) throws Exception {
-    levels--;
-    if (levels == 0 && original.getOperator().equals("bm25f")) {
+    if (original.getOperator().equals("bm25f")) {
       // Create the replacing root
       NodeParameters rootP = new NodeParameters();
       rootP.set("K", weights.get("K", 0.5));
@@ -129,13 +125,12 @@ public class BM25FTraversal extends Traversal {
       // Now wrap it in the scorer
       np = new NodeParameters();
       np.set("b", smoothingWeights.get(field, weights.get("smoothing_default", 0.5)));
-      np.set("default", "bm25f");
       np.set("lengths", field);
       np.set("pIdx", pos);
       np.set("K", K);
       np.set("idf", idf);
       np.set("w", cumulativeWeights.get(field, weights.get("weight_default", 0.5)));
-      Node fieldScoreNode = new Node("feature", np);
+      Node fieldScoreNode = new Node("bm25field", np);
       fieldScoreNode.addChild(fieldTermNode);
       combiner.getNodeParameters().set(Integer.toString(combiner.getInternalNodes().size()),
               cumulativeWeights.get(field, weights.get("weight_default", 0.5)));
