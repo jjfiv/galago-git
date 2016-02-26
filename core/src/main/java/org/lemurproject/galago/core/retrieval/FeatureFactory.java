@@ -69,6 +69,7 @@ public class FeatureFactory {
     {JelinekMercerScoringIterator.class.getName(), "jm"},
     {BM25ScoringIterator.class.getName(), "bm25"},
     {BM25RFScoringIterator.class.getName(), "bm25rf"},
+    {BM25FieldScoringIterator.class.getName(), "bm25field"},
     {BoostingIterator.class.getName(), "boost"},
     {LogarithmIterator.class.getName(), "log"},
     {PL2ScoringIterator.class.getName(), "pl2"},
