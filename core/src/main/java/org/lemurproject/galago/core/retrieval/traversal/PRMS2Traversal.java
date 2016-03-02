@@ -68,7 +68,6 @@ public class PRMS2Traversal extends Traversal {
   @Override
   public Node afterNode(Node original, Parameters queryParameters) throws Exception {
     if (original.getOperator().equals("prms2") || original.getOperator().equals("prms")) {
-
       String scorerType = queryParameters.get("scorer", globals.get("scorer", "dirichlet"));
       
       List<String> fields = queryParameters.isList("fields", String.class) ? queryParameters.getList("fields") : defaultFields;
@@ -94,6 +93,7 @@ public class PRMS2Traversal extends Traversal {
 
         ArrayList<Node> termFields = new ArrayList<Node>();
         NodeParameters nodeweights = new NodeParameters();
+        Parameters availableParts = this.retrieval.getAvailableParts();
         int i = 0;
         double normalizer = 0.0; // sum_k of P(t|F_k)
 
@@ -101,18 +101,19 @@ public class PRMS2Traversal extends Traversal {
           Node termFieldCounts, termExtents;
 
           // if we have access to the correct field-part:
-          if (this.retrieval.getAvailableParts().containsKey("field." + field)) {
+          if (availableParts.containsKey("field.krovetz." + field) ||
+                  availableParts.containsKey("field.porter." + field) ||
+                  availableParts.containsKey("field." + field)) {
             NodeParameters par1 = new NodeParameters();
             par1.set("default", term);
-            par1.set("part", "field." + field);
-            termFieldCounts = new Node("counts", par1, new ArrayList<>());
+            termFieldCounts = TextPartAssigner.assignFieldPart(new Node("counts", par1, new ArrayList<>()), availableParts, field);
 
           } else {
             // otherwise use an #inside op
             NodeParameters par1 = new NodeParameters();
             par1.set("default", term);
             termExtents = new Node("extents", par1, new ArrayList<>());
-            termExtents = TextPartAssigner.assignPart(termExtents, globals, this.retrieval.getAvailableParts());
+            termExtents = TextPartAssigner.assignPart(termExtents, globals, availableParts);
 
             termFieldCounts = new Node("inside");
             termFieldCounts.addChild(StructuredQuery.parse("#extents:part=extents:" + field + "()"));

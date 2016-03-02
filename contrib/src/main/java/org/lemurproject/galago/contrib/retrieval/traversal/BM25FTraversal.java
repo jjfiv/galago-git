@@ -8,6 +8,7 @@ import org.lemurproject.galago.core.retrieval.ann.ImplementsOperator;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.traversal.Traversal;
+import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.util.ArrayList;
@@ -111,16 +112,11 @@ public class BM25FTraversal extends Traversal {
     combiner.getNodeParameters().set("norm", false);
 
     for (String field : fieldList) {
-      // Make sure the part exists
-      String partName = "field." + field;
-      if (!availableFields.containsKey(partName)) {
-        continue;
-      }
       // Actual count node
       NodeParameters np = new NodeParameters();
       np.set("default", term);
-      np.set("part", partName);
       Node fieldTermNode = new Node("extents", np);
+      fieldTermNode = TextPartAssigner.assignFieldPart(fieldTermNode, availableFields, field);
 
       // Now wrap it in the scorer
       np = new NodeParameters();

@@ -5,6 +5,7 @@ import org.lemurproject.galago.core.retrieval.Retrieval;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
+import org.lemurproject.galago.core.util.TextPartAssigner;
 import org.lemurproject.galago.utility.Parameters;
 
 import java.util.ArrayList;
@@ -21,7 +22,6 @@ import java.util.List;
  * The total number of such parameters should be 3*Number of fields.
  *
  * Specify the names of fields to be used via a --fields parameter.
- *
  *
  * @author Nikita Zhiltsov
  */
@@ -149,8 +149,8 @@ public class FieldedSequentialDependenceTraversal extends MLMTraversal {
             for (Node t : seq) {
                 String inFieldTerm = t.getNodeParameters().getAsSimpleString("default");
                 if (NumberUtils.isNumber(inFieldTerm)) inFieldTerm = "@/" + inFieldTerm + "/";
-                orderedOperationNode.addChild(StructuredQuery.parse("#extents:" + inFieldTerm + ":part=field." + field + "()"));
-                unorderedOperationNode.addChild(StructuredQuery.parse("#extents:" + inFieldTerm + ":part=field." + field + "()"));
+                orderedOperationNode.addChild(TextPartAssigner.assignFieldPart(StructuredQuery.parse("#extents:" + inFieldTerm + "()"), this.retrieval.getAvailableParts(), field));
+                unorderedOperationNode.addChild(TextPartAssigner.assignFieldPart(StructuredQuery.parse("#extents:" + inFieldTerm + "()"), this.retrieval.getAvailableParts(), field));
             }
             Node orderedBigramScore = new Node(scorerType);
             orderedBigramScore.getNodeParameters().set("lengths", field);

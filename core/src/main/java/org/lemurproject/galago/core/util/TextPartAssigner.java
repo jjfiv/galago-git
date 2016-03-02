@@ -35,6 +35,19 @@ public class TextPartAssigner {
     }
   }
 
+  public static Node assignFieldPart(Node original, Parameters availableParts, String field) throws IOException {
+    Set<String> available = availableParts.getKeys();
+    if (available.contains("field.krovetz." + field)) {
+      return transformedNode(original, "field.krovetz." + field);
+    } else if (available.contains("field.porter." + field)) {
+      return transformedNode(original, "field.porter." + field);
+    } else if (available.contains("field." + field)) {
+      return transformedNode(original, "field." + field);
+    } else {
+      return original;
+    }
+  }
+
   public static Node transformedNode(Node original, String indexName) {
     NodeParameters parameters = original.getNodeParameters();
     parameters.set("part", indexName);
