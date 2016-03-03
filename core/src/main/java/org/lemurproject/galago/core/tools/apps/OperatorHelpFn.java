@@ -188,6 +188,19 @@ public class OperatorHelpFn extends AppFunction {
       output.println("#"+opImpl.value());
       output.println("\tDefined by class: "+clazz.getCanonicalName());
 
+      if(showParams) {
+        List<ParameterInfo> opParams = new ArrayList<>();
+        RequiredParameters reqp = clazz.getAnnotation(RequiredParameters.class);
+        if (reqp != null) {
+          for (String pname : reqp.parameters()) {
+            opParams.add(new ParameterInfo(pname));
+          }
+        }
+        if (!opParams.isEmpty()) {
+          output.println("\tUses query parameters: " + opParams);
+        }
+      }
+
       if (showDescriptions) {
         OperatorDescription opDescript = clazz.getAnnotation (OperatorDescription.class);
         if (opDescript != null) {
