@@ -33,7 +33,7 @@ public class GetVersionInfoFn extends AppFunction {
       return;
     }
 
-    VersionInfo.setGalagoVersionBuildAndIndexDateTime ();
+    VersionInfo.setGalagoVersionAndBuildDateTime ();
     output.println ("Galago version: " + VersionInfo.getGalagoVersion());
     output.println ("Build date    : " + VersionInfo.getGalagoVersionBuildDateTime ());
   }

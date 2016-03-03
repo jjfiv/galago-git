@@ -53,7 +53,7 @@ public class BuildPartialIndex extends AppFunction {
       output.println(getHelpString());
       return;
     }
-    VersionInfo.setGalagoVersionBuildAndIndexDateTime ();
+    VersionInfo.setGalagoVersionAndBuildDateTime ();
     createPartialIndex(p, output);
   }
 

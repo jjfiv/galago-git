@@ -24,8 +24,8 @@ import java.io.IOException;
 public class VersionInfo {
 
   private static String galagoVersion = null;
-  private static String buildDateTime = null;
-  private static String actionDateTime = null;
+  private static String galagoBuildDateTime = null;
+  private static String indexBuildDateTime = null;
 
   //- No instantiation needed.
   private VersionInfo() {
@@ -38,7 +38,7 @@ public class VersionInfo {
    * build datetime [now()].
    * @return void
    */
-  public static void setGalagoVersionBuildAndIndexDateTime () {
+  public static void setGalagoVersionAndBuildDateTime () {
 
     Properties props = new Properties ();
 
@@ -54,10 +54,10 @@ public class VersionInfo {
       }
 
       if (props.containsKey ("build.date")) {
-        buildDateTime = props.getProperty ("build.date");
+        galagoBuildDateTime = props.getProperty ("build.date");
       }
       else {
-        buildDateTime = "Unknown";
+        galagoBuildDateTime = "Unknown";
       }
     }
     catch (IOException ioe) {
@@ -67,10 +67,10 @@ public class VersionInfo {
     //propFile.close ();
 
     //- Determine current galago function (index) run datetime  [now()]
-    actionDateTime = LocalDateTime.now ().format (
-                      DateTimeFormatter.ofPattern ("yyyy-MM-dd HH:mm"));
+    indexBuildDateTime = LocalDateTime.now ().format (
+                           DateTimeFormatter.ofPattern ("yyyy-MM-dd HH:mm"));
 
-  }  //- end setGalagoVersionBuildAndIndexDateTime
+  }  //- end setGalagoVersionAndBuildDateTime
 
 
   /**
@@ -87,18 +87,18 @@ public class VersionInfo {
    * @return String
    */
   public static String getGalagoVersionBuildDateTime () {
-    return buildDateTime;
+    return galagoBuildDateTime;
 
   }  //- end getGalagoVersionBuildDateTime
 
 
   /**
-   * Get Galago function action datetime
+   * Get Galago index build datetime
    * @return String
    */
-  public static String getGalagoActionDateTime () {
-    return actionDateTime;
+  public static String getIndexBuildDateTime () {
+    return indexBuildDateTime;
 
-  }  //- end getGalagoActionDateTime
+  }  //- end getIndexBuildDateTime
 
 }  //- end class VersionInfo
