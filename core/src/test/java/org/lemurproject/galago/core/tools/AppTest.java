@@ -43,19 +43,10 @@ public class AppTest {
         Parameters availableParts = ret.getAvailableParts();
         assertNotNull(availableParts);
 
-        // doc lengths
-        File childPath = new File(indexPath, "lengths");
-        assertTrue(childPath.exists());
-
-        // doc names -- there are two files
-        childPath = new File(indexPath, "names");
-        assertTrue(childPath.exists());
-        childPath = new File(indexPath, "names.reverse");
-        assertTrue(childPath.exists());
-
-        // postings
-        childPath = new File(indexPath, "postings");
-        assertTrue(childPath.exists());
+        for (String part : availableParts.getKeys()){
+          File childPath = new File(indexPath, part);
+          assertTrue(childPath.exists());
+        }
 
     }
 

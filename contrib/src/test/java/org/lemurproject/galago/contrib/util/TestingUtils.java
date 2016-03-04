@@ -4,11 +4,17 @@
 package org.lemurproject.galago.contrib.util;
 
 import org.junit.Assert;
+import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.RetrievalFactory;
 import org.lemurproject.galago.core.tools.App;
 import org.lemurproject.galago.tupleflow.FileUtility;
+import org.lemurproject.galago.utility.Parameters;
 import org.lemurproject.galago.utility.StreamUtil;
 
 import java.io.File;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -60,27 +66,18 @@ public class TestingUtils {
     return files;
   }
 
-  public static void verifyIndexStructures(File indexPath) {
+  public static void verifyIndexStructures(File indexPath) throws Exception {
     // Check main path
-    Assert.assertTrue(indexPath.isDirectory());
-
+    assertTrue(indexPath.isDirectory());
     // Time to check standard parts
+    Retrieval ret = RetrievalFactory.instance(indexPath.getAbsolutePath(), Parameters.create());
+    Parameters availableParts = ret.getAvailableParts();
+    assertNotNull(availableParts);
 
-    // doc lengths
-    File childPath = new File(indexPath, "lengths");
-    Assert.assertTrue(childPath.exists());
-
-    // doc names -- there are two files
-    childPath = new File(indexPath, "names");
-    Assert.assertTrue(childPath.exists());
-    childPath = new File(indexPath, "names.reverse");
-    Assert.assertTrue(childPath.exists());
-
-    // some postings must exist
-    File childPath1 = new File(indexPath, "postings");
-    File childPath2 = new File(indexPath, "postings.porter");
-    File childPath3 = new File(indexPath, "postings.krovetz");
-    Assert.assertTrue(childPath1.exists() || childPath2.exists() || childPath3.exists());
+    for (String part : availableParts.getKeys()){
+      File childPath = new File(indexPath, part);
+      assertTrue(childPath.exists());
+    }
 
   }
 }
