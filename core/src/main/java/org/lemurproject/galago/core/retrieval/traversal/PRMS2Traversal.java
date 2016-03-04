@@ -4,7 +4,9 @@ package org.lemurproject.galago.core.retrieval.traversal;
 import org.lemurproject.galago.core.index.stats.FieldStatistics;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.ann.ImplementsOperator;
+import org.lemurproject.galago.core.retrieval.ann.OperatorDescription;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
 import org.lemurproject.galago.core.retrieval.query.StructuredQuery;
@@ -34,7 +36,22 @@ import java.util.logging.Logger;
  *
  * @author jykim, irmarc, sjh
  */
-@ImplementsOperator(value ="prms")
+
+@ImplementsOperator  (value       ="prms")
+@RequiredParameters  (parameters  = {"fields", "weights"})
+@OperatorDescription (description = "Probabilistic Retrieval Model for Semi-structured Data Operator \n" +
+                                    "\t\tExpand a query to a combination weighted sum of each query term \n" +
+                                    "\t\tover each defined field using specified weights, or P(term_i | field_k). \n" +
+                                    "\t\t#prms(term1 term2) for fields field1, field2 with weights w1, w2 --> \n" +
+                                    "\t\t#combine ( \n" +
+                                    "\t\t\t#wsum:0=w1:1=w2( \n" +
+                                    "\t\t\t\t#dirichlet (Term Stats for term1 in field1) \n" +
+                                    "\t\t\t\t#dirichlet (Term Stats for term1 in field2) ) \n" +
+                                    "\t\t\t#wsum:0=w1:1=w2( \n" +
+                                    "\t\t\t\t#dirichlet (Term Stats for term2 in field1) \n" +
+                                    "\t\t\t\t#dirichlet (Term Stats for term2 in field2) ) )\n")
+
+
 public class PRMS2Traversal extends Traversal {
 
   private Retrieval retrieval;
