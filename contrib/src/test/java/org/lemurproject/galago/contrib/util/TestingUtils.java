@@ -74,6 +74,12 @@ public class TestingUtils {
     Parameters availableParts = ret.getAvailableParts();
     assertNotNull(availableParts);
 
+    // ensure that we have (at least) the basic parts
+    assertTrue(availableParts.containsKey("lengths"));
+    assertTrue(availableParts.containsKey("names"));
+    assertTrue(availableParts.containsKey("names.reverse"));
+    assertTrue(availableParts.containsKey("postings"));
+    
     for (String part : availableParts.getKeys()){
       File childPath = new File(indexPath, part);
       assertTrue(childPath.exists());
