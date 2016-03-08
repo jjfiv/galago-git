@@ -5,7 +5,9 @@ import org.lemurproject.galago.core.index.stats.AggregateStatistic;
 import org.lemurproject.galago.core.index.stats.NodeStatistics;
 import org.lemurproject.galago.core.retrieval.GroupRetrieval;
 import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.ann.ImplementsOperator;
+import org.lemurproject.galago.core.retrieval.ann.OperatorDescription;
 import org.lemurproject.galago.core.retrieval.query.MalformedQueryException;
 import org.lemurproject.galago.core.retrieval.query.Node;
 import org.lemurproject.galago.core.retrieval.query.NodeParameters;
@@ -40,7 +42,21 @@ import java.util.logging.Logger;
  *
  * @author sjh
  */
-@ImplementsOperator(value = "wsdm")
+
+@ImplementsOperator  (value       = "wsdm")
+@RequiredParameters  (parameters  = {"verboseWSDM", "wsdmFeatures"})
+@OperatorDescription (description = "Weighted Sequential Dependence Model Operator \n" +
+                                    "\t\t Similar to SDM but with weights determined by a linear \n" +
+                                    "\t\t combination of node features based on constant, logtf or logdf \n" +
+                                    "\t\t weighting.  Query terms may additionally be evaluated in bigram \n" +
+                                    "\t\t and trigram groupings. \n\n" +
+                                    "\t\t #wsdm (term1 term2 ... termk) --> \n" +
+                                    "\t\t #combine ( \n" +
+                                    "\t\t\t w1 #combine (term1 term2 ... termk) \n" +
+                                    "\t\t\t w2 #combine (#od(term1 term2) #od(term2 term3) ... #od(termk-1 termk)) \n" +
+                                    "\t\t\t w3 #combine (#uw8(term1 term2) #uw8(term2 term3) ... #uw8(termk-1 termk)) \n" +
+                                    "\t\t )\n")
+
 public class WeightedSequentialDependenceTraversal extends Traversal {
 
   private static final Logger logger = Logger.getLogger("WSDM");
