@@ -2,6 +2,7 @@
 package org.lemurproject.galago.core.retrieval.traversal;
 
 import org.lemurproject.galago.core.retrieval.Retrieval;
+import org.lemurproject.galago.core.retrieval.RequiredParameters;
 import org.lemurproject.galago.core.retrieval.ann.ImplementsOperator;
 import org.lemurproject.galago.core.retrieval.ann.OperatorDescription;
 import org.lemurproject.galago.core.retrieval.query.Node;
@@ -25,13 +26,26 @@ import java.util.List;
  * @author irmarc
  */
 
+/**
+ * #seqdep( #text:term1() #text:term2() ... termk ) -->
+ *
+ * #weight ( 0.8 #combine ( term1 term2 ... termk) 0.15 #combine ( #od(term1
+ * term2) #od(term2 term3) ... #od(termk-1 termk) ) 0.05 #combine ( #uw8(term
+ * term2) ... #uw8(termk-1 termk) ) )
+ */
+
+@ImplementsOperator  (value       = "sdm")
+@RequiredParameters  (parameters  = {"uniw", "odw", "uww"})
 @OperatorDescription (description = "Sequential Dependence Model Operator\n" +
-                      "\t\t#sdm (term1, term2, termN)  -->\n\n" +
+                      "\t\tA combination of unigram, ordered distance and unordered window \n" +
+                      "\t\tquery components with respective default component weights of \n" +
+                      "\t\t0.8, 0.15 and 0.05. \n\n" +
+                      "\t\t#sdm (term1, term2, termk)  --> \n" +
                       "\t\t#combine (0.8  #combine (term1 term2 ... termk)\n" +
                       "\t\t          0.15 #combine ( #od( term1 term2) #od( term2 term3) ... #od (termk-1 termk) )\n" +
-                      "\t\t          0.05 #combine ( #uw8 (term term2) ... #uw8 (termk-1 termk) ) )")
+                      "\t\t          0.05 #combine ( #uw8 (term term2) ... #uw8 (termk-1 termk) ) ) \n")
 
-@ImplementsOperator(value = "sdm")
+
 public class SequentialDependenceTraversal extends Traversal {
 
   private final int windowLimitDefault;
